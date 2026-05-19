@@ -11,13 +11,24 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.0",
     "firebase": "^12.13.0",
-    "vue": "^3.5.34"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.76.0",
+    "react-router-dom": "^6.30.3",
+    "sonner": "^1.7.4",
+    "vue": "^3.5.34",
+    "zod": "^3.25.76",
+    "zustand": "^5.0.13"
   },
   "devDependencies": {
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
     "@vitejs/plugin-vue": "^6.0.6",
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.15",
     "tailwindcss": "^4.3.0",
+    "typescript": "^5.9.3",
     "vite": "^8.0.12"
   }
 }
