@@ -75,7 +75,7 @@ function AppContainer() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true }}>
       <AppContainer />
     </BrowserRouter>
   );
