@@ -244,6 +244,190 @@ export const HISTORY_TABLE = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Work Order copy
+// ---------------------------------------------------------------------------
+
+export const WO_COPY = {
+  // List / header
+  listTitle:              'Work Orders',
+  createButton:           'Create Work Order',
+  exportButton:           'Export to Excel',
+  noOpenWOs:              'No open work orders. All caught up!',
+  noWOsForFilters:        'No work orders match your filters.',
+  loadingMessage:         'Loading work orders…',
+  errorMessage:           'Failed to load work orders.',
+
+  // Tabs
+  tabAll:                 'All',
+  tabMyWOs:               'My WOs',
+  tabOpen:                'Open',
+  tabOverdue:             'Overdue',
+  tabThisWeek:            'This Week',
+
+  // Create Drawer / Wizard
+  createTitle:            'New Work Order',
+  editTitle:              'Edit Work Order',
+  step1Title:             'Basic Information',
+  step2Title:             'Machine Selection',
+  step3Title:             'Team Assignment',
+  step4Title:             'Task Checklist',
+  step5Title:             'Documents',
+  step6Title:             'Parts Pre-Request',
+
+  // Section 1
+  woTypeLabel:            'Work Order Type',
+  priorityLabel:          'Priority',
+  descriptionLabel:       'Description',
+  descriptionPlaceholder: 'Describe the work to be done in detail…',
+  dueDateLabel:           'Due Date',
+  dueDateHint:            'SLA deadline auto-suggested based on priority. You can adjust.',
+  linkedBreakdownLabel:   'Linked Breakdown Ticket',
+  linkedBreakdownPlaceholder: 'Search BD-YYYY-XXXX…',
+
+  // Section 2
+  machineLabel:           'Machine',
+  machinePlaceholder:     'Search machine name, ID, or location…',
+  machineHealthLabel:     'Health Score',
+  machineOpenWOsLabel:    'Open WOs',
+  machineLastServiceLabel: 'Last Service',
+
+  // Section 3
+  supervisorLabel:        'Supervisor In-Charge',
+  supervisorPlaceholder:  'Search supervisor…',
+  estimatedDurationLabel: 'Estimated Duration',
+  scheduledStartLabel:    'Scheduled Start',
+  techniciansLabel:       'Assign Technicians',
+  techniciansPlaceholder: 'Select one or more technicians…',
+  contractorCompanyLabel: 'Contractor Company',
+  contractorPlaceholder:  'Search registered contractors…',
+  contractorContactLabel: 'Contact Person',
+  contractorPhoneLabel:   'Contact Number',
+  contractorTechsLabel:   'On-site Technician Names',
+  contractorTechsHint:    'One name per line',
+  unregisteredContractorWarning: 'Register this contractor?',
+
+  // Section 4
+  checklistLabel:         'Task Checklist',
+  addStepButton:          'Add Step',
+  stepPlaceholder:        'Describe this step…',
+  stepAssigneeLabel:      'Assign to',
+  stepTimeLabel:          'Est. (min)',
+  noChecklist:            'No steps added yet.',
+  importTemplateButton:   'Import Template',
+
+  // Section 5
+  documentsLabel:         'Documents & References',
+  uploadHint:             'Drag & drop or click to upload',
+  storageUsed:            (used: string) => `${used} / 500 MB used`,
+  cadFilesAccepted:       'CAD: DWG, DXF, STEP, STP, IGES, IGS, STL (100 MB max)',
+  docsAccepted:           'Documents: PDF, DOCX, XLSX, PPTX, TXT (100 MB max)',
+  imagesAccepted:         'Images: JPG, PNG, WEBP, HEIC (50 MB max)',
+  videosAccepted:         'Videos: MP4, MOV, AVI (50 MB max)',
+
+  // Section 6
+  partsRequestLabel:      'Parts Pre-Request',
+  partSearchPlaceholder:  'Search parts catalog…',
+  quantityLabel:          'Quantity',
+  unitLabel:              'Unit',
+  noteLabel:              'Note (optional)',
+  currentStockLabel:      'In Stock',
+  addPartButton:          'Add to Request',
+  noParts:                'No parts requested yet.',
+  partsRequestSubmitted:  'Parts request submitted. Store Keeper notified.',
+
+  // Detail panel tabs
+  tabOverview:            'Overview',
+  tabChecklist:           'Checklist',
+  tabDocuments:           'Documents',
+  tabParts:               'Parts',
+  tabHistory:             'History',
+
+  // Actions
+  editButton:             'Edit',
+  assignButton:           'Assign Team',
+  cancelWOButton:         'Cancel WO',
+  signOffButton:          'Sign Off',
+  markEnRouteButton:      'Mark En Route',
+  checkInButton:          'Check In (QR)',
+  onHoldPartsButton:      'On Hold — Parts',
+  onHoldApprovalButton:   'On Hold — Approval',
+  completeButton:         'Open Completion Form',
+  cancelReasonPlaceholder: 'Reason for cancellation…',
+
+  // Completion form
+  completionTitle:        'Work Order Completion',
+  completionStep1:        'Work Details',
+  completionStep2:        'Parts Used',
+  completionStep3:        'Team Logs',
+  completionStep4:        'Post-Repair Checklist',
+  completionStep5:        'Test Run',
+  completionStep6:        'Final Photos',
+  completionStep7:        'Machine Status',
+  actualStartLabel:       'Actual Start Time',
+  actualEndLabel:         'Actual End Time',
+  totalDurationLabel:     'Total Duration',
+  workDoneLabel:          'Work Done Description',
+  workDonePlaceholder:    'Describe all work performed in detail…',
+  rootCauseLabel:         'Root Cause',
+  rootCauseDescLabel:     'Root Cause Detail',
+  rootCauseDescPlaceholder: 'Describe the root cause…',
+  partsUsedLabel:         'Parts Used',
+  addPartUsedButton:      'Add Part',
+  sourceLabelStock:       'From Stock',
+  sourceLabelExternal:    'External Purchase',
+  unitCostLabel:          'Unit Cost (LKR)',
+  totalCostLabel:         'Total Cost (LKR)',
+  techLogsLabel:          'Technician Work Logs',
+  hoursWorkedLabel:       'Hours Worked',
+  tasksDescLabel:         'Tasks Performed',
+  contractorHoursLabel:   'Contractor Hours',
+  hoursOnSiteLabel:       'Hours On-Site',
+  hoursBilledLabel:       'Hours Billed',
+  postRepairChecklistLabel: 'Post-Repair Verification',
+  allStepsMustPass:       'All steps must be completed before proceeding.',
+  testRunLabel:           'Test Run Result',
+  testRunNotesLabel:      'Test Run Notes',
+  testRunNotesRequired:   'Required for Fail or Partial results.',
+  finalPhotosLabel:       'Final Photos (min. 1 required)',
+  addPhotoButton:         'Add Photo',
+  machineStatusLabel:     'Machine Status After Repair',
+  updatedCADLabel:        'Updated CAD Files',
+  updatedCADHint:         'Required for Modification WOs.',
+  warrantyDocsLabel:      'Warranty Documents',
+  warrantyDocsHint:       'Required if new parts were installed with warranty.',
+  submitCompletionButton: 'Submit Completion',
+  completionSuccess:      'Completion submitted. Supervisor notified for sign-off.',
+
+  // Sign-off
+  signOffTitle:           'Supervisor Sign-Off',
+  signOffInstructions:    'Review the completion summary and sign below to close this work order.',
+  signaturePadLabel:      'Signature',
+  clearSignatureButton:   'Clear',
+  signOffNotesLabel:      'Sign-Off Notes (optional)',
+  confirmSignOffButton:   'Confirm Sign-Off',
+  signOffSuccess:         'Work order signed off and closed.',
+
+  // SLA timer
+  dueIn:                  (time: string) => `Due in ${time}`,
+  overdueBy:              (time: string) => `Overdue by ${time}`,
+  slaBreached:            'SLA Breached',
+
+  // Stats
+  openWOs:                'Open WOs',
+  overdueWOs:             'Overdue',
+  avgCompletionTime:      'Avg Completion',
+  completedThisWeek:      'Completed This Week',
+
+  // Kanban
+  kanbanEmptyColumn:      'No work orders',
+  kanbanDragHint:         'Drag to change status',
+
+  // Machine history
+  machineHistoryTitle:    'Maintenance History',
+  noHistoryEntries:       'No maintenance history for this machine yet.',
+} as const;
+
+// ---------------------------------------------------------------------------
 // General UI
 // ---------------------------------------------------------------------------
 

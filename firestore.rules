@@ -3,17 +3,221 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 6, 18);
+    // ---------------------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------------------
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function getUserRole() {
+      return getUserData().role;
+    }
+
+    function isSameSite(siteId) {
+      return getUserData().siteId == siteId;
+    }
+
+    function isRole(role) {
+      return isAuthenticated() && getUserRole() == role;
+    }
+
+    function isAnyRole(roles) {
+      return isAuthenticated() && getUserRole() in roles;
+    }
+
+    function isAdmin() {
+      return isRole('admin');
+    }
+
+    function isSupervisor() {
+      return isRole('maintenance_supervisor');
+    }
+
+    function isPlantManager() {
+      return isRole('plant_manager');
+    }
+
+    function isTechnician() {
+      return isRole('technician');
+    }
+
+    function isStoreKeeper() {
+      return isRole('store_keeper');
+    }
+
+    // ---------------------------------------------------------------------------
+    // Users
+    // ---------------------------------------------------------------------------
+
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        isAnyRole(['admin', 'maintenance_supervisor', 'plant_manager'])
+      );
+      allow write: if isAdmin() || request.auth.uid == userId;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Work Orders
+    // ---------------------------------------------------------------------------
+
+    match /workOrders/{woId} {
+
+      function isAssignedTechnician() {
+        return request.auth.uid in resource.data.assignedTechnicianIds;
+      }
+
+      function isWOSupervisor() {
+        return request.auth.uid == resource.data.supervisorInChargeId;
+      }
+
+      function woSiteMatches() {
+        return isSameSite(resource.data.siteId);
+      }
+
+      // Admin: full access
+      allow read, write: if isAdmin();
+
+      // Supervisor: full read/write for their site
+      allow read, write: if isSupervisor() && woSiteMatches();
+
+      // Plant Manager: read-only for their site
+      allow read: if isPlantManager() && woSiteMatches();
+
+      // Store Keeper: read-only for their site (to view CAD files + parts requests)
+      allow read: if isStoreKeeper() && woSiteMatches();
+
+      // Technician: read assigned WOs only
+      allow read: if isTechnician() && woSiteMatches() && isAssignedTechnician();
+
+      // Technician: update only allowed fields on assigned WOs
+      allow update: if isTechnician()
+        && woSiteMatches()
+        && isAssignedTechnician()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'statusHistory',
+          'actualStartTime', 'actualEndTime', 'totalDurationMinutes',
+          'workDoneDescription', 'rootCause', 'rootCauseDescription',
+          'partsUsed', 'technicianWorkLogs', 'contractorHoursLog',
+          'postRepairChecklist', 'testRunResult', 'testRunNotes',
+          'finalPhotos', 'machineStatusAfterRepair',
+          'checklist', 'documents', 'updatedAt'
+        ]);
+
+      // Parts requests sub-collection
+      match /partsRequests/{requestId} {
+        // Technician (own WO), Supervisor, Plant Manager, Store Keeper, Admin can read
+        allow read: if isAdmin()
+          || (isSupervisor() && isSameSite(get(/databases/$(database)/documents/workOrders/$(woId)).data.siteId))
+          || (isPlantManager() && isSameSite(get(/databases/$(database)/documents/workOrders/$(woId)).data.siteId))
+          || (isStoreKeeper() && isSameSite(get(/databases/$(database)/documents/workOrders/$(woId)).data.siteId))
+          || (isTechnician() && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
+
+        // Technician (own WO), Supervisor, Admin can create
+        allow create: if isAdmin()
+          || isSupervisor()
+          || (isTechnician() && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
+
+        // Store Keeper can update status (approve/reject/issue)
+        allow update: if isAdmin()
+          || isStoreKeeper()
+          || isSupervisor();
+
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ---------------------------------------------------------------------------
+    // WO Counters — Cloud Functions only
+    // ---------------------------------------------------------------------------
+
+    match /woCounters/{counterId} {
+      allow read, write: if false;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Machine History — Cloud Functions write, authorised roles read
+    // ---------------------------------------------------------------------------
+
+    match /machineHistory/{machineId}/entries/{entryId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'maintenance_supervisor',
+        'plant_manager',
+        'technician',
+        'store_keeper',
+        'admin'
+      ]);
+      // All writes via Cloud Functions only
+      allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Breakdowns (Module 1 — existing)
+    // ---------------------------------------------------------------------------
+
+    match /breakdowns/{breakdownId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'maintenance_supervisor', 'plant_manager', 'technician',
+        'floor_operator', 'admin'
+      ]);
+      allow create: if isAuthenticated() && isAnyRole([
+        'floor_operator', 'technician', 'maintenance_supervisor', 'plant_manager', 'admin'
+      ]);
+      allow update: if isAuthenticated() && isAnyRole([
+        'technician', 'maintenance_supervisor', 'plant_manager', 'admin'
+      ]);
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Machines (Module 3 stub — read access for WO creation)
+    // ---------------------------------------------------------------------------
+
+    match /machines/{machineId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'technician', 'maintenance_supervisor', 'plant_manager',
+        'store_keeper', 'admin'
+      ]);
+      // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
+      allow write: if isAdmin() || isSupervisor() || isPlantManager();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Parts / Inventory (Module 6 stub — read for parts search in WO)
+    // ---------------------------------------------------------------------------
+
+    match /parts/{partId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'technician', 'maintenance_supervisor', 'plant_manager',
+        'store_keeper', 'admin'
+      ]);
+      allow write: if isAdmin() || isStoreKeeper();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Contractors (Module 7 stub — read for contractor dropdown in WO)
+    // ---------------------------------------------------------------------------
+
+    match /contractors/{contractorId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'maintenance_supervisor', 'plant_manager', 'admin'
+      ]);
+      allow write: if isAdmin() || isSupervisor() || isPlantManager();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Users (FCM tokens, roles, site assignments)
+    // ---------------------------------------------------------------------------
+
+    match /siteConfig/{siteId} {
+      allow read: if isAuthenticated() && isSameSite(siteId);
+      allow write: if isAdmin();
     }
   }
 }
