@@ -49,7 +49,7 @@ export function AddMachinePage() {
 
       await createMachine(payload);
       success(`Machine "${formData.name}" created successfully!`);
-      navigate('/machines');
+      navigate('/app/machines');
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to create machine';
       showError(errorMsg);

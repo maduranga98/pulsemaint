@@ -34,7 +34,7 @@ export function MachineQrPage() {
           <h2 className="text-lg font-semibold text-gray-900 mb-2">QR Code Not Available</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
-            onClick={() => navigate('/machines')}
+            onClick={() => navigate('/app/machines')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Back to Registry
@@ -201,13 +201,13 @@ export function MachineQrPage() {
         {/* Navigation */}
         <div className="mt-6 flex gap-3">
           <button
-            onClick={() => navigate(`/machines/${machine.id}`)}
+            onClick={() => navigate(`/app/machines/${machine.id}`)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
           >
             Back to Machine Profile
           </button>
           <button
-            onClick={() => navigate('/machines')}
+            onClick={() => navigate('/app/machines')}
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
           >
             Back to Registry
