@@ -25,14 +25,19 @@ export function useAuthInit() {
 
         if (user) {
           // User is signed in
+          console.log('Auth state changed - user signed in:', user.uid);
           setUser(user);
           setError(null);
 
           // Get company ID
           const companyId = await getCompanyIdFromUser(user.uid);
+          console.log('Company ID retrieved:', companyId);
+
           if (companyId) {
             // Fetch user profile
             const userProfile = await fetchUserProfile(user.uid, companyId);
+            console.log('User profile loaded:', userProfile);
+
             if (userProfile) {
               setUserProfile(userProfile);
 
@@ -41,13 +46,16 @@ export function useAuthInit() {
               const companySnap = await getDoc(companyRef);
               if (companySnap.exists()) {
                 const companyProfile = companySnap.data() as CompanyProfile;
+                console.log('Company profile loaded:', companyProfile);
                 setCompany(companyProfile);
               }
             } else {
+              console.warn('User profile not found');
               setUserProfile(null);
               setCompany(null);
             }
           } else {
+            console.warn('Company ID not found for user');
             setUserProfile(null);
             setCompany(null);
           }
