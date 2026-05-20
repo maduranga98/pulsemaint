@@ -2,6 +2,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { useMachineUpdate } from '../../hooks/useMachineUpdate';
+import { useToast } from '../../hooks/useToast';
 import type { UpdateMachineFormData, UpdateMachinePayload } from '../../types/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
 
@@ -10,6 +11,7 @@ export function EditMachinePage() {
   const { id } = useParams<{ id: string }>();
   const user = useAuthStore((state) => state.user);
   const { updateMachine } = useMachineUpdate();
+  const { success, error: showError } = useToast();
 
   if (!user || !id) {
     return (
@@ -44,31 +46,38 @@ export function EditMachinePage() {
     formData: UpdateMachineFormData,
     files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }> }
   ) => {
-    const payload: UpdateMachinePayload = {
-      siteId: user.siteId,
-      machineId: id,
-      name: formData.name,
-      type: formData.type,
-      manufacturer: formData.manufacturer,
-      model: formData.model || null,
-      serialNumber: formData.serialNumber || null,
-      purchaseDate: formData.purchaseDate || null,
-      installationDate: formData.installationDate || null,
-      expectedLifespanYears: formData.expectedLifespanYears || null,
-      department: formData.department,
-      floor: formData.floor || null,
-      bay: formData.bay || null,
-      station: formData.station || null,
-      status: formData.status,
-      criticality: formData.criticality,
-      photoFiles: files.photos,
-      documentFiles: files.documents,
-      compatiblePartIds: formData.compatiblePartIds || [],
-      modificationNotes: formData.modificationNotes || null,
-    };
+    try {
+      const payload: UpdateMachinePayload = {
+        siteId: user.siteId,
+        machineId: id,
+        name: formData.name,
+        type: formData.type,
+        manufacturer: formData.manufacturer,
+        model: formData.model || null,
+        serialNumber: formData.serialNumber || null,
+        purchaseDate: formData.purchaseDate || null,
+        installationDate: formData.installationDate || null,
+        expectedLifespanYears: formData.expectedLifespanYears || null,
+        department: formData.department,
+        floor: formData.floor || null,
+        bay: formData.bay || null,
+        station: formData.station || null,
+        status: formData.status,
+        criticality: formData.criticality,
+        photoFiles: files.photos,
+        documentFiles: files.documents,
+        compatiblePartIds: formData.compatiblePartIds || [],
+        modificationNotes: formData.modificationNotes || null,
+      };
 
-    await updateMachine(payload);
-    navigate(`/machines/${id}`);
+      await updateMachine(payload);
+      success('Machine updated successfully!');
+      navigate(`/machines/${id}`);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update machine';
+      showError(errorMsg);
+      throw err;
+    }
   };
 
   return (
