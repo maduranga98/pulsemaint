@@ -114,7 +114,10 @@ export async function registerCompany(data: {
     // Create user mapping document for quick company lookup
     const userMapRef = doc(collection(db, 'users'), uid);
     await setDoc(userMapRef, { uid, companyId: companyRef.id });
+
+    console.log('Company registration complete', { uid, companyId: companyRef.id });
   } catch (error) {
+    console.error('Company registration failed:', error);
     throw error;
   }
 }
