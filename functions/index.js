@@ -31,6 +31,13 @@ const { confirmPartsReturn } = require("./src/inventory/confirmPartsReturn");
 const { processExcelImport } = require("./src/inventory/processExcelImport");
 const { reverseImport } = require("./src/inventory/reverseImport");
 const { autoUpdateWoPartsOnClose } = require("./src/inventory/autoUpdateWoPartsOnClose");
+const { createContractorJob } = require("./src/contractors/createContractorJob");
+const { sendJobInvitation } = require("./src/contractors/sendJobInvitation");
+const { updateDocumentValidityStatus } = require("./src/contractors/updateDocumentValidityStatus");
+const { recalculateContractorMetrics } = require("./src/contractors/recalculateContractorMetrics");
+const { updateMachineHistoryOnJobClose } = require("./src/contractors/updateMachineHistoryOnJobClose");
+const { generateContractorReport } = require("./src/contractors/generateContractorReport");
+const { notifyInvoiceVariance } = require("./src/contractors/notifyInvoiceVariance");
 
 exports.processPartsRequest = processPartsRequest;
 exports.notifyLowStock = notifyLowStock;
@@ -40,6 +47,27 @@ exports.confirmPartsReturn = confirmPartsReturn;
 exports.processExcelImport = processExcelImport;
 exports.reverseImport = reverseImport;
 exports.autoUpdateWoPartsOnClose = autoUpdateWoPartsOnClose;
+exports.createContractorJob = createContractorJob;
+exports.sendJobInvitation = sendJobInvitation;
+exports.updateDocumentValidityStatus = updateDocumentValidityStatus;
+exports.recalculateContractorMetrics = recalculateContractorMetrics;
+exports.updateMachineHistoryOnJobClose = updateMachineHistoryOnJobClose;
+exports.generateContractorReport = generateContractorReport;
+exports.notifyInvoiceVariance = notifyInvoiceVariance;
+
+// ---------------------------------------------------------------------------
+// PM Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { schedulePmCheck } = require("./src/pm/schedulePmCheck");
+const { checkPmOverdue } = require("./src/pm/checkPmOverdue");
+const { updatePmComplianceOnWoClose } = require("./src/pm/updatePmComplianceOnWoClose");
+const { triggerManualPM } = require("./src/pm/triggerManualPM");
+
+exports.schedulePmCheck = schedulePmCheck;
+exports.checkPmOverdue = checkPmOverdue;
+exports.updatePmComplianceOnWoClose = updatePmComplianceOnWoClose;
+exports.triggerManualPM = triggerManualPM;
 
 // ---------------------------------------------------------------------------
 // Helpers

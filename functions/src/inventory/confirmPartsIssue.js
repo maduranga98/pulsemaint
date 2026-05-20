@@ -119,6 +119,8 @@ exports.confirmPartsIssue = onCall(async (request) => {
           totalCost: qty * unitCost,
           referenceType: "partsRequest",
           referenceId: requestId,
+          contractorJobId: partsRequest.contractorJobId ?? null,
+          isContractorJob: Boolean(partsRequest.isContractorJob || partsRequest.contractorJobId),
           notes: `Issued for parts request ${requestId}`,
           performedBy: callerUid,
           performedAt: now,
