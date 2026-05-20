@@ -1,8 +1,9 @@
 import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+import { useAuthStore } from '../../store/authStore';
 import AuthLoading from './AuthLoading';
-import type { UserRole } from '../types/auth';
+import { getDashboardRoute } from '../../lib/auth';
+import type { UserRole } from '../../types/auth';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -48,7 +49,6 @@ export function PublicRoute({ children }: PublicRouteProps) {
   }
 
   if (isAuthenticated && userRole) {
-    const { getDashboardRoute } = require('../lib/auth');
     return <Navigate to={getDashboardRoute(userRole)} replace />;
   }
 
