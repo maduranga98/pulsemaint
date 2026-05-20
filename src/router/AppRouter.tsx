@@ -13,15 +13,15 @@ import OnboardingWizard from '../pages/auth/OnboardingWizard';
 import UnauthorizedPage from '../pages/auth/UnauthorizedPage';
 
 // App pages (stubs - will be implemented separately)
-const Dashboard = () => <div className="p-8">Dashboard Page</div>;
-const BreakdownsPage = () => <div className="p-8">Breakdowns Page</div>;
-const ReportBreakdownPage = () => <div className="p-8">Report Breakdown Page</div>;
-const WorkOrdersPage = () => <div className="p-8">Work Orders Page</div>;
-const InventoryPage = () => <div className="p-8">Inventory Page</div>;
-const TrainingPage = () => <div className="p-8">Training Page</div>;
-const MyTrainingPage = () => <div className="p-8">My Training Modules Page</div>;
-const SettingsPage = () => <div className="p-8">Settings Page</div>;
-const UsersPage = () => <div className="p-8">Users Management Page</div>;
+const Dashboard = () => <div className="p-8 min-h-screen bg-white">Dashboard Page</div>;
+const BreakdownsPage = () => <div className="p-8 min-h-screen bg-white">Breakdowns Page</div>;
+const ReportBreakdownPage = () => <div className="p-8 min-h-screen bg-white">Report Breakdown Page</div>;
+const WorkOrdersPage = () => <div className="p-8 min-h-screen bg-white">Work Orders Page</div>;
+const InventoryPage = () => <div className="p-8 min-h-screen bg-white">Inventory Page</div>;
+const TrainingPage = () => <div className="p-8 min-h-screen bg-white">Training Page</div>;
+const MyTrainingPage = () => <div className="p-8 min-h-screen bg-white">My Training Modules Page</div>;
+const SettingsPage = () => <div className="p-8 min-h-screen bg-white">Settings Page</div>;
+const UsersPage = () => <div className="p-8 min-h-screen bg-white">Users Management Page</div>;
 
 export default function AppRouter() {
   const { isInitialized } = useAuthInit();
