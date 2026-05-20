@@ -5,6 +5,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './lib/firebase';
 import { useAuthStore } from './store/authStore';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ToastProvider } from './contexts/ToastContext';
 import type { AppUser } from './types/user';
 
 // Auth Pages
@@ -124,7 +125,9 @@ export default function App() {
         v7_relativeSplatPath: true,
       }}
     >
-      <AppContainer />
+      <ToastProvider>
+        <AppContainer />
+      </ToastProvider>
     </BrowserRouter>
   );
 }
