@@ -4,6 +4,7 @@ import { useInventoryStats } from '@/hooks/inventory/useInventoryStats';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
 import { useStockMovements } from '@/hooks/inventory/useStockMovements';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
+import type { PartsRequest } from '@/types/inventory';
 import { InventoryAlertPills } from '@/components/inventory/dashboard/InventoryAlertPills';
 import { InventoryStatCards } from '@/components/inventory/dashboard/InventoryStatCards';
 import { PendingRequestsWidget } from '@/components/inventory/dashboard/PendingRequestsWidget';
@@ -90,10 +91,11 @@ export function InventoryDashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RecentMovementsWidget movements={movements} />
-            <ReservedStockWidget parts={parts} />
+            <ReservedStockWidget requests={requests as PartsRequest[]} />
           </div>
         </>
       )}
     </div>
   );
 }
+export default InventoryDashboardPage;

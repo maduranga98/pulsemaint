@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Plus, FileSpreadsheet, LayoutList, Grid3X3 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
-import { PartFilterBar } from '@/components/inventory/catalog/PartFilterBar';
+import { PartFilterBar, type PartFilters } from '@/components/inventory/catalog/PartFilterBar';
 import { PartCatalogTable } from '@/components/inventory/catalog/PartCatalogTable';
 import { PartCatalogCard } from '@/components/inventory/catalog/PartCatalogCard';
 import type { PartCategory, PartStatus, PartCriticality } from '@/types/inventory';
@@ -19,12 +19,12 @@ export function PartCatalogPage() {
     window.innerWidth < 768 ? 'grid' : 'table'
   );
 
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<PartFilters>({
     category: (searchParams.get('category') ?? '') as PartCategory | '',
     status: (searchParams.get('status') ?? '') as PartStatus | '',
     stockStatus: (searchParams.get('stockStatus') ?? '') as 'in_stock' | 'low_stock' | 'out_of_stock' | '',
     criticality: (searchParams.get('criticality') ?? '') as PartCriticality | '',
-    searchQuery: searchParams.get('search') ?? '',
+    search: searchParams.get('search') ?? '',
   });
 
   const PAGE_SIZE = 25;
@@ -34,7 +34,7 @@ export function PartCatalogPage() {
     status: filters.status || undefined,
     stockStatus: filters.stockStatus || undefined,
     criticality: filters.criticality || undefined,
-    searchQuery: filters.searchQuery || undefined,
+    searchQuery: filters.search || undefined,
     pageSize: PAGE_SIZE,
   });
 
@@ -77,7 +77,7 @@ export function PartCatalogPage() {
       {/* Filter bar */}
       <PartFilterBar
         filters={filters}
-        onFiltersChange={(updated) => setFilters((prev) => ({ ...prev, ...updated }))}
+        onChange={setFilters}
       />
 
       {/* View toggle */}
@@ -119,7 +119,7 @@ export function PartCatalogPage() {
             <div className="hidden md:block">
               <PartCatalogTable
                 parts={parts}
-                onRowClick={(p) => navigate(`/app/inventory/catalog/${p.id}`)}
+                onViewPart={(id) => navigate(`/app/inventory/catalog/${id}`)}
               />
             </div>
           ) : null}
@@ -174,3 +174,4 @@ export function PartCatalogPage() {
     </div>
   );
 }
+export default PartCatalogPage;

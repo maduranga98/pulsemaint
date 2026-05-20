@@ -384,3 +384,4 @@ export function AddPartPage() {
     </div>
   );
 }
+export default AddPartPage;

@@ -100,3 +100,4 @@ export function PartDetailPage() {
     </div>
   );
 }
+export default PartDetailPage;
