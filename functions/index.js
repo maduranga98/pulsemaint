@@ -1,11 +1,18 @@
-const { setGlobalOptions } = require('firebase-functions');
-const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/firestore');
-const { onCall, HttpsError } = require('firebase-functions/v2/https');
-const { onSchedule } = require('firebase-functions/v2/scheduler');
-const { getFirestore, FieldValue, Timestamp } = require('firebase-admin/firestore');
-const { getMessaging } = require('firebase-admin/messaging');
-const { initializeApp } = require('firebase-admin/app');
-const logger = require('firebase-functions/logger');
+const { setGlobalOptions } = require("firebase-functions");
+const {
+  onDocumentCreated,
+  onDocumentUpdated,
+} = require("firebase-functions/v2/firestore");
+const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const {
+  getFirestore,
+  FieldValue,
+  Timestamp,
+} = require("firebase-admin/firestore");
+const { getMessaging } = require("firebase-admin/messaging");
+const { initializeApp } = require("firebase-admin/app");
+const logger = require("firebase-functions/logger");
 
 initializeApp();
 setGlobalOptions({ maxInstances: 10 });
@@ -21,7 +28,7 @@ const db = getFirestore();
  * Format: WO-2025-0047
  */
 async function generateWONumber(siteId, year) {
-  const counterRef = db.collection('woCounters').doc(`${siteId}_${year}`);
+  const counterRef = db.collection("woCounters").doc(`${siteId}_${year}`);
   let sequence = 1;
 
   await db.runTransaction(async (tx) => {
@@ -34,7 +41,7 @@ async function generateWONumber(siteId, year) {
     }
   });
 
-  return `WO-${year}-${String(sequence).padStart(4, '0')}`;
+  return `WO-${year}-${String(sequence).padStart(4, "0")}`;
 }
 
 /**
@@ -47,8 +54,9 @@ async function sendPushToUsers(userIds, title, body, data = {}) {
   const tokens = [];
   for (const uid of userIds) {
     try {
-      const userDoc = await db.collection('users').doc(uid).get();
-      const token = userDoc.data()?.fcmToken;
+      const userDoc = await db.collection("users").doc(uid).get();
+      const userData = userDoc.data();
+      const token = userData && userData.fcmToken;
       if (token) tokens.push(token);
     } catch (err) {
       logger.warn(`FCM token lookup failed for user ${uid}`, err);
@@ -64,7 +72,7 @@ async function sendPushToUsers(userIds, title, body, data = {}) {
       data: { ...data },
     });
   } catch (err) {
-    logger.error('FCM multicast failed', err);
+    logger.error("FCM multicast failed", err);
   }
 }
 
@@ -86,47 +94,55 @@ async function recalculateMachineHealth(machineId) {
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
   // Count recent breakdowns
-  const breakdownsSnap = await db.collection('workOrders')
-    .where('machineId', '==', machineId)
-    .where('woType', '==', 'BREAKDOWN')
-    .where('createdAt', '>=', Timestamp.fromDate(thirtyDaysAgo))
+  const breakdownsSnap = await db
+    .collection("workOrders")
+    .where("machineId", "==", machineId)
+    .where("woType", "==", "BREAKDOWN")
+    .where("createdAt", ">=", Timestamp.fromDate(thirtyDaysAgo))
     .get();
   const recentBreakdowns = breakdownsSnap.size;
 
   // Count overdue PMs (open PREVENTIVE WOs past SLA)
-  const overdueSnap = await db.collection('workOrders')
-    .where('machineId', '==', machineId)
-    .where('woType', '==', 'PREVENTIVE')
-    .where('slaBreached', '==', true)
-    .where('status', 'not-in', ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'])
+  const overdueSnap = await db
+    .collection("workOrders")
+    .where("machineId", "==", machineId)
+    .where("woType", "==", "PREVENTIVE")
+    .where("slaBreached", "==", true)
+    .where("status", "not-in", [
+      "COMPLETED",
+      "SIGNED_OFF",
+      "CLOSED",
+      "CANCELLED",
+    ])
     .get();
   const overduePMs = overdueSnap.size;
 
   // PM compliance: completed PREVENTIVE WOs in last 90d vs scheduled
-  const completedPMSnap = await db.collection('workOrders')
-    .where('machineId', '==', machineId)
-    .where('woType', '==', 'PREVENTIVE')
-    .where('status', 'in', ['COMPLETED', 'SIGNED_OFF', 'CLOSED'])
-    .where('createdAt', '>=', Timestamp.fromDate(ninetyDaysAgo))
+  const completedPMSnap = await db
+    .collection("workOrders")
+    .where("machineId", "==", machineId)
+    .where("woType", "==", "PREVENTIVE")
+    .where("status", "in", ["COMPLETED", "SIGNED_OFF", "CLOSED"])
+    .where("createdAt", ">=", Timestamp.fromDate(ninetyDaysAgo))
     .get();
-  const allPMSnap = await db.collection('workOrders')
-    .where('machineId', '==', machineId)
-    .where('woType', '==', 'PREVENTIVE')
-    .where('createdAt', '>=', Timestamp.fromDate(ninetyDaysAgo))
+  const allPMSnap = await db
+    .collection("workOrders")
+    .where("machineId", "==", machineId)
+    .where("woType", "==", "PREVENTIVE")
+    .where("createdAt", ">=", Timestamp.fromDate(ninetyDaysAgo))
     .get();
 
-  const pmComplianceRate = allPMSnap.size > 0 ? completedPMSnap.size / allPMSnap.size : 1;
+  const pmComplianceRate =
+    allPMSnap.size > 0 ? completedPMSnap.size / allPMSnap.size : 1;
 
-  let score = 100
-    - (recentBreakdowns * 10)
-    - (overduePMs * 5)
-    + (pmComplianceRate * 20);
+  let score =
+    100 - recentBreakdowns * 10 - overduePMs * 5 + pmComplianceRate * 20;
 
   score = Math.max(0, Math.min(100, Math.round(score)));
 
-  let healthStatus = 'green';
-  if (score < 50) healthStatus = 'red';
-  else if (score < 80) healthStatus = 'yellow';
+  let healthStatus = "green";
+  if (score < 50) healthStatus = "red";
+  else if (score < 80) healthStatus = "yellow";
 
   return { score, healthStatus };
 }
@@ -135,7 +151,7 @@ async function recalculateMachineHealth(machineId) {
 // 1. onWOCreated
 // ---------------------------------------------------------------------------
 
-exports.onWOCreated = onDocumentCreated('workOrders/{woId}', async (event) => {
+exports.onWOCreated = onDocumentCreated("workOrders/{woId}", async (event) => {
   const snap = event.data;
   const woId = event.params.woId;
   const wo = snap.data();
@@ -161,15 +177,15 @@ exports.onWOCreated = onDocumentCreated('workOrders/{woId}', async (event) => {
     if (wo.assignedTechnicianIds?.length) {
       await sendPushToUsers(
         wo.assignedTechnicianIds,
-        'New Work Order Assigned',
+        "New Work Order Assigned",
         `${woNumber} — ${wo.machineName}`,
-        { woId, woNumber, screen: 'WODetail' },
+        { woId, woNumber, screen: "WODetail" },
       );
     }
 
     // Link back to breakdown document
     if (wo.linkedBreakdownId) {
-      await db.collection('breakdowns').doc(wo.linkedBreakdownId).update({
+      await db.collection("breakdowns").doc(wo.linkedBreakdownId).update({
         linkedWOId: woId,
         linkedWONumber: woNumber,
         updatedAt: FieldValue.serverTimestamp(),
@@ -177,7 +193,7 @@ exports.onWOCreated = onDocumentCreated('workOrders/{woId}', async (event) => {
     }
 
     // Contractor invitation (email + WhatsApp — stub; real impl via SendGrid/WhatsApp API)
-    if (wo.woType === 'CONTRACTOR' && wo.contractorContactNumber) {
+    if (wo.woType === "CONTRACTOR" && wo.contractorContactNumber) {
       logger.info(`Contractor invitation triggered for WO ${woNumber}`, {
         contractor: wo.contractorCompanyName,
         contact: wo.contractorContactPerson,
@@ -195,7 +211,7 @@ exports.onWOCreated = onDocumentCreated('workOrders/{woId}', async (event) => {
 // 2. onWOUpdated
 // ---------------------------------------------------------------------------
 
-exports.onWOUpdated = onDocumentUpdated('workOrders/{woId}', async (event) => {
+exports.onWOUpdated = onDocumentUpdated("workOrders/{woId}", async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   const woId = event.params.woId;
@@ -203,13 +219,15 @@ exports.onWOUpdated = onDocumentUpdated('workOrders/{woId}', async (event) => {
   try {
     // Newly assigned technicians
     const prevIds = new Set(before.assignedTechnicianIds ?? []);
-    const newIds = (after.assignedTechnicianIds ?? []).filter((id) => !prevIds.has(id));
+    const newIds = (after.assignedTechnicianIds ?? []).filter(
+      (id) => !prevIds.has(id),
+    );
     if (newIds.length) {
       await sendPushToUsers(
         newIds,
-        'Work Order Assigned to You',
+        "Work Order Assigned to You",
         `${after.woNumber} — ${after.machineName}`,
-        { woId, woNumber: after.woNumber, screen: 'WODetail' },
+        { woId, woNumber: after.woNumber, screen: "WODetail" },
       );
     }
 
@@ -217,47 +235,49 @@ exports.onWOUpdated = onDocumentUpdated('workOrders/{woId}', async (event) => {
     if (before.status !== after.status) {
       const status = after.status;
 
-      if (status === 'ON_HOLD_PARTS') {
+      if (status === "ON_HOLD_PARTS") {
         // Notify Store Keeper + Supervisor
-        const storeKeepersSnap = await db.collection('users')
-          .where('siteId', '==', after.siteId)
-          .where('role', '==', 'store_keeper')
+        const storeKeepersSnap = await db
+          .collection("users")
+          .where("siteId", "==", after.siteId)
+          .where("role", "==", "store_keeper")
           .get();
         const storeKeeperIds = storeKeepersSnap.docs.map((d) => d.id);
 
         await sendPushToUsers(
           [...storeKeeperIds, after.supervisorInChargeId],
-          'WO On Hold — Parts Required',
+          "WO On Hold — Parts Required",
           `${after.woNumber}: parts unavailable`,
-          { woId, screen: 'WODetail' },
+          { woId, screen: "WODetail" },
         );
       }
 
-      if (status === 'ON_HOLD_APPROVAL') {
-        const managersSnap = await db.collection('users')
-          .where('siteId', '==', after.siteId)
-          .where('role', '==', 'plant_manager')
+      if (status === "ON_HOLD_APPROVAL") {
+        const managersSnap = await db
+          .collection("users")
+          .where("siteId", "==", after.siteId)
+          .where("role", "==", "plant_manager")
           .get();
         const managerIds = managersSnap.docs.map((d) => d.id);
 
         await sendPushToUsers(
           [...managerIds, after.supervisorInChargeId],
-          'WO On Hold — Approval Needed',
+          "WO On Hold — Approval Needed",
           `${after.woNumber} requires manager approval`,
-          { woId, screen: 'WODetail' },
+          { woId, screen: "WODetail" },
         );
       }
 
-      if (status === 'COMPLETED') {
+      if (status === "COMPLETED") {
         await sendPushToUsers(
           [after.supervisorInChargeId],
-          'WO Completed — Sign-Off Required',
+          "WO Completed — Sign-Off Required",
           `${after.woNumber} awaits your sign-off`,
-          { woId, screen: 'SignOff' },
+          { woId, screen: "SignOff" },
         );
       }
 
-      if (status === 'SIGNED_OFF') {
+      if (status === "SIGNED_OFF") {
         // Trigger machine history update
         await exports.onWOSignedOff(woId, after);
       }
@@ -273,15 +293,18 @@ exports.onWOUpdated = onDocumentUpdated('workOrders/{woId}', async (event) => {
 
 exports.onWOSignedOff = async (woId, wo) => {
   try {
-    const machineRef = db.collection('machines').doc(wo.machineId);
+    const machineRef = db.collection("machines").doc(wo.machineId);
     const machineDoc = await machineRef.get();
 
     if (!machineDoc.exists) {
-      logger.warn(`Machine ${wo.machineId} not found during sign-off of WO ${woId}`);
+      logger.warn(
+        `Machine ${wo.machineId} not found during sign-off of WO ${woId}`,
+      );
       return;
     }
 
-    const { score: machineHealthScore, healthStatus } = await recalculateMachineHealth(wo.machineId);
+    const { score: machineHealthScore, healthStatus } =
+      await recalculateMachineHealth(wo.machineId);
 
     const machineUpdates = {
       lastServiceDate: Timestamp.now(),
@@ -295,26 +318,30 @@ exports.onWOSignedOff = async (woId, wo) => {
 
     // Append parts replaced
     if (wo.partsUsed?.length) {
-      machineUpdates.partsReplaced = FieldValue.arrayUnion(...wo.partsUsed.map((p) => ({
-        partName: p.partName,
-        replacedAt: Timestamp.now(),
-        quantity: p.quantity,
-        warrantyMonths: p.warrantyMonths ?? null,
-      })));
+      machineUpdates.partsReplaced = FieldValue.arrayUnion(
+        ...wo.partsUsed.map((p) => ({
+          partName: p.partName,
+          replacedAt: Timestamp.now(),
+          quantity: p.quantity,
+          warrantyMonths: p.warrantyMonths ?? null,
+        })),
+      );
     }
 
     // Append warranty items
     const warrantyParts = (wo.partsUsed ?? []).filter((p) => p.warrantyMonths);
     if (warrantyParts.length) {
-      machineUpdates.warrantyItems = FieldValue.arrayUnion(...warrantyParts.map((p) => ({
-        partName: p.partName,
-        warrantyMonths: p.warrantyMonths,
-        installedAt: Timestamp.now(),
-      })));
+      machineUpdates.warrantyItems = FieldValue.arrayUnion(
+        ...warrantyParts.map((p) => ({
+          partName: p.partName,
+          warrantyMonths: p.warrantyMonths,
+          installedAt: Timestamp.now(),
+        })),
+      );
     }
 
     // Modification notes
-    if (wo.woType === 'MODIFICATION' && wo.workDoneDescription) {
+    if (wo.woType === "MODIFICATION" && wo.workDoneDescription) {
       machineUpdates.modificationNotes = FieldValue.arrayUnion({
         description: wo.workDoneDescription,
         date: Timestamp.now(),
@@ -328,9 +355,14 @@ exports.onWOSignedOff = async (woId, wo) => {
     await machineRef.update(machineUpdates);
 
     // Write machine history entry
-    const totalPartsCost = (wo.partsUsed ?? []).reduce((sum, p) => sum + (p.totalCost ?? 0), 0);
-    await db.collection('machineHistory').doc(wo.machineId)
-      .collection('entries')
+    const totalPartsCost = (wo.partsUsed ?? []).reduce(
+      (sum, p) => sum + (p.totalCost ?? 0),
+      0,
+    );
+    await db
+      .collection("machineHistory")
+      .doc(wo.machineId)
+      .collection("entries")
       .add({
         woNumber: wo.woNumber,
         woType: wo.woType,
@@ -340,15 +372,15 @@ exports.onWOSignedOff = async (woId, wo) => {
         actualEndTime: wo.actualEndTime,
         totalDurationMinutes: wo.totalDurationMinutes,
         rootCause: wo.rootCause ?? null,
-        workDoneDescription: wo.workDoneDescription ?? '',
+        workDoneDescription: wo.workDoneDescription ?? "",
         internalTeamNames: wo.assignedTechnicianNames ?? [],
         contractorName: wo.contractorCompanyName ?? null,
         contractorTechnicianNames: wo.contractorTechnicianNames ?? [],
         partsUsed: wo.partsUsed ?? [],
         totalPartsCost,
-        testRunResult: wo.testRunResult ?? '',
+        testRunResult: wo.testRunResult ?? "",
         finalPhotoUrls: wo.finalPhotos ?? [],
-        supervisorSignOffBy: wo.supervisorSignOffBy ?? '',
+        supervisorSignOffBy: wo.supervisorSignOffBy ?? "",
         supervisorSignOffAt: wo.supervisorSignOffAt,
         linkedBreakdownId: wo.linkedBreakdownId ?? null,
       });
@@ -356,34 +388,38 @@ exports.onWOSignedOff = async (woId, wo) => {
     // Deduct parts from inventory
     if (wo.partsUsed?.length) {
       for (const part of wo.partsUsed) {
-        if (part.partId && part.source === 'stock') {
-          await db.collection('parts').doc(part.partId).update({
-            stockQuantity: FieldValue.increment(-part.quantity),
-            updatedAt: FieldValue.serverTimestamp(),
-          });
+        if (part.partId && part.source === "stock") {
+          await db
+            .collection("parts")
+            .doc(part.partId)
+            .update({
+              stockQuantity: FieldValue.increment(-part.quantity),
+              updatedAt: FieldValue.serverTimestamp(),
+            });
         }
       }
     }
 
     // Close the WO
-    await db.collection('workOrders').doc(woId).update({
-      status: 'CLOSED',
+    await db.collection("workOrders").doc(woId).update({
+      status: "CLOSED",
       closedAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
 
     // Notify Plant Manager
-    const managersSnap = await db.collection('users')
-      .where('siteId', '==', wo.siteId)
-      .where('role', '==', 'plant_manager')
+    const managersSnap = await db
+      .collection("users")
+      .where("siteId", "==", wo.siteId)
+      .where("role", "==", "plant_manager")
       .get();
     const managerIds = managersSnap.docs.map((d) => d.id);
 
     await sendPushToUsers(
       managerIds,
-      'Work Order Closed',
+      "Work Order Closed",
       `${wo.woNumber} signed off and closed. Machine health: ${machineHealthScore}%`,
-      { woId, screen: 'WODetail' },
+      { woId, screen: "WODetail" },
     );
 
     logger.info(`WO signed off and closed: ${wo.woNumber}`);
@@ -397,47 +433,51 @@ exports.onWOSignedOff = async (woId, wo) => {
 // ---------------------------------------------------------------------------
 
 exports.onPartsRequestCreated = onDocumentCreated(
-  'workOrders/{woId}/partsRequests/{requestId}',
+  "workOrders/{woId}/partsRequests/{requestId}",
   async (event) => {
     const requestId = event.params.requestId;
     const woId = event.params.woId;
     const request = event.data.data();
 
     try {
-      const woDoc = await db.collection('workOrders').doc(woId).get();
+      const woDoc = await db.collection("workOrders").doc(woId).get();
       const wo = woDoc.data();
 
       if (!wo) return;
 
-      const storeKeepersSnap = await db.collection('users')
-        .where('siteId', '==', wo.siteId)
-        .where('role', '==', 'store_keeper')
+      const storeKeepersSnap = await db
+        .collection("users")
+        .where("siteId", "==", wo.siteId)
+        .where("role", "==", "store_keeper")
         .get();
       const storeKeeperIds = storeKeepersSnap.docs.map((d) => d.id);
 
       await sendPushToUsers(
         storeKeeperIds,
-        'Parts Request Pending',
+        "Parts Request Pending",
         `${wo.woNumber}: ${request.partName} × ${request.quantity}`,
-        { woId, requestId, screen: 'PartsRequest' },
+        { woId, requestId, screen: "PartsRequest" },
       );
 
       // If part is critical, also notify Supervisor
       if (request.partId) {
-        const partDoc = await db.collection('parts').doc(request.partId).get();
+        const partDoc = await db.collection("parts").doc(request.partId).get();
         if (partDoc.data()?.isCritical) {
           await sendPushToUsers(
             [wo.supervisorInChargeId],
-            'Critical Part Requested',
+            "Critical Part Requested",
             `${wo.woNumber}: ${request.partName}`,
-            { woId, screen: 'WODetail' },
+            { woId, screen: "WODetail" },
           );
         }
       }
 
       logger.info(`Parts request created for WO ${woId}: ${requestId}`);
     } catch (err) {
-      logger.error(`onPartsRequestCreated failed for ${woId}/${requestId}`, err);
+      logger.error(
+        `onPartsRequestCreated failed for ${woId}/${requestId}`,
+        err,
+      );
     }
   },
 );
@@ -446,28 +486,33 @@ exports.onPartsRequestCreated = onDocumentCreated(
 // 5. slaBreachCheck — runs every 5 minutes
 // ---------------------------------------------------------------------------
 
-exports.slaBreachCheck = onSchedule('every 5 minutes', async () => {
+exports.slaBreachCheck = onSchedule("every 5 minutes", async () => {
   const now = Timestamp.now();
   const warningMs = 30 * 60 * 1000;
   const warningThreshold = new Date(Date.now() + warningMs);
 
   try {
     // WOs approaching SLA — warn
-    const approachingSnap = await db.collection('workOrders')
-      .where('slaBreached', '==', false)
-      .where('slaDeadline', '<=', Timestamp.fromDate(warningThreshold))
+    const approachingSnap = await db
+      .collection("workOrders")
+      .where("slaBreached", "==", false)
+      .where("slaDeadline", "<=", Timestamp.fromDate(warningThreshold))
       .get();
 
     for (const doc of approachingSnap.docs) {
       const wo = doc.data();
-      if (['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(wo.status)) continue;
+      if (
+        ["COMPLETED", "SIGNED_OFF", "CLOSED", "CANCELLED"].includes(wo.status)
+      )
+        continue;
 
       const slaDeadlineMs = wo.slaDeadline.toMillis();
       const isBreached = slaDeadlineMs <= now.toMillis();
 
-      const managersSnap = await db.collection('users')
-        .where('siteId', '==', wo.siteId)
-        .where('role', '==', 'plant_manager')
+      const managersSnap = await db
+        .collection("users")
+        .where("siteId", "==", wo.siteId)
+        .where("role", "==", "plant_manager")
         .get();
       const managerIds = managersSnap.docs.map((d) => d.id);
 
@@ -476,25 +521,30 @@ exports.slaBreachCheck = onSchedule('every 5 minutes', async () => {
       if (isBreached) {
         await sendPushToUsers(
           recipients,
-          'SLA Breached',
+          "SLA Breached",
           `${wo.woNumber} — ${wo.machineName} SLA has been breached`,
-          { woId: doc.id, screen: 'WODetail' },
+          { woId: doc.id, screen: "WODetail" },
         );
-        await doc.ref.update({ slaBreached: true, updatedAt: FieldValue.serverTimestamp() });
+        await doc.ref.update({
+          slaBreached: true,
+          updatedAt: FieldValue.serverTimestamp(),
+        });
       } else {
-        const minutesLeft = Math.round((slaDeadlineMs - now.toMillis()) / 60000);
+        const minutesLeft = Math.round(
+          (slaDeadlineMs - now.toMillis()) / 60000,
+        );
         await sendPushToUsers(
           recipients,
-          'SLA Warning',
+          "SLA Warning",
           `${wo.woNumber} — SLA in ${minutesLeft} min`,
-          { woId: doc.id, screen: 'WODetail' },
+          { woId: doc.id, screen: "WODetail" },
         );
       }
     }
 
-    logger.info('slaBreachCheck completed');
+    logger.info("slaBreachCheck completed");
   } catch (err) {
-    logger.error('slaBreachCheck failed', err);
+    logger.error("slaBreachCheck failed", err);
   }
 });
 
@@ -505,22 +555,31 @@ exports.slaBreachCheck = onSchedule('every 5 minutes', async () => {
 exports.generateContractorInvitation = onCall(async (request) => {
   const { woId, contractorId } = request.data;
 
-  if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated');
+  if (!request.auth)
+    throw new HttpsError("unauthenticated", "Must be authenticated");
 
   try {
-    const woDoc = await db.collection('workOrders').doc(woId).get();
-    if (!woDoc.exists) throw new HttpsError('not-found', 'Work order not found');
+    const woDoc = await db.collection("workOrders").doc(woId).get();
+    if (!woDoc.exists)
+      throw new HttpsError("not-found", "Work order not found");
 
     const wo = woDoc.data();
     let contractor = null;
 
     if (contractorId) {
-      const contractorDoc = await db.collection('contractors').doc(contractorId).get();
+      const contractorDoc = await db
+        .collection("contractors")
+        .doc(contractorId)
+        .get();
       if (contractorDoc.exists) contractor = contractorDoc.data();
     }
 
-    const contactName = contractor?.primaryContactName ?? wo.contractorContactPerson ?? 'Sir/Madam';
-    const contactPhone = contractor?.primaryContactPhone ?? wo.contractorContactNumber;
+    const contactName =
+      contractor?.primaryContactName ??
+      wo.contractorContactPerson ??
+      "Sir/Madam";
+    const contactPhone =
+      contractor?.primaryContactPhone ?? wo.contractorContactNumber;
     const companyName = contractor?.companyName ?? wo.contractorCompanyName;
 
     // Build invitation payload (email/WhatsApp sent via external API)
@@ -537,7 +596,7 @@ exports.generateContractorInvitation = onCall(async (request) => {
       siteContact: wo.supervisorInChargeName,
     };
 
-    logger.info('Contractor invitation payload prepared', invitation);
+    logger.info("Contractor invitation payload prepared", invitation);
 
     // Log invitation on WO
     await woDoc.ref.update({
@@ -548,7 +607,10 @@ exports.generateContractorInvitation = onCall(async (request) => {
     // TODO: send via WhatsApp Business API and/or SendGrid
     return { success: true, invitation };
   } catch (err) {
-    logger.error('generateContractorInvitation failed', err);
-    throw new HttpsError('internal', 'Failed to generate contractor invitation');
+    logger.error("generateContractorInvitation failed", err);
+    throw new HttpsError(
+      "internal",
+      "Failed to generate contractor invitation",
+    );
   }
 });

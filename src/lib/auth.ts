@@ -110,9 +110,6 @@ export async function registerCompany(data: {
     };
 
     await setDoc(userRef, userProfile);
-
-    // Send email verification
-    await userCredential.user.sendEmailVerification();
   } catch (error) {
     throw error;
   }

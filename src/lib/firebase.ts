@@ -18,7 +18,7 @@ const app: FirebaseApp = getApps().length
   : initializeApp(firebaseConfig);
 
 export const auth      = getAuth(app);
-export const db        = getFirestore(app);
+export const db        = getFirestore(app, 'default');
 export const storage   = getStorage(app);
 
 // FCM is only available in secure browser contexts with service workers

@@ -57,8 +57,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [registrationEmail, setRegistrationEmail] = useState('');
-  const [showVerificationNotice, setShowVerificationNotice] = useState(false);
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -79,8 +77,7 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      setRegistrationEmail(data.email);
-      setShowVerificationNotice(true);
+      navigate('/app/onboarding');
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Registration failed.';
@@ -89,48 +86,6 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
-
-  if (showVerificationNotice) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Check your email</h2>
-            <p className="text-gray-600 mb-6">
-              We sent a verification link to <strong>{registrationEmail}</strong>. Click the link to activate your account.
-            </p>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left text-sm text-gray-700">
-              <p className="mb-2">
-                <strong>Didn't receive the email?</strong>
-              </p>
-              <ul className="list-disc list-inside space-y-1 text-xs">
-                <li>Check your spam folder</li>
-                <li>Wait a few minutes and refresh your inbox</li>
-              </ul>
-            </div>
-
-            <button
-              onClick={() => setShowVerificationNotice(false)}
-              className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11"
-            >
-              Resend Email
-            </button>
-
-            <a href="/login" className="text-sm text-[#1A56DB] hover:underline mt-4 inline-block">
-              Back to Sign In
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4 py-8">
