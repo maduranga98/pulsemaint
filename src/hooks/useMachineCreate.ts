@@ -6,7 +6,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../lib/firebase';
+import { auth, db, storage } from '../lib/firebase';
 import type { Machine, CreateMachinePayload } from '../types/machine';
 
 interface UseMachineCreateOptions {
@@ -31,6 +31,8 @@ export function useMachineCreate({
     try {
       setCreating(true);
       setError(null);
+      const userId = auth.currentUser?.uid;
+      if (!userId) throw new Error('User not authenticated');
 
       // Upload photos
       const photoUrls: string[] = [];
@@ -58,7 +60,7 @@ export function useMachineCreate({
           type: docPayload.type,
           url: docUrl,
           uploadedAt: serverTimestamp(),
-          uploadedBy: 'TODO: userId',
+          uploadedBy: userId,
           size: docPayload.file.size,
         });
       }
@@ -98,9 +100,9 @@ export function useMachineCreate({
         oeeData: null,
         iotSensorId: null,
         createdAt: serverTimestamp(),
-        createdBy: 'TODO: userId',
+        createdBy: userId,
         updatedAt: serverTimestamp(),
-        updatedBy: 'TODO: userId',
+        updatedBy: userId,
       };
 
       const docRef = await addDoc(collection(db, 'machines'), machineData);

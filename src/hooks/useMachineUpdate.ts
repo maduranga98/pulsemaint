@@ -6,7 +6,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../lib/firebase';
+import { auth, db, storage } from '../lib/firebase';
 import type { Machine, UpdateMachinePayload } from '../types/machine';
 
 interface UseMachineUpdateOptions {
@@ -17,7 +17,7 @@ interface UseMachineUpdateOptions {
 interface UseMachineUpdateResult {
   updating: boolean;
   error: string | null;
-  updateMachine: (machineId: string, payload: UpdateMachinePayload) => Promise<void>;
+  updateMachine: (payload: UpdateMachinePayload) => Promise<void>;
 }
 
 export function useMachineUpdate({
@@ -27,10 +27,12 @@ export function useMachineUpdate({
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateMachine = async (machineId: string, payload: UpdateMachinePayload): Promise<void> => {
+  const updateMachine = async (payload: UpdateMachinePayload): Promise<void> => {
     try {
       setUpdating(true);
       setError(null);
+      const userId = auth.currentUser?.uid;
+      if (!userId) throw new Error('User not authenticated');
 
       // Upload new photos if provided
       let photoUrls: string[] | undefined;
@@ -63,7 +65,7 @@ export function useMachineUpdate({
             type: docPayload.type,
             url: docUrl,
             uploadedAt: serverTimestamp(),
-            uploadedBy: 'TODO: userId',
+            uploadedBy: userId,
             size: docPayload.file.size,
           });
         }
@@ -72,7 +74,7 @@ export function useMachineUpdate({
       // Build update object
       const updateData: Record<string, any> = {
         updatedAt: serverTimestamp(),
-        updatedBy: 'TODO: userId',
+        updatedBy: userId,
       };
 
       if (payload.name) updateData.name = payload.name;
@@ -103,7 +105,7 @@ export function useMachineUpdate({
       if (payload.modificationNotes !== undefined) updateData.modificationNotes = payload.modificationNotes;
 
       // Update Firestore document
-      const machineRef = doc(db, 'machines', machineId);
+      const machineRef = doc(db, 'machines', payload.machineId);
       await updateDoc(machineRef, updateData);
 
       setUpdating(false);
