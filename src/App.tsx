@@ -4,9 +4,13 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from './lib/firebase';
 import { useAuthStore } from './store/authStore';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import type { AppUser } from './types/user';
 
-// Pages
+// Auth Pages
+import { LoginPage, SignupPage } from './pages/auth';
+
+// Machine Pages
 import {
   MachineListPage,
   AddMachinePage,
@@ -18,12 +22,51 @@ import {
 function AppRoutes() {
   return (
     <Routes>
-      {/* Machines Module - Module 3 */}
-      <Route path="/machines" element={<MachineListPage />} />
-      <Route path="/machines/new" element={<AddMachinePage />} />
-      <Route path="/machines/:id" element={<MachineProfilePage />} />
-      <Route path="/machines/:id/edit" element={<EditMachinePage />} />
-      <Route path="/machines/:id/qr" element={<MachineQrPage />} />
+      {/* Public Auth Routes */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+
+      {/* Protected Machine Routes - Module 3 */}
+      <Route
+        path="/machines"
+        element={
+          <ProtectedRoute>
+            <MachineListPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/machines/new"
+        element={
+          <ProtectedRoute>
+            <AddMachinePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/machines/:id"
+        element={
+          <ProtectedRoute>
+            <MachineProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/machines/:id/edit"
+        element={
+          <ProtectedRoute>
+            <EditMachinePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/machines/:id/qr"
+        element={
+          <ProtectedRoute>
+            <MachineQrPage />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Default redirect */}
       <Route path="/" element={<Navigate to="/machines" replace />} />
