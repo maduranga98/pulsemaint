@@ -110,6 +110,10 @@ export async function registerCompany(data: {
     };
 
     await setDoc(userRef, userProfile);
+
+    // Create user mapping document for quick company lookup
+    const userMapRef = doc(collection(db, 'users'), uid);
+    await setDoc(userMapRef, { uid, companyId: companyRef.id });
   } catch (error) {
     throw error;
   }
@@ -200,6 +204,10 @@ export async function confirmOTP(
 
       await setDoc(userRef, newProfile);
       userProfile = newProfile as UserProfile;
+
+      // Create user mapping document for quick company lookup
+      const userMapRef = doc(collection(db, 'users'), uid);
+      await setDoc(userMapRef, { uid, companyId });
     }
 
     // Update lastLoginAt
@@ -256,6 +264,10 @@ export async function loginWithGoogle(): Promise<UserProfile> {
 
       await setDoc(userRef, newProfile);
       userProfile = newProfile as UserProfile;
+
+      // Create user mapping document for quick company lookup
+      const userMapRef = doc(collection(db, 'users'), uid);
+      await setDoc(userMapRef, { uid, companyId });
     }
 
     // Update lastLoginAt
