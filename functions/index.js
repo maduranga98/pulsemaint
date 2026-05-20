@@ -20,6 +20,28 @@ setGlobalOptions({ maxInstances: 10 });
 const db = getFirestore();
 
 // ---------------------------------------------------------------------------
+// Inventory Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { processPartsRequest } = require("./src/inventory/processPartsRequest");
+const { notifyLowStock } = require("./src/inventory/notifyLowStock");
+const { reserveStock } = require("./src/inventory/reserveStock");
+const { confirmPartsIssue } = require("./src/inventory/confirmPartsIssue");
+const { confirmPartsReturn } = require("./src/inventory/confirmPartsReturn");
+const { processExcelImport } = require("./src/inventory/processExcelImport");
+const { reverseImport } = require("./src/inventory/reverseImport");
+const { autoUpdateWoPartsOnClose } = require("./src/inventory/autoUpdateWoPartsOnClose");
+
+exports.processPartsRequest = processPartsRequest;
+exports.notifyLowStock = notifyLowStock;
+exports.reserveStock = reserveStock;
+exports.confirmPartsIssue = confirmPartsIssue;
+exports.confirmPartsReturn = confirmPartsReturn;
+exports.processExcelImport = processExcelImport;
+exports.reverseImport = reverseImport;
+exports.autoUpdateWoPartsOnClose = autoUpdateWoPartsOnClose;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

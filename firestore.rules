@@ -250,5 +250,77 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAuthenticated() && isAdmin();
     }
+
+    // ---------------------------------------------------------------------------
+    // Inventory Module (Module 6 — full implementation)
+    // ---------------------------------------------------------------------------
+
+    match /companies/{companyId}/inventoryParts/{partId} {
+      // Everyone authenticated in the company can read
+      allow read: if isAuthenticated() && getUserData().companyId == companyId;
+      // Create: store_keeper, supervisor, plant_manager, admin
+      allow create: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      // Update: store_keeper, supervisor, plant_manager, admin
+      allow update: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      // Delete: plant_manager and admin only (never technician or store_keeper)
+      allow delete: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['plant_manager', 'admin'];
+    }
+
+    // stockMovements — IMMUTABLE audit log — never allow delete or update
+    match /companies/{companyId}/stockMovements/{movementId} {
+      allow read: if isAuthenticated() && getUserData().companyId == companyId;
+      allow create: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow update: if false;  // Immutable
+      allow delete: if false;  // NEVER delete stock movements
+    }
+
+    // partsRequests — top-level inventory parts requests (distinct from WO sub-collection)
+    match /companies/{companyId}/partsRequests/{requestId} {
+      allow read: if isAuthenticated() && getUserData().companyId == companyId;
+      // Create: any authenticated user in the company
+      allow create: if isAuthenticated() && getUserData().companyId == companyId;
+      // Update: store_keeper, supervisor, plant_manager, admin can review/approve
+      // Technician can only cancel their own requests
+      allow update: if isAuthenticated() && getUserData().companyId == companyId
+        && (getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin']
+          || (getUserData().role == 'technician' && resource.data.requestedBy == request.auth.uid
+              && request.resource.data.status == 'cancelled'));
+      allow delete: if false;
+    }
+
+    // purchaseOrders
+    match /companies/{companyId}/purchaseOrders/{poId} {
+      allow read: if isAuthenticated() && getUserData().companyId == companyId;
+      allow create: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow update: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow delete: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['plant_manager', 'admin'];
+    }
+
+    // inventoryImportSessions
+    match /companies/{companyId}/inventoryImportSessions/{sessionId} {
+      allow read: if isAuthenticated() && getUserData().companyId == companyId
+        && (getUserData().role in ['maintenance_supervisor', 'plant_manager', 'admin']
+          || resource.data.importedBy == request.auth.uid);
+      allow create: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow update: if isAuthenticated() && getUserData().companyId == companyId
+        && (getUserData().role in ['maintenance_supervisor', 'plant_manager', 'admin']
+          || resource.data.importedBy == request.auth.uid);
+      allow delete: if false;
+    }
+
+    // inventorySettings — one doc per company
+    match /companies/{companyId}/inventorySettings/{settingsId} {
+      allow read: if isAuthenticated() && getUserData().companyId == companyId;
+      allow write: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['maintenance_supervisor', 'plant_manager', 'admin'];
+    }
   }
 }

@@ -33,12 +33,30 @@ import TriageBuilderEditPage from '../pages/triage-builder/TriageBuilderEditPage
 import TriageBuilderFlowDetailPage from '../pages/triage-builder/TriageBuilderFlowDetailPage';
 import TriageBuilderTemplatesPage from '../pages/triage-builder/TriageBuilderTemplatesPage';
 
+// Inventory pages
+import InventoryDashboardPage from '../pages/inventory/InventoryDashboardPage';
+import PartCatalogPage from '../pages/inventory/PartCatalogPage';
+import AddPartPage from '../pages/inventory/AddPartPage';
+import PartDetailPage from '../pages/inventory/PartDetailPage';
+import EditPartPage from '../pages/inventory/EditPartPage';
+import PartsRequestsPage from '../pages/inventory/PartsRequestsPage';
+import RequestDetailPage from '../pages/inventory/RequestDetailPage';
+import PhysicalIssuePage from '../pages/inventory/PhysicalIssuePage';
+import ReceiveStockPage from '../pages/inventory/ReceiveStockPage';
+import StockMovementLogPage from '../pages/inventory/StockMovementLogPage';
+import PurchaseOrdersPage from '../pages/inventory/PurchaseOrdersPage';
+import CreatePurchaseOrderPage from '../pages/inventory/CreatePurchaseOrderPage';
+import PurchaseOrderDetailPage from '../pages/inventory/PurchaseOrderDetailPage';
+import ExcelImportPage from '../pages/inventory/ExcelImportPage';
+import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
+import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
+import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
+
 // Stubs for not-yet-built pages
 const Dashboard = () => <div className="p-8">Dashboard Page</div>;
 const BreakdownsPage = () => <div className="p-8">Breakdowns Page</div>;
 const ReportBreakdownPage = () => <div className="p-8">Report Breakdown Page</div>;
 const WorkOrdersPage = () => <div className="p-8">Work Orders Page</div>;
-const InventoryPage = () => <div className="p-8">Inventory Page</div>;
 const TrainingPage = () => <div className="p-8">Training Page</div>;
 const MyTrainingPage = () => <div className="p-8">My Training Modules Page</div>;
 const SettingsPage = () => <div className="p-8">Settings Page</div>;
@@ -172,11 +190,140 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        {/* Inventory */}
         <Route
           path="inventory"
           element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician']}>
+              <InventoryDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/catalog"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician']}>
+              <PartCatalogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/catalog/new"
+          element={
             <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
-              <InventoryPage />
+              <AddPartPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/catalog/:partId"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician']}>
+              <PartDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/catalog/:partId/edit"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <EditPartPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/requests"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician']}>
+              <PartsRequestsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/requests/:requestId"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician']}>
+              <RequestDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/issue/:requestId"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'admin']}>
+              <PhysicalIssuePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/receive"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'admin']}>
+              <ReceiveStockPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/movements"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <StockMovementLogPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/purchase-orders"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <PurchaseOrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/purchase-orders/new"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <CreatePurchaseOrderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/purchase-orders/:poId"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <PurchaseOrderDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/import"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <ExcelImportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/import/history"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <ImportHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/reports"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <InventoryReportsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/settings"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <InventorySettingsPage />
             </ProtectedRoute>
           }
         />
