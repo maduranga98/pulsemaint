@@ -94,7 +94,7 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
-                    <Link to={`/machines/${machine.id}`} className="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                    <Link to={`/app/machines/${machine.id}`} className="text-blue-600 hover:text-blue-800 text-xs font-medium">
                       View
                     </Link>
                     <button
@@ -103,7 +103,7 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                     >
                       Edit
                     </button>
-                    <Link to={`/machines/${machine.id}/qr`} className="text-gray-600 hover:text-gray-800 text-xs font-medium">
+                    <Link to={`/app/machines/${machine.id}/qr`} className="text-gray-600 hover:text-gray-800 text-xs font-medium">
                       QR
                     </Link>
                   </div>

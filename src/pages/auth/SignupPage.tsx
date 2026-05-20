@@ -66,7 +66,7 @@ export function SignupPage() {
         siteName: formData.siteName,
         role: formData.role,
       });
-      navigate('/machines');
+      navigate('/app/machines');
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : 'Signup failed');
     }

@@ -72,7 +72,7 @@ export function EditMachinePage() {
 
       await updateMachine(payload);
       success('Machine updated successfully!');
-      navigate(`/machines/${id}`);
+      navigate(`/app/machines/${id}`);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to update machine';
       showError(errorMsg);

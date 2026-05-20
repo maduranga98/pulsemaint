@@ -15,7 +15,7 @@ export function MachineCard({ machine }: MachineCardProps) {
     : 'Never';
 
   return (
-    <Link to={`/machines/${machine.id}`}>
+    <Link to={`/app/machines/${machine.id}`}>
       <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
         {/* Header: Machine name + Status */}
         <div className="flex items-start justify-between mb-3">

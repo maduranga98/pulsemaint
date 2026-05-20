@@ -71,7 +71,7 @@ export function MachineListPage() {
             <div className="flex gap-3">
               {canCreateMachine && (
                 <Link
-                  to="/machines/new"
+                  to="/app/machines/new"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
                 >
                   + Add Machine
@@ -125,7 +125,7 @@ export function MachineListPage() {
             </p>
             {canCreateMachine && machines.length === 0 && (
               <Link
-                to="/machines/new"
+                to="/app/machines/new"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Add First Machine
@@ -147,7 +147,7 @@ export function MachineListPage() {
           <div className="bg-white rounded-lg border border-gray-200">
             <MachineListTable
               machines={filteredMachines}
-              onEdit={(machine) => navigate(`/machines/${machine.id}/edit`)}
+              onEdit={(machine) => navigate(`/app/machines/${machine.id}/edit`)}
             />
           </div>
         )}
