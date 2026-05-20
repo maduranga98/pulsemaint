@@ -1,10 +1,17 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
+import { useMachineUpdate } from '../../hooks/useMachineUpdate';
+import { useToast } from '../../hooks/useToast';
+import type { UpdateMachineFormData, UpdateMachinePayload } from '../../types/machine';
+import { MachineForm } from '../../components/machines/MachineForm';
 
 export function EditMachinePage() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const user = useAuthStore((state) => state.user);
+  const { updateMachine } = useMachineUpdate();
+  const { success, error: showError } = useToast();
 
   if (!user || !id) {
     return (
@@ -35,24 +42,50 @@ export function EditMachinePage() {
     );
   }
 
-  // TODO: Reuse the form from AddMachinePage but pre-fill with machine data
-  // This is a placeholder - the form logic would be similar to AddMachinePage
+  const handleSubmit = async (
+    formData: UpdateMachineFormData,
+    files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }> }
+  ) => {
+    try {
+      const payload: UpdateMachinePayload = {
+        siteId: user.siteId,
+        machineId: id,
+        name: formData.name,
+        type: formData.type,
+        manufacturer: formData.manufacturer,
+        model: formData.model || null,
+        serialNumber: formData.serialNumber || null,
+        purchaseDate: formData.purchaseDate || null,
+        installationDate: formData.installationDate || null,
+        expectedLifespanYears: formData.expectedLifespanYears || null,
+        department: formData.department,
+        floor: formData.floor || null,
+        bay: formData.bay || null,
+        station: formData.station || null,
+        status: formData.status,
+        criticality: formData.criticality,
+        photoFiles: files.photos,
+        documentFiles: files.documents,
+        compatiblePartIds: formData.compatiblePartIds || [],
+        modificationNotes: formData.modificationNotes || null,
+      };
+
+      await updateMachine(payload);
+      success('Machine updated successfully!');
+      navigate(`/machines/${id}`);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update machine';
+      showError(errorMsg);
+      throw err;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">Edit Machine</h1>
-          <p className="text-gray-600 text-sm mt-1">{machine.name}</p>
-          <p className="text-gray-500 text-xs mt-2">Last updated by {machine.updatedBy} on {new Date(machine.updatedAt.seconds * 1000).toLocaleDateString()}</p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-gray-600">Edit form - coming soon. Reuse form from AddMachinePage.</p>
-        </div>
-      </div>
-    </div>
+    <MachineForm
+      mode="edit"
+      initialData={machine}
+      siteId={user.siteId}
+      onSubmit={handleSubmit}
+    />
   );
 }
