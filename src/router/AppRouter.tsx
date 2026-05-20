@@ -22,6 +22,17 @@ import {
   MachineQrPage,
 } from '../pages/machines';
 
+// Triage pages
+import TriageRunnerPage from '../pages/triage/TriageRunnerPage';
+import TriageCompletePage from '../pages/triage/TriageCompletePage';
+import TriageHistoryPage from '../pages/triage/TriageHistoryPage';
+import TriageSessionDetailPage from '../pages/triage/TriageSessionDetailPage';
+import TriageBuilderLibraryPage from '../pages/triage-builder/TriageBuilderLibraryPage';
+import TriageBuilderCreatePage from '../pages/triage-builder/TriageBuilderCreatePage';
+import TriageBuilderEditPage from '../pages/triage-builder/TriageBuilderEditPage';
+import TriageBuilderFlowDetailPage from '../pages/triage-builder/TriageBuilderFlowDetailPage';
+import TriageBuilderTemplatesPage from '../pages/triage-builder/TriageBuilderTemplatesPage';
+
 // Stubs for not-yet-built pages
 const Dashboard = () => <div className="p-8">Dashboard Page</div>;
 const BreakdownsPage = () => <div className="p-8">Breakdowns Page</div>;
@@ -59,6 +70,24 @@ export default function AppRouter() {
       <Route
         path="/app/unauthorized"
         element={<ProtectedRoute><UnauthorizedPage /></ProtectedRoute>}
+      />
+
+      {/* Triage runner — full-screen, outside AppLayout */}
+      <Route
+        path="/app/triage/:sessionId"
+        element={
+          <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <TriageRunnerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/app/triage/:sessionId/complete"
+        element={
+          <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <TriageCompletePage />
+          </ProtectedRoute>
+        }
       />
 
       {/* Protected app shell – sidebar + header wrap every page below */}
@@ -180,6 +209,66 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin', 'supervisor']}>
               <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Triage history (inside AppLayout) */}
+        <Route
+          path="triage/history"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <TriageHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="triage/history/:sessionId"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+              <TriageSessionDetailPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Triage builder (inside AppLayout) */}
+        <Route
+          path="triage-builder"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <TriageBuilderLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="triage-builder/new"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <TriageBuilderCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="triage-builder/templates"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <TriageBuilderTemplatesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="triage-builder/:flowId"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <TriageBuilderFlowDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="triage-builder/:flowId/edit"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <TriageBuilderEditPage />
             </ProtectedRoute>
           }
         />

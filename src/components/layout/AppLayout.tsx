@@ -58,6 +58,26 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Inventory', to: '/app/inventory', icon: Icon.box, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator'] },
+  {
+    label: 'Triage',
+    to: '/app/triage/history',
+    icon: (
+      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    ),
+    roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+  },
+  {
+    label: 'Triage Builder',
+    to: '/app/triage-builder',
+    icon: (
+      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+      </svg>
+    ),
+    roles: ['supervisor', 'plant_manager', 'admin'],
+  },
   { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor'] },
   { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin'] },
 ];

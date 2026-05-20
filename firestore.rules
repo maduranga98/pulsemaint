@@ -219,5 +219,36 @@ service cloud.firestore {
       allow read: if isAuthenticated() && isSameSite(siteId);
       allow write: if isAdmin();
     }
+
+    // ---------------------------------------------------------------------------
+    // Triage Flows (Module 4)
+    // ---------------------------------------------------------------------------
+
+    match /triageFlows/{flowId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+                   && isAnyRole(['supervisor', 'plant_manager', 'admin']);
+      allow write: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+                   && request.resource.data.companyId == getUserCompanyId();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Triage Sessions (Module 4)
+    // ---------------------------------------------------------------------------
+
+    match /triageSessions/{sessionId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+                   && isAnyRole(['supervisor', 'plant_manager', 'admin', 'technician']);
+      allow write: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
+                   && request.resource.data.companyId == getUserCompanyId();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Triage Templates (Module 4 — read-only for customers)
+    // ---------------------------------------------------------------------------
+
+    match /triageTemplates/{templateId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isAdmin();
+    }
   }
 }
