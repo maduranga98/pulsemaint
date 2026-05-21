@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
@@ -34,7 +34,7 @@ interface UseMachinesResult {
 
 export function useMachines({
   siteId,
-  filters = {},
+  filters,
   pageSize = MACHINES_PER_PAGE,
 }: UseMachinesOptions): UseMachinesResult {
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -44,6 +44,16 @@ export function useMachines({
   const [lastVisible, setLastVisible] = useState<Machine | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
   const [unsubscribe, setUnsubscribe] = useState<Unsubscribe | null>(null);
+
+  // Stable string key so a fresh `filters` object reference (e.g. inline `{}`
+  // from a caller) doesn't tear down and rebuild the Firestore listener on
+  // every render.
+  const filtersKey = JSON.stringify(filters ?? {});
+  const stableFilters = useMemo<Partial<MachineFilters>>(
+    () => filters ?? {},
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filtersKey],
+  );
 
   useEffect(() => {
     if (!siteId) {
@@ -60,18 +70,18 @@ export function useMachines({
       const constraints: QueryConstraint[] = [where('siteId', '==', siteId)];
 
       // Status filter
-      if (filters.statuses && filters.statuses.length > 0) {
-        constraints.push(where('status', 'in', filters.statuses));
+      if (stableFilters.statuses && stableFilters.statuses.length > 0) {
+        constraints.push(where('status', 'in', stableFilters.statuses));
       }
 
       // Criticality filter
-      if (filters.criticalities && filters.criticalities.length > 0) {
-        constraints.push(where('criticality', 'in', filters.criticalities));
+      if (stableFilters.criticalities && stableFilters.criticalities.length > 0) {
+        constraints.push(where('criticality', 'in', stableFilters.criticalities));
       }
 
       // Health score range filter
-      if (filters.healthScoreRange) {
-        const [min, max] = filters.healthScoreRange;
+      if (stableFilters.healthScoreRange) {
+        const [min, max] = stableFilters.healthScoreRange;
         constraints.push(where('healthScore', '>=', min));
         constraints.push(where('healthScore', '<=', max));
       }
@@ -123,19 +133,19 @@ export function useMachines({
       setError(errorMsg);
       setLoading(false);
     }
-  }, [siteId, filters, pageSize]);
+  }, [siteId, stableFilters, pageSize]);
 
   const loadMore = () => {
     if (!lastVisible || !hasMore || !siteId) return;
 
     const constraints: QueryConstraint[] = [where('siteId', '==', siteId)];
 
-    if (filters.statuses && filters.statuses.length > 0) {
-      constraints.push(where('status', 'in', filters.statuses));
+    if (stableFilters.statuses && stableFilters.statuses.length > 0) {
+      constraints.push(where('status', 'in', stableFilters.statuses));
     }
 
-    if (filters.criticalities && filters.criticalities.length > 0) {
-      constraints.push(where('criticality', 'in', filters.criticalities));
+    if (stableFilters.criticalities && stableFilters.criticalities.length > 0) {
+      constraints.push(where('criticality', 'in', stableFilters.criticalities));
     }
 
     constraints.push(orderBy('name', 'asc'));

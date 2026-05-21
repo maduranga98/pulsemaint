@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   collection,
   query,
@@ -23,8 +23,8 @@ interface UsePMSchedulesOptions {
   filters?: PMFilters;
 }
 
-export function usePMSchedules({ companyId, filters = {} }: UsePMSchedulesOptions) {
-  const [schedules, setSchedules] = useState<PMSchedule[]>([]);
+export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
+  const [allSchedules, setAllSchedules] = useState<PMSchedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,9 +37,11 @@ export function usePMSchedules({ companyId, filters = {} }: UsePMSchedulesOption
 
     setLoading(true);
 
-    const constraints = [where('companyId', '==', companyId), orderBy('nextDueDate', 'asc')];
-
-    const q = query(collection(db, COLLECTION), ...constraints);
+    const q = query(
+      collection(db, COLLECTION),
+      where('companyId', '==', companyId),
+      orderBy('nextDueDate', 'asc'),
+    );
 
     const unsubscribe = onSnapshot(
       q,
@@ -48,48 +50,7 @@ export function usePMSchedules({ companyId, filters = {} }: UsePMSchedulesOption
           id: d.id,
           ...d.data(),
         })) as PMSchedule[];
-
-        // Apply client-side filters
-        let filtered = fetched;
-
-        if (filters.machineId) {
-          filtered = filtered.filter((s) => s.machineId === filters.machineId);
-        }
-        if (filters.pmType && filters.pmType.length > 0) {
-          filtered = filtered.filter((s) => filters.pmType!.includes(s.pmType));
-        }
-        if (filters.technicianId) {
-          filtered = filtered.filter((s) => s.assignedTechnicianIds.includes(filters.technicianId!));
-        }
-        if (filters.status && filters.status.length > 0) {
-          filtered = filtered.filter((s) => filters.status!.includes(s.status));
-        }
-        if (filters.priority && filters.priority.length > 0) {
-          filtered = filtered.filter((s) => filters.priority!.includes(s.priority));
-        }
-        if (filters.dateFrom) {
-          filtered = filtered.filter((s) => {
-            const due = s.nextDueDate instanceof Date ? s.nextDueDate : s.nextDueDate.toDate();
-            return due >= filters.dateFrom!;
-          });
-        }
-        if (filters.dateTo) {
-          filtered = filtered.filter((s) => {
-            const due = s.nextDueDate instanceof Date ? s.nextDueDate : s.nextDueDate.toDate();
-            return due <= filters.dateTo!;
-          });
-        }
-        if (filters.searchQuery) {
-          const q = filters.searchQuery.toLowerCase();
-          filtered = filtered.filter(
-            (s) =>
-              s.name.toLowerCase().includes(q) ||
-              s.machineName.toLowerCase().includes(q) ||
-              s.assignedTechnicianNames.some((n) => n.toLowerCase().includes(q)),
-          );
-        }
-
-        setSchedules(filtered);
+        setAllSchedules(fetched);
         setLoading(false);
         setError(null);
       },
@@ -101,7 +62,51 @@ export function usePMSchedules({ companyId, filters = {} }: UsePMSchedulesOption
     );
 
     return () => unsubscribe();
-  }, [companyId, filters]);
+  }, [companyId]);
+
+  const schedules = useMemo(() => {
+    if (!filters) return allSchedules;
+    let filtered = allSchedules;
+
+    if (filters.machineId) {
+      filtered = filtered.filter((s) => s.machineId === filters.machineId);
+    }
+    if (filters.pmType && filters.pmType.length > 0) {
+      filtered = filtered.filter((s) => filters.pmType!.includes(s.pmType));
+    }
+    if (filters.technicianId) {
+      filtered = filtered.filter((s) => s.assignedTechnicianIds.includes(filters.technicianId!));
+    }
+    if (filters.status && filters.status.length > 0) {
+      filtered = filtered.filter((s) => filters.status!.includes(s.status));
+    }
+    if (filters.priority && filters.priority.length > 0) {
+      filtered = filtered.filter((s) => filters.priority!.includes(s.priority));
+    }
+    if (filters.dateFrom) {
+      filtered = filtered.filter((s) => {
+        const due = s.nextDueDate instanceof Date ? s.nextDueDate : s.nextDueDate.toDate();
+        return due >= filters.dateFrom!;
+      });
+    }
+    if (filters.dateTo) {
+      filtered = filtered.filter((s) => {
+        const due = s.nextDueDate instanceof Date ? s.nextDueDate : s.nextDueDate.toDate();
+        return due <= filters.dateTo!;
+      });
+    }
+    if (filters.searchQuery) {
+      const q = filters.searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (s) =>
+          s.name.toLowerCase().includes(q) ||
+          s.machineName.toLowerCase().includes(q) ||
+          s.assignedTechnicianNames.some((n) => n.toLowerCase().includes(q)),
+      );
+    }
+
+    return filtered;
+  }, [allSchedules, filters]);
 
   const createSchedule = useCallback(
     async (payload: CreatePMPayload, userId: string): Promise<string> => {
