@@ -59,54 +59,128 @@ a {
 }
 
 /* ---------------------------------------------------------------------------
- * Dark-navy app shell theme overrides.
+ * Dark-navy theme overrides for the app shell.
  *
- * The app shell (AppLayout <main>) uses the dark navy palette so every page
- * sits on the same background as the Dashboard / Reports. Light cards
- * (.bg-white, .bg-gray-50, ...) inside the shell keep their original
- * appearance — these overrides only retint elements that sit DIRECTLY on the
- * dark page background. Inside a light card, normal Tailwind colors apply.
+ * Palette
+ *   Page bg        #0A1628
+ *   Card bg        #0F1E35
+ *   Raised bg      #142849
+ *   Border         #1E3A5F
+ *   Border strong  #2E5A8F
+ *   Text           #F0F4F8
+ *   Text muted     #B8C7DB
+ *   Text subtle    #8BA3BF
+ *   Accent         #1A56DB / #60A5FA
+ *
+ * Tailwind utilities (bg-white, text-slate-700, border-gray-200, etc.) used
+ * by pages inside the shell are remapped to this palette so every screen
+ * matches the Dashboard without having to recolor every page individually.
  * --------------------------------------------------------------------------- */
 
-.app-main-dark {
+.app-main-dark { color: #F0F4F8; }
+
+/* Surfaces ----------------------------------------------------------------- */
+.app-main-dark .bg-white { background-color: #0F1E35 !important; color: #F0F4F8; }
+.app-main-dark .bg-slate-50,
+.app-main-dark .bg-gray-50 { background-color: #0A1628 !important; }
+.app-main-dark .bg-slate-100,
+.app-main-dark .bg-gray-100 { background-color: #142849 !important; }
+.app-main-dark .bg-slate-200,
+.app-main-dark .bg-gray-200 { background-color: #1E3A5F !important; }
+
+.app-main-dark .hover\:bg-slate-50:hover,
+.app-main-dark .hover\:bg-gray-50:hover,
+.app-main-dark .hover\:bg-slate-100:hover,
+.app-main-dark .hover\:bg-gray-100:hover { background-color: #142849 !important; }
+.app-main-dark .hover\:bg-white:hover { background-color: #142849 !important; }
+
+/* Borders ------------------------------------------------------------------ */
+.app-main-dark .border-slate-100,
+.app-main-dark .border-gray-100,
+.app-main-dark .border-slate-200,
+.app-main-dark .border-gray-200,
+.app-main-dark .border-slate-300,
+.app-main-dark .border-gray-300 { border-color: #1E3A5F !important; }
+
+.app-main-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.app-main-dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+.app-main-dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
+.app-main-dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: #1E3A5F !important; }
+
+.app-main-dark .hover\:border-slate-300:hover,
+.app-main-dark .hover\:border-gray-300:hover { border-color: #2E5A8F !important; }
+
+/* Text --------------------------------------------------------------------- */
+.app-main-dark .text-slate-900,
+.app-main-dark .text-gray-900,
+.app-main-dark .text-black { color: #F0F4F8 !important; }
+.app-main-dark .text-slate-800,
+.app-main-dark .text-gray-800,
+.app-main-dark .text-slate-700,
+.app-main-dark .text-gray-700 { color: #D5DEEA !important; }
+.app-main-dark .text-slate-600,
+.app-main-dark .text-gray-600 { color: #B8C7DB !important; }
+.app-main-dark .text-slate-500,
+.app-main-dark .text-gray-500 { color: #8BA3BF !important; }
+.app-main-dark .text-slate-400,
+.app-main-dark .text-gray-400 { color: #6B7F9A !important; }
+
+.app-main-dark .hover\:text-slate-900:hover,
+.app-main-dark .hover\:text-gray-900:hover { color: #F0F4F8 !important; }
+.app-main-dark .hover\:text-slate-700:hover,
+.app-main-dark .hover\:text-gray-700:hover { color: #D5DEEA !important; }
+
+/* Headings always light on dark. */
+.app-main-dark h1,
+.app-main-dark h2,
+.app-main-dark h3,
+.app-main-dark h4,
+.app-main-dark h5,
+.app-main-dark h6 { color: #F0F4F8; }
+
+/* Form fields -------------------------------------------------------------- */
+.app-main-dark input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='button']),
+.app-main-dark select,
+.app-main-dark textarea {
+  background-color: #0A1628;
   color: #F0F4F8;
-}
-
-/* Headings sitting directly on the dark page background become light. */
-.app-main-dark > * h1,
-.app-main-dark > * h2,
-.app-main-dark > * h3,
-.app-main-dark > * h4,
-.app-main-dark > * h5,
-.app-main-dark > * h6 {
-  color: #F0F4F8;
-}
-
-/* But inside any light surface, headings go back to slate-900. */
-.app-main-dark .bg-white h1,
-.app-main-dark .bg-white h2,
-.app-main-dark .bg-white h3,
-.app-main-dark .bg-white h4,
-.app-main-dark .bg-white h5,
-.app-main-dark .bg-white h6,
-.app-main-dark [class*="bg-slate-50"] h1,
-.app-main-dark [class*="bg-slate-50"] h2,
-.app-main-dark [class*="bg-slate-50"] h3,
-.app-main-dark [class*="bg-slate-50"] h4,
-.app-main-dark [class*="bg-slate-50"] h5,
-.app-main-dark [class*="bg-slate-50"] h6,
-.app-main-dark [class*="bg-gray-50"] h1,
-.app-main-dark [class*="bg-gray-50"] h2,
-.app-main-dark [class*="bg-gray-50"] h3,
-.app-main-dark [class*="bg-gray-50"] h4,
-.app-main-dark [class*="bg-gray-50"] h5,
-.app-main-dark [class*="bg-gray-50"] h6 {
-  color: #0f172a;
-}
-
-/* Skeletons / dashed empty-states on the dark bg get a subtle navy tint. */
-.app-main-dark > * .border-dashed.border-slate-300,
-.app-main-dark > * .border-dashed.border-gray-300 {
   border-color: #1E3A5F;
-  color: #8BA3BF;
 }
+.app-main-dark input::placeholder,
+.app-main-dark textarea::placeholder { color: #6B7F9A; opacity: 1; }
+.app-main-dark select option { background-color: #0F1E35; color: #F0F4F8; }
+.app-main-dark input:focus,
+.app-main-dark select:focus,
+.app-main-dark textarea:focus { border-color: #1A56DB; outline: none; box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.25); }
+
+/* Accent badges that originally used indigo-50 / blue-50 stay readable. */
+.app-main-dark .bg-indigo-50,
+.app-main-dark .bg-blue-50 { background-color: rgba(26, 86, 219, 0.15) !important; }
+.app-main-dark .text-indigo-700,
+.app-main-dark .text-indigo-600,
+.app-main-dark .text-blue-700,
+.app-main-dark .text-blue-600 { color: #60A5FA !important; }
+
+/* Subtle status tints. */
+.app-main-dark .bg-green-50 { background-color: rgba(16, 185, 129, 0.12) !important; }
+.app-main-dark .text-green-700, .app-main-dark .text-green-600 { color: #34D399 !important; }
+.app-main-dark .bg-red-50   { background-color: rgba(239, 68, 68, 0.12) !important; }
+.app-main-dark .text-red-700, .app-main-dark .text-red-600 { color: #F87171 !important; }
+.app-main-dark .bg-amber-50, .app-main-dark .bg-yellow-50 { background-color: rgba(245, 158, 11, 0.12) !important; }
+.app-main-dark .text-amber-700, .app-main-dark .text-yellow-700,
+.app-main-dark .text-amber-600, .app-main-dark .text-yellow-600 { color: #FBBF24 !important; }
+
+/* Skeletons / dashed empty-states. */
+.app-main-dark .border-dashed { border-color: #1E3A5F !important; }
+
+/* Tables ------------------------------------------------------------------- */
+.app-main-dark table { color: #D5DEEA; }
+.app-main-dark thead { background-color: #142849; }
+.app-main-dark thead th { color: #8BA3BF; }
+.app-main-dark tbody tr { border-color: #1E3A5F; }
+
+/* Card lift on the dark page. */
+.app-main-dark .shadow,
+.app-main-dark .shadow-sm,
+.app-main-dark .shadow-md,
+.app-main-dark .shadow-lg { box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.35) !important; }

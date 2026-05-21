@@ -167,16 +167,16 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="h-screen bg-slate-50 text-slate-900 flex overflow-hidden">
+    <div className="h-screen bg-[#0A1628] text-[#F0F4F8] flex overflow-hidden">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-60 bg-white border-r border-slate-200 flex flex-col transform transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-60 bg-[#0F1E35] border-r border-[#1E3A5F] flex flex-col transform transition-transform lg:static lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="h-14 flex items-center px-5 border-b border-slate-200 shrink-0">
+        <div className="h-14 flex items-center px-5 border-b border-[#1E3A5F] shrink-0">
           <img src="/logo.png" alt="PulseMaint" className="w-7 h-7 rounded-md mr-2 object-contain" />
-          <span className="text-sm font-semibold tracking-tight text-slate-900">
+          <span className="text-sm font-semibold tracking-tight text-[#F0F4F8] font-[Sora]">
             PulseMaint
           </span>
         </div>
@@ -191,8 +191,8 @@ export default function AppLayout() {
               className={({ isActive }) =>
                 `flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
                   isActive
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    ? 'bg-[#1A56DB]/15 text-[#60A5FA] border-l-2 border-[#1A56DB] pl-[10px]'
+                    : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
                 }`
               }
             >
@@ -205,24 +205,24 @@ export default function AppLayout() {
 
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-slate-900/40 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main column */}
       <div className="flex-1 flex flex-col min-w-0 h-screen">
-        <header className="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 z-20">
+        <header className="h-14 shrink-0 bg-[#0F1E35] border-b border-[#1E3A5F] flex items-center justify-between px-4 lg:px-6 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setSidebarOpen((v) => !v)}
-              className="lg:hidden p-2 -ml-2 rounded-md hover:bg-slate-100 text-slate-600"
+              className="lg:hidden p-2 -ml-2 rounded-md hover:bg-[#142849] text-[#8BA3BF]"
               aria-label="Toggle navigation"
             >
               {Icon.menu}
             </button>
-            <div className="text-[13px] text-slate-500 hidden sm:block truncate">
+            <div className="text-[13px] text-[#8BA3BF] hidden sm:block truncate">
               {company?.name ?? ''}
             </div>
           </div>
@@ -230,18 +230,18 @@ export default function AppLayout() {
           <div className="flex items-center gap-3">
             {(role === 'supervisor' || role === 'admin') && <EndShiftButton />}
             <div className="text-right hidden sm:block leading-tight">
-              <div className="text-[13px] font-medium text-slate-900 truncate max-w-[160px]">
+              <div className="text-[13px] font-medium text-[#F0F4F8] truncate max-w-[160px]">
                 {userProfile?.fullName ?? 'User'}
               </div>
-              <div className="text-[11px] text-slate-500">{roleLabel(role)}</div>
+              <div className="text-[11px] text-[#8BA3BF]">{roleLabel(role)}</div>
             </div>
-            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-[12px] font-semibold">
+            <div className="w-8 h-8 rounded-full bg-[#1A56DB]/20 text-[#60A5FA] flex items-center justify-center text-[12px] font-semibold border border-[#1E3A5F]">
               {initials(userProfile?.fullName)}
             </div>
             <button
               type="button"
               onClick={handleLogout}
-              className="px-3 py-1.5 text-[12px] font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-md transition-colors"
+              className="px-3 py-1.5 text-[12px] font-medium text-[#D5DEEA] bg-[#142849] border border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-[#F0F4F8] rounded-md transition-colors"
             >
               Sign out
             </button>
