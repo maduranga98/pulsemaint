@@ -53,7 +53,7 @@ export async function registerCompany(data: {
   email: string;
   phone: string;
   password: string;
-}): Promise<void> {
+}): Promise<{ userProfile: UserProfile; company: CompanyProfile }> {
   try {
     // Create Firebase Auth user
     const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
@@ -111,11 +111,23 @@ export async function registerCompany(data: {
 
     await setDoc(userRef, userProfile);
 
-    // Create user mapping document for quick company lookup
+    // Create user mapping document for quick company lookup.
     const userMapRef = doc(collection(db, 'users'), uid);
-    await setDoc(userMapRef, { uid, companyId: companyRef.id });
+    await setDoc(userMapRef, {
+      uid,
+      companyId: companyRef.id,
+      role: 'admin',
+      siteId: null,
+    });
 
     console.log('Company registration complete', { uid, companyId: companyRef.id });
+
+    // Hydrate fully-resolved profile + company so the caller can populate
+    // the auth store before navigating (avoids onAuthStateChanged race).
+    return {
+      userProfile: { ...userProfile, createdAt: Timestamp.now(), updatedAt: Timestamp.now() } as UserProfile,
+      company: { ...companyProfile, createdAt: Timestamp.now() } as CompanyProfile,
+    };
   } catch (error) {
     console.error('Company registration failed:', error);
     throw error;
