@@ -455,6 +455,84 @@ service cloud.firestore {
         && getUserData().role in ['maintenance_supervisor', 'plant_manager', 'admin'];
     }
 
+    // ---------------------------------------------------------------------------
+    // Training Module 5 — Training System
+    // ---------------------------------------------------------------------------
+
+    // trainingModules — authored content, company-scoped
+    match /companies/{companyId}/trainingModules/{moduleId} {
+      // Read: all staff roles + trainee + floor_operator (trainees need to load module content)
+      allow read: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in [
+          'trainee', 'floor_operator', 'supervisor', 'plant_manager',
+          'hr_officer', 'admin'
+        ];
+      // Create / Update: supervisor and admin
+      allow create: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['supervisor', 'admin'];
+      allow update: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['supervisor', 'admin'];
+      // Delete: admin only
+      allow delete: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role == 'admin';
+    }
+
+    // trainingAssignments — individual learner enrolments, company-scoped
+    match /companies/{companyId}/trainingAssignments/{assignmentId} {
+      // Read: own assignment (trainee/floor_operator) OR management roles
+      allow read: if isAuthenticated() && getUserData().companyId == companyId
+        && (
+          resource.data.traineeId == request.auth.uid
+          || getUserData().role in ['supervisor', 'plant_manager', 'hr_officer', 'admin']
+        );
+      // Create: supervisor and admin
+      allow create: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['supervisor', 'admin'];
+      // Update: trainee can only update their own progress fields; supervisors/admins can update anything
+      allow update: if isAuthenticated() && getUserData().companyId == companyId
+        && (
+          (
+            resource.data.traineeId == request.auth.uid
+            && getUserData().role in ['trainee', 'floor_operator']
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'lessonProgress', 'quizAttempts', 'lastActivityAt',
+              'overallProgress', 'lessonsCompleted', 'startedAt',
+              'bestScore', 'latestScore', 'quizPassed', 'quizPassedAt',
+              'attemptsUsed', 'status'
+            ])
+          )
+          || getUserData().role in ['supervisor', 'admin']
+        );
+      // Delete: admin only
+      allow delete: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role == 'admin';
+    }
+
+    // trainingCertificates — immutable audit record, company-scoped
+    match /companies/{companyId}/trainingCertificates/{certificateId} {
+      // Read: own certificate OR management roles
+      allow read: if isAuthenticated() && getUserData().companyId == companyId
+        && (
+          resource.data.traineeId == request.auth.uid
+          || getUserData().role in ['supervisor', 'plant_manager', 'hr_officer', 'admin']
+        );
+      // Create: via Cloud Function only — direct client writes disabled
+      allow create: if false;
+      // Update: admin or plant_manager (e.g. for revocation)
+      allow update: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['plant_manager', 'admin'];
+      // Delete: never
+      allow delete: if false;
+    }
+
+    // trainingContentLibrary — shared media assets, company-scoped
+    match /companies/{companyId}/trainingContentLibrary/{itemId} {
+      // Read: supervisor, plant_manager, admin
+      allow read: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
+      // Write (create/update/delete): supervisor and admin
+      allow write: if isAuthenticated() && getUserData().companyId == companyId
+        && getUserData().role in ['supervisor', 'admin'];
     // pm_schedules — Preventive Maintenance Schedules
     match /pm_schedules/{scheduleId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
