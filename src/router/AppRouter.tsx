@@ -4,6 +4,25 @@ import AuthLoading from '../components/auth/AuthLoading';
 import ProtectedRoute, { PublicRoute } from '../components/auth/ProtectedRoute';
 import AppLayout from '../components/layout/AppLayout';
 
+// Training pages - Trainee
+import MyModulesPage from '../pages/training/MyModulesPage';
+import ModuleLearningPage from '../pages/training/ModuleLearningPage';
+import QuizPage from '../pages/training/QuizPage';
+import MyCertificatesPage from '../pages/training/MyCertificatesPage';
+
+// Training pages - Management
+import TrainingDashboardPage from '../pages/training/manage/TrainingDashboardPage';
+import ModuleLibraryPage from '../pages/training/manage/ModuleLibraryPage';
+import CreateModulePage from '../pages/training/manage/CreateModulePage';
+import EditModulePage from '../pages/training/manage/EditModulePage';
+import QuizBuilderPage from '../pages/training/manage/QuizBuilderPage';
+import AssignTrainingPage from '../pages/training/manage/AssignTrainingPage';
+import AssignmentsListPage from '../pages/training/manage/AssignmentsListPage';
+import TraineeProfilePage from '../pages/training/manage/TraineeProfilePage';
+import CertificatesManagerPage from '../pages/training/manage/CertificatesManagerPage';
+import ComplianceReportPage from '../pages/training/manage/ComplianceReportPage';
+import ContentLibraryPage from '../pages/training/manage/ContentLibraryPage';
+
 // Auth pages
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
@@ -57,8 +76,6 @@ const Dashboard = () => <div className="p-8">Dashboard Page</div>;
 const BreakdownsPage = () => <div className="p-8">Breakdowns Page</div>;
 const ReportBreakdownPage = () => <div className="p-8">Report Breakdown Page</div>;
 const WorkOrdersPage = () => <div className="p-8">Work Orders Page</div>;
-const TrainingPage = () => <div className="p-8">Training Page</div>;
-const MyTrainingPage = () => <div className="p-8">My Training Modules Page</div>;
 const SettingsPage = () => <div className="p-8">Settings Page</div>;
 const UsersPage = () => <div className="p-8">Users Management Page</div>;
 
@@ -327,19 +344,132 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        {/* Training - /training redirects based on role */}
         <Route
           path="training"
-          element={
-            <ProtectedRoute requiredRoles={['hr_officer', 'supervisor', 'plant_manager', 'admin']}>
-              <TrainingPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/app/training/manage" replace />}
         />
+
+        {/* Training - Trainee routes */}
         <Route
           path="training/my-modules"
           element={
             <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
-              <MyTrainingPage />
+              <MyModulesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/my-modules/:assignmentId"
+          element={
+            <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
+              <ModuleLearningPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/my-modules/:assignmentId/quiz"
+          element={
+            <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
+              <QuizPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/my-certificates"
+          element={
+            <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
+              <MyCertificatesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Training - Management routes */}
+        <Route
+          path="training/manage"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+              <TrainingDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/modules"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <ModuleLibraryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/modules/new"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <CreateModulePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/modules/:moduleId"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <EditModulePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/modules/:moduleId/quiz"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <QuizBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/assignments"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+              <AssignmentsListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/assign"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <AssignTrainingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/trainees/:userId"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+              <TraineeProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/certificates"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+              <CertificatesManagerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/compliance"
+          element={
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer']}>
+              <ComplianceReportPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/content-library"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <ContentLibraryPage />
             </ProtectedRoute>
           }
         />

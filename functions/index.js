@@ -42,6 +42,22 @@ exports.reverseImport = reverseImport;
 exports.autoUpdateWoPartsOnClose = autoUpdateWoPartsOnClose;
 
 // ---------------------------------------------------------------------------
+// Training Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { generateTrainingCertificate } = require("./src/training/generateTrainingCertificate");
+const { checkRetrainingTrigger } = require("./src/training/checkRetrainingTrigger");
+const { sendTrainingReminders } = require("./src/training/sendTrainingReminders");
+const { generateComplianceReportPdf } = require("./src/training/generateComplianceReportPdf");
+const { notifyPracticalSignOffRequired } = require("./src/training/notifyPracticalSignOffRequired");
+
+exports.generateTrainingCertificate = generateTrainingCertificate;
+exports.checkRetrainingTrigger = checkRetrainingTrigger;
+exports.sendTrainingReminders = sendTrainingReminders;
+exports.generateComplianceReportPdf = generateComplianceReportPdf;
+exports.notifyPracticalSignOffRequired = notifyPracticalSignOffRequired;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
