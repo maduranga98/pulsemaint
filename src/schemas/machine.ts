@@ -190,6 +190,7 @@ export const updateMachineSchema = z.object({
   ).optional(),
   compatiblePartIds: z.array(z.string()).optional(),
   modificationNotes: noteSchema,
+  additionalNotes: noteSchema,
 });
 
 export type UpdateMachineFormData = z.infer<typeof updateMachineSchema>;

@@ -103,6 +103,7 @@ export function useMachineUpdate({
       if (documents) updateData.documents = documents;
       if (payload.compatiblePartIds) updateData.compatiblePartIds = payload.compatiblePartIds;
       if (payload.modificationNotes !== undefined) updateData.modificationNotes = payload.modificationNotes;
+      if (payload.additionalNotes !== undefined) updateData.additionalNotes = payload.additionalNotes;
 
       // Update Firestore document
       const machineRef = doc(db, 'machines', payload.machineId);

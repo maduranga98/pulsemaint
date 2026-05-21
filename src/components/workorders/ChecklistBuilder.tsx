@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ChecklistItem } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
 
@@ -16,6 +16,91 @@ export function ChecklistBuilder({
   readOnly = false,
 }: ChecklistBuilderProps) {
   const [newStep, setNewStep] = useState('');
+  const [importError, setImportError] = useState<string | null>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  function downloadTemplate() {
+    const csv = 'Step Description,Estimated Minutes\nInspect machine for visible damage,15\nReplace worn bearings,45\nLubricate moving parts,10\n';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'wo-checklist-template.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function parseCsvLine(line: string): string[] {
+    const cells: string[] = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (inQuotes) {
+        if (ch === '"' && line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else if (ch === '"') {
+          inQuotes = false;
+        } else {
+          cur += ch;
+        }
+      } else if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        cells.push(cur);
+        cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    cells.push(cur);
+    return cells.map((c) => c.trim());
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    setImportError(null);
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+      if (lines.length === 0) {
+        setImportError('File is empty.');
+        return;
+      }
+      // Detect header
+      const first = parseCsvLine(lines[0]);
+      const hasHeader = first[0]?.toLowerCase().includes('step') || first[0]?.toLowerCase().includes('description');
+      const dataLines = hasHeader ? lines.slice(1) : lines;
+      const imported: typeof items = [];
+      dataLines.forEach((line, idx) => {
+        const cells = parseCsvLine(line);
+        const description = cells[0]?.trim();
+        if (!description) return;
+        const minutes = cells[1] ? Number(cells[1]) : null;
+        imported.push({
+          stepNumber: items.length + imported.length + 1,
+          stepDescription: description,
+          assignedTechnicianId: null,
+          assignedTechnicianName: null,
+          estimatedMinutes: Number.isFinite(minutes) && minutes !== null ? minutes : null,
+        });
+        if (idx > 500) return;
+      });
+      if (imported.length === 0) {
+        setImportError('No valid rows found. Expected at least one row with a step description.');
+        return;
+      }
+      onChange([...items, ...imported]);
+    } catch (err) {
+      console.error(err);
+      setImportError('Failed to read file. Please upload a CSV file.');
+    }
+  }
 
   function addStep() {
     const trimmed = newStep.trim();
@@ -183,17 +268,37 @@ export function ChecklistBuilder({
         </div>
       )}
 
-      {/* Template stub */}
       {!readOnly && (
-        <button
-          type="button"
-          className="text-xs text-gray-400 hover:text-gray-600 underline"
-          onClick={() => {
-            // Phase 2: Load from WO templates collection
-          }}
-        >
-          {WO_COPY.importTemplateButton}
-        </button>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3 text-xs">
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              onChange={handleImportFile}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => importInputRef.current?.click()}
+              className="text-blue-600 hover:text-blue-800 underline"
+            >
+              {WO_COPY.importTemplateButton}
+            </button>
+            <span className="text-gray-300">|</span>
+            <button
+              type="button"
+              onClick={downloadTemplate}
+              className="text-gray-500 hover:text-gray-700 underline"
+            >
+              Download template
+            </button>
+          </div>
+          {importError && <p className="text-xs text-red-500">{importError}</p>}
+          <p className="text-xs text-gray-400">
+            CSV format: first column = step description, second column = estimated minutes (optional).
+          </p>
+        </div>
       )}
     </div>
   );

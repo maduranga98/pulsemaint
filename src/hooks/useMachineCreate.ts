@@ -95,6 +95,7 @@ export function useMachineCreate({
         photos: photoUrls,
         warrantyItems: [],
         modificationNotes: payload.modificationNotes || null,
+        additionalNotes: payload.additionalNotes || null,
         sopLibraryRefs: [],
         qrCode: null,
         oeeData: null,

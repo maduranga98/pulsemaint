@@ -448,15 +448,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
         <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4">
           {isSupervisor && !showCompletionForm && !showSignOff && (
             <div className="flex flex-wrap gap-2">
-              {['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
-                <button
-                  type="button"
-                  onClick={() => {/* open edit drawer */}}
-                  className="flex-1 min-w-fit px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  {WO_COPY.editButton}
-                </button>
-              )}
+              {/* Edit drawer not yet wired — button hidden to avoid no-op. */}
               {workOrder.status === 'COMPLETED' && (
                 <button
                   type="button"

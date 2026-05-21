@@ -1,6 +1,9 @@
-import { useState, useRef } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useRef, useEffect } from 'react';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { useAuthStore } from '../../store/authStore';
 import {
   createMachineSchema,
   updateMachineSchema,
@@ -91,6 +94,7 @@ export function MachineForm({
           status: initialData?.status,
           criticality: initialData?.criticality,
           modificationNotes: initialData?.modificationNotes,
+          additionalNotes: (initialData as any)?.additionalNotes ?? null,
           photoFiles: [],
           documentFiles: [],
           compatiblePartIds: initialData?.compatiblePartIds || [],
@@ -649,6 +653,8 @@ function renderFormSection(
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">Spare Parts & Notes</h2>
 
+          <SparePartsSelector control={control} />
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Modification Notes</label>
             <Controller
@@ -690,4 +696,144 @@ function renderFormSection(
     default:
       return null;
   }
+}
+
+interface CatalogPart {
+  id: string;
+  name: string;
+  partNumber: string;
+}
+
+function SparePartsSelector({ control }: { control: any }) {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const [catalog, setCatalog] = useState<CatalogPart[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const selectedIds: string[] = useWatch({ control, name: 'compatiblePartIds' }) ?? [];
+
+  useEffect(() => {
+    if (!companyId) {
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDocs(
+          query(collection(db, 'inventoryParts'), where('companyId', '==', companyId)),
+        );
+        if (cancelled) return;
+        setCatalog(
+          snap.docs.map((d) => {
+            const data = d.data() as Record<string, unknown>;
+            return {
+              id: d.id,
+              name: (data.name as string) ?? d.id,
+              partNumber: (data.partNumber as string) ?? '',
+            };
+          }),
+        );
+      } catch (err) {
+        console.error('Failed to load parts catalog', err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [companyId]);
+
+  const filtered = catalog.filter(
+    (p) =>
+      !selectedIds.includes(p.id) &&
+      (search.trim() === '' ||
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.partNumber.toLowerCase().includes(search.toLowerCase())),
+  );
+  const selectedParts = selectedIds
+    .map((id) => catalog.find((c) => c.id === id))
+    .filter((p): p is CatalogPart => Boolean(p));
+
+  return (
+    <Controller
+      name="compatiblePartIds"
+      control={control}
+      render={({ field }) => {
+        const value: string[] = field.value ?? [];
+        return (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Compatible Spare Parts</label>
+
+            {value.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {selectedParts.map((p) => (
+                  <span
+                    key={p.id}
+                    className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs font-medium px-2 py-1 rounded-full border border-blue-200"
+                  >
+                    {p.name}
+                    {p.partNumber && <span className="text-blue-400">· {p.partNumber}</span>}
+                    <button
+                      type="button"
+                      onClick={() => field.onChange(value.filter((id) => id !== p.id))}
+                      className="ml-1 text-blue-400 hover:text-red-500"
+                      aria-label={`Remove ${p.name}`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+                {selectedIds.length > selectedParts.length && (
+                  <span className="text-xs text-gray-400 self-center">
+                    ({selectedIds.length - selectedParts.length} part(s) not in current catalog)
+                  </span>
+                )}
+              </div>
+            )}
+
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search parts by name or part number…"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+
+            {loading ? (
+              <p className="text-xs text-gray-400 mt-2">Loading catalog…</p>
+            ) : catalog.length === 0 ? (
+              <p className="text-xs text-gray-500 mt-2">
+                No parts in your inventory catalog yet. Add parts under Inventory → Catalog to link them here.
+              </p>
+            ) : filtered.length === 0 ? (
+              <p className="text-xs text-gray-400 mt-2">
+                {search ? 'No matching parts.' : 'All catalog parts already selected.'}
+              </p>
+            ) : (
+              <div className="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
+                {filtered.slice(0, 20).map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => field.onChange([...value, p.id])}
+                    className="w-full text-left px-3 py-2 hover:bg-blue-50 text-sm flex items-center justify-between"
+                  >
+                    <span>
+                      <span className="font-medium text-gray-800">{p.name}</span>
+                      {p.partNumber && <span className="text-gray-400"> · {p.partNumber}</span>}
+                    </span>
+                    <span className="text-xs text-blue-600">+ Add</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-gray-400 mt-1">
+              {value.length} part{value.length === 1 ? '' : 's'} selected
+            </p>
+          </div>
+        );
+      }}
+    />
+  );
 }
