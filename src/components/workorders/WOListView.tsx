@@ -34,7 +34,10 @@ export function WOListView() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const user = useAuthStore((s) => s.user);
-  const isSupervisorOrAdmin = user?.role === 'maintenance_supervisor' || user?.role === 'admin';
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const role = userProfile?.role;
+  const isSupervisorOrAdmin =
+    role === 'maintenance_supervisor' || role === 'supervisor' || role === 'admin';
 
   const now = new Date();
   const startOfWeek = new Date(now);

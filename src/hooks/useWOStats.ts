@@ -25,10 +25,11 @@ export function useWOStats(): UseWOStatsResult {
   const [stats, setStats] = useState<WOStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const user = useAuthStore((s) => s.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
 
   useEffect(() => {
-    if (!user?.siteId) {
+    if (!siteId) {
       setLoading(false);
       return;
     }
@@ -44,12 +45,12 @@ export function useWOStats(): UseWOStatsResult {
     Promise.all([
       getDocs(query(
         collection(db, 'workOrders'),
-        where('siteId', '==', user.siteId),
+        where('siteId', '==', siteId),
         where('status', 'not-in', ['CLOSED', 'CANCELLED']),
       )),
       getDocs(query(
         collection(db, 'workOrders'),
-        where('siteId', '==', user.siteId),
+        where('siteId', '==', siteId),
         where('status', 'in', ['CLOSED', 'SIGNED_OFF']),
         where('closedAt', '>=', Timestamp.fromDate(startOfWeek)),
       )),
@@ -90,7 +91,7 @@ export function useWOStats(): UseWOStatsResult {
         setError(err.message);
         setLoading(false);
       });
-  }, [user?.siteId]);
+  }, [siteId]);
 
   return { stats, loading, error };
 }

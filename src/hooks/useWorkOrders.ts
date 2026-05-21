@@ -26,12 +26,13 @@ export function useWorkOrders(filters?: WOFilters): UseWorkOrdersResult {
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
-  const user = useAuthStore((s) => s.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
 
   const refetch = useCallback(() => setTick((t) => t + 1), []);
 
   useEffect(() => {
-    if (!user?.siteId) {
+    if (!siteId) {
       setLoading(false);
       return;
     }
@@ -41,7 +42,7 @@ export function useWorkOrders(filters?: WOFilters): UseWorkOrdersResult {
 
     let q: Query<DocumentData> = query(
       collection(db, 'workOrders'),
-      where('siteId', '==', user.siteId),
+      where('siteId', '==', siteId),
       orderBy('createdAt', 'desc'),
     );
 
@@ -100,7 +101,7 @@ export function useWorkOrders(filters?: WOFilters): UseWorkOrdersResult {
 
     return () => unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.siteId, tick, JSON.stringify(filters)]);
+  }, [siteId, tick, JSON.stringify(filters)]);
 
   return { workOrders, loading, error, totalCount: workOrders.length, refetch };
 }
