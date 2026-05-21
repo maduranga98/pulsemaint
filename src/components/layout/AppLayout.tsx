@@ -1,9 +1,10 @@
 import { useState, type ReactNode } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useAuthActions } from '../../hooks/useAuthActions';
 import type { UserRole } from '../../types/auth';
 import EndShiftButton from '../handover/EndShiftButton';
+import ErrorBoundary from '../ErrorBoundary';
 
 interface NavItem {
   label: string;
@@ -151,6 +152,7 @@ function initials(name?: string | null) {
 
 export default function AppLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { logout } = useAuthActions();
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
@@ -165,23 +167,21 @@ export default function AppLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex">
+    <div className="h-screen bg-slate-50 text-slate-900 flex overflow-hidden">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-60 bg-white border-r border-slate-200 transform transition-transform lg:static lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-60 bg-white border-r border-slate-200 flex flex-col transform transition-transform lg:static lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="h-14 flex items-center px-5 border-b border-slate-200">
-          <div className="w-7 h-7 rounded-md bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm mr-2">
-            P
-          </div>
+        <div className="h-14 flex items-center px-5 border-b border-slate-200 shrink-0">
+          <img src="/logo.png" alt="PulseMaint" className="w-7 h-7 rounded-md mr-2 object-contain" />
           <span className="text-sm font-semibold tracking-tight text-slate-900">
             PulseMaint
           </span>
         </div>
 
-        <nav className="px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
           {visibleItems.map((item) => (
             <NavLink
               key={item.to}
@@ -211,8 +211,8 @@ export default function AppLayout() {
       )}
 
       {/* Main column */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-20">
+      <div className="flex-1 flex flex-col min-w-0 h-screen">
+        <header className="h-14 shrink-0 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 z-20">
           <div className="flex items-center gap-3 min-w-0">
             <button
               type="button"
@@ -248,9 +248,11 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 min-w-0 bg-slate-50">
+        <main className="flex-1 min-w-0 bg-slate-50 overflow-y-auto">
           <div className="px-4 sm:px-6 lg:px-8 py-5 max-w-[1400px] mx-auto w-full">
-            <Outlet />
+            <ErrorBoundary key={location.pathname}>
+              <Outlet />
+            </ErrorBoundary>
           </div>
         </main>
       </div>
