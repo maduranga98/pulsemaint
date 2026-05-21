@@ -6,6 +6,8 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import PasswordStrength from '../../components/auth/PasswordStrength';
 import { registerCompany, authErrorMessages } from '../../lib/auth';
+import { useAuthStore } from '../../store/authStore';
+import { auth } from '../../lib/firebase';
 
 const registerSchema = z
   .object({
@@ -66,7 +68,7 @@ export default function RegisterPage() {
   const handleSubmit = async (data: RegisterForm) => {
     try {
       setLoading(true);
-      await registerCompany({
+      const { userProfile, company } = await registerCompany({
         companyName: data.companyName,
         industry: data.industry,
         country: data.country,
@@ -77,7 +79,17 @@ export default function RegisterPage() {
         password: data.password,
       });
 
-      navigate('/app/onboarding');
+      // Hydrate auth store immediately so /app/onboarding doesn't get stuck
+      // on its "Loading..." gate. The onAuthStateChanged listener races with
+      // the Firestore writes and may have already set these to null.
+      const store = useAuthStore.getState();
+      if (auth.currentUser) store.setUser(auth.currentUser);
+      store.setUserProfile(userProfile);
+      store.setCompany(company);
+      store.setInitialized(true);
+      store.setLoading(false);
+
+      navigate('/app/onboarding', { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Registration failed.';
@@ -90,8 +102,9 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4 py-8">
       <div className="w-full max-w-2xl">
-        <div className="text-center mb-8">
-          <div className="text-4xl font-bold mb-4">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img src="/logo.png" alt="PulseMaint" className="h-16 w-auto mb-3" />
+          <div className="text-3xl font-bold mb-2">
             <span className="text-white">Pulse</span>
             <span className="text-[#00C2FF]">Maint</span>
           </div>

@@ -1,38 +1,59 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { upload_file } from '../../lib/firebase';
+import { doc, updateDoc, setDoc, addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { nanoid } from 'nanoid';
+import { AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { getDashboardRoute } from '../../lib/auth';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
-import { AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
+
+type StepError = { message: string } | null;
 
 export default function OnboardingWizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const userProfile = useAuthStore((state) => state.userProfile);
-  const company = useAuthStore((state) => state.company);
-  const userRole = useAuthStore((state) => state.userProfile?.role);
+  const [error, setError] = useState<StepError>(null);
 
-  // Step 1 state
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const company = useAuthStore((s) => s.company);
+  const setUserProfile = useAuthStore((s) => s.setUserProfile);
+  const setCompany = useAuthStore((s) => s.setCompany);
+
+  // Step 1
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [language, setLanguage] = useState('en');
   const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
-  const [currency, setCurrency] = useState('LKR');
+  const [currency, setCurrency] = useState<'LKR' | 'USD' | 'AED' | 'SAR'>('LKR');
 
-  // Step 2 state
+  // Step 2
   const [machineName, setMachineName] = useState('');
   const [machineType, setMachineType] = useState('');
   const [machineLocation, setMachineLocation] = useState('');
 
-  // Step 3 state
+  // Step 3
   const [memberName, setMemberName] = useState('');
-  const [memberRole, setMemberRole] = useState('technician');
+  const [memberRole, setMemberRole] = useState<'technician' | 'maintenance_supervisor' | 'plant_manager' | 'store_keeper' | 'hr_officer'>('technician');
   const [memberEmail, setMemberEmail] = useState('');
   const [memberPhone, setMemberPhone] = useState('');
-  const [error, setError] = useState<string | null>(null);
+
+  // Hydrate defaults from company once loaded
+  useEffect(() => {
+    if (!company) return;
+    if (company.language) setLanguage(company.language);
+    if (company.timezone) setTimezone(company.timezone);
+    if (company.currency) setCurrency(company.currency);
+    if (company.logoUrl && !logoPreview) setLogoPreview(company.logoUrl);
+  }, [company]);
+
+  // If onboarding already complete, bounce to dashboard
+  useEffect(() => {
+    if (company?.onboardingCompletedAt && userProfile?.role) {
+      navigate(getDashboardRoute(userProfile.role), { replace: true });
+    }
+  }, [company, userProfile, navigate]);
 
   if (!userProfile || !company) {
     return (
@@ -44,73 +65,115 @@ export default function OnboardingWizard() {
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    setLogoFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setLogoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const uploadLogo = async (): Promise<string | null> => {
+    if (!logoFile) return company.logoUrl;
+    const path = `companies/${company.id}/branding/logo-${Date.now()}-${logoFile.name}`;
+    const ref = storageRef(storage, path);
+    await uploadBytes(ref, logoFile);
+    return getDownloadURL(ref);
+  };
+
+  const saveStep1 = async () => {
+    const logoUrl = await uploadLogo();
+    const companyRef = doc(db, 'companies', company.id);
+    await updateDoc(companyRef, { language, timezone, currency, logoUrl });
+    setCompany({ ...company, language, timezone, currency, logoUrl });
+  };
+
+  const saveStep2 = async () => {
+    if (!machineName) return;
+    await addDoc(collection(db, 'machines'), {
+      companyId: company.id,
+      siteId: userProfile.siteIds[0] || company.id,
+      name: machineName,
+      type: machineType || 'other',
+      department: machineLocation || null,
+      status: 'active',
+      criticality: 3,
+      healthScore: 100,
+      createdAt: serverTimestamp(),
+      createdBy: userProfile.id,
+      updatedAt: serverTimestamp(),
+      updatedBy: userProfile.id,
+      source: 'onboarding',
+    });
+  };
+
+  const saveInvite = async () => {
+    if (!memberName || (!memberEmail && !memberPhone)) return;
+    const token = nanoid(24);
+    const inviteRef = doc(db, `companies/${company.id}/pendingInvites/${token}`);
+    await setDoc(inviteRef, {
+      token,
+      companyId: company.id,
+      companyName: company.name,
+      fullName: memberName,
+      role: memberRole,
+      email: memberEmail || null,
+      phone: memberPhone || null,
+      invitedBy: userProfile.id,
+      status: 'pending',
+      createdAt: serverTimestamp(),
+      expiresAt: Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+    });
+  };
+
+  const completeOnboarding = async () => {
+    const completedAt = Timestamp.now();
+    await updateDoc(doc(db, 'companies', company.id), { onboardingCompletedAt: completedAt });
+    await updateDoc(doc(db, `companies/${company.id}/users/${userProfile.id}`), {
+      status: 'active',
+      updatedAt: serverTimestamp(),
+    });
+    setCompany({ ...company, onboardingCompletedAt: completedAt });
+    setUserProfile({ ...userProfile, status: 'active' });
   };
 
   const handleNextStep = async () => {
-    if (step === 1) {
-      setLoading(true);
-      try {
-        // Update company profile
-        const companyRef = doc(db, 'companies', company.id);
-        await updateDoc(companyRef, {
-          language,
-          timezone,
-          currency,
-          logoUrl: logoFile ? 'uploaded' : company.logoUrl,
-        });
+    setError(null);
+    setLoading(true);
+    try {
+      if (step === 1) {
+        await saveStep1();
         setStep(2);
-      } catch (err: any) {
-        setError(err.message || 'Failed to update company.');
-      } finally {
-        setLoading(false);
-      }
-    } else if (step === 2) {
-      // Skip or add machine
-      if (machineName) {
-        setLoading(true);
-        try {
-          // Create machine in Firestore
-          // For now, we'll skip this as machines are handled elsewhere
-          setStep(3);
-        } finally {
-          setLoading(false);
-        }
-      } else {
+      } else if (step === 2) {
+        await saveStep2();
         setStep(3);
-      }
-    } else if (step === 3) {
-      // Invite member
-      if (memberName && (memberEmail || memberPhone)) {
-        setLoading(true);
-        try {
-          // Send invite via Cloud Function
-          // For now, marking as complete
-          const companyRef = doc(db, 'companies', company.id);
-          await updateDoc(companyRef, {
-            onboardingCompletedAt: Timestamp.now(),
-          });
-          setStep(4);
-        } catch (err: any) {
-          setError(err.message || 'Failed to send invite.');
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        // Complete without inviting
-        const companyRef = doc(db, 'companies', company.id);
-        await updateDoc(companyRef, {
-          onboardingCompletedAt: Timestamp.now(),
-        });
+      } else if (step === 3) {
+        await saveInvite();
+        await completeOnboarding();
         setStep(4);
       }
+    } catch (err: any) {
+      console.error('Onboarding step failed:', err);
+      setError({ message: err?.message || 'Something went wrong. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSkipStep = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      if (step === 2) {
+        setStep(3);
+      } else if (step === 3) {
+        await completeOnboarding();
+        setStep(4);
+      }
+    } catch (err: any) {
+      console.error('Onboarding skip failed:', err);
+      setError({ message: err?.message || 'Failed to complete setup.' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -121,15 +184,15 @@ export default function OnboardingWizard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4 py-8">
       <div className="w-full max-w-2xl">
-        <div className="text-center mb-8">
-          <div className="text-4xl font-bold mb-4">
+        <div className="text-center mb-8 flex flex-col items-center">
+          <img src="/logo.png" alt="PulseMaint" className="h-16 w-auto mb-3" />
+          <div className="text-3xl font-bold mb-2">
             <span className="text-white">Pulse</span>
             <span className="text-[#00C2FF]">Maint</span>
           </div>
           <p className="text-gray-300">Complete your setup</p>
         </div>
 
-        {/* Progress */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
             {[1, 2, 3, 4].map((s) => (
@@ -141,13 +204,14 @@ export default function OnboardingWizard() {
               />
             ))}
           </div>
+          <p className="text-gray-400 text-xs text-center">Step {Math.min(step, 4)} of 4</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span className="text-sm">{error}</span>
+              <span className="text-sm">{error.message}</span>
             </div>
           )}
 
@@ -157,7 +221,8 @@ export default function OnboardingWizard() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Company Logo</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
+                <div
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 transition-colors"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     e.preventDefault();
@@ -174,7 +239,7 @@ export default function OnboardingWizard() {
                   />
                   {logoPreview ? (
                     <div>
-                      <img src={logoPreview} alt="Logo preview" className="h-24 mx-auto mb-2" />
+                      <img src={logoPreview} alt="Logo preview" className="h-24 mx-auto mb-2 object-contain" />
                       <label htmlFor="logo-input" className="text-sm text-[#1A56DB] hover:underline cursor-pointer">
                         Change logo
                       </label>
@@ -220,7 +285,7 @@ export default function OnboardingWizard() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Currency</label>
                 <select
                   value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
+                  onChange={(e) => setCurrency(e.target.value as typeof currency)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 >
                   <option value="LKR">LKR</option>
@@ -235,6 +300,7 @@ export default function OnboardingWizard() {
           {step === 2 && (
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-gray-900">Add First Machine</h2>
+              <p className="text-sm text-gray-500">Optional — you can do this later from the Machines page.</p>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Machine Name</label>
@@ -255,11 +321,12 @@ export default function OnboardingWizard() {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 >
                   <option value="">Select type</option>
-                  <option value="cnc">CNC Machine</option>
-                  <option value="conveyor">Conveyor Belt</option>
-                  <option value="press">Hydraulic Press</option>
+                  <option value="cnc_machine">CNC Machine</option>
+                  <option value="conveyor">Conveyor</option>
+                  <option value="hydraulic_press">Hydraulic Press</option>
                   <option value="lathe">Lathe</option>
                   <option value="compressor">Compressor</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 
@@ -275,8 +342,10 @@ export default function OnboardingWizard() {
               </div>
 
               <button
-                onClick={() => setStep(3)}
-                className="w-full text-[#1A56DB] hover:underline text-sm"
+                type="button"
+                onClick={handleSkipStep}
+                disabled={loading}
+                className="w-full text-[#1A56DB] hover:underline text-sm disabled:opacity-50"
               >
                 Skip for now
               </button>
@@ -286,6 +355,9 @@ export default function OnboardingWizard() {
           {step === 3 && (
             <div className="space-y-4">
               <h2 className="text-2xl font-bold text-gray-900">Invite Team Member</h2>
+              <p className="text-sm text-gray-500">
+                Optional — we'll save the invite and send it once email/SMS is configured.
+              </p>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
@@ -302,12 +374,14 @@ export default function OnboardingWizard() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
                 <select
                   value={memberRole}
-                  onChange={(e) => setMemberRole(e.target.value)}
+                  onChange={(e) => setMemberRole(e.target.value as typeof memberRole)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 >
                   <option value="technician">Technician</option>
-                  <option value="supervisor">Supervisor</option>
+                  <option value="maintenance_supervisor">Supervisor</option>
                   <option value="plant_manager">Plant Manager</option>
+                  <option value="store_keeper">Store Keeper</option>
+                  <option value="hr_officer">HR Officer</option>
                 </select>
               </div>
 
@@ -334,15 +408,17 @@ export default function OnboardingWizard() {
               </div>
 
               <button
-                onClick={handleNextStep}
-                className="w-full text-[#1A56DB] hover:underline text-sm"
+                type="button"
+                onClick={handleSkipStep}
+                disabled={loading}
+                className="w-full text-[#1A56DB] hover:underline text-sm disabled:opacity-50"
               >
-                Skip for now
+                Skip for now and finish
               </button>
             </div>
           )}
 
-          {step === 4 && (
+          {step >= 4 && (
             <div className="text-center space-y-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-green-600" />
@@ -350,19 +426,19 @@ export default function OnboardingWizard() {
 
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">You're all set, {userProfile.fullName}!</h2>
-                <p className="text-gray-600">
-                  Your free trial runs until <strong>{trialEndsAt}</strong>
-                </p>
+                {trialEndsAt && (
+                  <p className="text-gray-600">
+                    Your free trial runs until <strong>{trialEndsAt}</strong>
+                  </p>
+                )}
               </div>
 
-              <div className="space-y-2">
-                <button
-                  onClick={() => userRole && navigate(getDashboardRoute(userRole))}
-                  className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11"
-                >
-                  Go to Dashboard
-                </button>
-              </div>
+              <button
+                onClick={() => navigate(getDashboardRoute(userProfile.role), { replace: true })}
+                className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors h-11"
+              >
+                Go to Dashboard
+              </button>
             </div>
           )}
 
@@ -370,13 +446,16 @@ export default function OnboardingWizard() {
             <div className="flex gap-4">
               {step > 1 && (
                 <button
+                  type="button"
                   onClick={() => setStep(step - 1)}
-                  className="flex-1 border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11"
+                  disabled={loading}
+                  className="flex-1 border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors h-11 disabled:opacity-50"
                 >
                   Back
                 </button>
               )}
               <button
+                type="button"
                 onClick={handleNextStep}
                 disabled={loading}
                 className="flex-1 bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50 h-11 flex items-center justify-center gap-2"
