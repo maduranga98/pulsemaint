@@ -59,7 +59,6 @@ import {
   PMScheduleEditPage,
   PMScheduleDetailPage,
   PMCalendarPage,
-  PMWorkloadPage,
   PMCompliancePage,
 } from '../pages/pm';
 
@@ -122,6 +121,7 @@ import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 
 // Real pages (Module 1, 2, 4, 11)
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
+import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
@@ -637,10 +637,10 @@ export default function AppRouter() {
           }
         />
         <Route
-          path="pm-workload"
+          path="analytics"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
-              <PMWorkloadPage />
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor']}>
+              <AnalyticsPage />
             </ProtectedRoute>
           }
         />

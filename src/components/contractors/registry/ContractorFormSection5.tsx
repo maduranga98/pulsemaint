@@ -2,7 +2,7 @@ import { Upload } from 'lucide-react';
 
 export function ContractorFormSection5() {
   return (
-    <section className="space-y-4">
+    <section className="space-y-4" id="contractor-form-documents">
       <h2 className="text-lg font-semibold text-slate-950">Initial Documents</h2>
       <label className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm text-slate-500">
         <Upload className="mb-2 h-7 w-7 text-blue-600" />

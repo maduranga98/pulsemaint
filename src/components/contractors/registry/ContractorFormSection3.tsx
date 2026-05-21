@@ -2,7 +2,7 @@ import { CONTRACTOR_SPECIALIZATION_TAGS, SPECIALIZATION_LABELS } from '@/lib/con
 
 export function ContractorFormSection3() {
   return (
-    <section className="space-y-4">
+    <section className="space-y-4" id="contractor-form-specializations">
       <h2 className="text-lg font-semibold text-slate-950">Specializations</h2>
       <div>
         <p className="mb-2 text-sm font-medium text-slate-700">Specialization Tags *</p>

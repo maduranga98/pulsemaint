@@ -19,16 +19,33 @@ const SECTIONS = [
   <ContractorFormSection5 key="documents" />,
 ];
 
+const SECTION_ANCHORS = [
+  'contractor-form-company',
+  'contractor-form-contacts',
+  'contractor-form-specializations',
+  'contractor-form-financial',
+  'contractor-form-documents',
+];
+
 export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
   const [step, setStep] = useState(0);
 
+  const goToStep = (index: number) => {
+    setStep(index);
+    const id = SECTION_ANCHORS[index];
+    if (id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <form className="space-y-5">
-      <ContractorFormStepper step={step} onStepChange={setStep} />
+      <ContractorFormStepper step={step} onStepChange={goToStep} />
       <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-        <aside className="hidden rounded-lg border border-slate-200 bg-white p-3 lg:block">
+        <aside className="hidden rounded-lg border border-slate-200 bg-white p-3 lg:block lg:sticky lg:top-4 lg:self-start">
           {['Company', 'Contacts', 'Specializations', 'Financial', 'Documents'].map((label, index) => (
-            <button key={label} type="button" onClick={() => setStep(index)} className={`block w-full rounded-md px-3 py-2 text-left text-sm font-medium ${step === index ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
+            <button key={label} type="button" onClick={() => goToStep(index)} className={`block w-full rounded-md px-3 py-2 text-left text-sm font-medium ${step === index ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'}`}>
               {label}
             </button>
           ))}
