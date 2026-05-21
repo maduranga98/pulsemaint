@@ -10,7 +10,8 @@ export function ShiftConfigPage() {
   async function seedDefaults() {
     if (!companyId) return;
     for (const shift of defaultShiftConfigs(companyId)) {
-      await save(shift);
+      const { shiftName, startTime, endTime, color, activeDays, department, status } = shift;
+      await save({ shiftName, startTime, endTime, color, activeDays, department, status });
     }
   }
 

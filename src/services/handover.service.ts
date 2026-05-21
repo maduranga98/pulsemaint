@@ -20,6 +20,7 @@ import type {
   CompiledShiftSummary,
   DraftHandover,
   HandoverHistoryFilters,
+  PendingWOSnapshot,
   ShiftConfig,
   ShiftHandover,
   ShiftStatsAuto,
@@ -27,6 +28,13 @@ import type {
 } from '@/types/handover.types';
 
 const functions = getFunctions(app);
+
+type PendingWOSnapshotWire = Omit<PendingWOSnapshot, 'dueDate'> & { dueDate: string | null };
+type CompiledShiftSummaryWire = Omit<CompiledShiftSummary, 'shiftStartTime' | 'compiledAt' | 'pendingWOs'> & {
+  shiftStartTime: string;
+  compiledAt: string;
+  pendingWOs: PendingWOSnapshotWire[];
+};
 
 function toDate(value: Date | Timestamp | null | undefined): Date | null {
   if (!value) return null;
@@ -118,7 +126,7 @@ export async function autoCompileShiftSummary(params: {
 }): Promise<CompiledShiftSummary> {
   const callable = httpsCallable<
     { companyId: string; supervisorId: string; shiftStartTime: string },
-    CompiledShiftSummary
+    CompiledShiftSummaryWire
   >(functions, 'autoCompileShiftSummary');
   const result = await callable({
     companyId: params.companyId,

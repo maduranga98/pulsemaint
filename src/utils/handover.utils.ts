@@ -1,6 +1,6 @@
 import type { ShiftConfig, ShiftDay } from '@/types/handover.types';
 
-const DAY_LABELS: ShiftDay[] = ['Sun' as ShiftDay, 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAY_LABELS: ShiftDay[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function formatDuration(ms: number): string {
   const totalMinutes = Math.max(0, Math.floor(ms / 60000));

@@ -4,7 +4,6 @@ import type {
   DraftHandover,
   HandoverHistoryFilters,
   HandoverStore,
-  ShiftConfig,
   ShiftStatsAuto,
 } from '@/types/handover.types';
 import {

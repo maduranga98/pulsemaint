@@ -534,6 +534,36 @@ service cloud.firestore {
       allow write: if isAuthenticated() && getUserData().companyId == companyId
         && getUserData().role in ['supervisor', 'admin'];
     // pm_schedules — Preventive Maintenance Schedules
+    }
+
+    // shift_config — admin-managed shift setup
+    match /shift_config/{configId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer'];
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAdmin();
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAdmin();
+    }
+
+    // shift_handovers — supervisor accountability transfer records
+    match /shift_handovers/{handoverId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer'];
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'admin'];
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'admin'];
+      allow delete: if false;
+    }
+
+    // shift_stats — analytics feed written by Cloud Functions
+    match /shift_stats/{statId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow write: if false;
+    }
+
     match /pm_schedules/{scheduleId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
