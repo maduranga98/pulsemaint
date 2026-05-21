@@ -83,7 +83,14 @@ import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
 import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
 
 // Dashboard
-import { DashboardPage } from '../pages/dashboard';
+import {
+  DashboardPage,
+  SupervisorDashboard,
+  ManagerDashboard,
+  TechnicianDashboard,
+  InventoryDashboard,
+  TrainingDashboard,
+} from '../pages/dashboard';
 
 // Contractor pages
 import ContractorRegistryPage from '../pages/contractors/ContractorRegistryPage';
@@ -105,6 +112,13 @@ import RateContractorPage from '../pages/contractors/jobs/RateContractorPage';
 import PerformanceDashboardPage from '../pages/contractors/PerformanceDashboardPage';
 import CompliancePage from '../pages/contractors/CompliancePage';
 import ReportsHubPage from '../pages/contractors/ReportsHubPage';
+import HandoverCreatePage from '../pages/handover/HandoverCreatePage';
+import ShiftBriefingPage from '../pages/handover/ShiftBriefingPage';
+import HandoverHistoryPage from '../pages/handover/HandoverHistoryPage';
+import HandoverDetailPage from '../pages/handover/HandoverDetailPage';
+import ShiftConfigPage from '../pages/settings/ShiftConfigPage';
+import MainReportsHubPage from '../pages/reports/ReportsHubPage';
+import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 
 // Stubs for not-yet-built pages
 const BreakdownsPage = () => <div className="p-8">Breakdowns Page</div>;
@@ -166,11 +180,52 @@ export default function AppRouter() {
       >
         <Route index element={<Navigate to="/app/dashboard" replace />} />
 
+        {/* Dashboard — role-based redirect + sub-dashboards */}
         <Route
           path="dashboard"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer']}>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/supervisor"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <SupervisorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/manager"
+          element={
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin']}>
+              <ManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/technician"
+          element={
+            <ProtectedRoute requiredRoles={['technician', 'admin']}>
+              <TechnicianDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/inventory"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'admin']}>
+              <InventoryDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/training"
+          element={
+            <ProtectedRoute requiredRoles={['hr_officer', 'admin']}>
+              <TrainingDashboard />
             </ProtectedRoute>
           }
         />
@@ -400,6 +455,15 @@ export default function AppRouter() {
         <Route path="contractors/:contractorId/technicians/:techId/edit" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><EditTechnicianPage /></ProtectedRoute>} />
         <Route path="contractors/:contractorId/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorHistoryPage /></ProtectedRoute>} />
         <Route path="contractors/:contractorId/analytics" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorAnalyticsPage /></ProtectedRoute>} />
+
+        {/* Shift handover */}
+        <Route path="shift/handover/create" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><HandoverCreatePage /></ProtectedRoute>} />
+        <Route path="shift/handover/briefing" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><ShiftBriefingPage /></ProtectedRoute>} />
+        <Route path="shift/handover/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverHistoryPage /></ProtectedRoute>} />
+        <Route path="shift/handover/:id" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverDetailPage /></ProtectedRoute>} />
+        <Route path="settings/shifts" element={<ProtectedRoute requiredRoles={['admin']}><ShiftConfigPage /></ProtectedRoute>} />
+        <Route path="reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><MainReportsHubPage /></ProtectedRoute>} />
+        <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><ReportHistoryPage /></ProtectedRoute>} />
         <Route
           path="training"
           element={<Navigate to="/app/training/manage" replace />}
@@ -667,6 +731,8 @@ export default function AppRouter() {
       {/* Legacy /machines/* -> /app/machines */}
       <Route path="/machines" element={<Navigate to="/app/machines" replace />} />
       <Route path="/machines/*" element={<Navigate to="/app/machines" replace />} />
+      <Route path="/reports" element={<Navigate to="/app/reports" replace />} />
+      <Route path="/reports/history" element={<Navigate to="/app/reports/history" replace />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

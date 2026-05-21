@@ -73,6 +73,24 @@ exports.triggerManualPM = triggerManualPM;
 // Training Module — Cloud Functions
 // ---------------------------------------------------------------------------
 
+const { autoCompileShiftSummary } = require("./src/handover/autoCompileShiftSummary");
+const { submitHandover } = require("./src/handover/submitHandover");
+const { acceptHandover } = require("./src/handover/acceptHandover");
+const { checkUnacceptedHandovers } = require("./src/handover/checkUnacceptedHandovers");
+const { carryForwardWatchFlags } = require("./src/handover/carryForwardWatchFlags");
+const {
+  resolveWatchFlagOnTicketClose,
+  resolveWatchFlagOnBreakdownClose,
+} = require("./src/handover/resolveWatchFlagOnTicketClose");
+
+exports.autoCompileShiftSummary = autoCompileShiftSummary;
+exports.submitHandover = submitHandover;
+exports.acceptHandover = acceptHandover;
+exports.checkUnacceptedHandovers = checkUnacceptedHandovers;
+exports.carryForwardWatchFlags = carryForwardWatchFlags;
+exports.resolveWatchFlagOnTicketClose = resolveWatchFlagOnTicketClose;
+exports.resolveWatchFlagOnBreakdownClose = resolveWatchFlagOnBreakdownClose;
+
 const { generateTrainingCertificate } = require("./src/training/generateTrainingCertificate");
 const { checkRetrainingTrigger } = require("./src/training/checkRetrainingTrigger");
 const { sendTrainingReminders } = require("./src/training/sendTrainingReminders");
@@ -84,6 +102,38 @@ exports.checkRetrainingTrigger = checkRetrainingTrigger;
 exports.sendTrainingReminders = sendTrainingReminders;
 exports.generateComplianceReportPdf = generateComplianceReportPdf;
 exports.notifyPracticalSignOffRequired = notifyPracticalSignOffRequired;
+
+// ---------------------------------------------------------------------------
+// Reports Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { generateReport } = require("./src/reports/generateReport");
+const { pushToGoogleSheets } = require("./src/reports/pushToGoogleSheets");
+const { cleanupOldReports } = require("./src/reports/cleanupOldReports");
+const { generateScheduledReport } = require("./src/reports/generateScheduledReport");
+
+exports.generateReport = generateReport;
+exports.pushToGoogleSheets = pushToGoogleSheets;
+exports.cleanupOldReports = cleanupOldReports;
+exports.generateScheduledReport = generateScheduledReport;
+
+// ---------------------------------------------------------------------------
+// Analytics Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { generateDailyAnalytics } = require("./src/analytics/generateDailyAnalytics");
+const { generateMonthlyAnalytics } = require("./src/analytics/generateMonthlyAnalytics");
+const { updateMachineHealth } = require("./src/analytics/updateMachineHealth");
+const { updateTechnicianStatus } = require("./src/analytics/updateTechnicianStatus");
+const { recalculateMtbf } = require("./src/analytics/recalculateMtbf");
+const { recalculateMttr } = require("./src/analytics/recalculateMttr");
+
+exports.generateDailyAnalytics = generateDailyAnalytics;
+exports.generateMonthlyAnalytics = generateMonthlyAnalytics;
+exports.updateMachineHealth = updateMachineHealth;
+exports.updateTechnicianStatus = updateTechnicianStatus;
+exports.recalculateMtbf = recalculateMtbf;
+exports.recalculateMttr = recalculateMttr;
 
 // ---------------------------------------------------------------------------
 // Helpers

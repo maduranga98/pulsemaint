@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useAuthActions } from '../../hooks/useAuthActions';
 import type { UserRole } from '../../types/auth';
+import EndShiftButton from '../handover/EndShiftButton';
 
 interface NavItem {
   label: string;
@@ -50,7 +51,7 @@ const Icon = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin'] },
+  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer'] },
   { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician'] },
   { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.alert, roles: ['supervisor', 'plant_manager', 'admin'] },
   { label: 'Report Breakdown', to: '/app/breakdowns/report', icon: Icon.report, roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin'] },
@@ -97,6 +98,17 @@ const NAV_ITEMS: NavItem[] = [
   },
   { label: 'Inventory', to: '/app/inventory', icon: Icon.box, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
+  { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
+  {
+    label: 'Handovers',
+    to: '/app/shift/handover/history',
+    icon: (
+      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M7 7h10"/><path d="M7 12h7"/><path d="M7 17h5"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M16 3v4h4"/>
+      </svg>
+    ),
+    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
+  },
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator'] },
   {
@@ -216,6 +228,7 @@ export default function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            {(role === 'supervisor' || role === 'admin') && <EndShiftButton />}
             <div className="text-right hidden sm:block leading-tight">
               <div className="text-[13px] font-medium text-slate-900 truncate max-w-[160px]">
                 {userProfile?.fullName ?? 'User'}
