@@ -12,31 +12,19 @@ import type { MachineFilters } from '../../types/machine';
 
 export function MachineListPage() {
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
+  const userProfile = useAuthStore((state) => state.userProfile);
   const [filters, setFilters] = useState<Partial<MachineFilters>>({});
   const [useTableView, setUseTableView] = useState<boolean | null>(null);
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    );
-  }
-
-  // Determine if we should show table or card view based on viewport
-  // This will be set by CSS media query hook in production
-  const isDesktop = useTableView !== null ? useTableView : typeof window !== 'undefined' && window.innerWidth >= 1024;
+  const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
 
   const { machines, loading, error, hasMore, loadMore, totalCount } = useMachines({
-    siteId: user.siteId,
+    siteId,
     filters,
   });
 
-  // Filter machines by search text
   const filteredMachines = useMemo(() => {
     if (!filters.search) return machines;
-
     const search = filters.search.toLowerCase();
     return machines.filter(
       (m) =>
@@ -47,10 +35,20 @@ export function MachineListPage() {
     );
   }, [machines, filters.search]);
 
+  if (!userProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  const isDesktop = useTableView !== null ? useTableView : typeof window !== 'undefined' && window.innerWidth >= 1024;
+
   const canCreateMachine =
-    user.role === 'maintenance_supervisor' ||
-    user.role === 'plant_manager' ||
-    user.role === 'admin';
+    userProfile.role === 'supervisor' ||
+    userProfile.role === 'plant_manager' ||
+    userProfile.role === 'admin';
 
   const activeMachines = machines.filter((m) => m.status === 'active').length;
   const maintenanceMachines = machines.filter((m) => m.status === 'under_maintenance').length;

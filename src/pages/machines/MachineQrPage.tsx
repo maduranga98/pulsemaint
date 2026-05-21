@@ -7,17 +7,19 @@ import { generateMachineQrUrl, downloadQRCodeAsImage, printQRCode } from '../../
 export function MachineQrPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
+  const userProfile = useAuthStore((state) => state.userProfile);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  if (!user || !id) {
+  const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
+  const { machine, loading, error } = useMachine({ siteId, machineId: id ?? '' });
+
+  if (!userProfile || !id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
       </div>
     );
   }
-
-  const { machine, loading, error } = useMachine({ siteId: user.siteId, machineId: id });
 
   if (loading) {
     return (
@@ -44,8 +46,7 @@ export function MachineQrPage() {
     );
   }
 
-  const qrUrl = generateMachineQrUrl(machine.id, user.siteId);
-  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const qrUrl = generateMachineQrUrl(machine.id, siteId);
 
   const handleDownloadPng = () => {
     if (qrCanvasRef.current) {
@@ -159,7 +160,7 @@ export function MachineQrPage() {
                   Print
                 </button>
 
-                {user.role === 'admin' && (
+                {userProfile.role === 'admin' && (
                   <button
                     disabled
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 opacity-50 cursor-not-allowed font-medium text-sm"

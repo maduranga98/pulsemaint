@@ -1,18 +1,21 @@
 import { BrowserRouter } from 'react-router-dom';
 import { ToastProvider } from './contexts/ToastContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import AppRouter from './router/AppRouter';
 
 export default function App() {
   return (
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
-      <ToastProvider>
-        <AppRouter />
-      </ToastProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
+        <ToastProvider>
+          <AppRouter />
+        </ToastProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

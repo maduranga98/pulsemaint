@@ -385,13 +385,13 @@ export async function fetchUserProfile(uid: string, companyId: string): Promise<
 
 export async function getCompanyIdFromUser(uid: string): Promise<string | null> {
   try {
-    // Query the users collection to find which company this user belongs to
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('uid', '==', uid));
-    const snapshot = await getDocs(q);
-
-    if (!snapshot.empty) {
-      return snapshot.docs[0].data().companyId;
+    // The user mapping is stored at /users/{uid}. Reading by document ID
+    // satisfies the Firestore rule `request.auth.uid == userId`. A collection
+    // query with `where('uid', '==', uid)` is rejected by that rule.
+    const userMapSnap = await getDoc(doc(db, 'users', uid));
+    if (userMapSnap.exists()) {
+      const data = userMapSnap.data() as { companyId?: string };
+      if (data.companyId) return data.companyId;
     }
 
     // Fallback: check custom claims from Firebase Auth

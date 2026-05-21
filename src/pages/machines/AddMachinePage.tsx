@@ -7,11 +7,11 @@ import { MachineForm } from '../../components/machines/MachineForm';
 
 export function AddMachinePage() {
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
+  const userProfile = useAuthStore((state) => state.userProfile);
   const { createMachine } = useMachineCreate();
   const { success, error: showError } = useToast();
 
-  if (!user) {
+  if (!userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
@@ -19,13 +19,15 @@ export function AddMachinePage() {
     );
   }
 
+  const siteId = userProfile.siteIds[0] || userProfile.companyId;
+
   const handleSubmit = async (
     formData: CreateMachineFormData,
     files: { photos: File[]; documents: Array<{ file: File; type: any; name: string }> }
   ) => {
     try {
       const payload: CreateMachinePayload = {
-        siteId: user.siteId,
+        siteId,
         name: formData.name,
         type: formData.type,
         manufacturer: formData.manufacturer,
@@ -60,7 +62,7 @@ export function AddMachinePage() {
   return (
     <MachineForm
       mode="create"
-      siteId={user.siteId}
+      siteId={siteId}
       onSubmit={handleSubmit}
     />
   );
