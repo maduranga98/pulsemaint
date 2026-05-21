@@ -120,12 +120,12 @@ import ShiftConfigPage from '../pages/settings/ShiftConfigPage';
 import MainReportsHubPage from '../pages/reports/ReportsHubPage';
 import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 
-// Stubs for not-yet-built pages
-const BreakdownsPage = () => <div className="p-8">Breakdowns Page</div>;
-const ReportBreakdownPage = () => <div className="p-8">Report Breakdown Page</div>;
-const WorkOrdersPage = () => <div className="p-8">Work Orders Page</div>;
-const SettingsPage = () => <div className="p-8">Settings Page</div>;
-const UsersPage = () => <div className="p-8">Users Management Page</div>;
+// Real pages (Module 1, 2, 4, 11)
+import BreakdownsPage from '../pages/breakdowns/BreakdownsPage';
+import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
+import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
+import SettingsPage from '../pages/settings/SettingsPage';
+import UsersPage from '../pages/settings/UsersPage';
 
 export default function AppRouter() {
   const { isInitialized } = useAuthInit();

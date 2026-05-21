@@ -181,6 +181,22 @@ service cloud.firestore {
     // Breakdowns (Module 1 — existing)
     // ---------------------------------------------------------------------------
 
+    // breakdown_tickets — used by dashboard widgets and Module 1 list/report pages
+    match /breakdown_tickets/{ticketId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
+        'plant_manager', 'admin'
+      ]);
+      allow create: if isAuthenticated() && isAnyRole([
+        'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
+        'plant_manager', 'admin'
+      ]);
+      allow update: if isAuthenticated() && isAnyRole([
+        'technician', 'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
+      ]);
+      allow delete: if isAdmin();
+    }
+
     match /breakdowns/{breakdownId} {
       allow read: if isAuthenticated() && isAnyRole([
         'maintenance_supervisor', 'plant_manager', 'technician',
