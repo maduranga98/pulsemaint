@@ -121,7 +121,6 @@ import MainReportsHubPage from '../pages/reports/ReportsHubPage';
 import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 
 // Real pages (Module 1, 2, 4, 11)
-import BreakdownsPage from '../pages/breakdowns/BreakdownsPage';
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
 import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import SettingsPage from '../pages/settings/SettingsPage';
@@ -274,11 +273,7 @@ export default function AppRouter() {
 
         <Route
           path="breakdowns"
-          element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
-              <BreakdownsPage />
-            </ProtectedRoute>
-          }
+          element={<Navigate to="/app/breakdowns/report" replace />}
         />
         <Route
           path="breakdowns/report"

@@ -19,7 +19,9 @@ import { complianceColor } from '../../utils/analytics.utils';
 
 export default function ManagerDashboard() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const role = useAuthStore((s) => s.userProfile?.role);
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Manager';
+  const dashboardTitle = role === 'admin' ? 'Admin Dashboard' : 'Manager Dashboard';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
 
   const currentMonth = useMemo(() => {
@@ -73,7 +75,7 @@ export default function ManagerDashboard() {
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">Manager Dashboard</h1>
+        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{dashboardTitle}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
           Good {getGreeting()}, {firstName}
         </p>

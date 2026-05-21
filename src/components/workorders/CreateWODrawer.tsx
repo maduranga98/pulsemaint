@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
+import { useAuthStore } from '../../store/authStore';
 import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder';
 import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } from '../../constants/woConfig';
 import { WO_COPY } from '../../constants/copy';
@@ -10,6 +13,22 @@ import { ChecklistBuilder } from './ChecklistBuilder';
 import { DocumentUploadZone } from './DocumentUploadZone';
 import { PartsPreRequestPanel } from './PartsPreRequestPanel';
 import type { WOType, ChecklistItem } from '../../types/workOrder';
+
+type MachineOption = {
+  id: string;
+  name: string;
+  type?: string;
+  department?: string;
+  location?: string;
+  criticality?: number;
+};
+
+type UserOption = {
+  id: string;
+  name: string;
+  role: string;
+  department?: string;
+};
 
 interface CreateWODrawerProps {
   open: boolean;
@@ -43,6 +62,60 @@ export function CreateWODrawer({
 }: CreateWODrawerProps) {
   const [step, setStep] = useState(0);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
+  const [machines, setMachines] = useState<MachineOption[]>([]);
+  const [supervisors, setSupervisors] = useState<UserOption[]>([]);
+  const [technicians, setTechnicians] = useState<UserOption[]>([]);
+  const [machineSearch, setMachineSearch] = useState('');
+  const [showMachineDropdown, setShowMachineDropdown] = useState(false);
+
+  const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
+
+  useEffect(() => {
+    if (!open || !companyId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const siteIdList = siteIds && siteIds.length > 0 ? siteIds : [companyId];
+        const machineSnap = await getDocs(
+          query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
+        );
+        if (cancelled) return;
+        setMachines(
+          machineSnap.docs.map((d) => {
+            const data = d.data() as Record<string, unknown>;
+            return {
+              id: d.id,
+              name: (data.name as string) ?? d.id,
+              type: data.type as string | undefined,
+              department: data.department as string | undefined,
+              location: data.location as string | undefined,
+              criticality: data.criticality as number | undefined,
+            };
+          }),
+        );
+
+        const userSnap = await getDocs(collection(db, `companies/${companyId}/users`));
+        if (cancelled) return;
+        const users = userSnap.docs.map((d) => {
+          const data = d.data() as Record<string, unknown>;
+          return {
+            id: d.id,
+            name: (data.fullName as string) ?? (data.email as string) ?? d.id,
+            role: (data.role as string) ?? '',
+            department: data.department as string | undefined,
+          };
+        });
+        setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor' || u.role === 'plant_manager' || u.role === 'admin'));
+        setTechnicians(users.filter((u) => u.role === 'technician'));
+      } catch (err) {
+        console.error('Failed to load WO options', err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, companyId, siteIds]);
 
   const { createWO, loading, uploadProgress } = useCreateWorkOrder();
 
@@ -264,18 +337,60 @@ export function CreateWODrawer({
           {/* ── STEP 1: Machine Selection ── */}
           {step === 1 && (
             <div className="space-y-4">
-              <div>
+              <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {WO_COPY.machineLabel} <span className="text-red-500">*</span>
                 </label>
                 <input
-                  {...form.register('machineId')}
+                  type="text"
+                  value={machineSearch}
+                  onChange={(e) => {
+                    setMachineSearch(e.target.value);
+                    setShowMachineDropdown(true);
+                    form.setValue('machineId', '');
+                  }}
+                  onFocus={() => setShowMachineDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowMachineDropdown(false), 200)}
                   placeholder={WO_COPY.machinePlaceholder}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="mt-1 text-xs text-gray-400">
-                  Machine search integrates with Module 3 — Asset Registry.
-                </p>
+                {showMachineDropdown && (
+                  <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+                    {machines.length === 0 ? (
+                      <p className="px-3 py-2 text-xs text-gray-400">No machines found. Add machines first.</p>
+                    ) : (
+                      machines
+                        .filter((m) =>
+                          machineSearch.trim() === ''
+                            ? true
+                            : m.name.toLowerCase().includes(machineSearch.toLowerCase()),
+                        )
+                        .slice(0, 20)
+                        .map((m) => (
+                          <button
+                            key={m.id}
+                            type="button"
+                            onMouseDown={() => {
+                              form.setValue('machineId', m.id);
+                              form.setValue('machineName' as any, m.name);
+                              form.setValue('machineType' as any, m.type ?? '');
+                              form.setValue('machineDepartment' as any, m.department ?? '');
+                              form.setValue('machineLocation' as any, m.location ?? '');
+                              form.setValue('machineCriticality' as any, m.criticality ?? 3);
+                              setMachineSearch(m.name);
+                              setShowMachineDropdown(false);
+                            }}
+                            className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-50 last:border-0 text-sm"
+                          >
+                            <div className="font-medium">{m.name}</div>
+                            <div className="text-xs text-gray-500">
+                              {m.type ?? ''} {m.department ? `· ${m.department}` : ''}
+                            </div>
+                          </button>
+                        ))
+                    )}
+                  </div>
+                )}
                 {form.formState.errors.machineId && (
                   <p className="mt-1 text-xs text-red-500">{form.formState.errors.machineId.message}</p>
                 )}
@@ -287,9 +402,9 @@ export function CreateWODrawer({
                   <p className="font-semibold text-gray-900">{form.watch('machineName')}</p>
                   <p className="text-sm text-gray-600">{form.watch('machineLocation')}</p>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span>Type: {form.watch('machineType')}</span>
-                    <span>Dept: {form.watch('machineDepartment')}</span>
-                    <span>Criticality: {form.watch('machineCriticality')}/5</span>
+                    {form.watch('machineType') && <span>Type: {form.watch('machineType')}</span>}
+                    {form.watch('machineDepartment') && <span>Dept: {form.watch('machineDepartment')}</span>}
+                    {form.watch('machineCriticality') && <span>Criticality: {form.watch('machineCriticality')}/5</span>}
                   </div>
                 </div>
               )}
@@ -301,7 +416,13 @@ export function CreateWODrawer({
             <TeamAssignmentPanel
               form={form}
               isContractorWO={isContractorWO}
-              technicians={[]}
+              technicians={technicians.map((t) => ({
+                id: t.id,
+                name: t.name,
+                department: t.department ?? '',
+                activeWOCount: 0,
+              }))}
+              supervisors={supervisors.map((s) => ({ id: s.id, name: s.name }))}
               contractors={[]}
             />
           )}
