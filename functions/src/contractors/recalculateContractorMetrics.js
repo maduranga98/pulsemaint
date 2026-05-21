@@ -54,7 +54,7 @@ async function recalculateContractorMetricsFor(contractorId, companyId) {
 
 exports.recalculateContractorMetricsFor = recalculateContractorMetricsFor;
 
-exports.recalculateContractorMetrics = onDocumentUpdated("contractorJobs/{jobId}", async (event) => {
+exports.recalculateContractorMetrics = onDocumentUpdated({ database: "default", document: "contractorJobs/{jobId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   if (!after.contractorId) return;

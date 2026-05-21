@@ -1,9 +1,9 @@
-const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const {onDocumentCreated} = require("firebase-functions/v2/firestore");
+const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
-exports.notifyPracticalSignOffRequired = onDocumentCreated("companies/{companyId}/trainingAssignments/{assignmentId}", async (event) => {
+exports.notifyPracticalSignOffRequired = onDocumentCreated({ database: "default", document: "companies/{companyId}/trainingAssignments/{assignmentId}" }, async (event) => {
   const assignment = event.data.data();
   if (!assignment.requiresPracticalSignOff) return;
   await db.collection("companies").doc(event.params.companyId).collection("notificationLogs").add({

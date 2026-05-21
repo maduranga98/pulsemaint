@@ -1,7 +1,7 @@
-const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { db, FieldValue, logger } = require("./shared");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {db, FieldValue, logger} = require("./shared");
 
-exports.updateMachineHistoryOnJobClose = onDocumentUpdated("contractorJobs/{jobId}", async (event) => {
+exports.updateMachineHistoryOnJobClose = onDocumentUpdated({ database: "default", document: "contractorJobs/{jobId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   if (before.status === after.status || after.status !== "signed_off") return;
@@ -13,7 +13,7 @@ exports.updateMachineHistoryOnJobClose = onDocumentUpdated("contractorJobs/{jobI
     lastTechnicians: after.technicianNames || [],
     partsReplaced: FieldValue.arrayUnion(...(after.partsFromFactory || []).map((part) => part.partName)),
     updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
+  }, {merge: true});
 
   await db.collection("machineHistory").doc(after.machineId).collection("entries").add({
     woNumber: after.workOrderNumber,
@@ -34,8 +34,8 @@ exports.updateMachineHistoryOnJobClose = onDocumentUpdated("contractorJobs/{jobI
     await db.collection("workOrders").doc(after.workOrderId).set({
       status: "resolved",
       updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    }, {merge: true});
   }
 
-  logger.info("Machine history updated for contractor job", { contractorJobId: event.params.jobId });
+  logger.info("Machine history updated for contractor job", {contractorJobId: event.params.jobId});
 });

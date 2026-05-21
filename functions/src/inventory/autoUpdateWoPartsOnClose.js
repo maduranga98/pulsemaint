@@ -13,12 +13,11 @@ const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 const CLOSED_STATUSES = ["closed", "CLOSED", "SIGNED_OFF"];
 
-exports.autoUpdateWoPartsOnClose = onDocumentUpdated(
-  "workOrders/{woId}",
+exports.autoUpdateWoPartsOnClose = onDocumentUpdated({ database: "default", document: "workOrders/{woId}" },
   async (event) => {
     const before = event.data.before.data();
     const after = event.data.after.data();

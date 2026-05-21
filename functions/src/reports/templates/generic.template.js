@@ -1,4 +1,4 @@
-const { escapeHtml } = require("./base.template");
+const {escapeHtml} = require("./base.template");
 
 function valueAt(row, keys) {
   for (const key of keys) {
@@ -16,9 +16,9 @@ function formatValue(value) {
 function buildTable(rows, columns) {
   const safeRows = rows.slice(0, 250);
   return `<table><thead><tr>${columns.map((col) => `<th>${escapeHtml(col.label)}</th>`).join("")}</tr></thead><tbody>${
-    safeRows.length
-      ? safeRows.map((row) => `<tr>${columns.map((col) => `<td>${formatValue(valueAt(row, col.keys))}</td>`).join("")}</tr>`).join("")
-      : `<tr><td colspan="${columns.length}">No records matched this report configuration.</td></tr>`
+    safeRows.length ?
+      safeRows.map((row) => `<tr>${columns.map((col) => `<td>${formatValue(valueAt(row, col.keys))}</td>`).join("")}</tr>`).join("") :
+      `<tr><td colspan="${columns.length}">No records matched this report configuration.</td></tr>`
   }</tbody></table>`;
 }
 
@@ -39,4 +39,4 @@ function buildGenericReportContent(spec, rows, options = {}) {
   `;
 }
 
-module.exports = { buildGenericReportContent };
+module.exports = {buildGenericReportContent};

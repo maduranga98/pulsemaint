@@ -11,11 +11,11 @@
  */
 
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getFirestore } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 async function sendPushToRoles(companyId, roles, title, body, data = {}) {
   const tokens = [];
@@ -44,8 +44,7 @@ async function sendPushToRoles(companyId, roles, title, body, data = {}) {
   }
 }
 
-exports.notifyLowStock = onDocumentUpdated(
-  "companies/{companyId}/inventoryParts/{partId}",
+exports.notifyLowStock = onDocumentUpdated({ database: "default", document: "companies/{companyId}/inventoryParts/{partId}" },
   async (event) => {
     const companyId = event.params.companyId;
     const partId = event.params.partId;

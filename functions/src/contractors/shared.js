@@ -1,7 +1,7 @@
-const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
+const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 const CRITICAL_DOCUMENT_TYPES = [
   "insurance_certificate",

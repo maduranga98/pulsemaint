@@ -1,7 +1,7 @@
-const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
+const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 function asDate(value) {
   if (!value) return null;
@@ -37,7 +37,7 @@ async function addNotification(companyId, payload) {
 
 function requireAuth(request) {
   if (!request.auth) {
-    const { HttpsError } = require("firebase-functions/v2/https");
+    const {HttpsError} = require("firebase-functions/v2/https");
     throw new HttpsError("unauthenticated", "Sign in is required.");
   }
 }

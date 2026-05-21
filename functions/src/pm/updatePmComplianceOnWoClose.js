@@ -8,46 +8,46 @@
  * 4. Updates machine profile: last PM date, next PM due, health score
  */
 
-const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 async function recalculateMachineHealth(machineId) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const ninetyDaysAgo = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
   const breakdownsSnap = await db
-    .collection("workOrders")
-    .where("machineId", "==", machineId)
-    .where("woType", "==", "BREAKDOWN")
-    .where("createdAt", ">=", Timestamp.fromDate(thirtyDaysAgo))
-    .get();
+      .collection("workOrders")
+      .where("machineId", "==", machineId)
+      .where("woType", "==", "BREAKDOWN")
+      .where("createdAt", ">=", Timestamp.fromDate(thirtyDaysAgo))
+      .get();
   const recentBreakdowns = breakdownsSnap.size;
 
   const overdueSnap = await db
-    .collection("workOrders")
-    .where("machineId", "==", machineId)
-    .where("woType", "==", "PREVENTIVE")
-    .where("slaBreached", "==", true)
-    .where("status", "not-in", ["COMPLETED", "SIGNED_OFF", "CLOSED", "CANCELLED"])
-    .get();
+      .collection("workOrders")
+      .where("machineId", "==", machineId)
+      .where("woType", "==", "PREVENTIVE")
+      .where("slaBreached", "==", true)
+      .where("status", "not-in", ["COMPLETED", "SIGNED_OFF", "CLOSED", "CANCELLED"])
+      .get();
   const overduePMs = overdueSnap.size;
 
   const completedPMSnap = await db
-    .collection("workOrders")
-    .where("machineId", "==", machineId)
-    .where("woType", "==", "PREVENTIVE")
-    .where("status", "in", ["COMPLETED", "SIGNED_OFF", "CLOSED"])
-    .where("createdAt", ">=", Timestamp.fromDate(ninetyDaysAgo))
-    .get();
+      .collection("workOrders")
+      .where("machineId", "==", machineId)
+      .where("woType", "==", "PREVENTIVE")
+      .where("status", "in", ["COMPLETED", "SIGNED_OFF", "CLOSED"])
+      .where("createdAt", ">=", Timestamp.fromDate(ninetyDaysAgo))
+      .get();
   const allPMSnap = await db
-    .collection("workOrders")
-    .where("machineId", "==", machineId)
-    .where("woType", "==", "PREVENTIVE")
-    .where("createdAt", ">=", Timestamp.fromDate(ninetyDaysAgo))
-    .get();
+      .collection("workOrders")
+      .where("machineId", "==", machineId)
+      .where("woType", "==", "PREVENTIVE")
+      .where("createdAt", ">=", Timestamp.fromDate(ninetyDaysAgo))
+      .get();
 
   const pmComplianceRate = allPMSnap.size > 0 ? completedPMSnap.size / allPMSnap.size : 1;
   let score = 100 - recentBreakdowns * 10 - overduePMs * 5 + pmComplianceRate * 20;
@@ -56,7 +56,7 @@ async function recalculateMachineHealth(machineId) {
   return score;
 }
 
-exports.updatePmComplianceOnWoClose = onDocumentUpdated("workOrders/{woId}", async (event) => {
+exports.updatePmComplianceOnWoClose = onDocumentUpdated({ database: "default", document: "workOrders/{woId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   const woId = event.params.woId;
@@ -71,9 +71,9 @@ exports.updatePmComplianceOnWoClose = onDocumentUpdated("workOrders/{woId}", asy
   }
 
   try {
-    const completedDate = after.actualEndTime
-      ? after.actualEndTime.toDate()
-      : new Date();
+    const completedDate = after.actualEndTime ?
+      after.actualEndTime.toDate() :
+      new Date();
     const dueDate = after.dueDate.toDate();
 
     const isOnTime = completedDate <= dueDate;
@@ -81,10 +81,10 @@ exports.updatePmComplianceOnWoClose = onDocumentUpdated("workOrders/{woId}", asy
 
     // Find linked pm_history record
     const historySnap = await db
-      .collection("pm_history")
-      .where("woId", "==", woId)
-      .limit(1)
-      .get();
+        .collection("pm_history")
+        .where("woId", "==", woId)
+        .limit(1)
+        .get();
 
     if (!historySnap.empty) {
       const historyDoc = historySnap.docs[0];
@@ -107,9 +107,9 @@ exports.updatePmComplianceOnWoClose = onDocumentUpdated("workOrders/{woId}", asy
         const completedOnTime = (schedule.completedOnTime || 0) + (isOnTime ? 1 : 0);
         const completedLate = (schedule.completedLate || 0) + (isOnTime ? 0 : 1);
         const total = schedule.totalScheduled || 1;
-        const complianceRate = total > 0
-          ? Math.round((completedOnTime / total) * 100)
-          : 100;
+        const complianceRate = total > 0 ?
+          Math.round((completedOnTime / total) * 100) :
+          100;
 
         await scheduleRef.update({
           completedOnTime,

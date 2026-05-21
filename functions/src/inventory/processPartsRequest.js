@@ -10,11 +10,11 @@
  */
 
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getFirestore } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 async function sendPushToRoleInCompany(companyId, role, title, body, data = {}) {
   const usersSnap = await db
@@ -42,8 +42,7 @@ async function sendPushToRoleInCompany(companyId, role, title, body, data = {}) 
   }
 }
 
-exports.processPartsRequest = onDocumentCreated(
-  "companies/{companyId}/partsRequests/{requestId}",
+exports.processPartsRequest = onDocumentCreated({ database: "default", document: "companies/{companyId}/partsRequests/{requestId}" },
   async (event) => {
     const companyId = event.params.companyId;
     const requestId = event.params.requestId;

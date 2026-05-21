@@ -26,7 +26,7 @@ const { buildExecutiveMonthlyTemplate } = require("./templates/executive-monthly
 const { buildSafetyNearMissTemplate } = require("./templates/safety-near-miss.template");
 const { buildAuditTrailTemplate } = require("./templates/audit-trail.template");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 const REPORTS = {
   breakdown_summary: { name: "Breakdown Summary Report", sources: ["breakdown_tickets"], build: buildBreakdownSummaryTemplate },

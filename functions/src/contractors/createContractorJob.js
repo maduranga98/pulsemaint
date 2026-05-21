@@ -1,14 +1,14 @@
-const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { HttpsError } = require("firebase-functions/v2/https");
-const { db, logger, FieldValue, Timestamp } = require("./shared");
-const { sendJobInvitationInternal } = require("./sendJobInvitation");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {HttpsError} = require("firebase-functions/v2/https");
+const {db, logger, FieldValue, Timestamp} = require("./shared");
+const {sendJobInvitationInternal} = require("./sendJobInvitation");
 
 function isContractorWorkOrder(wo) {
   const type = String(wo.woType || wo.workOrderType || "").toLowerCase();
   return type.includes("contractor") || Boolean(wo.contractorId || wo.contractorCompanyName);
 }
 
-exports.createContractorJob = onDocumentUpdated("workOrders/{woId}", async (event) => {
+exports.createContractorJob = onDocumentUpdated({ database: "default", document: "workOrders/{woId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   const woId = event.params.woId;
@@ -18,16 +18,16 @@ exports.createContractorJob = onDocumentUpdated("workOrders/{woId}", async (even
 
   const companyId = after.companyId || after.siteId;
   if (!companyId) {
-    logger.warn("createContractorJob skipped: missing companyId", { woId });
+    logger.warn("createContractorJob skipped: missing companyId", {woId});
     return;
   }
 
   const existingSnap = await db
-    .collection("contractorJobs")
-    .where("companyId", "==", companyId)
-    .where("workOrderId", "==", woId)
-    .limit(1)
-    .get();
+      .collection("contractorJobs")
+      .where("companyId", "==", companyId)
+      .where("workOrderId", "==", woId)
+      .limit(1)
+      .get();
   if (!existingSnap.empty) return;
 
   let contractor = {};
@@ -36,13 +36,13 @@ exports.createContractorJob = onDocumentUpdated("workOrders/{woId}", async (even
     const contractorSnap = await db.collection("contractors").doc(after.contractorId).get();
     contractor = contractorSnap.exists ? contractorSnap.data() : {};
     const blockedSnap = await db
-      .collection("contractors")
-      .doc(after.contractorId)
-      .collection("documents")
-      .where("companyId", "==", companyId)
-      .where("blocksAssignment", "==", true)
-      .get();
-    blockedDocuments = blockedSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        .collection("contractors")
+        .doc(after.contractorId)
+        .collection("documents")
+        .where("companyId", "==", companyId)
+        .where("blocksAssignment", "==", true)
+        .get();
+    blockedDocuments = blockedSnap.docs.map((doc) => ({id: doc.id, ...doc.data()}));
   }
 
   const jobRef = db.collection("contractorJobs").doc();
@@ -84,9 +84,9 @@ exports.createContractorJob = onDocumentUpdated("workOrders/{woId}", async (even
     afterPhotoUrls: [],
     documentUrls: [],
     invoiceStatus: "pending",
-    complianceWarning: blockedDocuments.length
-      ? `Expired critical documents: ${blockedDocuments.map((doc) => doc.documentName).join(", ")}`
-      : "",
+    complianceWarning: blockedDocuments.length ?
+      `Expired critical documents: ${blockedDocuments.map((doc) => doc.documentName).join(", ")}` :
+      "",
     createdBy: after.createdBy || after.supervisorInChargeId || "",
     createdByName: after.createdByName || after.supervisorInChargeName || "",
     createdAt: FieldValue.serverTimestamp(),
@@ -106,5 +106,5 @@ exports.createContractorJob = onDocumentUpdated("workOrders/{woId}", async (even
     else logger.error("Invitation failed", err);
   }
 
-  logger.info("Contractor job created", { contractorJobId: jobRef.id, woId });
+  logger.info("Contractor job created", {contractorJobId: jobRef.id, woId});
 });

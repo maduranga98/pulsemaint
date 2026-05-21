@@ -1,7 +1,7 @@
 const { onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 /**
  * Triggered on write to breakdown_tickets, work_orders, or pm_history.
@@ -9,6 +9,7 @@ const db = getFirestore();
  */
 exports.updateMachineHealth = onDocumentWritten(
   {
+    database: "default",
     document: "breakdown_tickets/{ticketId}",
     region: "us-central1",
   },

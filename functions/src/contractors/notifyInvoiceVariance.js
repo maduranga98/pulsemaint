@@ -1,7 +1,7 @@
-const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { db, FieldValue, calculateVariance, logger } = require("./shared");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {db, FieldValue, calculateVariance, logger} = require("./shared");
 
-exports.notifyInvoiceVariance = onDocumentUpdated("contractorJobs/{jobId}", async (event) => {
+exports.notifyInvoiceVariance = onDocumentUpdated({ database: "default", document: "contractorJobs/{jobId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   if (before.contractorInvoiceAmount === after.contractorInvoiceAmount) return;
@@ -26,5 +26,5 @@ exports.notifyInvoiceVariance = onDocumentUpdated("contractorJobs/{jobId}", asyn
     });
   }
 
-  logger.info("Invoice variance recalculated", { contractorJobId: event.params.jobId, ...variance });
+  logger.info("Invoice variance recalculated", {contractorJobId: event.params.jobId, ...variance});
 });

@@ -1,7 +1,7 @@
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 /**
  * Runs daily at 00:05 AM.
@@ -11,7 +11,7 @@ const db = getFirestore();
 exports.generateDailyAnalytics = onSchedule({
   schedule: "5 0 * * *",
   timeZone: "Asia/Colombo",
-}, async (event) => {
+}, async () => {
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   yesterday.setHours(0, 0, 0, 0);

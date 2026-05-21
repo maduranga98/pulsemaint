@@ -1,10 +1,10 @@
-const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
-exports.generateTrainingCertificate = onDocumentUpdated("companies/{companyId}/trainingAssignments/{assignmentId}", async (event) => {
+exports.generateTrainingCertificate = onDocumentUpdated({ database: "default", document: "companies/{companyId}/trainingAssignments/{assignmentId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   if (before.status === after.status || after.status !== "completed") return;
@@ -19,5 +19,5 @@ exports.generateTrainingCertificate = onDocumentUpdated("companies/{companyId}/t
     issuedAt: FieldValue.serverTimestamp(),
     status: "active",
   });
-  logger.info("Generated training certificate", { assignmentId: event.params.assignmentId });
+  logger.info("Generated training certificate", {assignmentId: event.params.assignmentId});
 });

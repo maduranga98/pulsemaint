@@ -1,7 +1,7 @@
-const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 /**
  * Runs on the 1st of each month at 00:30 AM.
@@ -10,7 +10,7 @@ const db = getFirestore();
 exports.generateMonthlyAnalytics = onSchedule({
   schedule: "30 0 1 * *",
   timeZone: "Asia/Colombo",
-}, async (event) => {
+}, async () => {
   const now = new Date();
   const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const monthStr = `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, "0")}`;
@@ -23,10 +23,10 @@ exports.generateMonthlyAnalytics = onSchedule({
 
     // Sum daily analytics for the month
     const dailySnap = await db
-      .collection("analytics_daily")
-      .where("companyId", "==", companyId)
-      .where("month", "==", monthStr)
-      .get();
+        .collection("analytics_daily")
+        .where("companyId", "==", companyId)
+        .where("month", "==", monthStr)
+        .get();
 
     let totalBreakdowns = 0;
     let totalMttr = 0;
@@ -51,11 +51,11 @@ exports.generateMonthlyAnalytics = onSchedule({
 
     // Get top problem machines
     const machineHealthSnap = await db
-      .collection("machine_health")
-      .where("companyId", "==", companyId)
-      .orderBy("breakdownCountMTD", "desc")
-      .limit(10)
-      .get();
+        .collection("machine_health")
+        .where("companyId", "==", companyId)
+        .orderBy("breakdownCountMTD", "desc")
+        .limit(10)
+        .get();
 
     const topProblemMachines = machineHealthSnap.docs.map((doc) => {
       const d = doc.data();
@@ -71,9 +71,9 @@ exports.generateMonthlyAnalytics = onSchedule({
 
     // Get technician performance
     const techSnap = await db
-      .collection("technician_status")
-      .where("companyId", "==", companyId)
-      .get();
+        .collection("technician_status")
+        .where("companyId", "==", companyId)
+        .get();
 
     const technicianPerformance = techSnap.docs.map((doc) => {
       const d = doc.data();
@@ -98,6 +98,7 @@ exports.generateMonthlyAnalytics = onSchedule({
       overallSlaCompliance: totalSlaTotal > 0 ? (totalSlaCompliant / totalSlaTotal) * 100 : 100,
       totalMaintenanceCost: totalCost,
       totalProductionHoursLost: totalHoursLost,
+      totalWosCompleted,
       pmComplianceRate: 0,
       topProblemMachines,
       technicianPerformance,
@@ -105,7 +106,7 @@ exports.generateMonthlyAnalytics = onSchedule({
       breakdownByType: {},
       breakdownBySeverity: {},
       updatedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
+    }, {merge: true});
   }
 
   console.log(`Monthly analytics generated for ${monthStr}`);
