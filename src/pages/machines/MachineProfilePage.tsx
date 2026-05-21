@@ -10,18 +10,19 @@ type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics
 export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const user = useAuthStore((state) => state.user);
+  const userProfile = useAuthStore((state) => state.userProfile);
   const [activeTab, setActiveTab] = useState<TabName>('overview');
 
-  if (!user || !id) {
+  const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
+  const { machine, loading, error } = useMachine({ siteId, machineId: id ?? '' });
+
+  if (!userProfile || !id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
       </div>
     );
   }
-
-  const { machine, loading, error } = useMachine({ siteId: user.siteId, machineId: id });
 
   if (loading) {
     return (
@@ -49,7 +50,7 @@ export function MachineProfilePage() {
   }
 
   const canEditMachine =
-    user.role === 'maintenance_supervisor' || user.role === 'plant_manager' || user.role === 'admin';
+    userProfile.role === 'supervisor' || userProfile.role === 'plant_manager' || userProfile.role === 'admin';
 
   const tabs: { name: TabName; label: string }[] = [
     { name: 'overview', label: 'Overview' },
@@ -59,7 +60,7 @@ export function MachineProfilePage() {
     { name: 'analytics', label: 'Analytics' },
   ];
 
-  const analyticsTabDisabled = user.role !== 'plant_manager' && user.role !== 'admin';
+  const analyticsTabDisabled = userProfile.role !== 'plant_manager' && userProfile.role !== 'admin';
 
   return (
     <div className="min-h-screen bg-gray-50">
