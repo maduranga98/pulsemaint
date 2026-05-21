@@ -1,9 +1,9 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { db, FieldValue, Timestamp, minutesBetween, requireAuth, addNotification } = require("./shared");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {db, FieldValue, Timestamp, minutesBetween, requireAuth, addNotification} = require("./shared");
 
 exports.acceptHandover = onCall(async (request) => {
   requireAuth(request);
-  const { handoverId, companyId } = request.data || {};
+  const {handoverId, companyId} = request.data || {};
   if (!handoverId || !companyId) {
     throw new HttpsError("invalid-argument", "handoverId and companyId are required.");
   }
@@ -32,11 +32,11 @@ exports.acceptHandover = onCall(async (request) => {
   });
 
   const statsSnap = await db
-    .collection("shift_stats")
-    .where("companyId", "==", companyId)
-    .where("handoverSubmittedAt", "==", handover.handoverSubmittedAt)
-    .limit(1)
-    .get();
+      .collection("shift_stats")
+      .where("companyId", "==", companyId)
+      .where("handoverSubmittedAt", "==", handover.handoverSubmittedAt)
+      .limit(1)
+      .get();
   if (!statsSnap.empty) {
     await statsSnap.docs[0].ref.update({
       incomingSupervisorId: request.auth.uid,
@@ -63,5 +63,5 @@ exports.acceptHandover = onCall(async (request) => {
     handoverId,
   });
 
-  return { success: true };
+  return {success: true};
 });

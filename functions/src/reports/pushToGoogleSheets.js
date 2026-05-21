@@ -2,7 +2,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore } = require("firebase-admin/firestore");
 const { google } = require("googleapis");
 
-const db = getFirestore();
+const db = getFirestore("default");
 const sources = {
   breakdown_summary: ["breakdown_tickets"],
   work_order_detail: ["work_orders"],

@@ -1,5 +1,5 @@
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { db, FieldValue, Timestamp, requireAuth, addNotification } = require("./shared");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {db, Timestamp, requireAuth, addNotification} = require("./shared");
 
 function shiftDate(date) {
   return date.toISOString().slice(0, 10);
@@ -84,7 +84,7 @@ exports.submitHandover = onCall(async (request) => {
     shiftId: handover.shiftConfigId,
     shiftName: handover.shiftName,
     date: handover.shiftDate,
-    dayOfWeek: statDate.toLocaleDateString("en-US", { weekday: "short" }),
+    dayOfWeek: statDate.toLocaleDateString("en-US", {weekday: "short"}),
     outgoingSupervisorId,
     incomingSupervisorId: null,
     shiftStart: handover.shiftActualStart,
@@ -146,5 +146,5 @@ exports.submitHandover = onCall(async (request) => {
     });
   }
 
-  return { handoverId: handoverRef.id };
+  return {handoverId: handoverRef.id};
 });

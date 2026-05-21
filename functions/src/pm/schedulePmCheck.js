@@ -10,12 +10,12 @@
  *    - Creates entry in pm_history with status = 'in_progress'
  */
 
-const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
-const { getMessaging } = require("firebase-admin/messaging");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
+const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 async function generateWONumber(siteId, year) {
   const counterRef = db.collection("woCounters").doc(`${siteId}_${year}`);
@@ -24,9 +24,9 @@ async function generateWONumber(siteId, year) {
   let nextSeq = 1;
   if (snap.exists) {
     nextSeq = (snap.data().lastSequence || 0) + 1;
-    await counterRef.update({ lastSequence: nextSeq });
+    await counterRef.update({lastSequence: nextSeq});
   } else {
-    await counterRef.set({ siteId, year, lastSequence: nextSeq });
+    await counterRef.set({siteId, year, lastSequence: nextSeq});
   }
 
   return `WO-${year}-${String(nextSeq).padStart(4, "0")}`;
@@ -62,25 +62,25 @@ async function sendPushToUsers(userIds, title, body, data = {}) {
   try {
     await getMessaging().sendEachForMulticast({
       tokens,
-      notification: { title, body },
-      data: { ...data },
+      notification: {title, body},
+      data: {...data},
     });
   } catch (err) {
     logger.error("FCM multicast failed", err);
   }
 }
 
-exports.schedulePmCheck = onSchedule({ schedule: "0 6 * * *", timeZone: "Asia/Colombo" }, async () => {
+exports.schedulePmCheck = onSchedule({schedule: "0 6 * * *", timeZone: "Asia/Colombo"}, async () => {
   const now = new Date();
   const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
 
   try {
     const schedulesSnap = await db
-      .collection("pm_schedules")
-      .where("status", "==", "active")
-      .where("triggerType", "==", "calendar")
-      .where("nextDueDate", "<=", Timestamp.fromDate(todayEnd))
-      .get();
+        .collection("pm_schedules")
+        .where("status", "==", "active")
+        .where("triggerType", "==", "calendar")
+        .where("nextDueDate", "<=", Timestamp.fromDate(todayEnd))
+        .get();
 
     logger.info(`schedulePmCheck: ${schedulesSnap.size} schedules due`);
 
@@ -208,9 +208,9 @@ exports.schedulePmCheck = onSchedule({ schedule: "0 6 * * *", timeZone: "Asia/Co
 
         // Calculate next due date
         const nextDue = calculateNextDueDate(
-          schedule.nextDueDate.toDate(),
-          schedule.recurrenceType,
-          schedule.customIntervalDays,
+            schedule.nextDueDate.toDate(),
+            schedule.recurrenceType,
+            schedule.customIntervalDays,
         );
 
         // Update schedule
@@ -224,10 +224,10 @@ exports.schedulePmCheck = onSchedule({ schedule: "0 6 * * *", timeZone: "Asia/Co
 
         // Send notifications
         await sendPushToUsers(
-          schedule.assignedTechnicianIds,
-          "New PM Work Order",
-          `${woNumber} — ${schedule.machineName}`,
-          { woId: woRef.id, woNumber, scheduleId, screen: "WODetail" },
+            schedule.assignedTechnicianIds,
+            "New PM Work Order",
+            `${woNumber} — ${schedule.machineName}`,
+            {woId: woRef.id, woNumber, scheduleId, screen: "WODetail"},
         );
 
         logger.info(`PM WO created: ${woNumber} for schedule ${scheduleId}`);

@@ -1,14 +1,14 @@
-const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
-const { db, FieldValue, Timestamp, normalizeStatus, addNotification, logger } = require("./shared");
+const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {db, FieldValue, Timestamp, normalizeStatus, addNotification, logger} = require("./shared");
 
 async function resolveLinkedWatchFlags(ticketId, ticket) {
   const companyId = ticket.companyId || ticket.siteId;
   if (!companyId) return;
   const handoversSnap = await db
-    .collection("shift_handovers")
-    .where("companyId", "==", companyId)
-    .where("status", "in", ["pending_acceptance", "accepted"])
-    .get();
+      .collection("shift_handovers")
+      .where("companyId", "==", companyId)
+      .where("status", "in", ["pending_acceptance", "accepted"])
+      .get();
 
   let resolved = 0;
   await Promise.all(handoversSnap.docs.map(async (handoverDoc) => {
@@ -28,7 +28,7 @@ async function resolveLinkedWatchFlags(ticketId, ticket) {
       return flag;
     });
     if (changed) {
-      await handoverDoc.ref.update({ watchFlags, updatedAt: FieldValue.serverTimestamp() });
+      await handoverDoc.ref.update({watchFlags, updatedAt: FieldValue.serverTimestamp()});
     }
   }));
 
@@ -40,11 +40,11 @@ async function resolveLinkedWatchFlags(ticketId, ticket) {
       targetRoles: ["supervisor", "admin"],
       ticketId,
     });
-    logger.info("Resolved linked watch flags", { ticketId, resolved });
+    logger.info("Resolved linked watch flags", {ticketId, resolved});
   }
 }
 
-exports.resolveWatchFlagOnTicketClose = onDocumentUpdated("breakdown_tickets/{ticketId}", async (event) => {
+exports.resolveWatchFlagOnTicketClose = onDocumentUpdated({ database: "default", document: "breakdown_tickets/{ticketId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   if (normalizeStatus(before.status || before.currentState) === normalizeStatus(after.status || after.currentState)) return;
@@ -52,7 +52,7 @@ exports.resolveWatchFlagOnTicketClose = onDocumentUpdated("breakdown_tickets/{ti
   await resolveLinkedWatchFlags(event.params.ticketId, after);
 });
 
-exports.resolveWatchFlagOnBreakdownClose = onDocumentUpdated("breakdowns/{ticketId}", async (event) => {
+exports.resolveWatchFlagOnBreakdownClose = onDocumentUpdated({ database: "default", document: "breakdowns/{ticketId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   if (normalizeStatus(before.status || before.currentState) === normalizeStatus(after.status || after.currentState)) return;

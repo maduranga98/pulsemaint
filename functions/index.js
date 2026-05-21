@@ -17,7 +17,7 @@ const logger = require("firebase-functions/logger");
 initializeApp();
 setGlobalOptions({ maxInstances: 10 });
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 // ---------------------------------------------------------------------------
 // Inventory Module — Cloud Functions
@@ -267,7 +267,7 @@ async function recalculateMachineHealth(machineId) {
 // 1. onWOCreated
 // ---------------------------------------------------------------------------
 
-exports.onWOCreated = onDocumentCreated("workOrders/{woId}", async (event) => {
+exports.onWOCreated = onDocumentCreated({ database: "default", document: "workOrders/{woId}" }, async (event) => {
   const snap = event.data;
   const woId = event.params.woId;
   const wo = snap.data();
@@ -327,7 +327,7 @@ exports.onWOCreated = onDocumentCreated("workOrders/{woId}", async (event) => {
 // 2. onWOUpdated
 // ---------------------------------------------------------------------------
 
-exports.onWOUpdated = onDocumentUpdated("workOrders/{woId}", async (event) => {
+exports.onWOUpdated = onDocumentUpdated({ database: "default", document: "workOrders/{woId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
   const woId = event.params.woId;
@@ -548,8 +548,7 @@ exports.onWOSignedOff = async (woId, wo) => {
 // 4. onPartsRequestCreated
 // ---------------------------------------------------------------------------
 
-exports.onPartsRequestCreated = onDocumentCreated(
-  "workOrders/{woId}/partsRequests/{requestId}",
+exports.onPartsRequestCreated = onDocumentCreated({ database: "default", document: "workOrders/{woId}/partsRequests/{requestId}" },
   async (event) => {
     const requestId = event.params.requestId;
     const woId = event.params.woId;

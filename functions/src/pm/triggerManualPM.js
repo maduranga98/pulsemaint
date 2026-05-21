@@ -9,12 +9,12 @@
  * 4. Returns { woId, woNumber }
  */
 
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
-const { getMessaging } = require("firebase-admin/messaging");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
+const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore");
+const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 async function generateWONumber(siteId, year) {
   const counterRef = db.collection("woCounters").doc(`${siteId}_${year}`);
@@ -23,9 +23,9 @@ async function generateWONumber(siteId, year) {
   let nextSeq = 1;
   if (snap.exists) {
     nextSeq = (snap.data().lastSequence || 0) + 1;
-    await counterRef.update({ lastSequence: nextSeq });
+    await counterRef.update({lastSequence: nextSeq});
   } else {
-    await counterRef.set({ siteId, year, lastSequence: nextSeq });
+    await counterRef.set({siteId, year, lastSequence: nextSeq});
   }
 
   return `WO-${year}-${String(nextSeq).padStart(4, "0")}`;
@@ -44,16 +44,16 @@ async function sendPushToUsers(userIds, title, body, data = {}) {
   try {
     await getMessaging().sendEachForMulticast({
       tokens,
-      notification: { title, body },
-      data: { ...data },
+      notification: {title, body},
+      data: {...data},
     });
   } catch (err) {
     logger.error("FCM multicast failed", err);
   }
 }
 
-exports.triggerManualPM = onCall({ cors: true }, async (request) => {
-  const { scheduleId } = request.data;
+exports.triggerManualPM = onCall({cors: true}, async (request) => {
+  const {scheduleId} = request.data;
   const auth = request.auth;
 
   if (!auth) {
@@ -194,15 +194,15 @@ exports.triggerManualPM = onCall({ cors: true }, async (request) => {
 
     // Send notifications
     await sendPushToUsers(
-      schedule.assignedTechnicianIds,
-      "Manual PM Work Order",
-      `${woNumber} — ${schedule.machineName}`,
-      { woId: woRef.id, woNumber, scheduleId, screen: "WODetail" },
+        schedule.assignedTechnicianIds,
+        "Manual PM Work Order",
+        `${woNumber} — ${schedule.machineName}`,
+        {woId: woRef.id, woNumber, scheduleId, screen: "WODetail"},
     );
 
     logger.info(`Manual PM triggered: ${woNumber} for schedule ${scheduleId}`);
 
-    return { woId: woRef.id, woNumber };
+    return {woId: woRef.id, woNumber};
   } catch (err) {
     logger.error("triggerManualPM failed", err);
     if (err instanceof HttpsError) throw err;

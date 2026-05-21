@@ -8,19 +8,19 @@
  * 4. Updates schedule missed counter and complianceRate
  */
 
-const { onSchedule } = require("firebase-functions/v2/scheduler");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
-const { getMessaging } = require("firebase-admin/messaging");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
+const {getFirestore, FieldValue} = require("firebase-admin/firestore");
+const {getMessaging} = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 async function sendPushToRoleInCompany(companyId, role, title, body, data = {}) {
   const usersSnap = await db
-    .collection("users")
-    .where("companyId", "==", companyId)
-    .where("role", "==", role)
-    .get();
+      .collection("users")
+      .where("companyId", "==", companyId)
+      .where("role", "==", role)
+      .get();
 
   const tokens = [];
   for (const doc of usersSnap.docs) {
@@ -33,7 +33,7 @@ async function sendPushToRoleInCompany(companyId, role, title, body, data = {}) 
   try {
     await getMessaging().sendEachForMulticast({
       tokens,
-      notification: { title, body },
+      notification: {title, body},
       data,
     });
   } catch (err) {
@@ -41,15 +41,15 @@ async function sendPushToRoleInCompany(companyId, role, title, body, data = {}) 
   }
 }
 
-exports.checkPmOverdue = onSchedule({ schedule: "0 */2 * * *", timeZone: "Asia/Colombo" }, async () => {
+exports.checkPmOverdue = onSchedule({schedule: "0 */2 * * *", timeZone: "Asia/Colombo"}, async () => {
   const now = new Date();
 
   try {
     // Find all in_progress PM history records
     const historySnap = await db
-      .collection("pm_history")
-      .where("status", "==", "in_progress")
-      .get();
+        .collection("pm_history")
+        .where("status", "==", "in_progress")
+        .get();
 
     let overdueCount = 0;
 
@@ -88,11 +88,11 @@ exports.checkPmOverdue = onSchedule({ schedule: "0 */2 * * *", timeZone: "Asia/C
 
         // Notify plant manager
         await sendPushToRoleInCompany(
-          history.companyId,
-          "plant_manager",
-          "⚠️ PM Overdue Escalation",
-          `${history.scheduleName} on ${history.machineName} is ${daysOverdue}d overdue`,
-          { scheduleId: history.scheduleId, historyId: docSnap.id, screen: "PMScheduleDetail" },
+            history.companyId,
+            "plant_manager",
+            "⚠️ PM Overdue Escalation",
+            `${history.scheduleName} on ${history.machineName} is ${daysOverdue}d overdue`,
+            {scheduleId: history.scheduleId, historyId: docSnap.id, screen: "PMScheduleDetail"},
         );
 
         overdueCount++;

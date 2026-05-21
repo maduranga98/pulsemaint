@@ -1,7 +1,7 @@
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 /**
  * Triggered when a breakdown work order is CLOSED.
@@ -9,6 +9,7 @@ const db = getFirestore();
  */
 exports.recalculateMttr = onDocumentUpdated(
   {
+    database: "default",
     document: "work_orders/{woId}",
     region: "us-central1",
   },

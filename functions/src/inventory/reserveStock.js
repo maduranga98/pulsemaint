@@ -18,7 +18,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 
 exports.reserveStock = onCall(async (request) => {
   if (!request.auth) {

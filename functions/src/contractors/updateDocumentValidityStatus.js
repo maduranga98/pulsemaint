@@ -1,4 +1,4 @@
-const { onSchedule } = require("firebase-functions/v2/scheduler");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {
   db,
   logger,
@@ -16,10 +16,10 @@ function notificationKey(daysUntilExpiry, status) {
 
 exports.updateDocumentValidityStatus = onSchedule("0 7 * * *", async () => {
   const snap = await db
-    .collectionGroup("documents")
-    .where("hasExpiry", "==", true)
-    .where("isPermanent", "==", false)
-    .get();
+      .collectionGroup("documents")
+      .where("hasExpiry", "==", true)
+      .where("isPermanent", "==", false)
+      .get();
 
   const contractorBlocks = new Map();
 
@@ -61,5 +61,5 @@ exports.updateDocumentValidityStatus = onSchedule("0 7 * * *", async () => {
     });
   }
 
-  logger.info("updateDocumentValidityStatus completed", { documents: snap.size });
+  logger.info("updateDocumentValidityStatus completed", {documents: snap.size});
 });

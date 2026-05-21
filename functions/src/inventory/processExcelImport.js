@@ -16,7 +16,7 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 
-const db = getFirestore();
+const db = getFirestore("default");
 const BATCH_SIZE = 400; // Firestore max is 500; leave headroom
 
 exports.processExcelImport = onCall(async (request) => {
