@@ -248,7 +248,7 @@ export default function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 min-w-0 bg-slate-50 overflow-y-auto">
+        <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto">
           <div className="px-4 sm:px-6 lg:px-8 py-5 max-w-[1400px] mx-auto w-full">
             <ErrorBoundary key={location.pathname}>
               <Outlet />
