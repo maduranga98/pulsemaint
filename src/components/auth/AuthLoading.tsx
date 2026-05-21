@@ -30,7 +30,9 @@ export default function AuthLoading() {
         </div>
 
         {/* Loading text */}
-        <p className="text-[#00C2FF] text-lg font-medium animate-pulse">Loading...</p>
+        <p className="text-[#00C2FF] text-lg font-medium animate-pulse">
+          Loading...
+        </p>
       </div>
     </div>
   );
