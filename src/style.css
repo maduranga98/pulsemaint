@@ -57,3 +57,56 @@ a {
 *, *::before, *::after {
   box-sizing: border-box;
 }
+
+/* ---------------------------------------------------------------------------
+ * Dark-navy app shell theme overrides.
+ *
+ * The app shell (AppLayout <main>) uses the dark navy palette so every page
+ * sits on the same background as the Dashboard / Reports. Light cards
+ * (.bg-white, .bg-gray-50, ...) inside the shell keep their original
+ * appearance — these overrides only retint elements that sit DIRECTLY on the
+ * dark page background. Inside a light card, normal Tailwind colors apply.
+ * --------------------------------------------------------------------------- */
+
+.app-main-dark {
+  color: #F0F4F8;
+}
+
+/* Headings sitting directly on the dark page background become light. */
+.app-main-dark > * h1,
+.app-main-dark > * h2,
+.app-main-dark > * h3,
+.app-main-dark > * h4,
+.app-main-dark > * h5,
+.app-main-dark > * h6 {
+  color: #F0F4F8;
+}
+
+/* But inside any light surface, headings go back to slate-900. */
+.app-main-dark .bg-white h1,
+.app-main-dark .bg-white h2,
+.app-main-dark .bg-white h3,
+.app-main-dark .bg-white h4,
+.app-main-dark .bg-white h5,
+.app-main-dark .bg-white h6,
+.app-main-dark [class*="bg-slate-50"] h1,
+.app-main-dark [class*="bg-slate-50"] h2,
+.app-main-dark [class*="bg-slate-50"] h3,
+.app-main-dark [class*="bg-slate-50"] h4,
+.app-main-dark [class*="bg-slate-50"] h5,
+.app-main-dark [class*="bg-slate-50"] h6,
+.app-main-dark [class*="bg-gray-50"] h1,
+.app-main-dark [class*="bg-gray-50"] h2,
+.app-main-dark [class*="bg-gray-50"] h3,
+.app-main-dark [class*="bg-gray-50"] h4,
+.app-main-dark [class*="bg-gray-50"] h5,
+.app-main-dark [class*="bg-gray-50"] h6 {
+  color: #0f172a;
+}
+
+/* Skeletons / dashed empty-states on the dark bg get a subtle navy tint. */
+.app-main-dark > * .border-dashed.border-slate-300,
+.app-main-dark > * .border-dashed.border-gray-300 {
+  border-color: #1E3A5F;
+  color: #8BA3BF;
+}

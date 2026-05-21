@@ -34,7 +34,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
         <p className="text-sm text-slate-500">Configure how PulseMaint works for your plant.</p>

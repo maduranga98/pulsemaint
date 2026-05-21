@@ -63,7 +63,7 @@ export default function EditModulePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-full">
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 flex items-center gap-3 px-4 h-12">
         <button
           onClick={() => navigate('/app/training/manage/modules')}
