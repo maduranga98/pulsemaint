@@ -451,6 +451,15 @@ service cloud.firestore {
         && getUserData().role == 'admin';
     }
 
+    // /companies/{companyId}/pendingInvites/{token} — saved during onboarding,
+    // consumed by a Cloud Function or admin later.
+    match /companies/{companyId}/pendingInvites/{token} {
+      allow read, write: if isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().companyId == companyId
+        && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer'];
+    }
+
     // ---------------------------------------------------------------------------
     // Inventory Module (Module 6 — full implementation)
     // ---------------------------------------------------------------------------
