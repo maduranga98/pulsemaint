@@ -412,14 +412,14 @@ export async function getCompanyIdFromUser(uid: string): Promise<string | null> 
 
 export function getDashboardRoute(role: UserRole): string {
   const routes: Record<UserRole, string> = {
-    admin: '/app/settings',
+    admin: '/app/dashboard',
     plant_manager: '/app/dashboard',
-    supervisor: '/app/breakdowns',
-    technician: '/app/work-orders',
+    supervisor: '/app/machines',
+    technician: '/app/machines',
     store_keeper: '/app/inventory',
     hr_officer: '/app/training',
     trainee: '/app/training/my-modules',
-    floor_operator: '/app/breakdowns/report',
+    floor_operator: '/app/training/my-modules',
   };
 
   return routes[role];
