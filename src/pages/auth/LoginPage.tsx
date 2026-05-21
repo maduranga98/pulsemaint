@@ -75,9 +75,8 @@ export default function LoginPage() {
     try {
       setError(null);
       setLoading(true);
-      await loginWithEmail(data.email, data.password);
-      const userRole = useAuthStore.getState().userProfile?.role;
-      if (userRole) navigate(getDashboardRoute(userRole));
+      const profile = await loginWithEmail(data.email, data.password);
+      navigate(getDashboardRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Login failed. Please try again.';
@@ -91,9 +90,8 @@ export default function LoginPage() {
     try {
       setError(null);
       setGoogleLoading(true);
-      await loginWithGoogle();
-      const userRole = useAuthStore.getState().userProfile?.role;
-      if (userRole) navigate(getDashboardRoute(userRole));
+      const profile = await loginWithGoogle();
+      navigate(getDashboardRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Google login failed.';
@@ -126,9 +124,8 @@ export default function LoginPage() {
     try {
       setError(null);
       setLoading(true);
-      await confirmOTP(confirmationResult, otp);
-      const userRole = useAuthStore.getState().userProfile?.role;
-      if (userRole) navigate(getDashboardRoute(userRole));
+      const profile = await confirmOTP(confirmationResult, otp);
+      navigate(getDashboardRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || 'OTP verification failed.';
@@ -143,9 +140,8 @@ export default function LoginPage() {
     try {
       setError(null);
       setLoading(true);
-      await loginWithPin(companyId, pinInput);
-      const userRole = useAuthStore.getState().userProfile?.role;
-      if (userRole) navigate(getDashboardRoute(userRole));
+      const profile = await loginWithPin(companyId, pinInput);
+      navigate(getDashboardRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       if (errorCode === 'PIN_CHANGE_REQUIRED') {
