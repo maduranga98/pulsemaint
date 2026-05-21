@@ -19,6 +19,14 @@ service cloud.firestore {
       return getUserData().role;
     }
 
+    function getUserCompanyId() {
+      return getUserData().companyId;
+    }
+
+    function belongsToCompany(companyId) {
+      return isAuthenticated() && getUserCompanyId() == companyId;
+    }
+
     function isSameSite(siteId) {
       return getUserData().siteId == siteId;
     }
@@ -36,7 +44,7 @@ service cloud.firestore {
     }
 
     function isSupervisor() {
-      return isRole('maintenance_supervisor');
+      return isRole('supervisor') || isRole('maintenance_supervisor');
     }
 
     function isPlantManager() {
@@ -49,6 +57,18 @@ service cloud.firestore {
 
     function isStoreKeeper() {
       return isRole('store_keeper');
+    }
+
+    function isHrOfficer() {
+      return isRole('hr_officer');
+    }
+
+    function canReadContractors() {
+      return isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    function canManageContractors() {
+      return isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
     }
 
     // ---------------------------------------------------------------------------
@@ -201,14 +221,126 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------------
-    // Contractors (Module 7 stub — read for contractor dropdown in WO)
+    // Contractors (Module 7) — external profiles only, no contractor logins
     // ---------------------------------------------------------------------------
 
     match /contractors/{contractorId} {
-      allow read: if isAuthenticated() && isAnyRole([
-        'maintenance_supervisor', 'plant_manager', 'admin'
-      ]);
-      allow write: if isAdmin() || isSupervisor() || isPlantManager();
+      function contractorCompanyMatches() {
+        return belongsToCompany(resource.data.companyId);
+      }
+
+      function newContractorCompanyMatches() {
+        return belongsToCompany(request.resource.data.companyId);
+      }
+
+      function financialKeys() {
+        return [
+          'paymentTerms', 'currency', 'standardLaborRate', 'overtimeRate',
+          'emergencyCallOutFee', 'minimumCharge', 'travelFee', 'bankName',
+          'bankBranch', 'bankAccountNumber', 'taxRegistrationNumber',
+          'preferredInvoiceFormat'
+        ];
+      }
+
+      allow read: if isAuthenticated() && contractorCompanyMatches()
+        && (canReadContractors() || isHrOfficer());
+      allow create: if isAuthenticated() && newContractorCompanyMatches()
+        && canManageContractors()
+        && request.resource.data.status in ['active', 'inactive'];
+      allow update: if isAuthenticated() && contractorCompanyMatches()
+        && newContractorCompanyMatches()
+        && (
+          isAdmin()
+          || isPlantManager()
+          || (
+            isSupervisor()
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(financialKeys())
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+              'status', 'blacklistReason', 'blacklistedAt', 'blacklistedBy'
+            ])
+          )
+        );
+      allow delete: if isAdmin();
+
+      match /documents/{documentId} {
+        function docCompanyMatches() {
+          return belongsToCompany(resource.data.companyId);
+        }
+
+        function newDocCompanyMatches() {
+          return belongsToCompany(request.resource.data.companyId)
+            && request.resource.data.contractorId == contractorId;
+        }
+
+        allow read: if isAuthenticated() && docCompanyMatches()
+          && (canReadContractors() || isHrOfficer());
+        allow create, update: if isAuthenticated() && newDocCompanyMatches()
+          && canManageContractors();
+        allow delete: if false;
+      }
+
+      match /technicians/{technicianId} {
+        function techCompanyMatches() {
+          return belongsToCompany(resource.data.companyId);
+        }
+
+        function newTechCompanyMatches() {
+          return belongsToCompany(request.resource.data.companyId)
+            && request.resource.data.contractorId == contractorId;
+        }
+
+        allow read: if isAuthenticated() && techCompanyMatches() && canReadContractors();
+        allow create, update: if isAuthenticated() && newTechCompanyMatches() && canManageContractors();
+        allow delete: if false;
+      }
+    }
+
+    match /contractorJobs/{jobId} {
+      function jobCompanyMatches() {
+        return belongsToCompany(resource.data.companyId);
+      }
+
+      function newJobCompanyMatches() {
+        return belongsToCompany(request.resource.data.companyId);
+      }
+
+      allow read: if isAuthenticated() && jobCompanyMatches()
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow create: if false;
+      allow update: if isAuthenticated() && jobCompanyMatches()
+        && newJobCompanyMatches()
+        && (
+          isAdmin()
+          || isPlantManager()
+          || (
+            isSupervisor()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'status', 'invitationAcknowledgedAt', 'arrivedAt', 'arrivedLoggedBy',
+              'workStartedAt', 'workCompletedAt', 'departedAt', 'onSiteDurationMinutes',
+              'actualWorkDurationMinutes', 'workSteps', 'partsFromContractor',
+              'totalPartsCost', 'checklistResults', 'testRunResult', 'testRunNotes',
+              'machineStatusAfter', 'photoUrls', 'beforePhotoUrls', 'afterPhotoUrls',
+              'documentUrls', 'signedOffBy', 'signedOffByName', 'signedOffAt',
+              'signOffNotes', 'signOffSignature', 'isDisputed', 'disputeNotes',
+              'rating', 'followUpRequired', 'followUpReason', 'followUpBreakdownId',
+              'contractorInvoiceAmount', 'contractorInvoiceRef', 'contractorInvoiceDate',
+              'contractorInvoiceUrl', 'invoiceStatus', 'updatedAt'
+            ])
+          )
+          || (
+            isStoreKeeper()
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'partsFromFactory', 'totalPartsFactoryCost', 'totalPartsCost', 'updatedAt'
+            ])
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /contractorInvitations/{invitationId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow create, update, delete: if false;
     }
 
     // ---------------------------------------------------------------------------
@@ -401,6 +533,26 @@ service cloud.firestore {
       // Write (create/update/delete): supervisor and admin
       allow write: if isAuthenticated() && getUserData().companyId == companyId
         && getUserData().role in ['supervisor', 'admin'];
+    // pm_schedules — Preventive Maintenance Schedules
+    match /pm_schedules/{scheduleId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+      allow create: if isAuthenticated()
+        && getUserData().role in ['supervisor', 'admin'];
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'admin'];
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'admin'];
+    }
+
+    // pm_history — PM execution history
+    match /pm_history/{historyId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+      allow create: if isAuthenticated(); // System-generated
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'admin'];
+      allow delete: if false;
     }
   }
 }

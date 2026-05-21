@@ -52,6 +52,17 @@ import TriageBuilderEditPage from '../pages/triage-builder/TriageBuilderEditPage
 import TriageBuilderFlowDetailPage from '../pages/triage-builder/TriageBuilderFlowDetailPage';
 import TriageBuilderTemplatesPage from '../pages/triage-builder/TriageBuilderTemplatesPage';
 
+// PM pages
+import {
+  PMSchedulesPage,
+  PMScheduleCreatePage,
+  PMScheduleEditPage,
+  PMScheduleDetailPage,
+  PMCalendarPage,
+  PMWorkloadPage,
+  PMCompliancePage,
+} from '../pages/pm';
+
 // Inventory pages
 import InventoryDashboardPage from '../pages/inventory/InventoryDashboardPage';
 import PartCatalogPage from '../pages/inventory/PartCatalogPage';
@@ -70,6 +81,27 @@ import ExcelImportPage from '../pages/inventory/ExcelImportPage';
 import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
 import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
 import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
+
+// Contractor pages
+import ContractorRegistryPage from '../pages/contractors/ContractorRegistryPage';
+import AddContractorPage from '../pages/contractors/AddContractorPage';
+import ContractorProfilePage from '../pages/contractors/ContractorProfilePage';
+import EditContractorPage from '../pages/contractors/EditContractorPage';
+import ContractorDocumentsPage from '../pages/contractors/ContractorDocumentsPage';
+import ContractorTechniciansPage from '../pages/contractors/ContractorTechniciansPage';
+import AddTechnicianPage from '../pages/contractors/AddTechnicianPage';
+import EditTechnicianPage from '../pages/contractors/EditTechnicianPage';
+import ContractorHistoryPage from '../pages/contractors/ContractorHistoryPage';
+import ContractorAnalyticsPage from '../pages/contractors/ContractorAnalyticsPage';
+import ContractorJobsListPage from '../pages/contractors/jobs/ContractorJobsListPage';
+import ContractorJobDetailPage from '../pages/contractors/jobs/ContractorJobDetailPage';
+import LogWorkPage from '../pages/contractors/jobs/LogWorkPage';
+import SignOffPage from '../pages/contractors/jobs/SignOffPage';
+import InvoiceComparisonPage from '../pages/contractors/jobs/InvoiceComparisonPage';
+import RateContractorPage from '../pages/contractors/jobs/RateContractorPage';
+import PerformanceDashboardPage from '../pages/contractors/PerformanceDashboardPage';
+import CompliancePage from '../pages/contractors/CompliancePage';
+import ReportsHubPage from '../pages/contractors/ReportsHubPage';
 
 // Stubs for not-yet-built pages
 const Dashboard = () => <div className="p-8">Dashboard Page</div>;
@@ -345,6 +377,27 @@ export default function AppRouter() {
           }
         />
         {/* Training - /training redirects based on role */}
+
+        {/* Contractors */}
+        <Route path="contractors" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorRegistryPage /></ProtectedRoute>} />
+        <Route path="contractors/new" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><AddContractorPage /></ProtectedRoute>} />
+        <Route path="contractors/performance" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><PerformanceDashboardPage /></ProtectedRoute>} />
+        <Route path="contractors/compliance" element={<ProtectedRoute requiredRoles={['hr_officer', 'supervisor', 'plant_manager', 'admin']}><CompliancePage /></ProtectedRoute>} />
+        <Route path="contractors/reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ReportsHubPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorJobsListPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs/:jobId" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorJobDetailPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs/:jobId/log-work" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><LogWorkPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs/:jobId/sign-off" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><SignOffPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs/:jobId/invoice" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><InvoiceComparisonPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs/:jobId/rate" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><RateContractorPage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorProfilePage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId/edit" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><EditContractorPage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId/documents" element={<ProtectedRoute requiredRoles={['hr_officer', 'supervisor', 'plant_manager', 'admin']}><ContractorDocumentsPage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId/technicians" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorTechniciansPage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId/technicians/new" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><AddTechnicianPage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId/technicians/:techId/edit" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><EditTechnicianPage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorHistoryPage /></ProtectedRoute>} />
+        <Route path="contractors/:contractorId/analytics" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorAnalyticsPage /></ProtectedRoute>} />
         <Route
           path="training"
           element={<Navigate to="/app/training/manage" replace />}
@@ -481,6 +534,64 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        {/* PM Schedules */}
+        <Route
+          path="pm-schedules"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+              <PMSchedulesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="pm-schedules/create"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <PMScheduleCreatePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="pm-schedules/:id"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+              <PMScheduleDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="pm-schedules/:id/edit"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+              <PMScheduleEditPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="pm-calendar"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <PMCalendarPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="pm-workload"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <PMWorkloadPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="pm-compliance"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <PMCompliancePage />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="settings/users"
           element={

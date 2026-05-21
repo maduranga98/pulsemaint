@@ -215,6 +215,31 @@
     },
     {
       "collectionGroup": "trainingAssignments",
+      "collectionGroup": "contractors",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "companyId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contractors",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "companyId", "order": "ASCENDING" },
+        { "fieldPath": "specializationTags", "arrayConfig": "CONTAINS" }
+      ]
+    },
+    {
+      "collectionGroup": "contractors",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "companyId", "order": "ASCENDING" },
+        { "fieldPath": "avgRating", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contractorJobs",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "companyId", "order": "ASCENDING" },
@@ -228,6 +253,15 @@
       "fields": [
         { "fieldPath": "companyId", "order": "ASCENDING" },
         { "fieldPath": "machineId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contractorJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "companyId", "order": "ASCENDING" },
+        { "fieldPath": "contractorId", "order": "ASCENDING" },
         { "fieldPath": "status", "order": "ASCENDING" }
       ]
     },
@@ -254,6 +288,34 @@
         { "fieldPath": "companyId", "order": "ASCENDING" },
         { "fieldPath": "traineeId", "order": "ASCENDING" },
         { "fieldPath": "issuedAt", "order": "DESCENDING" }
+      "collectionGroup": "contractorJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "companyId", "order": "ASCENDING" },
+        { "fieldPath": "workOrderId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contractorJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "companyId", "order": "ASCENDING" },
+        { "fieldPath": "machineId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "contractorJobs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "contractorId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "documents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "contractorId", "order": "ASCENDING" },
+        { "fieldPath": "documentType", "order": "ASCENDING" }
       ]
     }
   ],
