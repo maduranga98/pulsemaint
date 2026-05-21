@@ -37,8 +37,16 @@ export function useAuthInit() {
           // after every await so a concurrent hydration by RegisterPage
           // isn't clobbered by a stale capture.
 
-          // Get company ID
-          const companyId = await getCompanyIdFromUser(user.uid);
+          // Get company ID. Right after signup, the /users/{uid} mapping
+          // doc may still be in flight — registerCompany() writes it
+          // AFTER createUserWithEmailAndPassword(), which is what
+          // triggers this listener. Retry a few times so we don't
+          // strand the OnboardingWizard on its loading gate.
+          let companyId = await getCompanyIdFromUser(user.uid);
+          for (let attempt = 0; !companyId && attempt < 6; attempt++) {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            companyId = await getCompanyIdFromUser(user.uid);
+          }
 
           if (companyId) {
             const userProfile = await fetchUserProfile(user.uid, companyId);
