@@ -82,6 +82,9 @@ import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
 import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
 import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
 
+// Dashboard
+import { DashboardPage } from '../pages/dashboard';
+
 // Contractor pages
 import ContractorRegistryPage from '../pages/contractors/ContractorRegistryPage';
 import AddContractorPage from '../pages/contractors/AddContractorPage';
@@ -104,7 +107,6 @@ import CompliancePage from '../pages/contractors/CompliancePage';
 import ReportsHubPage from '../pages/contractors/ReportsHubPage';
 
 // Stubs for not-yet-built pages
-const Dashboard = () => <div className="p-8">Dashboard Page</div>;
 const BreakdownsPage = () => <div className="p-8">Breakdowns Page</div>;
 const ReportBreakdownPage = () => <div className="p-8">Report Breakdown Page</div>;
 const WorkOrdersPage = () => <div className="p-8">Work Orders Page</div>;
@@ -168,7 +170,7 @@ export default function AppRouter() {
           path="dashboard"
           element={
             <ProtectedRoute requiredRoles={['plant_manager', 'admin']}>
-              <Dashboard />
+              <DashboardPage />
             </ProtectedRoute>
           }
         />
