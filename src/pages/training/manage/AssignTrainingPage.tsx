@@ -23,6 +23,7 @@ export default function AssignTrainingPage() {
         <AssignTrainingWizard
           defaultModuleId={defaultModuleId}
           onComplete={() => navigate('/app/training/manage/assignments')}
+          onCancel={() => navigate(-1)}
         />
       </div>
     </div>

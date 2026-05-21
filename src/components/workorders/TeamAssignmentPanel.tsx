@@ -21,12 +21,18 @@ interface ContractorOption {
   isActive: boolean;
 }
 
+interface SupervisorOption {
+  id: string;
+  name: string;
+}
+
 interface TeamAssignmentPanelProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: UseFormReturn<any>;
   isContractorWO: boolean;
   technicians: TechnicianOption[];
   contractors: ContractorOption[];
+  supervisors?: SupervisorOption[];
 }
 
 export function TeamAssignmentPanel({
@@ -34,6 +40,7 @@ export function TeamAssignmentPanel({
   isContractorWO,
   technicians,
   contractors,
+  supervisors = [],
 }: TeamAssignmentPanelProps) {
   const { register, watch, setValue, formState: { errors } } = form;
   const [contractorSearch, setContractorSearch] = useState('');
@@ -89,11 +96,30 @@ export function TeamAssignmentPanel({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {WO_COPY.supervisorLabel} <span className="text-red-500">*</span>
         </label>
-        <input
-          {...register('supervisorInChargeId')}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          placeholder={WO_COPY.supervisorPlaceholder}
-        />
+        {supervisors.length > 0 ? (
+          <select
+            {...register('supervisorInChargeId', {
+              onChange: (e) => {
+                const s = supervisors.find((x) => x.id === e.target.value);
+                if (s) setValue('supervisorInChargeName', s.name);
+              },
+            })}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="">{WO_COPY.supervisorPlaceholder}</option>
+            {supervisors.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input
+            {...register('supervisorInChargeId')}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder={WO_COPY.supervisorPlaceholder}
+          />
+        )}
         {errors.supervisorInChargeId && (
           <p className="mt-1 text-xs text-red-500">{String(errors.supervisorInChargeId.message ?? '')}</p>
         )}

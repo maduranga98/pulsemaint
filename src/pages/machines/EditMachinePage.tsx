@@ -69,6 +69,7 @@ export function EditMachinePage() {
         documentFiles: files.documents,
         compatiblePartIds: formData.compatiblePartIds || [],
         modificationNotes: formData.modificationNotes || null,
+        additionalNotes: (formData as any).additionalNotes ?? null,
       };
 
       await updateMachine(payload);

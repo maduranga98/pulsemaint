@@ -272,7 +272,7 @@ export const WO_COPY = {
   step3Title:             'Team Assignment',
   step4Title:             'Task Checklist',
   step5Title:             'Documents',
-  step6Title:             'Parts Pre-Request',
+  step6Title:             'Parts Request',
 
   // Section 1
   woTypeLabel:            'Work Order Type',
@@ -325,7 +325,8 @@ export const WO_COPY = {
   videosAccepted:         'Videos: MP4, MOV, AVI (50 MB max)',
 
   // Section 6
-  partsRequestLabel:      'Parts Pre-Request',
+  partsRequestLabel:      'Parts Request',
+  noteLabelLong:          'Notes',
   partSearchPlaceholder:  'Search parts catalog…',
   quantityLabel:          'Quantity',
   unitLabel:              'Unit',

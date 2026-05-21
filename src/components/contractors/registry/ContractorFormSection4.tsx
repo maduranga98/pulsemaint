@@ -3,11 +3,11 @@ import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 export function ContractorFormSection4() {
   const access = useContractorAccess();
   if (!access.canViewFinancials) {
-    return <section className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">Financial details are available to Plant Managers and Admins only.</section>;
+    return <section id="contractor-form-financial" className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">Financial details are available to Plant Managers and Admins only.</section>;
   }
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4" id="contractor-form-financial">
       <h2 className="text-lg font-semibold text-slate-950">Financial & Billing</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <select className="h-10 rounded-md border border-slate-200 px-3 text-sm"><option>Net 30</option><option>Net 14</option><option>Net 7</option></select>

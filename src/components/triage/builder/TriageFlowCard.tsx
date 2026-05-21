@@ -23,11 +23,21 @@ export default function TriageFlowCard({ flow, onToggleActive }: Props) {
           )}
         </div>
         <button
+          type="button"
+          role="switch"
+          aria-checked={flow.isActive}
           onClick={() => onToggleActive?.(flow.id, !flow.isActive)}
-          className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 ${
-            flow.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+          className={`shrink-0 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
+            flow.isActive
+              ? 'border-emerald-300 bg-emerald-500 text-white shadow-sm hover:bg-emerald-600'
+              : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
+          <span
+            className={`inline-block h-2.5 w-2.5 rounded-full ${
+              flow.isActive ? 'bg-white' : 'bg-gray-400'
+            }`}
+          />
           {flow.isActive ? t('triage.active') : t('triage.inactive')}
         </button>
       </div>

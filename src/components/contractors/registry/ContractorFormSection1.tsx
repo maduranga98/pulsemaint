@@ -1,6 +1,6 @@
 export function ContractorFormSection1() {
   return (
-    <section className="space-y-4">
+    <section className="space-y-4" id="contractor-form-company">
       <h2 className="text-lg font-semibold text-slate-950">Company Information</h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <input name="companyName" placeholder="Company Name *" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />

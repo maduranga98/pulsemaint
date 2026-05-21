@@ -153,6 +153,7 @@ export interface UpdateMachinePayload {
   documentFiles?: Array<{ file: File; type: DocumentType; name: string }>;
   compatiblePartIds?: string[];
   modificationNotes?: string | null;
+  additionalNotes?: string | null;
 }
 
 // ---------------------------------------------------------------------------
