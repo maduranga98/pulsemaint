@@ -77,13 +77,17 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
   const [uploadProgress, setUploadProgress] = useState<UploadProgress[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const user = useAuthStore((s) => s.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
 
   const createWO = useCallback(async (payload: CreateWOPayload): Promise<string | null> => {
-    if (!user) {
+    if (!userProfile) {
       toast.error('You must be logged in to create a work order');
       return null;
     }
+
+    const siteId = userProfile.siteIds[0] ?? userProfile.companyId;
+    const userId = userProfile.id;
+    const userName = userProfile.fullName ?? '';
 
     setLoading(true);
     setError(null);
@@ -146,8 +150,8 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         partsRequests: payload.partsRequests.map((pr) => ({
           ...pr,
           id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
-          requestedBy: user.uid,
-          requestedByName: user.displayName ?? '',
+          requestedBy: userId,
+          requestedByName: userName,
           requestedAt: serverTimestamp(),
           status: 'pending',
           approvedBy: null,
@@ -182,16 +186,16 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         // Status history
         statusHistory: [{
           status: 'OPEN',
-          changedBy: user.uid,
-          changedByName: user.displayName ?? '',
+          changedBy: userId,
+          changedByName: userName,
           changedAt: serverTimestamp(),
           note: null,
         }],
 
         // Metadata
-        siteId: user.siteId,
-        createdBy: user.uid,
-        createdByName: user.displayName ?? '',
+        siteId,
+        createdBy: userId,
+        createdByName: userName,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         closedAt: null,
@@ -209,7 +213,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
 
         const uploadedDocs = await Promise.all(
           payload.documents.map((file) =>
-            uploadFile(file, user.siteId, woId, (p) => {
+            uploadFile(file, siteId, woId, (p) => {
               progressMap[file.name] = p;
               setUploadProgress(
                 payload.documents.map((f) => ({ fileName: f.name, progress: progressMap[f.name] ?? 0 })),
@@ -223,8 +227,8 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         await updateDoc(docRef, {
           documents: arrayUnion(...uploadedDocs.map((d) => ({
             ...d,
-            uploadedBy: user.uid,
-            uploadedByName: user.displayName ?? '',
+            uploadedBy: userId,
+            uploadedByName: userName,
             uploadedAt: serverTimestamp(),
           }))),
           updatedAt: serverTimestamp(),
@@ -242,7 +246,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
       setLoading(false);
       setUploadProgress([]);
     }
-  }, [user]);
+  }, [userProfile]);
 
   return { createWO, loading, uploadProgress, error };
 }

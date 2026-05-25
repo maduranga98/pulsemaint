@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import {
   collection,
-  addDoc,
+  doc,
+  setDoc,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../lib/firebase';
+import { generateMachineQrUrl } from '../lib/machineQr';
 import type { Machine, CreateMachinePayload } from '../types/machine';
 
 interface UseMachineCreateOptions {
@@ -34,12 +36,17 @@ export function useMachineCreate({
       const userId = auth.currentUser?.uid;
       if (!userId) throw new Error('User not authenticated');
 
+      // Reserve the machine document ID up front so Storage paths and the QR
+      // code can reference it before the document is written.
+      const machineRef = doc(collection(db, 'machines'));
+      const newId = machineRef.id;
+
       // Upload photos
       const photoUrls: string[] = [];
       for (const photoFile of payload.photoFiles || []) {
         const photoRef = ref(
           storage,
-          `companies/${payload.siteId}/machines/{newId}/photos/${photoFile.name}`
+          `companies/${payload.siteId}/machines/${newId}/photos/${photoFile.name}`
         );
         await uploadBytes(photoRef, photoFile);
         const photoUrl = await getDownloadURL(photoRef);
@@ -51,7 +58,7 @@ export function useMachineCreate({
       for (const docPayload of payload.documentFiles || []) {
         const docRef = ref(
           storage,
-          `companies/${payload.siteId}/machines/{newId}/documents/${docPayload.file.name}`
+          `companies/${payload.siteId}/machines/${newId}/documents/${docPayload.file.name}`
         );
         await uploadBytes(docRef, docPayload.file);
         const docUrl = await getDownloadURL(docRef);
@@ -97,7 +104,7 @@ export function useMachineCreate({
         modificationNotes: payload.modificationNotes || null,
         additionalNotes: payload.additionalNotes || null,
         sopLibraryRefs: [],
-        qrCode: null,
+        qrCode: generateMachineQrUrl(newId, payload.siteId),
         oeeData: null,
         iotSensorId: null,
         createdAt: serverTimestamp(),
@@ -106,12 +113,10 @@ export function useMachineCreate({
         updatedBy: userId,
       };
 
-      const docRef = await addDoc(collection(db, 'machines'), machineData);
-
-      // TODO: Generate and upload QR code
+      await setDoc(machineRef, machineData);
 
       const newMachine: Machine = {
-        id: docRef.id,
+        id: newId,
         ...machineData,
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now(),

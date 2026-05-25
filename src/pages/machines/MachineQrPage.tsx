@@ -1,5 +1,6 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import QRCode from 'qrcode';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { generateMachineQrUrl, downloadQRCodeAsImage, printQRCode } from '../../lib/machineQr';
@@ -12,6 +13,16 @@ export function MachineQrPage() {
 
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
   const { machine, loading, error } = useMachine({ siteId, machineId: id ?? '' });
+
+  useEffect(() => {
+    if (!machine || !qrCanvasRef.current) return;
+    const url = generateMachineQrUrl(machine.id, siteId);
+    QRCode.toCanvas(qrCanvasRef.current, url, {
+      width: 300,
+      errorCorrectionLevel: 'H',
+      margin: 1,
+    }).catch((err) => console.error('QR generation failed:', err));
+  }, [machine, siteId]);
 
   if (!userProfile || !id) {
     return (
@@ -54,23 +65,6 @@ export function MachineQrPage() {
     }
   };
 
-  // Generate QR code on canvas (using qrcode library when available)
-  const generateQrCanvas = () => {
-    if (qrCanvasRef.current && typeof window !== 'undefined') {
-      const ctx = qrCanvasRef.current.getContext('2d');
-      if (ctx) {
-        // Placeholder: Draw a simple grid pattern
-        // In production, use 'qrcode' npm library to generate actual QR code
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, 300, 300);
-        ctx.fillStyle = '#000000';
-        ctx.font = '12px Arial';
-        ctx.fillText('QR Code', 130, 150);
-        ctx.fillText('(Install qrcode library)', 90, 170);
-      }
-    }
-  };
-
   const handlePrint = () => {
     const element = document.getElementById('qr-print-container');
     if (element) {
@@ -106,11 +100,7 @@ export function MachineQrPage() {
                     width={300}
                     height={300}
                     className="w-full border border-gray-300"
-                    onLoad={generateQrCanvas}
                   />
-                  <p className="text-xs text-gray-500 text-center mt-2">
-                    Note: Install 'qrcode' library for actual QR generation
-                  </p>
                 </div>
 
                 {/* Machine Info */}
