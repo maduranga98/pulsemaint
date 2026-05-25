@@ -220,9 +220,15 @@ export async function confirmOTP(
       await setDoc(userRef, newProfile);
       userProfile = newProfile as UserProfile;
 
-      // Create user mapping document for quick company lookup
+      // Create user mapping document for quick company lookup. The Firestore
+      // rules resolve role/site from this mapping, so they must be populated.
       const userMapRef = doc(collection(db, 'users'), uid);
-      await setDoc(userMapRef, { uid, companyId });
+      await setDoc(userMapRef, {
+        uid,
+        companyId,
+        role: newProfile.role,
+        siteId: newProfile.siteIds[0] ?? null,
+      });
     }
 
     // Update lastLoginAt
@@ -280,9 +286,15 @@ export async function loginWithGoogle(): Promise<UserProfile> {
       await setDoc(userRef, newProfile);
       userProfile = newProfile as UserProfile;
 
-      // Create user mapping document for quick company lookup
+      // Create user mapping document for quick company lookup. The Firestore
+      // rules resolve role/site from this mapping, so they must be populated.
       const userMapRef = doc(collection(db, 'users'), uid);
-      await setDoc(userMapRef, { uid, companyId });
+      await setDoc(userMapRef, {
+        uid,
+        companyId,
+        role: newProfile.role,
+        siteId: newProfile.siteIds[0] ?? null,
+      });
     }
 
     // Update lastLoginAt

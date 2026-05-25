@@ -1,4 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import { ToastProvider } from './contexts/ToastContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import AppRouter from './router/AppRouter';
@@ -14,6 +15,7 @@ export default function App() {
       >
         <ToastProvider>
           <AppRouter />
+          <Toaster position="top-right" richColors />
         </ToastProvider>
       </BrowserRouter>
     </ErrorBoundary>
