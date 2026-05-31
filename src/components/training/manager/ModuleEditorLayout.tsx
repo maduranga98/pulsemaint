@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, Loader2, Eye, ClipboardList } from 'lucide-react';
 import type { TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
 import ModuleSettingsForm from './ModuleSettingsForm';
@@ -22,6 +23,7 @@ export default function ModuleEditorLayout({
   isSaving = false,
   moduleId,
 }: ModuleEditorLayoutProps) {
+  const navigate = useNavigate();
   const [lessons, setLessons] = useState<LessonItem[]>(module?.lessons ?? []);
   const [editingLesson, setEditingLesson] = useState<Partial<LessonItem> | null>(null);
   const [isNewLesson, setIsNewLesson] = useState(false);
@@ -209,12 +211,13 @@ export default function ModuleEditorLayout({
                   </p>
                 </div>
                 {moduleId && (
-                  <a
-                    href={`/training/modules/${moduleId}/quiz`}
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/app/training/manage/modules/${moduleId}/quiz`)}
                     className="text-xs font-medium text-blue-600 hover:text-blue-700 border border-blue-300 hover:border-blue-400 rounded-lg px-3 py-1.5 transition-colors whitespace-nowrap"
                   >
                     Edit Quiz
-                  </a>
+                  </button>
                 )}
               </div>
             ) : (
@@ -225,12 +228,13 @@ export default function ModuleEditorLayout({
                   <p className="text-xs text-gray-400">Add a quiz to assess learner understanding.</p>
                 </div>
                 {moduleId && (
-                  <a
-                    href={`/training/modules/${moduleId}/quiz`}
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/app/training/manage/modules/${moduleId}/quiz`)}
                     className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-300 hover:border-blue-400 rounded-lg px-4 py-2 transition-colors"
                   >
                     Add Quiz
-                  </a>
+                  </button>
                 )}
               </div>
             )}
