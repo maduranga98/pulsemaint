@@ -132,6 +132,15 @@ export function MachineForm({
     setDocumentData((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const FIELD_STEP_MAP: Record<string, number> = {
+    name: 0, type: 0, manufacturer: 0, model: 0, serialNumber: 0,
+    purchaseDate: 0, installationDate: 0, expectedLifespanYears: 0,
+    department: 1, floor: 1, bay: 1, station: 1,
+    status: 2, criticality: 2,
+    photoFiles: 3, documentFiles: 3,
+    compatiblePartIds: 4, modificationNotes: 4, additionalNotes: 4,
+  };
+
   const handleFormSubmit = async (formData: FormData) => {
     try {
       setLocalError(null);
@@ -140,6 +149,14 @@ export function MachineForm({
       const errorMsg = err instanceof Error ? err.message : 'Failed to save machine';
       setLocalError(errorMsg);
     }
+  };
+
+  const handleValidationError = (errors: Record<string, unknown>) => {
+    const firstErrorStep = Object.keys(errors).reduce((min, field) => {
+      const step = FIELD_STEP_MAP[field] ?? 0;
+      return step < min ? step : min;
+    }, FORM_STEPS.length - 1);
+    setCurrentStep(firstErrorStep);
   };
 
   return (
@@ -177,7 +194,7 @@ export function MachineForm({
             </div>
 
             <div className="lg:col-span-3">
-              <form onSubmit={handleSubmit(handleFormSubmit)} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+              <form onSubmit={handleSubmit(handleFormSubmit, handleValidationError)} className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
                 {renderFormSection(
                   currentStep,
                   control,

@@ -122,7 +122,6 @@ export function useMachineCreate({
         updatedAt: Timestamp.now(),
       } as Machine;
 
-      setCreating(false);
       onSuccess?.(newMachine);
       return newMachine;
     } catch (err) {
@@ -130,6 +129,8 @@ export function useMachineCreate({
       setError(errorMsg);
       onError?.(err instanceof Error ? err : new Error(errorMsg));
       throw err;
+    } finally {
+      setCreating(false);
     }
   };
 

@@ -51,28 +51,7 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
   },
 
   endShift: async () => {
-    const stats = await get().compileShiftSummary();
-    const currentShift = get().currentShift;
-    const shiftStartTime = get().shiftStartTime ?? new Date();
-    set({
-      draftHandover: {
-        shiftConfigId: currentShift?.id ?? '',
-        shiftName: currentShift?.shiftName ?? 'Current Shift',
-        shiftActualStart: shiftStartTime,
-        watchFlags: [],
-        pendingWOs: [],
-        ongoingBreakdowns: [],
-        partsNotes: '',
-        lowStockAlerts: [],
-        safetyIncidentOccurred: false,
-        safetyIncidentDescription: '',
-        restrictedAreas: '',
-        temporaryRepairs: '',
-        generalNotes: '',
-        outgoingAcknowledged: false,
-      },
-      compiledStats: stats,
-    });
+    await get().compileShiftSummary();
   },
 
   compileShiftSummary: async (): Promise<ShiftStatsAuto> => {
