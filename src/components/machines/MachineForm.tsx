@@ -103,7 +103,7 @@ export function MachineForm({
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting: formIsSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues,
@@ -213,10 +213,10 @@ export function MachineForm({
                 <div className="flex gap-3 pt-6 border-t border-gray-200">
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
+                    disabled={isSubmitting || formIsSubmitting}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
-                    {isSubmitting ? 'Saving...' : `${mode === 'create' ? 'Create' : 'Update'} Machine`}
+                    {isSubmitting || formIsSubmitting ? 'Saving...' : `${mode === 'create' ? 'Create' : 'Update'} Machine`}
                   </button>
                 </div>
               </form>
@@ -271,10 +271,10 @@ export function MachineForm({
                 ) : (
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
+                    disabled={isSubmitting || formIsSubmitting}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
-                    {isSubmitting ? 'Saving...' : `${mode === 'create' ? 'Create' : 'Update'} Machine`}
+                    {isSubmitting || formIsSubmitting ? 'Saving...' : `${mode === 'create' ? 'Create' : 'Update'} Machine`}
                   </button>
                 )}
               </div>
