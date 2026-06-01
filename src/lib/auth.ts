@@ -151,6 +151,11 @@ export async function loginWithEmail(email: string, password: string): Promise<U
       throw new Error('User profile not found.');
     }
 
+    // Hydrate store immediately so the caller can navigate without racing
+    // against onAuthStateChanged's async Firestore fetch.
+    useAuthStore.getState().setUser(userCredential.user);
+    useAuthStore.getState().setUserProfile(userProfile);
+
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
     await updateDoc(userRef, { lastLoginAt: serverTimestamp() });
@@ -231,6 +236,11 @@ export async function confirmOTP(
       });
     }
 
+    // Hydrate store immediately so the caller can navigate without racing
+    // against onAuthStateChanged's async Firestore fetch.
+    useAuthStore.getState().setUser(userCredential.user);
+    useAuthStore.getState().setUserProfile(userProfile);
+
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
     await updateDoc(userRef, { lastLoginAt: serverTimestamp() });
@@ -297,6 +307,11 @@ export async function loginWithGoogle(): Promise<UserProfile> {
       });
     }
 
+    // Hydrate store immediately so the caller can navigate without racing
+    // against onAuthStateChanged's async Firestore fetch.
+    useAuthStore.getState().setUser(userCredential.user);
+    useAuthStore.getState().setUserProfile(userProfile);
+
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
     await updateDoc(userRef, { lastLoginAt: serverTimestamp() });
@@ -331,6 +346,11 @@ export async function loginWithPin(companyId: string, pin: string): Promise<User
     if (!userProfile) {
       throw new Error('User profile not found.');
     }
+
+    // Hydrate store immediately so the caller can navigate (or read uid for
+    // PIN-change flow) without racing against onAuthStateChanged.
+    useAuthStore.getState().setUser(userCredential.user);
+    useAuthStore.getState().setUserProfile(userProfile);
 
     // Check if PIN change is required
     if (userProfile.mustChangePinOnLogin) {

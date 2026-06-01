@@ -8,7 +8,7 @@ import { MachineForm } from '../../components/machines/MachineForm';
 export function AddMachinePage() {
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
-  const { createMachine } = useMachineCreate();
+  const { createMachine, creating } = useMachineCreate();
   const { success, error: showError } = useToast();
 
   if (!userProfile) {
@@ -64,6 +64,7 @@ export function AddMachinePage() {
       mode="create"
       siteId={siteId}
       onSubmit={handleSubmit}
+      isSubmitting={creating}
     />
   );
 }
