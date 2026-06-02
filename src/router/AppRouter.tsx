@@ -126,6 +126,12 @@ import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
 
+// Module 16 — OEE
+import { OEEPage } from '../modules/oee/pages/OEEPage';
+
+// TPM Module
+import { TPMPage } from '../modules/tpm/pages/TPMPage';
+
 export default function AppRouter() {
   const { isInitialized } = useAuthInit();
 
@@ -658,6 +664,26 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin', 'supervisor']}>
               <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* OEE — Module 16 */}
+        <Route
+          path="oee"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <OEEPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* TPM */}
+        <Route
+          path="tpm"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <TPMPage />
             </ProtectedRoute>
           }
         />

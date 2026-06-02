@@ -131,6 +131,26 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['supervisor', 'plant_manager', 'admin'],
   },
+  {
+    label: 'OEE',
+    to: '/app/oee',
+    icon: (
+      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+      </svg>
+    ),
+    roles: ['supervisor', 'plant_manager', 'admin'],
+  },
+  {
+    label: 'TPM',
+    to: '/app/tpm',
+    icon: (
+      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    ),
+    roles: ['supervisor', 'plant_manager', 'admin'],
+  },
   { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor'] },
   { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin'] },
 ];
