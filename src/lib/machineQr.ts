@@ -14,8 +14,36 @@ export interface QRCodeData {
   station?: string;
 }
 
+const PRODUCTION_APP_URL = 'https://pulsemaint.web.app';
+
+/**
+ * Resolve the base URL to encode in QR codes.
+ *
+ * QR codes are scanned on physical machines, so they must NEVER point at
+ * localhost. We resolve at runtime (not build time) so the value is always
+ * correct wherever the app is served:
+ *   1. The actual origin the app is running on, when it is not localhost
+ *      (this makes deployed builds self-correcting — e.g. pulsemaint.web.app).
+ *   2. VITE_APP_URL, when it is configured and not a localhost URL.
+ *   3. The hardcoded production URL as a final fallback.
+ */
+function resolveAppBaseUrl(): string {
+  const isLocalhost = (url: string) =>
+    /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])/i.test(url);
+
+  if (typeof window !== 'undefined') {
+    const origin = window.location.origin;
+    if (origin && !isLocalhost(origin)) return origin;
+  }
+
+  const envUrl = import.meta.env.VITE_APP_URL;
+  if (envUrl && !isLocalhost(envUrl)) return envUrl;
+
+  return PRODUCTION_APP_URL;
+}
+
 export function generateMachineQrUrl(machineId: string, siteId: string): string {
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://pulsemaint.web.app';
+  const baseUrl = resolveAppBaseUrl();
   const params = new URLSearchParams({
     machineId,
     siteId,
