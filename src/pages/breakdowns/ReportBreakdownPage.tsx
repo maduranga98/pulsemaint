@@ -44,6 +44,7 @@ export default function ReportBreakdownPage() {
   const [breakdownType, setBreakdownType] = useState<BreakdownType>('mechanical');
   const [description, setDescription] = useState('');
   const [productionImpact, setProductionImpact] = useState('');
+  const [unitsLostOnStop, setUnitsLostOnStop] = useState('');
   const [attemptedFixes, setAttemptedFixes] = useState('');
   const [machineStillRunning, setMachineStillRunning] = useState(false);
 
@@ -111,6 +112,7 @@ export default function ReportBreakdownPage() {
         type: breakdownType,
         description: description.trim(),
         productionImpact: productionImpact.trim(),
+        unitsLostOnStop: unitsLostOnStop !== '' ? Number(unitsLostOnStop) : null,
         attemptedFixes: attemptedFixes.trim(),
         machineStillRunning,
         photos: [],
@@ -238,8 +240,8 @@ export default function ReportBreakdownPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Production impact</label>
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-slate-700">Production impact</label>
             <input
               type="text"
               value={productionImpact}
@@ -248,6 +250,23 @@ export default function ReportBreakdownPage() {
               placeholder="e.g., Line 2 stopped, ~500 units/hr lost"
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Units produced by this machine per hour (when running)
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  value={unitsLostOnStop}
+                  onChange={(e) => setUnitsLostOnStop(e.target.value)}
+                  disabled={submitting}
+                  placeholder="0"
+                  className="w-32 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                <span className="text-sm text-slate-500">units/hr lost while stopped</span>
+              </div>
+            </div>
           </div>
 
           <div>

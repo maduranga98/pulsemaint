@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
-import { AlertCircle, Plus, Search } from 'lucide-react';
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { AlertCircle, Bell, Plus, Search } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
@@ -50,6 +50,7 @@ export default function BreakdownsPage() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('open');
   const [search, setSearch] = useState('');
+  const [informingId, setInformingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!siteId) {
@@ -93,6 +94,29 @@ export default function BreakdownsPage() {
     }
     return list;
   }, [breakdowns, filter, search]);
+
+  async function handleInform(breakdown: Breakdown) {
+    if (!userProfile) return;
+    setInformingId(breakdown.id);
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', breakdown.id), {
+        statusHistory: arrayUnion({
+          status: breakdown.status,
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: new Date().toISOString(),
+          note: `Informed by ${userProfile.fullName}`,
+        }),
+        lastInformedBy: userProfile.id,
+        lastInformedByName: userProfile.fullName,
+        lastInformedAt: serverTimestamp(),
+      });
+    } catch (err: any) {
+      setError(err?.message || 'Failed to inform breakdown.');
+    } finally {
+      setInformingId(null);
+    }
+  }
 
   return (
     <div className="min-h-full">
@@ -169,6 +193,7 @@ export default function BreakdownsPage() {
                   <th className="px-4 py-3 text-left">Status</th>
                   <th className="px-4 py-3 text-left">Reported By</th>
                   <th className="px-4 py-3 text-left">Reported</th>
+                  <th className="px-4 py-3 text-left">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -192,6 +217,18 @@ export default function BreakdownsPage() {
                     <td className="px-4 py-3 text-slate-700">{b.reporterName || '—'}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">
                       {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        type="button"
+                        onClick={() => handleInform(b)}
+                        disabled={informingId === b.id || ['resolved', 'closed'].includes(b.status)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                        title="Inform team about this breakdown"
+                      >
+                        <Bell className="w-3 h-3" />
+                        {informingId === b.id ? 'Informing…' : 'Inform'}
+                      </button>
                     </td>
                   </tr>
                 ))}
