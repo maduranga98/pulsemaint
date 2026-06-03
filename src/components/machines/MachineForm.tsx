@@ -72,6 +72,7 @@ export function MachineForm({
           siteId,
           status: 'active',
           criticality: 3,
+          healthScore: 100,
           photoFiles: [],
           documentFiles: [],
           compatiblePartIds: [],
@@ -136,7 +137,7 @@ export function MachineForm({
     name: 0, type: 0, manufacturer: 0, model: 0, serialNumber: 0,
     purchaseDate: 0, installationDate: 0, expectedLifespanYears: 0,
     department: 1, floor: 1, bay: 1, station: 1,
-    status: 2, criticality: 2,
+    status: 2, criticality: 2, healthScore: 2,
     photoFiles: 3, documentFiles: 3,
     compatiblePartIds: 4, modificationNotes: 4, additionalNotes: 4,
   };
@@ -206,7 +207,8 @@ export function MachineForm({
                   removePhoto,
                   removeDocument,
                   photoInputRef,
-                  docInputRef
+                  docInputRef,
+                  mode
                 )}
 
                 {/* Form Footer */}
@@ -246,7 +248,8 @@ export function MachineForm({
                 removePhoto,
                 removeDocument,
                 photoInputRef,
-                docInputRef
+                docInputRef,
+                mode
               )}
 
               {/* Mobile Navigation */}
@@ -297,7 +300,8 @@ function renderFormSection(
   onRemovePhoto: (index: number) => void,
   onRemoveDocument: (index: number) => void,
   photoInputRef: React.RefObject<HTMLInputElement>,
-  docInputRef: React.RefObject<HTMLInputElement>
+  docInputRef: React.RefObject<HTMLInputElement>,
+  mode: 'create' | 'edit'
 ): React.ReactNode {
   switch (stepIndex) {
     case 0: // Basic Information
@@ -587,6 +591,40 @@ function renderFormSection(
               )}
             />
           </div>
+
+          {mode === 'create' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Initial Health Score (0 = Critical, 100 = Perfect)
+              </label>
+              <Controller
+                name="healthScore"
+                control={control}
+                render={({ field }) => (
+                  <>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={field.value ?? 100}
+                      onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <div className="flex justify-between text-xs text-gray-600 mt-2">
+                      <span>Critical (0)</span>
+                      <span className={`font-medium ${(field.value ?? 100) >= 70 ? 'text-green-600' : (field.value ?? 100) >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
+                        {field.value ?? 100}%
+                      </span>
+                      <span>Perfect (100)</span>
+                    </div>
+                  </>
+                )}
+              />
+              {(errors as any).healthScore && (
+                <p className="text-red-600 text-sm mt-1">{(errors as any).healthScore.message}</p>
+              )}
+            </div>
+          )}
         </div>
       );
 

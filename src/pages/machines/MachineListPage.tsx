@@ -24,16 +24,22 @@ export function MachineListPage() {
   });
 
   const filteredMachines = useMemo(() => {
-    if (!filters.search) return machines;
-    const search = filters.search.toLowerCase();
-    return machines.filter(
-      (m) =>
-        m.name.toLowerCase().includes(search) ||
-        m.model.toLowerCase().includes(search) ||
-        m.serialNumber.toLowerCase().includes(search) ||
-        m.manufacturer.toLowerCase().includes(search)
-    );
-  }, [machines, filters.search]);
+    let result = machines;
+    if (filters.search) {
+      const search = filters.search.toLowerCase();
+      result = result.filter(
+        (m) =>
+          m.name.toLowerCase().includes(search) ||
+          m.model.toLowerCase().includes(search) ||
+          m.serialNumber.toLowerCase().includes(search) ||
+          m.manufacturer.toLowerCase().includes(search)
+      );
+    }
+    if (filters.departments && filters.departments.length > 0) {
+      result = result.filter((m) => filters.departments!.includes(m.department));
+    }
+    return result;
+  }, [machines, filters.search, filters.departments]);
 
   if (!userProfile) {
     return (

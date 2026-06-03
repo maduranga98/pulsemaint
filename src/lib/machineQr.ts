@@ -15,7 +15,7 @@ export interface QRCodeData {
 }
 
 export function generateMachineQrUrl(machineId: string, siteId: string): string {
-  const baseUrl = import.meta.env.VITE_APP_URL || 'https://app.pulsemaint.com';
+  const baseUrl = import.meta.env.VITE_APP_URL || 'https://pulsemaint.web.app';
   const params = new URLSearchParams({
     machineId,
     siteId,
