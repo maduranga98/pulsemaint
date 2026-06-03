@@ -65,6 +65,7 @@ export function CreateWODrawer({
   const [machines, setMachines] = useState<MachineOption[]>([]);
   const [supervisors, setSupervisors] = useState<UserOption[]>([]);
   const [technicians, setTechnicians] = useState<UserOption[]>([]);
+  const [catalogItems, setCatalogItems] = useState<{ id: string; partName: string; partNumber: string; unit: string; currentStock: number; category: string }[]>([]);
   const [machineSearch, setMachineSearch] = useState('');
   const [showMachineDropdown, setShowMachineDropdown] = useState(false);
 
@@ -94,6 +95,25 @@ export function CreateWODrawer({
             };
           }),
         );
+
+        const partsSnap = await getDocs(
+          query(collection(db, 'inventoryParts'), where('companyId', '==', companyId)),
+        );
+        if (!cancelled) {
+          setCatalogItems(
+            partsSnap.docs.map((d) => {
+              const data = d.data() as Record<string, unknown>;
+              return {
+                id: d.id,
+                partName: (data.name as string) ?? d.id,
+                partNumber: (data.partNumber as string) ?? '',
+                unit: (data.unit as string) ?? 'pcs',
+                currentStock: (data.currentStock as number) ?? 0,
+                category: (data.category as string) ?? '',
+              };
+            }),
+          );
+        }
 
         const userSnap = await getDocs(collection(db, `companies/${companyId}/users`));
         if (cancelled) return;
@@ -305,17 +325,33 @@ export function CreateWODrawer({
                 )}
               </div>
 
-              {/* Due Date */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {WO_COPY.dueDateLabel} <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="datetime-local"
-                  {...form.register('dueDate', { valueAsDate: true })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                />
-                <p className="mt-1 text-xs text-gray-400">{WO_COPY.dueDateHint}</p>
+              {/* Schedule: Start Date + Due Date */}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-gray-700">Schedule</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      Start Date
+                    </label>
+                    <input
+                      type="datetime-local"
+                      {...form.register('scheduledStart', { valueAsDate: true })}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="mt-1 text-xs text-gray-400">When work is planned to begin</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">
+                      {WO_COPY.dueDateLabel} <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="datetime-local"
+                      {...form.register('dueDate', { valueAsDate: true })}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="mt-1 text-xs text-gray-400">{WO_COPY.dueDateHint}</p>
+                  </div>
+                </div>
               </div>
 
               {/* Linked Breakdown (only for BREAKDOWN type) */}
@@ -463,7 +499,7 @@ export function CreateWODrawer({
               <PartsPreRequestPanel
                 requests={form.watch('partsRequests') ?? []}
                 onChange={(reqs) => form.setValue('partsRequests', reqs)}
-                catalogItems={[]}
+                catalogItems={catalogItems}
               />
             </div>
           )}

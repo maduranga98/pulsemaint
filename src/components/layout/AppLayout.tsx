@@ -54,7 +54,7 @@ const Icon = {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer'] },
   { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician'] },
-  { label: 'Report Breakdown', to: '/app/breakdowns/report', icon: Icon.report, roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin'] },
+  { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
   {
     label: 'PM Schedules',

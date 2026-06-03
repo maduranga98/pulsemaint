@@ -148,22 +148,11 @@ export function TeamAssignmentPanel({
             {...register('estimatedDurationUnit')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
+            <option value="minutes">Minutes</option>
             <option value="hours">Hours</option>
             <option value="days">Days</option>
           </select>
         </div>
-      </div>
-
-      {/* Scheduled Start */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {WO_COPY.scheduledStartLabel}
-        </label>
-        <input
-          type="datetime-local"
-          {...register('scheduledStart', { valueAsDate: true })}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-        />
       </div>
 
       {/* Dynamic: Internal team OR Contractor */}

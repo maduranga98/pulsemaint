@@ -46,7 +46,7 @@ export type DocumentFileType = 'cad' | 'document' | 'image' | 'video' | 'compres
 
 export type PartSource = 'stock' | 'external';
 
-export type EstimatedDurationUnit = 'hours' | 'days';
+export type EstimatedDurationUnit = 'minutes' | 'hours' | 'days';
 
 // ---------------------------------------------------------------------------
 // Sub-Interfaces
