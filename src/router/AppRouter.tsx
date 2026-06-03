@@ -132,6 +132,9 @@ import { OEEPage } from '../modules/oee/pages/OEEPage';
 // TPM Module
 import { TPMPage } from '../modules/tpm/pages/TPMPage';
 
+// Module 18 — Kaizen
+import { KaizenPage } from '../modules/kaizen/pages/KaizenPage';
+
 export default function AppRouter() {
   const { isInitialized } = useAuthInit();
 
@@ -684,6 +687,16 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <TPMPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Kaizen — Module 18 */}
+        <Route
+          path="kaizen"
+          element={
+            <ProtectedRoute requiredRoles={['technician', 'store_keeper', 'supervisor', 'plant_manager', 'hr_officer', 'admin']}>
+              <KaizenPage />
             </ProtectedRoute>
           }
         />
