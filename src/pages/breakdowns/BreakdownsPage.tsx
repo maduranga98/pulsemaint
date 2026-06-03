@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { AlertCircle, Bell, Plus, Search } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -109,7 +109,7 @@ export default function BreakdownsPage() {
         }),
         lastInformedBy: userProfile.id,
         lastInformedByName: userProfile.fullName,
-        lastInformedAt: serverTimestamp(),
+        lastInformedAt: Timestamp.now(),
       });
     } catch (err: any) {
       setError(err?.message || 'Failed to inform breakdown.');

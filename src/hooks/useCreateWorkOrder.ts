@@ -152,7 +152,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
           id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
           requestedBy: userId,
           requestedByName: userName,
-          requestedAt: serverTimestamp(),
+          requestedAt: new Date(),
           status: 'pending',
           approvedBy: null,
           approvedAt: null,
@@ -188,7 +188,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
           status: 'OPEN',
           changedBy: userId,
           changedByName: userName,
-          changedAt: serverTimestamp(),
+          changedAt: new Date(),
           note: null,
         }],
 
