@@ -131,6 +131,7 @@ import { OEEPage } from '../modules/oee/pages/OEEPage';
 
 // TPM Module
 import { TPMPage } from '../modules/tpm/pages/TPMPage';
+import { FiveSPage } from '../modules/fives/pages/FiveSPage';
 
 export default function AppRouter() {
   const { isInitialized } = useAuthInit();
@@ -684,6 +685,16 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <TPMPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 5S Audit */}
+        <Route
+          path="fives"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+              <FiveSPage />
             </ProtectedRoute>
           }
         />
