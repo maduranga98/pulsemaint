@@ -63,6 +63,14 @@ const criticalitySchema = z
   .min(1, 'Criticality must be between 1 and 5')
   .max(5, 'Criticality must be between 1 and 5');
 
+const healthScoreSchema = z
+  .number()
+  .int()
+  .min(0, 'Health score must be between 0 and 100')
+  .max(100, 'Health score must be between 0 and 100')
+  .optional()
+  .default(100);
+
 const lifespanSchema = z
   .number()
   .int()
@@ -146,6 +154,7 @@ export const createMachineSchema = z.object({
   station: locationFieldSchema,
   status: statusSchema,
   criticality: criticalitySchema,
+  healthScore: healthScoreSchema,
   photoFiles: z.array(photoFileSchema).optional().default([]),
   documentFiles: z.array(
     z.object({

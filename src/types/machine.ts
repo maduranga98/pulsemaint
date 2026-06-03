@@ -125,6 +125,7 @@ export interface CreateMachinePayload {
   station: string | null;
   status: MachineStatus;
   criticality: MachineCriticality;
+  healthScore: number;
   photoFiles: File[];
   documentFiles: Array<{ file: File; type: DocumentType; name: string }>;
   compatiblePartIds: string[];

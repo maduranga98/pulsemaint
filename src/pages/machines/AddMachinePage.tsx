@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useMachineCreate } from '../../hooks/useMachineCreate';
 import { useToast } from '../../hooks/useToast';
-import type { CreateMachineFormData, CreateMachinePayload } from '../../types/machine';
+import type { CreateMachineFormData } from '../../schemas/machine';
+import type { CreateMachinePayload } from '../../types/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
 
 export function AddMachinePage() {
@@ -42,6 +43,7 @@ export function AddMachinePage() {
         station: formData.station || null,
         status: formData.status,
         criticality: formData.criticality,
+        healthScore: formData.healthScore ?? 100,
         photoFiles: files.photos,
         documentFiles: files.documents,
         compatiblePartIds: formData.compatiblePartIds || [],
