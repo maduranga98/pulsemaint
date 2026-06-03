@@ -64,7 +64,7 @@ export function useMachineUpdate({
             name: docPayload.name,
             type: docPayload.type,
             url: docUrl,
-            uploadedAt: serverTimestamp(),
+            uploadedAt: Timestamp.now(),
             uploadedBy: userId,
             size: docPayload.file.size,
           });
