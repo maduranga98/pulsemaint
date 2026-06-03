@@ -131,6 +131,7 @@ import { OEEPage } from '../modules/oee/pages/OEEPage';
 
 // TPM Module
 import { TPMPage } from '../modules/tpm/pages/TPMPage';
+import { FiveSPage } from '../modules/fives/pages/FiveSPage';
 
 // Module 18 — Kaizen
 import { KaizenPage } from '../modules/kaizen/pages/KaizenPage';
@@ -697,6 +698,12 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['technician', 'store_keeper', 'supervisor', 'plant_manager', 'hr_officer', 'admin']}>
               <KaizenPage />
+        {/* 5S Audit */}
+        <Route
+          path="fives"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+              <FiveSPage />
             </ProtectedRoute>
           }
         />
