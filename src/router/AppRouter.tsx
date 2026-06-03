@@ -698,6 +698,10 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['technician', 'store_keeper', 'supervisor', 'plant_manager', 'hr_officer', 'admin']}>
               <KaizenPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* 5S Audit */}
         <Route
           path="fives"
