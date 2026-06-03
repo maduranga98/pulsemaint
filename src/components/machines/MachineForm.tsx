@@ -33,7 +33,7 @@ const MACHINE_TYPES: MachineType[] = [
 const FORM_STEPS = [
   { id: 'basic', label: 'Basic Information', description: 'Machine name, type, manufacturer' },
   { id: 'location', label: 'Location', description: 'Department, floor, bay, station' },
-  { id: 'status', label: 'Status & Criticality', description: 'Status and criticality level' },
+  { id: 'status', label: 'Status & Criticality', description: 'Status, criticality and health score' },
   { id: 'documents', label: 'Documents & Photos', description: 'Upload files and images' },
   { id: 'parts', label: 'Spare Parts', description: 'Compatible parts and notes' },
 ];
