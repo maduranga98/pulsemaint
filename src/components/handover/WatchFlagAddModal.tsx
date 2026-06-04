@@ -1,5 +1,8 @@
 import { X } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuthStore } from '@/store/authStore';
 import type { DraftWatchFlag, WatchLevel } from '@/types/handover.types';
 
 interface WatchFlagAddModalProps {
@@ -8,23 +11,77 @@ interface WatchFlagAddModalProps {
   onAdd: (flag: DraftWatchFlag) => void;
 }
 
+type MachineOption = {
+  id: string;
+  name: string;
+  location: string;
+};
+
 export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalProps) {
-  const [machineName, setMachineName] = useState('');
-  const [machineId, setMachineId] = useState('');
-  const [machineLocation, setMachineLocation] = useState('');
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const companyId = userProfile?.companyId;
+  const siteIds = userProfile?.siteIds;
+
+  const [machines, setMachines] = useState<MachineOption[]>([]);
+  const [machinesLoading, setMachinesLoading] = useState(false);
+  const [selectedMachineId, setSelectedMachineId] = useState('');
   const [watchLevel, setWatchLevel] = useState<WatchLevel>('monitor');
   const [reason, setReason] = useState('');
   const [recommendedAction, setRecommendedAction] = useState('');
   const [linkedBreakdownId, setLinkedBreakdownId] = useState('');
 
+  useEffect(() => {
+    if (!open || !companyId) return;
+    let cancelled = false;
+    setMachinesLoading(true);
+    (async () => {
+      try {
+        const siteIdList = siteIds && siteIds.length > 0 ? siteIds : [companyId];
+        const snap = await getDocs(
+          query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
+        );
+        if (cancelled) return;
+        setMachines(
+          snap.docs.map((d) => {
+            const data = d.data() as Record<string, unknown>;
+            return {
+              id: d.id,
+              name: (data.name as string) ?? d.id,
+              location: (data.location as string) ?? '',
+            };
+          }).sort((a, b) => a.name.localeCompare(b.name)),
+        );
+      } catch (err) {
+        console.error('Failed to load machines for watch flag modal', err);
+      } finally {
+        if (!cancelled) setMachinesLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open, companyId, siteIds]);
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedMachineId('');
+      setWatchLevel('monitor');
+      setReason('');
+      setRecommendedAction('');
+      setLinkedBreakdownId('');
+    }
+  }, [open]);
+
   if (!open) return null;
 
+  const selected = machines.find((m) => m.id === selectedMachineId);
+
   function add() {
-    if (!machineName || !reason || !recommendedAction) return;
+    if (!selected || !reason || !recommendedAction) return;
     onAdd({
-      machineId: machineId || machineName,
-      machineName,
-      machineLocation,
+      machineId: selected.id,
+      machineName: selected.name,
+      machineLocation: selected.location,
       watchLevel,
       reason,
       recommendedAction,
@@ -43,10 +100,34 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
           </button>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <input value={machineName} onChange={(event) => setMachineName(event.target.value)} placeholder="Machine name" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
-          <input value={machineId} onChange={(event) => setMachineId(event.target.value)} placeholder="Machine ID" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
-          <input value={machineLocation} onChange={(event) => setMachineLocation(event.target.value)} placeholder="Location" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
-          <select value={watchLevel} onChange={(event) => setWatchLevel(event.target.value as WatchLevel)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm">
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-slate-600">Machine</label>
+            <select
+              value={selectedMachineId}
+              onChange={(event) => setSelectedMachineId(event.target.value)}
+              className="min-h-12 w-full rounded-md border border-slate-200 px-3 text-sm"
+            >
+              <option value="">{machinesLoading ? 'Loading machines…' : 'Select a machine'}</option>
+              {machines.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <input
+            value={selected?.id ?? ''}
+            readOnly
+            placeholder="Machine ID"
+            className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
+          />
+          <input
+            value={selected?.location ?? ''}
+            readOnly
+            placeholder="Location"
+            className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
+          />
+          <select value={watchLevel} onChange={(event) => setWatchLevel(event.target.value as WatchLevel)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2">
             <option value="critical_watch">Critical Watch</option>
             <option value="monitor">Monitor</option>
             <option value="info_only">Info Only</option>
@@ -55,7 +136,14 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
           <textarea value={recommendedAction} onChange={(event) => setRecommendedAction(event.target.value)} placeholder="Recommended action" className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-2" />
           <input value={linkedBreakdownId} onChange={(event) => setLinkedBreakdownId(event.target.value)} placeholder="Linked breakdown ID" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2" />
         </div>
-        <button type="button" onClick={add} className="mt-4 min-h-12 rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white">Add Watch Flag</button>
+        <button
+          type="button"
+          onClick={add}
+          disabled={!selected || !reason || !recommendedAction}
+          className="mt-4 min-h-12 rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+        >
+          Add Watch Flag
+        </button>
       </div>
     </div>
   );

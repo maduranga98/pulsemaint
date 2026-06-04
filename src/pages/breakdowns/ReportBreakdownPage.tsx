@@ -252,7 +252,7 @@ export default function ReportBreakdownPage() {
             />
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">
-                Units produced by this machine per hour (when running)
+                Units of products lost while machine is stopped
               </label>
               <div className="flex items-center gap-2">
                 <input

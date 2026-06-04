@@ -118,7 +118,22 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
   generatePdf: async () => {
     const { selectedReportType, config } = get();
     const { companyId, userId } = getAuthContext();
-    if (!selectedReportType || !companyId) return;
+    if (!selectedReportType || !companyId) {
+      set({
+        generationStatus: 'error',
+        generationError: !companyId
+          ? 'Missing company context. Please log in again.'
+          : 'Please select a report type before generating.',
+      });
+      return;
+    }
+    if (!config.dateFrom || !config.dateTo) {
+      set({
+        generationStatus: 'error',
+        generationError: 'Please choose a Date From and Date To before generating.',
+      });
+      return;
+    }
 
     set({ generationStatus: 'fetching_data', generationProgress: 18, generationError: null });
     try {
@@ -192,7 +207,30 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
   pushToSheets: async () => {
     const { selectedReportType, config } = get();
     const { companyId } = getAuthContext();
-    if (!selectedReportType || !companyId) return;
+    if (!selectedReportType || !companyId) {
+      set({
+        generationStatus: 'error',
+        generationError: !companyId
+          ? 'Missing company context. Please log in again.'
+          : 'Please select a report type before exporting.',
+      });
+      return;
+    }
+    if (!config.dateFrom || !config.dateTo) {
+      set({
+        generationStatus: 'error',
+        generationError: 'Please choose a Date From and Date To before exporting.',
+      });
+      return;
+    }
+    const googleAccessToken = localStorage.getItem('pulsemaint_google_sheets_token') ?? '';
+    if (!googleAccessToken) {
+      set({
+        generationStatus: 'error',
+        generationError: 'Google Sheets is not connected. Connect your Google account from Settings, or use PDF/Excel export instead.',
+      });
+      return;
+    }
     set({ generationStatus: 'building', generationProgress: 45, generationError: null });
     try {
       const callable = httpsCallable(getFunctions(app), 'pushToGoogleSheets');
@@ -202,7 +240,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
         dateTo: config.dateTo,
         filters: filtersFromConfig(config),
         companyId,
-        googleAccessToken: localStorage.getItem('pulsemaint_google_sheets_token') ?? '',
+        googleAccessToken,
       });
       const result = response.data as PushToSheetsResult;
       set({

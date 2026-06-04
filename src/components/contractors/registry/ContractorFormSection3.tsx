@@ -9,24 +9,24 @@ export function ContractorFormSection3() {
         <div className="flex flex-wrap gap-2">
           {CONTRACTOR_SPECIALIZATION_TAGS.map((tag) => (
             <label key={tag} className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700">
-              <input type="checkbox" className="mr-1" /> {SPECIALIZATION_LABELS[tag]}
+              <input type="checkbox" name="specializationTags" value={tag} className="mr-1" /> {SPECIALIZATION_LABELS[tag]}
             </label>
           ))}
         </div>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <input placeholder="Machine Types Serviced" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <input placeholder="Industries Served" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <input placeholder="Geographic Coverage" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <select className="h-10 rounded-md border border-slate-200 px-3 text-sm">
+        <input name="machineTypesServiced" placeholder="Machine Types Serviced" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input name="industriesServed" placeholder="Industries Served" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input name="geographicCoverage" placeholder="Geographic Coverage" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <select name="serviceHours" className="h-10 rounded-md border border-slate-200 px-3 text-sm">
           <option value="24_7">24/7</option>
           <option value="business_hours">Business Hours</option>
           <option value="on_call">On Call</option>
           <option value="custom">Custom</option>
         </select>
-        <input placeholder="Emergency Response Time" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <input type="number" placeholder="Team Size Available" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <input placeholder="Languages Spoken" className="h-10 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2" />
+        <input name="emergencyResponseTime" placeholder="Emergency Response Time" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input name="teamSize" type="number" placeholder="Team Size Available" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input name="languagesSpoken" placeholder="Languages Spoken" className="h-10 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2" />
       </div>
     </section>
   );

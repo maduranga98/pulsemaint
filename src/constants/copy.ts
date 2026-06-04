@@ -272,7 +272,7 @@ export const WO_COPY = {
   step3Title:             'Team Assignment',
   step4Title:             'Task Checklist',
   step5Title:             'Documents',
-  step6Title:             'Parts Request',
+  step6Title:             'Special Tools / Components',
 
   // Section 1
   woTypeLabel:            'Work Order Type',
