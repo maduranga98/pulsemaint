@@ -14,6 +14,7 @@ import { nanoid } from 'nanoid';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../hooks/useToast';
+import { useShiftConfig } from '../../hooks/useShiftConfig';
 import type { UserProfile, UserRole } from '../../types/auth';
 
 const ROLE_LABEL: Record<UserRole, string> = {
@@ -81,6 +82,7 @@ export default function UsersPage() {
   const company = useAuthStore((s) => s.company);
   const currentUserId = useAuthStore((s) => s.userProfile?.id);
   const toast = useToast();
+  const { shifts } = useShiftConfig();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -221,6 +223,7 @@ export default function UsersPage() {
                   <th className="px-4 py-3 text-left">Role</th>
                   <th className="px-4 py-3 text-left">Contact</th>
                   <th className="px-4 py-3 text-left">Status</th>
+                  <th className="px-4 py-3 text-left">Shifts</th>
                   <th className="px-4 py-3 text-left">Last Login</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
@@ -256,6 +259,12 @@ export default function UsersPage() {
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[u.status]}`}>
                         {u.status}
                       </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <UserShiftChips
+                        userDepartment={u.department ?? null}
+                        shifts={shifts}
+                      />
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-500">
                       {u.lastLoginAt && (u.lastLoginAt as { toDate?: () => Date }).toDate
@@ -489,6 +498,35 @@ function UserModal({ state, onClose, onAdd, onEdit }: UserModalProps) {
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+function UserShiftChips({
+  userDepartment,
+  shifts,
+}: {
+  userDepartment: string | null;
+  shifts: Array<{ id: string; shiftName: string; color: string; department: string | null; status: string }>;
+}) {
+  const matching = shifts.filter(
+    (s) => s.status === 'active' && (!s.department || s.department === userDepartment),
+  );
+  if (matching.length === 0) {
+    return <span className="text-xs text-slate-400">—</span>;
+  }
+  return (
+    <div className="flex flex-wrap gap-1">
+      {matching.map((s) => (
+        <span
+          key={s.id}
+          className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700"
+          title={s.department ? `${s.shiftName} • ${s.department}` : `${s.shiftName} • All`}
+        >
+          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
+          {s.shiftName}
+        </span>
+      ))}
     </div>
   );
 }

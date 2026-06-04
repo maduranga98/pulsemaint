@@ -40,11 +40,27 @@ export function useTraineeList(
     setLoading(true);
     setError(null);
 
+    // Profiles live in the per-company subcollection (see
+    // companies/{id}/users used by UsersPage, auth.ts, etc). Querying the
+    // top-level `users` collection returned nothing, which is why the
+    // assign-training wizard showed no trainees.
+    //
+    // Training also applies to factory members generally (technicians,
+    // operators, store keepers, supervisors, etc.) — not just dedicated
+    // trainees — so widen the role filter accordingly. Admin & plant
+    // manager are excluded since they aren't typical training recipients.
+    const TRAINABLE_ROLES = [
+      'trainee',
+      'floor_operator',
+      'technician',
+      'store_keeper',
+      'supervisor',
+      'hr_officer',
+    ];
     const q = query(
-      collection(db, 'users'),
-      where('companyId', '==', companyId),
-      where('role', 'in', ['trainee', 'floor_operator']),
-      orderBy('fullName', 'asc')
+      collection(db, `companies/${companyId}/users`),
+      where('role', 'in', TRAINABLE_ROLES),
+      orderBy('fullName', 'asc'),
     );
 
     const unsubscribe = onSnapshot(

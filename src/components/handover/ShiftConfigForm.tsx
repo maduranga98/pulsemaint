@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import type { ShiftConfig, ShiftDay } from '@/types/handover.types';
+import { useAuthStore } from '@/store/authStore';
+import { useDepartments } from '@/hooks/useDepartments';
 
 interface ShiftConfigFormProps {
   onSave: (shift: Omit<ShiftConfig, 'id' | 'companyId'> & { id?: string }) => Promise<void>;
@@ -63,7 +65,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
         <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
         <input type="color" value={color} onChange={(event) => setColor(event.target.value)} className="min-h-12 rounded-md border border-slate-200 p-1" />
-        <input value={department} onChange={(event) => setDepartment(event.target.value)} placeholder="Department" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
+        <DepartmentPicker value={department} onChange={setDepartment} />
         <select value={status} onChange={(event) => setStatus(event.target.value as ShiftConfig['status'])} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm">
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
@@ -96,6 +98,71 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         {saving ? 'Saving…' : 'Save Shift'}
       </button>
     </form>
+  );
+}
+
+function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const { departments, addDepartment } = useDepartments(companyId);
+  const [adding, setAdding] = useState(false);
+  const [newName, setNewName] = useState('');
+
+  async function commitAdd() {
+    const trimmed = newName.trim();
+    if (!trimmed) {
+      setAdding(false);
+      return;
+    }
+    await addDepartment(trimmed);
+    onChange(trimmed);
+    setNewName('');
+    setAdding(false);
+  }
+
+  if (adding) {
+    return (
+      <div className="flex min-h-12 items-center gap-2 rounded-md border border-blue-300 bg-white px-2">
+        <input
+          autoFocus
+          value={newName}
+          onChange={(e) => setNewName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              void commitAdd();
+            }
+          }}
+          placeholder="e.g. Civil, Safety"
+          className="flex-1 bg-transparent px-1 text-sm outline-none"
+        />
+        <button type="button" onClick={() => void commitAdd()} className="rounded bg-blue-600 px-2 py-1 text-xs font-bold text-white">
+          Add
+        </button>
+        <button type="button" onClick={() => { setAdding(false); setNewName(''); }} className="text-xs text-slate-500">
+          Cancel
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <select
+      value={value}
+      onChange={(e) => {
+        if (e.target.value === '__add__') {
+          setAdding(true);
+          return;
+        }
+        onChange(e.target.value);
+      }}
+      className="min-h-12 rounded-md border border-slate-200 px-3 text-sm"
+    >
+      <option value="">All departments</option>
+      {departments.map((d) => (
+        <option key={d} value={d}>{d}</option>
+      ))}
+      <option value="__add__">+ Add new department…</option>
+    </select>
   );
 }
 
