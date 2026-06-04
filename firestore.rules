@@ -458,13 +458,28 @@ service cloud.firestore {
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
-              && getUserData().role == 'admin')
+              && getUserData().role in ['admin', 'supervisor'])
         );
 
       allow delete: if isAuthenticated()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && getUserData().companyId == companyId
         && getUserData().role == 'admin';
+    }
+
+    // /departments/{deptId} — company department list, managed by admin/supervisor
+    match /departments/{deptId} {
+      allow read: if isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().companyId == resource.data.companyId;
+      allow create: if isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().companyId == request.resource.data.companyId
+        && getUserData().role in ['admin', 'supervisor', 'plant_manager'];
+      allow update, delete: if isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().companyId == resource.data.companyId
+        && getUserData().role in ['admin', 'supervisor'];
     }
 
     // /companies/{companyId}/pendingInvites/{token} — saved during onboarding,

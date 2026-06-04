@@ -80,6 +80,7 @@ function toForm(u: UserProfile): UserFormValues {
 export default function UsersPage() {
   const company = useAuthStore((s) => s.company);
   const currentUserId = useAuthStore((s) => s.userProfile?.id);
+  const currentUserRole = useAuthStore((s) => s.userProfile?.role);
   const toast = useToast();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,6 +144,13 @@ export default function UsersPage() {
     };
     await setDoc(ref, payload);
     toast.success(`Added ${values.fullName}`);
+  };
+
+  const handleApprove = async (user: UserProfile) => {
+    if (!company?.id) return;
+    const ref = doc(db, `companies/${company.id}/users/${user.id}`);
+    await updateDoc(ref, { status: 'active', updatedAt: serverTimestamp() });
+    toast.success(`${user.fullName} approved`);
   };
 
   const handleEdit = async (userId: string, values: UserFormValues) => {
@@ -264,6 +272,17 @@ export default function UsersPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1">
+                        {u.status === 'pending' &&
+                          (currentUserRole === 'admin' || currentUserRole === 'supervisor') && (
+                            <button
+                              type="button"
+                              onClick={() => handleApprove(u)}
+                              title="Approve"
+                              className="px-2 py-1 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                            >
+                              Approve
+                            </button>
+                          )}
                         <button
                           type="button"
                           onClick={() => setModal({ mode: 'view', user: u })}
