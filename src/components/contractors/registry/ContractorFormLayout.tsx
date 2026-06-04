@@ -202,42 +202,32 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
           ))}
         </aside>
         <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="lg:hidden">
-            {/* All sections stay mounted so their inputs are part of the
-                native form's FormData regardless of which step is shown.
-                Otherwise submitting from a later step on mobile loses
-                values entered on earlier steps and the required-fields
-                check trips even when the user filled them in. */}
-            <div className={step === 0 ? '' : 'hidden'}>
+          {/* Render every section once for all viewports. On mobile the
+              stepper scrolls to the relevant anchor; on desktop the
+              sidebar does the same. Rendering each section twice (once
+              per viewport) duplicated input names so FormData picked
+              the empty hidden copy and required-fields validation
+              tripped even when fields were filled. */}
+          <div className="space-y-8">
+            <div id={SECTION_ANCHORS[0]}>
               <ContractorFormSection1 />
             </div>
-            <div className={step === 1 ? '' : 'hidden'}>
+            <div id={SECTION_ANCHORS[1]}>
               <ContractorFormSection2 />
             </div>
-            <div className={step === 2 ? '' : 'hidden'}>
+            <div id={SECTION_ANCHORS[2]}>
               <ContractorFormSection3 />
             </div>
-            <div className={step === 3 ? '' : 'hidden'}>
+            <div id={SECTION_ANCHORS[3]}>
               <ContractorFormSection4 />
             </div>
-            <div className={step === 4 ? '' : 'hidden'}>
+            <div id={SECTION_ANCHORS[4]}>
               <ContractorFormSection5
                 files={pendingFiles}
                 onAddFiles={handleAddFiles}
                 onRemoveFile={handleRemoveFile}
               />
             </div>
-          </div>
-          <div className="hidden space-y-8 lg:block">
-            <ContractorFormSection1 />
-            <ContractorFormSection2 />
-            <ContractorFormSection3 />
-            <ContractorFormSection4 />
-            <ContractorFormSection5
-              files={pendingFiles}
-              onAddFiles={handleAddFiles}
-              onRemoveFile={handleRemoveFile}
-            />
           </div>
         </div>
       </div>
