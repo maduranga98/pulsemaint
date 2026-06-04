@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Save, Send } from 'lucide-react';
@@ -44,6 +44,9 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.name) ?? '';
+  const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
+
+  const canApprove = userRole === 'plant_manager' || userRole === 'admin';
 
   const [items, setItems] = useState<POItemRowData[]>(
     initialPO?.items.map((i) => ({
@@ -54,11 +57,11 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       unitCost: i.unitCost,
       leadTimeDays: i.leadTimeDays,
       expectedDelivery: i.expectedDelivery
-        ? i.expectedDelivery.toDate
-          ? i.expectedDelivery.toDate().toISOString().split('T')[0]
+        ? (i.expectedDelivery as any).toDate
+          ? (i.expectedDelivery as any).toDate().toISOString().split('T')[0]
           : null
         : null,
-    })) ?? [emptyItem()]
+    })) ?? [emptyItem()],
   );
   const [saving, setSaving] = useState(false);
 
@@ -74,6 +77,12 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
     defaultValues: {
       supplierName: initialPO?.supplierName ?? '',
       supplierContact: initialPO?.supplierContact ?? '',
+      supplierContactPerson: initialPO?.supplierContactPerson ?? '',
+      supplierPhone: initialPO?.supplierPhone ?? '',
+      supplierEmail: initialPO?.supplierEmail ?? '',
+      supplierAddress: initialPO?.supplierAddress ?? '',
+      deliveryAddress: initialPO?.deliveryAddress ?? '',
+      paymentTerms: initialPO?.paymentTerms ?? '',
       currency: initialPO?.currency ?? 'LKR',
       items: [],
       notes: initialPO?.notes ?? '',
@@ -86,7 +95,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       collection(db, 'purchaseOrders'),
       where('companyId', '==', companyId),
       orderBy('raisedAt', 'desc'),
-      limit(1)
+      limit(1),
     );
     const snap = await getDocs(q);
     const lastSeq = snap.empty
@@ -95,9 +104,40 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
     return generatePONumber('PO', year, lastSeq + 1);
   }
 
+  async function queueEmail(po: PurchaseOrder) {
+    // Notify plant managers + admins. A backend worker / Cloud Function
+    // should consume this collection and dispatch the email.
+    try {
+      const usersSnap = await getDocs(
+        query(collection(db, `companies/${companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
+      );
+      const recipients = usersSnap.docs
+        .map((d) => (d.data() as any).email as string | undefined)
+        .filter(Boolean) as string[];
+
+      if (recipients.length === 0) return;
+
+      await addDoc(collection(db, 'po_notifications'), {
+        companyId,
+        poId: po.id,
+        poNumber: po.poNumber,
+        supplierName: po.supplierName,
+        supplierEmail: po.supplierEmail ?? '',
+        total: po.totalOrderValue,
+        currency: po.currency,
+        recipients,
+        event: po.status,
+        status: 'queued',
+        createdAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('Failed to queue PO email notification', err);
+    }
+  }
+
   async function save(values: PurchaseOrderFormValues, status: PurchaseOrderStatus) {
-    if (items.length === 0 || items.some((i) => !i.partId)) {
-      addToast('Add at least one part to the PO.', 'error');
+    if (items.length === 0 || items.some((i) => !i.partId || i.quantityOrdered <= 0)) {
+      addToast('Add at least one item with a part and quantity.', 'error');
       return;
     }
     setSaving(true);
@@ -115,34 +155,56 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         expectedDelivery: null,
       }));
 
+      const supplierFields = {
+        supplierName: values.supplierName,
+        supplierContact: values.supplierContact,
+        supplierContactPerson: values.supplierContactPerson ?? '',
+        supplierPhone: values.supplierPhone ?? '',
+        supplierEmail: values.supplierEmail ?? '',
+        supplierAddress: values.supplierAddress ?? '',
+        deliveryAddress: values.deliveryAddress ?? '',
+        paymentTerms: values.paymentTerms ?? '',
+        currency: values.currency,
+      };
+
       if (initialPO) {
         const ref = doc(db, 'purchaseOrders', initialPO.id);
         await updateDoc(ref, {
-          supplierName: values.supplierName,
-          supplierContact: values.supplierContact,
-          currency: values.currency,
+          ...supplierFields,
           items: poItems,
           totalOrderValue: totalValue,
           notes: values.notes,
           status,
           updatedAt: serverTimestamp(),
         });
-        onSave({ ...initialPO, ...values, items: poItems as PurchaseOrder['items'], status, totalOrderValue: totalValue });
+        const updated = {
+          ...initialPO,
+          ...supplierFields,
+          items: poItems as PurchaseOrder['items'],
+          status,
+          totalOrderValue: totalValue,
+          notes: values.notes,
+        } as PurchaseOrder;
+        onSave(updated);
+        if (status === 'pending_approval' || status === 'sent') await queueEmail(updated);
       } else {
         const poNumber = await generatePONum();
         const payload = {
           companyId,
           poNumber,
           status,
-          supplierName: values.supplierName,
-          supplierContact: values.supplierContact,
-          currency: values.currency,
+          ...supplierFields,
           items: poItems,
           totalOrderValue: totalValue,
           totalReceivedValue: 0,
           raisedBy: userId,
           raisedByName: userName,
+          raisedByRole: userRole,
           raisedAt: serverTimestamp(),
+          approvedBy: null,
+          approvedByName: null,
+          approvedAt: null,
+          rejectedReason: null,
           sentAt: status === 'sent' ? serverTimestamp() : null,
           acknowledgedAt: null,
           receivedAt: null,
@@ -150,9 +212,17 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           attachments: [],
         };
         const ref = await addDoc(collection(db, 'purchaseOrders'), payload);
-        onSave({ id: ref.id, ...payload } as unknown as PurchaseOrder);
+        const created = { id: ref.id, ...payload } as unknown as PurchaseOrder;
+        onSave(created);
+        if (status === 'pending_approval' || status === 'sent') await queueEmail(created);
       }
-      addToast(status === 'draft' ? 'PO saved as draft.' : 'PO saved and sent.', 'success');
+      const msg =
+        status === 'draft'
+          ? 'PO saved as draft.'
+          : status === 'pending_approval'
+            ? 'PO submitted for approval.'
+            : 'PO saved and sent.';
+      addToast(msg, 'success');
     } catch (err) {
       addToast('Failed to save purchase order.', 'error');
       console.error(err);
@@ -183,7 +253,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
         <h3 className="font-semibold text-gray-900">Supplier Information</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="sm:col-span-1">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Name *</label>
             <input
               {...register('supplierName')}
@@ -195,11 +265,43 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contact</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
+            <input
+              {...register('supplierContactPerson')}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Salesperson name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input
+              {...register('supplierPhone')}
+              type="tel"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="+94 ..."
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              {...register('supplierEmail')}
+              type="email"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="supplier@example.com"
+            />
+            {errors.supplierEmail && (
+              <p className="text-xs text-red-600 mt-1">{errors.supplierEmail.message}</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Other Contact</label>
             <input
               {...register('supplierContact')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Email / phone"
+              placeholder="Fax, alt phone, etc."
             />
           </div>
           <div>
@@ -219,6 +321,34 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
               )}
             />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Address</label>
+            <textarea
+              {...register('supplierAddress')}
+              rows={2}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Delivery / Ship-To Address</label>
+            <textarea
+              {...register('deliveryAddress')}
+              rows={2}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Payment Terms</label>
+          <input
+            {...register('paymentTerms')}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g. Net 30, 50% advance"
+          />
         </div>
       </div>
 
@@ -288,12 +418,23 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         <button
           type="button"
           disabled={saving}
-          onClick={handleSubmit((v) => save(v, 'sent'))}
-          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+          onClick={handleSubmit((v) => save(v, 'pending_approval'))}
+          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
         >
           <Send className="w-4 h-4" />
-          Save &amp; Send
+          Submit for Approval
         </button>
+        {canApprove && (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={handleSubmit((v) => save(v, 'sent'))}
+            className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+          >
+            <Send className="w-4 h-4" />
+            Approve &amp; Send
+          </button>
+        )}
       </div>
     </form>
   );

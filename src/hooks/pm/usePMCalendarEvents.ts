@@ -14,8 +14,19 @@ interface UsePMCalendarEventsOptions {
   year?: number;
 }
 
+interface PMWorkOrderEvent {
+  id: string;
+  machineName: string;
+  description: string;
+  dueDate: Date;
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  assignedTechnicianNames: string[];
+  status: 'active' | 'paused';
+}
+
 export function usePMCalendarEvents({ companyId, month, year }: UsePMCalendarEventsOptions) {
   const [schedules, setSchedules] = useState<PMSchedule[]>([]);
+  const [pmWOs, setPmWOs] = useState<PMWorkOrderEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,11 +61,45 @@ export function usePMCalendarEvents({ companyId, month, year }: UsePMCalendarEve
       },
     );
 
-    return () => unsubscribe();
+    // Also surface ad-hoc Preventive work orders so they appear on the
+    // calendar even when they are not tied to a recurring schedule.
+    const woQuery = query(
+      collection(db, 'workOrders'),
+      where('woType', '==', 'PREVENTIVE'),
+    );
+    const unsubWO = onSnapshot(woQuery, (snap) => {
+      const list: PMWorkOrderEvent[] = [];
+      snap.docs.forEach((d) => {
+        const data = d.data() as any;
+        // Filter by company via siteId prefix or explicit companyId field.
+        if (data.companyId && data.companyId !== companyId) return;
+        const due: Date | null = data.dueDate?.toDate ? data.dueDate.toDate() : null;
+        if (!due) return;
+        const terminal = ['CLOSED', 'CANCELLED', 'COMPLETED', 'SIGNED_OFF'];
+        if (terminal.includes(data.status)) return;
+        list.push({
+          id: d.id,
+          machineName: data.machineName ?? 'Unknown',
+          description: data.description ?? data.woNumber ?? 'Preventive WO',
+          dueDate: due,
+          priority: data.priority ?? 'medium',
+          assignedTechnicianNames: data.assignedTechnicianNames ?? [],
+          status: 'active',
+        });
+      });
+      setPmWOs(list);
+    }, (err) => {
+      console.error('Error fetching PM WOs for calendar:', err);
+    });
+
+    return () => {
+      unsubscribe();
+      unsubWO();
+    };
   }, [companyId]);
 
   const events: CalendarEvent[] = useMemo(() => {
-    return schedules.map((s) => {
+    const scheduleEvents: CalendarEvent[] = schedules.map((s) => {
       const nextDue = s.nextDueDate instanceof Date
         ? s.nextDueDate
         : 'toDate' in s.nextDueDate ? s.nextDueDate.toDate() : new Date(s.nextDueDate as unknown as string);
@@ -70,11 +115,25 @@ export function usePMCalendarEvents({ companyId, month, year }: UsePMCalendarEve
         pmType: s.pmType,
         status: s.status,
       };
-    }).filter((e) => {
+    });
+
+    const woEvents: CalendarEvent[] = pmWOs.map((wo) => ({
+      id: `wo-${wo.id}`,
+      scheduleId: '',
+      title: wo.description.slice(0, 60),
+      date: wo.dueDate,
+      priority: wo.priority,
+      machineName: wo.machineName,
+      technicianNames: wo.assignedTechnicianNames,
+      pmType: 'other',
+      status: wo.status,
+    }));
+
+    return [...scheduleEvents, ...woEvents].filter((e) => {
       if (month === undefined || year === undefined) return true;
       return e.date.getMonth() === month && e.date.getFullYear() === year;
     });
-  }, [schedules, month, year]);
+  }, [schedules, pmWOs, month, year]);
 
   return { events, loading, error };
 }

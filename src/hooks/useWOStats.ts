@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { WOStats, WOType, WOStatus } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
@@ -42,35 +42,35 @@ export function useWOStats(): UseWOStatsResult {
 
     const now = new Date();
 
-    Promise.all([
-      getDocs(query(
-        collection(db, 'workOrders'),
-        where('siteId', '==', siteId),
-        where('status', 'not-in', ['CLOSED', 'CANCELLED']),
-      )),
-      getDocs(query(
-        collection(db, 'workOrders'),
-        where('siteId', '==', siteId),
-        where('status', 'in', ['CLOSED', 'SIGNED_OFF']),
-        where('closedAt', '>=', Timestamp.fromDate(startOfWeek)),
-      )),
-    ])
-      .then(([activeSnap, closedThisWeekSnap]) => {
+    // Single query (works without composite indexes), aggregate in memory.
+    getDocs(query(collection(db, 'workOrders'), where('siteId', '==', siteId)))
+      .then((snap) => {
         const byType = { ...EMPTY_TYPE_COUNTS };
         const byStatus = { ...EMPTY_STATUS_COUNTS };
+        let openCount = 0;
         let overdueCount = 0;
+        let completedThisWeek = 0;
         let totalCompletionMinutes = 0;
         let completedCount = 0;
 
-        for (const d of activeSnap.docs) {
-          const wo = d.data();
+        const TERMINAL = ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'];
+
+        for (const d of snap.docs) {
+          const wo = d.data() as any;
           if (wo.woType in byType) byType[wo.woType as WOType]++;
           if (wo.status in byStatus) byStatus[wo.status as WOStatus]++;
-          if (wo.slaBreached && !['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(wo.status)) {
-            overdueCount++;
-          } else if (wo.slaDeadline?.toDate() < now && !['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(wo.status)) {
-            overdueCount++;
+
+          if (!['CLOSED', 'CANCELLED'].includes(wo.status)) openCount++;
+
+          if (!TERMINAL.includes(wo.status)) {
+            if (wo.slaBreached) overdueCount++;
+            else if (wo.slaDeadline?.toDate && wo.slaDeadline.toDate() < now) overdueCount++;
           }
+
+          if (['CLOSED', 'SIGNED_OFF'].includes(wo.status) && wo.closedAt?.toDate && wo.closedAt.toDate() >= startOfWeek) {
+            completedThisWeek++;
+          }
+
           if (wo.totalDurationMinutes) {
             totalCompletionMinutes += wo.totalDurationMinutes;
             completedCount++;
@@ -78,10 +78,10 @@ export function useWOStats(): UseWOStatsResult {
         }
 
         setStats({
-          openCount: activeSnap.size,
+          openCount,
           overdueCount,
           avgCompletionTimeMinutes: completedCount > 0 ? Math.round(totalCompletionMinutes / completedCount) : 0,
-          completedThisWeek: closedThisWeekSnap.size,
+          completedThisWeek,
           byType,
           byStatus,
         });

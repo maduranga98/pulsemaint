@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { WorkOrder, WOFilters, WOStatus } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
@@ -32,6 +33,17 @@ export function WOListView() {
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const prefilledMachineId = searchParams.get('machineId');
+
+  useEffect(() => {
+    if (searchParams.get('create') === '1') {
+      setShowCreateDrawer(true);
+      const next = new URLSearchParams(searchParams);
+      next.delete('create');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -232,14 +244,17 @@ export function WOListView() {
         />
       )}
 
-      {/* Create drawer */}
-      <CreateWODrawer
-        open={showCreateDrawer}
-        onClose={() => setShowCreateDrawer(false)}
-        onCreated={() => {
-          setShowCreateDrawer(false);
-        }}
-      />
+      {/* Create drawer — conditionally rendered so each open is a fresh form */}
+      {showCreateDrawer && (
+        <CreateWODrawer
+          open={showCreateDrawer}
+          onClose={() => setShowCreateDrawer(false)}
+          onCreated={() => {
+            setShowCreateDrawer(false);
+          }}
+          prefilledMachineId={prefilledMachineId ?? undefined}
+        />
+      )}
     </div>
   );
 }

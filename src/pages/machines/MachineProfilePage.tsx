@@ -162,13 +162,13 @@ export function MachineProfilePage() {
                 {showMoreMenu && (
                   <div className="absolute right-0 mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-200 z-10 py-1">
                     <button
-                      onClick={() => { navigate(`/app/work-orders/new?machineId=${machine.id}`); setShowMoreMenu(false); }}
+                      onClick={() => { navigate(`/app/work-orders?create=1&machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       Create Work Order
                     </button>
                     <button
-                      onClick={() => { navigate(`/app/breakdowns/new?machineId=${machine.id}`); setShowMoreMenu(false); }}
+                      onClick={() => { navigate(`/app/breakdowns/report?machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       Report Issue
@@ -336,26 +336,49 @@ function OverviewTab({ machine }: any) {
 }
 
 function DocumentsTab({ machine }: any) {
+  const photos: string[] = machine.photos ?? [];
+  const documents: any[] = machine.documents ?? [];
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="font-semibold text-gray-900 mb-4">Documents & Photos</h3>
-      {machine.documents && machine.documents.length > 0 ? (
-        <div className="space-y-2">
-          {machine.documents.map((doc: any, idx: number) => (
-            <div key={idx} className="p-3 border border-gray-200 rounded-lg flex items-center justify-between">
-              <div>
-                <p className="font-medium text-gray-900">{doc.name}</p>
-                <p className="text-xs text-gray-600">{doc.type}</p>
-              </div>
-              <a href={doc.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                Download
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="font-semibold text-gray-900 mb-4">Photos</h3>
+        {photos.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {photos.map((url, idx) => (
+              <a key={idx} href={url} target="_blank" rel="noreferrer" className="block group">
+                <img
+                  src={url}
+                  alt={`Machine photo ${idx + 1}`}
+                  className="aspect-square rounded-lg object-cover w-full border border-gray-200 group-hover:opacity-90 transition"
+                />
               </a>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-gray-600 text-sm">No documents uploaded</p>
-      )}
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600 text-sm">No photos uploaded</p>
+        )}
+      </div>
+
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="font-semibold text-gray-900 mb-4">Documents</h3>
+        {documents.length > 0 ? (
+          <div className="space-y-2">
+            {documents.map((doc: any, idx: number) => (
+              <div key={idx} className="p-3 border border-gray-200 rounded-lg flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900">{doc.name}</p>
+                  <p className="text-xs text-gray-600">{doc.type}</p>
+                </div>
+                <a href={doc.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  Download
+                </a>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600 text-sm">No documents uploaded</p>
+        )}
+      </div>
     </div>
   );
 }

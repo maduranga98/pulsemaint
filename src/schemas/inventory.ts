@@ -59,16 +59,28 @@ export type ReceiveStockFormValues = z.infer<typeof receiveStockSchema>;
 export const purchaseOrderSchema = z.object({
   supplierName: z.string().min(1, 'Supplier name is required').max(100),
   supplierContact: z.string().max(100).default(''),
+  supplierContactPerson: z.string().max(100).default(''),
+  supplierPhone: z.string().max(40).default(''),
+  supplierEmail: z.string().max(120).default('').refine(
+    (v) => v === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+    'Invalid email',
+  ),
+  supplierAddress: z.string().max(300).default(''),
+  deliveryAddress: z.string().max(300).default(''),
+  paymentTerms: z.string().max(120).default(''),
   currency: z.enum(['LKR', 'USD', 'SGD', 'Other'] as [InventoryCurrency, ...InventoryCurrency[]]).default('LKR'),
+  // Items are tracked in component state and validated separately; keep the
+  // form schema permissive so save() actually runs and can report a
+  // user-friendly "add at least one item" error.
   items: z.array(z.object({
-    partId: z.string().min(1, 'Part required'),
-    partNumber: z.string().min(1),
-    partName: z.string().min(1),
-    quantityOrdered: z.number().min(0.001, 'Must be greater than 0'),
-    unitCost: z.number().min(0),
-    leadTimeDays: z.number().min(0).int().default(0),
+    partId: z.string(),
+    partNumber: z.string(),
+    partName: z.string(),
+    quantityOrdered: z.number(),
+    unitCost: z.number(),
+    leadTimeDays: z.number().int().default(0),
     expectedDelivery: z.string().nullable().default(null),
-  })).min(1, 'At least one item is required'),
+  })).default([]),
   notes: z.string().max(500).default(''),
 });
 

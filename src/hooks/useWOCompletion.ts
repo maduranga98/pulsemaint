@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
 import {
   doc,
+  getDoc,
   updateDoc,
   arrayUnion,
   serverTimestamp,
+  Timestamp,
 } from 'firebase/firestore';
 import {
   ref,
@@ -147,6 +149,31 @@ export function useWOCompletion(): UseWOCompletionResult {
           documents: completionDocs.length > 0 ? arrayUnion(...completionDocs) : [],
           updatedAt: serverTimestamp(),
         });
+
+        // PM tracking: if this WO has a linked pm_history record, mark it
+        // completed_on_time / completed_late based on the due date.
+        try {
+          const woSnap = await getDoc(doc(db, 'workOrders', woId));
+          const woData = woSnap.data() as any;
+          if (woData?.woType === 'PREVENTIVE' && woData?.pmHistoryId) {
+            const due: Date | null = woData.dueDate?.toDate?.() ?? null;
+            const onTime = !due || payload.actualEndTime <= due;
+            const daysOverdue = due
+              ? Math.max(0, Math.ceil((payload.actualEndTime.getTime() - due.getTime()) / 86400000))
+              : 0;
+            await updateDoc(doc(db, 'pm_history', woData.pmHistoryId), {
+              status: onTime ? 'completed_on_time' : 'completed_late',
+              completedDate: Timestamp.fromDate(payload.actualEndTime),
+              duration: durationMinutes,
+              daysOverdue,
+              technicianIds: woData.assignedTechnicianIds ?? [],
+              technicianNames: woData.assignedTechnicianNames ?? [],
+              woNumber: woData.woNumber ?? '',
+            });
+          }
+        } catch (pmErr) {
+          console.error('Failed to update PM history on completion', pmErr);
+        }
 
         toast.success('Completion submitted. Supervisor notified for sign-off.');
         return true;

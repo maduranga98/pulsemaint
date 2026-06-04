@@ -34,6 +34,8 @@ const FORM_STEPS = [
   { id: 'location', label: 'Location', description: 'Department, floor, bay, station' },
   { id: 'status', label: 'Status & Criticality', description: 'Status, criticality and health score' },
   { id: 'documents', label: 'Documents & Photos', description: 'Upload files and images' },
+  { id: 'spareparts', label: 'Spare Parts', description: 'Compatible/critical spare parts' },
+  { id: 'notes', label: 'Additional Notes', description: 'Modifications and extra notes' },
 ];
 
 type FormData = CreateMachineFormData | UpdateMachineFormData;
@@ -137,6 +139,8 @@ export function MachineForm({
     department: 1, floor: 1, bay: 1, station: 1,
     status: 2, criticality: 2, healthScore: 2,
     photoFiles: 3, documentFiles: 3,
+    compatiblePartIds: 4,
+    modificationNotes: 5, additionalNotes: 5,
   };
 
   const handleFormSubmit = async (formData: FormData) => {
@@ -694,6 +698,83 @@ function renderFormSection(
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </div>
+      );
+
+    case 4: // Spare Parts
+      return (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">Spare Parts</h2>
+          <p className="text-sm text-gray-600">
+            List compatible part IDs/numbers (one per line). These will be linked to the machine for fast lookup during work orders.
+          </p>
+          <Controller
+            name="compatiblePartIds"
+            control={control}
+            render={({ field }) => (
+              <textarea
+                rows={6}
+                value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                onChange={(e) =>
+                  field.onChange(
+                    e.target.value
+                      .split('\n')
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                  )
+                }
+                placeholder="PN-12345&#10;BRG-6204&#10;BELT-A48"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+              />
+            )}
+          />
+        </div>
+      );
+
+    case 5: // Additional Notes
+      return (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">Additional Notes</h2>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Modification Notes</label>
+            <Controller
+              name="modificationNotes"
+              control={control}
+              render={({ field }) => (
+                <textarea
+                  rows={4}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                  placeholder="Document any modifications made to this machine..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+            />
+            {(errors as any).modificationNotes && (
+              <p className="text-red-600 text-sm mt-1">{(errors as any).modificationNotes.message}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+            <Controller
+              name="additionalNotes"
+              control={control}
+              render={({ field }) => (
+                <textarea
+                  rows={4}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value || null)}
+                  placeholder="Any other relevant information..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+            />
+            {(errors as any).additionalNotes && (
+              <p className="text-red-600 text-sm mt-1">{(errors as any).additionalNotes.message}</p>
             )}
           </div>
         </div>

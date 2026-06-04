@@ -35,6 +35,7 @@ interface CreateWODrawerProps {
   onCreated?: (woId: string) => void;
   linkedBreakdownId?: string;
   linkedBreakdownTicketNumber?: string;
+  prefilledMachineId?: string;
 }
 
 const STEPS = [
@@ -58,6 +59,7 @@ export function CreateWODrawer({
   onCreated,
   linkedBreakdownId,
   linkedBreakdownTicketNumber,
+  prefilledMachineId,
 }: CreateWODrawerProps) {
   const [step, setStep] = useState(0);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
@@ -107,6 +109,20 @@ export function CreateWODrawer({
         });
         setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor' || u.role === 'plant_manager' || u.role === 'admin'));
         setTechnicians(users.filter((u) => u.role === 'technician'));
+
+        if (prefilledMachineId) {
+          const machine = machineSnap.docs.find((d) => d.id === prefilledMachineId);
+          if (machine) {
+            const data = machine.data() as Record<string, unknown>;
+            form.setValue('machineId', machine.id);
+            form.setValue('machineName' as any, (data.name as string) ?? machine.id);
+            form.setValue('machineType' as any, (data.type as string) ?? '');
+            form.setValue('machineDepartment' as any, (data.department as string) ?? '');
+            form.setValue('machineLocation' as any, (data.location as string) ?? '');
+            form.setValue('machineCriticality' as any, (data.criticality as number) ?? 3);
+            setMachineSearch((data.name as string) ?? machine.id);
+          }
+        }
       } catch (err) {
         console.error('Failed to load WO options', err);
       }
