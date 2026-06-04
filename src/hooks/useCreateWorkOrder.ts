@@ -222,14 +222,16 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
           ),
         );
 
-        // Attach uploaded docs to WO
-        const { updateDoc, arrayUnion } = await import('firebase/firestore');
+        // Attach uploaded docs to WO. NOTE: serverTimestamp() is NOT allowed
+        // inside array elements, so we use a client Timestamp instead.
+        const { updateDoc, arrayUnion, Timestamp } = await import('firebase/firestore');
+        const uploadedAt = Timestamp.now();
         await updateDoc(docRef, {
           documents: arrayUnion(...uploadedDocs.map((d) => ({
             ...d,
             uploadedBy: userId,
             uploadedByName: userName,
-            uploadedAt: serverTimestamp(),
+            uploadedAt,
           }))),
           updatedAt: serverTimestamp(),
         });
