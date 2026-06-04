@@ -86,6 +86,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
     }
 
     const siteId = userProfile.siteIds[0] ?? userProfile.companyId;
+    const companyId = userProfile.companyId;
     const userId = userProfile.id;
     const userName = userProfile.fullName ?? '';
 
@@ -205,6 +206,40 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
 
       const docRef = await addDoc(collection(db, 'workOrders'), woData);
       const woId = docRef.id;
+
+      // PM tracking: if this is a Preventive WO, write a pm_history record so
+      // it appears in the PM Schedules, PM Calendar and PM Compliance views.
+      if (payload.woType === 'PREVENTIVE') {
+        try {
+          const { Timestamp } = await import('firebase/firestore');
+          const due = payload.dueDate instanceof Date ? payload.dueDate : new Date();
+          const month = `${due.getFullYear()}-${String(due.getMonth() + 1).padStart(2, '0')}`;
+          const pmHistoryRef = await addDoc(collection(db, 'pm_history'), {
+            companyId,
+            scheduleId: null,
+            scheduleName: payload.description.slice(0, 80) || 'Ad-hoc PM',
+            machineId: payload.machineId,
+            machineName: payload.machineName,
+            woId,
+            woNumber: '',
+            dueDate: Timestamp.fromDate(due),
+            completedDate: null,
+            status: 'in_progress',
+            daysOverdue: 0,
+            technicianIds: payload.assignedTechnicianIds,
+            technicianNames: payload.assignedTechnicianNames,
+            duration: null,
+            month,
+            year: due.getFullYear(),
+            createdAt: serverTimestamp(),
+          });
+          // Back-reference for completion updates.
+          const { updateDoc } = await import('firebase/firestore');
+          await updateDoc(docRef, { pmHistoryId: pmHistoryRef.id });
+        } catch (pmErr) {
+          console.error('Failed to create PM history record', pmErr);
+        }
+      }
 
       // Upload documents
       if (payload.documents.length > 0) {
