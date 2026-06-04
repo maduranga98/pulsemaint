@@ -16,18 +16,44 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const [department, setDepartment] = useState(initial?.department ?? '');
   const [status, setStatus] = useState(initial?.status ?? 'active');
   const [activeDays, setActiveDays] = useState<ShiftDay[]>(initial?.activeDays ?? DAYS);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   async function save() {
-    await onSave({
-      id: initial?.id,
-      shiftName,
-      startTime,
-      endTime,
-      color,
-      activeDays,
-      department: department || null,
-      status,
-    });
+    setError(null);
+    setSuccess(false);
+    if (!shiftName.trim()) {
+      setError('Shift name is required.');
+      return;
+    }
+    if (activeDays.length === 0) {
+      setError('Select at least one active day.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await onSave({
+        id: initial?.id,
+        shiftName: shiftName.trim(),
+        startTime,
+        endTime,
+        color,
+        activeDays,
+        department: department.trim() || null,
+        status,
+      });
+      setSuccess(true);
+      if (!initial) {
+        setShiftName('');
+        setDepartment('');
+      }
+    } catch (err) {
+      console.error('Failed to save shift', err);
+      setError(err instanceof Error ? err.message : 'Failed to save shift.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -55,7 +81,20 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
           </label>
         ))}
       </div>
-      <button type="button" onClick={() => void save()} className="mt-4 min-h-12 rounded-md bg-blue-600 px-4 text-sm font-bold text-white">Save Shift</button>
+      {error && (
+        <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+      )}
+      {success && !error && (
+        <div className="mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Shift saved.</div>
+      )}
+      <button
+        type="button"
+        onClick={() => void save()}
+        disabled={saving}
+        className="mt-4 min-h-12 rounded-md bg-blue-600 px-4 text-sm font-bold text-white disabled:opacity-60"
+      >
+        {saving ? 'Saving…' : 'Save Shift'}
+      </button>
     </form>
   );
 }
