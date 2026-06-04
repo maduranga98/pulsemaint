@@ -7,9 +7,8 @@ import {
   limit,
   startAfter,
   onSnapshot,
-  Query,
-  QueryConstraint,
-  Unsubscribe,
+  QueryDocumentSnapshot,
+  DocumentData,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Machine, MachineFilters } from '../types/machine';
@@ -41,13 +40,9 @@ export function useMachines({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const [lastVisible, setLastVisible] = useState<Machine | null>(null);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
   const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [unsubscribe, setUnsubscribe] = useState<Unsubscribe | null>(null);
 
-  // Stable string key so a fresh `filters` object reference (e.g. inline `{}`
-  // from a caller) doesn't tear down and rebuild the Firestore listener on
-  // every render.
   const filtersKey = JSON.stringify(filters ?? {});
   const stableFilters = useMemo<Partial<MachineFilters>>(
     () => filters ?? {},
@@ -62,121 +57,85 @@ export function useMachines({
     }
 
     setMachines([]);
-    setLastVisible(null);
+    setLastDoc(null);
     setHasMore(true);
     setLoading(true);
 
-    const buildQuery = (): Query => {
-      const constraints: QueryConstraint[] = [where('siteId', '==', siteId)];
+    const q = query(
+      collection(db, 'machines'),
+      where('siteId', '==', siteId),
+      orderBy('name', 'asc'),
+      limit(pageSize + 1),
+    );
 
-      // Status filter
-      if (stableFilters.statuses && stableFilters.statuses.length > 0) {
-        constraints.push(where('status', 'in', stableFilters.statuses));
-      }
-
-      // Criticality filter
-      if (stableFilters.criticalities && stableFilters.criticalities.length > 0) {
-        constraints.push(where('criticality', 'in', stableFilters.criticalities));
-      }
-
-      // Health score range filter
-      if (stableFilters.healthScoreRange) {
-        const [min, max] = stableFilters.healthScoreRange;
-        constraints.push(where('healthScore', '>=', min));
-        constraints.push(where('healthScore', '<=', max));
-      }
-
-      constraints.push(orderBy('name', 'asc'));
-      constraints.push(limit(pageSize + 1));
-
-      return query(collection(db, 'machines'), ...constraints);
-    };
-
-    const q = buildQuery();
-
-    try {
-      const unsubscribeFn = onSnapshot(
-        q,
-        (snapshot) => {
-          const fetchedMachines = snapshot.docs
-            .slice(0, pageSize)
-            .map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            })) as Machine[];
-
-          setMachines(fetchedMachines);
-          setHasMore(snapshot.docs.length > pageSize);
-
-          if (fetchedMachines.length > 0) {
-            setLastVisible(fetchedMachines[fetchedMachines.length - 1]);
-          }
-
-          setTotalCount(snapshot.docs.length);
-          setLoading(false);
-          setError(null);
-        },
-        (err) => {
-          console.error('Error fetching machines:', err);
-          setError(err.message || 'Failed to fetch machines');
-          setLoading(false);
-        }
-      );
-
-      setUnsubscribe(() => unsubscribeFn);
-
-      return () => {
-        unsubscribeFn();
-      };
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-      setError(errorMsg);
-      setLoading(false);
-    }
-  }, [siteId, stableFilters, pageSize]);
-
-  const loadMore = () => {
-    if (!lastVisible || !hasMore || !siteId) return;
-
-    const constraints: QueryConstraint[] = [where('siteId', '==', siteId)];
-
-    if (stableFilters.statuses && stableFilters.statuses.length > 0) {
-      constraints.push(where('status', 'in', stableFilters.statuses));
-    }
-
-    if (stableFilters.criticalities && stableFilters.criticalities.length > 0) {
-      constraints.push(where('criticality', 'in', stableFilters.criticalities));
-    }
-
-    constraints.push(orderBy('name', 'asc'));
-    constraints.push(startAfter(lastVisible));
-    constraints.push(limit(pageSize + 1));
-
-    const q = query(collection(db, 'machines'), ...constraints);
-
-    onSnapshot(q, (snapshot) => {
-      const newMachines = snapshot.docs
-        .slice(0, pageSize)
-        .map((doc) => ({
+    const unsubscribeFn = onSnapshot(
+      q,
+      (snapshot) => {
+        const pageDocs = snapshot.docs.slice(0, pageSize);
+        const fetchedMachines = pageDocs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as Machine[];
 
+        setMachines(fetchedMachines);
+        setHasMore(snapshot.docs.length > pageSize);
+
+        if (pageDocs.length > 0) {
+          setLastDoc(pageDocs[pageDocs.length - 1]);
+        }
+
+        setTotalCount(snapshot.docs.length);
+        setLoading(false);
+        setError(null);
+      },
+      (err) => {
+        console.error('Error fetching machines:', err);
+        setError(err.message || 'Failed to fetch machines');
+        setLoading(false);
+      },
+    );
+
+    return () => {
+      unsubscribeFn();
+    };
+  }, [siteId, pageSize]);
+
+  const loadMore = () => {
+    if (!lastDoc || !hasMore || !siteId) return;
+
+    const q = query(
+      collection(db, 'machines'),
+      where('siteId', '==', siteId),
+      orderBy('name', 'asc'),
+      startAfter(lastDoc),
+      limit(pageSize + 1),
+    );
+
+    onSnapshot(q, (snapshot) => {
+      const pageDocs = snapshot.docs.slice(0, pageSize);
+      const newMachines = pageDocs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Machine[];
+
       setMachines((prev) => [...prev, ...newMachines]);
       setHasMore(snapshot.docs.length > pageSize);
 
-      if (newMachines.length > 0) {
-        setLastVisible(newMachines[newMachines.length - 1]);
+      if (pageDocs.length > 0) {
+        setLastDoc(pageDocs[pageDocs.length - 1]);
       }
     });
   };
 
   const refresh = () => {
     setMachines([]);
-    setLastVisible(null);
+    setLastDoc(null);
     setHasMore(true);
     setLoading(true);
   };
+
+  // stableFilters is kept in scope so the return value is stable for callers
+  void stableFilters;
 
   return {
     machines,

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import type { MachineFilters, MachineStatus, MachineCriticality } from '../../types/machine';
 
 interface MachineFilterBarProps {
@@ -22,9 +22,9 @@ const criticalityOptions: { value: MachineCriticality; label: string }[] = [
 ];
 
 const healthScoreOptions = [
-  { min: 70, max: 100, label: 'Good (70-100)' },
-  { min: 40, max: 69, label: 'Warning (40-69)' },
-  { min: 0, max: 39, label: 'Critical (0-39)' },
+  { min: 70, max: 100, label: 'Good (70-100)', key: 'good' as const },
+  { min: 40, max: 69, label: 'Warning (40-69)', key: 'warning' as const },
+  { min: 0, max: 39, label: 'Critical (0-39)', key: 'critical' as const },
 ];
 
 export function MachineFilterBar({
@@ -38,60 +38,58 @@ export function MachineFilterBar({
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [healthScoreRange, setHealthScoreRange] = useState<[number, number]>([0, 100]);
 
-  const updateFilters = useCallback(() => {
+  const emit = (overrides: Partial<{
+    search: string;
+    statuses: MachineStatus[];
+    criticalities: MachineCriticality[];
+    departments: string[];
+    healthScoreRange: [number, number];
+  }>) => {
     onFiltersChange({
-      search,
-      statuses: selectedStatuses,
-      criticalities: selectedCriticalities,
-      departments: selectedDepartments,
-      healthScoreRange,
+      search: overrides.search ?? search,
+      statuses: overrides.statuses ?? selectedStatuses,
+      criticalities: overrides.criticalities ?? selectedCriticalities,
+      departments: overrides.departments ?? selectedDepartments,
+      healthScoreRange: overrides.healthScoreRange ?? healthScoreRange,
     });
-  }, [search, selectedStatuses, selectedCriticalities, selectedDepartments, healthScoreRange, onFiltersChange]);
+  };
 
   const handleSearchChange = (value: string) => {
     setSearch(value);
+    emit({ search: value });
   };
 
   const handleStatusToggle = (status: MachineStatus) => {
-    const newStatuses = selectedStatuses.includes(status)
+    const next = selectedStatuses.includes(status)
       ? selectedStatuses.filter((s) => s !== status)
       : [...selectedStatuses, status];
-    setSelectedStatuses(newStatuses);
-    onFiltersChange({
-      statuses: newStatuses,
-    });
+    setSelectedStatuses(next);
+    emit({ statuses: next });
   };
 
   const handleCriticalityToggle = (criticality: MachineCriticality) => {
-    const newCriticalities = selectedCriticalities.includes(criticality)
+    const next = selectedCriticalities.includes(criticality)
       ? selectedCriticalities.filter((c) => c !== criticality)
       : [...selectedCriticalities, criticality];
-    setSelectedCriticalities(newCriticalities);
-    onFiltersChange({
-      criticalities: newCriticalities,
-    });
+    setSelectedCriticalities(next);
+    emit({ criticalities: next });
   };
 
   const handleDepartmentToggle = (dept: string) => {
-    const newDepts = selectedDepartments.includes(dept)
+    const next = selectedDepartments.includes(dept)
       ? selectedDepartments.filter((d) => d !== dept)
       : [...selectedDepartments, dept];
-    setSelectedDepartments(newDepts);
-    onFiltersChange({
-      departments: newDepts,
-    });
+    setSelectedDepartments(next);
+    emit({ departments: next });
   };
 
-  const handleHealthScoreChange = (range: 'good' | 'warning' | 'critical') => {
-    const rangeMap = {
-      good: [70, 100] as [number, number],
-      warning: [40, 69] as [number, number],
-      critical: [0, 39] as [number, number],
-    };
-    setHealthScoreRange(rangeMap[range]);
-    onFiltersChange({
-      healthScoreRange: rangeMap[range],
-    });
+  const handleHealthScoreChange = (range: [number, number]) => {
+    const next: [number, number] =
+      healthScoreRange[0] === range[0] && healthScoreRange[1] === range[1]
+        ? [0, 100]
+        : range;
+    setHealthScoreRange(next);
+    emit({ healthScoreRange: next });
   };
 
   const handleClearFilters = () => {
@@ -110,7 +108,7 @@ export function MachineFilterBar({
   };
 
   const hasActiveFilters =
-    search ||
+    !!search ||
     selectedStatuses.length > 0 ||
     selectedCriticalities.length > 0 ||
     selectedDepartments.length > 0 ||
@@ -119,22 +117,18 @@ export function MachineFilterBar({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-4">
-      {/* Search input */}
+      {/* Search */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1">
           <input
             type="text"
             placeholder="Search by name, model, or serial number..."
             value={search}
-            onChange={(e) => {
-              handleSearchChange(e.target.value);
-              updateFilters();
-            }}
+            onChange={(e) => handleSearchChange(e.target.value)}
             disabled={isLoading}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-50"
           />
         </div>
-
         {hasActiveFilters && (
           <button
             onClick={handleClearFilters}
@@ -146,7 +140,7 @@ export function MachineFilterBar({
         )}
       </div>
 
-      {/* Status filter */}
+      {/* Status */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">Status</label>
         <div className="flex flex-wrap gap-2">
@@ -167,7 +161,7 @@ export function MachineFilterBar({
         </div>
       </div>
 
-      {/* Criticality filter */}
+      {/* Criticality */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">Criticality</label>
         <div className="flex flex-wrap gap-2">
@@ -188,7 +182,7 @@ export function MachineFilterBar({
         </div>
       </div>
 
-      {/* Department filter */}
+      {/* Department */}
       {departments.length > 0 && (
         <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">Department</label>
@@ -211,14 +205,14 @@ export function MachineFilterBar({
         </div>
       )}
 
-      {/* Health Score filter */}
+      {/* Health Score */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">Health Score</label>
         <div className="flex flex-wrap gap-2">
           {healthScoreOptions.map((option) => (
             <button
-              key={`${option.min}-${option.max}`}
-              onClick={() => handleHealthScoreChange(option.min === 70 ? 'good' : option.min === 40 ? 'warning' : 'critical')}
+              key={option.key}
+              onClick={() => handleHealthScoreChange([option.min, option.max])}
               disabled={isLoading}
               className={`px-3 py-1 text-sm rounded-full border transition-colors disabled:opacity-50 ${
                 healthScoreRange[0] === option.min && healthScoreRange[1] === option.max
