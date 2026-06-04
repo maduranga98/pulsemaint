@@ -124,7 +124,8 @@ export const woSection5Schema = z.object({
 });
 
 export const woSection6Schema = z.object({
-  partsRequests: z.array(partsRequestSchema),
+  partsRequests: z.array(partsRequestSchema).default([]),
+  specialToolsRequired: z.string().default(''),
 });
 
 // Full create WO schema (all sections merged)

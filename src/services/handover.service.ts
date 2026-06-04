@@ -178,16 +178,26 @@ export async function fetchHandoverById(companyId: string, handoverId: string): 
 }
 
 export async function fetchHandoverHistory(companyId: string, filters: HandoverHistoryFilters): Promise<ShiftHandover[]> {
-  const constraints: QueryConstraint[] = [where('companyId', '==', companyId), orderBy('handoverSubmittedAt', 'desc')];
-  if (filters.shiftName) constraints.unshift(where('shiftName', '==', filters.shiftName));
-  const snap = await getDocs(query(collection(db, 'shift_handovers'), ...constraints));
+  // NOTE: orderBy is applied client-side to avoid composite-index requirements
+  // and to include docs that are missing handoverSubmittedAt.
+  const constraints: QueryConstraint[] = [where('companyId', '==', companyId)];
+  if (filters.shiftName) constraints.push(where('shiftName', '==', filters.shiftName));
+  let snap;
+  try {
+    snap = await getDocs(query(collection(db, 'shift_handovers'), ...constraints));
+  } catch (err) {
+    console.error('fetchHandoverHistory query failed', err);
+    throw err;
+  }
   const rows = snap.docs.map((item) => mapHandover(item.id, item.data()));
-  return rows.filter((handover) => {
+  const filtered = rows.filter((handover) => {
     if (filters.supervisorName && !handover.outgoingSupervisorName.toLowerCase().includes(filters.supervisorName.toLowerCase())) return false;
     if (filters.dateFrom && handover.shiftDate < filters.dateFrom) return false;
     if (filters.dateTo && handover.shiftDate > filters.dateTo) return false;
     return true;
   });
+  filtered.sort((a, b) => b.handoverSubmittedAt.getTime() - a.handoverSubmittedAt.getTime());
+  return filtered;
 }
 
 export async function resolveWatchFlag(handoverId: string, flagId: string, userId: string): Promise<void> {

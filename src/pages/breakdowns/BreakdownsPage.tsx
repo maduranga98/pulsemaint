@@ -40,6 +40,7 @@ const SEVERITY_COLOR: Record<BreakdownSeverity, string> = {
 };
 
 type Filter = 'all' | 'open' | 'critical' | 'closed';
+type SeverityFilter = 'all' | 'high' | 'medium' | 'normal';
 
 export default function BreakdownsPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -49,6 +50,7 @@ export default function BreakdownsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>('open');
+  const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
   const [search, setSearch] = useState('');
   const [informingId, setInformingId] = useState<string | null>(null);
 
@@ -83,6 +85,10 @@ export default function BreakdownsPage() {
     if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status));
     if (filter === 'critical') list = list.filter((b) => b.severity === 'critical');
     if (filter === 'closed') list = list.filter((b) => closedSet.has(b.status));
+    if (severityFilter !== 'all') {
+      const sevMatch = severityFilter === 'normal' ? 'low' : severityFilter;
+      list = list.filter((b) => b.severity === sevMatch);
+    }
     if (search.trim()) {
       const s = search.toLowerCase();
       list = list.filter(
@@ -93,7 +99,7 @@ export default function BreakdownsPage() {
       );
     }
     return list;
-  }, [breakdowns, filter, search]);
+  }, [breakdowns, filter, severityFilter, search]);
 
   async function handleInform(breakdown: Breakdown) {
     if (!userProfile) return;
@@ -151,6 +157,19 @@ export default function BreakdownsPage() {
                 {f}
               </button>
             ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Severity</label>
+            <select
+              value={severityFilter}
+              onChange={(e) => setSeverityFilter(e.target.value as SeverityFilter)}
+              className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            >
+              <option value="all">All</option>
+              <option value="normal">Normal</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
           </div>
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />

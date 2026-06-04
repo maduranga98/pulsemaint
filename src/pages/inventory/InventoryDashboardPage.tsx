@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, Plus, ShoppingCart, Bell } from 'lucide-react';
 import { useInventoryStats } from '@/hooks/inventory/useInventoryStats';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
 import { useStockMovements } from '@/hooks/inventory/useStockMovements';
@@ -59,9 +60,34 @@ export function InventoryDashboardPage() {
       )}
 
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Store Keeper Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-0.5">{todayStr}</p>
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Store Keeper Dashboard</h1>
+          <p className="text-gray-500 text-sm mt-0.5">{todayStr}</p>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <Link
+            to="/app/inventory/catalog/new"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"
+          >
+            <Plus className="w-4 h-4" />
+            Add Item
+          </Link>
+          <Link
+            to="/app/inventory/purchase-orders/new"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Create PO
+          </Link>
+          <Link
+            to="/app/inventory/settings"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-lg"
+          >
+            <Bell className="w-4 h-4" />
+            Low Stock Alerts
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (

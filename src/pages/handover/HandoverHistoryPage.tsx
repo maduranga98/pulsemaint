@@ -15,7 +15,7 @@ const initialFilters: HandoverHistoryFilters = {
 
 export function HandoverHistoryPage() {
   const [filters, setFilters] = useState(initialFilters);
-  const { handoverHistory } = useHandoverHistory(filters);
+  const { handoverHistory, loading, error } = useHandoverHistory(filters);
 
   return (
     <div className="space-y-5 p-4 lg:p-6">
@@ -24,11 +24,21 @@ export function HandoverHistoryPage() {
         <p className="mt-1 text-sm text-slate-500">Timestamped archive of supervisor accountability transfers.</p>
       </div>
       <HandoverFilterBar filters={filters} onChange={setFilters} />
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <div className="grid gap-3 lg:hidden">
         {handoverHistory.map((handover) => <HandoverHistoryCard key={handover.id} handover={handover} />)}
       </div>
       <div className="hidden lg:block"><HandoverHistoryTable handovers={handoverHistory} /></div>
-      {!handoverHistory.length && <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">No handovers found.</div>}
+      {loading && !handoverHistory.length && (
+        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-400">Loading…</div>
+      )}
+      {!loading && !handoverHistory.length && !error && (
+        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">No handovers found.</div>
+      )}
     </div>
   );
 }

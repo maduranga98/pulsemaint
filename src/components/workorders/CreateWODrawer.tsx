@@ -11,7 +11,6 @@ import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
 import { TeamAssignmentPanel } from './TeamAssignmentPanel';
 import { ChecklistBuilder } from './ChecklistBuilder';
 import { DocumentUploadZone } from './DocumentUploadZone';
-import { PartsPreRequestPanel } from './PartsPreRequestPanel';
 import type { WOType, ChecklistItem } from '../../types/workOrder';
 
 type MachineOption = {
@@ -65,7 +64,6 @@ export function CreateWODrawer({
   const [machines, setMachines] = useState<MachineOption[]>([]);
   const [supervisors, setSupervisors] = useState<UserOption[]>([]);
   const [technicians, setTechnicians] = useState<UserOption[]>([]);
-  const [catalogItems, setCatalogItems] = useState<{ id: string; partName: string; partNumber: string; unit: string; currentStock: number; category: string }[]>([]);
   const [machineSearch, setMachineSearch] = useState('');
   const [showMachineDropdown, setShowMachineDropdown] = useState(false);
 
@@ -95,25 +93,6 @@ export function CreateWODrawer({
             };
           }),
         );
-
-        const partsSnap = await getDocs(
-          query(collection(db, 'inventoryParts'), where('companyId', '==', companyId)),
-        );
-        if (!cancelled) {
-          setCatalogItems(
-            partsSnap.docs.map((d) => {
-              const data = d.data() as Record<string, unknown>;
-              return {
-                id: d.id,
-                partName: (data.name as string) ?? d.id,
-                partNumber: (data.partNumber as string) ?? '',
-                unit: (data.unit as string) ?? 'pcs',
-                currentStock: (data.currentStock as number) ?? 0,
-                category: (data.category as string) ?? '',
-              };
-            }),
-          );
-        }
 
         const userSnap = await getDocs(collection(db, `companies/${companyId}/users`));
         if (cancelled) return;
@@ -161,6 +140,7 @@ export function CreateWODrawer({
       isManualContractor: false,
       checklist: [],
       partsRequests: [],
+      specialToolsRequired: '',
     },
   });
 
@@ -492,14 +472,20 @@ export function CreateWODrawer({
             </div>
           )}
 
-          {/* ── STEP 5: Parts Pre-Request ── */}
+          {/* ── STEP 5: Special Tools / Components ── */}
           {step === 5 && (
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">{WO_COPY.partsRequestLabel}</p>
-              <PartsPreRequestPanel
-                requests={form.watch('partsRequests') ?? []}
-                onChange={(reqs) => form.setValue('partsRequests', reqs)}
-                catalogItems={catalogItems}
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Special tools required or components
+              </label>
+              <p className="text-xs text-gray-500 mb-3">
+                List any special tools, fixtures, or components that will be needed to complete this work.
+              </p>
+              <textarea
+                {...form.register('specialToolsRequired')}
+                rows={6}
+                placeholder="e.g., torque wrench (50–100 Nm), hydraulic puller, replacement V-belt B-72…"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 resize-none"
               />
             </div>
           )}
