@@ -1,6 +1,11 @@
-import { Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { QrCode, Trash2 } from 'lucide-react';
+import { collection, getDocs, limit, query, where } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuthStore } from '@/store/authStore';
 import type { InventoryPart } from '@/types/inventory';
 import { PartSearchInput } from '@/components/inventory/shared/PartSearchInput';
+import { useToast } from '@/hooks/useToast';
 
 export interface POItemRowData {
   partId: string;
@@ -25,6 +30,10 @@ export function PurchaseOrderItemRow({
   onUpdate,
   onRemove,
 }: PurchaseOrderItemRowProps) {
+  const { addToast } = useToast();
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const [qrInput, setQrInput] = useState('');
+  const [lookingUp, setLookingUp] = useState(false);
   const lineTotal = value.quantityOrdered * value.unitCost;
 
   function handlePartSelect(part: InventoryPart) {
@@ -35,6 +44,35 @@ export function PurchaseOrderItemRow({
       partName: part.name,
       unitCost: part.lastPurchasePrice || part.unitCost || 0,
     });
+  }
+
+  async function lookupByCode(code: string) {
+    const term = code.trim();
+    if (!term || !companyId) return;
+    setLookingUp(true);
+    try {
+      // Exact match on partNumber (QR codes typically encode the part number).
+      const snap = await getDocs(
+        query(
+          collection(db, 'inventoryParts'),
+          where('companyId', '==', companyId),
+          where('partNumber', '==', term),
+          limit(1),
+        ),
+      );
+      if (snap.empty) {
+        addToast(`No part found for "${term}"`, 'error');
+        return;
+      }
+      const docSnap = snap.docs[0];
+      handlePartSelect({ id: docSnap.id, ...docSnap.data() } as InventoryPart);
+      setQrInput('');
+    } catch (err) {
+      console.error('QR lookup failed', err);
+      addToast('QR lookup failed', 'error');
+    } finally {
+      setLookingUp(false);
+    }
   }
 
   return (
@@ -69,7 +107,37 @@ export function PurchaseOrderItemRow({
             </button>
           </div>
         ) : (
-          <PartSearchInput onSelect={handlePartSelect} placeholder="Search part by number or name…" />
+          <div className="space-y-2">
+            <PartSearchInput onSelect={handlePartSelect} placeholder="Search part by number or name…" />
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <QrCode className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={qrInput}
+                  onChange={(e) => setQrInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    // USB QR / barcode scanners typically press Enter after
+                    // emitting the code. Look up exact part-number match.
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      lookupByCode(qrInput);
+                    }
+                  }}
+                  placeholder="Scan QR / enter part number, then Enter"
+                  className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => lookupByCode(qrInput)}
+                disabled={!qrInput || lookingUp}
+                className="px-3 py-2 bg-gray-700 hover:bg-gray-800 disabled:opacity-50 text-white text-xs font-medium rounded-lg"
+              >
+                {lookingUp ? 'Looking…' : 'Lookup'}
+              </button>
+            </div>
+          </div>
         )}
       </div>
 

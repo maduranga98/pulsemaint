@@ -78,6 +78,9 @@ export type ReviewDecision = 'approve' | 'escalate' | 'reject' | 'partial';
 
 export type PurchaseOrderStatus =
   | 'draft'
+  | 'pending_approval'
+  | 'approved'
+  | 'rejected'
   | 'sent'
   | 'acknowledged'
   | 'received'
@@ -310,6 +313,12 @@ export interface PurchaseOrder {
 
   supplierName: string;
   supplierContact: string;
+  supplierContactPerson?: string;
+  supplierPhone?: string;
+  supplierEmail?: string;
+  supplierAddress?: string;
+  deliveryAddress?: string;
+  paymentTerms?: string;
   currency: InventoryCurrency;
 
   items: PurchaseOrderItem[];
@@ -319,7 +328,14 @@ export interface PurchaseOrder {
 
   raisedBy: string;
   raisedByName: string;
+  raisedByRole?: string;
   raisedAt: Timestamp;
+
+  approvedBy?: string | null;
+  approvedByName?: string | null;
+  approvedAt?: Timestamp | null;
+  rejectedReason?: string | null;
+
   sentAt: Timestamp | null;
   acknowledgedAt: Timestamp | null;
   receivedAt: Timestamp | null;
