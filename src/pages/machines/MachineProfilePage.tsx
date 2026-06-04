@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
@@ -12,6 +12,18 @@ export function MachineProfilePage() {
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
   const [activeTab, setActiveTab] = useState<TabName>('overview');
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(e.target as Node)) {
+        setShowMoreMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
   const { machine, loading, error } = useMachine({ siteId, machineId: id ?? '' });
@@ -140,13 +152,43 @@ export function MachineProfilePage() {
               >
                 View QR Code
               </button>
-              <button
-                disabled
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 opacity-50 cursor-not-allowed text-sm font-medium"
-                title="Coming soon"
-              >
-                More...
-              </button>
+              <div className="relative" ref={moreMenuRef}>
+                <button
+                  onClick={() => setShowMoreMenu((v) => !v)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                >
+                  More ▾
+                </button>
+                {showMoreMenu && (
+                  <div className="absolute right-0 mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-200 z-10 py-1">
+                    <button
+                      onClick={() => { navigate(`/app/work-orders/new?machineId=${machine.id}`); setShowMoreMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Create Work Order
+                    </button>
+                    <button
+                      onClick={() => { navigate(`/app/breakdowns/new?machineId=${machine.id}`); setShowMoreMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Report Issue
+                    </button>
+                    <button
+                      onClick={() => { window.print(); setShowMoreMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                    >
+                      Print Details
+                    </button>
+                    <hr className="my-1 border-gray-100" />
+                    <button
+                      onClick={() => { navigate(`/app/machines/${machine.id}/edit?action=decommission`); setShowMoreMenu(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      Decommission Machine
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
