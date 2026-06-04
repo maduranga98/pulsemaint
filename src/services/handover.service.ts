@@ -105,17 +105,20 @@ export async function fetchShiftConfigs(companyId: string): Promise<ShiftConfig[
 }
 
 export async function saveShiftConfig(companyId: string, payload: Omit<ShiftConfig, 'id' | 'companyId'> & { id?: string }): Promise<string> {
-  if (payload.id) {
-    const ref = doc(db, 'shift_config', payload.id);
-    await updateDoc(ref, { ...payload, companyId, updatedAt: serverTimestamp() });
-    return payload.id;
+  // Strip `id` and any other undefined values — Firestore rejects writes with undefined fields.
+  const { id, ...rest } = payload;
+  const data: Record<string, unknown> = { companyId };
+  for (const [key, value] of Object.entries(rest)) {
+    if (value !== undefined) data[key] = value;
   }
-  const ref = await addDoc(collection(db, 'shift_config'), {
-    ...payload,
-    companyId,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
+  if (id) {
+    data.updatedAt = serverTimestamp();
+    await updateDoc(doc(db, 'shift_config', id), data);
+    return id;
+  }
+  data.createdAt = serverTimestamp();
+  data.updatedAt = serverTimestamp();
+  const ref = await addDoc(collection(db, 'shift_config'), data);
   return ref.id;
 }
 

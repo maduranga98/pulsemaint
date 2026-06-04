@@ -50,18 +50,28 @@ const REPORTS = {
   audit_trail: { name: "Audit Trail Report", sources: ["audit_logs"], build: buildAuditTrailTemplate },
 };
 
-async function requireAccess(uid, reportType) {
-  const snap = await db.collection("users").doc(uid).get();
-  const role = snap.data()?.role;
+async function requireAccess(uid, reportType, companyId) {
+  // User profiles live under companies/{companyId}/users/{uid} in this app.
+  // Fall back to the top-level users collection for legacy compatibility.
+  let data;
+  if (companyId) {
+    const scoped = await db.doc(`companies/${companyId}/users/${uid}`).get();
+    if (scoped.exists) data = scoped.data();
+  }
+  if (!data) {
+    const top = await db.collection("users").doc(uid).get();
+    if (top.exists) data = top.data();
+  }
+  const role = data?.role;
   if (!role) throw new HttpsError("permission-denied", "User profile is missing a role.");
-  if (["admin", "plant_manager"].includes(role)) return snap.data();
+  if (["admin", "plant_manager"].includes(role)) return data;
   if (reportType === "audit_trail" && !["admin", "hr_officer"].includes(role)) {
     throw new HttpsError("permission-denied", "Only Admin and Compliance roles can export audit trail.");
   }
   if (["technician", "floor_operator", "trainee"].includes(role)) {
     throw new HttpsError("permission-denied", "This role cannot access reports.");
   }
-  return snap.data();
+  return data;
 }
 
 function inRange(row, dateFrom, dateTo) {
@@ -93,7 +103,7 @@ exports.generateReport = onCall({ memory: "2GiB", timeoutSeconds: 300 }, async (
     throw new HttpsError("invalid-argument", "reportType, dateFrom, dateTo, and companyId are required.");
   }
 
-  const user = await requireAccess(request.auth.uid, reportType);
+  const user = await requireAccess(request.auth.uid, reportType, companyId);
   const rows = await queryReportData(reportType, companyId, dateFrom, dateTo);
   const content = REPORTS[reportType].build(rows, options);
   const html = buildReportHtml({

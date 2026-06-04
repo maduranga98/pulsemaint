@@ -6,8 +6,11 @@ import {
   getDocs,
   doc,
   updateDoc,
+  setDoc,
   serverTimestamp,
 } from 'firebase/firestore';
+import { nanoid } from 'nanoid';
+import { UserPlus, X } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
@@ -37,6 +40,52 @@ export default function TrainingDashboardPage() {
   });
   const [awaitingSignOff, setAwaitingSignOff] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addForm, setAddForm] = useState({ fullName: '', email: '', phone: '', department: '', employeeId: '' });
+  const [addSaving, setAddSaving] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+
+  async function handleAddTrainee() {
+    if (!companyId) return;
+    if (!addForm.fullName.trim()) {
+      setAddError('Full name is required.');
+      return;
+    }
+    setAddSaving(true);
+    setAddError(null);
+    try {
+      const id = nanoid();
+      await setDoc(doc(db, `companies/${companyId}/users/${id}`), {
+        id,
+        companyId,
+        siteIds: [],
+        role: 'trainee',
+        fullName: addForm.fullName.trim(),
+        email: addForm.email.trim() || null,
+        phone: addForm.phone.trim() || null,
+        employeeId: addForm.employeeId.trim() || null,
+        department: addForm.department.trim() || null,
+        jobTitle: 'Trainee',
+        status: 'pending',
+        loginMethod: 'email',
+        hasPin: false,
+        mustChangePinOnLogin: false,
+        profilePhoto: null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        lastLoginAt: null,
+        invitedBy: userId ?? null,
+      });
+      setAddForm({ fullName: '', email: '', phone: '', department: '', employeeId: '' });
+      setAddOpen(false);
+      setStats((prev) => ({ ...prev, totalTrainees: prev.totalTrainees + 1 }));
+    } catch (err) {
+      console.error('Add trainee failed', err);
+      setAddError(err instanceof Error ? err.message : 'Failed to add trainee.');
+    } finally {
+      setAddSaving(false);
+    }
+  }
 
   useEffect(() => {
     if (!companyId) return;
@@ -107,12 +156,93 @@ export default function TrainingDashboardPage() {
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      <h1 className="text-xl font-bold text-slate-900 mb-6">Training Dashboard</h1>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <h1 className="text-xl font-bold text-slate-900">Training Dashboard</h1>
+        <button
+          type="button"
+          onClick={() => setAddOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          <UserPlus className="h-4 w-4" />
+          Add Trainee
+        </button>
+      </div>
       <TrainingDashboard
         stats={stats}
         awaitingSignOff={awaitingSignOff}
         onSignOff={(id) => void handleSignOff(id)}
       />
+
+      {addOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl">
+            <div className="flex items-start justify-between">
+              <h2 className="text-lg font-bold text-slate-950">Add Trainee</h2>
+              <button
+                type="button"
+                onClick={() => setAddOpen(false)}
+                className="text-slate-400 hover:text-slate-700"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="mt-4 grid gap-3">
+              <input
+                value={addForm.fullName}
+                onChange={(e) => setAddForm((f) => ({ ...f, fullName: e.target.value }))}
+                placeholder="Full Name *"
+                className="min-h-11 rounded-md border border-slate-200 px-3 text-sm"
+              />
+              <input
+                value={addForm.email}
+                onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
+                placeholder="Email"
+                type="email"
+                className="min-h-11 rounded-md border border-slate-200 px-3 text-sm"
+              />
+              <input
+                value={addForm.phone}
+                onChange={(e) => setAddForm((f) => ({ ...f, phone: e.target.value }))}
+                placeholder="Phone"
+                className="min-h-11 rounded-md border border-slate-200 px-3 text-sm"
+              />
+              <input
+                value={addForm.department}
+                onChange={(e) => setAddForm((f) => ({ ...f, department: e.target.value }))}
+                placeholder="Department"
+                className="min-h-11 rounded-md border border-slate-200 px-3 text-sm"
+              />
+              <input
+                value={addForm.employeeId}
+                onChange={(e) => setAddForm((f) => ({ ...f, employeeId: e.target.value }))}
+                placeholder="Employee ID"
+                className="min-h-11 rounded-md border border-slate-200 px-3 text-sm"
+              />
+              {addError && (
+                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{addError}</div>
+              )}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setAddOpen(false)}
+                className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleAddTrainee()}
+                disabled={addSaving}
+                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                {addSaving ? 'Saving…' : 'Add Trainee'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
