@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, Plus, ShoppingCart, Bell } from 'lucide-react';
+import { AlertTriangle, Plus, ShoppingCart, Bell, Package } from 'lucide-react';
 import { useInventoryStats } from '@/hooks/inventory/useInventoryStats';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
 import { useStockMovements } from '@/hooks/inventory/useStockMovements';
@@ -66,6 +66,13 @@ export function InventoryDashboardPage() {
           <p className="text-gray-500 text-sm mt-0.5">{todayStr}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <Link
+            to="/app/inventory/catalog"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-lg"
+          >
+            <Package className="w-4 h-4" />
+            Parts Catalog
+          </Link>
           <Link
             to="/app/inventory/catalog/new"
             className="inline-flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"

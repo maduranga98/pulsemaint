@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { useInventoryPart } from '@/hooks/inventory/useInventoryPart';
 import { PartDetailHeader } from '@/components/inventory/catalog/PartDetailHeader';
@@ -33,6 +33,7 @@ function SkeletonDetail() {
 
 export function PartDetailPage() {
   const { partId } = useParams<{ partId: string }>();
+  const navigate = useNavigate();
   const { part, loading, error } = useInventoryPart(partId);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
@@ -62,7 +63,13 @@ export function PartDetailPage() {
       </Link>
 
       {/* Header */}
-      <PartDetailHeader part={part} />
+      <PartDetailHeader
+        part={part}
+        onEdit={() => navigate(`/app/inventory/catalog/${part.id}/edit`)}
+        onReceive={() => navigate('/app/inventory/receive')}
+        onAdjust={() => navigate(`/app/inventory/catalog/${part.id}/edit`)}
+        onRaisePO={() => navigate('/app/inventory/purchase-orders/new')}
+      />
 
       {/* Tabs */}
       <div className="border-b border-gray-200 overflow-x-auto">
