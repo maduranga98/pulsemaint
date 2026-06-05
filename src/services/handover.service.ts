@@ -184,7 +184,6 @@ export async function fetchHandoverHistory(companyId: string, filters: HandoverH
   // NOTE: orderBy is applied client-side to avoid composite-index requirements
   // and to include docs that are missing handoverSubmittedAt.
   const constraints: QueryConstraint[] = [where('companyId', '==', companyId)];
-  if (filters.shiftName) constraints.push(where('shiftName', '==', filters.shiftName));
   let snap;
   try {
     snap = await getDocs(query(collection(db, 'shift_handovers'), ...constraints));
@@ -195,6 +194,8 @@ export async function fetchHandoverHistory(companyId: string, filters: HandoverH
   const rows = snap.docs.map((item) => mapHandover(item.id, item.data()));
   const filtered = rows.filter((handover) => {
     if (filters.supervisorName && !handover.outgoingSupervisorName.toLowerCase().includes(filters.supervisorName.toLowerCase())) return false;
+    if (filters.shiftName && !handover.shiftName.toLowerCase().includes(filters.shiftName.toLowerCase())) return false;
+    if (filters.department && !handover.shiftName.toLowerCase().includes(filters.department.toLowerCase())) return false;
     if (filters.dateFrom && handover.shiftDate < filters.dateFrom) return false;
     if (filters.dateTo && handover.shiftDate > filters.dateTo) return false;
     return true;

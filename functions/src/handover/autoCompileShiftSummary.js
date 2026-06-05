@@ -71,7 +71,7 @@ exports.autoCompileShiftSummary = onCall(async (request) => {
 
   const now = new Date();
   const [breakdowns, workOrders, pmHistory, partsRequests, stockMovements, inventoryParts] = await Promise.all([
-    fetchCompanyDocs("breakdowns", companyId),
+    fetchCompanyDocs("breakdown_tickets", companyId),
     fetchCompanyDocs("workOrders", companyId),
     fetchCompanyDocs("pm_history", companyId).catch(() => []),
     fetchCompanyDocs("partsRequests", companyId).catch(() => []),

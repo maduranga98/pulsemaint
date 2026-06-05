@@ -1,12 +1,21 @@
 import { useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
+import type { Contractor } from '@/lib/contractors/contractorTypes';
 
 type CompletedProject = { name: string; cost: string };
 
-export function ContractorFormSection4() {
+interface Props {
+  initial?: Partial<Contractor> & { previouslyCompletedProjects?: CompletedProject[]; paymentMethods?: string[] };
+}
+
+export function ContractorFormSection4({ initial }: Props) {
   const access = useContractorAccess();
-  const [projects, setProjects] = useState<CompletedProject[]>([{ name: '', cost: '' }]);
+  const seededProjects = initial?.previouslyCompletedProjects?.length
+    ? initial.previouslyCompletedProjects.map((p) => ({ name: p.name ?? '', cost: p.cost ?? '' }))
+    : [{ name: '', cost: '' }];
+  const [projects, setProjects] = useState<CompletedProject[]>(seededProjects);
+  const paymentMethods = new Set(initial?.paymentMethods ?? []);
 
   if (!access.canViewFinancials) {
     return (
@@ -37,7 +46,7 @@ export function ContractorFormSection4() {
         <div className="flex flex-wrap gap-3 text-sm text-slate-700">
           {['Bank Transfer', 'Cheque', 'Cash', 'Online / Wallet'].map((method) => (
             <label key={method} className="rounded-full border border-slate-200 px-3 py-1.5">
-              <input type="checkbox" name="paymentMethods" value={method} className="mr-1.5" />
+              <input type="checkbox" name="paymentMethods" value={method} defaultChecked={paymentMethods.has(method)} className="mr-1.5" />
               {method}
             </label>
           ))}
@@ -47,12 +56,12 @@ export function ContractorFormSection4() {
       <div>
         <h3 className="mb-2 text-sm font-semibold text-slate-700">Bank Details</h3>
         <div className="grid gap-4 sm:grid-cols-2">
-          <input name="bankName" placeholder="Bank Name" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-          <input name="bankBranch" placeholder="Branch" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+          <input name="bankName" defaultValue={initial?.bankName ?? ''} placeholder="Bank Name" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+          <input name="bankBranch" defaultValue={initial?.bankBranch ?? ''} placeholder="Branch" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
           <input name="bankAccountName" placeholder="Account Holder Name" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-          <input name="bankAccountNumber" placeholder="Account Number" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+          <input name="bankAccountNumber" defaultValue={initial?.bankAccountNumber ?? ''} placeholder="Account Number" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
           <input name="bankRoutingNumber" placeholder="Routing / SWIFT" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-          <input name="taxRegistrationNumber" placeholder="TIN Number" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+          <input name="taxRegistrationNumber" defaultValue={initial?.taxRegistrationNumber ?? ''} placeholder="TIN Number" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
         </div>
       </div>
 
