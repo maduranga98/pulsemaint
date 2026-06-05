@@ -383,7 +383,7 @@ function DocumentsTab({ machine }: any) {
   );
 }
 
-function HistoryTab({ machine }: any) {
+function HistoryTab({ machine: _machine }: any) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="font-semibold text-gray-900 mb-4">Breakdown History</h3>
@@ -392,7 +392,7 @@ function HistoryTab({ machine }: any) {
   );
 }
 
-function MaintenanceTab({ machine }: any) {
+function MaintenanceTab({ machine: _machine }: any) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="font-semibold text-gray-900 mb-4">Maintenance History</h3>
@@ -401,7 +401,7 @@ function MaintenanceTab({ machine }: any) {
   );
 }
 
-function AnalyticsTab({ machine }: any) {
+function AnalyticsTab({ machine: _machine }: any) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <h3 className="font-semibold text-gray-900 mb-4">Analytics</h3>

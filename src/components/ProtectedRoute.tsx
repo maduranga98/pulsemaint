@@ -6,8 +6,8 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const firebaseUser = useAuthStore((state) => state.firebaseUser);
-  const loading = useAuthStore((state) => state.loading);
+  const firebaseUser = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.isLoading);
 
   if (loading) {
     return (

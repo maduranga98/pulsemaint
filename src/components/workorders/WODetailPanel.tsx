@@ -31,9 +31,10 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const { updateStatus, loading: statusLoading } = useUpdateWorkOrder();
   const { signOff, loading: signOffLoading } = useSignOff();
   const user = useAuthStore((s) => s.user);
-  const role = user?.role;
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const role = userProfile?.role;
 
-  const isSupervisor = role === 'maintenance_supervisor' || role === 'admin';
+  const isSupervisor = role === 'supervisor' || role === 'admin';
   const isTechnician = role === 'technician';
   const isAssigned = workOrder.assignedTechnicianIds.includes(user?.uid ?? '');
 

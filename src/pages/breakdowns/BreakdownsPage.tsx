@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
 import { AlertCircle, Bell, Plus, Search } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -53,6 +53,7 @@ export default function BreakdownsPage() {
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
   const [search, setSearch] = useState('');
   const [informingId, setInformingId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!siteId) {
@@ -217,8 +218,13 @@ export default function BreakdownsPage() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {filtered.map((b) => (
-                  <tr key={b.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-blue-600">{b.ticketNumber || '—'}</td>
+                  <Fragment key={b.id}>
+                  <tr className="hover:bg-slate-50 transition-colors">
+                    <td className="px-4 py-3 font-medium text-blue-600">
+                      <button type="button" onClick={() => setExpandedId(expandedId === b.id ? null : b.id)} className="hover:underline">
+                        {b.ticketNumber || '—'}
+                      </button>
+                    </td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-slate-900">{b.machineName}</p>
                       <p className="text-slate-400 text-xs">{b.machineLocation}</p>
@@ -250,6 +256,31 @@ export default function BreakdownsPage() {
                       </button>
                     </td>
                   </tr>
+                  {expandedId === b.id && (
+                    <tr className="bg-slate-50">
+                      <td colSpan={7} className="px-6 py-4">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Progress timeline</p>
+                        {(b.statusHistory ?? []).length === 0 ? (
+                          <p className="text-sm text-slate-500">No status changes yet.</p>
+                        ) : (
+                          <ol className="space-y-1 text-sm">
+                            {(b.statusHistory ?? []).map((h: any, idx: number) => (
+                              <li key={idx} className="flex gap-3 items-center">
+                                <span className="px-2 py-0.5 rounded text-xs font-medium bg-white border border-slate-200">{STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}</span>
+                                <span className="text-slate-600">{h.changedByName}</span>
+                                <span className="text-slate-400 text-xs">{h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}</span>
+                                {h.note && <span className="text-slate-500 text-xs italic">— {h.note}</span>}
+                              </li>
+                            ))}
+                          </ol>
+                        )}
+                        {b.linkedWOId && (
+                          <p className="text-xs text-blue-600 mt-3">Linked WO: {b.linkedWOId}</p>
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 ))}
               </tbody>
             </table>

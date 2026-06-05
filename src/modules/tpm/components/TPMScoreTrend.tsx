@@ -8,7 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-  Legend,
 } from 'recharts';
 import { useTPMTrend } from '../hooks/useTPM';
 import type { TPMPillarId } from '../types/tpm.types';

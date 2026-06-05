@@ -37,7 +37,7 @@ export function useTriageTemplates() {
         legacySnap.forEach((d) => {
           const data = d.data() as TriageFlow & { companyId?: string };
           if (!data.companyId || data.companyId === companyId) {
-            results.push({ id: d.id, ...data } as TriageFlow);
+            results.push({ ...data, id: d.id } as TriageFlow);
           }
         });
       } catch {

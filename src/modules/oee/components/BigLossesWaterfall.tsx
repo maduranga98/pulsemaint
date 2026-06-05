@@ -101,15 +101,15 @@ export function BigLossesWaterfall({ month, lkrPerHour = 0, isProPlan }: BigLoss
                 fontFamily: 'DM Sans',
               }}
               labelStyle={{ color: '#F0F4F8' }}
-              formatter={(v: number, _name: string, props) => [
+              formatter={(v, _name, props: any) => [
                 `${v}h (${props.payload.percentage}%)`,
                 'Lost Hours',
-              ]}
+              ] as [string, string]}
             />
             <Bar
               dataKey="hours"
               radius={[4, 4, 0, 0]}
-              onClick={(data) => setSelectedCategory(
+              onClick={(data: any) => setSelectedCategory(
                 selectedCategory === data.category ? null : data.category
               )}
               cursor="pointer"

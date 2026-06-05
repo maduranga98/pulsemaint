@@ -9,7 +9,6 @@ import {
   Lock,
   AlertTriangle,
   PauseCircle,
-  ChevronDown,
 } from 'lucide-react';
 import { formatDistanceToNow, format, differenceInDays } from 'date-fns';
 import { toast } from 'sonner';

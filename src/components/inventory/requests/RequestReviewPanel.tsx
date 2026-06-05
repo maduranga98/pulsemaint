@@ -79,7 +79,7 @@ export function RequestReviewPanel({ request, settings, onDecision }: Props) {
   if (role === 'technician') return null;
 
   const isStoreKeeper = role === 'store_keeper';
-  const isSupervisorOrAbove = role === 'supervisor' || role === 'manager' || role === 'admin';
+  const isSupervisorOrAbove = role === 'supervisor' || role === 'plant_manager' || role === 'admin';
 
   return (
     <div className="space-y-4">

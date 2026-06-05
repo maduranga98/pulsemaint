@@ -74,7 +74,7 @@ export function ZoneTrendChart({ trend, zoneName, onPointClick }: ZoneTrendChart
         <LineChart
           data={chartData}
           margin={{ top: 10, right: 10, left: -10, bottom: 0 }}
-          onClick={(e) => {
+          onClick={(e: any) => {
             if (e?.activePayload?.[0] && onPointClick) {
               const raw = (e.activePayload[0].payload as { rawMonth: string }).rawMonth;
               onPointClick(raw);
@@ -98,7 +98,7 @@ export function ZoneTrendChart({ trend, zoneName, onPointClick }: ZoneTrendChart
           <Tooltip
             contentStyle={{ background: '#0F1E35', border: '1px solid #1E3A5F', borderRadius: 12 }}
             labelStyle={{ color: '#F0F4F8', fontWeight: 600, marginBottom: 4 }}
-            formatter={(value: number) => [`${value}%`]}
+            formatter={(value) => [`${value}%`] as [string]}
           />
           <Legend
             wrapperStyle={{ fontSize: 11, color: '#8BA3BF', paddingTop: 8 }}

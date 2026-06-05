@@ -4,7 +4,6 @@ import { Calculator, TrendingUp, Save } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { useBigLosses } from '../hooks/useOEE';
 import { saveOEETarget } from '../services/oee.service';
-import { calculateLossCost } from '../services/oee.service';
 
 interface OEELossCostCalculatorProps {
   machineId: string;

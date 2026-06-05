@@ -120,6 +120,7 @@ export function PartCatalogPage() {
               <PartCatalogTable
                 parts={parts}
                 onViewPart={(id) => navigate(`/app/inventory/catalog/${id}`)}
+                onEditPart={(id) => navigate(`/app/inventory/catalog/${id}/edit`)}
               />
             </div>
           ) : null}

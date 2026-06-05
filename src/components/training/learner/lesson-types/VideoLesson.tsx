@@ -50,7 +50,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
   const [subtitlesOn, setSubtitlesOn] = useState(false);
   const [seekFlash, setSeekFlash] = useState<{ side: 'left' | 'right'; show: boolean }>({ side: 'left', show: false });
 
-  const { updateVideoProgress, markLessonComplete } = useLessonProgress();
+  const { updateVideoProgress } = useLessonProgress();
 
   // Resume from saved progress
   useEffect(() => {

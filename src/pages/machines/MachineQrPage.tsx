@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+// @ts-expect-error -- no type declarations for qrcode
 import QRCode from 'qrcode';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
@@ -21,7 +22,7 @@ export function MachineQrPage() {
       width: 300,
       errorCorrectionLevel: 'H',
       margin: 1,
-    }).catch((err) => console.error('QR generation failed:', err));
+    }).catch((err: unknown) => console.error('QR generation failed:', err));
   }, [machine, siteId]);
 
   if (!userProfile || !id) {

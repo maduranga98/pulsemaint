@@ -16,9 +16,6 @@ import {
   getDoc,
   setDoc,
   updateDoc,
-  query,
-  where,
-  getDocs,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
@@ -84,9 +81,10 @@ export async function registerCompany(data: {
 
     // Create user profile document
     const userRef = doc(collection(db, `companies/${companyRef.id}/users`), uid);
-    const userProfile: Omit<UserProfile, 'createdAt' | 'updatedAt'> & {
+    const userProfile: Omit<UserProfile, 'createdAt' | 'updatedAt' | 'lastLoginAt'> & {
       createdAt?: any;
       updatedAt?: any;
+      lastLoginAt?: any;
     } = {
       id: uid,
       companyId: companyRef.id,
@@ -197,9 +195,10 @@ export async function confirmOTP(
     if (!userProfile) {
       // Create a basic profile for phone-based signup
       const userRef = doc(collection(db, `companies/${companyId}/users`), uid);
-      const newProfile: Omit<UserProfile, 'createdAt' | 'updatedAt'> & {
+      const newProfile: Omit<UserProfile, 'createdAt' | 'updatedAt' | 'lastLoginAt'> & {
         createdAt?: any;
         updatedAt?: any;
+      lastLoginAt?: any;
       } = {
         id: uid,
         companyId,
@@ -223,7 +222,7 @@ export async function confirmOTP(
       };
 
       await setDoc(userRef, newProfile);
-      userProfile = newProfile as UserProfile;
+      userProfile = newProfile as unknown as UserProfile;
 
       // Create user mapping document for quick company lookup. The Firestore
       // rules resolve role/site from this mapping, so they must be populated.
@@ -268,9 +267,10 @@ export async function loginWithGoogle(): Promise<UserProfile> {
     if (!userProfile) {
       // Create profile for Google login
       const userRef = doc(collection(db, `companies/${companyId}/users`), uid);
-      const newProfile: Omit<UserProfile, 'createdAt' | 'updatedAt'> & {
+      const newProfile: Omit<UserProfile, 'createdAt' | 'updatedAt' | 'lastLoginAt'> & {
         createdAt?: any;
         updatedAt?: any;
+      lastLoginAt?: any;
       } = {
         id: uid,
         companyId,
@@ -294,7 +294,7 @@ export async function loginWithGoogle(): Promise<UserProfile> {
       };
 
       await setDoc(userRef, newProfile);
-      userProfile = newProfile as UserProfile;
+      userProfile = newProfile as unknown as UserProfile;
 
       // Create user mapping document for quick company lookup. The Firestore
       // rules resolve role/site from this mapping, so they must be populated.

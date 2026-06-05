@@ -4,9 +4,9 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-import type { AppUser, UserRole } from '../types/user';
+import type { AppUser } from '../types/user';
 
 interface UseAuthResult {
   loading: boolean;

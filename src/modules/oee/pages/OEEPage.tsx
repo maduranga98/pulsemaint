@@ -105,7 +105,7 @@ export function OEEPage() {
   const canView = useAuthStore((s) => s.canAccess(['supervisor', 'plant_manager', 'admin']));
   const canInput = useAuthStore((s) => s.canAccess(['supervisor', 'admin']));
   const plan = useAuthStore((s) => s.company?.plan);
-  const isProPlan = plan === 'factory_pro' || plan === 'enterprise';
+  const isProPlan = plan === 'factory' || plan === 'enterprise';
 
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [selectedMachine, setSelectedMachine] = useState<MachineSummary | null>(null);

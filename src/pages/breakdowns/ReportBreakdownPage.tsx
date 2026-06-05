@@ -45,6 +45,8 @@ export default function ReportBreakdownPage() {
   const [description, setDescription] = useState('');
   const [productionImpact, setProductionImpact] = useState('');
   const [unitsLostOnStop, setUnitsLostOnStop] = useState('');
+  const [currentProductionCount, setCurrentProductionCount] = useState('');
+  const [estimatedDowntimeMinutes, setEstimatedDowntimeMinutes] = useState('');
   const [attemptedFixes, setAttemptedFixes] = useState('');
   const [machineStillRunning, setMachineStillRunning] = useState(false);
 
@@ -113,6 +115,13 @@ export default function ReportBreakdownPage() {
         description: description.trim(),
         productionImpact: productionImpact.trim(),
         unitsLostOnStop: unitsLostOnStop !== '' ? Number(unitsLostOnStop) : null,
+        currentProductionCount: currentProductionCount !== '' ? Number(currentProductionCount) : null,
+        estimatedDowntimeMinutes: estimatedDowntimeMinutes !== '' ? Number(estimatedDowntimeMinutes) : null,
+        oeeImpact: {
+          downtimeMinutes: estimatedDowntimeMinutes !== '' ? Number(estimatedDowntimeMinutes) : 0,
+          unitsLost: unitsLostOnStop !== '' ? Number(unitsLostOnStop) : 0,
+          productionCountAtStop: currentProductionCount !== '' ? Number(currentProductionCount) : null,
+        },
         attemptedFixes: attemptedFixes.trim(),
         machineStillRunning,
         photos: [],
@@ -266,6 +275,34 @@ export default function ReportBreakdownPage() {
                 />
                 <span className="text-sm text-slate-500">units/hr lost while stopped</span>
               </div>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Current production count when machine stopped
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={currentProductionCount}
+                onChange={(e) => setCurrentProductionCount(e.target.value)}
+                disabled={submitting}
+                placeholder="0"
+                className="w-48 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-600 mb-1">
+                Estimated downtime (minutes) — feeds OEE
+              </label>
+              <input
+                type="number"
+                min={0}
+                value={estimatedDowntimeMinutes}
+                onChange={(e) => setEstimatedDowntimeMinutes(e.target.value)}
+                disabled={submitting}
+                placeholder="0"
+                className="w-48 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+              />
             </div>
           </div>
 

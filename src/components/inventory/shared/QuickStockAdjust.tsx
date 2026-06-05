@@ -6,7 +6,6 @@ import {
   runTransaction,
   collection,
   serverTimestamp,
-  Timestamp,
 } from 'firebase/firestore';
 import { useAuthStore } from '@/store/authStore';
 import type { PartUnit } from '@/types/inventory';
@@ -89,7 +88,7 @@ export function QuickStockAdjust({ partId, currentStock, unit, onComplete }: Qui
           currentStock: adjustedStock,
           availableStock: Math.max(0, adjustedStock - ((partSnap.data()?.reservedStock ?? 0) as number)),
           updatedAt: serverTimestamp(),
-          updatedBy: userProfile?.uid ?? '',
+          updatedBy: userProfile?.id ?? '',
         });
 
         txn.set(movementRef, {
@@ -106,8 +105,8 @@ export function QuickStockAdjust({ partId, currentStock, unit, onComplete }: Qui
           workOrderId: null,
           workOrderNumber: null,
           partsRequestId: null,
-          performedBy: userProfile?.uid ?? '',
-          performedByName: userProfile?.displayName ?? '',
+          performedBy: userProfile?.id ?? '',
+          performedByName: userProfile?.fullName ?? '',
           performedByRole: role ?? '',
           performedAt: serverTimestamp(),
           notes: reason.trim(),

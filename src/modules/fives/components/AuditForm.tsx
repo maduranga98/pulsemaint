@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Camera, X, ChevronLeft, ChevronRight, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { DEFAULT_CHECKLIST, PILLAR_ORDER } from '../data/defaultChecklist';
@@ -11,7 +11,6 @@ import type {
   PillarId,
 } from '../types/fives.types';
 import {
-  calculatePillarScore,
   calculateOverallScore,
   saveDraft,
   clearDraft,
@@ -202,7 +201,7 @@ function PillarStep({
     .map((ci) => itemScores[ci.id]?.score)
     .filter((s) => s !== undefined);
   const avgScore = scoredItems.length
-    ? scoredItems.reduce((a, b) => a + b, 0) / scoredItems.length
+    ? scoredItems.reduce<number>((a, b) => a + b, 0) / scoredItems.length
     : null;
 
   return (
@@ -448,7 +447,7 @@ export function AuditForm({
         .map((ci) => itemScores[ci.id])
         .filter(Boolean)
         .map((s) => s.score);
-      result[pillar.id] = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+      result[pillar.id] = scores.length ? scores.reduce<number>((a, b) => a + b, 0) / scores.length : 0;
     });
     return result;
   }, [itemScores]);
@@ -752,7 +751,7 @@ export function AuditForm({
             </p>
           </div>
           <ul className="space-y-1 pl-6">
-            {lowScoreItems.slice(0, 5).map((s) => {
+            {lowScoreItems.slice(0, 5).map((s: AuditItemScore) => {
               const item = DEFAULT_CHECKLIST.flatMap((p) => p.checklistItems).find((ci) => ci.id === s.checkItemId);
               return (
                 <li key={s.checkItemId} className="text-xs text-amber-300/80 flex items-start gap-1">

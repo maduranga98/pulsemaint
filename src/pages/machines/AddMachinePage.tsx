@@ -3,7 +3,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useMachineCreate } from '../../hooks/useMachineCreate';
 import { useToast } from '../../hooks/useToast';
 import type { CreateMachineFormData } from '../../schemas/machine';
-import type { CreateMachinePayload } from '../../types/machine';
+import type { CreateMachinePayload, MachineCriticality } from '../../types/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
 
 export function AddMachinePage() {
@@ -32,8 +32,8 @@ export function AddMachinePage() {
         name: formData.name,
         type: formData.type,
         manufacturer: formData.manufacturer,
-        model: formData.model || null,
-        serialNumber: formData.serialNumber || null,
+        model: formData.model || '',
+        serialNumber: formData.serialNumber || '',
         purchaseDate: formData.purchaseDate || null,
         installationDate: formData.installationDate || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
@@ -42,7 +42,7 @@ export function AddMachinePage() {
         bay: formData.bay || null,
         station: formData.station || null,
         status: formData.status,
-        criticality: formData.criticality,
+        criticality: formData.criticality as MachineCriticality,
         healthScore: formData.healthScore ?? 100,
         photoFiles: files.photos,
         documentFiles: files.documents,
@@ -65,7 +65,7 @@ export function AddMachinePage() {
     <MachineForm
       mode="create"
       siteId={siteId}
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit as any}
       isSubmitting={creating}
     />
   );

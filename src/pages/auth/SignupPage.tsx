@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthActions } from '../../hooks/useAuthActions';
-import type { UserRole } from '../../types/user';
+import type { UserRole } from '../../types/auth';
 
 const ROLES: { value: UserRole; label: string; description: string }[] = [
   { value: 'floor_operator', label: 'Floor Operator', description: 'Machine operators' },
   { value: 'technician', label: 'Technician', description: 'Maintenance technicians' },
-  { value: 'maintenance_supervisor', label: 'Supervisor', description: 'Maintenance supervisor' },
+  { value: 'supervisor', label: 'Supervisor', description: 'Maintenance supervisor' },
   { value: 'plant_manager', label: 'Plant Manager', description: 'Plant management' },
   { value: 'store_keeper', label: 'Store Keeper', description: 'Inventory management' },
   { value: 'hr_officer', label: 'HR Officer', description: 'Human resources' },
@@ -64,7 +64,7 @@ export function SignupPage() {
         displayName: formData.displayName,
         siteId: formData.siteId,
         siteName: formData.siteName,
-        role: formData.role,
+        role: formData.role as any,
       });
       navigate('/app/machines');
     } catch (err) {

@@ -13,12 +13,6 @@ const SHIFT_LABELS: Record<OEEShift, string> = {
   night: 'Night Shift',
 };
 
-const SHIFT_COLORS: Record<OEEShift, string> = {
-  day: '#F59E0B',
-  evening: '#8B5CF6',
-  night: '#1A56DB',
-};
-
 interface ShiftComparisonProps {
   machineId: string;
   machineName?: string;
@@ -101,7 +95,7 @@ export function ShiftComparison({ machineId, machineName = 'Machine' }: ShiftCom
               <YAxis domain={[0, 100]} {...CHART_DEFAULTS.yAxis} tickFormatter={(v) => `${v}%`} />
               <Tooltip
                 {...CHART_DEFAULTS.tooltip}
-                formatter={(v: number, name: string) => [`${v}%`, name]}
+                formatter={(v, name) => [`${v}%`, String(name)] as [string, string]}
               />
               <ReferenceLine y={85} stroke="#F59E0B" strokeDasharray="5 4" />
               <Legend {...CHART_DEFAULTS.legend} />

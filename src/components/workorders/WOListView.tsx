@@ -35,6 +35,8 @@ export function WOListView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const prefilledMachineId = searchParams.get('machineId');
+  const prefilledBreakdownId = searchParams.get('breakdownId');
+  const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
 
   useEffect(() => {
     if (searchParams.get('create') === '1') {
@@ -49,7 +51,7 @@ export function WOListView() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = userProfile?.role;
   const isSupervisorOrAdmin =
-    role === 'maintenance_supervisor' || role === 'supervisor' || role === 'admin';
+    role === 'supervisor' || role === 'admin';
 
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -253,6 +255,8 @@ export function WOListView() {
             setShowCreateDrawer(false);
           }}
           prefilledMachineId={prefilledMachineId ?? undefined}
+          linkedBreakdownId={prefilledBreakdownId ?? undefined}
+          linkedBreakdownTicketNumber={prefilledBreakdownTicket ?? undefined}
         />
       )}
     </div>

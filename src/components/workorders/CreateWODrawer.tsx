@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder';
@@ -68,6 +68,7 @@ export function CreateWODrawer({
   const [technicians, setTechnicians] = useState<UserOption[]>([]);
   const [machineSearch, setMachineSearch] = useState('');
   const [showMachineDropdown, setShowMachineDropdown] = useState(false);
+  const [linkedBreakdown, setLinkedBreakdown] = useState<{ id: string; ticketNumber: string; severity?: string; machineName?: string; description?: string } | null>(null);
 
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
@@ -131,6 +132,42 @@ export function CreateWODrawer({
       cancelled = true;
     };
   }, [open, companyId, siteIds]);
+
+  useEffect(() => {
+    if (!open || !linkedBreakdownId) {
+      if (!linkedBreakdownId) setLinkedBreakdown(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, 'breakdown_tickets', linkedBreakdownId));
+        if (cancelled || !snap.exists()) return;
+        const data = snap.data() as any;
+        setLinkedBreakdown({
+          id: snap.id,
+          ticketNumber: data.ticketNumber ?? snap.id,
+          severity: data.severity,
+          machineName: data.machineName,
+          description: data.description,
+        });
+        form.setValue('woType', 'BREAKDOWN' as any);
+        form.setValue('linkedBreakdownId', snap.id);
+        form.setValue('linkedBreakdownTicketNumber', data.ticketNumber ?? '');
+        if (data.machineId) {
+          form.setValue('machineId', data.machineId);
+          form.setValue('machineName' as any, data.machineName ?? '');
+          form.setValue('machineDepartment' as any, data.machineDepartment ?? '');
+          form.setValue('machineLocation' as any, data.machineLocation ?? '');
+          form.setValue('machineCriticality' as any, data.machineCriticality ?? 3);
+          setMachineSearch(data.machineName ?? '');
+        }
+      } catch (err) {
+        console.error('Failed to load linked breakdown', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, linkedBreakdownId]);
 
   const { createWO, loading, uploadProgress } = useCreateWorkOrder();
 
@@ -246,6 +283,28 @@ export function CreateWODrawer({
         {/* Step content */}
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <form onSubmit={(form.handleSubmit as any)(handleSubmit)} className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+
+          {linkedBreakdown && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
+              <span className="text-red-600 text-lg">⚠️</span>
+              <div className="flex-1 text-sm">
+                <p className="font-semibold text-red-800">
+                  Linked Breakdown: {linkedBreakdown.ticketNumber}
+                  {linkedBreakdown.severity && (
+                    <span className="ml-2 px-1.5 py-0.5 rounded text-xs uppercase bg-red-600 text-white">
+                      {linkedBreakdown.severity}
+                    </span>
+                  )}
+                </p>
+                {linkedBreakdown.machineName && (
+                  <p className="text-red-700 text-xs">Machine: {linkedBreakdown.machineName}</p>
+                )}
+                {linkedBreakdown.description && (
+                  <p className="text-red-700 text-xs mt-1 line-clamp-2">{linkedBreakdown.description}</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ── STEP 0: Basic Info ── */}
           {step === 0 && (

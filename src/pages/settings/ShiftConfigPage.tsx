@@ -24,7 +24,7 @@ export function ShiftConfigPage() {
         </div>
         <button type="button" onClick={() => void seedDefaults()} className="min-h-12 rounded-md border border-blue-200 bg-white px-4 text-sm font-bold text-blue-700">Seed Defaults</button>
       </div>
-      <ShiftConfigForm onSave={save} />
+      <ShiftConfigForm onSave={async (s) => { await save(s); }} />
       <div className="grid gap-3 lg:grid-cols-3">
         {loading ? <div className="text-slate-500">Loading shifts...</div> : shifts.map((shift) => (
           <article key={shift.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">

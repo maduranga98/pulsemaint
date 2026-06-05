@@ -67,7 +67,7 @@ export function EditPartPage() {
   const [adjustReason, setAdjustReason] = useState('');
 
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm<CreatePartFormValues>({
-    resolver: zodResolver(createPartSchema),
+    resolver: zodResolver(createPartSchema) as any,
     values: part
       ? {
           partNumber: part.partNumber,
@@ -199,7 +199,7 @@ export function EditPartPage() {
           <span className="font-mono text-sm text-gray-500">{part.partNumber}</span>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+        <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5" noValidate>
           <SectionCard title="Identification">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Part Number" required error={errors.partNumber?.message}>
@@ -259,7 +259,7 @@ export function EditPartPage() {
             <Field label="Store Location">
               <input {...register('storeLocation')} className={inputCls} />
             </Field>
-            <StockGauge current={currentStock} min={minStock} max={maxStock} />
+            <StockGauge current={currentStock} min={minStock} max={maxStock} unit={watch('unit')} />
           </SectionCard>
 
           <SectionCard title="Details">

@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft, Save, PlusCircle } from 'lucide-react';
 import {
   collection,
-  addDoc,
   getDocs,
   query,
   where,
@@ -72,7 +71,7 @@ export function AddPartPage() {
     setValue,
     formState: { errors },
   } = useForm<CreatePartFormValues>({
-    resolver: zodResolver(createPartSchema),
+    resolver: zodResolver(createPartSchema) as any,
     defaultValues: {
       status: 'active',
       criticality: 'medium',
@@ -194,7 +193,7 @@ export function AddPartPage() {
         <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Add New Part</h1>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5" noValidate>
         {/* 1. Identification */}
         <SectionCard title="1 · Identification">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -293,6 +292,7 @@ export function AddPartPage() {
               current={currentStock}
               min={minStock}
               max={maxStock}
+              unit={watch('unit')}
             />
           </div>
         </SectionCard>

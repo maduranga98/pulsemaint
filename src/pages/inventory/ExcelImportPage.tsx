@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   collection,
@@ -16,7 +16,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { parseInventoryExcel } from '@/lib/inventory/importParser';
 import { validateImportRows } from '@/lib/inventory/importValidator';
-import type { ValidationResult, ParsedPartRow, InventoryPart } from '@/types/inventory';
+import type { ValidationResult, InventoryPart } from '@/types/inventory';
 import { ImportStepIndicator } from '@/components/inventory/import/ImportStepIndicator';
 import { ImportTemplateStep } from '@/components/inventory/import/ImportTemplateStep';
 import { ImportUploadStep } from '@/components/inventory/import/ImportUploadStep';
@@ -44,7 +44,7 @@ export function ExcelImportPage() {
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
-  const userName = useAuthStore((s) => s.userProfile?.name) ?? '';
+  const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
 
   const [step, setStep] = useState<Step>(1);
   const [state, setState] = useState<ImportState>({
@@ -267,7 +267,6 @@ export function ExcelImportPage() {
       const sessionDoc = sessionSnap.docs.find((d) => d.id === state.sessionId);
       if (!sessionDoc) return;
 
-      const affectedPartIds: string[] = sessionDoc.data().affectedPartIds ?? [];
       // Simple: just mark session reversed (full reversal would need original data snapshot)
       await updateDoc(doc(db, 'inventoryImportSessions', state.sessionId), {
         status: 'reversed',

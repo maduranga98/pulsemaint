@@ -21,7 +21,7 @@ interface UseMachineUpdateResult {
 }
 
 export function useMachineUpdate({
-  onSuccess,
+  onSuccess: _onSuccess,
   onError,
 }: UseMachineUpdateOptions = {}): UseMachineUpdateResult {
   const [updating, setUpdating] = useState(false);
@@ -41,7 +41,7 @@ export function useMachineUpdate({
         for (const photoFile of payload.photoFiles) {
           const photoRef = ref(
             storage,
-            `companies/${payload.siteId}/machines/${machineId}/photos/${photoFile.name}`
+            `companies/${payload.siteId}/machines/${payload.machineId}/photos/${photoFile.name}`
           );
           await uploadBytes(photoRef, photoFile);
           const photoUrl = await getDownloadURL(photoRef);
@@ -56,7 +56,7 @@ export function useMachineUpdate({
         for (const docPayload of payload.documentFiles) {
           const docRef = ref(
             storage,
-            `companies/${payload.siteId}/machines/${machineId}/documents/${docPayload.file.name}`
+            `companies/${payload.siteId}/machines/${payload.machineId}/documents/${docPayload.file.name}`
           );
           await uploadBytes(docRef, docPayload.file);
           const docUrl = await getDownloadURL(docRef);

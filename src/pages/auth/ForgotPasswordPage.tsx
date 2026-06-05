@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -13,11 +12,10 @@ const forgotSchema = z.object({
 type ForgotForm = z.infer<typeof forgotSchema>;
 
 export default function ForgotPasswordPage() {
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState('');
-  const [resendCountdown, setResendCountdown] = useState(0);
+  const [, setResendCountdown] = useState(0);
 
   const form = useForm<ForgotForm>({
     resolver: zodResolver(forgotSchema),

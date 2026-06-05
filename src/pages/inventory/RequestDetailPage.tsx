@@ -25,8 +25,7 @@ export function RequestDetailPage() {
   const navigate = useNavigate();
   const { addToast } = useToast();
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
-  const userName = useAuthStore((s) => s.userProfile?.name) ?? '';
-  const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
+  const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
 
   const { request, loading, error } = usePartsRequest(requestId);
@@ -140,14 +139,12 @@ export function RequestDetailPage() {
         <RequestWoContextCard request={request} />
       )}
 
-      <RequestItemsTable request={request} />
+      <RequestItemsTable items={request.items} />
 
       <RequestReviewPanel
         request={request}
-        settings={settings}
-        currentUserId={userId}
-        currentUserRole={userRole}
-        onDecision={handleDecision}
+        settings={settings ?? { approvalThresholdLKR: 0 }}
+        onDecision={(payload) => handleDecision(payload.decision, payload.notes, payload.escalationReason)}
       />
 
       <RequestReviewHistory request={request} />

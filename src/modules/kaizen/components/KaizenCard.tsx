@@ -24,8 +24,6 @@ export function KaizenCard({ card, onClick, isProPlan = false }: Props) {
   const categoryMeta = KAIZEN_CATEGORY_META[card.category];
   const priorityMeta = KAIZEN_PRIORITY_META[card.priority];
   const hasVoted = card.votes.includes(userId);
-  const isHighPriority = card.priority === 'critical' || card.priority === 'high';
-
   const borderColor =
     card.priority === 'critical'
       ? '#EF4444'

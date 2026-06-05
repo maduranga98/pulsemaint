@@ -70,13 +70,13 @@ export function MachineForm({
     mode === 'create'
       ? {
           siteId,
-          status: 'active',
-          criticality: 3,
+          status: 'active' as const,
+          criticality: 3 as const,
           healthScore: 100,
           photoFiles: [],
           documentFiles: [],
           compatiblePartIds: [],
-        }
+        } as any
       : {
           name: initialData?.name,
           type: initialData?.type,

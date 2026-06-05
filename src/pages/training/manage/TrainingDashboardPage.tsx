@@ -112,7 +112,7 @@ export default function TrainingDashboardPage() {
         const overdue = assignments.filter((a) => {
           if (!a.dueDate || a.status === 'certified') return false;
           const due = new Date((a.dueDate as unknown as { seconds: number }).seconds * 1000);
-          return due < now && a.status !== 'certified';
+          return due < now;
         }).length;
 
         const awaiting = assignments.filter((a) => a.status === 'awaiting_practical');

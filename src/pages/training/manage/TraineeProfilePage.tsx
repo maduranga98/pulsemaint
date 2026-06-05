@@ -112,7 +112,7 @@ export default function TraineeProfilePage() {
             <User size={24} className="text-slate-400" />
           </div>
           <div>
-            <p className="font-semibold text-slate-900">{trainee?.displayName ?? trainee?.email ?? userId}</p>
+            <p className="font-semibold text-slate-900">{trainee?.fullName ?? trainee?.email ?? userId}</p>
             <p className="text-sm text-slate-500">{trainee?.email}</p>
             {trainee?.department && (
               <p className="text-xs text-slate-400 mt-0.5">{trainee.department}</p>

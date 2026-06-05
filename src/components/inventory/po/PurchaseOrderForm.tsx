@@ -43,7 +43,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
-  const userName = useAuthStore((s) => s.userProfile?.name) ?? '';
+  const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
 
   const canApprove = userRole === 'plant_manager' || userRole === 'admin';
@@ -73,7 +73,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
     control,
     formState: { errors },
   } = useForm<PurchaseOrderFormValues>({
-    resolver: zodResolver(purchaseOrderSchema),
+    resolver: zodResolver(purchaseOrderSchema) as any,
     defaultValues: {
       supplierName: initialPO?.supplierName ?? '',
       supplierContact: initialPO?.supplierContact ?? '',
@@ -245,7 +245,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   return (
     <form
-      onSubmit={handleSubmit((v) => save(v, 'draft'))}
+      onSubmit={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'draft'))}
       className="space-y-6"
       noValidate
     >
@@ -418,7 +418,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         <button
           type="button"
           disabled={saving}
-          onClick={handleSubmit((v) => save(v, 'pending_approval'))}
+          onClick={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'pending_approval'))}
           className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
         >
           <Send className="w-4 h-4" />
@@ -428,7 +428,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           <button
             type="button"
             disabled={saving}
-            onClick={handleSubmit((v) => save(v, 'sent'))}
+            onClick={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'sent'))}
             className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
           >
             <Send className="w-4 h-4" />
