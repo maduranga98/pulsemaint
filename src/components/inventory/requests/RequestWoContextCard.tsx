@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Wrench, AlertTriangle, MapPin } from 'lucide-react';
+import { Wrench, AlertTriangle } from 'lucide-react';
 import type { PartsRequest } from '@/types/inventory';
 
 interface RequestWoContextCardProps {

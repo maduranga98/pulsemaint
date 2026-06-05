@@ -5,7 +5,6 @@ import {
   Download,
   CheckSquare,
   Square,
-  ChevronDown,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
@@ -14,7 +13,6 @@ import { useAuthStore } from '../../../store/authStore';
 import { useKaizenList } from '../hooks/useKaizen';
 import { transitionState } from '../services/kaizen.service';
 import { KaizenDetail } from './KaizenDetail';
-import type { KaizenCard, KaizenStatus, KaizenCategory } from '../types/kaizen.types';
 import {
   KAIZEN_STATUS_META,
   KAIZEN_CATEGORY_META,

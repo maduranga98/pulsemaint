@@ -32,7 +32,7 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
   const [uploading, setUploading] = useState<UploadingImage[]>([]);
   const [error, setError] = useState<string>('');
 
-  async function uploadSingleFile(file: File, currentImages: GalleryImage[]): Promise<GalleryImage | null> {
+  async function uploadSingleFile(file: File, _currentImages: GalleryImage[]): Promise<GalleryImage | null> {
     if (!companyId) return null;
     if (file.size > MAX_BYTES) {
       setError(`"${file.name}" exceeds 50 MB limit.`);

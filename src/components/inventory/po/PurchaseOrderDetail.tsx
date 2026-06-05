@@ -83,7 +83,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       await updateDoc(doc(db, 'purchaseOrders', order.id), {
         status: 'approved',
         approvedBy: userProfile.id,
-        approvedByName: userProfile.name ?? '',
+        approvedByName: userProfile.fullName ?? '',
         approvedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -107,7 +107,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         status: 'rejected',
         rejectedReason: reason,
         approvedBy: userProfile.id,
-        approvedByName: userProfile.name ?? '',
+        approvedByName: userProfile.fullName ?? '',
         approvedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });

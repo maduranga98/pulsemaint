@@ -3,7 +3,8 @@ import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { useMachineUpdate } from '../../hooks/useMachineUpdate';
 import { useToast } from '../../hooks/useToast';
-import type { UpdateMachineFormData, UpdateMachinePayload } from '../../types/machine';
+import type { UpdateMachinePayload } from '../../types/machine';
+import type { UpdateMachineFormData } from '../../schemas/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
 
 export function EditMachinePage() {
@@ -54,8 +55,8 @@ export function EditMachinePage() {
         name: formData.name,
         type: formData.type,
         manufacturer: formData.manufacturer,
-        model: formData.model || null,
-        serialNumber: formData.serialNumber || null,
+        model: formData.model || undefined,
+        serialNumber: formData.serialNumber || undefined,
         purchaseDate: formData.purchaseDate || null,
         installationDate: formData.installationDate || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
@@ -64,7 +65,7 @@ export function EditMachinePage() {
         bay: formData.bay || null,
         station: formData.station || null,
         status: formData.status,
-        criticality: formData.criticality,
+        criticality: formData.criticality as any,
         photoFiles: files.photos,
         documentFiles: files.documents,
         compatiblePartIds: formData.compatiblePartIds || [],

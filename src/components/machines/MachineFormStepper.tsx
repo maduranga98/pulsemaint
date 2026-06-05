@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 export interface FormStep {
   id: string;
   label: string;

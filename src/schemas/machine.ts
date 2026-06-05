@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { MachineType, DocumentType, MachineStatus, MachineCriticality } from '../types/machine';
 
 // ---------------------------------------------------------------------------
 // Individual Field Schemas

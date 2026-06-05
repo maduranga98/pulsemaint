@@ -124,13 +124,13 @@ export default function AnalyticsPage() {
             <BreakdownHeatmap companyId={companyId} />
           </div>
           <div className="lg:col-span-6">
-            <TopProblemMachinesChart companyId={companyId} />
+            <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
-            <MaintenanceCostChart companyId={companyId} />
+            <MaintenanceCostChart companyId={companyId} month={currentMonth} />
           </div>
           <div className="lg:col-span-4">
             <SlaGaugeWidget companyId={companyId} />
@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
             <MtbfTable companyId={companyId} />
           </div>
           <div className="lg:col-span-6">
-            <TechnicianPerformanceTable companyId={companyId} />
+            <TechnicianPerformanceTable companyId={companyId} month={currentMonth} />
           </div>
         </div>
 
@@ -151,7 +151,7 @@ export default function AnalyticsPage() {
             <PmComplianceWidget companyId={companyId} />
           </div>
           <div className="lg:col-span-6">
-            <ContractorScoreboard companyId={companyId} />
+            <ContractorScoreboard companyId={companyId} month={currentMonth} />
           </div>
         </div>
       </div>

@@ -16,18 +16,6 @@ interface UseInventoryStatsResult {
   error: string | null;
 }
 
-const DEFAULT_STATS: InventoryStats = {
-  totalParts: 0,
-  totalStockValue: 0,
-  activeRequests: 0,
-  pendingPOs: 0,
-  outOfStockCount: 0,
-  lowStockCount: 0,
-  pendingRequestsCount: 0,
-  pendingSupervisorCount: 0,
-  partsToIssueCount: 0,
-};
-
 export function useInventoryStats(): UseInventoryStatsResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 

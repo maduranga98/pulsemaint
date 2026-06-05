@@ -109,7 +109,7 @@ export function OEETrendChart({ machineId, machineName = 'Machine' }: OEETrendCh
             <YAxis domain={[0, 100]} {...CHART_DEFAULTS.yAxis} tickFormatter={(v) => `${v}%`} />
             <Tooltip
               {...CHART_DEFAULTS.tooltip}
-              formatter={(v: number, name: string) => [`${v}%`, name]}
+              formatter={(v, name) => [`${v}%`, String(name)] as [string, string]}
             />
             <ReferenceLine
               y={85}

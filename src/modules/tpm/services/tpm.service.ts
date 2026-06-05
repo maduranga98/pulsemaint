@@ -9,7 +9,6 @@ import {
   updateDoc,
   where,
   serverTimestamp,
-  Timestamp,
   orderBy,
   limit,
 } from 'firebase/firestore';
@@ -22,7 +21,7 @@ import type {
   TPMPillarId,
   TPMMachineScore,
 } from '../types/tpm.types';
-import { PILLAR_WEIGHTS, PILLAR_META, TPM_MATURITY_LABELS } from '../types/tpm.types';
+import { PILLAR_WEIGHTS, PILLAR_META } from '../types/tpm.types';
 
 // ─── Score Calculation ────────────────────────────────────────────────────────
 

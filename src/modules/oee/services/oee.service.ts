@@ -11,7 +11,6 @@ import {
   setDoc,
   getDoc,
   serverTimestamp,
-  Timestamp,
 } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import type {
@@ -93,8 +92,6 @@ export function calculateBigLosses(
     { cat: 'startup_rejects', hours: startupHours },
     { cat: 'production_rejects', hours: productionHours },
   ];
-
-  const totalLoss = categories.reduce((s, c) => s + c.hours, 0);
 
   return categories.map(({ cat, hours }) => ({
     category: cat,

@@ -1,4 +1,4 @@
-import type { QuizQuestion as QuizQuestionType, QuestionType } from '@/lib/training/trainingTypes';
+import type { QuizQuestion as QuizQuestionType } from '@/lib/training/trainingTypes';
 import QuizOptionButton from './QuizOptionButton';
 import { CheckCircle, XCircle } from 'lucide-react';
 

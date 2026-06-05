@@ -16,8 +16,8 @@ export function WOKanbanBoard({ workOrders, onSelectWO }: WOKanbanBoardProps) {
   const [dragOverColumn, setDragOverColumn] = useState<WOStatus | null>(null);
 
   const { updateStatus } = useUpdateWorkOrder();
-  const user = useAuthStore((s) => s.user);
-  const canDrag = user?.role === 'maintenance_supervisor' || user?.role === 'admin';
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const canDrag = userProfile?.role === 'supervisor' || userProfile?.role === 'admin';
 
   const byStatus: Record<WOStatus, WorkOrder[]> = {} as Record<WOStatus, WorkOrder[]>;
   for (const status of KANBAN_STATUSES) byStatus[status] = [];

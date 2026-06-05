@@ -41,7 +41,7 @@ type EmployeePinForm = z.infer<typeof employeePinSchema>;
 export default function LoginPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'email' | 'phone'>('email');
-  const [phoneStep, setPhoneStep] = useState<'phone' | 'otp'>('phone');
+  const [phoneStep, setPhoneStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +52,7 @@ export default function LoginPage() {
   const [pinChangeLoading, setPinChangeLoading] = useState(false);
   const [currentCompanyId, setCurrentCompanyId] = useState('');
   const [currentUserId, setCurrentUserId] = useState('');
-  const [otpCountdown, setOtpCountdown] = useState(0);
+  const [, setOtpCountdown] = useState(0);
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [pinInput, setPinInput] = useState('');

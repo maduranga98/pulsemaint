@@ -21,14 +21,14 @@ export function PartDetailHeader({
   onAdjust,
   onRaisePO,
 }: PartDetailHeaderProps) {
-  const { canAccess, isTechnician } = useAuthStore();
+  const { canAccess } = useAuthStore();
   const stockStatus = getStockStatus(part);
   const available = Math.max(0, part.currentStock - part.reservedStock);
 
-  const canEdit = canAccess(['store_keeper', 'supervisor', 'manager', 'admin']);
-  const canReceive = canAccess(['store_keeper', 'supervisor', 'manager', 'admin']);
-  const canAdjust = canAccess(['store_keeper', 'supervisor', 'manager', 'admin']);
-  const canRaisePO = canAccess(['supervisor', 'manager', 'admin']);
+  const canEdit = canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']);
+  const canReceive = canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']);
+  const canAdjust = canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']);
+  const canRaisePO = canAccess(['supervisor', 'plant_manager', 'admin']);
 
   let banner: React.ReactNode;
   if (stockStatus === 'out_of_stock') {

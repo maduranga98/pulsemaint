@@ -17,6 +17,9 @@ const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> 
   received: { label: 'Received', cls: 'bg-green-100 text-green-700' },
   partially_received: { label: 'Partial', cls: 'bg-amber-100 text-amber-700' },
   cancelled: { label: 'Cancelled', cls: 'bg-red-100 text-red-600' },
+  approved: { label: 'Approved', cls: 'bg-green-100 text-green-700' },
+  rejected: { label: 'Rejected', cls: 'bg-red-100 text-red-600' },
+  pending_approval: { label: 'Pending Approval', cls: 'bg-amber-100 text-amber-700' },
 };
 
 const STATUS_FILTERS: { label: string; value: PurchaseOrderStatus | 'all' }[] = [

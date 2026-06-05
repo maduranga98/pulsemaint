@@ -3,7 +3,6 @@ import { Pin, X } from 'lucide-react';
 import type { FiveSAudit, PillarId } from '../types/fives.types';
 import { DEFAULT_CHECKLIST } from '../data/defaultChecklist';
 import { useAuthStore } from '../../../store/authStore';
-import { updateCorrectiveAction } from '../services/fives.service';
 
 interface BestPracticePhoto {
   photoUrl: string;

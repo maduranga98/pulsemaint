@@ -1,4 +1,4 @@
-import { CheckCircle, PlayCircle, Circle, Video, FileText, Images, AlignLeft } from 'lucide-react';
+import { CheckCircle, PlayCircle, Circle, Video, FileText, Images, AlignLeft, type LucideIcon } from 'lucide-react';
 import type { LessonItem, LessonProgress, LessonType } from '@/lib/training/trainingTypes';
 
 interface LessonListItemProps {
@@ -8,7 +8,7 @@ interface LessonListItemProps {
   onClick?: () => void;
 }
 
-const TYPE_ICONS: Record<LessonType, React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: string }>> = {
+const TYPE_ICONS: Record<LessonType, LucideIcon> = {
   video: Video,
   document: FileText,
   image_gallery: Images,

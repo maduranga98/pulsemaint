@@ -1,4 +1,4 @@
-import { GraduationCap, Award, ClipboardList } from 'lucide-react';
+import { GraduationCap, Award, ClipboardList, type LucideIcon } from 'lucide-react';
 
 type EmptyStateVariant = 'no_modules' | 'no_certificates' | 'no_assignments';
 
@@ -11,7 +11,7 @@ interface TrainingEmptyStateProps {
 const VARIANT_CONFIG: Record<
   EmptyStateVariant,
   {
-    Icon: React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: string }>;
+    Icon: LucideIcon;
     defaultTitle: string;
     defaultDescription: string;
   }

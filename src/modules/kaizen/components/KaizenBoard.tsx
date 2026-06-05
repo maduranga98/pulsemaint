@@ -7,6 +7,7 @@ import {
   useSensors,
   type DragStartEvent,
   type DragEndEvent,
+  type DragOverEvent,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -143,7 +144,6 @@ export function KaizenBoard({ filters = {}, isProPlan = false }: Props) {
 
   const { cards, loading } = useKaizenList({});
 
-  const [activeCard, setActiveCard] = useState<KaizenCardType | null>(null);
   const [draggingCard, setDraggingCard] = useState<KaizenCardType | null>(null);
   const [detailCardId, setDetailCardId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -207,7 +207,7 @@ export function KaizenBoard({ filters = {}, isProPlan = false }: Props) {
     }
   }
 
-  function handleDragOver(event: { over: { id: string } | null }) {
+  function handleDragOver(event: DragOverEvent) {
     setOverColumnId((event.over?.id as KaizenStatus) ?? null);
   }
 

@@ -11,7 +11,6 @@ import {
   LineChart,
   Line,
   CartesianGrid,
-  Legend,
 } from 'recharts';
 import { TrendingUp, Clock, Target, DollarSign, Lock } from 'lucide-react';
 import { useKaizenStats, useKaizenTrend } from '../hooks/useKaizen';
@@ -131,7 +130,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
                   <Cell key={i} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v: number) => [v, 'Cards']} />
+              <Tooltip formatter={(v) => [v as number, 'Cards'] as [number, string]} />
             </PieChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
@@ -233,7 +232,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
               >
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip formatter={(v: number) => [`LKR ${v.toLocaleString()}`, 'Monthly']} />
+                <Tooltip formatter={(v) => [`LKR ${(v as number).toLocaleString()}`, 'Monthly'] as [string, string]} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   <Cell fill="#1A56DB" />
                   <Cell fill="#10B981" />

@@ -8,8 +8,6 @@ interface OTPInputProps {
 
 export default function OTPInput({ length = 6, masked = false, onComplete }: OTPInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [values, setValues] = [null as any, null as any] as any[];
-
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const paste = e.clipboardData?.getData('text');

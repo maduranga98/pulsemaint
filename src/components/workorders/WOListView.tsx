@@ -51,7 +51,7 @@ export function WOListView() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = userProfile?.role;
   const isSupervisorOrAdmin =
-    role === 'maintenance_supervisor' || role === 'supervisor' || role === 'admin';
+    role === 'supervisor' || role === 'admin';
 
   const now = new Date();
   const startOfWeek = new Date(now);
