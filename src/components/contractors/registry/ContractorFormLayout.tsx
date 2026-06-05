@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useNavigate, Link, useParams } from 'react-router-dom';
+import { addDoc, collection, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useContractor } from '@/hooks/contractors/useContractor';
+import type { Contractor } from '@/lib/contractors/contractorTypes';
 import ContractorFormSection1 from './ContractorFormSection1';
 import ContractorFormSection2 from './ContractorFormSection2';
 import ContractorFormSection3 from './ContractorFormSection3';
@@ -36,6 +38,8 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId;
+  const { contractorId } = useParams<{ contractorId: string }>();
+  const { contractor, loading: loadingContractor } = useContractor(mode === 'edit' ? contractorId : undefined);
 
   const [step, setStep] = useState(0);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -58,16 +62,16 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
     setPendingFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function uploadDocuments(contractorId: string) {
+  async function uploadDocuments(savedId: string) {
     if (!companyId || pendingFiles.length === 0) return;
     for (const file of pendingFiles) {
-      const path = `contractors/${contractorId}/documents/${Date.now()}_${file.name}`;
+      const path = `contractors/${savedId}/documents/${Date.now()}_${file.name}`;
       const sref = storageRef(storage, path);
       await uploadBytes(sref, file);
       const url = await getDownloadURL(sref);
-      await addDoc(collection(db, 'contractors', contractorId, 'documents'), {
+      await addDoc(collection(db, 'contractors', savedId, 'documents'), {
         companyId,
-        contractorId,
+        contractorId: savedId,
         fileName: file.name,
         fileSize: file.size,
         fileUrl: url,
@@ -95,7 +99,6 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       .filter((p) => p.name.length > 0 || p.cost.length > 0);
 
     const payload: Record<string, unknown> = {
-      companyId,
       companyName: getStr(fd, 'companyName'),
       tradeName: getStr(fd, 'tradeName'),
       registrationNumber: getStr(fd, 'registrationNumber'),
@@ -137,14 +140,8 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       taxRegistrationNumber: getStr(fd, 'taxRegistrationNumber'),
       previouslyCompletedProjects,
 
-      status: 'active',
-      avgRating: 0,
-      totalJobsCompleted: 0,
-      blocksAssignment: false,
-
-      createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      createdBy: userProfile?.id ?? null,
+      updatedBy: userProfile?.id ?? null,
     };
 
     if (!payload.companyName || !payload.registrationNumber || !payload.primaryContactName) {
@@ -152,7 +149,22 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       return null;
     }
 
-    const docRef = await addDoc(collection(db, 'contractors'), payload);
+    if (mode === 'edit' && contractorId) {
+      await updateDoc(doc(db, 'contractors', contractorId), payload);
+      return contractorId;
+    }
+
+    const createPayload: Record<string, unknown> = {
+      ...payload,
+      companyId,
+      status: 'active',
+      avgRating: 0,
+      totalJobsCompleted: 0,
+      blocksAssignment: false,
+      createdAt: serverTimestamp(),
+      createdBy: userProfile?.id ?? null,
+    };
+    const docRef = await addDoc(collection(db, 'contractors'), createPayload);
     return docRef.id;
   }
 
@@ -162,15 +174,15 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const contractorId = await saveContractor(e.currentTarget);
-      if (!contractorId) return;
+      const savedId = await saveContractor(e.currentTarget);
+      if (!savedId) return;
       if (pendingFiles.length > 0) {
-        await uploadDocuments(contractorId);
+        await uploadDocuments(savedId);
       }
       if (openDocsAfter) {
-        navigate(`/app/contractors/${contractorId}/documents`);
+        navigate(`/app/contractors/${savedId}/documents`);
       } else {
-        navigate(`/app/contractors/${contractorId}`);
+        navigate(`/app/contractors/${savedId}`);
       }
     } catch (err) {
       console.error('Save contractor failed', err);
@@ -180,8 +192,18 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
     }
   }
 
+  if (mode === 'edit' && loadingContractor) {
+    return <div className="p-6 text-slate-500">Loading contractor…</div>;
+  }
+  if (mode === 'edit' && !contractor) {
+    return <div className="p-6 text-slate-500">Contractor not found.</div>;
+  }
+
+  const initial: Partial<Contractor> | undefined = contractor ?? undefined;
+
   return (
     <form
+      key={contractor?.id ?? 'new'}
       className="space-y-5"
       onSubmit={(e) => handleSave(e, false)}
     >
@@ -202,24 +224,18 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
           ))}
         </aside>
         <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          {/* Render every section once for all viewports. On mobile the
-              stepper scrolls to the relevant anchor; on desktop the
-              sidebar does the same. Rendering each section twice (once
-              per viewport) duplicated input names so FormData picked
-              the empty hidden copy and required-fields validation
-              tripped even when fields were filled. */}
           <div className="space-y-8">
             <div id={SECTION_ANCHORS[0]}>
-              <ContractorFormSection1 />
+              <ContractorFormSection1 initial={initial} />
             </div>
             <div id={SECTION_ANCHORS[1]}>
-              <ContractorFormSection2 />
+              <ContractorFormSection2 initial={initial} />
             </div>
             <div id={SECTION_ANCHORS[2]}>
-              <ContractorFormSection3 />
+              <ContractorFormSection3 initial={initial} />
             </div>
             <div id={SECTION_ANCHORS[3]}>
-              <ContractorFormSection4 />
+              <ContractorFormSection4 initial={initial} />
             </div>
             <div id={SECTION_ANCHORS[4]}>
               <ContractorFormSection5
@@ -247,16 +263,11 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
             onClick={(e) => {
               const formEl = (e.currentTarget as HTMLButtonElement).closest('form');
               if (!formEl) return;
-              const submitEvent = new Event('submit', { cancelable: true, bubbles: true }) as unknown as FormEvent<HTMLFormElement>;
-              // Mark intent to open documents page after save via a one-shot flag
-              (formEl as unknown as { __openDocsAfter?: boolean }).__openDocsAfter = true;
-              // Manually invoke handleSave because dispatching a submit doesn't pass the flag through default onSubmit
               const fakeEvent = {
                 preventDefault: () => {},
                 currentTarget: formEl,
               } as unknown as FormEvent<HTMLFormElement>;
               void handleSave(fakeEvent, true);
-              void submitEvent;
             }}
             className="rounded-md border border-blue-200 bg-white px-4 py-2.5 text-sm font-semibold text-blue-700 disabled:opacity-60"
           >

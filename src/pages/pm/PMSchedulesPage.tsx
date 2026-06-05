@@ -27,7 +27,7 @@ export default function PMSchedulesPage() {
 
   const { schedules, loading, bulkUpdateStatus, bulkDelete } =
     usePMSchedules({ companyId: company?.id || '', filters });
-  const { machines } = useMachines({ siteId: company?.id || '' });
+  const { machines } = useMachines({ siteId: company?.id || '', pageSize: 500 });
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');

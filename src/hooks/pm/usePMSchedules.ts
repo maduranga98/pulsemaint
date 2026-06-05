@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   addDoc,
   updateDoc,
@@ -37,10 +36,11 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
 
     setLoading(true);
 
+    // NOTE: orderBy is applied client-side so schedules missing nextDueDate
+    // (e.g. usage-based schedules awaiting first trigger) still appear.
     const q = query(
       collection(db, COLLECTION),
       where('companyId', '==', companyId),
-      orderBy('nextDueDate', 'asc'),
     );
 
     const unsubscribe = onSnapshot(
@@ -50,6 +50,11 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
           id: d.id,
           ...d.data(),
         })) as PMSchedule[];
+        fetched.sort((a, b) => {
+          const da = a.nextDueDate instanceof Date ? a.nextDueDate.getTime() : a.nextDueDate?.toDate?.().getTime() ?? Infinity;
+          const dbb = b.nextDueDate instanceof Date ? b.nextDueDate.getTime() : b.nextDueDate?.toDate?.().getTime() ?? Infinity;
+          return da - dbb;
+        });
         setAllSchedules(fetched);
         setLoading(false);
         setError(null);

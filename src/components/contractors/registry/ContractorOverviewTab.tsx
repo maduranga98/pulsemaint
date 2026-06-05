@@ -35,14 +35,14 @@ export function ContractorOverviewTab({ contractor }: ContractorOverviewTabProps
         <Field label="Legal name" value={contractor.companyName} />
         <Field label="Trade name" value={contractor.tradeName} />
         <Field label="Registration" value={contractor.registrationNumber} />
-        <Field label="Company type" value={contractor.companyType.replace(/_/g, ' ')} />
+        <Field label="Company type" value={contractor.companyType?.replace(/_/g, ' ')} />
         <Field label="Established" value={contractor.dateEstablished} />
-        <Field label="Address" value={`${contractor.primaryAddress}, ${contractor.city}`} />
+        <Field label="Address" value={[contractor.primaryAddress, contractor.city].filter(Boolean).join(', ')} />
         <Field label="Website" value={contractor.website} />
         <Field label="Notes" value={contractor.notes} />
       </InfoCard>
       <InfoCard title="Contact Details">
-        <Field label="Primary contact" value={`${contractor.primaryContactName} ${contractor.primaryContactDesig ? `- ${contractor.primaryContactDesig}` : ''}`} />
+        <Field label="Primary contact" value={`${contractor.primaryContactName ?? ''} ${contractor.primaryContactDesig ? `- ${contractor.primaryContactDesig}` : ''}`.trim()} />
         <Field label="Primary phone" value={contractor.primaryPhone} />
         <Field label="Primary email" value={contractor.primaryEmail} />
         <Field label="Emergency" value={contractor.emergencyContact} />
@@ -52,34 +52,34 @@ export function ContractorOverviewTab({ contractor }: ContractorOverviewTabProps
       <InfoCard title="Service Capabilities">
         <div>
           <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Specializations</dt>
-          <dd className="mt-2"><ContractorSpecializationTags tags={contractor.specializationTags} /></dd>
+          <dd className="mt-2"><ContractorSpecializationTags tags={contractor.specializationTags ?? []} /></dd>
         </div>
-        <Field label="Coverage" value={contractor.geographicCoverage.join(', ')} />
-        <Field label="Service hours" value={contractor.serviceHours.replace(/_/g, ' ')} />
+        <Field label="Coverage" value={(contractor.geographicCoverage ?? []).join(', ')} />
+        <Field label="Service hours" value={contractor.serviceHours?.replace(/_/g, ' ')} />
         <Field label="Response time" value={contractor.emergencyResponseTime} />
         <Field label="Team size" value={contractor.teamSizeAvailable} />
-        <Field label="Languages" value={contractor.languagesSpoken.join(', ')} />
+        <Field label="Languages" value={(contractor.languagesSpoken ?? []).join(', ')} />
       </InfoCard>
       {access.canViewFinancials && (
         <InfoCard title="Financial Details">
           <Field label="Payment terms" value={contractor.paymentTerms?.replace(/_/g, ' ')} />
           <Field label="Currency" value={contractor.currency} />
-          <Field label="Standard labor" value={`${formatLkr(contractor.standardLaborRate)}/hour`} />
-          <Field label="Overtime" value={`${formatLkr(contractor.overtimeRate)}/hour`} />
-          <Field label="Emergency fee" value={formatLkr(contractor.emergencyCallOutFee)} />
-          <Field label="Minimum charge" value={formatLkr(contractor.minimumCharge)} />
+          <Field label="Standard labor" value={`${formatLkr(contractor.standardLaborRate ?? 0)}/hour`} />
+          <Field label="Overtime" value={`${formatLkr(contractor.overtimeRate ?? 0)}/hour`} />
+          <Field label="Emergency fee" value={formatLkr(contractor.emergencyCallOutFee ?? 0)} />
+          <Field label="Minimum charge" value={formatLkr(contractor.minimumCharge ?? 0)} />
           <Field label="Bank" value={contractor.bankName ? `${contractor.bankName} - ****${contractor.bankAccountNumber?.slice(-4) ?? ''}` : '-'} />
           <Field label="Tax registration" value={contractor.taxRegistrationNumber} />
         </InfoCard>
       )}
       <InfoCard title="Performance Summary">
-        <Field label="Average rating" value={`${contractor.avgRating.toFixed(1)}/5 (${contractor.ratingCount} ratings)`} />
-        <Field label="Total jobs" value={`${contractor.totalJobsCount} (Breakdown ${contractor.breakdownJobsCount} | PM ${contractor.pmJobsCount} | Install ${contractor.installationJobsCount})`} />
-        <Field label="Average MTTR" value={`${contractor.avgMttr} min`} />
-        <Field label="First-fix rate" value={`${contractor.firstFixRate}%`} />
-        <Field label="SLA compliance" value={`${contractor.slaComplianceRate}%`} />
-        <Field label="Avg job cost" value={formatLkr(contractor.avgJobCost)} />
-        <Field label="Invoice accuracy" value={`${contractor.invoiceAccuracyRate}%`} />
+        <Field label="Average rating" value={`${(contractor.avgRating ?? 0).toFixed(1)}/5 (${contractor.ratingCount ?? 0} ratings)`} />
+        <Field label="Total jobs" value={`${contractor.totalJobsCount ?? 0} (Breakdown ${contractor.breakdownJobsCount ?? 0} | PM ${contractor.pmJobsCount ?? 0} | Install ${contractor.installationJobsCount ?? 0})`} />
+        <Field label="Average MTTR" value={`${contractor.avgMttr ?? 0} min`} />
+        <Field label="First-fix rate" value={`${contractor.firstFixRate ?? 0}%`} />
+        <Field label="SLA compliance" value={`${contractor.slaComplianceRate ?? 0}%`} />
+        <Field label="Avg job cost" value={formatLkr(contractor.avgJobCost ?? 0)} />
+        <Field label="Invoice accuracy" value={`${contractor.invoiceAccuracyRate ?? 0}%`} />
       </InfoCard>
     </div>
   );
