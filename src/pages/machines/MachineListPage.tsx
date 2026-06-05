@@ -271,6 +271,7 @@ export function MachineListPage() {
   const userProfile = useAuthStore((state) => state.userProfile);
   const [filters, setFilters] = useState<Partial<MachineFilters>>({});
   const [showImport, setShowImport] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
 
@@ -310,8 +311,13 @@ export function MachineListPage() {
       result = result.filter((m) => m.healthScore >= min && m.healthScore <= max);
     }
 
-    return result;
-  }, [machines, filters]);
+    const sorted = [...result].sort((a, b) => {
+      const cmp = a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
+      return sortOrder === 'asc' ? cmp : -cmp;
+    });
+
+    return sorted;
+  }, [machines, filters, sortOrder]);
 
   if (!userProfile) {
     return (
@@ -353,6 +359,15 @@ export function MachineListPage() {
             </div>
 
             <div className="flex gap-3">
+              <select
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white"
+                aria-label="Sort machines"
+              >
+                <option value="asc">Sort: A → Z</option>
+                <option value="desc">Sort: Z → A</option>
+              </select>
               {canCreateMachine && (
                 <Link
                   to="/app/machines/new"

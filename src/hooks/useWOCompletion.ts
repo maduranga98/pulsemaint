@@ -3,6 +3,8 @@ import {
   doc,
   getDoc,
   updateDoc,
+  addDoc,
+  collection,
   arrayUnion,
   serverTimestamp,
   Timestamp,
@@ -173,6 +175,94 @@ export function useWOCompletion(): UseWOCompletionResult {
           }
         } catch (pmErr) {
           console.error('Failed to update PM history on completion', pmErr);
+        }
+
+        // Machine record updates: lastServiceDate, nextPMDate, and history entry.
+        try {
+          const woSnap = await getDoc(doc(db, 'workOrders', woId));
+          const woData = woSnap.data() as any;
+          if (woData?.machineId) {
+            const machineRef = doc(db, 'machines', woData.machineId);
+            const machineUpdates: Record<string, unknown> = {
+              lastServiceDate: Timestamp.fromDate(payload.actualEndTime),
+              lastServiceType: woData.woType ?? null,
+              updatedAt: serverTimestamp(),
+            };
+
+            if (woData.woType === 'PREVENTIVE') {
+              let intervalDays: number | null = null;
+              if (woData.pmScheduleId) {
+                try {
+                  const pmSnap = await getDoc(doc(db, 'pm_schedules', woData.pmScheduleId));
+                  const pm = pmSnap.data() as any;
+                  if (pm) {
+                    const recurrenceMap: Record<string, number> = {
+                      daily: 1,
+                      weekly: 7,
+                      biweekly: 14,
+                      monthly: 30,
+                      quarterly: 90,
+                      semi_annual: 182,
+                      annual: 365,
+                    };
+                    intervalDays = pm.customIntervalDays ?? recurrenceMap[pm.recurrenceType] ?? null;
+                  }
+                } catch (e) {
+                  console.error('Failed to fetch PM schedule for next due', e);
+                }
+              }
+              if (intervalDays) {
+                const next = new Date(payload.actualEndTime.getTime() + intervalDays * 86400000);
+                machineUpdates.nextPmDue = Timestamp.fromDate(next);
+              }
+            }
+
+            await updateDoc(machineRef, machineUpdates);
+
+            const historyType =
+              woData.woType === 'BREAKDOWN'
+                ? 'breakdown'
+                : woData.woType === 'PREVENTIVE'
+                  ? 'pm'
+                  : 'maintenance';
+            await addDoc(collection(db, 'machineHistory', woData.machineId, 'entries'), {
+              type: historyType,
+              date: Timestamp.fromDate(payload.actualEndTime),
+              woId,
+              woNumber: woData.woNumber ?? '',
+              woType: woData.woType ?? null,
+              description: payload.workDoneDescription ?? woData.description ?? '',
+              rootCause: payload.rootCause ?? null,
+              durationMinutes,
+              technicianIds: woData.assignedTechnicianIds ?? [],
+              technicianNames: woData.assignedTechnicianNames ?? [],
+              linkedBreakdownId: woData.linkedBreakdownId ?? null,
+              createdAt: serverTimestamp(),
+            });
+          }
+        } catch (machineErr) {
+          console.error('Failed to update machine record on completion', machineErr);
+        }
+
+        // Sync linked breakdown progress.
+        try {
+          const woSnap = await getDoc(doc(db, 'workOrders', woId));
+          const woData = woSnap.data() as any;
+          if (woData?.linkedBreakdownId) {
+            await updateDoc(doc(db, 'breakdown_tickets', woData.linkedBreakdownId), {
+              status: 'resolved',
+              resolvedAt: Timestamp.fromDate(payload.actualEndTime),
+              statusHistory: arrayUnion({
+                status: 'resolved',
+                changedBy: user.uid,
+                changedByName: user.displayName ?? '',
+                changedAt: Timestamp.fromDate(new Date()),
+                note: `WO ${woData.woNumber ?? woId} completed`,
+              }),
+            });
+          }
+        } catch (bdErr) {
+          console.error('Failed to sync linked breakdown on completion', bdErr);
         }
 
         toast.success('Completion submitted. Supervisor notified for sign-off.');

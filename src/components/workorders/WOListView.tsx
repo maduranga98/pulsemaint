@@ -35,6 +35,8 @@ export function WOListView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
   const prefilledMachineId = searchParams.get('machineId');
+  const prefilledBreakdownId = searchParams.get('breakdownId');
+  const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
 
   useEffect(() => {
     if (searchParams.get('create') === '1') {
@@ -253,6 +255,8 @@ export function WOListView() {
             setShowCreateDrawer(false);
           }}
           prefilledMachineId={prefilledMachineId ?? undefined}
+          linkedBreakdownId={prefilledBreakdownId ?? undefined}
+          linkedBreakdownTicketNumber={prefilledBreakdownTicket ?? undefined}
         />
       )}
     </div>
