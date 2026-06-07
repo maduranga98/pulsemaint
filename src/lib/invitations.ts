@@ -16,8 +16,9 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from 'firebase/auth';
+import { httpsCallable } from 'firebase/functions';
 import { nanoid } from 'nanoid';
-import { auth, db } from './firebase';
+import { auth, db, functions } from './firebase';
 import { useAuthStore } from '../store/authStore';
 import type { Invitation, UserProfile, UserRole } from '../types/auth';
 
@@ -80,7 +81,16 @@ export async function createInvitation(data: {
     invitationId: id,
   });
 
-  return { ...invitation, createdAt: Timestamp.now() } as Invitation;
+  const result = { ...invitation, createdAt: Timestamp.now() } as Invitation;
+
+  try {
+    const sendEmail = httpsCallable(functions, 'sendInvitationEmail');
+    await sendEmail({ invitationId: id, companyId: data.companyId });
+  } catch (err) {
+    console.warn('Email send failed (invitation still created):', err);
+  }
+
+  return result;
 }
 
 export async function validateInviteToken(
@@ -248,6 +258,11 @@ export async function resendInvitation(companyId: string, invitationId: string):
     invitedBy: old.invitedBy,
     invitedByName: old.invitedByName,
   });
+}
+
+export async function sendInvitationEmailManually(companyId: string, invitationId: string): Promise<void> {
+  const sendEmail = httpsCallable(functions, 'sendInvitationEmail');
+  await sendEmail({ invitationId, companyId });
 }
 
 export function getInviteLink(token: string): string {
