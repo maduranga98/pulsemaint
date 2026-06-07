@@ -77,18 +77,20 @@ export async function fetchReportRows(
   companyId: string,
   config: ReportConfig,
 ): Promise<Record<string, unknown>[]> {
+  // Maps each report to the Firestore collection(s) it reads from. These must
+  // match the actual collection names used elsewhere in the app.
   const sourceMap: Record<ReportType, string[]> = {
     breakdown_summary: ['breakdown_tickets'],
-    work_order_detail: ['work_orders'],
+    work_order_detail: ['workOrders'],
     machine_history: ['machines'],
     machine_health_score: ['machine_health'],
-    maintenance_cost: ['work_orders', 'inventory_logs', 'contractor_jobs'],
-    technician_performance: ['work_orders'],
-    contractor_performance: ['contractor_jobs'],
-    contractor_invoice_comparison: ['contractor_jobs'],
-    inventory_usage: ['inventory_logs'],
-    parts_consumption: ['inventory_logs'],
-    low_stock_alert: ['inventory'],
+    maintenance_cost: ['workOrders', 'stockMovements', 'contractorJobs'],
+    technician_performance: ['workOrders'],
+    contractor_performance: ['contractorJobs'],
+    contractor_invoice_comparison: ['contractorJobs'],
+    inventory_usage: ['stockMovements'],
+    parts_consumption: ['stockMovements'],
+    low_stock_alert: ['inventoryParts'],
     pm_compliance: ['pm_history'],
     training_compliance: ['training_records'],
     sla_compliance: ['breakdown_tickets'],
@@ -106,7 +108,9 @@ export async function fetchReportRows(
       const snap = await getDocs(query(collection(db, source), ...constraints));
       snap.docs.forEach((item) => {
         const data = item.data();
-        if (Number(data.currentQty ?? data.stockQuantity ?? 0) <= Number(data.minStockLevel ?? data.reorderLevel ?? 0)) {
+        const current = Number(data.currentStock ?? data.currentQty ?? data.stockQuantity ?? 0);
+        const min = Number(data.minStockLevel ?? data.reorderLevel ?? 0);
+        if (current <= min) {
           rows.push({ id: item.id, ...data });
         }
       });
@@ -116,14 +120,29 @@ export async function fetchReportRows(
     snap.docs.forEach((item) => rows.push({ id: item.id, ...item.data() }));
   }
 
-  return rows.filter((row) => {
-    const rawDate = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt;
+  const dateFiltered = rows.filter((row) => {
+    const rawDate = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt;
     const rowDate = rawDate && typeof (rawDate as Timestamp).toDate === 'function'
       ? (rawDate as Timestamp).toDate().toISOString().slice(0, 10)
       : String(rawDate ?? '');
     if (rowDate && /^\d{4}-\d{2}-\d{2}/.test(rowDate)) {
       return rowDate >= config.dateFrom && rowDate <= config.dateTo;
     }
+    return true;
+  });
+
+  // Apply common multi-select filters where the row exposes a matching field.
+  const matchesList = (value: unknown, selected: string[]) =>
+    selected.length === 0 || (value != null && selected.includes(String(value)));
+
+  return dateFiltered.filter((row) => {
+    if (!matchesList(row.machineId, config.machines)) return false;
+    if (!matchesList(row.department ?? row.machineDepartment, config.departments)) return false;
+    if (!matchesList(row.severity, config.severities)) return false;
+    if (!matchesList(row.woType, config.woTypes)) return false;
+    if (!matchesList(row.type, config.breakdownTypes)) return false;
+    if (!matchesList(row.contractorCompanyId ?? row.contractorId, config.contractors)) return false;
+    if (!matchesList(row.priority, config.priorities)) return false;
     return true;
   });
 }

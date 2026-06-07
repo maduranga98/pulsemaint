@@ -5,6 +5,7 @@ import { useAuthStore } from './authStore';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { resolveQuickDateRange } from '../utils/reports/dateRangeUtils';
 import { exportGenericReportExcel } from '../utils/reports/excel/reports/genericReportExcel';
+import { exportGenericReportPdf } from '../utils/reports/pdf/genericReportPdf';
 import {
   createReportHistory,
   deleteReportHistory as deleteReportHistoryDoc,
@@ -12,7 +13,6 @@ import {
   filtersFromConfig,
 } from '../services/reports.service';
 import type {
-  GenerateReportResult,
   PushToSheetsResult,
   ReportConfig,
   ReportHistory,
@@ -135,31 +135,26 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
       return;
     }
 
-    set({ generationStatus: 'fetching_data', generationProgress: 18, generationError: null });
+    set({ generationStatus: 'fetching_data', generationProgress: 25, generationError: null });
     try {
-      const callable = httpsCallable(getFunctions(app), 'generateReport');
-      set({ generationStatus: 'building', generationProgress: 48 });
-      const response = await callable({
-        reportType: selectedReportType,
-        dateFrom: config.dateFrom,
-        dateTo: config.dateTo,
-        filters: filtersFromConfig(config),
+      const { userName } = getAuthContext();
+      set({ generationStatus: 'building', generationProgress: 60 });
+      // Generate the PDF entirely on the client and trigger the download.
+      const rowCount = await exportGenericReportPdf(selectedReportType, companyId, config);
+      set({ generationStatus: 'finalizing', generationProgress: 85 });
+      const reportId = await createReportHistory({
         companyId,
-        userId,
-        options: {
-          includeCharts: config.includeCharts,
-          includeDataTable: config.includeDataTable,
-          paperSize: config.paperSize,
-          orientation: config.orientation,
-        },
+        reportType: selectedReportType,
+        generatedBy: userId,
+        generatedByName: userName,
+        format: 'pdf',
+        config,
+        rowCount,
       });
-      set({ generationStatus: 'finalizing', generationProgress: 84 });
-      const result = response.data as GenerateReportResult;
       set({
         generationStatus: 'ready',
         generationProgress: 100,
-        lastGeneratedReportId: result.reportId,
-        lastDownloadUrl: result.downloadUrl,
+        lastGeneratedReportId: reportId,
       });
     } catch (err) {
       set({
