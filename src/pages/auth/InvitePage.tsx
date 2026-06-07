@@ -10,7 +10,8 @@ import {
   acceptInviteWithPassword,
   acceptInviteWithGoogle,
 } from '../../lib/invitations';
-import { getDashboardRoute } from '../../lib/auth';
+import { getDashboardRoute, logout } from '../../lib/auth';
+import { auth } from '../../lib/firebase';
 import type { Invitation } from '../../types/auth';
 
 const inviteSchema = z
@@ -47,6 +48,9 @@ export default function InvitePage() {
   useEffect(() => {
     if (!token) return;
     (async () => {
+      if (auth.currentUser) {
+        await logout();
+      }
       const result = await validateInviteToken(token);
       if (result.valid) {
         setInvitation(result.invitation);

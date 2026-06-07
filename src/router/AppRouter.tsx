@@ -159,7 +159,7 @@ export default function AppRouter() {
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
       <Route path="/verify-email" element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
-      <Route path="/invite/:token" element={<PublicRoute><InvitePage /></PublicRoute>} />
+      <Route path="/invite/:token" element={<InvitePage />} />
 
       {/* Full-screen authed flows (no app shell) */}
       <Route
