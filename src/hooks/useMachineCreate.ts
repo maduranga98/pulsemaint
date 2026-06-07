@@ -95,7 +95,7 @@ export function useMachineCreate({
         lastServiceDate: null,
         lastServiceType: null,
         lastTechnicians: [],
-        nextPmDue: null,
+        nextPmDue: payload.nextPmDue ? Timestamp.fromDate(payload.nextPmDue) : null,
         partsReplaced: [],
         compatiblePartIds: payload.compatiblePartIds || [],
         documents,

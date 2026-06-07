@@ -12,7 +12,7 @@ export function ContractorDocumentsPage() {
         <h1 className="text-2xl font-bold text-slate-950">Contractor Documents</h1>
         <p className="mt-1 text-sm text-slate-500">Compliance documents, renewals, and assignment blocking status.</p>
       </div>
-      {loading ? <div className="text-slate-500">Loading documents...</div> : <DocumentList documents={documents} />}
+      {loading ? <div className="text-slate-500">Loading documents...</div> : <DocumentList documents={documents} contractorId={contractorId} />}
     </div>
   );
 }

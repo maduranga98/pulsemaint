@@ -9,7 +9,10 @@ interface ContractorAnalyticsTabProps {
 export function ContractorAnalyticsTab({ contractor, jobs }: ContractorAnalyticsTabProps) {
   const monthly = Array.from({ length: 12 }, (_, index) => {
     const month = new Date(new Date().getFullYear(), index, 1).toLocaleString('en', { month: 'short' });
-    const monthJobs = jobs.filter((job) => job.createdAt.toDate().getMonth() === index);
+    const monthJobs = jobs.filter((job) => {
+      const created = job.createdAt?.toDate ? job.createdAt.toDate() : null;
+      return created ? created.getMonth() === index : false;
+    });
     return {
       month,
       jobs: monthJobs.length,
@@ -19,7 +22,7 @@ export function ContractorAnalyticsTab({ contractor, jobs }: ContractorAnalytics
   });
   const distribution = ['breakdown', 'pm', 'installation'].map((name) => ({
     name,
-    value: jobs.filter((job) => job.workOrderType.toLowerCase().includes(name)).length,
+    value: jobs.filter((job) => (job.workOrderType ?? '').toLowerCase().includes(name)).length,
   }));
 
   return (
@@ -45,8 +48,8 @@ export function ContractorAnalyticsTab({ contractor, jobs }: ContractorAnalytics
         <p className="mt-2 text-sm text-slate-600">How {contractor.companyName} compares to your other contractors</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <div className="rounded-md bg-slate-50 p-3">Rating rank: <span className="font-bold">#{contractor.avgRating ? 1 : '-'}</span></div>
-          <div className="rounded-md bg-slate-50 p-3">MTTR: <span className="font-bold">{contractor.avgMttr} min</span></div>
-          <div className="rounded-md bg-slate-50 p-3">Avg cost: <span className="font-bold">{contractor.avgJobCost.toLocaleString()}</span></div>
+          <div className="rounded-md bg-slate-50 p-3">MTTR: <span className="font-bold">{contractor.avgMttr ?? 0} min</span></div>
+          <div className="rounded-md bg-slate-50 p-3">Avg cost: <span className="font-bold">{(contractor.avgJobCost ?? 0).toLocaleString()}</span></div>
         </div>
       </section>
     </div>

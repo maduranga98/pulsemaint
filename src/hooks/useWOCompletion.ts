@@ -225,17 +225,35 @@ export function useWOCompletion(): UseWOCompletionResult {
                 : woData.woType === 'PREVENTIVE'
                   ? 'pm'
                   : 'maintenance';
+            const totalPartsCost = (payload.partsUsed ?? []).reduce(
+              (sum, p) => sum + (p.totalCost ?? 0),
+              0,
+            );
             await addDoc(collection(db, 'machineHistory', woData.machineId, 'entries'), {
               type: historyType,
               date: Timestamp.fromDate(payload.actualEndTime),
               woId,
               woNumber: woData.woNumber ?? '',
               woType: woData.woType ?? null,
-              description: payload.workDoneDescription ?? woData.description ?? '',
-              rootCause: payload.rootCause ?? null,
+              priority: woData.priority ?? 'medium',
+              actualStartTime: payload.actualStartTime ? Timestamp.fromDate(payload.actualStartTime) : null,
+              actualEndTime: Timestamp.fromDate(payload.actualEndTime),
+              totalDurationMinutes: durationMinutes,
               durationMinutes,
+              description: payload.workDoneDescription ?? woData.description ?? '',
+              workDoneDescription: payload.workDoneDescription ?? woData.description ?? '',
+              rootCause: payload.rootCause ?? null,
+              internalTeamNames: woData.assignedTechnicianNames ?? [],
               technicianIds: woData.assignedTechnicianIds ?? [],
               technicianNames: woData.assignedTechnicianNames ?? [],
+              contractorName: woData.contractorCompanyName ?? null,
+              contractorTechnicianNames: woData.contractorTechnicianNames ?? [],
+              partsUsed: payload.partsUsed ?? [],
+              totalPartsCost,
+              testRunResult: payload.testRunResult ?? null,
+              finalPhotoUrls,
+              supervisorSignOffBy: woData.supervisorInChargeName ?? '',
+              supervisorSignOffAt: null,
               linkedBreakdownId: woData.linkedBreakdownId ?? null,
               createdAt: serverTimestamp(),
             });

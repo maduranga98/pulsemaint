@@ -90,6 +90,9 @@ export function useMachineUpdate({
           ? Timestamp.fromDate(payload.installationDate)
           : null;
       }
+      if (payload.nextPmDue !== undefined) {
+        updateData.nextPmDue = payload.nextPmDue ? Timestamp.fromDate(payload.nextPmDue) : null;
+      }
       if (payload.expectedLifespanYears !== undefined) {
         updateData.expectedLifespanYears = payload.expectedLifespanYears;
       }

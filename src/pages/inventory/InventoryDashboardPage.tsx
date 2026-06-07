@@ -12,6 +12,7 @@ import { PendingRequestsWidget } from '@/components/inventory/dashboard/PendingR
 import { LowStockWidget } from '@/components/inventory/dashboard/LowStockWidget';
 import { RecentMovementsWidget } from '@/components/inventory/dashboard/RecentMovementsWidget';
 import { ReservedStockWidget } from '@/components/inventory/dashboard/ReservedStockWidget';
+import { PartsCatalogWidget } from '@/components/inventory/dashboard/PartsCatalogWidget';
 
 function SkeletonCard() {
   return (
@@ -28,6 +29,7 @@ export function InventoryDashboardPage() {
   const { requests, loading: reqLoading } = usePartsRequests({ status: 'all' });
   const { movements, loading: movLoading } = useStockMovements({ pageSize: 10 });
   const { parts, loading: partsLoading } = useInventoryParts({ stockStatus: 'low_stock', pageSize: 10 });
+  const { parts: catalogParts, totalCount: catalogCount } = useInventoryParts({ pageSize: 5 });
 
   useEffect(() => {
     function handleOnline() { setIsOnline(true); }
@@ -119,6 +121,8 @@ export function InventoryDashboardPage() {
             <RecentMovementsWidget movements={movements} />
             <ReservedStockWidget requests={requests as PartsRequest[]} />
           </div>
+
+          <PartsCatalogWidget parts={catalogParts} totalCount={catalogCount} />
         </>
       )}
     </div>

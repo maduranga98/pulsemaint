@@ -17,8 +17,12 @@ function formatDuration(minutes: number): string {
 
 function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
   const [expanded, setExpanded] = useState(false);
-  const typeConfig = WO_TYPE_CONFIG[entry.woType];
+  const typeConfig = WO_TYPE_CONFIG[entry.woType] ?? { icon: '🔧', label: entry.woType ?? 'Work', bgClass: 'bg-gray-100', textClass: 'text-gray-700' };
   const totalCost = entry.totalPartsCost ?? 0;
+  const internalTeamNames = entry.internalTeamNames ?? [];
+  const partsUsed = entry.partsUsed ?? [];
+  const finalPhotoUrls = entry.finalPhotoUrls ?? [];
+  const contractorTechnicianNames = entry.contractorTechnicianNames ?? [];
 
   return (
     <li className="ml-4">
@@ -39,9 +43,9 @@ function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
               </span>
             </div>
             <p className="text-xs text-gray-500 mt-0.5">
-              {entry.date?.toDate().toLocaleDateString()} ·{' '}
-              {formatDuration(entry.totalDurationMinutes)} ·{' '}
-              {entry.supervisorSignOffBy}
+              {entry.date?.toDate?.().toLocaleDateString() ?? ''} ·{' '}
+              {formatDuration(entry.totalDurationMinutes ?? 0)}
+              {entry.supervisorSignOffBy ? ` · ${entry.supervisorSignOffBy}` : ''}
             </p>
           </div>
           <div className="text-right flex-shrink-0">
@@ -70,24 +74,24 @@ function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
             </p>
           )}
 
-          {entry.internalTeamNames.length > 0 && (
+          {internalTeamNames.length > 0 && (
             <p className="text-gray-500">
-              Team: {entry.internalTeamNames.join(', ')}
+              Team: {internalTeamNames.join(', ')}
             </p>
           )}
 
           {entry.contractorName && (
             <p className="text-gray-500">
               Contractor: <span className="font-medium">{entry.contractorName}</span>
-              {entry.contractorTechnicianNames.length > 0 && ` (${entry.contractorTechnicianNames.join(', ')})`}
+              {contractorTechnicianNames.length > 0 && ` (${contractorTechnicianNames.join(', ')})`}
             </p>
           )}
 
-          {entry.partsUsed.length > 0 && (
+          {partsUsed.length > 0 && (
             <div>
               <p className="text-gray-400 text-xs mb-1">Parts used:</p>
               <div className="space-y-1">
-                {entry.partsUsed.map((p, i) => (
+                {partsUsed.map((p, i) => (
                   <div key={i} className="flex justify-between text-xs">
                     <span>{p.partName} × {p.quantity} {p.unit}</span>
                     <span className="text-gray-500">LKR {p.totalCost?.toLocaleString()}</span>
@@ -97,9 +101,9 @@ function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
             </div>
           )}
 
-          {entry.finalPhotoUrls.length > 0 && (
+          {finalPhotoUrls.length > 0 && (
             <div className="grid grid-cols-4 gap-1">
-              {entry.finalPhotoUrls.map((url, i) => (
+              {finalPhotoUrls.map((url, i) => (
                 <a key={i} href={url} target="_blank" rel="noreferrer">
                   <img src={url} alt={`Photo ${i + 1}`} className="aspect-square rounded object-cover w-full" />
                 </a>

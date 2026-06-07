@@ -32,13 +32,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const { signOff, loading: signOffLoading } = useSignOff();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
-  const role = userProfile?.role;
+  const role = (userProfile?.role ?? '') as string;
 
-  const isSupervisor =
-    role === 'supervisor' ||
-    role === 'maintenance_supervisor' ||
-    role === 'plant_manager' ||
-    role === 'admin';
+  const isSupervisor = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'].includes(role);
   const isTechnician = role === 'technician';
   // Assignment may be stored under the Firebase Auth uid or the user profile id.
   const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];

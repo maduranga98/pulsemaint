@@ -9,9 +9,10 @@ import DocumentUploadModal from './DocumentUploadModal';
 
 interface DocumentListProps {
   documents: ContractorDocument[];
+  contractorId?: string;
 }
 
-export function DocumentList({ documents }: DocumentListProps) {
+export function DocumentList({ documents, contractorId }: DocumentListProps) {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [renewDocument, setRenewDocument] = useState<ContractorDocument | null>(null);
   const activeDocuments = documents.filter((document) => !document.supersededBy);
@@ -47,7 +48,7 @@ export function DocumentList({ documents }: DocumentListProps) {
           return <DocumentHistoryAccordion key={documentType} documentType={documentType} documents={versions} />;
         })}
       </div>
-      <DocumentUploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
+      <DocumentUploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} contractorId={contractorId} />
       <DocumentRenewalModal document={renewDocument} onClose={() => setRenewDocument(null)} />
     </div>
   );

@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from '../../components/machines';
 import { formatDate } from '../../lib/dateUtils';
+import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
@@ -383,20 +384,18 @@ function DocumentsTab({ machine }: any) {
   );
 }
 
-function HistoryTab({ machine: _machine }: any) {
+function HistoryTab({ machine }: any) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="font-semibold text-gray-900 mb-4">Breakdown History</h3>
-      <p className="text-gray-600 text-sm">Coming soon - Breakdown history timeline</p>
+      <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
     </div>
   );
 }
 
-function MaintenanceTab({ machine: _machine }: any) {
+function MaintenanceTab({ machine }: any) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="font-semibold text-gray-900 mb-4">Maintenance History</h3>
-      <p className="text-gray-600 text-sm">Coming soon - Work order history timeline</p>
+      <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
     </div>
   );
 }
