@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   collection,
   query,
@@ -39,11 +39,55 @@ export default function TrainingDashboardPage() {
     modulesCreated: 0,
   });
   const [awaitingSignOff, setAwaitingSignOff] = useState<TrainingAssignment[]>([]);
+  const [allAssignments, setAllAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState({ fullName: '', email: '', phone: '', department: '', employeeId: '' });
   const [addSaving, setAddSaving] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!companyId) return;
+    try {
+      const [assignSnap, certSnap, moduleSnap, usersSnap] = await Promise.all([
+        getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId))),
+        getDocs(query(collection(db, 'trainingCertificates'), where('companyId', '==', companyId))),
+        getDocs(query(collection(db, 'trainingModules'), where('companyId', '==', companyId))),
+        getDocs(query(collection(db, 'users'), where('companyId', '==', companyId), where('role', 'in', ['trainee', 'floor_operator']))),
+      ]);
+
+      const assignments = assignSnap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment));
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+      const certsThisMonth = certSnap.docs.filter((d) => {
+        const ts = d.data().issuedAt as Timestamp | undefined;
+        if (!ts) return false;
+        return new Date((ts as unknown as { seconds: number }).seconds * 1000) >= monthStart;
+      }).length;
+
+      const overdue = assignments.filter((a) => {
+        if (!a.dueDate || a.status === 'certified') return false;
+        const due = new Date((a.dueDate as unknown as { seconds: number }).seconds * 1000);
+        return due < now;
+      }).length;
+
+      const awaiting = assignments.filter((a) => a.status === 'awaiting_practical');
+
+      setStats({
+        totalTrainees: usersSnap.size,
+        activeAssignments: assignments.filter((a) => a.status === 'in_progress').length,
+        certsThisMonth,
+        overdue,
+        retrainingRequired: assignments.filter((a) => a.status === 'retraining_required').length,
+        modulesCreated: moduleSnap.size,
+      });
+      setAwaitingSignOff(awaiting);
+      setAllAssignments(assignments);
+    } finally {
+      setLoading(false);
+    }
+  }, [companyId]);
 
   async function handleAddTrainee() {
     if (!companyId) return;
@@ -78,7 +122,7 @@ export default function TrainingDashboardPage() {
       });
       setAddForm({ fullName: '', email: '', phone: '', department: '', employeeId: '' });
       setAddOpen(false);
-      setStats((prev) => ({ ...prev, totalTrainees: prev.totalTrainees + 1 }));
+      await load();
     } catch (err) {
       console.error('Add trainee failed', err);
       setAddError(err instanceof Error ? err.message : 'Failed to add trainee.');
@@ -88,51 +132,8 @@ export default function TrainingDashboardPage() {
   }
 
   useEffect(() => {
-    if (!companyId) return;
-
-    const load = async () => {
-      try {
-        const [assignSnap, certSnap, moduleSnap, usersSnap] = await Promise.all([
-          getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId))),
-          getDocs(query(collection(db, 'trainingCertificates'), where('companyId', '==', companyId))),
-          getDocs(query(collection(db, 'trainingModules'), where('companyId', '==', companyId))),
-          getDocs(query(collection(db, 'users'), where('companyId', '==', companyId), where('role', 'in', ['trainee', 'floor_operator']))),
-        ]);
-
-        const assignments = assignSnap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment));
-        const now = new Date();
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-        const certsThisMonth = certSnap.docs.filter((d) => {
-          const ts = d.data().issuedAt as Timestamp | undefined;
-          if (!ts) return false;
-          return new Date((ts as unknown as { seconds: number }).seconds * 1000) >= monthStart;
-        }).length;
-
-        const overdue = assignments.filter((a) => {
-          if (!a.dueDate || a.status === 'certified') return false;
-          const due = new Date((a.dueDate as unknown as { seconds: number }).seconds * 1000);
-          return due < now;
-        }).length;
-
-        const awaiting = assignments.filter((a) => a.status === 'awaiting_practical');
-
-        setStats({
-          totalTrainees: usersSnap.size,
-          activeAssignments: assignments.filter((a) => a.status === 'in_progress').length,
-          certsThisMonth,
-          overdue,
-          retrainingRequired: assignments.filter((a) => a.status === 'retraining_required').length,
-          modulesCreated: moduleSnap.size,
-        });
-        setAwaitingSignOff(awaiting);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     void load();
-  }, [companyId]);
+  }, [load]);
 
   const handleSignOff = async (assignmentId: string) => {
     if (!userId) return;
@@ -144,6 +145,9 @@ export default function TrainingDashboardPage() {
       updatedAt: serverTimestamp(),
     });
     setAwaitingSignOff((prev) => prev.filter((a) => a.id !== assignmentId));
+    setAllAssignments((prev) =>
+      prev.map((a) => (a.id === assignmentId ? { ...a, status: 'certified' } : a))
+    );
   };
 
   if (loading) {
@@ -170,6 +174,7 @@ export default function TrainingDashboardPage() {
       <TrainingDashboard
         stats={stats}
         awaitingSignOff={awaitingSignOff}
+        allAssignments={allAssignments}
         onSignOff={(id) => void handleSignOff(id)}
       />
 

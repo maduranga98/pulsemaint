@@ -16,6 +16,7 @@ export interface ShiftConfig {
   activeDays: ShiftDay[];
   department: string | null;
   status: ShiftStatus;
+  memberIds: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }

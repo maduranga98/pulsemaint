@@ -60,6 +60,7 @@ function mapShiftConfig(id: string, data: DocumentData): ShiftConfig {
     activeDays: data.activeDays ?? [],
     department: data.department ?? null,
     status: data.status,
+    memberIds: data.memberIds ?? [],
     createdAt: toDate(data.createdAt) ?? undefined,
     updatedAt: toDate(data.updatedAt) ?? undefined,
   };
