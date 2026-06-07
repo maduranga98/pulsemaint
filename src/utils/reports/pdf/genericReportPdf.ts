@@ -4,25 +4,7 @@ import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
 import { fetchReportRows } from '../../../services/reports.service';
 import type { ReportConfig, ReportType } from '../../../types/reports.types';
-
-const titleCase = (value: string) =>
-  value
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/[_-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (match) => match.toUpperCase());
-
-function cellValue(value: unknown): string {
-  if (value == null) return '';
-  if (typeof value === 'object') {
-    if ('seconds' in (value as Record<string, unknown>)) {
-      return new Date(Number((value as { seconds: number }).seconds) * 1000).toLocaleString();
-    }
-    return JSON.stringify(value);
-  }
-  return String(value);
-}
+import { resolveColumns, formatCell } from '../reportColumns';
 
 /**
  * Builds a PDF for the given report entirely on the client and triggers a
@@ -56,11 +38,10 @@ export async function exportGenericReportPdf(
     doc.setFontSize(12);
     doc.text('No records matched this report configuration.', 40, 110);
   } else {
-    // Limit columns to keep the table readable; prioritise the first keys.
-    const allKeys = Object.keys(rows[0]).filter((k) => k !== 'id');
-    const keys = allKeys.slice(0, landscape ? 10 : 7);
-    const head = [keys.map((k) => titleCase(k))];
-    const body = rows.map((row) => keys.map((k) => cellValue(row[k])));
+    // Use curated columns; cap how many fit the page width.
+    const columns = resolveColumns(reportType, rows).slice(0, landscape ? 10 : 7);
+    const head = [columns.map((c) => c.label)];
+    const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format))));
 
     autoTable(doc, {
       head,

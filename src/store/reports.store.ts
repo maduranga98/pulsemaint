@@ -6,6 +6,7 @@ import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { resolveQuickDateRange } from '../utils/reports/dateRangeUtils';
 import { exportGenericReportExcel } from '../utils/reports/excel/reports/genericReportExcel';
 import { exportGenericReportPdf } from '../utils/reports/pdf/genericReportPdf';
+import { exportGenericReportCsv } from '../utils/reports/csv/genericReportCsv';
 import {
   createReportHistory,
   deleteReportHistory as deleteReportHistoryDoc,
@@ -220,10 +221,28 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
     }
     const googleAccessToken = localStorage.getItem('pulsemaint_google_sheets_token') ?? '';
     if (!googleAccessToken) {
-      set({
-        generationStatus: 'error',
-        generationError: 'Google Sheets is not connected. Connect your Google account from Settings, or use PDF/Excel export instead.',
-      });
+      // Sheets isn't connected — fall back to a CSV download that imports
+      // directly into Google Sheets, so the action still produces a file.
+      set({ generationStatus: 'building', generationProgress: 45, generationError: null });
+      try {
+        const { userId, userName } = getAuthContext();
+        const rowCount = await exportGenericReportCsv(selectedReportType, companyId, config);
+        const reportId = await createReportHistory({
+          companyId,
+          reportType: selectedReportType,
+          generatedBy: userId,
+          generatedByName: userName,
+          format: 'csv',
+          config,
+          rowCount,
+        });
+        set({ generationStatus: 'ready', generationProgress: 100, lastGeneratedReportId: reportId });
+      } catch (err) {
+        set({
+          generationStatus: 'error',
+          generationError: err instanceof Error ? err.message : 'CSV export failed.',
+        });
+      }
       return;
     }
     set({ generationStatus: 'building', generationProgress: 45, generationError: null });

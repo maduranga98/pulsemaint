@@ -1,30 +1,12 @@
 import { useEffect, useState } from 'react';
 import { fetchReportRows } from '../../services/reports.service';
+import { resolveColumns, formatCell } from '../../utils/reports/reportColumns';
 import type { ReportConfig, ReportType } from '../../types/reports.types';
 
 interface ReportPreviewProps {
   reportType: ReportType;
   config: ReportConfig;
   companyId: string;
-}
-
-const titleCase = (value: string) =>
-  value
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/[_-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (m) => m.toUpperCase());
-
-function cellValue(value: unknown): string {
-  if (value == null) return '';
-  if (typeof value === 'object') {
-    if ('seconds' in (value as Record<string, unknown>)) {
-      return new Date(Number((value as { seconds: number }).seconds) * 1000).toLocaleDateString();
-    }
-    return JSON.stringify(value).slice(0, 40);
-  }
-  return String(value);
 }
 
 export default function ReportPreview({ reportType, config, companyId }: ReportPreviewProps) {
@@ -58,7 +40,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
     };
   }, [reportType, companyId, config]);
 
-  const columns = rows[0] ? Object.keys(rows[0]).filter((k) => k !== 'id').slice(0, 6) : [];
+  const columns = rows[0] ? resolveColumns(reportType, rows).slice(0, 6) : [];
 
   return (
     <section className="space-y-2 border-b border-[#1E3A5F] pb-5">
@@ -85,7 +67,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
             <thead>
               <tr className="border-b border-[#1E3A5F] text-[#8BA3BF]">
                 {columns.map((col) => (
-                  <th key={col} className="whitespace-nowrap px-2 py-1.5 font-semibold">{titleCase(col)}</th>
+                  <th key={col.key} className="whitespace-nowrap px-2 py-1.5 font-semibold">{col.label}</th>
                 ))}
               </tr>
             </thead>
@@ -93,7 +75,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
               {rows.map((row, i) => (
                 <tr key={i} className="border-b border-[#1E3A5F]/50 last:border-0">
                   {columns.map((col) => (
-                    <td key={col} className="max-w-[140px] truncate px-2 py-1.5">{cellValue(row[col])}</td>
+                    <td key={col.key} className="max-w-[140px] truncate px-2 py-1.5">{String(formatCell(row[col.key], col.format))}</td>
                   ))}
                 </tr>
               ))}
