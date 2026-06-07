@@ -9,6 +9,7 @@ import {
   ClipboardCheck,
   Plus,
   BarChart2,
+  ListChecks,
 } from 'lucide-react';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 
@@ -24,6 +25,7 @@ interface DashboardStats {
 interface TrainingDashboardProps {
   stats: DashboardStats;
   awaitingSignOff: TrainingAssignment[];
+  allAssignments?: TrainingAssignment[];
   onSignOff: (assignmentId: string) => void;
   recentActivity?: string[];
 }
@@ -34,6 +36,28 @@ interface StatCardProps {
   icon: React.ReactNode;
   colorClass: string;
 }
+
+const STATUS_LABELS: Record<string, string> = {
+  not_started: 'Not Started',
+  in_progress: 'In Progress',
+  quiz_passed: 'Quiz Passed',
+  quiz_failed: 'Quiz Failed',
+  awaiting_practical: 'Awaiting Sign-Off',
+  certified: 'Certified',
+  expired: 'Expired',
+  retraining_required: 'Retraining Required',
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  not_started: 'bg-gray-100 text-gray-600',
+  in_progress: 'bg-blue-100 text-blue-700',
+  quiz_passed: 'bg-green-100 text-green-700',
+  quiz_failed: 'bg-red-100 text-red-700',
+  awaiting_practical: 'bg-amber-100 text-amber-700',
+  certified: 'bg-emerald-100 text-emerald-700',
+  expired: 'bg-orange-100 text-orange-700',
+  retraining_required: 'bg-red-100 text-red-700',
+};
 
 function StatCard({ label, value, icon, colorClass }: StatCardProps) {
   return (
@@ -52,10 +76,12 @@ function StatCard({ label, value, icon, colorClass }: StatCardProps) {
 export default function TrainingDashboard({
   stats,
   awaitingSignOff,
+  allAssignments = [],
   onSignOff,
   recentActivity = [],
 }: TrainingDashboardProps) {
   const topFiveSignOff = awaitingSignOff.slice(0, 5);
+  const recentAssignments = allAssignments.slice(0, 10);
 
   return (
     <div className="space-y-6">
@@ -115,6 +141,41 @@ export default function TrainingDashboard({
           icon={<Layers className="w-6 h-6 text-purple-600" />}
           colorClass="bg-purple-50"
         />
+      </div>
+
+      {/* All Assignments List */}
+      <div className="bg-white rounded-xl border border-gray-200">
+        <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ListChecks className="w-5 h-5 text-gray-500" />
+            <h2 className="font-semibold text-gray-900">Assignments</h2>
+          </div>
+          <Link
+            to="/app/training/manage/assignments"
+            className="text-sm text-blue-600 hover:underline"
+          >
+            View all
+          </Link>
+        </div>
+        {recentAssignments.length === 0 ? (
+          <div className="px-5 py-8 text-center text-gray-500 text-sm">
+            No assignments yet.
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-50">
+            {recentAssignments.map((assignment) => (
+              <div key={assignment.id} className="px-5 py-3 flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 truncate">{assignment.traineeName}</p>
+                  <p className="text-sm text-gray-500 truncate">{assignment.moduleName}</p>
+                </div>
+                <span className={`flex-shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_COLORS[assignment.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                  {STATUS_LABELS[assignment.status] ?? assignment.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Awaiting Practical Sign-Off */}

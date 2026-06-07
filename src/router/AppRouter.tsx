@@ -140,6 +140,9 @@ import { KaizenPage } from '../modules/kaizen/pages/KaizenPage';
 // Audit Module — unified TPM / 5S / OEE / Contractor audits
 import { AuditPage } from '../modules/audit/pages/AuditPage';
 
+// Evaluations Module
+import EvaluationsPage from '../modules/evaluation/pages/EvaluationsPage';
+
 export default function AppRouter() {
   const { isInitialized } = useAuthInit();
 
@@ -726,6 +729,16 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
               <FiveSPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Evaluations */}
+        <Route
+          path="evaluations"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+              <EvaluationsPage />
             </ProtectedRoute>
           }
         />

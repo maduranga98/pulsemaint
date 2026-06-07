@@ -37,6 +37,9 @@ export function ShiftConfigPage() {
             </div>
             <p className="mt-3 text-sm text-slate-600">{shift.activeDays.join(', ')}</p>
             <p className="text-xs text-slate-500">{shift.department || 'All departments'} - {shift.status}</p>
+            {shift.memberIds && shift.memberIds.length > 0 && (
+              <p className="mt-1 text-xs text-slate-400">{shift.memberIds.length} member{shift.memberIds.length !== 1 ? 's' : ''} assigned</p>
+            )}
           </article>
         ))}
       </div>
