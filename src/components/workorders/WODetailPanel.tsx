@@ -34,9 +34,15 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = userProfile?.role;
 
-  const isSupervisor = role === 'supervisor' || role === 'admin';
+  const isSupervisor =
+    role === 'supervisor' ||
+    role === 'maintenance_supervisor' ||
+    role === 'plant_manager' ||
+    role === 'admin';
   const isTechnician = role === 'technician';
-  const isAssigned = workOrder.assignedTechnicianIds.includes(user?.uid ?? '');
+  // Assignment may be stored under the Firebase Auth uid or the user profile id.
+  const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];
+  const isAssigned = workOrder.assignedTechnicianIds.some((id) => myIds.includes(id));
 
   const TABS: { key: TabKey; label: string }[] = [
     { key: 'overview', label: WO_COPY.tabOverview },
@@ -457,6 +463,15 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
                 >
                   {WO_COPY.signOffButton}
+                </button>
+              )}
+              {['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
+                <button
+                  type="button"
+                  onClick={() => setShowCompletionForm(true)}
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
+                >
+                  {WO_COPY.completeButton}
                 </button>
               )}
               {!['CLOSED', 'CANCELLED', 'SIGNED_OFF'].includes(workOrder.status) && (

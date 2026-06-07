@@ -32,6 +32,26 @@ const STATUS_COLOR: Record<BreakdownStatus, string> = {
   closed: 'bg-slate-100 text-slate-600 ring-slate-200',
 };
 
+// Repair progress (%) per lifecycle stage — used for the at-a-glance progress bar.
+const STATUS_PROGRESS: Record<BreakdownStatus, number> = {
+  reported: 5,
+  acknowledged: 15,
+  triage_in_progress: 25,
+  assigned: 40,
+  en_route: 55,
+  repair_in_progress: 70,
+  on_hold_parts: 60,
+  on_hold_approval: 60,
+  resolved: 95,
+  closed: 100,
+};
+
+function progressBarColor(status: BreakdownStatus): string {
+  if (status === 'resolved' || status === 'closed') return 'bg-emerald-500';
+  if (status === 'on_hold_parts' || status === 'on_hold_approval') return 'bg-orange-400';
+  return 'bg-blue-500';
+}
+
 const SEVERITY_COLOR: Record<BreakdownSeverity, string> = {
   critical: 'bg-red-600 text-white',
   high: 'bg-orange-500 text-white',
@@ -211,6 +231,7 @@ export default function BreakdownsPage() {
                   <th className="px-4 py-3 text-left">Machine</th>
                   <th className="px-4 py-3 text-left">Severity</th>
                   <th className="px-4 py-3 text-left">Status</th>
+                  <th className="px-4 py-3 text-left">Progress</th>
                   <th className="px-4 py-3 text-left">Reported By</th>
                   <th className="px-4 py-3 text-left">Reported</th>
                   <th className="px-4 py-3 text-left">Action</th>
@@ -239,6 +260,19 @@ export default function BreakdownsPage() {
                         {STATUS_LABEL[b.status]}
                       </span>
                     </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2 min-w-[120px]">
+                        <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all ${progressBarColor(b.status)}`}
+                            style={{ width: `${STATUS_PROGRESS[b.status] ?? 0}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-slate-500 tabular-nums w-9 text-right">
+                          {STATUS_PROGRESS[b.status] ?? 0}%
+                        </span>
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-slate-700">{b.reporterName || '—'}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">
                       {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : '—'}
@@ -258,7 +292,7 @@ export default function BreakdownsPage() {
                   </tr>
                   {expandedId === b.id && (
                     <tr className="bg-slate-50">
-                      <td colSpan={7} className="px-6 py-4">
+                      <td colSpan={8} className="px-6 py-4">
                         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Progress timeline</p>
                         {(b.statusHistory ?? []).length === 0 ? (
                           <p className="text-sm text-slate-500">No status changes yet.</p>
