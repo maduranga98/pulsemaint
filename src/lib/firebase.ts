@@ -3,6 +3,7 @@ import { getAuth }       from 'firebase/auth';
 import { getFirestore }  from 'firebase/firestore';
 import { getStorage }    from 'firebase/storage';
 import { getMessaging, isSupported } from 'firebase/messaging';
+import { getFunctions } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,6 +21,7 @@ const app: FirebaseApp = getApps().length
 export const auth      = getAuth(app);
 export const db        = getFirestore(app, 'default');
 export const storage   = getStorage(app);
+export const functions = getFunctions(app);
 
 // FCM is only available in secure browser contexts with service workers
 export const getMessagingInstance = async () => {

@@ -136,6 +136,14 @@ exports.recalculateMtbf = recalculateMtbf;
 exports.recalculateMttr = recalculateMttr;
 
 // ---------------------------------------------------------------------------
+// Invitations Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail");
+
+exports.sendInvitationEmail = sendInvitationEmail;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
