@@ -677,5 +677,24 @@ service cloud.firestore {
         && getUserData().role in ['supervisor', 'admin'];
       allow delete: if false;
     }
+
+    // Audit module — configurable TPM/5S/OEE/Contractor audit templates.
+    // Path is scoped by plantId (the user's companyId).
+    match /audit_templates/{plantId}/templates/{templateId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+    }
+
+    // Audit sessions — submitted audit records (with findings, attachments,
+    // AI suggestions, and generated PDF report links).
+    match /audit_sessions/{plantId}/sessions/{sessionId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+      allow create, update: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+      allow delete: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'admin'];
+    }
   }
-}

@@ -137,6 +137,9 @@ import { FiveSPage } from '../modules/fives/pages/FiveSPage';
 // Module 18 — Kaizen
 import { KaizenPage } from '../modules/kaizen/pages/KaizenPage';
 
+// Audit Module — unified TPM / 5S / OEE / Contractor audits
+import { AuditPage } from '../modules/audit/pages/AuditPage';
+
 export default function AppRouter() {
   const { isInitialized } = useAuthInit();
 
@@ -703,6 +706,16 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['technician', 'store_keeper', 'supervisor', 'plant_manager', 'hr_officer', 'admin']}>
               <KaizenPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Audit — unified TPM/5S/OEE/Contractor */}
+        <Route
+          path="audit"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+              <AuditPage />
             </ProtectedRoute>
           }
         />
