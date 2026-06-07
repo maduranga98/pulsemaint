@@ -11,27 +11,23 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useDashboardStore } from '../../../store/dashboard.store';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import { complianceColor } from '../../../utils/analytics.utils';
+import { usePmComplianceHistory } from '../../../hooks/dashboard/usePmComplianceHistory';
 import EmptyState from '../shared/EmptyState';
 
 interface PmComplianceWidgetProps {
   companyId: string;
 }
 
-export default function PmComplianceWidget({}: PmComplianceWidgetProps) {
+export default function PmComplianceWidget({ companyId }: PmComplianceWidgetProps) {
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
-  const loading = useDashboardStore((s) => s.analyticsLoading);
+  const storeLoading = useDashboardStore((s) => s.analyticsLoading);
+  const { data: miniData, loading: historyLoading } = usePmComplianceHistory(companyId);
 
   const rate = monthly?.pmComplianceRate ?? 0;
   const color = complianceColor(rate);
-
-  const miniData = [
-    { month: 'M-5', rate: 85 },
-    { month: 'M-4', rate: 88 },
-    { month: 'M-3', rate: 92 },
-    { month: 'M-2', rate: 87 },
-    { month: 'M-1', rate: 90 },
-    { month: 'Curr', rate },
-  ];
+  const onTime = monthly?.pmCompletedOnTime ?? 0;
+  const missed = monthly?.pmMissed ?? 0;
+  const loading = storeLoading || historyLoading;
 
   return (
     <DashboardWidget title="PM Compliance Rate" loading={loading}>
@@ -65,11 +61,11 @@ export default function PmComplianceWidget({}: PmComplianceWidgetProps) {
       <div className="mt-3 pt-3 border-t border-[#1E3A5F]/50 space-y-1 text-xs">
         <div className="flex justify-between">
           <span className="text-[#8BA3BF]">On time</span>
-          <span className="text-[#10B981] font-medium">0</span>
+          <span className="text-[#10B981] font-medium">{onTime}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-[#8BA3BF]">Missed</span>
-          <span className="text-[#EF4444] font-medium">0</span>
+          <span className="text-[#EF4444] font-medium">{missed}</span>
         </div>
       </div>
     </DashboardWidget>

@@ -13,6 +13,7 @@ import {
   type Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { computeMonthlyAnalytics } from './analyticsAggregation';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import type {
   AuditLog,
@@ -77,6 +78,33 @@ export async function fetchReportRows(
   companyId: string,
   config: ReportConfig,
 ): Promise<Record<string, unknown>[]> {
+  // Executive summary is computed analytics, not a raw collection — build it
+  // from the aggregation pipeline for the latest month in the range.
+  if (reportType === 'executive_monthly') {
+    const month = (config.dateTo || new Date().toISOString().slice(0, 10)).slice(0, 7);
+    const m = await computeMonthlyAnalytics(companyId, month);
+    const rows: Record<string, unknown>[] = [
+      { metric: 'Month', value: m.month },
+      { metric: 'Total Breakdowns', value: m.totalBreakdowns },
+      { metric: 'Avg MTTR (hours)', value: m.avgMttrHours },
+      { metric: 'Avg MTBF (days)', value: m.avgMtbfDays },
+      { metric: 'SLA Compliance (%)', value: m.overallSlaCompliance },
+      { metric: 'PM Compliance (%)', value: m.pmComplianceRate },
+      { metric: 'Total Maintenance Cost', value: m.totalMaintenanceCost },
+      { metric: 'Production Hours Lost', value: m.totalProductionHoursLost },
+    ];
+    m.topProblemMachines.slice(0, 5).forEach((mac, i) => {
+      rows.push({
+        metric: `Top Problem Machine #${i + 1}`,
+        value: `${mac.machineName} — ${mac.breakdownCount} breakdowns, ${mac.downtimeHours.toFixed(1)}h down`,
+      });
+    });
+    Object.entries(m.breakdownBySeverity).forEach(([sev, count]) => {
+      rows.push({ metric: `Breakdowns — ${sev}`, value: count });
+    });
+    return rows;
+  }
+
   // Maps each report to the Firestore collection(s) it reads from. These must
   // match the actual collection names used elsewhere in the app.
   const sourceMap: Record<ReportType, string[]> = {

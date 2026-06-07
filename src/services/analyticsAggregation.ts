@@ -1,5 +1,6 @@
 import { collection, getDocs, limit, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { useAuthStore } from '../store/authStore';
 import type {
   AnalyticsDaily,
   AnalyticsMonthly,
@@ -135,6 +136,7 @@ export async function computeMonthlyAnalytics(
   // PM compliance.
   const pmRelevant = monthPm.filter((p) => p.status && p.status !== 'in_progress');
   const pmOnTime = monthPm.filter((p) => p.status === 'completed_on_time').length;
+  const pmMissed = monthPm.filter((p) => p.status === 'missed').length;
   const pmComplianceRate = pmRelevant.length ? (pmOnTime / pmRelevant.length) * 100 : 0;
 
   // Breakdown groupings.
@@ -179,67 +181,97 @@ export async function computeMonthlyAnalytics(
     .map((m) => daysInMonth / m.breakdownCount);
   const avgMtbfDays = mtbfValues.length ? mtbfValues.reduce((a, c) => a + c, 0) / mtbfValues.length : 0;
 
-  // Technician performance.
-  const techAgg = new Map<string, TechnicianPerformanceRecord & { _repair: number[] }>();
+  // Technician performance. Response time = (work started) - (created); SLA
+  // compliance from the WO's slaBreached flag — both from real WO data.
+  const techAgg = new Map<
+    string,
+    { techId: string; techName: string; jobsCompleted: number; _repair: number[]; _response: number[]; _slaTotal: number; _slaOk: number }
+  >();
   monthWOs.filter((w) => isCompletedWoStatus(w.status)).forEach((w) => {
     const ids: string[] = Array.isArray(w.assignedTechnicianIds) ? w.assignedTechnicianIds : [];
     const names: string[] = Array.isArray(w.assignedTechnicianNames) ? w.assignedTechnicianNames : [];
+    const created = toDate(w.createdAt);
+    const started = toDate(w.actualStartTime);
+    const responseMins = created && started && started > created
+      ? (started.getTime() - created.getTime()) / 60_000
+      : null;
     ids.forEach((id, i) => {
       const rec = techAgg.get(id) ?? {
         techId: id,
         techName: names[i] ?? id,
         jobsCompleted: 0,
-        avgResponseMins: 0,
-        avgRepairHours: 0,
-        slaCompliance: 100,
         _repair: [],
+        _response: [],
+        _slaTotal: 0,
+        _slaOk: 0,
       };
       rec.jobsCompleted += 1;
       if (w.totalDurationMinutes) rec._repair.push(Number(w.totalDurationMinutes) / 60);
+      if (responseMins != null) rec._response.push(responseMins);
+      rec._slaTotal += 1;
+      if (w.slaBreached !== true) rec._slaOk += 1;
       techAgg.set(id, rec);
     });
   });
+  const avg = (arr: number[]) => (arr.length ? arr.reduce((a, c) => a + c, 0) / arr.length : 0);
   const technicianPerformance: TechnicianPerformanceRecord[] = Array.from(techAgg.values()).map((r) => ({
     techId: r.techId,
     techName: r.techName,
     jobsCompleted: r.jobsCompleted,
-    avgResponseMins: r.avgResponseMins,
-    avgRepairHours: r._repair.length ? r._repair.reduce((a, c) => a + c, 0) / r._repair.length : 0,
-    slaCompliance: r.slaCompliance,
+    avgResponseMins: Number(avg(r._response).toFixed(1)),
+    avgRepairHours: Number(avg(r._repair).toFixed(2)),
+    slaCompliance: r._slaTotal ? Number(((r._slaOk / r._slaTotal) * 100).toFixed(1)) : 100,
   }));
 
-  // Contractor performance.
-  const conAgg = new Map<string, ContractorPerformanceRecord & { _mttr: number[]; _rating: number[] }>();
+  // Contractor performance. SLA compliance is derived from slaDeadline vs the
+  // completion time; first-fix uses a real field when present, otherwise a
+  // proxy of jobs that completed without a recorded return visit.
+  const conAgg = new Map<
+    string,
+    { contractorId: string; contractorName: string; jobsCompleted: number; _mttr: number[]; _rating: number[]; _slaTotal: number; _slaOk: number; _firstFix: number; _firstFixTotal: number }
+  >();
   monthContractor.forEach((c) => {
     const id = String(c.contractorId ?? c.contractorName ?? 'unknown');
     const rec = conAgg.get(id) ?? {
       contractorId: id,
       contractorName: String(c.contractorName ?? id),
       jobsCompleted: 0,
-      avgMttr: 0,
-      firstFixRate: 100,
-      slaCompliance: 100,
-      avgRating: 0,
-      ratingTrend: 'stable' as const,
       _mttr: [],
       _rating: [],
+      _slaTotal: 0,
+      _slaOk: 0,
+      _firstFix: 0,
+      _firstFixTotal: 0,
     };
     rec.jobsCompleted += 1;
     const dur = Number(c.actualWorkDurationMinutes ?? c.onSiteDurationMinutes ?? 0);
     if (dur > 0) rec._mttr.push(dur / 60);
     const rating = Number(c.rating?.overallScore ?? 0);
     if (rating > 0) rec._rating.push(rating);
+
+    const slaDeadline = toDate(c.slaDeadline);
+    const completed = toDate(c.workCompletedAt ?? c.departedAt);
+    if (slaDeadline && completed) {
+      rec._slaTotal += 1;
+      if (completed <= slaDeadline) rec._slaOk += 1;
+    }
+
+    if (typeof c.firstTimeFix === 'boolean' || c.requiresReturnVisit != null || c.reopened != null) {
+      rec._firstFixTotal += 1;
+      const firstFix = c.firstTimeFix === true || (c.requiresReturnVisit !== true && c.reopened !== true);
+      if (firstFix) rec._firstFix += 1;
+    }
     conAgg.set(id, rec);
   });
   const contractorPerformance: ContractorPerformanceRecord[] = Array.from(conAgg.values()).map((r) => ({
     contractorId: r.contractorId,
     contractorName: r.contractorName,
     jobsCompleted: r.jobsCompleted,
-    avgMttr: r._mttr.length ? r._mttr.reduce((a, c) => a + c, 0) / r._mttr.length : 0,
-    firstFixRate: r.firstFixRate,
-    slaCompliance: r.slaCompliance,
-    avgRating: r._rating.length ? r._rating.reduce((a, c) => a + c, 0) / r._rating.length : 0,
-    ratingTrend: r.ratingTrend,
+    avgMttr: Number(avg(r._mttr).toFixed(2)),
+    firstFixRate: r._firstFixTotal ? Number(((r._firstFix / r._firstFixTotal) * 100).toFixed(1)) : 100,
+    slaCompliance: r._slaTotal ? Number(((r._slaOk / r._slaTotal) * 100).toFixed(1)) : 100,
+    avgRating: Number(avg(r._rating).toFixed(2)),
+    ratingTrend: 'stable',
   }));
 
   return {
@@ -253,6 +285,8 @@ export async function computeMonthlyAnalytics(
     totalMaintenanceCost: Math.round(totalMaintenanceCost),
     totalProductionHoursLost: Number(totalProductionHoursLost.toFixed(1)),
     pmComplianceRate: Number(pmComplianceRate.toFixed(1)),
+    pmCompletedOnTime: pmOnTime,
+    pmMissed,
     topProblemMachines,
     technicianPerformance,
     contractorPerformance,
@@ -408,17 +442,49 @@ export async function computeDailyAnalytics(
 // Machine health (derived from breakdowns + work orders)
 // ---------------------------------------------------------------------------
 
+type HealthEntry = MachineHealthDoc & { _mttr: number[]; _breakdownDates: Date[]; _realHealth: number | null };
+
+function mapMachineStatus(status: unknown): MachineHealthDoc['currentStatus'] {
+  switch (String(status ?? '')) {
+    case 'under_maintenance':
+      return 'maintenance';
+    case 'decommissioned':
+      return 'decommissioned';
+    default:
+      return 'operational';
+  }
+}
+
+// Machines are scoped by siteId, not companyId, so resolve the current user's
+// sites to fetch the real machine records (health score, service dates, etc.).
+async function fetchMachinesForSites(): Promise<Row[]> {
+  const siteIds = useAuthStore.getState().userProfile?.siteIds ?? [];
+  if (siteIds.length === 0) return [];
+  const rows: Row[] = [];
+  for (let i = 0; i < siteIds.length; i += 10) {
+    const chunk = siteIds.slice(i, i + 10);
+    try {
+      const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
+      snap.docs.forEach((d) => rows.push({ id: d.id, ...d.data() }));
+    } catch {
+      /* ignore */
+    }
+  }
+  return rows;
+}
+
 export async function computeMachineHealth(companyId: string): Promise<MachineHealthDoc[]> {
-  const [breakdowns, workOrders] = await Promise.all([
+  const [breakdowns, workOrders, machineDocs] = await Promise.all([
     fetchAll('breakdown_tickets', companyId),
     fetchAll('workOrders', companyId),
+    fetchMachinesForSites(),
   ]);
 
   const now = new Date();
   const monthStr = monthKey(now);
-  const machines = new Map<string, MachineHealthDoc & { _mttr: number[]; _breakdownDates: Date[] }>();
+  const machines = new Map<string, HealthEntry>();
 
-  const ensure = (id: string, seed: Row): MachineHealthDoc & { _mttr: number[]; _breakdownDates: Date[] } => {
+  const ensure = (id: string, seed: Row): HealthEntry => {
     let m = machines.get(id);
     if (!m) {
       m = {
@@ -444,11 +510,27 @@ export async function computeMachineHealth(companyId: string): Promise<MachineHe
         updatedAt: Timestamp.now(),
         _mttr: [],
         _breakdownDates: [],
+        _realHealth: null,
       };
       machines.set(id, m);
     }
     return m;
   };
+
+  // Seed every known machine with its real record so all machines appear and
+  // carry their stored health score / service dates.
+  machineDocs.forEach((doc) => {
+    const m = ensure(doc.id, {
+      machineId: doc.id,
+      machineName: doc.name,
+      machineDepartment: doc.department,
+      machineLocation: doc.floor ?? doc.bay ?? doc.station ?? doc.location,
+    });
+    m.currentStatus = mapMachineStatus(doc.status);
+    m._realHealth = typeof doc.healthScore === 'number' ? doc.healthScore : null;
+    m.lastServiceDate = (doc.lastServiceDate as Timestamp) ?? null;
+    m.nextPmDue = (doc.nextPmDue as Timestamp) ?? null;
+  });
 
   breakdowns.forEach((b) => {
     const id = String(b.machineId ?? b.machineName ?? 'unknown');
@@ -493,8 +575,11 @@ export async function computeMachineHealth(companyId: string): Promise<MachineHe
     } else if (m._breakdownDates.length === 1) {
       mtbfDays = (now.getTime() - m._breakdownDates[0].getTime()) / 86_400_000;
     }
-    // Derived health score: penalise open breakdowns heavily.
-    const healthScore = Math.max(0, Math.min(100, 100 - m.openBreakdownCount * 25 - m.breakdownCountMTD * 5));
+    // Prefer the machine's stored health score; otherwise derive one by
+    // penalising open / recent breakdowns.
+    const healthScore = m._realHealth != null
+      ? Math.max(0, Math.min(100, m._realHealth))
+      : Math.max(0, Math.min(100, 100 - m.openBreakdownCount * 25 - m.breakdownCountMTD * 5));
     const watchFlag = m.openBreakdownCount > 0 || m.breakdownCountMTD >= 3;
     const watchFlagLevel = m.openBreakdownCount > 0
       ? 'critical_watch'

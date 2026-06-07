@@ -132,6 +132,8 @@ export interface AnalyticsMonthly {
   totalMaintenanceCost: number;
   totalProductionHoursLost: number;
   pmComplianceRate: number;
+  pmCompletedOnTime?: number;
+  pmMissed?: number;
   topProblemMachines: TopProblemMachine[];
   technicianPerformance: TechnicianPerformanceRecord[];
   contractorPerformance: ContractorPerformanceRecord[];

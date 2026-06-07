@@ -182,6 +182,10 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'lastServiceDate', label: 'Last Service', format: 'date' },
     { key: 'nextPmDue', label: 'Next PM', format: 'date' },
   ],
+  executive_monthly: [
+    { key: 'metric', label: 'Metric' },
+    { key: 'value', label: 'Value' },
+  ],
   audit_trail: [
     { key: 'timestamp', label: 'Timestamp', format: 'datetime' },
     { key: 'userName', label: 'User' },
