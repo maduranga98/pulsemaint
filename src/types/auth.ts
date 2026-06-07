@@ -51,6 +51,25 @@ export interface CompanyProfile {
   onboardingCompletedAt: Timestamp | null;
 }
 
+export interface Invitation {
+  id: string;
+  companyId: string;
+  companyName: string;
+  email: string;
+  role: UserRole;
+  fullName: string;
+  department: string | null;
+  jobTitle: string | null;
+  token: string;
+  status: 'pending' | 'accepted' | 'expired' | 'revoked';
+  invitedBy: string;
+  invitedByName: string;
+  createdAt: Timestamp;
+  expiresAt: Timestamp;
+  acceptedAt: Timestamp | null;
+  acceptedUserId: string | null;
+}
+
 export interface AuthState {
   user: import('firebase/auth').User | null;
   userProfile: UserProfile | null;
