@@ -31,7 +31,7 @@ export type QuickDateRange =
   | 'this_year'
   | 'custom';
 
-export type ExportFormat = 'pdf' | 'excel' | 'google_sheets';
+export type ExportFormat = 'pdf' | 'excel' | 'google_sheets' | 'csv';
 
 export type ReportCategory =
   | 'breakdowns'

@@ -87,6 +87,9 @@ export function MachineForm({
           installationDate: initialData?.installationDate
             ? new Date(initialData.installationDate.seconds * 1000)
             : null,
+          nextPmDue: initialData?.nextPmDue
+            ? new Date(initialData.nextPmDue.seconds * 1000)
+            : null,
           expectedLifespanYears: initialData?.expectedLifespanYears,
           department: initialData?.department,
           floor: initialData?.floor,
@@ -137,7 +140,7 @@ export function MachineForm({
     name: 0, type: 0, manufacturer: 0, model: 0, serialNumber: 0,
     purchaseDate: 0, installationDate: 0, expectedLifespanYears: 0,
     department: 1, floor: 1, bay: 1, station: 1,
-    status: 2, criticality: 2, healthScore: 2,
+    status: 2, criticality: 2, healthScore: 2, nextPmDue: 2,
     photoFiles: 3, documentFiles: 3,
     compatiblePartIds: 4,
     modificationNotes: 5, additionalNotes: 5,
@@ -625,6 +628,25 @@ function renderFormSection(
               )}
             </div>
           )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Next PM Date</label>
+            <Controller
+              name="nextPmDue"
+              control={control}
+              render={({ field }) => (
+                <input
+                  type="date"
+                  value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : ''}
+                  onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Date the next preventive maintenance is due. Auto-updated when a PM work order is completed.
+            </p>
+          </div>
         </div>
       );
 

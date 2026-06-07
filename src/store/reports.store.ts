@@ -1,19 +1,17 @@
 import { create } from 'zustand';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import app from '../lib/firebase';
 import { useAuthStore } from './authStore';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { resolveQuickDateRange } from '../utils/reports/dateRangeUtils';
 import { exportGenericReportExcel } from '../utils/reports/excel/reports/genericReportExcel';
+import { exportGenericReportPdf } from '../utils/reports/pdf/genericReportPdf';
+import { exportGenericReportCsv } from '../utils/reports/csv/genericReportCsv';
+import { exportGenericReportSheets } from '../utils/reports/sheets/genericReportSheets';
 import {
   createReportHistory,
   deleteReportHistory as deleteReportHistoryDoc,
   fetchReportHistory as fetchReportHistoryDocs,
-  filtersFromConfig,
 } from '../services/reports.service';
 import type {
-  GenerateReportResult,
-  PushToSheetsResult,
   ReportConfig,
   ReportHistory,
   ReportHistoryFilters,
@@ -135,31 +133,26 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
       return;
     }
 
-    set({ generationStatus: 'fetching_data', generationProgress: 18, generationError: null });
+    set({ generationStatus: 'fetching_data', generationProgress: 25, generationError: null });
     try {
-      const callable = httpsCallable(getFunctions(app), 'generateReport');
-      set({ generationStatus: 'building', generationProgress: 48 });
-      const response = await callable({
-        reportType: selectedReportType,
-        dateFrom: config.dateFrom,
-        dateTo: config.dateTo,
-        filters: filtersFromConfig(config),
+      const { userName } = getAuthContext();
+      set({ generationStatus: 'building', generationProgress: 60 });
+      // Generate the PDF entirely on the client and trigger the download.
+      const rowCount = await exportGenericReportPdf(selectedReportType, companyId, config);
+      set({ generationStatus: 'finalizing', generationProgress: 85 });
+      const reportId = await createReportHistory({
         companyId,
-        userId,
-        options: {
-          includeCharts: config.includeCharts,
-          includeDataTable: config.includeDataTable,
-          paperSize: config.paperSize,
-          orientation: config.orientation,
-        },
+        reportType: selectedReportType,
+        generatedBy: userId,
+        generatedByName: userName,
+        format: 'pdf',
+        config,
+        rowCount,
       });
-      set({ generationStatus: 'finalizing', generationProgress: 84 });
-      const result = response.data as GenerateReportResult;
       set({
         generationStatus: 'ready',
         generationProgress: 100,
-        lastGeneratedReportId: result.reportId,
-        lastDownloadUrl: result.downloadUrl,
+        lastGeneratedReportId: reportId,
       });
     } catch (err) {
       set({
@@ -225,33 +218,67 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
     }
     const googleAccessToken = localStorage.getItem('pulsemaint_google_sheets_token') ?? '';
     if (!googleAccessToken) {
-      set({
-        generationStatus: 'error',
-        generationError: 'Google Sheets is not connected. Connect your Google account from Settings, or use PDF/Excel export instead.',
-      });
+      // Sheets isn't connected — fall back to a CSV download that imports
+      // directly into Google Sheets, so the action still produces a file.
+      set({ generationStatus: 'building', generationProgress: 45, generationError: null });
+      try {
+        const { userId, userName } = getAuthContext();
+        const rowCount = await exportGenericReportCsv(selectedReportType, companyId, config);
+        const reportId = await createReportHistory({
+          companyId,
+          reportType: selectedReportType,
+          generatedBy: userId,
+          generatedByName: userName,
+          format: 'csv',
+          config,
+          rowCount,
+        });
+        set({ generationStatus: 'ready', generationProgress: 100, lastGeneratedReportId: reportId });
+      } catch (err) {
+        set({
+          generationStatus: 'error',
+          generationError: err instanceof Error ? err.message : 'CSV export failed.',
+        });
+      }
       return;
     }
     set({ generationStatus: 'building', generationProgress: 45, generationError: null });
     try {
-      const callable = httpsCallable(getFunctions(app), 'pushToGoogleSheets');
-      const response = await callable({
-        reportType: selectedReportType,
-        dateFrom: config.dateFrom,
-        dateTo: config.dateTo,
-        filters: filtersFromConfig(config),
+      const { userId, userName } = getAuthContext();
+      // Push directly to Google Sheets from the browser using the OAuth token.
+      const { rowCount, sheetsUrl } = await exportGenericReportSheets(
+        selectedReportType,
         companyId,
+        config,
         googleAccessToken,
+      );
+      const reportId = await createReportHistory({
+        companyId,
+        reportType: selectedReportType,
+        generatedBy: userId,
+        generatedByName: userName,
+        format: 'google_sheets',
+        config,
+        rowCount,
+        googleSheetsUrl: sheetsUrl,
       });
-      const result = response.data as PushToSheetsResult;
       set({
         generationStatus: 'ready',
         generationProgress: 100,
-        lastSheetsUrl: result.sheetsUrl,
+        lastGeneratedReportId: reportId,
+        lastSheetsUrl: sheetsUrl,
       });
     } catch (err) {
+      // If the token is stale/invalid, prompt a reconnect.
+      const msg = err instanceof Error ? err.message : 'Google Sheets export failed.';
+      if (/401|403|invalid|unauthor/i.test(msg)) {
+        localStorage.removeItem('pulsemaint_google_sheets_token');
+      }
       set({
         generationStatus: 'error',
-        generationError: err instanceof Error ? err.message : 'Google Sheets export failed.',
+        generationError: /401|403|invalid|unauthor/i.test(msg)
+          ? 'Google session expired. Please reconnect Google Sheets and try again.'
+          : msg,
       });
     }
   },

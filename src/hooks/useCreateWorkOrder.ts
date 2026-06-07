@@ -207,6 +207,33 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
       const docRef = await addDoc(collection(db, 'workOrders'), woData);
       const woId = docRef.id;
 
+      // Link back to the breakdown ticket and move it to "In Progress" so the
+      // Breakdowns tab reflects that a repair WO has been raised.
+      if (payload.linkedBreakdownId) {
+        try {
+          const { doc: docFn, updateDoc, arrayUnion, Timestamp } = await import('firebase/firestore');
+          const hasTechs = (payload.assignedTechnicianIds?.length ?? 0) > 0;
+          const bdStatus = hasTechs ? 'repair_in_progress' : 'assigned';
+          await updateDoc(docFn(db, 'breakdown_tickets', payload.linkedBreakdownId), {
+            linkedWOId: woId,
+            status: bdStatus,
+            assignedTechnicianIds: payload.assignedTechnicianIds ?? [],
+            assignedTechnicianNames: payload.assignedTechnicianNames ?? [],
+            assignedAt: serverTimestamp(),
+            ...(hasTechs ? { repairStartedAt: serverTimestamp() } : {}),
+            statusHistory: arrayUnion({
+              status: bdStatus,
+              changedBy: userId,
+              changedByName: userName,
+              changedAt: Timestamp.fromDate(new Date()),
+              note: `Repair work order created`,
+            }),
+          });
+        } catch (bdErr) {
+          console.error('Failed to sync linked breakdown on WO creation', bdErr);
+        }
+      }
+
       // PM tracking: if this is a Preventive WO, write a pm_history record so
       // it appears in the PM Schedules, PM Calendar and PM Compliance views.
       if (payload.woType === 'PREVENTIVE') {

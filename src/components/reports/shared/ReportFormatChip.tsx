@@ -9,12 +9,14 @@ const styleMap: Record<ExportFormat, string> = {
   pdf: 'bg-red-500/10 text-red-300 border-red-500/30',
   excel: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30',
   google_sheets: 'bg-blue-500/10 text-blue-300 border-blue-500/30',
+  csv: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
 };
 
 const labelMap: Record<ExportFormat, string> = {
   pdf: 'PDF',
   excel: 'Excel',
   google_sheets: 'Sheets',
+  csv: 'CSV',
 };
 
 export default function ReportFormatChip({ format, label }: ReportFormatChipProps) {

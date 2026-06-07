@@ -8,6 +8,7 @@ import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder
 import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } from '../../constants/woConfig';
 import { WO_COPY } from '../../constants/copy';
 import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
+import { useContractors } from '../../hooks/contractors/useContractors';
 import { TeamAssignmentPanel } from './TeamAssignmentPanel';
 import { ChecklistBuilder } from './ChecklistBuilder';
 import { DocumentUploadZone } from './DocumentUploadZone';
@@ -69,9 +70,17 @@ export function CreateWODrawer({
   const [machineSearch, setMachineSearch] = useState('');
   const [showMachineDropdown, setShowMachineDropdown] = useState(false);
   const [linkedBreakdown, setLinkedBreakdown] = useState<{ id: string; ticketNumber: string; severity?: string; machineName?: string; description?: string } | null>(null);
+  const [breakdownTickets, setBreakdownTickets] = useState<
+    { id: string; ticketNumber: string; severity?: string; status: string; machineId?: string; machineName?: string; machineDepartment?: string; machineLocation?: string; machineCriticality?: number; description?: string }[]
+  >([]);
+  const [breakdownSearch, setBreakdownSearch] = useState('');
+  const [showBreakdownDropdown, setShowBreakdownDropdown] = useState(false);
 
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
+
+  // Registered contractor companies (for CONTRACTOR work orders).
+  const { contractors: registeredContractors } = useContractors();
 
   useEffect(() => {
     if (!open || !companyId) return;
@@ -110,6 +119,37 @@ export function CreateWODrawer({
         });
         setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor' || u.role === 'plant_manager' || u.role === 'admin'));
         setTechnicians(users.filter((u) => u.role === 'technician'));
+
+        // Load open breakdown tickets so they can be linked to this WO.
+        try {
+          const bdSnap = await getDocs(
+            query(collection(db, 'breakdown_tickets'), where('siteId', 'in', siteIdList.slice(0, 10))),
+          );
+          if (!cancelled) {
+            const TERMINAL = new Set(['resolved', 'closed']);
+            setBreakdownTickets(
+              bdSnap.docs
+                .map((d) => {
+                  const data = d.data() as Record<string, unknown>;
+                  return {
+                    id: d.id,
+                    ticketNumber: (data.ticketNumber as string) ?? d.id,
+                    severity: data.severity as string | undefined,
+                    status: (data.status as string) ?? '',
+                    machineId: data.machineId as string | undefined,
+                    machineName: data.machineName as string | undefined,
+                    machineDepartment: data.machineDepartment as string | undefined,
+                    machineLocation: data.machineLocation as string | undefined,
+                    machineCriticality: data.machineCriticality as number | undefined,
+                    description: data.description as string | undefined,
+                  };
+                })
+                .filter((b) => !TERMINAL.has(b.status)),
+            );
+          }
+        } catch (bdErr) {
+          console.error('Failed to load breakdown tickets', bdErr);
+        }
 
         if (prefilledMachineId) {
           const machine = machineSnap.docs.find((d) => d.id === prefilledMachineId);
@@ -411,15 +451,84 @@ export function CreateWODrawer({
 
               {/* Linked Breakdown (only for BREAKDOWN type) */}
               {woType === 'BREAKDOWN' && (
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {WO_COPY.linkedBreakdownLabel} <span className="text-red-500">*</span>
                   </label>
                   <input
-                    {...form.register('linkedBreakdownTicketNumber')}
+                    type="text"
+                    value={breakdownSearch || form.watch('linkedBreakdownTicketNumber') || ''}
+                    onChange={(e) => {
+                      setBreakdownSearch(e.target.value);
+                      setShowBreakdownDropdown(true);
+                      form.setValue('linkedBreakdownId', null);
+                      form.setValue('linkedBreakdownTicketNumber', e.target.value);
+                    }}
+                    onFocus={() => setShowBreakdownDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowBreakdownDropdown(false), 200)}
                     placeholder={WO_COPY.linkedBreakdownPlaceholder}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                   />
+                  {showBreakdownDropdown && (
+                    <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+                      {breakdownTickets.length === 0 ? (
+                        <p className="px-3 py-2 text-xs text-gray-400">No open breakdown tickets found.</p>
+                      ) : (
+                        breakdownTickets
+                          .filter((b) => {
+                            const q = breakdownSearch.trim().toLowerCase();
+                            if (q === '') return true;
+                            return (
+                              b.ticketNumber.toLowerCase().includes(q) ||
+                              (b.machineName ?? '').toLowerCase().includes(q) ||
+                              (b.description ?? '').toLowerCase().includes(q)
+                            );
+                          })
+                          .slice(0, 20)
+                          .map((b) => (
+                            <button
+                              key={b.id}
+                              type="button"
+                              onMouseDown={() => {
+                                form.setValue('linkedBreakdownId', b.id);
+                                form.setValue('linkedBreakdownTicketNumber', b.ticketNumber);
+                                if (b.machineId) {
+                                  form.setValue('machineId', b.machineId);
+                                  form.setValue('machineName' as any, b.machineName ?? '');
+                                  form.setValue('machineDepartment' as any, b.machineDepartment ?? '');
+                                  form.setValue('machineLocation' as any, b.machineLocation ?? '');
+                                  form.setValue('machineCriticality' as any, b.machineCriticality ?? 3);
+                                  setMachineSearch(b.machineName ?? '');
+                                }
+                                setLinkedBreakdown({
+                                  id: b.id,
+                                  ticketNumber: b.ticketNumber,
+                                  severity: b.severity,
+                                  machineName: b.machineName,
+                                  description: b.description,
+                                });
+                                setBreakdownSearch(b.ticketNumber);
+                                setShowBreakdownDropdown(false);
+                              }}
+                              className="w-full text-left px-3 py-2 hover:bg-blue-50 border-b border-gray-50 last:border-0 text-sm"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">{b.ticketNumber}</span>
+                                {b.severity && (
+                                  <span className="text-xs uppercase px-1.5 py-0.5 rounded bg-red-100 text-red-700">
+                                    {b.severity}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {b.machineName ?? ''}
+                                {b.description ? ` · ${b.description.slice(0, 50)}` : ''}
+                              </div>
+                            </button>
+                          ))
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -514,7 +623,16 @@ export function CreateWODrawer({
                 activeWOCount: 0,
               }))}
               supervisors={supervisors.map((s) => ({ id: s.id, name: s.name }))}
-              contractors={[]}
+              contractors={registeredContractors.map((c) => ({
+                id: c.id,
+                companyName: c.companyName,
+                specializations: c.specializationTags ?? [],
+                rating: c.avgRating ?? 0,
+                lastJobDate: null,
+                contactPerson: c.primaryContactName ?? '',
+                contactNumber: c.primaryPhone ?? '',
+                isActive: c.status === 'active',
+              }))}
             />
           )}
 

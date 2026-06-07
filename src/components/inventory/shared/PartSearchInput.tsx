@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, X } from 'lucide-react';
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { InventoryPart } from '@/types/inventory';
@@ -34,37 +34,25 @@ export function PartSearchInput({
       setIsLoading(true);
       try {
         const col = collection(db, 'inventoryParts');
-        // Search by partNumber prefix
-        const byNumber = query(
-          col,
-          where('companyId', '==', companyId),
-          where('partNumber', '>=', term.toUpperCase()),
-          where('partNumber', '<=', term.toUpperCase() + ''),
-          orderBy('partNumber'),
-          limit(10)
+        // Firestore range queries can't do case-insensitive substring matching,
+        // so fetch the company's parts and filter client-side across
+        // partNumber, name, brand and supplier (matching useInventoryParts).
+        const snap = await getDocs(
+          query(col, where('companyId', '==', companyId), limit(500)),
         );
-        // Search by name prefix
-        const byName = query(
-          col,
-          where('companyId', '==', companyId),
-          where('name', '>=', term),
-          where('name', '<=', term + ''),
-          orderBy('name'),
-          limit(10)
-        );
-
-        const [numSnap, nameSnap] = await Promise.all([getDocs(byNumber), getDocs(byName)]);
-        const seen = new Set<string>();
+        const needle = term.toLowerCase();
         const parts: InventoryPart[] = [];
-
-        for (const snap of [numSnap, nameSnap]) {
-          snap.forEach((doc) => {
-            if (!seen.has(doc.id) && !excludePartIds.includes(doc.id)) {
-              seen.add(doc.id);
-              parts.push({ id: doc.id, ...doc.data() } as InventoryPart);
-            }
-          });
-        }
+        snap.forEach((doc) => {
+          if (excludePartIds.includes(doc.id)) return;
+          const data = doc.data() as Record<string, unknown>;
+          const haystack = [data.partNumber, data.name, data.brand, data.supplierName]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+          if (haystack.includes(needle)) {
+            parts.push({ id: doc.id, ...data } as InventoryPart);
+          }
+        });
 
         setResults(parts.slice(0, 10));
         setIsOpen(true);

@@ -118,6 +118,7 @@ export interface CreateMachinePayload {
   serialNumber: string;
   purchaseDate: Date | null;
   installationDate: Date | null;
+  nextPmDue: Date | null;
   expectedLifespanYears: number | null;
   department: string;
   floor: string | null;
@@ -143,6 +144,7 @@ export interface UpdateMachinePayload {
   serialNumber?: string;
   purchaseDate?: Date | null;
   installationDate?: Date | null;
+  nextPmDue?: Date | null;
   expectedLifespanYears?: number | null;
   department?: string;
   floor?: string | null;

@@ -59,6 +59,7 @@ export function EditMachinePage() {
         serialNumber: formData.serialNumber || undefined,
         purchaseDate: formData.purchaseDate || null,
         installationDate: formData.installationDate || null,
+        nextPmDue: formData.nextPmDue || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
         department: formData.department,
         floor: formData.floor || null,

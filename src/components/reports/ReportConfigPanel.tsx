@@ -11,6 +11,8 @@ import OutputFormatToggle from './config/OutputFormatToggle';
 import PdfOptionsSection from './config/PdfOptionsSection';
 import ReportFilterSection from './config/ReportFilterSection';
 import ReportReadyActions from './generation/ReportReadyActions';
+import ReportPreview from './ReportPreview';
+import { useAuthStore } from '../../store/authStore';
 
 export default function ReportConfigPanel() {
   const selectedReportType = useReportsStore((state) => state.selectedReportType);
@@ -19,6 +21,7 @@ export default function ReportConfigPanel() {
   const config = useReportsStore((state) => state.config);
   const updateConfig = useReportsStore((state) => state.updateConfig);
   const { generationStatus, generationProgress, generationError, lastDownloadUrl, lastSheetsUrl, generatePdf, exportExcel, pushToSheets, isGenerating } = useReportGeneration();
+  const companyId = useAuthStore((state) => state.company?.id ?? state.userProfile?.companyId ?? '');
 
   if (!isOpen || !selectedReportType) return null;
   const report = REPORT_DEFINITIONS[selectedReportType];
@@ -44,14 +47,7 @@ export default function ReportConfigPanel() {
           <GoogleSheetsConnector visible={config.outputFormat === 'google_sheets'} />
           <PdfOptionsSection config={config} onChange={updateConfig} />
 
-          {config.outputFormat === 'pdf' && (
-            <section className="space-y-2 border-b border-[#1E3A5F] pb-5">
-              <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">Report Preview</h3>
-              <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-[#1E3A5F] bg-[#0A1628] text-xs text-[#8BA3BF]">
-                Preview updates as filters change
-              </div>
-            </section>
-          )}
+          <ReportPreview reportType={selectedReportType} config={config} companyId={companyId} />
 
           <section className="space-y-3">
             <GenerationStatusMessage status={generationStatus} />
