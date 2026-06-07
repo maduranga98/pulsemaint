@@ -1,20 +1,17 @@
 import { create } from 'zustand';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import app from '../lib/firebase';
 import { useAuthStore } from './authStore';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { resolveQuickDateRange } from '../utils/reports/dateRangeUtils';
 import { exportGenericReportExcel } from '../utils/reports/excel/reports/genericReportExcel';
 import { exportGenericReportPdf } from '../utils/reports/pdf/genericReportPdf';
 import { exportGenericReportCsv } from '../utils/reports/csv/genericReportCsv';
+import { exportGenericReportSheets } from '../utils/reports/sheets/genericReportSheets';
 import {
   createReportHistory,
   deleteReportHistory as deleteReportHistoryDoc,
   fetchReportHistory as fetchReportHistoryDocs,
-  filtersFromConfig,
 } from '../services/reports.service';
 import type {
-  PushToSheetsResult,
   ReportConfig,
   ReportHistory,
   ReportHistoryFilters,
@@ -247,25 +244,41 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
     }
     set({ generationStatus: 'building', generationProgress: 45, generationError: null });
     try {
-      const callable = httpsCallable(getFunctions(app), 'pushToGoogleSheets');
-      const response = await callable({
-        reportType: selectedReportType,
-        dateFrom: config.dateFrom,
-        dateTo: config.dateTo,
-        filters: filtersFromConfig(config),
+      const { userId, userName } = getAuthContext();
+      // Push directly to Google Sheets from the browser using the OAuth token.
+      const { rowCount, sheetsUrl } = await exportGenericReportSheets(
+        selectedReportType,
         companyId,
+        config,
         googleAccessToken,
+      );
+      const reportId = await createReportHistory({
+        companyId,
+        reportType: selectedReportType,
+        generatedBy: userId,
+        generatedByName: userName,
+        format: 'google_sheets',
+        config,
+        rowCount,
+        googleSheetsUrl: sheetsUrl,
       });
-      const result = response.data as PushToSheetsResult;
       set({
         generationStatus: 'ready',
         generationProgress: 100,
-        lastSheetsUrl: result.sheetsUrl,
+        lastGeneratedReportId: reportId,
+        lastSheetsUrl: sheetsUrl,
       });
     } catch (err) {
+      // If the token is stale/invalid, prompt a reconnect.
+      const msg = err instanceof Error ? err.message : 'Google Sheets export failed.';
+      if (/401|403|invalid|unauthor/i.test(msg)) {
+        localStorage.removeItem('pulsemaint_google_sheets_token');
+      }
       set({
         generationStatus: 'error',
-        generationError: err instanceof Error ? err.message : 'Google Sheets export failed.',
+        generationError: /401|403|invalid|unauthor/i.test(msg)
+          ? 'Google session expired. Please reconnect Google Sheets and try again.'
+          : msg,
       });
     }
   },
