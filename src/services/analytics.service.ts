@@ -10,6 +10,11 @@ import {
   limit,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import {
+  computeDailyAnalytics,
+  computeMonthlyAnalytics,
+  computeMachineHealth,
+} from './analyticsAggregation';
 import type {
   AnalyticsDaily,
   AnalyticsMonthly,
@@ -17,6 +22,8 @@ import type {
   TechnicianStatusDoc,
   DashboardNotification,
 } from '../types/analytics.types';
+
+const currentMonthKey = () => new Date().toISOString().slice(0, 7);
 
 // ---------------------------------------------------------------------------
 // Daily Analytics
@@ -35,6 +42,10 @@ export async function fetchDailyAnalytics(
     orderBy('date', 'asc'),
   );
   const snap = await getDocs(q);
+  if (snap.empty) {
+    // No pre-aggregated data — compute it from raw collections.
+    return computeDailyAnalytics(companyId, fromDate, toDate);
+  }
   return snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as AnalyticsDaily));
 }
 
@@ -48,7 +59,10 @@ export async function fetchMonthlyAnalytics(
 ): Promise<AnalyticsMonthly | null> {
   const ref = doc(db, 'analytics_monthly', `${companyId}_${month}`);
   const snap = await getDoc(ref);
-  if (!snap.exists()) return null;
+  if (!snap.exists()) {
+    // No pre-aggregated doc — compute it from raw collections.
+    return computeMonthlyAnalytics(companyId, month);
+  }
   return { ...snap.data(), id: snap.id } as unknown as AnalyticsMonthly;
 }
 
@@ -60,7 +74,7 @@ export async function fetchLatestMonthlyAnalytics(companyId: string): Promise<An
     limit(1),
   );
   const snap = await getDocs(q);
-  if (snap.empty) return null;
+  if (snap.empty) return computeMonthlyAnalytics(companyId, currentMonthKey());
   return { ...snap.docs[0].data(), id: snap.docs[0].id } as unknown as AnalyticsMonthly;
 }
 
@@ -74,6 +88,7 @@ export async function fetchMachineHealth(companyId: string): Promise<MachineHeal
     where('companyId', '==', companyId),
   );
   const snap = await getDocs(q);
+  if (snap.empty) return computeMachineHealth(companyId);
   return snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as MachineHealthDoc));
 }
 
@@ -86,6 +101,10 @@ export function subscribeMachineHealth(
     where('companyId', '==', companyId),
   );
   return onSnapshot(q, (snap) => {
+    if (snap.empty) {
+      computeMachineHealth(companyId).then(callback).catch(() => callback([]));
+      return;
+    }
     const data = snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as MachineHealthDoc));
     callback(data);
   });
@@ -150,7 +169,7 @@ export function subscribeOpenWorkOrderCount(
   callback: (count: number) => void,
 ) {
   const q = query(
-    collection(db, 'work_orders'),
+    collection(db, 'workOrders'),
     where('companyId', '==', companyId),
     where('status', 'in', ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL']),
   );
