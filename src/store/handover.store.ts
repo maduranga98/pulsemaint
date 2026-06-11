@@ -107,6 +107,7 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
       stats,
       outgoingSupervisorId: profile.id,
       outgoingSupervisorName: profile.fullName,
+      outgoingSupervisorDesignation: (profile as { designation?: string }).designation ?? profile.role ?? null,
     });
     set({ isShiftActive: false });
     return handoverId;

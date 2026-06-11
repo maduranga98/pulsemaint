@@ -75,10 +75,12 @@ function mapHandover(id: string, data: DocumentData): ShiftHandover {
     shiftDate: data.shiftDate,
     outgoingSupervisorId: data.outgoingSupervisorId,
     outgoingSupervisorName: data.outgoingSupervisorName,
+    outgoingSupervisorDesignation: data.outgoingSupervisorDesignation ?? null,
     shiftActualStart: toDate(data.shiftActualStart) ?? new Date(),
     handoverSubmittedAt: toDate(data.handoverSubmittedAt) ?? new Date(),
     incomingSupervisorId: data.incomingSupervisorId ?? null,
     incomingSupervisorName: data.incomingSupervisorName ?? null,
+    incomingSupervisorDesignation: data.incomingSupervisorDesignation ?? null,
     handoverAcceptedAt: toDate(data.handoverAcceptedAt),
     overlapMinutes: data.overlapMinutes ?? null,
     stats: data.stats as ShiftStatsAuto,
@@ -151,6 +153,7 @@ export async function submitHandoverCallable(params: {
   stats: ShiftStatsAuto;
   outgoingSupervisorId: string;
   outgoingSupervisorName: string;
+  outgoingSupervisorDesignation?: string | null;
 }): Promise<string> {
   const callable = httpsCallable<typeof params, { handoverId: string }>(functions, 'submitHandover');
   const result = await callable(params);

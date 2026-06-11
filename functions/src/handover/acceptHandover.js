@@ -24,6 +24,7 @@ exports.acceptHandover = onCall(async (request) => {
   await handoverRef.update({
     incomingSupervisorId: request.auth.uid,
     incomingSupervisorName: user.fullName || user.displayName || user.email || "Incoming Supervisor",
+    incomingSupervisorDesignation: user.designation || user.role || null,
     handoverAcceptedAt: acceptedAt,
     overlapMinutes,
     incomingAcknowledged: true,
