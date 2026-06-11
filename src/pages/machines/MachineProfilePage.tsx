@@ -5,6 +5,7 @@ import { useMachine } from '../../hooks/useMachine';
 import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from '../../components/machines';
 import { formatDate } from '../../lib/dateUtils';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
+import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
@@ -387,7 +388,7 @@ function DocumentsTab({ machine }: any) {
 function HistoryTab({ machine }: any) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <MachineHistoryTimeline machineId={machine.id} machineName={machine.name} />
+      <BreakdownHistoryList machineId={machine.id} machineName={machine.name} />
     </div>
   );
 }

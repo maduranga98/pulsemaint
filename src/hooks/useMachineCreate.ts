@@ -100,7 +100,11 @@ export function useMachineCreate({
         compatiblePartIds: payload.compatiblePartIds || [],
         documents,
         photos: photoUrls,
-        warrantyItems: [],
+        warrantyItems: (payload.warrantyItems ?? []).map((w: any) => ({
+          partName: w.partName,
+          expiryDate: w.expiryDate ? Timestamp.fromDate(w.expiryDate) : null,
+          supplierWarrantyRef: w.supplierWarrantyRef ?? '',
+        })),
         modificationNotes: payload.modificationNotes || null,
         additionalNotes: payload.additionalNotes || null,
         sopLibraryRefs: [],

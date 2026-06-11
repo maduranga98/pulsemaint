@@ -127,6 +127,7 @@ export interface CreateMachinePayload {
   status: MachineStatus;
   criticality: MachineCriticality;
   healthScore: number;
+  warrantyItems?: Array<{ partName: string; expiryDate: Date | null; supplierWarrantyRef: string }>;
   photoFiles: File[];
   documentFiles: Array<{ file: File; type: DocumentType; name: string }>;
   compatiblePartIds: string[];
@@ -152,6 +153,8 @@ export interface UpdateMachinePayload {
   station?: string | null;
   status?: MachineStatus;
   criticality?: MachineCriticality;
+  healthScore?: number;
+  warrantyItems?: Array<{ partName: string; expiryDate: Date | null; supplierWarrantyRef: string }>;
   photoFiles?: File[];
   documentFiles?: Array<{ file: File; type: DocumentType; name: string }>;
   compatiblePartIds?: string[];

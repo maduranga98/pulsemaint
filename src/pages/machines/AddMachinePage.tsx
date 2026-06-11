@@ -47,6 +47,7 @@ export function AddMachinePage() {
         healthScore: formData.healthScore ?? 100,
         photoFiles: files.photos,
         documentFiles: files.documents,
+        warrantyItems: (formData as any).warrantyItems ?? [],
         compatiblePartIds: formData.compatiblePartIds || [],
         modificationNotes: formData.modificationNotes || null,
         additionalNotes: formData.additionalNotes || null,
