@@ -66,13 +66,12 @@ export function usePMCalendarEvents({ companyId, month, year }: UsePMCalendarEve
     const woQuery = query(
       collection(db, 'workOrders'),
       where('woType', '==', 'PREVENTIVE'),
+      where('companyId', '==', companyId),
     );
     const unsubWO = onSnapshot(woQuery, (snap) => {
       const list: PMWorkOrderEvent[] = [];
       snap.docs.forEach((d) => {
         const data = d.data() as any;
-        // Filter by company via siteId prefix or explicit companyId field.
-        if (data.companyId && data.companyId !== companyId) return;
         const due: Date | null = data.dueDate?.toDate ? data.dueDate.toDate() : null;
         if (!due) return;
         const terminal = ['CLOSED', 'CANCELLED', 'COMPLETED', 'SIGNED_OFF'];

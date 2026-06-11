@@ -9,7 +9,10 @@ export const checklistItemSchema = z.object({
   stepDescription: z.string().min(1, 'Step description is required'),
   assignedTechnicianId: z.string().nullable(),
   assignedTechnicianName: z.string().nullable(),
+  assignedTechnicianIds: z.array(z.string()).default([]),
+  assignedTechnicianNames: z.array(z.string()).default([]),
   estimatedMinutes: z.number().int().positive().nullable(),
+  estimatedDurationUnit: z.enum(['minutes', 'hours', 'days']).default('minutes'),
 });
 
 export const partsRequestSchema = z.object({
