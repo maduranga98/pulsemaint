@@ -49,6 +49,11 @@ export interface PMChecklistItem {
   description: string;
   estimatedMinutes: number;
   photoRequired: boolean;
+  inputType: 'checkbox' | 'measurement';
+  method: string | null;
+  unit: string | null;
+  acceptableMin: number | null;
+  acceptableMax: number | null;
 }
 
 export interface PMPreallocatedPart {

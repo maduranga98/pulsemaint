@@ -755,6 +755,31 @@
           "order": "DESCENDING"
         }
       ]
+    },
+    {
+      "collectionGroup": "permits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "workOrderId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "permits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "machineId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "conditionReadings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "machineId", "order": "ASCENDING" },
+        { "fieldPath": "parameter", "order": "ASCENDING" },
+        { "fieldPath": "takenAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

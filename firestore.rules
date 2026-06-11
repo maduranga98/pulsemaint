@@ -698,3 +698,32 @@ service cloud.firestore {
         && getUserData().role in ['supervisor', 'admin'];
     }
   }
+
+    // permits — LOTO/PTW safety gate
+    match /permits/{permitId} {
+      function permitSiteMatches() {
+        return isSameSite(resource.data.siteId);
+      }
+      allow read: if isAuthenticated() && permitSiteMatches()
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
+      allow create: if isAuthenticated()
+        && isSameSite(request.resource.data.siteId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
+      allow update: if isAuthenticated() && permitSiteMatches()
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
+      allow delete: if isAdmin();
+    }
+
+    // conditionReadings — machine health readings
+    match /conditionReadings/{readingId} {
+      function readingSiteMatches() {
+        return isSameSite(resource.data.siteId);
+      }
+      allow read: if isAuthenticated() && readingSiteMatches()
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
+      allow create: if isAuthenticated()
+        && isSameSite(request.resource.data.siteId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
+      allow update, delete: if isAdmin();
+    }
+}

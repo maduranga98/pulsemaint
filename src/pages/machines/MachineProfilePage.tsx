@@ -6,8 +6,10 @@ import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from 
 import { formatDate } from '../../lib/dateUtils';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
+import { IsolationPointsTab } from '../../components/machines/IsolationPointsTab';
+import { ConditionMonitoringTab } from '../../components/machines/ConditionMonitoringTab';
 
-type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
+type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'isolation' | 'condition';
 
 export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -72,6 +74,8 @@ export function MachineProfilePage() {
     { name: 'history', label: 'Breakdown History' },
     { name: 'maintenance', label: 'Maintenance History' },
     { name: 'analytics', label: 'Analytics' },
+    { name: 'isolation', label: 'Isolation Points' },
+    { name: 'condition', label: 'Condition Monitoring' },
   ];
 
   const analyticsTabDisabled = userProfile.role !== 'plant_manager' && userProfile.role !== 'admin';
@@ -199,24 +203,25 @@ export function MachineProfilePage() {
       {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex gap-1 border-b border-gray-200 bg-white">
-          {tabs.map((tab) => (
-            <button
-              key={tab.name}
-              onClick={() => {
-                if (tab.name !== 'analytics' || !analyticsTabDisabled) {
-                  setActiveTab(tab.name);
-                }
-              }}
-              disabled={tab.name === 'analytics' && analyticsTabDisabled}
-              className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
-                activeTab === tab.name
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              } ${tab.name === 'analytics' && analyticsTabDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const isDisabled = tab.name === 'analytics' && analyticsTabDisabled;
+            return (
+              <button
+                key={tab.name}
+                onClick={() => {
+                  if (!isDisabled) setActiveTab(tab.name);
+                }}
+                disabled={isDisabled}
+                className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+                  activeTab === tab.name
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -227,6 +232,12 @@ export function MachineProfilePage() {
         {activeTab === 'history' && <HistoryTab machine={machine} />}
         {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
+        {activeTab === 'isolation' && (
+          <IsolationPointsTab machine={machine} canEdit={canEditMachine} />
+        )}
+        {activeTab === 'condition' && (
+          <ConditionMonitoringTab machine={machine} />
+        )}
       </div>
     </div>
   );
