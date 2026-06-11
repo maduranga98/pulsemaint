@@ -94,8 +94,19 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
 
     const completedProjectNames = fd.getAll('completedProjectName').map((v) => String(v));
     const completedProjectCosts = fd.getAll('completedProjectCost').map((v) => String(v));
+    const completedProjectRatings = fd.getAll('completedProjectRating').map((v) => String(v));
+    const completedProjectDurations = fd.getAll('completedProjectDuration').map((v) => String(v));
+    const completedProjectContractTypes = fd.getAll('completedProjectContractType').map((v) => String(v));
+    const completedProjectForbidden = fd.getAll('completedProjectForbiddenActions').map((v) => String(v));
     const previouslyCompletedProjects = completedProjectNames
-      .map((name, i) => ({ name: name.trim(), cost: (completedProjectCosts[i] || '').trim() }))
+      .map((name, i) => ({
+        name: name.trim(),
+        cost: (completedProjectCosts[i] || '').trim(),
+        rating: (completedProjectRatings[i] || '').trim(),
+        duration: (completedProjectDurations[i] || '').trim(),
+        contractType: (completedProjectContractTypes[i] || '').trim(),
+        forbiddenActions: (completedProjectForbidden[i] || '').trim(),
+      }))
       .filter((p) => p.name.length > 0 || p.cost.length > 0);
 
     const payload: Record<string, unknown> = {

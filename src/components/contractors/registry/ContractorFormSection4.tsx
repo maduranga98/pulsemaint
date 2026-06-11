@@ -3,7 +3,18 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 
-type CompletedProject = { name: string; cost: string };
+type CompletedProject = {
+  name: string;
+  cost: string;
+  rating: string;
+  duration: string;
+  contractType: string;
+  forbiddenActions: string;
+};
+
+const EMPTY_PROJECT: CompletedProject = {
+  name: '', cost: '', rating: '', duration: '', contractType: '', forbiddenActions: '',
+};
 
 interface Props {
   initial?: Partial<Contractor> & { previouslyCompletedProjects?: CompletedProject[]; paymentMethods?: string[] };
@@ -12,8 +23,15 @@ interface Props {
 export function ContractorFormSection4({ initial }: Props) {
   const access = useContractorAccess();
   const seededProjects = initial?.previouslyCompletedProjects?.length
-    ? initial.previouslyCompletedProjects.map((p) => ({ name: p.name ?? '', cost: p.cost ?? '' }))
-    : [{ name: '', cost: '' }];
+    ? initial.previouslyCompletedProjects.map((p) => ({
+        name: p.name ?? '',
+        cost: p.cost ?? '',
+        rating: (p as CompletedProject).rating ?? '',
+        duration: (p as CompletedProject).duration ?? '',
+        contractType: (p as CompletedProject).contractType ?? '',
+        forbiddenActions: (p as CompletedProject).forbiddenActions ?? '',
+      }))
+    : [{ ...EMPTY_PROJECT }];
   const [projects, setProjects] = useState<CompletedProject[]>(seededProjects);
   const paymentMethods = new Set(initial?.paymentMethods ?? []);
 
@@ -26,7 +44,7 @@ export function ContractorFormSection4({ initial }: Props) {
   }
 
   function addProject() {
-    setProjects((prev) => [...prev, { name: '', cost: '' }]);
+    setProjects((prev) => [...prev, { ...EMPTY_PROJECT }]);
   }
 
   function removeProject(index: number) {
@@ -76,32 +94,69 @@ export function ContractorFormSection4({ initial }: Props) {
             <Plus className="h-3 w-3" /> Add
           </button>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {projects.map((p, i) => (
-            <div key={i} className="grid gap-2 sm:grid-cols-[1fr_180px_auto]">
-              <input
-                name="completedProjectName"
-                value={p.name}
-                onChange={(e) => updateProject(i, 'name', e.target.value)}
-                placeholder="Project / Client Name"
-                className="h-10 rounded-md border border-slate-200 px-3 text-sm"
+            <div key={i} className="rounded-lg border border-slate-200 p-3 space-y-2">
+              <div className="flex items-start gap-2">
+                <input
+                  name="completedProjectName"
+                  value={p.name}
+                  onChange={(e) => updateProject(i, 'name', e.target.value)}
+                  placeholder="Project / Client Name"
+                  className="h-10 flex-1 rounded-md border border-slate-200 px-3 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeProject(i)}
+                  disabled={projects.length === 1}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+                  aria-label="Remove project"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <input
+                  name="completedProjectCost"
+                  value={p.cost}
+                  onChange={(e) => updateProject(i, 'cost', e.target.value)}
+                  placeholder="Cost (LKR)"
+                  className="h-10 rounded-md border border-slate-200 px-3 text-sm"
+                />
+                <select
+                  name="completedProjectRating"
+                  value={p.rating}
+                  onChange={(e) => updateProject(i, 'rating', e.target.value)}
+                  className="h-10 rounded-md border border-slate-200 px-3 text-sm text-slate-700"
+                >
+                  <option value="">Rating…</option>
+                  {[1, 2, 3, 4, 5].map((r) => (
+                    <option key={r} value={r}>{r} ★</option>
+                  ))}
+                </select>
+                <input
+                  name="completedProjectDuration"
+                  value={p.duration}
+                  onChange={(e) => updateProject(i, 'duration', e.target.value)}
+                  placeholder="Duration (e.g. 3 months)"
+                  className="h-10 rounded-md border border-slate-200 px-3 text-sm"
+                />
+                <input
+                  name="completedProjectContractType"
+                  value={p.contractType}
+                  onChange={(e) => updateProject(i, 'contractType', e.target.value)}
+                  placeholder="Contract Type (e.g. fixed, T&M)"
+                  className="h-10 rounded-md border border-slate-200 px-3 text-sm"
+                />
+              </div>
+              <textarea
+                name="completedProjectForbiddenActions"
+                value={p.forbiddenActions}
+                onChange={(e) => updateProject(i, 'forbiddenActions', e.target.value)}
+                placeholder="Any forbidden actions taken / violations (optional)"
+                rows={2}
+                className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
               />
-              <input
-                name="completedProjectCost"
-                value={p.cost}
-                onChange={(e) => updateProject(i, 'cost', e.target.value)}
-                placeholder="Cost (LKR)"
-                className="h-10 rounded-md border border-slate-200 px-3 text-sm"
-              />
-              <button
-                type="button"
-                onClick={() => removeProject(i)}
-                disabled={projects.length === 1}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40"
-                aria-label="Remove project"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
             </div>
           ))}
         </div>
