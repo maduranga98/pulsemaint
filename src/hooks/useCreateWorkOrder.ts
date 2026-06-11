@@ -97,6 +97,9 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
     try {
       // Create WO document first to get the ID for Storage paths
       const woData = {
+        // Tenant
+        companyId,
+
         // Basic
         woType: payload.woType,
         priority: payload.priority,
@@ -234,8 +237,8 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         }
       }
 
-      // PM tracking: if this is a Preventive WO, write a pm_history record so
-      // it appears in the PM Schedules, PM Calendar and PM Compliance views.
+      // PM tracking: if this is a Preventive WO, write pm_history + pm_schedules
+      // so it appears in PM Schedules tab, PM Calendar, and PM Compliance views.
       if (payload.woType === 'PREVENTIVE') {
         try {
           const { Timestamp } = await import('firebase/firestore');
@@ -260,11 +263,51 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
             year: due.getFullYear(),
             createdAt: serverTimestamp(),
           });
+
+          // Create a pm_schedules record so it shows in PM Schedules and Calendar tabs.
+          const pmScheduleRef = await addDoc(collection(db, 'pm_schedules'), {
+            companyId,
+            name: payload.description.slice(0, 80) || 'Ad-hoc PM',
+            pmType: 'other',
+            priority: payload.priority,
+            machineId: payload.machineId,
+            machineName: payload.machineName,
+            triggerType: 'calendar',
+            recurrenceType: 'one_time',
+            intervalDays: 0,
+            firstDueDate: Timestamp.fromDate(due),
+            nextDueDate: Timestamp.fromDate(due),
+            endDate: null,
+            assignedTechnicianIds: payload.assignedTechnicianIds,
+            assignedTechnicianNames: payload.assignedTechnicianNames,
+            checklistItems: payload.checklist.map((item, i) => ({
+              step: i + 1,
+              description: item.stepDescription,
+              type: 'check',
+              required: true,
+            })),
+            status: 'active',
+            totalScheduled: 1,
+            completedOnTime: 0,
+            completedLate: 0,
+            missed: 0,
+            complianceRate: 100,
+            lastWoId: woId,
+            lastWoGeneratedAt: Timestamp.now(),
+            linkedWoId: woId,
+            createdBy: userId,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+
           // Back-reference for completion updates.
           const { updateDoc } = await import('firebase/firestore');
-          await updateDoc(docRef, { pmHistoryId: pmHistoryRef.id });
+          await updateDoc(docRef, {
+            pmHistoryId: pmHistoryRef.id,
+            pmScheduleId: pmScheduleRef.id,
+          });
         } catch (pmErr) {
-          console.error('Failed to create PM history record', pmErr);
+          console.error('Failed to create PM records', pmErr);
         }
       }
 

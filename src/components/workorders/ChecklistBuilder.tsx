@@ -2,9 +2,11 @@ import { useRef, useState } from 'react';
 import type { ChecklistItem } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
 
+type ChecklistItemDraft = Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>;
+
 interface ChecklistBuilderProps {
-  items: Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>[];
-  onChange: (items: Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>[]) => void;
+  items: ChecklistItemDraft[];
+  onChange: (items: ChecklistItemDraft[]) => void;
   technicianOptions?: { id: string; name: string }[];
   readOnly?: boolean;
 }
@@ -72,11 +74,10 @@ export function ChecklistBuilder({
         setImportError('File is empty.');
         return;
       }
-      // Detect header
       const first = parseCsvLine(lines[0]);
       const hasHeader = first[0]?.toLowerCase().includes('step') || first[0]?.toLowerCase().includes('description');
       const dataLines = hasHeader ? lines.slice(1) : lines;
-      const imported: typeof items = [];
+      const imported: ChecklistItemDraft[] = [];
       dataLines.forEach((line, idx) => {
         const cells = parseCsvLine(line);
         const description = cells[0]?.trim();
@@ -87,7 +88,10 @@ export function ChecklistBuilder({
           stepDescription: description,
           assignedTechnicianId: null,
           assignedTechnicianName: null,
+          assignedTechnicianIds: [],
+          assignedTechnicianNames: [],
           estimatedMinutes: Number.isFinite(minutes) && minutes !== null ? minutes : null,
+          estimatedDurationUnit: 'minutes',
         });
         if (idx > 500) return;
       });
@@ -112,7 +116,10 @@ export function ChecklistBuilder({
         stepDescription: trimmed,
         assignedTechnicianId: null,
         assignedTechnicianName: null,
+        assignedTechnicianIds: [],
+        assignedTechnicianNames: [],
         estimatedMinutes: null,
+        estimatedDurationUnit: 'minutes',
       },
     ]);
     setNewStep('');
@@ -133,21 +140,40 @@ export function ChecklistBuilder({
     onChange(updated.map((item, i) => ({ ...item, stepNumber: i + 1 })));
   }
 
+  function toggleTechnician(index: number, techId: string, techName: string) {
+    const updated = items.map((item, i) => {
+      if (i !== index) return item;
+      const ids = item.assignedTechnicianIds ?? [];
+      const names = item.assignedTechnicianNames ?? [];
+      if (ids.includes(techId)) {
+        const filtered = ids.filter((id) => id !== techId);
+        const filteredNames = names.filter((n) => n !== techName);
+        return {
+          ...item,
+          assignedTechnicianIds: filtered,
+          assignedTechnicianNames: filteredNames,
+          assignedTechnicianId: filtered[0] ?? null,
+          assignedTechnicianName: filteredNames[0] ?? null,
+        };
+      }
+      return {
+        ...item,
+        assignedTechnicianIds: [...ids, techId],
+        assignedTechnicianNames: [...names, techName],
+        assignedTechnicianId: ids.length === 0 ? techId : item.assignedTechnicianId,
+        assignedTechnicianName: ids.length === 0 ? techName : item.assignedTechnicianName,
+      };
+    });
+    onChange(updated);
+  }
+
   function updateStep(
     index: number,
-    field: 'stepDescription' | 'estimatedMinutes' | 'assignedTechnicianId',
+    field: 'stepDescription' | 'estimatedMinutes' | 'estimatedDurationUnit',
     value: string | number | null,
   ) {
     const updated = items.map((item, i) => {
       if (i !== index) return item;
-      if (field === 'assignedTechnicianId') {
-        const tech = technicianOptions.find((t) => t.id === value);
-        return {
-          ...item,
-          assignedTechnicianId: value as string | null,
-          assignedTechnicianName: tech?.name ?? null,
-        };
-      }
       return { ...item, [field]: value };
     });
     onChange(updated);
@@ -164,12 +190,10 @@ export function ChecklistBuilder({
               key={index}
               className="flex items-start gap-2 bg-gray-50 rounded-lg p-3 group"
             >
-              {/* Step number */}
               <span className="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold mt-0.5">
                 {item.stepNumber}
               </span>
 
-              {/* Content */}
               <div className="flex-1 space-y-2">
                 {readOnly ? (
                   <p className="text-sm text-gray-800">{item.stepDescription}</p>
@@ -184,35 +208,64 @@ export function ChecklistBuilder({
                 )}
 
                 {!readOnly && (
-                  <div className="flex items-center gap-3">
-                    {technicianOptions.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.estimatedMinutes ?? ''}
+                        onChange={(e) =>
+                          updateStep(index, 'estimatedMinutes', e.target.value ? Number(e.target.value) : null)
+                        }
+                        placeholder="Duration"
+                        className="w-20 text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
+                      />
                       <select
-                        value={item.assignedTechnicianId ?? ''}
-                        onChange={(e) => updateStep(index, 'assignedTechnicianId', e.target.value || null)}
+                        value={item.estimatedDurationUnit ?? 'minutes'}
+                        onChange={(e) => updateStep(index, 'estimatedDurationUnit', e.target.value)}
                         className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                       >
-                        <option value="">{WO_COPY.stepAssigneeLabel}</option>
-                        {technicianOptions.map((t) => (
-                          <option key={t.id} value={t.id}>{t.name}</option>
-                        ))}
+                        <option value="minutes">Minutes</option>
+                        <option value="hours">Hours</option>
+                        <option value="days">Days</option>
                       </select>
+                    </div>
+
+                    {technicianOptions.length > 0 && (
+                      <div>
+                        <p className="text-xs text-gray-500 mb-1">Assign workers:</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {technicianOptions.map((t) => {
+                            const isSelected = (item.assignedTechnicianIds ?? []).includes(t.id);
+                            return (
+                              <button
+                                key={t.id}
+                                type="button"
+                                onClick={() => toggleTechnician(index, t.id, t.name)}
+                                className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md border transition-colors ${
+                                  isSelected
+                                    ? 'bg-blue-50 border-blue-300 text-blue-700'
+                                    : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                                }`}
+                              >
+                                <span
+                                  className={`h-3.5 w-3.5 rounded border flex items-center justify-center ${
+                                    isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                                  }`}
+                                >
+                                  {isSelected && <span className="text-white text-[8px]">✓</span>}
+                                </span>
+                                {t.name}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     )}
-                    <input
-                      type="number"
-                      min={1}
-                      value={item.estimatedMinutes ?? ''}
-                      onChange={(e) =>
-                        updateStep(index, 'estimatedMinutes', e.target.value ? Number(e.target.value) : null)
-                      }
-                      placeholder={WO_COPY.stepTimeLabel}
-                      className="w-20 text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
-                    />
-                    <span className="text-xs text-gray-400">min</span>
                   </div>
                 )}
               </div>
 
-              {/* Controls */}
               {!readOnly && (
                 <div className="flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button

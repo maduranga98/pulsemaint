@@ -57,7 +57,10 @@ export interface ChecklistItem {
   stepDescription: string;
   assignedTechnicianId: string | null;
   assignedTechnicianName: string | null;
+  assignedTechnicianIds: string[];
+  assignedTechnicianNames: string[];
   estimatedMinutes: number | null;
+  estimatedDurationUnit: 'minutes' | 'hours' | 'days';
   isCompleted: boolean;
   completedBy: string | null;
   completedByName: string | null;

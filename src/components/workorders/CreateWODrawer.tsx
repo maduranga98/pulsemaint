@@ -218,11 +218,20 @@ export function CreateWODrawer({
       woType: 'CORRECTIVE',
       priority: 'medium',
       description: '',
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       scheduledStart: null,
       estimatedDuration: 1,
       estimatedDurationUnit: 'hours',
       linkedBreakdownId: linkedBreakdownId ?? null,
       linkedBreakdownTicketNumber: linkedBreakdownTicketNumber ?? null,
+      machineId: '',
+      machineName: '',
+      machineDepartment: '',
+      machineLocation: '',
+      machineType: '',
+      machineCriticality: 3,
+      supervisorInChargeId: '',
+      supervisorInChargeName: '',
       assignedTechnicianIds: [],
       assignedTechnicianNames: [],
       contractorCompanyId: null,
@@ -254,7 +263,10 @@ export function CreateWODrawer({
     setStep((s) => Math.max(s - 1, 0));
   }
 
+  const [submitErrors, setSubmitErrors] = useState<string[]>([]);
+
   async function handleSubmit(values: CreateWOFormValues) {
+    setSubmitErrors([]);
     const woId = await createWO({
       ...values,
       dueDate: values.dueDate as Date,
@@ -268,6 +280,17 @@ export function CreateWODrawer({
       setStep(0);
       setPendingFiles([]);
     }
+  }
+
+  function handleSubmitWithErrors() {
+    setSubmitErrors([]);
+    (form.handleSubmit as any)(handleSubmit, (errors: Record<string, any>) => {
+      const msgs: string[] = [];
+      Object.entries(errors).forEach(([key, val]) => {
+        if (val?.message) msgs.push(`${key}: ${val.message}`);
+      });
+      setSubmitErrors(msgs);
+    })();
   }
 
   if (!open) return null;
@@ -643,10 +666,7 @@ export function CreateWODrawer({
               <ChecklistBuilder
                 items={form.watch('checklist') as Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>[]}
                 onChange={(items) => form.setValue('checklist', items)}
-                technicianOptions={(form.watch('assignedTechnicianIds') ?? []).map((id, i) => ({
-                  id,
-                  name: form.watch('assignedTechnicianNames')?.[i] ?? id,
-                }))}
+                technicianOptions={technicians.map((t) => ({ id: t.id, name: t.name }))}
               />
             </div>
           )}
@@ -694,24 +714,32 @@ export function CreateWODrawer({
             {step === 0 ? 'Cancel' : '← Back'}
           </button>
 
-          {step < STEPS.length - 1 ? (
-            <button
-              type="button"
-              onClick={nextStep}
-              className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Next →
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={(form.handleSubmit as any)(handleSubmit)}
-              disabled={loading}
-              className="px-6 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
-            >
-              {loading ? 'Creating…' : 'Create Work Order'}
-            </button>
-          )}
+          <div className="flex flex-col items-end gap-2">
+            {submitErrors.length > 0 && (
+              <div className="w-full bg-red-50 border border-red-200 text-red-700 rounded-lg p-2 text-xs space-y-0.5">
+                <p className="font-medium">Please fix the following:</p>
+                {submitErrors.map((e, i) => <p key={i}>• {e}</p>)}
+              </div>
+            )}
+            {step < STEPS.length - 1 ? (
+              <button
+                type="button"
+                onClick={nextStep}
+                className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Next →
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSubmitWithErrors}
+                disabled={loading}
+                className="px-6 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+              >
+                {loading ? 'Creating…' : 'Create Work Order'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </>
