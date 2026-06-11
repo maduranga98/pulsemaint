@@ -5,17 +5,34 @@ import KpiCard from '../../components/dashboard/shared/KpiCard';
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
 import BreakdownHeatmap from '../../components/dashboard/manager/BreakdownHeatmap';
+import BreakdownTrendChart from '../../components/dashboard/manager/BreakdownTrendChart';
 import TopProblemMachinesChart from '../../components/dashboard/manager/TopProblemMachinesChart';
 import MaintenanceCostChart from '../../components/dashboard/manager/MaintenanceCostChart';
 import MtbfTable from '../../components/dashboard/manager/MtbfTable';
 import TechnicianPerformanceTable from '../../components/dashboard/manager/TechnicianPerformanceTable';
 import PmComplianceWidget from '../../components/dashboard/manager/PmComplianceWidget';
+import PmTrendChart from '../../components/dashboard/manager/PmTrendChart';
+import WoTypeDistributionChart from '../../components/dashboard/manager/WoTypeDistributionChart';
+import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
+import MachineAnalyticsTable from '../../components/dashboard/manager/MachineAnalyticsTable';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import { complianceColor } from '../../utils/analytics.utils';
 
 type Range = 'mtd' | '3m' | '6m' | '12m';
+
+function SectionHeader({ title, description }: { title: string; description?: string }) {
+  return (
+    <div className="flex items-baseline gap-3 pt-2">
+      <h2 className="text-base font-semibold text-[#F0F4F8] font-[Sora] whitespace-nowrap">{title}</h2>
+      <div className="flex-1 h-px bg-[#1E3A5F]" />
+      {description && (
+        <p className="text-xs text-[#8BA3BF] whitespace-nowrap">{description}</p>
+      )}
+    </div>
+  );
+}
 
 export default function AnalyticsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
@@ -102,6 +119,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
+        {/* KPI Summary */}
         <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
@@ -110,9 +128,12 @@ export default function AnalyticsPage() {
 
         <ProductionDowntimeStrip companyId={companyId} />
 
+        {/* ── Breakdowns ─────────────────────────────────────────────────── */}
+        <SectionHeader title="Breakdowns" description="Trends, types & failure patterns" />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
-            <MttrTrendChart companyId={companyId} />
+            <BreakdownTrendChart companyId={companyId} />
           </div>
           <div className="lg:col-span-4">
             <BreakdownByTypeChart companyId={companyId} />
@@ -121,39 +142,71 @@ export default function AnalyticsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-6">
-            <BreakdownHeatmap companyId={companyId} />
+            <MttrTrendChart companyId={companyId} />
           </div>
           <div className="lg:col-span-6">
-            <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
+            <BreakdownHeatmap companyId={companyId} />
+          </div>
+        </div>
+
+        {/* ── Preventive Maintenance ─────────────────────────────────────── */}
+        <SectionHeader title="Preventive Maintenance" description="Completion trends & compliance" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-8">
+            <PmTrendChart companyId={companyId} />
+          </div>
+          <div className="lg:col-span-4">
+            <PmComplianceWidget companyId={companyId} />
+          </div>
+        </div>
+
+        {/* ── Work Orders ────────────────────────────────────────────────── */}
+        <SectionHeader title="Work Orders" description="Distribution by type & cost" />
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-6">
+            <WoTypeDistributionChart companyId={companyId} />
+          </div>
+          <div className="lg:col-span-6">
+            <MaintenanceCostChart companyId={companyId} month={currentMonth} />
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
-            <MaintenanceCostChart companyId={companyId} month={currentMonth} />
+            <SlaGaugeWidget companyId={companyId} />
           </div>
           <div className="lg:col-span-4">
-            <SlaGaugeWidget companyId={companyId} />
+            <ContractorScoreboard companyId={companyId} month={currentMonth} />
           </div>
         </div>
 
+        {/* ── Team Performance ───────────────────────────────────────────── */}
+        <SectionHeader title="Team Performance" description="Per-role metrics from evaluations, audits & training" />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-6">
-            <MtbfTable companyId={companyId} />
+            <TeamPerformanceAnalyticsWidget companyId={companyId} />
           </div>
           <div className="lg:col-span-6">
             <TechnicianPerformanceTable companyId={companyId} month={currentMonth} />
           </div>
         </div>
 
+        {/* ── Machine Analytics ──────────────────────────────────────────── */}
+        <SectionHeader title="Machine Analytics" description="Per-machine breakdown count, MTTR, MTBF & health" />
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6">
-            <PmComplianceWidget companyId={companyId} />
+          <div className="lg:col-span-8">
+            <MachineAnalyticsTable companyId={companyId} />
           </div>
-          <div className="lg:col-span-6">
-            <ContractorScoreboard companyId={companyId} month={currentMonth} />
+          <div className="lg:col-span-4">
+            <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
           </div>
         </div>
+
+        <MtbfTable companyId={companyId} />
       </div>
     </div>
   );
