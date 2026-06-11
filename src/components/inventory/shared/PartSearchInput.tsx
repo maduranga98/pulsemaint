@@ -11,11 +11,17 @@ interface PartSearchInputProps {
   excludePartIds?: string[];
 }
 
+// Stable identity so the default doesn't create a new array each render,
+// which would churn the `search` callback and make results blink (PM-059).
+const EMPTY_IDS: string[] = [];
+
 export function PartSearchInput({
   onSelect,
   placeholder = 'Search parts by number or name…',
-  excludePartIds = [],
+  excludePartIds = EMPTY_IDS,
 }: PartSearchInputProps) {
+  // Derive a stable key so callers passing inline arrays don't re-trigger search.
+  const excludeKey = excludePartIds.join(',');
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [inputValue, setInputValue] = useState('');
   const [results, setResults] = useState<InventoryPart[]>([]);
@@ -62,7 +68,8 @@ export function PartSearchInput({
         setIsLoading(false);
       }
     },
-    [companyId, excludePartIds]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [companyId, excludeKey]
   );
 
   useEffect(() => {

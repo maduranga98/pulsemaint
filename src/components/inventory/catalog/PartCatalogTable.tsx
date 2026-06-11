@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Eye, Pencil, ArrowUpDown } from 'lucide-react';
+import { Eye, Pencil, ArrowUpDown, QrCode } from 'lucide-react';
 import type { InventoryPart } from '@/types/inventory';
+import { PartQrModal } from './PartQrModal';
 import { PartStatusBadge } from '@/components/inventory/shared/PartStatusBadge';
 import { PartCriticalityBadge } from '@/components/inventory/shared/PartCriticalityBadge';
 import { CategoryBadge } from '@/components/inventory/shared/CategoryBadge';
@@ -27,6 +28,7 @@ function stockColor(part: InventoryPart): string {
 
 export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogTableProps) {
   const isTechnician = useAuthStore((s) => s.isTechnician);
+  const [qrPart, setQrPart] = useState<InventoryPart | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('partNumber');
   const [sortDir, setSortDir] = useState<SortDir>('asc');
 
@@ -148,6 +150,13 @@ export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogT
                       <Pencil className="w-3 h-3" />
                       Edit
                     </button>
+                    <button
+                      onClick={() => setQrPart(part)}
+                      className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
+                    >
+                      <QrCode className="w-3 h-3" />
+                      QR
+                    </button>
                     <QuickStockAdjust
                       partId={part.id}
                       currentStock={part.currentStock}
@@ -160,6 +169,7 @@ export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogT
           })}
         </tbody>
       </table>
+      {qrPart && <PartQrModal part={qrPart} onClose={() => setQrPart(null)} />}
     </div>
   );
 }
