@@ -113,13 +113,13 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator'] },
   {
     label: 'Triage',
-    to: '/app/triage/history',
+    to: '/app/triage',
     icon: (
       <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+    roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper'],
   },
   {
     label: 'Triage Builder',

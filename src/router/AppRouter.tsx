@@ -44,16 +44,19 @@ import {
   MachineQrPage,
 } from '../pages/machines';
 
-// Triage pages
+// Triage pages (flow runner — legacy)
 import TriageRunnerPage from '../pages/triage/TriageRunnerPage';
 import TriageCompletePage from '../pages/triage/TriageCompletePage';
 import TriageHistoryPage from '../pages/triage/TriageHistoryPage';
 import TriageSessionDetailPage from '../pages/triage/TriageSessionDetailPage';
-import TriageBuilderLibraryPage from '../pages/triage-builder/TriageBuilderLibraryPage';
 import TriageBuilderCreatePage from '../pages/triage-builder/TriageBuilderCreatePage';
 import TriageBuilderEditPage from '../pages/triage-builder/TriageBuilderEditPage';
 import TriageBuilderFlowDetailPage from '../pages/triage-builder/TriageBuilderFlowDetailPage';
 import TriageBuilderTemplatesPage from '../pages/triage-builder/TriageBuilderTemplatesPage';
+
+// Triage Knowledge Hub (new modules)
+import TriageKnowledgePage from '../features/triage/TriagePage';
+import TriageKnowledgeBuilderPage from '../features/triage/TriageBuilderPage';
 
 // PM pages
 import {
@@ -750,7 +753,17 @@ export default function AppRouter() {
           }
         />
 
-        {/* Triage history (inside AppLayout) */}
+        {/* Triage Knowledge Hub (new) */}
+        <Route
+          path="triage"
+          element={
+            <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper']}>
+              <TriageKnowledgePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Triage flow runner history (legacy, inside AppLayout) */}
         <Route
           path="triage/history"
           element={
@@ -773,7 +786,7 @@ export default function AppRouter() {
           path="triage-builder"
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
-              <TriageBuilderLibraryPage />
+              <TriageKnowledgeBuilderPage />
             </ProtectedRoute>
           }
         />

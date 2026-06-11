@@ -144,6 +144,14 @@ const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail")
 exports.sendInvitationEmail = sendInvitationEmail;
 
 // ---------------------------------------------------------------------------
+// Triage Knowledge Hub — AI Assist
+// ---------------------------------------------------------------------------
+
+const { triageAssist } = require("./src/triageAssist");
+
+exports.triageAssist = triageAssist;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
