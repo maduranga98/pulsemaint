@@ -1,10 +1,12 @@
 import { useState, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import type { BreakdownStatus } from '../types/breakdown';
 import { db } from '../lib/firebase';
 import type { WorkOrder, WOStatus } from '../types/workOrder';
+import type { Permit } from '../types/permit';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
+import { computeLotoGatePassed } from '../lib/lotoGate';
 
 interface UseUpdateWorkOrderResult {
   updateWO: (id: string, data: Partial<WorkOrder>) => Promise<boolean>;
@@ -42,6 +44,50 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
       if (!user) return false;
       setLoading(true);
       setError(null);
+
+      // LOTO gate check: when transitioning ASSIGNED → IN_PROGRESS
+      if (status === 'IN_PROGRESS') {
+        try {
+          const woSnap = await getDoc(doc(db, 'workOrders', id));
+          const woData = woSnap.data() as WorkOrder | undefined;
+
+          if (woData && woData.status === 'ASSIGNED') {
+            // Fetch permit for this work order
+            const permitQuery = query(
+              collection(db, 'permits'),
+              where('workOrderId', '==', id),
+              limit(1),
+            );
+            const permitSnap = await getDocs(permitQuery);
+            const permit = permitSnap.empty
+              ? null
+              : ({ id: permitSnap.docs[0].id, ...permitSnap.docs[0].data() } as Permit);
+
+            const ptwCategory = woData.ptwCategory ?? null;
+            const gatePassed = computeLotoGatePassed(permit, ptwCategory);
+
+            if (!gatePassed) {
+              const msg =
+                permit === null
+                  ? 'Safety gate not initialized. Please complete LOTO/PTW before starting work.'
+                  : !permit.isolationChecklist.every((e) => e.locked)
+                  ? 'Not all isolation points are locked. Complete LOTO procedure first.'
+                  : !permit.zeroEnergyVerified
+                  ? 'Zero energy state not verified. Complete verification before starting work.'
+                  : ptwCategory
+                  ? 'Permit to Work must be issued before starting work.'
+                  : 'Safety gate check failed. Complete LOTO/PTW procedure first.';
+              setError(msg);
+              toast.error(msg);
+              setLoading(false);
+              return false;
+            }
+          }
+        } catch (gateErr) {
+          console.error('LOTO gate check error', gateErr);
+          // Non-blocking: if check fails (e.g. permission error on an isolated network), allow transition
+        }
+      }
 
       const historyEntry = {
         status,

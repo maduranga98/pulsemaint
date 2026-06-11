@@ -47,6 +47,19 @@ export interface MachineDocument {
 }
 
 // ---------------------------------------------------------------------------
+// Isolation Points (LOTO/PTW)
+// ---------------------------------------------------------------------------
+
+export type IsolationPointType = 'electrical' | 'hydraulic' | 'pneumatic' | 'mechanical' | 'thermal';
+
+export interface IsolationPoint {
+  id: string;
+  type: IsolationPointType;
+  label: string;
+  location: string;
+}
+
+// ---------------------------------------------------------------------------
 // Core Machine Interface
 // ---------------------------------------------------------------------------
 
@@ -88,6 +101,7 @@ export interface Machine {
   documents: MachineDocument[];
   photos: string[]; // Firebase Storage URLs
   warrantyItems: WarrantyItem[];
+  isolationPoints: IsolationPoint[];
 
   // Additional Info
   modificationNotes: string | null;

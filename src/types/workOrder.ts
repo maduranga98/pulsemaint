@@ -65,6 +65,15 @@ export interface ChecklistItem {
   completedBy: string | null;
   completedByName: string | null;
   completedAt: Timestamp | null;
+  // Measurement fields
+  inputType: 'checkbox' | 'measurement';
+  method: string | null;
+  unit: string | null;
+  acceptableMin: number | null;
+  acceptableMax: number | null;
+  actualValue: number | null;
+  result: 'pass' | 'fail' | null;
+  repairNote: string | null;
 }
 
 export interface WODocument {
@@ -158,6 +167,7 @@ export interface WorkOrder {
   priority: WOPriority;
   status: WOStatus;
   description: string;
+  ptwCategory: string | null;
   dueDate: Timestamp;
   slaDeadline: Timestamp;
   slaBreached: boolean;

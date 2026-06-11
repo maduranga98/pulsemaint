@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 .env
 .env.example
+
+# Claude Code agent worktrees (temporary, not for version control)
+.claude/
