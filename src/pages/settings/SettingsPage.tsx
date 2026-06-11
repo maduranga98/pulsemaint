@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Building2, Clock, Users, Boxes, ChevronRight } from 'lucide-react';
+import { Building2, Clock, Users, Boxes, Bell, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 interface Tile {
@@ -30,6 +30,12 @@ export default function SettingsPage() {
       description: 'Reorder thresholds, units, and stock policies.',
       to: '/app/inventory/settings',
       icon: <Boxes className="w-5 h-5" />,
+    },
+    {
+      title: 'Notifications',
+      description: 'Choose push/email alerts per event type.',
+      to: '/app/settings/notifications',
+      icon: <Bell className="w-5 h-5" />,
     },
   ];
 

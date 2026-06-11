@@ -135,6 +135,7 @@ import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
+import NotificationsPage from '../pages/settings/NotificationsPage';
 
 // Module 16 — OEE
 import { OEEPage } from '../modules/oee/pages/OEEPage';
@@ -508,6 +509,7 @@ export default function AppRouter() {
         <Route path="shift/handover/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverHistoryPage /></ProtectedRoute>} />
         <Route path="shift/handover/:id" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverDetailPage /></ProtectedRoute>} />
         <Route path="settings/shifts" element={<ProtectedRoute requiredRoles={['admin']}><ShiftConfigPage /></ProtectedRoute>} />
+        <Route path="settings/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
         <Route path="reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><MainReportsHubPage /></ProtectedRoute>} />
         <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><ReportHistoryPage /></ProtectedRoute>} />
         <Route

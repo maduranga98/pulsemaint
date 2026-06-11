@@ -21,6 +21,7 @@ import { nanoid } from 'nanoid';
 import { auth, db, functions } from './firebase';
 import { useAuthStore } from '../store/authStore';
 import type { Invitation, UserProfile, UserRole } from '../types/auth';
+import { defaultNotificationPrefs } from '../types/notificationPrefs';
 
 const INVITE_EXPIRY_DAYS = 7;
 
@@ -211,6 +212,8 @@ async function createUserFromInvitation(
     companyId: invitation.companyId,
     role: invitation.role,
     siteId: null,
+    // Default: push+email for high-severity events, push-only for the rest.
+    notificationPrefs: defaultNotificationPrefs(),
   });
 
   await updateDoc(doc(db, `companies/${invitation.companyId}/invitations/${invitation.id}`), {

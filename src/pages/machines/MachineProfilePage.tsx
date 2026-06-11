@@ -10,8 +10,9 @@ import { RcaHistoryList } from '../../components/machines/RcaHistoryList';
 import { IsolationPointsTab } from '../../components/machines/IsolationPointsTab';
 import { ConditionMonitoringTab } from '../../components/machines/ConditionMonitoringTab';
 import { TcoTab } from '../../components/machines/TcoTab';
+import { CommentThread } from '../../components/comments/CommentThread';
 
-type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'isolation' | 'condition' | 'tco';
+type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'isolation' | 'condition' | 'tco' | 'comments';
 
 export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -79,6 +80,7 @@ export function MachineProfilePage() {
     { name: 'tco', label: 'Lifecycle / TCO' },
     { name: 'isolation', label: 'Isolation Points' },
     { name: 'condition', label: 'Condition Monitoring' },
+    { name: 'comments', label: 'Comments' },
   ];
 
   const analyticsTabDisabled = userProfile.role !== 'plant_manager' && userProfile.role !== 'admin';
@@ -236,6 +238,16 @@ export function MachineProfilePage() {
         {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
         {activeTab === 'tco' && <TcoTab machine={machine} />}
+        {activeTab === 'comments' && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <CommentThread
+              parentType="machines"
+              parentId={machine.id}
+              parentLink={`/app/machines/${machine.id}`}
+              parentLabel={machine.name}
+            />
+          </div>
+        )}
         {activeTab === 'isolation' && (
           <IsolationPointsTab machine={machine} canEdit={canEditMachine} />
         )}

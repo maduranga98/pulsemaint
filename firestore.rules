@@ -151,6 +151,15 @@ service cloud.firestore {
 
         allow delete: if isAdmin();
       }
+
+      // Threaded comments — append-only; authors edit/delete only their own.
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated()
+          && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if isAuthenticated()
+          && resource.data.authorId == request.auth.uid;
+      }
     }
 
     // ---------------------------------------------------------------------------
@@ -222,6 +231,15 @@ service cloud.firestore {
       ]);
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
       allow write: if isAdmin() || isSupervisor() || isPlantManager();
+
+      // Threaded comments — append-only; authors edit/delete only their own.
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated()
+          && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if isAuthenticated()
+          && resource.data.authorId == request.auth.uid;
+      }
     }
 
     // ---------------------------------------------------------------------------
@@ -749,5 +767,16 @@ service cloud.firestore {
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
       allow delete: if isAdmin();
+    }
+
+    // userNotifications — per-user in-app inbox (mentions, comments).
+    // Created by any authenticated user (e.g. when @mentioning a teammate);
+    // recipients read and mark their own as read.
+    match /userNotifications/{notificationId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId is string;
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 }

@@ -14,8 +14,9 @@ import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
 import { db } from '../../lib/firebase';
+import { CommentThread } from '../comments/CommentThread';
 
-type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history' | 'permits';
+type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history' | 'permits' | 'comments';
 
 interface WODetailPanelProps {
   workOrder: WorkOrder;
@@ -65,6 +66,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
     { key: 'parts', label: WO_COPY.tabParts },
     { key: 'history', label: WO_COPY.tabHistory },
     { key: 'permits', label: 'LOTO/PTW' },
+    { key: 'comments', label: 'Comments' },
   ];
 
   async function handleSignOff() {
@@ -384,6 +386,15 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* ── LOTO/PTW Permits ── */}
           {activeTab === 'permits' && (
             <LotoGate workOrder={workOrder} machineIsolationPoints={machineIsolationPoints} />
+          )}
+
+          {activeTab === 'comments' && (
+            <CommentThread
+              parentType="workOrders"
+              parentId={workOrder.id}
+              parentLink={`/app/work-orders?woId=${workOrder.id}`}
+              parentLabel={workOrder.woNumber || 'Work Order'}
+            />
           )}
 
           {/* Completion form (inline) */}

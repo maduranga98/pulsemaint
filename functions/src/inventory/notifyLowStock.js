@@ -12,36 +12,21 @@
 
 const { onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { getFirestore } = require("firebase-admin/firestore");
-const { getMessaging } = require("firebase-admin/messaging");
 const logger = require("firebase-functions/logger");
+const { dispatchToRoles } = require("../lib/notificationDispatch");
 
 const db = getFirestore("default");
 
+// Route low-stock alerts through the shared dispatcher so each recipient's
+// per-user notification preferences (push/email) are honored.
 async function sendPushToRoles(companyId, roles, title, body, data = {}) {
-  const tokens = [];
-  for (const role of roles) {
-    const snap = await db
-      .collection("users")
-      .where("companyId", "==", companyId)
-      .where("role", "==", role)
-      .get();
-    for (const doc of snap.docs) {
-      const token = doc.data().fcmToken;
-      if (token) tokens.push(token);
-    }
-  }
-
-  if (!tokens.length) return;
-
-  try {
-    await getMessaging().sendEachForMulticast({
-      tokens,
-      notification: { title, body },
-      data,
-    });
-  } catch (err) {
-    logger.error("FCM low-stock notification failed", err);
-  }
+  await dispatchToRoles(companyId, roles, "lowStock", {
+    title,
+    body,
+    data,
+    emailSubject: title,
+    emailHtml: `<p>${body}</p>`,
+  });
 }
 
 exports.notifyLowStock = onDocumentUpdated({ database: "default", document: "companies/{companyId}/inventoryParts/{partId}" },

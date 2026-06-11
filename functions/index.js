@@ -152,6 +152,18 @@ const { triageAssist } = require("./src/triageAssist");
 exports.triageAssist = triageAssist;
 
 // ---------------------------------------------------------------------------
+// In-App Messaging — comment @mention notifications (prefs-aware dispatch)
+// ---------------------------------------------------------------------------
+
+const {
+  onWorkOrderCommentMention,
+  onMachineCommentMention,
+} = require("./src/messaging/onCommentMention");
+
+exports.onWorkOrderCommentMention = onWorkOrderCommentMention;
+exports.onMachineCommentMention = onMachineCommentMention;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

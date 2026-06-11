@@ -22,6 +22,7 @@ import {
 import { auth, db } from './firebase';
 import { useAuthStore } from '../store/authStore';
 import type { CompanyProfile, UserProfile, UserRole } from '../types/auth';
+import { defaultNotificationPrefs } from '../types/notificationPrefs';
 
 export const authErrorMessages: Record<string, string> = {
   'auth/user-not-found': 'No account found with this email address.',
@@ -116,6 +117,7 @@ export async function registerCompany(data: {
       companyId: companyRef.id,
       role: 'admin',
       siteId: null,
+      notificationPrefs: defaultNotificationPrefs(),
     });
 
     console.log('Company registration complete', { uid, companyId: companyRef.id });
@@ -232,6 +234,7 @@ export async function confirmOTP(
         companyId,
         role: newProfile.role,
         siteId: newProfile.siteIds[0] ?? null,
+        notificationPrefs: defaultNotificationPrefs(),
       });
     }
 
@@ -304,6 +307,7 @@ export async function loginWithGoogle(): Promise<UserProfile> {
         companyId,
         role: newProfile.role,
         siteId: newProfile.siteIds[0] ?? null,
+        notificationPrefs: defaultNotificationPrefs(),
       });
     }
 
