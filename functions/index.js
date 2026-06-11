@@ -127,6 +127,7 @@ const { updateMachineHealth } = require("./src/analytics/updateMachineHealth");
 const { updateTechnicianStatus } = require("./src/analytics/updateTechnicianStatus");
 const { recalculateMtbf } = require("./src/analytics/recalculateMtbf");
 const { recalculateMttr } = require("./src/analytics/recalculateMttr");
+const { metricsDaily } = require("./src/analytics/metricsDaily");
 
 exports.generateDailyAnalytics = generateDailyAnalytics;
 exports.generateMonthlyAnalytics = generateMonthlyAnalytics;
@@ -134,6 +135,7 @@ exports.updateMachineHealth = updateMachineHealth;
 exports.updateTechnicianStatus = updateTechnicianStatus;
 exports.recalculateMtbf = recalculateMtbf;
 exports.recalculateMttr = recalculateMttr;
+exports.metricsDaily = metricsDaily;
 
 // ---------------------------------------------------------------------------
 // Invitations Module — Cloud Functions

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, Timestamp, arrayUnion } from 'firebase/firestore';
-import { AlertCircle, ArrowLeft, X } from 'lucide-react';
+import { doc, onSnapshot, updateDoc, Timestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { AlertCircle, ArrowLeft, X, CheckCircle } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownStatus } from '../../types/breakdown';
+import { RCAModal } from '../../components/breakdowns/RCAModal';
+import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
   reported: 'Reported',
@@ -50,6 +52,13 @@ export default function ViewBreakdownPage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
+  const [showRCAModal, setShowRCAModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'cancel' | 'close' | null>(null);
+  const [rcaDoc, setRcaDoc] = useState<{ status: string; rootCause: string } | null>(null);
+
+  const isSupervisorRole = [
+    'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin',
+  ].includes(userProfile?.role ?? '');
 
   useEffect(() => {
     if (!id) return;
@@ -69,6 +78,23 @@ export default function ViewBreakdownPage() {
       },
     );
     return () => unsub();
+  }, [id]);
+
+  // Load RCA doc for this breakdown
+  useEffect(() => {
+    if (!id) return;
+    const q = query(
+      collection(db, 'rca'),
+      where('breakdownId', '==', id),
+      orderBy('createdAt', 'desc'),
+      limit(1),
+    );
+    getDocs(q).then((snap) => {
+      if (!snap.empty) {
+        const data = snap.docs[0].data();
+        setRcaDoc({ status: data.status, rootCause: data.rootCause ?? '' });
+      }
+    }).catch(() => {}); // silently ignore permission errors
   }, [id]);
 
   async function handleCancel() {
@@ -92,6 +118,63 @@ export default function ViewBreakdownPage() {
       setError(err?.message || 'Failed to cancel breakdown.');
     } finally {
       setCancelling(false);
+    }
+  }
+
+  async function handleClose() {
+    if (!id || !userProfile) return;
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', id), {
+        status: 'closed',
+        closedAt: Timestamp.now(),
+        statusHistory: arrayUnion({
+          status: 'closed',
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: new Date().toISOString(),
+          note: 'Breakdown closed after resolution and RCA.',
+        }),
+      });
+      navigate('/app/breakdowns', { replace: true });
+    } catch (err: any) {
+      setError(err?.message || 'Failed to close breakdown.');
+    }
+  }
+
+  function handleInitiateClose(action: 'cancel' | 'close') {
+    if (!breakdown) return;
+    if (
+      isRCARequired(breakdown.severity) &&
+      !canCloseBreakdown(breakdown.severity, rcaDoc, isSupervisorRole)
+    ) {
+      setPendingAction(action);
+      setShowRCAModal(true);
+    } else {
+      if (action === 'cancel') {
+        setShowCancelModal(true);
+      } else {
+        handleClose();
+      }
+    }
+  }
+
+  function handleRCASaved(_rcaId: string, completed: boolean) {
+    setShowRCAModal(false);
+    // Re-check if we can now proceed
+    const newRca = completed ? { status: 'completed', rootCause: 'completed' } : rcaDoc;
+    if (pendingAction === 'cancel') {
+      if (completed || isSupervisorRole) {
+        setShowCancelModal(true);
+      }
+    } else if (pendingAction === 'close') {
+      if (completed || isSupervisorRole) {
+        handleClose();
+      }
+    }
+    setPendingAction(null);
+    // Update local rcaDoc to prevent re-blocking
+    if (completed) {
+      setRcaDoc({ status: 'completed', rootCause: 'see rca record' });
     }
   }
 
@@ -146,10 +229,20 @@ export default function ViewBreakdownPage() {
               <ArrowLeft className="w-4 h-4 inline mr-1" />
               Back
             </button>
+            {b.status === 'resolved' && (
+              <button
+                type="button"
+                onClick={() => handleInitiateClose('close')}
+                className="px-4 py-2 border border-emerald-200 bg-emerald-50 text-emerald-700 font-medium rounded-lg hover:bg-emerald-100 text-sm"
+              >
+                <CheckCircle className="w-4 h-4 inline mr-1" />
+                Close Breakdown
+              </button>
+            )}
             {!['resolved', 'closed'].includes(b.status) && (
               <button
                 type="button"
-                onClick={() => setShowCancelModal(true)}
+                onClick={() => handleInitiateClose('cancel')}
                 className="px-4 py-2 border border-red-200 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 text-sm"
               >
                 <X className="w-4 h-4 inline mr-1" />
@@ -246,6 +339,14 @@ export default function ViewBreakdownPage() {
           )}
         </div>
       </div>
+
+      {showRCAModal && breakdown && (
+        <RCAModal
+          breakdown={breakdown}
+          onClose={() => { setShowRCAModal(false); setPendingAction(null); }}
+          onSaved={handleRCASaved}
+        />
+      )}
 
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

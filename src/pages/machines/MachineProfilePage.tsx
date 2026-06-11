@@ -6,10 +6,10 @@ import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from 
 import { formatDate } from '../../lib/dateUtils';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
-import { IsolationPointsTab } from '../../components/machines/IsolationPointsTab';
-import { ConditionMonitoringTab } from '../../components/machines/ConditionMonitoringTab';
+import { RCAHistoryList } from '../../components/machines/RCAHistoryList';
+import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields';
 
-type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'isolation' | 'condition';
+type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'rca';
 
 export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -74,8 +74,7 @@ export function MachineProfilePage() {
     { name: 'history', label: 'Breakdown History' },
     { name: 'maintenance', label: 'Maintenance History' },
     { name: 'analytics', label: 'Analytics' },
-    { name: 'isolation', label: 'Isolation Points' },
-    { name: 'condition', label: 'Condition Monitoring' },
+    { name: 'rca', label: 'RCA History' },
   ];
 
   const analyticsTabDisabled = userProfile.role !== 'plant_manager' && userProfile.role !== 'admin';
@@ -203,40 +202,39 @@ export function MachineProfilePage() {
       {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex gap-1 border-b border-gray-200 bg-white">
-          {tabs.map((tab) => {
-            const isDisabled = tab.name === 'analytics' && analyticsTabDisabled;
-            return (
-              <button
-                key={tab.name}
-                onClick={() => {
-                  if (!isDisabled) setActiveTab(tab.name);
-                }}
-                disabled={isDisabled}
-                className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
-                  activeTab === tab.name
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                } ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+          {tabs.map((tab) => (
+            <button
+              key={tab.name}
+              onClick={() => {
+                if (tab.name !== 'analytics' || !analyticsTabDisabled) {
+                  setActiveTab(tab.name);
+                }
+              }}
+              disabled={tab.name === 'analytics' && analyticsTabDisabled}
+              className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+                activeTab === tab.name
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              } ${tab.name === 'analytics' && analyticsTabDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-        {activeTab === 'overview' && <OverviewTab machine={machine} />}
+        {activeTab === 'overview' && <OverviewTab machine={machine} canEdit={canEditMachine} />}
         {activeTab === 'documents' && <DocumentsTab machine={machine} />}
         {activeTab === 'history' && <HistoryTab machine={machine} />}
         {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
-        {activeTab === 'isolation' && (
-          <IsolationPointsTab machine={machine} canEdit={canEditMachine} />
-        )}
-        {activeTab === 'condition' && (
-          <ConditionMonitoringTab machine={machine} />
+        {activeTab === 'rca' && (
+          <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="font-semibold text-gray-900 mb-4">RCA History</h3>
+            <RCAHistoryList machineId={machine.id} />
+          </div>
         )}
       </div>
     </div>
@@ -244,7 +242,7 @@ export function MachineProfilePage() {
 }
 
 // Tab Components
-function OverviewTab({ machine }: any) {
+function OverviewTab({ machine, canEdit }: any) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Machine Details */}
@@ -344,6 +342,9 @@ function OverviewTab({ machine }: any) {
           <p className="text-gray-600 text-sm">No warranty items</p>
         )}
       </div>
+
+      {/* Downtime Cost */}
+      <DowntimeCostFields machine={machine} canEdit={canEdit} />
     </div>
   );
 }

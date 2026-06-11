@@ -48,6 +48,15 @@ export type PartSource = 'stock' | 'external';
 
 export type EstimatedDurationUnit = 'minutes' | 'hours' | 'days';
 
+export type TimeSegmentState = 'travel' | 'waiting-parts' | 'waiting-permit' | 'working';
+
+export interface TimeSegment {
+  state: TimeSegmentState;
+  startAt: Timestamp;
+  endAt: Timestamp | null;
+  note: string | null;
+}
+
 // ---------------------------------------------------------------------------
 // Sub-Interfaces
 // ---------------------------------------------------------------------------
@@ -236,6 +245,9 @@ export interface WorkOrder {
 
   // Status History
   statusHistory: WOStatusHistoryEntry[];
+
+  // Time Tracking
+  timeSegments: TimeSegment[];
 
   // Metadata
   createdBy: string;

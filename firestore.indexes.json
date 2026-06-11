@@ -757,28 +757,36 @@
       ]
     },
     {
-      "collectionGroup": "permits",
+      "collectionGroup": "rca",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "workOrderId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        { "fieldPath": "breakdownId", "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "permits",
+      "collectionGroup": "rca",
       "queryScope": "COLLECTION",
       "fields": [
         { "fieldPath": "machineId", "order": "ASCENDING" },
-        { "fieldPath": "status", "order": "ASCENDING" }
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     },
     {
-      "collectionGroup": "conditionReadings",
+      "collectionGroup": "maintenanceBacklog",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "machineId", "order": "ASCENDING" },
-        { "fieldPath": "parameter", "order": "ASCENDING" },
-        { "fieldPath": "takenAt", "order": "DESCENDING" }
+        { "fieldPath": "siteId", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "riskScore", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "maintenanceBacklog",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "siteId", "order": "ASCENDING" },
+        { "fieldPath": "riskScore", "order": "DESCENDING" }
       ]
     }
   ],

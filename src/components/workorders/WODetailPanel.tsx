@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { useState } from 'react';
 import type { WorkOrder } from '../../types/workOrder';
-import type { IsolationPoint } from '../../types/machine';
 import { WO_COPY } from '../../constants/copy';
 import { WOTypeBadge } from './WOTypeBadge';
 import { PriorityBadge } from './PriorityBadge';
@@ -9,13 +7,12 @@ import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { WOCompletionForm } from './WOCompletionForm';
 import { SignatureCanvas } from './SignatureCanvas';
-import { LotoGate } from './LotoGate';
+import { WrenchTimeTracker } from './WrenchTimeTracker';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
-import { db } from '../../lib/firebase';
 
-type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history' | 'permits';
+type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history' | 'wrenchtime';
 
 interface WODetailPanelProps {
   workOrder: WorkOrder;
@@ -31,7 +28,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const [signOffNotes, setSignOffNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [machineIsolationPoints, setMachineIsolationPoints] = useState<IsolationPoint[]>([]);
 
   const { updateStatus, loading: statusLoading } = useUpdateWorkOrder();
   const { signOff, loading: signOffLoading } = useSignOff();
@@ -45,26 +41,13 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];
   const isAssigned = workOrder.assignedTechnicianIds.some((id) => myIds.includes(id));
 
-  // Fetch machine isolation points when permits tab is active
-  useEffect(() => {
-    if (activeTab !== 'permits' || !workOrder.machineId) return;
-    getDoc(doc(db, 'machines', workOrder.machineId))
-      .then((snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          setMachineIsolationPoints((data.isolationPoints as IsolationPoint[]) ?? []);
-        }
-      })
-      .catch((err) => console.error('Failed to load machine isolation points', err));
-  }, [activeTab, workOrder.machineId]);
-
   const TABS: { key: TabKey; label: string }[] = [
     { key: 'overview', label: WO_COPY.tabOverview },
     { key: 'checklist', label: WO_COPY.tabChecklist },
     { key: 'documents', label: WO_COPY.tabDocuments },
     { key: 'parts', label: WO_COPY.tabParts },
     { key: 'history', label: WO_COPY.tabHistory },
-    { key: 'permits', label: 'LOTO/PTW' },
+    { key: 'wrenchtime', label: 'Wrench Time' },
   ];
 
   async function handleSignOff() {
@@ -381,9 +364,12 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
             </div>
           )}
 
-          {/* ── LOTO/PTW Permits ── */}
-          {activeTab === 'permits' && (
-            <LotoGate workOrder={workOrder} machineIsolationPoints={machineIsolationPoints} />
+          {/* ── Wrench Time ── */}
+          {activeTab === 'wrenchtime' && (
+            <WrenchTimeTracker
+              workOrder={workOrder}
+              readOnly={!isAssigned && !isSupervisor}
+            />
           )}
 
           {/* Completion form (inline) */}
