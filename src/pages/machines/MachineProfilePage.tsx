@@ -9,8 +9,9 @@ import { BreakdownHistoryList } from '../../components/machines/BreakdownHistory
 import { RcaHistoryList } from '../../components/machines/RcaHistoryList';
 import { IsolationPointsTab } from '../../components/machines/IsolationPointsTab';
 import { ConditionMonitoringTab } from '../../components/machines/ConditionMonitoringTab';
+import { TcoTab } from '../../components/machines/TcoTab';
 
-type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'isolation' | 'condition';
+type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'isolation' | 'condition' | 'tco';
 
 export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -75,6 +76,7 @@ export function MachineProfilePage() {
     { name: 'history', label: 'Breakdown History' },
     { name: 'maintenance', label: 'Maintenance History' },
     { name: 'analytics', label: 'Analytics' },
+    { name: 'tco', label: 'Lifecycle / TCO' },
     { name: 'isolation', label: 'Isolation Points' },
     { name: 'condition', label: 'Condition Monitoring' },
   ];
@@ -233,6 +235,7 @@ export function MachineProfilePage() {
         {activeTab === 'history' && <HistoryTab machine={machine} />}
         {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
+        {activeTab === 'tco' && <TcoTab machine={machine} />}
         {activeTab === 'isolation' && (
           <IsolationPointsTab machine={machine} canEdit={canEditMachine} />
         )}

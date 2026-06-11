@@ -85,6 +85,8 @@ export function useMachineCreate({
           ? Timestamp.fromDate(payload.installationDate)
           : null,
         expectedLifespanYears: payload.expectedLifespanYears || null,
+        purchasePrice: payload.purchasePrice ?? null,
+        replacementValue: payload.replacementValue ?? null,
         department: payload.department,
         floor: payload.floor || null,
         bay: payload.bay || null,

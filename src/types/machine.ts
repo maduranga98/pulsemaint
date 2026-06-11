@@ -77,6 +77,10 @@ export interface Machine {
   installationDate: Timestamp | null;
   expectedLifespanYears: number | null;
 
+  // Lifecycle / TCO
+  purchasePrice: number | null;
+  replacementValue: number | null;
+
   // Location
   department: string;
   floor: string | null;
@@ -134,6 +138,8 @@ export interface CreateMachinePayload {
   installationDate: Date | null;
   nextPmDue: Date | null;
   expectedLifespanYears: number | null;
+  purchasePrice?: number | null;
+  replacementValue?: number | null;
   department: string;
   floor: string | null;
   bay: string | null;
@@ -161,6 +167,8 @@ export interface UpdateMachinePayload {
   installationDate?: Date | null;
   nextPmDue?: Date | null;
   expectedLifespanYears?: number | null;
+  purchasePrice?: number | null;
+  replacementValue?: number | null;
   department?: string;
   floor?: string | null;
   bay?: string | null;

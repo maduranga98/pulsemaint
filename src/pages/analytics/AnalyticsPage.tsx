@@ -15,6 +15,7 @@ import PmTrendChart from '../../components/dashboard/manager/PmTrendChart';
 import WoTypeDistributionChart from '../../components/dashboard/manager/WoTypeDistributionChart';
 import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import MachineAnalyticsTable from '../../components/dashboard/manager/MachineAnalyticsTable';
+import FleetTcoTable from '../../components/dashboard/manager/FleetTcoTable';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
@@ -207,6 +208,14 @@ export default function AnalyticsPage() {
         </div>
 
         <MtbfTable companyId={companyId} />
+
+        {/* ── Lifecycle / TCO ────────────────────────────────────────────── */}
+        <SectionHeader
+          title="Lifecycle / TCO"
+          description="Cumulative repair spend vs replacement value"
+        />
+
+        <FleetTcoTable />
       </div>
     </div>
   );

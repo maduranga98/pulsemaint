@@ -96,6 +96,12 @@ export function useMachineUpdate({
       if (payload.expectedLifespanYears !== undefined) {
         updateData.expectedLifespanYears = payload.expectedLifespanYears;
       }
+      if (payload.purchasePrice !== undefined) {
+        updateData.purchasePrice = payload.purchasePrice;
+      }
+      if (payload.replacementValue !== undefined) {
+        updateData.replacementValue = payload.replacementValue;
+      }
       if (payload.department) updateData.department = payload.department;
       if (payload.floor !== undefined) updateData.floor = payload.floor;
       if (payload.bay !== undefined) updateData.bay = payload.bay;

@@ -15,6 +15,7 @@ import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShi
 import TeamPerformanceWidget from '../../components/dashboard/manager/TeamPerformanceWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import BacklogRiskWidget from '../../components/dashboard/manager/BacklogRiskWidget';
+import MachinesNeedingAttentionCard from '../../components/dashboard/manager/MachinesNeedingAttentionCard';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 
 export default function ManagerDashboard() {
@@ -124,9 +125,10 @@ export default function ManagerDashboard() {
           <SlaGaugeWidget companyId={companyId} />
         </div>
 
-        {/* Row 6: High-Risk Backlog */}
+        {/* Row 6: High-Risk Backlog + Machines Needing Attention (TCO) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <BacklogRiskWidget />
+          <MachinesNeedingAttentionCard />
         </div>
       </div>
 

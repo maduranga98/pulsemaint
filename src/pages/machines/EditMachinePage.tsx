@@ -61,6 +61,8 @@ export function EditMachinePage() {
         installationDate: formData.installationDate || null,
         nextPmDue: formData.nextPmDue || null,
         expectedLifespanYears: formData.expectedLifespanYears || null,
+        purchasePrice: formData.purchasePrice ?? null,
+        replacementValue: formData.replacementValue ?? null,
         department: formData.department,
         floor: formData.floor || null,
         bay: formData.bay || null,

@@ -91,6 +91,8 @@ export function MachineForm({
             ? new Date(initialData.nextPmDue.seconds * 1000)
             : null,
           expectedLifespanYears: initialData?.expectedLifespanYears,
+          purchasePrice: initialData?.purchasePrice ?? null,
+          replacementValue: initialData?.replacementValue ?? null,
           department: initialData?.department,
           floor: initialData?.floor,
           bay: initialData?.bay,
@@ -145,6 +147,7 @@ export function MachineForm({
   const FIELD_STEP_MAP: Record<string, number> = {
     name: 0, type: 0, manufacturer: 0, model: 0, serialNumber: 0,
     purchaseDate: 0, installationDate: 0, expectedLifespanYears: 0,
+    purchasePrice: 0, replacementValue: 0,
     department: 1, floor: 1, bay: 1, station: 1,
     status: 2, criticality: 2, healthScore: 2, nextPmDue: 2,
     photoFiles: 3, documentFiles: 3,
@@ -459,6 +462,46 @@ function renderFormSection(
                     type="date"
                     value={field.value instanceof Date ? field.value.toISOString().split('T')[0] : ''}
                     onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Price</label>
+              <Controller
+                name="purchasePrice"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="e.g. 5000000"
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                )}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Replacement Value</label>
+              <Controller
+                name="replacementValue"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    placeholder="Cost to replace today"
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
