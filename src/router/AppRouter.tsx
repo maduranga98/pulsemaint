@@ -79,6 +79,7 @@ import StockMovementLogPage from '../pages/inventory/StockMovementLogPage';
 import PurchaseOrdersPage from '../pages/inventory/PurchaseOrdersPage';
 import CreatePurchaseOrderPage from '../pages/inventory/CreatePurchaseOrderPage';
 import PurchaseOrderDetailPage from '../pages/inventory/PurchaseOrderDetailPage';
+import EditPurchaseOrderPage from '../pages/inventory/EditPurchaseOrderPage';
 import ExcelImportPage from '../pages/inventory/ExcelImportPage';
 import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
 import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
@@ -424,6 +425,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
               <CreatePurchaseOrderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/purchase-orders/:poId/edit"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <EditPurchaseOrderPage />
             </ProtectedRoute>
           }
         />
