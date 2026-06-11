@@ -30,6 +30,7 @@ exports.submitHandover = onCall(async (request) => {
     stats,
     outgoingSupervisorId,
     outgoingSupervisorName,
+    outgoingSupervisorDesignation,
   } = request.data || {};
 
   if (!companyId || !draft || !stats || !outgoingSupervisorId) {
@@ -50,10 +51,12 @@ exports.submitHandover = onCall(async (request) => {
     shiftDate: shiftDate(start.toDate()),
     outgoingSupervisorId,
     outgoingSupervisorName: outgoingSupervisorName || "Supervisor",
+    outgoingSupervisorDesignation: outgoingSupervisorDesignation || null,
     shiftActualStart: start,
     handoverSubmittedAt: submittedAt,
     incomingSupervisorId: null,
     incomingSupervisorName: null,
+    incomingSupervisorDesignation: null,
     handoverAcceptedAt: null,
     overlapMinutes: null,
     stats,

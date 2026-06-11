@@ -79,6 +79,7 @@ import StockMovementLogPage from '../pages/inventory/StockMovementLogPage';
 import PurchaseOrdersPage from '../pages/inventory/PurchaseOrdersPage';
 import CreatePurchaseOrderPage from '../pages/inventory/CreatePurchaseOrderPage';
 import PurchaseOrderDetailPage from '../pages/inventory/PurchaseOrderDetailPage';
+import EditPurchaseOrderPage from '../pages/inventory/EditPurchaseOrderPage';
 import ExcelImportPage from '../pages/inventory/ExcelImportPage';
 import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
 import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
@@ -134,10 +135,6 @@ import UsersPage from '../pages/settings/UsersPage';
 
 // Module 16 — OEE
 import { OEEPage } from '../modules/oee/pages/OEEPage';
-
-// TPM Module
-import { TPMPage } from '../modules/tpm/pages/TPMPage';
-import { FiveSPage } from '../modules/fives/pages/FiveSPage';
 
 // Module 18 — Kaizen
 import { KaizenPage } from '../modules/kaizen/pages/KaizenPage';
@@ -432,6 +429,14 @@ export default function AppRouter() {
           }
         />
         <Route
+          path="inventory/purchase-orders/:poId/edit"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <EditPurchaseOrderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="inventory/purchase-orders/:poId"
           element={
             <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
@@ -504,7 +509,7 @@ export default function AppRouter() {
         <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><ReportHistoryPage /></ProtectedRoute>} />
         <Route
           path="training"
-          element={<Navigate to="/app/training/manage" replace />}
+          element={<Navigate to="/app/training/manage/modules" replace />}
         />
 
         {/* Training - Trainee routes */}
@@ -715,16 +720,6 @@ export default function AppRouter() {
           }
         />
 
-        {/* TPM */}
-        <Route
-          path="tpm"
-          element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
-              <TPMPage />
-            </ProtectedRoute>
-          }
-        />
-
         {/* Kaizen — Module 18 */}
         <Route
           path="kaizen"
@@ -741,16 +736,6 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
               <AuditPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* 5S Audit */}
-        <Route
-          path="fives"
-          element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
-              <FiveSPage />
             </ProtectedRoute>
           }
         />

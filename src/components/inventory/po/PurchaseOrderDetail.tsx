@@ -293,6 +293,16 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             Download / Print PDF
           </button>
 
+          {(order.status === 'draft' || order.status === 'pending_approval') && (
+            <button
+              onClick={() => navigate(`/app/inventory/purchase-orders/${order.id}/edit`)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-xl transition-colors text-sm"
+            >
+              <FileText className="w-4 h-4" />
+              Edit PO
+            </button>
+          )}
+
           {canApprove && order.status === 'pending_approval' && (
             <>
               <button

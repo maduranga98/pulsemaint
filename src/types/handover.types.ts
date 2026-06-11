@@ -92,10 +92,12 @@ export interface ShiftHandover {
   shiftDate: string;
   outgoingSupervisorId: string;
   outgoingSupervisorName: string;
+  outgoingSupervisorDesignation: string | null;
   shiftActualStart: Date;
   handoverSubmittedAt: Date;
   incomingSupervisorId: string | null;
   incomingSupervisorName: string | null;
+  incomingSupervisorDesignation: string | null;
   handoverAcceptedAt: Date | null;
   overlapMinutes: number | null;
   stats: ShiftStatsAuto;

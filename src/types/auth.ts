@@ -21,6 +21,7 @@ export interface UserProfile {
   employeeId: string | null;
   department: string | null;
   jobTitle: string | null;
+  shiftId?: string | null;
   status: 'active' | 'inactive' | 'pending';
   loginMethod: 'email' | 'phone' | 'pin' | 'google';
   hasPin: boolean;

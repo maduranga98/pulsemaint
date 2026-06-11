@@ -39,6 +39,8 @@ import {
   getInviteLink,
 } from '../../lib/invitations';
 import type { UserProfile, UserRole, Invitation } from '../../types/auth';
+import { UsersBulkImportModal, type ParsedUserRow } from '../../components/settings/UsersBulkImportModal';
+import { Upload } from 'lucide-react';
 
 const ROLE_LABEL: Record<UserRole, string> = {
   admin: 'Admin',
@@ -84,6 +86,7 @@ interface UserFormValues {
   jobTitle: string;
   department: string;
   employeeId: string;
+  shiftId: string;
   status: UserProfile['status'];
 }
 
@@ -103,6 +106,7 @@ const emptyForm: UserFormValues = {
   jobTitle: '',
   department: '',
   employeeId: '',
+  shiftId: '',
   status: 'pending',
 };
 
@@ -123,6 +127,7 @@ function toForm(u: UserProfile): UserFormValues {
     jobTitle: u.jobTitle ?? '',
     department: u.department ?? '',
     employeeId: u.employeeId ?? '',
+    shiftId: u.shiftId ?? '',
     status: u.status,
   };
 }
@@ -138,6 +143,7 @@ export default function UsersPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState<ModalState>({ mode: 'closed' });
+  const [importOpen, setImportOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabState>('users');
 
   useEffect(() => {
@@ -209,6 +215,7 @@ export default function UsersPage() {
       employeeId: values.employeeId.trim() || null,
       department: values.department.trim() || null,
       jobTitle: values.jobTitle.trim() || null,
+      shiftId: values.shiftId || null,
       status: values.status,
       loginMethod: 'email' as const,
       hasPin: false,
@@ -234,6 +241,7 @@ export default function UsersPage() {
       jobTitle: values.jobTitle.trim() || null,
       department: values.department.trim() || null,
       employeeId: values.employeeId.trim() || null,
+      shiftId: values.shiftId || null,
       status: values.status,
       updatedAt: serverTimestamp(),
     });
@@ -256,6 +264,35 @@ export default function UsersPage() {
     toast.success(`Invitation sent to ${values.email}`);
     if (activeTab === 'invitations') loadInvitations();
     return inv;
+  };
+
+  const handleBulkImport = async (rows: ParsedUserRow[]) => {
+    if (!company?.id || !currentUser) throw new Error('No company in session');
+    let created = 0;
+    let failed = 0;
+    const errors: string[] = [];
+    for (const row of rows) {
+      try {
+        await createInvitation({
+          companyId: company.id,
+          companyName: company.name,
+          email: row.email,
+          role: row.role,
+          fullName: row.fullName,
+          department: row.department,
+          jobTitle: row.jobTitle,
+          invitedBy: currentUser.id,
+          invitedByName: currentUser.fullName,
+        });
+        created += 1;
+      } catch (err) {
+        failed += 1;
+        errors.push(`${row.email}: ${err instanceof Error ? err.message : 'failed'}`);
+      }
+    }
+    if (created > 0) toast.success(`${created} invitation(s) created`);
+    if (activeTab === 'invitations') loadInvitations();
+    return { created, failed, errors };
   };
 
   const handleRevoke = async (inv: Invitation) => {
@@ -290,6 +327,14 @@ export default function UsersPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setImportOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+          >
+            <Upload className="w-4 h-4" />
+            Import Users
+          </button>
           <button
             type="button"
             onClick={() => setModal({ mode: 'invite' })}
@@ -494,6 +539,12 @@ export default function UsersPage() {
         )}
       </div>
 
+      {importOpen && (
+        <UsersBulkImportModal
+          onClose={() => setImportOpen(false)}
+          onImport={handleBulkImport}
+        />
+      )}
       {modal.mode === 'invite' && (
         <InviteModal
           onClose={() => setModal({ mode: 'closed' })}
@@ -503,6 +554,7 @@ export default function UsersPage() {
       {modal.mode !== 'closed' && modal.mode !== 'invite' && (
         <UserModal
           state={modal}
+          shifts={shifts}
           onClose={() => setModal({ mode: 'closed' })}
           onAdd={handleAdd}
           onEdit={handleEdit}
@@ -803,12 +855,13 @@ function InviteModal({
 
 interface UserModalProps {
   state: Exclude<ModalState, { mode: 'closed' } | { mode: 'invite' }>;
+  shifts: Array<{ id: string; shiftName: string; department: string | null; status: string }>;
   onClose: () => void;
   onAdd: (values: UserFormValues) => Promise<void>;
   onEdit: (userId: string, values: UserFormValues) => Promise<void>;
 }
 
-function UserModal({ state, onClose, onAdd, onEdit }: UserModalProps) {
+function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
   const isView = state.mode === 'view';
   const isAdd = state.mode === 'add';
   const initial: UserFormValues = isAdd ? emptyForm : toForm(state.user);
@@ -931,12 +984,13 @@ function UserModal({ state, onClose, onAdd, onEdit }: UserModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Job title">
+            <Field label="Designation">
               <input
                 type="text"
                 value={values.jobTitle}
                 onChange={(e) => set('jobTitle', e.target.value)}
                 disabled={isView}
+                placeholder="e.g. Senior Technician"
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
@@ -951,15 +1005,35 @@ function UserModal({ state, onClose, onAdd, onEdit }: UserModalProps) {
             </Field>
           </div>
 
-          <Field label="Employee ID">
-            <input
-              type="text"
-              value={values.employeeId}
-              onChange={(e) => set('employeeId', e.target.value)}
-              disabled={isView}
-              className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
-            />
-          </Field>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Employee ID">
+              <input
+                type="text"
+                value={values.employeeId}
+                onChange={(e) => set('employeeId', e.target.value)}
+                disabled={isView}
+                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+              />
+            </Field>
+            <Field label="Shift">
+              <select
+                value={values.shiftId}
+                onChange={(e) => set('shiftId', e.target.value)}
+                disabled={isView}
+                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+              >
+                <option value="">No shift assigned</option>
+                {shifts
+                  .filter((s) => s.status === 'active')
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.shiftName}
+                      {s.department ? ` · ${s.department}` : ''}
+                    </option>
+                  ))}
+              </select>
+            </Field>
+          </div>
 
           {formError && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
