@@ -89,9 +89,18 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   return (
     <form className="rounded-lg border border-slate-200 bg-white p-4 space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        <input value={shiftName} onChange={(event) => setShiftName(event.target.value)} placeholder="Shift Name" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
-        <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
-        <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
+        <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
+          Shift Name
+          <input value={shiftName} onChange={(event) => setShiftName(event.target.value)} placeholder="e.g. Morning Shift" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
+          From
+          <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
+          To
+          <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
+        </label>
         <input type="color" value={color} onChange={(event) => setColor(event.target.value)} className="min-h-12 rounded-md border border-slate-200 p-1" />
         <DepartmentPicker value={department} onChange={setDepartment} />
         <select value={status} onChange={(event) => setStatus(event.target.value as ShiftConfig['status'])} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm">
