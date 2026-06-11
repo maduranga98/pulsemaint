@@ -697,33 +697,26 @@ service cloud.firestore {
       allow delete: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'admin'];
     }
-  }
 
-    // permits — LOTO/PTW safety gate
-    match /permits/{permitId} {
-      function permitSiteMatches() {
-        return isSameSite(resource.data.siteId);
-      }
-      allow read: if isAuthenticated() && permitSiteMatches()
+    // rca — Root Cause Analysis records
+    match /rca/{rcaId} {
+      allow read: if isAuthenticated() && isSameSite(resource.data.siteId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
-      allow create: if isAuthenticated()
-        && isSameSite(request.resource.data.siteId)
+      allow create: if isAuthenticated() && isSameSite(request.resource.data.siteId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
-      allow update: if isAuthenticated() && permitSiteMatches()
+      allow update: if isAuthenticated() && isSameSite(resource.data.siteId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
       allow delete: if isAdmin();
     }
 
-    // conditionReadings — machine health readings
-    match /conditionReadings/{readingId} {
-      function readingSiteMatches() {
-        return isSameSite(resource.data.siteId);
-      }
-      allow read: if isAuthenticated() && readingSiteMatches()
+    // maintenanceBacklog — deferred maintenance items with risk scores
+    match /maintenanceBacklog/{itemId} {
+      allow read: if isAuthenticated() && isSameSite(resource.data.siteId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
-      allow create: if isAuthenticated()
-        && isSameSite(request.resource.data.siteId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
-      allow update, delete: if isAdmin();
+      allow create: if isAuthenticated() && isSameSite(request.resource.data.siteId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow update: if isAuthenticated() && isSameSite(resource.data.siteId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow delete: if isAdmin();
     }
-}
+  }

@@ -19,6 +19,8 @@ import ContractorScoreboard from '../../components/dashboard/manager/ContractorS
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import { complianceColor } from '../../utils/analytics.utils';
+import { DowntimeCostAnalytics } from '../../components/analytics/DowntimeCostAnalytics';
+import { ReliabilitySection } from '../../components/analytics/ReliabilitySection';
 
 type Range = 'mtd' | '3m' | '6m' | '12m';
 
@@ -207,6 +209,14 @@ export default function AnalyticsPage() {
         </div>
 
         <MtbfTable companyId={companyId} />
+
+        {/* ── Downtime Cost ──────────────────────────────────────────────── */}
+        <SectionHeader title="Downtime Cost" description="Lost production cost by machine, department and month" />
+        <DowntimeCostAnalytics />
+
+        {/* ── Reliability ────────────────────────────────────────────────── */}
+        <SectionHeader title="Reliability" description="PM compliance, bad actors, and wrench time" />
+        <ReliabilitySection monthly={monthly} companyId={companyId} />
       </div>
     </div>
   );

@@ -103,6 +103,12 @@ export interface Machine {
   warrantyItems: WarrantyItem[];
   isolationPoints: IsolationPoint[];
 
+  // Downtime Cost
+  costPerHourDown: number | null;
+  unitsPerHour: number | null;
+  unitValue: number | null;
+  costCurrency: 'LKR' | 'USD' | 'AED' | 'SAR';
+
   // Additional Info
   modificationNotes: string | null;
   sopLibraryRefs: string[];
