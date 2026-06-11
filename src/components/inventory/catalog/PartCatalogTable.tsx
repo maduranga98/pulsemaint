@@ -84,7 +84,7 @@ export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogT
             <th className="px-4 py-3 text-left"><SortHeader label="Category" colKey="category" /></th>
             <th className="px-4 py-3 text-left"><SortHeader label="Criticality" colKey="criticality" /></th>
             <th className="px-4 py-3 text-right"><SortHeader label="Stock" colKey="currentStock" /></th>
-            <th className="px-4 py-3 text-right font-medium text-gray-600">Reserved</th>
+            <th className="px-4 py-3 text-right font-medium text-gray-600">Min Stock Level</th>
             <th className="px-4 py-3 text-right font-medium text-gray-600">Available</th>
             {!isTechnician && (
               <th className="px-4 py-3 text-right"><SortHeader label="Unit Cost" colKey="unitCost" /></th>
@@ -116,7 +116,7 @@ export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogT
                   {part.currentStock.toLocaleString()}
                 </td>
                 <td className="px-4 py-3 text-right tabular-nums text-gray-600">
-                  {part.reservedStock.toLocaleString()}
+                  {part.minStockLevel.toLocaleString()}
                 </td>
                 <td className={`px-4 py-3 text-right tabular-nums ${stockColor(part)}`}>
                   {available.toLocaleString()}
