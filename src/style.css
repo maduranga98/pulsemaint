@@ -184,3 +184,51 @@ a {
 .app-main-dark .shadow-sm,
 .app-main-dark .shadow-md,
 .app-main-dark .shadow-lg { box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.35) !important; }
+
+/* --------------------------------------------------------------------------
+ * Print styles — used by Machine Profile "Print Details"
+ * -------------------------------------------------------------------------- */
+@media print {
+  body { background: white !important; color: black !important; font-size: 12pt; }
+
+  /* Hide navigation, sidebar, header, buttons, tooltips */
+  nav, header, aside,
+  .app-sidebar, .app-header,
+  button, .no-print,
+  [role="navigation"] { display: none !important; }
+
+  /* Reset dark theme overrides */
+  .app-main-dark,
+  .app-main-dark .bg-white,
+  .app-main-dark .bg-slate-50,
+  .app-main-dark .bg-gray-50 { background: white !important; color: black !important; }
+
+  .app-main-dark h1, .app-main-dark h2, .app-main-dark h3,
+  .app-main-dark h4, .app-main-dark h5, .app-main-dark h6,
+  .app-main-dark .text-slate-900, .app-main-dark .text-gray-900,
+  .app-main-dark .text-slate-700, .app-main-dark .text-gray-700 { color: black !important; }
+
+  .app-main-dark .text-slate-600, .app-main-dark .text-gray-600,
+  .app-main-dark .text-slate-500, .app-main-dark .text-gray-500 { color: #444 !important; }
+
+  .app-main-dark .border-slate-200, .app-main-dark .border-gray-200,
+  .app-main-dark .border-slate-300, .app-main-dark .border-gray-300 { border-color: #ccc !important; }
+
+  /* Make cards print-friendly */
+  .bg-white, [class*="bg-[#0F1E35]"] { background: white !important; }
+  [class*="border-[#1E3A5F]"] { border-color: #ccc !important; }
+  [class*="text-[#F0F4F8]"] { color: black !important; }
+  [class*="text-[#8BA3BF]"], [class*="text-[#B8C7DB]"] { color: #555 !important; }
+
+  /* Ensure full width */
+  .max-w-7xl { max-width: 100% !important; }
+  .px-4, .px-6, .px-8 { padding-left: 0 !important; padding-right: 0 !important; }
+
+  /* Page breaks */
+  .rounded-lg, .rounded-xl { page-break-inside: avoid; }
+
+  /* Hide interactive elements */
+  .hover\:bg-gray-50:hover { background: transparent !important; }
+
+  @page { margin: 1.5cm; }
+}

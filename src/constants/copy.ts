@@ -425,7 +425,9 @@ export const WO_COPY = {
 
   // Machine history
   machineHistoryTitle:    'Maintenance History',
+  breakdownHistoryTitle:  'Breakdown History',
   noHistoryEntries:       'No maintenance history for this machine yet.',
+  noBreakdownEntries:     'No breakdown history for this machine yet.',
 } as const;
 
 // ---------------------------------------------------------------------------

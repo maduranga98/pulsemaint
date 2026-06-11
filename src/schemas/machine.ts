@@ -138,6 +138,12 @@ const documentFileSchema = z.instanceof(File).refine(
 // Create Machine Form Schema
 // ---------------------------------------------------------------------------
 
+const warrantyItemSchema = z.object({
+  partName: z.string().min(1, 'Part name is required').max(200),
+  expiryDate: z.date({ required_error: 'Expiry date is required' }),
+  supplierWarrantyRef: z.string().max(200).optional().default(''),
+});
+
 export const createMachineSchema = z.object({
   name: machineNameSchema,
   type: machineTypeSchema,
@@ -155,6 +161,7 @@ export const createMachineSchema = z.object({
   status: statusSchema,
   criticality: criticalitySchema,
   healthScore: healthScoreSchema,
+  warrantyItems: z.array(warrantyItemSchema).optional().default([]),
   photoFiles: z.array(photoFileSchema).optional().default([]),
   documentFiles: z.array(
     z.object({
@@ -190,6 +197,8 @@ export const updateMachineSchema = z.object({
   station: locationFieldSchema,
   status: statusSchema.optional(),
   criticality: criticalitySchema.optional(),
+  healthScore: healthScoreSchema.optional(),
+  warrantyItems: z.array(warrantyItemSchema).optional(),
   photoFiles: z.array(photoFileSchema).optional(),
   documentFiles: z.array(
     z.object({

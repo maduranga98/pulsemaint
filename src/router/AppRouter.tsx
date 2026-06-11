@@ -23,6 +23,9 @@ import CertificatesManagerPage from '../pages/training/manage/CertificatesManage
 import ComplianceReportPage from '../pages/training/manage/ComplianceReportPage';
 import ContentLibraryPage from '../pages/training/manage/ContentLibraryPage';
 
+// Scan redirect
+import ScanRedirectPage from '../pages/machines/ScanRedirectPage';
+
 // Auth pages
 import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
@@ -160,6 +163,7 @@ export default function AppRouter() {
       <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
       <Route path="/verify-email" element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
       <Route path="/invite/:token" element={<InvitePage />} />
+      <Route path="/scan" element={<ScanRedirectPage />} />
 
       {/* Full-screen authed flows (no app shell) */}
       <Route

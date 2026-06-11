@@ -105,6 +105,14 @@ export function useMachineUpdate({
       if (photoUrls) updateData.photos = photoUrls;
       if (documents) updateData.documents = documents;
       if (payload.compatiblePartIds) updateData.compatiblePartIds = payload.compatiblePartIds;
+      if (payload.healthScore !== undefined) updateData.healthScore = payload.healthScore;
+      if (payload.warrantyItems !== undefined) {
+        updateData.warrantyItems = payload.warrantyItems.map((w) => ({
+          partName: w.partName,
+          expiryDate: w.expiryDate ? Timestamp.fromDate(w.expiryDate) : null,
+          supplierWarrantyRef: w.supplierWarrantyRef ?? '',
+        }));
+      }
       if (payload.modificationNotes !== undefined) updateData.modificationNotes = payload.modificationNotes;
       if (payload.additionalNotes !== undefined) updateData.additionalNotes = payload.additionalNotes;
 

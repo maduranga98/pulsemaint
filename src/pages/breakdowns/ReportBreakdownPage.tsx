@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
 import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { nanoid } from 'nanoid';
@@ -36,10 +36,13 @@ export default function ReportBreakdownPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
 
+  const [searchParams] = useSearchParams();
+  const preselectedMachineId = searchParams.get('machineId') ?? '';
+
   const [machines, setMachines] = useState<MachineOption[]>([]);
   const [machinesLoading, setMachinesLoading] = useState(true);
 
-  const [machineId, setMachineId] = useState('');
+  const [machineId, setMachineId] = useState(preselectedMachineId);
   const [severity, setSeverity] = useState<BreakdownSeverity>('medium');
   const [breakdownType, setBreakdownType] = useState<BreakdownType>('mechanical');
   const [description, setDescription] = useState('');

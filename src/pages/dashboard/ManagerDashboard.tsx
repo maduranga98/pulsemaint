@@ -1,28 +1,31 @@
 import { useEffect, useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
+import { useActiveBreakdowns } from '../../hooks/dashboard/useActiveBreakdowns';
+import { useOpenWorkOrders } from '../../hooks/dashboard/useOpenWorkOrders';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
 import BreakdownHeatmap from '../../components/dashboard/manager/BreakdownHeatmap';
 import TopProblemMachinesChart from '../../components/dashboard/manager/TopProblemMachinesChart';
-import MaintenanceCostChart from '../../components/dashboard/manager/MaintenanceCostChart';
-import MtbfTable from '../../components/dashboard/manager/MtbfTable';
-import TechnicianPerformanceTable from '../../components/dashboard/manager/TechnicianPerformanceTable';
-import PmComplianceWidget from '../../components/dashboard/manager/PmComplianceWidget';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
-import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
+import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
+import TeamPerformanceWidget from '../../components/dashboard/manager/TeamPerformanceWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
-import { complianceColor } from '../../utils/analytics.utils';
+import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 
 export default function ManagerDashboard() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
   const role = useAuthStore((s) => s.userProfile?.role);
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Manager';
   const dashboardTitle = role === 'admin' ? 'Admin Dashboard' : 'Manager Dashboard';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
+
+  const { count: todayBreakdowns } = useActiveBreakdowns(siteId);
+  const { count: todayWorkOrders } = useOpenWorkOrders(siteId);
 
   const currentMonth = useMemo(() => {
     const now = new Date();
@@ -35,11 +38,31 @@ export default function ManagerDashboard() {
     }
   }, [companyId, currentMonth]);
 
+  const totalMaintenances =
+    (monthly?.totalBreakdowns ?? 0) +
+    (monthly?.pmCompletedOnTime ?? 0) +
+    (monthly?.pmMissed ?? 0);
+
   const kpis = [
+    {
+      label: 'Total Maintenances',
+      value: totalMaintenances,
+      color: 'cyan' as const,
+    },
     {
       label: 'Total Breakdowns (MTD)',
       value: monthly?.totalBreakdowns ?? 0,
       color: 'blue' as const,
+    },
+    {
+      label: 'Today Breakdowns',
+      value: todayBreakdowns,
+      color: activeBreakdownColor(todayBreakdowns),
+    },
+    {
+      label: 'Today Work Orders',
+      value: todayWorkOrders,
+      color: openWoColor(todayWorkOrders),
     },
     {
       label: 'MTTR (MTD)',
@@ -48,27 +71,10 @@ export default function ManagerDashboard() {
       color: complianceColor(monthly?.avgMttrHours ? 100 - monthly.avgMttrHours * 10 : 100),
     },
     {
-      label: 'MTBF Average',
-      value: (monthly?.avgMtbfDays ?? 0).toFixed(0),
-      unit: 'days',
-      color: 'green' as const,
-    },
-    {
       label: 'PM Compliance',
       value: Math.round(monthly?.pmComplianceRate ?? 0),
       unit: '%',
       color: complianceColor(monthly?.pmComplianceRate ?? 0),
-    },
-    {
-      label: 'Maintenance Cost',
-      value: `LKR ${((monthly?.totalMaintenanceCost ?? 0) / 1000).toFixed(0)}K`,
-      color: 'amber' as const,
-    },
-    {
-      label: 'Hours Lost',
-      value: (monthly?.totalProductionHoursLost ?? 0).toFixed(0),
-      unit: 'h',
-      color: 'red' as const,
     },
   ];
 
@@ -82,7 +88,7 @@ export default function ManagerDashboard() {
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        {/* Row 1: 6 KPI Cards */}
+        {/* Row 1: KPI Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
@@ -99,28 +105,23 @@ export default function ManagerDashboard() {
           </div>
         </div>
 
-        {/* Row 3: Heatmap + Top Problem Machines + Cost */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Row 3: Heatmap + Top Problem Machines */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <BreakdownHeatmap companyId={companyId} />
           <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
-          <MaintenanceCostChart companyId={companyId} month={currentMonth} />
         </div>
 
-        {/* Row 4: MTBF Table + Technician Performance */}
+        {/* Row 4: Today's Shifts by Department + Team Performance */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MtbfTable companyId={companyId} />
-          <TechnicianPerformanceTable companyId={companyId} month={currentMonth} />
+          <TodayShiftsByDepartment companyId={companyId} />
+          <TeamPerformanceWidget companyId={companyId} month={currentMonth} />
         </div>
 
-        {/* Row 5: PM Compliance + Contractor + SLA Gauge */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <PmComplianceWidget companyId={companyId} />
+        {/* Row 5: Contractor Scoreboard + SLA Gauge */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ContractorScoreboard companyId={companyId} month={currentMonth} />
           <SlaGaugeWidget companyId={companyId} />
         </div>
-
-        {/* Row 6: Production Downtime */}
-        <ProductionDowntimeStrip companyId={companyId} />
       </div>
 
       <DashboardSidePanel />
