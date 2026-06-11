@@ -509,7 +509,7 @@ export default function AppRouter() {
         <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><ReportHistoryPage /></ProtectedRoute>} />
         <Route
           path="training"
-          element={<Navigate to="/app/training/manage" replace />}
+          element={<Navigate to="/app/training/manage/modules" replace />}
         />
 
         {/* Training - Trainee routes */}
