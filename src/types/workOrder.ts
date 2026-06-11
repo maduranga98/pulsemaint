@@ -144,6 +144,13 @@ export interface PostRepairChecklistItem {
   notes: string | null;
 }
 
+export interface RepairLogEntry {
+  note: string;
+  by: string;
+  byName: string;
+  at: Timestamp;
+}
+
 export interface WOStatusHistoryEntry {
   status: WOStatus;
   changedBy: string;
@@ -233,6 +240,11 @@ export interface WorkOrder {
   supervisorSignOffBy: string | null;
   supervisorSignOffAt: Timestamp | null;
   supervisorSignOffNotes: string | null;
+
+  // Field repair log (append-only notes logged by technicians, offline-capable)
+  repairLog?: RepairLogEntry[];
+  // Repair photos captured in the field (synced from the offline queue)
+  repairPhotos?: string[];
 
   // Status History
   statusHistory: WOStatusHistoryEntry[];

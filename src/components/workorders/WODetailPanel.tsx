@@ -15,8 +15,10 @@ import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
 import { db } from '../../lib/firebase';
 import { CommentThread } from '../comments/CommentThread';
+import { TechnicianFieldWork } from './TechnicianFieldWork';
+import { PendingSyncBadge } from '../offline/PendingSyncBadge';
 
-type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history' | 'permits' | 'comments';
+type TabKey = 'overview' | 'fieldwork' | 'checklist' | 'documents' | 'parts' | 'history' | 'permits' | 'comments';
 
 interface WODetailPanelProps {
   workOrder: WorkOrder;
@@ -61,6 +63,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
   const TABS: { key: TabKey; label: string }[] = [
     { key: 'overview', label: WO_COPY.tabOverview },
+    ...(isTechnician || isSupervisor ? [{ key: 'fieldwork' as TabKey, label: 'Field Work' }] : []),
     { key: 'checklist', label: WO_COPY.tabChecklist },
     { key: 'documents', label: WO_COPY.tabDocuments },
     { key: 'parts', label: WO_COPY.tabParts },
@@ -94,6 +97,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 <WOTypeBadge woType={workOrder.woType} size="sm" />
                 <PriorityBadge priority={workOrder.priority} size="sm" />
                 <WOStatusBadge status={workOrder.status} size="sm" />
+                <PendingSyncBadge woId={workOrder.id} />
               </div>
               <h1 className="font-bold text-xl text-gray-900">{workOrder.woNumber || '—'}</h1>
               <p className="text-sm text-gray-600 truncate">{workOrder.machineName} · {workOrder.machineLocation}</p>
@@ -231,6 +235,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               )}
             </div>
           )}
+
+          {/* ── Field Work (technician, offline-capable) ── */}
+          {activeTab === 'fieldwork' && <TechnicianFieldWork workOrder={workOrder} />}
 
           {/* ── Checklist ── */}
           {activeTab === 'checklist' && (

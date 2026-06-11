@@ -10,6 +10,7 @@ import NotificationFeed from '../../components/dashboard/supervisor/Notification
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import SlaStatusWidget from '../../components/dashboard/supervisor/SlaStatusWidget';
+import BacklogRiskWidget from '../../components/dashboard/manager/BacklogRiskWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -93,6 +94,11 @@ export default function SupervisorDashboard() {
           <FactoryFloorMap companyId={companyId} />
           <TechnicianStatusList companyId={companyId} />
           <SlaStatusWidget siteId={siteId} />
+        </div>
+
+        {/* Row 4: Backlog risk */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BacklogRiskWidget />
         </div>
       </div>
 

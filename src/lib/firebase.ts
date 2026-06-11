@@ -1,6 +1,12 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getAuth }       from 'firebase/auth';
-import { getFirestore }  from 'firebase/firestore';
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  type Firestore,
+}                        from 'firebase/firestore';
 import { getStorage }    from 'firebase/storage';
 import { getMessaging, isSupported } from 'firebase/messaging';
 import { getFunctions } from 'firebase/functions';
@@ -19,7 +25,27 @@ const app: FirebaseApp = getApps().length
   : initializeApp(firebaseConfig);
 
 export const auth      = getAuth(app);
-export const db        = getFirestore(app, 'default');
+
+// Offline-first Firestore: IndexedDB-backed persistent cache shared across all
+// open tabs. Falls back to the default in-memory client if initialization
+// fails (e.g. a tab already initialized Firestore, or unsupported browser).
+function initDb(): Firestore {
+  try {
+    return initializeFirestore(
+      app,
+      {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager(),
+        }),
+      },
+      'default',
+    );
+  } catch {
+    return getFirestore(app, 'default');
+  }
+}
+
+export const db        = initDb();
 export const storage   = getStorage(app);
 export const functions = getFunctions(app);
 

@@ -15,6 +15,7 @@ import { SLACountdownTimer } from './SLACountdownTimer';
 import { CreateWODrawer } from './CreateWODrawer';
 import { BacklogTab } from './BacklogTab';
 import { useWorkOrderDetail } from '../../hooks/useWorkOrderDetail';
+import { PendingSyncBadge } from '../offline/PendingSyncBadge';
 
 type TabId = 'all' | 'mine' | 'open' | 'overdue' | 'week' | 'backlog';
 type ViewMode = 'list' | 'kanban';
@@ -222,7 +223,12 @@ export function WOListView() {
                         onClick={() => setSelectedWO(wo)}
                         className="hover:bg-gray-50 cursor-pointer transition-colors"
                       >
-                        <td className="px-4 py-3 font-medium text-blue-600">{wo.woNumber || '—'}</td>
+                        <td className="px-4 py-3 font-medium text-blue-600">
+                          <span className="inline-flex items-center gap-1.5">
+                            {wo.woNumber || '—'}
+                            <PendingSyncBadge woId={wo.id} />
+                          </span>
+                        </td>
                         <td className="px-4 py-3"><WOTypeBadge woType={wo.woType} size="sm" /></td>
                         <td className="px-4 py-3"><PriorityBadge priority={wo.priority} size="sm" /></td>
                         <td className="px-4 py-3">

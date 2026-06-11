@@ -96,6 +96,9 @@ import {
   TechnicianDashboard,
   InventoryDashboard,
   TrainingDashboard,
+  TraineeDashboard,
+  FloorOperatorDashboard,
+  AdminDashboard,
 } from '../pages/dashboard';
 
 // Contractor pages
@@ -207,7 +210,7 @@ export default function AppRouter() {
         <Route
           path="dashboard"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator']}>
               <DashboardPage />
             </ProtectedRoute>
           }
@@ -249,6 +252,30 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['hr_officer', 'admin']}>
               <TrainingDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/trainee"
+          element={
+            <ProtectedRoute requiredRoles={['trainee', 'floor_operator', 'admin']}>
+              <TraineeDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/floor"
+          element={
+            <ProtectedRoute requiredRoles={['floor_operator', 'admin']}>
+              <FloorOperatorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/admin"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <AdminDashboard />
             </ProtectedRoute>
           }
         />

@@ -127,7 +127,8 @@ service cloud.firestore {
           'partsUsed', 'technicianWorkLogs', 'contractorHoursLog',
           'postRepairChecklist', 'testRunResult', 'testRunNotes',
           'finalPhotos', 'machineStatusAfterRepair',
-          'checklist', 'documents', 'updatedAt'
+          'checklist', 'documents', 'updatedAt',
+          'repairLog', 'repairPhotos'
         ]);
 
       // Parts requests sub-collection

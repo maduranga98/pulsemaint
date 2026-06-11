@@ -3,14 +3,14 @@ import { useAuthStore } from '../../store/authStore';
 import type { UserRole } from '../../types/auth';
 
 const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
-  admin: '/app/dashboard/manager',
+  admin: '/app/dashboard/admin',
   plant_manager: '/app/dashboard/manager',
   supervisor: '/app/dashboard/supervisor',
   technician: '/app/dashboard/technician',
   store_keeper: '/app/dashboard/inventory',
   hr_officer: '/app/dashboard/training',
-  trainee: '/app/dashboard', // No access — will hit unauthorized
-  floor_operator: '/app/dashboard', // No access
+  trainee: '/app/dashboard/trainee',
+  floor_operator: '/app/dashboard/floor',
 };
 
 export default function DashboardPage() {

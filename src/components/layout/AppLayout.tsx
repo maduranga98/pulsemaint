@@ -7,6 +7,7 @@ import EndShiftButton from '../handover/EndShiftButton';
 import ErrorBoundary from '../ErrorBoundary';
 import { GlobalSearch } from '../search/GlobalSearch';
 import { InboxBell } from '../notifications/InboxBell';
+import { OfflineBanner } from '../offline/OfflineBanner';
 
 interface NavItem {
   label: string;
@@ -54,7 +55,7 @@ const Icon = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer'] },
+  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
   { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician'] },
   { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
@@ -283,6 +284,8 @@ export default function AppLayout() {
             </button>
           </div>
         </header>
+
+        <OfflineBanner />
 
         <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto">
           <div className="px-4 sm:px-6 lg:px-8 py-5 max-w-[1400px] mx-auto w-full">
