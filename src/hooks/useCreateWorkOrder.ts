@@ -112,6 +112,9 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         slaBreached: false,
         slaDeadline: null,   // filled by Cloud Function
         woNumber: '',         // filled by Cloud Function
+        // Prefix-search key for global search. woNumber is assigned server-side,
+        // so seed from machine name; refreshed if the WO is later renamed.
+        nameLower: (payload.machineName ?? '').toLowerCase(),
 
         // Links
         linkedBreakdownId: payload.linkedBreakdownId ?? null,

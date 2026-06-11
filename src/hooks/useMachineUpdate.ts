@@ -77,7 +77,10 @@ export function useMachineUpdate({
         updatedBy: userId,
       };
 
-      if (payload.name) updateData.name = payload.name;
+      if (payload.name) {
+        updateData.name = payload.name;
+        updateData.nameLower = payload.name.toLowerCase();
+      }
       if (payload.type) updateData.type = payload.type;
       if (payload.manufacturer) updateData.manufacturer = payload.manufacturer;
       if (payload.model !== undefined) updateData.model = payload.model;

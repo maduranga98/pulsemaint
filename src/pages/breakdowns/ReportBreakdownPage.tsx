@@ -104,6 +104,7 @@ export default function ReportBreakdownPage() {
       const ticketNumber = `BD-${new Date().getFullYear()}-${nanoid(6).toUpperCase()}`;
       await addDoc(collection(db, 'breakdown_tickets'), {
         ticketNumber,
+        nameLower: ticketNumber.toLowerCase(),
         siteId,
         companyId: userProfile.companyId,
         machineId: machine.id,

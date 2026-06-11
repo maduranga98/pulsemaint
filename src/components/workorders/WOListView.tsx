@@ -14,6 +14,7 @@ import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { CreateWODrawer } from './CreateWODrawer';
 import { BacklogTab } from './BacklogTab';
+import { useWorkOrderDetail } from '../../hooks/useWorkOrderDetail';
 
 type TabId = 'all' | 'mine' | 'open' | 'overdue' | 'week' | 'backlog';
 type ViewMode = 'list' | 'kanban';
@@ -39,6 +40,13 @@ export function WOListView() {
   const prefilledMachineId = searchParams.get('machineId');
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
+  const deepLinkWoId = searchParams.get('woId');
+
+  // Deep-link from global search: open the work order's detail panel.
+  const { workOrder: deepLinkWO } = useWorkOrderDetail(deepLinkWoId);
+  useEffect(() => {
+    if (deepLinkWO) setSelectedWO(deepLinkWO);
+  }, [deepLinkWO]);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -259,7 +267,14 @@ export function WOListView() {
       {selectedWO && (
         <WODetailPanel
           workOrder={selectedWO}
-          onClose={() => setSelectedWO(null)}
+          onClose={() => {
+            setSelectedWO(null);
+            if (deepLinkWoId) {
+              const next = new URLSearchParams(searchParams);
+              next.delete('woId');
+              setSearchParams(next, { replace: true });
+            }
+          }}
         />
       )}
 

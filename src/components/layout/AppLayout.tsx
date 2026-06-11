@@ -5,6 +5,7 @@ import { useAuthActions } from '../../hooks/useAuthActions';
 import type { UserRole } from '../../types/auth';
 import EndShiftButton from '../handover/EndShiftButton';
 import ErrorBoundary from '../ErrorBoundary';
+import { GlobalSearch } from '../search/GlobalSearch';
 
 interface NavItem {
   label: string;
@@ -260,6 +261,7 @@ export default function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <GlobalSearch />
             {(role === 'supervisor' || role === 'admin') && <EndShiftButton />}
             <div className="text-right hidden sm:block leading-tight">
               <div className="text-[13px] font-medium text-[#F0F4F8] truncate max-w-[160px]">

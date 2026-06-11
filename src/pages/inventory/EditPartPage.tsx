@@ -135,6 +135,7 @@ export function EditPartPage() {
 
       await updateDoc(doc(db, 'inventoryParts', part.id), {
         ...values,
+        nameLower: (values.name ?? '').toLowerCase(),
         isLowStock: values.currentStock > 0 && values.minStockLevel > 0 && values.currentStock <= values.minStockLevel,
         isCritical: values.criticality === 'critical',
         availableStock: values.currentStock - part.reservedStock,

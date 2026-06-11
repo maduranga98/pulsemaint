@@ -68,6 +68,7 @@ export interface Machine {
   id: string;
   siteId: string;
   name: string;
+  nameLower?: string;
   model: string;
   serialNumber: string;
   manufacturer: string;

@@ -160,13 +160,16 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       return null;
     }
 
+    const nameLower = String(payload.companyName ?? '').toLowerCase();
+
     if (mode === 'edit' && contractorId) {
-      await updateDoc(doc(db, 'contractors', contractorId), payload);
+      await updateDoc(doc(db, 'contractors', contractorId), { ...payload, nameLower });
       return contractorId;
     }
 
     const createPayload: Record<string, unknown> = {
       ...payload,
+      nameLower,
       companyId,
       status: 'active',
       avgRating: 0,

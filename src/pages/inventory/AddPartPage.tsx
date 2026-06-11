@@ -118,6 +118,7 @@ export function AddPartPage() {
       batch.set(partRef, {
         ...values,
         id: partRef.id,
+        nameLower: (values.name ?? '').toLowerCase(),
         companyId,
         reservedStock: 0,
         availableStock: values.currentStock,
