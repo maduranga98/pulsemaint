@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, Timestamp, arrayUnion } from 'firebase/firestore';
-import { AlertCircle, ArrowLeft, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, X, Search } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownStatus } from '../../types/breakdown';
+import { rcaRequiredForSeverity } from '../../types/rca';
+import { useRca } from '../../hooks/useRca';
+import { RCAModal } from '../../components/breakdowns/RCAModal';
 
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
   reported: 'Reported',
@@ -50,6 +53,10 @@ export default function ViewBreakdownPage() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
+  const [showRcaModal, setShowRcaModal] = useState(false);
+  const [closing, setClosing] = useState(false);
+
+  const { rca } = useRca(id);
 
   useEffect(() => {
     if (!id) return;
@@ -92,6 +99,34 @@ export default function ViewBreakdownPage() {
       setError(err?.message || 'Failed to cancel breakdown.');
     } finally {
       setCancelling(false);
+    }
+  }
+
+  async function handleClose() {
+    if (!id || !userProfile || !breakdown) return;
+    // RCA gate: medium+ severity breakdowns must have an RCA at least started.
+    if (rcaRequiredForSeverity(breakdown.severity) && !rca) {
+      setShowRcaModal(true);
+      return;
+    }
+    setClosing(true);
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', id), {
+        status: 'closed',
+        closedAt: Timestamp.now(),
+        statusHistory: arrayUnion({
+          status: 'closed',
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: new Date().toISOString(),
+          note: rca ? `Closed — RCA ${rca.status}` : 'Closed',
+        }),
+      });
+      navigate('/app/breakdowns', { replace: true });
+    } catch (err: any) {
+      setError(err?.message || 'Failed to close breakdown.');
+    } finally {
+      setClosing(false);
     }
   }
 
@@ -146,6 +181,26 @@ export default function ViewBreakdownPage() {
               <ArrowLeft className="w-4 h-4 inline mr-1" />
               Back
             </button>
+            {b.status !== 'closed' && rcaRequiredForSeverity(b.severity) && (
+              <button
+                type="button"
+                onClick={() => setShowRcaModal(true)}
+                className="px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 text-sm"
+              >
+                <Search className="w-4 h-4 inline mr-1" />
+                {rca ? 'View / Edit RCA' : 'Start RCA'}
+              </button>
+            )}
+            {b.status !== 'closed' && (
+              <button
+                type="button"
+                onClick={handleClose}
+                disabled={closing}
+                className="px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 text-sm"
+              >
+                {closing ? 'Closing…' : 'Close Breakdown'}
+              </button>
+            )}
             {!['resolved', 'closed'].includes(b.status) && (
               <button
                 type="button"
@@ -245,7 +300,73 @@ export default function ViewBreakdownPage() {
             </ol>
           )}
         </div>
+        {rcaRequiredForSeverity(b.severity) && (
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Root Cause Analysis (5-Why)
+              </p>
+              {rca && (
+                <span
+                  className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    rca.status === 'completed'
+                      ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
+                      : 'bg-amber-50 text-amber-700 ring-1 ring-amber-200'
+                  }`}
+                >
+                  {rca.status === 'completed' ? 'Completed' : 'In Progress'}
+                </span>
+              )}
+            </div>
+            {rca ? (
+              <div className="space-y-2 text-sm">
+                <div>
+                  <p className="text-slate-500 text-xs">Problem</p>
+                  <p className="text-slate-800">{rca.problem}</p>
+                </div>
+                {rca.rootCause && (
+                  <div>
+                    <p className="text-slate-500 text-xs">Root Cause</p>
+                    <p className="text-slate-800">{rca.rootCause}</p>
+                  </div>
+                )}
+                {rca.linkedWONumber || rca.linkedWOId ? (
+                  <p className="text-xs text-blue-600">Linked corrective Work Order created.</p>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => setShowRcaModal(true)}
+                  className="mt-1 text-sm text-blue-600 hover:underline"
+                >
+                  View / Edit RCA
+                </button>
+              </div>
+            ) : (
+              <div className="text-sm text-slate-500">
+                <p className="mb-2">
+                  An RCA must be at least started before this {b.severity}-severity breakdown can be
+                  closed.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowRcaModal(true)}
+                  className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+                >
+                  Start RCA
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      {showRcaModal && (
+        <RCAModal
+          breakdown={b}
+          onClose={() => setShowRcaModal(false)}
+          onSaved={() => setShowRcaModal(false)}
+        />
+      )}
 
       {showCancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">

@@ -6,6 +6,7 @@ import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from 
 import { formatDate } from '../../lib/dateUtils';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
+import { RcaHistoryList } from '../../components/machines/RcaHistoryList';
 import { IsolationPointsTab } from '../../components/machines/IsolationPointsTab';
 import { ConditionMonitoringTab } from '../../components/machines/ConditionMonitoringTab';
 
@@ -398,8 +399,14 @@ function DocumentsTab({ machine }: any) {
 
 function HistoryTab({ machine }: any) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <BreakdownHistoryList machineId={machine.id} machineName={machine.name} />
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <BreakdownHistoryList machineId={machine.id} machineName={machine.name} />
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="font-semibold text-gray-900 mb-4">Root Cause Analyses</h3>
+        <RcaHistoryList machineId={machine.id} />
+      </div>
     </div>
   );
 }

@@ -13,8 +13,9 @@ import { PriorityBadge } from './PriorityBadge';
 import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { CreateWODrawer } from './CreateWODrawer';
+import { BacklogTab } from './BacklogTab';
 
-type TabId = 'all' | 'mine' | 'open' | 'overdue' | 'week';
+type TabId = 'all' | 'mine' | 'open' | 'overdue' | 'week' | 'backlog';
 type ViewMode = 'list' | 'kanban';
 
 const TABS: { id: TabId; label: string }[] = [
@@ -23,6 +24,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'open', label: WO_COPY.tabOpen },
   { id: 'overdue', label: WO_COPY.tabOverdue },
   { id: 'week', label: WO_COPY.tabThisWeek },
+  { id: 'backlog', label: 'Backlog' },
 ];
 
 const OPEN_STATUSES: WOStatus[] = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
@@ -37,6 +39,16 @@ export function WOListView() {
   const prefilledMachineId = searchParams.get('machineId');
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'backlog') {
+      setActiveTab('backlog');
+      const next = new URLSearchParams(searchParams);
+      next.delete('tab');
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     if (searchParams.get('create') === '1') {
@@ -121,7 +133,7 @@ export function WOListView() {
 
       <div className="px-4 sm:px-6 py-5 space-y-5">
         {/* Stats */}
-        <WOStatsBar />
+        {activeTab !== 'backlog' && <WOStatsBar />}
 
         {/* Tabs + Search */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -142,17 +154,22 @@ export function WOListView() {
             ))}
           </div>
 
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search WO number, machine…"
-            className="w-full sm:w-64 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-          />
+          {activeTab !== 'backlog' && (
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search WO number, machine…"
+              className="w-full sm:w-64 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+            />
+          )}
         </div>
 
+        {/* Backlog tab */}
+        {activeTab === 'backlog' && <BacklogTab />}
+
         {/* Content */}
-        {loading && (
+        {activeTab !== 'backlog' && loading && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-32 bg-white animate-pulse rounded-lg shadow-sm" />
@@ -160,13 +177,13 @@ export function WOListView() {
           </div>
         )}
 
-        {error && (
+        {activeTab !== 'backlog' && error && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
             {error}
           </div>
         )}
 
-        {!loading && !error && (
+        {activeTab !== 'backlog' && !loading && !error && (
           viewMode === 'kanban' ? (
             <WOKanbanBoard workOrders={displayedWOs} onSelectWO={setSelectedWO} />
           ) : displayedWOs.length === 0 ? (

@@ -14,6 +14,7 @@ import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
 import TeamPerformanceWidget from '../../components/dashboard/manager/TeamPerformanceWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
+import BacklogRiskWidget from '../../components/dashboard/manager/BacklogRiskWidget';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 
 export default function ManagerDashboard() {
@@ -121,6 +122,11 @@ export default function ManagerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ContractorScoreboard companyId={companyId} month={currentMonth} />
           <SlaGaugeWidget companyId={companyId} />
+        </div>
+
+        {/* Row 6: High-Risk Backlog */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <BacklogRiskWidget />
         </div>
       </div>
 
