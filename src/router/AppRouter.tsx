@@ -125,6 +125,8 @@ import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 // Real pages (Module 1, 2, 4, 11)
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
 import BreakdownsPage from '../pages/breakdowns/BreakdownsPage';
+import ViewBreakdownPage from '../pages/breakdowns/ViewBreakdownPage';
+import EditBreakdownPage from '../pages/breakdowns/EditBreakdownPage';
 import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import SettingsPage from '../pages/settings/SettingsPage';
@@ -305,6 +307,22 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin']}>
               <ReportBreakdownPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="breakdowns/:id"
+          element={
+            <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin']}>
+              <ViewBreakdownPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="breakdowns/:id/edit"
+          element={
+            <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin']}>
+              <EditBreakdownPage />
             </ProtectedRoute>
           }
         />
