@@ -47,10 +47,17 @@ export function usePMHistory({ companyId, scheduleId, limitCount = 100 }: UsePMH
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const fetched = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        })) as PMHistory[];
+        const fetched = snapshot.docs.map((d) => {
+          const data = d.data() as Record<string, unknown>;
+          // Normalize optional array fields so older/seed records missing them
+          // don't crash views that call .length/.map/.join.
+          return {
+            id: d.id,
+            ...data,
+            technicianIds: (data.technicianIds as unknown[]) ?? [],
+            technicianNames: (data.technicianNames as unknown[]) ?? [],
+          };
+        }) as PMHistory[];
         setHistory(fetched);
         setLoading(false);
         setError(null);

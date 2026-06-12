@@ -17,6 +17,7 @@ export interface ShiftConfig {
   department: string | null;
   status: ShiftStatus;
   memberIds: string[];
+  memberNames: string[];
   createdAt?: Date;
   updatedAt?: Date;
 }

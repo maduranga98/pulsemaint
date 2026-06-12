@@ -41,7 +41,7 @@ export default function TriageBuilderPage() {
           Triage Builder
         </h1>
         <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-          Create and manage knowledge hub content, contacts, and assessments
+          Create and manage triage content, contacts, and assessments
         </p>
       </div>
 

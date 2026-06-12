@@ -18,6 +18,7 @@ const STATUS_LABEL: Record<BreakdownStatus, string> = {
   on_hold_approval: 'On Hold (Approval)',
   resolved: 'Resolved',
   closed: 'Closed',
+  cancelled: 'Cancelled',
 };
 
 const STATUS_COLOR: Record<BreakdownStatus, string> = {
@@ -31,6 +32,7 @@ const STATUS_COLOR: Record<BreakdownStatus, string> = {
   on_hold_approval: 'bg-orange-50 text-orange-700 ring-orange-200',
   resolved: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
   closed: 'bg-slate-100 text-slate-600 ring-slate-200',
+  cancelled: 'bg-slate-200 text-slate-700 ring-slate-300',
 };
 
 // Repair progress (%) per lifecycle stage — used for the at-a-glance progress bar.
@@ -45,6 +47,7 @@ const STATUS_PROGRESS: Record<BreakdownStatus, number> = {
   on_hold_approval: 60,
   resolved: 95,
   closed: 100,
+  cancelled: 100,
 };
 
 function progressBarColor(status: BreakdownStatus): string {
@@ -105,7 +108,7 @@ export default function BreakdownsPage() {
   }, [siteId]);
 
   const filtered = useMemo(() => {
-    const closedSet = new Set<BreakdownStatus>(['resolved', 'closed']);
+    const closedSet = new Set<BreakdownStatus>(['resolved', 'closed', 'cancelled']);
     let list = breakdowns;
     if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status));
     if (filter === 'critical') list = list.filter((b) => b.severity === 'critical');
@@ -334,7 +337,7 @@ export default function BreakdownsPage() {
                         <button
                           type="button"
                           onClick={() => handleInform(b)}
-                          disabled={informingId === b.id || ['resolved', 'closed'].includes(b.status)}
+                          disabled={informingId === b.id || ['resolved', 'closed', 'cancelled'].includes(b.status)}
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                           title="Inform team about this breakdown"
                         >

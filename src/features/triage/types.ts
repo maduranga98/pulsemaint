@@ -19,7 +19,13 @@ export interface TriageStep {
   d: string;
 }
 
-export type TriageContentType = 'procedure' | 'guide' | 'video' | 'pdf';
+export type TriageContentType =
+  | 'procedure'
+  | 'guide'
+  | 'video'
+  | 'pdf'
+  | 'image'
+  | 'media';
 
 export interface TriageContentItem {
   id: string;
@@ -35,6 +41,10 @@ export interface TriageContentItem {
   body?: string[];
   videoId?: string;
   fileUrl?: string;
+  /** MIME type of an uploaded media/image/file item (e.g. "image/png", "video/mp4"). */
+  fileType?: string;
+  /** Original file name for uploaded media, used as a download/open label. */
+  fileName?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy: string;

@@ -87,7 +87,7 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {schedule.assignedTechnicianNames.join(', ') || '—'}
+                    {(schedule.assignedTechnicianNames ?? []).join(', ') || '—'}
                   </td>
                   <td className="px-4 py-3">
                     <PMOperationalStatusBadge status={opStatus} size="sm" />

@@ -18,7 +18,7 @@ export function useActiveBreakdowns(siteId: string) {
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
-      where('status', 'not-in', ['closed', 'resolved']),
+      where('status', 'not-in', ['closed', 'resolved', 'cancelled']),
     );
 
     const unsubscribe = onSnapshot(

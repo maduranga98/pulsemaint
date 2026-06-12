@@ -54,7 +54,7 @@ import TriageBuilderEditPage from '../pages/triage-builder/TriageBuilderEditPage
 import TriageBuilderFlowDetailPage from '../pages/triage-builder/TriageBuilderFlowDetailPage';
 import TriageBuilderTemplatesPage from '../pages/triage-builder/TriageBuilderTemplatesPage';
 
-// Triage Knowledge Hub (new modules)
+// Triage (new modules)
 import TriageKnowledgePage from '../features/triage/TriagePage';
 import TriageKnowledgeBuilderPage from '../features/triage/TriageBuilderPage';
 
@@ -771,7 +771,7 @@ export default function AppRouter() {
           }
         />
 
-        {/* Triage Knowledge Hub (new) */}
+        {/* Triage (new) */}
         <Route
           path="triage"
           element={

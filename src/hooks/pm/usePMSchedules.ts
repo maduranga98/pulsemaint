@@ -46,10 +46,21 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const fetched = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        })) as PMSchedule[];
+        const fetched = snapshot.docs.map((d) => {
+          const data = d.data() as Record<string, unknown>;
+          // Normalize optional array fields so older/seed records missing them
+          // don't crash views that call .length/.map/.join/.includes.
+          return {
+            id: d.id,
+            ...data,
+            assignedTechnicianIds: (data.assignedTechnicianIds as unknown[]) ?? [],
+            assignedTechnicianNames: (data.assignedTechnicianNames as unknown[]) ?? [],
+            skillsRequired: (data.skillsRequired as unknown[]) ?? [],
+            checklistItems: (data.checklistItems as unknown[]) ?? [],
+            preallocatedParts: (data.preallocatedParts as unknown[]) ?? [],
+            documents: (data.documents as unknown[]) ?? [],
+          };
+        }) as PMSchedule[];
         fetched.sort((a, b) => {
           const da = a.nextDueDate instanceof Date ? a.nextDueDate.getTime() : a.nextDueDate?.toDate?.().getTime() ?? Infinity;
           const dbb = b.nextDueDate instanceof Date ? b.nextDueDate.getTime() : b.nextDueDate?.toDate?.().getTime() ?? Infinity;

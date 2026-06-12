@@ -5,9 +5,10 @@ interface Section8SignOffProps {
   onAcknowledge: (value: boolean) => void;
   onSubmit: () => void;
   submitting?: boolean;
+  error?: string | null;
 }
 
-export function Section8SignOff({ supervisorName, shiftName, acknowledged, onAcknowledge, onSubmit, submitting = false }: Section8SignOffProps) {
+export function Section8SignOff({ supervisorName, shiftName, acknowledged, onAcknowledge, onSubmit, submitting = false, error = null }: Section8SignOffProps) {
   return (
     <section className="space-y-3">
       <div className="rounded-lg bg-[#0A1628] px-4 py-3 text-white">
@@ -23,6 +24,9 @@ export function Section8SignOff({ supervisorName, shiftName, acknowledged, onAck
           <input type="checkbox" checked={acknowledged} onChange={(event) => onAcknowledge(event.target.checked)} />
           I confirm the above information is accurate and complete.
         </label>
+        {error && (
+          <p className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-700">{error}</p>
+        )}
         <button
           type="button"
           disabled={!acknowledged || submitting}

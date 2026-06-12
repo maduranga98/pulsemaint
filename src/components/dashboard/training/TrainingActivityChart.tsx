@@ -11,25 +11,26 @@ import {
 import DashboardWidget from '../shared/DashboardWidget';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
+import { useTrainingCompliance } from '../../../hooks/dashboard/useTrainingCompliance';
 
 interface TrainingActivityChartProps {
   companyId: string;
 }
 
-export default function TrainingActivityChart({}: TrainingActivityChartProps) {
-  // Placeholder data
-  const data = [
-    { month: 'Jan', new: 12, renewal: 5 },
-    { month: 'Feb', new: 15, renewal: 8 },
-    { month: 'Mar', new: 10, renewal: 6 },
-    { month: 'Apr', new: 18, renewal: 10 },
-    { month: 'May', new: 14, renewal: 7 },
-    { month: 'Jun', new: 20, renewal: 12 },
-  ];
+export default function TrainingActivityChart({ companyId }: TrainingActivityChartProps) {
+  const { activity, loading, error } = useTrainingCompliance(companyId);
+
+  const data = activity.map((m) => ({
+    month: m.month,
+    new: m.newCertifications,
+    renewal: m.renewals,
+  }));
+
+  const hasData = data.some((d) => d.new > 0 || d.renewal > 0);
 
   return (
-    <DashboardWidget title="Training Activity">
-      {data.length === 0 ? (
+    <DashboardWidget title="Training Activity" loading={loading} error={error}>
+      {!hasData ? (
         <EmptyState message="No training data" />
       ) : (
         <div className="h-56">

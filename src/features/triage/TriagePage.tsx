@@ -4,6 +4,7 @@ import { db } from '../../lib/firebase';
 import { COL } from './api';
 import { useAuthStore } from '../../store/authStore';
 import type { TriageCategory } from './types';
+import { ensureTriageSeed } from './seed';
 import { DashboardMetrics } from './components/DashboardMetrics';
 import { CategoryRail, type PanelId } from './components/CategoryRail';
 import { ContentList } from './components/ContentList';
@@ -14,9 +15,17 @@ import { AITriage } from './components/AITriage';
 export default function TriagePage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
+  const uid = userProfile?.uid ?? '';
 
   const [selected, setSelected] = useState<PanelId>('ai');
   const [cats, setCats] = useState<TriageCategory[]>([]);
+
+  // Seed sample categories, content, contacts and assessments on first load
+  // so a fresh company never sees empty Triage screens. Idempotent + guarded.
+  useEffect(() => {
+    if (!companyId || !uid) return;
+    void ensureTriageSeed(companyId, uid);
+  }, [companyId, uid]);
 
   useEffect(() => {
     if (!companyId) return;
@@ -61,7 +70,7 @@ export default function TriagePage() {
     <div>
       <div className="mb-5">
         <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
-          Triage Knowledge Hub
+          Triage
         </h1>
         <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
           Procedures, guides, contacts, and AI-assisted troubleshooting

@@ -7,7 +7,8 @@ interface PMChecklistBuilderProps {
   readOnly?: boolean;
 }
 
-export function PMChecklistBuilder({ items, onChange, readOnly = false }: PMChecklistBuilderProps) {
+export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = false }: PMChecklistBuilderProps) {
+  const items = itemsProp ?? [];
   const [newStep, setNewStep] = useState('');
   const [newTime, setNewTime] = useState('');
   const [photoRequired, setPhotoRequired] = useState(false);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import type { ShiftConfig } from '@/types/handover.types';
-import { fetchShiftConfigs, saveShiftConfig } from '@/services/handover.service';
+import { deleteShiftConfig, fetchShiftConfigs, saveShiftConfig } from '@/services/handover.service';
 
 export function useShiftConfig() {
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
@@ -29,9 +29,14 @@ export function useShiftConfig() {
     return id;
   }
 
+  async function remove(id: string) {
+    await deleteShiftConfig(id);
+    await load();
+  }
+
   useEffect(() => {
     void load();
   }, [companyId]);
 
-  return { shifts, loading, error, reload: load, save };
+  return { shifts, loading, error, reload: load, save, remove };
 }

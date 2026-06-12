@@ -205,15 +205,15 @@ export default function PMScheduleDetailPage() {
           {/* Checklist */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h3 className="font-semibold text-gray-900 mb-3">Checklist</h3>
-            <PMChecklistBuilder items={schedule.checklistItems} onChange={() => {}} readOnly />
+            <PMChecklistBuilder items={schedule.checklistItems ?? []} onChange={() => {}} readOnly />
           </div>
 
           {/* Parts */}
-          {schedule.preallocatedParts.length > 0 && (
+          {(schedule.preallocatedParts ?? []).length > 0 && (
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <h3 className="font-semibold text-gray-900 mb-3">Pre-allocated Parts</h3>
               <div className="space-y-2">
-                {schedule.preallocatedParts.map((part, i) => (
+                {(schedule.preallocatedParts ?? []).map((part, i) => (
                   <div key={i} className="flex justify-between text-sm">
                     <span>{part.partName}</span>
                     <span className="text-gray-500">Qty: {part.quantity}</span>
@@ -267,7 +267,7 @@ export default function PMScheduleDetailPage() {
                       {PM_HISTORY_STATUS_LABELS[h.status]}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{h.technicianNames.join(', ')}</td>
+                  <td className="px-4 py-3 text-gray-600">{(h.technicianNames ?? []).join(', ')}</td>
                   <td className="px-4 py-3 text-gray-600">{h.duration ? `${h.duration}m` : '—'}</td>
                 </tr>
               ))}

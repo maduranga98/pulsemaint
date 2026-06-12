@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, Timestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { AlertCircle, ArrowLeft, X, CheckCircle } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownStatus } from '../../types/breakdown';
 import { RCAModal } from '../../components/breakdowns/RCAModal';
+import { CancelReasonModal, type CancelReasonResult } from '../../components/ui/CancelReasonModal';
 import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
@@ -19,6 +20,7 @@ const STATUS_LABEL: Record<BreakdownStatus, string> = {
   on_hold_approval: 'On Hold (Approval)',
   resolved: 'Resolved',
   closed: 'Closed',
+  cancelled: 'Cancelled',
 };
 
 const STATUS_COLOR: Record<BreakdownStatus, string> = {
@@ -32,6 +34,7 @@ const STATUS_COLOR: Record<BreakdownStatus, string> = {
   on_hold_approval: 'bg-orange-50 text-orange-700 ring-orange-200',
   resolved: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
   closed: 'bg-slate-100 text-slate-600 ring-slate-200',
+  cancelled: 'bg-slate-200 text-slate-700 ring-slate-300',
 };
 
 const SEVERITY_COLOR: Record<string, string> = {
@@ -50,7 +53,6 @@ export default function ViewBreakdownPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
   const [showRCAModal, setShowRCAModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'cancel' | 'close' | null>(null);
@@ -97,19 +99,23 @@ export default function ViewBreakdownPage() {
     }).catch(() => {}); // silently ignore permission errors
   }, [id]);
 
-  async function handleCancel() {
-    if (!id || !userProfile || !cancelReason.trim()) return;
+  async function handleCancel({ reason, category }: CancelReasonResult) {
+    if (!id || !userProfile || !reason.trim()) return;
     setCancelling(true);
     try {
       await updateDoc(doc(db, 'breakdown_tickets', id), {
-        status: 'closed',
-        closedAt: Timestamp.now(),
+        status: 'cancelled',
+        cancelReason: reason.trim(),
+        cancelReasonCategory: category,
+        cancelledBy: userProfile.id,
+        cancelledByName: userProfile.fullName,
+        cancelledAt: serverTimestamp(),
         statusHistory: arrayUnion({
-          status: 'closed',
+          status: 'cancelled',
           changedBy: userProfile.id,
           changedByName: userProfile.fullName,
-          changedAt: new Date().toISOString(),
-          note: `Cancelled: ${cancelReason.trim()}`,
+          changedAt: Timestamp.now(),
+          note: `Cancelled: ${reason.trim()}`,
         }),
       });
       setShowCancelModal(false);
@@ -143,6 +149,12 @@ export default function ViewBreakdownPage() {
 
   function handleInitiateClose(action: 'cancel' | 'close') {
     if (!breakdown) return;
+    // Cancellation always goes straight to the reason modal — it does not
+    // require an RCA (that gate only applies to a normal resolution/close).
+    if (action === 'cancel') {
+      setShowCancelModal(true);
+      return;
+    }
     if (
       isRCARequired(breakdown.severity) &&
       !canCloseBreakdown(breakdown.severity, rcaDoc, isSupervisorRole)
@@ -150,11 +162,7 @@ export default function ViewBreakdownPage() {
       setPendingAction(action);
       setShowRCAModal(true);
     } else {
-      if (action === 'cancel') {
-        setShowCancelModal(true);
-      } else {
-        handleClose();
-      }
+      handleClose();
     }
   }
 
@@ -348,39 +356,15 @@ export default function ViewBreakdownPage() {
         />
       )}
 
-      {showCancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 p-6">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Cancel Breakdown</h3>
-            <p className="text-sm text-slate-600 mb-4">Please provide a reason for cancelling this breakdown.</p>
-            <textarea
-              value={cancelReason}
-              onChange={(e) => setCancelReason(e.target.value)}
-              rows={3}
-              placeholder="Reason for cancellation…"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm"
-            />
-            <div className="flex gap-3 mt-4">
-              <button
-                type="button"
-                onClick={() => { setShowCancelModal(false); setCancelReason(''); }}
-                disabled={cancelling}
-                className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 text-sm"
-              >
-                Go Back
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={cancelling || !cancelReason.trim()}
-                className="flex-1 px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 text-sm"
-              >
-                {cancelling ? 'Cancelling…' : 'Confirm Cancel'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <CancelReasonModal
+        open={showCancelModal}
+        title="Cancel Breakdown"
+        description="Please provide a reason for cancelling this breakdown."
+        confirmLabel="Confirm Cancel"
+        loading={cancelling}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={handleCancel}
+      />
     </div>
   );
 }
