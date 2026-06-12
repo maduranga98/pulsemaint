@@ -113,7 +113,7 @@ export function useWOCompletion(): UseWOCompletionResult {
             fileSize: payload.updatedCADFiles[i].size,
             uploadedBy: user.uid,
             uploadedByName: user.displayName ?? '',
-            uploadedAt: serverTimestamp(),
+            uploadedAt: Timestamp.now(),
             isCompletionDocument: true,
           })),
           ...warrantyUrls.map((url, i) => ({
@@ -126,7 +126,7 @@ export function useWOCompletion(): UseWOCompletionResult {
             fileSize: payload.warrantyDocuments[i].size,
             uploadedBy: user.uid,
             uploadedByName: user.displayName ?? '',
-            uploadedAt: serverTimestamp(),
+            uploadedAt: Timestamp.now(),
             isCompletionDocument: true,
           })),
         ];
