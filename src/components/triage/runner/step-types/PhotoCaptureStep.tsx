@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TriageStep, TriageLanguage } from '../../../../types/triage';
+import { useAuthStore } from '../../../../store/authStore';
+import { uploadTriageMedia } from '../../../../lib/triage/triageMediaUpload';
 
 interface Props {
   step: TriageStep;
@@ -10,8 +12,12 @@ interface Props {
 
 export default function PhotoCaptureStep({ step, language, onComplete }: Props) {
   const { t } = useTranslation();
+  const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  // photos holds permanent Storage download URLs (survive reload).
   const [photos, setPhotos] = useState<string[]>([]);
-  const [pending, setPending] = useState<string | null>(null);
+  // pending holds a local preview blob + the underlying File until "Use photo".
+  const [pending, setPending] = useState<{ preview: string; file: File } | null>(null);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const title = step.translations?.[language]?.title ?? step.title;
@@ -20,19 +26,31 @@ export default function PhotoCaptureStep({ step, language, onComplete }: Props) 
   const handleCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    setPending(url);
+    const preview = URL.createObjectURL(file);
+    setPending({ preview, file });
     if (inputRef.current) inputRef.current.value = '';
   };
 
-  const usePhoto = () => {
+  const usePhoto = async () => {
     if (!pending) return;
-    setPhotos((p) => [...p, pending]);
-    setPending(null);
+    setUploading(true);
+    try {
+      const { url } = await uploadTriageMedia(pending.file, {
+        companyId,
+        folder: 'captures',
+      });
+      setPhotos((p) => [...p, url]);
+      URL.revokeObjectURL(pending.preview);
+      setPending(null);
+    } catch (err) {
+      console.error('PhotoCaptureStep upload error:', err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const retake = () => {
-    if (pending) URL.revokeObjectURL(pending);
+    if (pending) URL.revokeObjectURL(pending.preview);
     setPending(null);
     inputRef.current?.click();
   };
@@ -46,19 +64,21 @@ export default function PhotoCaptureStep({ step, language, onComplete }: Props) 
 
       {pending ? (
         <div className="flex flex-col items-center gap-3">
-          <img src={pending} alt="Preview" className="w-full max-h-64 object-cover rounded-xl border" />
+          <img src={pending.preview} alt="Preview" className="w-full max-h-64 object-cover rounded-xl border" />
           <div className="flex gap-3 w-full">
             <button
               onClick={retake}
-              className="flex-1 min-h-[56px] border-2 border-gray-300 text-gray-700 text-[18px] font-medium rounded-xl hover:bg-gray-50"
+              disabled={uploading}
+              className="flex-1 min-h-[56px] border-2 border-gray-300 text-gray-700 text-[18px] font-medium rounded-xl hover:bg-gray-50 disabled:opacity-40"
             >
               {t('triage.retake')}
             </button>
             <button
               onClick={usePhoto}
-              className="flex-1 min-h-[56px] bg-[#10B981] text-white text-[18px] font-semibold rounded-xl hover:bg-green-600"
+              disabled={uploading}
+              className="flex-1 min-h-[56px] bg-[#10B981] text-white text-[18px] font-semibold rounded-xl hover:bg-green-600 disabled:opacity-40"
             >
-              {t('triage.use_photo')}
+              {uploading ? t('triage.loading') : t('triage.use_photo')}
             </button>
           </div>
         </div>

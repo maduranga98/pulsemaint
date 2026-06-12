@@ -19,6 +19,7 @@ interface UseLessonProgressReturn {
     totalLessons: number,
     currentLessonsCompleted: number
   ) => Promise<void>;
+  markAssignmentComplete: (assignmentId: string) => Promise<void>;
   isUpdating: boolean;
 }
 
@@ -121,5 +122,27 @@ export function useLessonProgress(): UseLessonProgressReturn {
     []
   );
 
-  return { updateVideoProgress, markLessonComplete, isUpdating };
+  // ---------------------------------------------------------------------------
+  // markAssignmentComplete — finalize an assignment (acknowledgement /
+  // completion of a module that has no quiz or practical sign-off).
+  // ---------------------------------------------------------------------------
+  const markAssignmentComplete = useCallback(async (assignmentId: string) => {
+    try {
+      setIsUpdating(true);
+      await updateDoc(doc(db, 'trainingAssignments', assignmentId), {
+        status: 'certified',
+        overallProgress: 100,
+        completedAt: serverTimestamp(),
+        certifiedAt: serverTimestamp(),
+        lastActivityAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error('Failed to mark assignment complete:', err);
+      throw err;
+    } finally {
+      setIsUpdating(false);
+    }
+  }, []);
+
+  return { updateVideoProgress, markLessonComplete, markAssignmentComplete, isUpdating };
 }

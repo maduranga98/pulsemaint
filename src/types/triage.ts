@@ -40,9 +40,11 @@ export interface TriageChecklistItem {
 }
 
 export interface TriageMediaRef {
-  type: 'image' | 'video';
+  type: 'image' | 'video' | 'file';
   url: string;
   caption: string;
+  /** Original file name, used for non-image/video downloads. */
+  fileName?: string;
 }
 
 export interface TriageStepTranslation {

@@ -24,6 +24,19 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const [status, setStatus] = useState(initial?.status ?? 'active');
   const [activeDays, setActiveDays] = useState<ShiftDay[]>(initial?.activeDays ?? DAYS);
   const [memberIds, setMemberIds] = useState<string[]>(initial?.memberIds ?? []);
+
+  // Reset local state when switching which shift is being edited.
+  useEffect(() => {
+    setShiftName(initial?.shiftName ?? '');
+    setStartTime(initial?.startTime ?? '06:00');
+    setEndTime(initial?.endTime ?? '14:00');
+    setColor(initial?.color ?? '#00C2FF');
+    setDepartment(initial?.department ?? '');
+    setStatus(initial?.status ?? 'active');
+    setActiveDays(initial?.activeDays ?? DAYS);
+    setMemberIds(initial?.memberIds ?? []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initial?.id]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -60,6 +73,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         department: department.trim() || null,
         status,
         memberIds,
+        memberNames: users.filter((u) => memberIds.includes(u.id)).map((u) => u.fullName ?? ''),
       });
       setSuccess(true);
       if (!initial) {

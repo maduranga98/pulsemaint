@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { useHandoverStore } from '@/store/handover.store';
+import { useToast } from '@/hooks/useToast';
 import Section1AutoStats from './Section1AutoStats';
 import Section2WatchFlags from './Section2WatchFlags';
 import Section3PendingWOs from './Section3PendingWOs';
@@ -15,6 +16,7 @@ const STEPS = ['Stats', 'Watch', 'WOs', 'Breakdowns', 'Parts', 'Safety', 'Notes'
 
 export function HandoverCreateForm() {
   const navigate = useNavigate();
+  const toast = useToast();
   const profile = useAuthStore((state) => state.userProfile);
   const draft = useHandoverStore((state) => state.draftHandover);
   const stats = useHandoverStore((state) => state.compiledStats);
@@ -22,6 +24,32 @@ export function HandoverCreateForm() {
   const submitHandover = useHandoverStore((state) => state.submitHandover);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    if (submitting) return;
+    if (!draft?.outgoingAcknowledged) {
+      setSubmitError('Please confirm the sign-off before submitting.');
+      return;
+    }
+    if (!stats) {
+      setSubmitError('Shift summary is not compiled yet. End your shift first.');
+      return;
+    }
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      const id = await submitHandover();
+      toast.success('Handover submitted successfully');
+      navigate(`/app/shift/handover/${id}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to submit handover';
+      setSubmitError(message);
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (!draft) {
     return (
@@ -53,10 +81,8 @@ export function HandoverCreateForm() {
       acknowledged={draft.outgoingAcknowledged}
       onAcknowledge={(outgoingAcknowledged) => updateDraftHandover({ outgoingAcknowledged })}
       submitting={submitting}
-      onSubmit={() => {
-        setSubmitting(true);
-        void submitHandover().then((id) => navigate(`/app/shift/handover/${id}`)).finally(() => setSubmitting(false));
-      }}
+      error={submitError}
+      onSubmit={() => void handleSubmit()}
     />,
   ];
 

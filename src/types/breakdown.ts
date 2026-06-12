@@ -28,7 +28,8 @@ export type BreakdownStatus =
   | 'on_hold_parts'
   | 'on_hold_approval'
   | 'resolved'
-  | 'closed';
+  | 'closed'
+  | 'cancelled';
 
 export type BreakdownSeverity = 'critical' | 'high' | 'medium' | 'low';
 
@@ -114,6 +115,13 @@ export interface Breakdown {
   repairStartedAt: Timestamp | null;
   resolvedAt: Timestamp | null;
   closedAt: Timestamp | null;
+
+  // Cancellation
+  cancelReason: string | null;
+  cancelReasonCategory: string | null;
+  cancelledBy: string | null;
+  cancelledByName: string | null;
+  cancelledAt: Timestamp | null;
 
   // SLA
   slaDeadline: Timestamp | null;

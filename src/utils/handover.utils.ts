@@ -58,8 +58,8 @@ export function severityClass(severity: string): string {
 export function defaultShiftConfigs(companyId: string): Omit<ShiftConfig, 'id'>[] {
   const activeDays: ShiftDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   return [
-    { companyId, shiftName: 'Morning Shift', startTime: '06:00', endTime: '14:00', color: '#00C2FF', activeDays, department: null, status: 'active' },
-    { companyId, shiftName: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', color: '#F59E0B', activeDays, department: null, status: 'active' },
-    { companyId, shiftName: 'Night Shift', startTime: '22:00', endTime: '06:00', color: '#0A1628', activeDays, department: null, status: 'active' },
+    { companyId, shiftName: 'Morning Shift', startTime: '06:00', endTime: '14:00', color: '#00C2FF', activeDays, department: null, status: 'active', memberIds: [], memberNames: [] },
+    { companyId, shiftName: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', color: '#F59E0B', activeDays, department: null, status: 'active', memberIds: [], memberNames: [] },
+    { companyId, shiftName: 'Night Shift', startTime: '22:00', endTime: '06:00', color: '#0A1628', activeDays, department: null, status: 'active', memberIds: [], memberNames: [] },
   ];
 }

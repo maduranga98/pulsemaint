@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Clock, BookOpen } from 'lucide-react';
+import { ArrowLeft, Clock, BookOpen, CheckCircle2 } from 'lucide-react';
 import type { TrainingAssignment, TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
 import { areAllRequiredLessonsComplete, getNextLesson, formatMinutes } from '@/lib/training/progressCalculator';
 import { useLessonProgress } from '@/hooks/training/useLessonProgress';
@@ -24,12 +24,27 @@ export default function ModuleLearningScreen({
 }: ModuleLearningScreenProps) {
   const [activeLesson, setActiveLesson] = useState<LessonItem | null>(null);
   const [completedLessonTitle, setCompletedLessonTitle] = useState<string | null>(null);
-  const { markLessonComplete } = useLessonProgress();
+  const [finalizing, setFinalizing] = useState(false);
+  const { markLessonComplete, markAssignmentComplete } = useLessonProgress();
 
   const lessons = module.lessons ?? [];
   const lessonProgress = assignment.lessonProgress ?? {};
 
   const allRequiredDone = areAllRequiredLessonsComplete(lessons, lessonProgress);
+  const hasQuiz = !!module.quiz && (module.quiz.questions?.length ?? 0) > 0;
+  const isCertified = assignment.status === 'certified';
+  // An assignment without a quiz is completed by acknowledging once all
+  // required lessons are done.
+  const canAcknowledge = !hasQuiz && allRequiredDone && !isCertified;
+
+  const handleAcknowledge = async () => {
+    setFinalizing(true);
+    try {
+      await markAssignmentComplete(assignment.id);
+    } finally {
+      setFinalizing(false);
+    }
+  };
   const quizStatus: 'locked' | 'available' | 'passed' =
     assignment.quizPassed
       ? 'passed'
@@ -122,6 +137,27 @@ export default function ModuleLearningScreen({
           onStartQuiz={onStartQuiz}
         />
       </div>
+
+      {/* Completion / acknowledgement bar */}
+      {(canAcknowledge || isCertified) && (
+        <div className="sticky bottom-0 z-10 bg-white border-t border-slate-200 px-4 py-3">
+          {isCertified ? (
+            <div className="flex items-center justify-center gap-2 text-emerald-700 text-sm font-medium">
+              <CheckCircle2 size={18} />
+              Training completed
+            </div>
+          ) : (
+            <button
+              onClick={handleAcknowledge}
+              disabled={finalizing}
+              className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg py-2.5 hover:bg-emerald-700 transition-colors disabled:opacity-60"
+            >
+              <CheckCircle2 size={18} />
+              {finalizing ? 'Saving…' : 'Mark Complete & Acknowledge'}
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Lesson viewer overlay */}
       {activeLesson && (

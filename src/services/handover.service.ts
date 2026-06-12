@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -10,9 +11,9 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  Timestamp,
   type DocumentData,
   type QueryConstraint,
-  type Timestamp,
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import app, { db } from '@/lib/firebase';
@@ -20,6 +21,7 @@ import type {
   CompiledShiftSummary,
   DraftHandover,
   HandoverHistoryFilters,
+  HandoverStatus,
   PendingWOSnapshot,
   ShiftConfig,
   ShiftHandover,
@@ -61,6 +63,7 @@ function mapShiftConfig(id: string, data: DocumentData): ShiftConfig {
     department: data.department ?? null,
     status: data.status,
     memberIds: data.memberIds ?? [],
+    memberNames: data.memberNames ?? [],
     createdAt: toDate(data.createdAt) ?? undefined,
     updatedAt: toDate(data.updatedAt) ?? undefined,
   };
@@ -125,6 +128,10 @@ export async function saveShiftConfig(companyId: string, payload: Omit<ShiftConf
   return ref.id;
 }
 
+export async function deleteShiftConfig(id: string): Promise<void> {
+  await deleteDoc(doc(db, 'shift_config', id));
+}
+
 export async function autoCompileShiftSummary(params: {
   companyId: string;
   supervisorId: string;
@@ -155,9 +162,70 @@ export async function submitHandoverCallable(params: {
   outgoingSupervisorName: string;
   outgoingSupervisorDesignation?: string | null;
 }): Promise<string> {
-  const callable = httpsCallable<typeof params, { handoverId: string }>(functions, 'submitHandover');
-  const result = await callable(params);
-  return result.data.handoverId;
+  // Write the handover document directly to Firestore. (The previous
+  // implementation relied on a `submitHandover` Cloud Function that may not be
+  // deployed, which made the Submit button silently no-op.)
+  const { companyId, draft, stats } = params;
+  const now = Timestamp.now();
+  const shiftDate = new Date().toISOString().slice(0, 10);
+
+  const watchFlags = (draft.watchFlags ?? []).map((flag, index) => ({
+    id: `wf-${index + 1}-${Date.now()}`,
+    machineId: flag.machineId,
+    machineName: flag.machineName,
+    machineLocation: flag.machineLocation,
+    watchLevel: flag.watchLevel,
+    reason: flag.reason,
+    recommendedAction: flag.recommendedAction,
+    linkedBreakdownId: flag.linkedBreakdownId ?? null,
+    status: 'active' as const,
+    resolvedAt: null,
+    resolvedBy: null,
+    carriedFromHandoverId: null,
+  }));
+
+  const pendingWOs = (draft.pendingWOs ?? []).map((wo) => ({
+    ...wo,
+    dueDate: wo.dueDate ? Timestamp.fromDate(wo.dueDate instanceof Date ? wo.dueDate : new Date(wo.dueDate)) : null,
+  }));
+
+  const data: Record<string, unknown> = {
+    companyId,
+    shiftConfigId: draft.shiftConfigId ?? '',
+    shiftName: draft.shiftName ?? 'Current Shift',
+    shiftDate,
+    outgoingSupervisorId: params.outgoingSupervisorId,
+    outgoingSupervisorName: params.outgoingSupervisorName,
+    outgoingSupervisorDesignation: params.outgoingSupervisorDesignation ?? null,
+    shiftActualStart: draft.shiftActualStart
+      ? Timestamp.fromDate(draft.shiftActualStart instanceof Date ? draft.shiftActualStart : new Date(draft.shiftActualStart))
+      : now,
+    handoverSubmittedAt: now,
+    incomingSupervisorId: null,
+    incomingSupervisorName: null,
+    incomingSupervisorDesignation: null,
+    handoverAcceptedAt: null,
+    overlapMinutes: null,
+    stats,
+    watchFlags,
+    pendingWOs,
+    ongoingBreakdowns: draft.ongoingBreakdowns ?? [],
+    partsNotes: draft.partsNotes ?? '',
+    lowStockAlerts: draft.lowStockAlerts ?? [],
+    safetyIncidentOccurred: Boolean(draft.safetyIncidentOccurred),
+    safetyIncidentDescription: draft.safetyIncidentDescription ?? null,
+    restrictedAreas: draft.restrictedAreas ?? null,
+    temporaryRepairs: draft.temporaryRepairs ?? null,
+    generalNotes: draft.generalNotes ?? '',
+    outgoingAcknowledged: Boolean(draft.outgoingAcknowledged),
+    incomingAcknowledged: false,
+    status: 'pending_acceptance' as HandoverStatus,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+
+  const ref = await addDoc(collection(db, 'shift_handovers'), data);
+  return ref.id;
 }
 
 export async function acceptHandoverCallable(handoverId: string, companyId: string): Promise<void> {

@@ -103,19 +103,19 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
               ? editSchedule.lastMeterResetDate.toDate()
               : new Date(editSchedule.lastMeterResetDate as unknown as string)
             : null,
-          assignedTechnicianIds: editSchedule.assignedTechnicianIds,
-          assignedTechnicianNames: editSchedule.assignedTechnicianNames,
+          assignedTechnicianIds: editSchedule.assignedTechnicianIds ?? [],
+          assignedTechnicianNames: editSchedule.assignedTechnicianNames ?? [],
           estimatedDuration: editSchedule.estimatedDuration,
           estimatedDurationUnit: editSchedule.estimatedDurationUnit,
-          skillsRequired: editSchedule.skillsRequired,
-          checklistItems: editSchedule.checklistItems.map((i) => ({
+          skillsRequired: editSchedule.skillsRequired ?? [],
+          checklistItems: (editSchedule.checklistItems ?? []).map((i) => ({
             step: i.step,
             description: i.description,
             estimatedMinutes: i.estimatedMinutes,
             photoRequired: i.photoRequired,
           })),
           checklistTemplateId: editSchedule.checklistTemplateId,
-          preallocatedParts: editSchedule.preallocatedParts,
+          preallocatedParts: editSchedule.preallocatedParts ?? [],
           leadTimeDays: editSchedule.leadTimeDays,
           overdueEscalationHours: editSchedule.overdueEscalationHours,
           autoCloseAfterDays: editSchedule.autoCloseAfterDays,
