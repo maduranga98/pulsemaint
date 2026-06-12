@@ -2,6 +2,7 @@ import {
   collection,
   addDoc,
   deleteDoc,
+  updateDoc,
   doc,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -45,6 +46,16 @@ export async function deleteCategory(id: string) {
   return deleteDoc(doc(db, COL.categories, id));
 }
 
+export async function updateCategory(
+  id: string,
+  data: Partial<WithoutMeta<TriageCategory>>,
+) {
+  return updateDoc(doc(db, COL.categories, id), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
 export async function addContentItem(
   companyId: string,
   uid: string,
@@ -57,11 +68,46 @@ export async function deleteContentItem(id: string) {
   return deleteDoc(doc(db, COL.content, id));
 }
 
+export async function updateContentItem(
+  id: string,
+  data: Partial<WithoutMeta<TriageContentItem>>,
+) {
+  return updateDoc(doc(db, COL.content, id), {
+    ...data,
+    updatedAt: serverTimestamp(),
+  });
+}
+
 export async function uploadPdf(file: File): Promise<string> {
   const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const fileRef = ref(storage, `triage/pdfs/${uid}.pdf`);
   await uploadBytes(fileRef, file);
   return getDownloadURL(fileRef);
+}
+
+export interface UploadedMedia {
+  url: string;
+  fileType: string;
+  fileName: string;
+}
+
+/**
+ * Upload an arbitrary media file (image, video, or other) to Firebase Storage
+ * and return its public download URL plus metadata. Storing the download URL
+ * (rather than an in-memory blob: URL) is what allows the asset to survive a
+ * page reload.
+ */
+export async function uploadMedia(file: File): Promise<UploadedMedia> {
+  const safeName = file.name.replace(/[^\w.\-]+/g, '_');
+  const uid = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const fileRef = ref(storage, `triage/media/${uid}-${safeName}`);
+  await uploadBytes(fileRef, file, { contentType: file.type || undefined });
+  const url = await getDownloadURL(fileRef);
+  return {
+    url,
+    fileType: file.type || 'application/octet-stream',
+    fileName: file.name,
+  };
 }
 
 export async function addContact(

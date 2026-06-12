@@ -12,6 +12,7 @@ import {
   addContentItem,
   deleteCategory,
   uploadPdf,
+  uploadMedia,
   COL,
 } from '../../api';
 import { useAuthStore } from '../../../../store/authStore';
@@ -19,6 +20,25 @@ import type { TriageCategory, TriageContentType } from '../../types';
 import { ContentList } from '../ContentList';
 
 const COLOR_PRESETS = ['#ef4444', '#f97316', '#fbbf24', '#22c55e', '#3b82f6', '#a78bfa'];
+
+// Selectable sample icons offered when creating a category. Icons are stored as
+// emoji strings to stay compatible with every consumer that renders {cat.icon}.
+const ICON_PRESETS = [
+  '🔧', '⚙️', '🛠️', '⚡', '🔥', '🚨', '🦺', '🧯',
+  '💧', '🌡️', '🔋', '🧰', '📋', '🏭', '🚜', '🧪',
+];
+
+// Suggested category titles surfaced as quick-fill chips.
+const TITLE_SUGGESTIONS = [
+  'Safety & Emergency',
+  'Electrical',
+  'Mechanical',
+  'Hydraulics',
+  'Lubrication',
+  'Startup & Shutdown',
+  'Troubleshooting',
+  'Preventive Maintenance',
+];
 
 type ContentType = TriageContentType;
 
@@ -92,7 +112,9 @@ export function ContentBuilder() {
   const [form, setForm] = useState<ContentForm>(EMPTY_FORM);
   const [itemSaving, setItemSaving] = useState(false);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const mediaRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!companyId) return;
@@ -161,12 +183,27 @@ export function ContentBuilder() {
         let fileUrl = form.pdfUrl.trim();
         if (pdfFile) fileUrl = await uploadPdf(pdfFile);
         extra = { fileUrl };
+      } else if (form.type === 'image' || form.type === 'media') {
+        // Upload the chosen file to Firebase Storage and persist the download URL
+        // (never an in-memory blob: URL, which dies on reload).
+        if (mediaFile) {
+          const uploaded = await uploadMedia(mediaFile);
+          extra = {
+            fileUrl: uploaded.url,
+            fileType: uploaded.fileType,
+            fileName: uploaded.fileName,
+          };
+        } else if (form.pdfUrl.trim()) {
+          extra = { fileUrl: form.pdfUrl.trim() };
+        }
       }
 
       await addContentItem(companyId, uid, { ...base, ...extra } as Parameters<typeof addContentItem>[2]);
       setForm({ ...EMPTY_FORM, categoryId: form.categoryId, type: form.type });
       setPdfFile(null);
+      setMediaFile(null);
       if (fileRef.current) fileRef.current.value = '';
+      if (mediaRef.current) mediaRef.current.value = '';
     } finally {
       setItemSaving(false);
     }
@@ -195,32 +232,65 @@ export function ContentBuilder() {
             New Category
           </div>
           <form onSubmit={handleAddCategory} className="space-y-3">
-            <div className="flex gap-2">
-              <div style={{ flex: '0 0 72px' }}>
-                <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                  Icon
-                </label>
+            <div>
+              <label className="text-xs block mb-1.5" style={{ color: '#6b7fa3' }}>
+                Icon
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {ICON_PRESETS.map((ic) => (
+                  <button
+                    key={ic}
+                    type="button"
+                    onClick={() => setCatIcon(ic)}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+                    style={{
+                      fontSize: 18,
+                      background: catIcon === ic ? '#1d4ed8' : '#0e1628',
+                      border: `1px solid ${catIcon === ic ? '#3b82f6' : '#1a2840'}`,
+                    }}
+                  >
+                    {ic}
+                  </button>
+                ))}
                 <input
                   value={catIcon}
                   onChange={(e) => setCatIcon(e.target.value)}
                   maxLength={2}
-                  className={input}
-                  style={{ ...inputStyle, textAlign: 'center', fontSize: 20 }}
-                  placeholder="🔧"
+                  className="w-8 h-8 rounded-lg text-center"
+                  style={{ ...inputStyle, fontSize: 18 }}
+                  title="Or type your own"
+                  aria-label="Custom icon"
                 />
               </div>
-              <div className="flex-1">
-                <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                  Title *
-                </label>
-                <input
-                  value={catTitle}
-                  onChange={(e) => setCatTitle(e.target.value)}
-                  className={input}
-                  style={inputStyle}
-                  placeholder="e.g. Safety & Emergency"
-                  required
-                />
+            </div>
+            <div>
+              <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+                Title *
+              </label>
+              <input
+                value={catTitle}
+                onChange={(e) => setCatTitle(e.target.value)}
+                className={input}
+                style={inputStyle}
+                placeholder="e.g. Safety & Emergency"
+                required
+              />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {TITLE_SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => setCatTitle(s)}
+                    className="px-2 py-0.5 rounded-full text-[11px] transition-colors"
+                    style={{
+                      background: catTitle === s ? '#1d4ed81e' : '#0e1628',
+                      color: catTitle === s ? '#3b82f6' : '#6b7fa3',
+                      border: `1px solid ${catTitle === s ? '#3b82f666' : '#1a2840'}`,
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
               </div>
             </div>
             <div>
@@ -298,8 +368,8 @@ export function ContentBuilder() {
               <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
                 Type *
               </label>
-              <div className="grid grid-cols-4 gap-1">
-                {(['procedure', 'guide', 'video', 'pdf'] as ContentType[]).map((t) => (
+              <div className="grid grid-cols-3 gap-1">
+                {(['procedure', 'guide', 'video', 'pdf', 'image', 'media'] as ContentType[]).map((t) => (
                   <button
                     key={t}
                     type="button"
@@ -442,9 +512,42 @@ export function ContentBuilder() {
               </div>
             )}
 
+            {(form.type === 'image' || form.type === 'media') && (
+              <div className="space-y-2">
+                <label className="text-xs block" style={{ color: '#6b7fa3' }}>
+                  {form.type === 'image'
+                    ? 'Upload an image'
+                    : 'Upload a file (video, document, etc.)'}
+                </label>
+                <input
+                  ref={mediaRef}
+                  type="file"
+                  accept={form.type === 'image' ? 'image/*' : 'video/*,image/*,application/*'}
+                  onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)}
+                  className="w-full text-xs"
+                  style={{ color: '#6b7fa3' }}
+                />
+                <input
+                  value={form.pdfUrl}
+                  onChange={(e) => setForm((f) => ({ ...f, pdfUrl: e.target.value }))}
+                  className={input}
+                  style={inputStyle}
+                  placeholder="Or paste a public file URL"
+                  disabled={!!mediaFile}
+                />
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={itemSaving || !form.categoryId || !form.title.trim()}
+              disabled={
+                itemSaving ||
+                !form.categoryId ||
+                !form.title.trim() ||
+                ((form.type === 'image' || form.type === 'media') &&
+                  !mediaFile &&
+                  !form.pdfUrl.trim())
+              }
               className="w-full py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
               style={{ background: '#1d4ed8', color: 'white' }}
             >

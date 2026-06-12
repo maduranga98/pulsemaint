@@ -21,6 +21,8 @@ const TYPE_ICON: Record<string, string> = {
   guide: '📄',
   video: '▶️',
   pdf: '📑',
+  image: '🖼️',
+  media: '🎞️',
 };
 
 export function ContentList({ category, showDelete = false }: Props) {
@@ -110,7 +112,15 @@ export function ContentList({ category, showDelete = false }: Props) {
       <div className="space-y-2">
         {items.map((item) => {
           const isOpen = expanded === item.id;
-          const isAction = item.type === 'video' || item.type === 'pdf';
+          const isImageMedia =
+            item.type === 'image' ||
+            (item.type === 'media' && (item.fileType ?? '').startsWith('image/'));
+          const isVideoMedia =
+            item.type === 'media' && (item.fileType ?? '').startsWith('video/');
+          // "media" files that are neither image nor video open/download externally.
+          const isDownloadMedia =
+            item.type === 'media' && !isImageMedia && !isVideoMedia;
+          const isAction = item.type === 'video' || item.type === 'pdf' || isDownloadMedia;
 
           return (
             <div
@@ -133,8 +143,8 @@ export function ContentList({ category, showDelete = false }: Props) {
                       setPlayingVideo(item);
                       return;
                     }
-                    if (item.type === 'pdf') {
-                      window.open(item.fileUrl, '_blank');
+                    if (item.type === 'pdf' || isDownloadMedia) {
+                      if (item.fileUrl) window.open(item.fileUrl, '_blank');
                       return;
                     }
                     setExpanded(isOpen ? null : item.id);
@@ -234,6 +244,37 @@ export function ContentList({ category, showDelete = false }: Props) {
                           <span>{item.note}</span>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {isImageMedia && item.fileUrl && (
+                    <div className="mt-3">
+                      <img
+                        src={item.fileUrl}
+                        alt={item.title}
+                        className="w-full rounded-lg"
+                        style={{ border: '1px solid #1a2840' }}
+                      />
+                      <a
+                        href={item.fileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-block mt-2 text-xs"
+                        style={{ color: '#3b82f6' }}
+                      >
+                        Open full size ↗
+                      </a>
+                    </div>
+                  )}
+
+                  {isVideoMedia && item.fileUrl && (
+                    <div className="mt-3">
+                      <video
+                        src={item.fileUrl}
+                        controls
+                        className="w-full rounded-lg"
+                        style={{ border: '1px solid #1a2840', background: '#000' }}
+                      />
                     </div>
                   )}
                 </div>
