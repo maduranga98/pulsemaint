@@ -133,6 +133,8 @@ import ViewBreakdownPage from '../pages/breakdowns/ViewBreakdownPage';
 import EditBreakdownPage from '../pages/breakdowns/EditBreakdownPage';
 import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
+import MyWorkOrdersPage from '../pages/workorders/MyWorkOrdersPage';
+import SignOffQueuePage from '../pages/workorders/SignOffQueuePage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
 
@@ -331,6 +333,22 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['technician', 'supervisor', 'plant_manager', 'admin']}>
               <WorkOrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="my-work-orders"
+          element={
+            <ProtectedRoute requiredRoles={['technician', 'admin']}>
+              <MyWorkOrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="sign-off-queue"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+              <SignOffQueuePage />
             </ProtectedRoute>
           }
         />

@@ -15,7 +15,7 @@ export function useMyJobQueue(technicianId: string, siteId: string) {
     }
 
     const q = query(
-      collection(db, 'work_orders'),
+      collection(db, 'workOrders'),
       where('siteId', '==', siteId),
       where('assignedTechnicianIds', 'array-contains', technicianId),
       where('status', 'in', ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL']),

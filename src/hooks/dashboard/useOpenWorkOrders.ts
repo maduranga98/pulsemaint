@@ -16,7 +16,7 @@ export function useOpenWorkOrders(siteId: string) {
     }
 
     const q = query(
-      collection(db, 'work_orders'),
+      collection(db, 'workOrders'),
       where('siteId', '==', siteId),
       where('status', 'in', ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL']),
     );

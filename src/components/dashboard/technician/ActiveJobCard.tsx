@@ -5,9 +5,10 @@ import type { WorkOrder } from '../../../types';
 
 interface ActiveJobCardProps {
   workOrder: WorkOrder | null;
+  onOpen?: (workOrder: WorkOrder) => void;
 }
 
-export default function ActiveJobCard({ workOrder }: ActiveJobCardProps) {
+export default function ActiveJobCard({ workOrder, onOpen }: ActiveJobCardProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
@@ -66,11 +67,17 @@ export default function ActiveJobCard({ workOrder }: ActiveJobCardProps) {
 
       {/* Quick Actions */}
       <div className="mt-4 flex flex-wrap gap-2">
-        <button className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#1A56DB] text-white text-xs font-medium rounded-lg hover:bg-[#1A56DB]/90 transition-colors">
+        <button
+          onClick={() => onOpen?.(workOrder)}
+          className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#1A56DB] text-white text-xs font-medium rounded-lg hover:bg-[#1A56DB]/90 transition-colors"
+        >
           <CheckCircle className="w-3.5 h-3.5" />
           Update Status
         </button>
-        <button className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0A1628] border border-[#1E3A5F] text-[#F0F4F8] text-xs font-medium rounded-lg hover:border-[#2E5A8F] transition-colors">
+        <button
+          onClick={() => onOpen?.(workOrder)}
+          className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0A1628] border border-[#1E3A5F] text-[#F0F4F8] text-xs font-medium rounded-lg hover:border-[#2E5A8F] transition-colors"
+        >
           <Camera className="w-3.5 h-3.5" />
           Add Photo
         </button>
