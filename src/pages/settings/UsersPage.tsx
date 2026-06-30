@@ -245,6 +245,8 @@ export default function UsersPage() {
       status: values.status,
       updatedAt: serverTimestamp(),
     });
+    // Keep the global mapping doc in sync so Firestore rules pick up the new role.
+    await setDoc(doc(db, `users/${userId}`), { role: values.role }, { merge: true });
     toast.success('User updated');
   };
 

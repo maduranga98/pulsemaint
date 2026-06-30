@@ -15,7 +15,7 @@ export function useInventoryHealth(companyId: string) {
     }
 
     const q = query(
-      collection(db, 'inventory_parts'),
+      collection(db, 'inventoryParts'),
       where('companyId', '==', companyId),
     );
 
