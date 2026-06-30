@@ -126,6 +126,9 @@ import ShiftConfigPage from '../pages/settings/ShiftConfigPage';
 import MainReportsHubPage from '../pages/reports/ReportsHubPage';
 import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 
+// Billing
+import BillingPage from '../pages/billing/BillingPage';
+
 // Real pages (Module 1, 2, 4, 11)
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
 import BreakdownsPage from '../pages/breakdowns/BreakdownsPage';
@@ -661,6 +664,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="billing"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <BillingPage />
             </ProtectedRoute>
           }
         />
