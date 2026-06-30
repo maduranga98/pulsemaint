@@ -24,8 +24,7 @@ type ViewMode = 'board' | 'list' | 'stats' | 'digest';
 
 export function KaizenPage() {
   const role = useAuthStore((s) => s.userProfile?.role ?? 'technician');
-  const plan = useAuthStore((s) => s.company?.plan);
-  const isProPlan = plan === 'enterprise';
+  const isProPlan = true;
   const canReview = role === 'admin' || role === 'supervisor' || role === 'plant_manager';
 
   const [viewMode, setViewMode] = useState<ViewMode>('board');

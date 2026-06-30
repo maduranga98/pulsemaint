@@ -7,6 +7,8 @@ export interface WoTypeCount {
   count: number;
 }
 
+// Accepts siteId (which equals companyId in single-site setups) so the query
+// matches the siteId-based security rules on the workOrders collection.
 export function useWoTypeDistribution(companyId: string) {
   const [data, setData] = useState<WoTypeCount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +23,7 @@ export function useWoTypeDistribution(companyId: string) {
     setError(null);
     try {
       const snap = await getDocs(
-        query(collection(db, 'workOrders'), where('companyId', '==', companyId)),
+        query(collection(db, 'workOrders'), where('siteId', '==', companyId)),
       );
       const counts: Record<string, number> = {};
       snap.docs.forEach((d) => {

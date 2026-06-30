@@ -110,8 +110,7 @@ export function OEEPage() {
   const navigate = useNavigate();
   const canView = useAuthStore((s) => s.canAccess(['supervisor', 'plant_manager', 'admin']));
   const canInput = useAuthStore((s) => s.canAccess(['supervisor', 'admin']));
-  const plan = useAuthStore((s) => s.company?.plan);
-  const isProPlan = plan === 'factory' || plan === 'enterprise';
+  const isProPlan = true;
 
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [selectedMachine, setSelectedMachine] = useState<MachineSummary | null>(null);
@@ -263,12 +262,6 @@ export function OEEPage() {
               <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="font-semibold text-white">6 Big Losses — {currentMonth}</h2>
-                  {!isProPlan && (
-                    <span className="flex items-center gap-1 text-xs text-blue-400 bg-blue-900/20 px-2 py-1 rounded-lg border border-blue-800/30">
-                      <Lock className="h-3 w-3" />
-                      Upgrade for LKR cost
-                    </span>
-                  )}
                 </div>
                 <BigLossesWaterfall month={currentMonth} isProPlan={isProPlan} />
               </div>

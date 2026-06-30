@@ -367,8 +367,7 @@ export function FiveSPage() {
   const ALLOWED_ROLES = ['admin', 'plant_manager', 'supervisor', 'technician'];
   if (!role || !ALLOWED_ROLES.includes(role)) return <AccessDenied />;
 
-  const plan = company?.plan;
-  const isProPlan = plan === 'enterprise';
+  const isProPlan = true;
 
   const [activeTab, setActiveTab] = useState<TabId>('zones');
   const [auditZoneId, setAuditZoneId] = useState<string | undefined>();
