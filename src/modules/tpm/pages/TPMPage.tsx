@@ -107,8 +107,7 @@ const TABS: { id: TabId; label: string; proOnly?: boolean }[] = [
 
 export function TPMPage() {
   const canView = useAuthStore((s) => s.canAccess(['supervisor', 'plant_manager', 'admin']));
-  const plan = useAuthStore((s) => s.company?.plan);
-  const isProPlan = plan === 'enterprise';
+  const isProPlan = true;
 
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [selectedPillarId, setSelectedPillarId] = useState<TPMPillarId | null>(null);
@@ -134,12 +133,6 @@ export function TPMPage() {
               8-pillar TPM framework — scores, AM tasks, and maturity roadmap
             </p>
           </div>
-          {!isProPlan && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-900/20 border border-blue-800/40 rounded-xl text-xs text-blue-400">
-              <Lock className="h-3.5 w-3.5" />
-              <span>Factory plan · <span className="font-semibold">Upgrade for full TPM</span></span>
-            </div>
-          )}
         </div>
 
         {/* Tab Navigation */}

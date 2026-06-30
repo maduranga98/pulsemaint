@@ -177,9 +177,7 @@ export default function OnboardingWizard() {
     }
   };
 
-  const trialEndsAt = company.trialEndsAt
-    ? new Date(company.trialEndsAt.seconds * 1000).toLocaleDateString()
-    : '';
+  const trialEndsAt = null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4 py-8">

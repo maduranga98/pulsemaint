@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { fetchUserProfile, getCompanyIdFromUser } from '../lib/auth';
@@ -53,6 +53,16 @@ export function useAuthInit() {
 
             if (userProfile) {
               setUserProfile(userProfile);
+
+              // Keep the global mapping doc in sync so Firestore security rules
+              // always see the correct role and siteId. This self-heals existing
+              // users who have stale or null values in their mapping doc.
+              setDoc(doc(db, 'users', user.uid), {
+                uid: user.uid,
+                companyId,
+                role: userProfile.role,
+                siteId: userProfile.siteIds[0] ?? companyId,
+              }, { merge: true }).catch(() => {});
 
               const companyRef = doc(db, `companies/${companyId}`);
               const companySnap = await getDoc(companyRef);
