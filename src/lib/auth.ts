@@ -110,12 +110,13 @@ export async function registerCompany(data: {
     await setDoc(userRef, userProfile);
 
     // Create user mapping document for quick company lookup.
+    // siteId defaults to companyId so Firestore rules work for single-site setups.
     const userMapRef = doc(collection(db, 'users'), uid);
     await setDoc(userMapRef, {
       uid,
       companyId: companyRef.id,
       role: 'admin',
-      siteId: null,
+      siteId: companyRef.id,
     });
 
     console.log('Company registration complete', { uid, companyId: companyRef.id });
@@ -153,6 +154,16 @@ export async function loginWithEmail(email: string, password: string): Promise<U
     // against onAuthStateChanged's async Firestore fetch.
     useAuthStore.getState().setUser(userCredential.user);
     useAuthStore.getState().setUserProfile(userProfile);
+
+    // Sync the global mapping doc so Firestore rules always see the current
+    // role and siteId (fixes stale docs and users who logged in before the
+    // mapping doc was written).
+    await setDoc(doc(db, 'users', uid), {
+      uid,
+      companyId,
+      role: userProfile.role,
+      siteId: userProfile.siteIds[0] ?? companyId,
+    }, { merge: true });
 
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);
@@ -358,6 +369,15 @@ export async function loginWithPin(companyId: string, pin: string): Promise<User
       (error as any).code = 'PIN_CHANGE_REQUIRED';
       throw error;
     }
+
+    // Sync the global mapping doc (PIN users may not have one if they were
+    // created directly in Settings without going through the invite flow).
+    await setDoc(doc(db, 'users', uid), {
+      uid,
+      companyId,
+      role: userProfile.role,
+      siteId: userProfile.siteIds[0] ?? companyId,
+    }, { merge: true });
 
     // Update lastLoginAt
     const userRef = doc(db, `companies/${companyId}/users/${uid}`);

@@ -16,7 +16,7 @@ export function usePendingPartsRequests(companyId: string) {
     }
 
     const q = query(
-      collection(db, 'parts_requests'),
+      collection(db, 'partsRequests'),
       where('companyId', '==', companyId),
       where('status', '==', 'pending'),
     );
