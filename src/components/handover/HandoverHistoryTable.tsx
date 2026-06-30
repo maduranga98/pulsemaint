@@ -14,7 +14,7 @@ function fmtTime(d: Date | null | undefined): string {
 
 export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <div className="overflow-x-auto scrollbar-hide rounded-lg border border-slate-200 bg-white">
       <table className="w-full text-sm min-w-[1100px]">
         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>

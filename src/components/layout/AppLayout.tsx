@@ -261,7 +261,7 @@ export default function AppLayout() {
           </span>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto scrollbar-hide">
           {visibleItems.map((item) => (
             <NavLink
               key={item.to}

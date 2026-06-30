@@ -809,5 +809,27 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
       allow delete: if isAdmin();
     }
+
+    // ---------------------------------------------------------------------------
+    // Analytics aggregations — written by backend jobs, read by dashboard/analytics
+    // ---------------------------------------------------------------------------
+
+    match /analytics_monthly/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow write: if false;
+    }
+
+    match /analytics_daily/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow write: if false;
+    }
+
+    match /machine_health/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
+      allow write: if false;
+    }
   }
 }
