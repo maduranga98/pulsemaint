@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Lock, ShieldOff, Activity } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import { OEEDashboard } from '../components/OEEDashboard';
 import { OEEInputForm } from '../components/OEEInputForm';
@@ -35,6 +36,7 @@ function AccessDenied() {
 // ─── Plan Gate ────────────────────────────────────────────────────────────────
 
 function ProFeatureGate({ feature }: { feature: string }) {
+  const navigate = useNavigate();
   return (
     <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-blue-900/40 rounded-2xl p-10 flex flex-col items-center text-center gap-5">
       <div className="h-14 w-14 rounded-2xl bg-blue-900/30 border border-blue-700/50 flex items-center justify-center">
@@ -47,7 +49,10 @@ function ProFeatureGate({ feature }: { feature: string }) {
           shift comparison, and loss cost calculators.
         </p>
       </div>
-      <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-900/30">
+      <button
+        onClick={() => navigate('/app/billing')}
+        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-900/30"
+      >
         Upgrade to Factory Pro
       </button>
     </div>
@@ -102,6 +107,7 @@ const TABS: { id: TabId; label: string; proOnly?: boolean; inputOnly?: boolean }
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function OEEPage() {
+  const navigate = useNavigate();
   const canView = useAuthStore((s) => s.canAccess(['supervisor', 'plant_manager', 'admin']));
   const canInput = useAuthStore((s) => s.canAccess(['supervisor', 'admin']));
   const plan = useAuthStore((s) => s.company?.plan);
@@ -143,10 +149,13 @@ export function OEEPage() {
             </div>
           </div>
           {!isProPlan && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-900/20 border border-blue-800/40 rounded-xl text-xs text-blue-400">
+            <button
+              onClick={() => navigate('/app/billing')}
+              className="flex items-center gap-2 px-3 py-2 bg-blue-900/20 border border-blue-800/40 rounded-xl text-xs text-blue-400 hover:bg-blue-900/40 transition-colors"
+            >
               <Lock className="h-3.5 w-3.5" />
               <span>Factory plan · <span className="font-semibold">Upgrade for full OEE analytics</span></span>
-            </div>
+            </button>
           )}
         </div>
 
