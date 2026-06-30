@@ -761,6 +761,33 @@ service cloud.firestore {
         && getUserData().role in ['supervisor', 'admin'];
     }
 
+    // ---------------------------------------------------------------------------
+    // OEE Module — plantId is the companyId
+    // ---------------------------------------------------------------------------
+
+    match /oee_records/{plantId}/records/{recordId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
+      allow create, update: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow delete: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['plant_manager', 'admin'];
+    }
+
+    match /oee_trends/{plantId}/machines/{machineId}/monthly/{month} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    match /oee_targets/{plantId}/machines/{machineId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
     // rca — Root Cause Analysis records
     match /rca/{rcaId} {
       allow read: if isAuthenticated() && isSameSite(resource.data.siteId)
