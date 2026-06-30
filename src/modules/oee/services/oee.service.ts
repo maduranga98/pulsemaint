@@ -256,8 +256,8 @@ export async function autoFeedDowntime(
 ): Promise<{ totalMinutes: number; linkedIds: string[] }> {
   // Query completed breakdown work orders for this machine and shift
   const q = query(
-    collection(db, 'work_orders'),
-    where('companyId', '==', plantId),
+    collection(db, 'workOrders'),
+    where('siteId', '==', plantId),
     where('machineId', '==', machineId),
     where('status', '==', 'completed'),
     where('shiftDate', '==', shiftDate),
