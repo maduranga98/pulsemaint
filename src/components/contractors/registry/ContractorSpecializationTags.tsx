@@ -31,7 +31,7 @@ export function ContractorSpecializationTags({ tags, limit }: ContractorSpeciali
   const remaining = typeof limit === 'number' ? tags.length - visibleTags.length : 0;
 
   return (
-    <div className="flex gap-1.5 overflow-x-auto">
+    <div className="flex flex-wrap gap-1.5">
       {visibleTags.map((tag) => (
         <span key={tag} className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${TAG_STYLES[tag]}`}>
           {SPECIALIZATION_LABELS[tag]}

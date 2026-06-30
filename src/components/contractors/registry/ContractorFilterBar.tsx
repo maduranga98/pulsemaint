@@ -64,7 +64,7 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
           Clear
         </button>
       </div>
-      <div className="mt-3 flex gap-2 overflow-x-auto">
+      <div className="mt-3 flex flex-wrap gap-2">
         {CONTRACTOR_SPECIALIZATION_TAGS.map((tag) => {
           const selected = filters.specializationTags?.includes(tag);
           return (
