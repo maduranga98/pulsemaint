@@ -13,6 +13,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { TrendingUp, Clock, Target, DollarSign, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useKaizenStats, useKaizenTrend } from '../hooks/useKaizen';
 import {
   KAIZEN_STATUS_META,
@@ -25,6 +26,7 @@ interface Props {
 }
 
 export function KaizenStats({ isProPlan = false }: Props) {
+  const navigate = useNavigate();
   const { stats, loading } = useKaizenStats();
   const { trend } = useKaizenTrend(12);
 
@@ -244,12 +246,18 @@ export function KaizenStats({ isProPlan = false }: Props) {
       ) : (
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 flex items-center gap-4">
           <Lock size={20} className="text-gray-400 flex-shrink-0" />
-          <div>
+          <div className="flex-1">
             <p className="text-sm font-semibold text-gray-700">ROI Analytics — Factory Pro</p>
             <p className="text-xs text-gray-500 mt-0.5">
               Upgrade to Factory Pro to unlock ROI distribution, payback analysis, and benefit tracking.
             </p>
           </div>
+          <button
+            onClick={() => navigate('/app/billing')}
+            className="shrink-0 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700"
+          >
+            Upgrade
+          </button>
         </div>
       )}
     </div>

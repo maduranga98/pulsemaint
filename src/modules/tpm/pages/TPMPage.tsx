@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Lock, ShieldOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import { TPMDashboard } from '../components/TPMDashboard';
 import { TPMMaturityRoadmap } from '../components/TPMMaturityRoadmap';
@@ -33,6 +34,7 @@ function AccessDenied() {
 // ─── Plan Gate ────────────────────────────────────────────────────────────────
 
 function ProFeatureGate({ feature }: { feature: string }) {
+  const navigate = useNavigate();
   return (
     <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-blue-900/40 rounded-2xl p-10 flex flex-col items-center text-center gap-5">
       <div className="h-14 w-14 rounded-2xl bg-blue-900/30 border border-blue-700/50 flex items-center justify-center">
@@ -45,7 +47,10 @@ function ProFeatureGate({ feature }: { feature: string }) {
           maturity roadmap, trend reports, and more.
         </p>
       </div>
-      <button className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-900/30">
+      <button
+        onClick={() => navigate('/app/billing')}
+        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-900/30"
+      >
         Upgrade to Factory Pro
       </button>
     </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { format, startOfMonth, endOfMonth, parse } from 'date-fns';
 import { Printer, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import { useKaizenList, useKaizenStats } from '../hooks/useKaizen';
 import {
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) {
+  const navigate = useNavigate();
   const companyName = useAuthStore((s) => s.company?.name ?? 'Plant');
   const [selectedMonth, setSelectedMonth] = useState(
     defaultMonth ?? format(new Date(), 'yyyy-MM')
@@ -56,7 +58,10 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
           Generate PDF reports of monthly Kaizen activity, including new cards, implementations, ROI,
           and top contributor recognition.
         </p>
-        <button className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+        <button
+          onClick={() => navigate('/app/billing')}
+          className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+        >
           Upgrade to Factory Pro
         </button>
       </div>

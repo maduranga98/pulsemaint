@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useAuthActions } from '../../hooks/useAuthActions';
 import type { UserRole } from '../../types/auth';
@@ -168,7 +168,53 @@ const NAV_ITEMS: NavItem[] = [
   },
   { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor'] },
   { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin'] },
+  {
+    label: 'Billing & Plan',
+    to: '/app/billing',
+    icon: (
+      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
+    ),
+    roles: ['admin'] as UserRole[],
+  },
 ];
+
+function TrialExpiryBanner() {
+  const company = useAuthStore((s) => s.company);
+  if (!company || company.status !== 'trial') return null;
+
+  const daysLeft = company.trialEndsAt
+    ? Math.ceil((company.trialEndsAt.toDate().getTime() - Date.now()) / 86_400_000)
+    : null;
+
+  const expired = daysLeft !== null && daysLeft <= 0;
+  const urgent = daysLeft !== null && daysLeft <= 7;
+
+  if (!expired && !urgent) return null;
+
+  return (
+    <div
+      className={`px-4 py-2 text-sm text-center flex items-center justify-center gap-3 ${
+        expired ? 'bg-red-900/80 text-red-100' : 'bg-amber-900/70 text-amber-100'
+      }`}
+    >
+      <span>
+        {expired
+          ? 'Your trial has expired. Features are locked.'
+          : `Trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}.`}
+      </span>
+      <Link
+        to="/app/billing"
+        className={`font-semibold underline underline-offset-2 hover:no-underline ${
+          expired ? 'text-red-200' : 'text-amber-200'
+        }`}
+      >
+        Upgrade now
+      </Link>
+    </div>
+  );
+}
 
 function roleLabel(role?: UserRole) {
   if (!role) return '';
@@ -283,6 +329,7 @@ export default function AppLayout() {
         </header>
 
         <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto">
+          <TrialExpiryBanner />
           <div className="px-4 sm:px-6 lg:px-8 py-5 max-w-[1400px] mx-auto w-full">
             <ErrorBoundary key={location.pathname}>
               <Outlet />
