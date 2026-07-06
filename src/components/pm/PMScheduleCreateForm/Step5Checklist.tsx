@@ -39,6 +39,11 @@ export function Step5Checklist() {
           description: item.description,
           estimatedMinutes: item.estimatedMinutes,
           photoRequired: item.photoRequired,
+          inputType: item.inputType ?? 'checkbox',
+          method: item.method ?? null,
+          unit: item.unit ?? null,
+          acceptableMin: item.acceptableMin ?? null,
+          acceptableMax: item.acceptableMax ?? null,
         }))}
         onChange={(items) => setValue('checklistItems', items)}
       />

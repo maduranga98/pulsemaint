@@ -106,6 +106,11 @@ service cloud.firestore {
       // Admin: full access
       allow read, write: if isAdmin();
 
+      // Supervisor: create WOs for their site. Checked against the incoming
+      // document because resource does not exist yet on create.
+      allow create: if isSupervisor()
+        && (getUserData().siteId == null || isSameSite(request.resource.data.siteId));
+
       // Supervisor: full read/write for their site (or all sites if unrestricted)
       allow read, write: if isSupervisor() && woSiteMatches();
 
@@ -170,13 +175,18 @@ service cloud.firestore {
     match /machineHistory/{machineId}/entries/{entryId} {
       allow read: if isAuthenticated() && isAnyRole([
         'maintenance_supervisor',
+        'supervisor',
         'plant_manager',
         'technician',
         'store_keeper',
         'admin'
       ]);
-      // All writes via Cloud Functions only
-      allow write: if false;
+      // History entries are appended by the client on WO completion and by
+      // Cloud Functions on contractor job close. Immutable once written.
+      allow create: if isAuthenticated() && isAnyRole([
+        'technician', 'supervisor', 'maintenance_supervisor', 'admin'
+      ]);
+      allow update, delete: if false;
     }
 
     // ---------------------------------------------------------------------------
@@ -224,6 +234,41 @@ service cloud.firestore {
       ]);
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
       allow write: if isAdmin() || isSupervisor() || isPlantManager();
+      // Technicians may only stamp service metadata when completing a WO
+      allow update: if isTechnician()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'lastServiceDate', 'lastServiceType', 'nextPmDue', 'updatedAt'
+        ]);
+    }
+
+    // ---------------------------------------------------------------------------
+    // LOTO Permits — created and driven from the WO execution flow
+    // ---------------------------------------------------------------------------
+
+    match /permits/{permitId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
+      ]);
+      allow create, update: if isAuthenticated() && isAnyRole([
+        'technician', 'supervisor', 'maintenance_supervisor', 'admin'
+      ]);
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Condition Monitoring readings — machine profile condition tab
+    // ---------------------------------------------------------------------------
+
+    match /conditionReadings/{readingId} {
+      allow read: if isAuthenticated() && isAnyRole([
+        'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
+      ]);
+      allow create: if isAuthenticated() && isAnyRole([
+        'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
+      ]);
+      // Readings are an immutable log
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // ---------------------------------------------------------------------------

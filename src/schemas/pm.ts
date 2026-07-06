@@ -9,6 +9,11 @@ export const pmChecklistItemSchema = z.object({
   description: z.string().min(1, 'Step description is required'),
   estimatedMinutes: z.number().int().min(1, 'Must be at least 1 minute'),
   photoRequired: z.boolean(),
+  inputType: z.enum(['checkbox', 'measurement']).default('checkbox'),
+  method: z.string().nullable().default(null),
+  unit: z.string().nullable().default(null),
+  acceptableMin: z.number().nullable().default(null),
+  acceptableMax: z.number().nullable().default(null),
 });
 
 export const pmPreallocatedPartSchema = z.object({

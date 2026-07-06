@@ -10,6 +10,7 @@ import type { PMSchedule, CalendarEvent } from '../../types/pm.types';
 
 interface UsePMCalendarEventsOptions {
   companyId: string;
+  siteId: string;
   month?: number; // 0-11
   year?: number;
 }
@@ -24,7 +25,7 @@ interface PMWorkOrderEvent {
   status: 'active' | 'paused';
 }
 
-export function usePMCalendarEvents({ companyId, month, year }: UsePMCalendarEventsOptions) {
+export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCalendarEventsOptions) {
   const [schedules, setSchedules] = useState<PMSchedule[]>([]);
   const [pmWOs, setPmWOs] = useState<PMWorkOrderEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,10 +64,12 @@ export function usePMCalendarEvents({ companyId, month, year }: UsePMCalendarEve
 
     // Also surface ad-hoc Preventive work orders so they appear on the
     // calendar even when they are not tied to a recurring schedule.
+    // WO read rules gate on siteId, so the query must constrain it or
+    // Firestore rejects the whole listen.
     const woQuery = query(
       collection(db, 'workOrders'),
       where('woType', '==', 'PREVENTIVE'),
-      where('companyId', '==', companyId),
+      where('siteId', '==', siteId),
     );
     const unsubWO = onSnapshot(woQuery, (snap) => {
       const list: PMWorkOrderEvent[] = [];
@@ -95,7 +98,7 @@ export function usePMCalendarEvents({ companyId, month, year }: UsePMCalendarEve
       unsubscribe();
       unsubWO();
     };
-  }, [companyId]);
+  }, [companyId, siteId]);
 
   const events: CalendarEvent[] = useMemo(() => {
     const scheduleEvents: CalendarEvent[] = schedules.map((s) => {

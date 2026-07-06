@@ -63,6 +63,9 @@ export function WOListView() {
   const filters: WOFilters = {};
   if (searchQuery) filters.searchQuery = searchQuery;
   if (activeTab === 'mine') filters.technicianId = user?.uid;
+  // Firestore rules only let technicians read WOs they are assigned to, so
+  // every tab must constrain the query to their own WOs or it is rejected.
+  if (role === 'technician') filters.technicianId = user?.uid;
   if (activeTab === 'open') filters.status = OPEN_STATUSES;
   if (activeTab === 'week') {
     filters.dateFrom = startOfWeek;
