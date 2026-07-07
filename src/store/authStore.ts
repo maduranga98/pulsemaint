@@ -22,6 +22,19 @@ interface Selectors {
   canAccess: (requiredRoles: UserRole[]) => boolean;
 }
 
+// Role flags are stored as plain booleans and recomputed whenever the profile
+// changes. They must NOT be object getters: zustand's set() merges state with
+// Object.assign, which evaluates getters once and freezes their initial values
+// as plain properties, so getter-based flags stop reflecting the loaded role.
+function roleFlags(profile: UserProfile | null) {
+  return {
+    isAdmin: profile?.role === 'admin',
+    isSupervisor: profile?.role === 'supervisor',
+    isTechnician: profile?.role === 'technician',
+    isStoreKeeper: profile?.role === 'store_keeper',
+  };
+}
+
 export const useAuthStore = create<AuthStoreState & Selectors>((set, get) => ({
   user: null,
   userProfile: null,
@@ -30,8 +43,11 @@ export const useAuthStore = create<AuthStoreState & Selectors>((set, get) => ({
   isInitialized: false,
   error: null,
 
-  setUser: (user) => set({ user }),
-  setUserProfile: (profile) => set({ userProfile: profile }),
+  isAuthenticated: false,
+  ...roleFlags(null),
+
+  setUser: (user) => set({ user, isAuthenticated: user !== null }),
+  setUserProfile: (profile) => set({ userProfile: profile, ...roleFlags(profile) }),
   setCompany: (company) => set({ company }),
   setLoading: (loading) => set({ isLoading: loading }),
   setInitialized: (initialized) => set({ isInitialized: initialized }),
@@ -43,27 +59,9 @@ export const useAuthStore = create<AuthStoreState & Selectors>((set, get) => ({
       company: null,
       isLoading: false,
       error: null,
+      isAuthenticated: false,
+      ...roleFlags(null),
     }),
-
-  get isAuthenticated() {
-    return get().user !== null;
-  },
-
-  get isAdmin() {
-    return get().userProfile?.role === 'admin';
-  },
-
-  get isSupervisor() {
-    return get().userProfile?.role === 'supervisor';
-  },
-
-  get isTechnician() {
-    return get().userProfile?.role === 'technician';
-  },
-
-  get isStoreKeeper() {
-    return get().userProfile?.role === 'store_keeper';
-  },
 
   hasRole: (role: UserRole) => {
     return get().userProfile?.role === role;
