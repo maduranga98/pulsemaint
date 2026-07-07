@@ -80,7 +80,17 @@ service cloud.firestore {
         request.auth.uid == userId ||
         isAnyRole(['admin', 'maintenance_supervisor', 'plant_manager'])
       );
-      allow write: if isAdmin() || request.auth.uid == userId;
+      allow write: if isAdmin() || request.auth.uid == userId
+        // Supervisors keep the role-mapping doc in sync when editing company
+        // users (Users page), but can never grant or touch the admin role.
+        || (isAnyRole(['supervisor', 'maintenance_supervisor'])
+          && request.resource.data.role != 'admin'
+          && (resource == null
+            || !('role' in resource.data)
+            || resource.data.role != 'admin')
+          && (resource == null
+            || !('companyId' in resource.data)
+            || resource.data.companyId == getUserCompanyId()));
     }
 
     // ---------------------------------------------------------------------------
@@ -490,22 +500,29 @@ service cloud.firestore {
               && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor'])
         );
 
-      // Self-create during signup; admins can create afterwards
+      // Self-create during signup; admins create anyone; supervisors create
+      // non-admin members (Users page "Add member")
       allow create: if isAuthenticated()
         && (
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
-              && getUserData().role == 'admin')
+              && (getUserData().role == 'admin'
+                || (getUserData().role in ['supervisor', 'maintenance_supervisor']
+                  && request.resource.data.role != 'admin')))
         );
 
-      // Self-update (e.g. lastLoginAt, profile fields) or admin-update
+      // Self-update (e.g. lastLoginAt, profile fields), admin-update, or
+      // supervisor-update of non-admin members (cannot grant admin)
       allow update: if isAuthenticated()
         && (
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
-              && getUserData().role == 'admin')
+              && (getUserData().role == 'admin'
+                || (getUserData().role in ['supervisor', 'maintenance_supervisor']
+                  && resource.data.role != 'admin'
+                  && request.resource.data.role != 'admin')))
         );
 
       allow delete: if isAuthenticated()
@@ -521,6 +538,48 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && getUserData().companyId == companyId
         && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer'];
+    }
+
+    // /companies/{companyId}/invitations/{invitationId} — Users page invite
+    // flow. The invitation id is only discoverable via the secret token doc
+    // (/inviteTokens/{token}), so a public `get` acts as a capability URL for
+    // the invite-acceptance page; listing stays restricted to managers.
+    match /companies/{companyId}/invitations/{invitationId} {
+      function canManageInvites() {
+        return exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && getUserData().companyId == companyId
+          && getUserData().role in ['admin', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer'];
+      }
+
+      allow get: if true;
+      allow list: if isAuthenticated() && canManageInvites();
+      // Only admins may invite new admins
+      allow create: if isAuthenticated() && canManageInvites()
+        && (getUserData().role == 'admin' || request.resource.data.role != 'admin');
+      // Managers revoke/resend; the invited user marks their own acceptance
+      allow update: if isAuthenticated()
+        && (
+          canManageInvites()
+          || (request.resource.data.status == 'accepted'
+            && request.resource.data.acceptedUserId == request.auth.uid)
+        );
+      allow delete: if isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().companyId == companyId
+        && getUserData().role == 'admin';
+    }
+
+    // /inviteTokens/{token} — maps a secret invite token to its invitation.
+    // The token itself is the credential, so single-doc reads are public
+    // (needed on the pre-auth invite landing page); listing is forbidden.
+    match /inviteTokens/{token} {
+      allow get: if true;
+      allow list: if false;
+      allow create: if isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().companyId == request.resource.data.companyId
+        && getUserData().role in ['admin', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer'];
+      allow update, delete: if isAdmin();
     }
 
     // ---------------------------------------------------------------------------
@@ -875,6 +934,261 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
       allow write: if false;
+    }
+
+    // ---------------------------------------------------------------------------
+    // Training (Module: training) — modules, assignments, certificates,
+    // content library and completion records
+    // ---------------------------------------------------------------------------
+
+    match /trainingModules/{moduleId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+    }
+
+    match /trainingAssignments/{assignmentId} {
+      // Trainees read their own assignments; managers/HR read all in company
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      // Trainees update their own progress/quiz attempts; managers update any
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+    }
+
+    match /trainingCertificates/{certId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+      // Issued client-side on quiz pass (trainee) or by managers/HR
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && (request.resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+      // Revocation and edits are a management action
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow delete: if isAdmin();
+    }
+
+    match /trainingContentLibrary/{contentId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+    }
+
+    match /training_records/{recordId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Triage knowledge base (Modules: triage, triage builder) — categories,
+    // content, contacts, assessments and results. Any company member can read
+    // and can create (first-load seeding runs for whichever user opens the
+    // page first); editing/deleting is restricted to builder roles.
+    // ---------------------------------------------------------------------------
+
+    match /triage_categories/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /triage_content_items/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /triage_contacts/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /triage_assessments/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /triage_assessment_results/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /triage_sessions/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Reports (Module: reports) — generated report history + audit trail
+    // ---------------------------------------------------------------------------
+
+    match /report_history/{reportId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /audit_logs/{logId} {
+      // Append-only log written whenever a report is generated/exported
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Inventory extras — PO e-mail notification queue (consumed by backend)
+    // ---------------------------------------------------------------------------
+
+    match /po_notifications/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Dashboard support — in-app notifications, technician live status,
+    // departments lookup
+    // ---------------------------------------------------------------------------
+
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /technician_status/{docId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow delete: if isAdmin();
+    }
+
+    match /departments/{deptId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+    }
+
+    // ---------------------------------------------------------------------------
+    // Evaluations
+    // ---------------------------------------------------------------------------
+
+    match /evaluations/{evalId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow delete: if isAdmin();
+    }
+
+    match /evaluation_sessions/{sessionId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
+    // Kaizen — plant-scoped card board (path segment is the company id)
+    // ---------------------------------------------------------------------------
+
+    match /kaizen_cards/{plantId}/cards/{cardId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow create, update: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['technician', 'store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'];
+      allow delete: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    // ---------------------------------------------------------------------------
+    // 5S — zones, audits and corrective actions (plant-scoped)
+    // ---------------------------------------------------------------------------
+
+    match /fives_zones/{plantId}/zones/{zoneId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    match /fives_audits/{plantId}/audits/{auditId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    match /fives_corrective_actions/{plantId}/actions/{actionId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    // ---------------------------------------------------------------------------
+    // TPM — pillars, monthly scores, maturity and autonomous-maintenance tasks
+    // (plant-scoped; path segment is the company id)
+    // ---------------------------------------------------------------------------
+
+    match /tpm_pillars/{plantId}/pillars/{pillarId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    match /tpm_scores/{plantId}/monthly/{monthKey} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    match /tpm_maturity/{plantId}/machines/{machineId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    }
+
+    match /am_tasks/{plantId}/tasks/{taskId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId);
+      allow write: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
     }
   }
 }

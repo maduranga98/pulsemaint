@@ -15,7 +15,7 @@ import { AITriage } from './components/AITriage';
 export default function TriagePage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
-  const uid = userProfile?.uid ?? '';
+  const uid = userProfile?.id ?? '';
 
   const [selected, setSelected] = useState<PanelId>('ai');
   const [cats, setCats] = useState<TriageCategory[]>([]);

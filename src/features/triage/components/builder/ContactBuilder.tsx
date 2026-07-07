@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { addContact, COL } from '../../api';
+import { addContact } from '../../api';
 import { useAuthStore } from '../../../../store/authStore';
 import { ContactList } from '../ContactList';
 

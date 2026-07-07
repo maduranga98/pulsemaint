@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { collection, getCountFromServer } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/authStore';
 import { callTriageAssist } from '../api';
 import type { AITriageResponse } from '../types';
 
@@ -13,6 +14,7 @@ const STARTERS = [
 ];
 
 export function AITriage() {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [situation, setSituation] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AITriageResponse | null>(null);
@@ -21,24 +23,23 @@ export function AITriage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    if (!companyId) return;
     async function loadCounts() {
-      try {
-        const [w, b, a] = await Promise.all([
-          getCountFromServer(collection(db, 'workOrders')),
-          getCountFromServer(collection(db, 'breakdowns')),
-          getCountFromServer(collection(db, 'audits')),
-        ]);
-        setCounts({
-          wos: w.data().count,
-          bds: b.data().count,
-          audits: a.data().count,
-        });
-      } catch {
-        // ignore count errors silently
-      }
+      // Count each source independently so one denied query doesn't zero out
+      // the others (rules differ per collection and role).
+      const safeCount = (path: string, ...segments: string[]) =>
+        getCountFromServer(collection(db, path, ...segments))
+          .then((s) => s.data().count)
+          .catch(() => 0);
+      const [wos, bds, audits] = await Promise.all([
+        safeCount('workOrders'),
+        safeCount('breakdowns'),
+        safeCount('audit_sessions', companyId, 'sessions'),
+      ]);
+      setCounts({ wos, bds, audits });
     }
-    loadCounts();
-  }, []);
+    void loadCounts();
+  }, [companyId]);
 
   async function handleSubmit() {
     if (!situation.trim() || loading) return;
