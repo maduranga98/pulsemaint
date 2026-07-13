@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from '../../components/machines';
 import { formatDate } from '../../lib/dateUtils';
+import { exportMachineDetailsPdf, formatMachineTypeLabel } from '../../lib/machineExport';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
 import { RCAHistoryList } from '../../components/machines/RCAHistoryList';
@@ -179,10 +180,10 @@ export function MachineProfilePage() {
                       Report Issue
                     </button>
                     <button
-                      onClick={() => { window.print(); setShowMoreMenu(false); }}
+                      onClick={() => { exportMachineDetailsPdf(machine); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      Print Details
+                      Export Details (PDF)
                     </button>
                     <hr className="my-1 border-gray-100" />
                     <button
@@ -255,7 +256,7 @@ function OverviewTab({ machine, canEdit }: any) {
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-600">Type:</dt>
-            <dd className="font-medium text-gray-900">{machine.type.replace(/_/g, ' ')}</dd>
+            <dd className="font-medium text-gray-900">{formatMachineTypeLabel(machine.type)}</dd>
           </div>
           <div className="flex justify-between">
             <dt className="text-gray-600">Manufacturer:</dt>

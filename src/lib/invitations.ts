@@ -265,6 +265,10 @@ export async function sendInvitationEmailManually(companyId: string, invitationI
   await sendEmail({ invitationId, companyId });
 }
 
+// Invite links are shared outside the app (email, copy-paste), so they must
+// always point at the deployed site — never at localhost or a preview origin.
+const INVITE_BASE_URL = 'https://pulsemaint.web.app';
+
 export function getInviteLink(token: string): string {
-  return `${window.location.origin}/invite/${token}`;
+  return `${INVITE_BASE_URL}/invite/${token}`;
 }
