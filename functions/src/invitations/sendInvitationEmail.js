@@ -135,7 +135,7 @@ exports.sendInvitationEmail = onCall(
 
     try {
       await transporter.sendMail({
-        from: '"PulseMaint" <hello@feedsolve.com>',
+        from: "\"PulseMaint\" <hello@feedsolve.com>",
         to: inv.email,
         subject: `You're invited to join ${companyName} on PulseMaint`,
         html,
