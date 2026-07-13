@@ -12,6 +12,8 @@ import type { MachineType, DocumentType, Machine } from '../../types/machine';
 import { MachineFormStepper } from './MachineFormStepper';
 import { useDepartments } from '../../hooks/useDepartments';
 
+const CUSTOM_TYPE_OPTION = '__custom__';
+
 const MACHINE_TYPES: MachineType[] = [
   'cnc_machine',
   'conveyor',
@@ -299,6 +301,61 @@ export function MachineForm({
   );
 }
 
+function MachineTypeField({ control, errors }: { control: any; errors: any }) {
+  const [customSelected, setCustomSelected] = useState(false);
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">Machine Type *</label>
+      <Controller
+        name="type"
+        control={control}
+        render={({ field }) => {
+          const isCustom =
+            customSelected || (!!field.value && !MACHINE_TYPES.includes(field.value));
+          return (
+            <div className="space-y-2">
+              <select
+                value={isCustom ? CUSTOM_TYPE_OPTION : (field.value ?? '')}
+                onChange={(e) => {
+                  if (e.target.value === CUSTOM_TYPE_OPTION) {
+                    setCustomSelected(true);
+                    field.onChange('');
+                  } else {
+                    setCustomSelected(false);
+                    field.onChange(e.target.value);
+                  }
+                }}
+                onBlur={field.onBlur}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select a type...</option>
+                {MACHINE_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type.replace(/_/g, ' ').toUpperCase()}
+                  </option>
+                ))}
+                <option value={CUSTOM_TYPE_OPTION}>OTHER — ENTER CUSTOM TYPE…</option>
+              </select>
+              {isCustom && (
+                <input
+                  type="text"
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  placeholder="e.g. Injection Molder, Packaging Line…"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+            </div>
+          );
+        }}
+      />
+      {errors.type && <p className="text-red-600 text-sm mt-1">{errors.type.message}</p>}
+    </div>
+  );
+}
+
 function renderFormSection(
   stepIndex: number,
   control: any,
@@ -336,27 +393,7 @@ function renderFormSection(
             {errors.name && <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Machine Type *</label>
-            <Controller
-              name="type"
-              control={control}
-              render={({ field }) => (
-                <select
-                  {...field}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select a type...</option>
-                  {MACHINE_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type.replace(/_/g, ' ').toUpperCase()}
-                    </option>
-                  ))}
-                </select>
-              )}
-            />
-            {errors.type && <p className="text-red-600 text-sm mt-1">{errors.type.message}</p>}
-          </div>
+          <MachineTypeField control={control} errors={errors} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>

@@ -9,22 +9,11 @@ const machineNameSchema = z
   .min(1, 'Machine name is required')
   .max(100, 'Machine name must not exceed 100 characters');
 
-const machineTypeSchema = z.enum([
-  'cnc_machine',
-  'conveyor',
-  'compressor',
-  'boiler',
-  'generator',
-  'hydraulic_press',
-  'pump',
-  'motor',
-  'crane',
-  'lathe',
-  'milling_machine',
-  'welding_machine',
-  'hvac',
-  'other',
-] as const);
+// Free text so custom machine types are accepted alongside the built-in list.
+const machineTypeSchema = z
+  .string()
+  .min(1, 'Machine type is required')
+  .max(60, 'Machine type is too long');
 
 const manufacturerSchema = z
   .string()

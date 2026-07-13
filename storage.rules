@@ -1,0 +1,83 @@
+rules_version = '2';
+
+// Firebase Storage rules for PulseMaint.
+//
+// All paths require an authenticated user. Uploads are capped at 50 MB
+// (100 MB for training content, which can include videos). Any path not
+// explicitly matched below is denied.
+//
+// NOTE: tenant isolation relies on unguessable document IDs in paths plus
+// Firestore rules guarding the documents that store download URLs. Storage
+// cross-service Firestore lookups are not used because this project runs on
+// a named Firestore database ("default"), which storage rules cannot query.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function validUpload(maxSizeMb) {
+      return request.resource == null
+        || request.resource.size < maxSizeMb * 1024 * 1024;
+    }
+
+    // Company-scoped assets: machine photos & documents, branding logos,
+    // training content, content library.
+    // e.g. companies/{companyId}/machines/{machineId}/photos/{file}
+    match /companies/{companyId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(100);
+    }
+
+    // Work order media: documents, field-media, completion photos, signatures.
+    match /workorders/{siteId}/{woId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+
+    // Contractor registry: documents and technician photos.
+    match /contractors/{contractorId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+
+    // Audit module: evidence attachments and generated PDF reports.
+    // e.g. audit_attachments/{plantId}/{sessionKey}/{type}/{file}
+    match /audit_attachments/{plantId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+
+    match /audit_reports/{plantId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+
+    // 5S audit photos: audits/{plantId}/{auditId}/{itemId}/{file}
+    match /audits/{plantId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+
+    // Kaizen card photos: kaizen/{plantId}/{cardId}/{file}
+    match /kaizen/{plantId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+
+    // Evaluation attachments: evaluation_attachments/{companyId}/{evaluationId}/{file}
+    match /evaluation_attachments/{companyId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+
+    // Triage media and generated PDFs: triage/pdfs/{uid}.pdf,
+    // triage/media/{file}, triage/{companyId}/{folder}/{file}
+    match /triage/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
+  }
+}

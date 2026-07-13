@@ -13,7 +13,7 @@ import type { MachineFilters, MachineType, MachineStatus, MachineCriticality } f
 import { generateMachineQrUrl } from '../../lib/machineQr';
 import { auth } from '../../lib/firebase';
 
-const VALID_TYPES: MachineType[] = [
+const SUGGESTED_TYPES: MachineType[] = [
   'cnc_machine','conveyor','compressor','boiler','generator','hydraulic_press',
   'pump','motor','crane','lathe','milling_machine','welding_machine','hvac','other',
 ];
@@ -41,7 +41,9 @@ function parseCsv(text: string): CsvRow[] {
   return lines.slice(1).map((line) => {
     const vals = line.split(',').map((v) => v.trim().replace(/^"|"$/g, ''));
     const get = (key: string) => vals[headers.indexOf(key)] ?? '';
-    const type = get('type') as MachineType;
+    // Any non-empty type is accepted (custom types allowed); normalize to
+    // lowercase snake_case so it matches the built-in type format.
+    const type = get('type').toLowerCase().replace(/\s+/g, '_') as MachineType;
     const status = (get('status') || 'active') as MachineStatus;
     const critRaw = parseInt(get('criticality') || '3', 10);
     const criticality = ([1,2,3,4,5].includes(critRaw) ? critRaw : 3) as MachineCriticality;
@@ -49,12 +51,12 @@ function parseCsv(text: string): CsvRow[] {
     let _error: string | undefined;
     if (!get('name')) _error = 'Missing name';
     else if (!get('manufacturer')) _error = 'Missing manufacturer';
-    else if (!VALID_TYPES.includes(type)) _error = `Invalid type "${type}"`;
+    else if (!type) _error = 'Missing type';
     else if (!VALID_STATUSES.includes(status)) _error = `Invalid status "${status}"`;
 
     return {
       name: get('name'),
-      type: VALID_TYPES.includes(type) ? type : 'other',
+      type: type || 'other',
       manufacturer: get('manufacturer'),
       model: get('model'),
       serialNumber: get('serial_number'),
@@ -190,7 +192,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
               </div>
 
               <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 space-y-1">
-                <p><strong>Valid types:</strong> {VALID_TYPES.join(', ')}</p>
+                <p><strong>Suggested types:</strong> {SUGGESTED_TYPES.join(', ')} — any other value is accepted as a custom type</p>
                 <p><strong>Valid statuses:</strong> {VALID_STATUSES.join(', ')}</p>
                 <p><strong>Criticality:</strong> 1–5 (1=Low, 5=Mission Critical)</p>
               </div>
