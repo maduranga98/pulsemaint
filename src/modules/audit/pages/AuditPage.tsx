@@ -24,7 +24,7 @@ import { AuditSessionForm } from '../components/AuditSessionForm';
 import { AuditTaskConfigurator } from '../components/AuditTaskConfigurator';
 import { AuditDetail } from '../components/AuditDetail';
 
-const ALLOWED_ROLES: UserRole[] = ['supervisor', 'plant_manager', 'admin', 'technician'];
+const ALLOWED_ROLES: UserRole[] = ['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer'];
 
 const CATEGORY_META: Record<AuditCategory, { icon: typeof Wrench; color: string; desc: string }> = {
   tpm: { icon: Wrench, color: 'text-blue-400', desc: 'Total Productive Maintenance checks' },

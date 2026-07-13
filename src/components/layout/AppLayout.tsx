@@ -151,7 +151,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/><path d="M9 7h6"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+    roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer'],
   },
   {
     label: 'Evaluations',

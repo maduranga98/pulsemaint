@@ -849,7 +849,7 @@ service cloud.firestore {
     // Path is scoped by plantId (the user's companyId).
     match /audit_templates/{plantId}/templates/{templateId} {
       allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer'];
       allow write: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
     }
@@ -858,9 +858,9 @@ service cloud.firestore {
     // AI suggestions, and generated PDF report links).
     match /audit_sessions/{plantId}/sessions/{sessionId} {
       allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer'];
       allow create, update: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer'];
       allow delete: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'admin'];
     }

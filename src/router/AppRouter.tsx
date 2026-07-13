@@ -766,7 +766,7 @@ export default function AppRouter() {
         <Route
           path="audit"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer']}>
               <AuditPage />
             </ProtectedRoute>
           }

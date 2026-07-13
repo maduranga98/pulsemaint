@@ -9,7 +9,7 @@ export type MachineStatus = 'active' | 'under_maintenance' | 'decommissioned';
 
 export type MachineCriticality = 1 | 2 | 3 | 4 | 5;
 
-export type MachineType =
+export type KnownMachineType =
   | 'cnc_machine'
   | 'conveyor'
   | 'compressor'
@@ -24,6 +24,10 @@ export type MachineType =
   | 'welding_machine'
   | 'hvac'
   | 'other';
+
+// Any free-text custom type is also accepted; the union keeps autocomplete
+// for the built-in types.
+export type MachineType = KnownMachineType | (string & {});
 
 export type DocumentType = 'manual' | 'schematic' | 'warranty' | 'certificate' | 'sop' | 'photo' | 'other';
 
