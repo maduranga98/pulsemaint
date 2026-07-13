@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { generateMachineQrUrl, downloadQRCodeAsImage, printQRCode } from '../../lib/machineQr';
+import { exportMachineQrPdf } from '../../lib/machineExport';
 
 export function MachineQrPage() {
   const { id } = useParams<{ id: string }>();
@@ -63,6 +64,12 @@ export function MachineQrPage() {
   const handleDownloadPng = () => {
     if (qrCanvasRef.current) {
       downloadQRCodeAsImage(qrCanvasRef.current, machine.id);
+    }
+  };
+
+  const handleDownloadPdf = () => {
+    if (qrCanvasRef.current) {
+      exportMachineQrPdf(machine, qrCanvasRef.current.toDataURL('image/png'), qrUrl);
     }
   };
 
@@ -137,9 +144,8 @@ export function MachineQrPage() {
                 </button>
 
                 <button
-                  disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 opacity-50 cursor-not-allowed font-medium text-sm"
-                  title="Coming soon - Cloud Function"
+                  onClick={handleDownloadPdf}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
                 >
                   Download QR (PDF)
                 </button>

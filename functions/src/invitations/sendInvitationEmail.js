@@ -41,7 +41,7 @@ exports.sendInvitationEmail = onCall(
       ? companySnap.data().name
       : inv.companyName || "Your Company";
 
-    const inviteUrl = `https://pulsemaint.com/invite/${inv.token}`;
+    const inviteUrl = `https://pulsemaint.web.app/invite/${inv.token}`;
 
     const roleName = (inv.role || "team member").replace(/_/g, " ");
 

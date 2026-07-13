@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { useMachines } from '../../hooks/useMachines';
@@ -11,6 +11,7 @@ import {
 } from '../../components/machines';
 import type { MachineFilters, MachineType, MachineStatus, MachineCriticality } from '../../types/machine';
 import { generateMachineQrUrl } from '../../lib/machineQr';
+import { exportMachinesToCsv } from '../../lib/machineExport';
 import { auth } from '../../lib/firebase';
 
 const SUGGESTED_TYPES: MachineType[] = [
@@ -18,6 +19,12 @@ const SUGGESTED_TYPES: MachineType[] = [
   'pump','motor','crane','lathe','milling_machine','welding_machine','hvac','other',
 ];
 const VALID_STATUSES: MachineStatus[] = ['active','under_maintenance','decommissioned'];
+
+interface CsvWarrantyItem {
+  partName: string;
+  expiryDate: Date | null;
+  supplierWarrantyRef: string;
+}
 
 interface CsvRow {
   name: string;
@@ -31,15 +38,73 @@ interface CsvRow {
   station: string;
   status: MachineStatus;
   criticality: MachineCriticality;
+  purchaseDate: Date | null;
+  installationDate: Date | null;
+  nextPmDue: Date | null;
+  warrantyItems: CsvWarrantyItem[];
+  spareParts: string[];
+  modificationNotes: string;
+  additionalNotes: string;
   _error?: string;
 }
 
+/** Split one CSV line, honoring double-quoted fields (commas and "" escapes). */
+function splitCsvLine(line: string): string[] {
+  const vals: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { current += '"'; i++; }
+      else if (ch === '"') inQuotes = false;
+      else current += ch;
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',') {
+      vals.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  vals.push(current);
+  return vals.map((v) => v.trim());
+}
+
+/** Parse a date cell (YYYY-MM-DD or anything Date understands). */
+function parseCsvDate(value: string): { date: Date | null; error?: string } {
+  if (!value) return { date: null };
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return { date: null, error: `Invalid date "${value}" (use YYYY-MM-DD)` };
+  return { date: d };
+}
+
+/**
+ * Parse warranty items from "Part Name:2027-01-31:REF-123; Motor:2026-06-30"
+ * (items separated by ";", fields inside an item separated by ":").
+ */
+function parseWarrantyItems(value: string): { items: CsvWarrantyItem[]; error?: string } {
+  if (!value) return { items: [] };
+  const items: CsvWarrantyItem[] = [];
+  for (const raw of value.split(';')) {
+    const entry = raw.trim();
+    if (!entry) continue;
+    const [partName, expiry, ref] = entry.split(':').map((p) => p.trim());
+    if (!partName) continue;
+    const { date, error } = parseCsvDate(expiry ?? '');
+    if (error) return { items: [], error: `Warranty item "${partName}": ${error}` };
+    items.push({ partName, expiryDate: date, supplierWarrantyRef: ref ?? '' });
+  }
+  return { items };
+}
+
 function parseCsv(text: string): CsvRow[] {
-  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  const lines = text.replace(/^\ufeff/, '').split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return [];
-  const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
+  const headers = splitCsvLine(lines[0]).map((h) => h.trim().toLowerCase());
   return lines.slice(1).map((line) => {
-    const vals = line.split(',').map((v) => v.trim().replace(/^"|"$/g, ''));
+    const vals = splitCsvLine(line);
     const get = (key: string) => vals[headers.indexOf(key)] ?? '';
     // Any non-empty type is accepted (custom types allowed); normalize to
     // lowercase snake_case so it matches the built-in type format.
@@ -48,11 +113,24 @@ function parseCsv(text: string): CsvRow[] {
     const critRaw = parseInt(get('criticality') || '3', 10);
     const criticality = ([1,2,3,4,5].includes(critRaw) ? critRaw : 3) as MachineCriticality;
 
+    const purchase = parseCsvDate(get('purchase_date'));
+    const installation = parseCsvDate(get('installation_date'));
+    const nextPm = parseCsvDate(get('next_pm_date'));
+    const warranty = parseWarrantyItems(get('warranty_items'));
+    const spareParts = get('spare_parts')
+      .split(';')
+      .map((p) => p.trim())
+      .filter(Boolean);
+
     let _error: string | undefined;
     if (!get('name')) _error = 'Missing name';
     else if (!get('manufacturer')) _error = 'Missing manufacturer';
     else if (!type) _error = 'Missing type';
     else if (!VALID_STATUSES.includes(status)) _error = `Invalid status "${status}"`;
+    else if (purchase.error) _error = `purchase_date: ${purchase.error}`;
+    else if (installation.error) _error = `installation_date: ${installation.error}`;
+    else if (nextPm.error) _error = `next_pm_date: ${nextPm.error}`;
+    else if (warranty.error) _error = warranty.error;
 
     return {
       name: get('name'),
@@ -66,14 +144,26 @@ function parseCsv(text: string): CsvRow[] {
       station: get('station'),
       status: VALID_STATUSES.includes(status) ? status : 'active',
       criticality,
+      purchaseDate: purchase.date,
+      installationDate: installation.date,
+      nextPmDue: nextPm.date,
+      warrantyItems: warranty.items,
+      spareParts,
+      modificationNotes: get('modification_notes'),
+      additionalNotes: get('additional_notes'),
       _error,
     };
   });
 }
 
 function downloadCsvTemplate() {
-  const headers = 'name,type,manufacturer,model,serial_number,department,floor,bay,station,status,criticality';
-  const example = 'CNC Lathe 01,cnc_machine,Mazak,QUICK TURN 200,SN-001,Production,Ground,A1,01,active,3';
+  const headers =
+    'name,type,manufacturer,model,serial_number,department,floor,bay,station,status,criticality,' +
+    'purchase_date,installation_date,next_pm_date,warranty_items,spare_parts,modification_notes,additional_notes';
+  const example =
+    'CNC Lathe 01,cnc_machine,Mazak,QUICK TURN 200,SN-001,Production,Ground,A1,01,active,3,' +
+    '2023-05-10,2023-06-01,2026-09-01,"Spindle Motor:2027-01-31:REF-123; Coolant Pump:2026-06-30",' +
+    '"Drive Belt; Hydraulic Filter","Upgraded controller in 2024","Runs two shifts daily"';
   const blob = new Blob([headers + '\n' + example], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -127,20 +217,24 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
         status: row.status,
         criticality: row.criticality,
         healthScore: 100,
-        purchaseDate: null,
-        installationDate: null,
+        purchaseDate: row.purchaseDate ? Timestamp.fromDate(row.purchaseDate) : null,
+        installationDate: row.installationDate ? Timestamp.fromDate(row.installationDate) : null,
         expectedLifespanYears: null,
         lastServiceDate: null,
         lastServiceType: null,
         lastTechnicians: [],
-        nextPmDue: null,
+        nextPmDue: row.nextPmDue ? Timestamp.fromDate(row.nextPmDue) : null,
         partsReplaced: [],
-        compatiblePartIds: [],
+        compatiblePartIds: row.spareParts,
         documents: [],
         photos: [],
-        warrantyItems: [],
-        modificationNotes: null,
-        additionalNotes: null,
+        warrantyItems: row.warrantyItems.map((w) => ({
+          partName: w.partName,
+          expiryDate: w.expiryDate ? Timestamp.fromDate(w.expiryDate) : null,
+          supplierWarrantyRef: w.supplierWarrantyRef,
+        })),
+        modificationNotes: row.modificationNotes || null,
+        additionalNotes: row.additionalNotes || null,
         sopLibraryRefs: [],
         qrCode: generateMachineQrUrl(ref.id, siteId),
         oeeData: null,
@@ -195,6 +289,9 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
                 <p><strong>Suggested types:</strong> {SUGGESTED_TYPES.join(', ')} — any other value is accepted as a custom type</p>
                 <p><strong>Valid statuses:</strong> {VALID_STATUSES.join(', ')}</p>
                 <p><strong>Criticality:</strong> 1–5 (1=Low, 5=Mission Critical)</p>
+                <p><strong>Dates</strong> (purchase_date, installation_date, next_pm_date): YYYY-MM-DD</p>
+                <p><strong>Warranty items:</strong> "Part Name:Expiry Date:Supplier Ref" — separate multiple items with ";"</p>
+                <p><strong>Spare parts:</strong> separate multiple parts with ";"</p>
               </div>
 
               <div>
@@ -386,6 +483,13 @@ export function MachineListPage() {
                   Import
                 </button>
               )}
+              <button
+                onClick={() => exportMachinesToCsv(filteredMachines)}
+                disabled={filteredMachines.length === 0}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+              >
+                Export CSV
+              </button>
             </div>
           </div>
         </div>

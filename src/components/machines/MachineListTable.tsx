@@ -4,6 +4,7 @@ import { MachineStatusBadge } from './MachineStatusBadge';
 import { MachineCriticalityBadge } from './MachineCriticalityBadge';
 import { MachineHealthScore } from './MachineHealthScore';
 import { formatDistanceToNow, formatDate, isOverdue } from '../../lib/dateUtils';
+import { formatMachineTypeLabel } from '../../lib/machineExport';
 
 interface MachineListTableProps {
   machines: Machine[];
@@ -68,7 +69,7 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-xs text-gray-600 capitalize">{machine.type.replace(/_/g, ' ')}</span>
+                  <span className="text-xs text-gray-600">{formatMachineTypeLabel(machine.type)}</span>
                 </td>
                 <td className="px-4 py-3">
                   <MachineCriticalityBadge criticality={machine.criticality} showLabel={false} size="sm" />

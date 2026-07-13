@@ -125,12 +125,29 @@ export function downloadQRCodePdf(url: string, filename: string): void {
 
 /**
  * Print QR code with browser print dialog.
+ *
+ * Canvas pixel data does not survive an innerHTML copy, so every <canvas>
+ * is replaced with an <img> snapshot before the markup is handed to the
+ * print window — otherwise the printed page shows an empty QR box.
  */
 export function printQRCode(element: HTMLElement): void {
   const printWindow = window.open('', '', 'height=600,width=800');
   if (!printWindow) return;
 
-  const printContent = element.innerHTML;
+  const clone = element.cloneNode(true) as HTMLElement;
+  const sourceCanvases = element.querySelectorAll('canvas');
+  const cloneCanvases = clone.querySelectorAll('canvas');
+  sourceCanvases.forEach((canvas, i) => {
+    const img = printWindow.document.createElement('img');
+    img.src = canvas.toDataURL('image/png');
+    img.width = canvas.width;
+    img.height = canvas.height;
+    img.style.cssText = canvas.style.cssText;
+    img.className = canvas.className;
+    cloneCanvases[i]?.replaceWith(img);
+  });
+
+  const printContent = clone.innerHTML;
   printWindow.document.write(`
     <!DOCTYPE html>
     <html>
@@ -152,5 +169,7 @@ export function printQRCode(element: HTMLElement): void {
     </html>
   `);
   printWindow.document.close();
-  printWindow.print();
+  printWindow.focus();
+  // Give the window a beat to decode the embedded QR image before printing.
+  setTimeout(() => printWindow.print(), 300);
 }
