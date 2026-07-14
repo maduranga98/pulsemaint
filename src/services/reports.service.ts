@@ -13,6 +13,7 @@ import {
   type Timestamp,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { useAuthStore } from '../store/authStore';
 import { computeMonthlyAnalytics } from './analyticsAggregation';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import type {
@@ -131,6 +132,23 @@ export async function fetchReportRows(
 
   const rows: Record<string, unknown>[] = [];
   for (const source of sourceMap[reportType]) {
+    // Machines are scoped by siteId, not companyId — querying them by
+    // companyId returned nothing and produced empty machine exports.
+    if (source === 'machines') {
+      const siteIds = [
+        ...new Set([...(useAuthStore.getState().userProfile?.siteIds ?? []), companyId]),
+      ].filter(Boolean);
+      for (let i = 0; i < siteIds.length; i += 10) {
+        const chunk = siteIds.slice(i, i + 10);
+        try {
+          const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
+          snap.docs.forEach((item) => rows.push({ id: item.id, ...item.data() }));
+        } catch {
+          /* skip unreadable sites */
+        }
+      }
+      continue;
+    }
     const constraints = [where('companyId', '==', companyId), limit(1000)];
     if (reportType === 'low_stock_alert') {
       const snap = await getDocs(query(collection(db, source), ...constraints));
@@ -160,11 +178,16 @@ export async function fetchReportRows(
   });
 
   // Apply common multi-select filters where the row exposes a matching field.
+  // Comparison is case-insensitive: the UI historically offered title-case
+  // options ("Critical") while documents store lowercase values ("critical").
   const matchesList = (value: unknown, selected: string[]) =>
-    selected.length === 0 || (value != null && selected.includes(String(value)));
+    selected.length === 0 ||
+    (value != null &&
+      selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
 
   return dateFiltered.filter((row) => {
-    if (!matchesList(row.machineId, config.machines)) return false;
+    // Machine rows themselves carry the machine ID as the doc ID.
+    if (!matchesList(row.machineId ?? row.id, config.machines)) return false;
     if (!matchesList(row.department ?? row.machineDepartment, config.departments)) return false;
     if (!matchesList(row.severity, config.severities)) return false;
     if (!matchesList(row.woType, config.woTypes)) return false;

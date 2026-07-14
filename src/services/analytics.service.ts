@@ -58,12 +58,17 @@ export async function fetchMonthlyAnalytics(
   month: string,
 ): Promise<AnalyticsMonthly | null> {
   const ref = doc(db, 'analytics_monthly', `${companyId}_${month}`);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) {
-    // No pre-aggregated doc — compute it from raw collections.
-    return computeMonthlyAnalytics(companyId, month);
+  try {
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      return { ...snap.data(), id: snap.id } as unknown as AnalyticsMonthly;
+    }
+  } catch {
+    // Reading a non-existent doc is rejected by the security rules
+    // (permission-denied instead of not-found), which used to abort here and
+    // leave the dashboards empty. Fall through to computing from raw data.
   }
-  return { ...snap.data(), id: snap.id } as unknown as AnalyticsMonthly;
+  return computeMonthlyAnalytics(companyId, month);
 }
 
 export async function fetchLatestMonthlyAnalytics(companyId: string): Promise<AnalyticsMonthly | null> {
@@ -156,12 +161,16 @@ export function subscribeActiveBreakdownCount(
   companyId: string,
   callback: (count: number) => void,
 ) {
+  // status filtered client-side — `not-in` + equality requires a composite
+  // index that isn't deployed.
   const q = query(
     collection(db, 'breakdown_tickets'),
     where('companyId', '==', companyId),
-    where('status', 'not-in', ['closed', 'resolved']),
   );
-  return onSnapshot(q, (snap) => callback(snap.size));
+  return onSnapshot(q, (snap) => {
+    const closed = new Set(['closed', 'resolved']);
+    callback(snap.docs.filter((d) => !closed.has(String(d.data().status))).length);
+  });
 }
 
 export function subscribeOpenWorkOrderCount(

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { X } from 'lucide-react';
 import type { ShiftConfig, ShiftDay } from '@/types/handover.types';
 import { useAuthStore } from '@/store/authStore';
@@ -45,8 +45,19 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
 
   useEffect(() => {
     if (!companyId) return;
-    getDocs(query(collection(db, 'users'), where('companyId', '==', companyId), where('status', '==', 'active')))
-      .then((snap) => setUsers(snap.docs.map((d) => ({ id: d.id, ...d.data() } as UserProfile))))
+    // Full profiles (fullName, status, department) live in the per-company
+    // subcollection. The top-level /users docs are thin role mappings with no
+    // status field, so querying them returned nothing and members could never
+    // be assigned to shifts.
+    getDocs(collection(db, `companies/${companyId}/users`))
+      .then((snap) =>
+        setUsers(
+          snap.docs
+            .map((d) => ({ id: d.id, ...d.data() } as UserProfile))
+            .filter((u) => (u.status ?? 'active') === 'active')
+            .sort((a, b) => (a.fullName ?? '').localeCompare(b.fullName ?? '')),
+        ),
+      )
       .catch(console.error);
   }, [companyId]);
 

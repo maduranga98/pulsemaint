@@ -16,11 +16,15 @@ export function DocumentStatusBadge({ document }: DocumentStatusBadgeProps) {
     );
   }
 
-  const config = {
+  const configs = {
     valid: { Icon: CheckCircle2, className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
     expiring_soon: { Icon: Clock, className: 'border-amber-200 bg-amber-50 text-amber-700' },
     expired: { Icon: AlertTriangle, className: 'border-red-200 bg-red-50 text-red-700' },
-  }[document.validityStatus];
+  };
+  // Older documents (e.g. uploaded from the Add Contractor form before this
+  // field existed) may not carry validityStatus — fall back to "valid"
+  // instead of crashing on config.className.
+  const config = configs[document.validityStatus] ?? configs.valid;
 
   return (
     <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-medium ${config.className} ${document.daysUntilExpiry !== undefined && document.daysUntilExpiry !== null && document.daysUntilExpiry <= 7 && document.daysUntilExpiry >= 0 ? 'animate-pulse' : ''}`}>

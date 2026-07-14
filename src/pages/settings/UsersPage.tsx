@@ -31,6 +31,7 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../hooks/useToast';
 import { useShiftConfig } from '../../hooks/useShiftConfig';
+import { useDepartments } from '../../hooks/useDepartments';
 import {
   createInvitation,
   getCompanyInvitations,
@@ -118,6 +119,44 @@ const emptyInviteForm: InviteFormValues = {
   jobTitle: '',
 };
 
+/**
+ * Department dropdown sourced from the departments created in
+ * Settings → Shifts, replacing the old free-text input so user departments
+ * match shift/report departments exactly.
+ */
+function DepartmentSelect({
+  value,
+  onChange,
+  disabled,
+  className,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
+  const { departments } = useDepartments(companyId);
+  // Keep a legacy free-typed value selectable so existing users don't lose it.
+  const options = value && !departments.includes(value) ? [value, ...departments] : departments;
+
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
+      className={className ?? 'w-full px-3 py-2 text-sm rounded-lg border outline-none'}
+    >
+      <option value="">No department</option>
+      {options.map((d) => (
+        <option key={d} value={d}>
+          {d}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function toForm(u: UserProfile): UserFormValues {
   return {
     fullName: u.fullName ?? '',
@@ -136,7 +175,7 @@ export default function UsersPage() {
   const company = useAuthStore((s) => s.company);
   const currentUser = useAuthStore((s) => s.userProfile);
   const toast = useToast();
-  const { shifts } = useShiftConfig();
+  const { shifts, reload: reloadShifts } = useShiftConfig();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,6 +239,31 @@ export default function UsersPage() {
     );
   });
 
+  // Keep shift_config member lists in sync with the user's assigned shift so
+  // the Shifts settings page and the Users table agree on who works which shift.
+  const syncShiftMembership = async (userId: string, fullName: string, shiftId: string | null) => {
+    try {
+      for (const s of shifts) {
+        const isMember = (s.memberIds ?? []).includes(userId);
+        if (s.id === shiftId && !isMember) {
+          await updateDoc(doc(db, 'shift_config', s.id), {
+            memberIds: [...(s.memberIds ?? []), userId],
+            memberNames: [...(s.memberNames ?? []), fullName],
+          });
+        } else if (s.id !== shiftId && isMember) {
+          await updateDoc(doc(db, 'shift_config', s.id), {
+            memberIds: (s.memberIds ?? []).filter((id) => id !== userId),
+            memberNames: (s.memberNames ?? []).filter((n) => n !== fullName),
+          });
+        }
+      }
+      await reloadShifts();
+    } catch {
+      // Non-admins may not be allowed to edit shift_config; the user's own
+      // shiftId is still saved, which drives the Users table display.
+    }
+  };
+
   const handleAdd = async (values: UserFormValues) => {
     if (!company?.id) throw new Error('No company in session');
     const id = nanoid();
@@ -227,6 +291,7 @@ export default function UsersPage() {
       invitedBy: currentUser?.id ?? null,
     };
     await setDoc(ref, payload);
+    await syncShiftMembership(id, values.fullName.trim(), values.shiftId || null);
     toast.success(`Added ${values.fullName}`);
   };
 
@@ -247,6 +312,7 @@ export default function UsersPage() {
     });
     // Keep the global mapping doc in sync so Firestore rules pick up the new role.
     await setDoc(doc(db, `users/${userId}`), { role: values.role }, { merge: true });
+    await syncShiftMembership(userId, values.fullName.trim(), values.shiftId || null);
     toast.success('User updated');
   };
 
@@ -462,6 +528,8 @@ export default function UsersPage() {
                         </td>
                         <td className="px-4 py-3">
                           <UserShiftChips
+                            userId={u.id}
+                            userShiftId={u.shiftId ?? null}
                             userDepartment={u.department ?? null}
                             shifts={shifts}
                           />
@@ -802,11 +870,9 @@ function InviteModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Department">
-              <input
-                type="text"
+              <DepartmentSelect
                 value={values.department}
-                onChange={(e) => set('department', e.target.value)}
-                placeholder="e.g. Maintenance"
+                onChange={(v) => set('department', v)}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </Field>
@@ -997,12 +1063,10 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
               />
             </Field>
             <Field label="Department">
-              <input
-                type="text"
+              <DepartmentSelect
                 value={values.department}
-                onChange={(e) => set('department', e.target.value)}
+                onChange={(v) => set('department', v)}
                 disabled={isView}
-                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
           </div>
@@ -1069,15 +1133,26 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
 }
 
 function UserShiftChips({
+  userId,
+  userShiftId,
   userDepartment,
   shifts,
 }: {
+  userId: string;
+  userShiftId: string | null;
   userDepartment: string | null;
-  shifts: Array<{ id: string; shiftName: string; color: string; department: string | null; status: string }>;
+  shifts: Array<{ id: string; shiftName: string; color: string; department: string | null; status: string; memberIds?: string[] }>;
 }) {
-  const matching = shifts.filter(
-    (s) => s.status === 'active' && (!s.department || s.department === userDepartment),
+  // Show the shifts the user is actually assigned to (via the user's shiftId
+  // or the shift's member list). Fall back to department-wide shifts only if
+  // the user has no explicit assignment.
+  const active = shifts.filter((s) => s.status === 'active');
+  let matching = active.filter(
+    (s) => s.id === userShiftId || (s.memberIds ?? []).includes(userId),
   );
+  if (matching.length === 0 && !userShiftId) {
+    matching = active.filter((s) => s.department && s.department === userDepartment);
+  }
   if (matching.length === 0) {
     return <span className="text-xs text-slate-400">—</span>;
   }

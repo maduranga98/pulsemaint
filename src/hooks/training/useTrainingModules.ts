@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   QueryConstraint,
 } from 'firebase/firestore';
@@ -49,24 +48,28 @@ export function useTrainingModules(
       constraints.push(where('status', '==', status));
     }
 
-    constraints.push(orderBy('updatedAt', 'desc'));
-
+    // Sorted client-side: companyId + orderBy(updatedAt) without a status
+    // filter has no composite index deployed and would fail silently.
     const q = query(collection(db, 'trainingModules'), ...constraints);
 
     const unsubscribe = onSnapshot(
       q,
       (snap) => {
-        let docs = snap.docs.map(
-          (d) => ({ id: d.id, ...d.data() }) as TrainingModule
-        );
+        let docs = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }) as TrainingModule)
+          .sort(
+            (a, b) =>
+              ((b.updatedAt as any)?.toMillis?.() ?? 0) -
+              ((a.updatedAt as any)?.toMillis?.() ?? 0)
+          );
 
         if (searchQuery && searchQuery.trim() !== '') {
           const term = searchQuery.trim().toLowerCase();
           docs = docs.filter(
             (m) =>
-              m.title.toLowerCase().includes(term) ||
-              m.machineName.toLowerCase().includes(term) ||
-              m.tags.some((tag) => tag.toLowerCase().includes(term))
+              (m.title ?? '').toLowerCase().includes(term) ||
+              (m.machineName ?? '').toLowerCase().includes(term) ||
+              (m.tags ?? []).some((tag) => tag.toLowerCase().includes(term))
           );
         }
 

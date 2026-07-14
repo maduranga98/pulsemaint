@@ -3,10 +3,21 @@ import ContractorMultiSelect from './ContractorMultiSelect';
 import DepartmentMultiSelect from './DepartmentMultiSelect';
 import MachineMultiSelect from './MachineMultiSelect';
 import MultiValueInput from './MultiValueInput';
+import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelect';
 import SeverityCheckboxGroup from './SeverityCheckboxGroup';
 import ShiftCheckboxGroup from './ShiftCheckboxGroup';
 import TechnicianMultiSelect from './TechnicianMultiSelect';
 import type { ReportConfig, ReportDefinition } from '../../../types/reports.types';
+
+// Values match the BreakdownType union stored on breakdown_tickets docs.
+const BREAKDOWN_TYPE_OPTIONS: SelectOption[] = [
+  { value: 'mechanical', label: 'Mechanical' },
+  { value: 'electrical', label: 'Electrical' },
+  { value: 'hydraulic', label: 'Hydraulic' },
+  { value: 'pneumatic', label: 'Pneumatic' },
+  { value: 'software', label: 'Software' },
+  { value: 'other', label: 'Other' },
+];
 
 export default function ReportFilterSection({
   report,
@@ -31,7 +42,15 @@ export default function ReportFilterSection({
       {has('department') && <DepartmentMultiSelect values={config.departments} onChange={(departments) => onChange({ departments })} />}
       {has('severity') && <SeverityCheckboxGroup values={config.severities} onChange={(severities) => onChange({ severities })} />}
       {has('wo_type') && <MultiValueInput label="WO Type" placeholder="Breakdown, PM, Corrective" values={config.woTypes} onChange={(woTypes) => onChange({ woTypes })} />}
-      {has('breakdown_type') && <MultiValueInput label="Breakdown Type" placeholder="Mechanical, Electrical" values={config.breakdownTypes} onChange={(breakdownTypes) => onChange({ breakdownTypes })} />}
+      {has('breakdown_type') && (
+        <SearchableMultiSelect
+          label="Breakdown Type"
+          options={BREAKDOWN_TYPE_OPTIONS}
+          values={config.breakdownTypes}
+          onChange={(breakdownTypes) => onChange({ breakdownTypes })}
+          placeholder="Search breakdown types…"
+        />
+      )}
       {has('technician') && <TechnicianMultiSelect values={config.technicians} onChange={(technicians) => onChange({ technicians })} />}
       {has('contractor') && <ContractorMultiSelect values={config.contractors} onChange={(contractors) => onChange({ contractors })} />}
       {has('part_category') && <MultiValueInput label="Part Category" placeholder="Bearings, Belts" values={config.partCategories} onChange={(partCategories) => onChange({ partCategories })} />}

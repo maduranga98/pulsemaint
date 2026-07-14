@@ -69,14 +69,28 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       const sref = storageRef(storage, path);
       await uploadBytes(sref, file);
       const url = await getDownloadURL(sref);
+      // Keep the shape in sync with DocumentUploadModal — the documents tab
+      // (DocumentStatusBadge etc.) expects validityStatus/isPermanent to be set.
       await addDoc(collection(db, 'contractors', savedId, 'documents'), {
         companyId,
         contractorId: savedId,
+        documentType: 'other',
+        documentName: file.name,
         fileName: file.name,
-        fileSize: file.size,
         fileUrl: url,
         storagePath: path,
-        documentType: 'other',
+        fileSizeBytes: file.size,
+        mimeType: file.type || 'application/octet-stream',
+        issueDate: null,
+        expiryDate: null,
+        isPermanent: true,
+        hasExpiry: false,
+        validityStatus: 'valid',
+        isCriticalDocument: false,
+        blocksAssignment: false,
+        version: 1,
+        supersededBy: null,
+        notes: null,
         uploadedAt: serverTimestamp(),
         uploadedBy: userProfile?.id ?? null,
         uploadedByName: userProfile?.fullName ?? null,

@@ -458,7 +458,10 @@ function mapMachineStatus(status: unknown): MachineHealthDoc['currentStatus'] {
 // Machines are scoped by siteId, not companyId, so resolve the current user's
 // sites to fetch the real machine records (health score, service dates, etc.).
 async function fetchMachinesForSites(): Promise<Row[]> {
-  const siteIds = useAuthStore.getState().userProfile?.siteIds ?? [];
+  const profile = useAuthStore.getState().userProfile;
+  // Machines created by users with no explicit site are stored with
+  // siteId = companyId, so always include the company id as a fallback site.
+  const siteIds = [...new Set([...(profile?.siteIds ?? []), profile?.companyId ?? ''])].filter(Boolean);
   if (siteIds.length === 0) return [];
   const rows: Row[] = [];
   for (let i = 0; i < siteIds.length; i += 10) {
