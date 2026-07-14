@@ -6,11 +6,12 @@ interface ContractorDocStatusDotProps {
 }
 
 export function ContractorDocStatusDot({ status, label }: ContractorDocStatusDotProps) {
-  const config = {
+  const configs = {
     valid: { Icon: CheckCircle2, className: 'text-emerald-600', text: 'Documents valid' },
     expiring: { Icon: Clock, className: 'text-amber-600', text: 'Expiring soon' },
     expired: { Icon: AlertCircle, className: 'text-red-600', text: 'Expired documents' },
-  }[status];
+  };
+  const config = configs[status] ?? configs.valid;
 
   return (
     <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-700">

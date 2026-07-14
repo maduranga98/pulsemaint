@@ -82,8 +82,8 @@ export default function AssignTrainingWizard({
   const filteredModules = moduleSearch.trim()
     ? modules.filter(
         (m) =>
-          m.title.toLowerCase().includes(moduleSearch.toLowerCase()) ||
-          m.machineName.toLowerCase().includes(moduleSearch.toLowerCase())
+          (m.title ?? '').toLowerCase().includes(moduleSearch.toLowerCase()) ||
+          (m.machineName ?? '').toLowerCase().includes(moduleSearch.toLowerCase())
       )
     : modules;
 
@@ -190,7 +190,7 @@ export default function AssignTrainingWizard({
           lessonProgress: {},
           overallProgress: 0,
           lessonsCompleted: 0,
-          totalLessons: module.lessons.length,
+          totalLessons: module.lessons?.length ?? 0,
           quizAttempts: [],
           bestScore: 0,
           latestScore: 0,

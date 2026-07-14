@@ -130,11 +130,11 @@ service cloud.firestore {
       // Store Keeper: read-only for their site (or all sites if unrestricted)
       allow read: if isStoreKeeper() && woSiteMatches();
 
-      // Technician: read assigned WOs only
-      allow read: if isTechnician() && woSiteMatches() && isAssignedTechnician();
+      // Technician / trainee: read assigned WOs only
+      allow read: if (isTechnician() || isRole('trainee')) && woSiteMatches() && isAssignedTechnician();
 
-      // Technician: update only allowed fields on assigned WOs
-      allow update: if isTechnician()
+      // Technician / trainee: update only allowed fields on assigned WOs
+      allow update: if (isTechnician() || isRole('trainee'))
         && woSiteMatches()
         && isAssignedTechnician()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -189,6 +189,7 @@ service cloud.firestore {
         'plant_manager',
         'technician',
         'store_keeper',
+        'trainee',
         'admin'
       ]);
       // History entries are appended by the client on WO completion and by
@@ -207,11 +208,11 @@ service cloud.firestore {
     match /breakdown_tickets/{ticketId} {
       allow read: if isAuthenticated() && isAnyRole([
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
-        'plant_manager', 'admin'
+        'plant_manager', 'trainee', 'admin'
       ]);
       allow create: if isAuthenticated() && isAnyRole([
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
-        'plant_manager', 'admin'
+        'plant_manager', 'trainee', 'admin'
       ]);
       allow update: if isAuthenticated() && isAnyRole([
         'technician', 'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
@@ -222,10 +223,10 @@ service cloud.firestore {
     match /breakdowns/{breakdownId} {
       allow read: if isAuthenticated() && isAnyRole([
         'supervisor', 'maintenance_supervisor', 'plant_manager', 'technician',
-        'floor_operator', 'admin'
+        'floor_operator', 'trainee', 'admin'
       ]);
       allow create: if isAuthenticated() && isAnyRole([
-        'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
+        'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'trainee', 'admin'
       ]);
       allow update: if isAuthenticated() && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
@@ -240,7 +241,7 @@ service cloud.firestore {
     match /machines/{machineId} {
       allow read: if isAuthenticated() && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager',
-        'store_keeper', 'admin'
+        'store_keeper', 'trainee', 'admin'
       ]);
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
       allow write: if isAdmin() || isSupervisor() || isPlantManager();
@@ -796,13 +797,15 @@ service cloud.firestore {
     // pm_schedules — Preventive Maintenance Schedules
     }
 
-    // shift_config — admin-managed shift setup
+    // shift_config — shift setup, manageable by admin and shift-running roles
     match /shift_config/{configId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer'];
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAdmin();
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer'];
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer'];
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAdmin();
     }
 

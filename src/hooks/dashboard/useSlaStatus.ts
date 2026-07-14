@@ -15,16 +15,20 @@ export function useSlaStatus(siteId: string) {
       return;
     }
 
+    // status filtered client-side — `not-in` + equality requires a composite
+    // index that isn't deployed and the listener errored out.
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
-      where('status', 'not-in', ['closed', 'resolved']),
     );
 
+    const CLOSED = new Set(['closed', 'resolved']);
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as Breakdown));
+        const data = snapshot.docs
+          .map((d) => ({ ...d.data(), id: d.id } as Breakdown))
+          .filter((b) => !CLOSED.has(b.status));
         setBreakdowns(data);
         setLoading(false);
       },

@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -40,19 +39,24 @@ export function useMyAssignments(
     setLoading(true);
     setError(null);
 
+    // Sort client-side — the equality filters + orderBy(assignedAt) combo
+    // requires a composite index that isn't deployed, so the query failed
+    // and trainees never saw their assignments.
     const q = query(
       collection(db, 'trainingAssignments'),
       where('traineeId', '==', userId),
-      where('companyId', '==', companyId),
-      orderBy('assignedAt', 'desc')
+      where('companyId', '==', companyId)
     );
 
     const unsubscribe = onSnapshot(
       q,
       (snap) => {
-        let docs = snap.docs.map(
-          (d) => ({ id: d.id, ...d.data() }) as TrainingAssignment
-        );
+        let docs = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }) as TrainingAssignment)
+          .sort(
+            (a, b) =>
+              (b.assignedAt?.toMillis?.() ?? 0) - (a.assignedAt?.toMillis?.() ?? 0)
+          );
         if (status) {
           docs = docs.filter((a) => a.status === status);
         }

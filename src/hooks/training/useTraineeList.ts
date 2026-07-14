@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -57,18 +56,20 @@ export function useTraineeList(
       'supervisor',
       'hr_officer',
     ];
+    // No orderBy here: `role in […]` + orderBy(fullName) needs a composite
+    // index that isn't deployed, which made the query fail silently and the
+    // assign-training wizard show "No trainees found". Sort client-side.
     const q = query(
       collection(db, `companies/${companyId}/users`),
       where('role', 'in', TRAINABLE_ROLES),
-      orderBy('fullName', 'asc'),
     );
 
     const unsubscribe = onSnapshot(
       q,
       (snap) => {
-        let docs = snap.docs.map(
-          (d) => ({ id: d.id, ...d.data() }) as UserProfile
-        );
+        let docs = snap.docs
+          .map((d) => ({ id: d.id, ...d.data() }) as UserProfile)
+          .sort((a, b) => (a.fullName ?? '').localeCompare(b.fullName ?? ''));
 
         if (department) {
           docs = docs.filter((u) => u.department === department);

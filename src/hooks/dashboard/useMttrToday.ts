@@ -17,17 +17,23 @@ export function useMttrToday(siteId: string) {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
+    // closedAt filtered client-side — the range filter + two equalities needs
+    // a composite index that isn't deployed.
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
       where('status', '==', 'closed'),
-      where('closedAt', '>=', startOfDay),
     );
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as Breakdown));
+        const data = snapshot.docs
+          .map((d) => ({ ...d.data(), id: d.id } as Breakdown))
+          .filter((b) => {
+            const closed = b.closedAt?.toMillis?.();
+            return closed != null && closed >= startOfDay.getTime();
+          });
         setBreakdowns(data);
         setLoading(false);
       },

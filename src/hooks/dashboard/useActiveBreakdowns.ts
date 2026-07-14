@@ -15,16 +15,21 @@ export function useActiveBreakdowns(siteId: string) {
       return;
     }
 
+    // status filtered client-side: `not-in` + equality needs a composite
+    // index that isn't deployed, which made this listener fail silently and
+    // the dashboard show 0 active breakdowns.
     const q = query(
       collection(db, 'breakdown_tickets'),
       where('siteId', '==', siteId),
-      where('status', 'not-in', ['closed', 'resolved', 'cancelled']),
     );
 
+    const CLOSED = new Set(['closed', 'resolved', 'cancelled']);
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as Breakdown));
+        const data = snapshot.docs
+          .map((d) => ({ ...d.data(), id: d.id } as Breakdown))
+          .filter((b) => !CLOSED.has(b.status));
         setBreakdowns(data);
         setCount(data.length);
         setLoading(false);
