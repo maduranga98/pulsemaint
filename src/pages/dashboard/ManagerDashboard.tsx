@@ -13,6 +13,7 @@ import ContractorScoreboard from '../../components/dashboard/manager/ContractorS
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
 import TeamPerformanceWidget from '../../components/dashboard/manager/TeamPerformanceWidget';
+import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 
@@ -122,6 +123,9 @@ export default function ManagerDashboard() {
           <ContractorScoreboard companyId={companyId} month={currentMonth} />
           <SlaGaugeWidget companyId={companyId} />
         </div>
+
+        {/* Row 6: Evaluation-based team performance by role */}
+        <TeamPerformanceAnalyticsWidget companyId={companyId} />
       </div>
 
       <DashboardSidePanel />

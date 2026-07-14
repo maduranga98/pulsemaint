@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Timestamp } from 'firebase/firestore';
-import { X, Play, Pause, PackageX, ClipboardCheck, CheckCircle2 } from 'lucide-react';
+import { Timestamp, doc, getDoc } from 'firebase/firestore';
+import { X, Play, Pause, PackageX, ClipboardCheck, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { db } from '../../../lib/firebase';
 import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
+import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
+import { LotoGate } from '../LotoGate';
 import { WOTypeBadge } from '../WOTypeBadge';
 import { WOStatusBadge } from '../WOStatusBadge';
 import { PriorityBadge } from '../PriorityBadge';
@@ -30,6 +33,25 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const { updateWO, updateStatus, loading } = useUpdateWorkOrder();
   const [showCompletion, setShowCompletion] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
+
+  // Load the machine's isolation points so the LOTO/PTW safety checklist can
+  // be completed before starting work.
+  useEffect(() => {
+    let cancelled = false;
+    getDoc(doc(db, 'machines', wo.machineId))
+      .then((snap) => {
+        if (!cancelled) {
+          setIsolationPoints((snap.data()?.isolationPoints ?? []) as IsolationPoint[]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsolationPoints([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [wo.machineId]);
 
   const isInProgress = wo.status === 'IN_PROGRESS';
   const isOnHold = wo.status === 'ON_HOLD_PARTS' || wo.status === 'ON_HOLD_APPROVAL';
@@ -94,6 +116,15 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
             <div className="space-y-5">
               {canStart && (
                 <div className="space-y-3">
+                  {isolationPoints !== null && (isolationPoints.length > 0 || wo.ptwCategory) && (
+                    <div className="rounded-lg bg-white p-4">
+                      <div className="mb-3 flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                        <h3 className="text-sm font-semibold text-gray-900">Safety Precautions (LOTO / PTW)</h3>
+                      </div>
+                      <LotoGate workOrder={wo} machineIsolationPoints={isolationPoints} />
+                    </div>
+                  )}
                   <button
                     onClick={handleStart}
                     disabled={loading}

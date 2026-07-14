@@ -45,13 +45,13 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
       setLoading(true);
       setError(null);
 
-      // LOTO gate check: when transitioning ASSIGNED → IN_PROGRESS
+      // LOTO gate check: when transitioning OPEN/ASSIGNED → IN_PROGRESS
       if (status === 'IN_PROGRESS') {
         try {
           const woSnap = await getDoc(doc(db, 'workOrders', id));
           const woData = woSnap.data() as WorkOrder | undefined;
 
-          if (woData && woData.status === 'ASSIGNED') {
+          if (woData && (woData.status === 'ASSIGNED' || woData.status === 'OPEN')) {
             // Fetch permit for this work order
             const permitQuery = query(
               collection(db, 'permits'),
@@ -64,7 +64,17 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
               : ({ id: permitSnap.docs[0].id, ...permitSnap.docs[0].data() } as Permit);
 
             const ptwCategory = woData.ptwCategory ?? null;
-            const gatePassed = computeLotoGatePassed(permit, ptwCategory);
+
+            // Machines without isolation points and WOs without a PTW category
+            // have no safety gate to satisfy — don't block those from starting.
+            let gateApplies = true;
+            if (!permit && !ptwCategory) {
+              const machineSnap = await getDoc(doc(db, 'machines', woData.machineId));
+              const points = (machineSnap.data()?.isolationPoints ?? []) as unknown[];
+              gateApplies = points.length > 0;
+            }
+
+            const gatePassed = !gateApplies || computeLotoGatePassed(permit, ptwCategory);
 
             if (!gatePassed) {
               const msg =
