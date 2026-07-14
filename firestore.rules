@@ -983,9 +983,9 @@ service cloud.firestore {
     match /trainingContentLibrary/{contentId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
       allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
     }
 
     match /training_records/{recordId} {

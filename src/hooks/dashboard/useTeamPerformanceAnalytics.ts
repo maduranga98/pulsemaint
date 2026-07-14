@@ -26,9 +26,11 @@ export function useTeamPerformanceAnalytics(companyId: string) {
     setError(null);
     try {
       const [evalsSnap, auditsSnap, usersSnap, trainingSnap, triageSnap] = await Promise.all([
+        // The Evaluations module writes to the 'evaluations' collection
+        // (see src/modules/evaluation/services/evaluation.service.ts).
         getDocs(
           query(
-            collection(db, 'evaluation_sessions'),
+            collection(db, 'evaluations'),
             where('companyId', '==', companyId),
             where('status', '==', 'submitted'),
           ),

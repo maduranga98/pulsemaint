@@ -95,6 +95,11 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
     setUploadProgress([]);
 
     try {
+      // Technicians can only act on WOs in ASSIGNED state, so a WO created
+      // with technicians already attached must start as ASSIGNED, not OPEN.
+      const initialStatus =
+        (payload.assignedTechnicianIds?.length ?? 0) > 0 ? ('ASSIGNED' as const) : ('OPEN' as const);
+
       // Create WO document first to get the ID for Storage paths
       const woData = {
         // Tenant
@@ -103,7 +108,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         // Basic
         woType: payload.woType,
         priority: payload.priority,
-        status: 'OPEN' as const,
+        status: initialStatus,
         description: payload.description,
         dueDate: payload.dueDate,
         scheduledStart: payload.scheduledStart ?? null,
@@ -189,11 +194,11 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
 
         // Status history
         statusHistory: [{
-          status: 'OPEN',
+          status: initialStatus,
           changedBy: userId,
           changedByName: userName,
           changedAt: new Date(),
-          note: null,
+          note: initialStatus === 'ASSIGNED' ? 'Technicians assigned at creation' : null,
         }],
 
         // Metadata

@@ -14,6 +14,7 @@ import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { CreateWODrawer } from './CreateWODrawer';
 import { BacklogTab } from './BacklogTab';
+import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 
 type TabId = 'all' | 'mine' | 'open' | 'overdue' | 'week' | 'backlog';
 type ViewMode = 'list' | 'kanban';
@@ -73,6 +74,12 @@ export function WOListView() {
   }
 
   const { workOrders, loading, error } = useWorkOrders(filters);
+
+  // Track the open WO against the live snapshot so the detail/execution
+  // views update in realtime (e.g. after Start Work / Hold / Complete).
+  const liveSelectedWO = selectedWO
+    ? workOrders.find((w) => w.id === selectedWO.id) ?? selectedWO
+    : null;
 
   const displayedWOs = activeTab === 'overdue'
     ? workOrders.filter(
@@ -246,12 +253,23 @@ export function WOListView() {
         )}
       </div>
 
-      {/* Detail panel */}
-      {selectedWO && (
-        <WODetailPanel
-          workOrder={selectedWO}
-          onClose={() => setSelectedWO(null)}
-        />
+      {/* Detail panel — technicians assigned to an active WO get the execution
+          sheet (start, safety gate, checklist, holds, completion) instead of
+          the read-only detail panel. */}
+      {liveSelectedWO && (
+        role === 'technician' &&
+        liveSelectedWO.assignedTechnicianIds?.some((id) => [user?.uid, userProfile?.id].includes(id)) &&
+        ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(liveSelectedWO.status) ? (
+          <TechnicianWOExecutionSheet
+            workOrder={liveSelectedWO}
+            onClose={() => setSelectedWO(null)}
+          />
+        ) : (
+          <WODetailPanel
+            workOrder={liveSelectedWO}
+            onClose={() => setSelectedWO(null)}
+          />
+        )
       )}
 
       {/* Create drawer — conditionally rendered so each open is a fresh form */}

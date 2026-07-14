@@ -1,5 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { Paperclip, X, FileText, Image, Video, ChevronDown } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import type { UserProfile, UserRole } from '@/types/auth';
 import type {
   EvaluationRole,
   EvaluationCriterion,
@@ -22,6 +25,7 @@ interface EvaluationFormProps {
 }
 
 export interface FormData {
+  evaluateeId: string;
   evaluateeName: string;
   evaluateeRole: EvaluationRole;
   evaluateeJobTitle: string;
@@ -34,6 +38,18 @@ export interface FormData {
   attachments: EvaluationAttachment[];
   evaluationDate: string;
 }
+
+// Map app user roles onto the evaluation criteria roles.
+const USER_ROLE_TO_EVAL_ROLE: Record<UserRole, EvaluationRole> = {
+  admin: 'other',
+  plant_manager: 'plant_manager',
+  supervisor: 'supervisor',
+  technician: 'technician',
+  store_keeper: 'other',
+  hr_officer: 'other',
+  trainee: 'trainee',
+  floor_operator: 'operator',
+};
 
 const SCORE_LABELS: Record<EvaluationCriterionScore, string> = {
   1: '1 – Unsatisfactory',
@@ -74,6 +90,8 @@ export default function EvaluationForm({
   onCancel,
 }: EvaluationFormProps) {
   const [step, setStep] = useState<'info' | 'criteria' | 'summary'>('info');
+  const [companyUsers, setCompanyUsers] = useState<UserProfile[]>([]);
+  const [evaluateeId, setEvaluateeId] = useState('');
   const [evaluateeName, setEvaluateeName] = useState('');
   const [evaluateeRole, setEvaluateeRole] = useState<EvaluationRole>('technician');
   const [evaluateeJobTitle, setEvaluateeJobTitle] = useState('');
@@ -91,6 +109,31 @@ export default function EvaluationForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const criteria = ROLE_CRITERIA[evaluateeRole];
+
+  // Load the company's registered users (Users tab) so the evaluatee can be
+  // selected and their details auto-filled.
+  useEffect(() => {
+    if (!companyId) return;
+    return onSnapshot(
+      query(collection(db, `companies/${companyId}/users`), orderBy('fullName', 'asc')),
+      (snap) => {
+        setCompanyUsers(snap.docs.map((d) => ({ ...d.data(), id: d.id }) as UserProfile));
+      },
+      () => setCompanyUsers([]),
+    );
+  }, [companyId]);
+
+  function handleEmployeeSelect(userId: string) {
+    setEvaluateeId(userId);
+    const u = companyUsers.find((cu) => cu.id === userId);
+    if (!u) return;
+    setEvaluateeName(u.fullName ?? '');
+    setEvaluateeEmployeeId(u.employeeId ?? '');
+    setEvaluateeJobTitle(u.jobTitle ?? '');
+    const evalRole = USER_ROLE_TO_EVAL_ROLE[u.role] ?? 'other';
+    handleRoleChange(evalRole);
+    setEvaluateeCustomRole(evalRole === 'other' ? (u.jobTitle || u.role.replace(/_/g, ' ')) : '');
+  }
 
   function initCriteria(role: EvaluationRole) {
     const roleCriteria = ROLE_CRITERIA[role];
@@ -162,6 +205,7 @@ export default function EvaluationForm({
           ? criteriaResults
           : criteria.map((c) => ({ criterionId: c.id, label: c.label, score: null, comments: '' }));
       await onSubmit({
+        evaluateeId,
         evaluateeName: evaluateeName.trim(),
         evaluateeRole,
         evaluateeJobTitle: evaluateeJobTitle.trim(),
@@ -214,6 +258,29 @@ export default function EvaluationForm({
         {/* Step 1: Employee Info */}
         {step === 'info' && (
           <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Select Employee *</label>
+              <div className="relative">
+                <select
+                  value={evaluateeId}
+                  onChange={(e) => handleEmployeeSelect(e.target.value)}
+                  className="w-full min-h-11 appearance-none rounded-lg border border-gray-200 px-3 pr-9 text-sm focus:border-blue-400 focus:outline-none"
+                >
+                  <option value="">— Select a registered employee —</option>
+                  {companyUsers.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.fullName}
+                      {u.employeeId ? ` (${u.employeeId})` : ''}
+                      {u.jobTitle ? ` · ${u.jobTitle}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
+              <p className="mt-1 text-xs text-gray-400">
+                Picking an employee auto-fills their details from the Users register. You can still adjust the fields below.
+              </p>
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Employee Name *</label>

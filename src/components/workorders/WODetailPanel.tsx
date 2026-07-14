@@ -462,6 +462,26 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {isSupervisor && !showCompletionForm && !showSignOff && (
             <div className="flex flex-wrap gap-2">
               {/* Edit drawer not yet wired — button hidden to avoid no-op. */}
+              {['OPEN', 'ASSIGNED'].includes(workOrder.status) && (
+                <button
+                  type="button"
+                  onClick={() => updateStatus(workOrder.id, 'IN_PROGRESS')}
+                  disabled={statusLoading}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {WO_COPY.checkInButton}
+                </button>
+              )}
+              {['ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
+                <button
+                  type="button"
+                  onClick={() => updateStatus(workOrder.id, 'IN_PROGRESS')}
+                  disabled={statusLoading}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  Resume Work
+                </button>
+              )}
               {workOrder.status === 'COMPLETED' && (
                 <button
                   type="button"
@@ -494,7 +514,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
           {isTechnician && isAssigned && !showCompletionForm && (
             <div className="flex flex-wrap gap-2">
-              {workOrder.status === 'ASSIGNED' && (
+              {['OPEN', 'ASSIGNED'].includes(workOrder.status) && (
                 <button
                   type="button"
                   onClick={() => updateStatus(workOrder.id, 'IN_PROGRESS')}
@@ -502,6 +522,16 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
                   {WO_COPY.checkInButton}
+                </button>
+              )}
+              {['ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
+                <button
+                  type="button"
+                  onClick={() => updateStatus(workOrder.id, 'IN_PROGRESS')}
+                  disabled={statusLoading}
+                  className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  Resume Work
                 </button>
               )}
               {workOrder.status === 'IN_PROGRESS' && (

@@ -590,7 +590,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/new"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <CreateModulePage />
             </ProtectedRoute>
           }
@@ -598,7 +598,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/:moduleId"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <EditModulePage />
             </ProtectedRoute>
           }
@@ -606,7 +606,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/:moduleId/quiz"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <QuizBuilderPage />
             </ProtectedRoute>
           }
@@ -622,7 +622,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/assign"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <AssignTrainingPage />
             </ProtectedRoute>
           }
@@ -654,7 +654,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/content-library"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <ContentLibraryPage />
             </ProtectedRoute>
           }
@@ -762,11 +762,12 @@ export default function AppRouter() {
           }
         />
 
-        {/* Audit — unified TPM/5S/OEE/Contractor */}
+        {/* Audit — unified TPM/5S/OEE/Contractor. Not available to
+            technician, trainee or floor_operator roles. */}
         <Route
           path="audit"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'store_keeper', 'hr_officer']}>
               <AuditPage />
             </ProtectedRoute>
           }

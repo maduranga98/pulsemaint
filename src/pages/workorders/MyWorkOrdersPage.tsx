@@ -41,7 +41,10 @@ function WOCardItem({ wo, onClick }: { wo: WorkOrder; onClick: () => void }) {
 export default function MyWorkOrdersPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const technicianId = userProfile?.id ?? '';
-  const siteId = userProfile?.siteIds?.[0] ?? '';
+  // WO creation falls back to companyId when the creator has no siteIds
+  // (useCreateWorkOrder), so the queue query must use the same fallback or
+  // assigned WOs never match.
+  const siteId = userProfile?.siteIds?.[0] ?? userProfile?.companyId ?? '';
 
   const { workOrders, loading, error } = useMyJobQueue(technicianId, siteId);
   const [selectedId, setSelectedId] = useState<string | null>(null);

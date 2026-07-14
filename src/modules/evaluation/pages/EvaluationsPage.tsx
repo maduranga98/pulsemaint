@@ -29,7 +29,7 @@ export default function EvaluationsPage() {
   async function handleSubmit(data: FormData) {
     await submitEvaluation({
       companyId,
-      evaluateeId: '',
+      evaluateeId: data.evaluateeId,
       evaluateeName: data.evaluateeName,
       evaluateeRole: data.evaluateeRole,
       evaluateeJobTitle: data.evaluateeJobTitle,
