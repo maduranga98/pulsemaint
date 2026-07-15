@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { doc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../lib/firebase';
 import type { WOSignOffPayload } from '../types/workOrder';
@@ -36,7 +36,9 @@ export function useSignOff(): UseSignOffResult {
           status: 'SIGNED_OFF',
           changedBy: user.uid,
           changedByName: user.displayName ?? '',
-          changedAt: serverTimestamp(),
+          // serverTimestamp() is rejected inside arrayUnion() — use a client
+          // timestamp so the sign-off write succeeds.
+          changedAt: Timestamp.now(),
           note: payload.notes || null,
         };
 

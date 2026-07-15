@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -40,6 +40,11 @@ type EmployeePinForm = z.infer<typeof employeePinSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Deep link (e.g. a scanned machine QR) the user was heading to before
+  // being redirected to login.
+  const returnTo = (location.state as { from?: string } | null)?.from;
+  const postLoginRoute = (role: string) => returnTo ?? getDashboardRoute(role as any);
   const [activeTab, setActiveTab] = useState<'email' | 'phone'>('email');
   const [phoneStep, setPhoneStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [showPassword, setShowPassword] = useState(false);
@@ -76,7 +81,7 @@ export default function LoginPage() {
       setError(null);
       setLoading(true);
       const profile = await loginWithEmail(data.email, data.password);
-      navigate(getDashboardRoute(profile.role), { replace: true });
+      navigate(postLoginRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Login failed. Please try again.';
@@ -91,7 +96,7 @@ export default function LoginPage() {
       setError(null);
       setGoogleLoading(true);
       const profile = await loginWithGoogle();
-      navigate(getDashboardRoute(profile.role), { replace: true });
+      navigate(postLoginRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || err.message || 'Google login failed.';
@@ -125,7 +130,7 @@ export default function LoginPage() {
       setError(null);
       setLoading(true);
       const profile = await confirmOTP(confirmationResult, otp);
-      navigate(getDashboardRoute(profile.role), { replace: true });
+      navigate(postLoginRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       const errorMessage = authErrorMessages[errorCode] || 'OTP verification failed.';
@@ -141,7 +146,7 @@ export default function LoginPage() {
       setError(null);
       setLoading(true);
       const profile = await loginWithPin(companyId, pinInput);
-      navigate(getDashboardRoute(profile.role), { replace: true });
+      navigate(postLoginRoute(profile.role), { replace: true });
     } catch (err: any) {
       const errorCode = err.code || err.message;
       if (errorCode === 'PIN_CHANGE_REQUIRED') {
@@ -471,7 +476,7 @@ export default function LoginPage() {
                     setNewPin('');
                     setConfirmPin('');
                     const userRole = useAuthStore.getState().userProfile?.role;
-                    if (userRole) navigate(getDashboardRoute(userRole));
+                    if (userRole) navigate(postLoginRoute(userRole));
                   } catch (err: any) {
                     setError(err.message || 'Failed to change PIN.');
                   } finally {

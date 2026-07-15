@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Timestamp } from 'firebase/firestore';
 import type { WorkOrder } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
 import { WOTypeBadge } from './WOTypeBadge';
@@ -7,12 +8,12 @@ import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { WOCompletionForm } from './WOCompletionForm';
 import { SignatureCanvas } from './SignatureCanvas';
-import { WrenchTimeTracker } from './WrenchTimeTracker';
+import { QrCheckInModal } from './QrCheckInModal';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
 
-type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history' | 'wrenchtime';
+type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history';
 
 interface WODetailPanelProps {
   workOrder: WorkOrder;
@@ -28,8 +29,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const [signOffNotes, setSignOffNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showQrCheckIn, setShowQrCheckIn] = useState(false);
 
-  const { updateStatus, loading: statusLoading } = useUpdateWorkOrder();
+  const { updateWO, updateStatus, loading: statusLoading } = useUpdateWorkOrder();
   const { signOff, loading: signOffLoading } = useSignOff();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -41,14 +43,36 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];
   const isAssigned = workOrder.assignedTechnicianIds.some((id) => myIds.includes(id));
 
+  // Time consumed is derived from the start/complete timestamps (no manual
+  // wrench-time entry).
+  const durationMinutes = workOrder.actualStartTime && workOrder.actualEndTime
+    ? Math.max(0, Math.round(
+        (workOrder.actualEndTime.toDate().getTime() - workOrder.actualStartTime.toDate().getTime()) / 60000,
+      ))
+    : workOrder.totalDurationMinutes ?? null;
+  const timeConsumed = durationMinutes != null
+    ? `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}m`
+    : null;
+
   const TABS: { key: TabKey; label: string }[] = [
     { key: 'overview', label: WO_COPY.tabOverview },
     { key: 'checklist', label: WO_COPY.tabChecklist },
     { key: 'documents', label: WO_COPY.tabDocuments },
     { key: 'parts', label: WO_COPY.tabParts },
     { key: 'history', label: WO_COPY.tabHistory },
-    { key: 'wrenchtime', label: 'Wrench Time' },
   ];
+
+  // Called once the technician has scanned the machine's QR — records the
+  // arrival on the WO, then moves it to IN_PROGRESS.
+  async function handleQrCheckInVerified() {
+    setShowQrCheckIn(false);
+    await updateWO(workOrder.id, {
+      checkedInAt: Timestamp.now(),
+      checkedInBy: user?.uid ?? null,
+      checkedInByName: userProfile?.fullName ?? user?.displayName ?? '',
+    });
+    await updateStatus(workOrder.id, 'IN_PROGRESS', 'Checked in at machine via QR scan');
+  }
 
   async function handleSignOff() {
     if (!signature) return;
@@ -184,6 +208,21 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   )}
                   <span>Due: {workOrder.dueDate?.toDate().toLocaleDateString()}</span>
                   <span>Est. Duration: {workOrder.estimatedDuration} {workOrder.estimatedDurationUnit}</span>
+                  {workOrder.checkedInAt && (
+                    <span>
+                      Checked in: {workOrder.checkedInAt.toDate().toLocaleString()}
+                      {workOrder.checkedInByName ? ` (${workOrder.checkedInByName})` : ''}
+                    </span>
+                  )}
+                  {workOrder.actualStartTime && (
+                    <span>Started: {workOrder.actualStartTime.toDate().toLocaleString()}</span>
+                  )}
+                  {workOrder.actualEndTime && (
+                    <span>Completed: {workOrder.actualEndTime.toDate().toLocaleString()}</span>
+                  )}
+                  {timeConsumed && (
+                    <span className="font-medium text-gray-900">Time Consumed: {timeConsumed}</span>
+                  )}
                 </div>
               </section>
 
@@ -364,14 +403,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
             </div>
           )}
 
-          {/* ── Wrench Time ── */}
-          {activeTab === 'wrenchtime' && (
-            <WrenchTimeTracker
-              workOrder={workOrder}
-              readOnly={!isAssigned && !isSupervisor}
-            />
-          )}
-
           {/* Completion form (inline) */}
           {showCompletionForm && (
             <WOCompletionForm
@@ -465,7 +496,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {['OPEN', 'ASSIGNED'].includes(workOrder.status) && (
                 <button
                   type="button"
-                  onClick={() => updateStatus(workOrder.id, 'IN_PROGRESS')}
+                  onClick={() => setShowQrCheckIn(true)}
                   disabled={statusLoading}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
@@ -517,7 +548,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {['OPEN', 'ASSIGNED'].includes(workOrder.status) && (
                 <button
                   type="button"
-                  onClick={() => updateStatus(workOrder.id, 'IN_PROGRESS')}
+                  onClick={() => setShowQrCheckIn(true)}
                   disabled={statusLoading}
                   className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
@@ -555,6 +586,15 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
             </div>
           )}
         </div>
+
+        {/* QR check-in scanner */}
+        {showQrCheckIn && (
+          <QrCheckInModal
+            workOrder={workOrder}
+            onVerified={handleQrCheckInVerified}
+            onClose={() => setShowQrCheckIn(false)}
+          />
+        )}
       </div>
     </div>
   );

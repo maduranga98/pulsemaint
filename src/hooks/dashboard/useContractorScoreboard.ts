@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchMonthlyAnalytics } from '../../services/analytics.service';
+import { computeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import type { AnalyticsMonthly } from '../../types/analytics.types';
 
 export function useContractorScoreboard(companyId: string, month: string) {
@@ -15,7 +16,12 @@ export function useContractorScoreboard(companyId: string, month: string) {
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchMonthlyAnalytics(companyId, month);
+      let result = await fetchMonthlyAnalytics(companyId, month);
+      if (!result || result.contractorPerformance.length === 0) {
+        // Nothing recorded for the selected month yet — show the all-time
+        // scoreboard instead of an empty panel.
+        result = await computeMonthlyAnalytics(companyId, 'all');
+      }
       setData(result);
     } catch (err) {
       setError((err as Error).message);

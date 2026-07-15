@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import AuthLoading from './AuthLoading';
 import { getDashboardRoute } from '../../lib/auth';
@@ -19,13 +19,22 @@ export default function ProtectedRoute({
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthenticated = useAuthStore((state) => state.user !== null);
   const userRole = useAuthStore((state) => state.userProfile?.role);
+  const location = useLocation();
 
   if (!isInitialized) {
     return <AuthLoading />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+    // Remember where the user was headed (e.g. a scanned machine QR deep
+    // link) so login can return them there.
+    return (
+      <Navigate
+        to={redirectTo}
+        replace
+        state={{ from: `${location.pathname}${location.search}` }}
+      />
+    );
   }
 
   if (requiredRoles && userRole && !requiredRoles.includes(userRole)) {
@@ -43,13 +52,15 @@ export function PublicRoute({ children }: PublicRouteProps) {
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthenticated = useAuthStore((state) => state.user !== null);
   const userRole = useAuthStore((state) => state.userProfile?.role);
+  const location = useLocation();
 
   if (!isInitialized) {
     return <AuthLoading />;
   }
 
   if (isAuthenticated && userRole) {
-    return <Navigate to={getDashboardRoute(userRole)} replace />;
+    const from = (location.state as { from?: string } | null)?.from;
+    return <Navigate to={from ?? getDashboardRoute(userRole)} replace />;
   }
 
   return <>{children}</>;

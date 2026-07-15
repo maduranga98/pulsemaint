@@ -61,7 +61,6 @@ import TriageKnowledgeBuilderPage from '../features/triage/TriageBuilderPage';
 // PM pages
 import {
   PMSchedulesPage,
-  PMScheduleCreatePage,
   PMScheduleEditPage,
   PMScheduleDetailPage,
   PMCalendarPage,
@@ -681,14 +680,6 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
               <PMSchedulesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="pm-schedules/create"
-          element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
-              <PMScheduleCreatePage />
             </ProtectedRoute>
           }
         />

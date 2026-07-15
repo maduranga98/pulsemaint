@@ -221,6 +221,11 @@ export interface WorkOrder {
   // Parts
   partsRequests: PartsRequest[];
 
+  // QR check-in — arrival at the machine recorded by scanning its QR code
+  checkedInAt?: Timestamp | null;
+  checkedInBy?: string | null;
+  checkedInByName?: string | null;
+
   // Completion
   actualStartTime: Timestamp | null;
   actualEndTime: Timestamp | null;

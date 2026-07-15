@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Timestamp, doc, getDoc } from 'firebase/firestore';
-import { X, Play, Pause, PackageX, ClipboardCheck, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { X, Play, Pause, PackageX, ClipboardCheck, CheckCircle2, ShieldCheck, QrCode } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
 import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { LotoGate } from '../LotoGate';
+import { QrCheckInModal } from '../QrCheckInModal';
+import { useAuthStore } from '../../../store/authStore';
 import { WOTypeBadge } from '../WOTypeBadge';
 import { WOStatusBadge } from '../WOStatusBadge';
 import { PriorityBadge } from '../PriorityBadge';
@@ -32,8 +34,11 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const wo = workOrder;
   const { updateWO, updateStatus, loading } = useUpdateWorkOrder();
   const [showCompletion, setShowCompletion] = useState(false);
+  const [showQrCheckIn, setShowQrCheckIn] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
+  const user = useAuthStore((s) => s.user);
+  const userProfile = useAuthStore((s) => s.userProfile);
 
   // Load the machine's isolation points so the LOTO/PTW safety checklist can
   // be completed before starting work.
@@ -68,6 +73,18 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
     if (ok && !wo.actualStartTime) {
       await updateWO(wo.id, { actualStartTime: Timestamp.now() });
     }
+    return ok;
+  }
+
+  // QR check-in verified — record arrival at the machine, then start.
+  async function handleQrCheckInVerified() {
+    setShowQrCheckIn(false);
+    await updateWO(wo.id, {
+      checkedInAt: Timestamp.now(),
+      checkedInBy: user?.uid ?? null,
+      checkedInByName: userProfile?.fullName ?? user?.displayName ?? '',
+    });
+    await handleStart();
   }
 
   function handleChecklistUpdate(checklist: ChecklistItem[]) {
@@ -126,14 +143,21 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                     </div>
                   )}
                   <button
-                    onClick={handleStart}
+                    onClick={() => setShowQrCheckIn(true)}
                     disabled={loading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
-                    <Play className="h-5 w-5" /> Start Work
+                    <QrCode className="h-5 w-5" /> Check In (QR) &amp; Start
+                  </button>
+                  <button
+                    onClick={handleStart}
+                    disabled={loading}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-[#1A56DB] disabled:opacity-50"
+                  >
+                    <Play className="h-4 w-4" /> Start without QR
                   </button>
                   <p className="text-center text-[11px] text-[#8BA3BF]">
-                    Starting work runs the LOTO / PTW safety check. You can&apos;t start until isolation is verified.
+                    Scan the machine&apos;s QR to record your arrival. Starting work runs the LOTO / PTW safety check.
                   </p>
                 </div>
               )}
@@ -213,6 +237,14 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
             </div>
           )}
         </div>
+
+        {showQrCheckIn && (
+          <QrCheckInModal
+            workOrder={wo}
+            onVerified={handleQrCheckInVerified}
+            onClose={() => setShowQrCheckIn(false)}
+          />
+        )}
       </div>
     </div>
   );

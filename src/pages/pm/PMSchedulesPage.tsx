@@ -98,9 +98,9 @@ export default function PMSchedulesPage() {
             {isSupervisor && (
               <Button
                 variant="primary"
-                onClick={() => navigate('/app/pm-schedules/create')}
+                onClick={() => navigate('/app/work-orders?create=1')}
               >
-                New schedule
+                New PM Work Order
               </Button>
             )}
           </>
@@ -141,14 +141,14 @@ export default function PMSchedulesPage() {
         ) : schedules.length === 0 ? (
           <EmptyState
             title="No PM schedules yet"
-            description="Create your first preventive maintenance schedule to get started."
+            description="PM schedules are created through Preventive work orders. Create a Preventive WO to get started."
             action={
               isSupervisor && (
                 <Button
                   variant="primary"
-                  onClick={() => navigate('/app/pm-schedules/create')}
+                  onClick={() => navigate('/app/work-orders?create=1')}
                 >
-                  New schedule
+                  New PM Work Order
                 </Button>
               )
             }
