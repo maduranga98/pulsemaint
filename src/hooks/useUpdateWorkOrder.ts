@@ -103,7 +103,9 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
         status,
         changedBy: user.uid,
         changedByName: user.displayName ?? '',
-        changedAt: serverTimestamp(),
+        // serverTimestamp() is not allowed inside arrayUnion() — Firestore
+        // rejects the whole write, which blocked technicians from starting WOs.
+        changedAt: Timestamp.now(),
         note: note ?? null,
       };
 
@@ -112,6 +114,19 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
         statusHistory: arrayUnion(historyEntry),
         updatedAt: serverTimestamp(),
       };
+
+      // Stamp the real start time on the first transition to IN_PROGRESS so
+      // duration can be computed as (completed − started).
+      if (status === 'IN_PROGRESS') {
+        try {
+          const snap = await getDoc(doc(db, 'workOrders', id));
+          if (!snap.data()?.actualStartTime) {
+            updates.actualStartTime = Timestamp.now();
+          }
+        } catch {
+          /* non-blocking */
+        }
+      }
 
       if (status === 'CANCELLED') {
         updates.cancelledAt = serverTimestamp();

@@ -98,7 +98,9 @@ export function useWOCompletion(): UseWOCompletionResult {
           status: 'COMPLETED',
           changedBy: user.uid,
           changedByName: user.displayName ?? '',
-          changedAt: serverTimestamp(),
+          // serverTimestamp() is rejected inside arrayUnion() — use a client
+          // timestamp so the completion write succeeds.
+          changedAt: Timestamp.now(),
           note: null,
         };
 

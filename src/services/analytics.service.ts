@@ -41,12 +41,16 @@ export async function fetchDailyAnalytics(
     where('date', '<=', toDate),
     orderBy('date', 'asc'),
   );
-  const snap = await getDocs(q);
-  if (snap.empty) {
-    // No pre-aggregated data — compute it from raw collections.
-    return computeDailyAnalytics(companyId, fromDate, toDate);
+  try {
+    const snap = await getDocs(q);
+    if (!snap.empty) {
+      return snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as AnalyticsDaily));
+    }
+  } catch {
+    // Query rejected (missing composite index or security rules) — fall
+    // through to computing from the raw collections.
   }
-  return snap.docs.map((d) => ({ ...d.data(), id: d.id } as unknown as AnalyticsDaily));
+  return computeDailyAnalytics(companyId, fromDate, toDate);
 }
 
 // ---------------------------------------------------------------------------

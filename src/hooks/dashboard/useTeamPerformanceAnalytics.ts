@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, type QuerySnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
 export interface RolePerformanceSummary {
@@ -11,6 +11,19 @@ export interface RolePerformanceSummary {
   trainingsCompleted: number;
   quizzesPassed: number;
 }
+
+// A failed query (rules / missing collection) must not blank the whole
+// widget — treat it as an empty result instead.
+const safeDocs = async (
+  promise: Promise<QuerySnapshot<DocumentData>>,
+): Promise<Array<Record<string, any>>> => {
+  try {
+    const snap = await promise;
+    return snap.docs.map((d) => ({ ...(d.data() as Record<string, any>), id: d.id }));
+  } catch {
+    return [];
+  }
+};
 
 export function useTeamPerformanceAnalytics(companyId: string) {
   const [data, setData] = useState<RolePerformanceSummary[]>([]);
@@ -25,50 +38,52 @@ export function useTeamPerformanceAnalytics(companyId: string) {
     setLoading(true);
     setError(null);
     try {
-      const [evalsSnap, auditsSnap, usersSnap, trainingSnap, triageSnap] = await Promise.all([
+      const [evals, audits, users, assignments, quizResults] = await Promise.all([
         // The Evaluations module writes to the 'evaluations' collection
         // (see src/modules/evaluation/services/evaluation.service.ts).
-        getDocs(
+        safeDocs(getDocs(
           query(
             collection(db, 'evaluations'),
             where('companyId', '==', companyId),
             where('status', '==', 'submitted'),
           ),
-        ),
-        getDocs(
+        )),
+        // Audits live in the audit_sessions/{plantId}/sessions subcollection.
+        safeDocs(getDocs(collection(db, 'audit_sessions', companyId, 'sessions'))),
+        safeDocs(getDocs(query(collection(db, 'users'), where('companyId', '==', companyId)))),
+        // Training completions come from trainingAssignments (the training
+        // module's live collection).
+        safeDocs(getDocs(
           query(
-            collection(db, 'audit_sessions'),
-            where('plantId', '==', companyId),
-            where('status', '==', 'submitted'),
-          ),
-        ),
-        getDocs(query(collection(db, 'users'), where('companyId', '==', companyId))),
-        getDocs(
-          query(
-            collection(db, 'training_records'),
-            where('companyId', '==', companyId),
-            where('status', '==', 'completed'),
-          ),
-        ),
-        getDocs(
-          query(
-            collection(db, 'triage_sessions'),
+            collection(db, 'trainingAssignments'),
             where('companyId', '==', companyId),
           ),
-        ),
+        )),
+        // Quiz passes are recorded in triage_assessment_results.
+        safeDocs(getDocs(
+          query(
+            collection(db, 'triage_assessment_results'),
+            where('companyId', '==', companyId),
+            where('passed', '==', true),
+          ),
+        )),
       ]);
 
-      // Count members per role
+      // Count members per role + build a userId → role lookup so records
+      // that only carry a user id can be attributed to a role.
       const roleMemberCount: Record<string, number> = {};
-      usersSnap.docs.forEach((d) => {
-        const role = (d.data().role as string) ?? 'other';
+      const userRole = new Map<string, string>();
+      users.forEach((u) => {
+        const role = (u.role as string) ?? 'other';
         roleMemberCount[role] = (roleMemberCount[role] ?? 0) + 1;
+        if (u.uid) userRole.set(String(u.uid), role);
+        if (u.id) userRole.set(String(u.id), role);
       });
+      const roleOf = (id: unknown) => userRole.get(String(id ?? '')) ?? 'other';
 
       // Evaluation scores per role
       const roleEvalScores: Record<string, { total: number; count: number }> = {};
-      evalsSnap.docs.forEach((d) => {
-        const row = d.data();
+      evals.forEach((row) => {
         const role = (row.evaluateeRole as string) ?? 'other';
         const score = Number(row.overallScore ?? 0);
         if (!roleEvalScores[role]) roleEvalScores[role] = { total: 0, count: 0 };
@@ -76,29 +91,28 @@ export function useTeamPerformanceAnalytics(companyId: string) {
         roleEvalScores[role].count += 1;
       });
 
-      // Audit count per role (by auditor role)
+      // Audit count per role (by auditor role; submitted sessions only)
       const roleAuditCount: Record<string, number> = {};
-      auditsSnap.docs.forEach((d) => {
-        const role = (d.data().auditorRole as string) ?? 'other';
+      audits.forEach((row) => {
+        if (row.status && row.status !== 'submitted') return;
+        const role = (row.auditorRole as string) || roleOf(row.auditorId);
         roleAuditCount[role] = (roleAuditCount[role] ?? 0) + 1;
       });
 
-      // Training completions per role (from training_records linked to user)
+      // Training completions per role (certified / quiz-passed assignments)
+      const completedTraining = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
       const roleTrainingCount: Record<string, number> = {};
-      trainingSnap.docs.forEach((d) => {
-        const row = d.data();
-        const role = (row.userRole as string) ?? 'other';
+      assignments.forEach((row) => {
+        if (!completedTraining.has(String(row.status))) return;
+        const role = roleOf(row.traineeId ?? row.userId);
         roleTrainingCount[role] = (roleTrainingCount[role] ?? 0) + 1;
       });
 
-      // Quiz (triage) passes per role
+      // Quiz passes per role
       const roleQuizCount: Record<string, number> = {};
-      triageSnap.docs.forEach((d) => {
-        const row = d.data();
-        const role = (row.technicianRole as string) ?? (row.userRole as string) ?? 'other';
-        if (row.passed === true || row.status === 'passed') {
-          roleQuizCount[role] = (roleQuizCount[role] ?? 0) + 1;
-        }
+      quizResults.forEach((row) => {
+        const role = roleOf(row.userId);
+        roleQuizCount[role] = (roleQuizCount[role] ?? 0) + 1;
       });
 
       // Collect all roles from all sources

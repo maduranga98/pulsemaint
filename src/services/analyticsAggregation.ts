@@ -99,7 +99,10 @@ export async function computeMonthlyAnalytics(
     fetchAll('pm_history', companyId),
   ]);
 
+  // month === 'all' aggregates across all time (used as a dashboard fallback
+  // when the current month has no activity yet).
   const inMonth = (value: unknown) => {
+    if (month === 'all') return true;
     const d = toDate(value);
     return d ? monthKey(d) === month : false;
   };
@@ -175,7 +178,9 @@ export async function computeMonthlyAnalytics(
     .slice(0, 10);
 
   // MTBF (days): for machines with breakdowns, days-in-month / count, averaged.
-  const daysInMonth = new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).getDate();
+  const daysInMonth = month === 'all'
+    ? 30
+    : new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).getDate();
   const mtbfValues = Array.from(machineAgg.values())
     .filter((m) => m.breakdownCount > 0)
     .map((m) => daysInMonth / m.breakdownCount);
@@ -277,7 +282,7 @@ export async function computeMonthlyAnalytics(
   return {
     companyId,
     month,
-    year: Number(month.slice(0, 4)),
+    year: month === 'all' ? new Date().getFullYear() : Number(month.slice(0, 4)),
     totalBreakdowns: monthBreakdowns.length,
     avgMttrHours: Number(avgMttrHours.toFixed(2)),
     avgMtbfDays: Number(avgMtbfDays.toFixed(1)),
@@ -294,6 +299,35 @@ export async function computeMonthlyAnalytics(
     breakdownBySeverity,
     updatedAt: Timestamp.now(),
   };
+}
+
+// ---------------------------------------------------------------------------
+// Breakdown heatmap — day-of-week × hour-of-day buckets straight from the
+// raw breakdown tickets, so the heatmap reflects the real report times
+// (the daily analytics docs only carry per-day totals, not hours).
+// ---------------------------------------------------------------------------
+
+export async function computeBreakdownHeatmap(
+  companyId: string,
+  fromDate: string,
+  toDate_: string,
+): Promise<Array<{ day: number; hour: number; count: number }>> {
+  const breakdowns = await fetchAll('breakdown_tickets', companyId);
+  const from = new Date(`${fromDate}T00:00:00`);
+  const to = new Date(`${toDate_}T23:59:59.999`);
+
+  const buckets = new Map<string, { day: number; hour: number; count: number }>();
+  breakdowns.forEach((b) => {
+    const opened = toDate(b.reportedAt ?? b.createdAt);
+    if (!opened || opened < from || opened > to) return;
+    const day = (opened.getDay() + 6) % 7; // Mon=0 … Sun=6
+    const hour = opened.getHours();
+    const key = `${day}:${hour}`;
+    const cell = buckets.get(key) ?? { day, hour, count: 0 };
+    cell.count += 1;
+    buckets.set(key, cell);
+  });
+  return Array.from(buckets.values());
 }
 
 // ---------------------------------------------------------------------------

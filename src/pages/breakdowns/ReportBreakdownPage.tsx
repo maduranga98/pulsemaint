@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { addDoc, collection, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
-import { AlertCircle, ChevronLeft } from 'lucide-react';
+import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
+import { AlertCircle, ChevronLeft, QrCode } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -58,23 +58,47 @@ export default function ReportBreakdownPage() {
     if (!siteId) return;
     setMachinesLoading(true);
     getDocs(query(collection(db, 'machines'), where('siteId', '==', siteId)))
-      .then((snap) => {
-        setMachines(
-          snap.docs.map((d) => {
-            const data = d.data() as any;
-            return {
-              id: d.id,
-              name: data.name || 'Unnamed',
-              department: data.department,
-              location: data.floor || data.bay || data.station,
-              criticality: data.criticality,
-            };
-          }),
-        );
+      .then(async (snap) => {
+        const list: MachineOption[] = snap.docs.map((d) => {
+          const data = d.data() as any;
+          return {
+            id: d.id,
+            name: data.name || 'Unnamed',
+            department: data.department,
+            location: data.floor || data.bay || data.station,
+            criticality: data.criticality,
+          };
+        });
+        // A scanned QR may reference a machine outside the user's default
+        // site — fetch it directly so it can still be auto-selected.
+        if (preselectedMachineId && !list.some((m) => m.id === preselectedMachineId)) {
+          try {
+            const machineSnap = await getDoc(doc(db, 'machines', preselectedMachineId));
+            if (machineSnap.exists()) {
+              const data = machineSnap.data() as any;
+              list.unshift({
+                id: machineSnap.id,
+                name: data.name || 'Unnamed',
+                department: data.department,
+                location: data.floor || data.bay || data.station,
+                criticality: data.criticality,
+              });
+            }
+          } catch {
+            // Machine not readable — the user can still pick from the list.
+          }
+        }
+        setMachines(list);
       })
       .catch((e) => setError(e.message))
       .finally(() => setMachinesLoading(false));
-  }, [siteId]);
+  }, [siteId, preselectedMachineId]);
+
+  const scannedMachine = preselectedMachineId
+    ? machines.find((m) => m.id === preselectedMachineId)
+    : undefined;
+  // Lock the machine when it was set by a QR scan and resolved successfully.
+  const machineLocked = Boolean(scannedMachine && machineId === preselectedMachineId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,10 +199,18 @@ export default function ReportBreakdownPage() {
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Machine *</label>
+            {machineLocked && (
+              <div className="mb-2 flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                <QrCode className="w-4 h-4 flex-shrink-0" />
+                <span>
+                  Machine selected via QR scan: <strong>{scannedMachine?.name}</strong>
+                </span>
+              </div>
+            )}
             <select
               value={machineId}
               onChange={(e) => setMachineId(e.target.value)}
-              disabled={machinesLoading || submitting}
+              disabled={machinesLoading || submitting || machineLocked}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-50"
             >
               <option value="">

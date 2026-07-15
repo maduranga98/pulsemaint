@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { fetchDailyAnalytics, getDateRange } from '../../services/analytics.service';
+import { getDateRange } from '../../services/analytics.service';
+import { computeBreakdownHeatmap } from '../../services/analyticsAggregation';
 import { buildHeatmapGrid } from '../../utils/heatmap.utils';
-import type { AnalyticsDaily, ChartDateRange, HeatmapCell } from '../../types/analytics.types';
+import type { ChartDateRange, HeatmapCell } from '../../types/analytics.types';
 
 export function useBreakdownHeatmap(companyId: string, range: ChartDateRange) {
-  const [data, setData] = useState<AnalyticsDaily[]>([]);
+  const [points, setPoints] = useState<Array<{ day: number; hour: number; count: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,8 +18,10 @@ export function useBreakdownHeatmap(companyId: string, range: ChartDateRange) {
     setError(null);
     try {
       const { from, to } = getDateRange(range);
-      const result = await fetchDailyAnalytics(companyId, from, to);
-      setData(result);
+      // Bucket day-of-week × hour-of-day from the raw breakdown tickets so
+      // the heatmap shows real report times.
+      const result = await computeBreakdownHeatmap(companyId, from, to);
+      setPoints(result);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -30,16 +33,7 @@ export function useBreakdownHeatmap(companyId: string, range: ChartDateRange) {
     fetch();
   }, [fetch]);
 
-  const heatmap = useMemo<HeatmapCell[]>(() => {
-    // Group by day-of-week and hour
-    const raw = data.flatMap((d) => {
-      const date = new Date(d.date);
-      const day = (date.getDay() + 6) % 7; // Mon=0, Sun=6
-      const hour = 12; // Placeholder — daily data doesn't have hourly granularity
-      return [{ day, hour, count: d.breakdownsOpened }];
-    });
-    return buildHeatmapGrid(raw);
-  }, [data]);
+  const heatmap = useMemo<HeatmapCell[]>(() => buildHeatmapGrid(points), [points]);
 
-  return { data, heatmap, loading, error, refetch: fetch };
+  return { heatmap, loading, error, refetch: fetch };
 }
