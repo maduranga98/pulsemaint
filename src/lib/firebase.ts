@@ -1,7 +1,7 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth }       from 'firebase/auth';
-import { getFirestore }  from 'firebase/firestore';
-import { getStorage }    from 'firebase/storage';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getMessaging, isSupported } from 'firebase/messaging';
 import { getFunctions } from 'firebase/functions';
 
@@ -22,6 +22,15 @@ export const auth      = getAuth(app);
 export const db        = getFirestore(app, 'default');
 export const storage   = getStorage(app);
 export const functions = getFunctions(app);
+
+// Local development only: wire the SDK to the Firebase emulators when
+// VITE_USE_EMULATORS=1 (see firebase.json "emulators"). Production builds
+// never set this flag.
+if (import.meta.env.VITE_USE_EMULATORS === '1') {
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099', { disableWarnings: true });
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  connectStorageEmulator(storage, '127.0.0.1', 9199);
+}
 
 // FCM is only available in secure browser contexts with service workers
 export const getMessagingInstance = async () => {
