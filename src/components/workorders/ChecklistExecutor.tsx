@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import type { WorkOrder, ChecklistItem } from '../../types/workOrder';
 import { computeChecklistItemResult } from '../../lib/lotoGate';
-import { serverTimestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 
 interface ChecklistExecutorProps {
   workOrder: WorkOrder;
@@ -19,7 +19,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
   const uid = user?.uid ?? '';
   const userName = user?.displayName ?? userProfile?.id ?? '';
 
-  function handleCheckboxToggle(index: number, item: ChecklistItem) {
+  function handleCheckboxToggle(index: number) {
     if (readOnly) return;
     const updated = workOrder.checklist.map((c, i) => {
       if (i !== index) return c;
@@ -31,7 +31,9 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
         isCompleted: true,
         completedBy: uid,
         completedByName: userName,
-        completedAt: serverTimestamp() as any,
+        // serverTimestamp() is rejected inside array elements — the whole
+        // workOrders update fails. Use a client timestamp instead.
+        completedAt: Timestamp.now(),
       };
     });
     onUpdate(updated);
@@ -51,7 +53,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
         isCompleted: numVal !== null,
         completedBy: numVal !== null ? uid : null,
         completedByName: numVal !== null ? userName : null,
-        completedAt: numVal !== null ? (serverTimestamp() as any) : null,
+        completedAt: numVal !== null ? Timestamp.now() : null,
       };
     });
     onUpdate(updated);
@@ -140,7 +142,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
                     <input
                       type="checkbox"
                       checked={item.isCompleted}
-                      onChange={() => handleCheckboxToggle(index, item)}
+                      onChange={() => handleCheckboxToggle(index)}
                       className="rounded border-gray-300 text-emerald-600"
                     />
                     <span className="text-sm text-gray-600">Mark as complete</span>

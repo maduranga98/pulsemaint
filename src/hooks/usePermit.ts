@@ -8,6 +8,7 @@ import {
   updateDoc,
   doc,
   serverTimestamp,
+  Timestamp,
   limit,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -125,7 +126,9 @@ export function usePermit({ workOrderId, machineId, siteId }: UsePermitParams): 
       if (!permit) return;
       const updated = permit.isolationChecklist.map((entry) =>
         entry.pointId === pointId
-          ? { ...entry, locked: true, lockedBy: uid, lockedByName: userName, lockedAt: serverTimestamp() as any }
+          // serverTimestamp() is rejected inside array elements — use a
+          // client timestamp so locking an isolation point succeeds.
+          ? { ...entry, locked: true, lockedBy: uid, lockedByName: userName, lockedAt: Timestamp.now() }
           : entry,
       );
       await updateDoc(doc(db, 'permits', permit.id), {

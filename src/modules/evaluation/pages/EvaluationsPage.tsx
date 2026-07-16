@@ -41,10 +41,17 @@ export default function EvaluationsPage() {
   const [actionBusy, setActionBusy] = useState<EvaluationActionType | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   async function load() {
     if (!companyId) return;
     try {
+      setLoadError(null);
       setSessions(await fetchEvaluations(companyId));
+    } catch (err) {
+      // Surface the failure — a silently swallowed error here made finished
+      // evaluations look like they were never saved.
+      setLoadError(err instanceof Error ? err.message : 'Failed to load evaluations.');
     } finally {
       setLoading(false);
     }
@@ -355,6 +362,12 @@ export default function EvaluationsPage() {
           </button>
         ))}
       </div>
+
+      {loadError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Failed to load evaluations: {loadError}
+        </div>
+      )}
 
       {/* List */}
       {loading ? (

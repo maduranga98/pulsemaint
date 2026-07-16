@@ -24,7 +24,10 @@ import { AuditSessionForm } from '../components/AuditSessionForm';
 import { AuditTaskConfigurator } from '../components/AuditTaskConfigurator';
 import { AuditDetail } from '../components/AuditDetail';
 
-const ALLOWED_ROLES: UserRole[] = ['supervisor', 'plant_manager', 'admin', 'technician', 'store_keeper', 'hr_officer'];
+// Keep in sync with the /app/audit route guard in AppRouter — the Audit
+// module is not available to technician, trainee, floor_operator, or
+// store_keeper roles.
+const ALLOWED_ROLES: UserRole[] = ['supervisor', 'plant_manager', 'admin', 'hr_officer'];
 
 const CATEGORY_META: Record<AuditCategory, { icon: typeof Wrench; color: string; desc: string }> = {
   tpm: { icon: Wrench, color: 'text-blue-400', desc: 'Total Productive Maintenance checks' },

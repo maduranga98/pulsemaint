@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Upload } from 'lucide-react';
 import { addDoc, collection, doc, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -19,6 +20,11 @@ interface DocumentUploadModalProps {
 
 export function DocumentUploadModal({ open, onClose, contractorId, title = 'Upload Document', renewalOf }: DocumentUploadModalProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
+  const params = useParams<{ contractorId?: string }>();
+  // Resolve the contractor from every available source so renewals/uploads
+  // never dead-end on "Missing contractor reference": the explicit prop, the
+  // document being renewed, or the :contractorId route param.
+  const effectiveContractorId = contractorId ?? renewalOf?.contractorId ?? params.contractorId;
   const [documentType, setDocumentType] = useState<ContractorDocumentType>(renewalOf?.documentType ?? CONTRACTOR_DOCUMENT_TYPES[0]);
   const [documentName, setDocumentName] = useState(renewalOf?.documentName ?? '');
   const [issueDate, setIssueDate] = useState('');
@@ -39,10 +45,11 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
   }
 
   async function handleUpload() {
-    if (!contractorId) {
+    if (!effectiveContractorId) {
       toast.error('Missing contractor reference. Cannot upload.');
       return;
     }
+    const targetContractorId = effectiveContractorId;
     if (!userProfile?.companyId) {
       toast.error('You must be logged in to upload documents.');
       return;
@@ -53,14 +60,14 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
     }
     setUploading(true);
     try {
-      const path = `contractors/${contractorId}/documents/${Date.now()}_${file.name}`;
+      const path = `contractors/${targetContractorId}/documents/${Date.now()}_${file.name}`;
       const sref = storageRef(storage, path);
       await uploadBytes(sref, file);
       const url = await getDownloadURL(sref);
       const hasExpiry = expiryDate !== '';
-      const newDocRef = await addDoc(collection(db, 'contractors', contractorId, 'documents'), {
+      const newDocRef = await addDoc(collection(db, 'contractors', targetContractorId, 'documents'), {
         companyId: userProfile.companyId,
-        contractorId,
+        contractorId: targetContractorId,
         documentType,
         documentName: documentName.trim() || file.name,
         fileName: file.name,
@@ -84,7 +91,7 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
       });
 
       if (renewalOf) {
-        await updateDoc(doc(db, 'contractors', contractorId, 'documents', renewalOf.id), {
+        await updateDoc(doc(db, 'contractors', targetContractorId, 'documents', renewalOf.id), {
           supersededBy: newDocRef.id,
         });
       }

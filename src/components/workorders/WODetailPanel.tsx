@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { Timestamp } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { Timestamp, doc, getDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import type { WorkOrder } from '../../types/workOrder';
+import type { IsolationPoint } from '../../types/machine';
 import { WO_COPY } from '../../constants/copy';
 import { WOTypeBadge } from './WOTypeBadge';
 import { PriorityBadge } from './PriorityBadge';
@@ -9,6 +11,7 @@ import { SLACountdownTimer } from './SLACountdownTimer';
 import { WOCompletionForm } from './WOCompletionForm';
 import { SignatureCanvas } from './SignatureCanvas';
 import { QrCheckInModal } from './QrCheckInModal';
+import { LotoGate } from './LotoGate';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
@@ -30,6 +33,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showQrCheckIn, setShowQrCheckIn] = useState(false);
+  const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
 
   const { updateWO, updateStatus, loading: statusLoading } = useUpdateWorkOrder();
   const { signOff, loading: signOffLoading } = useSignOff();
@@ -61,6 +65,31 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
     { key: 'parts', label: WO_COPY.tabParts },
     { key: 'history', label: WO_COPY.tabHistory },
   ];
+
+  // Load the machine's isolation points so the LOTO/PTW safety gate can be
+  // completed here before check-in (supervisors don't get the technician
+  // execution sheet, so without this they couldn't satisfy the gate).
+  useEffect(() => {
+    let cancelled = false;
+    getDoc(doc(db, 'machines', workOrder.machineId))
+      .then((snap) => {
+        if (!cancelled) {
+          setIsolationPoints((snap.data()?.isolationPoints ?? []) as IsolationPoint[]);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setIsolationPoints([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [workOrder.machineId]);
+
+  const safetyGateVisible =
+    ['OPEN', 'ASSIGNED'].includes(workOrder.status) &&
+    (isSupervisor || (isTechnician && isAssigned)) &&
+    isolationPoints !== null &&
+    (isolationPoints.length > 0 || !!workOrder.ptwCategory);
 
   // Called once the technician has scanned the machine's QR — records the
   // arrival on the WO, then moves it to IN_PROGRESS.
@@ -140,6 +169,16 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* ── Overview ── */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/* Safety gate (LOTO/PTW) — must pass before check-in */}
+              {safetyGateVisible && (
+                <section className="bg-white border border-gray-200 rounded-xl p-4">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                    Safety Precautions (LOTO / PTW)
+                  </h3>
+                  <LotoGate workOrder={workOrder} machineIsolationPoints={isolationPoints ?? []} />
+                </section>
+              )}
+
               {/* Description */}
               <section>
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Description</h3>
