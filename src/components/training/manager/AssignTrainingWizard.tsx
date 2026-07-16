@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   collection,
   addDoc,
@@ -28,6 +28,7 @@ import {
 
 interface AssignTrainingWizardProps {
   defaultModuleId?: string;
+  defaultTraineeId?: string;
   onComplete: () => void;
   onCancel: () => void;
 }
@@ -48,6 +49,7 @@ const STEPS = [
 
 export default function AssignTrainingWizard({
   defaultModuleId,
+  defaultTraineeId,
   onComplete,
   onCancel,
 }: AssignTrainingWizardProps) {
@@ -78,6 +80,15 @@ export default function AssignTrainingWizard({
     department: traineeDepartment || undefined,
     searchQuery: traineeSearch,
   });
+
+  // Pre-select the trainee this wizard was launched for (e.g. from a
+  // completed evaluation's "Assign Training" action).
+  useEffect(() => {
+    if (!defaultTraineeId || selectedTrainees.length > 0) return;
+    const match = trainees.find((t) => t.id === defaultTraineeId);
+    if (match) setSelectedTrainees([match]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultTraineeId, trainees]);
   const { modules, loading: modulesLoading } = useTrainingModules({
     status: 'active',
   });

@@ -9,18 +9,20 @@ import type {
   EvaluationCriterionResult,
   EvaluationAttachment,
   EvaluationCriterionScore,
+  EvaluationTemplate,
 } from '../types/evaluation.types';
 import {
   EVALUATION_ROLE_LABELS,
   ROLE_CRITERIA,
 } from '../types/evaluation.types';
-import { uploadEvaluationAttachment } from '../services/evaluation.service';
+import { uploadEvaluationAttachment, fetchEvaluationTemplates } from '../services/evaluation.service';
 
 interface EvaluationFormProps {
   companyId: string;
   evaluatorId: string;
   evaluatorName: string;
   onSubmit: (data: FormData) => Promise<void>;
+  onSaveDraft?: (data: FormData) => Promise<void>;
   onCancel?: () => void;
 }
 
@@ -37,6 +39,8 @@ export interface FormData {
   developmentPlan: string;
   attachments: EvaluationAttachment[];
   evaluationDate: string;
+  templateId: string | null;
+  templateName: string | null;
 }
 
 // Map app user roles onto the evaluation criteria roles.
@@ -87,6 +91,7 @@ export default function EvaluationForm({
   evaluatorId,
   evaluatorName,
   onSubmit,
+  onSaveDraft,
   onCancel,
 }: EvaluationFormProps) {
   const [step, setStep] = useState<'info' | 'criteria' | 'summary'>('info');
@@ -105,10 +110,21 @@ export default function EvaluationForm({
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const criteria = ROLE_CRITERIA[evaluateeRole];
+  const [templates, setTemplates] = useState<EvaluationTemplate[]>([]);
+  const [templateId, setTemplateId] = useState<string>('');
+
+  useEffect(() => {
+    if (!companyId) return;
+    fetchEvaluationTemplates(companyId).then(setTemplates).catch(() => setTemplates([]));
+  }, [companyId]);
+
+  const selectedTemplate = templates.find((t) => t.id === templateId) ?? null;
+  const criteria = selectedTemplate ? selectedTemplate.criteria : ROLE_CRITERIA[evaluateeRole];
+  const availableTemplates = templates.filter((t) => t.role === 'custom' || t.role === evaluateeRole);
 
   // Load the company's registered users (Users tab) so the evaluatee can be
   // selected and their details auto-filled.
@@ -135,10 +151,9 @@ export default function EvaluationForm({
     setEvaluateeCustomRole(evalRole === 'other' ? (u.jobTitle || u.role.replace(/_/g, ' ')) : '');
   }
 
-  function initCriteria(role: EvaluationRole) {
-    const roleCriteria = ROLE_CRITERIA[role];
+  function initCriteriaFrom(criteriaList: EvaluationCriterion[]) {
     setCriteriaResults(
-      roleCriteria.map((c) => ({
+      criteriaList.map((c) => ({
         criterionId: c.id,
         label: c.label,
         score: null,
@@ -147,9 +162,20 @@ export default function EvaluationForm({
     );
   }
 
+  function initCriteria(role: EvaluationRole) {
+    initCriteriaFrom(ROLE_CRITERIA[role]);
+  }
+
   function handleRoleChange(role: EvaluationRole) {
     setEvaluateeRole(role);
+    setTemplateId('');
     initCriteria(role);
+  }
+
+  function handleTemplateChange(id: string) {
+    setTemplateId(id);
+    const t = templates.find((tpl) => tpl.id === id);
+    initCriteriaFrom(t ? t.criteria : ROLE_CRITERIA[evaluateeRole]);
   }
 
   function updateResult(criterionId: string, patch: Partial<EvaluationCriterionResult>) {
@@ -193,6 +219,29 @@ export default function EvaluationForm({
     setAttachments((prev) => prev.filter((a) => a.id !== id));
   }
 
+  function buildFormData(): FormData {
+    const results =
+      criteriaResults.length > 0
+        ? criteriaResults
+        : criteria.map((c) => ({ criterionId: c.id, label: c.label, score: null, comments: '' }));
+    return {
+      evaluateeId,
+      evaluateeName: evaluateeName.trim(),
+      evaluateeRole,
+      evaluateeJobTitle: evaluateeJobTitle.trim(),
+      evaluateeEmployeeId: evaluateeEmployeeId.trim(),
+      evaluateeCustomRole: evaluateeCustomRole.trim(),
+      criteria: results,
+      overallScore,
+      overallComments: overallComments.trim(),
+      developmentPlan: developmentPlan.trim(),
+      attachments,
+      evaluationDate,
+      templateId: selectedTemplate?.id ?? null,
+      templateName: selectedTemplate?.name ?? null,
+    };
+  }
+
   async function handleSubmit() {
     setError(null);
     if (!evaluateeName.trim()) { setError('Evaluatee name is required.'); return; }
@@ -200,28 +249,25 @@ export default function EvaluationForm({
     if (!allScored) { setError('Please score all criteria before submitting.'); return; }
     setSaving(true);
     try {
-      const results =
-        criteriaResults.length > 0
-          ? criteriaResults
-          : criteria.map((c) => ({ criterionId: c.id, label: c.label, score: null, comments: '' }));
-      await onSubmit({
-        evaluateeId,
-        evaluateeName: evaluateeName.trim(),
-        evaluateeRole,
-        evaluateeJobTitle: evaluateeJobTitle.trim(),
-        evaluateeEmployeeId: evaluateeEmployeeId.trim(),
-        evaluateeCustomRole: evaluateeCustomRole.trim(),
-        criteria: results,
-        overallScore,
-        overallComments: overallComments.trim(),
-        developmentPlan: developmentPlan.trim(),
-        attachments,
-        evaluationDate,
-      });
+      await onSubmit(buildFormData());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit evaluation.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSaveDraft() {
+    setError(null);
+    if (!evaluateeName.trim()) { setError('Evaluatee name is required.'); return; }
+    if (!onSaveDraft) return;
+    setSavingDraft(true);
+    try {
+      await onSaveDraft(buildFormData());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save draft.');
+    } finally {
+      setSavingDraft(false);
     }
   }
 
@@ -313,6 +359,19 @@ export default function EvaluationForm({
                 </select>
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Evaluation Form</label>
+                <select
+                  value={templateId}
+                  onChange={(e) => handleTemplateChange(e.target.value)}
+                  className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
+                >
+                  <option value="">Default — {EVALUATION_ROLE_LABELS[evaluateeRole]} criteria</option>
+                  {availableTemplates.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name} (custom)</option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
                 <input
                   value={evaluateeJobTitle}
@@ -344,7 +403,7 @@ export default function EvaluationForm({
             </div>
             <button
               type="button"
-              onClick={() => { initCriteria(evaluateeRole); setStep('criteria'); }}
+              onClick={() => { if (criteriaResults.length === 0) initCriteriaFrom(criteria); setStep('criteria'); }}
               disabled={!evaluateeName.trim()}
               className="mt-2 min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
             >
@@ -538,10 +597,20 @@ export default function EvaluationForm({
                   Cancel
                 </button>
               )}
+              {onSaveDraft && (
+                <button
+                  type="button"
+                  onClick={() => void handleSaveDraft()}
+                  disabled={savingDraft || saving || uploading}
+                  className="min-h-11 px-4 rounded-lg border border-amber-300 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-60"
+                >
+                  {savingDraft ? 'Saving…' : 'Save as Draft (Ongoing)'}
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => void handleSubmit()}
-                disabled={saving || uploading}
+                disabled={saving || savingDraft || uploading}
                 className="min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
               >
                 {saving ? 'Submitting…' : 'Submit Evaluation'}

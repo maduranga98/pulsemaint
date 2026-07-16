@@ -516,14 +516,16 @@ service cloud.firestore {
         );
 
       // Self-update (e.g. lastLoginAt, profile fields), admin-update, or
-      // supervisor-update of non-admin members (cannot grant admin)
+      // supervisor/plant_manager/hr_officer-update of non-admin members
+      // (cannot grant admin) — the latter also covers job title / position
+      // changes made from a completed Evaluation (PM-124).
       allow update: if isAuthenticated()
         && (
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
               && (getUserData().role == 'admin'
-                || (getUserData().role in ['supervisor', 'maintenance_supervisor']
+                || (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer']
                   && resource.data.role != 'admin'
                   && request.resource.data.role != 'admin')))
         );
@@ -1141,6 +1143,17 @@ service cloud.firestore {
       allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow delete: if isAdmin();
+    }
+
+    // Custom evaluation form templates (PM-122) — anyone who can conduct
+    // evaluations may read/use templates; only Plant Manager/Admin author them.
+    match /evaluation_templates/{templateId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['plant_manager', 'admin']);
+      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['plant_manager', 'admin']);
     }
 
     // ---------------------------------------------------------------------------

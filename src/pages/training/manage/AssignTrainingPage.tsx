@@ -6,6 +6,7 @@ export default function AssignTrainingPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultModuleId = searchParams.get('moduleId') ?? undefined;
+  const defaultTraineeId = searchParams.get('traineeId') ?? undefined;
 
   return (
     <div className="min-h-full">
@@ -22,6 +23,7 @@ export default function AssignTrainingPage() {
       <div className="p-4 sm:p-6 max-w-3xl mx-auto">
         <AssignTrainingWizard
           defaultModuleId={defaultModuleId}
+          defaultTraineeId={defaultTraineeId}
           onComplete={() => navigate('/app/training/manage/assignments')}
           onCancel={() => navigate(-1)}
         />
