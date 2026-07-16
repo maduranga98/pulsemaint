@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { Edit2, UserPlus, Archive, BookOpen, HelpCircle, Layers } from 'lucide-react';
+import { Edit2, UserPlus, Archive, Trash2, BookOpen, HelpCircle, Layers } from 'lucide-react';
 import type { TrainingModule, TrainingModuleStatus } from '@/lib/training/trainingTypes';
 
 interface ModuleLibraryListProps {
   modules: TrainingModule[];
   loading: boolean;
+  canAuthor: boolean;
   onEdit: (id: string) => void;
   onAssign: (id: string) => void;
   onArchive: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 type StatusFilter = 'all' | TrainingModuleStatus;
@@ -27,9 +29,11 @@ const STATUS_LABEL: Record<TrainingModuleStatus, string> = {
 export default function ModuleLibraryList({
   modules,
   loading,
+  canAuthor,
   onEdit,
   onAssign,
   onArchive,
+  onDelete,
 }: ModuleLibraryListProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -131,13 +135,15 @@ export default function ModuleLibraryList({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => onEdit(module.id)}
-                        className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
-                      >
-                        <Edit2 className="w-3 h-3" />
-                        Edit
-                      </button>
+                      {canAuthor && (
+                        <button
+                          onClick={() => onEdit(module.id)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          Edit
+                        </button>
+                      )}
                       <button
                         onClick={() => onAssign(module.id)}
                         disabled={module.status !== 'active'}
@@ -146,13 +152,22 @@ export default function ModuleLibraryList({
                         <UserPlus className="w-3 h-3" />
                         Assign
                       </button>
-                      {module.status !== 'archived' && (
+                      {canAuthor && module.status !== 'archived' && (
                         <button
                           onClick={() => onArchive(module.id)}
                           className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 rounded hover:bg-gray-200 transition-colors"
                         >
                           <Archive className="w-3 h-3" />
                           Archive
+                        </button>
+                      )}
+                      {canAuthor && (
+                        <button
+                          onClick={() => onDelete(module.id)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          Delete
                         </button>
                       )}
                     </div>
@@ -201,12 +216,14 @@ export default function ModuleLibraryList({
                 )}
               </div>
               <div className="flex gap-2">
-                <button
-                  onClick={() => onEdit(module.id)}
-                  className="flex-1 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                >
-                  Edit
-                </button>
+                {canAuthor && (
+                  <button
+                    onClick={() => onEdit(module.id)}
+                    className="flex-1 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Edit
+                  </button>
+                )}
                 <button
                   onClick={() => onAssign(module.id)}
                   disabled={module.status !== 'active'}
@@ -214,6 +231,14 @@ export default function ModuleLibraryList({
                 >
                   Assign
                 </button>
+                {canAuthor && (
+                  <button
+                    onClick={() => onDelete(module.id)}
+                    className="flex-1 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))

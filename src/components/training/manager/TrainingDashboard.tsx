@@ -11,7 +11,10 @@ import {
   BarChart2,
   ListChecks,
 } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+
+const CAN_AUTHOR_ROLES = ['plant_manager', 'admin'];
 
 interface DashboardStats {
   totalTrainees: number;
@@ -82,6 +85,8 @@ export default function TrainingDashboard({
 }: TrainingDashboardProps) {
   const topFiveSignOff = awaitingSignOff.slice(0, 5);
   const recentAssignments = allAssignments.slice(0, 10);
+  const role = useAuthStore((s) => s.userProfile?.role);
+  const canAuthor = !!role && CAN_AUTHOR_ROLES.includes(role);
 
   return (
     <div className="space-y-6">
@@ -236,13 +241,15 @@ export default function TrainingDashboard({
             <Plus className="w-4 h-4" />
             Assign Training
           </Link>
-          <Link
-            to="/app/training/manage/modules/new"
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            Create Module
-          </Link>
+          {canAuthor && (
+            <Link
+              to="/app/training/manage/modules/new"
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Create Module
+            </Link>
+          )}
           <Link
             to="/app/training/manage/compliance"
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"

@@ -954,13 +954,15 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /trainingModules/{moduleId} {
+      // Authoring (create/update/delete) is a Plant Manager / Admin action —
+      // supervisors and other roles may only read and assign modules.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['plant_manager', 'admin']);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['plant_manager', 'admin']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+        && isAnyRole(['plant_manager', 'admin']);
     }
 
     match /trainingAssignments/{assignmentId} {
