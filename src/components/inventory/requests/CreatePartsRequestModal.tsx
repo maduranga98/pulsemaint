@@ -7,9 +7,21 @@ import { useAuthStore } from '@/store/authStore';
 import { PartSearchInput } from '@/components/inventory/shared/PartSearchInput';
 import type { InventoryPart, RequestItem } from '@/types/inventory';
 
+interface WorkOrderContext {
+  id: string;
+  woNumber: string;
+  woType: string;
+  machineId: string | null;
+  machineName: string | null;
+  isContractorJob?: boolean;
+  contractorCompany?: string | null;
+}
+
 interface CreatePartsRequestModalProps {
   onClose: () => void;
   onCreated?: (requestId: string) => void;
+  /** When set, the request is linked to this work order. */
+  workOrder?: WorkOrderContext;
 }
 
 type PriorityLevel = 'critical' | 'high' | 'medium' | 'low';
@@ -26,7 +38,7 @@ function makeRequestNumber(): string {
   return `PR-${ymd}-${nanoid(5).toUpperCase()}`;
 }
 
-export function CreatePartsRequestModal({ onClose, onCreated }: CreatePartsRequestModalProps) {
+export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: CreatePartsRequestModalProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
   const [items, setItems] = useState<DraftItem[]>([]);
   const [priorityLevel, setPriorityLevel] = useState<PriorityLevel>('medium');
@@ -85,17 +97,17 @@ export function CreatePartsRequestModal({ onClose, onCreated }: CreatePartsReque
       const docRef = await addDoc(collection(db, 'partsRequests'), {
         companyId: userProfile.companyId,
         requestNumber: makeRequestNumber(),
-        workOrderId: null,
-        workOrderNumber: null,
-        workOrderType: null,
-        machineId: null,
-        machineName: null,
+        workOrderId: workOrder?.id ?? null,
+        workOrderNumber: workOrder?.woNumber ?? null,
+        workOrderType: workOrder?.woType ?? null,
+        machineId: workOrder?.machineId ?? null,
+        machineName: workOrder?.machineName ?? null,
         requestedBy: userProfile.id,
         requestedByName: userProfile.fullName,
         requestedByRole: userProfile.role,
         requestedAt: serverTimestamp(),
-        isContractorJob: false,
-        contractorCompany: null,
+        isContractorJob: workOrder?.isContractorJob ?? false,
+        contractorCompany: workOrder?.contractorCompany ?? null,
         items: requestItems,
         purpose: purpose.trim() || null,
         totalEstimatedCost,
@@ -125,7 +137,15 @@ export function CreatePartsRequestModal({ onClose, onCreated }: CreatePartsReque
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Request Parts</h2>
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Request Parts</h2>
+            {workOrder && (
+              <p className="text-xs text-gray-500 mt-0.5">
+                For work order <span className="font-mono font-medium">{workOrder.woNumber}</span>
+                {workOrder.machineName && <> · {workOrder.machineName}</>}
+              </p>
+            )}
+          </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close">
             <X className="w-5 h-5" />
           </button>

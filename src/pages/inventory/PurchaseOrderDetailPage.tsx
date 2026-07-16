@@ -1,13 +1,39 @@
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
-import { usePurchaseOrders } from '@/hooks/inventory/usePurchaseOrders';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { PurchaseOrder } from '@/types/inventory';
 import { PurchaseOrderDetail } from '@/components/inventory/po/PurchaseOrderDetail';
 
 export function PurchaseOrderDetailPage() {
   const { poId } = useParams<{ poId: string }>();
-  const { orders, loading, error } = usePurchaseOrders();
 
-  const order = orders.find((o) => o.id === poId);
+  // Subscribe to the single PO document — the company-wide list query needs a
+  // composite index and would take the whole detail page down with it.
+  const [order, setOrder] = useState<PurchaseOrder | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!poId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const unsubscribe = onSnapshot(
+      doc(db, 'purchaseOrders', poId),
+      (snap) => {
+        setOrder(snap.exists() ? ({ id: snap.id, ...snap.data() } as PurchaseOrder) : null);
+        setLoading(false);
+      },
+      (err) => {
+        setError(err.message);
+        setLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [poId]);
 
   if (loading) {
     return (

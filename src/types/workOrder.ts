@@ -83,6 +83,8 @@ export interface ChecklistItem {
   actualValue: number | null;
   result: 'pass' | 'fail' | null;
   repairNote: string | null;
+  // Free-text note added by the person completing the task.
+  completionNote?: string | null;
 }
 
 export interface WODocument {

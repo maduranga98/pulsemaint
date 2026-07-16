@@ -121,6 +121,24 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
     }
   }
 
+  async function markAcknowledged() {
+    setActionLoading(true);
+    try {
+      await updateDoc(doc(db, 'purchaseOrders', order.id), {
+        status: 'acknowledged',
+        acknowledgedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      await queueEmail('acknowledged');
+      addToast('Supplier acknowledgement recorded.', 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to update PO.', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   async function markSent() {
     setActionLoading(true);
     try {
@@ -332,6 +350,17 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             >
               <Send className="w-4 h-4" />
               Mark as Sent
+            </button>
+          )}
+
+          {order.status === 'sent' && (
+            <button
+              onClick={markAcknowledged}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              Mark as Acknowledged
             </button>
           )}
 

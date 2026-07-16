@@ -91,7 +91,8 @@ export function getPMOperationalStatus(
   schedule: Pick<PMSchedule, 'status' | 'nextDueDate'>,
 ): PMOperationalStatus {
   if (schedule.status === 'paused') return 'paused';
-  if (schedule.status === 'archived' || schedule.status === 'completed') return 'on_track';
+  if (schedule.status === 'completed') return 'completed';
+  if (schedule.status === 'archived') return 'on_track';
 
   const now = new Date();
   const nextDue = schedule.nextDueDate instanceof Date

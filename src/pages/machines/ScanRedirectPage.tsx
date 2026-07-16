@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { savePendingScanMachineId, savePostLoginRedirect } from '../../lib/scanTarget';
 
 export default function ScanRedirectPage() {
   const navigate = useNavigate();
@@ -8,6 +9,10 @@ export default function ScanRedirectPage() {
 
   useEffect(() => {
     if (machineId) {
+      // Persist the scan so the machine still auto-selects even if the user
+      // has to log in first (router state is lost on page reloads).
+      savePendingScanMachineId(machineId);
+      savePostLoginRedirect(`/app/breakdowns/report?machineId=${machineId}`);
       navigate(`/app/breakdowns/report?machineId=${machineId}`, { replace: true });
     } else {
       navigate('/app/breakdowns/report', { replace: true });

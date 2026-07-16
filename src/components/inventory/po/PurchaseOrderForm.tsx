@@ -91,17 +91,26 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   async function generatePONum(): Promise<string> {
     const year = new Date().getFullYear();
-    const q = query(
-      collection(db, 'purchaseOrders'),
-      where('companyId', '==', companyId),
-      orderBy('raisedAt', 'desc'),
-      limit(1),
-    );
-    const snap = await getDocs(q);
-    const lastSeq = snap.empty
-      ? 0
-      : parseInt(snap.docs[0].data().poNumber?.split('-').pop() ?? '0', 10);
-    return generatePONumber('PO', year, lastSeq + 1);
+    try {
+      const q = query(
+        collection(db, 'purchaseOrders'),
+        where('companyId', '==', companyId),
+        orderBy('raisedAt', 'desc'),
+        limit(1),
+      );
+      const snap = await getDocs(q);
+      const parsed = snap.empty
+        ? 0
+        : parseInt(snap.docs[0].data().poNumber?.split('-').pop() ?? '0', 10);
+      const lastSeq = Number.isFinite(parsed) ? parsed : 0;
+      return generatePONumber('PO', year, lastSeq + 1);
+    } catch (err) {
+      // The sequence query needs a composite index — if it is missing (or the
+      // read fails for any other reason) fall back to a time-based number so
+      // PO creation is never blocked by numbering.
+      console.error('PO number query failed; using time-based fallback', err);
+      return `PO-${year}-${Date.now().toString().slice(-6)}`;
+    }
   }
 
   async function queueEmail(po: PurchaseOrder) {

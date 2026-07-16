@@ -50,18 +50,10 @@ export default function PMSchedulesPage() {
     setSelectedIds(selected ? schedules.map((s) => s.id) : []);
   };
 
-  const handleBulkAction = async (action: 'pause' | 'activate' | 'archive' | 'delete') => {
+  const handleBulkAction = async (action: 'archive' | 'delete') => {
     if (selectedIds.length === 0) return;
     try {
       switch (action) {
-        case 'pause':
-          await bulkUpdateStatus(selectedIds, 'paused');
-          toast.success(`${selectedIds.length} schedules paused`);
-          break;
-        case 'activate':
-          await bulkUpdateStatus(selectedIds, 'active');
-          toast.success(`${selectedIds.length} schedules activated`);
-          break;
         case 'archive':
           await bulkUpdateStatus(selectedIds, 'archived');
           toast.success(`${selectedIds.length} schedules archived`);
@@ -121,12 +113,6 @@ export default function PMSchedulesPage() {
               {selectedIds.length} selected
             </span>
             <div className="flex-1" />
-            <Button size="sm" variant="ghost" onClick={() => handleBulkAction('pause')}>
-              Pause
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => handleBulkAction('activate')}>
-              Activate
-            </Button>
             <Button size="sm" variant="ghost" onClick={() => handleBulkAction('archive')}>
               Archive
             </Button>

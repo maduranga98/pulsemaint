@@ -35,7 +35,7 @@ export type PMHistoryStatus =
   | 'missed'
   | 'in_progress'
 
-export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused';
+export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused' | 'completed';
 
 export type TriggerUnit = 'operating_hours' | 'production_cycles';
 

@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
 import { usePMHistory } from '../../hooks/pm/usePMHistory';
 import { useAuthStore } from '../../store/authStore';
-import { useToast } from '../../hooks/useToast';
 import { PMStatusBadge, PMOperationalStatusBadge } from '../../components/pm/PMStatusBadge';
 import { PMPriorityBadge } from '../../components/pm/PMPriorityBadge';
 import { PMChecklistBuilder } from '../../components/pm/PMChecklistBuilder';
@@ -12,19 +11,15 @@ import { getPMOperationalStatus, getDaysUntilDue, getComplianceColor } from '../
 
 export default function PMScheduleDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const toast = useToast();
   const company = useAuthStore((s) => s.company);
-  const isSupervisor = useAuthStore((s) => s.isSupervisor || s.isAdmin);
 
-  const { schedules, pauseSchedule, activateSchedule, triggerManualPM } = usePMSchedules({
+  const { schedules } = usePMSchedules({
     companyId: company?.id || '',
   });
   const schedule = schedules.find((s) => s.id === id);
 
   const { history } = usePMHistory({ companyId: company?.id || '', scheduleId: id });
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
-  const [showTriggerModal, setShowTriggerModal] = useState(false);
 
   if (!schedule) {
     return <div className="p-8 text-center text-gray-400">Schedule not found.</div>;
@@ -32,30 +27,6 @@ export default function PMScheduleDetailPage() {
 
   const opStatus = getPMOperationalStatus(schedule);
   const daysUntilDue = getDaysUntilDue(schedule.nextDueDate);
-
-  const handleStatusToggle = async () => {
-    try {
-      if (schedule.status === 'active') {
-        await pauseSchedule(schedule.id);
-        toast.success('Schedule paused');
-      } else if (schedule.status === 'paused') {
-        await activateSchedule(schedule.id);
-        toast.success('Schedule activated');
-      }
-    } catch {
-      toast.error('Action failed');
-    }
-  };
-
-  const handleTriggerNow = async () => {
-    try {
-      await triggerManualPM(schedule.id);
-      toast.success('Manual PM triggered');
-      setShowTriggerModal(false);
-    } catch {
-      toast.error('Trigger failed');
-    }
-  };
 
   const nextDue = schedule.nextDueDate instanceof Date
     ? schedule.nextDueDate
@@ -73,34 +44,6 @@ export default function PMScheduleDetailPage() {
           <p className="text-sm text-gray-500 mt-1">
             {PM_TYPE_CONFIG[schedule.pmType].icon} {PM_TYPE_CONFIG[schedule.pmType].label} • {schedule.machineName}
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {isSupervisor && (
-            <>
-              <button
-                onClick={() => setShowTriggerModal(true)}
-                className="px-3 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700"
-              >
-                Trigger Now
-              </button>
-              <button
-                onClick={handleStatusToggle}
-                className={`px-3 py-2 text-sm font-medium rounded-lg ${
-                  schedule.status === 'active'
-                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                }`}
-              >
-                {schedule.status === 'active' ? 'Pause' : 'Activate'}
-              </button>
-              <button
-                onClick={() => navigate(`/app/pm-schedules/${schedule.id}/edit`)}
-                className="px-3 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
-              >
-                Edit
-              </button>
-            </>
-          )}
         </div>
       </div>
 
@@ -279,31 +222,6 @@ export default function PMScheduleDetailPage() {
         </div>
       )}
 
-      {/* Trigger Modal */}
-      {showTriggerModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-lg font-semibold text-gray-900">Trigger Manual PM?</h3>
-            <p className="text-sm text-gray-500 mt-2">
-              This will immediately create a PM Work Order for {schedule.name} regardless of the schedule.
-            </p>
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setShowTriggerModal(false)}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleTriggerNow}
-                className="px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700"
-              >
-                Trigger Now
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

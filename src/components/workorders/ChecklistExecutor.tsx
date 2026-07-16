@@ -15,6 +15,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
   const userProfile = useAuthStore((s) => s.userProfile);
   const [localValues, setLocalValues] = useState<Record<number, string>>({});
   const [repairNotes, setRepairNotes] = useState<Record<number, string>>({});
+  const [completionNotes, setCompletionNotes] = useState<Record<number, string>>({});
 
   const uid = user?.uid ?? '';
   const userName = user?.displayName ?? userProfile?.id ?? '';
@@ -68,6 +69,15 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
     onUpdate(updated);
   }
 
+  function handleCompletionNote(index: number, note: string) {
+    setCompletionNotes((prev) => ({ ...prev, [index]: note }));
+    const updated = workOrder.checklist.map((c, i) => {
+      if (i !== index) return c;
+      return { ...c, completionNote: note };
+    });
+    onUpdate(updated);
+  }
+
   const completedCount = workOrder.checklist.filter((i) => i.isCompleted).length;
   const total = workOrder.checklist.length;
 
@@ -96,6 +106,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
           const currentRawValue = localValues[index] ?? (item.actualValue !== null ? String(item.actualValue) : '');
           const currentResult = item.result;
           const repairNote = repairNotes[index] ?? item.repairNote ?? '';
+          const completionNote = completionNotes[index] ?? item.completionNote ?? '';
 
           return (
             <li
@@ -137,7 +148,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
 
               {/* Checkbox type */}
               {!isMeasurement && !readOnly && (
-                <div className="ml-9">
+                <div className="ml-9 space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -148,16 +159,36 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
                     <span className="text-sm text-gray-600">Mark as complete</span>
                   </label>
                   {item.isCompleted && item.completedByName && (
-                    <p className="text-xs text-emerald-600 mt-1">
+                    <p className="text-xs text-emerald-600">
                       Completed by {item.completedByName}
                     </p>
+                  )}
+                  {item.isCompleted && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-gray-500">
+                        Task note (optional):
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={completionNote}
+                        onChange={(e) => handleCompletionNote(index, e.target.value)}
+                        placeholder="Add a note about this task…"
+                        className="w-full text-sm rounded-lg border border-gray-300 px-3 py-2 resize-none focus:ring-2 focus:ring-blue-400 outline-none"
+                      />
+                    </div>
                   )}
                 </div>
               )}
 
               {!isMeasurement && readOnly && item.isCompleted && (
-                <div className="ml-9">
+                <div className="ml-9 space-y-1">
                   <p className="text-xs text-emerald-600">Completed by {item.completedByName}</p>
+                  {item.completionNote && (
+                    <div className="bg-white rounded-lg px-3 py-2 border border-gray-200">
+                      <p className="text-xs font-medium text-gray-500 mb-0.5">Task Note:</p>
+                      <p className="text-xs text-gray-700">{item.completionNote}</p>
+                    </div>
+                  )}
                 </div>
               )}
 

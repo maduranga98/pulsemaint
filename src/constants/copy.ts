@@ -349,7 +349,7 @@ export const WO_COPY = {
   cancelWOButton:         'Cancel WO',
   signOffButton:          'Sign Off',
   markEnRouteButton:      'Mark En Route',
-  checkInButton:          'Check In (QR)',
+  checkInButton:          'Check In & Start WO',
   onHoldPartsButton:      'On Hold — Parts',
   onHoldApprovalButton:   'On Hold — Approval',
   completeButton:         'Open Completion Form',
