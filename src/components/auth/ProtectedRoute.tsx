@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import AuthLoading from './AuthLoading';
 import { getDashboardRoute } from '../../lib/auth';
+import { consumePostLoginRedirect, savePostLoginRedirect } from '../../lib/scanTarget';
 import type { UserRole } from '../../types/auth';
 
 interface ProtectedRouteProps {
@@ -27,14 +28,11 @@ export default function ProtectedRoute({
 
   if (!isAuthenticated) {
     // Remember where the user was headed (e.g. a scanned machine QR deep
-    // link) so login can return them there.
-    return (
-      <Navigate
-        to={redirectTo}
-        replace
-        state={{ from: `${location.pathname}${location.search}` }}
-      />
-    );
+    // link) so login can return them there. Persisted in sessionStorage too,
+    // because router state does not survive page reloads during login.
+    const from = `${location.pathname}${location.search}`;
+    savePostLoginRedirect(from);
+    return <Navigate to={redirectTo} replace state={{ from }} />;
   }
 
   if (requiredRoles && userRole && !requiredRoles.includes(userRole)) {
@@ -59,7 +57,8 @@ export function PublicRoute({ children }: PublicRouteProps) {
   }
 
   if (isAuthenticated && userRole) {
-    const from = (location.state as { from?: string } | null)?.from;
+    const from =
+      (location.state as { from?: string } | null)?.from ?? consumePostLoginRedirect();
     return <Navigate to={from ?? getDashboardRoute(userRole)} replace />;
   }
 

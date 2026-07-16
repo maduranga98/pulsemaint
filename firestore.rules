@@ -124,8 +124,24 @@ service cloud.firestore {
       // Supervisor: full read/write for their site (or all sites if unrestricted)
       allow read, write: if isSupervisor() && woSiteMatches();
 
-      // Plant Manager: read-only for their site (or all sites if unrestricted)
+      // Plant Manager: read for their site (or all sites if unrestricted)
       allow read: if isPlantManager() && woSiteMatches();
+
+      // Plant Manager: manual check-in / start / execution updates on WOs.
+      // Same bounded field set as technicians, plus cancellation fields.
+      allow update: if isPlantManager()
+        && woSiteMatches()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'statusHistory',
+          'checkedInAt', 'checkedInBy', 'checkedInByName',
+          'actualStartTime', 'actualEndTime', 'totalDurationMinutes',
+          'workDoneDescription', 'rootCause', 'rootCauseDescription',
+          'partsUsed', 'technicianWorkLogs', 'contractorHoursLog',
+          'postRepairChecklist', 'testRunResult', 'testRunNotes',
+          'finalPhotos', 'machineStatusAfterRepair',
+          'checklist', 'documents', 'updatedAt',
+          'cancelledAt', 'cancelReason'
+        ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
       allow read: if isStoreKeeper() && woSiteMatches();

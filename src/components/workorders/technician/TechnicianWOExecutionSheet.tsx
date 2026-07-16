@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Timestamp, doc, getDoc } from 'firebase/firestore';
-import { X, Play, Pause, PackageX, ClipboardCheck, CheckCircle2, ShieldCheck, QrCode } from 'lucide-react';
+import { X, Play, Pause, PackageX, PackagePlus, ClipboardCheck, CheckCircle2, ShieldCheck, MapPin, FileText } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
 import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { LotoGate } from '../LotoGate';
-import { QrCheckInModal } from '../QrCheckInModal';
+import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
 import { useAuthStore } from '../../../store/authStore';
 import { WOTypeBadge } from '../WOTypeBadge';
 import { WOStatusBadge } from '../WOStatusBadge';
@@ -34,7 +34,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const wo = workOrder;
   const { updateWO, updateStatus, loading } = useUpdateWorkOrder();
   const [showCompletion, setShowCompletion] = useState(false);
-  const [showQrCheckIn, setShowQrCheckIn] = useState(false);
+  const [showPartsRequest, setShowPartsRequest] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
   const user = useAuthStore((s) => s.user);
@@ -76,9 +76,8 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
     return ok;
   }
 
-  // QR check-in verified — record arrival at the machine, then start.
-  async function handleQrCheckInVerified() {
-    setShowQrCheckIn(false);
+  // Manual check-in — record arrival at the machine, then start work.
+  async function handleCheckInAndStart() {
     await updateWO(wo.id, {
       checkedInAt: Timestamp.now(),
       checkedInBy: user?.uid ?? null,
@@ -143,21 +142,21 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                     </div>
                   )}
                   <button
-                    onClick={() => setShowQrCheckIn(true)}
+                    onClick={handleCheckInAndStart}
                     disabled={loading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
-                    <QrCode className="h-5 w-5" /> Check In (QR) &amp; Start
+                    <MapPin className="h-5 w-5" /> Check In &amp; Start Work
                   </button>
                   <button
                     onClick={handleStart}
                     disabled={loading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-[#1A56DB] disabled:opacity-50"
                   >
-                    <Play className="h-4 w-4" /> Start without QR
+                    <Play className="h-4 w-4" /> Start without check-in
                   </button>
                   <p className="text-center text-[11px] text-[#8BA3BF]">
-                    Scan the machine&apos;s QR to record your arrival. Starting work runs the LOTO / PTW safety check.
+                    Check-in records your arrival at the machine. Starting work runs the LOTO / PTW safety check.
                   </p>
                 </div>
               )}
@@ -176,6 +175,29 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   >
                     <Play className="h-5 w-5" /> Resume
                   </button>
+                </div>
+              )}
+
+              {/* Attached documents — visible in every state so the assigned
+                  technician can review drawings/manuals before starting. */}
+              {(wo.documents ?? []).length > 0 && (
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Documents</h3>
+                  <div className="space-y-2">
+                    {wo.documents.map((d) => (
+                      <a
+                        key={d.id}
+                        href={d.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5 text-sm text-[#F0F4F8] hover:border-[#1A56DB]"
+                      >
+                        <FileText className="h-4 w-4 shrink-0 text-[#00C2FF]" />
+                        <span className="min-w-0 flex-1 truncate">{d.name}</span>
+                        <span className="shrink-0 text-xs text-[#8BA3BF]">{d.format}</span>
+                      </a>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -199,6 +221,13 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                         <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Field Media</h3>
                         <MediaCaptureBar workOrder={wo} siteId={wo.siteId} />
                       </div>
+
+                      <button
+                        onClick={() => setShowPartsRequest(true)}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-[#00C2FF]"
+                      >
+                        <PackagePlus className="h-4 w-4 text-[#00C2FF]" /> Request Inventory Items
+                      </button>
 
                       <div className="grid grid-cols-2 gap-2">
                         <button
@@ -238,11 +267,18 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
           )}
         </div>
 
-        {showQrCheckIn && (
-          <QrCheckInModal
-            workOrder={wo}
-            onVerified={handleQrCheckInVerified}
-            onClose={() => setShowQrCheckIn(false)}
+        {showPartsRequest && (
+          <CreatePartsRequestModal
+            onClose={() => setShowPartsRequest(false)}
+            workOrder={{
+              id: wo.id,
+              woNumber: wo.woNumber,
+              woType: wo.woType,
+              machineId: wo.machineId,
+              machineName: wo.machineName,
+              isContractorJob: wo.woType === 'CONTRACTOR',
+              contractorCompany: wo.contractorCompanyName ?? null,
+            }}
           />
         )}
       </div>

@@ -189,8 +189,6 @@ function localParts(date, timeZone) {
   };
 }
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 /**
  * Minutes until the next start of this shift in the company timezone, plus
  * the local date of that occurrence. Returns null when the shift doesn't run

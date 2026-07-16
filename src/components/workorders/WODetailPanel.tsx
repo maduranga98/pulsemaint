@@ -10,7 +10,7 @@ import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { WOCompletionForm } from './WOCompletionForm';
 import { SignatureCanvas } from './SignatureCanvas';
-import { QrCheckInModal } from './QrCheckInModal';
+import { ChecklistExecutor } from './ChecklistExecutor';
 import { LotoGate } from './LotoGate';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useSignOff } from '../../hooks/useSignOff';
@@ -32,7 +32,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const [signOffNotes, setSignOffNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
-  const [showQrCheckIn, setShowQrCheckIn] = useState(false);
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
 
   const { updateWO, updateStatus, loading: statusLoading } = useUpdateWorkOrder();
@@ -91,17 +90,24 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
     isolationPoints !== null &&
     (isolationPoints.length > 0 || !!workOrder.ptwCategory);
 
-  // Called once the technician has scanned the machine's QR — records the
-  // arrival on the WO, then moves it to IN_PROGRESS.
-  async function handleQrCheckInVerified() {
-    setShowQrCheckIn(false);
+  // Manual check-in — records arrival on the WO, then moves it to
+  // IN_PROGRESS. Available to the assigned technician and to
+  // supervisor / plant manager / admin (manual start).
+  async function handleCheckInAndStart() {
     await updateWO(workOrder.id, {
       checkedInAt: Timestamp.now(),
       checkedInBy: user?.uid ?? null,
       checkedInByName: userProfile?.fullName ?? user?.displayName ?? '',
     });
-    await updateStatus(workOrder.id, 'IN_PROGRESS', 'Checked in at machine via QR scan');
+    await updateStatus(workOrder.id, 'IN_PROGRESS', 'Checked in / started manually');
   }
+
+  // Supervisors in charge (and any supervisor/manager/admin) can execute
+  // checklist tasks while the WO is in progress — needed for contractor jobs
+  // where no internal technician is assigned.
+  const canExecuteChecklist =
+    ['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) &&
+    (isSupervisor || (isTechnician && isAssigned));
 
   async function handleSignOff() {
     if (!signature) return;
@@ -296,6 +302,12 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
             <div className="space-y-3">
               {workOrder.checklist.length === 0 ? (
                 <p className="text-sm text-gray-400 py-6 text-center">No checklist steps defined.</p>
+              ) : canExecuteChecklist ? (
+                <ChecklistExecutor
+                  workOrder={workOrder}
+                  onUpdate={(checklist) => updateWO(workOrder.id, { checklist })}
+                  readOnly={workOrder.status !== 'IN_PROGRESS'}
+                />
               ) : (
                 <>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -330,6 +342,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                           )}
                           {item.isCompleted && item.completedByName && (
                             <p className="text-xs text-emerald-600 mt-0.5">✓ {item.completedByName}</p>
+                          )}
+                          {item.completionNote && (
+                            <p className="text-xs text-gray-600 mt-0.5 italic">Note: {item.completionNote}</p>
                           )}
                         </div>
                         {item.isCompleted && (
@@ -392,10 +407,44 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* ── Parts ── */}
           {activeTab === 'parts' && (
             <div className="space-y-4">
-              {workOrder.partsRequests.length === 0 ? (
+              {/* Inventory items used during the WO (recorded at completion) */}
+              {(workOrder.partsUsed ?? []).length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                    Parts Used During This WO
+                  </h3>
+                  <div className="space-y-2">
+                    {workOrder.partsUsed.map((part, i) => (
+                      <div key={i} className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{part.partName}</p>
+                          <p className="text-xs text-gray-500">
+                            {part.quantity} {part.unit} · {part.source === 'stock' ? 'From store stock' : 'External purchase'}
+                            {part.warrantyMonths ? ` · ${part.warrantyMonths}mo warranty` : ''}
+                          </p>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : '—'}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="flex justify-end text-sm text-gray-600">
+                      Total parts cost:&nbsp;
+                      <span className="font-semibold text-gray-900">
+                        LKR {workOrder.partsUsed.reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {workOrder.partsRequests.length === 0 && (workOrder.partsUsed ?? []).length === 0 ? (
                 <p className="text-sm text-gray-400 py-6 text-center">No parts requested.</p>
-              ) : (
+              ) : workOrder.partsRequests.length === 0 ? null : (
                 <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Pre-Requested Parts
+                  </h3>
                   {workOrder.partsRequests.map((req) => (
                     <div key={req.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
                       <div className="flex-1 min-w-0">
@@ -535,7 +584,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {['OPEN', 'ASSIGNED'].includes(workOrder.status) && (
                 <button
                   type="button"
-                  onClick={() => setShowQrCheckIn(true)}
+                  onClick={handleCheckInAndStart}
                   disabled={statusLoading}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
@@ -587,7 +636,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {['OPEN', 'ASSIGNED'].includes(workOrder.status) && (
                 <button
                   type="button"
-                  onClick={() => setShowQrCheckIn(true)}
+                  onClick={handleCheckInAndStart}
                   disabled={statusLoading}
                   className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
@@ -626,14 +675,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           )}
         </div>
 
-        {/* QR check-in scanner */}
-        {showQrCheckIn && (
-          <QrCheckInModal
-            workOrder={workOrder}
-            onVerified={handleQrCheckInVerified}
-            onClose={() => setShowQrCheckIn(false)}
-          />
-        )}
       </div>
     </div>
   );

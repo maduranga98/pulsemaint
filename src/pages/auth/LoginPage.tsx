@@ -16,6 +16,7 @@ import {
   getDashboardRoute,
 } from '../../lib/auth';
 import { useAuthStore } from '../../store/authStore';
+import { consumePostLoginRedirect, peekPostLoginRedirect } from '../../lib/scanTarget';
 import type { ConfirmationResult } from 'firebase/auth';
 
 const emailLoginSchema = z.object({
@@ -42,9 +43,14 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   // Deep link (e.g. a scanned machine QR) the user was heading to before
-  // being redirected to login.
-  const returnTo = (location.state as { from?: string } | null)?.from;
-  const postLoginRoute = (role: string) => returnTo ?? getDashboardRoute(role as any);
+  // being redirected to login. sessionStorage fallback covers page reloads
+  // (reCAPTCHA, redirect sign-in) where router state is lost.
+  const returnTo =
+    (location.state as { from?: string } | null)?.from ?? peekPostLoginRedirect();
+  const postLoginRoute = (role: string) => {
+    consumePostLoginRedirect();
+    return returnTo ?? getDashboardRoute(role as any);
+  };
   const [activeTab, setActiveTab] = useState<'email' | 'phone'>('email');
   const [phoneStep, setPhoneStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [showPassword, setShowPassword] = useState(false);

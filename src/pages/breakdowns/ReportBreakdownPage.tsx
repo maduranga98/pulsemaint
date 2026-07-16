@@ -5,6 +5,7 @@ import { AlertCircle, ChevronLeft, QrCode } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { consumePendingScanMachineId } from '../../lib/scanTarget';
 import type { BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 
 interface MachineOption {
@@ -37,7 +38,11 @@ export default function ReportBreakdownPage() {
   const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
 
   const [searchParams] = useSearchParams();
-  const preselectedMachineId = searchParams.get('machineId') ?? '';
+  // Query param is the primary source; a pending scan stored during a QR
+  // scan → login round-trip is the fallback (consumed once, on mount).
+  const [preselectedMachineId] = useState(
+    () => searchParams.get('machineId') || consumePendingScanMachineId() || ''
+  );
 
   const [machines, setMachines] = useState<MachineOption[]>([]);
   const [machinesLoading, setMachinesLoading] = useState(true);

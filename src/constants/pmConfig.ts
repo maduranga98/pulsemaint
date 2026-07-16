@@ -95,7 +95,7 @@ export const PM_PRIORITY_CONFIG: Record<'critical' | 'high' | 'medium' | 'low', 
 // Operational Status (computed from schedule + nextDueDate)
 // ---------------------------------------------------------------------------
 
-export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused';
+export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused' | 'completed';
 
 export interface PMOperationalStatusConfig {
   label: string;
@@ -110,6 +110,7 @@ export const PM_OPERATIONAL_STATUS_CONFIG: Record<PMOperationalStatus, PMOperati
   due_soon:  { label: 'Due Soon',  bgClass: 'bg-amber-100',   textClass: 'text-amber-800',   dotClass: 'bg-amber-500',   icon: '🟡' },
   overdue:   { label: 'Overdue',   bgClass: 'bg-red-100',     textClass: 'text-red-800',     dotClass: 'bg-red-500',     icon: '🔴' },
   paused:    { label: 'Paused',    bgClass: 'bg-gray-100',    textClass: 'text-gray-600',    dotClass: 'bg-gray-400',    icon: '⏸️' },
+  completed: { label: 'Completed', bgClass: 'bg-blue-100',    textClass: 'text-blue-800',    dotClass: 'bg-blue-500',    icon: '✅' },
 };
 
 // ---------------------------------------------------------------------------
