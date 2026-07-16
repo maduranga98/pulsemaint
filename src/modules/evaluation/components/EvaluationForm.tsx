@@ -123,7 +123,8 @@ export default function EvaluationForm({
   }, [companyId]);
 
   const selectedTemplate = templates.find((t) => t.id === templateId) ?? null;
-  const criteria = selectedTemplate ? selectedTemplate.criteria : ROLE_CRITERIA[evaluateeRole];
+  const roleCriteria = ROLE_CRITERIA[evaluateeRole] ?? ROLE_CRITERIA.other;
+  const criteria = selectedTemplate?.criteria?.length ? selectedTemplate.criteria : roleCriteria;
   const availableTemplates = templates.filter((t) => t.role === 'custom' || t.role === evaluateeRole);
 
   // Load the company's registered users (Users tab) so the evaluatee can be
@@ -163,7 +164,7 @@ export default function EvaluationForm({
   }
 
   function initCriteria(role: EvaluationRole) {
-    initCriteriaFrom(ROLE_CRITERIA[role]);
+    initCriteriaFrom(ROLE_CRITERIA[role] ?? ROLE_CRITERIA.other);
   }
 
   function handleRoleChange(role: EvaluationRole) {
@@ -175,7 +176,7 @@ export default function EvaluationForm({
   function handleTemplateChange(id: string) {
     setTemplateId(id);
     const t = templates.find((tpl) => tpl.id === id);
-    initCriteriaFrom(t ? t.criteria : ROLE_CRITERIA[evaluateeRole]);
+    initCriteriaFrom(t?.criteria?.length ? t.criteria : (ROLE_CRITERIA[evaluateeRole] ?? ROLE_CRITERIA.other));
   }
 
   function updateResult(criterionId: string, patch: Partial<EvaluationCriterionResult>) {

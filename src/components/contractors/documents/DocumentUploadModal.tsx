@@ -7,6 +7,7 @@ import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
 import { CONTRACTOR_DOCUMENT_TYPES, DOCUMENT_TYPE_LABELS } from '@/lib/contractors/contractorTypes';
+import { deriveDocumentExpiry } from '@/lib/contractors/documentExpiryHelper';
 import type { ContractorDocument, ContractorDocumentType } from '@/lib/contractors/contractorTypes';
 
 interface DocumentUploadModalProps {
@@ -27,7 +28,7 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
   const effectiveContractorId = contractorId ?? renewalOf?.contractorId ?? params.contractorId;
   const [documentType, setDocumentType] = useState<ContractorDocumentType>(renewalOf?.documentType ?? CONTRACTOR_DOCUMENT_TYPES[0]);
   const [documentName, setDocumentName] = useState(renewalOf?.documentName ?? '');
-  const [issueDate, setIssueDate] = useState('');
+  const [issueDate, setIssueDate] = useState(renewalOf ? new Date().toISOString().slice(0, 10) : '');
   const [expiryDate, setExpiryDate] = useState('');
   const [notes, setNotes] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -54,34 +55,53 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
       toast.error('You must be logged in to upload documents.');
       return;
     }
-    if (!file) {
+    // Renewals may keep the existing file — the point of renewing is the new
+    // validity dates. Fresh uploads still need a file.
+    if (!file && !renewalOf) {
       toast.error('Please choose a file to upload.');
+      return;
+    }
+    if (renewalOf && !renewalOf.isPermanent && expiryDate === '') {
+      toast.error('Please set the new expiry date for the renewed document.');
       return;
     }
     setUploading(true);
     try {
-      const path = `contractors/${targetContractorId}/documents/${Date.now()}_${file.name}`;
-      const sref = storageRef(storage, path);
-      await uploadBytes(sref, file);
-      const url = await getDownloadURL(sref);
+      let url = renewalOf?.fileUrl ?? '';
+      let path = renewalOf?.storagePath ?? '';
+      let fileName = renewalOf?.fileName ?? '';
+      let fileSizeBytes = renewalOf?.fileSizeBytes ?? 0;
+      let mimeType = renewalOf?.mimeType ?? 'application/octet-stream';
+      if (file) {
+        path = `contractors/${targetContractorId}/documents/${Date.now()}_${file.name}`;
+        const sref = storageRef(storage, path);
+        await uploadBytes(sref, file);
+        url = await getDownloadURL(sref);
+        fileName = file.name;
+        fileSizeBytes = file.size;
+        mimeType = file.type || 'application/octet-stream';
+      }
       const hasExpiry = expiryDate !== '';
+      const expiry = hasExpiry ? new Date(expiryDate) : null;
+      const derived = deriveDocumentExpiry(expiry, !hasExpiry, documentType);
       const newDocRef = await addDoc(collection(db, 'contractors', targetContractorId, 'documents'), {
         companyId: userProfile.companyId,
         contractorId: targetContractorId,
         documentType,
-        documentName: documentName.trim() || file.name,
-        fileName: file.name,
+        documentName: documentName.trim() || fileName,
+        fileName,
         fileUrl: url,
         storagePath: path,
-        fileSizeBytes: file.size,
-        mimeType: file.type || 'application/octet-stream',
+        fileSizeBytes,
+        mimeType,
         issueDate: issueDate !== '' ? Timestamp.fromDate(new Date(issueDate)) : null,
-        expiryDate: hasExpiry ? Timestamp.fromDate(new Date(expiryDate)) : null,
+        expiryDate: expiry ? Timestamp.fromDate(expiry) : null,
         isPermanent: !hasExpiry,
         hasExpiry,
-        validityStatus: 'valid',
-        isCriticalDocument: renewalOf?.isCriticalDocument ?? false,
-        blocksAssignment: false,
+        daysUntilExpiry: derived.daysUntilExpiry,
+        validityStatus: derived.validityStatus,
+        isCriticalDocument: (renewalOf?.isCriticalDocument ?? false) || derived.isCriticalDocument,
+        blocksAssignment: derived.blocksAssignment,
         version: (renewalOf?.version ?? 0) + 1,
         supersededBy: null,
         notes: notes.trim() || null,
@@ -139,7 +159,7 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
           </div>
           <label className="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm text-slate-500">
             <Upload className="mb-2 h-6 w-6 text-blue-600" />
-            {file ? file.name : 'PDF, DOCX, JPG or PNG up to 50MB'}
+            {file ? file.name : renewalOf ? 'Optional: replace the file (current file is kept if none chosen)' : 'PDF, DOCX, JPG or PNG up to 50MB'}
             <input
               type="file"
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
@@ -159,7 +179,7 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
             disabled={uploading}
             className="rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
-            {uploading ? 'Uploading…' : 'Upload'}
+            {uploading ? 'Saving…' : renewalOf ? 'Renew Document' : 'Upload'}
           </button>
         </div>
       </div>

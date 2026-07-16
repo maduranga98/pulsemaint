@@ -132,7 +132,8 @@ const NAV_ITEMS: NavItem[] = [
     roles: ['admin'],
   },
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
-  { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator'] },
+  // Training can be assigned to any role, so everyone gets a "My Training" entry.
+  { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
   {
     label: 'Triage',
     to: '/app/triage',

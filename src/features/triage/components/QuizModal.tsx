@@ -47,10 +47,14 @@ export function QuizModal({ assessment, onClose }: Props) {
       if (!saved) {
         setSaving(true);
         try {
+          // Key the result by the member's profile id (falling back to the
+          // auth uid) so each person's attempts are tracked separately —
+          // never by a shared/empty id that mixes users together.
           await writeAssessmentResult(
             userProfile?.companyId ?? '',
-            user?.uid ?? '',
+            userProfile?.id ?? user?.uid ?? '',
             { assessmentId: assessment.id, score, total: totalQ, passed },
+            { userName: userProfile?.fullName, userRole: userProfile?.role },
           );
           setSaved(true);
         } catch (e) {

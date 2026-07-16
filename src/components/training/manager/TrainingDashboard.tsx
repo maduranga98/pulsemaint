@@ -174,6 +174,11 @@ export default function TrainingDashboard({
                   <p className="font-medium text-gray-900 truncate">{assignment.traineeName}</p>
                   <p className="text-sm text-gray-500 truncate">{assignment.moduleName}</p>
                 </div>
+                {assignment.bestScore != null && (
+                  <div className="text-sm text-gray-600 flex-shrink-0">
+                    Marks: <span className="font-semibold text-gray-900">{assignment.bestScore}%</span>
+                  </div>
+                )}
                 <span className={`flex-shrink-0 text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_COLORS[assignment.status] ?? 'bg-gray-100 text-gray-600'}`}>
                   {STATUS_LABELS[assignment.status] ?? assignment.status}
                 </span>

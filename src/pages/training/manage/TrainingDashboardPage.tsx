@@ -49,18 +49,28 @@ export default function TrainingDashboardPage() {
   const load = useCallback(async () => {
     if (!companyId) return;
     try {
+      // Each query is independently fault-tolerant: one denied read (e.g.
+      // certificates for a role without access) must not blank the whole
+      // dashboard — that's why assignments never showed for some roles.
+      const safe = async <T,>(p: Promise<T>, fallback: T): Promise<T> => p.catch(() => fallback);
       const [assignSnap, certSnap, moduleSnap, usersSnap] = await Promise.all([
         getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId))),
-        getDocs(query(collection(db, 'trainingCertificates'), where('companyId', '==', companyId))),
-        getDocs(query(collection(db, 'trainingModules'), where('companyId', '==', companyId))),
-        getDocs(query(collection(db, 'users'), where('companyId', '==', companyId), where('role', 'in', ['trainee', 'floor_operator']))),
+        safe(getDocs(query(collection(db, 'trainingCertificates'), where('companyId', '==', companyId))), null),
+        safe(getDocs(query(collection(db, 'trainingModules'), where('companyId', '==', companyId))), null),
+        // Profiles live in companies/{id}/users — the top-level `users`
+        // role-map is not listable by supervisors/HR, which rejected the
+        // whole Promise.all and left the dashboard empty.
+        safe(getDocs(collection(db, `companies/${companyId}/users`)), null),
       ]);
 
       const assignments = assignSnap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment));
+      const traineeCount = usersSnap
+        ? usersSnap.docs.filter((d) => ['trainee', 'floor_operator'].includes(String(d.data().role))).length
+        : new Set(assignments.map((a) => a.traineeId)).size;
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      const certsThisMonth = certSnap.docs.filter((d) => {
+      const certsThisMonth = (certSnap?.docs ?? []).filter((d) => {
         const ts = d.data().issuedAt as Timestamp | undefined;
         if (!ts) return false;
         return new Date((ts as unknown as { seconds: number }).seconds * 1000) >= monthStart;
@@ -75,15 +85,17 @@ export default function TrainingDashboardPage() {
       const awaiting = assignments.filter((a) => a.status === 'awaiting_practical');
 
       setStats({
-        totalTrainees: usersSnap.size,
+        totalTrainees: traineeCount,
         activeAssignments: assignments.filter((a) => a.status === 'in_progress').length,
         certsThisMonth,
         overdue,
         retrainingRequired: assignments.filter((a) => a.status === 'retraining_required').length,
-        modulesCreated: moduleSnap.size,
+        modulesCreated: moduleSnap?.size ?? 0,
       });
       setAwaitingSignOff(awaiting);
       setAllAssignments(assignments);
+    } catch (err) {
+      console.error('Failed to load training dashboard', err);
     } finally {
       setLoading(false);
     }

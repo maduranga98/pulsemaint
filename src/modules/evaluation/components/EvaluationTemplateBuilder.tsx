@@ -8,6 +8,7 @@ import {
 } from '../services/evaluation.service';
 import {
   EVALUATION_ROLE_LABELS,
+  ROLE_CRITERIA,
   type EvaluationCriterion,
   type EvaluationRole,
   type EvaluationTemplate,
@@ -66,7 +67,17 @@ export default function EvaluationTemplateBuilder({ onClose }: Props) {
     setEditing(t);
     setName(t.name);
     setRole(t.role);
-    setCriteria(t.criteria.length ? t.criteria : [emptyCriterion()]);
+    setCriteria(t.criteria?.length ? t.criteria : [emptyCriterion()]);
+    setError(null);
+    setShowEditor(true);
+  }
+
+  /** Opens the editor pre-filled with a role's built-in sample criteria. */
+  function startFromSample(sampleRole: EvaluationRole) {
+    setEditing(null);
+    setName(`${EVALUATION_ROLE_LABELS[sampleRole]} Evaluation`);
+    setRole(sampleRole);
+    setCriteria(ROLE_CRITERIA[sampleRole].map((c) => ({ ...c })));
     setError(null);
     setShowEditor(true);
   }
@@ -137,6 +148,30 @@ export default function EvaluationTemplateBuilder({ onClose }: Props) {
               <Plus className="h-4 w-4" /> New Custom Template
             </button>
 
+            {/* Built-in role-based sample templates — one per role, never
+                tied to a person. "Customize" copies it into the editor. */}
+            <div>
+              <p className="mb-2 text-sm font-semibold text-gray-700">Role-Based Sample Templates</p>
+              <div className="space-y-2">
+                {(Object.keys(EVALUATION_ROLE_LABELS) as EvaluationRole[]).map((r) => (
+                  <div key={r} className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-2.5">
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{EVALUATION_ROLE_LABELS[r]} Evaluation (Sample)</p>
+                      <p className="text-xs text-gray-500">{EVALUATION_ROLE_LABELS[r]} · {ROLE_CRITERIA[r].length} criteria · built-in</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => startFromSample(r)}
+                      className="shrink-0 rounded-md border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700 hover:bg-blue-100"
+                    >
+                      Customize
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-sm font-semibold text-gray-700">Custom Templates</p>
             {loading ? (
               <div className="flex items-center justify-center py-10">
                 <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent" />
@@ -153,7 +188,7 @@ export default function EvaluationTemplateBuilder({ onClose }: Props) {
                     <div className="min-w-0">
                       <p className="font-medium text-gray-900 truncate">{t.name}</p>
                       <p className="text-xs text-gray-500">
-                        {t.role === 'custom' ? 'Custom' : EVALUATION_ROLE_LABELS[t.role]} · {t.criteria.length} criteria
+                        {t.role === 'custom' ? 'Custom' : (EVALUATION_ROLE_LABELS[t.role] ?? t.role)} · {(t.criteria ?? []).length} criteria
                       </p>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">

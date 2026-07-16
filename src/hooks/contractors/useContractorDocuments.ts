@@ -3,7 +3,20 @@ import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestor
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorDocument } from '@/lib/contractors/contractorTypes';
-import { getContractorDocumentStatus } from '@/lib/contractors/documentExpiryHelper';
+import { deriveDocumentExpiry, getContractorDocumentStatus, timestampToDate } from '@/lib/contractors/documentExpiryHelper';
+
+// Stored validity fields go stale (and older writes hardcoded validityStatus:
+// 'valid' with no daysUntilExpiry), so recompute them from expiryDate on read.
+function withDerivedExpiry(document: ContractorDocument): ContractorDocument {
+  const expiry = timestampToDate(document.expiryDate);
+  const derived = deriveDocumentExpiry(expiry, document.isPermanent ?? !expiry, document.documentType);
+  return {
+    ...document,
+    ...derived,
+    isCriticalDocument: document.isCriticalDocument || derived.isCriticalDocument,
+    blocksAssignment: derived.blocksAssignment || ((document.isCriticalDocument ?? false) && derived.validityStatus === 'expired'),
+  };
+}
 
 export function useContractorDocuments(contractorId: string | undefined) {
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
@@ -24,7 +37,7 @@ export function useContractorDocuments(contractorId: string | undefined) {
     return onSnapshot(
       documentsQuery,
       (snapshot) => {
-        setDocuments(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as ContractorDocument));
+        setDocuments(snapshot.docs.map((doc) => withDerivedExpiry({ id: doc.id, ...doc.data() } as ContractorDocument)));
         setLoading(false);
       },
       (err) => {

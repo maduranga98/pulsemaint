@@ -86,6 +86,8 @@ export interface TriageAssessmentResult {
   id: string;
   companyId: string;
   userId: string;
+  userName?: string;
+  userRole?: string;
   assessmentId: string;
   score: number;
   total: number;
