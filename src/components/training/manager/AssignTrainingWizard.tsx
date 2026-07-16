@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   collection,
   addDoc,
@@ -9,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartments } from '@/hooks/useDepartments';
 import { useTraineeList } from '@/hooks/training/useTraineeList';
 import { useTrainingModules } from '@/hooks/training/useTrainingModules';
 import type { UserProfile } from '@/types/auth';
@@ -27,6 +28,7 @@ import {
 
 interface AssignTrainingWizardProps {
   defaultModuleId?: string;
+  defaultTraineeId?: string;
   onComplete: () => void;
   onCancel: () => void;
 }
@@ -47,6 +49,7 @@ const STEPS = [
 
 export default function AssignTrainingWizard({
   defaultModuleId,
+  defaultTraineeId,
   onComplete,
   onCancel,
 }: AssignTrainingWizardProps) {
@@ -55,6 +58,7 @@ export default function AssignTrainingWizard({
 
   const [step, setStep] = useState(0);
   const [traineeSearch, setTraineeSearch] = useState('');
+  const [traineeDepartment, setTraineeDepartment] = useState('');
   const [moduleSearch, setModuleSearch] = useState('');
   const [selectedTrainees, setSelectedTrainees] = useState<UserProfile[]>([]);
   const [selectedModules, setSelectedModules] = useState<TrainingModule[]>(
@@ -71,9 +75,20 @@ export default function AssignTrainingWizard({
   const [skippedCount, setSkippedCount] = useState(0);
   const [done, setDone] = useState(false);
 
+  const { departments } = useDepartments(companyId);
   const { trainees, loading: traineesLoading } = useTraineeList({
+    department: traineeDepartment || undefined,
     searchQuery: traineeSearch,
   });
+
+  // Pre-select the trainee this wizard was launched for (e.g. from a
+  // completed evaluation's "Assign Training" action).
+  useEffect(() => {
+    if (!defaultTraineeId || selectedTrainees.length > 0) return;
+    const match = trainees.find((t) => t.id === defaultTraineeId);
+    if (match) setSelectedTrainees([match]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultTraineeId, trainees]);
   const { modules, loading: modulesLoading } = useTrainingModules({
     status: 'active',
   });
@@ -287,16 +302,33 @@ export default function AssignTrainingWizard({
       {/* Step 0 — Select Trainees */}
       {step === 0 && (
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search trainees..."
-              value={traineeSearch}
-              onChange={(e) => setTraineeSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search trainees..."
+                value={traineeSearch}
+                onChange={(e) => setTraineeSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <select
+              value={traineeDepartment}
+              onChange={(e) => setTraineeDepartment(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-56"
+            >
+              <option value="">All departments</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
           </div>
+          {traineeDepartment && (
+            <p className="text-xs text-gray-500">
+              Showing trainees in <strong>{traineeDepartment}</strong>. Use "Select All" below to assign the whole department, or check individual trainees to assign a single user.
+            </p>
+          )}
 
           {traineesLoading ? (
             <div className="flex justify-center py-8">

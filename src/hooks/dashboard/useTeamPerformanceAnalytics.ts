@@ -10,6 +10,8 @@ export interface RolePerformanceSummary {
   auditCount: number;
   trainingsCompleted: number;
   quizzesPassed: number;
+  avgQuizMark: number;
+  quizAttempts: number;
 }
 
 // A failed query (rules / missing collection) must not blank the whole
@@ -59,12 +61,13 @@ export function useTeamPerformanceAnalytics(companyId: string) {
             where('companyId', '==', companyId),
           ),
         )),
-        // Quiz passes are recorded in triage_assessment_results.
+        // Quick Assessment (Triage) attempts + marks live in
+        // triage_assessment_results. Fetch every attempt (not just passes)
+        // so we can show the average mark, not just a pass count.
         safeDocs(getDocs(
           query(
             collection(db, 'triage_assessment_results'),
             where('companyId', '==', companyId),
-            where('passed', '==', true),
           ),
         )),
       ]);
@@ -108,11 +111,19 @@ export function useTeamPerformanceAnalytics(companyId: string) {
         roleTrainingCount[role] = (roleTrainingCount[role] ?? 0) + 1;
       });
 
-      // Quiz passes per role
+      // Quick Assessment marks + pass counts per role
       const roleQuizCount: Record<string, number> = {};
+      const roleQuizMarks: Record<string, { total: number; count: number }> = {};
       quizResults.forEach((row) => {
         const role = roleOf(row.userId);
-        roleQuizCount[role] = (roleQuizCount[role] ?? 0) + 1;
+        if (row.passed) roleQuizCount[role] = (roleQuizCount[role] ?? 0) + 1;
+        const total = Number(row.total ?? 0);
+        if (total > 0) {
+          const mark = (Number(row.score ?? 0) / total) * 100;
+          if (!roleQuizMarks[role]) roleQuizMarks[role] = { total: 0, count: 0 };
+          roleQuizMarks[role].total += mark;
+          roleQuizMarks[role].count += 1;
+        }
       });
 
       // Collect all roles from all sources
@@ -122,6 +133,7 @@ export function useTeamPerformanceAnalytics(companyId: string) {
         ...Object.keys(roleAuditCount),
         ...Object.keys(roleTrainingCount),
         ...Object.keys(roleQuizCount),
+        ...Object.keys(roleQuizMarks),
       ]);
 
       const summary: RolePerformanceSummary[] = Array.from(allRoles)
@@ -135,6 +147,10 @@ export function useTeamPerformanceAnalytics(companyId: string) {
           auditCount: roleAuditCount[role] ?? 0,
           trainingsCompleted: roleTrainingCount[role] ?? 0,
           quizzesPassed: roleQuizCount[role] ?? 0,
+          avgQuizMark: roleQuizMarks[role]
+            ? Math.round(roleQuizMarks[role].total / roleQuizMarks[role].count)
+            : 0,
+          quizAttempts: roleQuizMarks[role]?.count ?? 0,
         }))
         .sort((a, b) => b.memberCount - a.memberCount);
 

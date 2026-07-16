@@ -10,6 +10,7 @@ interface BigLossesWaterfallProps {
   month: string; // YYYY-MM
   lkrPerHour?: number;
   isProPlan?: boolean;
+  machineId?: string; // optional — filter to one machine, blank = all machines
 }
 
 function LossBadge({ loss }: { loss: BigLoss }) {
@@ -32,8 +33,8 @@ function LossBadge({ loss }: { loss: BigLoss }) {
   );
 }
 
-export function BigLossesWaterfall({ month, lkrPerHour = 0, isProPlan }: BigLossesWaterfallProps) {
-  const { losses, totalLostHours, loading, error } = useBigLosses(month, lkrPerHour);
+export function BigLossesWaterfall({ month, lkrPerHour = 0, isProPlan, machineId = '' }: BigLossesWaterfallProps) {
+  const { losses, totalLostHours, loading, error } = useBigLosses(month, lkrPerHour, machineId);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const totalLkrCost = losses.reduce((s, l) => s + l.lkrCost, 0);

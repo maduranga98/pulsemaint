@@ -57,7 +57,11 @@ export function AuditDetail({ session, onBack }: { session: AuditSession; onBack
       <div className="grid grid-cols-2 gap-3 text-sm">
         <Info label="Department" value={session.department || '—'} />
         <Info label="Location / Zone" value={session.location || '—'} />
-        <Info label="Machines" value={session.machines.map((m) => m.name).join(', ') || '—'} />
+        {session.category === 'contractor' ? (
+          <Info label="Contractors" value={(session.contractors ?? []).map((c) => c.name).join(', ') || '—'} />
+        ) : (
+          <Info label="Machines" value={session.machines.map((m) => m.name).join(', ') || '—'} />
+        )}
         <Info label="Participants" value={session.participants.map((p) => p.name).join(', ') || '—'} />
       </div>
 

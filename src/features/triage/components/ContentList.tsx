@@ -4,7 +4,6 @@ import {
   onSnapshot,
   query,
   where,
-  orderBy,
 } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { deleteContentItem, COL } from '../api';
@@ -36,17 +35,18 @@ export function ContentList({ category, showDelete = false }: Props) {
     if (!companyId || !category.id) return;
     setExpanded(null);
     setPlayingVideo(null);
+    // Sorted client-side rather than via Firestore orderBy — see TriagePage
+    // for why (missing composite index makes the query fail silently).
     return onSnapshot(
       query(
         collection(db, COL.content),
         where('companyId', '==', companyId),
         where('categoryId', '==', category.id),
-        orderBy('order', 'asc'),
       ),
       (snap) => {
-        setItems(
-          snap.docs.map((d) => ({ id: d.id, ...d.data() } as TriageContentItem)),
-        );
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as TriageContentItem));
+        list.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        setItems(list);
       },
     );
   }, [companyId, category.id]);

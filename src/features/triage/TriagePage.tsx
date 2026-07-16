@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, where, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { COL } from './api';
 import { useAuthStore } from '../../store/authStore';
@@ -29,15 +29,19 @@ export default function TriagePage() {
 
   useEffect(() => {
     if (!companyId) return;
+    // Sorted client-side: companyId + orderBy(pinned, order) needs a
+    // composite index. If it isn't deployed the query fails silently and
+    // categories show inconsistently (or not at all) depending on the
+    // client, so sort in memory instead of relying on the index.
     return onSnapshot(
       query(
         collection(db, COL.categories),
         where('companyId', '==', companyId),
-        orderBy('pinned', 'desc'),
-        orderBy('order', 'asc'),
       ),
       (snap) => {
-        setCats(snap.docs.map((d) => ({ id: d.id, ...d.data() } as TriageCategory)));
+        const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as TriageCategory));
+        list.sort((a, b) => Number(b.pinned) - Number(a.pinned) || (a.order ?? 0) - (b.order ?? 0));
+        setCats(list);
       },
     );
   }, [companyId]);

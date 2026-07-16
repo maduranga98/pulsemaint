@@ -68,20 +68,8 @@ export function ShiftConfigPage() {
                 <span className="h-5 w-5 rounded-full" style={{ backgroundColor: shift.color }} />
               </div>
               <p className="mt-3 text-sm text-slate-600">{(shift.activeDays ?? []).join(', ')}</p>
-              <p className="text-xs text-slate-500">{shift.department || 'All departments'} - {shift.status}</p>
-              {(shift.memberNames ?? []).length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {(shift.memberNames ?? []).map((name, i) => (
-                    <span key={`${name}-${i}`} className="inline-flex rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
-                      {name}
-                    </span>
-                  ))}
-                </div>
-              ) : (shift.memberIds ?? []).length > 0 ? (
-                <p className="mt-1 text-xs text-slate-400">{(shift.memberIds ?? []).length} member{(shift.memberIds ?? []).length !== 1 ? 's' : ''} assigned</p>
-              ) : (
-                <p className="mt-1 text-xs text-slate-400">No members assigned</p>
-              )}
+              <p className="text-xs text-slate-500">{shift.department || 'No department'} - {shift.status}</p>
+              <p className="mt-1 text-xs text-slate-400">Members are assigned in Settings → Users.</p>
               <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3">
                 <button type="button" onClick={() => setEditing(shift)} className="text-sm font-semibold text-blue-600 hover:text-blue-800">
                   Edit

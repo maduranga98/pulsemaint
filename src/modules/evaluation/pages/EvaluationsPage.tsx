@@ -1,19 +1,45 @@
 import { useState, useEffect } from 'react';
-import { Plus, X, ClipboardList, User, Calendar, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Plus, X, ClipboardList, Calendar, TrendingUp, Download,
+  GraduationCap, ArrowUpCircle, ArrowDownCircle, Settings2, Clock,
+} from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import EvaluationForm, { type FormData } from '../components/EvaluationForm';
-import { fetchEvaluations, submitEvaluation } from '../services/evaluation.service';
-import type { EvaluationSession } from '../types/evaluation.types';
+import EvaluationTemplateBuilder from '../components/EvaluationTemplateBuilder';
+import {
+  fetchEvaluations,
+  submitEvaluation,
+  saveDraftEvaluation,
+  logEvaluationAction,
+  updateEvaluateePosition,
+} from '../services/evaluation.service';
+import { downloadEvaluationPdf } from '../utils/evaluationPdf';
+import type { EvaluationSession, EvaluationActionType } from '../types/evaluation.types';
 import { EVALUATION_ROLE_LABELS } from '../types/evaluation.types';
 
+const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin'];
+const CAN_ASSIGN_TRAINING_ROLES = ['supervisor', 'plant_manager', 'admin'];
+
+type StatusFilter = 'submitted' | 'draft';
+
 export default function EvaluationsPage() {
+  const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
+  const role = userProfile?.role;
+  const canManageTemplates = !!role && CAN_MANAGE_TEMPLATES_ROLES.includes(role);
+  const canAssignTraining = !!role && CAN_ASSIGN_TRAINING_ROLES.includes(role);
 
   const [sessions, setSessions] = useState<EvaluationSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
   const [selected, setSelected] = useState<EvaluationSession | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('submitted');
+  const [positionNote, setPositionNote] = useState('');
+  const [actionBusy, setActionBusy] = useState<EvaluationActionType | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   async function load() {
     if (!companyId) return;
@@ -26,8 +52,8 @@ export default function EvaluationsPage() {
 
   useEffect(() => { void load(); }, [companyId]);
 
-  async function handleSubmit(data: FormData) {
-    await submitEvaluation({
+  function buildSessionPayload(data: FormData) {
+    return {
       companyId,
       evaluateeId: data.evaluateeId,
       evaluateeName: data.evaluateeName,
@@ -42,11 +68,72 @@ export default function EvaluationsPage() {
       overallComments: data.overallComments,
       developmentPlan: data.developmentPlan,
       attachments: data.attachments,
-      status: 'submitted',
+      templateId: data.templateId,
+      templateName: data.templateName,
+      actionLog: [],
+      status: 'submitted' as const,
       evaluationDate: data.evaluationDate,
-    });
+    };
+  }
+
+  async function handleSubmit(data: FormData) {
+    await submitEvaluation(buildSessionPayload(data));
     setShowForm(false);
+    setStatusFilter('submitted');
     void load();
+  }
+
+  async function handleSaveDraft(data: FormData) {
+    await saveDraftEvaluation(buildSessionPayload(data));
+    setShowForm(false);
+    setStatusFilter('draft');
+    void load();
+  }
+
+  async function handleAssignTraining() {
+    if (!selected) return;
+    setActionBusy('training_assigned');
+    setActionError(null);
+    try {
+      await logEvaluationAction(selected.id, {
+        type: 'training_assigned',
+        note: `Training assignment initiated from evaluation dated ${selected.evaluationDate}.`,
+        actorId: userProfile?.id ?? '',
+        actorName: userProfile?.fullName ?? '',
+      });
+      navigate(`/app/training/manage/assign?traineeId=${selected.evaluateeId}`);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to log action.');
+    } finally {
+      setActionBusy(null);
+    }
+  }
+
+  async function handlePositionAction(direction: 'position_upgraded' | 'position_degraded') {
+    if (!selected || !positionNote.trim()) {
+      setActionError('Enter the new position / job title first.');
+      return;
+    }
+    setActionBusy(direction);
+    setActionError(null);
+    try {
+      await updateEvaluateePosition(companyId, selected.evaluateeId, positionNote.trim());
+      const note = `${direction === 'position_upgraded' ? 'Upgraded' : 'Degraded'} to "${positionNote.trim()}" (was "${selected.evaluateeJobTitle || 'unset'}").`;
+      await logEvaluationAction(selected.id, {
+        type: direction,
+        note,
+        actorId: userProfile?.id ?? '',
+        actorName: userProfile?.fullName ?? '',
+      });
+      setPositionNote('');
+      await load();
+      const refreshed = await fetchEvaluations(companyId);
+      setSelected(refreshed.find((s) => s.id === selected.id) ?? null);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : 'Failed to update position.');
+    } finally {
+      setActionBusy(null);
+    }
   }
 
   const scoreColor = (score: number) =>
@@ -54,21 +141,41 @@ export default function EvaluationsPage() {
   const scoreBg = (score: number) =>
     score >= 80 ? 'bg-emerald-50 border-emerald-200' : score >= 60 ? 'bg-blue-50 border-blue-200' : score >= 40 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
 
+  const filteredSessions = sessions.filter((s) => s.status === statusFilter);
+
+  const ACTION_LABEL: Record<EvaluationActionType, string> = {
+    training_assigned: 'Training Assigned',
+    position_upgraded: 'Position Upgraded',
+    position_degraded: 'Position Degraded',
+  };
+
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      <div className="mb-6 flex items-center justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold text-slate-900">Performance Evaluations</h1>
           <p className="text-sm text-slate-500 mt-0.5">Conduct formal performance assessments for all roles.</p>
         </div>
-        <button
-          type="button"
-          onClick={() => { setShowForm(true); setSelected(null); }}
-          className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" />
-          New Evaluation
-        </button>
+        <div className="flex items-center gap-2">
+          {canManageTemplates && (
+            <button
+              type="button"
+              onClick={() => setShowTemplateBuilder(true)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              <Settings2 className="h-4 w-4" />
+              Custom Forms
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => { setShowForm(true); setSelected(null); }}
+            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4" />
+            New Evaluation
+          </button>
+        </div>
       </div>
 
       {showForm && !selected && (
@@ -78,9 +185,14 @@ export default function EvaluationsPage() {
             evaluatorId={userProfile?.id ?? ''}
             evaluatorName={userProfile?.fullName ?? ''}
             onSubmit={handleSubmit}
+            onSaveDraft={handleSaveDraft}
             onCancel={() => setShowForm(false)}
           />
         </div>
+      )}
+
+      {showTemplateBuilder && (
+        <EvaluationTemplateBuilder onClose={() => setShowTemplateBuilder(false)} />
       )}
 
       {/* Evaluation Detail Modal */}
@@ -90,11 +202,27 @@ export default function EvaluationsPage() {
             <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
               <div>
                 <h2 className="text-lg font-bold text-slate-900">{selected.evaluateeName}</h2>
-                <p className="text-sm text-slate-500">{EVALUATION_ROLE_LABELS[selected.evaluateeRole]}{selected.evaluateeJobTitle ? ` · ${selected.evaluateeJobTitle}` : ''}</p>
+                <p className="text-sm text-slate-500">
+                  {EVALUATION_ROLE_LABELS[selected.evaluateeRole]}{selected.evaluateeJobTitle ? ` · ${selected.evaluateeJobTitle}` : ''}
+                  {' · '}
+                  <span className={selected.status === 'submitted' ? 'text-emerald-600' : 'text-amber-600'}>
+                    {selected.status === 'submitted' ? 'Completed' : 'Ongoing (Draft)'}
+                  </span>
+                </p>
               </div>
-              <button type="button" onClick={() => setSelected(null)} className="text-slate-400 hover:text-slate-700">
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => downloadEvaluationPdf(selected)}
+                  title="Download PDF"
+                  className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600"
+                >
+                  <Download className="h-4 w-4" />
+                </button>
+                <button type="button" onClick={() => { setSelected(null); setPositionNote(''); setActionError(null); }} className="text-slate-400 hover:text-slate-700 p-2">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
             <div className="p-5 space-y-5">
               <div className="flex items-center gap-4">
@@ -106,6 +234,7 @@ export default function EvaluationsPage() {
                   <p><span className="font-medium">Date:</span> {selected.evaluationDate}</p>
                   <p><span className="font-medium">Evaluator:</span> {selected.evaluatorName}</p>
                   {selected.evaluateeEmployeeId && <p><span className="font-medium">Employee ID:</span> {selected.evaluateeEmployeeId}</p>}
+                  {selected.templateName && <p><span className="font-medium">Form:</span> {selected.templateName} (custom)</p>}
                 </div>
               </div>
 
@@ -148,25 +277,101 @@ export default function EvaluationsPage() {
                   </div>
                 </div>
               )}
+
+              {/* Post-evaluation actions (PM-124) */}
+              {selected.status === 'submitted' && (
+                <div className="rounded-lg border border-gray-200 p-4 space-y-3">
+                  <p className="text-sm font-semibold text-gray-800">Actions on Final Mark</p>
+                  <div className="flex flex-wrap gap-2">
+                    {canAssignTraining && (
+                      <button
+                        type="button"
+                        onClick={() => void handleAssignTraining()}
+                        disabled={actionBusy !== null}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-60"
+                      >
+                        <GraduationCap className="h-3.5 w-3.5" /> Assign Training
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <input
+                      value={positionNote}
+                      onChange={(e) => setPositionNote(e.target.value)}
+                      placeholder="New position / job title…"
+                      className="flex-1 min-w-[180px] min-h-9 rounded-lg border border-gray-200 px-3 text-xs focus:border-blue-400 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void handlePositionAction('position_upgraded')}
+                      disabled={actionBusy !== null}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 disabled:opacity-60"
+                    >
+                      <ArrowUpCircle className="h-3.5 w-3.5" /> Upgrade
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void handlePositionAction('position_degraded')}
+                      disabled={actionBusy !== null}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 disabled:opacity-60"
+                    >
+                      <ArrowDownCircle className="h-3.5 w-3.5" /> Degrade
+                    </button>
+                  </div>
+                  {actionError && <p className="text-xs text-red-600">{actionError}</p>}
+
+                  {selected.actionLog.length > 0 && (
+                    <div className="pt-2 border-t border-gray-100 space-y-1.5">
+                      {selected.actionLog.map((a) => (
+                        <div key={a.id} className="flex items-start gap-2 text-xs text-gray-500">
+                          <Clock className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                          <span><span className="font-medium text-gray-700">{ACTION_LABEL[a.type]}</span> — {a.note} ({a.actorName})</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
+
+      {/* Status Tabs */}
+      <div className="flex items-center gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
+        {([
+          { id: 'submitted' as const, label: 'Completed' },
+          { id: 'draft' as const, label: 'Ongoing' },
+        ]).map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setStatusFilter(tab.id)}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              statusFilter === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label} ({sessions.filter((s) => s.status === tab.id).length})
+          </button>
+        ))}
+      </div>
 
       {/* List */}
       {loading ? (
         <div className="flex items-center justify-center min-h-[200px]">
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
         </div>
-      ) : sessions.length === 0 ? (
+      ) : filteredSessions.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
           <ClipboardList className="w-12 h-12 text-gray-300 mb-3" />
-          <p className="font-medium text-gray-700">No evaluations yet</p>
-          <p className="text-sm text-gray-500 mt-1">Create the first performance evaluation above.</p>
+          <p className="font-medium text-gray-700">No {statusFilter === 'submitted' ? 'completed' : 'ongoing'} evaluations</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {statusFilter === 'submitted' ? 'Submitted evaluations will appear here.' : 'Evaluations saved as drafts will appear here.'}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
-          {sessions.map((session) => (
+          {filteredSessions.map((session) => (
             <button
               key={session.id}
               type="button"

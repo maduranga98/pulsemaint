@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { X } from 'lucide-react';
 import type { ShiftConfig, ShiftDay } from '@/types/handover.types';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
-import { db } from '@/lib/firebase';
-import type { UserProfile } from '@/types/auth';
 
 interface ShiftConfigFormProps {
   onSave: (shift: Omit<ShiftConfig, 'id' | 'companyId'> & { id?: string }) => Promise<void>;
@@ -15,7 +11,6 @@ interface ShiftConfigFormProps {
 const DAYS: ShiftDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
-  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [shiftName, setShiftName] = useState(initial?.shiftName ?? '');
   const [startTime, setStartTime] = useState(initial?.startTime ?? '06:00');
   const [endTime, setEndTime] = useState(initial?.endTime ?? '14:00');
@@ -23,7 +18,6 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const [department, setDepartment] = useState(initial?.department ?? '');
   const [status, setStatus] = useState(initial?.status ?? 'active');
   const [activeDays, setActiveDays] = useState<ShiftDay[]>(initial?.activeDays ?? DAYS);
-  const [memberIds, setMemberIds] = useState<string[]>(initial?.memberIds ?? []);
 
   // Reset local state when switching which shift is being edited.
   useEffect(() => {
@@ -34,38 +28,21 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
     setDepartment(initial?.department ?? '');
     setStatus(initial?.status ?? 'active');
     setActiveDays(initial?.activeDays ?? DAYS);
-    setMemberIds(initial?.memberIds ?? []);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial?.id]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const [users, setUsers] = useState<UserProfile[]>([]);
-
-  useEffect(() => {
-    if (!companyId) return;
-    // Full profiles (fullName, status, department) live in the per-company
-    // subcollection. The top-level /users docs are thin role mappings with no
-    // status field, so querying them returned nothing and members could never
-    // be assigned to shifts.
-    getDocs(collection(db, `companies/${companyId}/users`))
-      .then((snap) =>
-        setUsers(
-          snap.docs
-            .map((d) => ({ id: d.id, ...d.data() } as UserProfile))
-            .filter((u) => (u.status ?? 'active') === 'active')
-            .sort((a, b) => (a.fullName ?? '').localeCompare(b.fullName ?? '')),
-        ),
-      )
-      .catch(console.error);
-  }, [companyId]);
-
   async function save() {
     setError(null);
     setSuccess(false);
     if (!shiftName.trim()) {
       setError('Shift name is required.');
+      return;
+    }
+    if (!department.trim()) {
+      setError('Select or create a department for this shift.');
       return;
     }
     if (activeDays.length === 0) {
@@ -83,14 +60,15 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         activeDays,
         department: department.trim() || null,
         status,
-        memberIds,
-        memberNames: users.filter((u) => memberIds.includes(u.id)).map((u) => u.fullName ?? ''),
+        // Members are assigned per-user from Settings → Users via shiftId,
+        // not from this form. Preserve any legacy member list on edit.
+        memberIds: initial?.memberIds ?? [],
+        memberNames: initial?.memberNames ?? [],
       });
       setSuccess(true);
       if (!initial) {
         setShiftName('');
         setDepartment('');
-        setMemberIds([]);
       }
     } catch (err) {
       console.error('Failed to save shift', err);
@@ -99,17 +77,6 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
       setSaving(false);
     }
   }
-
-  function toggleMember(uid: string) {
-    setMemberIds((prev) => prev.includes(uid) ? prev.filter((id) => id !== uid) : [...prev, uid]);
-  }
-
-  function removeMember(uid: string) {
-    setMemberIds((prev) => prev.filter((id) => id !== uid));
-  }
-
-  const selectedUsers = users.filter((u) => memberIds.includes(u.id));
-  const unselectedUsers = users.filter((u) => !memberIds.includes(u.id));
 
   return (
     <form className="rounded-lg border border-slate-200 bg-white p-4 space-y-4">
@@ -148,45 +115,9 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         ))}
       </div>
 
-      {/* Member Assignment */}
-      <div>
-        <p className="text-sm font-semibold text-slate-700 mb-2">Assign Members</p>
-        {selectedUsers.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-3">
-            {selectedUsers.map((u) => (
-              <span key={u.id} className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">
-                {u.fullName}
-                <button type="button" onClick={() => removeMember(u.id)} className="ml-1 text-blue-500 hover:text-blue-700">
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-        {unselectedUsers.length > 0 && (
-          <div className="max-h-40 overflow-y-auto rounded-md border border-slate-200 divide-y divide-slate-100">
-            {unselectedUsers.map((u) => (
-              <button
-                key={u.id}
-                type="button"
-                onClick={() => toggleMember(u.id)}
-                className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 text-left"
-              >
-                <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700 shrink-0">
-                  {(u.fullName?.[0] ?? '?').toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800 truncate">{u.fullName}</p>
-                  <p className="text-xs text-slate-500 truncate">{u.role} {u.department ? `· ${u.department}` : ''}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-        {users.length === 0 && (
-          <p className="text-xs text-slate-400">No active users found.</p>
-        )}
-      </div>
+      <p className="text-xs text-slate-500">
+        Members are assigned to this shift from <span className="font-semibold">Settings → Users</span> by picking a shift there, or automatically by matching a user's department to this shift's department.
+      </p>
 
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
@@ -262,7 +193,7 @@ function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: 
       }}
       className="min-h-12 rounded-md border border-slate-200 px-3 text-sm"
     >
-      <option value="">All departments</option>
+      <option value="">Select a department…</option>
       {departments.map((d) => (
         <option key={d} value={d}>{d}</option>
       ))}

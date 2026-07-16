@@ -66,7 +66,12 @@ export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerfor
                 </th>
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <CheckSquare className="w-3 h-3" /> Quizzes
+                    <CheckSquare className="w-3 h-3" /> Quizzes Passed
+                  </span>
+                </th>
+                <th className="pb-2 font-medium text-center hidden md:table-cell">
+                  <span className="flex items-center justify-center gap-1">
+                    <CheckSquare className="w-3 h-3" /> Quick Assessment Mark
                   </span>
                 </th>
               </tr>
@@ -96,6 +101,16 @@ export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerfor
                   </td>
                   <td className="py-2.5 text-center text-[#8BA3BF] hidden md:table-cell">
                     {row.quizzesPassed || '—'}
+                  </td>
+                  <td className="py-2.5 text-center hidden md:table-cell">
+                    {row.quizAttempts > 0 ? (
+                      <span className={`font-semibold ${scoreColor(row.avgQuizMark)}`}>
+                        {row.avgQuizMark}
+                        <span className="text-[#8BA3BF] font-normal">/100</span>
+                      </span>
+                    ) : (
+                      <span className="text-[#8BA3BF]">—</span>
+                    )}
                   </td>
                 </tr>
               ))}

@@ -46,6 +46,17 @@ export interface EvaluationAttachment {
 
 export type EvaluationStatus = 'draft' | 'submitted';
 
+export type EvaluationActionType = 'training_assigned' | 'position_upgraded' | 'position_degraded';
+
+export interface EvaluationActionLog {
+  id: string;
+  type: EvaluationActionType;
+  note: string;
+  actorId: string;
+  actorName: string;
+  at: Timestamp | null;
+}
+
 export interface EvaluationSession {
   id: string;
   companyId: string;
@@ -66,10 +77,32 @@ export interface EvaluationSession {
 
   attachments: EvaluationAttachment[];
 
+  /** Template used to score this evaluation, if a custom one was picked. */
+  templateId: string | null;
+  templateName: string | null;
+
+  /** Post-evaluation actions taken against the final mark (PM-124). */
+  actionLog: EvaluationActionLog[];
+
   status: EvaluationStatus;
   evaluationDate: string; // YYYY-MM-DD
   createdAt: Timestamp | null;
   submittedAt: Timestamp | null;
+}
+
+// ─── Custom evaluation form templates (PM-122) ──────────────────────────────
+
+export interface EvaluationTemplate {
+  id: string;
+  companyId: string;
+  name: string;
+  /** Role this template is intended for, or 'custom' if role-agnostic. */
+  role: EvaluationRole | 'custom';
+  criteria: EvaluationCriterion[];
+  createdBy: string;
+  createdByName: string;
+  createdAt: Timestamp | null;
+  updatedAt: Timestamp | null;
 }
 
 // ─── Per-role criteria definitions ──────────────────────────────────────────

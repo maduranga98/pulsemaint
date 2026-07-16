@@ -18,6 +18,7 @@ import {
   type AuditAttachment,
   type AuditParticipant,
   type MachineRef,
+  type ContractorRef,
   type AuditSession,
 } from '../types/audit.types';
 import { useAuditMachines, useAuditUsers } from '../hooks/useAudit';
@@ -25,6 +26,7 @@ import { submitAudit, clearDraft, saveDraft } from '../services/audit.service';
 import { analyzeAudit } from '../utils/aiRootCause';
 import { downloadAuditPdf } from '../utils/auditPdf';
 import { MachineMultiSelect } from './MachineMultiSelect';
+import { ContractorMultiSelect } from './ContractorMultiSelect';
 import { ParticipantSelector } from './ParticipantSelector';
 import { AttachmentUploader } from './AttachmentUploader';
 import { FindingsSection } from './FindingsSection';
@@ -54,6 +56,8 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
   const { departments } = useDepartments(plantId);
 
   const [selectedMachines, setSelectedMachines] = useState<MachineRef[]>([]);
+  const [selectedContractors, setSelectedContractors] = useState<ContractorRef[]>([]);
+  const isContractorAudit = template.category === 'contractor';
   const [department, setDepartment] = useState('');
   const [location, setLocation] = useState('');
   const [participants, setParticipants] = useState<AuditParticipant[]>([]);
@@ -122,6 +126,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       category: template.category,
       templateId: template.id,
       machines: selectedMachines,
+      contractors: selectedContractors,
       department,
       location,
       participants,
@@ -129,7 +134,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       findings,
       lastSaved: new Date().toISOString(),
     });
-  }, [plantId, template, selectedMachines, department, location, participants, answers, findings, result]);
+  }, [plantId, template, selectedMachines, selectedContractors, department, location, participants, answers, findings, result]);
 
   const handleSubmit = async () => {
     setError(null);
@@ -144,6 +149,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
         templateId: template.id,
         templateName: template.name,
         machines: selectedMachines,
+        contractors: selectedContractors,
         department,
         location,
         auditorId: profile?.id ?? '',
@@ -246,8 +252,17 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       {/* Scope */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
         <SectionTitle>Scope</SectionTitle>
-        <label className="block text-xs font-semibold text-slate-400 mb-1">Machines</label>
-        <MachineMultiSelect machines={machines} selected={selectedMachines} onChange={setSelectedMachines} />
+        {isContractorAudit ? (
+          <>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Contractors</label>
+            <ContractorMultiSelect selected={selectedContractors} onChange={setSelectedContractors} />
+          </>
+        ) : (
+          <>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Machines</label>
+            <MachineMultiSelect machines={machines} selected={selectedMachines} onChange={setSelectedMachines} />
+          </>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
           <div>

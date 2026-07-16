@@ -119,7 +119,7 @@ const NAV_ITEMS: NavItem[] = [
         <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M3 3l2 2"/><path d="M21 3l-2 2"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
+    roles: ['admin'],
   },
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator'] },
@@ -161,7 +161,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/><path d="M9 7h6"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'store_keeper', 'hr_officer'],
+    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
   },
   {
     label: 'Evaluations',

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Lock, ShieldOff, Activity } from 'lucide-react';
+import { Lock, ShieldOff, Activity, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
+import { useMachines } from '../../../hooks/useMachines';
 import { OEEDashboard } from '../components/OEEDashboard';
 import { OEEInputForm } from '../components/OEEInputForm';
 import { OEEMachineDetail } from '../components/OEEMachineDetail';
@@ -10,6 +11,7 @@ import { OEETrendChart } from '../components/OEETrendChart';
 import { ShiftComparison } from '../components/ShiftComparison';
 import { BigLossesWaterfall } from '../components/BigLossesWaterfall';
 import { OEELossCostCalculator } from '../components/OEELossCostCalculator';
+import { MachineSearchSelect } from '../components/MachineSearchSelect';
 import type { MachineSummary } from '../types/oee.types';
 
 // ─── Access Denied ────────────────────────────────────────────────────────────
@@ -115,6 +117,10 @@ export function OEEPage() {
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [selectedMachine, setSelectedMachine] = useState<MachineSummary | null>(null);
   const [selectedMachineForPro, setSelectedMachineForPro] = useState<string>('');
+  const [selectedMachineNameForPro, setSelectedMachineNameForPro] = useState<string>('');
+
+  const plantId = useAuthStore((s) => s.userProfile?.companyId);
+  const { machines: allMachines } = useMachines({ siteId: plantId ?? '', pageSize: 500 });
 
   const currentMonth = new Date().toISOString().slice(0, 7);
 
@@ -204,14 +210,18 @@ export function OEEPage() {
                 <div className="space-y-5">
                   {/* Machine selector */}
                   <div className="flex items-center gap-3">
-                    <label className="text-xs text-slate-400">Machine ID:</label>
-                    <input
-                      type="text"
-                      value={selectedMachineForPro}
-                      onChange={(e) => setSelectedMachineForPro(e.target.value)}
-                      placeholder="e.g. MCH-001"
-                      className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-600 w-40"
-                    />
+                    <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
+                    <div className="w-64">
+                      <MachineSearchSelect
+                        machines={allMachines}
+                        selectedId={selectedMachineForPro}
+                        selectedName={selectedMachineNameForPro}
+                        onSelect={(m) => {
+                          setSelectedMachineForPro(m.id);
+                          setSelectedMachineNameForPro(m.name);
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
                     <h2 className="font-semibold text-white mb-5">12-Month OEE Trend</h2>
@@ -233,14 +243,18 @@ export function OEEPage() {
               {isProPlan ? (
                 <div className="space-y-5">
                   <div className="flex items-center gap-3">
-                    <label className="text-xs text-slate-400">Machine ID:</label>
-                    <input
-                      type="text"
-                      value={selectedMachineForPro}
-                      onChange={(e) => setSelectedMachineForPro(e.target.value)}
-                      placeholder="e.g. MCH-001"
-                      className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-600 w-40"
-                    />
+                    <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
+                    <div className="w-64">
+                      <MachineSearchSelect
+                        machines={allMachines}
+                        selectedId={selectedMachineForPro}
+                        selectedName={selectedMachineNameForPro}
+                        onSelect={(m) => {
+                          setSelectedMachineForPro(m.id);
+                          setSelectedMachineNameForPro(m.name);
+                        }}
+                      />
+                    </div>
                   </div>
                   <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
                     <h2 className="font-semibold text-white mb-5">Shift Comparison</h2>
@@ -260,10 +274,38 @@ export function OEEPage() {
           {activeTab === 'big-losses' && (
             <SectionErrorBoundary section="6 Big Losses">
               <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-5">
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
                   <h2 className="font-semibold text-white">6 Big Losses — {currentMonth}</h2>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
+                    <div className="w-56">
+                      <MachineSearchSelect
+                        machines={allMachines}
+                        selectedId={selectedMachineForPro}
+                        selectedName={selectedMachineNameForPro}
+                        placeholder="All machines…"
+                        onSelect={(m) => {
+                          setSelectedMachineForPro(m.id);
+                          setSelectedMachineNameForPro(m.name);
+                        }}
+                      />
+                    </div>
+                    {selectedMachineForPro && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedMachineForPro('');
+                          setSelectedMachineNameForPro('');
+                        }}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60"
+                        title="Clear — show all machines"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <BigLossesWaterfall month={currentMonth} isProPlan={isProPlan} />
+                <BigLossesWaterfall month={currentMonth} isProPlan={isProPlan} machineId={selectedMachineForPro} />
               </div>
             </SectionErrorBoundary>
           )}
@@ -278,14 +320,18 @@ export function OEEPage() {
                       Configure production value per hour to see monthly loss costs by category.
                     </p>
                     <div className="flex items-center gap-3 mb-5">
-                      <label className="text-xs text-slate-400">Machine ID:</label>
-                      <input
-                        type="text"
-                        value={selectedMachineForPro}
-                        onChange={(e) => setSelectedMachineForPro(e.target.value)}
-                        placeholder="e.g. MCH-001"
-                        className="bg-slate-800 border border-slate-700 rounded-xl px-3 py-1.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-600 w-40"
-                      />
+                      <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
+                      <div className="w-64">
+                        <MachineSearchSelect
+                          machines={allMachines}
+                          selectedId={selectedMachineForPro}
+                          selectedName={selectedMachineNameForPro}
+                          onSelect={(m) => {
+                            setSelectedMachineForPro(m.id);
+                            setSelectedMachineNameForPro(m.name);
+                          }}
+                        />
+                      </div>
                     </div>
                     <OEELossCostCalculator
                       machineId={selectedMachineForPro || 'default'}
