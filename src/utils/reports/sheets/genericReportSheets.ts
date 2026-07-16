@@ -66,7 +66,11 @@ export async function exportGenericReportSheets(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        valueInputOption: 'RAW',
+        // USER_ENTERED (not RAW) so Sheets parses formatted date strings and
+        // numeric-looking text the same way typing them into the UI would —
+        // otherwise every date/number column lands as literal, unsortable
+        // text instead of a real date/number cell.
+        valueInputOption: 'USER_ENTERED',
         data: [
           { range: 'Summary!A1', values: summary },
           { range: 'Detail!A1', values: [header, ...dataRows] },

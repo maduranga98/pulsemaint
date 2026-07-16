@@ -26,6 +26,16 @@ export default function ReportConfigPanel() {
   if (!isOpen || !selectedReportType) return null;
   const report = REPORT_DEFINITIONS[selectedReportType];
 
+  // The output format is already chosen once via OutputFormatToggle above —
+  // the footer must act on that single selection instead of listing the
+  // same PDF/Excel/Sheets options again as three separate buttons.
+  const formatSupported =
+    config.outputFormat === 'pdf' ? report.supportsPdf : config.outputFormat === 'excel' ? report.supportsExcel : report.supportsSheets;
+  const generateForSelectedFormat =
+    config.outputFormat === 'pdf' ? generatePdf : config.outputFormat === 'excel' ? exportExcel : pushToSheets;
+  const formatLabel = config.outputFormat === 'pdf' ? 'PDF' : config.outputFormat === 'excel' ? 'Excel' : 'Google Sheets';
+  const FormatIcon = config.outputFormat === 'pdf' ? FileText : FileSpreadsheet;
+
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-end bg-black/50">
       <aside className="flex h-[80vh] w-full flex-col overflow-hidden rounded-t-2xl border border-[#1E3A5F] bg-[#0F1E35] shadow-2xl sm:h-full sm:max-w-[480px] sm:rounded-none">
@@ -58,20 +68,15 @@ export default function ReportConfigPanel() {
         </div>
 
         <footer className="space-y-2 border-t border-[#1E3A5F] p-5">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            <button type="button" disabled={isGenerating || !report.supportsPdf} onClick={generatePdf} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-3 text-sm font-semibold text-white transition hover:bg-[#1D64F2] disabled:opacity-50">
-              <FileText className="h-4 w-4" />
-              Generate PDF
-            </button>
-            <button type="button" disabled={isGenerating || !report.supportsExcel} onClick={exportExcel} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] px-3 text-sm font-semibold text-[#F0F4F8] transition hover:border-[#2E5A8F] disabled:opacity-50">
-              <FileSpreadsheet className="h-4 w-4" />
-              Export Excel
-            </button>
-            <button type="button" disabled={isGenerating || !report.supportsSheets} onClick={pushToSheets} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold text-[#00C2FF] transition hover:bg-[#0A1628] disabled:opacity-50">
-              <FileSpreadsheet className="h-4 w-4" />
-              Sheets
-            </button>
-          </div>
+          <button
+            type="button"
+            disabled={isGenerating || !formatSupported}
+            onClick={generateForSelectedFormat}
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-3 text-sm font-semibold text-white transition hover:bg-[#1D64F2] disabled:opacity-50"
+          >
+            <FormatIcon className="h-4 w-4" />
+            {isGenerating ? 'Generating…' : `Generate ${formatLabel}`}
+          </button>
           <button type="button" disabled title="Coming Phase 3" className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold text-[#8BA3BF] opacity-70">
             <CalendarClock className="h-4 w-4" />
             Schedule This Report
