@@ -1,24 +1,26 @@
 import { useState } from 'react';
 import { Upload } from 'lucide-react';
-import { addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, doc, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { toast } from 'sonner';
 import { CONTRACTOR_DOCUMENT_TYPES, DOCUMENT_TYPE_LABELS } from '@/lib/contractors/contractorTypes';
-import type { ContractorDocumentType } from '@/lib/contractors/contractorTypes';
+import type { ContractorDocument, ContractorDocumentType } from '@/lib/contractors/contractorTypes';
 
 interface DocumentUploadModalProps {
   open: boolean;
   onClose: () => void;
   contractorId?: string;
   title?: string;
+  /** When set, this upload renews an existing document: the new file supersedes it. */
+  renewalOf?: ContractorDocument | null;
 }
 
-export function DocumentUploadModal({ open, onClose, contractorId, title = 'Upload Document' }: DocumentUploadModalProps) {
+export function DocumentUploadModal({ open, onClose, contractorId, title = 'Upload Document', renewalOf }: DocumentUploadModalProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
-  const [documentType, setDocumentType] = useState<ContractorDocumentType>(CONTRACTOR_DOCUMENT_TYPES[0]);
-  const [documentName, setDocumentName] = useState('');
+  const [documentType, setDocumentType] = useState<ContractorDocumentType>(renewalOf?.documentType ?? CONTRACTOR_DOCUMENT_TYPES[0]);
+  const [documentName, setDocumentName] = useState(renewalOf?.documentName ?? '');
   const [issueDate, setIssueDate] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [notes, setNotes] = useState('');
@@ -56,7 +58,7 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
       await uploadBytes(sref, file);
       const url = await getDownloadURL(sref);
       const hasExpiry = expiryDate !== '';
-      await addDoc(collection(db, 'contractors', contractorId, 'documents'), {
+      const newDocRef = await addDoc(collection(db, 'contractors', contractorId, 'documents'), {
         companyId: userProfile.companyId,
         contractorId,
         documentType,
@@ -71,16 +73,23 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
         isPermanent: !hasExpiry,
         hasExpiry,
         validityStatus: 'valid',
-        isCriticalDocument: false,
+        isCriticalDocument: renewalOf?.isCriticalDocument ?? false,
         blocksAssignment: false,
-        version: 1,
+        version: (renewalOf?.version ?? 0) + 1,
         supersededBy: null,
         notes: notes.trim() || null,
         uploadedAt: serverTimestamp(),
         uploadedBy: userProfile.id ?? null,
         uploadedByName: userProfile.fullName ?? null,
       });
-      toast.success('Document uploaded');
+
+      if (renewalOf) {
+        await updateDoc(doc(db, 'contractors', contractorId, 'documents', renewalOf.id), {
+          supersededBy: newDocRef.id,
+        });
+      }
+
+      toast.success(renewalOf ? 'Document renewed' : 'Document uploaded');
       resetAndClose();
     } catch (err) {
       console.error('Document upload failed', err);

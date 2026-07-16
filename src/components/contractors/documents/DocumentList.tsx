@@ -49,7 +49,7 @@ export function DocumentList({ documents, contractorId }: DocumentListProps) {
         })}
       </div>
       <DocumentUploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} contractorId={contractorId} />
-      <DocumentRenewalModal document={renewDocument} onClose={() => setRenewDocument(null)} />
+      <DocumentRenewalModal document={renewDocument} contractorId={contractorId} onClose={() => setRenewDocument(null)} />
     </div>
   );
 }
