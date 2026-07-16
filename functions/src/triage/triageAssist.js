@@ -1,12 +1,17 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { defineSecret } = require("firebase-functions/params");
 const { getFirestore } = require("firebase-admin/firestore");
 const Anthropic = require("@anthropic-ai/sdk");
 const logger = require("firebase-functions/logger");
 
 const db = getFirestore("default");
 
-const ANTHROPIC_API_KEY = defineSecret("ANTHROPIC_API_KEY");
+// Read from a plain env var (set via functions/.env.<project-id>, gitignored)
+// rather than defineSecret()/Secret Manager. A required-but-unresolved
+// Secret Manager binding blocks `firebase deploy --only functions` for
+// *every* function in the deploy, not just this one — that's what took this
+// function out entirely before. Reading a plain env var never blocks
+// deploy; it just leaves the assistant disabled until the key is set.
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || "";
 
 const RESPONSE_SCHEMA_DESCRIPTION = `Respond with ONLY a single JSON object (no markdown fences, no prose before or after) matching exactly this shape:
 {
@@ -27,10 +32,16 @@ Every array must contain 2-5 short, concrete items. Keep each item under 20 word
  * assistant always failed.
  */
 exports.triageAssist = onCall(
-  { secrets: [ANTHROPIC_API_KEY], maxInstances: 10, timeoutSeconds: 60 },
+  { maxInstances: 10, timeoutSeconds: 60 },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Must be signed in.");
+    }
+    if (!ANTHROPIC_API_KEY) {
+      throw new HttpsError(
+        "failed-precondition",
+        "AI Triage is not configured yet. Ask an admin to set ANTHROPIC_API_KEY for the functions deploy.",
+      );
     }
 
     const situation = (request.data?.situation || "").trim();
@@ -55,7 +66,7 @@ exports.triageAssist = onCall(
       }
     }
 
-    const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY.value() });
+    const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
     let response;
     try {
