@@ -5,7 +5,6 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  orderBy,
   query,
   serverTimestamp,
   updateDoc,
@@ -31,14 +30,15 @@ const COL = 'evaluations';
 const TEMPLATES_COL = 'evaluation_templates';
 
 export async function fetchEvaluations(companyId: string): Promise<EvaluationSession[]> {
+  // No orderBy here: companyId + orderBy(createdAt) needs a composite index.
+  // If it isn't deployed the query fails and finished evaluations silently
+  // never show up in the Evaluations tab — sort client-side instead.
   const snap = await getDocs(
-    query(
-      collection(db, COL),
-      where('companyId', '==', companyId),
-      orderBy('createdAt', 'desc'),
-    ),
+    query(collection(db, COL), where('companyId', '==', companyId)),
   );
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as EvaluationSession));
+  return snap.docs
+    .map((d) => ({ id: d.id, ...d.data() } as EvaluationSession))
+    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
 }
 
 export async function submitEvaluation(

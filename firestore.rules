@@ -732,14 +732,14 @@ service cloud.firestore {
           'trainee', 'floor_operator', 'supervisor', 'plant_manager',
           'hr_officer', 'admin'
         ];
-      // Create / Update: supervisor and admin
+      // Create / Update: authoring is a plant_manager/admin action (PM-118) —
+      // keep in sync with the top-level /trainingModules rules.
       allow create: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role in ['supervisor', 'admin'];
+        && getUserData().role in ['plant_manager', 'admin'];
       allow update: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role in ['supervisor', 'admin'];
-      // Delete: admin only
+        && getUserData().role in ['plant_manager', 'admin'];
       allow delete: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role == 'admin';
+        && getUserData().role in ['plant_manager', 'admin'];
     }
 
     // trainingAssignments — individual learner enrolments, company-scoped
@@ -750,9 +750,11 @@ service cloud.firestore {
           resource.data.traineeId == request.auth.uid
           || getUserData().role in ['supervisor', 'plant_manager', 'hr_officer', 'admin']
         );
-      // Create: supervisor and admin
+      // Create: managers and HR can assign training — keep in sync with the
+      // top-level /trainingAssignments rules (plant_manager must be able to
+      // assign members to trainings).
       allow create: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role in ['supervisor', 'admin'];
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'];
       // Update: trainee can only update their own progress fields; supervisors/admins can update anything
       allow update: if isAuthenticated() && getUserData().companyId == companyId
         && (
@@ -766,7 +768,7 @@ service cloud.firestore {
               'attemptsUsed', 'status'
             ])
           )
-          || getUserData().role in ['supervisor', 'admin']
+          || getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']
         );
       // Delete: admin only
       allow delete: if isAuthenticated() && getUserData().companyId == companyId
