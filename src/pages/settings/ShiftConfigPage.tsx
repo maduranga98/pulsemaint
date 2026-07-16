@@ -14,7 +14,7 @@ export function ShiftConfigPage() {
     if (!companyId) return;
     for (const shift of defaultShiftConfigs(companyId)) {
       const { shiftName, startTime, endTime, color, activeDays, department, status } = shift;
-      await save({ shiftName, startTime, endTime, color, activeDays, department, status, memberIds: [], memberNames: [] });
+      await save({ shiftName, startTime, endTime, color, activeDays, department, status, memberIds: [], memberNames: [], roles: [] });
     }
   }
 
@@ -69,7 +69,12 @@ export function ShiftConfigPage() {
               </div>
               <p className="mt-3 text-sm text-slate-600">{(shift.activeDays ?? []).join(', ')}</p>
               <p className="text-xs text-slate-500">{shift.department || 'No department'} - {shift.status}</p>
-              <p className="mt-1 text-xs text-slate-400">Members are assigned in Settings → Users.</p>
+              {(shift.roles ?? []).length > 0 && (
+                <p className="mt-1 text-xs text-slate-500">Roles: {shift.roles.map((r) => r.replace(/_/g, ' ')).join(', ')}</p>
+              )}
+              <p className="mt-1 text-xs text-slate-400">
+                {shift.memberIds.length > 0 ? `${shift.memberIds.length} member${shift.memberIds.length === 1 ? '' : 's'} assigned.` : 'Members are assigned in Settings → Users.'}
+              </p>
               <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3">
                 <button type="button" onClick={() => setEditing(shift)} className="text-sm font-semibold text-blue-600 hover:text-blue-800">
                   Edit

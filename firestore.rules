@@ -803,10 +803,11 @@ service cloud.firestore {
     // pm_schedules — Preventive Maintenance Schedules
     }
 
-    // shift_config — shift setup, manageable by admin and shift-running roles
+    // shift_config — shift setup, manageable by admin and shift-running roles.
+    // Every company member can read: members must see the shift plans they
+    // are scheduled on (My Shift page).
     match /shift_config/{configId} {
-      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer'];
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer'];
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
@@ -823,6 +824,20 @@ service cloud.firestore {
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'admin'];
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'admin'];
+      allow delete: if false;
+    }
+
+    // shift_sessions — per-member worked-shift records (start/end, hours, OT)
+    match /shift_sessions/{sessionId} {
+      // Members read their own sessions; managers read all company sessions.
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.userId == request.auth.uid
+          || getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
+      // Members create/update only their own session records.
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.userId == request.auth.uid || isAdmin());
       allow delete: if false;
     }
 

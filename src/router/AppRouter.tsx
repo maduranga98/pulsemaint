@@ -118,6 +118,7 @@ import PerformanceDashboardPage from '../pages/contractors/PerformanceDashboardP
 import CompliancePage from '../pages/contractors/CompliancePage';
 import ReportsHubPage from '../pages/contractors/ReportsHubPage';
 import HandoverCreatePage from '../pages/handover/HandoverCreatePage';
+import MyShiftPage from '../pages/shift/MyShiftPage';
 import ShiftBriefingPage from '../pages/handover/ShiftBriefingPage';
 import HandoverHistoryPage from '../pages/handover/HandoverHistoryPage';
 import HandoverDetailPage from '../pages/handover/HandoverDetailPage';
@@ -523,6 +524,7 @@ export default function AppRouter() {
         <Route path="contractors/:contractorId/analytics" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorAnalyticsPage /></ProtectedRoute>} />
 
         {/* Shift handover */}
+        <Route path="shift/my" element={<ProtectedRoute><MyShiftPage /></ProtectedRoute>} />
         <Route path="shift/handover/create" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><HandoverCreatePage /></ProtectedRoute>} />
         <Route path="shift/handover/briefing" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><ShiftBriefingPage /></ProtectedRoute>} />
         <Route path="shift/handover/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverHistoryPage /></ProtectedRoute>} />

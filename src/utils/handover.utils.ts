@@ -48,6 +48,43 @@ export function detectNextShift(shifts: ShiftConfig[], current: ShiftConfig | nu
   return sorted[(index + 1) % sorted.length] ?? null;
 }
 
+/** Scheduled length of a shift in minutes; overnight shifts (end < start) wrap past midnight. */
+export function scheduledShiftMinutes(startTime: string, endTime: string): number {
+  const start = timeToMinutes(startTime);
+  const end = timeToMinutes(endTime);
+  return end > start ? end - start : 24 * 60 - start + end;
+}
+
+/** Total worked minutes and overtime (time worked beyond the scheduled shift length). */
+export function computeShiftTotals(
+  shift: Pick<ShiftConfig, 'startTime' | 'endTime'>,
+  actualStart: Date,
+  actualEnd: Date,
+): { scheduledMinutes: number; totalMinutes: number; otMinutes: number } {
+  const scheduledMinutes = scheduledShiftMinutes(shift.startTime, shift.endTime);
+  const totalMinutes = Math.max(0, Math.round((actualEnd.getTime() - actualStart.getTime()) / 60000));
+  const otMinutes = Math.max(0, totalMinutes - scheduledMinutes);
+  return { scheduledMinutes, totalMinutes, otMinutes };
+}
+
+/** A user belongs to a shift plan if directly assigned (member list / user.shiftId) or their role is scheduled. */
+export function isUserAssignedToShift(
+  shift: Pick<ShiftConfig, 'id' | 'memberIds' | 'roles'>,
+  user: { id: string; role: string; shiftId?: string | null },
+): boolean {
+  if (shift.memberIds?.includes(user.id)) return true;
+  if (user.shiftId && user.shiftId === shift.id) return true;
+  return (shift.roles ?? []).includes(user.role);
+}
+
+/** Shift plans the given user is scheduled on (by member assignment or role). */
+export function getMyShiftPlans(
+  shifts: ShiftConfig[],
+  user: { id: string; role: string; shiftId?: string | null },
+): ShiftConfig[] {
+  return shifts.filter((shift) => shift.status === 'active' && isUserAssignedToShift(shift, user));
+}
+
 export function severityClass(severity: string): string {
   const normalized = severity.toLowerCase();
   if (normalized.includes('critical')) return 'text-red-700';
@@ -58,8 +95,8 @@ export function severityClass(severity: string): string {
 export function defaultShiftConfigs(companyId: string): Omit<ShiftConfig, 'id'>[] {
   const activeDays: ShiftDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   return [
-    { companyId, shiftName: 'Morning Shift', startTime: '06:00', endTime: '14:00', color: '#00C2FF', activeDays, department: null, status: 'active', memberIds: [], memberNames: [] },
-    { companyId, shiftName: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', color: '#F59E0B', activeDays, department: null, status: 'active', memberIds: [], memberNames: [] },
-    { companyId, shiftName: 'Night Shift', startTime: '22:00', endTime: '06:00', color: '#0A1628', activeDays, department: null, status: 'active', memberIds: [], memberNames: [] },
+    { companyId, shiftName: 'Morning Shift', startTime: '06:00', endTime: '14:00', color: '#00C2FF', activeDays, department: null, status: 'active', memberIds: [], memberNames: [], roles: [] },
+    { companyId, shiftName: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', color: '#F59E0B', activeDays, department: null, status: 'active', memberIds: [], memberNames: [], roles: [] },
+    { companyId, shiftName: 'Night Shift', startTime: '22:00', endTime: '06:00', color: '#0A1628', activeDays, department: null, status: 'active', memberIds: [], memberNames: [], roles: [] },
   ];
 }
