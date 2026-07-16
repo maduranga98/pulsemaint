@@ -33,17 +33,37 @@ import { computeShiftTotals, scheduledShiftMinutes } from '@/utils/handover.util
 
 const functions = getFunctions(app);
 
-type PendingWOSnapshotWire = Omit<PendingWOSnapshot, 'dueDate'> & { dueDate: string | null };
+type PendingWOSnapshotWire = Omit<PendingWOSnapshot, 'dueDate'> & {
+  // ISO string from the current Cloud Function; older deployments serialized
+  // raw Firestore Timestamps as {_seconds,_nanoseconds} objects.
+  dueDate: string | { seconds?: number; _seconds?: number } | null;
+};
+
+/** Parses callable wire dates: ISO strings, epoch millis, or serialized Timestamps. */
+function parseWireDate(value: unknown): Date | null {
+  if (value == null) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (typeof value === 'object') {
+    const seconds = (value as { seconds?: number; _seconds?: number }).seconds
+      ?? (value as { seconds?: number; _seconds?: number })._seconds;
+    if (typeof seconds === 'number') return new Date(seconds * 1000);
+    return null;
+  }
+  const parsed = new Date(value as string | number);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
 type CompiledShiftSummaryWire = Omit<CompiledShiftSummary, 'shiftStartTime' | 'compiledAt' | 'pendingWOs'> & {
   shiftStartTime: string;
   compiledAt: string;
   pendingWOs: PendingWOSnapshotWire[];
 };
 
-function toDate(value: Date | Timestamp | null | undefined): Date | null {
+function toDate(value: Date | Timestamp | string | number | null | undefined): Date | null {
   if (!value) return null;
-  if (value instanceof Date) return value;
-  return value.toDate();
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (typeof value === 'object' && typeof (value as Timestamp).toDate === 'function') return (value as Timestamp).toDate();
+  // Older documents stored some dates as ISO strings/epoch numbers.
+  return parseWireDate(value);
 }
 
 function mapWatchFlag(flag: DocumentData): WatchFlag {
@@ -258,7 +278,7 @@ export async function autoCompileShiftSummary(params: {
     ...result.data,
     shiftStartTime: new Date(result.data.shiftStartTime),
     compiledAt: new Date(result.data.compiledAt),
-    pendingWOs: result.data.pendingWOs.map((wo) => ({ ...wo, dueDate: wo.dueDate ? new Date(wo.dueDate) : null })),
+    pendingWOs: result.data.pendingWOs.map((wo) => ({ ...wo, dueDate: parseWireDate(wo.dueDate) })),
   };
 }
 
@@ -292,10 +312,12 @@ export async function submitHandoverCallable(params: {
     carriedFromHandoverId: null,
   }));
 
-  const pendingWOs = (draft.pendingWOs ?? []).map((wo) => ({
-    ...wo,
-    dueDate: wo.dueDate ? Timestamp.fromDate(wo.dueDate instanceof Date ? wo.dueDate : new Date(wo.dueDate)) : null,
-  }));
+  // Invalid dates must never reach Timestamp.fromDate — it throws and the
+  // whole handover submit fails with an "invalid date" error.
+  const pendingWOs = (draft.pendingWOs ?? []).map((wo) => {
+    const due = parseWireDate(wo.dueDate);
+    return { ...wo, dueDate: due ? Timestamp.fromDate(due) : null };
+  });
 
   const data: Record<string, unknown> = {
     companyId,
@@ -305,8 +327,8 @@ export async function submitHandoverCallable(params: {
     outgoingSupervisorId: params.outgoingSupervisorId,
     outgoingSupervisorName: params.outgoingSupervisorName,
     outgoingSupervisorDesignation: params.outgoingSupervisorDesignation ?? null,
-    shiftActualStart: draft.shiftActualStart
-      ? Timestamp.fromDate(draft.shiftActualStart instanceof Date ? draft.shiftActualStart : new Date(draft.shiftActualStart))
+    shiftActualStart: parseWireDate(draft.shiftActualStart)
+      ? Timestamp.fromDate(parseWireDate(draft.shiftActualStart) as Date)
       : now,
     handoverSubmittedAt: now,
     incomingSupervisorId: null,

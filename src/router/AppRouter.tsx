@@ -537,11 +537,13 @@ export default function AppRouter() {
           element={<Navigate to="/app/training/manage/modules" replace />}
         />
 
-        {/* Training - Trainee routes */}
+        {/* Training - Learner routes. Training can be assigned to ANY role
+            (technicians, supervisors, …), so every signed-in user can open
+            their own assigned trainings — not just trainee/floor_operator. */}
         <Route
           path="training/my-modules"
           element={
-            <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
+            <ProtectedRoute>
               <MyModulesPage />
             </ProtectedRoute>
           }
@@ -549,7 +551,7 @@ export default function AppRouter() {
         <Route
           path="training/my-modules/:assignmentId"
           element={
-            <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
+            <ProtectedRoute>
               <ModuleLearningPage />
             </ProtectedRoute>
           }
@@ -557,7 +559,7 @@ export default function AppRouter() {
         <Route
           path="training/my-modules/:assignmentId/quiz"
           element={
-            <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
+            <ProtectedRoute>
               <QuizPage />
             </ProtectedRoute>
           }
@@ -565,7 +567,7 @@ export default function AppRouter() {
         <Route
           path="training/my-certificates"
           element={
-            <ProtectedRoute requiredRoles={['trainee', 'floor_operator']}>
+            <ProtectedRoute>
               <MyCertificatesPage />
             </ProtectedRoute>
           }

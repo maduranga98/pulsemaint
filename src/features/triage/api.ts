@@ -136,11 +136,14 @@ export async function writeAssessmentResult(
   companyId: string,
   uid: string,
   data: { assessmentId: string; score: number; total: number; passed: boolean },
+  who?: { userName?: string; userRole?: string },
 ) {
   return addDoc(collection(db, COL.results), {
     ...data,
     companyId,
     userId: uid,
+    userName: who?.userName ?? null,
+    userRole: who?.userRole ?? null,
     completedAt: serverTimestamp(),
   });
 }

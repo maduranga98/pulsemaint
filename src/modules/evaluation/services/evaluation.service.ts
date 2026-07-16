@@ -37,7 +37,15 @@ export async function fetchEvaluations(companyId: string): Promise<EvaluationSes
     query(collection(db, COL), where('companyId', '==', companyId)),
   );
   return snap.docs
-    .map((d) => ({ id: d.id, ...d.data() } as EvaluationSession))
+    .map((d) => {
+      const session = { id: d.id, ...d.data() } as EvaluationSession;
+      // Older documents may miss these array fields — normalize them so the
+      // UI never crashes on `.length` of undefined.
+      session.criteria = session.criteria ?? [];
+      session.attachments = session.attachments ?? [];
+      session.actionLog = session.actionLog ?? [];
+      return session;
+    })
     .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
 }
 
@@ -71,7 +79,11 @@ export async function fetchEvaluationTemplates(companyId: string): Promise<Evalu
   const snap = await getDocs(
     query(collection(db, TEMPLATES_COL), where('companyId', '==', companyId)),
   );
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as EvaluationTemplate));
+  return snap.docs.map((d) => {
+    const template = { id: d.id, ...d.data() } as EvaluationTemplate;
+    template.criteria = template.criteria ?? [];
+    return template;
+  });
 }
 
 export async function saveEvaluationTemplate(

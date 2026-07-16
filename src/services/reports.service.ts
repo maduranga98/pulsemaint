@@ -134,13 +134,15 @@ export async function fetchReportRows(
   };
 
   const rows: Record<string, unknown>[] = [];
+  const sourceErrors: string[] = [];
+  const siteIds = [
+    ...new Set([...(useAuthStore.getState().userProfile?.siteIds ?? []), companyId]),
+  ].filter(Boolean);
+
   for (const source of sourceMap[reportType]) {
     // Machines are scoped by siteId, not companyId — querying them by
     // companyId returned nothing and produced empty machine exports.
     if (source === 'machines') {
-      const siteIds = [
-        ...new Set([...(useAuthStore.getState().userProfile?.siteIds ?? []), companyId]),
-      ].filter(Boolean);
       for (let i = 0; i < siteIds.length; i += 10) {
         const chunk = siteIds.slice(i, i + 10);
         try {
@@ -152,28 +154,44 @@ export async function fetchReportRows(
       }
       continue;
     }
-    const constraints = [where('companyId', '==', companyId), limit(1000)];
-    if (reportType === 'low_stock_alert') {
-      const snap = await getDocs(query(collection(db, source), ...constraints));
-      snap.docs.forEach((item) => {
-        const data = item.data();
+    let docs: { id: string; data: () => Record<string, unknown> }[] = [];
+    try {
+      const snap = await getDocs(query(collection(db, source), where('companyId', '==', companyId), limit(1000)));
+      docs = snap.docs;
+    } catch (err) {
+      // Site-restricted roles are denied companyId-wide list queries on some
+      // collections (e.g. workOrders). Retry scoped by the user's sites so
+      // the report still returns their data instead of failing outright.
+      try {
+        for (let i = 0; i < siteIds.length; i += 10) {
+          const chunk = siteIds.slice(i, i + 10);
+          const snap = await getDocs(query(collection(db, source), where('siteId', 'in', chunk), limit(1000)));
+          docs = docs.concat(snap.docs);
+        }
+      } catch {
+        sourceErrors.push(`${source}: ${err instanceof Error ? err.message : 'query failed'}`);
+        continue;
+      }
+    }
+    docs.forEach((item) => {
+      const data = item.data();
+      if (reportType === 'low_stock_alert') {
         const current = Number(data.currentStock ?? data.currentQty ?? data.stockQuantity ?? 0);
         const min = Number(data.minStockLevel ?? data.reorderLevel ?? 0);
-        if (current <= min) {
-          rows.push({ id: item.id, ...data });
-        }
-      });
-      continue;
-    }
-    const snap = await getDocs(query(collection(db, source), ...constraints));
-    snap.docs.forEach((item) => {
-      const data = item.data();
+        if (current > min) return;
+      }
       // shift_handovers keeps its counters under a nested `stats` object;
       // flatten them to top-level keys so report columns (which only read
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
       const stats = (data.stats as Record<string, unknown> | undefined) ?? {};
       rows.push({ id: item.id, ...data, ...stats });
     });
+  }
+
+  // Surface the failure instead of silently rendering "0 records" when every
+  // source was unreadable — the user needs to know it's a permissions issue.
+  if (rows.length === 0 && sourceErrors.length > 0) {
+    throw new Error(`Could not read report data (${sourceErrors.join('; ')})`);
   }
 
   const dateFiltered = rows.filter((row) => {
@@ -195,15 +213,37 @@ export async function fetchReportRows(
     (value != null &&
       selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
 
+  const matchesAnyInList = (values: unknown, selected: string[]) =>
+    selected.length === 0 ||
+    (Array.isArray(values) && values.some((v) => selected.some((s) => s.toLowerCase() === String(v).toLowerCase())));
+
+  const isMachineReport = reportType === 'machine_history' || reportType === 'machine_health_score';
+
   return dateFiltered.filter((row) => {
-    // Machine rows themselves carry the machine ID as the doc ID.
-    if (!matchesList(row.machineId ?? row.id, config.machines)) return false;
+    // Machine rows themselves carry the machine ID as the doc ID; other rows
+    // only participate in the machine filter when they reference a machine —
+    // comparing unrelated doc IDs used to zero out every non-machine report.
+    const machineRef = row.machineId ?? (isMachineReport ? row.id : undefined);
+    if (machineRef !== undefined && !matchesList(machineRef, config.machines)) return false;
     if (!matchesList(row.department ?? row.machineDepartment, config.departments)) return false;
     if (!matchesList(row.severity, config.severities)) return false;
     if (!matchesList(row.woType, config.woTypes)) return false;
     if (!matchesList(row.type, config.breakdownTypes)) return false;
     if (!matchesList(row.contractorCompanyId ?? row.contractorId, config.contractors)) return false;
     if (!matchesList(row.priority, config.priorities)) return false;
+    if (config.technicians.length > 0 && (row.assignedTechnicianIds !== undefined || row.traineeId !== undefined)) {
+      const matchesTech = matchesAnyInList(row.assignedTechnicianIds, config.technicians) || matchesList(row.traineeId, config.technicians);
+      if (!matchesTech) return false;
+    }
+    if (config.supervisors.length > 0 && (row.supervisorInChargeId !== undefined || row.outgoingSupervisorId !== undefined)) {
+      const matchesSup = matchesList(row.supervisorInChargeId, config.supervisors)
+        || matchesList(row.outgoingSupervisorId, config.supervisors)
+        || matchesList(row.incomingSupervisorId, config.supervisors);
+      if (!matchesSup) return false;
+    }
+    if (config.shifts.length > 0 && (row.shiftName !== undefined || row.shift !== undefined)) {
+      if (!matchesList(row.shiftName ?? row.shift, config.shifts)) return false;
+    }
     return true;
   });
 }

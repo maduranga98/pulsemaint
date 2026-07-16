@@ -146,6 +146,7 @@ export interface ContractorDocument {
   documentName: string;
   fileUrl: string;
   fileName: string;
+  storagePath?: string;
   fileSizeBytes: number;
   mimeType: string;
   issueDate?: Timestamp | null;

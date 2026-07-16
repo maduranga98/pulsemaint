@@ -28,6 +28,10 @@ async function fetchCompanyDocs(collectionName, companyId) {
 }
 
 function toPendingWO(wo) {
+  // Serialize dueDate as an ISO string: raw Firestore Timestamps come out of
+  // the callable as {_seconds,_nanoseconds} objects, which the client turned
+  // into Invalid Date (and then failed the handover submit).
+  const dueDate = asDate(wo.dueDate || wo.slaDeadline);
   return {
     woId: wo.id,
     woNumber: wo.woNumber || wo.workOrderNumber || wo.id,
@@ -36,7 +40,7 @@ function toPendingWO(wo) {
     priority: wo.priority || "medium",
     currentStatus: wo.status || "open",
     assignedTechnician: wo.assignedTechnicianName || wo.assignedToName || "",
-    dueDate: wo.dueDate || wo.slaDeadline || null,
+    dueDate: dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate.toISOString() : null,
     supervisorNote: "",
     carryForwardStatus: "continue",
   };

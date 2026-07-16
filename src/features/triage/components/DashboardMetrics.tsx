@@ -8,7 +8,10 @@ export function DashboardMetrics() {
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
-  const uid = user?.uid ?? '';
+  // Same identity key as QuizModal/AssessmentList: profile id first so each
+  // member's results stay their own.
+  const uid = userProfile?.id ?? user?.uid ?? '';
+  const legacyUid = user?.uid ?? '';
 
   const [openCount, setOpenCount] = useState(0);
   const [completedCount, setCompletedCount] = useState(0);
@@ -38,11 +41,12 @@ export function DashboardMetrics() {
       },
     );
 
+    const myIds = [...new Set([uid, legacyUid].filter(Boolean))];
     const u2 = onSnapshot(
       query(
         collection(db, COL.results),
         where('companyId', '==', companyId),
-        where('userId', '==', uid),
+        where('userId', 'in', myIds),
         where('passed', '==', true),
       ),
       (snap) => {
@@ -61,7 +65,7 @@ export function DashboardMetrics() {
       u2();
       u3();
     };
-  }, [companyId, uid]);
+  }, [companyId, uid, legacyUid]);
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
