@@ -147,6 +147,7 @@ export default function ModuleLibraryList({
                       <button
                         onClick={() => onAssign(module.id)}
                         disabled={module.status !== 'active'}
+                        title={module.status !== 'active' ? 'Publish the module (set it Active) before assigning' : undefined}
                         className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         <UserPlus className="w-3 h-3" />

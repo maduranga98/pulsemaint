@@ -8,6 +8,7 @@ import {
   doc,
   updateDoc,
 } from 'firebase/firestore';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
@@ -30,7 +31,9 @@ export default function CreateModulePage() {
           ...updates,
           companyId,
           createdBy: userId,
-          status: 'draft',
+          // Respect the status chosen in the settings form — forcing 'draft'
+          // here left modules unassignable (Assign only works on 'active').
+          status: updates.status ?? 'draft',
           lessons: updates.lessons ?? [],
           estimatedMinutes: updates.estimatedMinutes ?? 0,
           passingScore: updates.passingScore ?? 80,
@@ -39,6 +42,7 @@ export default function CreateModulePage() {
         });
         setModuleId(ref.id);
         setModule({ id: ref.id, companyId, createdBy: userId, status: 'draft', lessons: [], estimatedMinutes: 0, passingScore: 80, ...updates } as TrainingModule);
+        toast.success('Module saved.');
       } else {
         await updateDoc(doc(db, 'trainingModules', moduleId), {
           ...updates,
@@ -52,7 +56,12 @@ export default function CreateModulePage() {
   };
 
   const handlePublish = async () => {
-    if (!moduleId) return;
+    if (!moduleId) {
+      // Publishing used to silently do nothing until the settings form had
+      // been saved once — surface why instead.
+      toast.error('Fill in the module settings and click "Save Module" first, then publish.');
+      return;
+    }
     setIsSaving(true);
     try {
       await updateDoc(doc(db, 'trainingModules', moduleId), {
