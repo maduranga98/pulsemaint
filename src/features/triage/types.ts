@@ -92,12 +92,3 @@ export interface TriageAssessmentResult {
   passed: boolean;
   completedAt: Timestamp;
 }
-
-export interface AITriageResponse {
-  summary: string;
-  likelyCauses: string[];
-  checkNow: string[];
-  safeActions: string[];
-  doNot: string[];
-  basedOn: string;
-}

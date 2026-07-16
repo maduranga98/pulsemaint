@@ -154,14 +154,6 @@ const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail")
 exports.sendInvitationEmail = sendInvitationEmail;
 
 // ---------------------------------------------------------------------------
-// Triage Module — Cloud Functions
-// ---------------------------------------------------------------------------
-
-const { triageAssist } = require("./src/triage/triageAssist");
-
-exports.triageAssist = triageAssist;
-
-// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

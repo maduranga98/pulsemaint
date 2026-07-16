@@ -10,14 +10,13 @@ import { CategoryRail, type PanelId } from './components/CategoryRail';
 import { ContentList } from './components/ContentList';
 import { ContactList } from './components/ContactList';
 import { AssessmentList } from './components/AssessmentList';
-import { AITriage } from './components/AITriage';
 
 export default function TriagePage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const uid = userProfile?.id ?? '';
 
-  const [selected, setSelected] = useState<PanelId>('ai');
+  const [selected, setSelected] = useState<PanelId>('contacts');
   const [cats, setCats] = useState<TriageCategory[]>([]);
 
   // Seed sample categories, content, contacts and assessments on first load
@@ -50,8 +49,6 @@ export default function TriagePage() {
 
   function renderContent() {
     switch (selected) {
-      case 'ai':
-        return <AITriage />;
       case 'contacts':
         return <ContactList />;
       case 'assessments':
@@ -77,7 +74,7 @@ export default function TriagePage() {
           Triage
         </h1>
         <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-          Procedures, guides, contacts, and AI-assisted troubleshooting
+          Procedures, guides, contacts, and quick assessments
         </p>
       </div>
 

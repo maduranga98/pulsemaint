@@ -10,7 +10,7 @@ import { COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
 import type { TriageCategory } from '../types';
 
-export type PanelId = 'ai' | 'contacts' | 'assessments' | string;
+export type PanelId = 'contacts' | 'assessments' | string;
 
 interface Props {
   selected: PanelId;
@@ -72,17 +72,6 @@ export function CategoryRail({ selected, onSelect }: Props) {
       className="shrink-0 rounded-xl flex flex-col overflow-hidden"
       style={{ width: 250, background: '#0a0f1c', border: '1px solid #1a2840' }}
     >
-      {/* Assistant section */}
-      <div className="p-3" style={{ borderBottom: '1px solid #1a2840' }}>
-        <div
-          className="text-[10px] font-bold uppercase tracking-wider mb-2 px-1"
-          style={{ color: '#3d5070' }}
-        >
-          Assistant
-        </div>
-        <RailBtn id="ai" label="AI Triage" icon="🤖" color="#a78bfa" />
-      </div>
-
       {/* Categories */}
       <div className="flex-1 overflow-y-auto p-3">
         <div

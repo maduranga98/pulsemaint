@@ -7,14 +7,12 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { httpsCallable } from 'firebase/functions';
-import { db, storage, functions } from '../../lib/firebase';
+import { db, storage } from '../../lib/firebase';
 import type {
   TriageCategory,
   TriageContentItem,
   TriageContact,
   TriageAssessment,
-  AITriageResponse,
 } from './types';
 
 export const COL = {
@@ -145,16 +143,4 @@ export async function writeAssessmentResult(
     userId: uid,
     completedAt: serverTimestamp(),
   });
-}
-
-export async function callTriageAssist(
-  situation: string,
-  machineId?: string,
-): Promise<AITriageResponse> {
-  const fn = httpsCallable<
-    { situation: string; machineId?: string },
-    AITriageResponse
-  >(functions, 'triageAssist');
-  const result = await fn({ situation, machineId });
-  return result.data;
 }
