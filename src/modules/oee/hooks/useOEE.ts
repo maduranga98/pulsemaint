@@ -153,7 +153,7 @@ interface UseBigLossesResult {
   error: string | null;
 }
 
-export function useBigLosses(month: string, lkrPerHour = 0): UseBigLossesResult {
+export function useBigLosses(month: string, lkrPerHour = 0, machineId = ''): UseBigLossesResult {
   const plantId = useAuthStore((s) => s.userProfile?.companyId);
   const [records, setRecords] = useState<OEERecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -170,7 +170,12 @@ export function useBigLosses(month: string, lkrPerHour = 0): UseBigLossesResult 
       .catch((e: Error) => setError(e.message));
   }, [plantId, month]);
 
-  const losses = useMemo(() => calculateBigLosses(records, lkrPerHour), [records, lkrPerHour]);
+  const scopedRecords = useMemo(
+    () => (machineId ? records.filter((r) => r.machineId === machineId) : records),
+    [records, machineId],
+  );
+
+  const losses = useMemo(() => calculateBigLosses(scopedRecords, lkrPerHour), [scopedRecords, lkrPerHour]);
   const totalLostHours = useMemo(() => losses.reduce((s, l) => s + l.hours, 0), [losses]);
 
   return { losses, totalLostHours, loading, error };
