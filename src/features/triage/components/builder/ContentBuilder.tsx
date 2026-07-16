@@ -4,7 +4,6 @@ import {
   onSnapshot,
   query,
   where,
-  orderBy,
 } from 'firebase/firestore';
 import { db } from '../../../../lib/firebase';
 import {
@@ -118,15 +117,16 @@ export function ContentBuilder() {
 
   useEffect(() => {
     if (!companyId) return;
+    // Sorted client-side rather than via Firestore orderBy — see TriagePage
+    // for why (missing composite index makes the query fail silently).
     return onSnapshot(
       query(
         collection(db, COL.categories),
         where('companyId', '==', companyId),
-        orderBy('pinned', 'desc'),
-        orderBy('order', 'asc'),
       ),
       (snap) => {
         const list = snap.docs.map((d) => ({ id: d.id, ...d.data() } as TriageCategory));
+        list.sort((a, b) => Number(b.pinned) - Number(a.pinned) || (a.order ?? 0) - (b.order ?? 0));
         setCats(list);
         if (list.length && !previewCatId) setPreviewCatId(list[0].id);
       },
