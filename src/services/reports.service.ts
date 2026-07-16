@@ -121,7 +121,10 @@ export async function fetchReportRows(
     parts_consumption: ['stockMovements'],
     low_stock_alert: ['inventoryParts'],
     pm_compliance: ['pm_history'],
-    training_compliance: ['training_records'],
+    // 'training_records' never existed as a collection — training data lives
+    // in trainingAssignments (see src/hooks/training/useComplianceData.ts).
+    // The report silently returned zero rows before this fix.
+    training_compliance: ['trainingAssignments'],
     sla_compliance: ['breakdown_tickets'],
     shift_handover_summary: ['shift_handovers'],
     downtime_analysis: ['breakdown_tickets'],
@@ -163,7 +166,14 @@ export async function fetchReportRows(
       continue;
     }
     const snap = await getDocs(query(collection(db, source), ...constraints));
-    snap.docs.forEach((item) => rows.push({ id: item.id, ...item.data() }));
+    snap.docs.forEach((item) => {
+      const data = item.data();
+      // shift_handovers keeps its counters under a nested `stats` object;
+      // flatten them to top-level keys so report columns (which only read
+      // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
+      const stats = (data.stats as Record<string, unknown> | undefined) ?? {};
+      rows.push({ id: item.id, ...data, ...stats });
+    });
   }
 
   const dateFiltered = rows.filter((row) => {

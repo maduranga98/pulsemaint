@@ -172,6 +172,55 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'daysOverdue', label: 'Days Overdue', format: 'number' },
     { key: 'technicianNames', label: 'Technicians', format: 'list' },
   ],
+  machine_health_score: [
+    { key: 'machineName', label: 'Machine' },
+    { key: 'machineIdCode', label: 'Asset Code' },
+    { key: 'department', label: 'Department' },
+    { key: 'currentStatus', label: 'Status' },
+    { key: 'healthScore', label: 'Health Score', format: 'number' },
+    { key: 'watchFlagLevel', label: 'Watch Level' },
+    { key: 'mtbfDays', label: 'MTBF (days)', format: 'number' },
+    { key: 'mttrHours', label: 'MTTR (hours)', format: 'number' },
+    { key: 'openBreakdownCount', label: 'Open Breakdowns', format: 'number' },
+    { key: 'openWoCount', label: 'Open WOs', format: 'number' },
+    { key: 'maintenanceCostMTD', label: 'Cost MTD', format: 'currency' },
+    { key: 'lastServiceDate', label: 'Last Service', format: 'date' },
+    { key: 'nextPmDue', label: 'Next PM', format: 'date' },
+  ],
+  shift_handover_summary: [
+    { key: 'shiftName', label: 'Shift' },
+    { key: 'shiftDate', label: 'Date', format: 'date' },
+    { key: 'outgoingSupervisorName', label: 'Outgoing Supervisor' },
+    { key: 'incomingSupervisorName', label: 'Incoming Supervisor' },
+    { key: 'status', label: 'Status' },
+    { key: 'overlapMinutes', label: 'Overlap (min)', format: 'number' },
+    { key: 'wosOpened', label: 'WOs Opened', format: 'number' },
+    { key: 'wosCompleted', label: 'WOs Completed', format: 'number' },
+    { key: 'wosPending', label: 'WOs Pending', format: 'number' },
+    { key: 'breakdownsOpened', label: 'Breakdowns Opened', format: 'number' },
+    { key: 'breakdownsCarriedOver', label: 'Breakdowns Carried Over', format: 'number' },
+    { key: 'safetyIncidentOccurred', label: 'Safety Incident', format: 'bool' },
+    { key: 'generalNotes', label: 'Notes' },
+  ],
+  safety_near_miss: [
+    { key: 'shiftName', label: 'Shift' },
+    { key: 'shiftDate', label: 'Date', format: 'date' },
+    { key: 'outgoingSupervisorName', label: 'Reported By (Supervisor)' },
+    { key: 'safetyIncidentOccurred', label: 'Incident Occurred', format: 'bool' },
+    { key: 'safetyIncidentDescription', label: 'Description' },
+    { key: 'status', label: 'Handover Status' },
+  ],
+  training_compliance: [
+    { key: 'traineeName', label: 'Trainee' },
+    { key: 'department', label: 'Department' },
+    { key: 'machineName', label: 'Machine' },
+    { key: 'moduleName', label: 'Training Module' },
+    { key: 'status', label: 'Status' },
+    { key: 'assignedAt', label: 'Assigned', format: 'date' },
+    { key: 'dueDate', label: 'Due', format: 'date' },
+    { key: 'certifiedAt', label: 'Certified', format: 'date' },
+    { key: 'certificateExpiryDate', label: 'Certificate Expiry', format: 'date' },
+  ],
   machine_history: [
     { key: 'name', label: 'Machine' },
     { key: 'type', label: 'Type' },
@@ -214,15 +263,31 @@ export function resolveColumns(reportType: ReportType, rows: Record<string, unkn
     .map((k) => ({ key: k, label: titleCase(k) }));
 }
 
+/**
+ * Same as formatCell, but date/datetime values are returned as real JS Date
+ * objects instead of pre-formatted strings. xlsx (SheetJS) writes a Date
+ * value as a genuine Excel date cell (numeric serial + date number format),
+ * so the column stays sortable/filterable as a date in Excel. formatCell
+ * still returns strings for CSV/PDF/on-screen preview, where a literal date
+ * string is exactly what's wanted.
+ */
+export function formatCellForExcel(value: unknown, format?: ColumnFormat): string | number | Date {
+  if (format === 'date' || format === 'datetime') {
+    const d = toDate(value);
+    if (d) return d;
+  }
+  return formatCell(value, format);
+}
+
 /** Maps rows into label-keyed objects for spreadsheet export. */
 export function mapRowsToColumns(
   columns: ReportColumn[],
   rows: Record<string, unknown>[],
-): Record<string, string | number>[] {
+): Record<string, string | number | Date>[] {
   return rows.map((row) => {
-    const out: Record<string, string | number> = {};
+    const out: Record<string, string | number | Date> = {};
     columns.forEach((col) => {
-      out[col.label] = formatCell(row[col.key], col.format);
+      out[col.label] = formatCellForExcel(row[col.key], col.format);
     });
     return out;
   });

@@ -6,6 +6,7 @@ import MultiValueInput from './MultiValueInput';
 import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelect';
 import SeverityCheckboxGroup from './SeverityCheckboxGroup';
 import ShiftCheckboxGroup from './ShiftCheckboxGroup';
+import SupervisorMultiSelect from './SupervisorMultiSelect';
 import TechnicianMultiSelect from './TechnicianMultiSelect';
 import type { ReportConfig, ReportDefinition } from '../../../types/reports.types';
 
@@ -16,6 +17,26 @@ const BREAKDOWN_TYPE_OPTIONS: SelectOption[] = [
   { value: 'hydraulic', label: 'Hydraulic' },
   { value: 'pneumatic', label: 'Pneumatic' },
   { value: 'software', label: 'Software' },
+  { value: 'other', label: 'Other' },
+];
+
+// Values match the PartCategory union stored on inventoryParts docs.
+const PART_CATEGORY_OPTIONS: SelectOption[] = [
+  { value: 'bearings', label: 'Bearings' },
+  { value: 'belts_chains', label: 'Belts & Chains' },
+  { value: 'bolts_fasteners', label: 'Bolts & Fasteners' },
+  { value: 'electrical', label: 'Electrical' },
+  { value: 'filters', label: 'Filters' },
+  { value: 'gaskets_seals', label: 'Gaskets & Seals' },
+  { value: 'gears_sprockets', label: 'Gears & Sprockets' },
+  { value: 'hydraulic', label: 'Hydraulic' },
+  { value: 'lubricants_oils', label: 'Lubricants & Oils' },
+  { value: 'motors_drives', label: 'Motors & Drives' },
+  { value: 'pneumatic', label: 'Pneumatic' },
+  { value: 'pumps_valves', label: 'Pumps & Valves' },
+  { value: 'safety_equipment', label: 'Safety Equipment' },
+  { value: 'sensors_instrumentation', label: 'Sensors & Instrumentation' },
+  { value: 'welding_supplies', label: 'Welding Supplies' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -53,9 +74,17 @@ export default function ReportFilterSection({
       )}
       {has('technician') && <TechnicianMultiSelect values={config.technicians} onChange={(technicians) => onChange({ technicians })} />}
       {has('contractor') && <ContractorMultiSelect values={config.contractors} onChange={(contractors) => onChange({ contractors })} />}
-      {has('part_category') && <MultiValueInput label="Part Category" placeholder="Bearings, Belts" values={config.partCategories} onChange={(partCategories) => onChange({ partCategories })} />}
+      {has('part_category') && (
+        <SearchableMultiSelect
+          label="Part Category"
+          options={PART_CATEGORY_OPTIONS}
+          values={config.partCategories}
+          onChange={(partCategories) => onChange({ partCategories })}
+          placeholder="Search part categories…"
+        />
+      )}
       {has('shift') && <ShiftCheckboxGroup values={config.shifts} onChange={(shifts) => onChange({ shifts })} />}
-      {has('supervisor') && <MultiValueInput label="Supervisor" placeholder="Supervisor names" values={config.supervisors} onChange={(supervisors) => onChange({ supervisors })} />}
+      {has('supervisor') && <SupervisorMultiSelect values={config.supervisors} onChange={(supervisors) => onChange({ supervisors })} />}
       {has('priority') && <CheckboxGroup label="Priority" options={['Critical', 'High', 'Medium', 'Low']} values={config.priorities} onChange={(priorities) => onChange({ priorities })} />}
       {has('invoice_status') && <CheckboxGroup label="Invoice Status" options={['Paid', 'Pending', 'Disputed']} values={config.invoiceStatuses} onChange={(invoiceStatuses) => onChange({ invoiceStatuses })} />}
       {has('training_status') && <CheckboxGroup label="Training Status" options={['Certified', 'Expiring', 'Expired', 'In Progress']} values={config.trainingStatuses} onChange={(trainingStatuses) => onChange({ trainingStatuses })} />}
