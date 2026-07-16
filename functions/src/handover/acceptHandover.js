@@ -18,6 +18,12 @@ exports.acceptHandover = onCall(async (request) => {
   if (handover.status !== "pending_acceptance") {
     throw new HttpsError("failed-precondition", "Handover has already been accepted or archived.");
   }
+  if (handover.outgoingSupervisorId === request.auth.uid) {
+    throw new HttpsError(
+        "failed-precondition",
+        "You cannot accept your own handover. The incoming supervisor must accept it.",
+    );
+  }
 
   const acceptedAt = Timestamp.now();
   const overlapMinutes = minutesBetween(handover.handoverSubmittedAt, acceptedAt);

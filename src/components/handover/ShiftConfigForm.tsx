@@ -10,6 +10,16 @@ interface ShiftConfigFormProps {
 
 const DAYS: ShiftDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+const SCHEDULABLE_ROLES: Array<{ value: string; label: string }> = [
+  { value: 'supervisor', label: 'Supervisor' },
+  { value: 'technician', label: 'Technician' },
+  { value: 'floor_operator', label: 'Floor Operator' },
+  { value: 'store_keeper', label: 'Store Keeper' },
+  { value: 'trainee', label: 'Trainee' },
+  { value: 'plant_manager', label: 'Plant Manager' },
+  { value: 'hr_officer', label: 'HR Officer' },
+];
+
 export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const [shiftName, setShiftName] = useState(initial?.shiftName ?? '');
   const [startTime, setStartTime] = useState(initial?.startTime ?? '06:00');
@@ -18,6 +28,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const [department, setDepartment] = useState(initial?.department ?? '');
   const [status, setStatus] = useState(initial?.status ?? 'active');
   const [activeDays, setActiveDays] = useState<ShiftDay[]>(initial?.activeDays ?? DAYS);
+  const [roles, setRoles] = useState<string[]>(initial?.roles ?? []);
 
   // Reset local state when switching which shift is being edited.
   useEffect(() => {
@@ -28,6 +39,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
     setDepartment(initial?.department ?? '');
     setStatus(initial?.status ?? 'active');
     setActiveDays(initial?.activeDays ?? DAYS);
+    setRoles(initial?.roles ?? []);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial?.id]);
   const [saving, setSaving] = useState(false);
@@ -64,6 +76,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         // not from this form. Preserve any legacy member list on edit.
         memberIds: initial?.memberIds ?? [],
         memberNames: initial?.memberNames ?? [],
+        roles,
       });
       setSuccess(true);
       if (!initial) {
@@ -115,8 +128,25 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         ))}
       </div>
 
+      {/* Scheduled roles */}
+      <div>
+        <p className="mb-2 text-xs font-medium text-slate-600">Scheduled Roles (everyone with these roles is part of this shift plan)</p>
+        <div className="flex flex-wrap gap-2">
+          {SCHEDULABLE_ROLES.map((role) => (
+            <label key={role.value} className="flex min-h-12 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm">
+              <input
+                type="checkbox"
+                checked={roles.includes(role.value)}
+                onChange={(event) => setRoles((current) => event.target.checked ? [...current, role.value] : current.filter((item) => item !== role.value))}
+              />
+              {role.label}
+            </label>
+          ))}
+        </div>
+      </div>
+
       <p className="text-xs text-slate-500">
-        Members are assigned to this shift from <span className="font-semibold">Settings → Users</span> by picking a shift there, or automatically by matching a user's department to this shift's department.
+        Members are assigned to this shift from <span className="font-semibold">Settings → Users</span> by picking a shift there, or by selecting scheduled roles above. Assigned members are emailed when this plan changes and reminded 2–3 hours before the shift starts.
       </p>
 
       {error && (

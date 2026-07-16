@@ -102,6 +102,16 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
   { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
   {
+    label: 'My Shift',
+    to: '/app/shift/my',
+    icon: (
+      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+      </svg>
+    ),
+    roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
+  },
+  {
     label: 'Handovers',
     to: '/app/shift/handover/history',
     icon: (
@@ -318,7 +328,7 @@ export default function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            {(role === 'supervisor' || role === 'admin') && <EndShiftButton />}
+            <EndShiftButton />
             <div className="text-right hidden sm:block leading-tight">
               <div className="text-[13px] font-medium text-[#F0F4F8] truncate max-w-[160px]">
                 {userProfile?.fullName ?? 'User'}

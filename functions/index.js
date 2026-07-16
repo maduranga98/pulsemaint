@@ -82,6 +82,11 @@ const {
   resolveWatchFlagOnTicketClose,
   resolveWatchFlagOnBreakdownClose,
 } = require("./src/handover/resolveWatchFlagOnTicketClose");
+const {
+  onShiftPlanUpdated,
+  onHandoverSubmitted,
+  sendShiftStartReminders,
+} = require("./src/handover/shiftEmails");
 
 exports.autoCompileShiftSummary = autoCompileShiftSummary;
 exports.submitHandover = submitHandover;
@@ -90,6 +95,9 @@ exports.checkUnacceptedHandovers = checkUnacceptedHandovers;
 exports.carryForwardWatchFlags = carryForwardWatchFlags;
 exports.resolveWatchFlagOnTicketClose = resolveWatchFlagOnTicketClose;
 exports.resolveWatchFlagOnBreakdownClose = resolveWatchFlagOnBreakdownClose;
+exports.onShiftPlanUpdated = onShiftPlanUpdated;
+exports.onHandoverSubmitted = onHandoverSubmitted;
+exports.sendShiftStartReminders = sendShiftStartReminders;
 
 const { generateTrainingCertificate } = require("./src/training/generateTrainingCertificate");
 const { checkRetrainingTrigger } = require("./src/training/checkRetrainingTrigger");

@@ -18,8 +18,33 @@ export interface ShiftConfig {
   status: ShiftStatus;
   memberIds: string[];
   memberNames: string[];
+  /** Roles scheduled for this shift plan. Any user with one of these roles is part of the plan. */
+  roles: string[];
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export type ShiftSessionStatus = 'active' | 'completed';
+
+/** A persisted record of one person actually working one shift (start → end). */
+export interface ShiftSession {
+  id: string;
+  companyId: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  shiftConfigId: string;
+  shiftName: string;
+  shiftDate: string;
+  scheduledStart: string;
+  scheduledEnd: string;
+  scheduledMinutes: number;
+  actualStart: Date;
+  actualEnd: Date | null;
+  totalMinutes: number | null;
+  otMinutes: number | null;
+  status: ShiftSessionStatus;
+  handoverId: string | null;
 }
 
 export interface WatchFlag {
@@ -167,6 +192,9 @@ export interface HandoverStore {
   currentShift: ShiftConfig | null;
   shiftStartTime: Date | null;
   isShiftActive: boolean;
+  activeSession: ShiftSession | null;
+  lastCompletedSession: ShiftSession | null;
+  isShiftStateLoaded: boolean;
   pendingHandover: ShiftHandover | null;
   hasPendingHandover: boolean;
   draftHandover: DraftHandover | null;
@@ -174,8 +202,10 @@ export interface HandoverStore {
   isCompilingStats: boolean;
   handoverHistory: ShiftHandover[];
   historyFilters: HandoverHistoryFilters;
+  /** Restore any persisted active shift session (survives refresh / re-login). */
+  initShiftState: () => Promise<void>;
   startShift: (shiftConfigId?: string) => Promise<void>;
-  endShift: () => Promise<void>;
+  endShift: () => Promise<ShiftSession | null>;
   compileShiftSummary: () => Promise<ShiftStatsAuto>;
   updateDraftHandover: (updates: Partial<DraftHandover>) => void;
   submitHandover: () => Promise<string>;

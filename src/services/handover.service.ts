@@ -25,9 +25,11 @@ import type {
   PendingWOSnapshot,
   ShiftConfig,
   ShiftHandover,
+  ShiftSession,
   ShiftStatsAuto,
   WatchFlag,
 } from '@/types/handover.types';
+import { computeShiftTotals, scheduledShiftMinutes } from '@/utils/handover.utils';
 
 const functions = getFunctions(app);
 
@@ -64,8 +66,31 @@ function mapShiftConfig(id: string, data: DocumentData): ShiftConfig {
     status: data.status,
     memberIds: data.memberIds ?? [],
     memberNames: data.memberNames ?? [],
+    roles: data.roles ?? [],
     createdAt: toDate(data.createdAt) ?? undefined,
     updatedAt: toDate(data.updatedAt) ?? undefined,
+  };
+}
+
+function mapShiftSession(id: string, data: DocumentData): ShiftSession {
+  return {
+    id,
+    companyId: data.companyId,
+    userId: data.userId,
+    userName: data.userName ?? '',
+    userRole: data.userRole ?? '',
+    shiftConfigId: data.shiftConfigId ?? '',
+    shiftName: data.shiftName ?? 'Shift',
+    shiftDate: data.shiftDate ?? '',
+    scheduledStart: data.scheduledStart ?? '',
+    scheduledEnd: data.scheduledEnd ?? '',
+    scheduledMinutes: data.scheduledMinutes ?? 0,
+    actualStart: toDate(data.actualStart) ?? new Date(),
+    actualEnd: toDate(data.actualEnd),
+    totalMinutes: data.totalMinutes ?? null,
+    otMinutes: data.otMinutes ?? null,
+    status: data.status ?? 'active',
+    handoverId: data.handoverId ?? null,
   };
 }
 
@@ -130,6 +155,89 @@ export async function saveShiftConfig(companyId: string, payload: Omit<ShiftConf
 
 export async function deleteShiftConfig(id: string): Promise<void> {
   await deleteDoc(doc(db, 'shift_config', id));
+}
+
+// ---------------------------------------------------------------------------
+// Shift sessions — persisted start/end records with total hours + OT
+// ---------------------------------------------------------------------------
+
+export async function startShiftSession(params: {
+  companyId: string;
+  userId: string;
+  userName: string;
+  userRole: string;
+  shift: ShiftConfig;
+}): Promise<ShiftSession> {
+  const { companyId, userId, userName, userRole, shift } = params;
+  const actualStart = new Date();
+  const data = {
+    companyId,
+    userId,
+    userName,
+    userRole,
+    shiftConfigId: shift.id,
+    shiftName: shift.shiftName,
+    shiftDate: actualStart.toISOString().slice(0, 10),
+    scheduledStart: shift.startTime,
+    scheduledEnd: shift.endTime,
+    scheduledMinutes: scheduledShiftMinutes(shift.startTime, shift.endTime),
+    actualStart: Timestamp.fromDate(actualStart),
+    actualEnd: null,
+    totalMinutes: null,
+    otMinutes: null,
+    status: 'active' as const,
+    handoverId: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  const ref = await addDoc(collection(db, 'shift_sessions'), data);
+  return mapShiftSession(ref.id, { ...data, actualStart: Timestamp.fromDate(actualStart) });
+}
+
+export async function fetchActiveShiftSession(companyId: string, userId: string): Promise<ShiftSession | null> {
+  const snap = await getDocs(query(
+    collection(db, 'shift_sessions'),
+    where('companyId', '==', companyId),
+    where('userId', '==', userId),
+    where('status', '==', 'active'),
+    limit(1),
+  ));
+  const item = snap.docs[0];
+  return item ? mapShiftSession(item.id, item.data()) : null;
+}
+
+export async function completeShiftSession(session: ShiftSession): Promise<ShiftSession> {
+  const actualEnd = new Date();
+  const { totalMinutes, otMinutes } = computeShiftTotals(
+    { startTime: session.scheduledStart, endTime: session.scheduledEnd },
+    session.actualStart,
+    actualEnd,
+  );
+  await updateDoc(doc(db, 'shift_sessions', session.id), {
+    actualEnd: Timestamp.fromDate(actualEnd),
+    totalMinutes,
+    otMinutes,
+    status: 'completed',
+    updatedAt: serverTimestamp(),
+  });
+  return { ...session, actualEnd, totalMinutes, otMinutes, status: 'completed' };
+}
+
+export async function attachHandoverToSession(sessionId: string, handoverId: string): Promise<void> {
+  await updateDoc(doc(db, 'shift_sessions', sessionId), { handoverId, updatedAt: serverTimestamp() });
+}
+
+export async function fetchMyRecentSessions(companyId: string, userId: string, max = 10): Promise<ShiftSession[]> {
+  // Sorted client-side to avoid a composite index requirement.
+  const snap = await getDocs(query(
+    collection(db, 'shift_sessions'),
+    where('companyId', '==', companyId),
+    where('userId', '==', userId),
+  ));
+  return snap.docs
+    .map((item) => mapShiftSession(item.id, item.data()))
+    .sort((a, b) => b.actualStart.getTime() - a.actualStart.getTime())
+    .slice(0, max);
 }
 
 export async function autoCompileShiftSummary(params: {

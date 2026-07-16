@@ -1,25 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Play } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useHandoverStore } from '@/store/handover.store';
 import { formatDuration } from '@/utils/handover.utils';
 import EndShiftConfirmModal from './EndShiftConfirmModal';
+import ShiftSummaryModal from './ShiftSummaryModal';
+import type { ShiftSession } from '@/types/handover.types';
 
 export function EndShiftButton() {
   const navigate = useNavigate();
-  const role = useAuthStore((state) => state.userProfile?.role);
+  const profile = useAuthStore((state) => state.userProfile);
   const currentShift = useHandoverStore((state) => state.currentShift);
   const shiftStartTime = useHandoverStore((state) => state.shiftStartTime);
   const isShiftActive = useHandoverStore((state) => state.isShiftActive);
+  const isShiftStateLoaded = useHandoverStore((state) => state.isShiftStateLoaded);
   const isCompilingStats = useHandoverStore((state) => state.isCompilingStats);
+  const initShiftState = useHandoverStore((state) => state.initShiftState);
   const startShift = useHandoverStore((state) => state.startShift);
   const endShift = useHandoverStore((state) => state.endShift);
   const [open, setOpen] = useState(false);
   const [starting, setStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
+  const [summarySession, setSummarySession] = useState<ShiftSession | null>(null);
 
-  if (role !== 'supervisor' && role !== 'admin') return null;
+  // Restore a persisted active shift session across page refreshes/logins.
+  useEffect(() => {
+    if (profile && !isShiftStateLoaded) void initShiftState();
+  }, [profile, isShiftStateLoaded, initShiftState]);
+
+  if (!profile) return null;
+  const canHandover = profile.role === 'supervisor' || profile.role === 'admin';
 
   const elapsed = shiftStartTime ? formatDuration(Date.now() - shiftStartTime.getTime()) : 'Start';
 
@@ -36,9 +47,27 @@ export function EndShiftButton() {
   }
 
   async function confirm() {
-    await endShift();
+    const completed = await endShift();
     setOpen(false);
-    navigate('/app/shift/handover/create');
+    setSummarySession(completed);
+    if (!completed && canHandover) {
+      // No persisted session (legacy state) — go straight to the handover form.
+      navigate('/app/shift/handover/create');
+    }
+  }
+
+  if (summarySession) {
+    return (
+      <ShiftSummaryModal
+        session={summarySession}
+        canHandover={canHandover}
+        onClose={() => setSummarySession(null)}
+        onContinueToHandover={() => {
+          setSummarySession(null);
+          navigate('/app/shift/handover/create');
+        }}
+      />
+    );
   }
 
   if (!isShiftActive) {
