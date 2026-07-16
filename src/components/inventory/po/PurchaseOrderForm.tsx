@@ -224,8 +224,9 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
             : 'PO saved and sent.';
       addToast(msg, 'success');
     } catch (err) {
-      addToast('Failed to save purchase order.', 'error');
-      console.error(err);
+      console.error('Failed to save purchase order', err);
+      const detail = err instanceof Error ? err.message : String(err);
+      addToast(`Failed to save purchase order: ${detail}`, 'error');
     } finally {
       setSaving(false);
     }

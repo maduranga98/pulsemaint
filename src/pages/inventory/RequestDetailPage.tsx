@@ -26,6 +26,7 @@ export function RequestDetailPage() {
   const { addToast } = useToast();
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
+  const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
 
   const { request, loading, error } = usePartsRequest(requestId);
@@ -83,13 +84,41 @@ export function RequestDetailPage() {
             if (!partSnap.exists()) continue;
             const partData = partSnap.data();
             const approvedQty = decision === 'approve' ? item.quantityRequested : item.quantityApproved;
-            const newReserved = (partData.reservedStock ?? 0) + approvedQty;
+            if (approvedQty <= 0) continue;
+            const reservedBefore = (partData.reservedStock ?? 0) as number;
+            const newReserved = reservedBefore + approvedQty;
             const newAvailable = partData.currentStock - newReserved;
             tx.update(partRef, {
               reservedStock: newReserved,
               availableStock: Math.max(0, newAvailable),
               updatedAt: serverTimestamp(),
               updatedBy: userId,
+            });
+
+            // Stock movement record — every quantity-changing operation must
+            // be traceable, including reservations made on approval.
+            const movementRef = doc(collection(db, 'stockMovements'));
+            tx.set(movementRef, {
+              companyId,
+              partId: item.partId,
+              partNumber: item.partNumber,
+              partName: item.partName,
+              movementType: 'reserve',
+              quantityBefore: reservedBefore,
+              quantityChange: approvedQty,
+              quantityAfter: newReserved,
+              referenceType: 'parts_request',
+              referenceId: request.id,
+              workOrderId: request.workOrderId,
+              workOrderNumber: request.workOrderNumber,
+              partsRequestId: request.id,
+              performedBy: userId,
+              performedByName: userName,
+              performedByRole: userRole,
+              performedAt: serverTimestamp(),
+              notes: decision === 'partial' ? 'Partially approved and reserved' : 'Approved and reserved',
+              unitCostAtTime: item.unitCost,
+              totalCostImpact: item.unitCost * approvedQty,
             });
           }
 

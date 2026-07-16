@@ -267,6 +267,13 @@ export interface PartsRequest {
   issuedBy: string | null;
   issuedByName: string | null;
 
+  // Physical collection confirmation — captured by the storekeeper when the
+  // requesting person (or their delegate) physically collects the parts.
+  collectedByName: string | null;
+  collectedAt: Timestamp | null;
+  confirmedBy: string | null;
+  confirmedByName: string | null;
+
   completedAt: Timestamp | null;
   returnedAt: Timestamp | null;
 
