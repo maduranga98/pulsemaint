@@ -38,6 +38,16 @@ export function PhysicalIssueScreen() {
   const [storeLocations, setStoreLocations] = useState<StoreLocations>({});
   const [itemStates, setItemStates] = useState<Record<string, ItemState>>({});
   const [isConfirming, setIsConfirming] = useState(false);
+  const [collectorName, setCollectorName] = useState('');
+
+  // Default the collector name to the requester — storekeeper can override
+  // when someone else (e.g. a colleague) physically collects on their behalf.
+  useEffect(() => {
+    if (request && !collectorName) {
+      setCollectorName(request.requestedByName ?? '');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [request]);
 
   // Fetch store locations for all parts
   useEffect(() => {
@@ -105,6 +115,10 @@ export function PhysicalIssueScreen() {
 
   async function handleConfirm() {
     if (!request || !userProfile || !companyId) return;
+    if (!collectorName.trim()) {
+      toast.error('Enter the name of the person collecting the parts.');
+      return;
+    }
     setIsConfirming(true);
 
     try {
@@ -171,13 +185,19 @@ export function PhysicalIssueScreen() {
           issuedAt: nowTs,
           issuedBy: userProfile.id,
           issuedByName: userProfile.fullName,
+          // Collection confirmation — who physically took the parts, and
+          // who (the storekeeper) verified/confirmed that collection.
+          collectedByName: collectorName.trim(),
+          collectedAt: nowTs,
+          confirmedBy: userProfile.id,
+          confirmedByName: userProfile.fullName,
           items: updatedItems,
           updatedAt: now,
           updatedBy: userProfile.id,
         });
       });
 
-      toast.success('Parts issued successfully');
+      toast.success('Collection confirmed — parts issued successfully');
       navigate('/app/inventory/requests');
     } catch (err) {
       console.error(err);
@@ -272,9 +292,22 @@ export function PhysicalIssueScreen() {
       </div>
 
       {/* Sticky confirm button */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 bg-white border-t border-gray-200 p-4">
+      <div className="fixed bottom-0 left-0 right-0 z-10 bg-white border-t border-gray-200 p-4 space-y-2">
+        <div>
+          <label htmlFor="collector-name" className="block text-xs font-medium text-gray-600 mb-1">
+            Collected by <span className="text-red-500">*</span>
+          </label>
+          <input
+            id="collector-name"
+            type="text"
+            value={collectorName}
+            onChange={(e) => setCollectorName(e.target.value)}
+            placeholder="Name of the person collecting the parts"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
         <IssueConfirmButton
-          allChecked={allChecked}
+          allChecked={allChecked && collectorName.trim().length > 0}
           onConfirm={handleConfirm}
           isLoading={isConfirming}
           totalItems={issuableItems.length}
