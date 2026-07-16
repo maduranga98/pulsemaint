@@ -392,6 +392,7 @@ service cloud.firestore {
               'workStartedAt', 'workCompletedAt', 'departedAt', 'onSiteDurationMinutes',
               'actualWorkDurationMinutes', 'workSteps', 'partsFromContractor',
               'totalPartsCost', 'checklistResults', 'testRunResult', 'testRunNotes',
+              'workDoneDescription', 'rootCause',
               'machineStatusAfter', 'photoUrls', 'beforePhotoUrls', 'afterPhotoUrls',
               'documentUrls', 'signedOffBy', 'signedOffByName', 'signedOffAt',
               'signOffNotes', 'signOffSignature', 'isDisputed', 'disputeNotes',

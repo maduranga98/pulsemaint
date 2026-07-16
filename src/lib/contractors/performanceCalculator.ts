@@ -10,7 +10,10 @@ function minutesBetween(start?: { toMillis: () => number } | null, end?: { toMil
   return Math.max(0, Math.round((end.toMillis() - start.toMillis()) / 60000));
 }
 
+const COMPLETED_JOB_STATUSES = new Set(['signed_off', 'invoice_submitted', 'payment_processed']);
+
 export function calculateContractorMetrics(jobs: ContractorJob[]) {
+  const completedJobs = jobs.filter((job) => COMPLETED_JOB_STATUSES.has(job.status) || Boolean(job.signedOffAt));
   const signedJobs = jobs.filter((job) => job.status === 'signed_off' || job.signedOffAt);
   const breakdownJobs = jobs.filter((job) => job.workOrderType === 'breakdown_repair' || job.workOrderType === 'BREAKDOWN');
   const ratedJobs = jobs.filter((job) => job.rating);
@@ -27,7 +30,7 @@ export function calculateContractorMetrics(jobs: ContractorJob[]) {
     .sort((a, b) => (b.signedOffAt?.toMillis() ?? 0) - (a.signedOffAt?.toMillis() ?? 0))[0];
 
   return {
-    totalJobsCount: jobs.length,
+    totalJobsCount: completedJobs.length,
     breakdownJobsCount: breakdownJobs.length,
     pmJobsCount: jobs.filter((job) => job.workOrderType === 'preventive_maintenance' || job.workOrderType === 'PREVENTIVE').length,
     installationJobsCount: jobs.filter((job) => job.workOrderType === 'installation' || job.workOrderType === 'INSTALLATION').length,
