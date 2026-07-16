@@ -99,6 +99,11 @@ export interface MachineRef {
   name: string;
 }
 
+export interface ContractorRef {
+  id: string;
+  name: string;
+}
+
 export interface AIRootCauseSuggestion {
   findingId: string;
   findingDescription: string;
@@ -119,6 +124,7 @@ export interface AuditSession {
 
   // Scope
   machines: MachineRef[];
+  contractors: ContractorRef[];
   department: string;
   location: string;
 
@@ -154,6 +160,7 @@ export interface AuditDraft {
   category: AuditCategory;
   templateId: string;
   machines: MachineRef[];
+  contractors: ContractorRef[];
   department: string;
   location: string;
   participants: AuditParticipant[];

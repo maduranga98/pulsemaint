@@ -754,11 +754,11 @@ export default function AppRouter() {
         />
 
         {/* Audit — unified TPM/5S/OEE/Contractor. Not available to
-            technician, trainee or floor_operator roles. */}
+            technician, trainee, floor_operator, or store_keeper roles. */}
         <Route
           path="audit"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'store_keeper', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <AuditPage />
             </ProtectedRoute>
           }

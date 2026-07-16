@@ -42,7 +42,9 @@ export function buildAuditPdf(session: AuditSession): jsPDF {
       ['Conducted by', `${session.auditorName} (${session.auditorRole}${session.auditorEmployeeId ? ', #' + session.auditorEmployeeId : ''})`],
       ['Department', session.department || '—'],
       ['Location / Zone', session.location || '—'],
-      ['Machines', session.machines.map((m) => m.name).join(', ') || '—'],
+      session.category === 'contractor'
+        ? ['Contractors', (session.contractors ?? []).map((c) => c.name).join(', ') || '—']
+        : ['Machines', session.machines.map((m) => m.name).join(', ') || '—'],
       ['Participants', session.participants.map((p) => `${p.name} (${p.role})`).join(', ') || '—'],
     ],
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 110, textColor: [71, 85, 105] } },
