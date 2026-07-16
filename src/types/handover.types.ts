@@ -174,7 +174,7 @@ export interface HandoverStore {
   isCompilingStats: boolean;
   handoverHistory: ShiftHandover[];
   historyFilters: HandoverHistoryFilters;
-  startShift: (shiftConfigId: string) => Promise<void>;
+  startShift: (shiftConfigId?: string) => Promise<void>;
   endShift: () => Promise<void>;
   compileShiftSummary: () => Promise<ShiftStatsAuto>;
   updateDraftHandover: (updates: Partial<DraftHandover>) => void;

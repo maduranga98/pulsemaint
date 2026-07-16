@@ -43,11 +43,18 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
   handoverHistory: [],
   historyFilters: emptyFilters,
 
-  startShift: async (shiftConfigId: string) => {
+  startShift: async (shiftConfigId?: string) => {
     const profile = requireProfile();
     const shifts = await fetchShiftConfigs(profile.companyId);
-    const shift = shifts.find((item) => item.id === shiftConfigId) ?? detectCurrentShift(shifts);
-    set({ currentShift: shift ?? null, shiftStartTime: new Date(), isShiftActive: Boolean(shift) });
+    // Prefer the shift explicitly assigned to this user (Settings → Users);
+    // fall back to whatever shift is scheduled right now only if the user
+    // has no assignment.
+    const assignedId = shiftConfigId || profile.shiftId || undefined;
+    const shift = (assignedId ? shifts.find((item) => item.id === assignedId) : undefined) ?? detectCurrentShift(shifts);
+    if (!shift) {
+      throw new Error('No shift is assigned to you. Ask an admin to assign a shift in Settings → Users.');
+    }
+    set({ currentShift: shift, shiftStartTime: new Date(), isShiftActive: true });
   },
 
   endShift: async () => {
@@ -116,7 +123,19 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
   acceptHandover: async (handoverId: string) => {
     const profile = requireProfile();
     await acceptHandoverCallable(handoverId, profile.companyId);
-    set({ pendingHandover: null, hasPendingHandover: false, isShiftActive: true, shiftStartTime: new Date() });
+    // Carry the assigned/handed-over shift into the incoming supervisor's
+    // active shift state so it drives their own end-shift + handover later.
+    const pending = get().pendingHandover;
+    const shifts = await fetchShiftConfigs(profile.companyId);
+    const assignedId = pending?.shiftConfigId || profile.shiftId || undefined;
+    const shift = (assignedId ? shifts.find((item) => item.id === assignedId) : undefined) ?? detectCurrentShift(shifts);
+    set({
+      pendingHandover: null,
+      hasPendingHandover: false,
+      isShiftActive: true,
+      shiftStartTime: new Date(),
+      currentShift: shift ?? null,
+    });
   },
 
   fetchPendingHandover: async () => {
