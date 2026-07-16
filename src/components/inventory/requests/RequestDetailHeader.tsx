@@ -64,6 +64,21 @@ export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
           </div>
         </div>
       </div>
+
+      {request.status === 'issued' && request.collectedByName && (
+        <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
+          <span className="font-medium text-gray-900">Collected by:</span>{' '}
+          {request.collectedByName}
+          {request.collectedAt?.toDate && (
+            <span className="text-gray-500">
+              {' '}on {request.collectedAt.toDate().toLocaleString()}
+            </span>
+          )}
+          {request.confirmedByName && (
+            <span className="text-gray-500"> · confirmed by {request.confirmedByName}</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

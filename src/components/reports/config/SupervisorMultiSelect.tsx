@@ -5,11 +5,10 @@ import { useAuthStore } from '../../../store/authStore';
 import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelect';
 
 /**
- * Technician filter backed by registered users with the technician role
- * (companies/{companyId}/users) so selected values are real user IDs that
- * match what work order / breakdown documents store as assignee.
+ * Supervisor filter backed by registered users with the supervisor role
+ * (companies/{companyId}/users), instead of free-typed names.
  */
-export default function TechnicianMultiSelect({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
+export default function SupervisorMultiSelect({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
   const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,14 +23,14 @@ export default function TechnicianMultiSelect({ values, onChange }: { values: st
       setLoading(true);
       try {
         const snap = await getDocs(
-          query(collection(db, `companies/${companyId}/users`), where('role', '==', 'technician')),
+          query(collection(db, `companies/${companyId}/users`), where('role', '==', 'supervisor')),
         );
         const opts = snap.docs.map((d) => {
           const data = d.data();
           return {
             value: d.id,
             label: String(data.fullName ?? d.id),
-            hint: String(data.jobTitle ?? data.department ?? ''),
+            hint: String(data.department ?? ''),
           };
         });
         if (!cancelled) setOptions(opts.sort((a, b) => a.label.localeCompare(b.label)));
@@ -49,11 +48,11 @@ export default function TechnicianMultiSelect({ values, onChange }: { values: st
 
   return (
     <SearchableMultiSelect
-      label="Technician"
+      label="Supervisor"
       options={options}
       values={values}
       onChange={onChange}
-      placeholder="Search technicians…"
+      placeholder="Search supervisors…"
       loading={loading}
     />
   );

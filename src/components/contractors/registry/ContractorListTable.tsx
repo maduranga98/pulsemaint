@@ -59,7 +59,6 @@ export function ContractorListTable({ contractors }: ContractorListTableProps) {
                 <div className="flex gap-2 text-xs font-semibold">
                   <Link to={`/app/contractors/${contractor.id}`} className="text-blue-700">View</Link>
                   <Link to={`/app/contractors/${contractor.id}/edit`} className="text-slate-700">Edit</Link>
-                  <Link to="/app/work-orders" className={contractor.blocksAssignment ? 'pointer-events-none text-slate-400' : 'text-emerald-700'}>Assign</Link>
                 </div>
               </td>
             </tr>
