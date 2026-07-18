@@ -10,15 +10,21 @@ const PRIORITY_COLORS: Record<string, string> = {
 
 interface JobQueueItemProps {
   wo: WorkOrder;
+  onClick?: () => void;
 }
 
-export default function JobQueueItem({ wo }: JobQueueItemProps) {
+export default function JobQueueItem({ wo, onClick }: JobQueueItemProps) {
   const dueDate = wo.dueDate?.toDate ? wo.dueDate.toDate() : new Date(wo.dueDate as any);
   const isOverdue = dueDate.getTime() < Date.now();
   const daysUntil = Math.ceil((dueDate.getTime() - Date.now()) / 86400000);
 
+  const Wrapper = onClick ? 'button' : 'div';
+
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 bg-[#0A1628] rounded-lg border border-[#1E3A5F] border-l-4 ${PRIORITY_COLORS[wo.priority] || 'border-l-[#8BA3BF]'}`}>
+    <Wrapper
+      {...(onClick ? { type: 'button' as const, onClick } : {})}
+      className={`w-full text-left flex items-center gap-3 px-4 py-3 bg-[#0A1628] rounded-lg border border-[#1E3A5F] border-l-4 ${PRIORITY_COLORS[wo.priority] || 'border-l-[#8BA3BF]'} ${onClick ? 'cursor-pointer hover:border-[#00C2FF] transition-colors' : ''}`}
+    >
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold text-[#F0F4F8]">{wo.woNumber}</span>
@@ -36,6 +42,6 @@ export default function JobQueueItem({ wo }: JobQueueItemProps) {
         </div>
         <p className="text-[10px] text-[#8BA3BF] mt-0.5">{wo.status.replace('_', ' ')}</p>
       </div>
-    </div>
+    </Wrapper>
   );
 }

@@ -256,9 +256,12 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /machines/{machineId} {
+      // floor_operator needs read access: scanning a machine QR opens the
+      // breakdown report form, which loads machines to auto-select the one
+      // scanned (PM-093).
       allow read: if isAuthenticated() && isAnyRole([
-        'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager',
-        'store_keeper', 'trainee', 'admin'
+        'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
+        'plant_manager', 'store_keeper', 'trainee', 'admin'
       ]);
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
       allow write: if isAdmin() || isSupervisor() || isPlantManager();

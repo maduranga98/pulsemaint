@@ -342,7 +342,7 @@ export default function AppRouter() {
         <Route
           path="my-work-orders"
           element={
-            <ProtectedRoute requiredRoles={['technician', 'admin', 'trainee']}>
+            <ProtectedRoute requiredRoles={['technician', 'admin', 'trainee', 'supervisor', 'plant_manager']}>
               <MyWorkOrdersPage />
             </ProtectedRoute>
           }
