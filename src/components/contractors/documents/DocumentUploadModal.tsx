@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Upload } from 'lucide-react';
-import { addDoc, collection, doc, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, Timestamp, writeBatch } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -29,7 +29,18 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
   const [documentType, setDocumentType] = useState<ContractorDocumentType>(renewalOf?.documentType ?? CONTRACTOR_DOCUMENT_TYPES[0]);
   const [documentName, setDocumentName] = useState(renewalOf?.documentName ?? '');
   const [issueDate, setIssueDate] = useState(renewalOf ? new Date().toISOString().slice(0, 10) : '');
-  const [expiryDate, setExpiryDate] = useState('');
+  // Renewals of dated documents default the new expiry to one year after the
+  // current expiry (or after today if the document already lapsed), so the
+  // renewal actually extends validity even if the user just hits Renew.
+  const currentExpiry = renewalOf?.expiryDate ? renewalOf.expiryDate.toDate() : null;
+  const defaultRenewalExpiry = () => {
+    if (!renewalOf || renewalOf.isPermanent) return '';
+    const base = currentExpiry && currentExpiry > new Date() ? currentExpiry : new Date();
+    const next = new Date(base);
+    next.setFullYear(next.getFullYear() + 1);
+    return next.toISOString().slice(0, 10);
+  };
+  const [expiryDate, setExpiryDate] = useState(defaultRenewalExpiry);
   const [notes, setNotes] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -84,7 +95,12 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
       const hasExpiry = expiryDate !== '';
       const expiry = hasExpiry ? new Date(expiryDate) : null;
       const derived = deriveDocumentExpiry(expiry, !hasExpiry, documentType);
-      const newDocRef = await addDoc(collection(db, 'contractors', targetContractorId, 'documents'), {
+      // Atomic write: the new (renewed) version and the supersede marker on
+      // the old version either both persist or neither does — a half-applied
+      // renewal used to leave the expired document still active.
+      const batch = writeBatch(db);
+      const newDocRef = doc(collection(db, 'contractors', targetContractorId, 'documents'));
+      batch.set(newDocRef, {
         companyId: userProfile.companyId,
         contractorId: targetContractorId,
         documentType,
@@ -111,12 +127,19 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
       });
 
       if (renewalOf) {
-        await updateDoc(doc(db, 'contractors', targetContractorId, 'documents', renewalOf.id), {
+        batch.update(doc(db, 'contractors', targetContractorId, 'documents', renewalOf.id), {
           supersededBy: newDocRef.id,
         });
       }
+      await batch.commit();
 
-      toast.success(renewalOf ? 'Document renewed' : 'Document uploaded');
+      toast.success(
+        renewalOf
+          ? expiry
+            ? `Document renewed — valid until ${expiry.toLocaleDateString()}`
+            : 'Document renewed'
+          : 'Document uploaded',
+      );
       resetAndClose();
     } catch (err) {
       console.error('Document upload failed', err);
@@ -134,6 +157,15 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
           <button type="button" onClick={resetAndClose} className="text-sm font-semibold text-slate-500">Close</button>
         </div>
         <div className="mt-4 grid gap-3">
+          {renewalOf && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              Current validity:{' '}
+              <strong>
+                {currentExpiry ? `expires ${currentExpiry.toLocaleDateString()}` : 'no expiry recorded'}
+              </strong>
+              . Set the new expiry date below to extend the contract.
+            </div>
+          )}
           <select
             value={documentType}
             onChange={(e) => setDocumentType(e.target.value as ContractorDocumentType)}

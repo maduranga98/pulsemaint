@@ -139,6 +139,23 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
     }
   }
 
+  async function submitForApproval() {
+    setActionLoading(true);
+    try {
+      await updateDoc(doc(db, 'purchaseOrders', order.id), {
+        status: 'pending_approval',
+        updatedAt: serverTimestamp(),
+      });
+      await queueEmail('pending_approval');
+      addToast('Purchase order submitted for approval.', 'success');
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to submit PO for approval.', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   async function markSent() {
     setActionLoading(true);
     try {
@@ -318,6 +335,17 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             >
               <FileText className="w-4 h-4" />
               Edit PO
+            </button>
+          )}
+
+          {order.status === 'draft' && (
+            <button
+              onClick={submitForApproval}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+            >
+              <Send className="w-4 h-4" />
+              Submit for Approval
             </button>
           )}
 

@@ -133,7 +133,13 @@ export async function fetchReportRows(
     audit_trail: ['audit_logs'],
   };
 
-  const rows: Record<string, unknown>[] = [];
+  // Registry/snapshot collections describe current state (machines, parts,
+  // health scores) — filtering them by createdAt against the report date range
+  // hid every entity registered before the range and produced empty reports.
+  // Only event-style rows participate in date filtering.
+  const snapshotSources = new Set(['machines', 'machine_health', 'inventoryParts', 'analytics_monthly']);
+
+  const rows: { source: string; row: Record<string, unknown> }[] = [];
   const sourceErrors: string[] = [];
   const siteIds = [
     ...new Set([...(useAuthStore.getState().userProfile?.siteIds ?? []), companyId]),
@@ -147,7 +153,7 @@ export async function fetchReportRows(
         const chunk = siteIds.slice(i, i + 10);
         try {
           const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
-          snap.docs.forEach((item) => rows.push({ id: item.id, ...item.data() }));
+          snap.docs.forEach((item) => rows.push({ source, row: { id: item.id, ...item.data() } }));
         } catch {
           /* skip unreadable sites */
         }
@@ -184,7 +190,7 @@ export async function fetchReportRows(
       // flatten them to top-level keys so report columns (which only read
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
       const stats = (data.stats as Record<string, unknown> | undefined) ?? {};
-      rows.push({ id: item.id, ...data, ...stats });
+      rows.push({ source, row: { id: item.id, ...data, ...stats } });
     });
   }
 
@@ -194,16 +200,19 @@ export async function fetchReportRows(
     throw new Error(`Could not read report data (${sourceErrors.join('; ')})`);
   }
 
-  const dateFiltered = rows.filter((row) => {
-    const rawDate = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt;
-    const rowDate = rawDate && typeof (rawDate as Timestamp).toDate === 'function'
-      ? (rawDate as Timestamp).toDate().toISOString().slice(0, 10)
-      : String(rawDate ?? '');
-    if (rowDate && /^\d{4}-\d{2}-\d{2}/.test(rowDate)) {
-      return rowDate >= config.dateFrom && rowDate <= config.dateTo;
-    }
-    return true;
-  });
+  const dateFiltered = rows
+    .filter(({ source, row }) => {
+      if (snapshotSources.has(source)) return true;
+      const rawDate = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt;
+      const rowDate = rawDate && typeof (rawDate as Timestamp).toDate === 'function'
+        ? (rawDate as Timestamp).toDate().toISOString().slice(0, 10)
+        : String(rawDate ?? '');
+      if (rowDate && /^\d{4}-\d{2}-\d{2}/.test(rowDate)) {
+        return rowDate >= config.dateFrom && rowDate <= config.dateTo;
+      }
+      return true;
+    })
+    .map(({ row }) => row);
 
   // Apply common multi-select filters where the row exposes a matching field.
   // Comparison is case-insensitive: the UI historically offered title-case
