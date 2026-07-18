@@ -5,7 +5,7 @@ import { AlertCircle, ChevronLeft, QrCode } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
-import { consumePendingScanMachineId } from '../../lib/scanTarget';
+import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
 import type { BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 
 interface MachineOption {
@@ -39,15 +39,29 @@ export default function ReportBreakdownPage() {
 
   const [searchParams] = useSearchParams();
   // Query param is the primary source; a pending scan stored during a QR
-  // scan → login round-trip is the fallback (consumed once, on mount).
-  const [preselectedMachineId] = useState(
-    () => searchParams.get('machineId') || consumePendingScanMachineId() || ''
+  // scan → login round-trip is the fallback.
+  const [preselectedMachineId, setPreselectedMachineId] = useState(
+    () => searchParams.get('machineId') || ''
   );
 
   const [machines, setMachines] = useState<MachineOption[]>([]);
   const [machinesLoading, setMachinesLoading] = useState(true);
 
   const [machineId, setMachineId] = useState(preselectedMachineId);
+
+  // Consume scan-flow storage in a committed effect, not during render:
+  // a render that never commits must not eat the pending scan. Once we've
+  // arrived here, also clear the stored post-login redirect so a stale
+  // entry can't hijack a later login.
+  useEffect(() => {
+    const pending = consumePendingScanMachineId();
+    consumePostLoginRedirect();
+    if (pending) {
+      setPreselectedMachineId((current) => current || pending);
+      setMachineId((current) => current || pending);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [severity, setSeverity] = useState<BreakdownSeverity>('medium');
   const [breakdownType, setBreakdownType] = useState<BreakdownType>('mechanical');
   const [description, setDescription] = useState('');
