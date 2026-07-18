@@ -8,9 +8,10 @@ import type { WorkOrder } from '../../../types';
 interface JobQueueListProps {
   technicianId: string;
   siteId: string;
+  onSelect?: (wo: WorkOrder) => void;
 }
 
-export default function JobQueueList({ technicianId, siteId }: JobQueueListProps) {
+export default function JobQueueList({ technicianId, siteId, onSelect }: JobQueueListProps) {
   const [filter, setFilter] = useState<'today' | 'week' | 'all'>('all');
   const { workOrders, loading, error } = useMyJobQueue(technicianId, siteId);
 
@@ -53,7 +54,7 @@ export default function JobQueueList({ technicianId, siteId }: JobQueueListProps
       ) : (
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {filtered.map((wo) => (
-            <JobQueueItem key={wo.id} wo={wo} />
+            <JobQueueItem key={wo.id} wo={wo} onClick={onSelect ? () => onSelect(wo) : undefined} />
           ))}
         </div>
       )}

@@ -18,7 +18,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
   const [completionNotes, setCompletionNotes] = useState<Record<number, string>>({});
 
   const uid = user?.uid ?? '';
-  const userName = user?.displayName ?? userProfile?.id ?? '';
+  const userName = userProfile?.fullName ?? user?.displayName ?? '';
 
   function handleCheckboxToggle(index: number) {
     if (readOnly) return;

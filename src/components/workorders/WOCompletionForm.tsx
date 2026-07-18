@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
 import { WO_COPY } from '../../constants/copy';
 import { useWOCompletion } from '../../hooks/useWOCompletion';
+import { PartSearchInput } from '../inventory/shared/PartSearchInput';
 import type { WorkOrder, PartUsed, TechnicianWorkLog, PostRepairChecklistItem } from '../../types/workOrder';
 
 interface WOCompletionFormProps {
@@ -194,18 +195,107 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         {step === 1 && (
           <div className="space-y-3">
             <p className="text-sm font-medium text-gray-700">{WO_COPY.partsUsedLabel}</p>
-            {partsUsed.map((part, i) => (
-              <div key={i} className="flex items-center gap-2 bg-gray-50 rounded-lg p-3 text-sm">
-                <span className="flex-1 font-medium">{part.partName}</span>
-                <span className="text-gray-500">{part.quantity} {part.unit}</span>
-                <span className="text-gray-500">LKR {part.totalCost.toLocaleString()}</span>
-                <button
-                  type="button"
-                  onClick={() => setPartsUsed((p) => p.filter((_, idx) => idx !== i))}
-                  className="text-red-400 hover:text-red-600"
-                >×</button>
-              </div>
-            ))}
+
+            {/* Pick from the inventory catalog — prefills name/unit/cost. */}
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Add from store stock</label>
+              <PartSearchInput
+                onSelect={(part) =>
+                  setPartsUsed((p) => [...p, {
+                    partId: part.id,
+                    partName: part.name,
+                    quantity: 1,
+                    unit: part.unit || 'pcs',
+                    source: 'stock',
+                    unitCost: part.unitCost || 0,
+                    totalCost: part.unitCost || 0,
+                    warrantyMonths: null,
+                  }])
+                }
+              />
+            </div>
+
+            {partsUsed.map((part, i) => {
+              const update = (patch: Partial<PartUsed>) =>
+                setPartsUsed((p) => p.map((row, idx) => {
+                  if (idx !== i) return row;
+                  const next = { ...row, ...patch };
+                  next.totalCost = (next.quantity || 0) * (next.unitCost || 0);
+                  return next;
+                }));
+              return (
+                <div key={i} className="bg-gray-50 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={part.partName}
+                      onChange={(e) => update({ partName: e.target.value })}
+                      placeholder="Part name"
+                      readOnly={part.partId !== null}
+                      className={`flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm ${part.partId ? 'bg-gray-100 text-gray-600' : ''}`}
+                    />
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                      part.source === 'stock' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                    }`}>
+                      {part.source === 'stock' ? 'Stock' : 'External'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPartsUsed((p) => p.filter((_, idx) => idx !== i))}
+                      className="text-red-400 hover:text-red-600 text-lg leading-none px-1"
+                      aria-label="Remove part"
+                    >×</button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div>
+                      <label className="block text-[11px] text-gray-500 mb-0.5">Qty</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step="any"
+                        value={part.quantity}
+                        onChange={(e) => update({ quantity: Number(e.target.value) || 0 })}
+                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] text-gray-500 mb-0.5">Unit</label>
+                      <input
+                        type="text"
+                        value={part.unit}
+                        onChange={(e) => update({ unit: e.target.value })}
+                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] text-gray-500 mb-0.5">Unit cost (LKR)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        step="any"
+                        value={part.unitCost}
+                        onChange={(e) => update({ unitCost: Number(e.target.value) || 0 })}
+                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] text-gray-500 mb-0.5">Warranty (mo)</label>
+                      <input
+                        type="number"
+                        min={0}
+                        value={part.warrantyMonths ?? ''}
+                        onChange={(e) => update({ warrantyMonths: e.target.value === '' ? null : Number(e.target.value) })}
+                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-right text-xs text-gray-500">
+                    Total: <span className="font-semibold text-gray-800">LKR {part.totalCost.toLocaleString()}</span>
+                  </p>
+                </div>
+              );
+            })}
+
             <button
               type="button"
               onClick={() => setPartsUsed((p) => [...p, {
@@ -213,15 +303,25 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                 partName: '',
                 quantity: 1,
                 unit: 'pcs',
-                source: 'stock',
+                source: 'external',
                 unitCost: 0,
                 totalCost: 0,
                 warrantyMonths: null,
               }])}
               className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors"
             >
-              + {WO_COPY.addPartUsedButton}
+              + Add external / purchased part
             </button>
+
+            {partsUsed.length > 0 && (
+              <p className="text-right text-sm text-gray-600">
+                Total parts cost:&nbsp;
+                <span className="font-semibold text-gray-900">
+                  LKR {partsUsed.reduce((s, p) => s + (p.totalCost || 0), 0).toLocaleString()}
+                </span>
+              </p>
+            )}
+
             {workOrder.partsRequests.length > 0 && (
               <p className="text-xs text-gray-400">
                 Pre-requested parts: {workOrder.partsRequests.map((p) => p.partName).join(', ')}

@@ -51,16 +51,20 @@ export function TeamAssignmentPanel({
   const selectedContractorId = watch('contractorCompanyId');
   const isManualContractor = watch('isManualContractor');
 
-  function toggleTechnician(tech: TechnicianOption) {
+  function toggleAssignee(id: string, name: string) {
     const ids: string[] = watch('assignedTechnicianIds') ?? [];
     const names: string[] = watch('assignedTechnicianNames') ?? [];
-    if (ids.includes(tech.id)) {
-      setValue('assignedTechnicianIds', ids.filter((i: string) => i !== tech.id));
-      setValue('assignedTechnicianNames', names.filter((n: string) => n !== tech.name));
+    if (ids.includes(id)) {
+      setValue('assignedTechnicianIds', ids.filter((i: string) => i !== id));
+      setValue('assignedTechnicianNames', names.filter((n: string) => n !== name));
     } else {
-      setValue('assignedTechnicianIds', [...ids, tech.id]);
-      setValue('assignedTechnicianNames', [...names, tech.name]);
+      setValue('assignedTechnicianIds', [...ids, id]);
+      setValue('assignedTechnicianNames', [...names, name]);
     }
+  }
+
+  function toggleTechnician(tech: TechnicianOption) {
+    toggleAssignee(tech.id, tech.name);
   }
 
   function selectContractor(c: ContractorOption) {
@@ -299,6 +303,45 @@ export function TeamAssignmentPanel({
             />
             <p className="mt-0.5 text-xs text-gray-400">{WO_COPY.contractorTechsHint}</p>
           </div>
+
+          {/* Internal supervisors responsible for the contractor job — they
+              can start the WO and complete checklist tasks. Stored in
+              assignedTechnicianIds so queue queries and security rules treat
+              them as assigned responsible persons. */}
+          {supervisors.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Internal supervisors on this job
+              </label>
+              <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100">
+                {supervisors.map((s) => {
+                  const isSelected = selectedTechIds.includes(s.id);
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => toggleAssignee(s.id, s.name)}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                        isSelected ? 'bg-blue-50' : ''
+                      }`}
+                    >
+                      <span
+                        className={`h-5 w-5 rounded border-2 flex items-center justify-center ${
+                          isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
+                        }`}
+                      >
+                        {isSelected && <span className="text-white text-xs">✓</span>}
+                      </span>
+                      <span className="font-medium">{s.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-1 text-xs text-gray-400">
+                Assigned supervisors can start this job and complete its tasks.
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

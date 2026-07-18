@@ -6,9 +6,10 @@ import type { WorkOrder } from '../../../types';
 interface ActiveJobCardProps {
   workOrder: WorkOrder | null;
   onOpen?: (workOrder: WorkOrder) => void;
+  onRequestParts?: (workOrder: WorkOrder) => void;
 }
 
-export default function ActiveJobCard({ workOrder, onOpen }: ActiveJobCardProps) {
+export default function ActiveJobCard({ workOrder, onOpen, onRequestParts }: ActiveJobCardProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
@@ -81,7 +82,10 @@ export default function ActiveJobCard({ workOrder, onOpen }: ActiveJobCardProps)
           <Camera className="w-3.5 h-3.5" />
           Add Photo
         </button>
-        <button className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0A1628] border border-[#1E3A5F] text-[#F0F4F8] text-xs font-medium rounded-lg hover:border-[#2E5A8F] transition-colors">
+        <button
+          onClick={() => onRequestParts?.(workOrder)}
+          className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0A1628] border border-[#1E3A5F] text-[#F0F4F8] text-xs font-medium rounded-lg hover:border-[#2E5A8F] transition-colors"
+        >
           <Package className="w-3.5 h-3.5" />
           Request Parts
         </button>
