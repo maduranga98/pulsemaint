@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   doc,
   collection,
@@ -29,8 +30,19 @@ export function ReceiveAgainstPo() {
     ['sent', 'acknowledged', 'partially_received', 'draft'].includes(o.status)
   );
 
+  const [searchParams] = useSearchParams();
   const [selectedPoId, setSelectedPoId] = useState('');
   const [receiveDate, setReceiveDate] = useState(new Date().toISOString().slice(0, 10));
+
+  // "Mark as Received" on a PO navigates here with ?poId=… — preselect that
+  // PO once the orders load instead of making the user find it again.
+  useEffect(() => {
+    const poId = searchParams.get('poId');
+    if (poId && !selectedPoId && orders.some((o) => o.id === poId)) {
+      setSelectedPoId(poId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orders, searchParams]);
   const [deliveryRef, setDeliveryRef] = useState('');
   const [notes, setNotes] = useState('');
   const [rowData, setRowData] = useState<Record<string, ItemRowData>>({});

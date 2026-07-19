@@ -58,8 +58,11 @@ export function AssessmentList() {
     };
   }, [companyId, uid]);
 
+  // Match only on non-empty ids: legacy results written with an empty/shared
+  // userId must never count as "mine" for every member at once.
   const isMine = (r: TriageAssessmentResult) =>
-    r.userId === profileId || (authUid !== '' && r.userId === authUid);
+    Boolean(r.userId) &&
+    ((profileId !== '' && r.userId === profileId) || (authUid !== '' && r.userId === authUid));
   const results = allResults.filter(isMine);
 
   function getUserStatus(a: TriageAssessment) {

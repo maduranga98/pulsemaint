@@ -56,7 +56,12 @@ export function RequestDetailPage() {
     );
   }
 
-  async function handleDecision(decision: ReviewDecision, notes: string, escalationReason: string) {
+  async function handleDecision(
+    decision: ReviewDecision,
+    notes: string,
+    escalationReason: string,
+    approvedQuantities?: Record<string, number>,
+  ) {
     if (!request) return;
 
     try {
@@ -76,6 +81,15 @@ export function RequestDetailPage() {
       else if (decision === 'partial') newStatus = 'partially_approved';
 
       if (decision === 'approve' || decision === 'partial') {
+        // Per-item approved quantity: full approval grants what was requested;
+        // partial approval uses the quantities the storekeeper entered. This
+        // must be persisted onto the request items — the physical issue screen
+        // only issues items with quantityApproved > 0.
+        const approvedQtyFor = (item: (typeof request.items)[number]) =>
+          decision === 'approve'
+            ? item.quantityRequested
+            : Math.min(item.quantityRequested, approvedQuantities?.[item.id] ?? item.quantityRequested);
+
         // Reserve stock via transaction
         await runTransaction(db, async (tx) => {
           for (const item of request.items) {
@@ -83,7 +97,7 @@ export function RequestDetailPage() {
             const partSnap = await tx.get(partRef);
             if (!partSnap.exists()) continue;
             const partData = partSnap.data();
-            const approvedQty = decision === 'approve' ? item.quantityRequested : item.quantityApproved;
+            const approvedQty = approvedQtyFor(item);
             if (approvedQty <= 0) continue;
             const reservedBefore = (partData.reservedStock ?? 0) as number;
             const newReserved = reservedBefore + approvedQty;
@@ -126,7 +140,8 @@ export function RequestDetailPage() {
           tx.update(requestRef, {
             status: newStatus,
             storeKeeperReview: reviewDoc,
-            reservedAt: decision === 'approve' || decision === 'partial' ? serverTimestamp() : null,
+            items: request.items.map((item) => ({ ...item, quantityApproved: approvedQtyFor(item) })),
+            reservedAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
         });
@@ -173,7 +188,9 @@ export function RequestDetailPage() {
       <RequestReviewPanel
         request={request}
         settings={settings ?? { approvalThresholdLKR: 0 }}
-        onDecision={(payload) => handleDecision(payload.decision, payload.notes, payload.escalationReason)}
+        onDecision={(payload) =>
+          handleDecision(payload.decision, payload.notes, payload.escalationReason, payload.approvedQuantities)
+        }
       />
 
       <RequestReviewHistory request={request} />

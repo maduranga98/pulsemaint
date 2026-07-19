@@ -3,6 +3,8 @@ import type { ShiftConfig, ShiftDay } from '@/types/handover.types';
 const DAY_LABELS: ShiftDay[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function formatDuration(ms: number): string {
+  // NaN/Infinity must never surface as "NaNh NaNm" in the UI.
+  if (!Number.isFinite(ms)) return '0h 00m';
   const totalMinutes = Math.max(0, Math.floor(ms / 60000));
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
@@ -10,6 +12,7 @@ export function formatDuration(ms: number): string {
 }
 
 export function formatTimeRange(startTime: string, endTime: string): string {
+  if (!startTime || !endTime) return '—';
   return `${startTime} - ${endTime}`;
 }
 
@@ -23,7 +26,10 @@ export function getShiftDate(date = new Date()): string {
 }
 
 function timeToMinutes(time: string): number {
-  const [hours, minutes] = time.split(':').map(Number);
+  // Shift configs saved with a cleared/invalid time input used to propagate
+  // NaN into every duration and "invalid time" display downstream.
+  const [hours, minutes] = (time ?? '').split(':').map(Number);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return 0;
   return hours * 60 + minutes;
 }
 
@@ -50,8 +56,10 @@ export function detectNextShift(shifts: ShiftConfig[], current: ShiftConfig | nu
 
 /** Scheduled length of a shift in minutes; overnight shifts (end < start) wrap past midnight. */
 export function scheduledShiftMinutes(startTime: string, endTime: string): number {
+  if (!startTime || !endTime) return 0;
   const start = timeToMinutes(startTime);
   const end = timeToMinutes(endTime);
+  if (start === 0 && end === 0) return 0;
   return end > start ? end - start : 24 * 60 - start + end;
 }
 

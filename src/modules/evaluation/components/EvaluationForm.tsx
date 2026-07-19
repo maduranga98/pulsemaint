@@ -55,6 +55,22 @@ const USER_ROLE_TO_EVAL_ROLE: Record<UserRole, EvaluationRole> = {
   floor_operator: 'operator',
 };
 
+// Built-in sample templates — one per role, backed by the role's default
+// criteria. They are named by ROLE (never by a person) and always available
+// even when no custom templates have been created yet.
+const SAMPLE_TEMPLATE_PREFIX = 'sample:';
+const SAMPLE_TEMPLATES: EvaluationTemplate[] = (
+  Object.keys(EVALUATION_ROLE_LABELS) as EvaluationRole[]
+).map((role) => ({
+  id: `${SAMPLE_TEMPLATE_PREFIX}${role}`,
+  companyId: '',
+  name: `${EVALUATION_ROLE_LABELS[role]} Evaluation (Sample)`,
+  role,
+  criteria: ROLE_CRITERIA[role] ?? ROLE_CRITERIA.other,
+  createdBy: '',
+  createdByName: 'Built-in',
+} as EvaluationTemplate));
+
 const SCORE_LABELS: Record<EvaluationCriterionScore, string> = {
   1: '1 – Unsatisfactory',
   2: '2 – Needs Improvement',
@@ -122,10 +138,13 @@ export default function EvaluationForm({
     fetchEvaluationTemplates(companyId).then(setTemplates).catch(() => setTemplates([]));
   }, [companyId]);
 
-  const selectedTemplate = templates.find((t) => t.id === templateId) ?? null;
+  const allTemplates = [...SAMPLE_TEMPLATES, ...templates];
+  const selectedTemplate = allTemplates.find((t) => t.id === templateId) ?? null;
   const roleCriteria = ROLE_CRITERIA[evaluateeRole] ?? ROLE_CRITERIA.other;
   const criteria = selectedTemplate?.criteria?.length ? selectedTemplate.criteria : roleCriteria;
-  const availableTemplates = templates.filter((t) => t.role === 'custom' || t.role === evaluateeRole);
+  // Role-based sample templates for the selected role first, then the
+  // company's custom templates that apply to this role.
+  const availableTemplates = allTemplates.filter((t) => t.role === 'custom' || t.role === evaluateeRole);
 
   // Load the company's registered users (Users tab) so the evaluatee can be
   // selected and their details auto-filled.
@@ -175,7 +194,7 @@ export default function EvaluationForm({
 
   function handleTemplateChange(id: string) {
     setTemplateId(id);
-    const t = templates.find((tpl) => tpl.id === id);
+    const t = allTemplates.find((tpl) => tpl.id === id);
     initCriteriaFrom(t?.criteria?.length ? t.criteria : (ROLE_CRITERIA[evaluateeRole] ?? ROLE_CRITERIA.other));
   }
 
@@ -368,7 +387,10 @@ export default function EvaluationForm({
                 >
                   <option value="">Default — {EVALUATION_ROLE_LABELS[evaluateeRole]} criteria</option>
                   {availableTemplates.map((t) => (
-                    <option key={t.id} value={t.id}>{t.name} (custom)</option>
+                    <option key={t.id} value={t.id}>
+                      {t.name}
+                      {t.id.startsWith(SAMPLE_TEMPLATE_PREFIX) ? '' : ' (custom)'}
+                    </option>
                   ))}
                 </select>
               </div>

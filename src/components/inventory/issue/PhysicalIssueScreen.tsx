@@ -82,19 +82,26 @@ export function PhysicalIssueScreen() {
     fetchLocations().catch(console.error);
   }, [request, companyId]);
 
+  // Requests approved before quantityApproved was persisted on items carry
+  // quantityApproved = 0 even though the whole request was approved. Fall back
+  // to the requested quantity so those reserved requests can still be issued.
+  const issueQty = (item: RequestItem): number =>
+    item.quantityApproved > 0 ? item.quantityApproved : item.quantityRequested;
+
   // Initialize item states
   useEffect(() => {
     if (!request) return;
     const initial: Record<string, ItemState> = {};
     for (const item of request.items) {
-      if (item.quantityApproved > 0) {
+      if (issueQty(item) > 0) {
         initial[item.id] = { checked: false, skipped: false };
       }
     }
     setItemStates(initial);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [request]);
 
-  const issuableItems: RequestItem[] = request?.items.filter((i) => i.quantityApproved > 0) ?? [];
+  const issuableItems: RequestItem[] = request?.items.filter((i) => issueQty(i) > 0) ?? [];
 
   const checkedCount = Object.values(itemStates).filter((s) => s.checked || s.skipped).length;
   const allChecked = issuableItems.length > 0 && checkedCount === issuableItems.length;
@@ -129,6 +136,7 @@ export function PhysicalIssueScreen() {
         const nowTs = Timestamp.fromDate(new Date());
 
         for (const item of checkedItems) {
+          const qty = issueQty(item);
           const partRef = doc(db, 'inventoryParts', item.partId);
           const partSnap = await tx.get(partRef);
           if (!partSnap.exists()) continue;
@@ -139,9 +147,9 @@ export function PhysicalIssueScreen() {
           const totalUsedAllTime = (partData.totalUsedAllTime as number) ?? 0;
 
           tx.update(partRef, {
-            currentStock: currentStock - item.quantityApproved,
-            reservedStock: Math.max(0, reservedStock - item.quantityApproved),
-            totalUsedAllTime: totalUsedAllTime + item.quantityApproved,
+            currentStock: currentStock - qty,
+            reservedStock: Math.max(0, reservedStock - qty),
+            totalUsedAllTime: totalUsedAllTime + qty,
             lastIssuedAt: now,
             updatedAt: now,
             updatedBy: userProfile.id,
@@ -156,8 +164,8 @@ export function PhysicalIssueScreen() {
             partName: item.partName,
             movementType: 'issue',
             quantityBefore: currentStock,
-            quantityChange: -item.quantityApproved,
-            quantityAfter: currentStock - item.quantityApproved,
+            quantityChange: -qty,
+            quantityAfter: currentStock - qty,
             referenceType: 'parts_request',
             referenceId: request.id,
             workOrderId: request.workOrderId,
@@ -169,7 +177,7 @@ export function PhysicalIssueScreen() {
             performedAt: now,
             notes: '',
             unitCostAtTime: item.unitCost,
-            totalCostImpact: item.unitCost * item.quantityApproved,
+            totalCostImpact: item.unitCost * qty,
           });
         }
 
@@ -177,7 +185,7 @@ export function PhysicalIssueScreen() {
         const requestRef = doc(db, 'partsRequests', request.id);
         const updatedItems = request.items.map((item) => ({
           ...item,
-          quantityIssued: itemStates[item.id]?.checked ? item.quantityApproved : 0,
+          quantityIssued: itemStates[item.id]?.checked ? issueQty(item) : 0,
         }));
 
         tx.update(requestRef, {
@@ -279,7 +287,7 @@ export function PhysicalIssueScreen() {
               partName: item.partName,
               partNumber: item.partNumber,
               unit: item.unit,
-              quantityApproved: item.quantityApproved,
+              quantityApproved: issueQty(item),
               storeLocation: storeLocations[item.partId],
               isCritical: item.isCritical,
             }}

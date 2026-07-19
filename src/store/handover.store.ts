@@ -125,7 +125,10 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
 
   compileShiftSummary: async (): Promise<ShiftStatsAuto> => {
     const profile = requireProfile();
-    const shiftStartTime = get().shiftStartTime ?? new Date(Date.now() - 8 * 60 * 60 * 1000);
+    const storedStart = get().shiftStartTime;
+    const shiftStartTime = storedStart && !Number.isNaN(storedStart.getTime())
+      ? storedStart
+      : new Date(Date.now() - 8 * 60 * 60 * 1000);
     set({ isCompilingStats: true });
     try {
       const summary = await autoCompileShiftSummary({
@@ -134,11 +137,15 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
         shiftStartTime,
       });
       const currentShift = get().currentShift;
+      // The handover must reflect the shift the supervisor actually worked:
+      // fall back to the just-completed (or active) session's assigned shift
+      // when the config wasn't restored, instead of a generic "Current Shift".
+      const session = get().lastCompletedSession ?? get().activeSession;
       set({
         compiledStats: summary.stats,
         draftHandover: {
-          shiftConfigId: currentShift?.id ?? '',
-          shiftName: currentShift?.shiftName ?? 'Current Shift',
+          shiftConfigId: currentShift?.id ?? session?.shiftConfigId ?? '',
+          shiftName: currentShift?.shiftName ?? session?.shiftName ?? 'Current Shift',
           shiftActualStart: summary.shiftStartTime,
           watchFlags: get().draftHandover?.watchFlags ?? [],
           pendingWOs: summary.pendingWOs,
