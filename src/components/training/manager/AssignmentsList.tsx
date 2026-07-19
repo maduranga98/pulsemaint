@@ -136,6 +136,7 @@ export default function AssignmentsList({
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Assigned</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Due</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Progress</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Marks</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
               </tr>
@@ -163,6 +164,15 @@ export default function AssignmentsList({
                         {a.overallProgress}%
                       </span>
                     </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    {(a.attemptsUsed ?? 0) > 0 ? (
+                      <span className={`text-xs font-semibold ${a.quizPassed ? 'text-emerald-600' : 'text-amber-600'}`}>
+                        {a.bestScore ?? 0}%
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -230,7 +240,14 @@ export default function AssignmentsList({
               </div>
 
               <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>Due: {formatTs(a.dueDate)}</span>
+                <span>
+                  Due: {formatTs(a.dueDate)}
+                  {(a.attemptsUsed ?? 0) > 0 && (
+                    <span className={`ml-2 font-semibold ${a.quizPassed ? 'text-emerald-600' : 'text-amber-600'}`}>
+                      Marks: {a.bestScore ?? 0}%
+                    </span>
+                  )}
+                </span>
                 {onViewProgress && (
                   <button
                     onClick={() => onViewProgress(a.id)}

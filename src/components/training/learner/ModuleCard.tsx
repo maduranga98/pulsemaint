@@ -71,6 +71,13 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           <TrainingStatusBadge status={assignment.status} />
+          {(assignment.attemptsUsed ?? 0) > 0 && (
+            <span
+              className={`text-xs font-semibold ${assignment.quizPassed ? 'text-emerald-600' : 'text-amber-600'}`}
+            >
+              Marks: {assignment.bestScore ?? 0}%
+            </span>
+          )}
           {dueInfo && (
             <span
               className={`text-xs font-medium ${dueInfo.overdue ? 'text-red-600' : 'text-slate-500'}`}

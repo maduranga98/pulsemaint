@@ -4,7 +4,7 @@ import MyModulesList from '@/components/training/learner/MyModulesList';
 
 export default function MyModulesPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
-  const { assignments, loading } = useMyAssignments();
+  const { assignments, loading, error } = useMyAssignments();
 
   const name = userProfile?.fullName?.split(' ')[0] ?? 'there';
   const pendingCount = assignments.filter(
@@ -23,6 +23,11 @@ export default function MyModulesPage() {
           </p>
         )}
       </div>
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Could not load your assigned trainings: {error}
+        </div>
+      )}
       <MyModulesList assignments={assignments} loading={loading} />
     </div>
   );

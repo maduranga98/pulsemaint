@@ -47,12 +47,13 @@ export function QuizModal({ assessment, onClose }: Props) {
       if (!saved) {
         setSaving(true);
         try {
-          // Key the result by the member's profile id (falling back to the
-          // auth uid) so each person's attempts are tracked separately —
-          // never by a shared/empty id that mixes users together.
+          // Key the result by the Firebase auth uid — unique per signed-in
+          // person by construction — falling back to the profile id. Keying
+          // by a shared/duplicated profile id mixed different users'
+          // statuses together.
           await writeAssessmentResult(
             userProfile?.companyId ?? '',
-            userProfile?.id ?? user?.uid ?? '',
+            user?.uid ?? userProfile?.id ?? '',
             { assessmentId: assessment.id, score, total: totalQ, passed },
             { userName: userProfile?.fullName, userRole: userProfile?.role },
           );

@@ -53,6 +53,10 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
       setError('Shift name is required.');
       return;
     }
+    if (!/^\d{2}:\d{2}$/.test(startTime) || !/^\d{2}:\d{2}$/.test(endTime)) {
+      setError('Set valid From and To times for the shift.');
+      return;
+    }
     if (!department.trim()) {
       setError('Select or create a department for this shift.');
       return;

@@ -269,10 +269,16 @@ export async function autoCompileShiftSummary(params: {
     { companyId: string; supervisorId: string; shiftStartTime: string },
     CompiledShiftSummaryWire
   >(functions, 'autoCompileShiftSummary');
+  // An invalid shift start would make toISOString() throw ("Invalid time
+  // value") and kill the whole end-shift/handover flow. Fall back to an
+  // 8-hour window ending now instead.
+  const safeStart = Number.isNaN(params.shiftStartTime.getTime())
+    ? new Date(Date.now() - 8 * 60 * 60 * 1000)
+    : params.shiftStartTime;
   const result = await callable({
     companyId: params.companyId,
     supervisorId: params.supervisorId,
-    shiftStartTime: params.shiftStartTime.toISOString(),
+    shiftStartTime: safeStart.toISOString(),
   });
   return {
     ...result.data,
