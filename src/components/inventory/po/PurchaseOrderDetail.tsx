@@ -47,10 +47,12 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
     role === 'plant_manager' || role === 'admin' || role === 'supervisor' || role === 'maintenance_supervisor';
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [sendModal, setSendModal] = useState(false);
+  const [sendMessage, setSendMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const sc = statusConfig[order.status];
 
-  async function queueEmail(event: PurchaseOrderStatus) {
+  async function queueEmail(event: PurchaseOrderStatus, message?: string) {
     try {
       const usersSnap = await getDocs(
         query(collection(db, `companies/${order.companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
@@ -58,7 +60,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       const recipients = usersSnap.docs
         .map((d) => (d.data() as any).email as string | undefined)
         .filter(Boolean) as string[];
-      if (recipients.length === 0) return;
+      if (recipients.length === 0 && !(order.supplierEmail && (event === 'approved' || event === 'sent'))) return;
       await addDoc(collection(db, 'po_notifications'), {
         companyId: order.companyId,
         poId: order.id,
@@ -69,6 +71,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         currency: order.currency,
         recipients,
         event,
+        message: message ?? '',
         status: 'queued',
         createdAt: serverTimestamp(),
       });
@@ -165,13 +168,15 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         sentAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      await queueEmail('sent');
-      addToast('Marked as sent to supplier.', 'success');
+      await queueEmail('sent', sendMessage);
+      addToast('PO sent to supplier.', 'success');
     } catch (err) {
       console.error(err);
       addToast('Failed to update PO.', 'error');
     } finally {
       setActionLoading(false);
+      setSendModal(false);
+      setSendMessage('');
     }
   }
 
@@ -373,12 +378,12 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
 
           {order.status === 'approved' && (
             <button
-              onClick={markSent}
+              onClick={() => setSendModal(true)}
               disabled={actionLoading}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <Send className="w-4 h-4" />
-              Mark as Sent
+              Send to Supplier
             </button>
           )}
 
@@ -413,6 +418,45 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
           )}
         </div>
       </div>
+
+      {/* Send to supplier — optional message body */}
+      {sendModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Send PO to {order.supplierName || 'Supplier'}</h3>
+            <p className="text-sm text-gray-600">
+              An email with the PO details will be sent to{' '}
+              <strong>{order.supplierEmail || 'the supplier (no email on file)'}</strong>.
+            </p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Message (optional)</label>
+              <textarea
+                value={sendMessage}
+                onChange={(e) => setSendMessage(e.target.value)}
+                rows={4}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Add a note for the supplier…"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setSendModal(false)}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={markSent}
+                disabled={actionLoading}
+                className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+              >
+                {actionLoading ? 'Sending…' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cancel confirmation */}
       {cancelModal && (

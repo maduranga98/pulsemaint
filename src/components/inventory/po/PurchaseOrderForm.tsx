@@ -46,7 +46,10 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
 
-  const canApprove = userRole === 'plant_manager' || userRole === 'admin';
+  // Kept in sync with PurchaseOrderDetail's canApprove — approval is not
+  // limited to plant_manager/admin, supervisors can approve too.
+  const canApprove =
+    userRole === 'plant_manager' || userRole === 'admin' || userRole === 'supervisor' || userRole === 'maintenance_supervisor';
 
   const [items, setItems] = useState<POItemRowData[]>(
     initialPO?.items.map((i) => ({
@@ -114,8 +117,8 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   }
 
   async function queueEmail(po: PurchaseOrder) {
-    // Notify plant managers + admins. A backend worker / Cloud Function
-    // should consume this collection and dispatch the email.
+    // Notify plant managers + admins; the sendPoEmails Cloud Function
+    // consumes this collection and also emails the supplier once approved.
     try {
       const usersSnap = await getDocs(
         query(collection(db, `companies/${companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
@@ -176,6 +179,11 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         currency: values.currency,
       };
 
+      const approvalFields =
+        status === 'approved'
+          ? { approvedBy: userId, approvedByName: userName, approvedAt: serverTimestamp() }
+          : {};
+
       if (initialPO) {
         const ref = doc(db, 'purchaseOrders', initialPO.id);
         await updateDoc(ref, {
@@ -184,6 +192,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           totalOrderValue: totalValue,
           notes: values.notes,
           status,
+          ...approvalFields,
           updatedAt: serverTimestamp(),
         });
         const updated = {
@@ -195,7 +204,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           notes: values.notes,
         } as PurchaseOrder;
         onSave(updated);
-        if (status === 'pending_approval' || status === 'sent') await queueEmail(updated);
+        if (status === 'pending_approval' || status === 'approved') await queueEmail(updated);
       } else {
         const poNumber = await generatePONum();
         const payload = {
@@ -213,8 +222,9 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           approvedBy: null,
           approvedByName: null,
           approvedAt: null,
+          ...approvalFields,
           rejectedReason: null,
-          sentAt: status === 'sent' ? serverTimestamp() : null,
+          sentAt: null,
           acknowledgedAt: null,
           receivedAt: null,
           notes: values.notes,
@@ -223,14 +233,14 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         const ref = await addDoc(collection(db, 'purchaseOrders'), payload);
         const created = { id: ref.id, ...payload } as unknown as PurchaseOrder;
         onSave(created);
-        if (status === 'pending_approval' || status === 'sent') await queueEmail(created);
+        if (status === 'pending_approval' || status === 'approved') await queueEmail(created);
       }
       const msg =
         status === 'draft'
           ? 'PO saved as draft.'
           : status === 'pending_approval'
             ? 'PO submitted for approval.'
-            : 'PO saved and sent.';
+            : 'PO approved. Use "Send to Supplier" on the PO to email it.';
       addToast(msg, 'success');
     } catch (err) {
       console.error('Failed to save purchase order', err);
@@ -438,11 +448,11 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           <button
             type="button"
             disabled={saving}
-            onClick={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'sent'))}
+            onClick={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'approved'))}
             className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
           >
             <Send className="w-4 h-4" />
-            Approve &amp; Send
+            Approve
           </button>
         )}
       </div>
