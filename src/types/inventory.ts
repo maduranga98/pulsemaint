@@ -352,6 +352,16 @@ export interface PurchaseOrder {
 
   notes: string;
   attachments: { name: string; url: string }[];
+
+  // One entry per "Confirm Receipt" submission against this PO.
+  receiptHistory?: {
+    receivedAt: Timestamp;
+    receivedBy: string;
+    receivedByName: string;
+    receiveDate: string;
+    deliveryRef: string;
+    notes: string;
+  }[];
 }
 
 export interface InventoryImportSession {

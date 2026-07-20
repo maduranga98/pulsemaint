@@ -62,9 +62,21 @@ export function ReceiveAgainstPo() {
       await runTransaction(db, async (tx) => {
         const now = serverTimestamp();
 
+        // Read the PO fresh inside the transaction — receiving against a
+        // stale client copy of `items` (from the list snapshot at page
+        // load) would clobber any receipt recorded by another user in the
+        // meantime, since the whole `items` array gets overwritten below.
+        const poRef = doc(db, 'purchaseOrders', selectedPo.id);
+        const poSnap = await tx.get(poRef);
+        if (!poSnap.exists()) {
+          throw new Error('Purchase order no longer exists.');
+        }
+        const poData = poSnap.data();
+        const currentItems = (poData.items as PurchaseOrderItem[]) ?? selectedPo.items;
+
         const updatedItems: PurchaseOrderItem[] = [];
 
-        for (const item of selectedPo.items) {
+        for (const item of currentItems) {
           const row = rowData[item.id];
           const qty = row?.quantityReceived ?? 0;
           const cost = row?.unitCost ?? item.unitCost;
@@ -122,11 +134,21 @@ export function ReceiveAgainstPo() {
         );
         const anyReceived = updatedItems.some((i) => i.quantityReceived > 0);
 
-        const poRef = doc(db, 'purchaseOrders', selectedPo.id);
+        const receiptEntry = {
+          receivedAt: now,
+          receivedBy: userProfile.id,
+          receivedByName: userProfile.fullName,
+          receiveDate,
+          deliveryRef,
+          notes,
+        };
+        const receiptHistory = [...((poData.receiptHistory as unknown[]) ?? []), receiptEntry];
+
         tx.update(poRef, {
           items: updatedItems,
-          status: allFullyReceived ? 'received' : anyReceived ? 'partially_received' : selectedPo.status,
-          receivedAt: allFullyReceived ? now : selectedPo.receivedAt,
+          status: allFullyReceived ? 'received' : anyReceived ? 'partially_received' : poData.status,
+          receivedAt: allFullyReceived ? now : (poData.receivedAt ?? null),
+          receiptHistory,
           updatedAt: now,
         });
       });
