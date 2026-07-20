@@ -107,7 +107,7 @@ function toCsv(rows) {
     const str = value && typeof value.toDate === "function" ?
       value.toDate().toISOString() :
       String(value);
-    return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
+    return /[",\n]/.test(str) ? `"${str.replace(/"/g, "\"\"")}"` : str;
   };
 
   const lines = [columns.join(",")];
