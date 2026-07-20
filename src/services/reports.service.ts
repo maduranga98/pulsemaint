@@ -15,7 +15,9 @@ import {
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggregation';
+import { fetchTeamPerformanceByRole } from './teamPerformance.service';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
+import { logAuditEvent } from '../utils/reports/auditLogger';
 import type {
   AuditLog,
   ExportFormat,
@@ -70,7 +72,6 @@ export function filtersFromConfig(config: ReportConfig): Record<string, unknown>
     shifts: config.shifts,
     supervisors: config.supervisors,
     priorities: config.priorities,
-    invoiceStatuses: config.invoiceStatuses,
     trainingStatuses: config.trainingStatuses,
     slaStatuses: config.slaStatuses,
   };
@@ -108,6 +109,79 @@ export async function fetchReportRows(
     return rows;
   }
 
+  // Team Performance (ReportType key: technician_performance) is a computed
+  // per-role rollup of Evaluations, Audits, Training, and Quick Assessment —
+  // not a raw workOrders dump, which only ever showed technician workload,
+  // never evaluation/training/assessment data (PMGR-016/017).
+  if (reportType === 'technician_performance') {
+    return (await fetchTeamPerformanceByRole(companyId)) as unknown as Record<string, unknown>[];
+  }
+
+  // Maintenance Cost is a computed cost breakdown (labor hours + parts
+  // consumed + contractor/project spend), not a raw dump of workOrders /
+  // stockMovements / contractorJobs — those three collections don't share a
+  // row shape, so reading them as one flat table produced garbage columns.
+  if (reportType === 'maintenance_cost') {
+    const [woSnap, contractorSnap] = await Promise.all([
+      getDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000))),
+      getDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000))),
+    ]);
+
+    const woCost = (w: Record<string, unknown>) => {
+      const partsCost = Array.isArray(w.partsUsed)
+        ? (w.partsUsed as Record<string, unknown>[]).reduce((s, p) => s + Number(p.totalCost ?? 0), 0)
+        : 0;
+      const laborCost = Array.isArray(w.technicianWorkLogs)
+        ? (w.technicianWorkLogs as Record<string, unknown>[]).reduce((s, l) => s + Number(l.laborCost ?? 0), 0)
+        : 0;
+      return { partsCost, laborCost };
+    };
+
+    const costRows: Record<string, unknown>[] = [];
+    woSnap.docs.forEach((item) => {
+      const w = item.data();
+      const { partsCost, laborCost } = woCost(w);
+      if (partsCost === 0 && laborCost === 0) return;
+      costRows.push({
+        id: item.id,
+        source: 'Work Order',
+        reference: w.woNumber ?? item.id,
+        machineName: w.machineName ?? '',
+        machineDepartment: w.machineDepartment ?? w.department ?? '',
+        laborCost,
+        partsCost,
+        contractorCost: 0,
+        totalCost: laborCost + partsCost,
+        createdAt: w.actualEndTime ?? w.createdAt ?? null,
+      });
+    });
+    contractorSnap.docs.forEach((item) => {
+      const c = item.data();
+      const contractorCost = Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
+      const partsCost = Number(c.totalPartsCost ?? 0);
+      if (contractorCost === 0 && partsCost === 0) return;
+      costRows.push({
+        id: item.id,
+        source: 'Contractor Job',
+        reference: c.workOrderNumber ?? item.id,
+        machineName: c.machineName ?? '',
+        machineDepartment: '',
+        laborCost: 0,
+        partsCost,
+        contractorCost,
+        totalCost: contractorCost + partsCost,
+        createdAt: c.workCompletedAt ?? c.createdAt ?? null,
+      });
+    });
+
+    return costRows.filter((row) => {
+      const raw = row.createdAt as { toDate?: () => Date } | null;
+      const d = raw && typeof raw.toDate === 'function' ? raw.toDate().toISOString().slice(0, 10) : null;
+      if (!d) return true;
+      return d >= config.dateFrom && d <= config.dateTo;
+    });
+  }
+
   // Maps each report to the Firestore collection(s) it reads from. These must
   // match the actual collection names used elsewhere in the app.
   const sourceMap: Record<ReportType, string[]> = {
@@ -116,12 +190,14 @@ export async function fetchReportRows(
     machine_history: ['machines'],
     machine_health_score: ['machine_health'],
     maintenance_cost: ['workOrders', 'stockMovements', 'contractorJobs'],
-    technician_performance: ['workOrders'],
+    // technician_performance (display name: "Team Performance Report") is a
+    // computed branch below — role aggregation, not a raw collection.
+    technician_performance: [],
     contractor_performance: ['contractorJobs'],
-    contractor_invoice_comparison: ['contractorJobs'],
     inventory_usage: ['stockMovements'],
     parts_consumption: ['stockMovements'],
     low_stock_alert: ['inventoryParts'],
+    inventory_listing: ['inventoryParts'],
     pm_compliance: ['pm_history'],
     // 'training_records' never existed as a collection — training data lives
     // in trainingAssignments (see src/hooks/training/useComplianceData.ts).
@@ -198,6 +274,11 @@ export async function fetchReportRows(
         const min = Number(data.minStockLevel ?? data.reorderLevel ?? 0);
         if (current > min) return;
       }
+      // safety_near_miss reads the same shift_handovers collection as
+      // shift_handover_summary — without this filter every shift (not just
+      // ones with a recorded incident) shows up, which reads as noise, not
+      // a near-miss report.
+      if (reportType === 'safety_near_miss' && data.safetyIncidentOccurred !== true) return;
       // shift_handovers keeps its counters under a nested `stats` object;
       // flatten them to top-level keys so report columns (which only read
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
@@ -305,6 +386,24 @@ export async function createReportHistory(input: {
     rowCount: input.rowCount ?? null,
     expiresAt,
   });
+
+  // audit_logs otherwise never gets written to — the Audit Trail report was
+  // permanently empty because nothing populated its source collection.
+  try {
+    await logAuditEvent({
+      companyId: input.companyId,
+      userId: input.generatedBy,
+      userName: input.generatedByName,
+      userRole: useAuthStore.getState().userProfile?.role ?? '',
+      action: 'EXPORT',
+      entityType: 'report',
+      entityId: ref.id,
+      entityName: definition.name,
+    });
+  } catch {
+    /* non-blocking */
+  }
+
   return ref.id;
 }
 

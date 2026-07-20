@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, Pencil, PackageCheck, XCircle } from 'lucide-react';
+import { Eye, Pencil, PackageCheck, XCircle, CheckCircle2 } from 'lucide-react';
 import type { PurchaseOrder, PurchaseOrderStatus } from '@/types/inventory';
 
 interface PurchaseOrderListProps {
@@ -8,6 +8,8 @@ interface PurchaseOrderListProps {
   onEdit?: (id: string) => void;
   onMarkReceived?: (id: string) => void;
   onCancel?: (id: string) => void;
+  onApprove?: (id: string) => void;
+  onReject?: (id: string) => void;
 }
 
 const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> = {
@@ -44,6 +46,8 @@ export function PurchaseOrderList({
   onEdit,
   onMarkReceived,
   onCancel,
+  onApprove,
+  onReject,
 }: PurchaseOrderListProps) {
   const [statusFilter, setStatusFilter] = useState<PurchaseOrderStatus | 'all'>('all');
   const [supplierSearch, setSupplierSearch] = useState('');
@@ -138,6 +142,24 @@ export function PurchaseOrderList({
                           >
                             <Pencil className="w-3 h-3" />
                             Edit
+                          </button>
+                        )}
+                        {onApprove && order.status === 'pending_approval' && (
+                          <button
+                            onClick={() => onApprove(order.id)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
+                          >
+                            <CheckCircle2 className="w-3 h-3" />
+                            Approve
+                          </button>
+                        )}
+                        {onReject && order.status === 'pending_approval' && (
+                          <button
+                            onClick={() => onReject(order.id)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                          >
+                            <XCircle className="w-3 h-3" />
+                            Reject
                           </button>
                         )}
                         {onMarkReceived && (order.status === 'sent' || order.status === 'acknowledged' || order.status === 'partially_received') && (

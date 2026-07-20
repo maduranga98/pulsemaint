@@ -86,7 +86,6 @@ export default function ReportFilterSection({
       {has('shift') && <ShiftCheckboxGroup values={config.shifts} onChange={(shifts) => onChange({ shifts })} />}
       {has('supervisor') && <SupervisorMultiSelect values={config.supervisors} onChange={(supervisors) => onChange({ supervisors })} />}
       {has('priority') && <CheckboxGroup label="Priority" options={['Critical', 'High', 'Medium', 'Low']} values={config.priorities} onChange={(priorities) => onChange({ priorities })} />}
-      {has('invoice_status') && <CheckboxGroup label="Invoice Status" options={['Paid', 'Pending', 'Disputed']} values={config.invoiceStatuses} onChange={(invoiceStatuses) => onChange({ invoiceStatuses })} />}
       {has('training_status') && <CheckboxGroup label="Training Status" options={['Certified', 'Expiring', 'Expired', 'In Progress']} values={config.trainingStatuses} onChange={(trainingStatuses) => onChange({ trainingStatuses })} />}
       {has('sla_status') && <CheckboxGroup label="SLA Status" options={['Within', 'At Risk', 'Breached']} values={config.slaStatuses} onChange={(slaStatuses) => onChange({ slaStatuses })} />}
       {!report.availableFilters.length && <p className="text-sm text-[#8BA3BF]">This report uses date range and access scope only.</p>}

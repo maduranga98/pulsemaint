@@ -4,6 +4,7 @@ import { ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../lib/firebase';
 import type { WOSignOffPayload } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
+import { logAuditEvent } from '../utils/reports/auditLogger';
 import { toast } from 'sonner';
 
 interface UseSignOffResult {
@@ -51,6 +52,20 @@ export function useSignOff(): UseSignOffResult {
           supervisorSignOffNotes: payload.notes || null,
           updatedAt: serverTimestamp(),
         });
+
+        const profile = useAuthStore.getState().userProfile;
+        if (profile) {
+          logAuditEvent({
+            companyId: profile.companyId,
+            userId: user.uid,
+            userName: user.displayName ?? profile.fullName ?? '',
+            userRole: profile.role,
+            action: 'SIGN_OFF',
+            entityType: 'work_order',
+            entityId: woId,
+            entityName: woId,
+          }).catch(() => {});
+        }
 
         toast.success('Work order signed off and closed.');
         return true;

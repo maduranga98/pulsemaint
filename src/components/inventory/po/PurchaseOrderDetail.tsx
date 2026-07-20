@@ -91,7 +91,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       addToast('Purchase order approved.', 'success');
     } catch (err) {
       console.error(err);
-      addToast('Failed to approve PO.', 'error');
+      addToast(err instanceof Error ? `Failed to approve PO: ${err.message}` : 'Failed to approve PO.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -115,7 +115,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       addToast('Purchase order rejected.', 'success');
     } catch (err) {
       console.error(err);
-      addToast('Failed to reject PO.', 'error');
+      addToast(err instanceof Error ? `Failed to reject PO: ${err.message}` : 'Failed to reject PO.', 'error');
     } finally {
       setActionLoading(false);
     }

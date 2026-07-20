@@ -6,8 +6,8 @@ export type ReportType =
   | 'maintenance_cost'
   | 'technician_performance'
   | 'contractor_performance'
-  | 'contractor_invoice_comparison'
   | 'inventory_usage'
+  | 'inventory_listing'
   | 'parts_consumption'
   | 'low_stock_alert'
   | 'pm_compliance'
@@ -55,7 +55,6 @@ export type FilterType =
   | 'shift'
   | 'supervisor'
   | 'priority'
-  | 'invoice_status'
   | 'training_status'
   | 'sla_status';
 
@@ -88,7 +87,6 @@ export interface ReportConfig {
   shifts: string[];
   supervisors: string[];
   priorities: string[];
-  invoiceStatuses: string[];
   trainingStatuses: string[];
   slaStatuses: string[];
   outputFormat: ExportFormat;
