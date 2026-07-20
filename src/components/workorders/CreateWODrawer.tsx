@@ -118,7 +118,12 @@ export function CreateWODrawer({
           };
         });
         setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor' || u.role === 'plant_manager' || u.role === 'admin'));
-        setTechnicians(users.filter((u) => u.role === 'technician'));
+        // Trainees can be assigned to a WO (and its steps/tasks) alongside technicians.
+        setTechnicians(
+          users
+            .filter((u) => u.role === 'technician' || u.role === 'trainee')
+            .map((u) => (u.role === 'trainee' ? { ...u, name: `${u.name} (Trainee)` } : u)),
+        );
 
         // Load open breakdown tickets so they can be linked to this WO.
         try {
