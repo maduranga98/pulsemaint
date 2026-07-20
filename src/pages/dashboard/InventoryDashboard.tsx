@@ -4,6 +4,7 @@ import LowStockAlertTable from '../../components/dashboard/inventory/LowStockAle
 import PendingRequestsTable from '../../components/dashboard/inventory/PendingRequestsTable';
 import PartsUsageTrendChart from '../../components/dashboard/inventory/PartsUsageTrendChart';
 import TopUsedPartsChart from '../../components/dashboard/inventory/TopUsedPartsChart';
+import MostMovedPartsChart from '../../components/dashboard/inventory/MostMovedPartsChart';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 
 export default function InventoryDashboard() {
@@ -31,6 +32,7 @@ export default function InventoryDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PartsUsageTrendChart companyId={companyId} />
           <TopUsedPartsChart companyId={companyId} />
+          <MostMovedPartsChart companyId={companyId} />
         </div>
       </div>
 
