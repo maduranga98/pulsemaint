@@ -14,6 +14,7 @@ export type {
   InventoryCurrency,
   ImportErrorCode,
   CadFile,
+  WarrantyDocument,
   RequestItem,
   StoreKeeperReview,
   SupervisorReview,

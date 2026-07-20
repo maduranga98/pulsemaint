@@ -100,6 +100,16 @@ export interface CadFile {
   fileSizeBytes: number;
 }
 
+// Warranty document/image (receipt, certificate, warranty card photo, etc.)
+// attached to a part. Optional — a part may have none.
+export interface WarrantyDocument {
+  name: string;
+  url: string;
+  uploadedAt: Timestamp;
+  uploadedBy: string;
+  fileSizeBytes: number;
+}
+
 export interface RequestItem {
   id: string;
   partId: string;
@@ -202,6 +212,7 @@ export interface InventoryPart {
 
   compatibleMachineIds: string[];
   warrantyMonths: number;
+  warrantyDocuments: WarrantyDocument[];
 
   cadFiles: CadFile[];
   images: string[];
