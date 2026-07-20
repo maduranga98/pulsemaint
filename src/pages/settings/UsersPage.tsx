@@ -176,10 +176,13 @@ export default function UsersPage() {
   const currentUser = useAuthStore((s) => s.userProfile);
   // Plant Manager gets the same Users data as Admin, but is limited to
   // inviting/adding members — no editing or removing existing users.
-  const canEditUsers = currentUser?.role === 'admin';
+  const canEditUsers = currentUser?.role === 'admin' || currentUser?.role === 'hr_officer';
+  // HR Officer gets admin-like Users access, but may not edit admin accounts (HR-004).
+  const canEditRow = (target: UserProfile) =>
+    canEditUsers && !(currentUser?.role === 'hr_officer' && target.role === 'admin');
   // Supervisor gets a read-only roster: details only, no add/invite/import
   // and no per-row actions (SUP-016).
-  const canManageUsers = currentUser?.role === 'admin' || currentUser?.role === 'plant_manager';
+  const canManageUsers = currentUser?.role === 'admin' || currentUser?.role === 'plant_manager' || currentUser?.role === 'hr_officer';
   const toast = useToast();
   const { shifts, reload: reloadShifts } = useShiftConfig();
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -560,7 +563,7 @@ export default function UsersPage() {
                               >
                                 <Eye className="w-4 h-4" />
                               </button>
-                              {canEditUsers && (
+                              {canEditRow(u) && (
                                 <button
                                   type="button"
                                   onClick={() => setModal({ mode: 'edit', user: u })}

@@ -86,7 +86,7 @@ describe('isUserAssignedToShift / getMyShiftPlans', () => {
     expect(isUserAssignedToShift(shift, { id: 'u9', role: 'hr_officer' })).toBe(false);
   });
 
-  it('only returns active plans the user is scheduled on', () => {
+  it('only returns active plans the user is scheduled on, most specific match first', () => {
     const shifts = [
       makeShift({ id: 'a', roles: ['technician'] }),
       makeShift({ id: 'b', roles: ['technician'], status: 'inactive' }),
@@ -94,7 +94,18 @@ describe('isUserAssignedToShift / getMyShiftPlans', () => {
       makeShift({ id: 'd', memberIds: ['u1'] }),
     ];
     const plans = getMyShiftPlans(shifts, { id: 'u1', role: 'technician' });
-    expect(plans.map((plan) => plan.id)).toEqual(['a', 'd']);
+    // 'd' matches by explicit member assignment (more specific) so it must
+    // rank ahead of 'a', which only matches via the bulk role fallback.
+    expect(plans.map((plan) => plan.id)).toEqual(['d', 'a']);
+  });
+
+  it('ranks an explicit member/shiftId match ahead of a role/department fallback that is also active', () => {
+    const shifts = [
+      makeShift({ id: 'roleMatch', roles: ['hr_officer'], startTime: '00:00', endTime: '23:59' }),
+      makeShift({ id: 'assigned', memberIds: ['u1'], startTime: '00:00', endTime: '23:59' }),
+    ];
+    const plans = getMyShiftPlans(shifts, { id: 'u1', role: 'hr_officer' });
+    expect(plans[0].id).toBe('assigned');
   });
 
   it('falls back to a department-wide plan when the user has no explicit assignment', () => {
