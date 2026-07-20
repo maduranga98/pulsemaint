@@ -62,7 +62,7 @@ exports.generateDailyAnalytics = onSchedule({
 
     // WOs completed yesterday
     const woCompletedSnap = await db
-      .collection("work_orders")
+      .collection("workOrders")
       .where("companyId", "==", companyId)
       .where("status", "==", "CLOSED")
       .where("closedAt", ">=", yesterday)

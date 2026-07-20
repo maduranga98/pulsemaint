@@ -23,14 +23,16 @@ interface LaneDef {
   borderColor: string;
 }
 
+// Supervisor's Live Breakdown Board is scoped to breakdowns that are
+// assigned, currently in progress, or closed out (SUP-001) — reported /
+// triage / on-hold breakdowns are intentionally excluded.
 const LANES: LaneDef[] = [
-  { id: 'reported', title: 'REPORTED', states: ['reported'], borderColor: '#EF4444' },
-  { id: 'in_triage', title: 'IN TRIAGE', states: ['acknowledged', 'triage_in_progress'], borderColor: '#F59E0B' },
   { id: 'assigned', title: 'ASSIGNED', states: ['assigned', 'en_route'], borderColor: '#1A56DB' },
   { id: 'in_progress', title: 'IN PROGRESS', states: ['repair_in_progress'], borderColor: '#00C2FF' },
-  { id: 'on_hold', title: 'ON HOLD', states: ['on_hold_parts', 'on_hold_approval'], borderColor: '#6B7280' },
-  { id: 'resolved', title: 'RESOLVED', states: ['resolved'], borderColor: '#10B981' },
+  { id: 'closed', title: 'CLOSED', states: ['resolved', 'closed'], borderColor: '#10B981' },
 ];
+
+const VISIBLE_STATES = new Set(LANES.flatMap((l) => l.states));
 
 function toKanbanCard(b: any): CardType {
   const reportedAt = b.reportedAt?.toDate?.() ?? new Date(b.reportedAt);
@@ -63,7 +65,9 @@ interface BreakdownKanbanBoardProps {
 }
 
 export default function BreakdownKanbanBoard({ companyId }: BreakdownKanbanBoardProps) {
-  const { breakdowns, loading, error } = useActiveBreakdowns(companyId);
+  const { breakdowns, loading, error } = useActiveBreakdowns(companyId, (status) =>
+    VISIBLE_STATES.has(status),
+  );
   const [cards, setCards] = useState<CardType[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 

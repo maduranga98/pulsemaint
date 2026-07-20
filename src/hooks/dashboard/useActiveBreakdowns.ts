@@ -3,7 +3,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { Breakdown } from '../../types';
 
-export function useActiveBreakdowns(siteId: string) {
+export function useActiveBreakdowns(siteId: string, statusFilter?: (status: string) => boolean) {
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -24,12 +24,14 @@ export function useActiveBreakdowns(siteId: string) {
     );
 
     const CLOSED = new Set(['closed', 'resolved', 'cancelled']);
+    const defaultFilter = (status: string) => !CLOSED.has(status);
+    const filter = statusFilter ?? defaultFilter;
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
         const data = snapshot.docs
           .map((d) => ({ ...d.data(), id: d.id } as Breakdown))
-          .filter((b) => !CLOSED.has(b.status));
+          .filter((b) => filter(b.status));
         setBreakdowns(data);
         setCount(data.length);
         setLoading(false);
@@ -41,6 +43,7 @@ export function useActiveBreakdowns(siteId: string) {
     );
 
     return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siteId]);
 
   return { breakdowns, count, loading, error };

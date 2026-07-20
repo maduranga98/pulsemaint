@@ -6,10 +6,11 @@ import { useMttrToday } from '../../hooks/dashboard/useMttrToday';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import KpiStrip from '../../components/dashboard/shared/KpiStrip';
 import BreakdownKanbanBoard from '../../components/dashboard/supervisor/BreakdownKanbanBoard';
-import NotificationFeed from '../../components/dashboard/supervisor/NotificationFeed';
+import WorkOrdersWidget from '../../components/dashboard/supervisor/WorkOrdersWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import SlaStatusWidget from '../../components/dashboard/supervisor/SlaStatusWidget';
+import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -78,13 +79,13 @@ export default function SupervisorDashboard() {
           ))}
         </KpiStrip>
 
-        {/* Row 2: Kanban + Notifications */}
+        {/* Row 2: Kanban + Work Orders */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
             <BreakdownKanbanBoard companyId={companyId} />
           </div>
           <div className="lg:col-span-4">
-            <NotificationFeed companyId={companyId} />
+            <WorkOrdersWidget siteId={siteId} />
           </div>
         </div>
 
@@ -94,6 +95,9 @@ export default function SupervisorDashboard() {
           <TechnicianStatusList companyId={companyId} />
           <SlaStatusWidget siteId={siteId} />
         </div>
+
+        {/* Row 4: Assigned Audits / Evaluations / Trainings */}
+        <AssignedTasksWidget />
       </div>
 
       <DashboardSidePanel />

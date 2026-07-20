@@ -55,7 +55,7 @@ export function MyShiftPage() {
           fetchMyRecentSessions(profile.companyId, profile.id),
         ]);
         if (cancelled) return;
-        setPlans(getMyShiftPlans(configs, { id: profile.id, role: profile.role, shiftId: profile.shiftId }));
+        setPlans(getMyShiftPlans(configs, { id: profile.id, role: profile.role, shiftId: profile.shiftId, department: profile.department }));
         setRecent(sessions);
         setError(null);
       } catch (err) {

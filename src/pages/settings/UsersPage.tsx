@@ -176,7 +176,10 @@ export default function UsersPage() {
   const currentUser = useAuthStore((s) => s.userProfile);
   // Plant Manager gets the same Users data as Admin, but is limited to
   // inviting/adding members — no editing or removing existing users.
-  const canEditUsers = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
+  const canEditUsers = currentUser?.role === 'admin';
+  // Supervisor gets a read-only roster: details only, no add/invite/import
+  // and no per-row actions (SUP-016).
+  const canManageUsers = currentUser?.role === 'admin' || currentUser?.role === 'plant_manager';
   const toast = useToast();
   const { shifts, reload: reloadShifts } = useShiftConfig();
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -397,32 +400,34 @@ export default function UsersPage() {
             {users.length} team {users.length === 1 ? 'member' : 'members'} in {company?.name || 'your company'}
           </p>
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setImportOpen(true)}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
-          >
-            <Upload className="w-4 h-4" />
-            Import Users
-          </button>
-          <button
-            type="button"
-            onClick={() => setModal({ mode: 'invite' })}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
-          >
-            <Send className="w-4 h-4" />
-            Invite Member
-          </button>
-          <button
-            type="button"
-            onClick={() => setModal({ mode: 'add' })}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            Add User
-          </button>
-        </div>
+        {canManageUsers && (
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setImportOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              Import Users
+            </button>
+            <button
+              type="button"
+              onClick={() => setModal({ mode: 'invite' })}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+            >
+              <Send className="w-4 h-4" />
+              Invite Member
+            </button>
+            <button
+              type="button"
+              onClick={() => setModal({ mode: 'add' })}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] transition-colors"
+            >
+              <UserPlus className="w-4 h-4" />
+              Add User
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="space-y-5">
@@ -438,16 +443,18 @@ export default function UsersPage() {
             >
               Users ({users.length})
             </button>
-            <button
-              onClick={() => setActiveTab('invitations')}
-              className={`px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === 'invitations'
-                  ? 'text-[#00C2FF] border-b-2 border-[#00C2FF]'
-                  : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
-              }`}
-            >
-              Invitations ({invitations.filter((i) => i.status === 'pending').length} pending)
-            </button>
+            {canManageUsers && (
+              <button
+                onClick={() => setActiveTab('invitations')}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === 'invitations'
+                    ? 'text-[#00C2FF] border-b-2 border-[#00C2FF]'
+                    : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
+                }`}
+              >
+                Invitations ({invitations.filter((i) => i.status === 'pending').length} pending)
+              </button>
+            )}
           </div>
 
           <input
@@ -494,7 +501,7 @@ export default function UsersPage() {
                       <th className="px-4 py-3 text-left">Status</th>
                       <th className="px-4 py-3 text-left">Shifts</th>
                       <th className="px-4 py-3 text-left">Last Login</th>
-                      <th className="px-4 py-3 text-right">Actions</th>
+                      {canManageUsers && <th className="px-4 py-3 text-right">Actions</th>}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -542,28 +549,30 @@ export default function UsersPage() {
                             ? (u.lastLoginAt as { toDate: () => Date }).toDate().toLocaleString()
                             : 'Never'}
                         </td>
-                        <td className="px-4 py-3">
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              onClick={() => setModal({ mode: 'view', user: u })}
-                              title="View"
-                              className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
-                            {canEditUsers && (
+                        {canManageUsers && (
+                          <td className="px-4 py-3">
+                            <div className="flex items-center justify-end gap-1">
                               <button
                                 type="button"
-                                onClick={() => setModal({ mode: 'edit', user: u })}
-                                title="Edit"
+                                onClick={() => setModal({ mode: 'view', user: u })}
+                                title="View"
                                 className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                               >
-                                <Pencil className="w-4 h-4" />
+                                <Eye className="w-4 h-4" />
                               </button>
-                            )}
-                          </div>
-                        </td>
+                              {canEditUsers && (
+                                <button
+                                  type="button"
+                                  onClick={() => setModal({ mode: 'edit', user: u })}
+                                  title="Edit"
+                                  className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

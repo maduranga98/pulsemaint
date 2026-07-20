@@ -131,7 +131,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['admin'],
   },
-  { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
+  { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
   // Training can be assigned to any role, so everyone gets a "My Training" entry.
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
   {
@@ -185,7 +185,7 @@ const NAV_ITEMS: NavItem[] = [
         <line x1="9" y1="16" x2="13" y2="16"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
+    roles: ['plant_manager', 'admin', 'hr_officer'],
   },
   { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor', 'plant_manager'] },
   { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin'] },

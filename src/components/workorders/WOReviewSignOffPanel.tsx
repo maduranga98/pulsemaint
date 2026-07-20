@@ -188,6 +188,33 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
               </div>
               {wo.testRunNotes && <Field label="Test notes">{wo.testRunNotes}</Field>}
 
+              {(wo.partsUsed ?? []).length > 0 && (
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Parts used</p>
+                  <div className="space-y-2">
+                    {(wo.partsUsed ?? []).map((part, i) => (
+                      <div key={i} className="flex items-center gap-3 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{part.partName}</p>
+                          <p className="text-xs text-gray-500">
+                            {part.quantity} {part.unit} · {part.source === 'stock' ? 'From store stock' : 'External purchase'}
+                          </p>
+                        </div>
+                        <span className="whitespace-nowrap text-sm font-semibold text-gray-700">
+                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : '—'}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="flex justify-end text-sm text-gray-600">
+                      Total parts cost:&nbsp;
+                      <span className="font-semibold text-gray-900">
+                        LKR {(wo.partsUsed ?? []).reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {evidence.length > 0 && (
                 <div>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Evidence</p>

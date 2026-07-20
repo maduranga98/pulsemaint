@@ -33,7 +33,7 @@ exports.updateMachineHealth = onDocumentWritten(
 
     // Count open WOs for this machine
     const openWosSnap = await db
-      .collection("work_orders")
+      .collection("workOrders")
       .where("machineId", "==", machineId)
       .where("status", "in", ["OPEN", "ASSIGNED", "IN_PROGRESS", "ON_HOLD_PARTS", "ON_HOLD_APPROVAL"])
       .get();
