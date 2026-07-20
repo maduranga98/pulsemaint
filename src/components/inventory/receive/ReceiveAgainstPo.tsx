@@ -74,59 +74,72 @@ export function ReceiveAgainstPo() {
         const poData = poSnap.data();
         const currentItems = (poData.items as PurchaseOrderItem[]) ?? selectedPo.items;
 
-        const updatedItems: PurchaseOrderItem[] = [];
+        // Firestore transactions require every read to happen before any
+        // write — reading part N+1 after part N's write was already queued
+        // throws "Firestore transactions require all reads to be executed
+        // before all writes." So read every affected part first, then queue
+        // all the writes in a second pass.
+        const receivingItems = currentItems
+          .map((item) => {
+            const row = rowData[item.id];
+            const qty = row?.quantityReceived ?? 0;
+            const cost = row?.unitCost ?? item.unitCost;
+            const cond = row?.condition ?? 'good';
+            return { item, row, qty, cost, cond };
+          })
+          .filter(({ qty, cond }) => qty > 0 && cond === 'good');
 
-        for (const item of currentItems) {
+        const partSnaps = await Promise.all(
+          receivingItems.map(({ item }) => tx.get(doc(db, 'inventoryParts', item.partId))),
+        );
+
+        const updatedItems: PurchaseOrderItem[] = currentItems.map((item) => {
           const row = rowData[item.id];
           const qty = row?.quantityReceived ?? 0;
-          const cost = row?.unitCost ?? item.unitCost;
-          const cond = row?.condition ?? 'good';
+          return { ...item, quantityReceived: item.quantityReceived + qty };
+        });
 
-          const newReceived = item.quantityReceived + qty;
-          updatedItems.push({ ...item, quantityReceived: newReceived });
+        receivingItems.forEach(({ item, row, qty, cost }, idx) => {
+          const partSnap = partSnaps[idx];
+          if (!partSnap.exists()) return;
 
-          if (qty > 0 && cond === 'good') {
-            const partRef = doc(db, 'inventoryParts', item.partId);
-            const partSnap = await tx.get(partRef);
-            if (partSnap.exists()) {
-              const data = partSnap.data();
-              const currentStock = (data.currentStock as number) ?? 0;
+          const partRef = doc(db, 'inventoryParts', item.partId);
+          const data = partSnap.data();
+          const currentStock = (data.currentStock as number) ?? 0;
 
-              tx.update(partRef, {
-                currentStock: currentStock + qty,
-                lastReceivedAt: now,
-                lastPurchasePrice: cost,
-                lastPurchaseDate: now,
-                updatedAt: now,
-                updatedBy: userProfile.id,
-              });
+          tx.update(partRef, {
+            currentStock: currentStock + qty,
+            lastReceivedAt: now,
+            lastPurchasePrice: cost,
+            lastPurchaseDate: now,
+            updatedAt: now,
+            updatedBy: userProfile.id,
+          });
 
-              const movRef = doc(collection(db, 'stockMovements'));
-              tx.set(movRef, {
-                companyId,
-                partId: item.partId,
-                partNumber: item.partNumber,
-                partName: item.partName,
-                movementType: 'receive',
-                quantityBefore: currentStock,
-                quantityChange: qty,
-                quantityAfter: currentStock + qty,
-                referenceType: 'purchase_order',
-                referenceId: selectedPo.id,
-                workOrderId: null,
-                workOrderNumber: null,
-                partsRequestId: null,
-                performedBy: userProfile.id,
-                performedByName: userProfile.fullName,
-                performedByRole: userProfile.role,
-                performedAt: now,
-                notes: row?.notes ?? '',
-                unitCostAtTime: cost,
-                totalCostImpact: cost * qty,
-              });
-            }
-          }
-        }
+          const movRef = doc(collection(db, 'stockMovements'));
+          tx.set(movRef, {
+            companyId,
+            partId: item.partId,
+            partNumber: item.partNumber,
+            partName: item.partName,
+            movementType: 'receive',
+            quantityBefore: currentStock,
+            quantityChange: qty,
+            quantityAfter: currentStock + qty,
+            referenceType: 'purchase_order',
+            referenceId: selectedPo.id,
+            workOrderId: null,
+            workOrderNumber: null,
+            partsRequestId: null,
+            performedBy: userProfile.id,
+            performedByName: userProfile.fullName,
+            performedByRole: userProfile.role,
+            performedAt: now,
+            notes: row?.notes ?? '',
+            unitCostAtTime: cost,
+            totalCostImpact: cost * qty,
+          });
+        });
 
         // Update PO status
         const allFullyReceived = updatedItems.every(
