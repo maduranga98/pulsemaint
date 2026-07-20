@@ -2,23 +2,15 @@ import type { Timestamp } from 'firebase/firestore';
 
 // ─── Enums / Unions ────────────────────────────────────────────────────────
 
+// The six standard categories, or a freeform, manually-created category name.
 export type PartCategory =
-  | 'bearings'
-  | 'belts_chains'
-  | 'bolts_fasteners'
   | 'electrical'
-  | 'filters'
-  | 'gaskets_seals'
-  | 'gears_sprockets'
+  | 'mechanical'
   | 'hydraulic'
-  | 'lubricants_oils'
-  | 'motors_drives'
   | 'pneumatic'
-  | 'pumps_valves'
-  | 'safety_equipment'
-  | 'sensors_instrumentation'
-  | 'welding_supplies'
-  | 'other';
+  | 'automation'
+  | 'civil'
+  | (string & {});
 
 export type PartUnit =
   | 'pcs'

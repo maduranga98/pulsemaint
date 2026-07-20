@@ -40,45 +40,33 @@ export const VALID_UNITS = [
   'pcs', 'set', 'kg', 'g', 'L', 'mL', 'm', 'cm', 'box', 'roll', 'pair', 'bag', 'drum',
 ] as const;
 
+// The six standard main categories. Parts may also carry a freeform,
+// manually-created category name outside this list.
 export const VALID_CATEGORIES = [
-  'bearings',
-  'belts_chains',
-  'bolts_fasteners',
   'electrical',
-  'filters',
-  'gaskets_seals',
-  'gears_sprockets',
+  'mechanical',
   'hydraulic',
-  'lubricants_oils',
-  'motors_drives',
   'pneumatic',
-  'pumps_valves',
-  'safety_equipment',
-  'sensors_instrumentation',
-  'welding_supplies',
-  'other',
+  'automation',
+  'civil',
 ] as const;
 
-import type { PartCategory, PartUnit } from '@/types/inventory';
+import type { PartUnit } from '@/types/inventory';
 
-export const CATEGORY_LABELS: Record<PartCategory, string> = {
-  bearings: 'Bearings',
-  belts_chains: 'Belts & Chains',
-  bolts_fasteners: 'Bolts & Fasteners',
+export const CATEGORY_LABELS: Record<(typeof VALID_CATEGORIES)[number], string> = {
   electrical: 'Electrical',
-  filters: 'Filters',
-  gaskets_seals: 'Gaskets & Seals',
-  gears_sprockets: 'Gears & Sprockets',
+  mechanical: 'Mechanical',
   hydraulic: 'Hydraulic',
-  lubricants_oils: 'Lubricants & Oils',
-  motors_drives: 'Motors & Drives',
   pneumatic: 'Pneumatic',
-  pumps_valves: 'Pumps & Valves',
-  safety_equipment: 'Safety Equipment',
-  sensors_instrumentation: 'Sensors & Instrumentation',
-  welding_supplies: 'Welding Supplies',
-  other: 'Other',
+  automation: 'Automation',
+  civil: 'Civil',
 };
+
+// Returns the display label for a category — one of the six standard
+// labels, or the category value itself when it's a manually-created one.
+export function categoryLabel(category: string): string {
+  return (CATEGORY_LABELS as Record<string, string>)[category] ?? category;
+}
 
 export const UNIT_LABELS: Record<PartUnit, string> = {
   pcs: 'Pieces (pcs)',

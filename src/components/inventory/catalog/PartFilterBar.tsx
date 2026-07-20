@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Search, X, ChevronDown } from 'lucide-react';
 import type { PartCategory, PartStatus, PartCriticality } from '@/types/inventory';
+import { VALID_CATEGORIES, CATEGORY_LABELS } from '@/lib/inventory/inventoryTypes';
 
 export interface PartFilters {
   search: string;
@@ -15,24 +16,10 @@ interface PartFilterBarProps {
   onChange: (filters: PartFilters) => void;
 }
 
-const CATEGORIES: { value: PartCategory; label: string }[] = [
-  { value: 'bearings', label: 'Bearings' },
-  { value: 'belts_chains', label: 'Belts & Chains' },
-  { value: 'bolts_fasteners', label: 'Bolts & Fasteners' },
-  { value: 'electrical', label: 'Electrical' },
-  { value: 'filters', label: 'Filters' },
-  { value: 'gaskets_seals', label: 'Gaskets & Seals' },
-  { value: 'gears_sprockets', label: 'Gears & Sprockets' },
-  { value: 'hydraulic', label: 'Hydraulic' },
-  { value: 'lubricants_oils', label: 'Lubricants & Oils' },
-  { value: 'motors_drives', label: 'Motors & Drives' },
-  { value: 'pneumatic', label: 'Pneumatic' },
-  { value: 'pumps_valves', label: 'Pumps & Valves' },
-  { value: 'safety_equipment', label: 'Safety' },
-  { value: 'sensors_instrumentation', label: 'Sensors' },
-  { value: 'welding_supplies', label: 'Welding' },
-  { value: 'other', label: 'Other' },
-];
+const CATEGORIES: { value: PartCategory; label: string }[] = VALID_CATEGORIES.map((c) => ({
+  value: c,
+  label: CATEGORY_LABELS[c],
+}));
 
 const STATUSES: { value: PartStatus; label: string }[] = [
   { value: 'active', label: 'Active' },

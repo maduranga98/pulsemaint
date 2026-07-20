@@ -16,13 +16,7 @@ import { createPartSchema, type CreatePartFormValues } from '@/schemas/inventory
 import { useInventoryPart } from '@/hooks/inventory/useInventoryPart';
 import { useToast } from '@/hooks/useToast';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
-
-const CATEGORIES = [
-  'bearings', 'belts_chains', 'bolts_fasteners', 'electrical', 'filters',
-  'gaskets_seals', 'gears_sprockets', 'hydraulic', 'lubricants_oils',
-  'motors_drives', 'pneumatic', 'pumps_valves', 'safety_equipment',
-  'sensors_instrumentation', 'welding_supplies', 'other',
-] as const;
+import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
 
 const UNITS = ['pcs', 'set', 'kg', 'g', 'L', 'mL', 'm', 'cm', 'box', 'roll', 'pair', 'bag', 'drum'] as const;
 
@@ -210,9 +204,7 @@ export function EditPartPage() {
               </Field>
               <Field label="Category" required error={errors.category?.message}>
                 <Controller name="category" control={control} render={({ field }) => (
-                  <select {...field} className={inputCls}>
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
-                  </select>
+                  <CategorySelect value={field.value ?? ''} onChange={field.onChange} required className={inputCls} />
                 )} />
               </Field>
               <Field label="Unit" required error={errors.unit?.message}>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,15 +18,10 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { createPartSchema, type CreatePartFormValues } from '@/schemas/inventory';
 import { useToast } from '@/hooks/useToast';
+import { useInventorySettings } from '@/hooks/inventory/useInventorySettings';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
+import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
 import { generatePartNumber } from '@/lib/inventory/poNumberGenerator';
-
-const CATEGORIES = [
-  'bearings', 'belts_chains', 'bolts_fasteners', 'electrical', 'filters',
-  'gaskets_seals', 'gears_sprockets', 'hydraulic', 'lubricants_oils',
-  'motors_drives', 'pneumatic', 'pumps_valves', 'safety_equipment',
-  'sensors_instrumentation', 'welding_supplies', 'other',
-] as const;
 
 const UNITS = ['pcs', 'set', 'kg', 'g', 'L', 'mL', 'm', 'cm', 'box', 'roll', 'pair', 'bag', 'drum'] as const;
 
@@ -59,6 +54,7 @@ export function AddPartPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const canViewCost = useAuthStore((s) => s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']));
+  const { settings } = useInventorySettings();
   const [saving, setSaving] = useState(false);
   const [addAnother, setAddAnother] = useState(false);
 
@@ -93,6 +89,7 @@ export function AddPartPage() {
 
   async function suggestPartNumber() {
     if (!companyId) return;
+    const prefix = settings?.partNumberPrefix || 'PRT';
     const q = query(
       collection(db, 'inventoryParts'),
       where('companyId', '==', companyId),
@@ -106,8 +103,17 @@ export function AddPartPage() {
       const match = last.match(/(\d+)$/);
       if (match) nextSeq = parseInt(match[1], 10) + 1;
     }
-    setValue('partNumber', generatePartNumber('PRT', nextSeq));
+    setValue('partNumber', generatePartNumber(prefix, nextSeq));
   }
+
+  // Auto-assign a part number as soon as we know the company & prefix, so
+  // the field arrives pre-filled — the store keeper can still edit/select
+  // a different one via the "Auto" button or by typing directly.
+  useEffect(() => {
+    if (!companyId) return;
+    suggestPartNumber();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, settings?.partNumberPrefix]);
 
   async function onSubmit(values: CreatePartFormValues) {
     setSaving(true);
@@ -217,12 +223,7 @@ export function AddPartPage() {
                 name="category"
                 control={control}
                 render={({ field }) => (
-                  <select {...field} className={inputCls}>
-                    <option value="">Select category</option>
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
-                    ))}
-                  </select>
+                  <CategorySelect value={field.value ?? ''} onChange={field.onChange} required className={inputCls} />
                 )}
               />
             </Field>

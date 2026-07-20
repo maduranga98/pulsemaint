@@ -6,7 +6,6 @@ import type {
 } from '@/types/inventory';
 
 const VALID_UNITS = new Set(['pcs','set','kg','g','L','mL','m','cm','box','roll','pair','bag','drum']);
-const VALID_CATEGORIES = new Set(['bearings','belts_chains','bolts_fasteners','electrical','filters','gaskets_seals','gears_sprockets','hydraulic','lubricants_oils','motors_drives','pneumatic','pumps_valves','safety_equipment','sensors_instrumentation','welding_supplies','other']);
 const VALID_STATUSES = new Set(['active', 'inactive', 'discontinued']);
 const VALID_CRITICALITIES = new Set(['critical', 'high', 'medium', 'low']);
 const MAX_ROWS = 500;
@@ -93,14 +92,11 @@ export function validateImportRows(
       );
     }
 
-    // Category
+    // Category — one of the standard main categories, or a freeform,
+    // manually-created category name.
     if (!row.category) {
       rowErrors.push(
-        makeError(row.rowIndex, 'Category *', 'REQUIRED_FIELD_EMPTY', 'Category is required.', 'Enter a valid category.')
-      );
-    } else if (!VALID_CATEGORIES.has(row.category)) {
-      rowErrors.push(
-        makeError(row.rowIndex, 'Category *', 'INVALID_CATEGORY', `"${row.category}" is not a valid category.`, 'See the Valid Categories sheet for allowed values.')
+        makeError(row.rowIndex, 'Category *', 'REQUIRED_FIELD_EMPTY', 'Category is required.', 'Enter a category, or one of the standard ones from the Valid Categories sheet.')
       );
     }
 

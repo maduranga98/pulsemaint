@@ -20,24 +20,15 @@ const BREAKDOWN_TYPE_OPTIONS: SelectOption[] = [
   { value: 'other', label: 'Other' },
 ];
 
-// Values match the PartCategory union stored on inventoryParts docs.
+// Values match the standard PartCategory options stored on inventoryParts
+// docs. Parts may also carry a freeform, manually-created category name.
 const PART_CATEGORY_OPTIONS: SelectOption[] = [
-  { value: 'bearings', label: 'Bearings' },
-  { value: 'belts_chains', label: 'Belts & Chains' },
-  { value: 'bolts_fasteners', label: 'Bolts & Fasteners' },
   { value: 'electrical', label: 'Electrical' },
-  { value: 'filters', label: 'Filters' },
-  { value: 'gaskets_seals', label: 'Gaskets & Seals' },
-  { value: 'gears_sprockets', label: 'Gears & Sprockets' },
+  { value: 'mechanical', label: 'Mechanical' },
   { value: 'hydraulic', label: 'Hydraulic' },
-  { value: 'lubricants_oils', label: 'Lubricants & Oils' },
-  { value: 'motors_drives', label: 'Motors & Drives' },
   { value: 'pneumatic', label: 'Pneumatic' },
-  { value: 'pumps_valves', label: 'Pumps & Valves' },
-  { value: 'safety_equipment', label: 'Safety Equipment' },
-  { value: 'sensors_instrumentation', label: 'Sensors & Instrumentation' },
-  { value: 'welding_supplies', label: 'Welding Supplies' },
-  { value: 'other', label: 'Other' },
+  { value: 'automation', label: 'Automation' },
+  { value: 'civil', label: 'Civil' },
 ];
 
 export default function ReportFilterSection({
