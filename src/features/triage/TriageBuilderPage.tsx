@@ -12,7 +12,7 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'assessments', label: 'Assessments', icon: '📋' },
 ];
 
-const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin'] as const;
+const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer'] as const;
 
 export default function TriageBuilderPage() {
   const userProfile = useAuthStore((s) => s.userProfile);

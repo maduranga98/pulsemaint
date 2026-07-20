@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { useContractors } from '@/hooks/contractors/useContractors';
+import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import type { ContractorFilters } from '@/lib/contractors/contractorTypes';
 import ContractorAlertBanner from './ContractorAlertBanner';
 import ContractorCard from './ContractorCard';
@@ -11,6 +12,7 @@ import ContractorListTable from './ContractorListTable';
 export function ContractorList() {
   const [filters, setFilters] = useState<ContractorFilters>({});
   const { contractors, loading, totalCount, activeCount, blockedCount } = useContractors(filters);
+  const { canManageContractors } = useContractorAccess();
 
   return (
     <div className="space-y-5 p-4 lg:p-6">
@@ -19,10 +21,12 @@ export function ContractorList() {
           <h1 className="text-2xl font-bold text-slate-950">Contractor Registry</h1>
           <p className="mt-1 text-sm text-slate-500">{totalCount} contractors - {activeCount} active - {blockedCount} blocked</p>
         </div>
-        <Link to="/app/contractors/new" className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white">
-          <Plus className="h-4 w-4" />
-          Add Contractor
-        </Link>
+        {canManageContractors && (
+          <Link to="/app/contractors/new" className="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white">
+            <Plus className="h-4 w-4" />
+            Add Contractor
+          </Link>
+        )}
       </div>
       <ContractorAlertBanner blockedCount={blockedCount} />
       <ContractorFilterBar filters={filters} onChange={setFilters} />
