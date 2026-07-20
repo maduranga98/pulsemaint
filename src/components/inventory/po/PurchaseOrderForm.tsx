@@ -20,6 +20,7 @@ import { purchaseOrderSchema, type PurchaseOrderFormValues } from '@/schemas/inv
 import type { PurchaseOrder, InventoryCurrency, PurchaseOrderStatus } from '@/types/inventory';
 import { generatePONumber } from '@/lib/inventory/poNumberGenerator';
 import { useToast } from '@/hooks/useToast';
+import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { PurchaseOrderItemRow, type POItemRowData } from './PurchaseOrderItemRow';
 
 interface PurchaseOrderFormProps {
@@ -46,7 +47,9 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
 
-  const canApprove = userRole === 'plant_manager' || userRole === 'admin';
+  // Kept in sync with PurchaseOrderDetail's canApprove — approval is not
+  // limited to plant_manager/admin, supervisors can approve too.
+  const canApprove = ['plant_manager', 'admin', 'supervisor', 'maintenance_supervisor'].includes(userRole);
 
   const [items, setItems] = useState<POItemRowData[]>(
     initialPO?.items.map((i) => ({
@@ -67,10 +70,14 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   const totalValue = items.reduce((sum, it) => sum + it.quantityOrdered * it.unitCost, 0);
 
+  const { suppliers } = useSuppliers();
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
+
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<PurchaseOrderFormValues>({
     resolver: zodResolver(purchaseOrderSchema) as any,
@@ -114,8 +121,8 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   }
 
   async function queueEmail(po: PurchaseOrder) {
-    // Notify plant managers + admins. A backend worker / Cloud Function
-    // should consume this collection and dispatch the email.
+    // Notify plant managers + admins; the sendPoEmails Cloud Function
+    // consumes this collection and also emails the supplier once approved.
     try {
       const usersSnap = await getDocs(
         query(collection(db, `companies/${companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
@@ -176,6 +183,11 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         currency: values.currency,
       };
 
+      const approvalFields =
+        status === 'approved'
+          ? { approvedBy: userId, approvedByName: userName, approvedAt: serverTimestamp() }
+          : {};
+
       if (initialPO) {
         const ref = doc(db, 'purchaseOrders', initialPO.id);
         await updateDoc(ref, {
@@ -184,6 +196,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           totalOrderValue: totalValue,
           notes: values.notes,
           status,
+          ...approvalFields,
           updatedAt: serverTimestamp(),
         });
         const updated = {
@@ -195,7 +208,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           notes: values.notes,
         } as PurchaseOrder;
         onSave(updated);
-        if (status === 'pending_approval' || status === 'sent') await queueEmail(updated);
+        if (status === 'pending_approval' || status === 'approved') await queueEmail(updated);
       } else {
         const poNumber = await generatePONum();
         const payload = {
@@ -213,8 +226,9 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           approvedBy: null,
           approvedByName: null,
           approvedAt: null,
+          ...approvalFields,
           rejectedReason: null,
-          sentAt: status === 'sent' ? serverTimestamp() : null,
+          sentAt: null,
           acknowledgedAt: null,
           receivedAt: null,
           notes: values.notes,
@@ -223,14 +237,14 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         const ref = await addDoc(collection(db, 'purchaseOrders'), payload);
         const created = { id: ref.id, ...payload } as unknown as PurchaseOrder;
         onSave(created);
-        if (status === 'pending_approval' || status === 'sent') await queueEmail(created);
+        if (status === 'pending_approval' || status === 'approved') await queueEmail(created);
       }
       const msg =
         status === 'draft'
           ? 'PO saved as draft.'
           : status === 'pending_approval'
             ? 'PO submitted for approval.'
-            : 'PO saved and sent.';
+            : 'PO approved. Use "Send to Supplier" on the PO to email it.';
       addToast(msg, 'success');
     } catch (err) {
       console.error('Failed to save purchase order', err);
@@ -262,6 +276,32 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       {/* Supplier info */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
         <h3 className="font-semibold text-gray-900">Supplier Information</h3>
+        {suppliers.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Supplier</label>
+            <select
+              value={selectedSupplierId}
+              onChange={(e) => {
+                const supplierId = e.target.value;
+                setSelectedSupplierId(supplierId);
+                const supplier = suppliers.find((s) => s.id === supplierId);
+                if (supplier) {
+                  setValue('supplierName', supplier.name, { shouldValidate: true });
+                  setValue('supplierContactPerson', supplier.contactPerson);
+                  setValue('supplierPhone', supplier.phone);
+                  setValue('supplierEmail', supplier.email);
+                  setValue('supplierAddress', supplier.address);
+                }
+              }}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">— Choose a saved supplier, or fill in details below —</option>
+              {suppliers.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Name *</label>
@@ -438,11 +478,11 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           <button
             type="button"
             disabled={saving}
-            onClick={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'sent'))}
+            onClick={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'approved'))}
             className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
           >
             <Send className="w-4 h-4" />
-            Approve &amp; Send
+            Approve
           </button>
         )}
       </div>

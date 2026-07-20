@@ -100,7 +100,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   { label: 'Inventory / Parts', to: '/app/inventory', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
   { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
-  { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
+  { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'hr_officer', 'admin'] },
   {
     label: 'My Shift',
     to: '/app/shift/my',

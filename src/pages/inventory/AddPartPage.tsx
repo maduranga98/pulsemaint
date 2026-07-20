@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,20 +13,19 @@ import {
   serverTimestamp,
   writeBatch,
   doc,
+  updateDoc,
+  Timestamp,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { createPartSchema, type CreatePartFormValues } from '@/schemas/inventory';
 import { useToast } from '@/hooks/useToast';
+import { useInventorySettings } from '@/hooks/inventory/useInventorySettings';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
+import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
 import { generatePartNumber } from '@/lib/inventory/poNumberGenerator';
-
-const CATEGORIES = [
-  'bearings', 'belts_chains', 'bolts_fasteners', 'electrical', 'filters',
-  'gaskets_seals', 'gears_sprockets', 'hydraulic', 'lubricants_oils',
-  'motors_drives', 'pneumatic', 'pumps_valves', 'safety_equipment',
-  'sensors_instrumentation', 'welding_supplies', 'other',
-] as const;
+import type { WarrantyDocument } from '@/types/inventory';
 
 const UNITS = ['pcs', 'set', 'kg', 'g', 'L', 'mL', 'm', 'cm', 'box', 'roll', 'pair', 'bag', 'drum'] as const;
 
@@ -59,8 +58,10 @@ export function AddPartPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const canViewCost = useAuthStore((s) => s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']));
+  const { settings } = useInventorySettings();
   const [saving, setSaving] = useState(false);
   const [addAnother, setAddAnother] = useState(false);
+  const [warrantyFiles, setWarrantyFiles] = useState<File[]>([]);
 
   const {
     register,
@@ -93,6 +94,7 @@ export function AddPartPage() {
 
   async function suggestPartNumber() {
     if (!companyId) return;
+    const prefix = settings?.partNumberPrefix || 'PRT';
     const q = query(
       collection(db, 'inventoryParts'),
       where('companyId', '==', companyId),
@@ -106,8 +108,17 @@ export function AddPartPage() {
       const match = last.match(/(\d+)$/);
       if (match) nextSeq = parseInt(match[1], 10) + 1;
     }
-    setValue('partNumber', generatePartNumber('PRT', nextSeq));
+    setValue('partNumber', generatePartNumber(prefix, nextSeq));
   }
+
+  // Auto-assign a part number as soon as we know the company & prefix, so
+  // the field arrives pre-filled — the store keeper can still edit/select
+  // a different one via the "Auto" button or by typing directly.
+  useEffect(() => {
+    if (!companyId) return;
+    suggestPartNumber();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, settings?.partNumberPrefix]);
 
   async function onSubmit(values: CreatePartFormValues) {
     setSaving(true);
@@ -125,6 +136,7 @@ export function AddPartPage() {
         isLowStock: values.currentStock > 0 && values.minStockLevel > 0 && values.currentStock <= values.minStockLevel,
         cadFiles: [],
         images: [],
+        warrantyDocuments: [],
         totalUsedAllTime: 0,
         totalCostAllTime: 0,
         lastIssuedAt: null,
@@ -165,10 +177,30 @@ export function AddPartPage() {
       }
 
       await batch.commit();
+
+      if (warrantyFiles.length > 0) {
+        const uploaded: WarrantyDocument[] = [];
+        for (const file of warrantyFiles) {
+          const path = `inventoryParts/${partRef.id}/warranty/${Date.now()}_${file.name}`;
+          const sref = storageRef(storage, path);
+          await uploadBytes(sref, file);
+          const url = await getDownloadURL(sref);
+          uploaded.push({
+            name: file.name,
+            url,
+            uploadedAt: Timestamp.now(),
+            uploadedBy: userId,
+            fileSizeBytes: file.size,
+          });
+        }
+        await updateDoc(partRef, { warrantyDocuments: uploaded });
+      }
+
       addToast('Part created successfully.', 'success');
 
       if (addAnother) {
         reset();
+        setWarrantyFiles([]);
       } else {
         navigate(`/app/inventory/catalog/${partRef.id}`);
       }
@@ -217,12 +249,7 @@ export function AddPartPage() {
                 name="category"
                 control={control}
                 render={({ field }) => (
-                  <select {...field} className={inputCls}>
-                    <option value="">Select category</option>
-                    {CATEGORIES.map((c) => (
-                      <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>
-                    ))}
-                  </select>
+                  <CategorySelect value={field.value ?? ''} onChange={field.onChange} required className={inputCls} />
                 )}
               />
             </Field>
@@ -312,6 +339,18 @@ export function AddPartPage() {
           </div>
           <Field label="Description">
             <textarea {...register('description')} rows={3} className={`${inputCls} resize-none`} placeholder="Optional description…" />
+          </Field>
+          <Field label="Warranty Documents / Images (optional)">
+            <input
+              type="file"
+              multiple
+              accept="image/*,.pdf"
+              onChange={(e) => setWarrantyFiles(Array.from(e.target.files ?? []))}
+              className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:text-sm file:font-medium hover:file:bg-blue-100"
+            />
+            {warrantyFiles.length > 0 && (
+              <p className="text-xs text-gray-500 mt-1">{warrantyFiles.length} file(s) selected</p>
+            )}
           </Field>
         </SectionCard>
 

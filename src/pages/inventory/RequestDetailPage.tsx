@@ -11,7 +11,6 @@ import {
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { usePartsRequest } from '@/hooks/inventory/usePartsRequest';
-import { useInventorySettings } from '@/hooks/inventory/useInventorySettings';
 import { useToast } from '@/hooks/useToast';
 import { RequestDetailHeader } from '@/components/inventory/requests/RequestDetailHeader';
 import { RequestWoContextCard } from '@/components/inventory/requests/RequestWoContextCard';
@@ -30,7 +29,6 @@ export function RequestDetailPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
 
   const { request, loading, error } = usePartsRequest(requestId);
-  const { settings } = useInventorySettings();
 
   if (loading) {
     return (
@@ -194,7 +192,6 @@ export function RequestDetailPage() {
 
       <RequestReviewPanel
         request={request}
-        settings={settings ?? { approvalThresholdLKR: 0 }}
         onDecision={(payload) =>
           handleDecision(payload.decision, payload.notes, payload.escalationReason, payload.approvedQuantities)
         }

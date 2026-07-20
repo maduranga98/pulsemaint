@@ -135,12 +135,21 @@ export function PhysicalIssueScreen() {
         const now = serverTimestamp();
         const nowTs = Timestamp.fromDate(new Date());
 
-        for (const item of checkedItems) {
+        // Firestore transactions require every read to happen before any
+        // write — reading part N+1 after part N's write was already queued
+        // throws "Firestore transactions require all reads to be executed
+        // before all writes." So read every checked item's part first, then
+        // queue all the writes in a second pass.
+        const partSnaps = await Promise.all(
+          checkedItems.map((item) => tx.get(doc(db, 'inventoryParts', item.partId))),
+        );
+
+        checkedItems.forEach((item, idx) => {
+          const partSnap = partSnaps[idx];
+          if (!partSnap.exists()) return;
+
           const qty = issueQty(item);
           const partRef = doc(db, 'inventoryParts', item.partId);
-          const partSnap = await tx.get(partRef);
-          if (!partSnap.exists()) continue;
-
           const partData = partSnap.data();
           const currentStock = (partData.currentStock as number) ?? 0;
           const reservedStock = (partData.reservedStock as number) ?? 0;
@@ -179,7 +188,7 @@ export function PhysicalIssueScreen() {
             unitCostAtTime: item.unitCost,
             totalCostImpact: item.unitCost * qty,
           });
-        }
+        });
 
         // Update the request
         const requestRef = doc(db, 'partsRequests', request.id);

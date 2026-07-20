@@ -27,6 +27,9 @@ const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> 
 const STATUS_FILTERS: { label: string; value: PurchaseOrderStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
   { label: 'Draft', value: 'draft' },
+  { label: 'Pending Approval', value: 'pending_approval' },
+  { label: 'Approved', value: 'approved' },
+  { label: 'Rejected', value: 'rejected' },
   { label: 'Sent', value: 'sent' },
   { label: 'Acknowledged', value: 'acknowledged' },
   { label: 'Received', value: 'received' },

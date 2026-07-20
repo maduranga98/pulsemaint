@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { fetchUserProfile, getCompanyIdFromUser } from '../lib/auth';
-import type { CompanyProfile } from '../types/auth';
+import { getCompanyIdFromUser } from '../lib/auth';
+import type { CompanyProfile, UserProfile } from '../types/auth';
 
 export function useAuthInit() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -18,10 +18,27 @@ export function useAuthInit() {
   const setError = useAuthStore((state) => state.setError);
   const reset = useAuthStore((state) => state.reset);
 
+  // Live subscription to the user's own profile doc, so changes made by an
+  // admin (e.g. reassigning a shift in Settings → Users) are reflected
+  // immediately instead of requiring the user to log out and back in.
+  const profileUnsubscribeRef = useRef<(() => void) | null>(null);
+
+  // A dedicated function (rather than inlining the check at each call site)
+  // so TypeScript's control-flow narrowing of `.current` in one branch of
+  // the onAuthStateChanged callback doesn't leak into another — the ref is
+  // reassigned across separate invocations of that callback, which a single
+  // function body's flow analysis can't see.
+  function unsubscribeProfile() {
+    profileUnsubscribeRef.current?.();
+    profileUnsubscribeRef.current = null;
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
         setAuthLoading(true);
+
+        unsubscribeProfile();
 
         if (user) {
           // User is signed in
@@ -49,35 +66,52 @@ export function useAuthInit() {
           }
 
           if (companyId) {
-            const userProfile = await fetchUserProfile(user.uid, companyId);
+            let isFirstSnapshot = true;
+            profileUnsubscribeRef.current = onSnapshot(
+              doc(db, `companies/${companyId}/users/${user.uid}`),
+              (userSnap) => {
+                if (!userSnap.exists()) {
+                  if (isFirstSnapshot && !useAuthStore.getState().userProfile) {
+                    console.warn('User profile not found');
+                  }
+                  isFirstSnapshot = false;
+                  return;
+                }
+                const userProfile = userSnap.data() as UserProfile;
+                setUserProfile(userProfile);
 
-            if (userProfile) {
-              setUserProfile(userProfile);
+                if (isFirstSnapshot) {
+                  isFirstSnapshot = false;
+                  // Keep the global mapping doc in sync so Firestore security
+                  // rules always see the correct role and siteId. This
+                  // self-heals existing users who have stale or null values
+                  // in their mapping doc.
+                  setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    companyId,
+                    role: userProfile.role,
+                    siteId: userProfile.siteIds[0] ?? companyId,
+                  }, { merge: true }).catch(() => {});
 
-              // Keep the global mapping doc in sync so Firestore security rules
-              // always see the correct role and siteId. This self-heals existing
-              // users who have stale or null values in their mapping doc.
-              setDoc(doc(db, 'users', user.uid), {
-                uid: user.uid,
-                companyId,
-                role: userProfile.role,
-                siteId: userProfile.siteIds[0] ?? companyId,
-              }, { merge: true }).catch(() => {});
-
-              const companyRef = doc(db, `companies/${companyId}`);
-              const companySnap = await getDoc(companyRef);
-              if (companySnap.exists()) {
-                setCompany(companySnap.data() as CompanyProfile);
-              }
-              // If company doc isn't readable yet, keep whatever the caller hydrated.
-            } else if (!useAuthStore.getState().userProfile) {
-              console.warn('User profile not found');
-            }
+                  const companyRef = doc(db, `companies/${companyId}`);
+                  getDoc(companyRef).then((companySnap) => {
+                    if (companySnap.exists()) {
+                      setCompany(companySnap.data() as CompanyProfile);
+                    }
+                  }).catch(() => {});
+                  // If company doc isn't readable yet, keep whatever the caller hydrated.
+                }
+              },
+              (err) => {
+                console.error('Failed to subscribe to user profile', err);
+              },
+            );
           } else if (!useAuthStore.getState().userProfile) {
             console.warn('Company ID not found for user');
           }
         } else {
           // User is signed out
+          unsubscribeProfile();
           reset();
         }
 
@@ -95,7 +129,10 @@ export function useAuthInit() {
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeProfile();
+      unsubscribe();
+    };
   }, [setUser, setUserProfile, setCompany, setAuthLoading, setAuthInitialized, setError, reset]);
 
   return { isInitialized, isLoading };

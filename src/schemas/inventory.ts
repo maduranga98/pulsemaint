@@ -1,8 +1,7 @@
 import { z } from 'zod';
-import type { PartCategory, PartUnit, PartStatus, PartCriticality, ReviewDecision, InventoryCurrency } from '@/types/inventory';
+import type { PartUnit, PartStatus, PartCriticality, ReviewDecision, InventoryCurrency } from '@/types/inventory';
 
 const VALID_UNITS = ['pcs','set','kg','g','L','mL','m','cm','box','roll','pair','bag','drum'] as const;
-const VALID_CATEGORIES = ['bearings','belts_chains','bolts_fasteners','electrical','filters','gaskets_seals','gears_sprockets','hydraulic','lubricants_oils','motors_drives','pneumatic','pumps_valves','safety_equipment','sensors_instrumentation','welding_supplies','other'] as const;
 
 export const createPartSchema = z.object({
   partNumber: z.string().min(1, 'Part number is required').max(50, 'Part number too long'),
@@ -10,7 +9,7 @@ export const createPartSchema = z.object({
   description: z.string().max(500, 'Description too long').default(''),
   brand: z.string().max(100).default(''),
   modelRef: z.string().max(100).default(''),
-  category: z.enum(VALID_CATEGORIES as unknown as [PartCategory, ...PartCategory[]], { required_error: 'Category is required' }),
+  category: z.string().min(1, 'Category is required'),
   unit: z.enum(VALID_UNITS as unknown as [PartUnit, ...PartUnit[]], { required_error: 'Unit is required' }),
   status: z.enum(['active', 'inactive', 'discontinued'] as [PartStatus, ...PartStatus[]]).default('active'),
   criticality: z.enum(['critical', 'high', 'medium', 'low'] as [PartCriticality, ...PartCriticality[]]).default('medium'),
@@ -87,7 +86,6 @@ export const purchaseOrderSchema = z.object({
 export type PurchaseOrderFormValues = z.infer<typeof purchaseOrderSchema>;
 
 export const inventorySettingsSchema = z.object({
-  approvalThresholdLKR: z.number().min(0, 'Cannot be negative'),
   defaultCurrency: z.enum(['LKR', 'USD', 'SGD', 'Other'] as [InventoryCurrency, ...InventoryCurrency[]]),
   lowStockAlertEnabled: z.boolean(),
   lowStockNotifyRoles: z.array(z.string()),

@@ -89,6 +89,8 @@ import ExcelImportPage from '../pages/inventory/ExcelImportPage';
 import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
 import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
 import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
+import SuppliersPage from '../pages/inventory/SuppliersPage';
+import ManualIssuePage from '../pages/inventory/ManualIssuePage';
 
 // Dashboard
 import {
@@ -512,6 +514,22 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="inventory/suppliers"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <SuppliersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/issue/manual"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'admin']}>
+              <ManualIssuePage />
+            </ProtectedRoute>
+          }
+        />
         {/* Training - /training redirects based on role */}
 
         {/* Contractors */}
@@ -542,8 +560,8 @@ export default function AppRouter() {
         <Route path="shift/handover/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverHistoryPage /></ProtectedRoute>} />
         <Route path="shift/handover/:id" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverDetailPage /></ProtectedRoute>} />
         <Route path="settings/shifts" element={<ProtectedRoute requiredRoles={['admin']}><ShiftConfigPage /></ProtectedRoute>} />
-        <Route path="reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><MainReportsHubPage /></ProtectedRoute>} />
-        <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']}><ReportHistoryPage /></ProtectedRoute>} />
+        <Route path="reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin']}><MainReportsHubPage /></ProtectedRoute>} />
+        <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin']}><ReportHistoryPage /></ProtectedRoute>} />
         <Route
           path="training"
           element={<Navigate to="/app/training/manage/modules" replace />}

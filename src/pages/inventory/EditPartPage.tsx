@@ -2,27 +2,24 @@ import { useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, Save } from 'lucide-react';
+import { ChevronLeft, Save, FileText, X } from 'lucide-react';
 import {
   doc,
   updateDoc,
   addDoc,
   collection,
   serverTimestamp,
+  Timestamp,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { createPartSchema, type CreatePartFormValues } from '@/schemas/inventory';
 import { useInventoryPart } from '@/hooks/inventory/useInventoryPart';
 import { useToast } from '@/hooks/useToast';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
-
-const CATEGORIES = [
-  'bearings', 'belts_chains', 'bolts_fasteners', 'electrical', 'filters',
-  'gaskets_seals', 'gears_sprockets', 'hydraulic', 'lubricants_oils',
-  'motors_drives', 'pneumatic', 'pumps_valves', 'safety_equipment',
-  'sensors_instrumentation', 'welding_supplies', 'other',
-] as const;
+import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
+import type { WarrantyDocument } from '@/types/inventory';
 
 const UNITS = ['pcs', 'set', 'kg', 'g', 'L', 'mL', 'm', 'cm', 'box', 'roll', 'pair', 'bag', 'drum'] as const;
 
@@ -60,6 +57,7 @@ export function EditPartPage() {
 
   const { part, loading, error } = useInventoryPart(partId);
   const [saving, setSaving] = useState(false);
+  const [newWarrantyFiles, setNewWarrantyFiles] = useState<File[]>([]);
 
   // Stock adjustment modal state
   const [showAdjustModal, setShowAdjustModal] = useState(false);
@@ -127,14 +125,43 @@ export function EditPartPage() {
     );
   }
 
+  async function uploadWarrantyFiles(): Promise<WarrantyDocument[]> {
+    if (!part || newWarrantyFiles.length === 0) return part?.warrantyDocuments ?? [];
+    const uploaded: WarrantyDocument[] = [];
+    for (const file of newWarrantyFiles) {
+      const path = `inventoryParts/${part.id}/warranty/${Date.now()}_${file.name}`;
+      const sref = storageRef(storage, path);
+      await uploadBytes(sref, file);
+      const url = await getDownloadURL(sref);
+      uploaded.push({
+        name: file.name,
+        url,
+        uploadedAt: Timestamp.now(),
+        uploadedBy: userId,
+        fileSizeBytes: file.size,
+      });
+    }
+    return [...(part.warrantyDocuments ?? []), ...uploaded];
+  }
+
+  function removeWarrantyDocument(index: number) {
+    if (!part) return;
+    const updated = (part.warrantyDocuments ?? []).filter((_, i) => i !== index);
+    updateDoc(doc(db, 'inventoryParts', part.id), { warrantyDocuments: updated, updatedAt: serverTimestamp(), updatedBy: userId })
+      .then(() => addToast('Warranty document removed.', 'success'))
+      .catch(() => addToast('Failed to remove document.', 'error'));
+  }
+
   async function doSave(values: CreatePartFormValues) {
     if (!part) return;
     setSaving(true);
     try {
       const stockChanged = values.currentStock !== part.currentStock;
+      const warrantyDocuments = await uploadWarrantyFiles();
 
       await updateDoc(doc(db, 'inventoryParts', part.id), {
         ...values,
+        warrantyDocuments,
         isLowStock: values.currentStock > 0 && values.minStockLevel > 0 && values.currentStock <= values.minStockLevel,
         isCritical: values.criticality === 'critical',
         availableStock: values.currentStock - part.reservedStock,
@@ -210,9 +237,7 @@ export function EditPartPage() {
               </Field>
               <Field label="Category" required error={errors.category?.message}>
                 <Controller name="category" control={control} render={({ field }) => (
-                  <select {...field} className={inputCls}>
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
-                  </select>
+                  <CategorySelect value={field.value ?? ''} onChange={field.onChange} required className={inputCls} />
                 )} />
               </Field>
               <Field label="Unit" required error={errors.unit?.message}>
@@ -272,6 +297,34 @@ export function EditPartPage() {
             </div>
             <Field label="Description">
               <textarea {...register('description')} rows={3} className={`${inputCls} resize-none`} />
+            </Field>
+            <Field label="Warranty Documents / Images (optional)">
+              {part.warrantyDocuments && part.warrantyDocuments.length > 0 && (
+                <ul className="mb-2 space-y-1">
+                  {part.warrantyDocuments.map((docItem, i) => (
+                    <li key={i} className="flex items-center gap-2 text-sm">
+                      <FileText className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <a href={docItem.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline truncate">
+                        {docItem.name}
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => removeWarrantyDocument(i)}
+                        className="text-gray-400 hover:text-red-600"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <input
+                type="file"
+                multiple
+                accept="image/*,.pdf"
+                onChange={(e) => setNewWarrantyFiles(Array.from(e.target.files ?? []))}
+                className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:text-sm file:font-medium hover:file:bg-blue-100"
+              />
             </Field>
           </SectionCard>
 

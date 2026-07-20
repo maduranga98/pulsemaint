@@ -1,4 +1,5 @@
 import type { ParsedImportResult, ParsedPartRow } from '@/types/inventory';
+import { VALID_CATEGORIES } from '@/lib/inventory/inventoryTypes';
 
 const PART_COLUMNS = [
   'Part Number *',
@@ -27,7 +28,9 @@ const PART_COLUMNS = [
 ];
 
 const VALID_UNITS_LIST = ['pcs','set','kg','g','L','mL','m','cm','box','roll','pair','bag','drum'];
-const VALID_CATEGORIES_LIST = ['bearings','belts_chains','bolts_fasteners','electrical','filters','gaskets_seals','gears_sprockets','hydraulic','lubricants_oils','motors_drives','pneumatic','pumps_valves','safety_equipment','sensors_instrumentation','welding_supplies','other'];
+// Standard categories offered as a reference — a part's category may also be
+// a freeform, manually-created value not in this list.
+const VALID_CATEGORIES_LIST: readonly string[] = VALID_CATEGORIES;
 
 function cellStr(val: unknown): string {
   if (val === undefined || val === null) return '';
@@ -111,7 +114,7 @@ export async function generateImportTemplate(): Promise<Blob> {
     'PRT-0001',          // Part Number *
     'Example Bearing',   // Name *
     'pcs',               // Unit *
-    'bearings',          // Category *
+    'mechanical',        // Category *
     '10',                // Current Stock
     '5',                 // Min Stock Level
     '50',                // Max Stock Level

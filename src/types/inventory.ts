@@ -2,23 +2,15 @@ import type { Timestamp } from 'firebase/firestore';
 
 // ─── Enums / Unions ────────────────────────────────────────────────────────
 
+// The six standard categories, or a freeform, manually-created category name.
 export type PartCategory =
-  | 'bearings'
-  | 'belts_chains'
-  | 'bolts_fasteners'
   | 'electrical'
-  | 'filters'
-  | 'gaskets_seals'
-  | 'gears_sprockets'
+  | 'mechanical'
   | 'hydraulic'
-  | 'lubricants_oils'
-  | 'motors_drives'
   | 'pneumatic'
-  | 'pumps_valves'
-  | 'safety_equipment'
-  | 'sensors_instrumentation'
-  | 'welding_supplies'
-  | 'other';
+  | 'automation'
+  | 'civil'
+  | (string & {});
 
 export type PartUnit =
   | 'pcs'
@@ -103,6 +95,16 @@ export interface CadFile {
   name: string;
   url: string;
   type: CadFileType;
+  uploadedAt: Timestamp;
+  uploadedBy: string;
+  fileSizeBytes: number;
+}
+
+// Warranty document/image (receipt, certificate, warranty card photo, etc.)
+// attached to a part. Optional — a part may have none.
+export interface WarrantyDocument {
+  name: string;
+  url: string;
   uploadedAt: Timestamp;
   uploadedBy: string;
   fileSizeBytes: number;
@@ -210,6 +212,7 @@ export interface InventoryPart {
 
   compatibleMachineIds: string[];
   warrantyMonths: number;
+  warrantyDocuments: WarrantyDocument[];
 
   cadFiles: CadFile[];
   images: string[];
@@ -349,6 +352,31 @@ export interface PurchaseOrder {
 
   notes: string;
   attachments: { name: string; url: string }[];
+
+  // One entry per "Confirm Receipt" submission against this PO.
+  receiptHistory?: {
+    receivedAt: Timestamp;
+    receivedBy: string;
+    receivedByName: string;
+    receiveDate: string;
+    deliveryRef: string;
+    notes: string;
+  }[];
+}
+
+export interface Supplier {
+  id: string;
+  companyId: string;
+  name: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  address: string;
+  notes: string;
+  createdAt: Timestamp;
+  createdBy: string;
+  updatedAt: Timestamp;
+  updatedBy: string;
 }
 
 export interface InventoryImportSession {
@@ -375,7 +403,6 @@ export interface InventoryImportSession {
 
 export interface InventorySettings {
   companyId: string;
-  approvalThresholdLKR: number;
   defaultCurrency: InventoryCurrency;
   lowStockAlertEnabled: boolean;
   lowStockNotifyRoles: string[];

@@ -79,5 +79,12 @@ service firebase.storage {
       allow read: if signedIn();
       allow write: if signedIn() && validUpload(50);
     }
+
+    // Inventory part attachments: warranty documents/images.
+    // e.g. inventoryParts/{partId}/warranty/{file}
+    match /inventoryParts/{partId}/{allPaths=**} {
+      allow read: if signedIn();
+      allow write: if signedIn() && validUpload(50);
+    }
   }
 }
