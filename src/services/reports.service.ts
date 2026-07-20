@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { computeMonthlyAnalytics } from './analyticsAggregation';
+import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggregation';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import type {
   AuditLog,
@@ -22,6 +22,8 @@ import type {
   ReportConfig,
   ReportHistory,
   ReportHistoryFilters,
+  ReportSchedule,
+  ReportScheduleFrequency,
   ReportType,
 } from '../types/reports.types';
 
@@ -179,6 +181,16 @@ export async function fetchReportRows(
         continue;
       }
     }
+    // machine_health is a pre-aggregated collection normally populated by a
+    // backend job that doesn't exist yet, so it's always empty — fall back to
+    // the same on-the-fly computation the dashboard's machine health map uses
+    // so the report isn't permanently blank.
+    if (source === 'machine_health' && docs.length === 0) {
+      const computed = await computeMachineHealth(companyId);
+      computed.forEach((entry) => rows.push({ source, row: { id: entry.machineId, ...entry } }));
+      continue;
+    }
+
     docs.forEach((item) => {
       const data = item.data();
       if (reportType === 'low_stock_alert') {
@@ -320,6 +332,107 @@ export async function markReportHistoryFailed(reportId: string, errorMessage: st
     status: 'failed',
     errorMessage,
   });
+}
+
+// ---------------------------------------------------------------------------
+// Report scheduling — recurring export delivery (PMGR-009)
+// ---------------------------------------------------------------------------
+
+const toReportSchedule = (id: string, data: Record<string, unknown>): ReportSchedule => ({
+  id,
+  companyId: String(data.companyId ?? ''),
+  reportType: data.reportType as ReportType,
+  reportName: String(data.reportName ?? ''),
+  frequency: data.frequency as ReportScheduleFrequency,
+  dayOfWeek: (data.dayOfWeek as number | null) ?? null,
+  dayOfMonth: (data.dayOfMonth as number | null) ?? null,
+  recipients: Array.isArray(data.recipients) ? (data.recipients as string[]) : [],
+  filters: (data.filters as Record<string, unknown>) ?? {},
+  active: data.active !== false,
+  createdBy: String(data.createdBy ?? ''),
+  createdByName: String(data.createdByName ?? ''),
+  createdAt: toDate(data.createdAt),
+  lastRunAt: data.lastRunAt ? toDate(data.lastRunAt) : null,
+  nextRunAt: data.nextRunAt ? toDate(data.nextRunAt) : null,
+});
+
+function computeNextRunAt(
+  frequency: ReportScheduleFrequency,
+  dayOfWeek: number | null,
+  dayOfMonth: number | null,
+  from: Date = new Date(),
+): Date {
+  const next = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate(), 4, 0, 0));
+  if (next <= from) next.setUTCDate(next.getUTCDate() + 1);
+
+  if (frequency === 'daily') return next;
+
+  if (frequency === 'weekly') {
+    const target = dayOfWeek ?? 1;
+    while (next.getUTCDay() !== target) next.setUTCDate(next.getUTCDate() + 1);
+    return next;
+  }
+
+  // monthly
+  const target = Math.min(Math.max(dayOfMonth ?? 1, 1), 28);
+  next.setUTCDate(1);
+  if (next <= from) next.setUTCMonth(next.getUTCMonth() + 1);
+  next.setUTCDate(target);
+  return next;
+}
+
+export async function createReportSchedule(input: {
+  companyId: string;
+  reportType: ReportType;
+  frequency: ReportScheduleFrequency;
+  dayOfWeek?: number | null;
+  dayOfMonth?: number | null;
+  recipients: string[];
+  createdBy: string;
+  createdByName: string;
+  config: ReportConfig;
+}): Promise<string> {
+  const definition = REPORT_DEFINITIONS[input.reportType];
+  const dayOfWeek = input.dayOfWeek ?? null;
+  const dayOfMonth = input.dayOfMonth ?? null;
+  const ref = await addDoc(collection(db, 'report_schedules'), {
+    companyId: input.companyId,
+    reportType: input.reportType,
+    reportName: definition.name,
+    frequency: input.frequency,
+    dayOfWeek,
+    dayOfMonth,
+    recipients: input.recipients,
+    filters: filtersFromConfig(input.config),
+    active: true,
+    createdBy: input.createdBy,
+    createdByName: input.createdByName,
+    createdAt: serverTimestamp(),
+    lastRunAt: null,
+    nextRunAt: computeNextRunAt(input.frequency, dayOfWeek, dayOfMonth),
+  });
+  return ref.id;
+}
+
+export async function fetchReportSchedules(
+  companyId: string,
+  reportType?: ReportType,
+): Promise<ReportSchedule[]> {
+  const snap = await getDocs(
+    query(collection(db, 'report_schedules'), where('companyId', '==', companyId)),
+  );
+  return snap.docs
+    .map((item) => toReportSchedule(item.id, item.data()))
+    .filter((s) => !reportType || s.reportType === reportType)
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+export async function setReportScheduleActive(scheduleId: string, active: boolean): Promise<void> {
+  await updateDoc(doc(db, 'report_schedules', scheduleId), { active });
+}
+
+export async function deleteReportSchedule(scheduleId: string): Promise<void> {
+  await deleteDoc(doc(db, 'report_schedules', scheduleId));
 }
 
 export async function fetchAuditLogs(companyId: string): Promise<AuditLog[]> {

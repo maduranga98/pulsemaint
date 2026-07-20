@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
 import type { BreakdownStatus } from '../types/breakdown';
 import { db } from '../lib/firebase';
-import type { WorkOrder, WOStatus } from '../types/workOrder';
+import type { WorkOrder, WOStatus, TimeSegment, TimeSegmentState } from '../types/workOrder';
 import type { Permit } from '../types/permit';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
@@ -14,6 +14,15 @@ interface UseUpdateWorkOrderResult {
   loading: boolean;
   error: string | null;
 }
+
+// Statuses that represent hands-on/hold time for Wrench Time reporting. Other
+// statuses (OPEN, ASSIGNED, COMPLETED, ...) don't map to a segment — the
+// currently open segment (if any) is simply closed when moving to them.
+const STATUS_TO_SEGMENT: Partial<Record<WOStatus, TimeSegmentState>> = {
+  IN_PROGRESS: 'working',
+  ON_HOLD_PARTS: 'waiting-parts',
+  ON_HOLD_APPROVAL: 'waiting-permit',
+};
 
 export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
   const [loading, setLoading] = useState(false);
@@ -116,16 +125,30 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
       };
 
       // Stamp the real start time on the first transition to IN_PROGRESS so
-      // duration can be computed as (completed − started).
-      if (status === 'IN_PROGRESS') {
-        try {
-          const snap = await getDoc(doc(db, 'workOrders', id));
-          if (!snap.data()?.actualStartTime) {
-            updates.actualStartTime = Timestamp.now();
-          }
-        } catch {
-          /* non-blocking */
+      // duration can be computed as (completed − started), and track Wrench
+      // Time segments: close whatever segment is currently open and, if the
+      // new status is hands-on/hold work, open a fresh one for it.
+      try {
+        const snap = await getDoc(doc(db, 'workOrders', id));
+        const woData = snap.data();
+
+        if (status === 'IN_PROGRESS' && !woData?.actualStartTime) {
+          updates.actualStartTime = Timestamp.now();
         }
+
+        const now = Timestamp.now();
+        const existingSegments: TimeSegment[] = Array.isArray(woData?.timeSegments)
+          ? woData!.timeSegments
+          : [];
+        const closedSegments = existingSegments.map((seg) =>
+          seg.endAt === null ? { ...seg, endAt: now } : seg,
+        );
+        const newState = STATUS_TO_SEGMENT[status];
+        updates.timeSegments = newState
+          ? [...closedSegments, { state: newState, startAt: now, endAt: null, note: note ?? null }]
+          : closedSegments;
+      } catch {
+        /* non-blocking */
       }
 
       if (status === 'CANCELLED') {

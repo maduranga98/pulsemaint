@@ -28,14 +28,16 @@ function isShiftActiveNow(startTime: string, endTime: string): boolean {
   return currentMinutes >= startMinutes || currentMinutes < endMinutes;
 }
 
+// Must match the values ShiftConfigForm writes to ShiftConfig.activeDays
+// ('Mon' | 'Tue' | ... — see src/types/handover.types.ts).
 const DAY_MAP: Record<number, string> = {
-  0: 'sunday',
-  1: 'monday',
-  2: 'tuesday',
-  3: 'wednesday',
-  4: 'thursday',
-  5: 'friday',
-  6: 'saturday',
+  0: 'Sun',
+  1: 'Mon',
+  2: 'Tue',
+  3: 'Wed',
+  4: 'Thu',
+  5: 'Fri',
+  6: 'Sat',
 };
 
 export function useTodayShifts(companyId: string) {

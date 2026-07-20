@@ -189,6 +189,28 @@ export interface AuditLog {
   sessionId: string | null;
 }
 
+export type ReportScheduleFrequency = 'daily' | 'weekly' | 'monthly';
+
+export interface ReportSchedule {
+  id: string;
+  companyId: string;
+  reportType: ReportType;
+  reportName: string;
+  frequency: ReportScheduleFrequency;
+  // 0 (Sun) – 6 (Sat), used when frequency === 'weekly'.
+  dayOfWeek: number | null;
+  // 1 – 28, used when frequency === 'monthly' (clamped to short months).
+  dayOfMonth: number | null;
+  recipients: string[];
+  filters: Record<string, unknown>;
+  active: boolean;
+  createdBy: string;
+  createdByName: string;
+  createdAt: Date;
+  lastRunAt: Date | null;
+  nextRunAt: Date | null;
+}
+
 export interface GenerateReportResult {
   reportId: string;
   downloadUrl: string;

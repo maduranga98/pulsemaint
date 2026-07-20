@@ -60,10 +60,11 @@ function brandedEmail(bodyHtml) {
 /**
  * Send one email; failures are logged, not thrown, so one bad address
  * never blocks the rest of a batch.
- * @param {{to: string, subject: string, html: string, text?: string}} options
+ * @param {{to: string, subject: string, html: string, text?: string,
+ *   attachments?: Array<{filename: string, content: Buffer|string, contentType?: string}>}} options
  * @return {Promise<boolean>} true when sent
  */
-async function sendEmail({to, subject, html, text}) {
+async function sendEmail({to, subject, html, text, attachments}) {
   try {
     await transporter.sendMail({
       from: "\"PulseMaint\" <hello@feedsolve.com>",
@@ -71,6 +72,7 @@ async function sendEmail({to, subject, html, text}) {
       subject,
       html,
       text,
+      attachments,
     });
     return true;
   } catch (err) {

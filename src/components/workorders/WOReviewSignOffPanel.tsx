@@ -47,9 +47,10 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
   const [step, setStep] = useState<Step>('review');
 
-  // Firestore rules give plant managers read-only access to work orders, so
-  // they can review the completion but not approve, send back, or sign off.
-  const canSignOff = userProfile?.role === 'supervisor' || userProfile?.role === 'admin';
+  const canSignOff =
+    userProfile?.role === 'supervisor' ||
+    userProfile?.role === 'admin' ||
+    userProfile?.role === 'plant_manager';
 
   // Review
   const [sendBackReason, setSendBackReason] = useState('');
