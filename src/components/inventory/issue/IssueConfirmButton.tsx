@@ -41,10 +41,10 @@ export function IssueConfirmButton({ allChecked, onConfirm, isLoading, totalItem
               d="M4 12a8 8 0 018-8v8H4z"
             />
           </svg>
-          Confirming Issue…
+          Issuing…
         </>
       ) : (
-        `Confirm Issue (${checkedCount}/${totalItems} checked)`
+        `Issue Parts (${checkedCount}/${totalItems} checked)`
       )}
     </button>
   );

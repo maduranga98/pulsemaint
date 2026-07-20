@@ -375,7 +375,6 @@ export interface InventoryImportSession {
 
 export interface InventorySettings {
   companyId: string;
-  approvalThresholdLKR: number;
   defaultCurrency: InventoryCurrency;
   lowStockAlertEnabled: boolean;
   lowStockNotifyRoles: string[];

@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, ArrowUp, XCircle, AlertTriangle, PackageCheck } from 'lucide-react';
+import { CheckCircle, ArrowUp, XCircle, PackageCheck } from 'lucide-react';
 import type { PartsRequest } from '@/types/inventory';
 import { useAuthStore } from '@/store/authStore';
 
 interface Props {
   request: PartsRequest;
-  settings: { approvalThresholdLKR: number };
   onDecision: (payload: {
     decision: 'approve' | 'escalate' | 'reject' | 'partial';
     notes: string;
@@ -27,13 +26,9 @@ function formatStatus(status: string): string {
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function RequestReviewPanel({ request, settings, onDecision }: Props) {
+export function RequestReviewPanel({ request, onDecision }: Props) {
   const role = useAuthStore((s) => s.userProfile?.role);
   const navigate = useNavigate();
-
-  const hasCritical = request.items.some((i) => i.isCritical);
-  const isEligibleForAutoApproval =
-    request.totalEstimatedCost <= settings.approvalThresholdLKR && !hasCritical;
 
   const [notes, setNotes] = useState('');
   const [escalationReason, setEscalationReason] = useState('');
@@ -128,30 +123,6 @@ export function RequestReviewPanel({ request, settings, onDecision }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Auto-approval eligibility info */}
-      <div
-        className={`rounded-lg border p-3 text-sm flex items-start gap-2 ${
-          isEligibleForAutoApproval
-            ? 'bg-green-50 border-green-200 text-green-700'
-            : 'bg-amber-50 border-amber-200 text-amber-700'
-        }`}
-      >
-        <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-        <div>
-          <span className="font-semibold">Auto-approval eligible: </span>
-          {isEligibleForAutoApproval ? (
-            <span>Yes — cost is within threshold and no critical parts</span>
-          ) : (
-            <span>
-              No —{' '}
-              {request.totalEstimatedCost > settings.approvalThresholdLKR
-                ? `cost (LKR ${request.totalEstimatedCost.toLocaleString()}) exceeds threshold (LKR ${settings.approvalThresholdLKR.toLocaleString()})`
-                : 'request contains critical parts'}
-            </span>
-          )}
-        </div>
-      </div>
-
       {/* Store Keeper actions */}
       {isStoreKeeper && request.status === 'pending_storekeeper' && (
         <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-4">

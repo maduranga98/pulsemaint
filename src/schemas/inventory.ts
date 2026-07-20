@@ -87,7 +87,6 @@ export const purchaseOrderSchema = z.object({
 export type PurchaseOrderFormValues = z.infer<typeof purchaseOrderSchema>;
 
 export const inventorySettingsSchema = z.object({
-  approvalThresholdLKR: z.number().min(0, 'Cannot be negative'),
   defaultCurrency: z.enum(['LKR', 'USD', 'SGD', 'Other'] as [InventoryCurrency, ...InventoryCurrency[]]),
   lowStockAlertEnabled: z.boolean(),
   lowStockNotifyRoles: z.array(z.string()),
