@@ -18,8 +18,8 @@ import { downloadEvaluationPdf } from '../utils/evaluationPdf';
 import type { EvaluationSession, EvaluationActionType } from '../types/evaluation.types';
 import { EVALUATION_ROLE_LABELS } from '../types/evaluation.types';
 
-const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin'];
-const CAN_ASSIGN_TRAINING_ROLES = ['supervisor', 'plant_manager', 'admin'];
+const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin', 'hr_officer'];
+const CAN_ASSIGN_TRAINING_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer'];
 
 type StatusFilter = 'submitted' | 'draft';
 

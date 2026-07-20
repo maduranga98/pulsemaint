@@ -100,12 +100,36 @@ export function isUserAssignedToShift(
   return Boolean(shift.department) && shift.department === user.department;
 }
 
-/** Shift plans the given user is scheduled on (by member assignment, role, or department). */
+/**
+ * How specifically a shift plan was matched to a user, most specific first.
+ * Used to rank a user's matching plans so the most-authoritative assignment
+ * (explicit member/shiftId) always wins over a bulk role/department
+ * fallback when more than one plan happens to be active at the same time.
+ */
+function matchSpecificity(
+  shift: Pick<ShiftConfig, 'id' | 'memberIds' | 'roles' | 'department'>,
+  user: { id: string; role: string; shiftId?: string | null; department?: string | null },
+): number {
+  if (shift.memberIds?.includes(user.id)) return 0;
+  if (user.shiftId && user.shiftId === shift.id) return 1;
+  if ((shift.roles ?? []).includes(user.role)) return 2;
+  if (Boolean(shift.department) && shift.department === user.department) return 3;
+  return 4;
+}
+
+/**
+ * Shift plans the given user is scheduled on (by member assignment, role, or
+ * department), most specific/authoritative match first — so callers that
+ * pick "the" current plan (e.g. My Shift) land on the one the user was
+ * actually assigned to rather than an incidental bulk role/department match.
+ */
 export function getMyShiftPlans(
   shifts: ShiftConfig[],
   user: { id: string; role: string; shiftId?: string | null; department?: string | null },
 ): ShiftConfig[] {
-  return shifts.filter((shift) => shift.status === 'active' && isUserAssignedToShift(shift, user));
+  return shifts
+    .filter((shift) => shift.status === 'active' && isUserAssignedToShift(shift, user))
+    .sort((a, b) => matchSpecificity(a, user) - matchSpecificity(b, user));
 }
 
 export function severityClass(severity: string): string {

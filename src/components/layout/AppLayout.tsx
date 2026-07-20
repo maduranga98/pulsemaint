@@ -153,7 +153,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin'],
+    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
   },
   {
     label: 'OEE',
@@ -188,7 +188,8 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['plant_manager', 'admin', 'hr_officer'],
   },
-  { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor', 'plant_manager'] },
+  { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor', 'plant_manager', 'hr_officer'] },
+  { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin'] },
   {
     label: 'Billing & Plan',

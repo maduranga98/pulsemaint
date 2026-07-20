@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { ContractorJob } from '@/lib/contractors/contractorTypes';
 import { formatLkr } from '@/lib/contractors/invoiceCalculator';
+import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import ContractorJobStatusBadge from '@/components/contractors/jobs/ContractorJobStatusBadge';
 import InvoiceVarianceBadge from '@/components/contractors/jobs/InvoiceVarianceBadge';
 
@@ -18,6 +19,11 @@ function waitMinutes(start?: { toDate: () => Date } | null, end?: { toDate: () =
 }
 
 export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) {
+  // Job detail pages carry active work-log/sign-off/invoice actions gated to
+  // supervisor/plant_manager/admin — roles without that access (e.g.
+  // hr_officer viewing job history for compliance) get the reference number
+  // as plain text instead of a dead-end link.
+  const { canReadRegistry } = useContractorAccess();
   const avgRating = jobs.filter((job) => job.rating).reduce((sum, job) => sum + (job.rating?.overallScore ?? 0), 0) / Math.max(1, jobs.filter((job) => job.rating).length);
 
   return (
@@ -34,7 +40,11 @@ export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link to={`/app/contractors/jobs/${job.id}`} className="font-semibold text-blue-700">{job.workOrderNumber}</Link>
+                  {canReadRegistry ? (
+                    <Link to={`/app/contractors/jobs/${job.id}`} className="font-semibold text-blue-700">{job.workOrderNumber}</Link>
+                  ) : (
+                    <span className="font-semibold text-slate-900">{job.workOrderNumber}</span>
+                  )}
                   <span className="rounded-full bg-slate-100 px-2 py-1 text-xs">{job.workOrderType}</span>
                   <span className="rounded-full bg-red-50 px-2 py-1 text-xs capitalize text-red-700">{job.priority}</span>
                 </div>

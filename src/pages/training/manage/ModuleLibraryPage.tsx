@@ -9,7 +9,7 @@ import { sampleTrainingModules } from '@/lib/training/sampleTrainingModules';
 import type { TrainingModuleStatus } from '@/lib/training/trainingTypes';
 import ModuleLibraryList from '@/components/training/manager/ModuleLibraryList';
 
-const CAN_AUTHOR_ROLES = ['plant_manager', 'admin'];
+const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 
 export default function ModuleLibraryPage() {
   const navigate = useNavigate();

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
+import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import ContractorDocStatusDot from './ContractorDocStatusDot';
 import ContractorRatingDisplay from './ContractorRatingDisplay';
 import ContractorSpecializationTags from './ContractorSpecializationTags';
@@ -19,6 +20,7 @@ function relativeDate(value: Contractor['lastJobDate']) {
 }
 
 export function ContractorListTable({ contractors }: ContractorListTableProps) {
+  const { canManageContractors } = useContractorAccess();
   if (!contractors.length) {
     return <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">No contractors registered. Add your first contractor.</div>;
   }
@@ -58,7 +60,7 @@ export function ContractorListTable({ contractors }: ContractorListTableProps) {
               <td className="px-4 py-3">
                 <div className="flex gap-2 text-xs font-semibold">
                   <Link to={`/app/contractors/${contractor.id}`} className="text-blue-700">View</Link>
-                  <Link to={`/app/contractors/${contractor.id}/edit`} className="text-slate-700">Edit</Link>
+                  {canManageContractors && <Link to={`/app/contractors/${contractor.id}/edit`} className="text-slate-700">Edit</Link>}
                 </div>
               </td>
             </tr>

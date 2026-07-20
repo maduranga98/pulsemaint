@@ -14,7 +14,7 @@ import {
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 
-const CAN_AUTHOR_ROLES = ['plant_manager', 'admin'];
+const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 
 interface DashboardStats {
   totalTrainees: number;
