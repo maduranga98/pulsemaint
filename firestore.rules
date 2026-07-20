@@ -127,8 +127,8 @@ service cloud.firestore {
       // Plant Manager: read for their site (or all sites if unrestricted)
       allow read: if isPlantManager() && woSiteMatches();
 
-      // Plant Manager: manual check-in / start / execution updates on WOs.
-      // Same bounded field set as technicians, plus cancellation fields.
+      // Plant Manager: manual check-in / start / execution updates on WOs,
+      // plus final review sign-off (plant managers sign off completed WOs).
       allow update: if isPlantManager()
         && woSiteMatches()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -140,7 +140,9 @@ service cloud.firestore {
           'postRepairChecklist', 'testRunResult', 'testRunNotes',
           'finalPhotos', 'machineStatusAfterRepair',
           'checklist', 'documents', 'updatedAt',
-          'cancelledAt', 'cancelReason'
+          'cancelledAt', 'cancelReason', 'timeSegments',
+          'supervisorSignOffSignature', 'supervisorSignOffBy',
+          'supervisorSignOffAt', 'supervisorSignOffNotes'
         ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
@@ -161,7 +163,7 @@ service cloud.firestore {
           'partsUsed', 'technicianWorkLogs', 'contractorHoursLog',
           'postRepairChecklist', 'testRunResult', 'testRunNotes',
           'finalPhotos', 'machineStatusAfterRepair',
-          'checklist', 'documents', 'updatedAt'
+          'checklist', 'documents', 'updatedAt', 'timeSegments'
         ]);
 
       // Parts requests sub-collection
@@ -411,6 +413,8 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
               'status', 'invitationAcknowledgedAt', 'arrivedAt', 'arrivedLoggedBy',
               'workStartedAt', 'workCompletedAt', 'departedAt', 'onSiteDurationMinutes',
+              'waitForPartsAt', 'waitForPartsResolvedAt',
+              'waitForPermissionAt', 'waitForPermissionResolvedAt',
               'actualWorkDurationMinutes', 'workSteps', 'partsFromContractor',
               'totalPartsCost', 'checklistResults', 'testRunResult', 'testRunNotes',
               'workDoneDescription', 'rootCause',
@@ -522,15 +526,15 @@ service cloud.firestore {
               && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor'])
         );
 
-      // Self-create during signup; admins create anyone; supervisors create
-      // non-admin members (Users page "Add member")
+      // Self-create during signup; admins create anyone; supervisors/plant
+      // managers create non-admin members (Users page "Add member")
       allow create: if isAuthenticated()
         && (
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
               && (getUserData().role == 'admin'
-                || (getUserData().role in ['supervisor', 'maintenance_supervisor']
+                || (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager']
                   && request.resource.data.role != 'admin')))
         );
 
@@ -872,10 +876,11 @@ service cloud.firestore {
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
       allow create: if isAuthenticated()
         && getUserData().role in ['supervisor', 'admin'];
+      // Plant managers can archive/delete PM schedules (but not create them).
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'admin'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'admin'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
     }
 
     // pm_history — PM execution history
@@ -1108,6 +1113,16 @@ service cloud.firestore {
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    // report_schedules — recurring report export schedules (read/created/
+    // managed by report-capable roles; the scheduled Cloud Function runs
+    // under the Admin SDK and bypasses these rules).
+    match /report_schedules/{scheduleId} {
+      allow read, update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
     }
 

@@ -31,7 +31,7 @@ export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerfor
 
   return (
     <DashboardWidget
-      title="Team Performance by Role"
+      title="Team Performance"
       loading={loading}
       error={error}
       onRetry={refetch}

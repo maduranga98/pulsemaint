@@ -6,8 +6,8 @@ export type ReportType =
   | 'maintenance_cost'
   | 'technician_performance'
   | 'contractor_performance'
-  | 'contractor_invoice_comparison'
   | 'inventory_usage'
+  | 'inventory_listing'
   | 'parts_consumption'
   | 'low_stock_alert'
   | 'pm_compliance'
@@ -55,7 +55,6 @@ export type FilterType =
   | 'shift'
   | 'supervisor'
   | 'priority'
-  | 'invoice_status'
   | 'training_status'
   | 'sla_status';
 
@@ -88,7 +87,6 @@ export interface ReportConfig {
   shifts: string[];
   supervisors: string[];
   priorities: string[];
-  invoiceStatuses: string[];
   trainingStatuses: string[];
   slaStatuses: string[];
   outputFormat: ExportFormat;
@@ -187,6 +185,28 @@ export interface AuditLog {
   ipAddress: string | null;
   userAgent: string | null;
   sessionId: string | null;
+}
+
+export type ReportScheduleFrequency = 'daily' | 'weekly' | 'monthly';
+
+export interface ReportSchedule {
+  id: string;
+  companyId: string;
+  reportType: ReportType;
+  reportName: string;
+  frequency: ReportScheduleFrequency;
+  // 0 (Sun) – 6 (Sat), used when frequency === 'weekly'.
+  dayOfWeek: number | null;
+  // 1 – 28, used when frequency === 'monthly' (clamped to short months).
+  dayOfMonth: number | null;
+  recipients: string[];
+  filters: Record<string, unknown>;
+  active: boolean;
+  createdBy: string;
+  createdByName: string;
+  createdAt: Date;
+  lastRunAt: Date | null;
+  nextRunAt: Date | null;
 }
 
 export interface GenerateReportResult {

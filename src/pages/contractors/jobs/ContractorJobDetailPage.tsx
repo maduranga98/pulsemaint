@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useContractorInvitations } from '@/hooks/contractors/useContractorInvitations';
 import { useContractorJob } from '@/hooks/contractors/useContractorJob';
 import ArrivalLogSection from '@/components/contractors/jobs/ArrivalLogSection';
+import JobTimelineSection from '@/components/contractors/jobs/JobTimelineSection';
 import ContractorJobHeader from '@/components/contractors/jobs/ContractorJobHeader';
 import ContractorJobStatusStepper from '@/components/contractors/jobs/ContractorJobStatusStepper';
 import JobInvitationSection from '@/components/contractors/jobs/JobInvitationSection';
@@ -29,6 +30,7 @@ export function ContractorJobDetailPage() {
         <p className="text-sm text-slate-500">{job.technicianNames.join(', ') || 'Technicians not confirmed'}</p>
       </section>
       <ArrivalLogSection job={job} />
+      <JobTimelineSection job={job} />
       <JobInvitationSection job={job} invitations={invitations} />
       <WorkLogEntryForm />
       <WorkLogTimeline steps={job.workSteps} />

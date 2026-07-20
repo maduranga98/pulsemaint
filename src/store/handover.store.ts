@@ -113,9 +113,12 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
       completed = await completeShiftSession(session);
       set({ activeSession: null, lastCompletedSession: completed });
     }
-    // Only supervisors/admins compile a handover report; other members just
-    // close their session and see their totals.
-    if (profile.role === 'supervisor' || profile.role === 'admin') {
+    // Only roles Firestore rules allow to create a shift_handovers doc
+    // compile a handover report; other members just close their session and
+    // see their totals. maintenance_supervisor was missing here even though
+    // the create rule allows it, so that role's shifts never produced a
+    // handover record at all — leaving Handover History looking admin-only.
+    if (profile.role === 'supervisor' || profile.role === 'maintenance_supervisor' || profile.role === 'admin') {
       await get().compileShiftSummary();
     } else {
       set({ isShiftActive: false, shiftStartTime: null, currentShift: null });

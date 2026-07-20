@@ -187,7 +187,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
   },
-  { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor'] },
+  { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor', 'plant_manager'] },
   { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin'] },
   {
     label: 'Billing & Plan',

@@ -731,7 +731,7 @@ export default function AppRouter() {
         <Route
           path="settings/users"
           element={
-            <ProtectedRoute requiredRoles={['admin', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['admin', 'supervisor', 'plant_manager']}>
               <UsersPage />
             </ProtectedRoute>
           }

@@ -1,20 +1,29 @@
-const {onDocumentUpdated} = require("firebase-functions/v2/firestore");
+const {onDocumentWritten} = require("firebase-functions/v2/firestore");
 const {HttpsError} = require("firebase-functions/v2/https");
 const {db, logger, FieldValue, Timestamp} = require("./shared");
 const {sendJobInvitationInternal} = require("./sendJobInvitation");
 
+// Work orders store the assigned contractor under `contractorCompanyId` /
+// `contractorCompanyName` (see src/types/workOrder.ts) — this used to check
+// a `contractorId` field that never existed on any WO document, so this
+// trigger's early-return conditions were always true and it never created a
+// contractorJobs record for any real WO (PMGR-020).
 function isContractorWorkOrder(wo) {
   const type = String(wo.woType || wo.workOrderType || "").toLowerCase();
-  return type.includes("contractor") || Boolean(wo.contractorId || wo.contractorCompanyName);
+  return type.includes("contractor") || Boolean(wo.contractorCompanyId || wo.contractorCompanyName);
 }
 
-exports.createContractorJob = onDocumentUpdated({ database: "default", document: "workOrders/{woId}" }, async (event) => {
-  const before = event.data.before.data();
-  const after = event.data.after.data();
+// onDocumentWritten (not onDocumentUpdated) so a WO created directly with a
+// contractor assigned — the normal path — also creates a contractorJobs
+// record; onDocumentUpdated never fires on document creation at all.
+exports.createContractorJob = onDocumentWritten({ database: "default", document: "workOrders/{woId}" }, async (event) => {
+  const before = event.data.before.exists ? event.data.before.data() : null;
+  const after = event.data.after.exists ? event.data.after.data() : null;
   const woId = event.params.woId;
 
+  if (!after) return;
   if (!isContractorWorkOrder(after)) return;
-  if (before.contractorId === after.contractorId && before.woType === after.woType) return;
+  if (before && before.contractorCompanyId === after.contractorCompanyId && before.woType === after.woType) return;
 
   const companyId = after.companyId || after.siteId;
   if (!companyId) {
@@ -32,12 +41,12 @@ exports.createContractorJob = onDocumentUpdated({ database: "default", document:
 
   let contractor = {};
   let blockedDocuments = [];
-  if (after.contractorId) {
-    const contractorSnap = await db.collection("contractors").doc(after.contractorId).get();
+  if (after.contractorCompanyId) {
+    const contractorSnap = await db.collection("contractors").doc(after.contractorCompanyId).get();
     contractor = contractorSnap.exists ? contractorSnap.data() : {};
     const blockedSnap = await db
         .collection("contractors")
-        .doc(after.contractorId)
+        .doc(after.contractorCompanyId)
         .collection("documents")
         .where("companyId", "==", companyId)
         .where("blocksAssignment", "==", true)
@@ -61,10 +70,10 @@ exports.createContractorJob = onDocumentUpdated({ database: "default", document:
     breakdownTicketId: after.linkedBreakdownId || after.breakdownTicketId || null,
     breakdownDescription: after.description || "",
     breakdownSeverity: after.breakdownSeverity || "",
-    contractorId: after.contractorId || "",
+    contractorId: after.contractorCompanyId || "",
     contractorName: contractor.companyName || after.contractorCompanyName || after.manualContractorName || "",
     contractorType: contractor.companyType || "",
-    isManuallyEntered: !after.contractorId,
+    isManuallyEntered: !after.contractorCompanyId,
     manualContractorName: after.manualContractorName || after.contractorCompanyName || "",
     contactPerson: contractor.primaryContactName || after.contractorContactPerson || "",
     contactPhone: contractor.primaryPhone || after.contractorContactNumber || "",

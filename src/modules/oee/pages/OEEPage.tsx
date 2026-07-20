@@ -1,15 +1,12 @@
 import { useState } from 'react';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Lock, ShieldOff, Activity, X } from 'lucide-react';
+import { Lock, ShieldOff, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
 import { useMachines } from '../../../hooks/useMachines';
 import { OEEDashboard } from '../components/OEEDashboard';
 import { OEEInputForm } from '../components/OEEInputForm';
 import { OEEMachineDetail } from '../components/OEEMachineDetail';
-import { OEETrendChart } from '../components/OEETrendChart';
-import { ShiftComparison } from '../components/ShiftComparison';
-import { BigLossesWaterfall } from '../components/BigLossesWaterfall';
 import { OEELossCostCalculator } from '../components/OEELossCostCalculator';
 import { MachineSearchSelect } from '../components/MachineSearchSelect';
 import type { MachineSummary } from '../types/oee.types';
@@ -95,14 +92,11 @@ class SectionErrorBoundary extends Component<
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
-type TabId = 'dashboard' | 'input' | 'trends' | 'shifts' | 'big-losses' | 'loss-calc';
+type TabId = 'dashboard' | 'input' | 'loss-calc';
 
 const TABS: { id: TabId; label: string; proOnly?: boolean; inputOnly?: boolean }[] = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'input', label: 'Input OEE Data', inputOnly: true },
-  { id: 'trends', label: 'Trends', proOnly: true },
-  { id: 'shifts', label: 'Shift Comparison', proOnly: true },
-  { id: 'big-losses', label: '6 Big Losses' },
   { id: 'loss-calc', label: 'Loss Calculator', proOnly: true },
 ];
 
@@ -200,112 +194,6 @@ export function OEEPage() {
                   <h2 className="font-semibold text-white mb-5">Enter OEE Data</h2>
                   <OEEInputForm isProPlan={isProPlan} />
                 </div>
-              </div>
-            </SectionErrorBoundary>
-          )}
-
-          {activeTab === 'trends' && (
-            <SectionErrorBoundary section="Trends">
-              {isProPlan ? (
-                <div className="space-y-5">
-                  {/* Machine selector */}
-                  <div className="flex items-center gap-3">
-                    <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
-                    <div className="w-64">
-                      <MachineSearchSelect
-                        machines={allMachines}
-                        selectedId={selectedMachineForPro}
-                        selectedName={selectedMachineNameForPro}
-                        onSelect={(m) => {
-                          setSelectedMachineForPro(m.id);
-                          setSelectedMachineNameForPro(m.name);
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
-                    <h2 className="font-semibold text-white mb-5">12-Month OEE Trend</h2>
-                    {selectedMachineForPro ? (
-                      <OEETrendChart machineId={selectedMachineForPro} />
-                    ) : (
-                      <p className="text-slate-500 text-sm text-center py-10">Enter a machine ID to view trend</p>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <ProFeatureGate feature="OEE Trend Analytics" />
-              )}
-            </SectionErrorBoundary>
-          )}
-
-          {activeTab === 'shifts' && (
-            <SectionErrorBoundary section="Shift Comparison">
-              {isProPlan ? (
-                <div className="space-y-5">
-                  <div className="flex items-center gap-3">
-                    <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
-                    <div className="w-64">
-                      <MachineSearchSelect
-                        machines={allMachines}
-                        selectedId={selectedMachineForPro}
-                        selectedName={selectedMachineNameForPro}
-                        onSelect={(m) => {
-                          setSelectedMachineForPro(m.id);
-                          setSelectedMachineNameForPro(m.name);
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
-                    <h2 className="font-semibold text-white mb-5">Shift Comparison</h2>
-                    {selectedMachineForPro ? (
-                      <ShiftComparison machineId={selectedMachineForPro} />
-                    ) : (
-                      <p className="text-slate-500 text-sm text-center py-10">Enter a machine ID to compare shifts</p>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <ProFeatureGate feature="Shift OEE Comparison" />
-              )}
-            </SectionErrorBoundary>
-          )}
-
-          {activeTab === 'big-losses' && (
-            <SectionErrorBoundary section="6 Big Losses">
-              <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-                  <h2 className="font-semibold text-white">6 Big Losses — {currentMonth}</h2>
-                  <div className="flex items-center gap-2">
-                    <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
-                    <div className="w-56">
-                      <MachineSearchSelect
-                        machines={allMachines}
-                        selectedId={selectedMachineForPro}
-                        selectedName={selectedMachineNameForPro}
-                        placeholder="All machines…"
-                        onSelect={(m) => {
-                          setSelectedMachineForPro(m.id);
-                          setSelectedMachineNameForPro(m.name);
-                        }}
-                      />
-                    </div>
-                    {selectedMachineForPro && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedMachineForPro('');
-                          setSelectedMachineNameForPro('');
-                        }}
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/60"
-                        title="Clear — show all machines"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <BigLossesWaterfall month={currentMonth} isProPlan={isProPlan} machineId={selectedMachineForPro} />
               </div>
             </SectionErrorBoundary>
           )}

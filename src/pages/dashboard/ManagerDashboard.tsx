@@ -12,7 +12,6 @@ import TopProblemMachinesChart from '../../components/dashboard/manager/TopProbl
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
-import TeamPerformanceWidget from '../../components/dashboard/manager/TeamPerformanceWidget';
 import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
@@ -112,10 +111,10 @@ export default function ManagerDashboard() {
           <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
         </div>
 
-        {/* Row 4: Today's Shifts by Department + Team Performance */}
+        {/* Row 4: Today's Shifts by Department + Team Performance (from Evaluations) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <TodayShiftsByDepartment companyId={companyId} />
-          <TeamPerformanceWidget companyId={companyId} month={currentMonth} />
+          <TeamPerformanceAnalyticsWidget companyId={companyId} />
         </div>
 
         {/* Row 5: Contractor Scoreboard + SLA Gauge */}
@@ -123,9 +122,6 @@ export default function ManagerDashboard() {
           <ContractorScoreboard companyId={companyId} month={currentMonth} />
           <SlaGaugeWidget companyId={companyId} />
         </div>
-
-        {/* Row 6: Evaluation-based team performance by role */}
-        <TeamPerformanceAnalyticsWidget companyId={companyId} />
       </div>
 
       <DashboardSidePanel />

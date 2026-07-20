@@ -14,14 +14,18 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
-import { computeMonthlyAnalytics } from './analyticsAggregation';
+import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggregation';
+import { fetchTeamPerformanceByRole } from './teamPerformance.service';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
+import { logAuditEvent } from '../utils/reports/auditLogger';
 import type {
   AuditLog,
   ExportFormat,
   ReportConfig,
   ReportHistory,
   ReportHistoryFilters,
+  ReportSchedule,
+  ReportScheduleFrequency,
   ReportType,
 } from '../types/reports.types';
 
@@ -68,7 +72,6 @@ export function filtersFromConfig(config: ReportConfig): Record<string, unknown>
     shifts: config.shifts,
     supervisors: config.supervisors,
     priorities: config.priorities,
-    invoiceStatuses: config.invoiceStatuses,
     trainingStatuses: config.trainingStatuses,
     slaStatuses: config.slaStatuses,
   };
@@ -106,6 +109,79 @@ export async function fetchReportRows(
     return rows;
   }
 
+  // Team Performance (ReportType key: technician_performance) is a computed
+  // per-role rollup of Evaluations, Audits, Training, and Quick Assessment —
+  // not a raw workOrders dump, which only ever showed technician workload,
+  // never evaluation/training/assessment data (PMGR-016/017).
+  if (reportType === 'technician_performance') {
+    return (await fetchTeamPerformanceByRole(companyId)) as unknown as Record<string, unknown>[];
+  }
+
+  // Maintenance Cost is a computed cost breakdown (labor hours + parts
+  // consumed + contractor/project spend), not a raw dump of workOrders /
+  // stockMovements / contractorJobs — those three collections don't share a
+  // row shape, so reading them as one flat table produced garbage columns.
+  if (reportType === 'maintenance_cost') {
+    const [woSnap, contractorSnap] = await Promise.all([
+      getDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000))),
+      getDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000))),
+    ]);
+
+    const woCost = (w: Record<string, unknown>) => {
+      const partsCost = Array.isArray(w.partsUsed)
+        ? (w.partsUsed as Record<string, unknown>[]).reduce((s, p) => s + Number(p.totalCost ?? 0), 0)
+        : 0;
+      const laborCost = Array.isArray(w.technicianWorkLogs)
+        ? (w.technicianWorkLogs as Record<string, unknown>[]).reduce((s, l) => s + Number(l.laborCost ?? 0), 0)
+        : 0;
+      return { partsCost, laborCost };
+    };
+
+    const costRows: Record<string, unknown>[] = [];
+    woSnap.docs.forEach((item) => {
+      const w = item.data();
+      const { partsCost, laborCost } = woCost(w);
+      if (partsCost === 0 && laborCost === 0) return;
+      costRows.push({
+        id: item.id,
+        source: 'Work Order',
+        reference: w.woNumber ?? item.id,
+        machineName: w.machineName ?? '',
+        machineDepartment: w.machineDepartment ?? w.department ?? '',
+        laborCost,
+        partsCost,
+        contractorCost: 0,
+        totalCost: laborCost + partsCost,
+        createdAt: w.actualEndTime ?? w.createdAt ?? null,
+      });
+    });
+    contractorSnap.docs.forEach((item) => {
+      const c = item.data();
+      const contractorCost = Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
+      const partsCost = Number(c.totalPartsCost ?? 0);
+      if (contractorCost === 0 && partsCost === 0) return;
+      costRows.push({
+        id: item.id,
+        source: 'Contractor Job',
+        reference: c.workOrderNumber ?? item.id,
+        machineName: c.machineName ?? '',
+        machineDepartment: '',
+        laborCost: 0,
+        partsCost,
+        contractorCost,
+        totalCost: contractorCost + partsCost,
+        createdAt: c.workCompletedAt ?? c.createdAt ?? null,
+      });
+    });
+
+    return costRows.filter((row) => {
+      const raw = row.createdAt as { toDate?: () => Date } | null;
+      const d = raw && typeof raw.toDate === 'function' ? raw.toDate().toISOString().slice(0, 10) : null;
+      if (!d) return true;
+      return d >= config.dateFrom && d <= config.dateTo;
+    });
+  }
+
   // Maps each report to the Firestore collection(s) it reads from. These must
   // match the actual collection names used elsewhere in the app.
   const sourceMap: Record<ReportType, string[]> = {
@@ -114,12 +190,14 @@ export async function fetchReportRows(
     machine_history: ['machines'],
     machine_health_score: ['machine_health'],
     maintenance_cost: ['workOrders', 'stockMovements', 'contractorJobs'],
-    technician_performance: ['workOrders'],
+    // technician_performance (display name: "Team Performance Report") is a
+    // computed branch below — role aggregation, not a raw collection.
+    technician_performance: [],
     contractor_performance: ['contractorJobs'],
-    contractor_invoice_comparison: ['contractorJobs'],
     inventory_usage: ['stockMovements'],
     parts_consumption: ['stockMovements'],
     low_stock_alert: ['inventoryParts'],
+    inventory_listing: ['inventoryParts'],
     pm_compliance: ['pm_history'],
     // 'training_records' never existed as a collection — training data lives
     // in trainingAssignments (see src/hooks/training/useComplianceData.ts).
@@ -179,6 +257,16 @@ export async function fetchReportRows(
         continue;
       }
     }
+    // machine_health is a pre-aggregated collection normally populated by a
+    // backend job that doesn't exist yet, so it's always empty — fall back to
+    // the same on-the-fly computation the dashboard's machine health map uses
+    // so the report isn't permanently blank.
+    if (source === 'machine_health' && docs.length === 0) {
+      const computed = await computeMachineHealth(companyId);
+      computed.forEach((entry) => rows.push({ source, row: { id: entry.machineId, ...entry } }));
+      continue;
+    }
+
     docs.forEach((item) => {
       const data = item.data();
       if (reportType === 'low_stock_alert') {
@@ -186,6 +274,11 @@ export async function fetchReportRows(
         const min = Number(data.minStockLevel ?? data.reorderLevel ?? 0);
         if (current > min) return;
       }
+      // safety_near_miss reads the same shift_handovers collection as
+      // shift_handover_summary — without this filter every shift (not just
+      // ones with a recorded incident) shows up, which reads as noise, not
+      // a near-miss report.
+      if (reportType === 'safety_near_miss' && data.safetyIncidentOccurred !== true) return;
       // shift_handovers keeps its counters under a nested `stats` object;
       // flatten them to top-level keys so report columns (which only read
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
@@ -293,6 +386,24 @@ export async function createReportHistory(input: {
     rowCount: input.rowCount ?? null,
     expiresAt,
   });
+
+  // audit_logs otherwise never gets written to — the Audit Trail report was
+  // permanently empty because nothing populated its source collection.
+  try {
+    await logAuditEvent({
+      companyId: input.companyId,
+      userId: input.generatedBy,
+      userName: input.generatedByName,
+      userRole: useAuthStore.getState().userProfile?.role ?? '',
+      action: 'EXPORT',
+      entityType: 'report',
+      entityId: ref.id,
+      entityName: definition.name,
+    });
+  } catch {
+    /* non-blocking */
+  }
+
   return ref.id;
 }
 
@@ -320,6 +431,107 @@ export async function markReportHistoryFailed(reportId: string, errorMessage: st
     status: 'failed',
     errorMessage,
   });
+}
+
+// ---------------------------------------------------------------------------
+// Report scheduling — recurring export delivery (PMGR-009)
+// ---------------------------------------------------------------------------
+
+const toReportSchedule = (id: string, data: Record<string, unknown>): ReportSchedule => ({
+  id,
+  companyId: String(data.companyId ?? ''),
+  reportType: data.reportType as ReportType,
+  reportName: String(data.reportName ?? ''),
+  frequency: data.frequency as ReportScheduleFrequency,
+  dayOfWeek: (data.dayOfWeek as number | null) ?? null,
+  dayOfMonth: (data.dayOfMonth as number | null) ?? null,
+  recipients: Array.isArray(data.recipients) ? (data.recipients as string[]) : [],
+  filters: (data.filters as Record<string, unknown>) ?? {},
+  active: data.active !== false,
+  createdBy: String(data.createdBy ?? ''),
+  createdByName: String(data.createdByName ?? ''),
+  createdAt: toDate(data.createdAt),
+  lastRunAt: data.lastRunAt ? toDate(data.lastRunAt) : null,
+  nextRunAt: data.nextRunAt ? toDate(data.nextRunAt) : null,
+});
+
+function computeNextRunAt(
+  frequency: ReportScheduleFrequency,
+  dayOfWeek: number | null,
+  dayOfMonth: number | null,
+  from: Date = new Date(),
+): Date {
+  const next = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate(), 4, 0, 0));
+  if (next <= from) next.setUTCDate(next.getUTCDate() + 1);
+
+  if (frequency === 'daily') return next;
+
+  if (frequency === 'weekly') {
+    const target = dayOfWeek ?? 1;
+    while (next.getUTCDay() !== target) next.setUTCDate(next.getUTCDate() + 1);
+    return next;
+  }
+
+  // monthly
+  const target = Math.min(Math.max(dayOfMonth ?? 1, 1), 28);
+  next.setUTCDate(1);
+  if (next <= from) next.setUTCMonth(next.getUTCMonth() + 1);
+  next.setUTCDate(target);
+  return next;
+}
+
+export async function createReportSchedule(input: {
+  companyId: string;
+  reportType: ReportType;
+  frequency: ReportScheduleFrequency;
+  dayOfWeek?: number | null;
+  dayOfMonth?: number | null;
+  recipients: string[];
+  createdBy: string;
+  createdByName: string;
+  config: ReportConfig;
+}): Promise<string> {
+  const definition = REPORT_DEFINITIONS[input.reportType];
+  const dayOfWeek = input.dayOfWeek ?? null;
+  const dayOfMonth = input.dayOfMonth ?? null;
+  const ref = await addDoc(collection(db, 'report_schedules'), {
+    companyId: input.companyId,
+    reportType: input.reportType,
+    reportName: definition.name,
+    frequency: input.frequency,
+    dayOfWeek,
+    dayOfMonth,
+    recipients: input.recipients,
+    filters: filtersFromConfig(input.config),
+    active: true,
+    createdBy: input.createdBy,
+    createdByName: input.createdByName,
+    createdAt: serverTimestamp(),
+    lastRunAt: null,
+    nextRunAt: computeNextRunAt(input.frequency, dayOfWeek, dayOfMonth),
+  });
+  return ref.id;
+}
+
+export async function fetchReportSchedules(
+  companyId: string,
+  reportType?: ReportType,
+): Promise<ReportSchedule[]> {
+  const snap = await getDocs(
+    query(collection(db, 'report_schedules'), where('companyId', '==', companyId)),
+  );
+  return snap.docs
+    .map((item) => toReportSchedule(item.id, item.data()))
+    .filter((s) => !reportType || s.reportType === reportType)
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+}
+
+export async function setReportScheduleActive(scheduleId: string, active: boolean): Promise<void> {
+  await updateDoc(doc(db, 'report_schedules', scheduleId), { active });
+}
+
+export async function deleteReportSchedule(scheduleId: string): Promise<void> {
+  await deleteDoc(doc(db, 'report_schedules', scheduleId));
 }
 
 export async function fetchAuditLogs(companyId: string): Promise<AuditLog[]> {

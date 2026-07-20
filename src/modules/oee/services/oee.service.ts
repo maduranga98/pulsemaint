@@ -161,10 +161,15 @@ export function subscribeAllLatestOEE(
   callback: (records: OEERecord[]) => void,
   onError: (e: Error) => void
 ): () => void {
+  // Plant-wide latest-per-machine feed: pulls enough recent records that a
+  // machine logged daily/per-shift doesn't fall out of the window before its
+  // "latest" record is seen. A small limit here previously dropped machines
+  // that do have OEE data from "all machines" once several machines were
+  // logging multiple shifts a day.
   const q = query(
     collection(db, 'oee_records', plantId, 'records'),
     orderBy('shiftDate', 'desc'),
-    limit(200)
+    limit(2000)
   );
 
   return onSnapshot(
@@ -252,16 +257,18 @@ export async function autoFeedDowntime(
   plantId: string,
   machineId: string,
   shiftDate: string,
-  shift: OEEShift
+  _shift: OEEShift
 ): Promise<{ totalMinutes: number; linkedIds: string[] }> {
-  // Query completed breakdown work orders for this machine and shift
+  // Breakdown records — not workOrders — are where downtime is actually
+  // recorded (see src/services/analyticsAggregation.ts). workOrders never
+  // carried `shiftDate`/`shift`/`actualRepairDuration` fields, so the
+  // previous query always returned zero results and silently auto-filled 0.
+  // Breakdown tickets don't carry a shift field either, so this matches by
+  // calendar day (the shiftDate) rather than the shift's exact time window.
   const q = query(
-    collection(db, 'workOrders'),
+    collection(db, 'breakdown_tickets'),
     where('siteId', '==', plantId),
     where('machineId', '==', machineId),
-    where('status', '==', 'completed'),
-    where('shiftDate', '==', shiftDate),
-    where('shift', '==', shift)
   );
 
   const snap = await getDocs(q);
@@ -269,9 +276,14 @@ export async function autoFeedDowntime(
   const linkedIds: string[] = [];
 
   for (const d of snap.docs) {
-    const wo = d.data();
-    const duration = (wo.actualRepairDuration as number) ?? 0;
-    totalMinutes += duration;
+    const b = d.data();
+    const reportedAt = (b.reportedAt as { toDate?: () => Date } | undefined)?.toDate?.();
+    if (!reportedAt || reportedAt.toISOString().slice(0, 10) !== shiftDate) continue;
+
+    const minutes = Number(
+      b.estimatedDowntimeMinutes ?? b.oeeImpact?.downtimeMinutes ?? (Number(b.productionHoursLost ?? 0) * 60),
+    );
+    totalMinutes += minutes;
     linkedIds.push(d.id);
   }
 

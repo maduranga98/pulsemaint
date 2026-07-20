@@ -1,11 +1,86 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { Plus } from 'lucide-react';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { useAuthStore } from '@/store/authStore';
+import { useToast } from '@/hooks/useToast';
 import { usePurchaseOrders } from '@/hooks/inventory/usePurchaseOrders';
 import { PurchaseOrderList } from '@/components/inventory/po/PurchaseOrderList';
+import { logAuditEvent } from '@/utils/reports/auditLogger';
 
 export function PurchaseOrdersPage() {
   const navigate = useNavigate();
   const { orders, loading, error } = usePurchaseOrders();
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const { error: toastError, success: toastSuccess } = useToast();
+  const canApprove = userProfile?.role === 'plant_manager' || userProfile?.role === 'admin';
+
+  async function handleApprove(id: string) {
+    if (!userProfile) return;
+    try {
+      await updateDoc(doc(db, 'purchaseOrders', id), {
+        status: 'approved',
+        approvedBy: userProfile.id,
+        approvedByName: userProfile.fullName ?? '',
+        approvedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      toastSuccess('Purchase order approved.');
+      logAuditEvent({
+        companyId: userProfile.companyId,
+        userId: userProfile.id,
+        userName: userProfile.fullName ?? '',
+        userRole: userProfile.role,
+        action: 'APPROVE',
+        entityType: 'inventory',
+        entityId: id,
+        entityName: `Purchase Order ${id}`,
+      }).catch(() => {});
+    } catch (err) {
+      toastError(err instanceof Error ? `Failed to approve PO: ${err.message}` : 'Failed to approve PO.');
+    }
+  }
+
+  async function handleReject(id: string) {
+    if (!userProfile) return;
+    const reason = window.prompt('Reason for rejection?') ?? '';
+    if (!reason) return;
+    try {
+      await updateDoc(doc(db, 'purchaseOrders', id), {
+        status: 'rejected',
+        rejectedReason: reason,
+        approvedBy: userProfile.id,
+        approvedByName: userProfile.fullName ?? '',
+        approvedAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      toastSuccess('Purchase order rejected.');
+      logAuditEvent({
+        companyId: userProfile.companyId,
+        userId: userProfile.id,
+        userName: userProfile.fullName ?? '',
+        userRole: userProfile.role,
+        action: 'REJECT',
+        entityType: 'inventory',
+        entityId: id,
+        entityName: `Purchase Order ${id}`,
+      }).catch(() => {});
+    } catch (err) {
+      toastError(err instanceof Error ? `Failed to reject PO: ${err.message}` : 'Failed to reject PO.');
+    }
+  }
+
+  async function handleCancel(id: string) {
+    try {
+      await updateDoc(doc(db, 'purchaseOrders', id), {
+        status: 'cancelled',
+        updatedAt: serverTimestamp(),
+      });
+      toastSuccess('Purchase order cancelled.');
+    } catch (err) {
+      toastError(err instanceof Error ? `Failed to cancel PO: ${err.message}` : 'Failed to cancel PO.');
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -36,6 +111,9 @@ export function PurchaseOrdersPage() {
           onView={(id) => navigate(`/app/inventory/purchase-orders/${id}`)}
           onEdit={(id) => navigate(`/app/inventory/purchase-orders/${id}/edit`)}
           onMarkReceived={(id) => navigate(`/app/inventory/receive?poId=${id}`)}
+          onCancel={handleCancel}
+          onApprove={canApprove ? handleApprove : undefined}
+          onReject={canApprove ? handleReject : undefined}
         />
       )}
     </div>

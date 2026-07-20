@@ -138,7 +138,7 @@ export function ContentBuilder() {
     if (!catTitle.trim()) return;
     setCatSaving(true);
     try {
-      await addCategory(companyId, uid, {
+      const ref = await addCategory(companyId, uid, {
         title: catTitle.trim(),
         icon: catIcon.trim().slice(0, 2) || '📁',
         color: catColor,
@@ -146,6 +146,11 @@ export function ContentBuilder() {
         pinned: false,
         order: cats.length,
       });
+      // Pre-select the just-created category in the Add Content Item form —
+      // otherwise it only appears in the dropdown's option list and the user
+      // has to notice and reselect it themselves.
+      setForm((f) => ({ ...f, categoryId: ref.id }));
+      setPreviewCatId(ref.id);
       setCatTitle('');
       setCatDesc('');
       setCatIcon('🔧');
@@ -556,39 +561,50 @@ export function ContentBuilder() {
           </form>
         </div>
 
-        {/* Category list with delete */}
+        {/* Category table — same tabular layout used by other admin lists
+            in the app (icon/title/status/actions columns), rather than a
+            bare card list. */}
         {cats.length > 0 && (
           <div
-            className="rounded-xl p-4"
+            className="rounded-xl overflow-hidden"
             style={{ background: '#111d2e', border: '1px solid #1a2840' }}
           >
-            <div className="text-sm font-semibold mb-3" style={{ color: '#e2e8f0' }}>
+            <div className="text-sm font-semibold px-4 pt-4 pb-3" style={{ color: '#e2e8f0' }}>
               Existing Categories
             </div>
-            <div className="space-y-1.5">
-              {cats.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex items-center gap-2 px-3 py-2 rounded-lg"
-                  style={{ background: '#0e1628' }}
-                >
-                  <span>{c.icon}</span>
-                  <span className="flex-1 text-sm" style={{ color: '#e2e8f0' }}>
-                    {c.title}
-                  </span>
-                  <div
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ background: c.color }}
-                  />
-                  <button
-                    onClick={() => deleteCategory(c.id)}
-                    className="text-base opacity-50 hover:opacity-100 transition-opacity ml-1"
-                    title="Delete category"
-                  >
-                    🗑
-                  </button>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ borderTop: '1px solid #1a2840', borderBottom: '1px solid #1a2840' }}>
+                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Icon</th>
+                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Title</th>
+                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Color</th>
+                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Pinned</th>
+                    <th className="px-4 py-2 text-right font-medium" style={{ color: '#6b7fa3' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cats.map((c) => (
+                    <tr key={c.id} style={{ borderBottom: '1px solid #1a2840' }}>
+                      <td className="px-4 py-2.5">{c.icon}</td>
+                      <td className="px-4 py-2.5" style={{ color: '#e2e8f0' }}>{c.title}</td>
+                      <td className="px-4 py-2.5">
+                        <div className="w-3 h-3 rounded-full" style={{ background: c.color }} />
+                      </td>
+                      <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{c.pinned ? 'Yes' : '—'}</td>
+                      <td className="px-4 py-2.5 text-right">
+                        <button
+                          onClick={() => deleteCategory(c.id)}
+                          className="text-base opacity-50 hover:opacity-100 transition-opacity"
+                          title="Delete category"
+                        >
+                          🗑
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         )}

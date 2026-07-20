@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
 import type {
   OEERecord,
@@ -91,6 +93,10 @@ interface UseOEEDashboardResult {
 export function useOEEDashboard(): UseOEEDashboardResult {
   const plantId = useAuthStore((s) => s.userProfile?.companyId);
   const [latestRecords, setLatestRecords] = useState<OEERecord[]>([]);
+  // Machines that exist but have never logged an OEE record — the dashboard
+  // used to be driven entirely by oee_records, so these machines never
+  // appeared at all under "all machines' OEE data".
+  const [allMachines, setAllMachines] = useState<{ id: string; name: string; department: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -108,20 +114,47 @@ export function useOEEDashboard(): UseOEEDashboardResult {
     return unsub;
   }, [plantId]);
 
+  useEffect(() => {
+    if (!plantId) return;
+    getDocs(query(collection(db, 'machines'), where('siteId', '==', plantId)))
+      .then((snap) => {
+        setAllMachines(
+          snap.docs.map((d) => ({
+            id: d.id,
+            name: String(d.data().name ?? d.id),
+            department: String(d.data().department ?? '—'),
+          })),
+        );
+      })
+      .catch(() => setAllMachines([]));
+  }, [plantId]);
+
   const machines = useMemo<MachineSummary[]>(() => {
-    return latestRecords
-      .map((r) => ({
-        machineId: r.machineId,
-        machineName: r.machineName,
-        department: r.department ?? '—',
-        latestOEE: r.oee,
-        latestAvailability: r.availability,
-        latestPerformance: r.performance,
-        latestQuality: r.quality,
-        latestRecord: r,
-      }))
-      .sort((a, b) => (a.latestOEE ?? 100) - (b.latestOEE ?? 100));
-  }, [latestRecords]);
+    const withRecords = latestRecords.map((r) => ({
+      machineId: r.machineId,
+      machineName: r.machineName,
+      department: r.department ?? '—',
+      latestOEE: r.oee,
+      latestAvailability: r.availability,
+      latestPerformance: r.performance,
+      latestQuality: r.quality,
+      latestRecord: r,
+    }));
+    const seen = new Set(withRecords.map((m) => m.machineId));
+    const withoutRecords = allMachines
+      .filter((m) => !seen.has(m.id))
+      .map((m) => ({
+        machineId: m.id,
+        machineName: m.name,
+        department: m.department,
+        latestOEE: null,
+        latestAvailability: null,
+        latestPerformance: null,
+        latestQuality: null,
+        latestRecord: null,
+      }));
+    return [...withRecords, ...withoutRecords].sort((a, b) => (a.latestOEE ?? 100) - (b.latestOEE ?? 100));
+  }, [latestRecords, allMachines]);
 
   const plantAvgOEE = useMemo(() => {
     if (machines.length === 0) return null;

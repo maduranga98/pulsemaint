@@ -35,7 +35,6 @@ const defaultConfig: ReportConfig = {
   shifts: [],
   supervisors: [],
   priorities: [],
-  invoiceStatuses: [],
   trainingStatuses: [],
   slaStatuses: [],
   outputFormat: 'pdf',
