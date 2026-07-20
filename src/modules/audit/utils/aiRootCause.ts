@@ -5,15 +5,16 @@ import type {
   FindingKind,
 } from '../types/audit.types';
 import { nanoid } from 'nanoid';
+import { generateGeminiJson, hasGeminiKey } from '../../../lib/gemini';
 
 /**
  * Heuristic "AI" root-cause analyzer.
  *
- * The application has no LLM backend wired up, so this provides a deterministic,
- * keyword-driven root-cause engine that turns audit failure/loss data into
- * probable causes and recommended maintenance/safety actions. The output shape
- * matches AIRootCauseSuggestion so it can be swapped for a real model later
- * without changing callers.
+ * Used as the fallback when no Gemini API key is configured, or when the
+ * Gemini call fails — a deterministic, keyword-driven root-cause engine that
+ * turns audit failure/loss data into probable causes and recommended
+ * maintenance/safety actions. The output shape matches AIRootCauseSuggestion
+ * so both paths are interchangeable to callers.
  */
 
 interface Rule {
@@ -132,6 +133,21 @@ function analyzeFinding(finding: AuditFinding): AIRootCauseSuggestion {
   };
 }
 
+/** Expands findings with synthetic entries for failed tasks not logged as findings. */
+function expandFindings(
+  findings: AuditFinding[],
+  failedAnswers: { taskText: string; notes: string }[],
+): AuditFinding[] {
+  const synthetic: AuditFinding[] = failedAnswers.map((fa) => ({
+    id: nanoid(),
+    kind: 'maintenance',
+    description: fa.taskText,
+    reason: fa.notes,
+    solution: '',
+  }));
+  return [...findings, ...synthetic];
+}
+
 /**
  * Runs root-cause analysis across all findings of an audit (plus any failed
  * tasks that were not captured as explicit findings).
@@ -140,25 +156,100 @@ export function analyzeAudit(
   findings: AuditFinding[],
   failedAnswers: { taskText: string; notes: string }[] = [],
 ): AIRootCauseSuggestion[] {
-  const suggestions = findings.map(analyzeFinding);
-
-  // Surface failed critical tasks that the auditor didn't log as a finding.
-  for (const fa of failedAnswers) {
-    const synthetic: AuditFinding = {
-      id: nanoid(),
-      kind: 'maintenance',
-      description: fa.taskText,
-      reason: fa.notes,
-      solution: '',
-    };
-    suggestions.push(analyzeFinding(synthetic));
-  }
-
-  return suggestions;
+  return expandFindings(findings, failedAnswers).map(analyzeFinding);
 }
 
 export function buildFailedAnswerInputs(session: Pick<AuditSession, 'answers'>) {
   return session.answers
     .filter((a) => a.failed)
     .map((a) => ({ taskText: a.taskText, notes: a.notes }));
+}
+
+const GEMINI_RESPONSE_SCHEMA = {
+  type: 'object',
+  properties: {
+    suggestions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          findingId: { type: 'string' },
+          probableCauses: { type: 'array', items: { type: 'string' } },
+          recommendedActions: { type: 'array', items: { type: 'string' } },
+          discipline: { type: 'string', enum: ['maintenance', 'safety', 'operations', 'quality'] },
+          priority: { type: 'string', enum: ['high', 'medium', 'low'] },
+        },
+        required: ['findingId', 'probableCauses', 'recommendedActions', 'discipline', 'priority'],
+      },
+    },
+  },
+  required: ['suggestions'],
+};
+
+interface GeminiRootCauseResult {
+  suggestions: Array<{
+    findingId: string;
+    probableCauses: string[];
+    recommendedActions: string[];
+    discipline: AIRootCauseSuggestion['discipline'];
+    priority: AIRootCauseSuggestion['priority'];
+  }>;
+}
+
+function buildPrompt(inputs: { id: string; kind: FindingKind; description: string; reason: string; solution: string }[]): string {
+  const items = inputs
+    .map(
+      (f, i) =>
+        `${i + 1}. id="${f.id}" kind=${f.kind}\n   Description: ${f.description || '—'}\n   Reported reason: ${f.reason || '—'}\n   Auditor-proposed solution: ${f.solution || '—'}`,
+    )
+    .join('\n');
+
+  return (
+    'You are a plant maintenance and safety root-cause analysis assistant. ' +
+    'For each audit finding below, identify the most likely probable causes and ' +
+    'recommended corrective actions, and classify the discipline and priority.\n\n' +
+    `Findings:\n${items}\n\n` +
+    'Return JSON matching the given schema — one entry per finding id, in the same order. ' +
+    'Keep each cause/action concise (one sentence). Provide 2-4 causes and 2-4 actions per finding.'
+  );
+}
+
+/**
+ * Runs root-cause analysis via the Gemini API when VITE_GEMINI_API_KEY is
+ * configured, falling back to the local heuristic engine (analyzeAudit) if
+ * the key is missing or the call fails, so audit submission never blocks on
+ * the AI provider being unavailable.
+ */
+export async function analyzeAuditWithAI(
+  findings: AuditFinding[],
+  failedAnswers: { taskText: string; notes: string }[] = [],
+): Promise<AIRootCauseSuggestion[]> {
+  const expanded = expandFindings(findings, failedAnswers);
+  const heuristic = expanded.map(analyzeFinding);
+
+  if (!hasGeminiKey() || expanded.length === 0) {
+    return heuristic;
+  }
+
+  try {
+    const result = await generateGeminiJson<GeminiRootCauseResult>(buildPrompt(expanded), {
+      responseSchema: GEMINI_RESPONSE_SCHEMA,
+    });
+
+    const byId = new Map(result.suggestions.map((s) => [s.findingId, s]));
+    return heuristic.map((fallback) => {
+      const ai = byId.get(fallback.findingId);
+      if (!ai || ai.probableCauses.length === 0 || ai.recommendedActions.length === 0) return fallback;
+      return {
+        ...fallback,
+        probableCauses: ai.probableCauses.slice(0, 4),
+        recommendedActions: ai.recommendedActions.slice(0, 4),
+        discipline: ai.discipline,
+        priority: ai.priority,
+      };
+    });
+  } catch (err) {
+    console.error('Gemini root-cause analysis failed, using heuristic fallback', err);
+    return heuristic;
+  }
 }
