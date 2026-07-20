@@ -23,13 +23,22 @@ export function useAuthInit() {
   // immediately instead of requiring the user to log out and back in.
   const profileUnsubscribeRef = useRef<(() => void) | null>(null);
 
+  // A dedicated function (rather than inlining the check at each call site)
+  // so TypeScript's control-flow narrowing of `.current` in one branch of
+  // the onAuthStateChanged callback doesn't leak into another — the ref is
+  // reassigned across separate invocations of that callback, which a single
+  // function body's flow analysis can't see.
+  function unsubscribeProfile() {
+    profileUnsubscribeRef.current?.();
+    profileUnsubscribeRef.current = null;
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       try {
         setAuthLoading(true);
 
-        profileUnsubscribeRef.current?.();
-        profileUnsubscribeRef.current = null;
+        unsubscribeProfile();
 
         if (user) {
           // User is signed in
@@ -102,8 +111,7 @@ export function useAuthInit() {
           }
         } else {
           // User is signed out
-          profileUnsubscribeRef.current?.();
-          profileUnsubscribeRef.current = null;
+          unsubscribeProfile();
           reset();
         }
 
@@ -122,8 +130,7 @@ export function useAuthInit() {
     });
 
     return () => {
-      profileUnsubscribeRef.current?.();
-      profileUnsubscribeRef.current = null;
+      unsubscribeProfile();
       unsubscribe();
     };
   }, [setUser, setUserProfile, setCompany, setAuthLoading, setAuthInitialized, setError, reset]);

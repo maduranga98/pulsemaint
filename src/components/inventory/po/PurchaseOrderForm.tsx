@@ -49,8 +49,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   // Kept in sync with PurchaseOrderDetail's canApprove — approval is not
   // limited to plant_manager/admin, supervisors can approve too.
-  const canApprove =
-    userRole === 'plant_manager' || userRole === 'admin' || userRole === 'supervisor' || userRole === 'maintenance_supervisor';
+  const canApprove = ['plant_manager', 'admin', 'supervisor', 'maintenance_supervisor'].includes(userRole);
 
   const [items, setItems] = useState<POItemRowData[]>(
     initialPO?.items.map((i) => ({

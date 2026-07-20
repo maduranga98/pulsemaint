@@ -43,8 +43,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
   const role = userProfile?.role ?? '';
-  const canApprove =
-    role === 'plant_manager' || role === 'admin' || role === 'supervisor' || role === 'maintenance_supervisor';
+  const canApprove = ['plant_manager', 'admin', 'supervisor', 'maintenance_supervisor'].includes(role);
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [sendModal, setSendModal] = useState(false);
