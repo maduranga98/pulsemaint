@@ -20,6 +20,7 @@ import { purchaseOrderSchema, type PurchaseOrderFormValues } from '@/schemas/inv
 import type { PurchaseOrder, InventoryCurrency, PurchaseOrderStatus } from '@/types/inventory';
 import { generatePONumber } from '@/lib/inventory/poNumberGenerator';
 import { useToast } from '@/hooks/useToast';
+import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { PurchaseOrderItemRow, type POItemRowData } from './PurchaseOrderItemRow';
 
 interface PurchaseOrderFormProps {
@@ -70,10 +71,14 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   const totalValue = items.reduce((sum, it) => sum + it.quantityOrdered * it.unitCost, 0);
 
+  const { suppliers } = useSuppliers();
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
+
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm<PurchaseOrderFormValues>({
     resolver: zodResolver(purchaseOrderSchema) as any,
@@ -272,6 +277,32 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       {/* Supplier info */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
         <h3 className="font-semibold text-gray-900">Supplier Information</h3>
+        {suppliers.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Select Supplier</label>
+            <select
+              value={selectedSupplierId}
+              onChange={(e) => {
+                const supplierId = e.target.value;
+                setSelectedSupplierId(supplierId);
+                const supplier = suppliers.find((s) => s.id === supplierId);
+                if (supplier) {
+                  setValue('supplierName', supplier.name, { shouldValidate: true });
+                  setValue('supplierContactPerson', supplier.contactPerson);
+                  setValue('supplierPhone', supplier.phone);
+                  setValue('supplierEmail', supplier.email);
+                  setValue('supplierAddress', supplier.address);
+                }
+              }}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">— Choose a saved supplier, or fill in details below —</option>
+              {suppliers.map((s) => (
+                <option key={s.id} value={s.id}>{s.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Name *</label>

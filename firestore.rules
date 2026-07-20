@@ -653,6 +653,16 @@ service cloud.firestore {
         && getUserData().role in ['plant_manager', 'admin'];
     }
 
+    match /suppliers/{supplierId} {
+      allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId;
+      allow create: if isAuthenticated() && getUserData().companyId == request.resource.data.companyId
+        && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow update: if isAuthenticated() && getUserData().companyId == resource.data.companyId
+        && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+      allow delete: if isAuthenticated() && getUserData().companyId == resource.data.companyId
+        && getUserData().role in ['plant_manager', 'admin'];
+    }
+
     match /inventoryImportSessions/{sessionId} {
       allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId
         && (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']

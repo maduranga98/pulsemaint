@@ -364,6 +364,21 @@ export interface PurchaseOrder {
   }[];
 }
 
+export interface Supplier {
+  id: string;
+  companyId: string;
+  name: string;
+  contactPerson: string;
+  phone: string;
+  email: string;
+  address: string;
+  notes: string;
+  createdAt: Timestamp;
+  createdBy: string;
+  updatedAt: Timestamp;
+  updatedBy: string;
+}
+
 export interface InventoryImportSession {
   id: string;
   companyId: string;

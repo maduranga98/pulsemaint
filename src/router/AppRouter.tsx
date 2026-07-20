@@ -89,6 +89,8 @@ import ExcelImportPage from '../pages/inventory/ExcelImportPage';
 import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
 import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
 import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
+import SuppliersPage from '../pages/inventory/SuppliersPage';
+import ManualIssuePage from '../pages/inventory/ManualIssuePage';
 
 // Dashboard
 import {
@@ -509,6 +511,22 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <InventorySettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/suppliers"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <SuppliersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/issue/manual"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'admin']}>
+              <ManualIssuePage />
             </ProtectedRoute>
           }
         />
