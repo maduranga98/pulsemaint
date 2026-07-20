@@ -63,7 +63,7 @@ function toBreakdownSnapshot(ticket, now) {
 
 exports.autoCompileShiftSummary = onCall(async (request) => {
   requireAuth(request);
-  const { companyId, shiftStartTime } = request.data || {};
+  const { companyId, shiftStartTime, supervisorId } = request.data || {};
   if (!companyId || !shiftStartTime) {
     throw new HttpsError("invalid-argument", "companyId and shiftStartTime are required.");
   }
@@ -89,6 +89,17 @@ exports.autoCompileShiftSummary = onCall(async (request) => {
   const companyWOs = workOrders.filter((item) => getCompanyId(item) === companyId);
   const openBreakdowns = companyBreakdowns.filter((item) => isOpenStatus(item.status || item.currentState));
   const pendingWOs = companyWOs.filter((item) => isOpenStatus(item.status || item.currentStatus));
+  // SUP-021: the handover should gather breakdowns that occurred during this
+  // shift (reported anytime from shift start to now), not just whatever is
+  // still open company-wide at compile time.
+  const breakdownsDuringShift = companyBreakdowns.filter((item) => isAfter(item.createdAt, shiftStart));
+  // SUP-022: WOs gathered into the handover are scoped to this supervisor's
+  // own activity during the shift (WOs they created), not the whole
+  // company's open backlog. Falls back to the full during-shift set if no
+  // supervisorId was supplied (older callers).
+  const wosDuringShift = companyWOs.filter((item) => (
+    isAfter(item.createdAt, shiftStart) && (!supervisorId || item.createdBy === supervisorId)
+  ));
   const completedWOsThisShift = companyWOs.filter((item) => isAfter(item.completedAt || item.closedAt || item.resolvedAt, shiftStart));
   const partsThisShift = partsRequests.filter((item) => isAfter(item.createdAt || item.requestedAt, shiftStart));
   const stockIssuedThisShift = stockMovements.filter((item) => {
@@ -123,8 +134,8 @@ exports.autoCompileShiftSummary = onCall(async (request) => {
 
   return {
     stats,
-    pendingWOs: pendingWOs.map(toPendingWO),
-    ongoingBreakdowns: openBreakdowns.map((item) => toBreakdownSnapshot(item, now)),
+    pendingWOs: wosDuringShift.map(toPendingWO),
+    ongoingBreakdowns: breakdownsDuringShift.map((item) => toBreakdownSnapshot(item, now)),
     lowStockAlerts,
     shiftStartTime: shiftStart.toISOString(),
     compiledAt: now.toISOString(),

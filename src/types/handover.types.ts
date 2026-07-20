@@ -120,6 +120,12 @@ export interface ShiftHandover {
   outgoingSupervisorName: string;
   outgoingSupervisorDesignation: string | null;
   shiftActualStart: Date;
+  /** SUP-020: actual clock-out time for the shift this handover closes out. */
+  shiftActualEnd: Date | null;
+  /** SUP-020: scheduled shift length, actual worked minutes, and OT (worked - scheduled, floored at 0). */
+  scheduledMinutes: number | null;
+  totalMinutes: number | null;
+  otMinutes: number | null;
   handoverSubmittedAt: Date;
   incomingSupervisorId: string | null;
   incomingSupervisorName: string | null;
@@ -158,6 +164,11 @@ export interface DraftHandover {
   shiftConfigId: string;
   shiftName: string;
   shiftActualStart: Date;
+  /** SUP-020: populated from the just-completed shift session so OT can be stored on the handover. */
+  shiftActualEnd: Date | null;
+  scheduledMinutes: number | null;
+  totalMinutes: number | null;
+  otMinutes: number | null;
   watchFlags: DraftWatchFlag[];
   pendingWOs: PendingWOSnapshot[];
   ongoingBreakdowns: OngoingBreakdownSnapshot[];

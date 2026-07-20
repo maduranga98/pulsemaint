@@ -125,6 +125,10 @@ function mapHandover(id: string, data: DocumentData): ShiftHandover {
     outgoingSupervisorName: data.outgoingSupervisorName,
     outgoingSupervisorDesignation: data.outgoingSupervisorDesignation ?? null,
     shiftActualStart: toDate(data.shiftActualStart) ?? new Date(),
+    shiftActualEnd: toDate(data.shiftActualEnd),
+    scheduledMinutes: typeof data.scheduledMinutes === 'number' ? data.scheduledMinutes : null,
+    totalMinutes: typeof data.totalMinutes === 'number' ? data.totalMinutes : null,
+    otMinutes: typeof data.otMinutes === 'number' ? data.otMinutes : null,
     handoverSubmittedAt: toDate(data.handoverSubmittedAt) ?? new Date(),
     incomingSupervisorId: data.incomingSupervisorId ?? null,
     incomingSupervisorName: data.incomingSupervisorName ?? null,
@@ -260,6 +264,19 @@ export async function fetchMyRecentSessions(companyId: string, userId: string, m
     .slice(0, max);
 }
 
+/**
+ * SUP-023: all shift sessions (any user) for a given shiftDate, used to
+ * derive a company-wide Working / Ended / Not Started status per shift plan.
+ */
+export async function fetchShiftSessionsForDate(companyId: string, shiftDate: string): Promise<ShiftSession[]> {
+  const snap = await getDocs(query(
+    collection(db, 'shift_sessions'),
+    where('companyId', '==', companyId),
+    where('shiftDate', '==', shiftDate),
+  ));
+  return snap.docs.map((item) => mapShiftSession(item.id, item.data()));
+}
+
 export async function autoCompileShiftSummary(params: {
   companyId: string;
   supervisorId: string;
@@ -325,6 +342,11 @@ export async function submitHandoverCallable(params: {
     return { ...wo, dueDate: due ? Timestamp.fromDate(due) : null };
   });
 
+  // SUP-017: handing over a shift used to require a separate "pending
+  // acceptance" step before it was final. That step is no longer wanted —
+  // the handover now completes immediately on submit, so it's written
+  // straight to `accepted` instead of `pending_acceptance` and no incoming
+  // party needs to confirm it via AcceptShiftButton/acceptHandoverCallable.
   const data: Record<string, unknown> = {
     companyId,
     shiftConfigId: draft.shiftConfigId ?? '',
@@ -336,12 +358,21 @@ export async function submitHandoverCallable(params: {
     shiftActualStart: parseWireDate(draft.shiftActualStart)
       ? Timestamp.fromDate(parseWireDate(draft.shiftActualStart) as Date)
       : now,
+    // SUP-020: OT = actual worked minutes beyond the scheduled shift length,
+    // floored at 0 (see computeShiftTotals). Computed at end-shift time and
+    // carried through the draft so it can be stored on the handover record.
+    shiftActualEnd: parseWireDate(draft.shiftActualEnd)
+      ? Timestamp.fromDate(parseWireDate(draft.shiftActualEnd) as Date)
+      : null,
+    scheduledMinutes: draft.scheduledMinutes ?? null,
+    totalMinutes: draft.totalMinutes ?? null,
+    otMinutes: draft.otMinutes ?? null,
     handoverSubmittedAt: now,
     incomingSupervisorId: null,
     incomingSupervisorName: null,
     incomingSupervisorDesignation: null,
-    handoverAcceptedAt: null,
-    overlapMinutes: null,
+    handoverAcceptedAt: now,
+    overlapMinutes: 0,
     stats,
     watchFlags,
     pendingWOs,
@@ -354,8 +385,8 @@ export async function submitHandoverCallable(params: {
     temporaryRepairs: draft.temporaryRepairs ?? null,
     generalNotes: draft.generalNotes ?? '',
     outgoingAcknowledged: Boolean(draft.outgoingAcknowledged),
-    incomingAcknowledged: false,
-    status: 'pending_acceptance' as HandoverStatus,
+    incomingAcknowledged: true,
+    status: 'accepted' as HandoverStatus,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };

@@ -1,4 +1,5 @@
 import type { ShiftHandover } from '@/types/handover.types';
+import { formatDuration } from '@/utils/handover.utils';
 import BreakdownSnapshotRow from './BreakdownSnapshotRow';
 import HandoverStatusBadge from './HandoverStatusBadge';
 import HandoverTimeline from './HandoverTimeline';
@@ -44,6 +45,10 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
             <dd className="text-slate-900">{formatDateTime(handover.shiftActualStart)}</dd>
           </div>
           <div>
+            <dt className="font-semibold text-slate-500">Shift end time</dt>
+            <dd className="text-slate-900">{formatDateTime(handover.shiftActualEnd)}</dd>
+          </div>
+          <div>
             <dt className="font-semibold text-slate-500">Handover submitted at</dt>
             <dd className="text-slate-900">{formatDateTime(handover.handoverSubmittedAt)}</dd>
           </div>
@@ -54,6 +59,18 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
           <div>
             <dt className="font-semibold text-slate-500">Overlap (minutes)</dt>
             <dd className="text-slate-900">{handover.overlapMinutes ?? '—'}</dd>
+          </div>
+          {/* SUP-020: OT = actual worked minutes beyond the scheduled shift length. */}
+          <div>
+            <dt className="font-semibold text-slate-500">Overtime (OT)</dt>
+            <dd className="text-slate-900">
+              {handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : '—'}
+              {handover.scheduledMinutes != null && handover.totalMinutes != null && (
+                <span className="ml-1 text-xs text-slate-500">
+                  (worked {formatDuration(handover.totalMinutes * 60000)} vs scheduled {formatDuration(handover.scheduledMinutes * 60000)})
+                </span>
+              )}
+            </dd>
           </div>
         </dl>
       </header>

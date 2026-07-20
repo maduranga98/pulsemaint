@@ -4,6 +4,7 @@ import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useMyJobQueue } from '@/hooks/dashboard/useMyJobQueue';
 import { PartSearchInput } from '@/components/inventory/shared/PartSearchInput';
 import type { InventoryPart, RequestItem } from '@/types/inventory';
 
@@ -48,6 +49,33 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
+  // When the caller doesn't already pin a work order (e.g. a technician
+  // opening "Request Parts" from the dashboard rather than from an open WO),
+  // let them link one of their own open jobs, or fall back to a manual
+  // reason. Fixed-context callers (the WO execution sheet) skip all of this.
+  const allowWoPicker = !workOrder;
+  const siteId = userProfile?.siteIds?.[0] ?? userProfile?.companyId ?? '';
+  const { workOrders: myWorkOrders } = useMyJobQueue(
+    allowWoPicker ? userProfile?.id ?? '' : '',
+    siteId,
+  );
+  const [linkedWoId, setLinkedWoId] = useState<string>('');
+
+  const selectedWo = allowWoPicker ? myWorkOrders.find((wo) => wo.id === linkedWoId) ?? null : null;
+  const effectiveWorkOrder: WorkOrderContext | undefined = workOrder
+    ?? (selectedWo
+      ? {
+          id: selectedWo.id,
+          woNumber: selectedWo.woNumber,
+          woType: selectedWo.woType,
+          machineId: selectedWo.machineId,
+          machineName: selectedWo.machineName,
+          isContractorJob: selectedWo.woType === 'CONTRACTOR',
+          contractorCompany: selectedWo.contractorCompanyName ?? null,
+        }
+      : undefined);
+  const needsManualReason = allowWoPicker && !selectedWo;
+
   const addPart = (part: InventoryPart) => {
     setItems((prev) => [...prev, { part, quantity: 1, notes: '' }]);
   };
@@ -69,6 +97,10 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
     if (!userProfile || items.length === 0) return;
     if (items.some((it) => !it.quantity || it.quantity < 1)) {
       setError('Every item needs a quantity of at least 1.');
+      return;
+    }
+    if (needsManualReason && !purpose.trim()) {
+      setError('Select a linked work order, or enter a reason for this request.');
       return;
     }
     setSubmitting(true);
@@ -97,17 +129,17 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
       const docRef = await addDoc(collection(db, 'partsRequests'), {
         companyId: userProfile.companyId,
         requestNumber: makeRequestNumber(),
-        workOrderId: workOrder?.id ?? null,
-        workOrderNumber: workOrder?.woNumber ?? null,
-        workOrderType: workOrder?.woType ?? null,
-        machineId: workOrder?.machineId ?? null,
-        machineName: workOrder?.machineName ?? null,
+        workOrderId: effectiveWorkOrder?.id ?? null,
+        workOrderNumber: effectiveWorkOrder?.woNumber ?? null,
+        workOrderType: effectiveWorkOrder?.woType ?? null,
+        machineId: effectiveWorkOrder?.machineId ?? null,
+        machineName: effectiveWorkOrder?.machineName ?? null,
         requestedBy: userProfile.id,
         requestedByName: userProfile.fullName,
         requestedByRole: userProfile.role,
         requestedAt: serverTimestamp(),
-        isContractorJob: workOrder?.isContractorJob ?? false,
-        contractorCompany: workOrder?.contractorCompany ?? null,
+        isContractorJob: effectiveWorkOrder?.isContractorJob ?? false,
+        contractorCompany: effectiveWorkOrder?.contractorCompany ?? null,
         items: requestItems,
         purpose: purpose.trim() || null,
         totalEstimatedCost,
@@ -139,10 +171,10 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">Request Parts</h2>
-            {workOrder && (
+            {effectiveWorkOrder && (
               <p className="text-xs text-gray-500 mt-0.5">
-                For work order <span className="font-mono font-medium">{workOrder.woNumber}</span>
-                {workOrder.machineName && <> · {workOrder.machineName}</>}
+                For work order <span className="font-mono font-medium">{effectiveWorkOrder.woNumber}</span>
+                {effectiveWorkOrder.machineName && <> · {effectiveWorkOrder.machineName}</>}
               </p>
             )}
           </div>
@@ -167,6 +199,29 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
             </div>
           ) : (
             <>
+              {allowWoPicker && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Link to a work order (optional)
+                  </label>
+                  <select
+                    value={linkedWoId}
+                    onChange={(e) => setLinkedWoId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  >
+                    <option value="">No work order — enter a reason below</option>
+                    {myWorkOrders.map((wo) => (
+                      <option key={wo.id} value={wo.id}>
+                        {wo.woNumber} · {wo.machineName}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Pick the job ticket this request is for, or leave unlinked and explain why below.
+                  </p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Add parts</label>
                 <PartSearchInput
@@ -252,7 +307,9 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Purpose (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {needsManualReason ? 'Reason for request (required)' : 'Purpose (optional)'}
+                </label>
                 <textarea
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
@@ -286,7 +343,7 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
               </button>
               <button
                 onClick={handleSubmit}
-                disabled={items.length === 0 || submitting}
+                disabled={items.length === 0 || submitting || (needsManualReason && !purpose.trim())}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
               >
                 {submitting ? 'Submitting…' : 'Submit Request'}

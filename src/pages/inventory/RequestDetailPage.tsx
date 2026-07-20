@@ -184,7 +184,7 @@ export function RequestDetailPage() {
 
       <RequestDetailHeader request={request} />
 
-      {(request.workOrderId || request.machineId) && (
+      {(request.workOrderId || request.machineId || request.purpose) && (
         <RequestWoContextCard request={request} />
       )}
 

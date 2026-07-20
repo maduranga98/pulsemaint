@@ -33,7 +33,10 @@ export function MyShiftPage() {
   const [summarySession, setSummarySession] = useState<ShiftSession | null>(null);
   const [now, setNow] = useState(() => new Date());
 
-  const canHandover = profile?.role === 'supervisor' || profile?.role === 'admin';
+  // SUP-018: admin's start/end shift should match plant manager's and
+  // technician's plain flow — only supervisors compile a handover report
+  // (see handover.store.ts endShift).
+  const canHandover = profile?.role === 'supervisor';
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 30000);

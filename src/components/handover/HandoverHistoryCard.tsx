@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { ShiftHandover } from '@/types/handover.types';
+import { formatDuration } from '@/utils/handover.utils';
+import { exportHandoverPdf } from '@/utils/reports/pdf/handoverPdf';
 import HandoverStatusBadge from './HandoverStatusBadge';
 
 interface HandoverHistoryCardProps {
@@ -20,8 +22,18 @@ export function HandoverHistoryCard({ handover }: HandoverHistoryCardProps) {
         <div>Outgoing: {handover.outgoingSupervisorName}</div>
         <div>Incoming: {handover.incomingSupervisorName ?? '-'}</div>
         <div>Watch flags: {handover.watchFlags.length}</div>
+        <div>OT: {handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : '-'}</div>
       </dl>
-      <Link to={`/app/shift/handover/${handover.id}`} className="mt-4 inline-flex min-h-12 items-center rounded-md bg-blue-600 px-4 text-sm font-bold text-white">View Archive</Link>
+      <div className="mt-4 flex gap-2">
+        <Link to={`/app/shift/handover/${handover.id}`} className="inline-flex min-h-12 flex-1 items-center justify-center rounded-md bg-blue-600 px-4 text-sm font-bold text-white">View Archive</Link>
+        <button
+          type="button"
+          onClick={() => exportHandoverPdf(handover)}
+          className="inline-flex min-h-12 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-bold text-slate-700"
+        >
+          Export
+        </button>
+      </div>
     </article>
   );
 }

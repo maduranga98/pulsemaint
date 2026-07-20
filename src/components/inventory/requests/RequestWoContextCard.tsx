@@ -64,6 +64,13 @@ export function RequestWoContextCard({ request }: RequestWoContextCardProps) {
           <span className="font-medium">{request.machineName}</span>
         </div>
       )}
+
+      {!request.workOrderNumber && request.purpose && (
+        <div className="text-sm text-gray-700">
+          <span className="font-medium text-gray-500">Reason: </span>
+          {request.purpose}
+        </div>
+      )}
     </div>
   );
 }

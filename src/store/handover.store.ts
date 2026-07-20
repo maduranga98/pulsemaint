@@ -113,12 +113,13 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
       completed = await completeShiftSession(session);
       set({ activeSession: null, lastCompletedSession: completed });
     }
-    // Only roles Firestore rules allow to create a shift_handovers doc
-    // compile a handover report; other members just close their session and
-    // see their totals. maintenance_supervisor was missing here even though
-    // the create rule allows it, so that role's shifts never produced a
-    // handover record at all — leaving Handover History looking admin-only.
-    if (profile.role === 'supervisor' || profile.role === 'maintenance_supervisor' || profile.role === 'admin') {
+    // SUP-018: only the supervisor role compiles a handover report on end
+    // shift. Admin previously got routed into this extra compile +
+    // "hand over to next person" step (matching supervisor's flow), which
+    // made admin's end-shift behave differently from plant manager's and
+    // technician's — both of which just close their session and see their
+    // totals. Admin now follows that same plain flow.
+    if (profile.role === 'supervisor') {
       await get().compileShiftSummary();
     } else {
       set({ isShiftActive: false, shiftStartTime: null, currentShift: null });
@@ -150,6 +151,13 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
           shiftConfigId: currentShift?.id ?? session?.shiftConfigId ?? '',
           shiftName: currentShift?.shiftName ?? session?.shiftName ?? 'Current Shift',
           shiftActualStart: summary.shiftStartTime,
+          // SUP-020: carry the completed session's actual end + OT so the
+          // handover records it (fall back to the still-active session for
+          // roles/timing where end-shift hasn't completed the session yet).
+          shiftActualEnd: session?.actualEnd ?? null,
+          scheduledMinutes: session?.scheduledMinutes ?? null,
+          totalMinutes: session?.totalMinutes ?? null,
+          otMinutes: session?.otMinutes ?? null,
           watchFlags: get().draftHandover?.watchFlags ?? [],
           pendingWOs: summary.pendingWOs,
           ongoingBreakdowns: summary.ongoingBreakdowns,

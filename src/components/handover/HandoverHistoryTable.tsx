@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { ShiftHandover } from '@/types/handover.types';
-import { calculateOverlapMinutes } from '@/utils/handover.utils';
+import { calculateOverlapMinutes, formatDuration } from '@/utils/handover.utils';
+import { exportHandoverPdf } from '@/utils/reports/pdf/handoverPdf';
 import HandoverStatusBadge from './HandoverStatusBadge';
 
 interface HandoverHistoryTableProps {
@@ -23,6 +24,8 @@ export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
             <th className="px-4 py-3">Date</th>
             <th className="px-4 py-3">Shift Started</th>
             <th className="px-4 py-3">Shift Ended</th>
+            {/* SUP-020 */}
+            <th className="px-4 py-3">OT</th>
             {/* PM-074 / PM-075 */}
             <th className="px-4 py-3">Handover From</th>
             <th className="px-4 py-3">Handover Taken By</th>
@@ -48,7 +51,10 @@ export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
                 <td className="px-4 py-3 font-semibold">{handover.shiftName}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{handover.shiftDate}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{fmtTime(handover.shiftActualStart)}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{fmtTime(handover.handoverSubmittedAt)}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{fmtTime(handover.shiftActualEnd ?? handover.handoverSubmittedAt)}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : '-'}
+                </td>
                 <td className="px-4 py-3">
                   <div className="font-medium">{handover.outgoingSupervisorName}</div>
                   {handover.outgoingSupervisorDesignation && (
@@ -110,7 +116,12 @@ export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
                   )}
                 </td>
                 <td className="px-4 py-3"><HandoverStatusBadge status={handover.status} /></td>
-                <td className="px-4 py-3"><Link to={`/app/shift/handover/${handover.id}`} className="text-xs font-bold text-blue-700">View</Link></td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <div className="flex gap-3">
+                    <Link to={`/app/shift/handover/${handover.id}`} className="text-xs font-bold text-blue-700">View</Link>
+                    <button type="button" onClick={() => exportHandoverPdf(handover)} className="text-xs font-bold text-slate-600 hover:text-slate-900">Export</button>
+                  </div>
+                </td>
               </tr>
             );
           })}
