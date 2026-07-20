@@ -114,6 +114,7 @@ export function CategoryRail({ selected, onSelect }: Props) {
 
       {/* Bottom */}
       <div className="p-3 space-y-0.5" style={{ borderTop: '1px solid #1a2840' }}>
+        <RailBtn id="ai-assistant" label="AI Triage Assistant" icon="🤖" color="#22d3ee" />
         <RailBtn id="contacts" label="Responsible Persons" icon="🟤" color="#f97316" />
         <RailBtn id="assessments" label="Quick Assessments" icon="🟡" color="#fbbf24" />
       </div>

@@ -8,6 +8,15 @@ interface ContractorJobHistoryTabProps {
   jobs: ContractorJob[];
 }
 
+function fmtTs(ts?: { toDate: () => Date } | null): string {
+  return ts ? ts.toDate().toLocaleDateString() : '—';
+}
+
+function waitMinutes(start?: { toDate: () => Date } | null, end?: { toDate: () => Date } | null): number | null {
+  if (!start || !end) return null;
+  return Math.max(0, Math.round((end.toDate().getTime() - start.toDate().getTime()) / 60000));
+}
+
 export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) {
   const avgRating = jobs.filter((job) => job.rating).reduce((sum, job) => sum + (job.rating?.overallScore ?? 0), 0) / Math.max(1, jobs.filter((job) => job.rating).length);
 
@@ -39,6 +48,17 @@ export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) 
               <span>Rating: {job.rating?.overallScore.toFixed(1) ?? '-'}</span>
               <span>Invoice: {formatLkr(job.contractorInvoiceAmount)} | System: {formatLkr(job.systemInvoiceAmount)}</span>
               {typeof job.invoiceVariancePercent === 'number' && <InvoiceVarianceBadge percent={job.invoiceVariancePercent} />}
+            </div>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+              <span>Started: {fmtTs(job.workStartedAt)}</span>
+              <span>Completed: {fmtTs(job.workCompletedAt)}</span>
+              <span>Signed off: {fmtTs(job.signedOffAt)}</span>
+              {waitMinutes(job.waitForPartsAt, job.waitForPartsResolvedAt) !== null && (
+                <span>Waited for parts: {waitMinutes(job.waitForPartsAt, job.waitForPartsResolvedAt)} min</span>
+              )}
+              {waitMinutes(job.waitForPermissionAt, job.waitForPermissionResolvedAt) !== null && (
+                <span>Waited for permission: {waitMinutes(job.waitForPermissionAt, job.waitForPermissionResolvedAt)} min</span>
+              )}
             </div>
           </article>
         ))}

@@ -75,13 +75,23 @@ export function computeShiftTotals(
   return { scheduledMinutes, totalMinutes, otMinutes };
 }
 
-/** A user belongs to a shift plan if directly assigned (member list / user.shiftId) or their role is scheduled. */
+/**
+ * A user belongs to a shift plan if directly assigned (member list, or their
+ * profile's individually-set shiftId), or — only when they have no explicit
+ * shiftId of their own — their role is bulk-scheduled on the plan.
+ *
+ * Without the shiftId short-circuit, a user with an explicit individual
+ * assignment could still match an unrelated plan that merely lists their
+ * role (e.g. a second shift plan scheduling the same role at a different
+ * time), and "My Shift" would show whichever of the two plans happened to
+ * be in its active time window — not the shift the user is actually on.
+ */
 export function isUserAssignedToShift(
   shift: Pick<ShiftConfig, 'id' | 'memberIds' | 'roles'>,
   user: { id: string; role: string; shiftId?: string | null },
 ): boolean {
   if (shift.memberIds?.includes(user.id)) return true;
-  if (user.shiftId && user.shiftId === shift.id) return true;
+  if (user.shiftId) return user.shiftId === shift.id;
   return (shift.roles ?? []).includes(user.role);
 }
 

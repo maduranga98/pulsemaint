@@ -126,6 +126,14 @@ exports.cleanupOldReports = cleanupOldReports;
 exports.generateScheduledReport = generateScheduledReport;
 
 // ---------------------------------------------------------------------------
+// Triage Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { aiTriageAssistant } = require("./src/triage/aiTriageAssistant");
+
+exports.aiTriageAssistant = aiTriageAssistant;
+
+// ---------------------------------------------------------------------------
 // Analytics Module — Cloud Functions
 // ---------------------------------------------------------------------------
 

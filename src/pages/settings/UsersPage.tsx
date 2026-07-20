@@ -174,6 +174,9 @@ function toForm(u: UserProfile): UserFormValues {
 export default function UsersPage() {
   const company = useAuthStore((s) => s.company);
   const currentUser = useAuthStore((s) => s.userProfile);
+  // Plant Manager gets the same Users data as Admin, but is limited to
+  // inviting/adding members — no editing or removing existing users.
+  const canEditUsers = currentUser?.role === 'admin' || currentUser?.role === 'supervisor';
   const toast = useToast();
   const { shifts, reload: reloadShifts } = useShiftConfig();
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -549,14 +552,16 @@ export default function UsersPage() {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => setModal({ mode: 'edit', user: u })}
-                              title="Edit"
-                              className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
+                            {canEditUsers && (
+                              <button
+                                type="button"
+                                onClick={() => setModal({ mode: 'edit', user: u })}
+                                title="Edit"
+                                className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

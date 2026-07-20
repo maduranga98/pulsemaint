@@ -413,6 +413,8 @@ service cloud.firestore {
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
               'status', 'invitationAcknowledgedAt', 'arrivedAt', 'arrivedLoggedBy',
               'workStartedAt', 'workCompletedAt', 'departedAt', 'onSiteDurationMinutes',
+              'waitForPartsAt', 'waitForPartsResolvedAt',
+              'waitForPermissionAt', 'waitForPermissionResolvedAt',
               'actualWorkDurationMinutes', 'workSteps', 'partsFromContractor',
               'totalPartsCost', 'checklistResults', 'testRunResult', 'testRunNotes',
               'workDoneDescription', 'rootCause',
@@ -524,15 +526,15 @@ service cloud.firestore {
               && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor'])
         );
 
-      // Self-create during signup; admins create anyone; supervisors create
-      // non-admin members (Users page "Add member")
+      // Self-create during signup; admins create anyone; supervisors/plant
+      // managers create non-admin members (Users page "Add member")
       allow create: if isAuthenticated()
         && (
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
               && (getUserData().role == 'admin'
-                || (getUserData().role in ['supervisor', 'maintenance_supervisor']
+                || (getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager']
                   && request.resource.data.role != 'admin')))
         );
 

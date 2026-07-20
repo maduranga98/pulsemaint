@@ -10,6 +10,7 @@ import { CategoryRail, type PanelId } from './components/CategoryRail';
 import { ContentList } from './components/ContentList';
 import { ContactList } from './components/ContactList';
 import { AssessmentList } from './components/AssessmentList';
+import { AITriageAssistant } from './components/AITriageAssistant';
 
 export default function TriagePage() {
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -49,6 +50,8 @@ export default function TriagePage() {
 
   function renderContent() {
     switch (selected) {
+      case 'ai-assistant':
+        return <AITriageAssistant />;
       case 'contacts':
         return <ContactList />;
       case 'assessments':

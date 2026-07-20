@@ -263,6 +263,12 @@ export interface ContractorJob {
   workStartedAt?: Timestamp | null;
   workCompletedAt?: Timestamp | null;
   departedAt?: Timestamp | null;
+  // Wait-time milestones (PMGR-021) — how long the job sat blocked on parts
+  // or a permit/permission, tracked separately from actual hands-on time.
+  waitForPartsAt?: Timestamp | null;
+  waitForPartsResolvedAt?: Timestamp | null;
+  waitForPermissionAt?: Timestamp | null;
+  waitForPermissionResolvedAt?: Timestamp | null;
   onSiteDurationMinutes?: number;
   actualWorkDurationMinutes?: number;
   workSteps: ContractorWorkStep[];
