@@ -10,7 +10,7 @@ const db = getFirestore("default");
 exports.recalculateMttr = onDocumentUpdated(
   {
     database: "default",
-    document: "work_orders/{woId}",
+    document: "workOrders/{woId}",
     region: "us-central1",
   },
   async (event) => {

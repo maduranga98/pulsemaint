@@ -90,11 +90,18 @@ export function RequestDetailPage() {
             ? item.quantityRequested
             : Math.min(item.quantityRequested, approvedQuantities?.[item.id] ?? item.quantityRequested);
 
-        // Reserve stock via transaction
+        // Reserve stock via transaction. Firestore transactions require every
+        // read to happen before any write — interleaving tx.get/tx.update per
+        // item in a loop throws ("all reads must be executed before all
+        // writes"), which aborted the transaction and silently left the
+        // request stuck, so all reads are gathered up front here.
         await runTransaction(db, async (tx) => {
-          for (const item of request.items) {
-            const partRef = doc(db, 'inventoryParts', item.partId);
-            const partSnap = await tx.get(partRef);
+          const partRefs = request.items.map((item) => doc(db, 'inventoryParts', item.partId));
+          const partSnaps = await Promise.all(partRefs.map((ref) => tx.get(ref)));
+
+          for (let i = 0; i < request.items.length; i++) {
+            const item = request.items[i];
+            const partSnap = partSnaps[i];
             if (!partSnap.exists()) continue;
             const partData = partSnap.data();
             const approvedQty = approvedQtyFor(item);
@@ -102,7 +109,7 @@ export function RequestDetailPage() {
             const reservedBefore = (partData.reservedStock ?? 0) as number;
             const newReserved = reservedBefore + approvedQty;
             const newAvailable = partData.currentStock - newReserved;
-            tx.update(partRef, {
+            tx.update(partRefs[i], {
               reservedStock: newReserved,
               availableStock: Math.max(0, newAvailable),
               updatedAt: serverTimestamp(),

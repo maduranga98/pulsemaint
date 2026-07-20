@@ -87,18 +87,23 @@ export function computeShiftTotals(
  * be in its active time window — not the shift the user is actually on.
  */
 export function isUserAssignedToShift(
-  shift: Pick<ShiftConfig, 'id' | 'memberIds' | 'roles'>,
-  user: { id: string; role: string; shiftId?: string | null },
+  shift: Pick<ShiftConfig, 'id' | 'memberIds' | 'roles' | 'department'>,
+  user: { id: string; role: string; shiftId?: string | null; department?: string | null },
 ): boolean {
   if (shift.memberIds?.includes(user.id)) return true;
   if (user.shiftId) return user.shiftId === shift.id;
-  return (shift.roles ?? []).includes(user.role);
+  if ((shift.roles ?? []).includes(user.role)) return true;
+  // Settings → Users shows a user as "on" a department-wide shift plan once
+  // they have no explicit shiftId/role assignment of their own (see
+  // UserShiftChips) — apply the same fallback here so "My Shift" agrees with
+  // what the admin roster displays instead of showing "not scheduled".
+  return Boolean(shift.department) && shift.department === user.department;
 }
 
-/** Shift plans the given user is scheduled on (by member assignment or role). */
+/** Shift plans the given user is scheduled on (by member assignment, role, or department). */
 export function getMyShiftPlans(
   shifts: ShiftConfig[],
-  user: { id: string; role: string; shiftId?: string | null },
+  user: { id: string; role: string; shiftId?: string | null; department?: string | null },
 ): ShiftConfig[] {
   return shifts.filter((shift) => shift.status === 'active' && isUserAssignedToShift(shift, user));
 }

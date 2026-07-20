@@ -438,14 +438,14 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 </div>
               )}
 
-              {workOrder.partsRequests.length === 0 && (workOrder.partsUsed ?? []).length === 0 ? (
+              {(workOrder.partsRequests ?? []).length === 0 && (workOrder.partsUsed ?? []).length === 0 ? (
                 <p className="text-sm text-gray-400 py-6 text-center">No parts requested.</p>
-              ) : workOrder.partsRequests.length === 0 ? null : (
+              ) : (workOrder.partsRequests ?? []).length === 0 ? null : (
                 <div className="space-y-2">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                     Pre-Requested Parts
                   </h3>
-                  {workOrder.partsRequests.map((req) => (
+                  {(workOrder.partsRequests ?? []).map((req) => (
                     <div key={req.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{req.partName}</p>

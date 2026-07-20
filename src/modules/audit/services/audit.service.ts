@@ -28,7 +28,7 @@ import type {
   AuditDraft,
 } from '../types/audit.types';
 import { DEFAULT_TASKS } from '../data/defaultTemplates';
-import { analyzeAudit, buildFailedAnswerInputs } from '../utils/aiRootCause';
+import { analyzeAuditWithAI, buildFailedAnswerInputs } from '../utils/aiRootCause';
 import { auditPdfBlob } from '../utils/auditPdf';
 
 // Firestore layout:
@@ -151,7 +151,7 @@ export async function submitAudit(
   plantId: string,
   draft: Omit<AuditSession, 'id' | 'status' | 'reportUrl' | 'createdAt' | 'submittedAt' | 'aiSuggestions'>,
 ): Promise<AuditSession> {
-  const aiSuggestions = analyzeAudit(draft.findings, buildFailedAnswerInputs(draft));
+  const aiSuggestions = await analyzeAuditWithAI(draft.findings, buildFailedAnswerInputs(draft));
 
   const base: Omit<AuditSession, 'id'> = {
     ...draft,

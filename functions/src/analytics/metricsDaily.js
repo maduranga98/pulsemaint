@@ -38,7 +38,7 @@ exports.metricsDaily = onSchedule(
 
       // Fetch work orders that were closed/completed yesterday
       const woSnap = await db
-        .collection("work_orders")
+        .collection("workOrders")
         .where("companyId", "==", companyId)
         .where("status", "in", ["CLOSED", "COMPLETED"])
         .where("closedAt", ">=", yesterday)

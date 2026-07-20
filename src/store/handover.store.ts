@@ -81,7 +81,7 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
     // Prefer an explicit choice, then the user's assigned plans (member list,
     // Settings → Users shiftId, or role scheduling), then whatever shift is
     // scheduled right now.
-    const myPlans = getMyShiftPlans(shifts, { id: profile.id, role: profile.role, shiftId: profile.shiftId });
+    const myPlans = getMyShiftPlans(shifts, { id: profile.id, role: profile.role, shiftId: profile.shiftId, department: profile.department });
     const shift = (shiftConfigId ? shifts.find((item) => item.id === shiftConfigId) : undefined)
       ?? detectCurrentShift(myPlans)
       ?? myPlans[0]
@@ -210,7 +210,7 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
     // Carry the assigned/handed-over shift into the incoming supervisor's
     // active shift state so it drives their own end-shift + handover later.
     const shifts = await fetchShiftConfigs(profile.companyId);
-    const myPlans = getMyShiftPlans(shifts, { id: profile.id, role: profile.role, shiftId: profile.shiftId });
+    const myPlans = getMyShiftPlans(shifts, { id: profile.id, role: profile.role, shiftId: profile.shiftId, department: profile.department });
     const shift = detectCurrentShift(myPlans) ?? myPlans[0] ?? detectCurrentShift(shifts);
     let session: ShiftSession | null = get().activeSession;
     if (!session && shift) {

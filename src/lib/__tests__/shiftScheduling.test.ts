@@ -96,4 +96,26 @@ describe('isUserAssignedToShift / getMyShiftPlans', () => {
     const plans = getMyShiftPlans(shifts, { id: 'u1', role: 'technician' });
     expect(plans.map((plan) => plan.id)).toEqual(['a', 'd']);
   });
+
+  it('falls back to a department-wide plan when the user has no explicit assignment', () => {
+    const shift = makeShift({ department: 'Machining' });
+    expect(
+      isUserAssignedToShift(shift, { id: 'u1', role: 'supervisor', department: 'Machining' }),
+    ).toBe(true);
+    expect(
+      isUserAssignedToShift(shift, { id: 'u1', role: 'supervisor', department: 'Packaging' }),
+    ).toBe(false);
+  });
+
+  it('does not use department fallback once the user has an explicit shiftId', () => {
+    const shift = makeShift({ id: 'sX', department: 'Machining' });
+    expect(
+      isUserAssignedToShift(shift, {
+        id: 'u1',
+        role: 'supervisor',
+        shiftId: 'other',
+        department: 'Machining',
+      }),
+    ).toBe(false);
+  });
 });
