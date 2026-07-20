@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2, Paperclip, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
@@ -45,11 +45,18 @@ export default function WeekendSummaryPage() {
 
   const [weekEndingDate, setWeekEndingDate] = useState(upcomingWeekEndingDate());
   const [summaryText, setSummaryText] = useState('');
-  const [tasks, setTasks] = useState<WeekendTaskEntry[]>(
-    () => monthPlan?.weekendTaskTemplate.map((label, i) => ({ id: `t${i}`, description: label, completed: false })) ?? [],
-  );
+  const [tasks, setTasks] = useState<WeekendTaskEntry[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
+
+  // The programme (and its monthly task template) loads asynchronously, so
+  // seed the checklist once it's available rather than at initial mount.
+  useEffect(() => {
+    setTasks(
+      monthPlan?.weekendTaskTemplate.map((label, i) => ({ id: `t${i}`, description: label, completed: false })) ?? [],
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [monthPlan?.month, monthPlan?.weekendTaskTemplate.join('|')]);
 
   const canSubmit = programme && weekEndingDate && summaryText.trim().length > 0;
 

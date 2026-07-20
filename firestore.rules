@@ -1077,10 +1077,10 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
           || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
-      // Create: trainee submits their own summary
+      // Create: trainee submits their own summary (admin can submit on their behalf)
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && request.resource.data.traineeId == request.auth.uid
-        && isRole('trainee');
+        && isAnyRole(['trainee', 'admin']);
       // Update: trainee cannot edit after submission; management reviews (sets reviewStatus/comments)
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
