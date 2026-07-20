@@ -118,6 +118,14 @@ export default function TraineeProfilePage() {
               <p className="text-xs text-slate-400 mt-0.5">{trainee.department}</p>
             )}
           </div>
+          {trainee?.role === 'trainee' && (
+            <button
+              onClick={() => navigate(`/app/training/manage/trainees/${userId}/programme`)}
+              className="ml-auto shrink-0 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Training Programme
+            </button>
+          )}
         </div>
 
         {/* Awaiting practical sign-off */}
