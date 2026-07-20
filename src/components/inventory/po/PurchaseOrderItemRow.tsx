@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { QrCode, Trash2 } from 'lucide-react';
+import { QrCode, Trash2, ScanLine } from 'lucide-react';
 import { collection, getDocs, limit, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { InventoryPart } from '@/types/inventory';
 import { PartSearchInput } from '@/components/inventory/shared/PartSearchInput';
+import { PartQrScanModal } from '@/components/inventory/shared/PartQrScanModal';
 import { useToast } from '@/hooks/useToast';
 
 export interface POItemRowData {
@@ -34,6 +35,7 @@ export function PurchaseOrderItemRow({
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [qrInput, setQrInput] = useState('');
   const [lookingUp, setLookingUp] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
   const lineTotal = value.quantityOrdered * value.unitCost;
 
   function handlePartSelect(part: InventoryPart) {
@@ -136,10 +138,30 @@ export function PurchaseOrderItemRow({
               >
                 {lookingUp ? 'Looking…' : 'Lookup'}
               </button>
+              <button
+                type="button"
+                onClick={() => setShowScanner(true)}
+                title="Scan QR with camera"
+                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg flex items-center gap-1"
+              >
+                <ScanLine className="w-3.5 h-3.5" />
+                Scan
+              </button>
             </div>
           </div>
         )}
       </div>
+
+      {showScanner && (
+        <PartQrScanModal
+          title="Scan Part for PO"
+          onScan={(partNumber) => {
+            setShowScanner(false);
+            lookupByCode(partNumber);
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {/* Quantity */}
