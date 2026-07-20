@@ -112,7 +112,7 @@ const NAV_ITEMS: NavItem[] = [
     roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
   },
   {
-    label: 'Handovers',
+    label: 'Shift Handovers',
     to: '/app/shift/handover/history',
     icon: (
       <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

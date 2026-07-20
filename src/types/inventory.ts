@@ -252,6 +252,10 @@ export interface PartsRequest {
   requestedByRole: string;
   requestedAt: Timestamp;
 
+  // Freeform reason captured when the request isn't linked to a work order
+  // (e.g. a technician requesting parts for general/preventive use).
+  purpose: string | null;
+
   isContractorJob: boolean;
   contractorCompany: string | null;
 

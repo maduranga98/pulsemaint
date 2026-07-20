@@ -2,6 +2,7 @@ import { useState } from 'react';
 import HandoverFilterBar from '@/components/handover/HandoverFilterBar';
 import HandoverHistoryCard from '@/components/handover/HandoverHistoryCard';
 import HandoverHistoryTable from '@/components/handover/HandoverHistoryTable';
+import ShiftStatusPanel from '@/components/handover/ShiftStatusPanel';
 import { useHandoverHistory } from '@/hooks/useHandoverHistory';
 import type { HandoverHistoryFilters } from '@/types/handover.types';
 
@@ -20,9 +21,10 @@ export function HandoverHistoryPage() {
   return (
     <div className="space-y-5 p-4 lg:p-6">
       <div>
-        <h1 className="font-[Sora] text-2xl font-bold text-slate-950">Handover History</h1>
-        <p className="mt-1 text-sm text-slate-500">Timestamped archive of supervisor accountability transfers.</p>
+        <h1 className="font-[Sora] text-2xl font-bold text-slate-950">Shift Handovers</h1>
+        <p className="mt-1 text-sm text-slate-500">Timestamped archive of supervisor accountability transfers across every shift and user.</p>
       </div>
+      <ShiftStatusPanel />
       <HandoverFilterBar filters={filters} onChange={setFilters} />
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">

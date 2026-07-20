@@ -30,7 +30,10 @@ export function EndShiftButton() {
   }, [profile, isShiftStateLoaded, initShiftState]);
 
   if (!profile) return null;
-  const canHandover = profile.role === 'supervisor' || profile.role === 'admin';
+  // SUP-018: only supervisors compile/hand over a shift report (see
+  // handover.store.ts endShift) — admin's end-shift should behave like
+  // plant manager's and technician's plain start/end, not supervisor's.
+  const canHandover = profile.role === 'supervisor';
 
   const elapsed = shiftStartTime ? formatDuration(Date.now() - shiftStartTime.getTime()) : 'Start';
 

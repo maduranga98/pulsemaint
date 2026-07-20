@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Plus, ShoppingCart, Bell, Truck, ScanLine } from 'lucide-react';
+import { AlertTriangle, Plus, ShoppingCart, Bell, Truck, ScanLine, PackagePlus } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
 import { useInventoryStats } from '@/hooks/inventory/useInventoryStats';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
 import { useStockMovements } from '@/hooks/inventory/useStockMovements';
@@ -16,6 +17,9 @@ import { OutOfStockWidget } from '@/components/inventory/dashboard/OutOfStockWid
 import { RecentMovementsWidget } from '@/components/inventory/dashboard/RecentMovementsWidget';
 import { ReservedStockWidget } from '@/components/inventory/dashboard/ReservedStockWidget';
 import { PartsCatalogWidget } from '@/components/inventory/dashboard/PartsCatalogWidget';
+import { CreatePartsRequestModal } from '@/components/inventory/requests/CreatePartsRequestModal';
+
+const PENDING_STATUSES = new Set(['pending_storekeeper', 'pending_supervisor']);
 
 function SkeletonCard() {
   return (
@@ -26,7 +30,52 @@ function SkeletonCard() {
   );
 }
 
-export function InventoryDashboardPage() {
+// Store keeper / management view has the full toolkit: stock levels, POs,
+// receiving, movements. Technicians (and trainees, who share the same route
+// permissions) only need to see the status of parts requests, browse the
+// catalog, and request parts — everything else (PO creation, scan & issue,
+// suppliers, settings) is off-limits to them at the router level already,
+// so surfacing those links here just leads to dead ends.
+function TechnicianInventoryView() {
+  const [showRequest, setShowRequest] = useState(false);
+  const { requests, loading } = usePartsRequests({ status: 'all' });
+  const { parts: catalogParts, totalCount: catalogCount } = useInventoryParts({ pageSize: 5 });
+  const pendingRequests = requests.filter((r) => PENDING_STATUSES.has(r.status));
+
+  return (
+    <div className="space-y-6">
+      {showRequest && <CreatePartsRequestModal onClose={() => setShowRequest(false)} />}
+
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Inventory</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Check request status and browse the parts catalog.</p>
+        </div>
+        <button
+          onClick={() => setShowRequest(true)}
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"
+        >
+          <PackagePlus className="w-4 h-4" />
+          Request Parts
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="space-y-4">
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      ) : (
+        <>
+          <PendingRequestsWidget requests={pendingRequests} />
+          <PartsCatalogWidget parts={catalogParts} totalCount={catalogCount} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function FullInventoryDashboard() {
   const navigate = useNavigate();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { stats, loading: statsLoading } = useInventoryStats();
@@ -173,5 +222,16 @@ export function InventoryDashboardPage() {
       )}
     </div>
   );
+}
+
+// Technicians and trainees share the same restricted inventory route
+// permissions (catalog + requests only, see AppRouter) — route them to the
+// scoped view instead of the store keeper's full management dashboard.
+export function InventoryDashboardPage() {
+  const role = useAuthStore((s) => s.userProfile?.role);
+  if (role === 'technician' || role === 'trainee') {
+    return <TechnicianInventoryView />;
+  }
+  return <FullInventoryDashboard />;
 }
 export default InventoryDashboardPage;

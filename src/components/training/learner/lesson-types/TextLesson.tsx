@@ -34,6 +34,17 @@ export default function TextLesson({ lesson, progress, onComplete }: TextLessonP
       .finally(() => setLoadingContent(false));
   }, [lesson.contentUrl, lesson.description]);
 
+  // "Mark as Read" was permanently stuck disabled for short lessons: it only
+  // unlocked via a scroll event, but a short lesson never overflows its
+  // container, so no scroll event ever fires and the technician could never
+  // complete it. Once the content has rendered, unlock immediately if there
+  // is nothing to scroll.
+  useEffect(() => {
+    if (loadingContent || canComplete) return;
+    const el = scrollRef.current;
+    if (el && el.scrollHeight <= el.clientHeight) setCanComplete(true);
+  }, [loadingContent, content, canComplete]);
+
   const handleScroll = () => {
     const el = scrollRef.current;
     if (!el) return;
