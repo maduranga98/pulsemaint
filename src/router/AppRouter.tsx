@@ -9,6 +9,8 @@ import MyModulesPage from '../pages/training/MyModulesPage';
 import ModuleLearningPage from '../pages/training/ModuleLearningPage';
 import QuizPage from '../pages/training/QuizPage';
 import MyCertificatesPage from '../pages/training/MyCertificatesPage';
+import MyProgramPage from '../pages/training/MyProgramPage';
+import WeekendSummaryPage from '../pages/training/WeekendSummaryPage';
 
 // Training pages - Management
 import TrainingDashboardPage from '../pages/training/manage/TrainingDashboardPage';
@@ -19,6 +21,7 @@ import QuizBuilderPage from '../pages/training/manage/QuizBuilderPage';
 import AssignTrainingPage from '../pages/training/manage/AssignTrainingPage';
 import AssignmentsListPage from '../pages/training/manage/AssignmentsListPage';
 import TraineeProfilePage from '../pages/training/manage/TraineeProfilePage';
+import TraineeProgrammePage from '../pages/training/manage/TraineeProgrammePage';
 import CertificatesManagerPage from '../pages/training/manage/CertificatesManagerPage';
 import ComplianceReportPage from '../pages/training/manage/ComplianceReportPage';
 import ContentLibraryPage from '../pages/training/manage/ContentLibraryPage';
@@ -93,6 +96,7 @@ import {
   SupervisorDashboard,
   ManagerDashboard,
   TechnicianDashboard,
+  TraineeDashboard,
   InventoryDashboard,
   TrainingDashboard,
 } from '../pages/dashboard';
@@ -211,7 +215,7 @@ export default function AppRouter() {
         <Route
           path="dashboard"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee']}>
               <DashboardPage />
             </ProtectedRoute>
           }
@@ -237,6 +241,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['technician', 'admin']}>
               <TechnicianDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="dashboard/trainee"
+          element={
+            <ProtectedRoute requiredRoles={['trainee', 'admin']}>
+              <TraineeDashboard />
             </ProtectedRoute>
           }
         />
@@ -572,6 +584,22 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="training/my-program"
+          element={
+            <ProtectedRoute requiredRoles={['trainee', 'admin']}>
+              <MyProgramPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/weekend-summary"
+          element={
+            <ProtectedRoute requiredRoles={['trainee', 'admin']}>
+              <WeekendSummaryPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Training - Management routes */}
         <Route
@@ -635,6 +663,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TraineeProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/trainees/:userId/programme"
+          element={
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+              <TraineeProgrammePage />
             </ProtectedRoute>
           }
         />

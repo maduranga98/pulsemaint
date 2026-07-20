@@ -482,7 +482,7 @@ export function getDashboardRoute(role: UserRole): string {
     technician: '/app/dashboard/technician',
     store_keeper: '/app/dashboard/inventory',
     hr_officer: '/app/dashboard/training',
-    trainee: '/app/training/my-modules',
+    trainee: '/app/dashboard/trainee',
     floor_operator: '/app/training/my-modules',
   };
 

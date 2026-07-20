@@ -9,7 +9,7 @@ const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
   technician: '/app/dashboard/technician',
   store_keeper: '/app/dashboard/inventory',
   hr_officer: '/app/dashboard/training',
-  trainee: '/app/dashboard', // No access — will hit unauthorized
+  trainee: '/app/dashboard/trainee',
   floor_operator: '/app/dashboard', // No access
 };
 

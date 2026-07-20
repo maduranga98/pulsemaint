@@ -52,7 +52,7 @@ const Icon = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer'] },
+  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'] },
   { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
   { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
   { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
@@ -134,6 +134,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
   // Training can be assigned to any role, so everyone gets a "My Training" entry.
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
+  { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
   {
     label: 'Triage',
     to: '/app/triage',

@@ -1055,6 +1055,54 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------------
+    // Trainee Programme (Module: trainee role) — structured 6-month/1-year
+    // training programme, weekly summaries and completion certificates.
+    // ---------------------------------------------------------------------------
+
+    match /traineeProgrammes/{programmeId} {
+      // Read: own programme (trainee) OR management roles
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+      // Create/update/delete: management sets up and manages the programme
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow delete: if isAdmin();
+    }
+
+    match /weekendSummaries/{summaryId} {
+      // Read: own summary (trainee) OR management roles
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+      // Create: trainee submits their own summary
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && request.resource.data.traineeId == request.auth.uid
+        && isRole('trainee');
+      // Update: trainee cannot edit after submission; management reviews (sets reviewStatus/comments)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+      allow delete: if isAdmin();
+    }
+
+    match /traineeProgrammeCertCounters/{companyId} {
+      allow read, write: if isAuthenticated() && belongsToCompany(companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /traineeProgrammeCertificates/{certId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+      // Issued client-side by the in-charge (supervisor/admin/plant manager) on programme completion
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow update, delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
     // Triage knowledge base (Modules: triage, triage builder) — categories,
     // content, contacts, assessments and results. Any company member can read
     // and can create (first-load seeding runs for whichever user opens the
