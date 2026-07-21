@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
 import { WO_COPY } from '../../constants/copy';
@@ -24,7 +24,7 @@ const STEPS = [
 
 export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOCompletionFormProps) {
   const [step, setStep] = useState(0);
-  const [partsUsed, setPartsUsed] = useState<PartUsed[]>([]);
+  const [partsUsed, setPartsUsed] = useState<PartUsed[]>(workOrder.partsUsed ?? []);
   const [techLogs, setTechLogs] = useState<TechnicianWorkLog[]>(
     workOrder.assignedTechnicianIds.map((id, i) => ({
       technicianId: id,
@@ -49,11 +49,15 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
 
   const { submitCompletion, loading } = useWOCompletion();
 
+  // Actual start time was auto-stamped the moment the technician tapped
+  // Start; actual end time auto-stamps to the moment completion is submitted.
+  // Neither is manually editable — that's what caused these timestamps (and
+  // the hours-worked calculation derived from them) to go uncaptured.
+  const actualStartTime = workOrder.actualStartTime?.toDate() ?? new Date();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<any>({
     defaultValues: {
-      actualStartTime: workOrder.actualStartTime?.toDate() ?? new Date(),
-      actualEndTime: new Date(),
       workDoneDescription: '',
       rootCause: 'unknown',
       rootCauseDescription: '',
@@ -68,17 +72,29 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
   const rootCause = watch('rootCause');
   const testRunResult = watch('testRunResult');
 
+  // Live preview of hours worked so far — the final value is recomputed from
+  // the real actual end time at submission.
+  const [previewNow, setPreviewNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setPreviewNow(Date.now()), 30000);
+    return () => clearInterval(t);
+  }, []);
+  const previewHoursWorked = Math.round(((previewNow - actualStartTime.getTime()) / 3600000) * 100) / 100;
+
   async function handleSubmit() {
     const values = form.getValues();
+    const actualEndTime = new Date();
+    const hoursWorked = Math.round(((actualEndTime.getTime() - actualStartTime.getTime()) / 3600000) * 100) / 100;
+    const finalTechLogs = techLogs.map((log) => ({ ...log, hoursWorked }));
 
     const ok = await submitCompletion(workOrder.id, workOrder.siteId, {
-      actualStartTime: values.actualStartTime as Date,
-      actualEndTime: values.actualEndTime as Date,
+      actualStartTime,
+      actualEndTime,
       workDoneDescription: values.workDoneDescription ?? '',
       rootCause: values.rootCause ?? 'unknown',
       rootCauseDescription: values.rootCauseDescription ?? '',
       partsUsed,
-      technicianWorkLogs: techLogs,
+      technicianWorkLogs: finalTechLogs,
       contractorHoursLog: workOrder.woType === 'CONTRACTOR' ? {
         hoursOnSite: 0,
         hoursBilled: 0,
@@ -139,19 +155,15 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.actualStartLabel}</label>
-                <input
-                  type="datetime-local"
-                  {...register('actualStartTime', { valueAsDate: true })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                />
+                <p className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                  {actualStartTime.toLocaleString()}
+                </p>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.actualEndLabel}</label>
-                <input
-                  type="datetime-local"
-                  {...register('actualEndTime', { valueAsDate: true })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                />
+                <p className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500">
+                  Recorded automatically on submit
+                </p>
               </div>
             </div>
 
@@ -234,11 +246,6 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       readOnly={part.partId !== null}
                       className={`flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm ${part.partId ? 'bg-gray-100 text-gray-600' : ''}`}
                     />
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                      part.source === 'stock' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {part.source === 'stock' ? 'Stock' : 'External'}
-                    </span>
                     <button
                       type="button"
                       onClick={() => setPartsUsed((p) => p.filter((_, idx) => idx !== i))}
@@ -246,7 +253,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       aria-label="Remove part"
                     >×</button>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <div>
                       <label className="block text-[11px] text-gray-500 mb-0.5">Qty</label>
                       <input
@@ -275,16 +282,6 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         step="any"
                         value={part.unitCost}
                         onChange={(e) => update({ unitCost: Number(e.target.value) || 0 })}
-                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] text-gray-500 mb-0.5">Warranty (mo)</label>
-                      <input
-                        type="number"
-                        min={0}
-                        value={part.warrantyMonths ?? ''}
-                        onChange={(e) => update({ warrantyMonths: e.target.value === '' ? null : Number(e.target.value) })}
                         className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
                       />
                     </div>
@@ -334,22 +331,18 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         {step === 2 && (
           <div className="space-y-4">
             <p className="text-sm font-medium text-gray-700">{WO_COPY.techLogsLabel}</p>
+            <p className="text-xs text-gray-400">
+              Hours worked are calculated automatically from the WO's actual start and end times.
+            </p>
             {techLogs.map((log, i) => (
               <div key={log.technicianId} className="bg-gray-50 rounded-xl p-4 space-y-3">
                 <p className="text-sm font-semibold text-gray-800">{log.technicianName}</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">{WO_COPY.hoursWorkedLabel}</label>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.5}
-                      value={log.hoursWorked}
-                      onChange={(e) => setTechLogs((prev) =>
-                        prev.map((l, idx) => idx === i ? { ...l, hoursWorked: Number(e.target.value) } : l),
-                      )}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-                    />
+                    <p className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
+                      {previewHoursWorked.toFixed(2)} hrs
+                    </p>
                   </div>
                 </div>
                 <div>

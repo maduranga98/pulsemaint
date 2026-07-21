@@ -23,7 +23,12 @@ export function MediaCaptureBar({ workOrder, siteId, enabled = true }: MediaCapt
 
   const { uploadMedia, removeMedia, progress, uploading } = useWOMedia();
 
-  const fieldDocs = (workOrder.documents ?? []).filter((d) => !d.isCompletionDocument);
+  // Only the technician's own field captures — uploaded via this bar into the
+  // `field-media/` storage folder — not the supervisor/assigner's attachments
+  // uploaded when the WO was created (kept separate in the Documents section).
+  const fieldDocs = (workOrder.documents ?? []).filter(
+    (d) => !d.isCompletionDocument && d.storagePath.includes('/field-media/'),
+  );
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);

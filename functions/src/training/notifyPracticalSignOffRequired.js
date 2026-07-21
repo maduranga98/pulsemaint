@@ -3,10 +3,11 @@ const {getFirestore, FieldValue} = require("firebase-admin/firestore");
 
 const db = getFirestore("default");
 
-exports.notifyPracticalSignOffRequired = onDocumentCreated({ database: "default", document: "companies/{companyId}/trainingAssignments/{assignmentId}" }, async (event) => {
+exports.notifyPracticalSignOffRequired = onDocumentCreated({ database: "default", document: "trainingAssignments/{assignmentId}" }, async (event) => {
   const assignment = event.data.data();
   if (!assignment.requiresPracticalSignOff) return;
-  await db.collection("companies").doc(event.params.companyId).collection("notificationLogs").add({
+  const companyId = assignment.companyId || "";
+  await db.collection("companies").doc(companyId).collection("notificationLogs").add({
     type: "practical_sign_off_required",
     title: "Practical sign-off required",
     body: "A training assignment requires supervisor practical sign-off.",

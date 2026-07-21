@@ -30,6 +30,8 @@ export function useAssignment(assignmentId: string): UseAssignmentResult {
     const unsubscribe = onSnapshot(
       assignmentRef,
       async (snap) => {
+        setError(null);
+
         if (!snap.exists()) {
           setAssignment(null);
           setModule(null);

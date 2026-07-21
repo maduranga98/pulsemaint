@@ -5,6 +5,7 @@ import { db } from '../../../lib/firebase';
 import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
 import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
+import { usePermit } from '../../../hooks/usePermit';
 import { LotoGate } from '../LotoGate';
 import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
 import { useAuthStore } from '../../../store/authStore';
@@ -35,10 +36,17 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const { updateWO, updateStatus, loading } = useUpdateWorkOrder();
   const [showCompletion, setShowCompletion] = useState(false);
   const [showPartsRequest, setShowPartsRequest] = useState(false);
+  const [safetyPreview, setSafetyPreview] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
+
+  const { lotoGatePassed } = usePermit({
+    workOrderId: wo.id,
+    machineId: wo.machineId,
+    siteId: wo.siteId,
+  });
 
   // Load the machine's isolation points so the LOTO/PTW safety checklist can
   // be completed before starting work.
@@ -61,6 +69,15 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const isInProgress = wo.status === 'IN_PROGRESS';
   const isOnHold = wo.status === 'ON_HOLD_PARTS' || wo.status === 'ON_HOLD_APPROVAL';
   const canStart = wo.status === 'ASSIGNED' || wo.status === 'OPEN';
+  const safetyGateApplies = (isolationPoints !== null && isolationPoints.length > 0) || !!wo.ptwCategory;
+  const safetyGatePassed = !safetyGateApplies || lotoGatePassed;
+
+  // The supervisor/assigner's own attachments — kept distinct from the
+  // technician's own field media, which is captured separately below via
+  // MediaCaptureBar (storagePath `field-media/`).
+  const assignerDocuments = (wo.documents ?? []).filter(
+    (d) => !d.isCompletionDocument && !d.storagePath.includes('/field-media/'),
+  );
 
   useEffect(() => {
     if (!isInProgress || !wo.actualStartTime) return;
@@ -88,6 +105,14 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
   function handleChecklistUpdate(checklist: ChecklistItem[]) {
     updateWO(wo.id, { checklist });
+  }
+
+  function handleStartWOClick() {
+    if (safetyGateApplies) {
+      setSafetyPreview(true);
+    } else {
+      handleCheckInAndStart();
+    }
   }
 
   const elapsed = wo.actualStartTime ? now - wo.actualStartTime.toDate().getTime() : 0;
@@ -130,9 +155,26 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
             />
           ) : (
             <div className="space-y-5">
-              {canStart && (
+              {canStart && !safetyPreview && (
                 <div className="space-y-3">
-                  {isolationPoints !== null && (isolationPoints.length > 0 || wo.ptwCategory) && (
+                  <button
+                    onClick={handleStartWOClick}
+                    disabled={loading || isolationPoints === null}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
+                  >
+                    <Play className="h-5 w-5" /> Start WO
+                  </button>
+                  <p className="text-center text-[11px] text-[#8BA3BF]">
+                    {safetyGateApplies
+                      ? 'You will review the safety precautions before work begins.'
+                      : 'This will record your check-in and start the job.'}
+                  </p>
+                </div>
+              )}
+
+              {canStart && safetyPreview && (
+                <div className="space-y-3">
+                  {isolationPoints !== null && (
                     <div className="rounded-lg bg-white p-4">
                       <div className="mb-3 flex items-center gap-2">
                         <ShieldCheck className="h-4 w-4 text-emerald-600" />
@@ -143,21 +185,23 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   )}
                   <button
                     onClick={handleCheckInAndStart}
-                    disabled={loading}
+                    disabled={loading || !safetyGatePassed}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
-                    <MapPin className="h-5 w-5" /> Check In &amp; Start Work
+                    <MapPin className="h-5 w-5" /> Confirm Safety Checks &amp; Start Work
                   </button>
                   <button
-                    onClick={handleStart}
+                    onClick={() => setSafetyPreview(false)}
                     disabled={loading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-[#1A56DB] disabled:opacity-50"
                   >
-                    <Play className="h-4 w-4" /> Start without check-in
+                    Back
                   </button>
-                  <p className="text-center text-[11px] text-[#8BA3BF]">
-                    Check-in records your arrival at the machine. Starting work runs the LOTO / PTW safety check.
-                  </p>
+                  {!safetyGatePassed && (
+                    <p className="text-center text-[11px] text-[#8BA3BF]">
+                      Complete all safety precautions above before starting work.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -178,13 +222,15 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                 </div>
               )}
 
-              {/* Attached documents — visible in every state so the assigned
-                  technician can review drawings/manuals before starting. */}
-              {(wo.documents ?? []).length > 0 && (
+              {/* Attached documents — the supervisor/assigner's own attachments,
+                  kept separate from the technician's field media (below).
+                  Revealed once the WO has been started, after the safety-step
+                  gate has been cleared. */}
+              {(isInProgress || isOnHold) && assignerDocuments.length > 0 && (
                 <div>
                   <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Documents</h3>
                   <div className="space-y-2">
-                    {wo.documents.map((d) => (
+                    {assignerDocuments.map((d) => (
                       <a
                         key={d.id}
                         href={d.url}
@@ -212,7 +258,15 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
                   <div>
                     <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Checklist</h3>
-                    <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly={isOnHold} />
+                    {wo.specialToolsRequired && (
+                      <div className="mb-3 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">Special Tools Required</p>
+                        <p className="mt-0.5 text-sm text-[#F0F4F8]">{wo.specialToolsRequired}</p>
+                      </div>
+                    )}
+                    <div className="rounded-lg bg-white p-4">
+                      <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly={isOnHold} />
+                    </div>
                   </div>
 
                   {isInProgress && (

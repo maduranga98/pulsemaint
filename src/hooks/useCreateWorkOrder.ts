@@ -110,6 +110,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         priority: payload.priority,
         status: initialStatus,
         description: payload.description,
+        specialToolsRequired: payload.specialToolsRequired ?? '',
         dueDate: payload.dueDate,
         scheduledStart: payload.scheduledStart ?? null,
         estimatedDuration: payload.estimatedDuration,

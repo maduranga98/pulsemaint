@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
@@ -23,29 +23,33 @@ export default function TodaysPmList({ technicianId, siteId }: TodaysPmListProps
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetch() {
-      if (!siteId) {
-        setLoading(false);
-        return;
-      }
-      // Query pm_schedules or pm_history for today's tasks
-      const q = query(
-        collection(db, 'pm_schedules'),
-        where('siteId', '==', siteId),
-        where('assignedTechnicianIds', 'array-contains', technicianId),
-      );
-      const snap = await getDocs(q);
-      const data = snap.docs.map((d) => ({
-        id: d.id,
-        machineName: d.data().machineName || 'Unknown',
-        pmType: d.data().scheduleType || 'Routine',
-        scheduledTime: d.data().nextDueDate?.toDate?.().toLocaleTimeString?.() ?? '09:00',
-        status: 'pending' as const,
-      }));
-      setTasks(data);
+    if (!siteId) {
       setLoading(false);
+      return;
     }
-    fetch();
+    // Query pm_schedules for today's tasks, live — so completions/reassignments
+    // made elsewhere are reflected on the dashboard without a manual reload.
+    const q = query(
+      collection(db, 'pm_schedules'),
+      where('siteId', '==', siteId),
+      where('assignedTechnicianIds', 'array-contains', technicianId),
+    );
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        const data = snap.docs.map((d) => ({
+          id: d.id,
+          machineName: d.data().machineName || 'Unknown',
+          pmType: d.data().scheduleType || 'Routine',
+          scheduledTime: d.data().nextDueDate?.toDate?.().toLocaleTimeString?.() ?? '09:00',
+          status: 'pending' as const,
+        }));
+        setTasks(data);
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return () => unsubscribe();
   }, [technicianId, siteId]);
 
   return (

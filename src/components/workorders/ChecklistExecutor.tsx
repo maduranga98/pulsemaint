@@ -131,6 +131,11 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
                   {item.assignedTechnicianName && (
                     <p className="text-xs text-gray-400 mt-0.5">Assigned: {item.assignedTechnicianName}</p>
                   )}
+                  {item.estimatedMinutes !== null && (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Timeline: {item.estimatedMinutes} {item.estimatedDurationUnit}
+                    </p>
+                  )}
                 </div>
 
                 {/* Result badge */}

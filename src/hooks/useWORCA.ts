@@ -130,6 +130,7 @@ export function useWORCA(workOrder: WorkOrder | null) {
       status: 'OPEN',
       description: 'Corrective Action: ' + correctiveAction,
       ptwCategory: null,
+      specialToolsRequired: '',
       dueDate: dueDateTs,
       slaDeadline: dueDateTs,
       slaBreached: false,

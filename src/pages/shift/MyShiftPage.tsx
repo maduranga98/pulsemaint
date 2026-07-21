@@ -72,6 +72,11 @@ export function MyShiftPage() {
 
   const currentPlan = useMemo(() => plans.find((plan) => isTimeWithinShift(now, plan)) ?? null, [plans, now]);
 
+  // "My Shift Plans" should only surface plans that are currently active —
+  // i.e. happening right now — not every plan the technician is ever
+  // scheduled on (past/future/not-yet-started plans belong elsewhere).
+  const activePlans = useMemo(() => plans.filter((plan) => isTimeWithinShift(now, plan)), [plans, now]);
+
   async function handleStart(shiftConfigId?: string) {
     setError(null);
     setBusy(true);
@@ -166,43 +171,40 @@ export function MyShiftPage() {
         <h2 className="mb-3 flex items-center gap-2 font-[Sora] text-sm font-bold text-slate-700"><CalendarDays className="h-4 w-4" /> My Shift Plans</h2>
         {loading ? (
           <p className="text-sm text-slate-500">Loading shift plans…</p>
-        ) : plans.length === 0 ? (
-          <p className="text-sm text-slate-500">No shift plans assigned to you.</p>
+        ) : activePlans.length === 0 ? (
+          <p className="text-sm text-slate-500">
+            {plans.length === 0
+              ? 'No shift plans assigned to you.'
+              : 'None of your shift plans is active right now.'}
+          </p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {plans.map((plan) => {
-              const activeNow = isTimeWithinShift(now, plan);
-              return (
-                <article key={plan.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-[Sora] font-bold text-slate-950">{plan.shiftName}</h3>
-                      <p className="text-sm text-slate-500">{formatTimeRange(plan.startTime, plan.endTime)} · {formatDuration(scheduledShiftMinutes(plan.startTime, plan.endTime) * 60000)}</p>
-                    </div>
-                    <span className="h-4 w-4 rounded-full" style={{ backgroundColor: plan.color }} />
+            {activePlans.map((plan) => (
+              <article key={plan.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-[Sora] font-bold text-slate-950">{plan.shiftName}</h3>
+                    <p className="text-sm text-slate-500">{formatTimeRange(plan.startTime, plan.endTime)} · {formatDuration(scheduledShiftMinutes(plan.startTime, plan.endTime) * 60000)}</p>
                   </div>
-                  <p className="mt-2 text-xs text-slate-500">{plan.activeDays.join(', ')}</p>
-                  <p className="text-xs text-slate-500">{plan.department || 'All departments'}</p>
-                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
-                    {activeNow ? (
-                      <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Active now</span>
-                    ) : (
-                      <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-500">Scheduled</span>
-                    )}
-                    {!isShiftActive && (
-                      <button
-                        type="button"
-                        onClick={() => void handleStart(plan.id)}
-                        disabled={busy}
-                        className="text-sm font-bold text-emerald-700 hover:text-emerald-900 disabled:opacity-60"
-                      >
-                        Start this shift
-                      </button>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
+                  <span className="h-4 w-4 rounded-full" style={{ backgroundColor: plan.color }} />
+                </div>
+                <p className="mt-2 text-xs text-slate-500">{plan.activeDays.join(', ')}</p>
+                <p className="text-xs text-slate-500">{plan.department || 'All departments'}</p>
+                <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Active now</span>
+                  {!isShiftActive && (
+                    <button
+                      type="button"
+                      onClick={() => void handleStart(plan.id)}
+                      disabled={busy}
+                      className="text-sm font-bold text-emerald-700 hover:text-emerald-900 disabled:opacity-60"
+                    >
+                      Start this shift
+                    </button>
+                  )}
+                </div>
+              </article>
+            ))}
           </div>
         )}
       </section>
