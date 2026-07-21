@@ -179,6 +179,7 @@ export interface WorkOrder {
   status: WOStatus;
   description: string;
   ptwCategory: string | null;
+  specialToolsRequired: string;
   dueDate: Timestamp;
   slaDeadline: Timestamp;
   slaBreached: boolean;
@@ -311,6 +312,7 @@ export interface CreateWOPayload {
   woType: WOType;
   priority: WOPriority;
   description: string;
+  specialToolsRequired?: string;
   dueDate: Date;
   scheduledStart: Date | null;
   estimatedDuration: number;

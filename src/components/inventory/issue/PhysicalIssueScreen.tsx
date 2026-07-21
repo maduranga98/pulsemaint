@@ -9,6 +9,7 @@ import {
   runTransaction,
   serverTimestamp,
   Timestamp,
+  arrayUnion,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -212,6 +213,28 @@ export function PhysicalIssueScreen() {
           updatedAt: now,
           updatedBy: userProfile.id,
         });
+
+        // Auto-track issued parts on the linked WO ticket so the technician's
+        // completion form and cost reporting reflect what was actually issued,
+        // without relying on manual re-entry.
+        if (request.workOrderId && checkedItems.length > 0) {
+          const woRef = doc(db, 'workOrders', request.workOrderId);
+          tx.update(woRef, {
+            partsUsed: arrayUnion(
+              ...checkedItems.map((item) => ({
+                partId: item.partId,
+                partName: item.partName,
+                quantity: issueQty(item),
+                unit: item.unit,
+                source: 'stock',
+                unitCost: item.unitCost,
+                totalCost: item.unitCost * issueQty(item),
+                warrantyMonths: null,
+              })),
+            ),
+            updatedAt: now,
+          });
+        }
       });
 
       toast.success('Collection confirmed — parts issued successfully');

@@ -19,11 +19,7 @@ const TABS: { key: FilterTab; label: string }[] = [
   { key: 'retraining', label: 'Retraining' },
 ];
 
-const COMPLETED_STATUSES: AssignmentStatus[] = [
-  'certified',
-  'quiz_passed',
-  'awaiting_practical',
-];
+const COMPLETED_STATUSES: AssignmentStatus[] = ['certified'];
 
 function filterAssignments(
   assignments: TrainingAssignment[],

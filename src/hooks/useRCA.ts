@@ -126,6 +126,7 @@ export function useRCA({ breakdownId, machineId, siteId }: UseRCAParams) {
       status: 'OPEN',
       description: 'Corrective Action: ' + rcaDoc.correctiveAction,
       ptwCategory: null,
+      specialToolsRequired: '',
       machineId: rcaDoc.machineId,
       machineName: '',
       machineDepartment: '',
