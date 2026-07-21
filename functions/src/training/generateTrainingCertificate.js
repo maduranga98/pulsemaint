@@ -7,7 +7,7 @@ const db = getFirestore("default");
 exports.generateTrainingCertificate = onDocumentUpdated({ database: "default", document: "trainingAssignments/{assignmentId}" }, async (event) => {
   const before = event.data.before.data();
   const after = event.data.after.data();
-  if (before.status === after.status || after.status !== "completed") return;
+  if (before.status === after.status || after.status !== "certified") return;
 
   const companyId = after.companyId || "";
   const certificateRef = db.collection("companies").doc(companyId).collection("trainingCertificates").doc();

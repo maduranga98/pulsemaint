@@ -148,6 +148,13 @@ service cloud.firestore {
       // Store Keeper: read-only for their site (or all sites if unrestricted)
       allow read: if isStoreKeeper() && woSiteMatches();
 
+      // Store Keeper: auto-track parts issued against a WO ticket
+      allow update: if isStoreKeeper()
+        && woSiteMatches()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'partsUsed', 'updatedAt'
+        ]);
+
       // Technician / trainee: read assigned WOs only
       allow read: if (isTechnician() || isRole('trainee')) && woSiteMatches() && isAssignedTechnician();
 
