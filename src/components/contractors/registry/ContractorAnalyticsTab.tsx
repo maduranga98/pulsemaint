@@ -6,7 +6,7 @@ interface ContractorAnalyticsTabProps {
   jobs: ContractorJob[];
 }
 
-export function ContractorAnalyticsTab({ contractor, jobs }: ContractorAnalyticsTabProps) {
+export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
   const monthly = Array.from({ length: 12 }, (_, index) => {
     const month = new Date(new Date().getFullYear(), index, 1).toLocaleString('en', { month: 'short' });
     const monthJobs = jobs.filter((job) => {
@@ -42,15 +42,6 @@ export function ContractorAnalyticsTab({ contractor, jobs }: ContractorAnalytics
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-950">Job Type Distribution</h2>
         <div className="mt-4 h-64"><ResponsiveContainer><PieChart><Pie data={distribution} dataKey="value" nameKey="name" fill="#1A56DB" label /></PieChart></ResponsiveContainer></div>
-      </section>
-      <section className="rounded-lg border border-slate-200 bg-white p-4 xl:col-span-2">
-        <h2 className="font-semibold text-slate-950">Comparison</h2>
-        <p className="mt-2 text-sm text-slate-600">How {contractor.companyName} compares to your other contractors</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-md bg-slate-50 p-3">Rating rank: <span className="font-bold">#{contractor.avgRating ? 1 : '-'}</span></div>
-          <div className="rounded-md bg-slate-50 p-3">MTTR: <span className="font-bold">{contractor.avgMttr ?? 0} min</span></div>
-          <div className="rounded-md bg-slate-50 p-3">Avg cost: <span className="font-bold">{(contractor.avgJobCost ?? 0).toLocaleString()}</span></div>
-        </div>
       </section>
     </div>
   );

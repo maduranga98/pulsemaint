@@ -111,6 +111,12 @@ a {
 .app-main-dark .hover\:border-gray-300:hover { border-color: #2E5A8F !important; }
 
 /* Text --------------------------------------------------------------------- */
+.app-main-dark .text-slate-950,
+.app-main-dark .text-gray-950,
+.app-main-dark .text-neutral-950,
+.app-main-dark .text-zinc-950,
+.app-main-dark .text-neutral-900,
+.app-main-dark .text-zinc-900,
 .app-main-dark .text-slate-900,
 .app-main-dark .text-gray-900,
 .app-main-dark .text-black { color: #F0F4F8 !important; }
