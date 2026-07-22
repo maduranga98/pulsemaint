@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, type Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { WOStats, WOType, WOStatus } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
@@ -36,15 +36,16 @@ export function useWOStats(): UseWOStatsResult {
 
     setLoading(true);
 
-    const startOfWeek = new Date();
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
+    // Live subscription so the WO stats bar updates automatically as work
+    // orders progress. Aggregated in memory to avoid composite-index needs.
+    const unsub = onSnapshot(
+      query(collection(db, 'workOrders'), where('siteId', '==', siteId)),
+      (snap) => {
+        const startOfWeek = new Date();
+        startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        const now = new Date();
 
-    const now = new Date();
-
-    // Single query (works without composite indexes), aggregate in memory.
-    getDocs(query(collection(db, 'workOrders'), where('siteId', '==', siteId)))
-      .then((snap) => {
         const byType = { ...EMPTY_TYPE_COUNTS };
         const byStatus = { ...EMPTY_STATUS_COUNTS };
         let openCount = 0;
@@ -53,7 +54,11 @@ export function useWOStats(): UseWOStatsResult {
         let totalCompletionMinutes = 0;
         let completedCount = 0;
 
-        const TERMINAL = ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'];
+        const OPEN_TERMINAL = ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'];
+        // A WO is "completed" once it reaches any of these states.
+        const COMPLETED_STATES = ['COMPLETED', 'SIGNED_OFF', 'CLOSED'];
+        const toDateSafe = (v: Timestamp | null | undefined): Date | null =>
+          v && typeof (v as Timestamp).toDate === 'function' ? (v as Timestamp).toDate() : null;
 
         for (const d of snap.docs) {
           const wo = d.data() as any;
@@ -62,13 +67,20 @@ export function useWOStats(): UseWOStatsResult {
 
           if (!['CLOSED', 'CANCELLED'].includes(wo.status)) openCount++;
 
-          if (!TERMINAL.includes(wo.status)) {
+          if (!OPEN_TERMINAL.includes(wo.status)) {
             if (wo.slaBreached) overdueCount++;
             else if (wo.slaDeadline?.toDate && wo.slaDeadline.toDate() < now) overdueCount++;
           }
 
-          if (['CLOSED', 'SIGNED_OFF'].includes(wo.status) && wo.closedAt?.toDate && wo.closedAt.toDate() >= startOfWeek) {
-            completedThisWeek++;
+          // Count everything completed/signed-off/closed this week, using the
+          // best available completion timestamp.
+          if (COMPLETED_STATES.includes(wo.status)) {
+            const completedAt =
+              toDateSafe(wo.actualEndTime) ??
+              toDateSafe(wo.completedAt) ??
+              toDateSafe(wo.closedAt) ??
+              toDateSafe(wo.updatedAt);
+            if (completedAt && completedAt >= startOfWeek) completedThisWeek++;
           }
 
           if (wo.totalDurationMinutes) {
@@ -86,11 +98,14 @@ export function useWOStats(): UseWOStatsResult {
           byStatus,
         });
         setLoading(false);
-      })
-      .catch((err) => {
+      },
+      (err) => {
         setError(err.message);
         setLoading(false);
-      });
+      },
+    );
+
+    return () => unsub();
   }, [siteId]);
 
   return { stats, loading, error };
