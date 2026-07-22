@@ -19,6 +19,32 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
 
   const uid = user?.uid ?? '';
   const userName = userProfile?.fullName ?? user?.displayName ?? '';
+  const role = userProfile?.role;
+
+  // Oversight roles (and the WO creator) see the whole checklist; an assigned
+  // worker only sees the steps assigned to them (or unassigned/general steps),
+  // not steps that belong to someone else.
+  const isOversight =
+    role === 'admin' ||
+    role === 'plant_manager' ||
+    role === 'supervisor' ||
+    workOrder.createdBy === uid;
+
+  const isAssignedToMe = (item: ChecklistItem): boolean => {
+    const ids = [
+      ...(item.assignedTechnicianIds ?? []),
+      ...(item.assignedTechnicianId ? [item.assignedTechnicianId] : []),
+    ];
+    // Unassigned/general steps are visible to everyone.
+    if (ids.length === 0) return true;
+    return ids.includes(uid);
+  };
+
+  // Keep the original index so completion handlers still target the right row
+  // after filtering.
+  const visibleRows = workOrder.checklist
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => isOversight || isAssignedToMe(item));
 
   function handleCheckboxToggle(index: number) {
     if (readOnly) return;
@@ -78,11 +104,19 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
     onUpdate(updated);
   }
 
-  const completedCount = workOrder.checklist.filter((i) => i.isCompleted).length;
-  const total = workOrder.checklist.length;
+  const completedCount = visibleRows.filter(({ item }) => item.isCompleted).length;
+  const total = visibleRows.length;
 
   return (
     <div className="space-y-4">
+      {/* Special tools / instructions captured by the WO creator. */}
+      {workOrder.specialToolsRequired?.trim() && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2">
+          <p className="text-xs font-semibold text-amber-800">Special tools / instructions</p>
+          <p className="text-sm text-amber-900 whitespace-pre-line">{workOrder.specialToolsRequired}</p>
+        </div>
+      )}
+
       {/* Progress */}
       {total > 0 && (
         <div className="space-y-1">
@@ -97,11 +131,15 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
       )}
 
       {total === 0 && (
-        <p className="text-sm text-gray-400 py-6 text-center">No checklist steps defined.</p>
+        <p className="text-sm text-gray-400 py-6 text-center">
+          {workOrder.checklist.length === 0
+            ? 'No checklist steps defined.'
+            : 'No checklist steps are assigned to you.'}
+        </p>
       )}
 
       <ol className="space-y-3">
-        {workOrder.checklist.map((item, index) => {
+        {visibleRows.map(({ item, index }) => {
           const isMeasurement = item.inputType === 'measurement';
           const currentRawValue = localValues[index] ?? (item.actualValue !== null ? String(item.actualValue) : '');
           const currentResult = item.result;
@@ -128,8 +166,12 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
                   <p className={`text-sm font-medium ${item.isCompleted && item.result !== 'fail' ? 'text-gray-500 line-through' : 'text-gray-800'}`}>
                     {item.stepDescription}
                   </p>
-                  {item.assignedTechnicianName && (
-                    <p className="text-xs text-gray-400 mt-0.5">Assigned: {item.assignedTechnicianName}</p>
+                  {(item.assignedTechnicianNames?.length || item.assignedTechnicianName) && (
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Assigned: {item.assignedTechnicianNames?.length
+                        ? item.assignedTechnicianNames.join(', ')
+                        : item.assignedTechnicianName}
+                    </p>
                   )}
                   {item.estimatedMinutes !== null && (
                     <p className="text-xs text-gray-400 mt-0.5">
