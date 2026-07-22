@@ -17,6 +17,7 @@ interface ComplianceReportProps {
   matrixRows: ComplianceMatrixRow[];
   moduleHeaders: { moduleId: string; moduleName: string }[];
   loading: boolean;
+  error?: string | null;
   onExport: () => void;
 }
 
@@ -101,6 +102,7 @@ export default function ComplianceReport({
   matrixRows,
   moduleHeaders,
   loading,
+  error,
   onExport,
 }: ComplianceReportProps) {
   if (loading) {
@@ -113,6 +115,11 @@ export default function ComplianceReport({
 
   return (
     <div className="space-y-6">
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Failed to load compliance data: {error}
+        </div>
+      )}
       {/* Stats + Export */}
       <div className="flex items-start justify-between gap-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">

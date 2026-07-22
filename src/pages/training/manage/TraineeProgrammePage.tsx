@@ -60,11 +60,16 @@ export default function TraineeProgrammePage() {
   const [recommendation, setRecommendation] = useState('');
 
   useEffect(() => {
-    if (!userId) return;
-    void getDoc(doc(db, 'users', userId)).then((snap) => {
+    // The full profile (fullName, email, department, siteIds, …) lives in
+    // the per-company subcollection, not the top-level `users` doc (which is
+    // only a lightweight uid→companyId/role mapping — see lib/auth.ts).
+    // Reading the top-level doc here left traineeName/email/department
+    // undefined on the created programme and assignments.
+    if (!userId || !companyId) return;
+    void getDoc(doc(db, `companies/${companyId}/users/${userId}`)).then((snap) => {
       if (snap.exists()) setTrainee({ id: snap.id, ...snap.data() } as UserProfile);
     });
-  }, [userId]);
+  }, [userId, companyId]);
 
   useEffect(() => {
     if (!userId || !companyId) return;

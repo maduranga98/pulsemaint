@@ -3,12 +3,9 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { Lock, ShieldOff, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../../store/authStore';
-import { useMachines } from '../../../hooks/useMachines';
 import { OEEDashboard } from '../components/OEEDashboard';
 import { OEEInputForm } from '../components/OEEInputForm';
 import { OEEMachineDetail } from '../components/OEEMachineDetail';
-import { OEELossCostCalculator } from '../components/OEELossCostCalculator';
-import { MachineSearchSelect } from '../components/MachineSearchSelect';
 import type { MachineSummary } from '../types/oee.types';
 
 // ─── Access Denied ────────────────────────────────────────────────────────────
@@ -28,32 +25,6 @@ function AccessDenied() {
       <span className="px-3 py-1 text-xs font-medium bg-slate-800 border border-slate-700 text-slate-400 rounded-full">
         403 — Insufficient Permissions
       </span>
-    </div>
-  );
-}
-
-// ─── Plan Gate ────────────────────────────────────────────────────────────────
-
-function ProFeatureGate({ feature }: { feature: string }) {
-  const navigate = useNavigate();
-  return (
-    <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 border border-blue-900/40 rounded-2xl p-10 flex flex-col items-center text-center gap-5">
-      <div className="h-14 w-14 rounded-2xl bg-blue-900/30 border border-blue-700/50 flex items-center justify-center">
-        <Lock className="h-6 w-6 text-blue-400" />
-      </div>
-      <div>
-        <p className="text-base font-bold text-white font-sora">{feature}</p>
-        <p className="text-sm text-slate-400 mt-1.5 max-w-sm">
-          This feature is available on the Factory Pro plan. Upgrade to unlock OEE trend analytics,
-          shift comparison, and loss cost calculators.
-        </p>
-      </div>
-      <button
-        onClick={() => navigate('/app/billing')}
-        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-lg shadow-blue-900/30"
-      >
-        Upgrade to Factory Pro
-      </button>
     </div>
   );
 }
@@ -92,12 +63,11 @@ class SectionErrorBoundary extends Component<
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
 
-type TabId = 'dashboard' | 'input' | 'loss-calc';
+type TabId = 'dashboard' | 'input';
 
-const TABS: { id: TabId; label: string; proOnly?: boolean; inputOnly?: boolean }[] = [
+const TABS: { id: TabId; label: string; inputOnly?: boolean }[] = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'input', label: 'Input OEE Data', inputOnly: true },
-  { id: 'loss-calc', label: 'Loss Calculator', proOnly: true },
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -110,13 +80,6 @@ export function OEEPage() {
 
   const [activeTab, setActiveTab] = useState<TabId>('dashboard');
   const [selectedMachine, setSelectedMachine] = useState<MachineSummary | null>(null);
-  const [selectedMachineForPro, setSelectedMachineForPro] = useState<string>('');
-  const [selectedMachineNameForPro, setSelectedMachineNameForPro] = useState<string>('');
-
-  const plantId = useAuthStore((s) => s.userProfile?.companyId);
-  const { machines: allMachines } = useMachines({ siteId: plantId ?? '', pageSize: 500 });
-
-  const currentMonth = new Date().toISOString().slice(0, 7);
 
   if (!canView) {
     return (
@@ -160,23 +123,19 @@ export function OEEPage() {
 
         {/* Tabs */}
         <div className="flex items-center gap-1 bg-slate-800/50 p-1 rounded-xl overflow-x-auto">
-          {visibleTabs.map((tab) => {
-            const isLocked = tab.proOnly && !isProPlan;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                  activeTab === tab.id
-                    ? 'bg-slate-700 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                }`}
-              >
-                {tab.label}
-                {isLocked && <Lock className="h-3 w-3 text-blue-400/70" />}
-              </button>
-            );
-          })}
+          {visibleTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
+                activeTab === tab.id
+                  ? 'bg-slate-700 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
         {/* Content */}
@@ -195,41 +154,6 @@ export function OEEPage() {
                   <OEEInputForm isProPlan={isProPlan} />
                 </div>
               </div>
-            </SectionErrorBoundary>
-          )}
-
-          {activeTab === 'loss-calc' && (
-            <SectionErrorBoundary section="Loss Calculator">
-              {isProPlan ? (
-                <div className="max-w-2xl">
-                  <div className="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-5">
-                    <h2 className="font-semibold text-white mb-2">OEE Loss Cost Calculator</h2>
-                    <p className="text-xs text-slate-400 mb-5">
-                      Configure production value per hour to see monthly loss costs by category.
-                    </p>
-                    <div className="flex items-center gap-3 mb-5">
-                      <label className="text-xs text-slate-400 shrink-0">Machine Name or ID:</label>
-                      <div className="w-64">
-                        <MachineSearchSelect
-                          machines={allMachines}
-                          selectedId={selectedMachineForPro}
-                          selectedName={selectedMachineNameForPro}
-                          onSelect={(m) => {
-                            setSelectedMachineForPro(m.id);
-                            setSelectedMachineNameForPro(m.name);
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <OEELossCostCalculator
-                      machineId={selectedMachineForPro || 'default'}
-                      month={currentMonth}
-                    />
-                  </div>
-                </div>
-              ) : (
-                <ProFeatureGate feature="OEE Loss Cost Calculator" />
-              )}
             </SectionErrorBoundary>
           )}
         </div>

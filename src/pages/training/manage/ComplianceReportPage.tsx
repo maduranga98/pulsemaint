@@ -10,7 +10,7 @@ export default function ComplianceReportPage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [isExporting, setIsExporting] = useState(false);
-  const { stats, matrixRows, moduleHeaders, loading } = useComplianceData();
+  const { stats, matrixRows, moduleHeaders, loading, error } = useComplianceData();
 
   const handleExport = async () => {
     if (!companyId) return;
@@ -40,6 +40,7 @@ export default function ComplianceReportPage() {
           matrixRows={matrixRows}
           moduleHeaders={moduleHeaders}
           loading={loading || isExporting}
+          error={error}
           onExport={() => void handleExport()}
         />
       </div>

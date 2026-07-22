@@ -184,7 +184,7 @@ export default function AssignmentsList({
                   <td className="px-4 py-3 text-right">
                     {onViewProgress && (
                       <button
-                        onClick={() => onViewProgress(a.id)}
+                        onClick={() => onViewProgress(a.traineeId)}
                         className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
                       >
                         <Eye className="w-3 h-3" />
@@ -250,7 +250,7 @@ export default function AssignmentsList({
                 </span>
                 {onViewProgress && (
                   <button
-                    onClick={() => onViewProgress(a.id)}
+                    onClick={() => onViewProgress(a.traineeId)}
                     className="flex items-center gap-1 text-blue-600 font-medium"
                   >
                     <Eye className="w-3 h-3" />
