@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, Timestamp } from 'firebase/firestore';
-import { AlertCircle, Bell, Eye, Pencil, Plus, QrCode, Search, X } from 'lucide-react';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { AlertCircle, Eye, Pencil, Plus, QrCode, Search, X } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -77,7 +77,6 @@ export default function BreakdownsPage() {
   const [filter, setFilter] = useState<Filter>('open');
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
   const [search, setSearch] = useState('');
-  const [informingId, setInformingId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showQrScanner, setShowQrScanner] = useState(false);
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
@@ -128,29 +127,6 @@ export default function BreakdownsPage() {
     }
     return list;
   }, [breakdowns, filter, severityFilter, search]);
-
-  async function handleInform(breakdown: Breakdown) {
-    if (!userProfile) return;
-    setInformingId(breakdown.id);
-    try {
-      await updateDoc(doc(db, 'breakdown_tickets', breakdown.id), {
-        statusHistory: arrayUnion({
-          status: breakdown.status,
-          changedBy: userProfile.id,
-          changedByName: userProfile.fullName,
-          changedAt: new Date().toISOString(),
-          note: `Informed by ${userProfile.fullName}`,
-        }),
-        lastInformedBy: userProfile.id,
-        lastInformedByName: userProfile.fullName,
-        lastInformedAt: Timestamp.now(),
-      });
-    } catch (err: any) {
-      setError(err?.message || 'Failed to inform breakdown.');
-    } finally {
-      setInformingId(null);
-    }
-  }
 
   async function openQrScanner() {
     setShowQrScanner(true);
@@ -334,16 +310,6 @@ export default function BreakdownsPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleInform(b)}
-                          disabled={informingId === b.id || ['resolved', 'closed', 'cancelled'].includes(b.status)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                          title="Inform team about this breakdown"
-                        >
-                          <Bell className="w-3 h-3" />
-                          Inform
-                        </button>
                         <Link
                           to={`/app/breakdowns/${b.id}`}
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"

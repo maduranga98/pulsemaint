@@ -52,6 +52,7 @@ interface DashboardStore {
   // Fetch actions
   fetchDailyAnalytics: (companyId: string, range: ChartDateRange) => Promise<void>;
   fetchMonthlyAnalytics: (companyId: string, month: string) => Promise<void>;
+  setMonthlyAnalytics: (data: AnalyticsMonthly | null) => void;
   fetchMachineHealth: (companyId: string) => Promise<void>;
 }
 
@@ -107,6 +108,8 @@ export const useDashboardStore = create<DashboardStore>((set) => ({
       set({ analyticsError: (err as Error).message, analyticsLoading: false });
     }
   },
+
+  setMonthlyAnalytics: (data) => set({ monthlyAnalytics: data, analyticsLoading: false }),
 
   fetchMachineHealth: async (companyId) => {
     try {

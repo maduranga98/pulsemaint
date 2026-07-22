@@ -1,4 +1,4 @@
-import { collection, getDocs, limit, query, where, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, limit, onSnapshot, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import type {
@@ -63,15 +63,35 @@ async function fetchAll(source: string, companyId: string): Promise<Row[]> {
   return promise;
 }
 
-function woCost(wo: Row): number {
-  const parts = Array.isArray(wo.partsUsed)
+// Parts-only cost for a work order — the sum of the inventory parts consumed.
+function woPartsCost(wo: Row): number {
+  return Array.isArray(wo.partsUsed)
     ? wo.partsUsed.reduce((s: number, p: Row) => s + Number(p.totalCost ?? 0), 0)
     : 0;
+}
+
+function woCost(wo: Row): number {
   const labor = Array.isArray(wo.technicianWorkLogs)
     ? wo.technicianWorkLogs.reduce((s: number, l: Row) => s + Number(l.laborCost ?? 0), 0)
     : 0;
-  return parts + labor;
+  return woPartsCost(wo) + labor;
 }
+
+// Completion duration of a work order in hours — from the recorded total
+// duration, otherwise derived from the actual start/end timestamps.
+function woDurationHours(wo: Row): number {
+  const mins = Number(wo.totalDurationMinutes ?? 0);
+  if (mins > 0) return mins / 60;
+  const start = toDate(wo.actualStartTime);
+  const end = toDate(wo.actualEndTime);
+  if (start && end && end > start) return (end.getTime() - start.getTime()) / 3_600_000;
+  return 0;
+}
+
+const SEVERITY_RANK: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+const SEVERITY_BY_RANK: Array<TopProblemMachine['severity']> = ['low', 'low', 'medium', 'high', 'critical'];
+const severityFromRank = (rank: number): TopProblemMachine['severity'] =>
+  SEVERITY_BY_RANK[Math.max(0, Math.min(4, rank))];
 
 const isCompletedWoStatus = (status: string) =>
   ['COMPLETED', 'SIGNED_OFF', 'CLOSED'].includes(String(status ?? ''));
@@ -88,6 +108,13 @@ const breakdownDowntimeHours = (b: Row): number => {
 // Monthly aggregation
 // ---------------------------------------------------------------------------
 
+interface MonthlyRawData {
+  breakdowns: Row[];
+  workOrders: Row[];
+  contractorJobs: Row[];
+  pmHistory: Row[];
+}
+
 export async function computeMonthlyAnalytics(
   companyId: string,
   month: string,
@@ -98,7 +125,63 @@ export async function computeMonthlyAnalytics(
     fetchAll('contractorJobs', companyId),
     fetchAll('pm_history', companyId),
   ]);
+  return buildMonthlyAnalytics(companyId, month, { breakdowns, workOrders, contractorJobs, pmHistory });
+}
 
+/**
+ * Live monthly analytics — subscribes to the raw operational collections and
+ * recomputes the aggregate whenever any of them change, so dashboards stay in
+ * sync without manual refresh. Returns an unsubscribe function.
+ */
+export function subscribeMonthlyAnalytics(
+  companyId: string,
+  month: string,
+  callback: (data: AnalyticsMonthly) => void,
+): () => void {
+  if (!companyId) return () => {};
+
+  const raw: MonthlyRawData = { breakdowns: [], workOrders: [], contractorJobs: [], pmHistory: [] };
+  const ready = { breakdown_tickets: false, workOrders: false, contractorJobs: false, pm_history: false };
+
+  const emit = () => {
+    // Wait until every listener has delivered its first snapshot so the first
+    // emitted aggregate isn't computed from partial data.
+    if (!Object.values(ready).every(Boolean)) return;
+    callback(buildMonthlyAnalytics(companyId, month, raw));
+  };
+
+  const listen = (
+    source: keyof typeof ready,
+    assign: (rows: Row[]) => void,
+  ) =>
+    onSnapshot(
+      query(collection(db, source), where('companyId', '==', companyId), limit(FETCH_LIMIT)),
+      (snap) => {
+        assign(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        ready[source] = true;
+        emit();
+      },
+      () => {
+        // Permission / index errors: treat as empty so the dashboard still renders.
+        ready[source] = true;
+        emit();
+      },
+    );
+
+  const unsubs = [
+    listen('breakdown_tickets', (rows) => (raw.breakdowns = rows)),
+    listen('workOrders', (rows) => (raw.workOrders = rows)),
+    listen('contractorJobs', (rows) => (raw.contractorJobs = rows)),
+    listen('pm_history', (rows) => (raw.pmHistory = rows)),
+  ];
+  return () => unsubs.forEach((u) => u());
+}
+
+function buildMonthlyAnalytics(
+  companyId: string,
+  month: string,
+  { breakdowns, workOrders, contractorJobs, pmHistory }: MonthlyRawData,
+): AnalyticsMonthly {
   // month === 'all' aggregates across all time (used as a dashboard fallback
   // when the current month has no activity yet).
   const inMonth = (value: unknown) => {
@@ -145,37 +228,65 @@ export async function computeMonthlyAnalytics(
   // Breakdown groupings.
   const breakdownByType: Record<string, number> = {};
   const breakdownBySeverity: Record<string, number> = {};
+  const breakdownByDepartment: Record<string, number> = {};
   monthBreakdowns.forEach((b) => {
     const t = String(b.type ?? 'other');
     const s = String(b.severity ?? 'low');
+    const dept = String(b.machineDepartment ?? b.department ?? 'Unassigned').trim() || 'Unassigned';
     breakdownByType[t] = (breakdownByType[t] ?? 0) + 1;
     breakdownBySeverity[s] = (breakdownBySeverity[s] ?? 0) + 1;
+    breakdownByDepartment[dept] = (breakdownByDepartment[dept] ?? 0) + 1;
   });
 
-  // Top problem machines.
-  const machineAgg = new Map<string, TopProblemMachine>();
+  // Top problem machines — work-order centric: Count = number of WOs, Hours =
+  // sum of WO completion durations, Cost = sum of inventory parts cost across
+  // the machine's WOs. Breakdown counts are still tracked for other consumers,
+  // and the bar colour reflects the machine's highest severity.
+  type MachineAgg = TopProblemMachine & { _sevRank: number };
+  const machineAgg = new Map<string, MachineAgg>();
+  const ensureMachine = (id: string, name: string, criticality: number): MachineAgg => {
+    let m = machineAgg.get(id);
+    if (!m) {
+      m = {
+        machineId: id,
+        machineName: name,
+        breakdownCount: 0,
+        woCount: 0,
+        downtimeHours: 0,
+        cost: 0,
+        criticality,
+        severity: 'low',
+        _sevRank: 0,
+      };
+      machineAgg.set(id, m);
+    }
+    return m;
+  };
   monthBreakdowns.forEach((b) => {
     const id = String(b.machineId ?? b.machineName ?? 'unknown');
-    const existing = machineAgg.get(id) ?? {
-      machineId: id,
-      machineName: String(b.machineName ?? id),
-      breakdownCount: 0,
-      downtimeHours: 0,
-      cost: 0,
-      criticality: Number(b.machineCriticality ?? 3),
-    };
-    existing.breakdownCount += 1;
-    existing.downtimeHours += breakdownDowntimeHours(b);
-    machineAgg.set(id, existing);
+    const m = ensureMachine(id, String(b.machineName ?? id), Number(b.machineCriticality ?? 3));
+    m.breakdownCount += 1;
+    m._sevRank = Math.max(m._sevRank, SEVERITY_RANK[String(b.severity ?? 'low')] ?? 1);
   });
   monthWOs.forEach((w) => {
-    const id = String(w.machineId ?? '');
-    const m = machineAgg.get(id);
-    if (m) m.cost += woCost(w);
+    const id = String(w.machineId ?? w.machineName ?? '');
+    if (!id) return;
+    const m = ensureMachine(id, String(w.machineName ?? id), Number(w.machineCriticality ?? 3));
+    m.woCount += 1;
+    m.downtimeHours += woDurationHours(w);
+    m.cost += woPartsCost(w);
+    m._sevRank = Math.max(m._sevRank, SEVERITY_RANK[String(w.priority ?? 'low')] ?? 1);
   });
-  const topProblemMachines = Array.from(machineAgg.values())
-    .sort((a, b) => b.breakdownCount - a.breakdownCount)
-    .slice(0, 10);
+  const topProblemMachines: TopProblemMachine[] = Array.from(machineAgg.values())
+    // Rank by WO count, then breakdown count as a tie-breaker.
+    .sort((a, b) => b.woCount - a.woCount || b.breakdownCount - a.breakdownCount)
+    .slice(0, 10)
+    .map(({ _sevRank, ...m }) => ({
+      ...m,
+      downtimeHours: Number(m.downtimeHours.toFixed(1)),
+      cost: Math.round(m.cost),
+      severity: severityFromRank(_sevRank),
+    }));
 
   // MTBF (days): for machines with breakdowns, days-in-month / count, averaged.
   const daysInMonth = month === 'all'
@@ -297,6 +408,7 @@ export async function computeMonthlyAnalytics(
     contractorPerformance,
     breakdownByType,
     breakdownBySeverity,
+    breakdownByDepartment,
     updatedAt: Timestamp.now(),
   };
 }

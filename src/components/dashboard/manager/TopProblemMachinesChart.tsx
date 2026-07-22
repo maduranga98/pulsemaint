@@ -16,7 +16,13 @@ import EmptyState from '../shared/EmptyState';
 
 type MetricMode = 'breakdowns' | 'downtime' | 'cost';
 
-const CRITICALITY_COLORS = ['#10B981', '#EAB308', '#F59E0B', '#F97316', '#EF4444'];
+// Bar colour reflects the machine's highest work-order / breakdown severity.
+const SEVERITY_COLORS: Record<'critical' | 'high' | 'medium' | 'low', string> = {
+  critical: '#EF4444',
+  high: '#F97316',
+  medium: '#F59E0B',
+  low: '#10B981',
+};
 
 interface TopProblemMachinesChartProps {
   companyId: string;
@@ -31,8 +37,10 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
 
   const chartData = machines.map((m) => ({
     name: m.machineName,
-    value: mode === 'breakdowns' ? m.breakdownCount : mode === 'downtime' ? m.downtimeHours : m.cost,
-    criticality: m.criticality,
+    // "Count" = work-order count, "Hours" = WO completion durations,
+    // "Cost" = inventory parts cost across the machine's WOs.
+    value: mode === 'breakdowns' ? m.woCount : mode === 'downtime' ? m.downtimeHours : m.cost,
+    severity: m.severity,
   }));
 
   // dataKey for tooltip reference
@@ -83,7 +91,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
                 {chartData.map((entry, idx) => (
                   <Cell
                     key={idx}
-                    fill={CRITICALITY_COLORS[Math.min(entry.criticality - 1, 4)]}
+                    fill={SEVERITY_COLORS[entry.severity] ?? SEVERITY_COLORS.low}
                   />
                 ))}
               </Bar>

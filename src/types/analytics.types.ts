@@ -139,6 +139,7 @@ export interface AnalyticsMonthly {
   contractorPerformance: ContractorPerformanceRecord[];
   breakdownByType: Record<string, number>;
   breakdownBySeverity: Record<string, number>;
+  breakdownByDepartment: Record<string, number>;
   updatedAt: Timestamp;
 }
 
@@ -150,9 +151,11 @@ export interface TopProblemMachine {
   machineId: string;
   machineName: string;
   breakdownCount: number;
-  downtimeHours: number;
-  cost: number;
+  woCount: number; // number of work orders raised against the machine
+  downtimeHours: number; // sum of work-order completion durations (hours)
+  cost: number; // sum of inventory parts cost across the machine's work orders
   criticality: number;
+  severity: 'critical' | 'high' | 'medium' | 'low'; // highest WO/breakdown severity
 }
 
 export interface TechnicianPerformanceRecord {
