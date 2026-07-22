@@ -30,7 +30,7 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   machine_history: {
     type: 'machine_history',
     name: 'Machine History Report',
-    description: 'Single-machine profile, breakdowns, maintenance, PMs, parts, and lifetime stats.',
+    description: "A machine's full work-order history with types, dates, status, and durations.",
     category: 'machines',
     icon: 'Factory',
     supportsPdf: true,
