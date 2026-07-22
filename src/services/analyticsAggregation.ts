@@ -93,6 +93,10 @@ const SEVERITY_BY_RANK: Array<TopProblemMachine['severity']> = ['low', 'low', 'm
 const severityFromRank = (rank: number): TopProblemMachine['severity'] =>
   SEVERITY_BY_RANK[Math.max(0, Math.min(4, rank))];
 
+// Work-order types that represent unplanned production stoppages, whose repair
+// duration counts as machine downtime.
+const UNPLANNED_WO_TYPES = new Set(['BREAKDOWN', 'CORRECTIVE', 'EMERGENCY']);
+
 const isCompletedWoStatus = (status: string) =>
   ['COMPLETED', 'SIGNED_OFF', 'CLOSED'].includes(String(status ?? ''));
 
@@ -217,7 +221,17 @@ function buildMonthlyAnalytics(
   );
   const totalMaintenanceCost = woCostTotal + contractorCostTotal;
 
-  const totalProductionHoursLost = monthBreakdowns.reduce((s, b) => s + breakdownDowntimeHours(b), 0);
+  // Production downtime is captured primarily from work-order completion
+  // durations for unplanned work (breakdowns / corrective), where the real
+  // repair time is logged, plus any downtime explicitly recorded on breakdown
+  // tickets. This keeps the "Production Hours Lost" figure live off WO data
+  // instead of sitting at zero when breakdowns carry no downtime field.
+  const woDowntimeHours = monthWOs.reduce(
+    (s, w) => s + (UNPLANNED_WO_TYPES.has(String(w.woType ?? '').toUpperCase()) ? woDurationHours(w) : 0),
+    0,
+  );
+  const breakdownRecordedDowntime = monthBreakdowns.reduce((s, b) => s + breakdownDowntimeHours(b), 0);
+  const totalProductionHoursLost = woDowntimeHours + breakdownRecordedDowntime;
 
   // PM compliance.
   const pmRelevant = monthPm.filter((p) => p.status && p.status !== 'in_progress');

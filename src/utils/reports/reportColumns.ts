@@ -72,6 +72,7 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'status', label: 'Status' },
     { key: 'reporterName', label: 'Reported By' },
     { key: 'reportedAt', label: 'Reported', format: 'date' },
+    { key: 'resolvedAt', label: 'Completed', format: 'date' },
     { key: 'estimatedDowntimeMinutes', label: 'Downtime (min)', format: 'number' },
     { key: 'description', label: 'Description' },
   ],

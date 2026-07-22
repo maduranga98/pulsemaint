@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorJob, ContractorJobStatus } from '@/lib/contractors/contractorTypes';
@@ -23,11 +23,10 @@ export function useContractorJobs(options: UseContractorJobsOptions = {}) {
       return;
     }
 
-    const constraints = [where('companyId', '==', companyId), orderBy('createdAt', 'desc')];
-    if (options.contractorId) constraints.unshift(where('contractorId', '==', options.contractorId));
-
+    // Single equality filter, no orderBy — avoids a composite index. Sorting
+    // and the optional contractor filter are applied client-side below.
     return onSnapshot(
-      query(collection(db, 'contractorJobs'), ...constraints),
+      query(collection(db, 'contractorJobs'), where('companyId', '==', companyId)),
       (snapshot) => {
         setAllJobs(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as ContractorJob));
         setLoading(false);
@@ -37,11 +36,16 @@ export function useContractorJobs(options: UseContractorJobsOptions = {}) {
         setLoading(false);
       },
     );
-  }, [companyId, options.contractorId]);
+  }, [companyId]);
 
   const jobs = useMemo(() => {
     const search = options.search?.trim().toLowerCase();
-    return allJobs.filter((job) => {
+    const millis = (job: ContractorJob) => job.createdAt?.toMillis?.() ?? 0;
+    return allJobs
+      .filter((job) => !options.contractorId || job.contractorId === options.contractorId)
+      .slice()
+      .sort((a, b) => millis(b) - millis(a))
+      .filter((job) => {
       if (options.status && options.status !== 'all') {
         if (options.status === 'active') {
           if (['payment_processed', 'cancelled'].includes(job.status)) return false;
@@ -55,7 +59,7 @@ export function useContractorJobs(options: UseContractorJobsOptions = {}) {
       }
       return true;
     });
-  }, [allJobs, options.search, options.status]);
+  }, [allJobs, options.search, options.status, options.contractorId]);
 
   return { jobs, loading, error, totalCount: allJobs.length };
 }

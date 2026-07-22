@@ -3,7 +3,7 @@ import {
   collection,
   query,
   where,
-  getDocs,
+  onSnapshot,
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { PMHistory, ComplianceStats, MonthlyComplianceTrend, MachineComplianceRecord, TechnicianComplianceRecord } from '../../types/pm.types';
@@ -13,6 +13,22 @@ const HISTORY_COLLECTION = 'pm_history';
 
 interface UsePMComplianceStatsOptions {
   companyId: string;
+}
+
+// Month key ("2026-07") from a Firestore Timestamp / Date / ISO value.
+function monthKeyOf(value: unknown): string | null {
+  if (!value) return null;
+  let d: Date | null = null;
+  if (typeof value === 'object' && value !== null && 'seconds' in (value as Record<string, unknown>)) {
+    d = new Date(Number((value as { seconds: number }).seconds) * 1000);
+  } else if (value instanceof Date) {
+    d = value;
+  } else {
+    const parsed = new Date(String(value));
+    d = Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  if (!d) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
 export function usePMComplianceStats({ companyId }: UsePMComplianceStatsOptions) {
@@ -27,24 +43,14 @@ export function usePMComplianceStats({ companyId }: UsePMComplianceStatsOptions)
       return;
     }
 
-    async function fetchStats() {
-      setLoading(true);
+    setLoading(true);
+    let history: PMHistory[] = [];
+    let breakdownMonthCounts: Record<string, number> = {};
+    const ready = { pm: false, breakdowns: false };
+
+    function recompute() {
+      if (!ready.pm || !ready.breakdowns) return;
       try {
-        // Fetch PM history for the last 6 months
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-        const historyQuery = query(
-          collection(db, HISTORY_COLLECTION),
-          where('companyId', '==', companyId),
-        );
-
-        const historySnap = await getDocs(historyQuery);
-        const history = historySnap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        })) as PMHistory[];
-
         // Current month stats
         const now = new Date();
         const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -73,11 +79,10 @@ export function usePMComplianceStats({ companyId }: UsePMComplianceStatsOptions)
           const completed = monthHistory.filter((h) => h.status === 'completed_on_time').length;
           const rate = scheduled > 0 ? Math.round((completed / scheduled) * 100) : 100;
 
-          // Placeholder for breakdown count — in production this would query breakdowns collection
           monthlyTrend.push({
             month: monthKey,
             complianceRate: rate,
-            breakdownCount: 0,
+            breakdownCount: breakdownMonthCounts[monthKey] ?? 0,
             scheduledCount: scheduled,
             completedCount: completed,
           });
@@ -156,14 +161,52 @@ export function usePMComplianceStats({ companyId }: UsePMComplianceStatsOptions)
         });
         setError(null);
       } catch (err) {
-        console.error('Error fetching compliance stats:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch compliance stats');
+        console.error('Error computing compliance stats:', err);
+        setError(err instanceof Error ? err.message : 'Failed to compute compliance stats');
       } finally {
         setLoading(false);
       }
     }
 
-    fetchStats();
+    // Live PM history — recomputes compliance on any change.
+    const unsubPm = onSnapshot(
+      query(collection(db, HISTORY_COLLECTION), where('companyId', '==', companyId)),
+      (snap) => {
+        history = snap.docs.map((d) => ({ id: d.id, ...d.data() })) as PMHistory[];
+        ready.pm = true;
+        recompute();
+      },
+      (err) => {
+        setError(err.message);
+        setLoading(false);
+      },
+    );
+
+    // Live breakdowns — feeds the per-month breakdown bar on the trend chart.
+    const unsubBreakdowns = onSnapshot(
+      query(collection(db, 'breakdown_tickets'), where('companyId', '==', companyId)),
+      (snap) => {
+        const counts: Record<string, number> = {};
+        snap.docs.forEach((d) => {
+          const b = d.data() as any;
+          const key = monthKeyOf(b.reportedAt ?? b.createdAt);
+          if (key) counts[key] = (counts[key] ?? 0) + 1;
+        });
+        breakdownMonthCounts = counts;
+        ready.breakdowns = true;
+        recompute();
+      },
+      () => {
+        // Breakdowns are supplementary; don't block compliance stats on them.
+        ready.breakdowns = true;
+        recompute();
+      },
+    );
+
+    return () => {
+      unsubPm();
+      unsubBreakdowns();
+    };
   }, [companyId]);
 
   return { stats, loading, error };
