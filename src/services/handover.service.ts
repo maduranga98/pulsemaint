@@ -291,6 +291,28 @@ export async function fetchShiftSessionsForDate(companyId: string, shiftDate: st
   return snap.docs.map((item) => mapShiftSession(item.id, item.data()));
 }
 
+/**
+ * Live currently-active shift sessions (company-wide) — reflects clock-ins
+ * and clock-outs the instant they're written, so dashboards showing "who's
+ * on shift now" don't need a manual refresh after a startShiftSession /
+ * completeShiftSession write.
+ */
+export function subscribeActiveShiftSessions(
+  companyId: string,
+  callback: (sessions: ShiftSession[]) => void,
+  onError?: (message: string) => void,
+): () => void {
+  return onSnapshot(
+    query(
+      collection(db, 'shift_sessions'),
+      where('companyId', '==', companyId),
+      where('status', '==', 'active'),
+    ),
+    (snap) => callback(snap.docs.map((item) => mapShiftSession(item.id, item.data()))),
+    (err) => onError?.(err.message),
+  );
+}
+
 export async function autoCompileShiftSummary(params: {
   companyId: string;
   supervisorId: string;
