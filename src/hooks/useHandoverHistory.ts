@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useHandoverStore } from '@/store/handover.store';
-import type { HandoverHistoryFilters } from '@/types/handover.types';
+import { useAuthStore } from '@/store/authStore';
+import { subscribeHandoverHistory } from '@/services/handover.service';
+import type { HandoverHistoryFilters, ShiftHandover } from '@/types/handover.types';
 
 const defaultFilters: HandoverHistoryFilters = {
   dateFrom: null,
@@ -11,29 +12,33 @@ const defaultFilters: HandoverHistoryFilters = {
 };
 
 export function useHandoverHistory(filters: HandoverHistoryFilters = defaultFilters) {
-  const handoverHistory = useHandoverStore((state) => state.handoverHistory);
-  const fetchHandoverHistory = useHandoverStore((state) => state.fetchHandoverHistory);
+  const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const [handoverHistory, setHandoverHistory] = useState<ShiftHandover[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
+    if (!companyId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
-    fetchHandoverHistory(filters)
-      .catch((err) => {
-        if (!cancelled) {
-          console.error('useHandoverHistory: fetch failed', err);
-          setError(err instanceof Error ? err.message : 'Failed to load handover history.');
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchHandoverHistory, filters.dateFrom, filters.dateTo, filters.department, filters.shiftName, filters.supervisorName]);
+    // Live company-wide handover history (all roles, all shifts).
+    const unsub = subscribeHandoverHistory(
+      companyId,
+      filters,
+      (rows) => {
+        setHandoverHistory(rows);
+        setLoading(false);
+      },
+      (message) => {
+        setError(message);
+        setLoading(false);
+      },
+    );
+    return () => unsub();
+  }, [companyId, filters.dateFrom, filters.dateTo, filters.department, filters.shiftName, filters.supervisorName]);
 
-  return { handoverHistory, loading, error, refresh: () => fetchHandoverHistory(filters) };
+  return { handoverHistory, loading, error, refresh: () => {} };
 }

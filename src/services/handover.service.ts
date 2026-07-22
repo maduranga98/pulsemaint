@@ -457,6 +457,36 @@ export async function fetchHandoverHistory(companyId: string, filters: HandoverH
   return filtered;
 }
 
+function applyHandoverFilters(rows: ShiftHandover[], filters: HandoverHistoryFilters): ShiftHandover[] {
+  return rows
+    .filter((handover) => {
+      if (filters.supervisorName && !handover.outgoingSupervisorName.toLowerCase().includes(filters.supervisorName.toLowerCase())) return false;
+      if (filters.shiftName && !handover.shiftName.toLowerCase().includes(filters.shiftName.toLowerCase())) return false;
+      if (filters.department && !handover.shiftName.toLowerCase().includes(filters.department.toLowerCase())) return false;
+      if (filters.dateFrom && handover.shiftDate < filters.dateFrom) return false;
+      if (filters.dateTo && handover.shiftDate > filters.dateTo) return false;
+      return true;
+    })
+    .sort((a, b) => b.handoverSubmittedAt.getTime() - a.handoverSubmittedAt.getTime());
+}
+
+/**
+ * Live handover history for the whole company (all roles/shifts), recomputed
+ * whenever any handover changes. Returns an unsubscribe function.
+ */
+export function subscribeHandoverHistory(
+  companyId: string,
+  filters: HandoverHistoryFilters,
+  callback: (rows: ShiftHandover[]) => void,
+  onError?: (message: string) => void,
+): () => void {
+  return onSnapshot(
+    query(collection(db, 'shift_handovers'), where('companyId', '==', companyId)),
+    (snap) => callback(applyHandoverFilters(snap.docs.map((item) => mapHandover(item.id, item.data())), filters)),
+    (err) => onError?.(err.message),
+  );
+}
+
 export async function resolveWatchFlag(handoverId: string, flagId: string, userId: string): Promise<void> {
   const handoverDoc = await getDoc(doc(db, 'shift_handovers', handoverId));
   if (!handoverDoc.exists()) return;
