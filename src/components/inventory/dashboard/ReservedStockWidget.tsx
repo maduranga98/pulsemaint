@@ -19,7 +19,7 @@ export function ReservedStockWidget({ requests }: Props) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100">
-        <h2 className="font-semibold text-gray-900">Parts Reserved — Awaiting Issue</h2>
+        <h2 className="font-semibold text-gray-900">Parts to Collect</h2>
       </div>
 
       {requests.length === 0 ? (

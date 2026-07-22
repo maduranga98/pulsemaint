@@ -14,14 +14,13 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { id: 'all', label: 'All' },
   { id: 'pending_storekeeper', label: 'Pending' },
   { id: 'pending_supervisor', label: 'Awaiting Supervisor' },
-  { id: 'approved', label: 'Approved' },
-  { id: 'parts_reserved', label: 'Reserved' },
+  { id: 'parts_reserved', label: 'Need to Collect' },
   { id: 'issued', label: 'Issued' },
   { id: 'completed', label: 'Completed' },
   { id: 'rejected', label: 'Rejected' },
+  { id: 'all', label: 'All' },
 ];
 
 const PRIORITY_OPTIONS = [
@@ -46,7 +45,7 @@ function SkeletonRow() {
 
 export function RequestsQueue() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TabId>('all');
+  const [activeTab, setActiveTab] = useState<TabId>('pending_storekeeper');
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
 

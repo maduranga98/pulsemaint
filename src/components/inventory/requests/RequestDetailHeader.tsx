@@ -15,7 +15,7 @@ const statusConfig: Record<
   approved: { label: 'Approved', className: 'bg-green-100 text-green-800' },
   partially_approved: { label: 'Partially Approved', className: 'bg-teal-100 text-teal-800' },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800' },
-  parts_reserved: { label: 'Parts Reserved', className: 'bg-indigo-100 text-indigo-800' },
+  parts_reserved: { label: 'Need to Collect', className: 'bg-indigo-100 text-indigo-800' },
   issued: { label: 'Issued', className: 'bg-purple-100 text-purple-800' },
   completed: { label: 'Completed', className: 'bg-gray-100 text-gray-700' },
   cancelled: { label: 'Cancelled', className: 'bg-gray-100 text-gray-400' },
