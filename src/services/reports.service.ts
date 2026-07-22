@@ -239,19 +239,35 @@ export async function fetchReportRows(
       continue;
     }
     let docs: { id: string; data: () => Record<string, unknown> }[] = [];
+    const bySite = async () => {
+      const out: { id: string; data: () => Record<string, unknown> }[] = [];
+      for (let i = 0; i < siteIds.length; i += 10) {
+        const chunk = siteIds.slice(i, i + 10);
+        const snap = await getDocs(query(collection(db, source), where('siteId', 'in', chunk), limit(1000)));
+        snap.docs.forEach((d) => out.push(d));
+      }
+      return out;
+    };
     try {
       const snap = await getDocs(query(collection(db, source), where('companyId', '==', companyId), limit(1000)));
       docs = snap.docs;
+      // Some collections (e.g. workOrders / breakdown_tickets) are scoped by
+      // siteId, and older documents may lack a companyId field — so a
+      // successful-but-empty companyId query still needs a siteId fallback,
+      // not just a thrown-error one, or the report shows "no data".
+      if (docs.length === 0) {
+        try {
+          docs = await bySite();
+        } catch {
+          /* siteId fallback not permitted — leave empty */
+        }
+      }
     } catch (err) {
       // Site-restricted roles are denied companyId-wide list queries on some
       // collections (e.g. workOrders). Retry scoped by the user's sites so
       // the report still returns their data instead of failing outright.
       try {
-        for (let i = 0; i < siteIds.length; i += 10) {
-          const chunk = siteIds.slice(i, i + 10);
-          const snap = await getDocs(query(collection(db, source), where('siteId', 'in', chunk), limit(1000)));
-          docs = docs.concat(snap.docs);
-        }
+        docs = await bySite();
       } catch {
         sourceErrors.push(`${source}: ${err instanceof Error ? err.message : 'query failed'}`);
         continue;
