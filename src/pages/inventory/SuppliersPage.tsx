@@ -39,6 +39,13 @@ export function SuppliersPage() {
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
+  const role = useAuthStore((s) => s.userProfile?.role);
+  // firestore.rules only allows plant_manager/admin to delete a supplier doc
+  // (store_keeper/supervisor can create & edit, same as parts and POs) — the
+  // delete button must stay hidden for the other roles that can reach this
+  // page, otherwise it renders as a working action that always fails with a
+  // permission-denied error when clicked.
+  const canDelete = role === 'plant_manager' || role === 'admin';
   const { suppliers, loading } = useSuppliers();
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -156,14 +163,16 @@ export function SuppliersPage() {
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button
-                  onClick={() => handleDelete(s)}
-                  disabled={deletingId === s.id}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
-                  aria-label="Remove supplier"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                {canDelete && (
+                  <button
+                    onClick={() => handleDelete(s)}
+                    disabled={deletingId === s.id}
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                    aria-label="Remove supplier"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
           ))}

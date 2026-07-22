@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { subscribeShiftConfigs } from '../../services/handover.service';
-import type { ShiftConfig } from '../../types/handover.types';
+import { subscribeShiftConfigs, subscribeActiveShiftSessions } from '../../services/handover.service';
+import type { ShiftConfig, ShiftSession } from '../../types/handover.types';
 
 export interface DepartmentShift {
   department: string;
@@ -40,7 +40,17 @@ const DAY_MAP: Record<number, string> = {
   6: 'Sat',
 };
 
-function groupTodayShifts(configs: ShiftConfig[]): DepartmentShift[] {
+// `configs` (shift_config) only describes the *plan* — who's rostered and
+// when a shift is scheduled to run. Whether someone has actually clocked in
+// is a separate fact recorded in `shift_sessions` by startShiftSession /
+// completeShiftSession (see src/services/handover.service.ts and
+// EndShiftButton.tsx). This widget previously derived `isActive` purely from
+// wall-clock time against the scheduled window and `memberCount` purely from
+// the config's static roster size — neither of which is touched by an actual
+// shift start/end action, so the widget never reflected clock-ins/outs, live
+// or otherwise. Folding in `activeSessions` (live via onSnapshot, same
+// pattern as useTechnicianStatuses/ShiftStatusPanel) fixes that.
+function groupTodayShifts(configs: ShiftConfig[], activeSessions: ShiftSession[]): DepartmentShift[] {
   const today = DAY_MAP[new Date().getDay()];
   const activeConfigs = configs.filter(
     (c) => c.status === 'active' && c.activeDays.includes(today as ShiftConfig['activeDays'][number]),
@@ -49,14 +59,20 @@ function groupTodayShifts(configs: ShiftConfig[]): DepartmentShift[] {
   const grouped = new Map<string, DepartmentShift['shifts']>();
   for (const c of activeConfigs) {
     const dept = c.department ?? 'General';
+    const clockedInCount = activeSessions.filter((s) => s.shiftConfigId === c.id).length;
     if (!grouped.has(dept)) grouped.set(dept, []);
     grouped.get(dept)!.push({
       shiftName: c.shiftName,
       startTime: c.startTime,
       endTime: c.endTime,
       color: c.color,
-      memberCount: c.memberIds.length,
-      isActive: isShiftActiveNow(c.startTime, c.endTime),
+      // Live headcount of people currently clocked in, falling back to the
+      // rostered size when nobody has started a session yet (e.g. just
+      // before the shift begins).
+      memberCount: clockedInCount > 0 ? clockedInCount : c.memberIds.length,
+      // "Active" now reflects real attendance first (someone actually
+      // clocked in) and falls back to the scheduled time window otherwise.
+      isActive: clockedInCount > 0 || isShiftActiveNow(c.startTime, c.endTime),
     });
   }
 
@@ -67,6 +83,7 @@ function groupTodayShifts(configs: ShiftConfig[]): DepartmentShift[] {
 
 export function useTodayShifts(companyId: string) {
   const [configs, setConfigs] = useState<ShiftConfig[]>([]);
+  const [activeSessions, setActiveSessions] = useState<ShiftSession[]>([]);
   const [departments, setDepartments] = useState<DepartmentShift[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,13 +110,27 @@ export function useTodayShifts(companyId: string) {
     return () => unsub();
   }, [companyId]);
 
-  // Recompute the grouping (and the time-based "active" badge) on every config
-  // change and once a minute, so the widget stays current without a reload.
+  // Live subscription to who's actually clocked in right now — reflects
+  // startShiftSession/completeShiftSession writes (shift start/end) the
+  // instant they land, scoped to the current company (siteId/companyId).
   useEffect(() => {
-    setDepartments(groupTodayShifts(configs));
-    const id = setInterval(() => setDepartments(groupTodayShifts(configs)), 60_000);
+    if (!companyId) return;
+    const unsub = subscribeActiveShiftSessions(
+      companyId,
+      (next) => setActiveSessions(next),
+      (message) => setError(message),
+    );
+    return () => unsub();
+  }, [companyId]);
+
+  // Recompute the grouping (and the time-based "active" badge) on every config
+  // or session change and once a minute, so the widget stays current without
+  // a reload.
+  useEffect(() => {
+    setDepartments(groupTodayShifts(configs, activeSessions));
+    const id = setInterval(() => setDepartments(groupTodayShifts(configs, activeSessions)), 60_000);
     return () => clearInterval(id);
-  }, [configs]);
+  }, [configs, activeSessions]);
 
   return { departments, loading, error };
 }

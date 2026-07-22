@@ -190,7 +190,9 @@ function FullInventoryDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <RecentMovementsWidget movements={movements} />
-            <ReservedStockWidget requests={requests as PartsRequest[]} />
+            <ReservedStockWidget
+              requests={(requests as PartsRequest[]).filter((r) => r.status === 'parts_reserved')}
+            />
           </div>
 
           <PartsCatalogWidget parts={catalogParts} totalCount={catalogCount} />

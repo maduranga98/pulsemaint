@@ -41,7 +41,10 @@ export default function TraineeProfilePage() {
     if (!userId || !companyId) return;
 
     const loadTrainee = async () => {
-      const snap = await getDoc(doc(db, 'users', userId));
+      // Full profiles live under companies/{companyId}/users — the top-level
+      // `users/{uid}` doc is only a lightweight uid→companyId/role mapping
+      // (see lib/auth.ts), so reading it here left name/email/department blank.
+      const snap = await getDoc(doc(db, `companies/${companyId}/users/${userId}`));
       if (snap.exists()) setTrainee({ id: snap.id, ...snap.data() } as UserProfile);
     };
 
@@ -148,16 +151,20 @@ export default function TraineeProfilePage() {
         {/* All assignments */}
         <section>
           <h2 className="text-sm font-semibold text-slate-700 mb-3">
-            All Assignments ({assignments.length})
+            All Assignments ({otherAssignments.length})
           </h2>
           {assignments.length === 0 ? (
             <p className="text-sm text-slate-500 text-center py-8">No assignments yet.</p>
+          ) : otherAssignments.length === 0 ? (
+            <p className="text-sm text-slate-500 text-center py-8">
+              No other assignments — see &ldquo;Awaiting Practical Sign-Off&rdquo; above.
+            </p>
           ) : (
             <div className="space-y-2">
               {otherAssignments.map((a) => (
                 <div key={a.id} className="bg-white rounded-xl border border-slate-200 p-4">
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <p className="font-medium text-slate-900 text-sm line-clamp-1">{a.moduleId}</p>
+                    <p className="font-medium text-slate-900 text-sm line-clamp-1">{a.moduleName || a.moduleId}</p>
                     <TrainingStatusBadge status={a.status} />
                   </div>
                   <TrainingProgressBar progress={a.overallProgress} showLabel />

@@ -273,6 +273,15 @@ export function useQuizSession(): UseQuizSessionReturn {
 
       const result = { ...raw, passed, timeTakenSeconds };
 
+      // Firestore has no atomic "keep the max" update, so we read the prior
+      // best score (persisted alongside the session at startQuiz) and only
+      // move it up — otherwise a lower-scoring retry silently overwrote a
+      // previously passing bestScore shown across the app and used to
+      // compute the trainee's final programme mark.
+      const priorBestRaw = localStorage.getItem(`quiz_bestscore_${session.assignmentId}`);
+      const priorBest = priorBestRaw ? parseInt(priorBestRaw, 10) : 0;
+      const bestScore = Math.max(priorBest, result.score);
+
       const attemptId = `attempt_${session.attemptNumber}_${Date.now()}`;
       const now = Timestamp.now();
 
@@ -295,7 +304,7 @@ export function useQuizSession(): UseQuizSessionReturn {
         quizAttempts: arrayUnion(attempt),
         attemptsUsed: session.attemptNumber,
         latestScore: result.score,
-        bestScore: result.score, // Firestore doesn't support conditional max; UI should handle
+        bestScore,
         quizPassed: passed,
         ...(passed
           ? {
@@ -316,6 +325,7 @@ export function useQuizSession(): UseQuizSessionReturn {
       // Clear saved session
       localStorage.removeItem(buildSessionKey(session.assignmentId));
       localStorage.removeItem(`quiz_passing_${session.assignmentId}`);
+      localStorage.removeItem(`quiz_bestscore_${session.assignmentId}`);
 
       setSession((prev) =>
         prev ? { ...prev, isSubmitted: true, results: result } : prev
@@ -337,6 +347,10 @@ export function useQuizSession(): UseQuizSessionReturn {
         localStorage.setItem(
           `quiz_passing_${assignment.id}`,
           String(module.passingScore)
+        );
+        localStorage.setItem(
+          `quiz_bestscore_${assignment.id}`,
+          String(assignment.bestScore ?? 0)
         );
       }
       startQuiz(assignment, module);

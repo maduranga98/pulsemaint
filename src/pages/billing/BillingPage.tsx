@@ -73,7 +73,6 @@ const PLANS: PlanDef[] = [
       'Up to 100 users',
       'OEE Trend Analytics',
       'OEE Shift Comparison',
-      'OEE Loss Cost Calculator',
       'Kaizen ROI & Digest',
       'Triage knowledge builder',
       'Advanced reports hub',
