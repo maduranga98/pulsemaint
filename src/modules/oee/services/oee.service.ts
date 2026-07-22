@@ -274,11 +274,12 @@ export async function autoFeedDowntime(
   const snap = await getDocs(q);
   let totalMinutes = 0;
   const linkedIds: string[] = [];
+  const daysMatch = (d?: Date | null) => !!d && d.toISOString().slice(0, 10) === shiftDate;
 
   for (const d of snap.docs) {
     const b = d.data();
     const reportedAt = (b.reportedAt as { toDate?: () => Date } | undefined)?.toDate?.();
-    if (!reportedAt || reportedAt.toISOString().slice(0, 10) !== shiftDate) continue;
+    if (!daysMatch(reportedAt)) continue;
 
     const minutes = Number(
       b.estimatedDowntimeMinutes ?? b.oeeImpact?.downtimeMinutes ?? (Number(b.productionHoursLost ?? 0) * 60),
@@ -287,7 +288,39 @@ export async function autoFeedDowntime(
     linkedIds.push(d.id);
   }
 
-  return { totalMinutes, linkedIds };
+  // Also gather downtime from the machine's breakdown/corrective work-order
+  // completion durations on that day — that's where actual repair time is
+  // logged. This is what makes the OEE downtime reflect the machine's WO data.
+  try {
+    const woSnap = await getDocs(
+      query(
+        collection(db, 'workOrders'),
+        where('siteId', '==', plantId),
+        where('machineId', '==', machineId),
+      ),
+    );
+    const UNPLANNED = new Set(['BREAKDOWN', 'CORRECTIVE', 'EMERGENCY']);
+    for (const d of woSnap.docs) {
+      const w = d.data() as Record<string, any>;
+      if (!UNPLANNED.has(String(w.woType ?? '').toUpperCase())) continue;
+      const end = (w.actualEndTime as { toDate?: () => Date } | undefined)?.toDate?.();
+      const created = (w.createdAt as { toDate?: () => Date } | undefined)?.toDate?.();
+      if (!daysMatch(end ?? created ?? null)) continue;
+      let minutes = Number(w.totalDurationMinutes ?? 0);
+      if (!minutes) {
+        const start = (w.actualStartTime as { toDate?: () => Date } | undefined)?.toDate?.();
+        if (start && end && end > start) minutes = (end.getTime() - start.getTime()) / 60000;
+      }
+      if (minutes > 0) {
+        totalMinutes += minutes;
+        linkedIds.push(d.id);
+      }
+    }
+  } catch {
+    /* WO scoping/permission issues shouldn't block the breakdown-based total */
+  }
+
+  return { totalMinutes: Math.round(totalMinutes), linkedIds };
 }
 
 // ─── Fetch Range Records ──────────────────────────────────────────────────────

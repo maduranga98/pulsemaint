@@ -23,7 +23,7 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
   approved: { label: 'Approved', className: 'bg-green-100 text-green-700' },
   partially_approved: { label: 'Partial', className: 'bg-amber-100 text-amber-700' },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700' },
-  parts_reserved: { label: 'Reserved', className: 'bg-indigo-100 text-indigo-700' },
+  parts_reserved: { label: 'Need to Collect', className: 'bg-indigo-100 text-indigo-700' },
   issued: { label: 'Issued', className: 'bg-green-100 text-green-700' },
   completed: { label: 'Completed', className: 'bg-gray-100 text-gray-600' },
   cancelled: { label: 'Cancelled', className: 'bg-gray-100 text-gray-400' },

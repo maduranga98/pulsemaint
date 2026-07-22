@@ -187,7 +187,9 @@ export async function fetchReportRows(
   const sourceMap: Record<ReportType, string[]> = {
     breakdown_summary: ['breakdown_tickets'],
     work_order_detail: ['workOrders'],
-    machine_history: ['machines'],
+    // Machine History lists the machine's own work orders (with dates/types),
+    // filtered to the chosen machine below.
+    machine_history: ['workOrders'],
     machine_health_score: ['machine_health'],
     maintenance_cost: ['workOrders', 'stockMovements', 'contractorJobs'],
     // technician_performance (display name: "Team Performance Report") is a
@@ -335,7 +337,9 @@ export async function fetchReportRows(
     selected.length === 0 ||
     (Array.isArray(values) && values.some((v) => selected.some((s) => s.toLowerCase() === String(v).toLowerCase())));
 
-  const isMachineReport = reportType === 'machine_history' || reportType === 'machine_health_score';
+  // Only the health-score report is keyed by machine doc-id; machine_history
+  // now reads work orders, which reference the machine via machineId.
+  const isMachineReport = reportType === 'machine_health_score';
 
   return dateFiltered.filter((row) => {
     // Machine rows themselves carry the machine ID as the doc ID; other rows

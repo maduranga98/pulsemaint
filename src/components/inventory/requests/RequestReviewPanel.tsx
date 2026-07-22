@@ -23,6 +23,7 @@ const ESCALATION_REASONS = [
 ];
 
 function formatStatus(status: string): string {
+  if (status === 'parts_reserved') return 'Need to Collect';
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
@@ -69,7 +70,7 @@ export function RequestReviewPanel({ request, onDecision }: Props) {
           <span>{formatStatus(request.status)}</span>
         </div>
         <p className="text-sm text-green-600">
-          Parts are reserved and awaiting collection by{' '}
+          Parts are ready and awaiting collection by{' '}
           <strong>{request.requestedByName}</strong>.
         </p>
         {canIssue && (

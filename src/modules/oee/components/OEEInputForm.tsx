@@ -125,13 +125,9 @@ export function OEEInputForm({ prefillMachineId, prefillMachineName, onSuccess, 
   const performance = calculatePerformance(actualOut ?? 0, targetOut ?? 0);
   const quality = calculateQuality(goodOut ?? 0, totalOut ?? 0);
 
-  async function handleAutoFill() {
-    if (!plantId) return;
-    const machineId = watch('machineId');
-    const shiftDate = watch('shiftDate');
-    const shift = watch('shift') as OEEShift;
-    if (!machineId || !shiftDate) {
-      toast.error('Select a machine and date first');
+  async function runAutoFill(machineId: string, shiftDate: string, shift: OEEShift, silent = false) {
+    if (!plantId || !machineId || !shiftDate) {
+      if (!silent) toast.error('Select a machine and date first');
       return;
     }
     setAutoFilling(true);
@@ -139,12 +135,18 @@ export function OEEInputForm({ prefillMachineId, prefillMachineName, onSuccess, 
       const { totalMinutes, linkedIds: ids } = await autoFeedDowntime(plantId, machineId, shiftDate, shift);
       setValue('actualDowntime', totalMinutes, { shouldValidate: true });
       setLinkedIds(ids);
-      toast.success(`Auto-filled ${totalMinutes} min downtime from ${ids.length} work order(s)`);
+      if (!silent || ids.length > 0) {
+        toast.success(`Auto-filled ${totalMinutes} min downtime from ${ids.length} breakdown/WO record(s)`);
+      }
     } catch {
-      toast.error('Failed to fetch breakdown data');
+      if (!silent) toast.error('Failed to fetch breakdown data');
     } finally {
       setAutoFilling(false);
     }
+  }
+
+  function handleAutoFill() {
+    runAutoFill(watch('machineId'), watch('shiftDate'), watch('shift') as OEEShift);
   }
 
   async function onSubmit(values: FormValues) {
@@ -211,6 +213,9 @@ export function OEEInputForm({ prefillMachineId, prefillMachineName, onSuccess, 
             setValue('department', m.department ?? '', { shouldValidate: true });
             const loc = [m.department, m.floor, m.bay].filter(Boolean).join(' · ');
             setMachineLocation(loc || null);
+            // Auto-gather downtime from this machine's breakdown/WO records for
+            // the selected day as soon as a machine is picked.
+            runAutoFill(m.id, watch('shiftDate'), watch('shift') as OEEShift, true);
           }}
         />
         {errors.machineId && <p className={errCls}>{errors.machineId.message}</p>}
