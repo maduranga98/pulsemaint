@@ -13,6 +13,18 @@ export const checklistItemSchema = z.object({
   assignedTechnicianNames: z.array(z.string()).default([]),
   estimatedMinutes: z.number().int().positive().nullable(),
   estimatedDurationUnit: z.enum(['minutes', 'hours', 'days']).default('minutes'),
+  // Measurement-type checklist fields — without these, zod silently strips
+  // them on parse (z.object drops unrecognized keys), so a WO created with a
+  // "measurement" step would lose its inputType/method/unit/acceptable range
+  // and the executor would never render the measurement input for it.
+  inputType: z.enum(['checkbox', 'measurement']).default('checkbox'),
+  method: z.string().nullable().default(null),
+  unit: z.string().nullable().default(null),
+  acceptableMin: z.number().nullable().default(null),
+  acceptableMax: z.number().nullable().default(null),
+  actualValue: z.number().nullable().default(null),
+  result: z.enum(['pass', 'fail']).nullable().default(null),
+  repairNote: z.string().nullable().default(null),
 });
 
 export const partsRequestSchema = z.object({

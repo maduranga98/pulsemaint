@@ -310,49 +310,73 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 />
               ) : (
                 <>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-blue-500 transition-all"
-                      style={{
-                        width: `${
-                          workOrder.checklist.length > 0
-                            ? (workOrder.checklist.filter((i) => i.isCompleted).length /
-                              workOrder.checklist.length) *
-                              100
-                            : 0
-                        }%`,
-                      }}
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    {workOrder.checklist.filter((i) => i.isCompleted).length} / {workOrder.checklist.length} completed
-                  </p>
-                  <ol className="space-y-2">
-                    {workOrder.checklist.map((item, i) => (
-                      <li key={i} className="flex items-start gap-3 bg-gray-50 rounded-lg px-4 py-3">
-                        <span className="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold mt-0.5">
-                          {item.stepNumber}
-                        </span>
-                        <div className="flex-1">
-                          <p className={`text-sm ${item.isCompleted ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
-                            {item.stepDescription}
-                          </p>
-                          {item.assignedTechnicianName && (
-                            <p className="text-xs text-gray-400 mt-0.5">→ {item.assignedTechnicianName}</p>
-                          )}
-                          {item.isCompleted && item.completedByName && (
-                            <p className="text-xs text-emerald-600 mt-0.5">✓ {item.completedByName}</p>
-                          )}
-                          {item.completionNote && (
-                            <p className="text-xs text-gray-600 mt-0.5 italic">Note: {item.completionNote}</p>
-                          )}
+                  {(() => {
+                    // Oversight roles (and the WO creator) see the whole
+                    // checklist; anyone else — e.g. a technician viewing
+                    // their WO before it's started, who doesn't hit the
+                    // ChecklistExecutor branch above — should only see the
+                    // steps assigned to them (or unassigned/general steps).
+                    const isOversightViewer =
+                      isSupervisor || (!!workOrder.createdBy && myIds.includes(workOrder.createdBy));
+                    const isStepAssignedToMe = (item: (typeof workOrder.checklist)[number]) => {
+                      const ids = [
+                        ...(item.assignedTechnicianIds ?? []),
+                        ...(item.assignedTechnicianId ? [item.assignedTechnicianId] : []),
+                      ];
+                      if (ids.length === 0) return true;
+                      return ids.some((id) => myIds.includes(id));
+                    };
+                    const visibleItems = workOrder.checklist.filter(
+                      (item) => isOversightViewer || isStepAssignedToMe(item),
+                    );
+                    return (
+                      <>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 transition-all"
+                            style={{
+                              width: `${
+                                visibleItems.length > 0
+                                  ? (visibleItems.filter((i) => i.isCompleted).length /
+                                    visibleItems.length) *
+                                    100
+                                  : 0
+                              }%`,
+                            }}
+                          />
                         </div>
-                        {item.isCompleted && (
-                          <span className="text-emerald-500 text-lg flex-shrink-0">✓</span>
-                        )}
-                      </li>
-                    ))}
-                  </ol>
+                        <p className="text-xs text-gray-500">
+                          {visibleItems.filter((i) => i.isCompleted).length} / {visibleItems.length} completed
+                        </p>
+                        <ol className="space-y-2">
+                          {visibleItems.map((item, i) => (
+                            <li key={i} className="flex items-start gap-3 bg-gray-50 rounded-lg px-4 py-3">
+                              <span className="flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold mt-0.5">
+                                {item.stepNumber}
+                              </span>
+                              <div className="flex-1">
+                                <p className={`text-sm ${item.isCompleted ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
+                                  {item.stepDescription}
+                                </p>
+                                {item.assignedTechnicianName && (
+                                  <p className="text-xs text-gray-400 mt-0.5">→ {item.assignedTechnicianName}</p>
+                                )}
+                                {item.isCompleted && item.completedByName && (
+                                  <p className="text-xs text-emerald-600 mt-0.5">✓ {item.completedByName}</p>
+                                )}
+                                {item.completionNote && (
+                                  <p className="text-xs text-gray-600 mt-0.5 italic">Note: {item.completionNote}</p>
+                                )}
+                              </div>
+                              {item.isCompleted && (
+                                <span className="text-emerald-500 text-lg flex-shrink-0">✓</span>
+                              )}
+                            </li>
+                          ))}
+                        </ol>
+                      </>
+                    );
+                  })()}
                 </>
               )}
             </div>
@@ -415,9 +439,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   </h3>
                   <div className="space-y-2">
                     {workOrder.partsUsed.map((part, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3">
+                      <div key={i} className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-lg px-4 py-3">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{part.partName}</p>
+                          <p className="text-sm font-medium text-gray-900 truncate">{part.partName}</p>
                           <p className="text-xs text-gray-500">
                             {part.quantity} {part.unit} · {part.source === 'stock' ? 'From store stock' : 'External purchase'}
                             {part.warrantyMonths ? ` · ${part.warrantyMonths}mo warranty` : ''}
