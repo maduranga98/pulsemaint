@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, onSnapshot, orderBy, query, where } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorDocument } from '@/lib/contractors/contractorTypes';
@@ -31,13 +31,22 @@ export function useContractorDocuments(contractorId: string | undefined) {
       return;
     }
 
+    // Query the contractor's documents subcollection directly (already scoped
+    // to this contractor) and sort client-side, so it works without a
+    // composite index and doesn't drop docs that were saved without companyId.
     const documentsRef = collection(db, 'contractors', contractorId, 'documents');
-    const documentsQuery = query(documentsRef, where('companyId', '==', companyId), orderBy('uploadedAt', 'desc'));
 
     return onSnapshot(
-      documentsQuery,
+      documentsRef,
       (snapshot) => {
-        setDocuments(snapshot.docs.map((doc) => withDerivedExpiry({ id: doc.id, ...doc.data() } as ContractorDocument)));
+        const docs = snapshot.docs
+          .map((doc) => withDerivedExpiry({ id: doc.id, ...doc.data() } as ContractorDocument))
+          .sort((a, b) => {
+            const at = a.uploadedAt?.toMillis?.() ?? 0;
+            const bt = b.uploadedAt?.toMillis?.() ?? 0;
+            return bt - at;
+          });
+        setDocuments(docs);
         setLoading(false);
       },
       (err) => {
