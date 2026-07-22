@@ -365,17 +365,28 @@ service cloud.firestore {
         );
       allow delete: if isAdmin();
 
-      match /documents/{documentId} {
-        function docCompanyMatches() {
-          return belongsToCompany(resource.data.companyId);
-        }
+      // Reads for the two subcollections below are driven by unfiltered
+      // `collection(...)` listeners on the client (see useContractorDocuments /
+      // useContractorTechnicians) so they also surface legacy docs saved
+      // without a companyId. Firestore rejects an entire `list` request outright
+      // if the rule depends on a resource.data field the query doesn't filter
+      // on (resource.data is per-result-document, not statically verifiable
+      // against an unconstrained query) — that silently zeroed out every
+      // document/technician list, uploads included, even though the writes
+      // themselves succeeded. Anchor the company check on the parent
+      // contractor doc (a single get(), independent of the query shape)
+      // instead of the subdocument's own companyId field.
+      function parentContractorCompanyMatches() {
+        return belongsToCompany(get(/databases/$(database)/documents/contractors/$(contractorId)).data.companyId);
+      }
 
+      match /documents/{documentId} {
         function newDocCompanyMatches() {
           return belongsToCompany(request.resource.data.companyId)
             && request.resource.data.contractorId == contractorId;
         }
 
-        allow read: if isAuthenticated() && docCompanyMatches()
+        allow read: if isAuthenticated() && parentContractorCompanyMatches()
           && (canReadContractors() || isHrOfficer());
         allow create, update: if isAuthenticated() && newDocCompanyMatches()
           && canManageContractors();
@@ -383,16 +394,12 @@ service cloud.firestore {
       }
 
       match /technicians/{technicianId} {
-        function techCompanyMatches() {
-          return belongsToCompany(resource.data.companyId);
-        }
-
         function newTechCompanyMatches() {
           return belongsToCompany(request.resource.data.companyId)
             && request.resource.data.contractorId == contractorId;
         }
 
-        allow read: if isAuthenticated() && techCompanyMatches() && canReadContractors();
+        allow read: if isAuthenticated() && parentContractorCompanyMatches() && canReadContractors();
         allow create, update: if isAuthenticated() && newTechCompanyMatches() && canManageContractors();
         allow delete: if false;
       }
