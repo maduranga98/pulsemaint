@@ -8,6 +8,10 @@ PulseMaint is a multi-tenant maintenance-management platform (CMMS): machine reg
 
 **The repo also contains a legacy/unused Vue scaffold** (`src/App.vue`, `src/main.js`, and the generic Vue boilerplate in `README.md`) — this is dead weight, not the active app. The real entry point is `src/main.tsx` → `src/App.tsx` → `src/router/AppRouter.tsx`. Don't edit the Vue files; they aren't wired to anything.
 
+## Git workflow
+
+Do not commit directly to `main`. For every fix or change, create a feature branch (e.g. `fix/<short-description>` or `claude/<short-description>`), commit there, and open a PR into `main` instead of pushing straight to it.
+
 ## Commands
 
 Frontend (run from repo root):
