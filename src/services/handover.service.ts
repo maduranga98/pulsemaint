@@ -6,6 +6,7 @@ import {
   getDoc,
   getDocs,
   limit,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -157,6 +158,19 @@ function mapHandover(id: string, data: DocumentData): ShiftHandover {
 export async function fetchShiftConfigs(companyId: string): Promise<ShiftConfig[]> {
   const snap = await getDocs(query(collection(db, 'shift_config'), where('companyId', '==', companyId), orderBy('startTime', 'asc')));
   return snap.docs.map((item) => mapShiftConfig(item.id, item.data()));
+}
+
+/** Live shift configs — recomputes whenever a shift plan is added/edited/removed. */
+export function subscribeShiftConfigs(
+  companyId: string,
+  callback: (configs: ShiftConfig[]) => void,
+  onError?: (message: string) => void,
+): () => void {
+  return onSnapshot(
+    query(collection(db, 'shift_config'), where('companyId', '==', companyId), orderBy('startTime', 'asc')),
+    (snap) => callback(snap.docs.map((item) => mapShiftConfig(item.id, item.data()))),
+    (err) => onError?.(err.message),
+  );
 }
 
 export async function saveShiftConfig(companyId: string, payload: Omit<ShiftConfig, 'id' | 'companyId'> & { id?: string }): Promise<string> {

@@ -14,6 +14,7 @@ import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
 import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
+import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 
 export default function ManagerDashboard() {
@@ -33,9 +34,13 @@ export default function ManagerDashboard() {
   }, []);
 
   useEffect(() => {
-    if (companyId) {
-      useDashboardStore.getState().fetchMonthlyAnalytics(companyId, currentMonth);
-    }
+    if (!companyId) return;
+    // Live subscription so the KPIs and breakdown-distribution chart update
+    // automatically as breakdowns / work orders / PM records change.
+    const unsub = subscribeMonthlyAnalytics(companyId, currentMonth, (data) => {
+      useDashboardStore.getState().setMonthlyAnalytics(data);
+    });
+    return () => unsub();
   }, [companyId, currentMonth]);
 
   const totalMaintenances =

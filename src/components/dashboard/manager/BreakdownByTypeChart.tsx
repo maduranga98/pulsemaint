@@ -21,7 +21,7 @@ export default function BreakdownByTypeChart({}: BreakdownByTypeChartProps) {
       ? Object.entries(monthly?.breakdownByType ?? {}).map(([name, value]) => ({ name, value }))
       : mode === 'severity'
         ? Object.entries(monthly?.breakdownBySeverity ?? {}).map(([name, value]) => ({ name, value }))
-        : []; // department not in monthly schema
+        : Object.entries(monthly?.breakdownByDepartment ?? {}).map(([name, value]) => ({ name, value }));
 
   const total = data.reduce((sum, d) => sum + d.value, 0);
 

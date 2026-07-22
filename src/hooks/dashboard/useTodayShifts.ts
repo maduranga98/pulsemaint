@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchShiftConfigs } from '../../services/handover.service';
+import { subscribeShiftConfigs } from '../../services/handover.service';
 import type { ShiftConfig } from '../../types/handover.types';
 
 export interface DepartmentShift {
@@ -40,62 +40,66 @@ const DAY_MAP: Record<number, string> = {
   6: 'Sat',
 };
 
+function groupTodayShifts(configs: ShiftConfig[]): DepartmentShift[] {
+  const today = DAY_MAP[new Date().getDay()];
+  const activeConfigs = configs.filter(
+    (c) => c.status === 'active' && c.activeDays.includes(today as ShiftConfig['activeDays'][number]),
+  );
+
+  const grouped = new Map<string, DepartmentShift['shifts']>();
+  for (const c of activeConfigs) {
+    const dept = c.department ?? 'General';
+    if (!grouped.has(dept)) grouped.set(dept, []);
+    grouped.get(dept)!.push({
+      shiftName: c.shiftName,
+      startTime: c.startTime,
+      endTime: c.endTime,
+      color: c.color,
+      memberCount: c.memberIds.length,
+      isActive: isShiftActiveNow(c.startTime, c.endTime),
+    });
+  }
+
+  return Array.from(grouped.entries())
+    .map(([department, shifts]) => ({ department, shifts }))
+    .sort((a, b) => a.department.localeCompare(b.department));
+}
+
 export function useTodayShifts(companyId: string) {
+  const [configs, setConfigs] = useState<ShiftConfig[]>([]);
   const [departments, setDepartments] = useState<DepartmentShift[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Live subscription to shift plans — reflects adds/edits/removals instantly.
   useEffect(() => {
     if (!companyId) {
       setLoading(false);
       return;
     }
-
-    let cancelled = false;
-
-    (async () => {
-      setLoading(true);
-      try {
-        const configs = await fetchShiftConfigs(companyId);
-        if (cancelled) return;
-
-        const today = DAY_MAP[new Date().getDay()];
-        const activeConfigs = configs.filter(
-          (c: ShiftConfig) =>
-            c.status === 'active' && c.activeDays.includes(today as ShiftConfig['activeDays'][number]),
-        );
-
-        const grouped = new Map<string, DepartmentShift['shifts']>();
-        for (const c of activeConfigs) {
-          const dept = c.department ?? 'General';
-          if (!grouped.has(dept)) grouped.set(dept, []);
-          grouped.get(dept)!.push({
-            shiftName: c.shiftName,
-            startTime: c.startTime,
-            endTime: c.endTime,
-            color: c.color,
-            memberCount: c.memberIds.length,
-            isActive: isShiftActiveNow(c.startTime, c.endTime),
-          });
-        }
-
-        const result: DepartmentShift[] = Array.from(grouped.entries())
-          .map(([department, shifts]) => ({ department, shifts }))
-          .sort((a, b) => a.department.localeCompare(b.department));
-
-        setDepartments(result);
+    setLoading(true);
+    const unsub = subscribeShiftConfigs(
+      companyId,
+      (next) => {
+        setConfigs(next);
         setError(null);
-      } catch (err) {
-        if (!cancelled) setError((err as Error).message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+        setLoading(false);
+      },
+      (message) => {
+        setError(message);
+        setLoading(false);
+      },
+    );
+    return () => unsub();
   }, [companyId]);
+
+  // Recompute the grouping (and the time-based "active" badge) on every config
+  // change and once a minute, so the widget stays current without a reload.
+  useEffect(() => {
+    setDepartments(groupTodayShifts(configs));
+    const id = setInterval(() => setDepartments(groupTodayShifts(configs)), 60_000);
+    return () => clearInterval(id);
+  }, [configs]);
 
   return { departments, loading, error };
 }

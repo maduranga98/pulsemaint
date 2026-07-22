@@ -1,32 +1,32 @@
-import { useState, useEffect, useCallback } from 'react';
-import { fetchMonthlyAnalytics } from '../../services/analytics.service';
+import { useState, useEffect } from 'react';
+import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import type { AnalyticsMonthly } from '../../types/analytics.types';
 
 export function useTopProblemMachines(companyId: string, month: string) {
   const [data, setData] = useState<AnalyticsMonthly | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Bump to force the live subscription to tear down and re-establish.
+  const [nonce, setNonce] = useState(0);
 
-  const fetch = useCallback(async () => {
+  useEffect(() => {
     if (!companyId || !month) {
       setLoading(false);
       return;
     }
     setLoading(true);
     setError(null);
-    try {
-      const result = await fetchMonthlyAnalytics(companyId, month);
+    let cancelled = false;
+    const unsub = subscribeMonthlyAnalytics(companyId, month, (result) => {
+      if (cancelled) return;
       setData(result);
-    } catch (err) {
-      setError((err as Error).message);
-    } finally {
       setLoading(false);
-    }
-  }, [companyId, month]);
+    });
+    return () => {
+      cancelled = true;
+      unsub();
+    };
+  }, [companyId, month, nonce]);
 
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
-
-  return { data, loading, error, refetch: fetch };
+  return { data, loading, error, refetch: () => setNonce((n) => n + 1) };
 }

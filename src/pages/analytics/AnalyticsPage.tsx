@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
+import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
@@ -47,9 +48,11 @@ export default function AnalyticsPage() {
   }, []);
 
   useEffect(() => {
-    if (companyId) {
-      useDashboardStore.getState().fetchMonthlyAnalytics(companyId, currentMonth);
-    }
+    if (!companyId) return;
+    const unsub = subscribeMonthlyAnalytics(companyId, currentMonth, (data) => {
+      useDashboardStore.getState().setMonthlyAnalytics(data);
+    });
+    return () => unsub();
   }, [companyId, currentMonth]);
 
   const kpis = [
