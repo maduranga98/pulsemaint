@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
-import { fetchShiftConfigs, fetchShiftSessionsForDate } from '@/services/handover.service';
+import { subscribeShiftConfigs, subscribeShiftSessionsForDate } from '@/services/handover.service';
 import type { ShiftConfig, ShiftSession } from '@/types/handover.types';
 import { formatTimeRange, getShiftDate } from '@/utils/handover.utils';
 
@@ -57,25 +57,31 @@ export function ShiftStatusPanel() {
 
   useEffect(() => {
     if (!companyId) return;
-    let cancelled = false;
     setLoading(true);
 
-    const load = () => {
-      const today = getShiftDate();
-      Promise.all([fetchShiftConfigs(companyId), fetchShiftSessionsForDate(companyId, today)])
-        .then(([shifts, sessions]) => {
-          if (cancelled) return;
-          const active = shifts.filter((s) => s.status === 'active');
-          setRows(active.map((shift) => deriveStatus(shift, sessions)));
-        })
-        .catch((err) => console.error('ShiftStatusPanel: failed to load shift status', err))
-        .finally(() => { if (!cancelled) setLoading(false); });
+    let shifts: ShiftConfig[] = [];
+    let sessions: ShiftSession[] = [];
+    const rebuild = () => {
+      const active = shifts.filter((s) => s.status === 'active');
+      setRows(active.map((shift) => deriveStatus(shift, sessions)));
+      setLoading(false);
     };
 
-    load();
-    // Auto-refresh so working/ended status stays current without a reload.
-    const id = setInterval(load, 30_000);
-    return () => { cancelled = true; clearInterval(id); };
+    // Live shift plans + today's sessions (any role) so working/ended status
+    // reflects clock-ins and clock-outs the instant they're written.
+    const today = getShiftDate();
+    const unsubConfigs = subscribeShiftConfigs(
+      companyId,
+      (next) => { shifts = next; rebuild(); },
+      (msg) => console.error('ShiftStatusPanel: shift configs error', msg),
+    );
+    const unsubSessions = subscribeShiftSessionsForDate(
+      companyId,
+      today,
+      (next) => { sessions = next; rebuild(); },
+      (msg) => console.error('ShiftStatusPanel: shift sessions error', msg),
+    );
+    return () => { unsubConfigs(); unsubSessions(); };
   }, [companyId]);
 
   if (loading && rows.length === 0) return null;

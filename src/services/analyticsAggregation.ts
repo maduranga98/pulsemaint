@@ -9,6 +9,7 @@ import type {
   TechnicianPerformanceRecord,
   ContractorPerformanceRecord,
 } from '../types/analytics.types';
+import { getEffectivePMHistoryStatus } from '../utils/pm.utils';
 
 // ---------------------------------------------------------------------------
 // Client-side analytics aggregation.
@@ -233,10 +234,13 @@ function buildMonthlyAnalytics(
   const breakdownRecordedDowntime = monthBreakdowns.reduce((s, b) => s + breakdownDowntimeHours(b), 0);
   const totalProductionHoursLost = woDowntimeHours + breakdownRecordedDowntime;
 
-  // PM compliance.
-  const pmRelevant = monthPm.filter((p) => p.status && p.status !== 'in_progress');
-  const pmOnTime = monthPm.filter((p) => p.status === 'completed_on_time').length;
-  const pmMissed = monthPm.filter((p) => p.status === 'missed').length;
+  // PM compliance. Overdue PMs are never stamped 'overdue' in Firestore, so an
+  // uncompleted PM past its due date is derived as overdue here and counted as
+  // missed — otherwise overdue PMs never surface in analytics.
+  const pmEff = monthPm.map((p) => getEffectivePMHistoryStatus(p));
+  const pmRelevant = pmEff.filter((s) => s && s !== 'in_progress');
+  const pmOnTime = pmEff.filter((s) => s === 'completed_on_time').length;
+  const pmMissed = pmEff.filter((s) => s === 'missed' || s === 'overdue').length;
   const pmComplianceRate = pmRelevant.length ? (pmOnTime / pmRelevant.length) * 100 : 0;
 
   // Breakdown groupings.

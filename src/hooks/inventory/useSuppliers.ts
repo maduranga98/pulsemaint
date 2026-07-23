@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { Supplier } from '@/types/inventory';
@@ -16,16 +16,20 @@ export function useSuppliers() {
       return;
     }
 
+    // Sorted client-side (below) to avoid a companyId+name composite index — a
+    // missing index would make the listener error and leave the supplier list
+    // (and the PO "Select Supplier" dropdown) permanently empty.
     const q = query(
       collection(db, 'suppliers'),
       where('companyId', '==', companyId),
-      orderBy('name', 'asc'),
     );
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        setSuppliers(snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as Supplier)));
+        const rows = snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as Supplier));
+        rows.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+        setSuppliers(rows);
         setLoading(false);
       },
       (err) => {
