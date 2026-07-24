@@ -12,6 +12,7 @@ import type { WOSignOffPayload } from '../types/workOrder';
 import type { BreakdownStatus } from '../types/breakdown';
 import { useAuthStore } from '../store/authStore';
 import { logAuditEvent } from '../utils/reports/auditLogger';
+import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 import { toast } from 'sonner';
 
 interface UseSignOffResult {
@@ -102,6 +103,9 @@ export function useSignOff(): UseSignOffResult {
           closedAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
+
+        // Keep the linked PM schedule in sync with the signed-off/closed WO.
+        await syncPmScheduleWoStatus(woId, 'CLOSED');
 
         // Keep a linked breakdown ticket in sync — closing the WO closes it.
         try {

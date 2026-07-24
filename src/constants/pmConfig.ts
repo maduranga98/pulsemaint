@@ -95,7 +95,7 @@ export const PM_PRIORITY_CONFIG: Record<'critical' | 'high' | 'medium' | 'low', 
 // Operational Status (computed from schedule + nextDueDate)
 // ---------------------------------------------------------------------------
 
-export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused' | 'completed';
+export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused' | 'completed' | 'in_progress';
 
 export interface PMOperationalStatusConfig {
   label: string;
@@ -106,11 +106,12 @@ export interface PMOperationalStatusConfig {
 }
 
 export const PM_OPERATIONAL_STATUS_CONFIG: Record<PMOperationalStatus, PMOperationalStatusConfig> = {
-  on_track:  { label: 'On Track',  bgClass: 'bg-emerald-100', textClass: 'text-emerald-800', dotClass: 'bg-emerald-500', icon: '🟢' },
-  due_soon:  { label: 'Due Soon',  bgClass: 'bg-amber-100',   textClass: 'text-amber-800',   dotClass: 'bg-amber-500',   icon: '🟡' },
-  overdue:   { label: 'Overdue',   bgClass: 'bg-red-100',     textClass: 'text-red-800',     dotClass: 'bg-red-500',     icon: '🔴' },
-  paused:    { label: 'Paused',    bgClass: 'bg-gray-100',    textClass: 'text-gray-600',    dotClass: 'bg-gray-400',    icon: '⏸️' },
-  completed: { label: 'Completed', bgClass: 'bg-blue-100',    textClass: 'text-blue-800',    dotClass: 'bg-blue-500',    icon: '✅' },
+  on_track:    { label: 'On Track',    bgClass: 'bg-emerald-100', textClass: 'text-emerald-800', dotClass: 'bg-emerald-500', icon: '🟢' },
+  due_soon:    { label: 'Due Soon',    bgClass: 'bg-amber-100',   textClass: 'text-amber-800',   dotClass: 'bg-amber-500',   icon: '🟡' },
+  overdue:     { label: 'Overdue',     bgClass: 'bg-red-100',     textClass: 'text-red-800',     dotClass: 'bg-red-500',     icon: '🔴' },
+  paused:      { label: 'Paused',      bgClass: 'bg-gray-100',    textClass: 'text-gray-600',    dotClass: 'bg-gray-400',    icon: '⏸️' },
+  completed:   { label: 'Completed',   bgClass: 'bg-blue-100',    textClass: 'text-blue-800',    dotClass: 'bg-blue-500',    icon: '✅' },
+  in_progress: { label: 'In Progress', bgClass: 'bg-indigo-100',  textClass: 'text-indigo-800',  dotClass: 'bg-indigo-500',  icon: '🔧' },
 };
 
 // ---------------------------------------------------------------------------

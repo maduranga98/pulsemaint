@@ -126,11 +126,24 @@ export function getComplianceTailwindClass(rate: number): string {
 // Operational Status Calculator
 // ---------------------------------------------------------------------------
 
+// Work-order statuses that mean a technician is actively servicing the PM
+// (or it is on a short hold mid-job) vs. finished.
+const WO_IN_PROGRESS_STATUSES = ['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
+const WO_DONE_STATUSES = ['COMPLETED', 'SIGNED_OFF', 'CLOSED'];
+
 export function getPMOperationalStatus(
-  schedule: Pick<PMSchedule, 'status' | 'nextDueDate'>,
+  schedule: Pick<PMSchedule, 'status' | 'nextDueDate'> & { activeWoStatus?: string | null },
 ): PMOperationalStatus {
   if (schedule.status === 'paused') return 'paused';
   if (schedule.status === 'completed') return 'completed';
+
+  // Reflect the live work order servicing this schedule so PM Schedules and the
+  // PM Calendar track the WO's real-time progress (in progress vs. completed)
+  // rather than only the calendar-derived due state.
+  const woStatus = schedule.activeWoStatus ?? null;
+  if (woStatus && WO_IN_PROGRESS_STATUSES.includes(woStatus)) return 'in_progress';
+  if (woStatus && WO_DONE_STATUSES.includes(woStatus)) return 'completed';
+
   if (schedule.status === 'archived') return 'on_track';
 
   const now = new Date();

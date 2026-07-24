@@ -7,6 +7,7 @@ import type { Permit } from '../types/permit';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { computeLotoGatePassed } from '../lib/lotoGate';
+import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 
 interface UseUpdateWorkOrderResult {
   updateWO: (id: string, data: Partial<WorkOrder>) => Promise<boolean>;
@@ -195,6 +196,10 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
         } catch (bdErr) {
           console.error('Failed to sync breakdown progress', bdErr);
         }
+
+        // Reflect the WO's live status on its linked PM schedule (PM Schedules
+        // list, calendar and detail all read this).
+        await syncPmScheduleWoStatus(id, status);
 
         toast.success(`Status updated to ${status.replace(/_/g, ' ')}`);
         return true;

@@ -7,6 +7,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { PMSchedule, CalendarEvent } from '../../types/pm.types';
+import { getPMOperationalStatus } from '../../utils/pm.utils';
 
 interface UsePMCalendarEventsOptions {
   companyId: string;
@@ -23,6 +24,8 @@ interface PMWorkOrderEvent {
   priority: 'critical' | 'high' | 'medium' | 'low';
   assignedTechnicianNames: string[];
   status: 'active' | 'paused';
+  woStatus: string;
+  pmScheduleId: string | null;
 }
 
 export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCalendarEventsOptions) {
@@ -87,6 +90,8 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
           priority: data.priority ?? 'medium',
           assignedTechnicianNames: data.assignedTechnicianNames ?? [],
           status: 'active',
+          woStatus: data.status ?? 'OPEN',
+          pmScheduleId: data.pmScheduleId ?? null,
         });
       });
       setPmWOs(list);
@@ -101,6 +106,8 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
   }, [companyId, siteId]);
 
   const events: CalendarEvent[] = useMemo(() => {
+    const scheduleIds = new Set(schedules.map((s) => s.id));
+
     const scheduleEvents: CalendarEvent[] = schedules.map((s) => {
       const nextDue = s.nextDueDate instanceof Date
         ? s.nextDueDate
@@ -116,20 +123,30 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
         technicianNames: s.assignedTechnicianNames,
         pmType: s.pmType,
         status: s.status,
+        operationalStatus: getPMOperationalStatus(s),
       };
     });
 
-    const woEvents: CalendarEvent[] = pmWOs.map((wo) => ({
-      id: `wo-${wo.id}`,
-      scheduleId: '',
-      title: wo.description.slice(0, 60),
-      date: wo.dueDate,
-      priority: wo.priority,
-      machineName: wo.machineName,
-      technicianNames: wo.assignedTechnicianNames,
-      pmType: 'other',
-      status: wo.status,
-    }));
+    const woEvents: CalendarEvent[] = pmWOs
+      // Skip ad-hoc PM WOs that already surface through their own schedule
+      // record so the same PM isn't drawn twice on the calendar.
+      .filter((wo) => !(wo.pmScheduleId && scheduleIds.has(wo.pmScheduleId)))
+      .map((wo) => ({
+        id: `wo-${wo.id}`,
+        scheduleId: wo.pmScheduleId ?? '',
+        title: wo.description.slice(0, 60),
+        date: wo.dueDate,
+        priority: wo.priority,
+        machineName: wo.machineName,
+        technicianNames: wo.assignedTechnicianNames,
+        pmType: 'other',
+        status: wo.status,
+        operationalStatus: getPMOperationalStatus({
+          status: 'active',
+          nextDueDate: wo.dueDate as unknown as PMSchedule['nextDueDate'],
+          activeWoStatus: wo.woStatus,
+        }),
+      }));
 
     return [...scheduleEvents, ...woEvents].filter((e) => {
       if (month === undefined || year === undefined) return true;
