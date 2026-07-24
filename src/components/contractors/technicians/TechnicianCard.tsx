@@ -1,9 +1,12 @@
+import { Link } from 'react-router-dom';
 import { Edit, Eye, UserRound } from 'lucide-react';
 import type { ContractorTechnician } from '@/lib/contractors/contractorTypes';
 import ContractorSpecializationTags from '@/components/contractors/registry/ContractorSpecializationTags';
 
 interface TechnicianCardProps {
   technician: ContractorTechnician;
+  contractorId?: string;
+  canManage?: boolean;
   onView?: (technician: ContractorTechnician) => void;
 }
 
@@ -11,7 +14,7 @@ function maskId(value: string) {
   return value.length <= 4 ? value : `****${value.slice(-4)}`;
 }
 
-export function TechnicianCard({ technician, onView }: TechnicianCardProps) {
+export function TechnicianCard({ technician, contractorId, canManage, onView }: TechnicianCardProps) {
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
@@ -43,10 +46,15 @@ export function TechnicianCard({ technician, onView }: TechnicianCardProps) {
           <Eye className="h-3.5 w-3.5" />
           View
         </button>
-        <button type="button" className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">
-          <Edit className="h-3.5 w-3.5" />
-          Edit
-        </button>
+        {canManage && contractorId && (
+          <Link
+            to={`/app/contractors/${contractorId}/technicians/${technician.id}/edit`}
+            className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700"
+          >
+            <Edit className="h-3.5 w-3.5" />
+            Edit
+          </Link>
+        )}
       </div>
     </article>
   );
