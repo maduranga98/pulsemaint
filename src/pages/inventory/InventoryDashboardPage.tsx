@@ -184,7 +184,9 @@ function FullInventoryDashboard() {
           {outOfStockParts.length > 0 && <OutOfStockWidget parts={outOfStockParts} />}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <PendingRequestsWidget requests={requests} />
+            {/* "Pending Requests" must list only requests still awaiting action,
+                not every request (issued/completed belong on the requests page). */}
+            <PendingRequestsWidget requests={requests.filter((r) => PENDING_STATUSES.has(r.status))} />
             <LowStockWidget parts={parts.filter((p) => p.currentStock > 0)} />
           </div>
 

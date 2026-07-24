@@ -14,13 +14,13 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { id: 'all', label: 'All' },
   { id: 'pending_storekeeper', label: 'Pending' },
   { id: 'pending_supervisor', label: 'Awaiting Supervisor' },
   { id: 'parts_reserved', label: 'Need to Collect' },
   { id: 'issued', label: 'Issued' },
   { id: 'completed', label: 'Completed' },
   { id: 'rejected', label: 'Rejected' },
+  { id: 'all', label: 'All' },
 ];
 
 const PRIORITY_OPTIONS = [
@@ -45,10 +45,9 @@ function SkeletonRow() {
 
 export function RequestsQueue() {
   const navigate = useNavigate();
-  // Default to "All" so newly-requested, reserved, and already-issued requests
-  // are all visible at once — the storekeeper had to hunt through tabs to see
-  // anything past the newly-requested queue otherwise.
-  const [activeTab, setActiveTab] = useState<TabId>('all');
+  // Open on the "Pending" queue (first tab); "All" remains available as the
+  // last tab for seeing every status at once.
+  const [activeTab, setActiveTab] = useState<TabId>('pending_storekeeper');
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
 

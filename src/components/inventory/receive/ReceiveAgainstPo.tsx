@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   doc,
   collection,
@@ -25,6 +25,7 @@ export function ReceiveAgainstPo() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId;
   const toast = useToast();
+  const navigate = useNavigate();
 
   const { orders, loading: ordersLoading } = usePurchaseOrders();
   const pendingOrders = orders.filter((o) =>
@@ -176,6 +177,9 @@ export function ReceiveAgainstPo() {
       setRowData({});
       setDeliveryRef('');
       setNotes('');
+      // Close the receive form and land on the catalog, where the live
+      // inventory list already reflects the new stock quantities.
+      navigate('/app/inventory/catalog');
     } catch (err) {
       console.error(err);
       toast.error('Failed to record receipt. Please try again.');
