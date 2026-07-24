@@ -30,7 +30,7 @@ export function ContractorFormSection3({ initial }: Props) {
           <option value="custom">Custom</option>
         </select>
         <input name="emergencyResponseTime" defaultValue={initial?.emergencyResponseTime ?? ''} placeholder="Emergency Response Time" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <input name="teamSize" type="number" defaultValue={initial?.teamSizeAvailable ?? ''} placeholder="Team Size Available" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input name="teamSizeAvailable" type="number" defaultValue={initial?.teamSizeAvailable ?? ''} placeholder="Team Size Available" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
         <input name="languagesSpoken" defaultValue={(initial?.languagesSpoken ?? []).join(', ')} placeholder="Languages Spoken" className="h-10 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2" />
       </div>
     </section>

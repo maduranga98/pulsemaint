@@ -24,15 +24,18 @@ export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) 
   // hr_officer viewing job history for compliance) get the reference number
   // as plain text instead of a dead-end link.
   const { canReadRegistry } = useContractorAccess();
-  const avgRating = jobs.filter((job) => job.rating).reduce((sum, job) => sum + (job.rating?.overallScore ?? 0), 0) / Math.max(1, jobs.filter((job) => job.rating).length);
+  const ratedJobs = jobs.filter((job) => job.rating);
+  const avgRating = ratedJobs.reduce((sum, job) => sum + (job.rating?.overallScore ?? 0), 0) / Math.max(1, ratedJobs.length);
+  const jobCost = (job: ContractorJob) => job.totalProjectCost ?? job.systemInvoiceAmount ?? 0;
+  const totalCost = jobs.reduce((sum, job) => sum + jobCost(job), 0);
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-4">
         <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Total jobs</p><p className="text-2xl font-bold">{jobs.length}</p></div>
         <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Avg rating</p><p className="text-2xl font-bold">{avgRating.toFixed(1)}</p></div>
+        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Total cost</p><p className="text-2xl font-bold">{formatLkr(totalCost)}</p></div>
         <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">SLA jobs</p><p className="text-2xl font-bold">{jobs.filter((job) => job.signedOffAt && job.slaDeadline && job.signedOffAt.toMillis() <= job.slaDeadline.toMillis()).length}</p></div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Invoice flags</p><p className="text-2xl font-bold">{jobs.filter((job) => job.invoiceVarianceFlagged).length}</p></div>
       </div>
       <div className="space-y-3">
         {jobs.map((job) => (
@@ -55,8 +58,8 @@ export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) 
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               <span>On-site: {job.onSiteDurationMinutes ?? 0} min</span>
-              <span>Rating: {job.rating?.overallScore.toFixed(1) ?? '-'}</span>
-              <span>Invoice: {formatLkr(job.contractorInvoiceAmount)} | System: {formatLkr(job.systemInvoiceAmount)}</span>
+              <span>Rating: {job.rating ? `${job.rating.overallScore.toFixed(1)} ★` : '-'}</span>
+              <span className="font-medium text-slate-800">Project cost: {formatLkr(jobCost(job))}</span>
               {typeof job.invoiceVariancePercent === 'number' && <InvoiceVarianceBadge percent={job.invoiceVariancePercent} />}
             </div>
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">

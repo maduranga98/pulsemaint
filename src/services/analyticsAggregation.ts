@@ -295,6 +295,14 @@ function buildMonthlyAnalytics(
     m.cost += woPartsCost(w);
     m._sevRank = Math.max(m._sevRank, SEVERITY_RANK[String(w.priority ?? 'low')] ?? 1);
   });
+  // Contractor jobs signed off this month add their cost to the machine they
+  // were performed on, so the machine's cost roll-up reflects external work too.
+  monthContractor.forEach((c) => {
+    const id = String(c.machineId ?? c.machineName ?? '');
+    if (!id) return;
+    const m = ensureMachine(id, String(c.machineName ?? id), Number(c.machineCriticality ?? 3));
+    m.cost += Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
+  });
   const topProblemMachines: TopProblemMachine[] = Array.from(machineAgg.values())
     // Rank by WO count, then breakdown count as a tie-breaker.
     .sort((a, b) => b.woCount - a.woCount || b.breakdownCount - a.breakdownCount)
@@ -567,7 +575,7 @@ export async function computeDailyAnalytics(
     if (done) {
       const e = byDate.get(dateKey(done));
       if (e) {
-        const amount = Number(c.systemInvoiceAmount ?? 0);
+        const amount = Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
         e.contractorCostLKR += amount;
         e.maintenanceCostLKR += amount;
       }

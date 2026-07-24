@@ -65,6 +65,15 @@ export type InvoiceStatus = 'pending' | 'approved' | 'disputed' | 'paid';
 export type TestRunResult = 'pass' | 'fail' | 'partial';
 export type MachineStatusAfter = 'operational' | 'partially_operational' | 'still_down';
 
+export interface ContractorCompletedProject {
+  name: string;
+  cost: string;
+  rating: string;
+  duration: string;
+  contractType: string;
+  forbiddenActions: string;
+}
+
 export interface Contractor {
   id: string;
   companyId: string;
@@ -111,9 +120,13 @@ export interface Contractor {
   travelFee?: string;
   bankName?: string;
   bankBranch?: string;
+  bankAccountName?: string;
   bankAccountNumber?: string;
+  bankRoutingNumber?: string;
   taxRegistrationNumber?: string;
   preferredInvoiceFormat?: InvoiceFormat;
+  paymentMethods?: string[];
+  previouslyCompletedProjects?: ContractorCompletedProject[];
   totalJobsCount: number;
   breakdownJobsCount: number;
   pmJobsCount: number;
@@ -291,6 +304,10 @@ export interface ContractorJob {
   signedOffAt?: Timestamp | null;
   signOffNotes?: string;
   signOffSignature?: string;
+  // Total cost of the work captured by the supervisor/plant manager/admin at
+  // sign-off. Mirrored into systemInvoiceAmount so it flows into the machine
+  // and maintenance cost analysis.
+  totalProjectCost?: number;
   isDisputed?: boolean;
   disputeNotes?: string;
   contractorInvoiceAmount?: number;
