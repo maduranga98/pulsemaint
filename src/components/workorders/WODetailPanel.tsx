@@ -321,8 +321,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
               {/* Completion info (if completed) */}
               {workOrder.workDoneDescription && (
-                <section className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
-                  <h3 className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">Completion</h3>
+                <section className="bg-emerald-100 border border-emerald-300 rounded-xl p-4 space-y-2">
+                  <h3 className="text-xs font-bold text-emerald-900 uppercase tracking-wide">Completion</h3>
                   <p className="text-sm font-medium text-gray-900 whitespace-pre-line">{workOrder.workDoneDescription}</p>
                   {workOrder.rootCause && (
                     <p className="text-sm text-gray-900">
@@ -336,8 +336,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     <p className="text-sm text-gray-900">
                       Test run:
                       <span className={`ml-1 font-semibold ${
-                        workOrder.testRunResult === 'pass' ? 'text-emerald-700' :
-                        workOrder.testRunResult === 'fail' ? 'text-red-700' : 'text-amber-700'
+                        workOrder.testRunResult === 'pass' ? 'text-emerald-800' :
+                        workOrder.testRunResult === 'fail' ? 'text-red-800' : 'text-amber-800'
                       }`}>
                         {workOrder.testRunResult}
                       </span>
