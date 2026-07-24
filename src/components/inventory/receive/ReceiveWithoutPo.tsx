@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import {
   doc,
@@ -31,6 +32,7 @@ export function ReceiveWithoutPo() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId;
   const toast = useToast();
+  const navigate = useNavigate();
 
   const [selectedParts, setSelectedParts] = useState<SelectedPart[]>([]);
   const [rowData, setRowData] = useState<Record<string, RowData>>({});
@@ -128,6 +130,9 @@ export function ReceiveWithoutPo() {
 
       toast.success('Stock received successfully');
       clearForm();
+      // Close the receive form and land on the catalog, where the live
+      // inventory list already reflects the new stock quantities.
+      navigate('/app/inventory/catalog');
     } catch (err) {
       console.error(err);
       toast.error('Failed to record receipt. Please try again.');
