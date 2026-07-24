@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   limit,
   orderBy,
@@ -34,6 +35,15 @@ const toDate = (value: unknown): Date => {
   if (value instanceof Date) return value;
   return new Date();
 };
+
+// Turns a snake_case enum value (e.g. 'wear_and_tear') into a readable label
+// ('Wear And Tear') for display columns.
+const prettifyEnum = (value: unknown): string =>
+  String(value ?? '')
+    .replace(/[_-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (m) => m.toUpperCase());
 
 const toReportHistory = (id: string, data: Record<string, unknown>): ReportHistory => ({
   id,
@@ -301,7 +311,28 @@ export async function fetchReportRows(
       // flatten them to top-level keys so report columns (which only read
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
       const stats = (data.stats as Record<string, unknown> | undefined) ?? {};
-      rows.push({ source, row: { id: item.id, ...data, ...stats } });
+      const row: Record<string, unknown> = { id: item.id, ...data, ...stats };
+
+      // Breakdown Summary: expose a single "RCA Reason" cell — the free-text
+      // root-cause description when present, otherwise the readable enum.
+      if (reportType === 'breakdown_summary') {
+        row.rcaReason = data.rootCauseDescription
+          ? String(data.rootCauseDescription)
+          : data.rootCause
+            ? prettifyEnum(data.rootCause)
+            : '';
+      }
+
+      // Work Order Detail: roll every person who participated in the work
+      // (assigned internal technicians + any contractor technicians) into one
+      // list column; sign-off and creator details come from their own fields.
+      if (reportType === 'work_order_detail') {
+        const techNames = Array.isArray(data.assignedTechnicianNames) ? (data.assignedTechnicianNames as unknown[]) : [];
+        const contractorNames = Array.isArray(data.contractorTechnicianNames) ? (data.contractorTechnicianNames as unknown[]) : [];
+        row.participants = [...techNames, ...contractorNames].map((n) => String(n)).filter(Boolean);
+      }
+
+      rows.push({ source, row });
     });
   }
 
@@ -368,6 +399,57 @@ export async function fetchReportRows(
     }
     return true;
   });
+}
+
+// Fields surfaced in the Machine History report's profile block. Kept as a
+// simple label/value list so the PDF can render it without knowing the machine
+// schema.
+export interface MachineProfileField {
+  label: string;
+  value: string;
+}
+
+// Reads the selected machine's registry document and returns a flat set of
+// profile fields for the Machine History report header. Returns null when the
+// machine can't be read (e.g. deleted, or the user lacks access).
+export async function fetchMachineProfile(machineId: string): Promise<MachineProfileField[] | null> {
+  if (!machineId) return null;
+  let data: Record<string, unknown> | undefined;
+  try {
+    const snap = await getDoc(doc(db, 'machines', machineId));
+    if (!snap.exists()) return null;
+    data = snap.data();
+  } catch {
+    return null;
+  }
+  if (!data) return null;
+
+  const asDate = (value: unknown): string => {
+    if (value && typeof (value as Timestamp).toDate === 'function') return (value as Timestamp).toDate().toLocaleDateString();
+    return value ? String(value) : '—';
+  };
+  const text = (value: unknown): string => (value == null || value === '' ? '—' : String(value));
+
+  const location = [data.department, data.floor, data.bay, data.station]
+    .filter((part) => part != null && part !== '')
+    .map((part) => String(part))
+    .join(' · ');
+
+  return [
+    { label: 'Machine', value: text(data.name) },
+    { label: 'Manufacturer', value: text(data.manufacturer) },
+    { label: 'Model', value: text(data.model) },
+    { label: 'Serial Number', value: text(data.serialNumber) },
+    { label: 'Type', value: prettifyEnum(data.type) || '—' },
+    { label: 'Department', value: text(data.department) },
+    { label: 'Location', value: location || '—' },
+    { label: 'Status', value: prettifyEnum(data.status) || '—' },
+    { label: 'Criticality', value: text(data.criticality) },
+    { label: 'Health Score', value: data.healthScore != null ? String(data.healthScore) : '—' },
+    { label: 'Installation Date', value: asDate(data.installationDate) },
+    { label: 'Last Service', value: asDate(data.lastServiceDate) },
+    { label: 'Next PM Due', value: asDate(data.nextPmDue) },
+  ];
 }
 
 export async function createReportHistory(input: {

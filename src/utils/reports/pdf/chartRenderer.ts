@@ -5,11 +5,46 @@ export interface ChartDatum {
 
 const PALETTE = ['#1A56DB', '#10B981', '#00C2FF', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6'];
 
+export interface BarChartOptions {
+  // When true, each bar is coloured on a green→amber→red scale according to how
+  // large its value is relative to the largest bar, so higher counts stand out.
+  colorByValue?: boolean;
+}
+
+// Maps a 0..1 ratio to a green (low) → amber (mid) → red (high) colour.
+function heatColor(ratio: number): string {
+  const clamped = Math.max(0, Math.min(1, ratio));
+  const stops = [
+    { at: 0, c: [16, 185, 129] }, // #10B981 green
+    { at: 0.5, c: [245, 158, 11] }, // #F59E0B amber
+    { at: 1, c: [239, 68, 68] }, // #EF4444 red
+  ];
+  let lower = stops[0];
+  let upper = stops[stops.length - 1];
+  for (let i = 0; i < stops.length - 1; i += 1) {
+    if (clamped >= stops[i].at && clamped <= stops[i + 1].at) {
+      lower = stops[i];
+      upper = stops[i + 1];
+      break;
+    }
+  }
+  const span = upper.at - lower.at || 1;
+  const t = (clamped - lower.at) / span;
+  const rgb = lower.c.map((v, i) => Math.round(v + (upper.c[i] - v) * t));
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
 /**
  * Renders a simple vertical bar chart onto an offscreen canvas and returns a
  * PNG data URL suitable for jsPDF.addImage. Dependency-free.
  */
-export function renderBarChart(title: string, data: ChartDatum[], width = 900, height = 420): string | null {
+export function renderBarChart(
+  title: string,
+  data: ChartDatum[],
+  width = 900,
+  height = 420,
+  options: BarChartOptions = {},
+): string | null {
   if (typeof document === 'undefined' || data.length === 0) return null;
   const canvas = document.createElement('canvas');
   // Render at 2x for crisp output in the PDF.
@@ -67,7 +102,7 @@ export function renderBarChart(title: string, data: ChartDatum[], width = 900, h
     const x = padLeft + slot * i + (slot - barW) / 2;
     const h = (d.value / maxValue) * chartH;
     const y = baseY - h;
-    ctx.fillStyle = PALETTE[i % PALETTE.length];
+    ctx.fillStyle = options.colorByValue ? heatColor(d.value / maxValue) : PALETTE[i % PALETTE.length];
     ctx.fillRect(x, y, barW, h);
 
     // Value label.

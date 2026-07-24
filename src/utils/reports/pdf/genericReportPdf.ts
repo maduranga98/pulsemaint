@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
-import { fetchReportRows } from '../../../services/reports.service';
+import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '../../../services/reports.service';
 import type { ReportConfig, ReportType } from '../../../types/reports.types';
 import { resolveColumns, formatCell } from '../reportColumns';
 import type { ReportColumn } from '../reportColumns';
@@ -45,6 +45,28 @@ function buildChartData(
 }
 
 /**
+ * Builds a frequency distribution of `key` across the rows — used for the
+ * report-specific charts (breakdown counts by type / by machine, WO counts).
+ */
+function countBy(
+  rows: Record<string, unknown>[],
+  key: string,
+  { max = 10 }: { max?: number } = {},
+): ChartDatum[] {
+  const counts = new Map<string, number>();
+  rows.forEach((r) => {
+    const v = r[key];
+    if (v == null || v === '') return;
+    const label = String(v);
+    counts.set(label, (counts.get(label) ?? 0) + 1);
+  });
+  return Array.from(counts.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, max);
+}
+
+/**
  * Builds a PDF for the given report entirely on the client and triggers a
  * download. No Cloud Function required.
  */
@@ -56,12 +78,22 @@ export async function exportGenericReportPdf(
   const definition = REPORT_DEFINITIONS[reportType];
   const rows = await fetchReportRows(reportType, companyId, config);
 
+  // Machine History leads with the machine's profile, so pull it up-front.
+  const machineProfile =
+    reportType === 'machine_history' && config.machines.length === 1
+      ? await fetchMachineProfile(config.machines[0])
+      : null;
+
   const landscape = config.orientation === 'landscape';
   const doc = new jsPDF({
     orientation: landscape ? 'landscape' : 'portrait',
     unit: 'pt',
     format: (config.paperSize?.toLowerCase() as 'a4' | 'letter') ?? 'a4',
   });
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const bottomMargin = 40;
 
   // Header
   doc.setFontSize(16);
@@ -72,37 +104,81 @@ export async function exportGenericReportPdf(
   doc.text(`Generated: ${new Date().toLocaleString()}  ·  ${rows.length} record(s)`, 40, 72);
   doc.setTextColor(0);
 
+  let cursorY = 90;
+
+  // Renders the machine profile as a two-column key/value block.
+  const renderProfile = (profile: MachineProfileField[]) => {
+    doc.setFontSize(12);
+    doc.text('Machine Profile', 40, cursorY);
+    cursorY += 8;
+    autoTable(doc, {
+      body: profile.map((f) => [f.label, f.value]),
+      startY: cursorY,
+      theme: 'grid',
+      styles: { fontSize: 8, cellPadding: 3 },
+      columnStyles: {
+        0: { fontStyle: 'bold', fillColor: [240, 244, 248], cellWidth: 120 },
+        1: { cellWidth: 'auto' },
+      },
+      margin: { left: 40, right: 40 },
+    });
+    const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY;
+    cursorY = (finalY ?? cursorY) + 20;
+  };
+
+  // Places a chart image, breaking to a new page first if it wouldn't fit.
+  const renderChart = (title: string, data: ChartDatum[], colorByValue = false) => {
+    if (data.length === 0) return;
+    const dataUrl = renderBarChart(title, data, 900, 420, { colorByValue });
+    if (!dataUrl) return;
+    const imgW = pageWidth - 80;
+    const imgH = imgW * (420 / 900);
+    if (cursorY + imgH > pageHeight - bottomMargin) {
+      doc.addPage();
+      cursorY = 40;
+    }
+    doc.addImage(dataUrl, 'PNG', 40, cursorY, imgW, imgH);
+    cursorY += imgH + 20;
+  };
+
+  if (machineProfile && machineProfile.length > 0) {
+    renderProfile(machineProfile);
+  }
+
   if (rows.length === 0) {
     doc.setFontSize(12);
-    doc.text('No records matched this report configuration.', 40, 110);
+    doc.text('No records matched this report configuration.', 40, cursorY + 20);
   } else {
     const allColumns = resolveColumns(reportType, rows);
-    let tableStartY = 90;
 
-    // Optional summary chart.
+    // Optional charts. A few reports get purpose-built charts; everything else
+    // falls back to the single best-fit categorical distribution.
     if (config.includeCharts) {
-      const chart = buildChartData(allColumns, rows);
-      if (chart) {
-        const dataUrl = renderBarChart(chart.title, chart.data);
-        if (dataUrl) {
-          const pageWidth = doc.internal.pageSize.getWidth();
-          const imgW = pageWidth - 80;
-          const imgH = imgW * (420 / 900);
-          doc.addImage(dataUrl, 'PNG', 40, tableStartY, imgW, imgH);
-          tableStartY += imgH + 20;
-        }
+      if (reportType === 'breakdown_summary') {
+        // Breakdown counts by type and by machine.
+        renderChart('Breakdown counts by type', countBy(rows, 'type'));
+        renderChart('Breakdown counts by machine', countBy(rows, 'machineName'));
+      } else if (reportType === 'machine_history') {
+        // Work-order counts for this machine, coloured by count magnitude.
+        renderChart('Work order counts by type', countBy(rows, 'woType'), true);
+      } else {
+        const chart = buildChartData(allColumns, rows);
+        if (chart) renderChart(chart.title, chart.data);
       }
     }
 
-    // Use curated columns; cap how many fit the page width.
-    const columns = allColumns.slice(0, landscape ? 10 : 7);
+    // Use curated columns; cap how many fit the page width. Work Order Detail
+    // is exempt from the cap because its people/date columns are all required —
+    // autoTable wraps them to fit rather than dropping them.
+    const columnCap = reportType === 'work_order_detail' ? allColumns.length : landscape ? 10 : 7;
+    const columns = allColumns.slice(0, columnCap);
     const head = [columns.map((c) => c.label)];
     const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format))));
 
     autoTable(doc, {
       head,
       body,
-      startY: tableStartY,
+      startY: cursorY,
       styles: { fontSize: 7, cellPadding: 3, overflow: 'linebreak' },
       headStyles: { fillColor: [10, 22, 40], textColor: 255 },
       margin: { left: 40, right: 40 },
