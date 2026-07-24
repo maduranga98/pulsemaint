@@ -14,10 +14,8 @@ interface TabDef {
 }
 
 const TABS: TabDef[] = [
-  { id: 'pending_storekeeper', label: 'Pending' },
-  { id: 'pending_supervisor', label: 'Awaiting Supervisor' },
-  { id: 'parts_reserved', label: 'Need to Collect' },
-  { id: 'issued', label: 'Issued' },
+  { id: 'pending_storekeeper', label: 'To Review' },
+  { id: 'parts_reserved', label: 'Parts to Collect' },
   { id: 'completed', label: 'Completed' },
   { id: 'rejected', label: 'Rejected' },
   { id: 'all', label: 'All' },
