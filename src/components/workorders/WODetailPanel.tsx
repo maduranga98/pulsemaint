@@ -9,11 +9,10 @@ import { PriorityBadge } from './PriorityBadge';
 import { WOStatusBadge } from './WOStatusBadge';
 import { SLACountdownTimer } from './SLACountdownTimer';
 import { WOCompletionForm } from './WOCompletionForm';
-import { SignatureCanvas } from './SignatureCanvas';
+import { WOSignOffForm } from './WOSignOffForm';
 import { ChecklistExecutor } from './ChecklistExecutor';
 import { LotoGate } from './LotoGate';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
-import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
 
 type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history';
@@ -28,14 +27,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [showCompletionForm, setShowCompletionForm] = useState(false);
   const [showSignOff, setShowSignOff] = useState(false);
-  const [signature, setSignature] = useState<string | null>(null);
-  const [signOffNotes, setSignOffNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
 
   const { updateWO, updateStatus, loading: statusLoading } = useUpdateWorkOrder();
-  const { signOff, loading: signOffLoading } = useSignOff();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = (userProfile?.role ?? '') as string;
@@ -113,12 +109,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const canExecuteChecklist =
     ['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) &&
     (isSupervisor || (isTechnician && isAssigned));
-
-  async function handleSignOff() {
-    if (!signature) return;
-    await signOff(workOrder.id, workOrder.siteId, { signature, notes: signOffNotes });
-    setShowSignOff(false);
-  }
 
   const containerClass = fullPage
     ? 'min-h-screen bg-gray-50'
@@ -419,6 +409,38 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   </div>
                 </section>
               )}
+
+              {/* Sign-off record — auto-captured when a supervisor/manager
+                  signs off and closes the WO. */}
+              {workOrder.supervisorSignOffAt && (
+                <section className="bg-gray-50 rounded-xl p-4 space-y-1.5">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sign-Off</h3>
+                  {workOrder.signOffOutcome && (
+                    <p className="text-sm">
+                      Outcome:{' '}
+                      <span className={`font-semibold ${
+                        workOrder.signOffOutcome === 'complete' ? 'text-emerald-600' :
+                        workOrder.signOffOutcome === 'failed' ? 'text-red-600' : 'text-amber-600'
+                      }`}>
+                        {workOrder.signOffOutcome === 'complete' ? 'Complete' :
+                         workOrder.signOffOutcome === 'failed' ? 'Failed' : 'Not complete'}
+                      </span>
+                    </p>
+                  )}
+                  {workOrder.signOffOutcomeReason && (
+                    <p className="text-sm text-gray-700">Reason: {workOrder.signOffOutcomeReason}</p>
+                  )}
+                  {workOrder.supervisorSignOffNotes && (
+                    <p className="text-sm text-gray-700 italic">"{workOrder.supervisorSignOffNotes}"</p>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Signed off by {workOrder.supervisorSignOffByName || workOrder.closedByName || '—'}
+                    {workOrder.supervisorSignOffAt?.toDate
+                      ? ` · ${workOrder.supervisorSignOffAt.toDate().toLocaleString()}`
+                      : ''}
+                  </p>
+                </section>
+              )}
             </div>
           )}
 
@@ -652,41 +674,18 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* Sign-off panel */}
           {showSignOff && (
             <div className="bg-white border-2 border-blue-100 rounded-xl p-5 space-y-4">
-              <h3 className="font-semibold text-gray-900">{WO_COPY.signOffTitle}</h3>
-              <p className="text-sm text-gray-600">{WO_COPY.signOffInstructions}</p>
-              <SignatureCanvas onSave={(dataUrl) => setSignature(dataUrl)} />
-              {signature && (
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Preview:</p>
-                  <img src={signature} alt="Signature preview" className="h-20 border border-gray-200 rounded" />
-                </div>
-              )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{WO_COPY.signOffNotesLabel}</label>
-                <textarea
-                  rows={2}
-                  value={signOffNotes}
-                  onChange={(e) => setSignOffNotes(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none"
-                />
+                <h3 className="font-semibold text-gray-900">{WO_COPY.signOffTitle}</h3>
+                <p className="text-sm text-gray-600">{WO_COPY.signOffInstructions}</p>
               </div>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowSignOff(false)}
-                  className="flex-1 py-2 text-sm text-gray-600 hover:text-gray-900"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSignOff}
-                  disabled={!signature || signOffLoading}
-                  className="flex-1 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50"
-                >
-                  {signOffLoading ? 'Signing…' : WO_COPY.confirmSignOffButton}
-                </button>
-              </div>
+              <WOSignOffForm
+                workOrder={workOrder}
+                onCancel={() => setShowSignOff(false)}
+                onDone={() => {
+                  setShowSignOff(false);
+                  onClose();
+                }}
+              />
             </div>
           )}
 
@@ -756,7 +755,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   onClick={() => setShowSignOff(true)}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
                 >
-                  {WO_COPY.signOffButton}
+                  Sign Off &amp; Close
                 </button>
               )}
               {['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (

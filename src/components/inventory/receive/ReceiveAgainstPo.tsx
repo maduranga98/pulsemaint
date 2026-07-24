@@ -134,9 +134,9 @@ export function ReceiveAgainstPo() {
             workOrderId: null,
             workOrderNumber: null,
             partsRequestId: null,
-            performedBy: userProfile.id,
-            performedByName: userProfile.fullName,
-            performedByRole: userProfile.role,
+            performedBy: userProfile.id ?? '',
+            performedByName: userProfile.fullName ?? '',
+            performedByRole: userProfile.role ?? '',
             performedAt: now,
             notes: row?.notes ?? '',
             unitCostAtTime: cost,
@@ -156,8 +156,8 @@ export function ReceiveAgainstPo() {
           // "Failed to record receipt" with no stock update. Use a client
           // Timestamp for the array entry instead.
           receivedAt: Timestamp.now(),
-          receivedBy: userProfile.id,
-          receivedByName: userProfile.fullName,
+          receivedBy: userProfile.id ?? '',
+          receivedByName: userProfile.fullName ?? '',
           receiveDate,
           deliveryRef,
           notes,
@@ -227,7 +227,8 @@ export function ReceiveAgainstPo() {
       navigate('/app/inventory/catalog');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to record receipt. Please try again.');
+      const detail = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to record receipt: ${detail}`);
     } finally {
       setIsSubmitting(false);
     }
