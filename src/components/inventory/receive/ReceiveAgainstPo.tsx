@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   doc,
   collection,
+  addDoc,
   runTransaction,
   serverTimestamp,
   Timestamp,
@@ -171,6 +172,50 @@ export function ReceiveAgainstPo() {
           updatedAt: now,
         });
       });
+
+      // Queue a supplier email: a thank-you/confirmation listing the items
+      // received, plus a faults section for anything marked damaged / wrong.
+      // The sendPoEmails Cloud Function consumes po_notifications and dispatches
+      // it. Best-effort — never block the receipt on the email.
+      try {
+        const lines = selectedPo.items
+          .map((item) => {
+            const row = rowData[item.id];
+            return {
+              partNumber: item.partNumber,
+              partName: item.partName,
+              quantity: row?.quantityReceived ?? 0,
+              condition: row?.condition ?? 'good',
+              notes: row?.notes ?? '',
+            };
+          })
+          .filter((l) => l.quantity > 0);
+        const receivedItems = lines.filter((l) => l.condition === 'good');
+        const issueItems = lines.filter((l) => l.condition !== 'good');
+
+        if (selectedPo.supplierEmail && (receivedItems.length > 0 || issueItems.length > 0)) {
+          await addDoc(collection(db, 'po_notifications'), {
+            companyId,
+            poId: selectedPo.id,
+            poNumber: selectedPo.poNumber,
+            supplierName: selectedPo.supplierName,
+            supplierEmail: selectedPo.supplierEmail,
+            total: selectedPo.totalOrderValue,
+            currency: selectedPo.currency,
+            recipients: [],
+            event: 'received',
+            receivedItems,
+            issueItems,
+            deliveryRef,
+            receiveDate,
+            notes,
+            status: 'queued',
+            createdAt: serverTimestamp(),
+          });
+        }
+      } catch (emailErr) {
+        console.error('Failed to queue receipt email', emailErr);
+      }
 
       toast.success('Stock received successfully');
       setSelectedPoId('');

@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
   Timestamp,
 } from 'firebase/firestore';
@@ -63,17 +62,24 @@ export function useStockMovements(options: UseStockMovementsOptions = {}): UseSt
       constraints.push(where('performedAt', '<=', Timestamp.fromDate(endDate)));
     }
 
-    constraints.push(orderBy('performedAt', 'desc'));
-
+    // Sorted client-side (newest first) rather than via a server orderBy — the
+    // companyId + performedAt (and companyId + partId/type + performedAt)
+    // combinations each need their own composite index, and a missing one made
+    // the listener error out so freshly-received movements never appeared in
+    // "Recent Stock Movements". Client sorting keeps it index-free and live.
     const q = query(collection(db, 'stockMovements'), ...constraints);
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
         const docs = snapshot.docs
-          .slice(0, pageSize)
           .map((d) => ({ id: d.id, ...d.data() })) as StockMovement[];
-        setMovements(docs);
+        docs.sort((a, b) => {
+          const at = (a.performedAt as { seconds?: number } | null)?.seconds ?? 0;
+          const bt = (b.performedAt as { seconds?: number } | null)?.seconds ?? 0;
+          return bt - at;
+        });
+        setMovements(docs.slice(0, pageSize));
         setLoading(false);
       },
       (err) => {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Plus, FileSpreadsheet, LayoutList, Grid3X3 } from 'lucide-react';
+import { Plus, FileSpreadsheet, LayoutList, Grid3X3, ChevronLeft } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
 import { PartFilterBar, type PartFilters } from '@/components/inventory/catalog/PartFilterBar';
@@ -46,13 +46,22 @@ export function PartCatalogPage() {
     <div className="space-y-5">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
+        <div className="flex items-start gap-3">
+          <Link
+            to="/app/inventory"
+            className="mt-1 text-gray-400 hover:text-gray-700 transition-colors"
+            aria-label="Back to inventory"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Link>
+          <div>
           <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Parts Catalog</h1>
           {!loading && (
             <p className="text-gray-500 text-sm mt-0.5">
               {totalCount} parts · {activeCount} active · {lowStockCount} low stock
             </p>
           )}
+          </div>
         </div>
         {canManage && (
           <div className="flex items-center gap-3">
