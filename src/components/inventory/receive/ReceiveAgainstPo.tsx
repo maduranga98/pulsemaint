@@ -5,6 +5,7 @@ import {
   collection,
   runTransaction,
   serverTimestamp,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -148,7 +149,11 @@ export function ReceiveAgainstPo() {
         const anyReceived = updatedItems.some((i) => i.quantityReceived > 0);
 
         const receiptEntry = {
-          receivedAt: now,
+          // serverTimestamp() is rejected inside array elements (receiptHistory
+          // is an array), which made the whole transaction throw and surface as
+          // "Failed to record receipt" with no stock update. Use a client
+          // Timestamp for the array entry instead.
+          receivedAt: Timestamp.now(),
           receivedBy: userProfile.id,
           receivedByName: userProfile.fullName,
           receiveDate,
