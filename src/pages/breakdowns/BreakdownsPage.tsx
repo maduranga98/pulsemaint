@@ -47,10 +47,14 @@ const STATUS_PROGRESS: Record<BreakdownStatus, number> = {
   on_hold_approval: 60,
   resolved: 95,
   closed: 100,
-  cancelled: 100,
+  // A cancelled breakdown was never repaired — it should not read as 100%
+  // "done". Show it at 0 with a neutral bar so its real (cancelled) status is
+  // obvious at a glance.
+  cancelled: 0,
 };
 
 function progressBarColor(status: BreakdownStatus): string {
+  if (status === 'cancelled') return 'bg-slate-300';
   if (status === 'resolved' || status === 'closed') return 'bg-emerald-500';
   if (status === 'on_hold_parts' || status === 'on_hold_approval') return 'bg-orange-400';
   return 'bg-blue-500';
@@ -292,17 +296,21 @@ export default function BreakdownsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 min-w-[120px]">
-                        <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full transition-all ${progressBarColor(b.status)}`}
-                            style={{ width: `${STATUS_PROGRESS[b.status] ?? 0}%` }}
-                          />
+                      {b.status === 'cancelled' ? (
+                        <span className="text-xs font-medium text-slate-400">Cancelled</span>
+                      ) : (
+                        <div className="flex items-center gap-2 min-w-[120px]">
+                          <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className={`h-full rounded-full transition-all ${progressBarColor(b.status)}`}
+                              style={{ width: `${STATUS_PROGRESS[b.status] ?? 0}%` }}
+                            />
+                          </div>
+                          <span className="text-xs text-slate-500 tabular-nums w-9 text-right">
+                            {STATUS_PROGRESS[b.status] ?? 0}%
+                          </span>
                         </div>
-                        <span className="text-xs text-slate-500 tabular-nums w-9 text-right">
-                          {STATUS_PROGRESS[b.status] ?? 0}%
-                        </span>
-                      </div>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-700">{b.reporterName || '—'}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">

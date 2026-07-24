@@ -42,6 +42,9 @@ export type TestRunResult = 'pass' | 'fail' | 'partial';
 
 export type MachineStatusAfterRepair = 'operational' | 'partially_operational' | 'still_down';
 
+// Outcome recorded by the supervisor/manager when signing off a work order.
+export type WOSignOffOutcome = 'complete' | 'not_complete' | 'failed';
+
 export type DocumentFileType = 'cad' | 'document' | 'image' | 'video' | 'compressed' | 'sop_link';
 
 export type PartSource = 'stock' | 'external';
@@ -245,11 +248,16 @@ export interface WorkOrder {
   finalPhotos: string[];
   machineStatusAfterRepair: MachineStatusAfterRepair | null;
 
-  // Sign-Off
+  // Sign-Off — the system automatically records who signed off (no manual
+  // signature is captured). `signOffOutcome` is the closing disposition; a
+  // reason is required when it is not a clean completion.
   supervisorSignOffSignature: string | null;
   supervisorSignOffBy: string | null;
+  supervisorSignOffByName: string | null;
   supervisorSignOffAt: Timestamp | null;
   supervisorSignOffNotes: string | null;
+  signOffOutcome: WOSignOffOutcome | null;
+  signOffOutcomeReason: string | null;
 
   // Status History
   statusHistory: WOStatusHistoryEntry[];
@@ -263,6 +271,8 @@ export interface WorkOrder {
   createdAt: Timestamp;
   updatedAt: Timestamp;
   closedAt: Timestamp | null;
+  closedBy: string | null;
+  closedByName: string | null;
   cancelledAt: Timestamp | null;
   cancelReason: string | null;
 }
@@ -363,7 +373,9 @@ export interface WOCompletionPayload {
 }
 
 export interface WOSignOffPayload {
-  signature: string;
+  outcome: WOSignOffOutcome;
+  // Required when outcome is 'not_complete' or 'failed'; optional otherwise.
+  outcomeReason: string | null;
   notes: string;
 }
 

@@ -11,6 +11,7 @@ export { PartsPreRequestPanel } from './PartsPreRequestPanel';
 export { SignatureCanvas } from './SignatureCanvas';
 export { CreateWODrawer } from './CreateWODrawer';
 export { WOCompletionForm } from './WOCompletionForm';
+export { WOSignOffForm } from './WOSignOffForm';
 export { WODetailPanel } from './WODetailPanel';
 export { WOKanbanBoard } from './WOKanbanBoard';
 export { WOListView } from './WOListView';

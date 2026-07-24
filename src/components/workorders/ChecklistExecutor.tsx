@@ -21,6 +21,10 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
   const userName = userProfile?.fullName ?? user?.displayName ?? '';
   const role = userProfile?.role;
 
+  // Assignment may be stored under the Firebase Auth uid or the user profile id
+  // — match on either so a technician reliably sees their own steps.
+  const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];
+
   // Oversight roles (and the WO creator) see the whole checklist; an assigned
   // worker only sees the steps assigned to them (or unassigned/general steps),
   // not steps that belong to someone else.
@@ -28,7 +32,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
     role === 'admin' ||
     role === 'plant_manager' ||
     role === 'supervisor' ||
-    workOrder.createdBy === uid;
+    (!!workOrder.createdBy && myIds.includes(workOrder.createdBy));
 
   const isAssignedToMe = (item: ChecklistItem): boolean => {
     const ids = [
@@ -37,7 +41,7 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
     ];
     // Unassigned/general steps are visible to everyone.
     if (ids.length === 0) return true;
-    return ids.includes(uid);
+    return ids.some((id) => myIds.includes(id));
   };
 
   // Keep the original index so completion handlers still target the right row
