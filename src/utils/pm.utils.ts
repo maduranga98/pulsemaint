@@ -71,6 +71,45 @@ export function calculateComplianceRate(
   return Math.round((completedOnTime / total) * 100);
 }
 
+// ---------------------------------------------------------------------------
+// Effective PM history status
+// ---------------------------------------------------------------------------
+// A PM history record is written as `in_progress` when its work order is
+// raised and only flips to a completed/missed status once the WO is finished.
+// Nothing ever flips a still-open PM to `overdue` when its due date passes, so
+// overdue PMs used to disappear from compliance dashboards and analytics. This
+// derives the *effective* status at read time: an uncompleted PM whose due date
+// has passed counts as overdue.
+export function getEffectivePMHistoryStatus(
+  record: { status?: string | null; dueDate?: unknown; completedDate?: unknown },
+  now: Date = new Date(),
+): string {
+  const status = record.status ?? '';
+  // Terminal / completed states are authoritative — never override them.
+  if (status === 'completed_on_time' || status === 'completed_late' || status === 'missed' || status === 'overdue') {
+    return status;
+  }
+  // Only open records (in_progress / scheduled / empty) can become overdue.
+  const due = toJsDate(record.dueDate);
+  if (due && !toJsDate(record.completedDate) && due.getTime() < now.getTime()) {
+    return 'overdue';
+  }
+  return status || 'in_progress';
+}
+
+function toJsDate(value: unknown): Date | null {
+  if (!value) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (typeof value === 'object') {
+    const v = value as { toDate?: () => Date; seconds?: number };
+    if (typeof v.toDate === 'function') return v.toDate();
+    if (typeof v.seconds === 'number') return new Date(v.seconds * 1000);
+    return null;
+  }
+  const parsed = new Date(value as string | number);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 export function getComplianceColor(rate: number): string {
   if (rate >= 90) return '#10B981'; // uptimeGreen
   if (rate >= 70) return '#F59E0B'; // warningAmber

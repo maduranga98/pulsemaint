@@ -186,22 +186,48 @@ export function ReliabilitySection({ monthly }: ReliabilitySectionProps) {
 
         let hasAnySegments = false;
 
+        const toMs = (v: any): number =>
+          v?.toMillis?.() ?? (typeof v === 'number' ? v : v ? new Date(v).getTime() : 0);
+
         woSnap.forEach((d) => {
           const wo = d.data();
+
+          // Gate on when the work actually happened (completion / last update),
+          // falling back to creation — so recently-worked WOs count even if they
+          // were raised more than 30 days ago.
+          const activityMs =
+            toMs(wo.actualEndTime) || toMs(wo.updatedAt) || toMs(wo.createdAt);
+          if (activityMs && activityMs < thirtyDaysAgo.getTime()) return;
+
           const segments: TimeSegment[] = wo.timeSegments ?? [];
-          if (segments.length === 0) return;
+          if (segments.length > 0) {
+            for (const seg of segments) {
+              if (seg.endAt === null) continue;
+              const startMs = toMs(seg.startAt);
+              const endMs = toMs(seg.endAt);
+              const ms = Math.max(0, endMs - startMs);
+              stateMs[seg.state] = (stateMs[seg.state] ?? 0) + ms;
+              totalMs += ms;
+              hasAnySegments = true;
+            }
+            return;
+          }
 
-          const woCreatedMs =
-            (wo.createdAt as any)?.toMillis?.() ?? Number(wo.createdAt) ?? 0;
-          if (woCreatedMs < thirtyDaysAgo.getTime()) return;
-
-          for (const seg of segments) {
-            if (seg.endAt === null) continue;
-            const startMs = (seg.startAt as any)?.toMillis?.() ?? Number(seg.startAt);
-            const endMs = (seg.endAt as any)?.toMillis?.() ?? Number(seg.endAt);
-            const ms = Math.max(0, endMs - startMs);
-            stateMs[seg.state] = (stateMs[seg.state] ?? 0) + ms;
-            totalMs += ms;
+          // Fallback: WOs completed before time-segment tracking existed (or via
+          // the technician execution sheet) still carry real hands-on duration in
+          // the WO detail. Count that as working ("wrench") time so the overview
+          // reflects actual completed-work data instead of sitting empty.
+          let workingMs = 0;
+          if (typeof wo.totalDurationMinutes === 'number' && wo.totalDurationMinutes > 0) {
+            workingMs = wo.totalDurationMinutes * 60000;
+          } else {
+            const startMs = toMs(wo.actualStartTime);
+            const endMs = toMs(wo.actualEndTime);
+            if (startMs && endMs && endMs > startMs) workingMs = endMs - startMs;
+          }
+          if (workingMs > 0) {
+            stateMs.working += workingMs;
+            totalMs += workingMs;
             hasAnySegments = true;
           }
         });

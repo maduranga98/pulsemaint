@@ -292,6 +292,50 @@ export async function fetchShiftSessionsForDate(companyId: string, shiftDate: st
 }
 
 /**
+ * Live version of fetchShiftSessionsForDate — the "Today's Shift Status" panel
+ * used to poll every 30s, so a clock-in/out by any role took up to half a
+ * minute to appear. This pushes changes the instant they're written.
+ */
+export function subscribeShiftSessionsForDate(
+  companyId: string,
+  shiftDate: string,
+  callback: (sessions: ShiftSession[]) => void,
+  onError?: (message: string) => void,
+): () => void {
+  return onSnapshot(
+    query(
+      collection(db, 'shift_sessions'),
+      where('companyId', '==', companyId),
+      where('shiftDate', '==', shiftDate),
+    ),
+    (snap) => callback(snap.docs.map((item) => mapShiftSession(item.id, item.data()))),
+    (err) => onError?.(err.message),
+  );
+}
+
+/**
+ * Live completed shift sessions company-wide (all roles). The handover history
+ * table only ever showed *supervisor handovers*, so a technician / store keeper
+ * / operator ending a shift never appeared. This feeds those rows into the
+ * table so every role's shift shows up and updates automatically.
+ */
+export function subscribeCompletedShiftSessions(
+  companyId: string,
+  callback: (sessions: ShiftSession[]) => void,
+  onError?: (message: string) => void,
+): () => void {
+  return onSnapshot(
+    query(
+      collection(db, 'shift_sessions'),
+      where('companyId', '==', companyId),
+      where('status', '==', 'completed'),
+    ),
+    (snap) => callback(snap.docs.map((item) => mapShiftSession(item.id, item.data()))),
+    (err) => onError?.(err.message),
+  );
+}
+
+/**
  * Live currently-active shift sessions (company-wide) — reflects clock-ins
  * and clock-outs the instant they're written, so dashboards showing "who's
  * on shift now" don't need a manual refresh after a startShiftSession /

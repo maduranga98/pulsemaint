@@ -3,7 +3,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -59,10 +58,12 @@ export function usePartsRequests(options: UsePartsRequestsOptions = {}): UsePart
       constraints.push(where('priorityLevel', '==', priorityLevel));
     }
 
-    // Sort by urgency first, then by request time (oldest first = longest waiting)
-    constraints.push(orderBy('isUrgent', 'desc'));
-    constraints.push(orderBy('requestedAt', 'asc'));
-
+    // Sorting is applied client-side (below) rather than via Firestore orderBy.
+    // A mixed-direction orderBy (isUrgent desc + requestedAt asc) combined with
+    // the status/priority equality filters needs composite indexes that aren't
+    // all provisioned — a missing one makes the whole listener error out, which
+    // is why the Pending Requests queue would silently stop updating. Ordering
+    // on the client keeps the query index-free and always live.
     const q = query(collection(db, 'partsRequests'), ...constraints);
 
     const unsubscribe = onSnapshot(

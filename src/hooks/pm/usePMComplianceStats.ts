@@ -7,7 +7,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { PMHistory, ComplianceStats, MonthlyComplianceTrend, MachineComplianceRecord, TechnicianComplianceRecord } from '../../types/pm.types';
-import { calculateComplianceRate } from '../../utils/pm.utils';
+import { calculateComplianceRate, getEffectivePMHistoryStatus } from '../../utils/pm.utils';
 
 const HISTORY_COLLECTION = 'pm_history';
 
@@ -54,6 +54,16 @@ export function usePMComplianceStats({ companyId }: UsePMComplianceStatsOptions)
         // Current month stats
         const now = new Date();
         const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        // Overdue PMs are never stamped as 'overdue' in Firestore — derive the
+        // effective status (an uncompleted PM past its due date is overdue) so
+        // the dashboard reflects them live as due dates pass.
+        // Idempotent: getEffectivePMHistoryStatus passes completed/missed/overdue
+        // through unchanged, so re-decorating on a breakdown-only recompute is safe.
+        history = history.map((h) => ({
+          ...h,
+          status: getEffectivePMHistoryStatus(h, now) as typeof h.status,
+        }));
 
         const currentMonthHistory = history.filter((h) => h.month === currentMonthKey);
         const totalScheduledThisMonth = currentMonthHistory.length;

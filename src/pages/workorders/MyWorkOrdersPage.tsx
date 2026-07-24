@@ -46,7 +46,14 @@ export default function MyWorkOrdersPage() {
   // assigned WOs never match.
   const siteId = userProfile?.siteIds?.[0] ?? userProfile?.companyId ?? '';
 
-  const { workOrders, loading, error } = useMyJobQueue(technicianId, siteId);
+  // Admins/supervisors/plant managers are never assignees, so also fold in the
+  // WOs they supervise or created — otherwise "My Work Orders" is empty for them.
+  const includeOwned =
+    userProfile?.role === 'admin' ||
+    userProfile?.role === 'supervisor' ||
+    userProfile?.role === 'plant_manager';
+
+  const { workOrders, loading, error } = useMyJobQueue(technicianId, siteId, includeOwned);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // Re-derive selected WO from the live list so the sheet updates in realtime

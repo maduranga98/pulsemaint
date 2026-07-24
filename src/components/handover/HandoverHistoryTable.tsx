@@ -3,8 +3,26 @@ import type { ShiftHandover } from '@/types/handover.types';
 import { formatDuration } from '@/utils/handover.utils';
 import { exportHandoverPdf } from '@/utils/reports/pdf/handoverPdf';
 
+// A unified row for the shift table: either a submitted supervisor handover, or
+// a completed shift session logged by any other role (technician, store keeper,
+// operator…) who ended a shift without filing a handover.
+export interface ShiftTableRow {
+  id: string;
+  kind: 'handover' | 'session';
+  shiftName: string;
+  personName: string;
+  personRole: string | null;
+  start: Date | null;
+  end: Date | null;
+  otMinutes: number | null;
+  ongoingBreakdowns: ShiftHandover['ongoingBreakdowns'];
+  pendingWOs: ShiftHandover['pendingWOs'];
+  watchFlags: ShiftHandover['watchFlags'];
+  handover?: ShiftHandover;
+}
+
 interface HandoverHistoryTableProps {
-  handovers: ShiftHandover[];
+  rows: ShiftTableRow[];
 }
 
 function fmtDateTime(d: Date | null | undefined): string {
@@ -18,7 +36,7 @@ function fmtDateTime(d: Date | null | undefined): string {
   });
 }
 
-export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
+export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
   return (
     <div className="overflow-x-auto scrollbar-hide rounded-lg border border-slate-200 bg-white">
       <table className="w-full text-sm min-w-[980px]">
@@ -36,27 +54,27 @@ export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {handovers.map((handover) => {
+          {rows.map((row) => {
             return (
-              <tr key={handover.id} className="hover:bg-slate-50 align-top">
-                <td className="px-4 py-3 font-semibold">{handover.shiftName}</td>
+              <tr key={row.id} className="hover:bg-slate-50 align-top">
+                <td className="px-4 py-3 font-semibold">{row.shiftName}</td>
                 <td className="px-4 py-3">
-                  <div className="font-medium">{handover.outgoingSupervisorName}</div>
-                  {handover.outgoingSupervisorDesignation && (
-                    <div className="text-xs capitalize text-slate-500">{handover.outgoingSupervisorDesignation.replace(/_/g, ' ')}</div>
+                  <div className="font-medium">{row.personName}</div>
+                  {row.personRole && (
+                    <div className="text-xs capitalize text-slate-500">{row.personRole.replace(/_/g, ' ')}</div>
                   )}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">{fmtDateTime(handover.shiftActualStart)}</td>
-                <td className="px-4 py-3 whitespace-nowrap">{fmtDateTime(handover.shiftActualEnd ?? handover.handoverSubmittedAt)}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{fmtDateTime(row.start)}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{fmtDateTime(row.end)}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  {handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : '-'}
+                  {row.otMinutes != null ? formatDuration(row.otMinutes * 60000) : '-'}
                 </td>
                 <td className="px-4 py-3">
-                  {handover.ongoingBreakdowns.length === 0 ? (
+                  {row.ongoingBreakdowns.length === 0 ? (
                     <span className="text-slate-400">None</span>
                   ) : (
                     <ul className="space-y-0.5">
-                      {handover.ongoingBreakdowns.map((b) => (
+                      {row.ongoingBreakdowns.map((b) => (
                         <li key={b.ticketId} className="text-xs">
                           <span className="font-mono font-semibold text-rose-700">{b.ticketNumber}</span>
                           <span className="text-slate-500"> · {b.machineName} ({b.currentState})</span>
@@ -66,11 +84,11 @@ export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  {handover.pendingWOs.length === 0 ? (
+                  {row.pendingWOs.length === 0 ? (
                     <span className="text-slate-400">None</span>
                   ) : (
                     <ul className="space-y-0.5">
-                      {handover.pendingWOs.map((w) => (
+                      {row.pendingWOs.map((w) => (
                         <li key={w.woId} className="text-xs">
                           <span className="font-mono font-semibold text-blue-700">{w.woNumber}</span>
                           <span className="text-slate-500"> · {w.machineName} ({w.currentStatus})</span>
@@ -80,11 +98,11 @@ export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  {handover.watchFlags.length === 0 ? (
+                  {row.watchFlags.length === 0 ? (
                     <span className="text-slate-400">None</span>
                   ) : (
                     <ul className="space-y-0.5">
-                      {handover.watchFlags.map((f) => (
+                      {row.watchFlags.map((f) => (
                         <li key={f.id} className="text-xs">
                           <span className="font-semibold text-amber-700">{f.machineName}</span>
                           <span className="text-slate-500"> · {f.watchLevel.replace(/_/g, ' ')}</span>
@@ -94,10 +112,14 @@ export function HandoverHistoryTable({ handovers }: HandoverHistoryTableProps) {
                   )}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex gap-3">
-                    <Link to={`/app/shift/handover/${handover.id}`} className="text-xs font-bold text-blue-700">View</Link>
-                    <button type="button" onClick={() => exportHandoverPdf(handover)} className="text-xs font-bold text-slate-600 hover:text-slate-900">Export</button>
-                  </div>
+                  {row.kind === 'handover' && row.handover ? (
+                    <div className="flex gap-3">
+                      <Link to={`/app/shift/handover/${row.handover.id}`} className="text-xs font-bold text-blue-700">View</Link>
+                      <button type="button" onClick={() => exportHandoverPdf(row.handover!)} className="text-xs font-bold text-slate-600 hover:text-slate-900">Export</button>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-400">Shift log</span>
+                  )}
                 </td>
               </tr>
             );
