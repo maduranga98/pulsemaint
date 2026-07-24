@@ -19,7 +19,7 @@ function formatAge(ts: { seconds: number } | null | undefined): { label: string;
 
 const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> = {
   pending_storekeeper: { label: 'To Review', className: 'bg-amber-100 text-amber-700' },
-  pending_supervisor: { label: 'To Review', className: 'bg-amber-100 text-amber-700' },
+  pending_supervisor: { label: 'Awaiting Supervisor', className: 'bg-blue-100 text-blue-700' },
   approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
   partially_approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700' },

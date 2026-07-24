@@ -55,91 +55,128 @@ export function RequestDetailPage() {
     );
   }
 
-  // Issue the parts: deduct stock immediately and move the request into the
-  // "Parts to Collect" queue. The full requested quantity is issued (there is
-  // no partial-approval step in this flow).
-  async function handleIssue() {
+  // Handle a review decision.
+  //  • approve / partial → deduct the approved quantities immediately and move
+  //    the request into the "Parts to Collect" queue.
+  //  • escalate          → send to a supervisor (no stock change), keeping any
+  //    proposed per-item quantities.
+  //  • reject            → close the request (reason required, enforced by the
+  //    panel).
+  async function handleDecision(payload: {
+    decision: 'approve' | 'partial' | 'escalate' | 'reject';
+    notes?: string;
+    escalationReason?: string;
+    rejectionReason?: string;
+    approvedQuantities?: Record<string, number>;
+  }) {
     if (!request) return;
+    const { decision, approvedQuantities } = payload;
+
+    // Approved quantity per item: full approval grants the requested amount;
+    // partial/escalate use the storekeeper's entered quantities.
+    const approvedQtyFor = (item: (typeof request.items)[number]) =>
+      decision === 'approve'
+        ? item.quantityRequested
+        : Math.min(item.quantityRequested, approvedQuantities?.[item.id] ?? item.quantityRequested);
 
     try {
       const reviewDoc = {
         reviewedBy: userId,
         reviewedByName: userName,
         reviewedAt: serverTimestamp(),
-        decision: 'approve' as const,
-        notes: '',
-        escalationReason: '',
+        decision,
+        notes: payload.notes ?? payload.rejectionReason ?? '',
+        rejectionReason: payload.rejectionReason ?? '',
+        escalationReason: payload.escalationReason ?? '',
       };
 
-      // Firestore transactions require every read before any write, so read all
-      // parts up front, then queue the writes.
-      await runTransaction(db, async (tx) => {
-        const partRefs = request.items.map((item) => doc(db, 'inventoryParts', item.partId));
-        const partSnaps = await Promise.all(partRefs.map((ref) => tx.get(ref)));
+      if (decision === 'approve' || decision === 'partial') {
+        // Deduct stock now and move to Parts to Collect.
+        await runTransaction(db, async (tx) => {
+          const partRefs = request.items.map((item) => doc(db, 'inventoryParts', item.partId));
+          const partSnaps = await Promise.all(partRefs.map((ref) => tx.get(ref)));
 
-        for (let i = 0; i < request.items.length; i++) {
-          const item = request.items[i];
-          const partSnap = partSnaps[i];
-          if (!partSnap.exists()) continue;
-          const partData = partSnap.data();
-          const qty = item.quantityRequested;
-          if (qty <= 0) continue;
+          for (let i = 0; i < request.items.length; i++) {
+            const item = request.items[i];
+            const partSnap = partSnaps[i];
+            if (!partSnap.exists()) continue;
+            const qty = approvedQtyFor(item);
+            if (qty <= 0) continue;
 
-          const currentStock = (partData.currentStock as number) ?? 0;
-          const reservedStock = (partData.reservedStock as number) ?? 0;
-          const totalUsedAllTime = (partData.totalUsedAllTime as number) ?? 0;
-          const newCurrent = currentStock - qty;
+            const partData = partSnap.data();
+            const currentStock = (partData.currentStock as number) ?? 0;
+            const reservedStock = (partData.reservedStock as number) ?? 0;
+            const totalUsedAllTime = (partData.totalUsedAllTime as number) ?? 0;
+            const newCurrent = currentStock - qty;
 
-          tx.update(partRefs[i], {
-            currentStock: newCurrent,
-            availableStock: Math.max(0, newCurrent - reservedStock),
-            totalUsedAllTime: totalUsedAllTime + qty,
-            lastIssuedAt: serverTimestamp(),
+            tx.update(partRefs[i], {
+              currentStock: newCurrent,
+              availableStock: Math.max(0, newCurrent - reservedStock),
+              totalUsedAllTime: totalUsedAllTime + qty,
+              lastIssuedAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+              updatedBy: userId,
+            });
+
+            const movementRef = doc(collection(db, 'stockMovements'));
+            tx.set(movementRef, {
+              companyId,
+              partId: item.partId,
+              partNumber: item.partNumber,
+              partName: item.partName,
+              movementType: 'issue',
+              quantityBefore: currentStock,
+              quantityChange: -qty,
+              quantityAfter: newCurrent,
+              referenceType: 'parts_request',
+              referenceId: request.id,
+              workOrderId: request.workOrderId,
+              workOrderNumber: request.workOrderNumber,
+              partsRequestId: request.id,
+              performedBy: userId,
+              performedByName: userName,
+              performedByRole: userRole,
+              performedAt: serverTimestamp(),
+              notes: decision === 'partial' ? 'Partially issued — awaiting collection' : 'Issued — awaiting collection',
+              unitCostAtTime: item.unitCost,
+              totalCostImpact: item.unitCost * qty,
+            });
+          }
+
+          const requestRef = doc(db, 'partsRequests', request.id);
+          tx.update(requestRef, {
+            status: 'parts_reserved',
+            storeKeeperReview: reviewDoc,
+            items: request.items.map((item) => ({
+              ...item,
+              quantityApproved: approvedQtyFor(item),
+              quantityIssued: approvedQtyFor(item),
+            })),
+            issuedAt: Timestamp.fromDate(new Date()),
+            issuedBy: userId,
+            issuedByName: userName,
+            reservedAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
-            updatedBy: userId,
           });
-
-          const movementRef = doc(collection(db, 'stockMovements'));
-          tx.set(movementRef, {
-            companyId,
-            partId: item.partId,
-            partNumber: item.partNumber,
-            partName: item.partName,
-            movementType: 'issue',
-            quantityBefore: currentStock,
-            quantityChange: -qty,
-            quantityAfter: newCurrent,
-            referenceType: 'parts_request',
-            referenceId: request.id,
-            workOrderId: request.workOrderId,
-            workOrderNumber: request.workOrderNumber,
-            partsRequestId: request.id,
-            performedBy: userId,
-            performedByName: userName,
-            performedByRole: userRole,
-            performedAt: serverTimestamp(),
-            notes: 'Issued — awaiting collection',
-            unitCostAtTime: item.unitCost,
-            totalCostImpact: item.unitCost * qty,
-          });
-        }
-
-        const requestRef = doc(db, 'partsRequests', request.id);
-        tx.update(requestRef, {
-          status: 'parts_reserved',
+        });
+      } else if (decision === 'escalate') {
+        // No stock movement — hand off to a supervisor, keeping the proposed
+        // quantities so they can issue or adjust.
+        await updateDoc(doc(db, 'partsRequests', request.id), {
+          status: 'pending_supervisor',
           storeKeeperReview: reviewDoc,
-          items: request.items.map((item) => ({
-            ...item,
-            quantityApproved: item.quantityRequested,
-            quantityIssued: item.quantityRequested,
-          })),
-          issuedAt: Timestamp.fromDate(new Date()),
-          issuedBy: userId,
-          issuedByName: userName,
-          reservedAt: serverTimestamp(),
+          items: request.items.map((item) => ({ ...item, quantityApproved: approvedQtyFor(item) })),
           updatedAt: serverTimestamp(),
         });
-      });
+      } else {
+        // reject
+        await updateDoc(doc(db, 'partsRequests', request.id), {
+          status: 'rejected',
+          storeKeeperReview: reviewDoc,
+          rejectionReason: payload.rejectionReason ?? '',
+          updatedAt: serverTimestamp(),
+        });
+      }
 
       await addDoc(collection(db, 'partsRequests', request.id, 'reviewHistory'), {
         ...reviewDoc,
@@ -147,46 +184,17 @@ export function RequestDetailPage() {
         requestId: request.id,
       });
 
-      addToast('Parts issued — moved to Parts to Collect.', 'success');
+      addToast(
+        decision === 'reject'
+          ? 'Request rejected.'
+          : decision === 'escalate'
+          ? 'Escalated to supervisor.'
+          : 'Parts issued — moved to Parts to Collect.',
+        'success',
+      );
       navigate('/app/inventory/requests');
     } catch (err) {
-      addToast('Failed to issue parts.', 'error');
-      console.error(err);
-    }
-  }
-
-  // Reject the request. A reason is required (enforced by the panel).
-  async function handleReject(reason: string) {
-    if (!request) return;
-
-    try {
-      const reviewDoc = {
-        reviewedBy: userId,
-        reviewedByName: userName,
-        reviewedAt: serverTimestamp(),
-        decision: 'reject' as const,
-        notes: reason,
-        rejectionReason: reason,
-        escalationReason: '',
-      };
-
-      await updateDoc(doc(db, 'partsRequests', request.id), {
-        status: 'rejected',
-        storeKeeperReview: reviewDoc,
-        rejectionReason: reason,
-        updatedAt: serverTimestamp(),
-      });
-
-      await addDoc(collection(db, 'partsRequests', request.id, 'reviewHistory'), {
-        ...reviewDoc,
-        companyId,
-        requestId: request.id,
-      });
-
-      addToast('Request rejected.', 'success');
-      navigate('/app/inventory/requests');
-    } catch (err) {
-      addToast('Failed to reject request.', 'error');
+      addToast('Failed to process decision.', 'error');
       console.error(err);
     }
   }
@@ -329,8 +337,7 @@ export function RequestDetailPage() {
 
       <RequestReviewPanel
         request={request}
-        onIssue={handleIssue}
-        onReject={handleReject}
+        onDecision={handleDecision}
         onCollection={handleCollection}
       />
 

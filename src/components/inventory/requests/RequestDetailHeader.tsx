@@ -11,7 +11,7 @@ const statusConfig: Record<
   { label: string; className: string }
 > = {
   pending_storekeeper: { label: 'To Review', className: 'bg-yellow-100 text-yellow-800' },
-  pending_supervisor: { label: 'To Review', className: 'bg-yellow-100 text-yellow-800' },
+  pending_supervisor: { label: 'Awaiting Supervisor', className: 'bg-blue-100 text-blue-800' },
   approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
   partially_approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800' },

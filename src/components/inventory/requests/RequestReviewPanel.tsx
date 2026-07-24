@@ -1,14 +1,30 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, PackageCheck, Undo2 } from 'lucide-react';
+import { CheckCircle, XCircle, PackageCheck, Undo2, ArrowUp } from 'lucide-react';
 import type { PartsRequest } from '@/types/inventory';
 import { useAuthStore } from '@/store/authStore';
 
 interface Props {
   request: PartsRequest;
-  onIssue: () => Promise<void>;
-  onReject: (reason: string) => Promise<void>;
+  onDecision: (payload: {
+    decision: 'approve' | 'partial' | 'escalate' | 'reject';
+    notes?: string;
+    escalationReason?: string;
+    rejectionReason?: string;
+    approvedQuantities?: Record<string, number>;
+  }) => Promise<void>;
   onCollection: (collected: boolean, collectorName: string) => Promise<void>;
 }
+
+const ESCALATION_REASONS = [
+  'Cost exceeds approval limit',
+  'Critical parts require supervisor sign-off',
+  'Unusual request — needs verification',
+  'Contractor job — supervisor awareness required',
+  'Other',
+];
+
+// Statuses in which the parts have been issued and are waiting to be collected.
+const AWAITING_COLLECTION = ['parts_reserved', 'approved', 'partially_approved'];
 
 function formatStatus(status: string): string {
   if (status === 'parts_reserved') return 'Parts to Collect';
@@ -17,22 +33,26 @@ function formatStatus(status: string): string {
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// Statuses in which the parts have been issued and are waiting to be collected.
-const AWAITING_COLLECTION = ['parts_reserved', 'approved', 'partially_approved'];
-// Statuses in which the storekeeper still needs to review (issue or reject).
-const NEEDS_REVIEW = ['pending_storekeeper', 'pending_supervisor'];
-
-export function RequestReviewPanel({ request, onIssue, onReject, onCollection }: Props) {
+export function RequestReviewPanel({ request, onDecision, onCollection }: Props) {
   const role = useAuthStore((s) => s.userProfile?.role);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [activeAction, setActiveAction] = useState<'issue' | 'reject' | 'collect' | 'return' | null>(null);
+  const [activeAction, setActiveAction] = useState<
+    'approve' | 'partial' | 'escalate' | 'reject' | 'collect' | 'return' | null
+  >(null);
+  const [escalationReason, setEscalationReason] = useState('');
+  const [customEscalation, setCustomEscalation] = useState('');
   const [rejectReason, setRejectReason] = useState('');
   const [collectorName, setCollectorName] = useState(request.requestedByName ?? '');
+  const [approvedQuantities, setApprovedQuantities] = useState<Record<string, number>>(
+    Object.fromEntries(
+      request.items.map((i) => [i.id, i.quantityApproved > 0 ? i.quantityApproved : i.quantityRequested]),
+    ),
+  );
 
   const canManage = role === 'store_keeper' || role === 'supervisor' || role === 'admin' || role === 'plant_manager';
 
-  async function run(action: 'issue' | 'reject' | 'collect' | 'return', fn: () => Promise<void>) {
+  async function run(action: typeof activeAction, fn: () => Promise<void>) {
     setIsLoading(true);
     setActiveAction(action);
     try {
@@ -42,6 +62,10 @@ export function RequestReviewPanel({ request, onIssue, onReject, onCollection }:
       setActiveAction(null);
     }
   }
+
+  const isPartial = request.items.some(
+    (i) => (approvedQuantities[i.id] ?? i.quantityRequested) < i.quantityRequested,
+  );
 
   // ── Waiting for collection ────────────────────────────────────────────────
   if (AWAITING_COLLECTION.includes(request.status)) {
@@ -138,16 +162,30 @@ export function RequestReviewPanel({ request, onIssue, onReject, onCollection }:
     );
   }
 
-  // Requester (technician) sees nothing to act on.
-  if (!canManage || !NEEDS_REVIEW.includes(request.status)) return null;
+  const isStoreKeeperStage = request.status === 'pending_storekeeper';
+  const isSupervisorStage = request.status === 'pending_supervisor';
 
-  // ── Store keeper review — Issue or Reject ─────────────────────────────────
+  // Requester (technician) or a stage this user can't act on → nothing to show.
+  if (!canManage || (!isStoreKeeperStage && !isSupervisorStage)) return null;
+  // Only supervisors / managers / admins act on the supervisor stage.
+  if (isSupervisorStage && role === 'store_keeper') {
+    return (
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
+        Escalated — awaiting supervisor review.
+      </div>
+    );
+  }
+
+  // ── Store keeper / supervisor review ──────────────────────────────────────
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
-      <h3 className="font-semibold text-gray-900">Review Request</h3>
+      <h3 className="font-semibold text-gray-900">
+        {isSupervisorStage ? 'Supervisor Review' : 'Review Request'}
+      </h3>
 
+      {/* Per-item approved quantities (enables partial issue) */}
       <div className="space-y-2">
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Requested Parts</p>
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Approved Quantities</p>
         {request.items.map((item) => (
           <div
             key={item.id}
@@ -160,18 +198,64 @@ export function RequestReviewPanel({ request, onIssue, onReject, onCollection }:
                 <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-semibold">Critical</span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 shrink-0 text-sm">
-              <span className="font-semibold text-gray-900">{item.quantityRequested}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs text-gray-500">Req: {item.quantityRequested}</span>
+              <input
+                type="number"
+                min={0}
+                max={item.quantityRequested}
+                value={approvedQuantities[item.id] ?? item.quantityRequested}
+                onChange={(e) =>
+                  setApprovedQuantities((prev) => ({
+                    ...prev,
+                    [item.id]: Math.min(
+                      item.quantityRequested,
+                      Math.max(0, parseInt(e.target.value, 10) || 0),
+                    ),
+                  }))
+                }
+                className="w-20 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
               <span className="text-xs text-gray-500">{item.unit}</span>
-              {item.availableAtRequest < item.quantityRequested && (
-                <span className="ml-2 text-xs text-amber-600">only {item.availableAtRequest} in stock</span>
-              )}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Reject reason — shown once the reject flow is started */}
+      {/* Escalation reason — store keeper only, shown when escalate is armed */}
+      {isStoreKeeperStage && activeAction === 'escalate' && (
+        <div className="space-y-2">
+          <label className="block text-xs font-medium text-gray-500">
+            Escalation Reason <span className="text-red-500">*</span>
+          </label>
+          <div className="space-y-1">
+            {ESCALATION_REASONS.map((reason) => (
+              <label key={reason} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="escalation"
+                  value={reason}
+                  checked={escalationReason === reason}
+                  onChange={() => setEscalationReason(reason)}
+                  className="text-blue-600"
+                />
+                <span className="text-sm text-gray-700">{reason}</span>
+              </label>
+            ))}
+          </div>
+          {escalationReason === 'Other' && (
+            <textarea
+              value={customEscalation}
+              onChange={(e) => setCustomEscalation(e.target.value)}
+              rows={2}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Describe reason for escalation…"
+            />
+          )}
+        </div>
+      )}
+
+      {/* Reject reason */}
       {activeAction === 'reject' && (
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">
@@ -188,22 +272,60 @@ export function RequestReviewPanel({ request, onIssue, onReject, onCollection }:
         </div>
       )}
 
+      {/* Actions */}
       <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => run('issue', onIssue)}
-          disabled={isLoading}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <PackageCheck className="w-4 h-4" />
-          {isLoading && activeAction === 'issue' ? 'Issuing…' : 'Issue Parts'}
-        </button>
+        {isPartial ? (
+          <button
+            onClick={() => run('partial', () => onDecision({ decision: 'partial', approvedQuantities }))}
+            disabled={isLoading}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <PackageCheck className="w-4 h-4" />
+            {isLoading && activeAction === 'partial' ? 'Issuing…' : 'Partially Issue'}
+          </button>
+        ) : (
+          <button
+            onClick={() => run('approve', () => onDecision({ decision: 'approve', approvedQuantities }))}
+            disabled={isLoading}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <PackageCheck className="w-4 h-4" />
+            {isLoading && activeAction === 'approve' ? 'Issuing…' : 'Issue Parts'}
+          </button>
+        )}
+
+        {isStoreKeeperStage && (
+          <button
+            onClick={() => {
+              const finalReason = escalationReason === 'Other' ? customEscalation : escalationReason;
+              if (activeAction !== 'escalate') {
+                setActiveAction('escalate');
+              } else if (finalReason.trim()) {
+                run('escalate', () => onDecision({ decision: 'escalate', escalationReason: finalReason.trim() }));
+              }
+            }}
+            disabled={
+              isLoading ||
+              (activeAction === 'escalate' &&
+                !(escalationReason === 'Other' ? customEscalation.trim() : escalationReason.trim()))
+            }
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ArrowUp className="w-4 h-4" />
+            {isLoading && activeAction === 'escalate'
+              ? 'Escalating…'
+              : activeAction === 'escalate'
+              ? 'Confirm Escalate'
+              : 'Escalate to Supervisor'}
+          </button>
+        )}
 
         <button
           onClick={() => {
             if (activeAction !== 'reject') {
               setActiveAction('reject');
             } else if (rejectReason.trim()) {
-              run('reject', () => onReject(rejectReason.trim()));
+              run('reject', () => onDecision({ decision: 'reject', rejectionReason: rejectReason.trim() }));
             }
           }}
           disabled={isLoading || (activeAction === 'reject' && !rejectReason.trim())}
