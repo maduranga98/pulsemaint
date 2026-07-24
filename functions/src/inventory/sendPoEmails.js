@@ -23,7 +23,33 @@ const EVENT_LABELS = {
   approved: "approved",
   sent: "sent to supplier",
   rejected: "rejected",
+  received: "received",
 };
+
+// Received-items table (qty + condition), used for the supplier confirmation
+// and the faults/damages notice.
+function receivedItemsTableHtml(items, {showCondition = false} = {}) {
+  if (!Array.isArray(items) || items.length === 0) return "";
+  const rows = items
+      .map(
+          (i) => `
+    <tr>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${i.partNumber || ""} — ${i.partName || ""}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${i.quantity ?? ""}</td>
+      ${showCondition ? `<td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${String(i.condition || "").replace(/_/g, " ")}${i.notes ? ` — ${i.notes}` : ""}</td>` : ""}
+    </tr>`,
+      )
+      .join("");
+  return `
+  <table width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;border:1px solid #eee;border-radius:8px;overflow:hidden;">
+    <tr style="background:#f8fafc;">
+      <td style="padding:8px 10px;font-size:12px;color:#888;">Item</td>
+      <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Qty received</td>
+      ${showCondition ? `<td style="padding:8px 10px;font-size:12px;color:#888;">Issue</td>` : ""}
+    </tr>
+    ${rows}
+  </table>`;
+}
 
 function formatMoney(amount, currency) {
   const value = Number(amount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -55,8 +81,44 @@ exports.sendPoEmails = onDocumentCreated(
     {database: "default", document: "po_notifications/{notificationId}"},
     async (event) => {
       const notification = event.data.data();
-      const {poId, poNumber, supplierName, supplierEmail, total, currency, recipients, event: poEvent, message} = notification;
+      const {poId, poNumber, supplierName, supplierEmail, total, currency, recipients, event: poEvent, message, receivedItems, issueItems} = notification;
       const label = EVENT_LABELS[poEvent] || poEvent;
+
+      // Stock receipt — thank the supplier and confirm what arrived, and (if any
+      // items were flagged) send a separate faults/damages notice.
+      if (poEvent === "received") {
+        if (supplierEmail) {
+          const goodItems = Array.isArray(receivedItems) ? receivedItems : [];
+          const thankYouHtml = `
+            <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">Delivery received — thank you</h2>
+            <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
+            <p style="color:#555;font-size:14px;">Thank you for your delivery against purchase order <strong>${poNumber}</strong>. We have received the following items:</p>
+            ${receivedItemsTableHtml(goodItems)}
+            <p style="color:#555;font-size:14px;">We appreciate your continued partnership.</p>
+          `;
+          await sendEmail({
+            to: supplierEmail,
+            subject: `Delivery received — PO ${poNumber}`,
+            html: brandedEmail(thankYouHtml),
+          });
+
+          const problems = Array.isArray(issueItems) ? issueItems : [];
+          if (problems.length > 0) {
+            const issueHtml = `
+              <h2 style="margin:0 0 12px;color:#B91C1C;font-size:18px;">Issue with delivery — PO ${poNumber}</h2>
+              <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
+              <p style="color:#555;font-size:14px;">While receiving purchase order <strong>${poNumber}</strong> we found the following items damaged or incorrect. Please advise on a replacement or credit:</p>
+              ${receivedItemsTableHtml(problems, {showCondition: true})}
+            `;
+            await sendEmail({
+              to: supplierEmail,
+              subject: `Issue with delivery — PO ${poNumber}`,
+              html: brandedEmail(issueHtml),
+            });
+          }
+        }
+        return;
+      }
 
       let poItems = [];
       try {

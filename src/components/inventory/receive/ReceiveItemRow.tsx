@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 interface ItemData {
@@ -36,9 +36,16 @@ export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
   const [condition, setCondition] = useState('good');
   const [notes, setNotes] = useState('');
 
+  // Parents pass a fresh inline `onUpdate` on every render. Depending on it in
+  // the effect below re-ran the effect each render → setState in the parent →
+  // re-render → infinite loop ("Maximum update depth exceeded"). Hold it in a
+  // ref so the effect only fires when the row's own values actually change.
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+
   useEffect(() => {
-    onUpdate({ quantityReceived, unitCost, condition, notes });
-  }, [quantityReceived, unitCost, condition, notes, onUpdate]);
+    onUpdateRef.current({ quantityReceived, unitCost, condition, notes });
+  }, [quantityReceived, unitCost, condition, notes]);
 
   return (
     <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-white">
