@@ -24,7 +24,7 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     supportsExcel: true,
     supportsSheets: true,
     primaryUsers: ['Supervisor', 'Manager'],
-    availableFilters: ['machine', 'department', 'wo_type', 'technician', 'priority'],
+    availableFilters: ['machine', 'department', 'wo_type', 'priority'],
     estimatedGenerationSecs: 5,
   },
   machine_history: {

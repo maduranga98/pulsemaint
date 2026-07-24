@@ -2,7 +2,6 @@ import CheckboxGroup from './CheckboxGroup';
 import ContractorMultiSelect from './ContractorMultiSelect';
 import DepartmentMultiSelect from './DepartmentMultiSelect';
 import MachineMultiSelect from './MachineMultiSelect';
-import MultiValueInput from './MultiValueInput';
 import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelect';
 import SeverityCheckboxGroup from './SeverityCheckboxGroup';
 import ShiftCheckboxGroup from './ShiftCheckboxGroup';
@@ -17,6 +16,19 @@ const BREAKDOWN_TYPE_OPTIONS: SelectOption[] = [
   { value: 'hydraulic', label: 'Hydraulic' },
   { value: 'pneumatic', label: 'Pneumatic' },
   { value: 'software', label: 'Software' },
+  { value: 'other', label: 'Other' },
+];
+
+// Values match the WOType union stored (upper-case) on workOrders docs. The
+// report filter comparison is case-insensitive, so lower-case values match.
+const WO_TYPE_OPTIONS: SelectOption[] = [
+  { value: 'breakdown', label: 'Breakdown' },
+  { value: 'corrective', label: 'Corrective' },
+  { value: 'preventive', label: 'Preventive' },
+  { value: 'installation', label: 'Installation' },
+  { value: 'modification', label: 'Modification' },
+  { value: 'inspection', label: 'Inspection' },
+  { value: 'contractor', label: 'Contractor' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -53,7 +65,15 @@ export default function ReportFilterSection({
       )}
       {has('department') && <DepartmentMultiSelect values={config.departments} onChange={(departments) => onChange({ departments })} />}
       {has('severity') && <SeverityCheckboxGroup values={config.severities} onChange={(severities) => onChange({ severities })} />}
-      {has('wo_type') && <MultiValueInput label="WO Type" placeholder="Breakdown, PM, Corrective" values={config.woTypes} onChange={(woTypes) => onChange({ woTypes })} />}
+      {has('wo_type') && (
+        <SearchableMultiSelect
+          label="WO Type"
+          options={WO_TYPE_OPTIONS}
+          values={config.woTypes}
+          onChange={(woTypes) => onChange({ woTypes })}
+          placeholder="Search work order types…"
+        />
+      )}
       {has('breakdown_type') && (
         <SearchableMultiSelect
           label="Breakdown Type"

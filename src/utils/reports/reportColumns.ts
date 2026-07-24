@@ -71,10 +71,8 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'type', label: 'Type' },
     { key: 'status', label: 'Status' },
     { key: 'reporterName', label: 'Reported By' },
-    { key: 'reportedAt', label: 'Reported', format: 'date' },
     { key: 'resolvedAt', label: 'Completed', format: 'date' },
-    { key: 'estimatedDowntimeMinutes', label: 'Downtime (min)', format: 'number' },
-    { key: 'description', label: 'Description' },
+    { key: 'rcaReason', label: 'RCA Reason' },
   ],
   sla_compliance: [
     { key: 'ticketNumber', label: 'Ticket' },
@@ -103,20 +101,22 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'status', label: 'Status' },
     { key: 'machineName', label: 'Machine' },
     { key: 'machineDepartment', label: 'Department' },
-    { key: 'assignedTechnicianNames', label: 'Technicians', format: 'list' },
-    { key: 'supervisorInChargeName', label: 'Supervisor' },
-    { key: 'dueDate', label: 'Due', format: 'date' },
+    // All people who participated in the work — assigned technicians plus any
+    // contractor technicians (see `participants` enrichment in fetchReportRows).
+    { key: 'participants', label: 'Participants', format: 'list' },
+    { key: 'createdByName', label: 'Created By' },
+    { key: 'supervisorSignOffByName', label: 'Signed Off By' },
     { key: 'createdAt', label: 'Created', format: 'date' },
-    { key: 'totalDurationMinutes', label: 'Duration (min)', format: 'number' },
+    { key: 'actualEndTime', label: 'Completed', format: 'date' },
+    { key: 'supervisorSignOffAt', label: 'Signed Off', format: 'date' },
   ],
   maintenance_cost: [
     { key: 'source', label: 'Source' },
     { key: 'reference', label: 'Reference' },
     { key: 'machineName', label: 'Machine' },
     { key: 'machineDepartment', label: 'Department' },
-    { key: 'laborCost', label: 'Labor Cost', format: 'currency' },
-    { key: 'partsCost', label: 'Parts Cost', format: 'currency' },
-    { key: 'contractorCost', label: 'Contractor/Project Cost', format: 'currency' },
+    // Single, all-in figure: labor + parts + contractor/project spend already
+    // summed in fetchReportRows. Individual cost columns intentionally omitted.
     { key: 'totalCost', label: 'Total Cost', format: 'currency' },
     { key: 'createdAt', label: 'Date', format: 'date' },
   ],
