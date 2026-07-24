@@ -10,15 +10,15 @@ const statusConfig: Record<
   string,
   { label: string; className: string }
 > = {
-  pending_storekeeper: { label: 'Pending Review', className: 'bg-yellow-100 text-yellow-800' },
+  pending_storekeeper: { label: 'To Review', className: 'bg-yellow-100 text-yellow-800' },
   pending_supervisor: { label: 'Awaiting Supervisor', className: 'bg-blue-100 text-blue-800' },
-  approved: { label: 'Approved', className: 'bg-green-100 text-green-800' },
-  partially_approved: { label: 'Partially Approved', className: 'bg-teal-100 text-teal-800' },
+  approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
+  partially_approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800' },
-  parts_reserved: { label: 'Need to Collect', className: 'bg-indigo-100 text-indigo-800' },
-  issued: { label: 'Issued', className: 'bg-purple-100 text-purple-800' },
+  parts_reserved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
+  issued: { label: 'Completed', className: 'bg-green-100 text-green-800' },
   completed: { label: 'Completed', className: 'bg-gray-100 text-gray-700' },
-  cancelled: { label: 'Cancelled', className: 'bg-gray-100 text-gray-400' },
+  cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
 };
 
 export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
@@ -65,7 +65,7 @@ export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
         </div>
       </div>
 
-      {request.status === 'issued' && request.collectedByName && (
+      {(request.status === 'issued' || request.status === 'completed') && request.collectedByName && (
         <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
           <span className="font-medium text-gray-900">Collected by:</span>{' '}
           {request.collectedByName}

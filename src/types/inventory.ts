@@ -269,6 +269,9 @@ export interface PartsRequest {
   storeKeeperReview: StoreKeeperReview | null;
   supervisorReview: SupervisorReview | null;
 
+  // Reason captured when a request is rejected during review.
+  rejectionReason?: string | null;
+
   reservedAt: Timestamp | null;
   issuedAt: Timestamp | null;
   issuedBy: string | null;

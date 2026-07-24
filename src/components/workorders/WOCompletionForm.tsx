@@ -173,7 +173,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                 {...register('workDoneDescription')}
                 rows={4}
                 placeholder={WO_COPY.workDonePlaceholder}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
               />
             </div>
 
@@ -181,7 +181,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
               <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.rootCauseLabel} *</label>
               <select
                 {...register('rootCause')}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
               >
                 {Object.entries(WO_ROOT_CAUSE_LABELS).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
@@ -196,7 +196,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                   {...register('rootCauseDescription')}
                   rows={3}
                   placeholder={WO_COPY.rootCauseDescPlaceholder}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
                 />
               </div>
             )}
@@ -244,7 +244,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       onChange={(e) => update({ partName: e.target.value })}
                       placeholder="Part name"
                       readOnly={part.partId !== null}
-                      className={`flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm ${part.partId ? 'bg-gray-100 text-gray-600' : ''}`}
+                      className={`flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm ${part.partId ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
                     />
                     <button
                       type="button"
@@ -262,7 +262,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         step="any"
                         value={part.quantity}
                         onChange={(e) => update({ quantity: Number(e.target.value) || 0 })}
-                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900"
                       />
                     </div>
                     <div>
@@ -271,7 +271,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         type="text"
                         value={part.unit}
                         onChange={(e) => update({ unit: e.target.value })}
-                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900"
                       />
                     </div>
                     <div>
@@ -282,7 +282,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         step="any"
                         value={part.unitCost}
                         onChange={(e) => update({ unitCost: Number(e.target.value) || 0 })}
-                        className="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                        className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900"
                       />
                     </div>
                   </div>
@@ -353,7 +353,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                     onChange={(e) => setTechLogs((prev) =>
                       prev.map((l, idx) => idx === i ? { ...l, tasksDescription: e.target.value } : l),
                     )}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
                   />
                 </div>
               </div>
@@ -428,7 +428,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                 <textarea
                   {...register('testRunNotes')}
                   rows={3}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm resize-none"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
                 />
               </div>
             )}

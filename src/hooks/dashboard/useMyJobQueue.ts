@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, type Query } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { WorkOrder } from '../../types';
 
@@ -20,9 +20,13 @@ const ACTIVE_STATUSES = new Set([
  * is set, WOs they are the supervisor-in-charge of, or that they created, are
  * folded in too so the page is meaningful for them.
  *
- * The query filters only on `siteId` (an always-available single-field index)
- * and does the status + identity matching client-side, avoiding the composite
- * indexes the previous multi-constraint query needed.
+ * Technicians / trainees may only *read* WOs they are assigned to (Firestore
+ * rules), so a `siteId`-only list query is rejected outright with "Missing or
+ * insufficient permissions". Their query therefore constrains on
+ * `assignedTechnicianIds array-contains` (matching the rule, and backed by an
+ * existing composite index). Owners (admin / supervisor / plant manager) can
+ * read the whole site, so they query on `siteId` alone and fold in the WOs they
+ * supervise or created client-side.
  */
 export function useMyJobQueue(technicianId: string, siteId: string, includeOwned = false) {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
@@ -37,7 +41,16 @@ export function useMyJobQueue(technicianId: string, siteId: string, includeOwned
     }
 
     setLoading(true);
-    const q = query(collection(db, 'workOrders'), where('siteId', '==', siteId));
+    // Owners can read the whole site; technicians/trainees can only read WOs
+    // assigned to them, so their query must constrain on assignedTechnicianIds
+    // to be permitted (and to match the security rule).
+    const q: Query = includeOwned
+      ? query(collection(db, 'workOrders'), where('siteId', '==', siteId))
+      : query(
+          collection(db, 'workOrders'),
+          where('siteId', '==', siteId),
+          where('assignedTechnicianIds', 'array-contains', technicianId),
+        );
 
     const unsubscribe = onSnapshot(
       q,

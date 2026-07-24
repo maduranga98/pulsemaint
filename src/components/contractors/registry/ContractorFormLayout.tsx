@@ -5,6 +5,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useContractor } from '@/hooks/contractors/useContractor';
+import { useContractorDocuments } from '@/hooks/contractors/useContractorDocuments';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 import ContractorFormSection1 from './ContractorFormSection1';
@@ -42,6 +43,9 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
   const companyId = userProfile?.companyId;
   const { contractorId } = useParams<{ contractorId: string }>();
   const { contractor, loading: loadingContractor } = useContractor(mode === 'edit' ? contractorId : undefined);
+  // Previously-uploaded documents, so the edit form shows the "Initial
+  // Documents" already on file instead of an empty upload box.
+  const { documents: existingDocuments } = useContractorDocuments(mode === 'edit' ? contractorId : undefined);
 
   const [step, setStep] = useState(0);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -279,6 +283,7 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
             <div id={SECTION_ANCHORS[4]}>
               <ContractorFormSection5
                 files={pendingFiles}
+                existingDocuments={existingDocuments}
                 onAddFiles={handleAddFiles}
                 onRemoveFile={handleRemoveFile}
               />

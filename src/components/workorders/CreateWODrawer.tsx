@@ -692,19 +692,75 @@ export function CreateWODrawer({
 
           {/* ── STEP 5: Special Tools / Components ── */}
           {step === 5 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Special tools required or components
-              </label>
-              <p className="text-xs text-gray-500 mb-3">
-                List any special tools, fixtures, or components that will be needed to complete this work.
-              </p>
-              <textarea
-                {...form.register('specialToolsRequired')}
-                rows={6}
-                placeholder="e.g., torque wrench (50–100 Nm), hydraulic puller, replacement V-belt B-72…"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 resize-none"
-              />
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Special tools required or components
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  List any special tools, fixtures, or components that will be needed to complete this work.
+                </p>
+                <textarea
+                  {...form.register('specialToolsRequired')}
+                  rows={6}
+                  placeholder="e.g., torque wrench (50–100 Nm), hydraulic puller, replacement V-belt B-72…"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+              </div>
+
+              {/* Review summary — everything captured so far, so the creator can
+                  verify all filled data before creating the work order. */}
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Review — Work Order Summary</h3>
+                <dl className="space-y-2 text-sm">
+                  <SummaryRow label="Type" value={WO_TYPE_CONFIG[woType as WOType]?.label ?? woType} />
+                  <SummaryRow label="Priority" value={WO_PRIORITY_CONFIG[priority]?.label ?? priority} />
+                  <SummaryRow label="Description" value={form.watch('description')} />
+                  {form.watch('linkedBreakdownTicketNumber') && (
+                    <SummaryRow label="Linked breakdown" value={form.watch('linkedBreakdownTicketNumber') as string} />
+                  )}
+                  <SummaryRow label="Machine" value={form.watch('machineName')} />
+                  <SummaryRow
+                    label="Location / Dept"
+                    value={[form.watch('machineLocation'), form.watch('machineDepartment')].filter(Boolean).join(' · ')}
+                  />
+                  <SummaryRow
+                    label="Start"
+                    value={form.watch('scheduledStart') ? new Date(form.watch('scheduledStart') as Date).toLocaleString() : '—'}
+                  />
+                  <SummaryRow
+                    label="Due"
+                    value={form.watch('dueDate') ? new Date(form.watch('dueDate') as Date).toLocaleString() : '—'}
+                  />
+                  {isContractorWO ? (
+                    <SummaryRow
+                      label="Contractor"
+                      value={[
+                        form.watch('contractorCompanyName') as string | null,
+                        (form.watch('contractorTechnicianNames') as string[] | undefined)?.join(', '),
+                      ].filter(Boolean).join(' — ')}
+                    />
+                  ) : (
+                    <SummaryRow
+                      label="Technicians"
+                      value={(form.watch('assignedTechnicianNames') as string[] | undefined)?.join(', ')}
+                    />
+                  )}
+                  <SummaryRow label="Supervisor" value={form.watch('supervisorInChargeName')} />
+                  <SummaryRow
+                    label="Checklist steps"
+                    value={((form.watch('checklist') as unknown[] | undefined)?.length ?? 0).toString()}
+                  />
+                  <SummaryRow
+                    label="Parts requested"
+                    value={((form.watch('partsRequests') as unknown[] | undefined)?.length ?? 0).toString()}
+                  />
+                  <SummaryRow label="Documents" value={pendingFiles.filter((f) => !f.error).length.toString()} />
+                  {form.watch('specialToolsRequired') && (
+                    <SummaryRow label="Special tools" value={form.watch('specialToolsRequired') as string} />
+                  )}
+                </dl>
+              </div>
             </div>
           )}
         </form>
@@ -748,5 +804,16 @@ export function CreateWODrawer({
         </div>
       </div>
     </>
+  );
+}
+
+function SummaryRow({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div className="flex gap-3">
+      <dt className="w-32 flex-shrink-0 text-gray-500">{label}</dt>
+      <dd className="flex-1 text-gray-900 whitespace-pre-line break-words">
+        {value && value.trim() !== '' ? value : <span className="text-gray-400">—</span>}
+      </dd>
+    </div>
   );
 }

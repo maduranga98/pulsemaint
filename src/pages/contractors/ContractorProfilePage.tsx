@@ -13,7 +13,7 @@ import ContractorProfileHeader from '@/components/contractors/registry/Contracto
 import ContractorQuickContactBar from '@/components/contractors/registry/ContractorQuickContactBar';
 import ContractorTechniciansTab from '@/components/contractors/registry/ContractorTechniciansTab';
 
-const TABS = ['Overview', 'Documents', 'Technicians', 'Job History', 'Analytics'] as const;
+const TABS = ['Overview', 'Documents', 'Team Members', 'Job History', 'Analytics'] as const;
 
 export function ContractorProfilePage() {
   const { contractorId } = useParams();
@@ -40,7 +40,7 @@ export function ContractorProfilePage() {
       </div>
       {tab === 'Overview' && <ContractorOverviewTab contractor={contractor} />}
       {tab === 'Documents' && <ContractorDocumentsTab documents={documents} contractorId={contractor.id} />}
-      {tab === 'Technicians' && <ContractorTechniciansTab contractorId={contractor.id} technicians={technicians} />}
+      {tab === 'Team Members' && <ContractorTechniciansTab contractorId={contractor.id} technicians={technicians} />}
       {tab === 'Job History' && <ContractorJobHistoryTab jobs={jobs} />}
       {tab === 'Analytics' && <ContractorAnalyticsTab contractor={contractor} jobs={jobs} />}
     </div>

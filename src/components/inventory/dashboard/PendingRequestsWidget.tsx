@@ -17,15 +17,15 @@ function formatAge(ts: { seconds: number } | null | undefined): { label: string;
 }
 
 const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> = {
-  pending_storekeeper: { label: 'Pending', className: 'bg-amber-100 text-amber-700' },
+  pending_storekeeper: { label: 'To Review', className: 'bg-amber-100 text-amber-700' },
   pending_supervisor: { label: 'Awaiting Supervisor', className: 'bg-blue-100 text-blue-700' },
-  approved: { label: 'Approved', className: 'bg-green-100 text-green-700' },
-  partially_approved: { label: 'Partial', className: 'bg-amber-100 text-amber-700' },
+  approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
+  partially_approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700' },
-  parts_reserved: { label: 'Reserved', className: 'bg-indigo-100 text-indigo-700' },
-  issued: { label: 'Issued', className: 'bg-green-100 text-green-700' },
+  parts_reserved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
+  issued: { label: 'Completed', className: 'bg-green-100 text-green-700' },
   completed: { label: 'Completed', className: 'bg-gray-100 text-gray-600' },
-  cancelled: { label: 'Cancelled', className: 'bg-gray-100 text-gray-400' },
+  cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
 };
 
 export function PendingRequestsWidget({ requests }: Props) {

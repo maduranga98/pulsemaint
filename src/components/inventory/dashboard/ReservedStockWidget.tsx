@@ -53,14 +53,14 @@ export function ReservedStockWidget({ requests }: Props) {
                     )}
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">
-                    Reserved: {formatTimestamp(r.reservedAt)}
+                    Issued: {formatTimestamp(r.issuedAt ?? r.reservedAt)}
                   </p>
                 </div>
                 <button
-                  onClick={() => navigate(`/app/inventory/issue/${r.id}`)}
+                  onClick={() => navigate(`/app/inventory/requests/${r.id}`)}
                   className="shrink-0 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 transition-colors"
                 >
-                  Issue Now
+                  Confirm Collection
                 </button>
               </div>
             );
