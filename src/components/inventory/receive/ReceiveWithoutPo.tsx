@@ -115,9 +115,9 @@ export function ReceiveWithoutPo() {
             workOrderId: null,
             workOrderNumber: null,
             partsRequestId: null,
-            performedBy: userProfile.id,
-            performedByName: userProfile.fullName,
-            performedByRole: userProfile.role,
+            performedBy: userProfile.id ?? '',
+            performedByName: userProfile.fullName ?? '',
+            performedByRole: userProfile.role ?? '',
             performedAt: now,
             notes: [row.notes, supplierName ? `Supplier: ${supplierName}` : '', deliveryRef ? `Ref: ${deliveryRef}` : '']
               .filter(Boolean)
@@ -135,7 +135,8 @@ export function ReceiveWithoutPo() {
       navigate('/app/inventory/catalog');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to record receipt. Please try again.');
+      const detail = err instanceof Error ? err.message : String(err);
+      toast.error(`Failed to record receipt: ${detail}`);
     } finally {
       setIsSubmitting(false);
     }

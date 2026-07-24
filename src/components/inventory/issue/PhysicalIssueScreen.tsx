@@ -181,9 +181,9 @@ export function PhysicalIssueScreen() {
             workOrderId: request.workOrderId,
             workOrderNumber: request.workOrderNumber,
             partsRequestId: request.id,
-            performedBy: userProfile.id,
-            performedByName: userProfile.fullName,
-            performedByRole: userProfile.role,
+            performedBy: userProfile.id ?? '',
+            performedByName: userProfile.fullName ?? '',
+            performedByRole: userProfile.role ?? '',
             performedAt: now,
             notes: '',
             unitCostAtTime: item.unitCost,
@@ -201,17 +201,17 @@ export function PhysicalIssueScreen() {
         tx.update(requestRef, {
           status: 'issued',
           issuedAt: nowTs,
-          issuedBy: userProfile.id,
-          issuedByName: userProfile.fullName,
+          issuedBy: userProfile.id ?? '',
+          issuedByName: userProfile.fullName ?? '',
           // Collection confirmation — who physically took the parts, and
           // who (the storekeeper) verified/confirmed that collection.
           collectedByName: collectorName.trim(),
           collectedAt: nowTs,
-          confirmedBy: userProfile.id,
-          confirmedByName: userProfile.fullName,
+          confirmedBy: userProfile.id ?? '',
+          confirmedByName: userProfile.fullName ?? '',
           items: updatedItems,
           updatedAt: now,
-          updatedBy: userProfile.id,
+          updatedBy: userProfile.id ?? '',
         });
 
         // Auto-track issued parts on the linked WO ticket so the technician's
