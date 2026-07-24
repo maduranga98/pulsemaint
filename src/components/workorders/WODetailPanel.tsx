@@ -57,6 +57,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
     ? `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}m`
     : null;
 
+  // Live checklist progress — reflects task completions as they happen.
+  const checklistTotal = workOrder.checklist.length;
+  const checklistDone = workOrder.checklist.filter((i) => i.isCompleted).length;
+  const checklistPct = checklistTotal > 0 ? Math.round((checklistDone / checklistTotal) * 100) : 0;
+
   const TABS: { key: TabKey; label: string }[] = [
     { key: 'overview', label: WO_COPY.tabOverview },
     { key: 'checklist', label: WO_COPY.tabChecklist },
@@ -175,6 +180,30 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* ── Overview ── */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/* Live progress — status + checklist completion, updates as the
+                  assigned team completes tasks. */}
+              <section className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Progress</h3>
+                  <WOStatusBadge status={workOrder.status} size="sm" />
+                </div>
+                {checklistTotal > 0 ? (
+                  <>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-blue-500 transition-all"
+                        style={{ width: `${checklistPct}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      {checklistDone} / {checklistTotal} checklist steps completed ({checklistPct}%)
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-xs text-gray-400">No checklist steps defined.</p>
+                )}
+              </section>
+
               {/* Safety gate (LOTO/PTW) — must pass before check-in */}
               {safetyGateVisible && (
                 <section className="bg-white border border-gray-200 rounded-xl p-4">
@@ -190,6 +219,35 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Description</h3>
                 <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.description}</p>
               </section>
+
+              {/* Job details — special tools, safety category, estimate, links */}
+              {(workOrder.specialToolsRequired?.trim() ||
+                workOrder.ptwCategory ||
+                workOrder.linkedBreakdownTicketNumber) && (
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Job Details</h3>
+                  <div className="space-y-1.5 text-sm">
+                    {workOrder.specialToolsRequired?.trim() && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-gray-500 w-32 flex-shrink-0">Special tools:</span>
+                        <span className="text-gray-800 whitespace-pre-line">{workOrder.specialToolsRequired}</span>
+                      </div>
+                    )}
+                    {workOrder.ptwCategory && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-gray-500 w-32 flex-shrink-0">Permit category:</span>
+                        <span className="text-gray-800">{workOrder.ptwCategory}</span>
+                      </div>
+                    )}
+                    {workOrder.linkedBreakdownTicketNumber && (
+                      <div className="flex items-start gap-2">
+                        <span className="text-gray-500 w-32 flex-shrink-0">Linked breakdown:</span>
+                        <span className="text-gray-800">{workOrder.linkedBreakdownTicketNumber}</span>
+                      </div>
+                    )}
+                  </div>
+                </section>
+              )}
 
               {/* Machine */}
               <section className="bg-blue-50 rounded-xl p-4 space-y-2">
@@ -275,7 +333,15 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {workOrder.workDoneDescription && (
                 <section className="bg-emerald-50 rounded-xl p-4 space-y-2">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Completion</h3>
-                  <p className="text-sm text-gray-800">{workOrder.workDoneDescription}</p>
+                  <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.workDoneDescription}</p>
+                  {workOrder.rootCause && (
+                    <p className="text-sm text-gray-700">
+                      Root cause: <span className="font-medium">{workOrder.rootCause.replace(/_/g, ' ')}</span>
+                    </p>
+                  )}
+                  {workOrder.rootCauseDescription && (
+                    <p className="text-sm text-gray-600 italic whitespace-pre-line">{workOrder.rootCauseDescription}</p>
+                  )}
                   {workOrder.testRunResult && (
                     <p className="text-sm">
                       Test run:
@@ -287,11 +353,70 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                       </span>
                     </p>
                   )}
+                  {workOrder.testRunNotes && (
+                    <p className="text-sm text-gray-600 whitespace-pre-line">{workOrder.testRunNotes}</p>
+                  )}
                   {workOrder.machineStatusAfterRepair && (
                     <p className="text-sm text-gray-700">
                       Machine: <span className="font-medium">{workOrder.machineStatusAfterRepair.replace(/_/g, ' ')}</span>
                     </p>
                   )}
+                </section>
+              )}
+
+              {/* Post-repair checklist (recorded at completion) */}
+              {(workOrder.postRepairChecklist ?? []).length > 0 && (
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Post-Repair Checks</h3>
+                  <ul className="space-y-1.5">
+                    {workOrder.postRepairChecklist.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm bg-gray-50 rounded-lg px-3 py-2">
+                        <span className={`flex-shrink-0 ${item.result === 'fail' ? 'text-red-500' : 'text-emerald-500'}`}>
+                          {item.result === 'fail' ? '✕' : '✓'}
+                        </span>
+                        <div className="flex-1">
+                          <p className="text-gray-800">{item.stepDescription}</p>
+                          {item.notes && <p className="text-xs text-gray-500 italic mt-0.5">{item.notes}</p>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {/* Technician work logs (recorded at completion) */}
+              {(workOrder.technicianWorkLogs ?? []).length > 0 && (
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Work Logs</h3>
+                  <div className="space-y-2">
+                    {workOrder.technicianWorkLogs.map((log, i) => (
+                      <div key={i} className="bg-gray-50 rounded-lg px-3 py-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-gray-800">{log.technicianName}</span>
+                          <span className="text-xs text-gray-500">{log.hoursWorked}h</span>
+                        </div>
+                        {log.tasksDescription && (
+                          <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-line">{log.tasksDescription}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Contractor hours (recorded at completion) */}
+              {workOrder.contractorHoursLog && (
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Contractor Hours</h3>
+                  <div className="bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700 space-y-0.5">
+                    <p>On-site: <span className="font-medium">{workOrder.contractorHoursLog.hoursOnSite}h</span> · Billed: <span className="font-medium">{workOrder.contractorHoursLog.hoursBilled}h</span></p>
+                    {workOrder.contractorHoursLog.technicianNames.length > 0 && (
+                      <p className="text-xs text-gray-500">{workOrder.contractorHoursLog.technicianNames.join(', ')}</p>
+                    )}
+                    {workOrder.contractorHoursLog.notes && (
+                      <p className="text-xs text-gray-600 italic">{workOrder.contractorHoursLog.notes}</p>
+                    )}
+                  </div>
                 </section>
               )}
             </div>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { CalendarEvent } from '../../types/pm.types';
-import { PM_PRIORITY_CONFIG } from '../../constants/pmConfig';
+import { PM_PRIORITY_CONFIG, PM_OPERATIONAL_STATUS_CONFIG } from '../../constants/pmConfig';
 
 interface PMCalendarViewProps {
   events: CalendarEvent[];
@@ -129,14 +129,18 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           <button
                             key={event.id}
                             onClick={() => onEventClick?.(event)}
-                            className="w-full text-left text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium truncate"
+                            className="w-full flex items-center gap-1 text-left text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium"
                             style={{
                               backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
                               color: PM_PRIORITY_CONFIG[event.priority].textClass.replace('text-', '').replace('700', '800'),
                               borderLeft: `3px solid ${PM_PRIORITY_CONFIG[event.priority].color}`,
                             }}
+                            title={event.operationalStatus ? PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label : undefined}
                           >
-                            {event.title}
+                            {event.operationalStatus && (
+                              <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
+                            )}
+                            <span className="truncate">{event.title}</span>
                           </button>
                         ))}
                         {dayEvents.length > 3 && (
@@ -177,8 +181,15 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                       }}
                     >
                       <div className="flex items-center justify-between">
-                        <span>{event.title}</span>
-                        <span className="text-xs opacity-75">{event.machineName}</span>
+                        <span className="flex items-center gap-1.5">
+                          {event.operationalStatus && (
+                            <span className={`h-2 w-2 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
+                          )}
+                          {event.title}
+                        </span>
+                        <span className="text-xs opacity-75">
+                          {event.operationalStatus ? PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label : event.machineName}
+                        </span>
                       </div>
                     </button>
                   ))}

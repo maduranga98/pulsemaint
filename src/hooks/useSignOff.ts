@@ -5,6 +5,7 @@ import { db, storage } from '../lib/firebase';
 import type { WOSignOffPayload } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
 import { logAuditEvent } from '../utils/reports/auditLogger';
+import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 import { toast } from 'sonner';
 
 interface UseSignOffResult {
@@ -52,6 +53,9 @@ export function useSignOff(): UseSignOffResult {
           supervisorSignOffNotes: payload.notes || null,
           updatedAt: serverTimestamp(),
         });
+
+        // Keep the linked PM schedule in sync with the signed-off WO.
+        await syncPmScheduleWoStatus(woId, 'SIGNED_OFF');
 
         const profile = useAuthStore.getState().userProfile;
         if (profile) {

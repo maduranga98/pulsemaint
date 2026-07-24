@@ -35,7 +35,7 @@ export type PMHistoryStatus =
   | 'missed'
   | 'in_progress'
 
-export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused' | 'completed';
+export type PMOperationalStatus = 'on_track' | 'due_soon' | 'overdue' | 'paused' | 'completed' | 'in_progress';
 
 export type TriggerUnit = 'operating_hours' | 'production_cycles';
 
@@ -147,6 +147,12 @@ export interface PMSchedule {
   updatedAt: Timestamp;
   lastWoGeneratedAt: Timestamp | null;
   lastWoId: string | null;
+
+  // Live status of the work order currently servicing this schedule. Written
+  // by the WO status/completion/sign-off flows so PM Schedules and the PM
+  // Calendar reflect the real-time progress of the linked WO.
+  activeWoId?: string | null;
+  activeWoStatus?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -335,6 +341,9 @@ export interface CalendarEvent {
   technicianNames: string[];
   pmType: PMType;
   status: PMStatus;
+  // Live operational status (incorporates the linked WO's progress) used to
+  // colour/label calendar entries.
+  operationalStatus?: PMOperationalStatus;
 }
 
 export interface TechnicianWorkload {

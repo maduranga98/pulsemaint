@@ -221,13 +221,20 @@ export function useWOCompletion(): UseWOCompletionResult {
               };
 
               if (intervalDays && pm.recurrenceType !== 'one_time') {
-                // Recurring PM — roll the schedule forward to the next cycle.
+                // Recurring PM — roll the schedule forward to the next cycle and
+                // clear the just-finished WO so it reflects the next due window,
+                // not a permanently "completed" state.
                 scheduleUpdates.nextDueDate = Timestamp.fromDate(
                   new Date(payload.actualEndTime.getTime() + intervalDays * 86400000),
                 );
+                scheduleUpdates.activeWoId = null;
+                scheduleUpdates.activeWoStatus = null;
               } else {
-                // One-off PM (created through a Work Order) — mark it completed.
+                // One-off PM (created through a Work Order) — mark it completed
+                // and surface the completion on the schedule/calendar.
                 scheduleUpdates.status = 'completed';
+                scheduleUpdates.activeWoId = woId;
+                scheduleUpdates.activeWoStatus = 'COMPLETED';
               }
 
               await updateDoc(pmRef, scheduleUpdates);
