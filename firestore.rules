@@ -155,12 +155,21 @@ service cloud.firestore {
           'partsUsed', 'updatedAt'
         ]);
 
-      // Technician / trainee: read assigned WOs only
-      allow read: if (isTechnician() || isRole('trainee')) && woSiteMatches() && isAssignedTechnician();
+      // Technician / trainee: read assigned WOs only.
+      // Being explicitly listed in assignedTechnicianIds is sufficient
+      // authorization — assignments can only ever be written by a same-company
+      // supervisor/admin (WO create/update rules), so an assignee reading their
+      // own WO is always safe. We deliberately do NOT gate this on
+      // woSiteMatches(): the user's mapping-doc siteId and the WO's siteId are
+      // both derived from `siteIds[0] ?? companyId` in several places and can
+      // drift, which previously rejected the whole "My Work Orders" query with
+      // "Missing or insufficient permissions" even for correctly-assigned users.
+      allow read: if (isTechnician() || isRole('trainee')) && isAssignedTechnician();
 
-      // Technician / trainee: update only allowed fields on assigned WOs
+      // Technician / trainee: update only allowed fields on assigned WOs.
+      // Same reasoning as read — scoped by assignment, not by site, so a
+      // legitimately-assigned technician can always check in / complete their WO.
       allow update: if (isTechnician() || isRole('trainee'))
-        && woSiteMatches()
         && isAssignedTechnician()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'statusHistory',

@@ -321,34 +321,34 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
               {/* Completion info (if completed) */}
               {workOrder.workDoneDescription && (
-                <section className="bg-emerald-50 rounded-xl p-4 space-y-2">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Completion</h3>
-                  <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.workDoneDescription}</p>
+                <section className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-2">
+                  <h3 className="text-xs font-semibold text-emerald-800 uppercase tracking-wide">Completion</h3>
+                  <p className="text-sm font-medium text-gray-900 whitespace-pre-line">{workOrder.workDoneDescription}</p>
                   {workOrder.rootCause && (
-                    <p className="text-sm text-gray-700">
-                      Root cause: <span className="font-medium">{workOrder.rootCause.replace(/_/g, ' ')}</span>
+                    <p className="text-sm text-gray-900">
+                      Root cause: <span className="font-semibold">{workOrder.rootCause.replace(/_/g, ' ')}</span>
                     </p>
                   )}
                   {workOrder.rootCauseDescription && (
-                    <p className="text-sm text-gray-600 italic whitespace-pre-line">{workOrder.rootCauseDescription}</p>
+                    <p className="text-sm text-gray-800 italic whitespace-pre-line">{workOrder.rootCauseDescription}</p>
                   )}
                   {workOrder.testRunResult && (
-                    <p className="text-sm">
+                    <p className="text-sm text-gray-900">
                       Test run:
                       <span className={`ml-1 font-semibold ${
-                        workOrder.testRunResult === 'pass' ? 'text-emerald-600' :
-                        workOrder.testRunResult === 'fail' ? 'text-red-600' : 'text-amber-600'
+                        workOrder.testRunResult === 'pass' ? 'text-emerald-700' :
+                        workOrder.testRunResult === 'fail' ? 'text-red-700' : 'text-amber-700'
                       }`}>
                         {workOrder.testRunResult}
                       </span>
                     </p>
                   )}
                   {workOrder.testRunNotes && (
-                    <p className="text-sm text-gray-600 whitespace-pre-line">{workOrder.testRunNotes}</p>
+                    <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.testRunNotes}</p>
                   )}
                   {workOrder.machineStatusAfterRepair && (
-                    <p className="text-sm text-gray-700">
-                      Machine: <span className="font-medium">{workOrder.machineStatusAfterRepair.replace(/_/g, ' ')}</span>
+                    <p className="text-sm text-gray-900">
+                      Machine: <span className="font-semibold">{workOrder.machineStatusAfterRepair.replace(/_/g, ' ')}</span>
                     </p>
                   )}
                 </section>
