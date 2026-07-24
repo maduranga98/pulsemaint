@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Save, Send } from 'lucide-react';
@@ -7,6 +8,7 @@ import {
   addDoc,
   updateDoc,
   doc,
+  getDoc,
   serverTimestamp,
   getDocs,
   query,
@@ -67,6 +69,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
     })) ?? [emptyItem()],
   );
   const [saving, setSaving] = useState(false);
+  const [searchParams] = useSearchParams();
 
   const totalValue = items.reduce((sum, it) => sum + it.quantityOrdered * it.unitCost, 0);
 
@@ -95,6 +98,49 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       notes: initialPO?.notes ?? '',
     },
   });
+
+  // "Order Now" on a Low Stock Alert deep-links here with ?partId=… — prefill
+  // the first line with that part so the storekeeper doesn't have to search for
+  // it again. Suggest a reorder quantity that brings stock back above minimum.
+  useEffect(() => {
+    const partId = searchParams.get('partId');
+    if (initialPO || !partId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDoc(doc(db, 'inventoryParts', partId));
+        if (cancelled || !snap.exists()) return;
+        const p = snap.data() as any;
+        const suggestedQty = Math.max(
+          1,
+          (Number(p.maxStockLevel) || Number(p.minStockLevel) || 0) - (Number(p.currentStock) || 0),
+        );
+        setItems((prev) => {
+          // Only prefill when the form is still empty (untouched first row).
+          const first = prev[0];
+          if (prev.length > 1 || (first && first.partId)) return prev;
+          return [
+            {
+              partId: snap.id,
+              partNumber: p.partNumber ?? '',
+              partName: p.name ?? '',
+              quantityOrdered: suggestedQty,
+              unitCost: Number(p.lastPurchasePrice) || Number(p.unitCost) || 0,
+              leadTimeDays: 0,
+              expectedDelivery: null,
+            },
+          ];
+        });
+        if (p.supplierName) {
+          setValue('supplierName', p.supplierName as string, { shouldValidate: true });
+        }
+      } catch (err) {
+        console.error('Failed to prefill PO from partId', err);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, initialPO]);
 
   async function generatePONum(): Promise<string> {
     const year = new Date().getFullYear();
