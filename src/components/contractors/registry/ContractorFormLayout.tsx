@@ -5,6 +5,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useContractor } from '@/hooks/contractors/useContractor';
+import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 import ContractorFormSection1 from './ContractorFormSection1';
 import ContractorFormSection2 from './ContractorFormSection2';
@@ -37,6 +38,7 @@ function getStr(fd: FormData, key: string): string {
 export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
+  const access = useContractorAccess();
   const companyId = userProfile?.companyId;
   const { contractorId } = useParams<{ contractorId: string }>();
   const { contractor, loading: loadingContractor } = useContractor(mode === 'edit' ? contractorId : undefined);
@@ -153,21 +155,29 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       geographicCoverage: getStr(fd, 'geographicCoverage').split(',').map((s) => s.trim()).filter(Boolean),
       serviceHours: getStr(fd, 'serviceHours') || 'business_hours',
       emergencyResponseTime: getStr(fd, 'emergencyResponseTime'),
-      teamSize: Number(getStr(fd, 'teamSize')) || 0,
+      teamSizeAvailable: Number(getStr(fd, 'teamSizeAvailable')) || 0,
       languagesSpoken: getStr(fd, 'languagesSpoken').split(',').map((s) => s.trim()).filter(Boolean),
-
-      paymentMethods: getAll(fd, 'paymentMethods'),
-      bankName: getStr(fd, 'bankName'),
-      bankBranch: getStr(fd, 'bankBranch'),
-      bankAccountName: getStr(fd, 'bankAccountName'),
-      bankAccountNumber: getStr(fd, 'bankAccountNumber'),
-      bankRoutingNumber: getStr(fd, 'bankRoutingNumber'),
-      taxRegistrationNumber: getStr(fd, 'taxRegistrationNumber'),
-      previouslyCompletedProjects,
 
       updatedAt: serverTimestamp(),
       updatedBy: userProfile?.id ?? null,
     };
+
+    // The financial section is only rendered for Plant Managers/Admins
+    // (see ContractorFormSection4). For other roles the inputs don't exist,
+    // so their FormData is empty — including these keys would overwrite the
+    // saved bank/tax details with blanks and, because Firestore rules block
+    // supervisors from touching financial keys, reject the whole update.
+    // Only write them when the current user can actually edit financials.
+    if (access.canViewFinancials) {
+      payload.paymentMethods = getAll(fd, 'paymentMethods');
+      payload.bankName = getStr(fd, 'bankName');
+      payload.bankBranch = getStr(fd, 'bankBranch');
+      payload.bankAccountName = getStr(fd, 'bankAccountName');
+      payload.bankAccountNumber = getStr(fd, 'bankAccountNumber');
+      payload.bankRoutingNumber = getStr(fd, 'bankRoutingNumber');
+      payload.taxRegistrationNumber = getStr(fd, 'taxRegistrationNumber');
+      payload.previouslyCompletedProjects = previouslyCompletedProjects;
+    }
 
     if (!payload.companyName || !payload.registrationNumber || !payload.primaryContactName) {
       setError('Please fill in all required fields (Company Name, Registration Number, Primary Contact).');
@@ -184,7 +194,11 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       companyId,
       status: 'active',
       avgRating: 0,
-      totalJobsCompleted: 0,
+      ratingCount: 0,
+      totalJobsCount: 0,
+      breakdownJobsCount: 0,
+      pmJobsCount: 0,
+      installationJobsCount: 0,
       blocksAssignment: false,
       createdAt: serverTimestamp(),
       createdBy: userProfile?.id ?? null,

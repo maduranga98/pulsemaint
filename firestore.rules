@@ -437,7 +437,10 @@ service cloud.firestore {
               'signOffNotes', 'signOffSignature', 'isDisputed', 'disputeNotes',
               'rating', 'followUpRequired', 'followUpReason', 'followUpBreakdownId',
               'contractorInvoiceAmount', 'contractorInvoiceRef', 'contractorInvoiceDate',
-              'contractorInvoiceUrl', 'invoiceStatus', 'updatedAt'
+              'contractorInvoiceUrl', 'invoiceStatus', 'updatedAt',
+              'totalProjectCost', 'systemInvoiceAmount', 'systemLaborHours',
+              'systemLaborRate', 'systemLaborCost', 'systemPartsCost',
+              'invoiceVarianceAmount', 'invoiceVariancePercent', 'invoiceVarianceFlagged'
             ])
           )
           || (

@@ -76,9 +76,9 @@ export function ContractorFormSection4({ initial }: Props) {
         <div className="grid gap-4 sm:grid-cols-2">
           <input name="bankName" defaultValue={initial?.bankName ?? ''} placeholder="Bank Name" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
           <input name="bankBranch" defaultValue={initial?.bankBranch ?? ''} placeholder="Branch" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-          <input name="bankAccountName" placeholder="Account Holder Name" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+          <input name="bankAccountName" defaultValue={initial?.bankAccountName ?? ''} placeholder="Account Holder Name" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
           <input name="bankAccountNumber" defaultValue={initial?.bankAccountNumber ?? ''} placeholder="Account Number" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-          <input name="bankRoutingNumber" placeholder="Routing / SWIFT" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+          <input name="bankRoutingNumber" defaultValue={initial?.bankRoutingNumber ?? ''} placeholder="Routing / SWIFT" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
           <input name="taxRegistrationNumber" defaultValue={initial?.taxRegistrationNumber ?? ''} placeholder="TIN Number" className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
         </div>
       </div>
