@@ -190,8 +190,11 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         // Sign-off
         supervisorSignOffSignature: null,
         supervisorSignOffBy: null,
+        supervisorSignOffByName: null,
         supervisorSignOffAt: null,
         supervisorSignOffNotes: null,
+        signOffOutcome: null,
+        signOffOutcomeReason: null,
 
         // Status history
         statusHistory: [{
@@ -209,6 +212,8 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         closedAt: null,
+        closedBy: null,
+        closedByName: null,
         cancelledAt: null,
         cancelReason: null,
       };

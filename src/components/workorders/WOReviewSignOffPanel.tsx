@@ -1,14 +1,12 @@
 import { useMemo, useState } from 'react';
-import { X, Check, RotateCcw, ChevronDown, ChevronRight } from 'lucide-react';
+import { X, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import type { WorkOrder, WORootCause } from '../../types/workOrder';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
-import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useWORCA, FIVE_WHY_QUESTIONS } from '../../hooks/useWORCA';
-import { useSignOff } from '../../hooks/useSignOff';
 import { useAuthStore } from '../../store/authStore';
-import { SignatureCanvas } from './SignatureCanvas';
 import { WOTypeBadge } from './WOTypeBadge';
 import { PriorityBadge } from './PriorityBadge';
+import { WOSignOffForm } from './WOSignOffForm';
 import { toast } from 'sonner';
 
 interface Props {
@@ -17,11 +15,10 @@ interface Props {
   onDone?: () => void;
 }
 
-type Step = 'review' | 'rca' | 'signoff';
+type Step = 'review' | 'signoff';
 
 const STEPS: { key: Step; label: string }[] = [
   { key: 'review', label: 'Review' },
-  { key: 'rca', label: 'Root Cause' },
   { key: 'signoff', label: 'Sign-off' },
 ];
 
@@ -41,22 +38,18 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
   const wo = workOrder;
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
-  const { updateStatus, loading: statusLoading } = useUpdateWorkOrder();
   const { saveWORCA, createCorrectiveWO } = useWORCA(wo);
-  const { signOff, loading: signLoading } = useSignOff();
 
   const [step, setStep] = useState<Step>('review');
 
+  // Only the assigned supervisor / plant manager / admin may sign off.
   const canSignOff =
     userProfile?.role === 'supervisor' ||
     userProfile?.role === 'admin' ||
     userProfile?.role === 'plant_manager';
 
-  // Review
-  const [sendBackReason, setSendBackReason] = useState('');
-  const [showSendBack, setShowSendBack] = useState(false);
-
-  // RCA
+  // Optional root-cause analysis (not required to sign off).
+  const [showRCA, setShowRCA] = useState(false);
   const [rootCauseEnum, setRootCauseEnum] = useState<WORootCause>(wo.rootCause ?? 'unknown');
   const [rootCauseText, setRootCauseText] = useState(wo.rootCauseDescription ?? '');
   const [showWhys, setShowWhys] = useState(false);
@@ -65,13 +58,8 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
   const [makeCorrectiveWO, setMakeCorrectiveWO] = useState(false);
   const [rcaSaving, setRcaSaving] = useState(false);
 
-  // Sign-off
-  const [signature, setSignature] = useState('');
-  const [signNotes, setSignNotes] = useState('');
-
   const uid = user?.uid ?? '';
   const userName = user?.displayName ?? userProfile?.fullName ?? '';
-  const siteId = wo.siteId;
 
   const checklistDone = useMemo(() => (wo.checklist ?? []).filter((c) => c.isCompleted).length, [wo.checklist]);
   const evidence = useMemo(() => {
@@ -81,21 +69,9 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
     return [...photos, ...docItems];
   }, [wo.documents, wo.finalPhotos]);
 
-  async function handleSendBack() {
-    if (!sendBackReason.trim()) {
-      toast.error('Please provide a reason for sending the work order back.');
-      return;
-    }
-    const ok = await updateStatus(wo.id, 'IN_PROGRESS', `Sent back: ${sendBackReason.trim()}`);
-    if (ok) {
-      onDone?.();
-      onClose();
-    }
-  }
-
   async function handleSaveRCA() {
     if (!rootCauseText.trim()) {
-      toast.error('Root cause description is required.');
+      toast.error('Root cause description is required to save the analysis.');
       return;
     }
     setRcaSaving(true);
@@ -110,26 +86,11 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
         toast.success('Corrective work order created.');
       }
       toast.success('Root cause analysis saved.');
-      setStep('signoff');
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to save RCA');
     } finally {
       setRcaSaving(false);
     }
-  }
-
-  async function handleSignOff(alsoClose: boolean) {
-    if (!signature) {
-      toast.error('Please capture a signature.');
-      return;
-    }
-    const ok = await signOff(wo.id, siteId, { signature, notes: signNotes });
-    if (!ok) return;
-    if (alsoClose) {
-      await updateStatus(wo.id, 'CLOSED');
-    }
-    onDone?.();
-    onClose();
   }
 
   return (
@@ -243,172 +204,119 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                 </div>
               )}
 
-              {!canSignOff && (
-                <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
-                  You have view-only access — only a supervisor or admin can approve or sign off this work order.
-                </p>
-              )}
-
+              {/* Optional root-cause analysis */}
               {canSignOff && (
-              <div className="space-y-2 border-t border-gray-200 pt-4">
-                <button
-                  onClick={() => setStep('rca')}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white hover:bg-blue-700"
-                >
-                  <Check className="h-4 w-4" /> Approve completion
-                </button>
-
-                {!showSendBack ? (
+                <div className="rounded-lg border border-gray-200">
                   <button
-                    onClick={() => setShowSendBack(true)}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50"
+                    onClick={() => setShowRCA((v) => !v)}
+                    className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700"
                   >
-                    <RotateCcw className="h-4 w-4" /> Send back
+                    <span>Root cause analysis (optional)</span>
+                    {showRCA ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   </button>
-                ) : (
-                  <div className="space-y-2 rounded-lg border border-gray-200 p-3">
-                    <textarea
-                      value={sendBackReason}
-                      onChange={(e) => setSendBackReason(e.target.value)}
-                      placeholder="Reason for sending back to technician…"
-                      rows={3}
-                      className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
-                    />
-                    <button
-                      onClick={handleSendBack}
-                      disabled={statusLoading}
-                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-amber-600 px-4 py-2.5 font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
-                    >
-                      <RotateCcw className="h-4 w-4" /> Confirm send back → In Progress
-                    </button>
-                  </div>
-                )}
-              </div>
-              )}
-            </div>
-          )}
-
-          {step === 'rca' && (
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause category</label>
-                <select
-                  value={rootCauseEnum}
-                  onChange={(e) => setRootCauseEnum(e.target.value as WORootCause)}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
-                >
-                  {Object.entries(WO_ROOT_CAUSE_LABELS).map(([val, label]) => (
-                    <option key={val} value={val}>{label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause description *</label>
-                <textarea
-                  value={rootCauseText}
-                  onChange={(e) => setRootCauseText(e.target.value)}
-                  rows={3}
-                  placeholder="Describe the underlying root cause…"
-                  className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <button
-                  onClick={() => setShowWhys((v) => !v)}
-                  className="flex items-center gap-1 text-sm font-medium text-blue-600"
-                >
-                  {showWhys ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  5-Whys analysis (optional)
-                </button>
-                {showWhys && (
-                  <div className="mt-2 space-y-2">
-                    {FIVE_WHY_QUESTIONS.map((q, i) => (
-                      <div key={i}>
-                        <label className="mb-0.5 block text-[11px] text-gray-500">{q}</label>
-                        <input
-                          value={whys[i]}
-                          onChange={(e) => setWhys((prev) => prev.map((w, j) => (j === i ? e.target.value : w)))}
+                  {showRCA && (
+                    <div className="space-y-3 border-t border-gray-100 p-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause category</label>
+                        <select
+                          value={rootCauseEnum}
+                          onChange={(e) => setRootCauseEnum(e.target.value as WORootCause)}
+                          className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
+                        >
+                          {Object.entries(WO_ROOT_CAUSE_LABELS).map(([val, label]) => (
+                            <option key={val} value={val}>{label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause description</label>
+                        <textarea
+                          value={rootCauseText}
+                          onChange={(e) => setRootCauseText(e.target.value)}
+                          rows={3}
+                          placeholder="Describe the underlying root cause…"
                           className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
                         />
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                      <div>
+                        <button
+                          onClick={() => setShowWhys((v) => !v)}
+                          className="flex items-center gap-1 text-sm font-medium text-blue-600"
+                        >
+                          {showWhys ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                          5-Whys analysis
+                        </button>
+                        {showWhys && (
+                          <div className="mt-2 space-y-2">
+                            {FIVE_WHY_QUESTIONS.map((q, i) => (
+                              <div key={i}>
+                                <label className="mb-0.5 block text-[11px] text-gray-500">{q}</label>
+                                <input
+                                  value={whys[i]}
+                                  onChange={(e) => setWhys((prev) => prev.map((w, j) => (j === i ? e.target.value : w)))}
+                                  className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Corrective action</label>
+                        <textarea
+                          value={correctiveAction}
+                          onChange={(e) => setCorrectiveAction(e.target.value)}
+                          rows={2}
+                          className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
+                        />
+                        <label className="mt-2 flex items-center gap-2 text-sm text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={makeCorrectiveWO}
+                            onChange={(e) => setMakeCorrectiveWO(e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300"
+                          />
+                          Create a corrective work order from this action
+                        </label>
+                      </div>
+                      <button
+                        onClick={handleSaveRCA}
+                        disabled={rcaSaving}
+                        className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {rcaSaving ? 'Saving…' : 'Save root cause analysis'}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Corrective action (optional)</label>
-                <textarea
-                  value={correctiveAction}
-                  onChange={(e) => setCorrectiveAction(e.target.value)}
-                  rows={2}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
-                />
-                <label className="mt-2 flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="checkbox"
-                    checked={makeCorrectiveWO}
-                    onChange={(e) => setMakeCorrectiveWO(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300"
-                  />
-                  Create a corrective work order from this action
-                </label>
-              </div>
-
-              <div className="flex gap-2 border-t border-gray-200 pt-4">
-                <button onClick={() => setStep('review')} className="rounded-lg border border-gray-300 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50">
-                  Back
-                </button>
-                <button
-                  onClick={handleSaveRCA}
-                  disabled={rcaSaving}
-                  className="flex-1 rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-                >
-                  Save RCA &amp; continue
-                </button>
-              </div>
+              {!canSignOff ? (
+                <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
+                  You have view-only access — only a supervisor, plant manager, or admin can sign off this work order.
+                </p>
+              ) : (
+                <div className="border-t border-gray-200 pt-4">
+                  <button
+                    onClick={() => setStep('signoff')}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white hover:bg-blue-700"
+                  >
+                    <Check className="h-4 w-4" /> Continue to sign-off
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
-          {step === 'signoff' && (
-            <div className="space-y-4">
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Signature</label>
-                <SignatureCanvas onSave={setSignature} />
-                {signature && <p className="mt-1 text-xs text-green-600">Signature captured.</p>}
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Sign-off notes (optional)</label>
-                <textarea
-                  value={signNotes}
-                  onChange={(e) => setSignNotes(e.target.value)}
-                  rows={2}
-                  className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-2 border-t border-gray-200 pt-4">
-                <button
-                  onClick={() => handleSignOff(false)}
-                  disabled={signLoading}
-                  className="w-full rounded-lg border border-blue-600 px-4 py-2.5 font-semibold text-blue-600 hover:bg-blue-50 disabled:opacity-50"
-                >
-                  Sign off
-                </button>
-                <button
-                  onClick={() => handleSignOff(true)}
-                  disabled={signLoading}
-                  className="w-full rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
-                >
-                  Sign off &amp; close
-                </button>
-                <button onClick={() => setStep('rca')} className="w-full py-1 text-sm text-gray-500">
-                  Back to root cause
-                </button>
-              </div>
-            </div>
+          {step === 'signoff' && canSignOff && (
+            <WOSignOffForm
+              workOrder={wo}
+              onCancel={() => setStep('review')}
+              onDone={() => {
+                onDone?.();
+                onClose();
+              }}
+            />
           )}
         </div>
       </div>

@@ -169,6 +169,49 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                       ? 'You will review the safety precautions before work begins.'
                       : 'This will record your check-in and start the job.'}
                   </p>
+
+                  {/* Assignment briefing — the details the assigner entered, so
+                      the technician knows exactly what they've been asked to do
+                      before starting. Shows their attachments and a read-only
+                      view of the checklist steps assigned to them. */}
+                  {assignerDocuments.length > 0 && (
+                    <div>
+                      <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Documents from assigner</h3>
+                      <div className="space-y-2">
+                        {assignerDocuments.map((d) => (
+                          <a
+                            key={d.id}
+                            href={d.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5 text-sm text-[#F0F4F8] hover:border-[#1A56DB]"
+                          >
+                            <FileText className="h-4 w-4 shrink-0 text-[#00C2FF]" />
+                            <span className="min-w-0 flex-1 truncate">{d.name}</span>
+                            <span className="shrink-0 text-xs text-[#8BA3BF]">{d.format}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {wo.checklist.length > 0 && (
+                    <div>
+                      <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Your tasks</h3>
+                      {wo.specialToolsRequired && (
+                        <div className="mb-3 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">Special Tools Required</p>
+                          <p className="mt-0.5 text-sm text-[#F0F4F8]">{wo.specialToolsRequired}</p>
+                        </div>
+                      )}
+                      <div className="rounded-lg bg-white p-4">
+                        <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly />
+                      </div>
+                      <p className="mt-1.5 text-center text-[11px] text-[#8BA3BF]">
+                        Start the work order to tick off tasks and record measurements.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
