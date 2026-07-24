@@ -11,8 +11,11 @@ import { TechnicianWOExecutionSheet } from '../../components/workorders/technici
 import type { WorkOrder } from '../../types/workOrder';
 
 export default function TechnicianDashboard() {
+  const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
-  const technicianId = userProfile?.id ?? '';
+  // Match the security rule, which authorizes assigned-WO reads on
+  // `request.auth.uid` — query on the auth uid, not the profile id.
+  const technicianId = user?.uid ?? userProfile?.id ?? '';
   // WO creation falls back to companyId when the creator has no siteIds
   // (useCreateWorkOrder), so the queue query must use the same fallback or
   // assigned WOs never match (same rule as MyWorkOrdersPage).

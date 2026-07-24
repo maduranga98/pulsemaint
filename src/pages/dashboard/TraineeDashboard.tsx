@@ -50,8 +50,11 @@ function useMyRecentEvaluations(userId: string, limitCount = 3) {
 
 export default function TraineeDashboard() {
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
-  const traineeId = userProfile?.id ?? '';
+  // Match the security rule, which authorizes assigned-WO reads on
+  // `request.auth.uid` — query on the auth uid, not the profile id.
+  const traineeId = user?.uid ?? userProfile?.id ?? '';
   const siteId = userProfile?.siteIds?.[0] ?? userProfile?.companyId ?? '';
   const firstName = userProfile?.fullName?.split(' ')[0] ?? 'Trainee';
 
