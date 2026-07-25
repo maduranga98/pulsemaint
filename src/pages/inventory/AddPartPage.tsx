@@ -383,6 +383,10 @@ export function AddPartPage() {
                     const supplier = suppliers.find((s) => s.id === supplierId);
                     setValue('supplierName', supplier?.name ?? '');
                     setValue('supplierContact', supplier ? [supplier.phone, supplier.email].filter(Boolean).join(' / ') : '');
+                    // Pre-fill with the supplier's own profile code so the
+                    // field isn't left blank — still editable in case this
+                    // specific part needs the supplier's per-item code instead.
+                    setValue('supplierPartCode', supplier?.supplierCode ?? '');
                   }}
                   className={inputCls}
                 >
@@ -405,7 +409,7 @@ export function AddPartPage() {
               <input {...register('supplierContact')} readOnly disabled className={`${inputCls} bg-gray-50 text-gray-500`} placeholder="From selected supplier" />
             </Field>
             <Field label="Supplier Part Code">
-              <input {...register('supplierPartCode')} className={inputCls} placeholder="Supplier's part #" />
+              <input {...register('supplierPartCode')} className={inputCls} placeholder="Auto-filled from supplier, editable" />
             </Field>
             <Field label="Lead Time (Days)">
               <input type="number" min="0" {...register('leadTimeDays', { valueAsNumber: true })} className={inputCls} />
