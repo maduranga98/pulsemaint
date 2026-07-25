@@ -112,6 +112,7 @@ export function AddPartPage() {
         ...values,
         partNumber,
         supplierPartCode,
+        supplierId: selectedSupplierId,
         id: partRef.id,
         companyId,
         reservedStock: 0,

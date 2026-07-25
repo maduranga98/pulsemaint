@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { createPartSchema, type CreatePartFormValues } from '@/schemas/inventory';
 import { useInventoryPart } from '@/hooks/inventory/useInventoryPart';
+import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { useToast } from '@/hooks/useToast';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
 import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
@@ -56,15 +57,17 @@ export function EditPartPage() {
   const isTechnician = useAuthStore((s) => s.isTechnician);
 
   const { part, loading, error } = useInventoryPart(partId);
+  const { suppliers } = useSuppliers();
   const [saving, setSaving] = useState(false);
   const [newWarrantyFiles, setNewWarrantyFiles] = useState<File[]>([]);
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
 
   // Stock adjustment modal state
   const [showAdjustModal, setShowAdjustModal] = useState(false);
   const [pendingValues, setPendingValues] = useState<CreatePartFormValues | null>(null);
   const [adjustReason, setAdjustReason] = useState('');
 
-  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<CreatePartFormValues>({
+  const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<CreatePartFormValues>({
     resolver: zodResolver(createPartSchema) as any,
     values: part
       ? {
@@ -102,6 +105,16 @@ export function EditPartPage() {
   const currentStock = watch('currentStock');
   const minStock = watch('minStockLevel');
   const maxStock = watch('maxStockLevel');
+
+  // Seed the supplier dropdown from the part's linked supplier, falling back
+  // to a name match for parts saved before supplierId existed.
+  useEffect(() => {
+    if (!part || suppliers.length === 0 || selectedSupplierId) return;
+    const matched = part.supplierId
+      ? suppliers.find((s) => s.id === part.supplierId)
+      : suppliers.find((s) => s.name.trim().toLowerCase() === part.supplierName.trim().toLowerCase());
+    if (matched) setSelectedSupplierId(matched.id);
+  }, [part, suppliers, selectedSupplierId]);
 
   if (isTechnician) {
     navigate('/app/inventory/catalog');
@@ -161,6 +174,7 @@ export function EditPartPage() {
 
       await updateDoc(doc(db, 'inventoryParts', part.id), {
         ...values,
+        supplierId: selectedSupplierId,
         warrantyDocuments,
         isLowStock: values.currentStock > 0 && values.minStockLevel > 0 && values.currentStock <= values.minStockLevel,
         isCritical: values.criticality === 'critical',
@@ -334,8 +348,37 @@ export function EditPartPage() {
                 <Field label="Unit Cost (LKR)">
                   <input type="number" min="0" step="0.01" {...register('unitCost', { valueAsNumber: true })} className={inputCls} />
                 </Field>
-                <Field label="Supplier Name"><input {...register('supplierName')} className={inputCls} /></Field>
-                <Field label="Supplier Contact"><input {...register('supplierContact')} className={inputCls} /></Field>
+                <Field label="Supplier" error={errors.supplierName?.message}>
+                  {suppliers.length > 0 ? (
+                    <select
+                      value={selectedSupplierId}
+                      onChange={(e) => {
+                        const supplierId = e.target.value;
+                        setSelectedSupplierId(supplierId);
+                        const supplier = suppliers.find((s) => s.id === supplierId);
+                        setValue('supplierName', supplier?.name ?? '');
+                        setValue('supplierContact', supplier ? [supplier.phone, supplier.email].filter(Boolean).join(' / ') : '');
+                      }}
+                      className={inputCls}
+                    >
+                      <option value="">Select a supplier…</option>
+                      {suppliers.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <p className="text-xs text-gray-500">
+                      No suppliers yet.{' '}
+                      <Link to="/app/inventory/suppliers" className="text-blue-600 hover:underline">
+                        Add a supplier
+                      </Link>{' '}
+                      first, then it'll be selectable here.
+                    </p>
+                  )}
+                </Field>
+                <Field label="Supplier Contact">
+                  <input {...register('supplierContact')} readOnly disabled className={`${inputCls} bg-gray-50 text-gray-500`} placeholder="From selected supplier" />
+                </Field>
                 <Field label="Supplier Part Code"><input {...register('supplierPartCode')} className={inputCls} /></Field>
                 <Field label="Lead Time (Days)">
                   <input type="number" min="0" {...register('leadTimeDays', { valueAsNumber: true })} className={inputCls} />

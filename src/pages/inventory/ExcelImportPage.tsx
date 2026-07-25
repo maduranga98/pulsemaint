@@ -142,6 +142,7 @@ export function ExcelImportPage() {
       // Also builds name -> supplierCode so part numbers below can factor
       // in the supplier, same as the manual Add Part form.
       const supplierCodeByName = new Map<string, string>();
+      const supplierIdByName = new Map<string, string>();
       const supplierNames = Array.from(
         new Set(validRows.map((r) => r.supplierName.trim()).filter(Boolean)),
       );
@@ -152,6 +153,7 @@ export function ExcelImportPage() {
         existingSuppliersSnap.docs.forEach((d) => {
           const s = d.data() as Supplier;
           supplierCodeByName.set(s.name.trim().toLowerCase(), s.supplierCode);
+          supplierIdByName.set(s.name.trim().toLowerCase(), d.id);
         });
         const newSupplierNames = supplierNames.filter(
           (name) => !supplierCodeByName.has(name.toLowerCase()),
@@ -167,6 +169,7 @@ export function ExcelImportPage() {
             const supplierCode = nextSupplierCodeFromCounter(supplierCodeCounters, country);
             supplierCodeByName.set(name.toLowerCase(), supplierCode);
             const ref = doc(collection(db, 'suppliers'));
+            supplierIdByName.set(name.toLowerCase(), ref.id);
             supplierBatch.set(ref, {
               companyId,
               supplierCode,
@@ -237,6 +240,7 @@ export function ExcelImportPage() {
                 minStockLevel: parseFloat(row.minStockLevel) || 0,
                 maxStockLevel: parseFloat(row.maxStockLevel) || 0,
                 unitCost: parseFloat(row.unitCost) || 0,
+                supplierId: supplierIdByName.get(row.supplierName.trim().toLowerCase()) || '',
                 supplierName: row.supplierName || '',
                 storeLocation: row.storeLocation || '',
                 // Auto-fill with the part number when the sheet didn't supply one, so the field is never empty.
@@ -276,6 +280,7 @@ export function ExcelImportPage() {
               unitCost: parseFloat(row.unitCost) || 0,
               lastPurchasePrice: parseFloat(row.lastPurchasePrice) || 0,
               lastPurchaseDate: row.lastPurchaseDate || null,
+              supplierId: supplierIdByName.get(row.supplierName.trim().toLowerCase()) || '',
               supplierName: row.supplierName || '',
               supplierContact: row.supplierContact || '',
               // Auto-fill with the (possibly auto-generated) part number when the sheet didn't supply one.
