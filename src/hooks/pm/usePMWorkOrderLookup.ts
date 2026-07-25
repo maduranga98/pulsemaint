@@ -9,6 +9,10 @@ export interface PMWorkOrderLookupEntry {
   status: WOStatus;
   woType: WOType;
   pmType: PMType;
+  supervisorInChargeName: string | null;
+  assignedTechnicianNames: string[];
+  contractorCompanyName: string | null;
+  contractorTechnicianNames: string[];
 }
 
 /**
@@ -39,12 +43,25 @@ export function usePMWorkOrderLookup(siteId: string): Map<string, PMWorkOrderLoo
       (snapshot) => {
         const next = new Map<string, PMWorkOrderLookupEntry>();
         snapshot.docs.forEach((d) => {
-          const data = d.data() as { woNumber?: string; status?: WOStatus; woType?: WOType; pmType?: PMType };
+          const data = d.data() as {
+            woNumber?: string;
+            status?: WOStatus;
+            woType?: WOType;
+            pmType?: PMType;
+            supervisorInChargeName?: string | null;
+            assignedTechnicianNames?: string[];
+            contractorCompanyName?: string | null;
+            contractorTechnicianNames?: string[];
+          };
           next.set(d.id, {
             woNumber: data.woNumber ?? '',
             status: data.status ?? 'OPEN',
             woType: data.woType ?? 'PREVENTIVE',
             pmType: data.pmType ?? 'other',
+            supervisorInChargeName: data.supervisorInChargeName ?? null,
+            assignedTechnicianNames: data.assignedTechnicianNames ?? [],
+            contractorCompanyName: data.contractorCompanyName ?? null,
+            contractorTechnicianNames: data.contractorTechnicianNames ?? [],
           });
         });
         setLookup(next);

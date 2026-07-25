@@ -53,13 +53,6 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                   : schedule.nextDueDate?.toDate?.()
               )?.toLocaleDateString() ?? '—';
 
-              const assignedNames = [
-                ...(schedule.supervisorInChargeName ? [`${schedule.supervisorInChargeName} (Supervisor)`] : []),
-                ...(schedule.assignedTechnicianNames ?? []),
-                ...(schedule.contractorCompanyName ? [`${schedule.contractorCompanyName} (Contractor)`] : []),
-                ...(schedule.contractorTechnicianNames ?? []),
-              ];
-
               const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
               const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
               const pmType = linkedWo?.pmType ?? schedule.pmType;
@@ -69,6 +62,23 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                 schedule.completedLate,
                 schedule.missed,
               );
+
+              // Prefer the linked WO's live team — the schedule's own copy is
+              // only set at creation and can go stale as assignments change.
+              const supervisorName = linkedWo?.supervisorInChargeName ?? schedule.supervisorInChargeName;
+              const technicianNames = linkedWo?.assignedTechnicianNames ?? schedule.assignedTechnicianNames ?? [];
+              const contractorName = linkedWo?.contractorCompanyName ?? schedule.contractorCompanyName;
+              const contractorTechNames = linkedWo?.contractorTechnicianNames ?? schedule.contractorTechnicianNames ?? [];
+              const assignedNames = [
+                ...(supervisorName ? [`${supervisorName} (Supervisor)`] : []),
+                ...technicianNames,
+                ...(contractorName ? [`${contractorName} (Contractor)`] : []),
+                ...contractorTechNames,
+              ];
+
+              const isTerminal = linkedWo
+                ? ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(linkedWo.status)
+                : false;
 
               return (
                 <tr
@@ -111,14 +121,16 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                   <td className="px-4 py-3 text-gray-600">{schedule.machineName}</td>
                   <td className="px-4 py-3">
                     <WOTypeBadge woType={woType} size="sm" />
-                    <div className="mt-1 text-xs text-gray-400">
-                      {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
-                    </div>
+                    {pmType !== 'other' && (
+                      <div className="mt-1 text-xs text-gray-400">
+                        {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-gray-900">{dueDateLabel}</div>
                     <div className="text-gray-500 text-xs">
-                      {daysUntilDue < 0 ? (
+                      {isTerminal ? null : daysUntilDue < 0 ? (
                         <span className="text-red-600 font-medium">{Math.abs(daysUntilDue)}d overdue</span>
                       ) : daysUntilDue === 0 ? (
                         <span className="text-amber-600 font-medium">Due today</span>
