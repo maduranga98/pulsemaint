@@ -480,6 +480,13 @@ export interface ParsedPartRow {
   storeLocation: string;
   supplierPartCode: string;
   supplierContact: string;
+  supplierContactPerson: string;
+  supplierEmail: string;
+  supplierAddress: string;
+  supplierCountry: string;
+  supplierWebsite: string;
+  supplierPaymentMethod: string;
+  supplierBankDetails: string;
   leadTimeDays: string;
   lastPurchaseDate: string;
   lastPurchasePrice: string;

@@ -144,8 +144,13 @@ export function SuppliersPage() {
         addToast('File has no data rows. Use the sample as a starting point.', 'error');
         return;
       }
-      const header = rows[0].map((h) => h.trim().toLowerCase());
-      const col = (name: string) => header.indexOf(name);
+      // Normalize away spaces/underscores/hyphens so "Contact Person",
+      // "contact_person", and "contactPerson" all match the same column —
+      // real-world files rarely use the exact camelCase header from the
+      // sample, and a strict match was silently leaving those fields blank.
+      const normalize = (s: string) => s.trim().toLowerCase().replace(/[\s_-]+/g, '');
+      const header = rows[0].map(normalize);
+      const col = (name: string) => header.indexOf(normalize(name));
       const nameIdx = col('name');
       if (nameIdx === -1) {
         addToast('File must include a "name" column (see the sample).', 'error');
