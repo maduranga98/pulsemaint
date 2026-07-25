@@ -4,7 +4,9 @@ import type { PartUnit, PartStatus, PartCriticality, ReviewDecision, InventoryCu
 const VALID_UNITS = ['pcs','set','kg','g','L','mL','m','cm','box','roll','pair','bag','drum'] as const;
 
 export const createPartSchema = z.object({
-  partNumber: z.string().min(1, 'Part number is required').max(50, 'Part number too long'),
+  // Auto-generated from the selected category at save time (e.g.
+  // "E000001") — not user-entered, so no min-length requirement here.
+  partNumber: z.string().max(50, 'Part number too long').default(''),
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
   description: z.string().max(500, 'Description too long').default(''),
   brand: z.string().max(100).default(''),

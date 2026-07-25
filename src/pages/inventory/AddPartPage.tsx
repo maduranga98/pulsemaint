@@ -1,15 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft, Save, PlusCircle } from 'lucide-react';
 import {
   collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  limit,
   serverTimestamp,
   writeBatch,
   doc,
@@ -21,10 +16,11 @@ import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { createPartSchema, type CreatePartFormValues } from '@/schemas/inventory';
 import { useToast } from '@/hooks/useToast';
-import { useInventorySettings } from '@/hooks/inventory/useInventorySettings';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
 import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
-import { generatePartNumber } from '@/lib/inventory/poNumberGenerator';
+import { useSuppliers } from '@/hooks/inventory/useSuppliers';
+import { getNextCategoryPartNumber } from '@/lib/inventory/partNumberGenerator';
+import { categoryPrefixLetter } from '@/lib/inventory/inventoryTypes';
 import type { WarrantyDocument } from '@/types/inventory';
 
 const UNITS = ['pcs', 'set', 'kg', 'g', 'L', 'mL', 'm', 'cm', 'box', 'roll', 'pair', 'bag', 'drum'] as const;
@@ -57,11 +53,14 @@ export function AddPartPage() {
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
+  const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
+  const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
   const canViewCost = useAuthStore((s) => s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']));
-  const { settings } = useInventorySettings();
+  const { suppliers } = useSuppliers();
   const [saving, setSaving] = useState(false);
   const [addAnother, setAddAnother] = useState(false);
   const [warrantyFiles, setWarrantyFiles] = useState<File[]>([]);
+  const [selectedSupplierId, setSelectedSupplierId] = useState('');
 
   const {
     register,
@@ -91,43 +90,20 @@ export function AddPartPage() {
   const currentStock = watch('currentStock');
   const minStock = watch('minStockLevel');
   const maxStock = watch('maxStockLevel');
-
-  async function suggestPartNumber() {
-    if (!companyId) return;
-    const prefix = settings?.partNumberPrefix || 'PRT';
-    const q = query(
-      collection(db, 'inventoryParts'),
-      where('companyId', '==', companyId),
-      orderBy('partNumber', 'desc'),
-      limit(1)
-    );
-    const snap = await getDocs(q);
-    let nextSeq = 1;
-    if (!snap.empty) {
-      const last = snap.docs[0].data().partNumber as string;
-      const match = last.match(/(\d+)$/);
-      if (match) nextSeq = parseInt(match[1], 10) + 1;
-    }
-    setValue('partNumber', generatePartNumber(prefix, nextSeq));
-  }
-
-  // Auto-assign a part number as soon as we know the company & prefix, so
-  // the field arrives pre-filled — the store keeper can still edit/select
-  // a different one via the "Auto" button or by typing directly.
-  useEffect(() => {
-    if (!companyId) return;
-    suggestPartNumber();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, settings?.partNumberPrefix]);
+  const selectedCategory = watch('category');
 
   async function onSubmit(values: CreatePartFormValues) {
     setSaving(true);
     try {
+      // Reserved atomically per category — see partNumberGenerator.ts.
+      const partNumber = await getNextCategoryPartNumber(companyId, values.category);
+
       const batch = writeBatch(db);
       const partRef = doc(collection(db, 'inventoryParts'));
 
       batch.set(partRef, {
         ...values,
+        partNumber,
         id: partRef.id,
         companyId,
         reservedStock: 0,
@@ -155,7 +131,7 @@ export function AddPartPage() {
         batch.set(movRef, {
           companyId,
           partId: partRef.id,
-          partNumber: values.partNumber,
+          partNumber,
           partName: values.name,
           movementType: 'adjustment',
           quantityBefore: 0,
@@ -167,8 +143,8 @@ export function AddPartPage() {
           workOrderNumber: null,
           partsRequestId: null,
           performedBy: userId,
-          performedByName: '',
-          performedByRole: '',
+          performedByName: userName,
+          performedByRole: userRole,
           performedAt: serverTimestamp(),
           notes: 'Initial stock on part creation',
           unitCostAtTime: values.unitCost,
@@ -178,34 +154,46 @@ export function AddPartPage() {
 
       await batch.commit();
 
-      if (warrantyFiles.length > 0) {
-        const uploaded: WarrantyDocument[] = [];
-        for (const file of warrantyFiles) {
-          const path = `inventoryParts/${partRef.id}/warranty/${Date.now()}_${file.name}`;
-          const sref = storageRef(storage, path);
-          await uploadBytes(sref, file);
-          const url = await getDownloadURL(sref);
-          uploaded.push({
-            name: file.name,
-            url,
-            uploadedAt: Timestamp.now(),
-            uploadedBy: userId,
-            fileSizeBytes: file.size,
-          });
-        }
-        await updateDoc(partRef, { warrantyDocuments: uploaded });
-      }
+      // The part (and its initial stock movement) are already saved at this
+      // point — a warranty upload failure below must not be reported as a
+      // failed part creation.
+      addToast(`Part ${partNumber} created successfully.`, 'success');
 
-      addToast('Part created successfully.', 'success');
+      if (warrantyFiles.length > 0) {
+        try {
+          const uploaded: WarrantyDocument[] = [];
+          for (const file of warrantyFiles) {
+            const path = `inventoryParts/${partRef.id}/warranty/${Date.now()}_${file.name}`;
+            const sref = storageRef(storage, path);
+            await uploadBytes(sref, file);
+            const url = await getDownloadURL(sref);
+            uploaded.push({
+              name: file.name,
+              url,
+              uploadedAt: Timestamp.now(),
+              uploadedBy: userId,
+              fileSizeBytes: file.size,
+            });
+          }
+          await updateDoc(partRef, { warrantyDocuments: uploaded });
+        } catch (uploadErr) {
+          console.error(uploadErr);
+          addToast('Part saved, but warranty file upload failed. You can attach it from the part page.', 'warning');
+        }
+      }
 
       if (addAnother) {
         reset();
         setWarrantyFiles([]);
+        setSelectedSupplierId('');
       } else {
         navigate(`/app/inventory/catalog/${partRef.id}`);
       }
     } catch (err) {
-      addToast('Failed to create part.', 'error');
+      // Surface the real cause (e.g. a Firestore permission-denied error)
+      // instead of a generic message, so a failed save is diagnosable.
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      addToast(`Failed to create part: ${message}`, 'error');
       console.error(err);
     } finally {
       setSaving(false);
@@ -229,17 +217,20 @@ export function AddPartPage() {
         {/* 1. Identification */}
         <SectionCard title="1 · Identification">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Part Number" required error={errors.partNumber?.message}>
-              <div className="flex gap-2">
-                <input {...register('partNumber')} className={inputCls} placeholder="PRT-0001" />
-                <button
-                  type="button"
-                  onClick={suggestPartNumber}
-                  className="px-3 py-2 text-xs border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-600 whitespace-nowrap"
-                >
-                  Auto
-                </button>
-              </div>
+            <Field label="Part Number">
+              <input
+                readOnly
+                disabled
+                value={
+                  selectedCategory
+                    ? `Auto-generated (${categoryPrefixLetter(selectedCategory)}000001 …)`
+                    : 'Select a category to preview format'
+                }
+                className={`${inputCls} bg-gray-50 text-gray-500`}
+              />
+              <p className="text-xs text-gray-400 mt-1">
+                Assigned automatically on save — letter comes from Category, e.g. E for Electrical.
+              </p>
             </Field>
             <Field label="Name" required error={errors.name?.message}>
               <input {...register('name')} className={inputCls} placeholder="Part name" />
@@ -362,11 +353,36 @@ export function AddPartPage() {
                 <input type="number" min="0" step="0.01" {...register('unitCost', { valueAsNumber: true })} className={inputCls} />
               </Field>
             )}
-            <Field label="Supplier Name">
-              <input {...register('supplierName')} className={inputCls} placeholder="Supplier" />
+            <Field label="Supplier" error={errors.supplierName?.message}>
+              {suppliers.length > 0 ? (
+                <select
+                  value={selectedSupplierId}
+                  onChange={(e) => {
+                    const supplierId = e.target.value;
+                    setSelectedSupplierId(supplierId);
+                    const supplier = suppliers.find((s) => s.id === supplierId);
+                    setValue('supplierName', supplier?.name ?? '');
+                    setValue('supplierContact', supplier ? [supplier.phone, supplier.email].filter(Boolean).join(' / ') : '');
+                  }}
+                  className={inputCls}
+                >
+                  <option value="">Select a supplier…</option>
+                  {suppliers.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-xs text-gray-500">
+                  No suppliers yet.{' '}
+                  <Link to="/app/inventory/suppliers" className="text-blue-600 hover:underline">
+                    Add a supplier
+                  </Link>{' '}
+                  first, then it'll be selectable here.
+                </p>
+              )}
             </Field>
             <Field label="Supplier Contact">
-              <input {...register('supplierContact')} className={inputCls} placeholder="Email / phone" />
+              <input {...register('supplierContact')} readOnly disabled className={`${inputCls} bg-gray-50 text-gray-500`} placeholder="From selected supplier" />
             </Field>
             <Field label="Supplier Part Code">
               <input {...register('supplierPartCode')} className={inputCls} placeholder="Supplier's part #" />
