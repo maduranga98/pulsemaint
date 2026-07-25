@@ -74,7 +74,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
       {chartData.length === 0 ? (
         <EmptyState message="No problem machine data" />
       ) : (
-        <div className="h-64">
+        <div className="h-96">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
               <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} />
@@ -83,8 +83,8 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
                 {...CHART_DEFAULTS.yAxis}
                 dataKey="name"
                 type="category"
-                width={100}
-                tick={{ fontSize: 10 }}
+                width={140}
+                tick={{ fontSize: 11 }}
               />
               <Tooltip {...CHART_DEFAULTS.tooltip} />
               <Bar dataKey="value" radius={[0, 4, 4, 0]}>

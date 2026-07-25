@@ -31,21 +31,18 @@ export default function KpiCard({ data, onClick }: KpiCardProps) {
   return (
     <div
       onClick={onClick}
-      className={`bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5 border-l-4 ${colors.border} hover:border-[#2E5A8F] transition-colors ${
+      className={`bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-4 min-h-[104px] border-l-4 ${colors.border} hover:border-[#2E5A8F] transition-colors ${
         onClick ? 'cursor-pointer' : ''
       }`}
     >
-      <p className="text-xs font-medium text-[#8BA3BF] font-[DM_Sans] uppercase tracking-wide">
+      <p className="text-[11px] font-medium text-[#8BA3BF] font-[DM_Sans] uppercase tracking-wide leading-snug break-words">
         {data.label}
       </p>
-      <div className="mt-2 flex items-baseline gap-2">
-        <span
-          className={`text-4xl font-bold ${colors.text} font-[Sora] leading-none`}
-          style={{ fontSize: 'clamp(28px, 4vw, 48px)' }}
-        >
+      <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
+        <span className={`text-3xl font-bold ${colors.text} font-[Sora] leading-none`}>
           {typeof data.value === 'number' ? data.value.toLocaleString() : data.value}
         </span>
-        {data.unit && <span className="text-sm text-[#8BA3BF]">{data.unit}</span>}
+        {data.unit && <span className="text-xs text-[#8BA3BF]">{data.unit}</span>}
       </div>
       {data.trend !== undefined && data.trendDirection && (
         <div className={`mt-2 flex items-center gap-1 text-xs font-medium ${trendColor}`}>
