@@ -279,7 +279,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
           const pmScheduleRef = await addDoc(collection(db, 'pm_schedules'), {
             companyId,
             name: payload.description.slice(0, 80) || 'Ad-hoc PM',
-            pmType: 'other',
+            pmType: payload.pmType ?? 'other',
             priority: payload.priority,
             machineId: payload.machineId,
             machineName: payload.machineName,
@@ -291,6 +291,10 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
             endDate: null,
             assignedTechnicianIds: payload.assignedTechnicianIds,
             assignedTechnicianNames: payload.assignedTechnicianNames,
+            supervisorInChargeId: payload.supervisorInChargeId ?? null,
+            supervisorInChargeName: payload.supervisorInChargeName ?? null,
+            contractorCompanyName: payload.contractorCompanyName ?? null,
+            contractorTechnicianNames: payload.contractorTechnicianNames ?? [],
             checklistItems: payload.checklist.map((item, i) => ({
               step: i + 1,
               description: item.stepDescription,

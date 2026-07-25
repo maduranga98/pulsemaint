@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
-import { PM_TYPE_CONFIG, RECURRENCE_TYPE_LABELS } from '../../constants/pmConfig';
+import { PM_TYPE_CONFIG } from '../../constants/pmConfig';
 import { getPMOperationalStatus, getDaysUntilDue } from '../../utils/pm.utils';
 
 interface PMScheduleListProps {
@@ -33,9 +33,8 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
               <th className="px-4 py-3 text-left font-medium text-gray-700">Schedule</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Machine</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Type</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Trigger</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Next Due</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Technician</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">Due Date</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">Assigned</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Compliance</th>
             </tr>
@@ -44,6 +43,18 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
             {schedules.map((schedule) => {
               const opStatus = getPMOperationalStatus(schedule);
               const daysUntilDue = getDaysUntilDue(schedule.nextDueDate);
+              const dueDateLabel = (
+                schedule.nextDueDate instanceof Date
+                  ? schedule.nextDueDate
+                  : schedule.nextDueDate?.toDate?.()
+              )?.toLocaleDateString() ?? '—';
+
+              const assignedNames = [
+                ...(schedule.supervisorInChargeName ? [`${schedule.supervisorInChargeName} (Supervisor)`] : []),
+                ...(schedule.assignedTechnicianNames ?? []),
+                ...(schedule.contractorCompanyName ? [`${schedule.contractorCompanyName} (Contractor)`] : []),
+                ...(schedule.contractorTechnicianNames ?? []),
+              ];
 
               return (
                 <tr
@@ -70,24 +81,20 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
                       <span className="text-gray-600">{PM_TYPE_CONFIG[schedule.pmType].label}</span>
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {schedule.triggerType === 'calendar'
-                      ? RECURRENCE_TYPE_LABELS[schedule.recurrenceType]
-                      : `${schedule.triggerAfterValue} ${schedule.triggerUnit?.replace('_', ' ')}`}
-                  </td>
                   <td className="px-4 py-3">
-                    <div className="text-gray-600">
+                    <div className="text-gray-900">{dueDateLabel}</div>
+                    <div className="text-gray-500 text-xs">
                       {daysUntilDue < 0 ? (
                         <span className="text-red-600 font-medium">{Math.abs(daysUntilDue)}d overdue</span>
                       ) : daysUntilDue === 0 ? (
                         <span className="text-amber-600 font-medium">Due today</span>
                       ) : (
-                        <span>{daysUntilDue}d</span>
+                        <span>in {daysUntilDue}d</span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {(schedule.assignedTechnicianNames ?? []).join(', ') || '—'}
+                    {assignedNames.join(', ') || '—'}
                   </td>
                   <td className="px-4 py-3">
                     <PMOperationalStatusBadge status={opStatus} size="sm" />

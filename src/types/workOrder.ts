@@ -320,6 +320,9 @@ export interface MachineHistoryEntry {
 
 export interface CreateWOPayload {
   woType: WOType;
+  // Only meaningful when woType === 'PREVENTIVE' — sets the PM schedule's
+  // pmType so PM Schedules/Calendar/Compliance show the real category.
+  pmType?: import('./pm.types').PMType;
   priority: WOPriority;
   description: string;
   specialToolsRequired?: string;

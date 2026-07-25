@@ -55,6 +55,7 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
             ...data,
             assignedTechnicianIds: (data.assignedTechnicianIds as unknown[]) ?? [],
             assignedTechnicianNames: (data.assignedTechnicianNames as unknown[]) ?? [],
+            contractorTechnicianNames: (data.contractorTechnicianNames as unknown[]) ?? [],
             skillsRequired: (data.skillsRequired as unknown[]) ?? [],
             checklistItems: (data.checklistItems as unknown[]) ?? [],
             preallocatedParts: (data.preallocatedParts as unknown[]) ?? [],
