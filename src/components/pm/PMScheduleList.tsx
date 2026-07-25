@@ -3,8 +3,7 @@ import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
 import { WOStatusBadge } from '../workorders/WOStatusBadge';
-import { WOTypeBadge } from '../workorders/WOTypeBadge';
-import { PM_TYPE_CONFIG } from '../../constants/pmConfig';
+import { PMTypeBadge } from './PMTypeBadge';
 import { getPMOperationalStatus, getDaysUntilDue, calculateComplianceRate } from '../../utils/pm.utils';
 import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
 
@@ -56,7 +55,6 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
               const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
               const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
               const pmType = linkedWo?.pmType ?? schedule.pmType;
-              const woType = linkedWo?.woType ?? 'PREVENTIVE';
               const complianceRate = calculateComplianceRate(
                 schedule.completedOnTime,
                 schedule.completedLate,
@@ -120,12 +118,7 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                   </td>
                   <td className="px-4 py-3 text-gray-600">{schedule.machineName}</td>
                   <td className="px-4 py-3">
-                    <WOTypeBadge woType={woType} size="sm" />
-                    {pmType !== 'other' && (
-                      <div className="mt-1 text-xs text-gray-400">
-                        {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
-                      </div>
-                    )}
+                    <PMTypeBadge pmType={pmType} size="sm" />
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-gray-900">{dueDateLabel}</div>

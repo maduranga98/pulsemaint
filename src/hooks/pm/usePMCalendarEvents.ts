@@ -8,6 +8,7 @@ import {
 import { db } from '../../lib/firebase';
 import type { PMSchedule, CalendarEvent } from '../../types/pm.types';
 import { getPMOperationalStatus } from '../../utils/pm.utils';
+import { PM_TYPE_CONFIG } from '../../constants/pmConfig';
 
 interface UsePMCalendarEventsOptions {
   companyId: string;
@@ -20,7 +21,6 @@ interface PMWorkOrderEvent {
   id: string;
   woNumber: string;
   machineName: string;
-  description: string;
   dueDate: Date;
   priority: 'critical' | 'high' | 'medium' | 'low';
   assignedTechnicianNames: string[];
@@ -90,7 +90,6 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
           id: d.id,
           woNumber: data.woNumber ?? '',
           machineName: data.machineName ?? 'Unknown',
-          description: data.description ?? data.woNumber ?? 'Preventive WO',
           dueDate: due ?? new Date(),
           priority: data.priority ?? 'medium',
           assignedTechnicianNames: data.assignedTechnicianNames ?? [],
@@ -123,18 +122,21 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
         : 'toDate' in s.nextDueDate ? s.nextDueDate.toDate() : new Date(s.nextDueDate as unknown as string);
 
       const linkedWo = woById.get(s.activeWoId ?? s.lastWoId ?? '');
+      const pmType = linkedWo?.pmType ?? s.pmType;
 
       return {
         id: `event-${s.id}`,
         scheduleId: s.id,
         woId: linkedWo?.id ?? null,
         woNumber: linkedWo?.woNumber || null,
-        title: s.name,
+        // Calendar entries show the PM type, not the (often junk) free-text
+        // schedule name or WO description.
+        title: PM_TYPE_CONFIG[pmType].label,
         date: nextDue,
         priority: s.priority,
         machineName: s.machineName,
         technicianNames: s.assignedTechnicianNames,
-        pmType: s.pmType,
+        pmType,
         status: s.status,
         operationalStatus: getPMOperationalStatus(s),
       };
@@ -149,7 +151,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
         scheduleId: wo.pmScheduleId ?? '',
         woId: wo.id,
         woNumber: wo.woNumber || null,
-        title: wo.description.slice(0, 60),
+        title: PM_TYPE_CONFIG[wo.pmType].label,
         date: wo.dueDate,
         priority: wo.priority,
         machineName: wo.machineName,
