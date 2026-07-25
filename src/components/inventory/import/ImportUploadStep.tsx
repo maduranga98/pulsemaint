@@ -22,8 +22,8 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
 
   function validateAndSet(f: File) {
     setError(null);
-    if (!f.name.endsWith('.xlsx')) {
-      setError('Only .xlsx files are accepted. Please select a valid Excel file.');
+    if (!f.name.endsWith('.xlsx') && !f.name.endsWith('.csv')) {
+      setError('Only .xlsx or .csv files are accepted.');
       return;
     }
     if (f.size > MAX_SIZE_BYTES) {
@@ -73,7 +73,7 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900 font-[Sora]">Upload Your File</h2>
         <p className="text-gray-500 mt-1 text-sm">
-          Upload the completed template. Only .xlsx files, max 10 MB.
+          Upload the completed template. .xlsx or .csv, max 10 MB.
         </p>
       </div>
 
@@ -91,15 +91,15 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
           <Upload className={`w-10 h-10 ${dragActive ? 'text-blue-600' : 'text-gray-400'}`} />
           <div className="text-center">
             <p className="font-semibold text-gray-700">
-              {dragActive ? 'Drop your file here' : 'Drag & drop your .xlsx file here'}
+              {dragActive ? 'Drop your file here' : 'Drag & drop your .xlsx or .csv file here'}
             </p>
             <p className="text-sm text-gray-500 mt-1">or click to browse files</p>
           </div>
-          <span className="text-xs text-gray-400">Max 10 MB · .xlsx only</span>
+          <span className="text-xs text-gray-400">Max 10 MB · .xlsx or .csv</span>
           <input
             ref={inputRef}
             type="file"
-            accept=".xlsx"
+            accept=".xlsx,.csv"
             className="hidden"
             onChange={handleChange}
           />

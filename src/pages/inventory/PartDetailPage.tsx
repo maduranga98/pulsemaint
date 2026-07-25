@@ -91,7 +91,35 @@ export function PartDetailPage() {
           <div className="text-sm text-gray-500 py-8 text-center">Active requests for this part will appear here.</div>
         )}
         {activeTab === 'files' && (
-          <div className="text-sm text-gray-500 py-8 text-center">Files and CAD documents will appear here.</div>
+          <div className="space-y-5">
+            {[
+              { title: 'Warranty Documents', files: part.warrantyDocuments ?? [] },
+              { title: 'CAD Files', files: part.cadFiles ?? [] },
+              { title: 'Images', files: (part.images ?? []).map((url, i) => ({ name: `Image ${i + 1}`, url })) },
+            ].map(({ title, files }) => (
+              <div key={title} className="bg-white border border-gray-200 rounded-xl p-4">
+                <h3 className="font-semibold text-gray-900 text-sm mb-3">{title}</h3>
+                {files.length === 0 ? (
+                  <p className="text-sm text-gray-400">No {title.toLowerCase()} attached.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {files.map((f, i) => (
+                      <li key={i}>
+                        <a
+                          href={f.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                        >
+                          {f.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
         )}
         {activeTab === 'analytics' && (
           <div className="text-sm text-gray-500 py-8 text-center">Usage analytics will appear here.</div>

@@ -90,8 +90,8 @@ export function PartDetailHeader({
           <p className="text-xs text-gray-500">{part.unit}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500 mb-0.5">Reserved</p>
-          <p className="text-xl font-bold text-gray-700">{part.reservedStock.toLocaleString()}</p>
+          <p className="text-xs text-gray-500 mb-0.5">Min. Stock Level</p>
+          <p className="text-xl font-bold text-gray-700">{part.minStockLevel.toLocaleString()}</p>
           <p className="text-xs text-gray-500">{part.unit}</p>
         </div>
         <div className={`border rounded-lg p-3 text-center ${stockStatus === 'out_of_stock' ? 'bg-red-50 border-red-200' : stockStatus === 'low_stock' ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>

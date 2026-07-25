@@ -382,6 +382,10 @@ export interface Supplier {
   phone: string;
   email: string;
   address: string;
+  country: string;
+  website: string;
+  paymentMethod: string;
+  bankDetails: string;
   notes: string;
   createdAt: Timestamp;
   createdBy: string;

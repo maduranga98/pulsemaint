@@ -5,7 +5,7 @@ const VALID_UNITS = ['pcs','set','kg','g','L','mL','m','cm','box','roll','pair',
 
 export const createPartSchema = z.object({
   // Auto-generated from the selected category at save time (e.g.
-  // "E000001") — not user-entered, so no min-length requirement here.
+  // "E-012-RAS-0001") — not user-entered, so no min-length requirement here.
   partNumber: z.string().max(50, 'Part number too long').default(''),
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
   description: z.string().max(500, 'Description too long').default(''),

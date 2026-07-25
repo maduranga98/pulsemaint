@@ -95,7 +95,12 @@ export function AddPartPage() {
   async function onSubmit(values: CreatePartFormValues) {
     setSaving(true);
     try {
-      const partNumber = await getNextCategoryPartNumber(companyId, values.category);
+      const selectedSupplier = suppliers.find((s) => s.id === selectedSupplierId);
+      const partNumber = await getNextCategoryPartNumber(companyId, {
+        category: values.category,
+        supplierCode: selectedSupplier?.supplierCode,
+        storeLocation: values.storeLocation,
+      });
       // Auto-fill with the generated part number when left blank, so the
       // field is never empty even if the supplier hasn't provided their own code yet.
       const supplierPartCode = values.supplierPartCode || partNumber;
@@ -190,7 +195,7 @@ export function AddPartPage() {
         setWarrantyFiles([]);
         setSelectedSupplierId('');
       } else {
-        navigate(`/app/inventory/catalog/${partRef.id}`);
+        navigate('/app/inventory/catalog');
       }
     } catch (err) {
       // Surface the real cause (e.g. a Firestore permission-denied error)
@@ -226,13 +231,14 @@ export function AddPartPage() {
                 disabled
                 value={
                   selectedCategory
-                    ? `Auto-generated (${categoryPrefixLetter(selectedCategory)}000001 …)`
+                    ? `Auto-generated (${categoryPrefixLetter(selectedCategory)}-xxx-xxx-0001)`
                     : 'Select a category to preview format'
                 }
                 className={`${inputCls} bg-gray-50 text-gray-500`}
               />
               <p className="text-xs text-gray-400 mt-1">
-                Assigned automatically on save — letter comes from Category, e.g. E for Electrical.
+                Assigned automatically on save: Category-Supplier-Location-Sequence
+                (e.g. Electrical, Supplier SUP-LK-000012, Rack A Shelf 2 → E-012-RAS-0001).
               </p>
             </Field>
             <Field label="Name" required error={errors.name?.message}>

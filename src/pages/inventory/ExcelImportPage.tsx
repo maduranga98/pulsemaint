@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/useToast';
 import { parseInventoryExcel } from '@/lib/inventory/importParser';
 import { validateImportRows } from '@/lib/inventory/importValidator';
 import { getCategorySequenceMap, nextFromCounter } from '@/lib/inventory/partNumberGenerator';
-import { getSupplierCodeSequenceStart, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
+import { getSupplierCodeSequenceMap, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
 import type { ValidationResult, InventoryPart, Supplier } from '@/types/inventory';
 import { ImportStepIndicator } from '@/components/inventory/import/ImportStepIndicator';
 import { ImportTemplateStep } from '@/components/inventory/import/ImportTemplateStep';
@@ -135,24 +135,13 @@ export function ExcelImportPage() {
         existingSnap.docs.map((d) => [(d.data() as InventoryPart).partNumber, d.id])
       );
 
-      // Rows that don't specify a Part Number get one auto-generated from
-      // their Category, the same scheme as the manual Add Part form
-      // (e.g. "E000001" for Electrical) — seeded once from existing parts,
-      // then incremented in-memory per row so numbers stay sequential and
-      // unique within this import even across many new rows in one category.
-      const categoryCounters = await getCategorySequenceMap(companyId);
-      const resolvedPartNumbers = new Map<number, string>();
-      for (const row of validRows) {
-        resolvedPartNumbers.set(
-          row.rowIndex,
-          row.partNumber || nextFromCounter(categoryCounters, row.category),
-        );
-      }
-
       // Any supplier named in the sheet that isn't already in the Suppliers
       // list gets added automatically, with an auto-generated Supplier
       // Code — so importing parts keeps the supplier directory in sync
       // instead of leaving supplierName as an orphaned free-text value.
+      // Also builds name -> supplierCode so part numbers below can factor
+      // in the supplier, same as the manual Add Part form.
+      const supplierCodeByName = new Map<string, string>();
       const supplierNames = Array.from(
         new Set(validRows.map((r) => r.supplierName.trim()).filter(Boolean)),
       );
@@ -160,27 +149,37 @@ export function ExcelImportPage() {
         const existingSuppliersSnap = await getDocs(
           query(collection(db, 'suppliers'), where('companyId', '==', companyId)),
         );
-        const existingSupplierNames = new Set(
-          existingSuppliersSnap.docs.map((d) => (d.data() as Supplier).name.trim().toLowerCase()),
-        );
+        existingSuppliersSnap.docs.forEach((d) => {
+          const s = d.data() as Supplier;
+          supplierCodeByName.set(s.name.trim().toLowerCase(), s.supplierCode);
+        });
         const newSupplierNames = supplierNames.filter(
-          (name) => !existingSupplierNames.has(name.toLowerCase()),
+          (name) => !supplierCodeByName.has(name.toLowerCase()),
         );
         if (newSupplierNames.length > 0) {
-          const supplierCodeCounter = { seq: await getSupplierCodeSequenceStart(companyId) };
+          const supplierCodeCounters = await getSupplierCodeSequenceMap(companyId);
           const supplierBatch = writeBatch(db);
           for (const name of newSupplierNames) {
             const sourceRow = validRows.find((r) => r.supplierName.trim() === name);
             const contact = sourceRow?.supplierContact.trim() ?? '';
+            // Country isn't captured on the parts sheet, so these fall back
+            // to the generic "XX" country code — edit them on the
+            // Suppliers page to add country/website/payment/bank details.
+            const supplierCode = nextSupplierCodeFromCounter(supplierCodeCounters, '');
+            supplierCodeByName.set(name.toLowerCase(), supplierCode);
             const ref = doc(collection(db, 'suppliers'));
             supplierBatch.set(ref, {
               companyId,
-              supplierCode: nextSupplierCodeFromCounter(supplierCodeCounter),
+              supplierCode,
               name,
               contactPerson: '',
               phone: contact.includes('@') ? '' : contact,
               email: contact.includes('@') ? contact : '',
               address: '',
+              country: '',
+              website: '',
+              paymentMethod: '',
+              bankDetails: '',
               notes: `Auto-added from Excel import (${state.file.name}).`,
               createdAt: serverTimestamp(),
               createdBy: userId,
@@ -190,6 +189,24 @@ export function ExcelImportPage() {
           }
           await supplierBatch.commit();
         }
+      }
+
+      // Rows that don't specify a Part Number get one auto-generated,
+      // factoring in Category, Supplier, and Store Location — the same
+      // scheme as the manual Add Part form (e.g. "E-012-RAS-0001") —
+      // seeded once from existing parts, then incremented in-memory per
+      // row so numbers stay sequential and unique within this import.
+      const categoryCounters = await getCategorySequenceMap(companyId);
+      const resolvedPartNumbers = new Map<number, string>();
+      for (const row of validRows) {
+        resolvedPartNumbers.set(
+          row.rowIndex,
+          row.partNumber || nextFromCounter(categoryCounters, {
+            category: row.category,
+            supplierCode: supplierCodeByName.get(row.supplierName.trim().toLowerCase()),
+            storeLocation: row.storeLocation,
+          }),
+        );
       }
 
       // Process in batches
@@ -349,7 +366,7 @@ export function ExcelImportPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Excel Import</h1>
+        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Excel & CSV Import</h1>
         <p className="text-gray-500 text-sm mt-0.5">Import or update inventory parts from a spreadsheet.</p>
       </div>
 

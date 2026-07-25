@@ -111,7 +111,7 @@ export async function generateImportTemplate(): Promise<Blob> {
   const partsData = [PART_COLUMNS];
   // Add one example row
   partsData.push([
-    '',                  // Part Number (leave blank to auto-generate, e.g. M000001 for Mechanical)
+    '',                  // Part Number (leave blank to auto-generate from Category+Supplier+Location)
     'Example Bearing',   // Name *
     'pcs',               // Unit *
     'mechanical',        // Category *
@@ -154,7 +154,7 @@ export async function generateImportTemplate(): Promise<Blob> {
     ['Instructions'],
     [''],
     ['1. Fill in the Parts Data sheet. Columns marked with * are required.'],
-    ['2. Part Number is optional — leave it blank to have the system auto-generate one from Category (e.g. E000001 for Electrical, M000001 for Mechanical). If provided, it must be unique (no duplicates within file, no conflicts with existing parts).'],
+    ['2. Part Number is optional — leave it blank to have the system auto-generate one from Category, Supplier Name, and Store Location (e.g. E-012-RAS-0001). If provided, it must be unique (no duplicates within file, no conflicts with existing parts).'],
     ['3. If a Part Number is given and already exists in the system, the row will UPDATE that part.'],
     ['4. If a Part Number is blank, or is given but is new, a new part will be CREATED (with an auto-generated number if left blank).'],
     ['5. Unit must be one of the values in the Valid Units sheet.'],
