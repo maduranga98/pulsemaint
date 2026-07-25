@@ -66,12 +66,19 @@ export default function BreakdownHeatmap({ companyId }: BreakdownHeatmapProps) {
                 {Array.from({ length: 7 }, (_, day) => {
                   const cell = heatmap.find((c) => c.day === day && c.hour === hour);
                   const intensity = cell?.intensity ?? 0;
+                  const count = cell?.count ?? 0;
+                  const machines = cell?.machineNames ?? [];
+                  const tooltip = count === 0
+                    ? `${dayLabel(day)} ${hourLabel(hour)} — no breakdowns`
+                    : `${dayLabel(day)} ${hourLabel(hour)} — ${count} breakdown${count === 1 ? '' : 's'}${
+                        machines.length ? `\n${machines.join(', ')}` : ''
+                      }`;
                   return (
                     <div
                       key={day}
                       className="aspect-square rounded-sm transition-colors"
                       style={{ backgroundColor: heatmapColor(intensity) }}
-                      title={`${dayLabel(day)} ${hourLabel(hour)} — ${cell?.count ?? 0} breakdowns`}
+                      title={tooltip}
                     />
                   );
                 })}

@@ -5,7 +5,7 @@ import { buildHeatmapGrid } from '../../utils/heatmap.utils';
 import type { ChartDateRange, HeatmapCell } from '../../types/analytics.types';
 
 export function useBreakdownHeatmap(companyId: string, range: ChartDateRange) {
-  const [points, setPoints] = useState<Array<{ day: number; hour: number; count: number }>>([]);
+  const [points, setPoints] = useState<Array<{ day: number; hour: number; count: number; machineNames: string[] }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
