@@ -7,7 +7,7 @@ import { PMStatusBadge, PMOperationalStatusBadge } from '../../components/pm/PMS
 import { PMPriorityBadge } from '../../components/pm/PMPriorityBadge';
 import { PMChecklistBuilder } from '../../components/pm/PMChecklistBuilder';
 import { PM_TYPE_CONFIG, RECURRENCE_TYPE_LABELS, PM_HISTORY_STATUS_LABELS } from '../../constants/pmConfig';
-import { getPMOperationalStatus, getDaysUntilDue, getComplianceColor } from '../../utils/pm.utils';
+import { getPMOperationalStatus, getDaysUntilDue, getComplianceColor, calculateComplianceRate } from '../../utils/pm.utils';
 
 export default function PMScheduleDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -43,6 +43,11 @@ export default function PMScheduleDetailPage() {
 
   const opStatus = getPMOperationalStatus(schedule);
   const daysUntilDue = getDaysUntilDue(schedule.nextDueDate);
+  const complianceRate = calculateComplianceRate(
+    schedule.completedOnTime,
+    schedule.completedLate,
+    schedule.missed,
+  );
 
   const nextDue = schedule.nextDueDate instanceof Date
     ? schedule.nextDueDate
@@ -67,8 +72,8 @@ export default function PMScheduleDetailPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <p className="text-xs text-gray-500">Compliance Rate</p>
-          <p className="text-2xl font-bold" style={{ color: getComplianceColor(schedule.complianceRate) }}>
-            {schedule.complianceRate}%
+          <p className="text-2xl font-bold" style={{ color: getComplianceColor(complianceRate) }}>
+            {complianceRate}%
           </p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">

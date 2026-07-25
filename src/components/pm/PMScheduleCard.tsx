@@ -2,8 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
+import { WOStatusBadge } from '../workorders/WOStatusBadge';
 import { PM_TYPE_CONFIG, RECURRENCE_TYPE_LABELS } from '../../constants/pmConfig';
-import { getPMOperationalStatus, getDaysUntilDue } from '../../utils/pm.utils';
+import { getPMOperationalStatus, getDaysUntilDue, calculateComplianceRate } from '../../utils/pm.utils';
 import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
 
 interface PMScheduleCardProps {
@@ -19,6 +20,12 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
   const daysUntilDue = getDaysUntilDue(schedule.nextDueDate);
   const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
   const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
+  const pmType = linkedWo?.pmType ?? schedule.pmType;
+  const complianceRate = calculateComplianceRate(
+    schedule.completedOnTime,
+    schedule.completedLate,
+    schedule.missed,
+  );
 
   const handleClick = () => {
     navigate(linkedWoId ? `/app/work-orders?woId=${linkedWoId}` : `/app/pm-schedules/${schedule.id}`);
@@ -63,14 +70,18 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
       )}
 
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-lg">{PM_TYPE_CONFIG[schedule.pmType].icon}</span>
-        <span className="text-xs text-gray-500">{PM_TYPE_CONFIG[schedule.pmType].label}</span>
+        <span className="text-lg">{PM_TYPE_CONFIG[pmType].icon}</span>
+        <span className="text-xs text-gray-500">{PM_TYPE_CONFIG[pmType].label}</span>
         <span className="text-gray-300">|</span>
         <span className="text-xs text-gray-500">{schedule.machineName}</span>
       </div>
 
       <div className="flex items-center justify-between">
-        <PMOperationalStatusBadge status={opStatus} size="sm" />
+        {linkedWo ? (
+          <WOStatusBadge status={linkedWo.status} size="sm" />
+        ) : (
+          <PMOperationalStatusBadge status={opStatus} size="sm" />
+        )}
         <div className="text-xs text-gray-500">
           {schedule.triggerType === 'calendar' ? (
             <>
@@ -90,13 +101,26 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
         </div>
       </div>
 
-      <div className="mt-2 text-xs text-gray-400">
-        {[
-          ...(schedule.supervisorInChargeName ? [`${schedule.supervisorInChargeName} (Supervisor)`] : []),
-          ...(schedule.assignedTechnicianNames ?? []),
-          ...(schedule.contractorCompanyName ? [`${schedule.contractorCompanyName} (Contractor)`] : []),
-          ...(schedule.contractorTechnicianNames ?? []),
-        ].join(', ') || 'Unassigned'}
+      <div className="mt-2 flex items-center justify-between">
+        <div className="text-xs text-gray-400">
+          {[
+            ...(schedule.supervisorInChargeName ? [`${schedule.supervisorInChargeName} (Supervisor)`] : []),
+            ...(schedule.assignedTechnicianNames ?? []),
+            ...(schedule.contractorCompanyName ? [`${schedule.contractorCompanyName} (Contractor)`] : []),
+            ...(schedule.contractorTechnicianNames ?? []),
+          ].join(', ') || 'Unassigned'}
+        </div>
+        <span
+          className={`text-xs font-semibold ${
+            complianceRate >= 90
+              ? 'text-emerald-600'
+              : complianceRate >= 70
+              ? 'text-amber-600'
+              : 'text-red-600'
+          }`}
+        >
+          {complianceRate}%
+        </span>
       </div>
     </div>
   );
