@@ -140,7 +140,10 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                             {event.operationalStatus && (
                               <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
                             )}
-                            <span className="truncate">{event.title}</span>
+                            <span className="truncate">
+                              {event.woNumber && <span className="font-semibold">{event.woNumber} · </span>}
+                              {event.title}
+                            </span>
                           </button>
                         ))}
                         {dayEvents.length > 3 && (
@@ -185,6 +188,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           {event.operationalStatus && (
                             <span className={`h-2 w-2 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
                           )}
+                          {event.woNumber && <span className="font-semibold">{event.woNumber} · </span>}
                           {event.title}
                         </span>
                         <span className="text-xs opacity-75">

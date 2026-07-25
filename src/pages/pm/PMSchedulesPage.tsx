@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
+import { usePMWorkOrderLookup } from '../../hooks/pm/usePMWorkOrderLookup';
 import { useMachines } from '../../hooks/useMachines';
 import { useAuthStore } from '../../store/authStore';
 import { usePMStore } from '../../store/pm.store';
@@ -20,6 +21,7 @@ export default function PMSchedulesPage() {
   const navigate = useNavigate();
   const toast = useToast();
   const company = useAuthStore((s) => s.company);
+  const userProfile = useAuthStore((s) => s.userProfile);
   const isSupervisor = useAuthStore((s) => s.isSupervisor || s.isAdmin);
 
   const filters = usePMStore((s) => s.filters);
@@ -28,6 +30,7 @@ export default function PMSchedulesPage() {
   const { schedules, loading, bulkUpdateStatus, bulkDelete } =
     usePMSchedules({ companyId: company?.id || '', filters });
   const { machines } = useMachines({ siteId: company?.id || '', pageSize: 500 });
+  const woLookup = usePMWorkOrderLookup(userProfile?.siteIds?.[0] || company?.id || '');
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
@@ -147,6 +150,7 @@ export default function PMSchedulesPage() {
                 selectedIds={selectedIds}
                 onSelect={handleSelect}
                 onSelectAll={handleSelectAll}
+                woLookup={woLookup}
               />
             </div>
             <div className="sm:hidden grid grid-cols-1 gap-3">
@@ -156,6 +160,7 @@ export default function PMSchedulesPage() {
                   schedule={s}
                   selected={selectedIds.includes(s.id)}
                   onSelect={handleSelect}
+                  woLookup={woLookup}
                 />
               ))}
             </div>
@@ -168,6 +173,7 @@ export default function PMSchedulesPage() {
                 schedule={s}
                 selected={selectedIds.includes(s.id)}
                 onSelect={handleSelect}
+                woLookup={woLookup}
               />
             ))}
           </div>

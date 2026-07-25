@@ -4,17 +4,21 @@ import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
 import { PM_TYPE_CONFIG, RECURRENCE_TYPE_LABELS } from '../../constants/pmConfig';
 import { getPMOperationalStatus, getDaysUntilDue } from '../../utils/pm.utils';
+import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
 
 interface PMScheduleCardProps {
   schedule: PMSchedule;
   selected?: boolean;
   onSelect?: (id: string, selected: boolean) => void;
+  woLookup?: Map<string, PMWorkOrderLookupEntry>;
 }
 
-export function PMScheduleCard({ schedule, selected, onSelect }: PMScheduleCardProps) {
+export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMScheduleCardProps) {
   const navigate = useNavigate();
   const opStatus = getPMOperationalStatus(schedule);
   const daysUntilDue = getDaysUntilDue(schedule.nextDueDate);
+  const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
+  const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
 
   const handleClick = () => {
     navigate(`/app/pm-schedules/${schedule.id}`);
@@ -44,6 +48,19 @@ export function PMScheduleCard({ schedule, selected, onSelect }: PMScheduleCardP
         </div>
         <PMPriorityBadge priority={schedule.priority} size="sm" />
       </div>
+
+      {linkedWo?.woNumber && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/app/work-orders?woId=${linkedWoId}`);
+          }}
+          className="mb-2 text-xs font-semibold text-blue-600 hover:underline"
+        >
+          {linkedWo.woNumber}
+        </button>
+      )}
 
       <div className="flex items-center gap-2 mb-3">
         <span className="text-lg">{PM_TYPE_CONFIG[schedule.pmType].icon}</span>

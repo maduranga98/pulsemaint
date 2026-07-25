@@ -341,6 +341,11 @@ export interface TechnicianComplianceRecord {
 export interface CalendarEvent {
   id: string;
   scheduleId: string;
+  // The Preventive WO currently servicing this event, when known — lets the
+  // calendar show/link the real WO ticket number instead of just the
+  // schedule name.
+  woId?: string | null;
+  woNumber?: string | null;
   title: string;
   date: Date;
   priority: 'critical' | 'high' | 'medium' | 'low';
