@@ -3,6 +3,7 @@ import { CostDisplay } from '@/components/inventory/shared/CostDisplay';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
 import { UnitLabel } from '@/components/inventory/shared/UnitLabel';
 import { useAuthStore } from '@/store/authStore';
+import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { formatLKR } from '@/lib/inventory/stockCalculator';
 import { formatDistanceToNow, formatDate } from '@/lib/dateUtils';
 import { Phone, Mail, Cpu } from 'lucide-react';
@@ -38,6 +39,14 @@ function tsToDate(ts: { toDate?: () => Date; seconds?: number } | null | undefin
 
 export function PartOverviewTab({ part }: PartOverviewTabProps) {
   const isTechnician = useAuthStore((s) => s.isTechnician);
+  const { suppliers } = useSuppliers();
+  // Look up the linked supplier's full profile so this card mirrors the
+  // Suppliers page instead of the handful of fields snapshotted onto the
+  // part at creation time. Falls back to a name match for parts saved
+  // before supplierId existed.
+  const supplier = part.supplierId
+    ? suppliers.find((s) => s.id === part.supplierId)
+    : suppliers.find((s) => s.name.trim().toLowerCase() === part.supplierName.trim().toLowerCase());
 
   const createdDate = tsToDate(part.createdAt as unknown as { toDate?: () => Date; seconds?: number });
   const updatedDate = tsToDate(part.updatedAt as unknown as { toDate?: () => Date; seconds?: number });
@@ -90,21 +99,51 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
         )}
       </Card>
 
-      {/* Supplier Info */}
+      {/* Supplier Info — mirrors the supplier's own profile on the Suppliers page */}
       <Card title="Supplier Info">
-        <Row label="Supplier" value={part.supplierName} />
+        <Row label="Supplier" value={supplier?.name || part.supplierName} />
+        <Row label="Supplier Code" value={supplier?.supplierCode} />
+        <Row label="Contact Person" value={supplier?.contactPerson} />
+        <Row label="Phone" value={supplier?.phone || (part.supplierContact && !part.supplierContact.includes('@') ? part.supplierContact : '')} />
+        <Row label="Email" value={supplier?.email || (part.supplierContact.includes('@') ? part.supplierContact : '')} />
+        <Row label="Address" value={supplier?.address} />
+        <Row label="Country" value={supplier?.country} />
+        <Row
+          label="Website"
+          value={
+            supplier?.website ? (
+              <a href={supplier.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                {supplier.website}
+              </a>
+            ) : null
+          }
+        />
+        <Row label="Payment Method" value={supplier?.paymentMethod} />
+        <Row label="Bank Details" value={supplier?.bankDetails} />
         <Row label="Supplier Part Code" value={part.supplierPartCode} />
         <Row label="Lead Time" value={part.leadTimeDays ? `${part.leadTimeDays} days` : null} />
         {lastPurchaseDate && <Row label="Last Purchase" value={formatDate(lastPurchaseDate)} />}
-        {part.supplierContact && (
-          <a
-            href={part.supplierContact.includes('@') ? `mailto:${part.supplierContact}` : `tel:${part.supplierContact}`}
-            className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium mt-1"
-          >
-            {part.supplierContact.includes('@') ? <Mail className="w-3.5 h-3.5" /> : <Phone className="w-3.5 h-3.5" />}
-            {part.supplierContact}
-          </a>
-        )}
+        {(() => {
+          const phone = supplier?.phone || (!part.supplierContact.includes('@') ? part.supplierContact : '');
+          const email = supplier?.email || (part.supplierContact.includes('@') ? part.supplierContact : '');
+          if (phone) {
+            return (
+              <a href={`tel:${phone}`} className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium mt-1">
+                <Phone className="w-3.5 h-3.5" />
+                {phone}
+              </a>
+            );
+          }
+          if (email) {
+            return (
+              <a href={`mailto:${email}`} className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium mt-1">
+                <Mail className="w-3.5 h-3.5" />
+                {email}
+              </a>
+            );
+          }
+          return null;
+        })()}
       </Card>
 
       {/* Stock Levels */}

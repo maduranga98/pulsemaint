@@ -205,6 +205,7 @@ export interface InventoryPart {
   lastPurchaseDate: Timestamp | null;
 
   storeLocation: string;
+  supplierId: string;
   supplierName: string;
   supplierContact: string;
   supplierPartCode: string;
@@ -446,6 +447,7 @@ export interface CreatePartPayload {
   maxStockLevel: number;
   unitCost: number;
   storeLocation: string;
+  supplierId: string;
   supplierName: string;
   supplierContact: string;
   supplierPartCode: string;
