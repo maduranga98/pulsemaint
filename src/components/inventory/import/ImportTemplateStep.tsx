@@ -24,7 +24,9 @@ export function ImportTemplateStep({ onDownload, onNext }: ImportTemplateStepPro
 
   const TIPS = [
     'Columns marked with * are required — leave them blank and that row will fail validation.',
-    'If a Part Number already exists in the system, the row will update that part.',
+    'Part Number is optional — leave it blank and the system auto-generates one from Category (e.g. E000001 for Electrical).',
+    'If a Part Number is given and already exists in the system, the row will update that part.',
+    'Any Supplier Name not already in your Suppliers list is added automatically, with an auto-generated Supplier Code.',
     'Dates must be in YYYY-MM-DD format (e.g. 2025-01-15).',
     'See the "Valid Units" and "Valid Categories" sheets inside the template for allowed values.',
   ];

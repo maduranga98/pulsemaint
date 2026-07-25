@@ -53,7 +53,9 @@ export function ImportPreviewTable({
                   key={row.rowIndex}
                   className={`border-l-4 ${isUpdate ? 'border-l-blue-500 bg-blue-50/30' : 'border-l-green-500 bg-green-50/30'}`}
                 >
-                  <td className="px-3 py-2 font-mono font-medium text-gray-900">{row.partNumber}</td>
+                  <td className="px-3 py-2 font-mono font-medium text-gray-900">
+                    {row.partNumber || <span className="italic text-gray-400 font-sans">auto-generated</span>}
+                  </td>
                   <td className="px-3 py-2 text-gray-800 max-w-[160px] truncate">{row.name}</td>
                   <td className="px-3 py-2 text-gray-600">{row.category || '—'}</td>
                   <td className="px-3 py-2 text-gray-600">{row.unit || '—'}</td>

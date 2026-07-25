@@ -2,7 +2,7 @@ import type { ParsedImportResult, ParsedPartRow } from '@/types/inventory';
 import { VALID_CATEGORIES } from '@/lib/inventory/inventoryTypes';
 
 const PART_COLUMNS = [
-  'Part Number *',
+  'Part Number',
   'Name *',
   'Unit *',
   'Category *',
@@ -73,7 +73,7 @@ export async function parseInventoryExcel(file: File): Promise<ParsedImportResul
 
       return {
         rowIndex: i + 2, // 1-based, accounting for header
-        partNumber: get('Part Number *'),
+        partNumber: get('Part Number'),
         name: get('Name *'),
         unit: get('Unit *'),
         category: get('Category *'),
@@ -111,7 +111,7 @@ export async function generateImportTemplate(): Promise<Blob> {
   const partsData = [PART_COLUMNS];
   // Add one example row
   partsData.push([
-    'PRT-0001',          // Part Number *
+    '',                  // Part Number (leave blank to auto-generate, e.g. M000001 for Mechanical)
     'Example Bearing',   // Name *
     'pcs',               // Unit *
     'mechanical',        // Category *
@@ -154,9 +154,9 @@ export async function generateImportTemplate(): Promise<Blob> {
     ['Instructions'],
     [''],
     ['1. Fill in the Parts Data sheet. Columns marked with * are required.'],
-    ['2. Part Number must be unique (no duplicates within file, no conflicts with existing parts).'],
-    ['3. If a Part Number already exists in the system, the row will UPDATE that part.'],
-    ['4. If a Part Number is new, a new part will be CREATED.'],
+    ['2. Part Number is optional — leave it blank to have the system auto-generate one from Category (e.g. E000001 for Electrical, M000001 for Mechanical). If provided, it must be unique (no duplicates within file, no conflicts with existing parts).'],
+    ['3. If a Part Number is given and already exists in the system, the row will UPDATE that part.'],
+    ['4. If a Part Number is blank, or is given but is new, a new part will be CREATED (with an auto-generated number if left blank).'],
     ['5. Unit must be one of the values in the Valid Units sheet.'],
     ['6. Category must be one of the values in the Valid Categories sheet.'],
     ['7. Status must be: active, inactive, or discontinued.'],
@@ -164,6 +164,8 @@ export async function generateImportTemplate(): Promise<Blob> {
     ['9. Dates must be in YYYY-MM-DD format.'],
     ['10. Compatible Machine IDs: comma-separated machine IDs (optional).'],
     ['11. Maximum 500 rows per import.'],
+    ['12. Supplier Part Code: leave blank to auto-fill with the part number.'],
+    ['13. Supplier Name: any supplier not already in your Suppliers list is added automatically, with an auto-generated Supplier Code.'],
   ];
   const instructionsSheet = XLSX.utils.aoa_to_sheet(instructions);
   XLSX.utils.book_append_sheet(wb, instructionsSheet, 'Instructions');
