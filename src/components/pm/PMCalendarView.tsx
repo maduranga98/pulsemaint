@@ -9,6 +9,10 @@ interface PMCalendarViewProps {
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+function formatDueTime(date: Date): string {
+  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
 export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'week' | 'month'>('month');
@@ -141,6 +145,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                               <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
                             )}
                             <span className="truncate">
+                              <span className="opacity-75">{formatDueTime(event.date)} · </span>
                               {event.woNumber && <span className="font-semibold">{event.woNumber} · </span>}
                               {event.title}
                             </span>
@@ -188,6 +193,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           {event.operationalStatus && (
                             <span className={`h-2 w-2 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
                           )}
+                          <span className="opacity-75">{formatDueTime(event.date)} · </span>
                           {event.woNumber && <span className="font-semibold">{event.woNumber} · </span>}
                           {event.title}
                         </span>

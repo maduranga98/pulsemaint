@@ -3,8 +3,8 @@ import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
 import { WOStatusBadge } from '../workorders/WOStatusBadge';
-import { WOTypeBadge } from '../workorders/WOTypeBadge';
-import { PM_TYPE_CONFIG, RECURRENCE_TYPE_LABELS } from '../../constants/pmConfig';
+import { PMTypeBadge } from './PMTypeBadge';
+import { RECURRENCE_TYPE_LABELS } from '../../constants/pmConfig';
 import { getPMOperationalStatus, getDaysUntilDue, calculateComplianceRate } from '../../utils/pm.utils';
 import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
 
@@ -22,7 +22,6 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
   const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
   const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
   const pmType = linkedWo?.pmType ?? schedule.pmType;
-  const woType = linkedWo?.woType ?? 'PREVENTIVE';
   const complianceRate = calculateComplianceRate(
     schedule.completedOnTime,
     schedule.completedLate,
@@ -86,12 +85,7 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
       )}
 
       <div className="flex items-center gap-2 mb-3 flex-wrap">
-        <WOTypeBadge woType={woType} size="sm" />
-        {pmType !== 'other' && (
-          <span className="text-xs text-gray-500">
-            {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
-          </span>
-        )}
+        <PMTypeBadge pmType={pmType} size="sm" />
         <span className="text-gray-300">|</span>
         <span className="text-xs text-gray-500">{schedule.machineName}</span>
       </div>
