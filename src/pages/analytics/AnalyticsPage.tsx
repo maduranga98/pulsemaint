@@ -218,8 +218,8 @@ export default function AnalyticsPage() {
         <DowntimeCostAnalytics />
 
         {/* ── Reliability ────────────────────────────────────────────────── */}
-        <SectionHeader title="Reliability" description="PM compliance, bad actors, and wrench time" />
-        <ReliabilitySection monthly={monthly} companyId={companyId} />
+        <SectionHeader title="Reliability" description="Wrench time from Work Order records" />
+        <ReliabilitySection companyId={companyId} />
       </div>
     </div>
   );
