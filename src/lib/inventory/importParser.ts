@@ -19,6 +19,13 @@ const PART_COLUMNS = [
   'Store Location',
   'Supplier Part Code',
   'Supplier Contact',
+  'Supplier Contact Person',
+  'Supplier Email',
+  'Supplier Address',
+  'Supplier Country',
+  'Supplier Website',
+  'Supplier Payment Method',
+  'Supplier Bank Details',
   'Lead Time (Days)',
   'Last Purchase Date',
   'Last Purchase Price',
@@ -60,8 +67,12 @@ export async function parseInventoryExcel(file: File): Promise<ParsedImportResul
   const headers = (rawRows[0] as unknown[]).map((h) => cellStr(h));
   const dataRows = rawRows.slice(1) as unknown[][];
 
-  // Map header name → column index
-  const idx = (name: string): number => headers.indexOf(name);
+  // Map header name → column index. Normalized (case/space/underscore/hyphen
+  // insensitive) so real-world header variants like "Contact Person" or
+  // "contact_person" still match, instead of silently leaving fields blank.
+  const normalize = (s: string) => s.trim().toLowerCase().replace(/[\s_-]+/g, '');
+  const normalizedHeaders = headers.map(normalize);
+  const idx = (name: string): number => normalizedHeaders.indexOf(normalize(name));
 
   const rows: ParsedPartRow[] = dataRows
     .filter((row) => row.some((c) => cellStr(c) !== ''))
@@ -90,6 +101,13 @@ export async function parseInventoryExcel(file: File): Promise<ParsedImportResul
         storeLocation: get('Store Location'),
         supplierPartCode: get('Supplier Part Code'),
         supplierContact: get('Supplier Contact'),
+        supplierContactPerson: get('Supplier Contact Person'),
+        supplierEmail: get('Supplier Email'),
+        supplierAddress: get('Supplier Address'),
+        supplierCountry: get('Supplier Country'),
+        supplierWebsite: get('Supplier Website'),
+        supplierPaymentMethod: get('Supplier Payment Method'),
+        supplierBankDetails: get('Supplier Bank Details'),
         leadTimeDays: get('Lead Time (Days)'),
         lastPurchaseDate: get('Last Purchase Date'),
         lastPurchasePrice: get('Last Purchase Price'),
@@ -128,6 +146,13 @@ export async function generateImportTemplate(): Promise<Blob> {
     'Rack A - Shelf 2',  // Store Location
     '',                  // Supplier Part Code
     '+94 11 2345678',    // Supplier Contact
+    'Jane Silva',        // Supplier Contact Person
+    'sales@samplesupplier.com', // Supplier Email
+    '123 Industrial Rd, Colombo', // Supplier Address
+    'Sri Lanka',         // Supplier Country
+    'https://samplesupplier.com', // Supplier Website
+    'Bank Transfer',     // Supplier Payment Method
+    'Sample Bank, Acc# 1234567890', // Supplier Bank Details
     '7',                 // Lead Time (Days)
     '2025-01-15',        // Last Purchase Date
     '1400.00',           // Last Purchase Price
@@ -166,6 +191,7 @@ export async function generateImportTemplate(): Promise<Blob> {
     ['11. Maximum 500 rows per import.'],
     ['12. Supplier Part Code: leave blank to auto-fill with the part number.'],
     ['13. Supplier Name: any supplier not already in your Suppliers list is added automatically, with an auto-generated Supplier Code.'],
+    ['14. Supplier Contact Person, Supplier Email, Supplier Address, Supplier Country, Supplier Website, Supplier Payment Method, and Supplier Bank Details are all optional — if provided, they are used to fill in the new supplier record when a Supplier Name is auto-added.'],
   ];
   const instructionsSheet = XLSX.utils.aoa_to_sheet(instructions);
   XLSX.utils.book_append_sheet(wb, instructionsSheet, 'Instructions');

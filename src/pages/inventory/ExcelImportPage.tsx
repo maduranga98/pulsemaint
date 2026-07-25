@@ -162,24 +162,23 @@ export function ExcelImportPage() {
           for (const name of newSupplierNames) {
             const sourceRow = validRows.find((r) => r.supplierName.trim() === name);
             const contact = sourceRow?.supplierContact.trim() ?? '';
-            // Country isn't captured on the parts sheet, so these fall back
-            // to the generic "XX" country code — edit them on the
-            // Suppliers page to add country/website/payment/bank details.
-            const supplierCode = nextSupplierCodeFromCounter(supplierCodeCounters, '');
+            const email = sourceRow?.supplierEmail.trim() ?? '';
+            const country = sourceRow?.supplierCountry.trim() ?? '';
+            const supplierCode = nextSupplierCodeFromCounter(supplierCodeCounters, country);
             supplierCodeByName.set(name.toLowerCase(), supplierCode);
             const ref = doc(collection(db, 'suppliers'));
             supplierBatch.set(ref, {
               companyId,
               supplierCode,
               name,
-              contactPerson: '',
+              contactPerson: sourceRow?.supplierContactPerson.trim() ?? '',
               phone: contact.includes('@') ? '' : contact,
-              email: contact.includes('@') ? contact : '',
-              address: '',
-              country: '',
-              website: '',
-              paymentMethod: '',
-              bankDetails: '',
+              email: email || (contact.includes('@') ? contact : ''),
+              address: sourceRow?.supplierAddress.trim() ?? '',
+              country,
+              website: sourceRow?.supplierWebsite.trim() ?? '',
+              paymentMethod: sourceRow?.supplierPaymentMethod.trim() ?? '',
+              bankDetails: sourceRow?.supplierBankDetails.trim() ?? '',
               notes: `Auto-added from Excel import (${state.file.name}).`,
               createdAt: serverTimestamp(),
               createdBy: userId,
