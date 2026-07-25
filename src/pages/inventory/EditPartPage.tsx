@@ -20,6 +20,7 @@ import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { useToast } from '@/hooks/useToast';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
 import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
+import { MachineSelect } from '@/components/inventory/shared/MachineSelect';
 import type { WarrantyDocument } from '@/types/inventory';
 
 const UNITS = ['pcs', 'set', 'kg', 'g', 'L', 'mL', 'm', 'cm', 'box', 'roll', 'pair', 'bag', 'drum'] as const;
@@ -311,6 +312,15 @@ export function EditPartPage() {
             </div>
             <Field label="Description">
               <textarea {...register('description')} rows={3} className={`${inputCls} resize-none`} />
+            </Field>
+            <Field label="Compatible Machines">
+              <Controller
+                name="compatibleMachineIds"
+                control={control}
+                render={({ field }) => (
+                  <MachineSelect values={field.value ?? []} onChange={field.onChange} />
+                )}
+              />
             </Field>
             <Field label="Warranty Documents / Images (optional)">
               {part.warrantyDocuments && part.warrantyDocuments.length > 0 && (

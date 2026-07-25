@@ -47,6 +47,7 @@ export function ExcelImportPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
+  const siteIds = useAuthStore((s) => s.userProfile?.siteIds) ?? [];
 
   const [step, setStep] = useState<Step>(1);
   const [state, setState] = useState<ImportState>({
@@ -193,6 +194,32 @@ export function ExcelImportPage() {
         }
       }
 
+      // Resolve "Compatible Machine IDs" cell values against the real
+      // Machine Registry (by machine ID or name, case-insensitive) so
+      // parts link to actual machines instead of storing arbitrary,
+      // unresolved text from the sheet.
+      const machineIdByToken = new Map<string, string>();
+      const scopeSiteIds = [...new Set([...siteIds, companyId].filter(Boolean))];
+      for (let i = 0; i < scopeSiteIds.length; i += 10) {
+        const chunk = scopeSiteIds.slice(i, i + 10);
+        const machinesSnap = await getDocs(
+          query(collection(db, 'machines'), where('siteId', 'in', chunk)),
+        );
+        machinesSnap.docs.forEach((d) => {
+          const data = d.data() as { name?: string };
+          machineIdByToken.set(d.id.toLowerCase(), d.id);
+          if (data.name) machineIdByToken.set(data.name.trim().toLowerCase(), d.id);
+        });
+      }
+      const resolveMachineIds = (raw: string): string[] =>
+        raw
+          ? raw
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean)
+              .map((token) => machineIdByToken.get(token.toLowerCase()) ?? token)
+          : [];
+
       // Rows that don't specify a Part Number get one auto-generated,
       // factoring in Category, Supplier, and Store Location — the same
       // scheme as the manual Add Part form (e.g. "E-012-RAS-0001") —
@@ -250,6 +277,7 @@ export function ExcelImportPage() {
                 lastPurchaseDate: row.lastPurchaseDate || null,
                 lastPurchasePrice: parseFloat(row.lastPurchasePrice) || 0,
                 warrantyMonths: parseInt(row.warrantyMonths) || 0,
+                compatibleMachineIds: resolveMachineIds(row.compatibleMachineIds),
                 notes: row.notes || '',
                 importedAt: serverTimestamp(),
                 importedFrom: sessionRef.id,
@@ -288,9 +316,7 @@ export function ExcelImportPage() {
               storeLocation: row.storeLocation || '',
               leadTimeDays: parseInt(row.leadTimeDays) || 0,
               warrantyMonths: parseInt(row.warrantyMonths) || 0,
-              compatibleMachineIds: row.compatibleMachineIds
-                ? row.compatibleMachineIds.split(',').map((s) => s.trim()).filter(Boolean)
-                : [],
+              compatibleMachineIds: resolveMachineIds(row.compatibleMachineIds),
               isCritical: row.criticality === 'critical',
               isLowStock: false,
               cadFiles: [],

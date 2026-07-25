@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/useToast';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
 import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
+import { MachineSelect } from '@/components/inventory/shared/MachineSelect';
 import { getNextCategoryPartNumber } from '@/lib/inventory/partNumberGenerator';
 import { categoryPrefixLetter } from '@/lib/inventory/inventoryTypes';
 import type { WarrantyDocument } from '@/types/inventory';
@@ -340,6 +341,15 @@ export function AddPartPage() {
           </div>
           <Field label="Description">
             <textarea {...register('description')} rows={3} className={`${inputCls} resize-none`} placeholder="Optional description…" />
+          </Field>
+          <Field label="Compatible Machines">
+            <Controller
+              name="compatibleMachineIds"
+              control={control}
+              render={({ field }) => (
+                <MachineSelect values={field.value ?? []} onChange={field.onChange} />
+              )}
+            />
           </Field>
           <Field label="Warranty Documents / Images (optional)">
             <input
