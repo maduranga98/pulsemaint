@@ -38,9 +38,9 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
   const contractorTechNames = linkedWo?.contractorTechnicianNames ?? schedule.contractorTechnicianNames ?? [];
   const assignedNames = [
     ...(supervisorName ? [`${supervisorName} (Supervisor)`] : []),
-    ...technicianNames,
+    ...technicianNames.map((n) => `${n} (Technician)`),
     ...(contractorName ? [`${contractorName} (Contractor)`] : []),
-    ...contractorTechNames,
+    ...contractorTechNames.map((n) => `${n} (Contractor Technician)`),
   ];
 
   const handleClick = () => {
