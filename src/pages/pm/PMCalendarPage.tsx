@@ -19,7 +19,14 @@ export default function PMCalendarPage() {
   });
 
   const handleEventClick = (event: CalendarEvent) => {
-    navigate(`/app/pm-schedules/${event.scheduleId}`);
+    // Prefer jumping straight to the servicing Work Order — that's where the
+    // real, live PM details (checklist, team, dates, completion) live.
+    // Only fall back to the schedule detail page when no WO is linked yet.
+    if (event.woId) {
+      navigate(`/app/work-orders?woId=${event.woId}`);
+    } else if (event.scheduleId) {
+      navigate(`/app/pm-schedules/${event.scheduleId}`);
+    }
   };
 
   return (

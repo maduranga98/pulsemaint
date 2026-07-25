@@ -115,6 +115,13 @@ export interface PMSchedule {
   estimatedDuration: number;
   estimatedDurationUnit: 'hours' | 'days';
   skillsRequired: string[];
+  // Supervisor in charge and contractor crew, when set (ad-hoc PM schedules
+  // created from a Work Order carry these through so PM Schedules/Calendar
+  // show everyone assigned, not just technicians).
+  supervisorInChargeId?: string | null;
+  supervisorInChargeName?: string | null;
+  contractorCompanyName?: string | null;
+  contractorTechnicianNames?: string[];
 
   // Checklist
   checklistItems: PMChecklistItem[];
@@ -334,6 +341,11 @@ export interface TechnicianComplianceRecord {
 export interface CalendarEvent {
   id: string;
   scheduleId: string;
+  // The Preventive WO currently servicing this event, when known — lets the
+  // calendar show/link the real WO ticket number instead of just the
+  // schedule name.
+  woId?: string | null;
+  woNumber?: string | null;
   title: string;
   date: Date;
   priority: 'critical' | 'high' | 'medium' | 'low';

@@ -55,16 +55,19 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
             ...data,
             assignedTechnicianIds: (data.assignedTechnicianIds as unknown[]) ?? [],
             assignedTechnicianNames: (data.assignedTechnicianNames as unknown[]) ?? [],
+            contractorTechnicianNames: (data.contractorTechnicianNames as unknown[]) ?? [],
             skillsRequired: (data.skillsRequired as unknown[]) ?? [],
             checklistItems: (data.checklistItems as unknown[]) ?? [],
             preallocatedParts: (data.preallocatedParts as unknown[]) ?? [],
             documents: (data.documents as unknown[]) ?? [],
           };
         }) as PMSchedule[];
+        // Newest-created schedule (i.e. most recently created PM WO) first,
+        // so a freshly raised PM WO surfaces at the top of the list.
         fetched.sort((a, b) => {
-          const da = a.nextDueDate instanceof Date ? a.nextDueDate.getTime() : a.nextDueDate?.toDate?.().getTime() ?? Infinity;
-          const dbb = b.nextDueDate instanceof Date ? b.nextDueDate.getTime() : b.nextDueDate?.toDate?.().getTime() ?? Infinity;
-          return da - dbb;
+          const ca = a.createdAt instanceof Date ? a.createdAt.getTime() : a.createdAt?.toDate?.().getTime() ?? 0;
+          const cb = b.createdAt instanceof Date ? b.createdAt.getTime() : b.createdAt?.toDate?.().getTime() ?? 0;
+          return cb - ca;
         });
         setAllSchedules(fetched);
         setLoading(false);

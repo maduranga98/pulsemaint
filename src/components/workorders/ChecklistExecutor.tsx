@@ -233,7 +233,10 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
 
               {!isMeasurement && readOnly && item.isCompleted && (
                 <div className="ml-9 space-y-1">
-                  <p className="text-xs text-emerald-600">Completed by {item.completedByName}</p>
+                  <p className="text-xs text-emerald-600">
+                    Completed by {item.completedByName}
+                    {item.completedAt?.toDate && ` · ${item.completedAt.toDate().toLocaleString()}`}
+                  </p>
                   {item.completionNote && (
                     <div className="bg-white rounded-lg px-3 py-2 border border-gray-200">
                       <p className="text-xs font-medium text-gray-500 mb-0.5">Task Note:</p>
@@ -246,8 +249,9 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
               {/* Measurement type */}
               {isMeasurement && (
                 <div className="ml-9 space-y-2">
-                  {/* Labels */}
+                  {/* Spec set by the supervisor when the checklist was built */}
                   <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+                    <span className="text-gray-400">Spec:</span>
                     {item.method && (
                       <span className="bg-gray-100 px-2 py-0.5 rounded">Method: {item.method}</span>
                     )}
@@ -280,8 +284,23 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
 
                   {readOnly && item.actualValue !== null && (
                     <p className="text-sm text-gray-700">
-                      Recorded: <span className="font-semibold">{item.actualValue} {item.unit}</span>
+                      Actual value used by {item.completedByName || 'the assigned technician'}:{' '}
+                      <span className="font-semibold">{item.actualValue} {item.unit}</span>
                     </p>
+                  )}
+
+                  {readOnly && item.isCompleted && (
+                    <p className="text-xs text-emerald-600">
+                      Completed by {item.completedByName}
+                      {item.completedAt?.toDate && ` · ${item.completedAt.toDate().toLocaleString()}`}
+                    </p>
+                  )}
+
+                  {readOnly && item.completionNote && (
+                    <div className="bg-white rounded-lg px-3 py-2 border border-gray-200">
+                      <p className="text-xs font-medium text-gray-500 mb-0.5">Task Note:</p>
+                      <p className="text-xs text-gray-700">{item.completionNote}</p>
+                    </div>
                   )}
 
                   {/* Repair note on fail */}

@@ -10,6 +10,7 @@ import type {
   ContractorPerformanceRecord,
 } from '../types/analytics.types';
 import { getEffectivePMHistoryStatus } from '../utils/pm.utils';
+import { computeEffectiveCostPerHour } from '../lib/downtimeCost';
 
 // ---------------------------------------------------------------------------
 // Client-side analytics aggregation.
@@ -53,6 +54,30 @@ async function fetchAll(source: string, companyId: string): Promise<Row[]> {
     try {
       const snap = await getDocs(
         query(collection(db, source), where('companyId', '==', companyId), limit(FETCH_LIMIT)),
+      );
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    } catch {
+      fetchCache.delete(key);
+      return [];
+    }
+  })();
+  fetchCache.set(key, { at: Date.now(), promise });
+  return promise;
+}
+
+// Machines are scoped by siteId, not companyId — every other collection here
+// carries companyId, so this needs its own query field. In this codebase's
+// single-site-per-company deployments, companyId doubles as the site id
+// (see e.g. useMachines({ siteId: company.id }) elsewhere).
+async function fetchMachines(companyId: string): Promise<Row[]> {
+  const key = `machines:${companyId}`;
+  const cached = fetchCache.get(key);
+  if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.promise;
+
+  const promise = (async () => {
+    try {
+      const snap = await getDocs(
+        query(collection(db, 'machines'), where('siteId', '==', companyId), limit(FETCH_LIMIT)),
       );
       return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
     } catch {
@@ -118,19 +143,21 @@ interface MonthlyRawData {
   workOrders: Row[];
   contractorJobs: Row[];
   pmHistory: Row[];
+  machines: Row[];
 }
 
 export async function computeMonthlyAnalytics(
   companyId: string,
   month: string,
 ): Promise<AnalyticsMonthly> {
-  const [breakdowns, workOrders, contractorJobs, pmHistory] = await Promise.all([
+  const [breakdowns, workOrders, contractorJobs, pmHistory, machines] = await Promise.all([
     fetchAll('breakdown_tickets', companyId),
     fetchAll('workOrders', companyId),
     fetchAll('contractorJobs', companyId),
     fetchAll('pm_history', companyId),
+    fetchMachines(companyId),
   ]);
-  return buildMonthlyAnalytics(companyId, month, { breakdowns, workOrders, contractorJobs, pmHistory });
+  return buildMonthlyAnalytics(companyId, month, { breakdowns, workOrders, contractorJobs, pmHistory, machines });
 }
 
 /**
@@ -145,8 +172,8 @@ export function subscribeMonthlyAnalytics(
 ): () => void {
   if (!companyId) return () => {};
 
-  const raw: MonthlyRawData = { breakdowns: [], workOrders: [], contractorJobs: [], pmHistory: [] };
-  const ready = { breakdown_tickets: false, workOrders: false, contractorJobs: false, pm_history: false };
+  const raw: MonthlyRawData = { breakdowns: [], workOrders: [], contractorJobs: [], pmHistory: [], machines: [] };
+  const ready = { breakdown_tickets: false, workOrders: false, contractorJobs: false, pm_history: false, machines: false };
 
   const emit = () => {
     // Wait until every listener has delivered its first snapshot so the first
@@ -156,7 +183,7 @@ export function subscribeMonthlyAnalytics(
   };
 
   const listen = (
-    source: keyof typeof ready,
+    source: Exclude<keyof typeof ready, 'machines'>,
     assign: (rows: Row[]) => void,
   ) =>
     onSnapshot(
@@ -173,11 +200,26 @@ export function subscribeMonthlyAnalytics(
       },
     );
 
+  // Machines are scoped by siteId, not companyId — see fetchMachines().
+  const unsubMachines = onSnapshot(
+    query(collection(db, 'machines'), where('siteId', '==', companyId), limit(FETCH_LIMIT)),
+    (snap) => {
+      raw.machines = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      ready.machines = true;
+      emit();
+    },
+    () => {
+      ready.machines = true;
+      emit();
+    },
+  );
+
   const unsubs = [
     listen('breakdown_tickets', (rows) => (raw.breakdowns = rows)),
     listen('workOrders', (rows) => (raw.workOrders = rows)),
     listen('contractorJobs', (rows) => (raw.contractorJobs = rows)),
     listen('pm_history', (rows) => (raw.pmHistory = rows)),
+    unsubMachines,
   ];
   return () => unsubs.forEach((u) => u());
 }
@@ -185,7 +227,7 @@ export function subscribeMonthlyAnalytics(
 function buildMonthlyAnalytics(
   companyId: string,
   month: string,
-  { breakdowns, workOrders, contractorJobs, pmHistory }: MonthlyRawData,
+  { breakdowns, workOrders, contractorJobs, pmHistory, machines }: MonthlyRawData,
 ): AnalyticsMonthly {
   // month === 'all' aggregates across all time (used as a dashboard fallback
   // when the current month has no activity yet).
@@ -233,6 +275,38 @@ function buildMonthlyAnalytics(
   );
   const breakdownRecordedDowntime = monthBreakdowns.reduce((s, b) => s + breakdownDowntimeHours(b), 0);
   const totalProductionHoursLost = woDowntimeHours + breakdownRecordedDowntime;
+
+  // Downtime cost: each machine's own Downtime Cost (LKR/hour, set on the
+  // Machine record) applied to that machine's downtime hours this month —
+  // the same breakdown-ticket + unplanned-WO hours that make up
+  // totalProductionHoursLost above, just attributed per machine instead of
+  // totaled flat. Machines without a configured rate contribute nothing
+  // (rather than guessing at a cost), so this is a floor, not an estimate.
+  const machineCostPerHour = new Map<string, number>();
+  machines.forEach((m) => {
+    const rate = computeEffectiveCostPerHour(
+      m.costPerHourDown ?? null,
+      m.unitsPerHour ?? null,
+      m.unitValue ?? null,
+    );
+    if (rate !== null) machineCostPerHour.set(String(m.id), rate);
+  });
+  const machineDowntimeHoursForCost = new Map<string, number>();
+  const addMachineDowntimeHours = (machineId: unknown, hours: number) => {
+    if (!machineId || hours <= 0) return;
+    const id = String(machineId);
+    machineDowntimeHoursForCost.set(id, (machineDowntimeHoursForCost.get(id) ?? 0) + hours);
+  };
+  monthBreakdowns.forEach((b) => addMachineDowntimeHours(b.machineId, breakdownDowntimeHours(b)));
+  monthWOs.forEach((w) => {
+    if (!UNPLANNED_WO_TYPES.has(String(w.woType ?? '').toUpperCase())) return;
+    addMachineDowntimeHours(w.machineId, woDurationHours(w));
+  });
+  let totalDowntimeCost = 0;
+  machineDowntimeHoursForCost.forEach((hours, machineId) => {
+    const rate = machineCostPerHour.get(machineId);
+    if (rate !== undefined) totalDowntimeCost += hours * rate;
+  });
 
   // PM compliance. Overdue PMs are never stamped 'overdue' in Firestore, so an
   // uncompleted PM past its due date is derived as overdue here and counted as
@@ -426,6 +500,7 @@ function buildMonthlyAnalytics(
     overallSlaCompliance: Number(overallSlaCompliance.toFixed(1)),
     totalMaintenanceCost: Math.round(totalMaintenanceCost),
     totalProductionHoursLost: Number(totalProductionHoursLost.toFixed(1)),
+    totalDowntimeCost: Math.round(totalDowntimeCost),
     pmComplianceRate: Number(pmComplianceRate.toFixed(1)),
     pmCompletedOnTime: pmOnTime,
     pmMissed,
@@ -449,20 +524,22 @@ export async function computeBreakdownHeatmap(
   companyId: string,
   fromDate: string,
   toDate_: string,
-): Promise<Array<{ day: number; hour: number; count: number }>> {
+): Promise<Array<{ day: number; hour: number; count: number; machineNames: string[] }>> {
   const breakdowns = await fetchAll('breakdown_tickets', companyId);
   const from = new Date(`${fromDate}T00:00:00`);
   const to = new Date(`${toDate_}T23:59:59.999`);
 
-  const buckets = new Map<string, { day: number; hour: number; count: number }>();
+  const buckets = new Map<string, { day: number; hour: number; count: number; machineNames: string[] }>();
   breakdowns.forEach((b) => {
     const opened = toDate(b.reportedAt ?? b.createdAt);
     if (!opened || opened < from || opened > to) return;
     const day = (opened.getDay() + 6) % 7; // Mon=0 … Sun=6
     const hour = opened.getHours();
     const key = `${day}:${hour}`;
-    const cell = buckets.get(key) ?? { day, hour, count: 0 };
+    const cell = buckets.get(key) ?? { day, hour, count: 0, machineNames: [] };
     cell.count += 1;
+    const machineName = String(b.machineName ?? '').trim();
+    if (machineName && !cell.machineNames.includes(machineName)) cell.machineNames.push(machineName);
     buckets.set(key, cell);
   });
   return Array.from(buckets.values());

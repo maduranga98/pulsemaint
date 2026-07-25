@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { WorkOrder, WOFilters, WOStatus } from '../../types/workOrder';
+import type { WorkOrder, WOFilters, WOStatus, WOType } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
@@ -38,12 +38,15 @@ export function WOListView() {
   const prefilledMachineId = searchParams.get('machineId');
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
+  const prefilledWoType = searchParams.get('woType') as WOType | null;
+  const openWoId = searchParams.get('woId');
 
   useEffect(() => {
     if (searchParams.get('create') === '1') {
       setShowCreateDrawer(true);
       const next = new URLSearchParams(searchParams);
       next.delete('create');
+      next.delete('woType');
       setSearchParams(next, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -72,6 +75,19 @@ export function WOListView() {
   }
 
   const { workOrders, loading, error } = useWorkOrders(filters);
+
+  // Deep-link straight to a specific WO's detail view (e.g. from the PM
+  // Schedules table or PM Calendar), once it has loaded.
+  useEffect(() => {
+    if (!openWoId) return;
+    const wo = workOrders.find((w) => w.id === openWoId);
+    if (wo) {
+      setSelectedWO(wo);
+      const next = new URLSearchParams(searchParams);
+      next.delete('woId');
+      setSearchParams(next, { replace: true });
+    }
+  }, [openWoId, workOrders, searchParams, setSearchParams]);
 
   // Track the open WO against the live snapshot so the detail/execution
   // views update in realtime (e.g. after Start Work / Hold / Complete).
@@ -278,6 +294,7 @@ export function WOListView() {
           prefilledMachineId={prefilledMachineId ?? undefined}
           linkedBreakdownId={prefilledBreakdownId ?? undefined}
           linkedBreakdownTicketNumber={prefilledBreakdownTicket ?? undefined}
+          defaultWoType={prefilledWoType ?? undefined}
         />
       )}
     </div>

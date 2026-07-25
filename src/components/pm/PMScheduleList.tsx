@@ -2,17 +2,20 @@ import { useNavigate } from 'react-router-dom';
 import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
-import { PM_TYPE_CONFIG, RECURRENCE_TYPE_LABELS } from '../../constants/pmConfig';
-import { getPMOperationalStatus, getDaysUntilDue } from '../../utils/pm.utils';
+import { WOStatusBadge } from '../workorders/WOStatusBadge';
+import { PMTypeBadge } from './PMTypeBadge';
+import { getPMOperationalStatus, getDaysUntilDue, calculateComplianceRate } from '../../utils/pm.utils';
+import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
 
 interface PMScheduleListProps {
   schedules: PMSchedule[];
   selectedIds: string[];
   onSelect: (id: string, selected: boolean) => void;
   onSelectAll: (selected: boolean) => void;
+  woLookup?: Map<string, PMWorkOrderLookupEntry>;
 }
 
-export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }: PMScheduleListProps) {
+export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, woLookup }: PMScheduleListProps) {
   const navigate = useNavigate();
   const allSelected = schedules.length > 0 && schedules.every((s) => selectedIds.includes(s.id));
 
@@ -33,9 +36,8 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
               <th className="px-4 py-3 text-left font-medium text-gray-700">Schedule</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Machine</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Type</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Trigger</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Next Due</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Technician</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">Due Date</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">Assigned</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Compliance</th>
             </tr>
@@ -44,11 +46,48 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
             {schedules.map((schedule) => {
               const opStatus = getPMOperationalStatus(schedule);
               const daysUntilDue = getDaysUntilDue(schedule.nextDueDate);
+              const dueDateLabel = (
+                schedule.nextDueDate instanceof Date
+                  ? schedule.nextDueDate
+                  : schedule.nextDueDate?.toDate?.()
+              )?.toLocaleDateString() ?? '—';
+
+              const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
+              const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
+              const pmType = linkedWo?.pmType ?? schedule.pmType;
+              const complianceRate = calculateComplianceRate(
+                schedule.completedOnTime,
+                schedule.completedLate,
+                schedule.missed,
+              );
+
+              // Prefer the linked WO's live team — the schedule's own copy is
+              // only set at creation and can go stale as assignments change.
+              const supervisorName = linkedWo?.supervisorInChargeName ?? schedule.supervisorInChargeName;
+              const technicianNames = linkedWo?.assignedTechnicianNames ?? schedule.assignedTechnicianNames ?? [];
+              const contractorName = linkedWo?.contractorCompanyName ?? schedule.contractorCompanyName;
+              const contractorTechNames = linkedWo?.contractorTechnicianNames ?? schedule.contractorTechnicianNames ?? [];
+              const assignedNames = [
+                ...(supervisorName ? [`${supervisorName} (Supervisor)`] : []),
+                ...technicianNames.map((n) => `${n} (Technician)`),
+                ...(contractorName ? [`${contractorName} (Contractor)`] : []),
+                ...contractorTechNames.map((n) => `${n} (Contractor Technician)`),
+              ];
+
+              const isTerminal = linkedWo
+                ? ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(linkedWo.status)
+                : false;
 
               return (
                 <tr
                   key={schedule.id}
-                  onClick={() => navigate(`/app/pm-schedules/${schedule.id}`)}
+                  onClick={() =>
+                    navigate(
+                      linkedWoId
+                        ? `/app/work-orders?woId=${linkedWoId}`
+                        : `/app/pm-schedules/${schedule.id}`,
+                    )
+                  }
                   className="hover:bg-gray-50 cursor-pointer"
                 >
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -61,48 +100,59 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-gray-900">{schedule.name}</div>
-                    <PMPriorityBadge priority={schedule.priority} size="sm" />
+                    {linkedWo?.woNumber && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/app/work-orders?woId=${linkedWoId}`);
+                        }}
+                        className="text-xs font-semibold text-blue-600 hover:underline"
+                      >
+                        {linkedWo.woNumber}
+                      </button>
+                    )}
+                    <div className="mt-1">
+                      <PMPriorityBadge priority={schedule.priority} size="sm" />
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{schedule.machineName}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1">
-                      <span>{PM_TYPE_CONFIG[schedule.pmType].icon}</span>
-                      <span className="text-gray-600">{PM_TYPE_CONFIG[schedule.pmType].label}</span>
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {schedule.triggerType === 'calendar'
-                      ? RECURRENCE_TYPE_LABELS[schedule.recurrenceType]
-                      : `${schedule.triggerAfterValue} ${schedule.triggerUnit?.replace('_', ' ')}`}
+                    <PMTypeBadge pmType={pmType} size="sm" />
                   </td>
                   <td className="px-4 py-3">
-                    <div className="text-gray-600">
-                      {daysUntilDue < 0 ? (
+                    <div className="text-gray-900">{dueDateLabel}</div>
+                    <div className="text-gray-500 text-xs">
+                      {isTerminal ? null : daysUntilDue < 0 ? (
                         <span className="text-red-600 font-medium">{Math.abs(daysUntilDue)}d overdue</span>
                       ) : daysUntilDue === 0 ? (
                         <span className="text-amber-600 font-medium">Due today</span>
                       ) : (
-                        <span>{daysUntilDue}d</span>
+                        <span>in {daysUntilDue}d</span>
                       )}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {(schedule.assignedTechnicianNames ?? []).join(', ') || '—'}
+                    {assignedNames.join(', ') || '—'}
                   </td>
                   <td className="px-4 py-3">
-                    <PMOperationalStatusBadge status={opStatus} size="sm" />
+                    {linkedWo ? (
+                      <WOStatusBadge status={linkedWo.status} size="sm" />
+                    ) : (
+                      <PMOperationalStatusBadge status={opStatus} size="sm" />
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span
                       className={`font-semibold ${
-                        schedule.complianceRate >= 90
+                        complianceRate >= 90
                           ? 'text-emerald-600'
-                          : schedule.complianceRate >= 70
+                          : complianceRate >= 70
                           ? 'text-amber-600'
                           : 'text-red-600'
                       }`}
                     >
-                      {schedule.complianceRate}%
+                      {complianceRate}%
                     </span>
                   </td>
                 </tr>

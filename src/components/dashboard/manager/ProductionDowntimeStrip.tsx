@@ -13,6 +13,10 @@ export default function ProductionDowntimeStrip({}: ProductionDowntimeStripProps
   const hours = monthly?.totalProductionHoursLost ?? 0;
   const h = Math.floor(hours);
   const m = Math.floor((hours - h) * 60);
+  // Real cost: each machine's own Downtime Cost rate × that machine's
+  // downtime hours this month (breakdown tickets + unplanned WO completion
+  // durations) — not a flat per-hour guess.
+  const downtimeCost = monthly?.totalDowntimeCost ?? 0;
 
   return (
     <DashboardWidget title="Production Downtime" loading={loading}>
@@ -31,8 +35,8 @@ export default function ProductionDowntimeStrip({}: ProductionDowntimeStripProps
             <p className="text-[#F0F4F8] font-semibold">{Math.round(hours / 30)}h</p>
           </div>
           <div>
-            <p className="text-[#8BA3BF]">Est. cost</p>
-            <p className="text-[#F0F4F8] font-semibold">LKR {(hours * 5000).toLocaleString()}</p>
+            <p className="text-[#8BA3BF]">Downtime cost</p>
+            <p className="text-[#F0F4F8] font-semibold">LKR {downtimeCost.toLocaleString()}</p>
           </div>
         </div>
       </div>
