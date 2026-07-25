@@ -16,7 +16,9 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { parseInventoryExcel } from '@/lib/inventory/importParser';
 import { validateImportRows } from '@/lib/inventory/importValidator';
-import type { ValidationResult, InventoryPart } from '@/types/inventory';
+import { getCategorySequenceMap, nextFromCounter } from '@/lib/inventory/partNumberGenerator';
+import { getSupplierCodeSequenceStart, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
+import type { ValidationResult, InventoryPart, Supplier } from '@/types/inventory';
 import { ImportStepIndicator } from '@/components/inventory/import/ImportStepIndicator';
 import { ImportTemplateStep } from '@/components/inventory/import/ImportTemplateStep';
 import { ImportUploadStep } from '@/components/inventory/import/ImportUploadStep';
@@ -133,13 +135,74 @@ export function ExcelImportPage() {
         existingSnap.docs.map((d) => [(d.data() as InventoryPart).partNumber, d.id])
       );
 
+      // Rows that don't specify a Part Number get one auto-generated from
+      // their Category, the same scheme as the manual Add Part form
+      // (e.g. "E000001" for Electrical) — seeded once from existing parts,
+      // then incremented in-memory per row so numbers stay sequential and
+      // unique within this import even across many new rows in one category.
+      const categoryCounters = await getCategorySequenceMap(companyId);
+      const resolvedPartNumbers = new Map<number, string>();
+      for (const row of validRows) {
+        resolvedPartNumbers.set(
+          row.rowIndex,
+          row.partNumber || nextFromCounter(categoryCounters, row.category),
+        );
+      }
+
+      // Any supplier named in the sheet that isn't already in the Suppliers
+      // list gets added automatically, with an auto-generated Supplier
+      // Code — so importing parts keeps the supplier directory in sync
+      // instead of leaving supplierName as an orphaned free-text value.
+      const supplierNames = Array.from(
+        new Set(validRows.map((r) => r.supplierName.trim()).filter(Boolean)),
+      );
+      if (supplierNames.length > 0) {
+        const existingSuppliersSnap = await getDocs(
+          query(collection(db, 'suppliers'), where('companyId', '==', companyId)),
+        );
+        const existingSupplierNames = new Set(
+          existingSuppliersSnap.docs.map((d) => (d.data() as Supplier).name.trim().toLowerCase()),
+        );
+        const newSupplierNames = supplierNames.filter(
+          (name) => !existingSupplierNames.has(name.toLowerCase()),
+        );
+        if (newSupplierNames.length > 0) {
+          const supplierCodeCounter = { seq: await getSupplierCodeSequenceStart(companyId) };
+          const supplierBatch = writeBatch(db);
+          for (const name of newSupplierNames) {
+            const sourceRow = validRows.find((r) => r.supplierName.trim() === name);
+            const contact = sourceRow?.supplierContact.trim() ?? '';
+            const ref = doc(collection(db, 'suppliers'));
+            supplierBatch.set(ref, {
+              companyId,
+              supplierCode: nextSupplierCodeFromCounter(supplierCodeCounter),
+              name,
+              contactPerson: '',
+              phone: contact.includes('@') ? '' : contact,
+              email: contact.includes('@') ? contact : '',
+              address: '',
+              notes: `Auto-added from Excel import (${state.file.name}).`,
+              createdAt: serverTimestamp(),
+              createdBy: userId,
+              updatedAt: serverTimestamp(),
+              updatedBy: userId,
+            });
+          }
+          await supplierBatch.commit();
+        }
+      }
+
       // Process in batches
       for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
         const batchRows = validRows.slice(i, i + BATCH_SIZE);
         const batch = writeBatch(db);
 
         for (const row of batchRows) {
-          const isUpdate = state.existingPartNumbers.has(row.partNumber);
+          // Only a row that names an existing part number is an update —
+          // a blank part number always means a new part (with its number
+          // auto-generated above).
+          const isUpdate = !!row.partNumber && state.existingPartNumbers.has(row.partNumber);
+          const partNumber = resolvedPartNumbers.get(row.rowIndex) ?? row.partNumber;
 
           if (isUpdate) {
             const existingId = existingByPartNumber.get(row.partNumber);
@@ -161,7 +224,7 @@ export function ExcelImportPage() {
                 supplierName: row.supplierName || '',
                 storeLocation: row.storeLocation || '',
                 // Auto-fill with the part number when the sheet didn't supply one, so the field is never empty.
-                supplierPartCode: row.supplierPartCode || row.partNumber,
+                supplierPartCode: row.supplierPartCode || partNumber,
                 supplierContact: row.supplierContact || '',
                 leadTimeDays: parseInt(row.leadTimeDays) || 0,
                 lastPurchaseDate: row.lastPurchaseDate || null,
@@ -180,7 +243,7 @@ export function ExcelImportPage() {
             const ref = doc(collection(db, 'inventoryParts'));
             batch.set(ref, {
               companyId,
-              partNumber: row.partNumber,
+              partNumber,
               name: row.name,
               description: row.description || '',
               brand: row.brand || '',
@@ -199,7 +262,8 @@ export function ExcelImportPage() {
               lastPurchaseDate: row.lastPurchaseDate || null,
               supplierName: row.supplierName || '',
               supplierContact: row.supplierContact || '',
-              supplierPartCode: row.supplierPartCode || '',
+              // Auto-fill with the (possibly auto-generated) part number when the sheet didn't supply one.
+              supplierPartCode: row.supplierPartCode || partNumber,
               storeLocation: row.storeLocation || '',
               leadTimeDays: parseInt(row.leadTimeDays) || 0,
               warrantyMonths: parseInt(row.warrantyMonths) || 0,

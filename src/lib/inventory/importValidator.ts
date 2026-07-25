@@ -53,22 +53,21 @@ export function validateImportRows(
   for (const row of rows) {
     const rowErrors: ValidationError[] = [];
 
-    // Part Number
-    if (!row.partNumber) {
-      rowErrors.push(
-        makeError(row.rowIndex, 'Part Number *', 'REQUIRED_FIELD_EMPTY', 'Part number is required.', 'Enter a unique part number.')
-      );
-    } else if (row.partNumber.length > 50) {
-      rowErrors.push(
-        makeError(row.rowIndex, 'Part Number *', 'PART_NUMBER_TOO_LONG', 'Part number exceeds 50 characters.', 'Shorten the part number.')
-      );
-    } else if (seenPartNumbers.has(row.partNumber.toUpperCase())) {
-      rowErrors.push(
-        makeError(row.rowIndex, 'Part Number *', 'DUPLICATE_PART_NUMBER', `Duplicate part number "${row.partNumber}" in file.`, 'Each part number must be unique within the import file.')
-      );
+    // Part Number — optional. Leave it blank and the system auto-generates
+    // one from Category (e.g. "E000001" for Electrical) on import, the same
+    // as adding a part manually.
+    if (row.partNumber) {
+      if (row.partNumber.length > 50) {
+        rowErrors.push(
+          makeError(row.rowIndex, 'Part Number', 'PART_NUMBER_TOO_LONG', 'Part number exceeds 50 characters.', 'Shorten the part number.')
+        );
+      } else if (seenPartNumbers.has(row.partNumber.toUpperCase())) {
+        rowErrors.push(
+          makeError(row.rowIndex, 'Part Number', 'DUPLICATE_PART_NUMBER', `Duplicate part number "${row.partNumber}" in file.`, 'Each part number must be unique within the import file.')
+        );
+      }
+      seenPartNumbers.add(row.partNumber.toUpperCase());
     }
-
-    if (row.partNumber) seenPartNumbers.add(row.partNumber.toUpperCase());
 
     // Name
     if (!row.name) {

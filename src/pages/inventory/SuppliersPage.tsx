@@ -14,6 +14,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { useToast } from '@/hooks/useToast';
+import { getNextSupplierCode, getSupplierCodeSequenceStart, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
 import type { Supplier } from '@/types/inventory';
 
 interface SupplierFormValues {
@@ -154,12 +155,14 @@ export function SuppliersPage() {
       }
 
       // Firestore batches cap at 500 writes.
+      const codeCounter = { seq: await getSupplierCodeSequenceStart(companyId) };
       for (let i = 0; i < records.length; i += 400) {
         const batch = writeBatch(db);
         for (const rec of records.slice(i, i + 400)) {
           const ref = doc(collection(db, 'suppliers'));
           batch.set(ref, {
             ...rec,
+            supplierCode: nextSupplierCodeFromCounter(codeCounter),
             companyId,
             createdAt: serverTimestamp(),
             createdBy: userId,
@@ -212,15 +215,17 @@ export function SuppliersPage() {
         });
         addToast('Supplier updated.', 'success');
       } else {
+        const supplierCode = await getNextSupplierCode(companyId);
         await addDoc(collection(db, 'suppliers'), {
           ...form,
+          supplierCode,
           companyId,
           createdAt: serverTimestamp(),
           createdBy: userId,
           updatedAt: serverTimestamp(),
           updatedBy: userId,
         });
-        addToast('Supplier added.', 'success');
+        addToast(`Supplier added (${supplierCode}).`, 'success');
       }
       setModalOpen(false);
     } catch (err) {
@@ -309,7 +314,12 @@ export function SuppliersPage() {
                       className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`}
                     />
                     <span className="min-w-0">
-                      <span className="block font-semibold text-gray-900 truncate">{s.name}</span>
+                      <span className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900 truncate">{s.name}</span>
+                        {s.supplierCode && (
+                          <span className="font-mono text-xs text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded shrink-0">{s.supplierCode}</span>
+                        )}
+                      </span>
                       <span className="block text-sm text-gray-500 truncate">
                         {[s.contactPerson, s.phone, s.email].filter(Boolean).join(' · ') || 'No contact details'}
                       </span>

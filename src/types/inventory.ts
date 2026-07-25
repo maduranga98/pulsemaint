@@ -374,6 +374,9 @@ export interface PurchaseOrder {
 export interface Supplier {
   id: string;
   companyId: string;
+  // Auto-generated on creation (manual, CSV import, or from a parts
+  // import) — e.g. "SUP-000001". Never user-entered.
+  supplierCode: string;
   name: string;
   contactPerson: string;
   phone: string;
