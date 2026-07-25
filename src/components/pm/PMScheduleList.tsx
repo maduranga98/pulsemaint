@@ -64,7 +64,13 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
               return (
                 <tr
                   key={schedule.id}
-                  onClick={() => navigate(`/app/pm-schedules/${schedule.id}`)}
+                  onClick={() =>
+                    navigate(
+                      linkedWoId
+                        ? `/app/work-orders?woId=${linkedWoId}`
+                        : `/app/pm-schedules/${schedule.id}`,
+                    )
+                  }
                   className="hover:bg-gray-50 cursor-pointer"
                 >
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
