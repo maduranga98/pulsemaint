@@ -45,7 +45,7 @@ export default function TechnicianPerformanceTable({ companyId, month }: Technic
   const minSla = Math.min(100, ...records.map((r) => r.slaCompliance));
 
   return (
-    <DashboardWidget title="Technician Performance" loading={loading} error={error} onRetry={refetch}>
+    <DashboardWidget title="Performance By WOs" loading={loading} error={error} onRetry={refetch}>
       {sorted.length === 0 ? (
         <EmptyState message="No performance data" />
       ) : (
