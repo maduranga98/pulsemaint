@@ -107,6 +107,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
 
         // Basic
         woType: payload.woType,
+        pmType: payload.woType === 'PREVENTIVE' ? (payload.pmType ?? 'other') : null,
         priority: payload.priority,
         status: initialStatus,
         description: payload.description,

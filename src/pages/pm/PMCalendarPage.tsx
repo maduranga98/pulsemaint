@@ -19,7 +19,13 @@ export default function PMCalendarPage() {
   });
 
   const handleEventClick = (event: CalendarEvent) => {
-    navigate(`/app/pm-schedules/${event.scheduleId}`);
+    if (event.scheduleId) {
+      navigate(`/app/pm-schedules/${event.scheduleId}`);
+    } else if (event.woId) {
+      // Ad-hoc PM WOs aren't tied to a recurring schedule — send the user
+      // straight to the Work Order itself.
+      navigate(`/app/work-orders?woId=${event.woId}`);
+    }
   };
 
   return (

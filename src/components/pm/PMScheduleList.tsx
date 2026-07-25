@@ -4,15 +4,17 @@ import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
 import { PM_TYPE_CONFIG } from '../../constants/pmConfig';
 import { getPMOperationalStatus, getDaysUntilDue } from '../../utils/pm.utils';
+import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
 
 interface PMScheduleListProps {
   schedules: PMSchedule[];
   selectedIds: string[];
   onSelect: (id: string, selected: boolean) => void;
   onSelectAll: (selected: boolean) => void;
+  woLookup?: Map<string, PMWorkOrderLookupEntry>;
 }
 
-export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }: PMScheduleListProps) {
+export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, woLookup }: PMScheduleListProps) {
   const navigate = useNavigate();
   const allSelected = schedules.length > 0 && schedules.every((s) => selectedIds.includes(s.id));
 
@@ -56,6 +58,9 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
                 ...(schedule.contractorTechnicianNames ?? []),
               ];
 
+              const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
+              const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
+
               return (
                 <tr
                   key={schedule.id}
@@ -72,7 +77,21 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll }
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-medium text-gray-900">{schedule.name}</div>
-                    <PMPriorityBadge priority={schedule.priority} size="sm" />
+                    {linkedWo?.woNumber && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/app/work-orders?woId=${linkedWoId}`);
+                        }}
+                        className="text-xs font-semibold text-blue-600 hover:underline"
+                      >
+                        {linkedWo.woNumber}
+                      </button>
+                    )}
+                    <div className="mt-1">
+                      <PMPriorityBadge priority={schedule.priority} size="sm" />
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{schedule.machineName}</td>
                   <td className="px-4 py-3">

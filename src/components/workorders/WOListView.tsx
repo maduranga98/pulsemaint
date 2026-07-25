@@ -39,6 +39,7 @@ export function WOListView() {
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
   const prefilledWoType = searchParams.get('woType') as WOType | null;
+  const openWoId = searchParams.get('woId');
 
   useEffect(() => {
     if (searchParams.get('create') === '1') {
@@ -74,6 +75,19 @@ export function WOListView() {
   }
 
   const { workOrders, loading, error } = useWorkOrders(filters);
+
+  // Deep-link straight to a specific WO's detail view (e.g. from the PM
+  // Schedules table or PM Calendar), once it has loaded.
+  useEffect(() => {
+    if (!openWoId) return;
+    const wo = workOrders.find((w) => w.id === openWoId);
+    if (wo) {
+      setSelectedWO(wo);
+      const next = new URLSearchParams(searchParams);
+      next.delete('woId');
+      setSearchParams(next, { replace: true });
+    }
+  }, [openWoId, workOrders, searchParams, setSearchParams]);
 
   // Track the open WO against the live snapshot so the detail/execution
   // views update in realtime (e.g. after Start Work / Hold / Complete).
