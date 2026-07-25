@@ -39,8 +39,12 @@ function WOCardItem({ wo, onClick }: { wo: WorkOrder; onClick: () => void }) {
 }
 
 export default function MyWorkOrdersPage() {
+  const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
-  const technicianId = userProfile?.id ?? '';
+  // The security rule authorizes assigned-WO reads on `request.auth.uid`, so the
+  // queue must query on the Firebase Auth uid too. Fall back to the profile id
+  // only if the auth user isn't hydrated yet.
+  const technicianId = user?.uid ?? userProfile?.id ?? '';
   // WO creation falls back to companyId when the creator has no siteIds
   // (useCreateWorkOrder), so the queue query must use the same fallback or
   // assigned WOs never match.

@@ -21,12 +21,17 @@ const ACTIVE_STATUSES = new Set([
  * folded in too so the page is meaningful for them.
  *
  * Technicians / trainees may only *read* WOs they are assigned to (Firestore
- * rules), so a `siteId`-only list query is rejected outright with "Missing or
- * insufficient permissions". Their query therefore constrains on
- * `assignedTechnicianIds array-contains` (matching the rule, and backed by an
- * existing composite index). Owners (admin / supervisor / plant manager) can
- * read the whole site, so they query on `siteId` alone and fold in the WOs they
- * supervise or created client-side.
+ * rules). Their query therefore constrains on `assignedTechnicianIds
+ * array-contains <their id>` — which is exactly what the security rule checks
+ * (`request.auth.uid in resource.data.assignedTechnicianIds`). It intentionally
+ * does NOT also filter on `siteId`: the user's mapping-doc siteId and a WO's
+ * siteId are both derived from `siteIds[0] ?? companyId` in several places and
+ * can drift, so a `siteId ==` filter silently dropped legitimately-assigned WOs
+ * (and, combined with the old site-gated rule, rejected the whole query with
+ * "Missing or insufficient permissions"). array-contains on a globally-unique
+ * uid never leaks across tenants. Owners (admin / supervisor / plant manager)
+ * can read the whole site, so they query on `siteId` alone and fold in the WOs
+ * they supervise or created client-side.
  */
 export function useMyJobQueue(technicianId: string, siteId: string, includeOwned = false) {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
@@ -48,7 +53,6 @@ export function useMyJobQueue(technicianId: string, siteId: string, includeOwned
       ? query(collection(db, 'workOrders'), where('siteId', '==', siteId))
       : query(
           collection(db, 'workOrders'),
-          where('siteId', '==', siteId),
           where('assignedTechnicianIds', 'array-contains', technicianId),
         );
 

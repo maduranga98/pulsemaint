@@ -25,14 +25,23 @@ const STEPS = [
 export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOCompletionFormProps) {
   const [step, setStep] = useState(0);
   const [partsUsed, setPartsUsed] = useState<PartUsed[]>(workOrder.partsUsed ?? []);
-  const [techLogs, setTechLogs] = useState<TechnicianWorkLog[]>(
-    workOrder.assignedTechnicianIds.map((id, i) => ({
-      technicianId: id,
-      technicianName: workOrder.assignedTechnicianNames[i] ?? '',
+  // Build one work-log row per assigned person. Pair ids with names by index,
+  // but drive off whichever array is longer so nobody is dropped if the two
+  // arrays are out of sync (an assignee with a name but no id — or vice versa —
+  // must still get a log row, otherwise their work goes uncaptured).
+  const [techLogs, setTechLogs] = useState<TechnicianWorkLog[]>(() => {
+    const count = Math.max(
+      workOrder.assignedTechnicianIds.length,
+      workOrder.assignedTechnicianNames.length,
+    );
+    return Array.from({ length: count }, (_, i) => ({
+      technicianId: workOrder.assignedTechnicianIds[i] ?? '',
+      technicianName:
+        workOrder.assignedTechnicianNames[i] ?? workOrder.assignedTechnicianIds[i] ?? `Technician ${i + 1}`,
       hoursWorked: 0,
       tasksDescription: '',
-    })),
-  );
+    }));
+  });
   const [postRepairChecklist, setPostRepairChecklist] = useState<PostRepairChecklistItem[]>(
     workOrder.checklist.map((item) => ({
       stepDescription: item.stepDescription,
@@ -334,8 +343,11 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
             <p className="text-xs text-gray-400">
               Hours worked are calculated automatically from the WO's actual start and end times.
             </p>
+            {techLogs.length === 0 && (
+              <p className="text-sm text-gray-400">No technicians are assigned to this work order.</p>
+            )}
             {techLogs.map((log, i) => (
-              <div key={log.technicianId} className="bg-gray-50 rounded-xl p-4 space-y-3">
+              <div key={log.technicianId || i} className="bg-gray-50 rounded-xl p-4 space-y-3">
                 <p className="text-sm font-semibold text-gray-800">{log.technicianName}</p>
                 <div className="grid grid-cols-2 gap-3">
                   <div>

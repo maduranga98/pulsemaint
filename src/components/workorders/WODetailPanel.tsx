@@ -345,19 +345,19 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Completion</h3>
                   <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.workDoneDescription}</p>
                   {workOrder.rootCause && (
-                    <p className="text-sm text-gray-700">
-                      Root cause: <span className="font-medium">{workOrder.rootCause.replace(/_/g, ' ')}</span>
+                    <p className="text-sm text-gray-900">
+                      Root cause: <span className="font-semibold">{workOrder.rootCause.replace(/_/g, ' ')}</span>
                     </p>
                   )}
                   {workOrder.rootCauseDescription && (
                     <p className="text-sm text-gray-700 italic whitespace-pre-line">{workOrder.rootCauseDescription}</p>
                   )}
                   {workOrder.testRunResult && (
-                    <p className="text-sm">
+                    <p className="text-sm text-gray-900">
                       Test run:
                       <span className={`ml-1 font-semibold ${
-                        workOrder.testRunResult === 'pass' ? 'text-emerald-600' :
-                        workOrder.testRunResult === 'fail' ? 'text-red-600' : 'text-amber-600'
+                        workOrder.testRunResult === 'pass' ? 'text-emerald-800' :
+                        workOrder.testRunResult === 'fail' ? 'text-red-800' : 'text-amber-800'
                       }`}>
                         {workOrder.testRunResult}
                       </span>
@@ -367,8 +367,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     <p className="text-sm text-gray-700 whitespace-pre-line">{workOrder.testRunNotes}</p>
                   )}
                   {workOrder.machineStatusAfterRepair && (
-                    <p className="text-sm text-gray-700">
-                      Machine: <span className="font-medium">{workOrder.machineStatusAfterRepair.replace(/_/g, ' ')}</span>
+                    <p className="text-sm text-gray-900">
+                      Machine: <span className="font-semibold">{workOrder.machineStatusAfterRepair.replace(/_/g, ' ')}</span>
                     </p>
                   )}
                 </section>
