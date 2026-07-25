@@ -160,7 +160,8 @@ export function ExcelImportPage() {
                 unitCost: parseFloat(row.unitCost) || 0,
                 supplierName: row.supplierName || '',
                 storeLocation: row.storeLocation || '',
-                supplierPartCode: row.supplierPartCode || '',
+                // Auto-fill with the part number when the sheet didn't supply one, so the field is never empty.
+                supplierPartCode: row.supplierPartCode || row.partNumber,
                 supplierContact: row.supplierContact || '',
                 leadTimeDays: parseInt(row.leadTimeDays) || 0,
                 lastPurchaseDate: row.lastPurchaseDate || null,

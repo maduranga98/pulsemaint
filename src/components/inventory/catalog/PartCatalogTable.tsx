@@ -14,6 +14,10 @@ interface PartCatalogTableProps {
   parts: InventoryPart[];
   onViewPart: (id: string) => void;
   onEditPart: (id: string) => void;
+  selectable?: boolean;
+  selectedIds?: string[];
+  onSelect?: (id: string, selected: boolean) => void;
+  onSelectAll?: (selected: boolean) => void;
 }
 
 type SortKey = 'partNumber' | 'name' | 'category' | 'criticality' | 'availableStock' | 'unitCost' | 'totalCost' | 'status';
@@ -26,7 +30,15 @@ function stockColor(part: InventoryPart): string {
   return 'text-green-700';
 }
 
-export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogTableProps) {
+export function PartCatalogTable({
+  parts,
+  onViewPart,
+  onEditPart,
+  selectable = false,
+  selectedIds = [],
+  onSelect,
+  onSelectAll,
+}: PartCatalogTableProps) {
   const isTechnician = useAuthStore((s) => s.isTechnician);
   const [qrPart, setQrPart] = useState<InventoryPart | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>('partNumber');
@@ -87,6 +99,16 @@ export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogT
       <table className="w-full text-sm min-w-[900px]">
         <thead>
           <tr className="border-b border-gray-200 bg-gray-50 text-xs">
+            {selectable && (
+              <th className="px-4 py-3 w-10">
+                <input
+                  type="checkbox"
+                  checked={sorted.length > 0 && sorted.every(({ part }) => selectedIds.includes(part.id))}
+                  onChange={(e) => onSelectAll?.(e.target.checked)}
+                  className="rounded border-gray-300"
+                />
+              </th>
+            )}
             <th className="px-4 py-3 text-left"><SortHeader label="Part Number" colKey="partNumber" /></th>
             <th className="px-4 py-3 text-left"><SortHeader label="Part Name" colKey="name" /></th>
             <th className="px-4 py-3 text-left font-medium text-gray-600">Location</th>
@@ -107,6 +129,16 @@ export function PartCatalogTable({ parts, onViewPart, onEditPart }: PartCatalogT
         <tbody>
           {sorted.map(({ part, available }) => (
             <tr key={part.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+              {selectable && (
+                <td className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(part.id)}
+                    onChange={(e) => onSelect?.(part.id, e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                </td>
+              )}
               <td className="px-4 py-3">
                 <span className="font-mono text-xs text-blue-700 font-medium">{part.partNumber}</span>
               </td>

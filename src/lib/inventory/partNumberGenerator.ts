@@ -1,28 +1,36 @@
-import { doc, runTransaction } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { categoryPrefixLetter, formatCategoryPartNumber } from './inventoryTypes';
 
 /**
- * Atomically reserves and returns the next auto-generated part number for a
- * category (e.g. "E000001" for Electrical), using a per-company-per-prefix
- * counter document so concurrent creates never collide — unlike the old
- * "query the highest existing partNumber and +1" approach, which raced
- * under concurrent saves.
+ * Returns the next auto-generated part number for a category (e.g.
+ * "E000001" for Electrical).
+ *
+ * Deliberately queries `inventoryParts` directly (a single companyId
+ * equality filter — no composite index required, and the exact same
+ * collection/rules every part read already uses) rather than a separate
+ * counter collection: a dedicated counter doc needs its own Firestore rules
+ * deployed before it works, and until that deploy lands every part creation
+ * fails with "Missing or insufficient permissions". Reading existing parts
+ * needs no new permissions at all.
  */
 export async function getNextCategoryPartNumber(
   companyId: string,
   category: string,
 ): Promise<string> {
   const prefixLetter = categoryPrefixLetter(category);
-  const counterRef = doc(db, 'inventoryCounters', `${companyId}_${prefixLetter}`);
 
-  const nextSeq = await runTransaction(db, async (tx) => {
-    const snap = await tx.get(counterRef);
-    const current = snap.exists() ? Number(snap.data().seq ?? 0) : 0;
-    const next = current + 1;
-    tx.set(counterRef, { companyId, prefixLetter, seq: next }, { merge: true });
-    return next;
+  const snap = await getDocs(
+    query(collection(db, 'inventoryParts'), where('companyId', '==', companyId)),
+  );
+
+  let maxSeq = 0;
+  snap.forEach((d) => {
+    const partNumber = String(d.data().partNumber ?? '');
+    if (!partNumber.startsWith(prefixLetter)) return;
+    const match = partNumber.slice(prefixLetter.length).match(/^(\d+)$/);
+    if (match) maxSeq = Math.max(maxSeq, parseInt(match[1], 10));
   });
 
-  return formatCategoryPartNumber(prefixLetter, nextSeq);
+  return formatCategoryPartNumber(prefixLetter, maxSeq + 1);
 }

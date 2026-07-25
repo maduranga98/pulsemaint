@@ -641,17 +641,6 @@ service cloud.firestore {
     // Data is stored at root level with a companyId field for multi-tenancy.
     // ---------------------------------------------------------------------------
 
-    // Per-company-per-category-letter sequence counters backing
-    // auto-generated part numbers (e.g. "E000001"). Doc id is
-    // `${companyId}_${letter}`, so read/write is gated on the companyId
-    // field inside the document rather than the id itself.
-    match /inventoryCounters/{counterId} {
-      allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId;
-      allow create, update: if isAuthenticated() && getUserData().companyId == request.resource.data.companyId
-        && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
-      allow delete: if false;
-    }
-
     match /inventoryParts/{partId} {
       allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId;
       allow create: if isAuthenticated() && getUserData().companyId == request.resource.data.companyId
