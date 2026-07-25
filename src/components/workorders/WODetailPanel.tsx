@@ -204,12 +204,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 </section>
               )}
 
-              {/* Description */}
-              <section>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Description</h3>
-                <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.description}</p>
-              </section>
-
               {/* Job details — special tools, safety category, estimate, links */}
               {(workOrder.specialToolsRequired?.trim() ||
                 workOrder.ptwCategory ||
@@ -238,6 +232,12 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   </div>
                 </section>
               )}
+
+              {/* Description */}
+              <section>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Description</h3>
+                <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.description}</p>
+              </section>
 
               {/* Machine */}
               <section className="bg-blue-50 rounded-xl p-4 space-y-2">
@@ -291,6 +291,26 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 </div>
               </section>
 
+              {/* Technician work logs (recorded at completion) */}
+              {(workOrder.technicianWorkLogs ?? []).length > 0 && (
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Work Logs</h3>
+                  <div className="space-y-2">
+                    {workOrder.technicianWorkLogs.map((log, i) => (
+                      <div key={i} className="bg-gray-50 rounded-lg px-3 py-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-gray-800">{log.technicianName}</span>
+                          <span className="text-xs text-gray-500">{log.hoursWorked}h</span>
+                        </div>
+                        {log.tasksDescription && (
+                          <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-line">{log.tasksDescription}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               {/* Dates */}
               <section>
                 <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Dates</h3>
@@ -321,8 +341,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
               {/* Completion info (if completed) */}
               {workOrder.workDoneDescription && (
-                <section className="bg-emerald-50 rounded-xl p-4 space-y-2">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Completion</h3>
+                <section className="bg-blue-50 rounded-xl p-4 space-y-2">
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Completion</h3>
                   <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.workDoneDescription}</p>
                   {workOrder.rootCause && (
                     <p className="text-sm text-gray-700">
@@ -330,7 +350,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     </p>
                   )}
                   {workOrder.rootCauseDescription && (
-                    <p className="text-sm text-gray-600 italic whitespace-pre-line">{workOrder.rootCauseDescription}</p>
+                    <p className="text-sm text-gray-700 italic whitespace-pre-line">{workOrder.rootCauseDescription}</p>
                   )}
                   {workOrder.testRunResult && (
                     <p className="text-sm">
@@ -344,7 +364,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     </p>
                   )}
                   {workOrder.testRunNotes && (
-                    <p className="text-sm text-gray-600 whitespace-pre-line">{workOrder.testRunNotes}</p>
+                    <p className="text-sm text-gray-700 whitespace-pre-line">{workOrder.testRunNotes}</p>
                   )}
                   {workOrder.machineStatusAfterRepair && (
                     <p className="text-sm text-gray-700">
@@ -371,42 +391,6 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                       </li>
                     ))}
                   </ul>
-                </section>
-              )}
-
-              {/* Technician work logs (recorded at completion) */}
-              {(workOrder.technicianWorkLogs ?? []).length > 0 && (
-                <section>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Work Logs</h3>
-                  <div className="space-y-2">
-                    {workOrder.technicianWorkLogs.map((log, i) => (
-                      <div key={i} className="bg-gray-50 rounded-lg px-3 py-2 text-sm">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-gray-800">{log.technicianName}</span>
-                          <span className="text-xs text-gray-500">{log.hoursWorked}h</span>
-                        </div>
-                        {log.tasksDescription && (
-                          <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-line">{log.tasksDescription}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              {/* Contractor hours (recorded at completion) */}
-              {workOrder.contractorHoursLog && (
-                <section>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Contractor Hours</h3>
-                  <div className="bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-700 space-y-0.5">
-                    <p>On-site: <span className="font-medium">{workOrder.contractorHoursLog.hoursOnSite}h</span> · Billed: <span className="font-medium">{workOrder.contractorHoursLog.hoursBilled}h</span></p>
-                    {workOrder.contractorHoursLog.technicianNames.length > 0 && (
-                      <p className="text-xs text-gray-500">{workOrder.contractorHoursLog.technicianNames.join(', ')}</p>
-                    )}
-                    {workOrder.contractorHoursLog.notes && (
-                      <p className="text-xs text-gray-600 italic">{workOrder.contractorHoursLog.notes}</p>
-                    )}
-                  </div>
                 </section>
               )}
 
@@ -505,11 +489,36 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                                 <p className={`text-sm ${item.isCompleted ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
                                   {item.stepDescription}
                                 </p>
-                                {item.assignedTechnicianName && (
-                                  <p className="text-xs text-gray-400 mt-0.5">→ {item.assignedTechnicianName}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                  {item.assignedTechnicianName && <>→ {item.assignedTechnicianName} · </>}
+                                  {item.estimatedMinutes != null && (
+                                    <>Est. {item.estimatedMinutes} {item.estimatedDurationUnit}</>
+                                  )}
+                                </p>
+                                {item.inputType === 'measurement' && (
+                                  <p className="text-xs text-gray-600 mt-0.5">
+                                    {item.method && <>Method: {item.method} · </>}
+                                    {item.actualValue != null && (
+                                      <>Reading: <span className="font-medium">{item.actualValue}{item.unit ? ` ${item.unit}` : ''}</span> · </>
+                                    )}
+                                    {(item.acceptableMin != null || item.acceptableMax != null) && (
+                                      <>Range: {item.acceptableMin ?? '—'}–{item.acceptableMax ?? '—'}{item.unit ? ` ${item.unit}` : ''} · </>
+                                    )}
+                                    {item.result && (
+                                      <span className={`font-semibold ${item.result === 'pass' ? 'text-emerald-600' : 'text-red-600'}`}>
+                                        {item.result}
+                                      </span>
+                                    )}
+                                  </p>
                                 )}
-                                {item.isCompleted && item.completedByName && (
-                                  <p className="text-xs text-emerald-600 mt-0.5">✓ {item.completedByName}</p>
+                                {item.repairNote && (
+                                  <p className="text-xs text-gray-600 mt-0.5 italic">Repair note: {item.repairNote}</p>
+                                )}
+                                {item.isCompleted && (
+                                  <p className="text-xs text-emerald-600 mt-0.5">
+                                    ✓ {item.completedByName || '—'}
+                                    {item.completedAt?.toDate && ` · ${item.completedAt.toDate().toLocaleString()}`}
+                                  </p>
                                 )}
                                 {item.completionNote && (
                                   <p className="text-xs text-gray-600 mt-0.5 italic">Note: {item.completionNote}</p>
