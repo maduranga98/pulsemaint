@@ -28,6 +28,20 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
     schedule.completedLate,
     schedule.missed,
   );
+  const isTerminal = linkedWo
+    ? ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(linkedWo.status)
+    : false;
+
+  const supervisorName = linkedWo?.supervisorInChargeName ?? schedule.supervisorInChargeName;
+  const technicianNames = linkedWo?.assignedTechnicianNames ?? schedule.assignedTechnicianNames ?? [];
+  const contractorName = linkedWo?.contractorCompanyName ?? schedule.contractorCompanyName;
+  const contractorTechNames = linkedWo?.contractorTechnicianNames ?? schedule.contractorTechnicianNames ?? [];
+  const assignedNames = [
+    ...(supervisorName ? [`${supervisorName} (Supervisor)`] : []),
+    ...technicianNames,
+    ...(contractorName ? [`${contractorName} (Contractor)`] : []),
+    ...contractorTechNames,
+  ];
 
   const handleClick = () => {
     navigate(linkedWoId ? `/app/work-orders?woId=${linkedWoId}` : `/app/pm-schedules/${schedule.id}`);
@@ -73,9 +87,11 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
 
       <div className="flex items-center gap-2 mb-3 flex-wrap">
         <WOTypeBadge woType={woType} size="sm" />
-        <span className="text-xs text-gray-500">
-          {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
-        </span>
+        {pmType !== 'other' && (
+          <span className="text-xs text-gray-500">
+            {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
+          </span>
+        )}
         <span className="text-gray-300">|</span>
         <span className="text-xs text-gray-500">{schedule.machineName}</span>
       </div>
@@ -89,14 +105,14 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
         <div className="text-xs text-gray-500">
           {schedule.triggerType === 'calendar' ? (
             <>
-              {daysUntilDue < 0 ? (
+              {isTerminal ? null : daysUntilDue < 0 ? (
                 <span className="text-red-600 font-medium">{Math.abs(daysUntilDue)}d overdue</span>
               ) : daysUntilDue === 0 ? (
                 <span className="text-amber-600 font-medium">Due today</span>
               ) : (
                 <span>{daysUntilDue}d until due</span>
               )}
-              {' • '}
+              {!isTerminal && ' • '}
               {RECURRENCE_TYPE_LABELS[schedule.recurrenceType]}
             </>
           ) : (
@@ -107,12 +123,7 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
 
       <div className="mt-2 flex items-center justify-between">
         <div className="text-xs text-gray-400">
-          {[
-            ...(schedule.supervisorInChargeName ? [`${schedule.supervisorInChargeName} (Supervisor)`] : []),
-            ...(schedule.assignedTechnicianNames ?? []),
-            ...(schedule.contractorCompanyName ? [`${schedule.contractorCompanyName} (Contractor)`] : []),
-            ...(schedule.contractorTechnicianNames ?? []),
-          ].join(', ') || 'Unassigned'}
+          {assignedNames.join(', ') || 'Unassigned'}
         </div>
         <span
           className={`text-xs font-semibold ${
