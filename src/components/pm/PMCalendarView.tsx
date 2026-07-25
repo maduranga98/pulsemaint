@@ -133,20 +133,24 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           <button
                             key={event.id}
                             onClick={() => onEventClick?.(event)}
-                            className="w-full flex items-center gap-1 text-left text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium"
+                            className="w-full text-left text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium block"
                             style={{
                               backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
                               color: PM_PRIORITY_CONFIG[event.priority].textClass.replace('text-', '').replace('700', '800'),
                               borderLeft: `3px solid ${PM_PRIORITY_CONFIG[event.priority].color}`,
                             }}
-                            title={event.operationalStatus ? PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label : undefined}
+                            title={`${event.title}${event.operationalStatus ? ` · ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label}` : ''}`}
                           >
-                            {event.operationalStatus && (
-                              <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
-                            )}
-                            <span className="truncate">
-                              <span className="opacity-75">{formatDueTime(event.date)} · </span>
-                              {event.woNumber && <span className="font-semibold">{event.woNumber} · </span>}
+                            <span className="flex items-center gap-1 opacity-75 truncate">
+                              {event.operationalStatus && (
+                                <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
+                              )}
+                              <span className="truncate">
+                                {formatDueTime(event.date)}
+                                {event.woNumber && ` · ${event.woNumber}`}
+                              </span>
+                            </span>
+                            <span className="block font-semibold whitespace-normal break-words leading-tight">
                               {event.title}
                             </span>
                           </button>
