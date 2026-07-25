@@ -3,6 +3,7 @@ import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
 import { WOStatusBadge } from '../workorders/WOStatusBadge';
+import { WOTypeBadge } from '../workorders/WOTypeBadge';
 import { PM_TYPE_CONFIG } from '../../constants/pmConfig';
 import { getPMOperationalStatus, getDaysUntilDue, calculateComplianceRate } from '../../utils/pm.utils';
 import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
@@ -62,6 +63,7 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
               const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
               const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
               const pmType = linkedWo?.pmType ?? schedule.pmType;
+              const woType = linkedWo?.woType ?? 'PREVENTIVE';
               const complianceRate = calculateComplianceRate(
                 schedule.completedOnTime,
                 schedule.completedLate,
@@ -108,10 +110,10 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                   </td>
                   <td className="px-4 py-3 text-gray-600">{schedule.machineName}</td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1">
-                      <span>{PM_TYPE_CONFIG[pmType].icon}</span>
-                      <span className="text-gray-600">{PM_TYPE_CONFIG[pmType].label}</span>
-                    </span>
+                    <WOTypeBadge woType={woType} size="sm" />
+                    <div className="mt-1 text-xs text-gray-400">
+                      {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-gray-900">{dueDateLabel}</div>

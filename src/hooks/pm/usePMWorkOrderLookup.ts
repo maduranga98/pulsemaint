@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import type { WOStatus } from '../../types/workOrder';
+import type { WOStatus, WOType } from '../../types/workOrder';
 import type { PMType } from '../../types/pm.types';
 
 export interface PMWorkOrderLookupEntry {
   woNumber: string;
   status: WOStatus;
+  woType: WOType;
   pmType: PMType;
 }
 
@@ -38,10 +39,11 @@ export function usePMWorkOrderLookup(siteId: string): Map<string, PMWorkOrderLoo
       (snapshot) => {
         const next = new Map<string, PMWorkOrderLookupEntry>();
         snapshot.docs.forEach((d) => {
-          const data = d.data() as { woNumber?: string; status?: WOStatus; pmType?: PMType };
+          const data = d.data() as { woNumber?: string; status?: WOStatus; woType?: WOType; pmType?: PMType };
           next.set(d.id, {
             woNumber: data.woNumber ?? '',
             status: data.status ?? 'OPEN',
+            woType: data.woType ?? 'PREVENTIVE',
             pmType: data.pmType ?? 'other',
           });
         });
