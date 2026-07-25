@@ -546,6 +546,36 @@ export async function computeBreakdownHeatmap(
 }
 
 // ---------------------------------------------------------------------------
+// Maintenance cost by WO type — total (parts + labor) cost of work orders
+// completed this month, grouped by their WO type, for the Maintenance Cost
+// Overview chart.
+// ---------------------------------------------------------------------------
+
+export async function computeCostByWoType(
+  companyId: string,
+  month: string,
+): Promise<Array<{ woType: string; cost: number }>> {
+  const workOrders = await fetchAll('workOrders', companyId);
+  const inMonth = (value: unknown) => {
+    if (month === 'all') return true;
+    const d = toDate(value);
+    return d ? monthKey(d) === month : false;
+  };
+  const monthWOs = workOrders.filter((w) => inMonth(w.actualEndTime ?? w.createdAt));
+
+  const totals = new Map<string, number>();
+  monthWOs.forEach((w) => {
+    const type = String(w.woType ?? 'OTHER');
+    totals.set(type, (totals.get(type) ?? 0) + woCost(w));
+  });
+
+  return Array.from(totals.entries())
+    .map(([woType, cost]) => ({ woType, cost: Math.round(cost) }))
+    .filter((row) => row.cost > 0)
+    .sort((a, b) => b.cost - a.cost);
+}
+
+// ---------------------------------------------------------------------------
 // Daily aggregation
 // ---------------------------------------------------------------------------
 

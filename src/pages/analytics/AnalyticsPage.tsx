@@ -20,7 +20,6 @@ import ContractorScoreboard from '../../components/dashboard/manager/ContractorS
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import { complianceColor } from '../../utils/analytics.utils';
-import { DowntimeCostAnalytics } from '../../components/analytics/DowntimeCostAnalytics';
 import { ReliabilitySection } from '../../components/analytics/ReliabilitySection';
 
 type Range = 'mtd' | '3m' | '6m' | '12m';
@@ -125,7 +124,7 @@ export default function AnalyticsPage() {
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
         {/* KPI Summary */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
           ))}
@@ -207,15 +206,12 @@ export default function AnalyticsPage() {
             <MachineAnalyticsTable companyId={companyId} />
           </div>
           <div className="lg:col-span-4">
-            <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
+            <MtbfTable companyId={companyId} />
           </div>
         </div>
 
-        <MtbfTable companyId={companyId} />
-
-        {/* ── Downtime Cost ──────────────────────────────────────────────── */}
-        <SectionHeader title="Downtime Cost" description="Lost production cost by machine, department and month" />
-        <DowntimeCostAnalytics />
+        {/* Full width — a 10-row horizontal bar chart needs the room. */}
+        <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
 
         {/* ── Reliability ────────────────────────────────────────────────── */}
         <SectionHeader title="Reliability" description="Wrench time from Work Order records" />
