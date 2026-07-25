@@ -74,7 +74,12 @@ export function PMScheduleCard({ schedule, selected, onSelect }: PMScheduleCardP
       </div>
 
       <div className="mt-2 text-xs text-gray-400">
-        {(schedule.assignedTechnicianNames ?? []).join(', ') || 'Unassigned'}
+        {[
+          ...(schedule.supervisorInChargeName ? [`${schedule.supervisorInChargeName} (Supervisor)`] : []),
+          ...(schedule.assignedTechnicianNames ?? []),
+          ...(schedule.contractorCompanyName ? [`${schedule.contractorCompanyName} (Contractor)`] : []),
+          ...(schedule.contractorTechnicianNames ?? []),
+        ].join(', ') || 'Unassigned'}
       </div>
     </div>
   );

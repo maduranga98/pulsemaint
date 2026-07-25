@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { WorkOrder, WOFilters, WOStatus } from '../../types/workOrder';
+import type { WorkOrder, WOFilters, WOStatus, WOType } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
@@ -38,12 +38,14 @@ export function WOListView() {
   const prefilledMachineId = searchParams.get('machineId');
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
+  const prefilledWoType = searchParams.get('woType') as WOType | null;
 
   useEffect(() => {
     if (searchParams.get('create') === '1') {
       setShowCreateDrawer(true);
       const next = new URLSearchParams(searchParams);
       next.delete('create');
+      next.delete('woType');
       setSearchParams(next, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -278,6 +280,7 @@ export function WOListView() {
           prefilledMachineId={prefilledMachineId ?? undefined}
           linkedBreakdownId={prefilledBreakdownId ?? undefined}
           linkedBreakdownTicketNumber={prefilledBreakdownTicket ?? undefined}
+          defaultWoType={prefilledWoType ?? undefined}
         />
       )}
     </div>

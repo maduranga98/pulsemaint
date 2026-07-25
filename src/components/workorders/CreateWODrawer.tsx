@@ -6,6 +6,7 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder';
 import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } from '../../constants/woConfig';
+import { PM_TYPES_ORDERED, PM_TYPE_CONFIG } from '../../constants/pmConfig';
 import { WO_COPY } from '../../constants/copy';
 import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
 import { useContractors } from '../../hooks/contractors/useContractors';
@@ -37,6 +38,7 @@ interface CreateWODrawerProps {
   linkedBreakdownId?: string;
   linkedBreakdownTicketNumber?: string;
   prefilledMachineId?: string;
+  defaultWoType?: WOType;
 }
 
 const STEPS = [
@@ -61,6 +63,7 @@ export function CreateWODrawer({
   linkedBreakdownId,
   linkedBreakdownTicketNumber,
   prefilledMachineId,
+  defaultWoType,
 }: CreateWODrawerProps) {
   const [step, setStep] = useState(0);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
@@ -220,7 +223,8 @@ export function CreateWODrawer({
   const form = useForm<CreateWOFormValues>({
     resolver: zodResolver(createWOSchema) as any,
     defaultValues: {
-      woType: 'CORRECTIVE',
+      woType: defaultWoType ?? 'CORRECTIVE',
+      pmType: 'other',
       priority: 'medium',
       description: '',
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -404,6 +408,29 @@ export function CreateWODrawer({
                   })}
                 </div>
               </div>
+
+              {/* PM Type (only for Preventive Maintenance WOs) */}
+              {woType === 'PREVENTIVE' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PM Type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={form.watch('pmType')}
+                    onChange={(e) => form.setValue('pmType', e.target.value as CreateWOFormValues['pmType'])}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                  >
+                    {PM_TYPES_ORDERED.map((t) => (
+                      <option key={t} value={t}>
+                        {PM_TYPE_CONFIG[t].icon} {PM_TYPE_CONFIG[t].label}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-gray-400">
+                    Drives the PM schedule's category shown in PM Schedules, Calendar and Compliance.
+                  </p>
+                </div>
+              )}
 
               {/* Priority */}
               <div>

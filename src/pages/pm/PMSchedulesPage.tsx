@@ -90,7 +90,7 @@ export default function PMSchedulesPage() {
             {isSupervisor && (
               <Button
                 variant="primary"
-                onClick={() => navigate('/app/work-orders?create=1')}
+                onClick={() => navigate('/app/work-orders?create=1&woType=PREVENTIVE')}
               >
                 New PM Work Order
               </Button>
@@ -132,7 +132,7 @@ export default function PMSchedulesPage() {
               isSupervisor && (
                 <Button
                   variant="primary"
-                  onClick={() => navigate('/app/work-orders?create=1')}
+                  onClick={() => navigate('/app/work-orders?create=1&woType=PREVENTIVE')}
                 >
                   New PM Work Order
                 </Button>

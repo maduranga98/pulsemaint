@@ -80,6 +80,14 @@ export const woSection1Schema = z.object({
     'BREAKDOWN', 'CORRECTIVE', 'PREVENTIVE', 'INSTALLATION',
     'MODIFICATION', 'INSPECTION', 'CONTRACTOR', 'OTHER',
   ]),
+  // Only meaningful for PREVENTIVE WOs — drives the PM schedule's pmType so
+  // PM Schedules / Calendar / Compliance show the real maintenance category
+  // instead of a generic fallback.
+  pmType: z.enum([
+    'lubrication', 'inspection', 'calibration', 'filter_replacement',
+    'belt_chain_check', 'full_service', 'electrical_check',
+    'hydraulic_service', 'safety_inspection', 'other',
+  ]).default('other'),
   priority: z.enum(['critical', 'high', 'medium', 'low']),
   description: z.string().min(10, 'Please provide at least 10 characters'),
   dueDate: z.date({ required_error: 'Due date is required' }),
