@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
 import { usePMHistory } from '../../hooks/pm/usePMHistory';
 import { useAuthStore } from '../../store/authStore';
@@ -11,6 +11,7 @@ import { getPMOperationalStatus, getDaysUntilDue, getComplianceColor } from '../
 
 export default function PMScheduleDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const company = useAuthStore((s) => s.company);
 
   const { schedules } = usePMSchedules({
@@ -21,8 +22,23 @@ export default function PMScheduleDetailPage() {
   const { history } = usePMHistory({ companyId: company?.id || '', scheduleId: id });
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
 
+  // This schedule page is only a fallback for PM schedules that have never
+  // generated a Work Order yet. Once one exists, the WO is the live source
+  // of truth (team, checklist, dates, completion) — jump straight to it
+  // instead of showing this separate, often stale, view.
+  const linkedWoId = schedule?.activeWoId ?? schedule?.lastWoId ?? null;
+  useEffect(() => {
+    if (linkedWoId) {
+      navigate(`/app/work-orders?woId=${linkedWoId}`, { replace: true });
+    }
+  }, [linkedWoId, navigate]);
+
   if (!schedule) {
     return <div className="p-8 text-center text-gray-400">Schedule not found.</div>;
+  }
+
+  if (linkedWoId) {
+    return <div className="p-8 text-center text-gray-400">Opening linked work order…</div>;
   }
 
   const opStatus = getPMOperationalStatus(schedule);

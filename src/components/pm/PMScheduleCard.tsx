@@ -21,7 +21,7 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
   const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
 
   const handleClick = () => {
-    navigate(`/app/pm-schedules/${schedule.id}`);
+    navigate(linkedWoId ? `/app/work-orders?woId=${linkedWoId}` : `/app/pm-schedules/${schedule.id}`);
   };
 
   return (
