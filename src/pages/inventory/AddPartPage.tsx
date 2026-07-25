@@ -95,8 +95,10 @@ export function AddPartPage() {
   async function onSubmit(values: CreatePartFormValues) {
     setSaving(true);
     try {
-      // Reserved atomically per category — see partNumberGenerator.ts.
       const partNumber = await getNextCategoryPartNumber(companyId, values.category);
+      // Auto-fill with the generated part number when left blank, so the
+      // field is never empty even if the supplier hasn't provided their own code yet.
+      const supplierPartCode = values.supplierPartCode || partNumber;
 
       const batch = writeBatch(db);
       const partRef = doc(collection(db, 'inventoryParts'));
@@ -104,6 +106,7 @@ export function AddPartPage() {
       batch.set(partRef, {
         ...values,
         partNumber,
+        supplierPartCode,
         id: partRef.id,
         companyId,
         reservedStock: 0,

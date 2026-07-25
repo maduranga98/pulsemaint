@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Plus, FileSpreadsheet, LayoutList, Grid3X3, ChevronLeft } from 'lucide-react';
+import { Plus, FileSpreadsheet, LayoutList, Grid3X3, ChevronLeft, Trash2 } from 'lucide-react';
+import { writeBatch, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useToast } from '@/hooks/useToast';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
 import { PartFilterBar, type PartFilters } from '@/components/inventory/catalog/PartFilterBar';
 import { PartCatalogTable } from '@/components/inventory/catalog/PartCatalogTable';
@@ -11,9 +14,14 @@ import type { PartCategory, PartStatus, PartCriticality } from '@/types/inventor
 export function PartCatalogPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { addToast } = useToast();
   const canManage = useAuthStore((s) =>
     s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin'])
   );
+  // Matches the firestore.rules delete rule for inventoryParts.
+  const canDelete = useAuthStore((s) => s.canAccess(['plant_manager', 'admin']));
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [deleting, setDeleting] = useState(false);
 
   const [viewMode, setViewMode] = useState<'table' | 'grid'>(() =>
     window.innerWidth < 768 ? 'grid' : 'table'
@@ -41,6 +49,38 @@ export function PartCatalogPage() {
   // Stat summary
   const activeCount = parts.filter((p) => p.status === 'active').length;
   const lowStockCount = parts.filter((p) => p.isLowStock).length;
+
+  function handleSelect(id: string, selected: boolean) {
+    setSelectedIds((prev) => (selected ? [...prev, id] : prev.filter((pid) => pid !== id)));
+  }
+
+  function handleSelectAll(selected: boolean) {
+    setSelectedIds(selected ? parts.map((p) => p.id) : []);
+  }
+
+  async function handleDeleteSelected() {
+    if (selectedIds.length === 0) return;
+    if (!confirm(`Delete ${selectedIds.length} selected part${selectedIds.length === 1 ? '' : 's'}? This cannot be undone.`)) {
+      return;
+    }
+    setDeleting(true);
+    try {
+      // writeBatch caps at 500 ops — chunk in case a very large selection is deleted at once.
+      const CHUNK = 450;
+      for (let i = 0; i < selectedIds.length; i += CHUNK) {
+        const batch = writeBatch(db);
+        selectedIds.slice(i, i + CHUNK).forEach((id) => batch.delete(doc(db, 'inventoryParts', id)));
+        await batch.commit();
+      }
+      addToast(`${selectedIds.length} part(s) deleted.`, 'success');
+      setSelectedIds([]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      addToast(`Failed to delete parts: ${message}`, 'error');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -89,22 +129,45 @@ export function PartCatalogPage() {
         onChange={setFilters}
       />
 
-      {/* View toggle */}
-      <div className="flex items-center justify-end gap-2">
-        <button
-          onClick={() => setViewMode('table')}
-          className={`p-2 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:bg-gray-100'}`}
-          aria-label="Table view"
-        >
-          <LayoutList className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => setViewMode('grid')}
-          className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:bg-gray-100'}`}
-          aria-label="Grid view"
-        >
-          <Grid3X3 className="w-4 h-4" />
-        </button>
+      {/* View toggle + bulk actions */}
+      <div className="flex items-center justify-between gap-2">
+        {canDelete && selectedIds.length > 0 ? (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-1.5">
+            <span className="text-xs font-medium text-red-800">{selectedIds.length} selected</span>
+            <button
+              onClick={handleDeleteSelected}
+              disabled={deleting}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-700 hover:text-red-900 disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              {deleting ? 'Deleting…' : 'Delete selected'}
+            </button>
+            <button
+              onClick={() => setSelectedIds([])}
+              className="text-xs text-gray-500 hover:text-gray-700"
+            >
+              Clear
+            </button>
+          </div>
+        ) : (
+          <div />
+        )}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setViewMode('table')}
+            className={`p-2 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:bg-gray-100'}`}
+            aria-label="Table view"
+          >
+            <LayoutList className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:bg-gray-100'}`}
+            aria-label="Grid view"
+          >
+            <Grid3X3 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Error */}
@@ -130,6 +193,10 @@ export function PartCatalogPage() {
                 parts={parts}
                 onViewPart={(id) => navigate(`/app/inventory/catalog/${id}`)}
                 onEditPart={(id) => navigate(`/app/inventory/catalog/${id}/edit`)}
+                selectable={canDelete}
+                selectedIds={selectedIds}
+                onSelect={handleSelect}
+                onSelectAll={handleSelectAll}
               />
             </div>
           ) : null}
