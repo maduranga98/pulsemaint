@@ -54,7 +54,7 @@ export function validateImportRows(
     const rowErrors: ValidationError[] = [];
 
     // Part Number — optional. Leave it blank and the system auto-generates
-    // one from Category (e.g. "E000001" for Electrical) on import, the same
+    // one factoring in Category, Supplier & Location (e.g. "E-012-RAS-0001") on import, the same
     // as adding a part manually.
     if (row.partNumber) {
       if (row.partNumber.length > 50) {

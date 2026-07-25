@@ -82,15 +82,23 @@ export function useInventoryStats(): UseInventoryStatsResult {
     }
   }, [partsLoaded, requestsLoaded, ordersLoaded]);
 
+  // "Active Requests" on the dashboard reflects everything still open and
+  // unfulfilled — both parts requests and purchase orders — not just parts
+  // requests, so it matches what a store keeper actually needs to action.
+  const openPartsRequestsCount = requests.filter(
+    (r) =>
+      r.status !== 'completed' &&
+      r.status !== 'cancelled' &&
+      r.status !== 'rejected'
+  ).length;
+  const openPurchaseOrdersCount = orders.filter(
+    (o) => o.status !== 'received' && o.status !== 'cancelled' && o.status !== 'rejected'
+  ).length;
+
   const stats: InventoryStats = {
     totalParts: parts.filter((p) => p.status === 'active').length,
     totalStockValue: parts.reduce((sum, p) => sum + p.currentStock * p.unitCost, 0),
-    activeRequests: requests.filter(
-      (r) =>
-        r.status !== 'completed' &&
-        r.status !== 'cancelled' &&
-        r.status !== 'rejected'
-    ).length,
+    activeRequests: openPartsRequestsCount + openPurchaseOrdersCount,
     pendingPOs: orders.filter(
       (o) => o.status === 'draft' || o.status === 'sent' || o.status === 'acknowledged'
     ).length,

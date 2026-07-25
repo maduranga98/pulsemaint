@@ -14,7 +14,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { useToast } from '@/hooks/useToast';
-import { getNextSupplierCode, getSupplierCodeSequenceStart, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
+import { getNextSupplierCode, getSupplierCodeSequenceMap, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
 import type { Supplier } from '@/types/inventory';
 
 interface SupplierFormValues {
@@ -23,6 +23,10 @@ interface SupplierFormValues {
   phone: string;
   email: string;
   address: string;
+  country: string;
+  website: string;
+  paymentMethod: string;
+  bankDetails: string;
   notes: string;
 }
 
@@ -32,15 +36,19 @@ const emptyForm: SupplierFormValues = {
   phone: '',
   email: '',
   address: '',
+  country: '',
+  website: '',
+  paymentMethod: '',
+  bankDetails: '',
   notes: '',
 };
 
 const inputCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
 
 const SAMPLE_CSV =
-  'name,contactPerson,phone,email,address,notes\n' +
-  'Acme Bearings,John Perera,+94 77 123 4567,sales@acmebearings.lk,"12 Industrial Rd, Colombo",Preferred bearing supplier\n' +
-  'Lanka Hydraulics,Nimal Silva,+94 71 987 6543,info@lankahydraulics.lk,"45 Factory Ave, Gampaha",Net 30 payment terms\n';
+  'name,contactPerson,phone,email,address,country,website,paymentMethod,bankDetails,notes\n' +
+  'Acme Bearings,John Perera,+94 77 123 4567,sales@acmebearings.lk,"12 Industrial Rd, Colombo",LK,https://acmebearings.lk,Bank Transfer,"Commercial Bank, Acc 1234567",Preferred bearing supplier\n' +
+  'Lanka Hydraulics,Nimal Silva,+94 71 987 6543,info@lankahydraulics.lk,"45 Factory Ave, Gampaha",LK,https://lankahydraulics.lk,Cheque,"HNB, Acc 7654321",Net 30 payment terms\n';
 
 // Minimal CSV parser handling quoted fields and embedded commas/quotes.
 function parseCsv(text: string): string[][] {
@@ -71,6 +79,20 @@ function parseCsv(text: string): string[][] {
     if (row.some((v) => v.trim() !== '')) rows.push(row);
   }
   return rows;
+}
+
+// Parses an .xlsx file's first sheet into the same string[][] shape parseCsv
+// produces, so the rest of the import logic is format-agnostic.
+async function parseXlsxRows(file: File): Promise<string[][]> {
+  const XLSX = await import('xlsx');
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: 'array', cellDates: false });
+  const sheetName = workbook.SheetNames[0];
+  if (!sheetName) return [];
+  const raw = XLSX.utils.sheet_to_json<unknown[]>(workbook.Sheets[sheetName], { header: 1, defval: '' });
+  return raw
+    .map((row) => row.map((c) => (c === undefined || c === null ? '' : String(c).trim())))
+    .filter((row) => row.some((v) => v !== ''));
 }
 
 export function SuppliersPage() {
@@ -116,17 +138,17 @@ export function SuppliersPage() {
     }
     setImporting(true);
     try {
-      const text = await file.text();
-      const rows = parseCsv(text);
+      const isExcel = file.name.toLowerCase().endsWith('.xlsx');
+      const rows: string[][] = isExcel ? await parseXlsxRows(file) : parseCsv(await file.text());
       if (rows.length < 2) {
-        addToast('CSV has no data rows. Use the sample as a starting point.', 'error');
+        addToast('File has no data rows. Use the sample as a starting point.', 'error');
         return;
       }
       const header = rows[0].map((h) => h.trim().toLowerCase());
       const col = (name: string) => header.indexOf(name);
       const nameIdx = col('name');
       if (nameIdx === -1) {
-        addToast('CSV must include a "name" column (see the sample).', 'error');
+        addToast('File must include a "name" column (see the sample).', 'error');
         return;
       }
       const idx = {
@@ -134,6 +156,10 @@ export function SuppliersPage() {
         phone: col('phone'),
         email: col('email'),
         address: col('address'),
+        country: col('country'),
+        website: col('website'),
+        paymentMethod: col('paymentmethod'),
+        bankDetails: col('bankdetails'),
         notes: col('notes'),
       };
       const at = (r: string[], i: number) => (i >= 0 ? (r[i] ?? '').trim() : '');
@@ -146,23 +172,27 @@ export function SuppliersPage() {
           phone: at(r, idx.phone),
           email: at(r, idx.email),
           address: at(r, idx.address),
+          country: at(r, idx.country),
+          website: at(r, idx.website),
+          paymentMethod: at(r, idx.paymentMethod),
+          bankDetails: at(r, idx.bankDetails),
           notes: at(r, idx.notes),
         }));
 
       if (records.length === 0) {
-        addToast('No valid supplier rows found in the CSV.', 'error');
+        addToast('No valid supplier rows found in the file.', 'error');
         return;
       }
 
       // Firestore batches cap at 500 writes.
-      const codeCounter = { seq: await getSupplierCodeSequenceStart(companyId) };
+      const codeCounters = await getSupplierCodeSequenceMap(companyId);
       for (let i = 0; i < records.length; i += 400) {
         const batch = writeBatch(db);
         for (const rec of records.slice(i, i + 400)) {
           const ref = doc(collection(db, 'suppliers'));
           batch.set(ref, {
             ...rec,
-            supplierCode: nextSupplierCodeFromCounter(codeCounter),
+            supplierCode: nextSupplierCodeFromCounter(codeCounters, rec.country),
             companyId,
             createdAt: serverTimestamp(),
             createdBy: userId,
@@ -195,6 +225,10 @@ export function SuppliersPage() {
       phone: supplier.phone,
       email: supplier.email,
       address: supplier.address,
+      country: supplier.country ?? '',
+      website: supplier.website ?? '',
+      paymentMethod: supplier.paymentMethod ?? '',
+      bankDetails: supplier.bankDetails ?? '',
       notes: supplier.notes,
     });
     setModalOpen(true);
@@ -215,7 +249,7 @@ export function SuppliersPage() {
         });
         addToast('Supplier updated.', 'success');
       } else {
-        const supplierCode = await getNextSupplierCode(companyId);
+        const supplierCode = await getNextSupplierCode(companyId, form.country);
         await addDoc(collection(db, 'suppliers'), {
           ...form,
           supplierCode,
@@ -261,7 +295,7 @@ export function SuppliersPage() {
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv,text/csv"
+            accept=".csv,text/csv,.xlsx"
             className="hidden"
             onChange={handleImportFile}
           />
@@ -278,7 +312,7 @@ export function SuppliersPage() {
             className="inline-flex items-center gap-1.5 px-3 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-semibold rounded-lg disabled:opacity-60"
           >
             <Upload className="w-4 h-4" />
-            {importing ? 'Importing…' : 'Import CSV'}
+            {importing ? 'Importing…' : 'Import (CSV/Excel)'}
           </button>
           <button
             onClick={openAdd}
@@ -363,6 +397,28 @@ export function SuppliersPage() {
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Address</dt>
                       <dd className="text-gray-800 whitespace-pre-line">{s.address || '—'}</dd>
                     </div>
+                    <div>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">Country</dt>
+                      <dd className="text-gray-800">{s.country || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">Website</dt>
+                      <dd className="text-gray-800 break-all">
+                        {s.website ? (
+                          <a href={s.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                            {s.website}
+                          </a>
+                        ) : '—'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">Payment Method</dt>
+                      <dd className="text-gray-800">{s.paymentMethod || '—'}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs uppercase tracking-wide text-gray-400">Bank Details</dt>
+                      <dd className="text-gray-800">{s.bankDetails || '—'}</dd>
+                    </div>
                     <div className="sm:col-span-2">
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Notes</dt>
                       <dd className="text-gray-800 whitespace-pre-line">{s.notes || '—'}</dd>
@@ -429,6 +485,46 @@ export function SuppliersPage() {
                   rows={2}
                   className={`${inputCls} resize-none`}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                  <input
+                    value={form.country}
+                    onChange={(e) => setForm((f) => ({ ...f, country: e.target.value }))}
+                    className={inputCls}
+                    placeholder="e.g. LK or Sri Lanka"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
+                  <input
+                    value={form.website}
+                    onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))}
+                    className={inputCls}
+                    placeholder="https://…"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                  <input
+                    value={form.paymentMethod}
+                    onChange={(e) => setForm((f) => ({ ...f, paymentMethod: e.target.value }))}
+                    className={inputCls}
+                    placeholder="e.g. Bank Transfer"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bank Details</label>
+                  <input
+                    value={form.bankDetails}
+                    onChange={(e) => setForm((f) => ({ ...f, bankDetails: e.target.value }))}
+                    className={inputCls}
+                    placeholder="Bank, account #"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>

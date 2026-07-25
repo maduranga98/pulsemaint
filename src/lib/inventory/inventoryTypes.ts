@@ -69,7 +69,7 @@ export function categoryLabel(category: string): string {
   return (CATEGORY_LABELS as Record<string, string>)[category] ?? category;
 }
 
-// Single-letter prefix used in auto-generated part numbers (e.g. "E000001"
+// Single-letter prefix used in auto-generated part numbers (e.g. "E-012-RAS-0001"
 // for Electrical). The six standard categories get a fixed letter; a
 // manually-created category falls back to its own first letter so parts
 // still group sensibly by category.
@@ -89,10 +89,51 @@ export function categoryPrefixLetter(category: string): string {
   return firstLetter ? firstLetter.toUpperCase() : 'O';
 }
 
-// "E000001" — letter prefix (from category) + 6-digit zero-padded sequence,
-// unique per prefix letter so numbering order is grouped by category.
-export function formatCategoryPartNumber(prefixLetter: string, sequence: number): string {
-  return `${prefixLetter}${String(sequence).padStart(6, '0')}`;
+// Short (max 3-digit) segment identifying the supplier in a part number,
+// taken from the supplier's own code (e.g. "SUP-LK-000042" -> "042").
+// "000" when no supplier is set.
+export function supplierPartNumberSegment(supplierCode: string): string {
+  const match = supplierCode.match(/(\d+)$/);
+  if (!match) return '000';
+  return match[1].slice(-3).padStart(3, '0');
+}
+
+// Short (max 3 letters) segment identifying the store location in a part
+// number, from the initials of each word (e.g. "Rack A - Shelf 2" -> "RAS").
+// "GEN" when no location is set.
+export function locationPartNumberSegment(storeLocation: string): string {
+  const initials = storeLocation
+    .trim()
+    .split(/[^a-zA-Z0-9]+/)
+    .filter(Boolean)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 3);
+  return initials || 'GEN';
+}
+
+export interface PartNumberFactors {
+  category: string;
+  supplierCode?: string | null;
+  storeLocation?: string | null;
+}
+
+// "E-000-RAS-0001" — Category letter, Supplier segment, Location segment,
+// and a 4-digit sequence unique within that combination, so the number
+// itself reflects which category, supplier, and storage location the part
+// belongs to (not just a bare running count).
+export function formatCategoryPartNumber(factors: PartNumberFactors, sequence: number): string {
+  const categorySeg = categoryPrefixLetter(factors.category);
+  const supplierSeg = supplierPartNumberSegment(factors.supplierCode ?? '');
+  const locationSeg = locationPartNumberSegment(factors.storeLocation ?? '');
+  return `${categorySeg}-${supplierSeg}-${locationSeg}-${String(sequence).padStart(4, '0')}`;
+}
+
+// The combined key a part number's sequence is scoped to — same category,
+// supplier, and location combination share one running counter.
+export function partNumberSequenceKey(factors: PartNumberFactors): string {
+  return `${categoryPrefixLetter(factors.category)}-${supplierPartNumberSegment(factors.supplierCode ?? '')}-${locationPartNumberSegment(factors.storeLocation ?? '')}`;
 }
 
 export const UNIT_LABELS: Record<PartUnit, string> = {

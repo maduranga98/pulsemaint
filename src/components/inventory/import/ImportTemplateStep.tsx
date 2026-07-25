@@ -24,7 +24,7 @@ export function ImportTemplateStep({ onDownload, onNext }: ImportTemplateStepPro
 
   const TIPS = [
     'Columns marked with * are required — leave them blank and that row will fail validation.',
-    'Part Number is optional — leave it blank and the system auto-generates one from Category (e.g. E000001 for Electrical).',
+    'Part Number is optional — leave it blank and the system auto-generates one from Category (e.g. E-012-RAS-0001, combining Category, Supplier, and Location).',
     'If a Part Number is given and already exists in the system, the row will update that part.',
     'Any Supplier Name not already in your Suppliers list is added automatically, with an auto-generated Supplier Code.',
     'Dates must be in YYYY-MM-DD format (e.g. 2025-01-15).',
@@ -34,7 +34,7 @@ export function ImportTemplateStep({ onDownload, onNext }: ImportTemplateStepPro
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 font-[Sora]">Import Inventory from Excel</h2>
+        <h2 className="text-2xl font-bold text-gray-900 font-[Sora]">Import Inventory from Excel or CSV</h2>
         <p className="text-gray-500 mt-1 text-sm">
           Use our template to import or update parts in bulk.
         </p>
@@ -46,7 +46,7 @@ export function ImportTemplateStep({ onDownload, onNext }: ImportTemplateStepPro
         <ol className="space-y-3">
           {[
             'Download the template below and fill in your part data.',
-            'Upload the completed file (max 10 MB, .xlsx only).',
+            'Upload the completed file (max 10 MB, .xlsx or .csv).',
             'We validate every row — fix any errors before proceeding.',
             'Review the import preview, then confirm to apply changes.',
           ].map((step, i) => (
