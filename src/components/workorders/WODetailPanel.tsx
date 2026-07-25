@@ -496,20 +496,31 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                                   )}
                                 </p>
                                 {item.inputType === 'measurement' && (
-                                  <p className="text-xs text-gray-600 mt-0.5">
-                                    {item.method && <>Method: {item.method} · </>}
-                                    {item.actualValue != null && (
-                                      <>Reading: <span className="font-medium">{item.actualValue}{item.unit ? ` ${item.unit}` : ''}</span> · </>
+                                  <div className="mt-1 space-y-0.5">
+                                    {(item.method || item.acceptableMin != null || item.acceptableMax != null) && (
+                                      <p className="text-xs text-gray-500">
+                                        Spec (set by supervisor):{' '}
+                                        {item.method && <>{item.method} · </>}
+                                        {(item.acceptableMin != null || item.acceptableMax != null) && (
+                                          <>Acceptable {item.acceptableMin ?? '—'}–{item.acceptableMax ?? '—'}{item.unit ? ` ${item.unit}` : ''}</>
+                                        )}
+                                      </p>
                                     )}
-                                    {(item.acceptableMin != null || item.acceptableMax != null) && (
-                                      <>Range: {item.acceptableMin ?? '—'}–{item.acceptableMax ?? '—'}{item.unit ? ` ${item.unit}` : ''} · </>
+                                    {item.actualValue != null ? (
+                                      <p className="text-xs text-gray-700">
+                                        Actual value:{' '}
+                                        <span className="font-semibold">{item.actualValue}{item.unit ? ` ${item.unit}` : ''}</span>
+                                        {item.result && (
+                                          <span className={`ml-1 font-semibold ${item.result === 'pass' ? 'text-emerald-600' : 'text-red-600'}`}>
+                                            ({item.result})
+                                          </span>
+                                        )}
+                                        {item.completedByName && <> · by {item.completedByName}</>}
+                                      </p>
+                                    ) : (
+                                      <p className="text-xs text-gray-400 italic">No reading recorded yet.</p>
                                     )}
-                                    {item.result && (
-                                      <span className={`font-semibold ${item.result === 'pass' ? 'text-emerald-600' : 'text-red-600'}`}>
-                                        {item.result}
-                                      </span>
-                                    )}
-                                  </p>
+                                  </div>
                                 )}
                                 {item.repairNote && (
                                   <p className="text-xs text-gray-600 mt-0.5 italic">Repair note: {item.repairNote}</p>
