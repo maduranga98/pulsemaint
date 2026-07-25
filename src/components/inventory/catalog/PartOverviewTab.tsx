@@ -4,8 +4,10 @@ import { StockGauge } from '@/components/inventory/shared/StockGauge';
 import { UnitLabel } from '@/components/inventory/shared/UnitLabel';
 import { useAuthStore } from '@/store/authStore';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
+import { useMachineOptions } from '@/hooks/inventory/useMachineOptions';
 import { formatLKR } from '@/lib/inventory/stockCalculator';
 import { formatDistanceToNow, formatDate } from '@/lib/dateUtils';
+import { Link } from 'react-router-dom';
 import { Phone, Mail, Cpu } from 'lucide-react';
 
 interface PartOverviewTabProps {
@@ -40,6 +42,7 @@ function tsToDate(ts: { toDate?: () => Date; seconds?: number } | null | undefin
 export function PartOverviewTab({ part }: PartOverviewTabProps) {
   const isTechnician = useAuthStore((s) => s.isTechnician);
   const { suppliers } = useSuppliers();
+  const { machines } = useMachineOptions();
   // Look up the linked supplier's full profile so this card mirrors the
   // Suppliers page instead of the handful of fields snapshotted onto the
   // part at creation time. Falls back to a name match for parts saved
@@ -88,12 +91,19 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
           <div>
             <p className="text-xs text-gray-500 mb-2">Compatible Machines</p>
             <div className="flex flex-wrap gap-1.5">
-              {part.compatibleMachineIds.map((id) => (
-                <span key={id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-xs">
-                  <Cpu className="w-3 h-3" />
-                  {id}
-                </span>
-              ))}
+              {part.compatibleMachineIds.map((id) => {
+                const machine = machines.find((m) => m.id === id);
+                return (
+                  <Link
+                    key={id}
+                    to={`/app/machines/${id}`}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-700 rounded text-xs hover:bg-slate-200"
+                  >
+                    <Cpu className="w-3 h-3" />
+                    {machine?.name ?? id}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
