@@ -1,7 +1,7 @@
 import type { HeatmapCell } from '../types/analytics.types';
 
 export function buildHeatmapGrid(
-  data: Array<{ day: number; hour: number; count: number }>,
+  data: Array<{ day: number; hour: number; count: number; machineNames?: string[] }>,
 ): HeatmapCell[] {
   const maxCount = Math.max(1, ...data.map((d) => d.count));
 
@@ -15,6 +15,7 @@ export function buildHeatmapGrid(
         hour,
         count,
         intensity: count / maxCount,
+        machineNames: entry?.machineNames ?? [],
       });
     }
   }

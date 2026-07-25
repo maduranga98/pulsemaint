@@ -131,6 +131,10 @@ export interface AnalyticsMonthly {
   overallSlaCompliance: number;
   totalMaintenanceCost: number;
   totalProductionHoursLost: number;
+  // Sum of each machine's own Downtime Cost rate (LKR/hour, from the Machine
+  // record) applied to that machine's downtime hours this month. 0 when no
+  // machine involved has a configured rate.
+  totalDowntimeCost: number;
   pmComplianceRate: number;
   pmCompletedOnTime?: number;
   pmMissed?: number;
@@ -187,6 +191,7 @@ export interface HeatmapCell {
   hour: number; // 0-23
   count: number;
   intensity: number; // 0-1 normalized
+  machineNames: string[]; // distinct machines with a breakdown in this day/hour bucket
 }
 
 // ---------------------------------------------------------------------------
