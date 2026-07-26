@@ -608,20 +608,23 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     {workOrder.partsUsed.map((part, i) => (
                       <div key={i} className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-lg px-4 py-3">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{part.partName}</p>
-                          <p className="text-xs text-gray-500">
+                          {/* Explicit dark green text — the light bg-green-50 card
+                              sits on the app's dark theme, which would otherwise
+                              force this (gray) text light and unreadable. */}
+                          <p className="text-sm font-medium text-green-950 truncate">{part.partName}</p>
+                          <p className="text-xs text-green-700">
                             {part.quantity} {part.unit} · {part.source === 'stock' ? 'From store stock' : 'External purchase'}
                             {part.warrantyMonths ? ` · ${part.warrantyMonths}mo warranty` : ''}
                           </p>
                         </div>
-                        <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">
+                        <span className="text-sm font-semibold text-green-900 whitespace-nowrap">
                           {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : '—'}
                         </span>
                       </div>
                     ))}
-                    <div className="flex justify-end text-sm text-gray-600">
+                    <div className="flex justify-end text-sm text-green-800">
                       Total parts cost:&nbsp;
-                      <span className="font-semibold text-gray-900">
+                      <span className="font-semibold text-green-950">
                         LKR {workOrder.partsUsed.reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
                       </span>
                     </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorDocument } from '@/lib/contractors/contractorTypes';
@@ -31,10 +31,14 @@ export function useContractorDocuments(contractorId: string | undefined) {
       return;
     }
 
-    // Query the contractor's documents subcollection directly (already scoped
-    // to this contractor) and sort client-side, so it works without a
-    // composite index and doesn't drop docs that were saved without companyId.
-    const documentsRef = collection(db, 'contractors', contractorId, 'documents');
+    // Firestore rules require the companyId equality filter on this
+    // subcollection (a rule referencing resource.data.companyId rejects an
+    // unfiltered list query). Keep the filter but drop the orderBy — which
+    // would otherwise need a composite index — and sort client-side.
+    const documentsRef = query(
+      collection(db, 'contractors', contractorId, 'documents'),
+      where('companyId', '==', companyId),
+    );
 
     return onSnapshot(
       documentsRef,

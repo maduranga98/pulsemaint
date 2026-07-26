@@ -5,6 +5,7 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  onSnapshot,
   query,
   serverTimestamp,
   updateDoc,
@@ -36,17 +37,33 @@ export async function fetchEvaluations(companyId: string): Promise<EvaluationSes
   const snap = await getDocs(
     query(collection(db, COL), where('companyId', '==', companyId)),
   );
-  return snap.docs
-    .map((d) => {
-      const session = { id: d.id, ...d.data() } as EvaluationSession;
-      // Older documents may miss these array fields — normalize them so the
-      // UI never crashes on `.length` of undefined.
-      session.criteria = session.criteria ?? [];
-      session.attachments = session.attachments ?? [];
-      session.actionLog = session.actionLog ?? [];
-      return session;
-    })
-    .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+  return snap.docs.map(normalizeEvaluation).sort(byNewest);
+}
+
+function normalizeEvaluation(d: { id: string; data: () => Record<string, unknown> }): EvaluationSession {
+  const session = { id: d.id, ...d.data() } as EvaluationSession;
+  // Older documents may miss these array fields — normalize them so the UI
+  // never crashes on `.length` of undefined.
+  session.criteria = session.criteria ?? [];
+  session.attachments = session.attachments ?? [];
+  session.actionLog = session.actionLog ?? [];
+  return session;
+}
+
+const byNewest = (a: EvaluationSession, b: EvaluationSession) =>
+  (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0);
+
+/** Live evaluations for a company — updates the list as evaluations are saved. */
+export function subscribeEvaluations(
+  companyId: string,
+  callback: (sessions: EvaluationSession[]) => void,
+  onError?: (message: string) => void,
+): () => void {
+  return onSnapshot(
+    query(collection(db, COL), where('companyId', '==', companyId)),
+    (snap) => callback(snap.docs.map(normalizeEvaluation).sort(byNewest)),
+    (err) => onError?.(err.message),
+  );
 }
 
 export async function submitEvaluation(
