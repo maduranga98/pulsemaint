@@ -48,6 +48,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   const role = userProfile?.role ?? '';
   const canApprove = ['plant_manager', 'admin', 'supervisor', 'maintenance_supervisor'].includes(role);
   const [cancelModal, setCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
   const [sendModal, setSendModal] = useState(false);
   const [sendMessage, setSendMessage] = useState('');
@@ -67,7 +68,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       const recipients = usersSnap.docs
         .map((d) => (d.data() as any).email as string | undefined)
         .filter(Boolean) as string[];
-      const supplierFacing = event === 'sent' || event === 'invoice_priced';
+      const supplierFacing = event === 'sent' || event === 'invoice_priced' || event === 'cancelled';
       if (recipients.length === 0 && !(order.supplierEmail && supplierFacing)) return;
       await addDoc(collection(db, 'po_notifications'), {
         companyId: order.companyId,
@@ -294,15 +295,26 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
     });
   }
 
+  // Once a PO has been sent to the supplier, cancelling it needs to tell
+  // them why — they may already be preparing or shipping the order.
+  const wasSentToSupplier = Boolean(order.sentAt);
+
   async function handleCancel() {
+    if (!userProfile) return;
     setCancelling(true);
     try {
       await updateDoc(doc(db, 'purchaseOrders', order.id), {
         status: 'cancelled',
+        cancelledBy: userProfile.id,
+        cancelledByName: userProfile.fullName ?? '',
+        cancelledAt: serverTimestamp(),
+        cancelledReason: cancelReason.trim() || null,
         updatedAt: serverTimestamp(),
       });
+      if (wasSentToSupplier) await queueEmail('cancelled', cancelReason.trim());
       addToast('Purchase order cancelled.', 'success');
       setCancelModal(false);
+      setCancelReason('');
     } catch {
       addToast('Failed to cancel PO.', 'error');
     } finally {
@@ -736,10 +748,23 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             <h3 className="text-lg font-bold text-gray-900">Cancel Purchase Order?</h3>
             <p className="text-sm text-gray-600">
               This purchase order will be marked as cancelled and cannot be undone.
+              {wasSentToSupplier && ' Since it was already sent, the supplier will be emailed with the reason below.'}
             </p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Reason{wasSentToSupplier ? ' *' : ' (optional)'}
+              </label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                rows={3}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={wasSentToSupplier ? 'Why is this order being cancelled?' : 'Optional note'}
+              />
+            </div>
             <div className="flex gap-3">
               <button
-                onClick={() => setCancelModal(false)}
+                onClick={() => { setCancelModal(false); setCancelReason(''); }}
                 disabled={cancelling}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
@@ -747,7 +772,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               </button>
               <button
                 onClick={handleCancel}
-                disabled={cancelling}
+                disabled={cancelling || (wasSentToSupplier && !cancelReason.trim())}
                 className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
                 {cancelling ? 'Cancelling…' : 'Yes, Cancel'}
