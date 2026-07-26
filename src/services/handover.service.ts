@@ -534,6 +534,7 @@ function applyHandoverFilters(rows: ShiftHandover[], filters: HandoverHistoryFil
       if (filters.department && !handover.shiftName.toLowerCase().includes(filters.department.toLowerCase())) return false;
       if (filters.dateFrom && handover.shiftDate < filters.dateFrom) return false;
       if (filters.dateTo && handover.shiftDate > filters.dateTo) return false;
+      if (filters.lateOnly && !(handover.overlapMinutes && handover.overlapMinutes > 0)) return false;
       return true;
     })
     .sort((a, b) => b.handoverSubmittedAt.getTime() - a.handoverSubmittedAt.getTime());

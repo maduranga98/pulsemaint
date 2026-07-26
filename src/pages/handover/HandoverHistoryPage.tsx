@@ -6,6 +6,7 @@ import ShiftStatusPanel from '@/components/handover/ShiftStatusPanel';
 import { useHandoverHistory } from '@/hooks/useHandoverHistory';
 import { useAuthStore } from '@/store/authStore';
 import { subscribeCompletedShiftSessions } from '@/services/handover.service';
+import { calculateLateStartMinutes } from '@/utils/handover.utils';
 import type { HandoverHistoryFilters, ShiftSession } from '@/types/handover.types';
 
 const initialFilters: HandoverHistoryFilters = {
@@ -14,6 +15,7 @@ const initialFilters: HandoverHistoryFilters = {
   supervisorName: '',
   shiftName: '',
   department: '',
+  lateOnly: false,
 };
 
 export function HandoverHistoryPage() {
@@ -55,6 +57,7 @@ export function HandoverHistoryPage() {
         if (filters.shiftName && !s.shiftName.toLowerCase().includes(filters.shiftName.toLowerCase())) return false;
         if (filters.dateFrom && s.shiftDate < filters.dateFrom) return false;
         if (filters.dateTo && s.shiftDate > filters.dateTo) return false;
+        if (filters.lateOnly && calculateLateStartMinutes(s.scheduledStart, s.actualStart) <= 0) return false;
         return true;
       })
       .map((s) => ({
