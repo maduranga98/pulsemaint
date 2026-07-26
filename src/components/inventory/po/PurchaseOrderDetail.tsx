@@ -407,6 +407,26 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
           </div>
         </div>
 
+        {/* Receipt history — every "Confirm Receipt" submission against this PO */}
+        {order.receiptHistory && order.receiptHistory.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-gray-100">
+              <h3 className="font-semibold text-gray-900">Receipt History</h3>
+            </div>
+            <ul className="divide-y divide-gray-100">
+              {order.receiptHistory.map((r, i) => (
+                <li key={i} className="px-5 py-3 text-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium text-gray-900">{r.deliveryRef || 'No delivery reference'}</span>
+                    <span className="text-xs text-gray-500">{formatDate(r.receivedAt)} · {r.receivedByName}</span>
+                  </div>
+                  {r.notes && <p className="text-xs text-gray-600 mt-1 whitespace-pre-wrap">{r.notes}</p>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Invoice attachments */}
         {order.attachments && order.attachments.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-xl p-5">

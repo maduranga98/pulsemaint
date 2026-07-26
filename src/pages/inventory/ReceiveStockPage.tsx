@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
-import { ReceiveStockTabs } from '@/components/inventory/receive/ReceiveStockTabs';
+import { ReceiveAgainstPo } from '@/components/inventory/receive/ReceiveAgainstPo';
 
 export function ReceiveStockPage() {
   return (
@@ -11,7 +11,7 @@ export function ReceiveStockPage() {
         </Link>
         <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Receive New Stock</h1>
       </div>
-      <ReceiveStockTabs />
+      <ReceiveAgainstPo />
     </div>
   );
 }
