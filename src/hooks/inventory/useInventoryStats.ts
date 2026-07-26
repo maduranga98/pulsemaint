@@ -82,17 +82,16 @@ export function useInventoryStats(): UseInventoryStatsResult {
     }
   }, [partsLoaded, requestsLoaded, ordersLoaded]);
 
-  // "Active Requests" on the dashboard reflects everything still open and
-  // unfulfilled — both parts requests and purchase orders — not just parts
-  // requests, so it matches what a store keeper actually needs to action.
+  // "Active Requests" on the dashboard tracks things genuinely waiting on
+  // someone's approval — Parts Requests sitting with the store keeper or
+  // supervisor, and Purchase Orders awaiting approval — not every open,
+  // unfulfilled record (an approved-but-not-yet-issued request, or a PO
+  // that's already sent/acknowledged, isn't waiting on a permission).
   const openPartsRequestsCount = requests.filter(
-    (r) =>
-      r.status !== 'completed' &&
-      r.status !== 'cancelled' &&
-      r.status !== 'rejected'
+    (r) => r.status === 'pending_storekeeper' || r.status === 'pending_supervisor'
   ).length;
   const openPurchaseOrdersCount = orders.filter(
-    (o) => o.status !== 'received' && o.status !== 'cancelled' && o.status !== 'rejected'
+    (o) => o.status === 'pending_approval'
   ).length;
 
   const stats: InventoryStats = {
