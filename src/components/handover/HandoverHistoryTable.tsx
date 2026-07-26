@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { ShiftHandover } from '@/types/handover.types';
-import { formatDuration } from '@/utils/handover.utils';
+import { calculateLateStartMinutes, formatDuration } from '@/utils/handover.utils';
 import { exportHandoverPdf } from '@/utils/reports/pdf/handoverPdf';
 
 // A unified row for the shift table: either a submitted supervisor handover, or
@@ -14,6 +14,8 @@ export interface ShiftTableRow {
   personRole: string | null;
   start: Date | null;
   end: Date | null;
+  /** The assigned shift's scheduled start time (HH:MM), used to flag a late start. */
+  scheduledStart: string | null;
   otMinutes: number | null;
   ongoingBreakdowns: ShiftHandover['ongoingBreakdowns'];
   pendingWOs: ShiftHandover['pendingWOs'];
@@ -45,6 +47,7 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
             <th className="px-4 py-3">Shift Name</th>
             <th className="px-4 py-3">Person &amp; Role</th>
             <th className="px-4 py-3">Shift Started</th>
+            <th className="px-4 py-3">Late By</th>
             <th className="px-4 py-3">Shift Ended</th>
             <th className="px-4 py-3">OT</th>
             <th className="px-4 py-3">Breakdowns during Shift</th>
@@ -55,8 +58,12 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {rows.map((row) => {
+            const lateMinutes = row.scheduledStart && row.start
+              ? calculateLateStartMinutes(row.scheduledStart, row.start)
+              : 0;
+            const isLate = lateMinutes > 0;
             return (
-              <tr key={row.id} className="hover:bg-slate-50 align-top">
+              <tr key={row.id} className={`align-top hover:bg-slate-50 ${isLate ? 'bg-red-50' : ''}`}>
                 <td className="px-4 py-3 font-semibold">{row.shiftName}</td>
                 <td className="px-4 py-3">
                   <div className="font-medium">{row.personName}</div>
@@ -64,7 +71,14 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
                     <div className="text-xs capitalize text-slate-500">{row.personRole.replace(/_/g, ' ')}</div>
                   )}
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">{fmtDateTime(row.start)}</td>
+                <td className={`px-4 py-3 whitespace-nowrap ${isLate ? 'font-semibold text-red-600' : ''}`}>{fmtDateTime(row.start)}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  {isLate ? (
+                    <span className="font-semibold text-red-600">{formatDuration(lateMinutes * 60000)} late</span>
+                  ) : (
+                    <span className="text-slate-400">On time</span>
+                  )}
+                </td>
                 <td className="px-4 py-3 whitespace-nowrap">{fmtDateTime(row.end)}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {row.otMinutes != null ? formatDuration(row.otMinutes * 60000) : '-'}
