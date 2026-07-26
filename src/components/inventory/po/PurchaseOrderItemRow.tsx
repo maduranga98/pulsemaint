@@ -13,6 +13,7 @@ export interface POItemRowData {
   partNumber: string;
   partName: string;
   quantityOrdered: number;
+  unit: string;
   unitCost: number;
   leadTimeDays: number;
   expectedDelivery: string | null;
@@ -36,7 +37,6 @@ export function PurchaseOrderItemRow({
   const [qrInput, setQrInput] = useState('');
   const [lookingUp, setLookingUp] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
-  const lineTotal = value.quantityOrdered * value.unitCost;
 
   function handlePartSelect(part: InventoryPart) {
     onUpdate({
@@ -44,7 +44,7 @@ export function PurchaseOrderItemRow({
       partId: part.id,
       partNumber: part.partNumber,
       partName: part.name,
-      unitCost: part.lastPurchasePrice || part.unitCost || 0,
+      unit: part.unit ?? '',
     });
   }
 
@@ -102,7 +102,7 @@ export function PurchaseOrderItemRow({
             <span className="text-gray-700 flex-1 truncate">{value.partName}</span>
             <button
               type="button"
-              onClick={() => onUpdate({ ...value, partId: '', partNumber: '', partName: '', unitCost: 0 })}
+              onClick={() => onUpdate({ ...value, partId: '', partNumber: '', partName: '', unit: '' })}
               className="text-xs text-gray-400 hover:text-red-500 shrink-0"
             >
               Change
@@ -163,7 +163,7 @@ export function PurchaseOrderItemRow({
         />
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {/* Quantity */}
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Quantity *</label>
@@ -178,18 +178,12 @@ export function PurchaseOrderItemRow({
           />
         </div>
 
-        {/* Unit cost */}
+        {/* Unit */}
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Unit Cost (LKR) *</label>
-          <input
-            type="number"
-            min="0"
-            step="0.01"
-            value={value.unitCost || ''}
-            onChange={(e) => onUpdate({ ...value, unitCost: parseFloat(e.target.value) || 0 })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="0.00"
-          />
+          <label className="block text-xs font-medium text-gray-600 mb-1">Unit</label>
+          <div className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 text-sm font-semibold text-gray-800">
+            {value.unit || '—'}
+          </div>
         </div>
 
         {/* Expected delivery */}
@@ -201,14 +195,6 @@ export function PurchaseOrderItemRow({
             onChange={(e) => onUpdate({ ...value, expectedDelivery: e.target.value || null })}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-        </div>
-
-        {/* Line total */}
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Line Total</label>
-          <div className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 text-sm font-semibold text-gray-800">
-            LKR {lineTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
         </div>
       </div>
     </div>
