@@ -9,7 +9,7 @@
  *     for every event,
  *   - the initial PO email to the supplier (no prices — the supplier is the
  *     one who quotes/sends prices via their invoice) when the event is
- *     "approved" or "sent",
+ *     "sent" (i.e. actually dispatched to the supplier, not just approved),
  *   - a priced PO email once the received invoice has been reviewed
  *     (accepted as-is or edited) — event "invoice_priced" — and
  *   - the delivery receipt confirmation once stock is received.
@@ -39,7 +39,9 @@ async function companyNameFor(companyId) {
   if (!companyId) return "";
   try {
     const snap = await db.collection("companies").doc(companyId).get();
-    return (snap.exists && snap.data().name) || "";
+    if (!snap.exists) return "";
+    const data = snap.data() || {};
+    return (data.name && data.name.trim()) || (data.tradeName && data.tradeName.trim()) || "";
   } catch (err) {
     logger.warn(`Could not load company ${companyId} for email branding`, err);
     return "";
@@ -223,15 +225,17 @@ exports.sendPoEmails = onDocumentCreated(
       }
 
       // Initial supplier-facing PO email — no prices, since the supplier is
-      // the one who quotes cost via their invoice. Sent once the PO is
-      // actually approved/sent (never at creation/draft/pending_approval).
-      if ((poEvent === "approved" || poEvent === "sent") && supplierEmail) {
+      // the one who quotes cost via their invoice. Sent only once the PO is
+      // actually dispatched to the supplier (the "Sent" step) — never at
+      // creation/draft/pending_approval/approved, since approval is an
+      // internal step the supplier has no part in.
+      if (poEvent === "sent" && supplierEmail) {
         const bodyHtml = `
           <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">Purchase Order ${poNumber}</h2>
           <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
           <p style="color:#555;font-size:14px;">${message ? message.replace(/\n/g, "<br/>") : "Please find our purchase order below."}</p>
           ${itemsTableHtmlNoPrice(poItems)}
-          <p style="color:#555;font-size:14px;">Please confirm receipt of this order, the expected delivery date, and send your invoice with pricing for our review.</p>
+          <p style="color:#555;font-size:14px;">Please confirm receipt of this order and send your invoice with pricing for our review.</p>
         `;
         const sent = await sendEmail({
           to: supplierEmail,

@@ -171,7 +171,8 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   async function queueEmail(po: PurchaseOrder) {
     // Notify plant managers + admins; the sendPoEmails Cloud Function
-    // consumes this collection and also emails the supplier once approved.
+    // consumes this collection. The supplier is only emailed later, once
+    // the PO is actually dispatched via the "Sent" step on PurchaseOrderDetail.
     try {
       const usersSnap = await getDocs(
         query(collection(db, `companies/${companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
