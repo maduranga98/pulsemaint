@@ -21,6 +21,21 @@ export function calculateOverlapMinutes(submittedAt: Date, acceptedAt: Date | nu
   return Math.max(0, Math.round((acceptedAt.getTime() - submittedAt.getTime()) / 60000));
 }
 
+/**
+ * Minutes the supervisor clocked in late against their assigned shift's
+ * scheduled start time (HH:MM), 0 if on time or early. Used as the
+ * handover's "Overlap (minutes)" — how much of the outgoing supervisor's
+ * shift already ran without the incoming one having started theirs.
+ */
+export function calculateLateStartMinutes(scheduledStart: string | null | undefined, actualStart: Date): number {
+  if (!scheduledStart) return 0;
+  const [hours, minutes] = scheduledStart.split(':').map(Number);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return 0;
+  const scheduled = new Date(actualStart);
+  scheduled.setHours(hours, minutes, 0, 0);
+  return Math.max(0, Math.round((actualStart.getTime() - scheduled.getTime()) / 60000));
+}
+
 export function getShiftDate(date = new Date()): string {
   return date.toISOString().slice(0, 10);
 }
