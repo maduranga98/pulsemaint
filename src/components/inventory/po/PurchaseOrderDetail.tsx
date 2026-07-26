@@ -260,6 +260,20 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         }),
         updatedAt: serverTimestamp(),
       });
+      // Prices are only known once the supplier's invoice is reviewed — carry
+      // the confirmed unit cost onto each part's profile as its last
+      // purchase price, so the next PO for that part prefills sensibly.
+      await Promise.all(
+        updatedItems
+          .filter((it) => it.partId)
+          .map((it) =>
+            updateDoc(doc(db, 'inventoryParts', it.partId), {
+              lastPurchasePrice: it.unitCost,
+              lastPurchaseDate: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            }).catch((err) => console.error(`Failed to update last purchase price for part ${it.partId}`, err)),
+          ),
+      );
       await queueEmail('invoice_priced', undefined, { total: totalOrderValue });
       addToast('Priced PO sent to supplier.', 'success');
       setReviewCosts(null);

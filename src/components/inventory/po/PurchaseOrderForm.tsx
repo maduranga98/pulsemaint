@@ -37,6 +37,7 @@ const emptyItem = (): POItemRowData => ({
   partNumber: '',
   partName: '',
   quantityOrdered: 0,
+  unit: '',
   unitCost: 0,
   leadTimeDays: 0,
   expectedDelivery: null,
@@ -59,6 +60,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       partNumber: i.partNumber,
       partName: i.partName,
       quantityOrdered: i.quantityOrdered,
+      unit: '',
       unitCost: i.unitCost,
       leadTimeDays: i.leadTimeDays,
       expectedDelivery: i.expectedDelivery
@@ -125,7 +127,8 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
               partNumber: p.partNumber ?? '',
               partName: p.name ?? '',
               quantityOrdered: suggestedQty,
-              unitCost: Number(p.lastPurchasePrice) || Number(p.unitCost) || 0,
+              unit: p.unit ?? '',
+              unitCost: 0,
               leadTimeDays: 0,
               expectedDelivery: null,
             },
@@ -479,14 +482,9 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         ))}
 
         {items.length > 0 && (
-          <div className="flex justify-end">
-            <div className="bg-gray-50 border border-gray-200 rounded-xl px-6 py-3 text-right">
-              <p className="text-xs text-gray-500">Total Order Value</p>
-              <p className="text-xl font-bold text-gray-900">
-                LKR {totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-            </div>
-          </div>
+          <p className="text-xs text-gray-500 text-right">
+            Pricing is added once the supplier's invoice is reviewed.
+          </p>
         )}
       </div>
 
