@@ -110,6 +110,17 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
     handover.ongoingBreakdowns.map((b) => [b.ticketNumber, b.machineName, b.severity, b.currentState, b.assignedTechnician || '-']),
   );
 
+  section(
+    'Safety & Notes',
+    ['Field', 'Details'],
+    [
+      ['Safety incident', handover.safetyIncidentOccurred ? (handover.safetyIncidentDescription || 'Reported') : 'None'],
+      ['Restricted areas', handover.restrictedAreas || '-'],
+      ['Temporary repairs', handover.temporaryRepairs || '-'],
+      ['General notes', handover.generalNotes || '-'],
+    ],
+  );
+
   // Footer page numbers, matching the rest of the app's report exports.
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i += 1) {
