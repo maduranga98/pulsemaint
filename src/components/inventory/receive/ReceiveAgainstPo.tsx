@@ -14,6 +14,7 @@ import { usePurchaseOrders } from '@/hooks/inventory/usePurchaseOrders';
 import { useToast } from '@/hooks/useToast';
 import { ReceiveItemRow } from './ReceiveItemRow';
 import type { PurchaseOrderItem } from '@/types/inventory';
+import { getNextDeliveryRef } from '@/lib/inventory/deliveryRefGenerator';
 
 interface ItemRowData {
   quantityReceived: number;
@@ -52,6 +53,21 @@ export function ReceiveAgainstPo() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedPo = pendingOrders.find((o) => o.id === selectedPoId);
+
+  // Delivery Reference is auto-generated (DN-YYYY-NNNNNN) rather than
+  // free-typed, so store keepers never have to invent their own — it
+  // regenerates whenever a different PO is selected for receiving.
+  useEffect(() => {
+    if (!selectedPoId || !companyId) {
+      setDeliveryRef('');
+      return;
+    }
+    let cancelled = false;
+    getNextDeliveryRef(companyId).then((ref) => {
+      if (!cancelled) setDeliveryRef(ref);
+    });
+    return () => { cancelled = true; };
+  }, [selectedPoId, companyId]);
 
   const handleRowUpdate = useCallback((itemId: string, data: ItemRowData) => {
     setRowData((prev) => ({ ...prev, [itemId]: data }));
@@ -274,9 +290,10 @@ export function ReceiveAgainstPo() {
               <input
                 type="text"
                 value={deliveryRef}
-                onChange={(e) => setDeliveryRef(e.target.value)}
-                placeholder="e.g. DN-2025-001"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+                disabled
+                placeholder="Generating…"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-500"
               />
             </div>
           </div>
