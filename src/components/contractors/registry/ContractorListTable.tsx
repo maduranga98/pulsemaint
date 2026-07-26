@@ -44,8 +44,8 @@ export function ContractorListTable({ contractors }: ContractorListTableProps) {
           {contractors.map((contractor) => (
             <tr key={contractor.id} className="hover:bg-slate-50">
               <td className="px-4 py-3">
-                <p className="font-semibold text-slate-950">{contractor.companyName}</p>
-                <p className="text-xs text-slate-500">{contractor.tradeName || contractor.registrationNumber}</p>
+                <p className="font-semibold text-slate-950">{contractor.tradeName || contractor.companyName}</p>
+                <p className="text-xs text-slate-500">{contractor.companyName}</p>
               </td>
               <td className="px-4 py-3 min-w-[220px]">
                 <ContractorSpecializationTags tags={contractor.specializationTags} limit={3} />
