@@ -15,6 +15,10 @@ type MachineOption = {
   id: string;
   name: string;
   location: string;
+  department: string;
+  floor: string;
+  bay: string;
+  station: string;
 };
 
 type BreakdownOption = {
@@ -58,6 +62,10 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
               id: d.id,
               name: (data.name as string) ?? d.id,
               location: (data.location as string) ?? '',
+              department: (data.department as string) ?? '',
+              floor: (data.floor as string) ?? '',
+              bay: (data.bay as string) ?? '',
+              station: (data.station as string) ?? '',
             };
           }).sort((a, b) => a.name.localeCompare(b.name)),
         );
@@ -174,6 +182,30 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
             value={selected?.location ?? ''}
             readOnly
             placeholder="Location"
+            className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
+          />
+          <input
+            value={selected?.department ?? ''}
+            readOnly
+            placeholder="Department"
+            className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
+          />
+          <input
+            value={selected?.floor ?? ''}
+            readOnly
+            placeholder="Floor"
+            className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
+          />
+          <input
+            value={selected?.bay ?? ''}
+            readOnly
+            placeholder="Bay"
+            className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
+          />
+          <input
+            value={selected?.station ?? ''}
+            readOnly
+            placeholder="Station"
             className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
           />
           <select value={watchLevel} onChange={(event) => setWatchLevel(event.target.value as WatchLevel)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2">
