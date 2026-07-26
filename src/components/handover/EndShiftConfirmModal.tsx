@@ -9,9 +9,11 @@ interface EndShiftConfirmModalProps {
   onCancel: () => void;
   onConfirm: () => void;
   loading?: boolean;
+  /** Only supervisors compile/hand over a shift report on end-shift; every other role just ends the shift. */
+  canHandover?: boolean;
 }
 
-export function EndShiftConfirmModal({ open, shift, shiftStartTime, onCancel, onConfirm, loading = false }: EndShiftConfirmModalProps) {
+export function EndShiftConfirmModal({ open, shift, shiftStartTime, onCancel, onConfirm, loading = false, canHandover = false }: EndShiftConfirmModalProps) {
   if (!open) return null;
   const elapsed = shiftStartTime ? formatDuration(Date.now() - shiftStartTime.getTime()) : 'Not started';
 
@@ -36,7 +38,7 @@ export function EndShiftConfirmModal({ open, shift, shiftStartTime, onCancel, on
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onCancel} className="min-h-12 rounded-md border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700">Cancel</button>
           <button type="button" onClick={onConfirm} disabled={loading} className="min-h-12 rounded-md bg-amber-500 px-4 py-2 text-sm font-bold text-white disabled:opacity-60">
-            {loading ? 'Generating...' : 'End Shift & Generate Report'}
+            {loading ? 'Generating...' : canHandover ? 'End Shift & Generate Report' : 'End Shift'}
           </button>
         </div>
       </div>
