@@ -57,6 +57,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
   const [uploadingInvoice, setUploadingInvoice] = useState(false);
   const [reviewCosts, setReviewCosts] = useState<Record<string, number> | null>(null);
+  const [reviewMessage, setReviewMessage] = useState('');
   const [reviewSaving, setReviewSaving] = useState(false);
   const sc = statusConfig[order.status];
 
@@ -275,9 +276,10 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             }).catch((err) => console.error(`Failed to update last purchase price for part ${it.partId}`, err)),
           ),
       );
-      await queueEmail('invoice_priced', undefined, { total: totalOrderValue });
+      await queueEmail('invoice_priced', reviewMessage.trim(), { total: totalOrderValue });
       addToast('Priced PO sent to supplier.', 'success');
       setReviewCosts(null);
+      setReviewMessage('');
     } catch (err) {
       console.error(err);
       addToast('Failed to save invoice pricing.', 'error');
@@ -721,9 +723,19 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 </div>
               ))}
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Message to supplier (optional)</label>
+              <textarea
+                value={reviewMessage}
+                onChange={(e) => setReviewMessage(e.target.value)}
+                rows={3}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Add a note for the supplier…"
+              />
+            </div>
             <div className="flex gap-3">
               <button
-                onClick={() => setReviewCosts(null)}
+                onClick={() => { setReviewCosts(null); setReviewMessage(''); }}
                 disabled={reviewSaving}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
