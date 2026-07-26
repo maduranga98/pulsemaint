@@ -56,7 +56,7 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
       ['Scheduled minutes', handover.scheduledMinutes != null ? String(handover.scheduledMinutes) : '-'],
       ['Actual minutes worked', handover.totalMinutes != null ? String(handover.totalMinutes) : '-'],
       ['Overtime', handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : '-'],
-      ['Overlap (minutes)', handover.overlapMinutes != null ? String(handover.overlapMinutes) : '-'],
+      ['Late start', handover.overlapMinutes ? `${formatDuration(handover.overlapMinutes * 60000)} late` : 'On time'],
     ],
     styles: { fontSize: 9, cellPadding: 4 },
     headStyles: { fillColor: HEADER_FILL, textColor: 255 },
