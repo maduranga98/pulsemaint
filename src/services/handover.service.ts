@@ -30,7 +30,7 @@ import type {
   ShiftStatsAuto,
   WatchFlag,
 } from '@/types/handover.types';
-import { computeShiftTotals, scheduledShiftMinutes } from '@/utils/handover.utils';
+import { calculateLateStartMinutes, computeShiftTotals, scheduledShiftMinutes } from '@/utils/handover.utils';
 
 const functions = getFunctions(app);
 
@@ -127,6 +127,8 @@ function mapHandover(id: string, data: DocumentData): ShiftHandover {
     outgoingSupervisorDesignation: data.outgoingSupervisorDesignation ?? null,
     shiftActualStart: toDate(data.shiftActualStart) ?? new Date(),
     shiftActualEnd: toDate(data.shiftActualEnd),
+    scheduledStart: data.scheduledStart ?? null,
+    scheduledEnd: data.scheduledEnd ?? null,
     scheduledMinutes: typeof data.scheduledMinutes === 'number' ? data.scheduledMinutes : null,
     totalMinutes: typeof data.totalMinutes === 'number' ? data.totalMinutes : null,
     otMinutes: typeof data.otMinutes === 'number' ? data.otMinutes : null,
@@ -427,6 +429,7 @@ export async function submitHandoverCallable(params: {
   // the handover now completes immediately on submit, so it's written
   // straight to `accepted` instead of `pending_acceptance` and no incoming
   // party needs to confirm it via AcceptShiftButton/acceptHandoverCallable.
+  const shiftActualStart = parseWireDate(draft.shiftActualStart) ?? now.toDate();
   const data: Record<string, unknown> = {
     companyId,
     shiftConfigId: draft.shiftConfigId ?? '',
@@ -435,15 +438,15 @@ export async function submitHandoverCallable(params: {
     outgoingSupervisorId: params.outgoingSupervisorId,
     outgoingSupervisorName: params.outgoingSupervisorName,
     outgoingSupervisorDesignation: params.outgoingSupervisorDesignation ?? null,
-    shiftActualStart: parseWireDate(draft.shiftActualStart)
-      ? Timestamp.fromDate(parseWireDate(draft.shiftActualStart) as Date)
-      : now,
+    shiftActualStart: Timestamp.fromDate(shiftActualStart),
     // SUP-020: OT = actual worked minutes beyond the scheduled shift length,
     // floored at 0 (see computeShiftTotals). Computed at end-shift time and
     // carried through the draft so it can be stored on the handover record.
     shiftActualEnd: parseWireDate(draft.shiftActualEnd)
       ? Timestamp.fromDate(parseWireDate(draft.shiftActualEnd) as Date)
       : null,
+    scheduledStart: draft.scheduledStart ?? null,
+    scheduledEnd: draft.scheduledEnd ?? null,
     scheduledMinutes: draft.scheduledMinutes ?? null,
     totalMinutes: draft.totalMinutes ?? null,
     otMinutes: draft.otMinutes ?? null,
@@ -452,7 +455,7 @@ export async function submitHandoverCallable(params: {
     incomingSupervisorName: null,
     incomingSupervisorDesignation: null,
     handoverAcceptedAt: now,
-    overlapMinutes: 0,
+    overlapMinutes: calculateLateStartMinutes(draft.scheduledStart, shiftActualStart),
     stats,
     watchFlags,
     pendingWOs,

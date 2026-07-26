@@ -155,6 +155,8 @@ export const useHandoverStore = create<HandoverStore>((set, get) => ({
           // handover records it (fall back to the still-active session for
           // roles/timing where end-shift hasn't completed the session yet).
           shiftActualEnd: session?.actualEnd ?? null,
+          scheduledStart: session?.scheduledStart ?? null,
+          scheduledEnd: session?.scheduledEnd ?? null,
           scheduledMinutes: session?.scheduledMinutes ?? null,
           totalMinutes: session?.totalMinutes ?? null,
           otMinutes: session?.otMinutes ?? null,

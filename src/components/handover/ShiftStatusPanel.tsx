@@ -34,18 +34,31 @@ function deriveStatus(shift: ShiftConfig, sessions: ShiftSession[]): ShiftLiveSt
   const working = new Map(forShift.filter((s) => s.status === 'active').map((s) => [s.userId, s]));
   const ended = new Map(forShift.filter((s) => s.status === 'completed').map((s) => [s.userId, s]));
 
-  // Everyone assigned to the shift plan, with their live state.
-  const names = shift.memberNames?.length ? shift.memberNames : shift.memberIds ?? [];
+  // Explicitly-rostered members, with their live state.
+  const rosterIds = new Set(shift.memberIds ?? []);
   const roles = shift.roles ?? [];
-  const members: ShiftMemberStatus[] = names.map((name, i) => {
-    const id = shift.memberIds?.[i];
-    const state: LiveStatus = id && working.has(id) ? 'working' : id && ended.has(id) ? 'ended' : 'not_started';
+  const rosterMembers: ShiftMemberStatus[] = (shift.memberIds ?? []).map((id, i) => {
+    const name = shift.memberNames?.[i] ?? id;
+    const state: LiveStatus = working.has(id) ? 'working' : ended.has(id) ? 'ended' : 'not_started';
     return { name, role: roles[i] ?? null, state };
   });
 
+  // Anyone who actually clocked in against this shift today but isn't on
+  // the static roster — role/department-based bulk scheduling has no entry
+  // in memberIds/memberNames, so without this they'd be invisible here even
+  // though their shift_sessions doc is real and live.
+  const sessionOnlyMembers: ShiftMemberStatus[] = forShift
+    .filter((s) => !rosterIds.has(s.userId))
+    .map((s) => ({ name: s.userName || s.userId, role: s.userRole || null, state: s.status === 'active' ? 'working' as const : 'ended' as const }));
+
+  const members = [...rosterMembers, ...sessionOnlyMembers];
+
+  // The shift-level status must reflect live sessions directly rather than
+  // just the roster — otherwise a role-scheduled shift with no explicit
+  // memberIds always reads "Not Started" even while people are clocked in.
   const status: LiveStatus =
-    members.some((m) => m.state === 'working') ? 'working'
-      : members.some((m) => m.state === 'ended') ? 'ended'
+    working.size > 0 ? 'working'
+      : ended.size > 0 ? 'ended'
         : 'not_started';
   return { shift, status, members };
 }

@@ -122,6 +122,9 @@ export interface ShiftHandover {
   shiftActualStart: Date;
   /** SUP-020: actual clock-out time for the shift this handover closes out. */
   shiftActualEnd: Date | null;
+  /** The assigned shift plan's scheduled start/end time (HH:MM), e.g. "08:00" / "16:00". */
+  scheduledStart: string | null;
+  scheduledEnd: string | null;
   /** SUP-020: scheduled shift length, actual worked minutes, and OT (worked - scheduled, floored at 0). */
   scheduledMinutes: number | null;
   totalMinutes: number | null;
@@ -131,6 +134,7 @@ export interface ShiftHandover {
   incomingSupervisorName: string | null;
   incomingSupervisorDesignation: string | null;
   handoverAcceptedAt: Date | null;
+  /** Minutes the supervisor clocked in late against their assigned shift's scheduled start (0 if on time or early). */
   overlapMinutes: number | null;
   stats: ShiftStatsAuto;
   watchFlags: WatchFlag[];
@@ -166,6 +170,8 @@ export interface DraftHandover {
   shiftActualStart: Date;
   /** SUP-020: populated from the just-completed shift session so OT can be stored on the handover. */
   shiftActualEnd: Date | null;
+  scheduledStart: string | null;
+  scheduledEnd: string | null;
   scheduledMinutes: number | null;
   totalMinutes: number | null;
   otMinutes: number | null;

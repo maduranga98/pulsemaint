@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { ShiftHandover } from '@/types/handover.types';
-import { formatDuration } from '@/utils/handover.utils';
+import { formatDuration, formatTimeRange } from '@/utils/handover.utils';
 
 // SUP-024: shift-handover exports used to build an ad-hoc HTML print window
 // (see HandoverDetailPage's old handleExportPdf), which produced a
@@ -38,21 +38,21 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
     40,
     72,
   );
-  doc.text(
-    `Generated: ${new Date().toLocaleString()}   ·   Status: ${handover.status.replace(/_/g, ' ')}`,
-    40,
-    86,
-  );
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 86);
   doc.setTextColor(0);
 
   let y = 105;
+
+  const assignedShift = handover.scheduledStart && handover.scheduledEnd
+    ? `${formatTimeRange(handover.scheduledStart, handover.scheduledEnd)} (${handover.scheduledMinutes != null ? formatDuration(handover.scheduledMinutes * 60000) : '-'})`
+    : '-';
 
   autoTable(doc, {
     startY: y,
     head: [['Field', 'Value']],
     body: [
-      ['Outgoing supervisor', handover.outgoingSupervisorName || '-'],
-      ['Incoming supervisor', handover.incomingSupervisorName || '-'],
+      ['Supervisor', handover.outgoingSupervisorName || '-'],
+      ['Assigned shift', assignedShift],
       ['Scheduled minutes', handover.scheduledMinutes != null ? String(handover.scheduledMinutes) : '-'],
       ['Actual minutes worked', handover.totalMinutes != null ? String(handover.totalMinutes) : '-'],
       ['Overtime', handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : '-'],
@@ -108,18 +108,6 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
     'Breakdowns During Shift',
     ['Ticket #', 'Machine', 'Severity', 'State', 'Assigned To'],
     handover.ongoingBreakdowns.map((b) => [b.ticketNumber, b.machineName, b.severity, b.currentState, b.assignedTechnician || '-']),
-  );
-
-  section(
-    'Parts, Safety & Notes',
-    ['Field', 'Details'],
-    [
-      ['Parts notes', handover.partsNotes || '-'],
-      ['Safety incident', handover.safetyIncidentOccurred ? (handover.safetyIncidentDescription || 'Reported') : 'None'],
-      ['Restricted areas', handover.restrictedAreas || '-'],
-      ['Temporary repairs', handover.temporaryRepairs || '-'],
-      ['General notes', handover.generalNotes || '-'],
-    ],
   );
 
   // Footer page numbers, matching the rest of the app's report exports.
