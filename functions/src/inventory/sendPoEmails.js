@@ -208,15 +208,22 @@ exports.sendPoEmails = onDocumentCreated(
       }
 
       // Internal approvers/admins — this internal notice can show prices,
-      // it never goes to the supplier.
-      if (Array.isArray(recipients) && recipients.length > 0) {
+      // it never goes to the supplier. Exclude the supplier's own address
+      // (e.g. a plant manager who is also listed as the supplier contact)
+      // so that inbox never gets both this and the supplier-facing email
+      // below for the same event.
+      const supplierEmailLower = (supplierEmail || "").trim().toLowerCase();
+      const internalRecipients = (Array.isArray(recipients) ? recipients : []).filter(
+          (to) => (to || "").trim().toLowerCase() !== supplierEmailLower,
+      );
+      if (internalRecipients.length > 0) {
         const bodyHtml = `
           <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">Purchase Order ${label}</h2>
           <p style="color:#555;font-size:14px;">PO <strong>${poNumber}</strong> to <strong>${supplierName}</strong> (${formatMoney(total, currency)}) was ${label}.</p>
           ${itemsTableHtmlPriced(poItems, currency)}
         `;
         await Promise.all(
-            recipients.map((to) =>
+            internalRecipients.map((to) =>
               sendEmail({
                 to,
                 subject: `PO ${poNumber} ${label}`,
