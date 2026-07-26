@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { DraftWatchFlag, WatchLevel } from '@/types/handover.types';
@@ -17,6 +17,16 @@ type MachineOption = {
   location: string;
 };
 
+type BreakdownOption = {
+  id: string;
+  machineId: string;
+  ticketNumber: string;
+  severity: string;
+  status: string;
+};
+
+const OPEN_BREAKDOWN_STATUSES = ['reported', 'acknowledged', 'triage_in_progress', 'assigned', 'en_route', 'repair_in_progress', 'on_hold_parts', 'on_hold_approval'];
+
 export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId;
@@ -28,19 +38,19 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
   const [watchLevel, setWatchLevel] = useState<WatchLevel>('monitor');
   const [reason, setReason] = useState('');
   const [recommendedAction, setRecommendedAction] = useState('');
+  const [breakdowns, setBreakdowns] = useState<BreakdownOption[]>([]);
+  const [breakdownsLoading, setBreakdownsLoading] = useState(false);
   const [linkedBreakdownId, setLinkedBreakdownId] = useState('');
 
+  // Live machine registry — reflects new machines / status changes the
+  // instant they happen, instead of a one-shot fetch when the modal opens.
   useEffect(() => {
     if (!open || !companyId) return;
-    let cancelled = false;
     setMachinesLoading(true);
-    (async () => {
-      try {
-        const siteIdList = siteIds && siteIds.length > 0 ? siteIds : [companyId];
-        const snap = await getDocs(
-          query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
-        );
-        if (cancelled) return;
+    const siteIdList = siteIds && siteIds.length > 0 ? siteIds : [companyId];
+    const unsub = onSnapshot(
+      query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
+      (snap) => {
         setMachines(
           snap.docs.map((d) => {
             const data = d.data() as Record<string, unknown>;
@@ -51,16 +61,55 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
             };
           }).sort((a, b) => a.name.localeCompare(b.name)),
         );
-      } catch (err) {
+        setMachinesLoading(false);
+      },
+      (err) => {
         console.error('Failed to load machines for watch flag modal', err);
-      } finally {
-        if (!cancelled) setMachinesLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+        setMachinesLoading(false);
+      },
+    );
+    return () => unsub();
   }, [open, companyId, siteIds]);
+
+  // Live open breakdown tickets for whichever machine is currently
+  // selected, so "Linked Breakdown" is a real pick from the breakdown
+  // registry instead of a free-typed document ID.
+  useEffect(() => {
+    setLinkedBreakdownId('');
+    if (!open || !companyId || !selectedMachineId) {
+      setBreakdowns([]);
+      return;
+    }
+    setBreakdownsLoading(true);
+    // Filtered client-side by machine + open status (rather than more
+    // `where` clauses) to match the same pattern CreateWODrawer's linked-
+    // breakdown picker uses, avoiding a composite index requirement.
+    const unsub = onSnapshot(
+      query(collection(db, 'breakdown_tickets'), where('siteId', '==', companyId)),
+      (snap) => {
+        setBreakdowns(
+          snap.docs
+            .map((d) => {
+              const data = d.data() as Record<string, unknown>;
+              return {
+                id: d.id,
+                machineId: (data.machineId as string) ?? '',
+                ticketNumber: (data.ticketNumber as string) ?? d.id,
+                severity: (data.severity as string) ?? '',
+                status: (data.status as string) ?? '',
+              };
+            })
+            .filter((b) => b.machineId === selectedMachineId && OPEN_BREAKDOWN_STATUSES.includes(b.status)),
+        );
+        setBreakdownsLoading(false);
+      },
+      (err) => {
+        console.error('Failed to load breakdowns for watch flag modal', err);
+        setBreakdownsLoading(false);
+      },
+    );
+    return () => unsub();
+  }, [open, companyId, selectedMachineId]);
 
   useEffect(() => {
     if (!open) {
@@ -134,7 +183,30 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
           </select>
           <textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Watch reason" className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-2" />
           <textarea value={recommendedAction} onChange={(event) => setRecommendedAction(event.target.value)} placeholder="Recommended action" className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-2" />
-          <input value={linkedBreakdownId} onChange={(event) => setLinkedBreakdownId(event.target.value)} placeholder="Linked breakdown ID" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2" />
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs font-medium text-slate-600">Linked Breakdown (optional)</label>
+            <select
+              value={linkedBreakdownId}
+              onChange={(event) => setLinkedBreakdownId(event.target.value)}
+              disabled={!selectedMachineId}
+              className="min-h-12 w-full rounded-md border border-slate-200 px-3 text-sm disabled:bg-slate-50 disabled:text-slate-400"
+            >
+              <option value="">
+                {!selectedMachineId
+                  ? 'Select a machine first'
+                  : breakdownsLoading
+                    ? 'Loading breakdowns…'
+                    : breakdowns.length === 0
+                      ? 'No open breakdowns for this machine'
+                      : 'None'}
+              </option>
+              {breakdowns.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.ticketNumber} · {b.severity} · {b.status.replace(/_/g, ' ')}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <button
           type="button"

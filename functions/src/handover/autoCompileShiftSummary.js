@@ -22,8 +22,8 @@ function sum(items, selector) {
   return items.reduce((total, item) => total + Number(selector(item) || 0), 0);
 }
 
-async function fetchCompanyDocs(collectionName, companyId) {
-  const snap = await db.collection(collectionName).where("companyId", "==", companyId).get();
+async function fetchCompanyDocs(collectionName, companyId, field = "companyId") {
+  const snap = await db.collection(collectionName).where(field, "==", companyId).get();
   return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
@@ -74,15 +74,18 @@ exports.autoCompileShiftSummary = onCall(async (request) => {
   }
 
   const now = new Date();
+  // breakdown_tickets/workOrders key their tenant field as `siteId`, not
+  // `companyId` (see src/types/breakdown.ts, src/types/workOrder.ts) — a
+  // single-site-per-company model where siteId is set to the company's own
+  // ID at creation time (see companies/${siteId}/... storage paths). Every
+  // other collection here is keyed by `companyId` directly.
   const [breakdowns, workOrders, pmHistory, partsRequests, stockMovements, inventoryParts] = await Promise.all([
-    fetchCompanyDocs("breakdown_tickets", companyId),
-    fetchCompanyDocs("workOrders", companyId),
+    fetchCompanyDocs("breakdown_tickets", companyId, "siteId"),
+    fetchCompanyDocs("workOrders", companyId, "siteId"),
     fetchCompanyDocs("pm_history", companyId).catch(() => []),
     fetchCompanyDocs("partsRequests", companyId).catch(() => []),
     fetchCompanyDocs("stockMovements", companyId).catch(() => []),
-    db.collection("companies").doc(companyId).collection("inventoryParts").get()
-      .then((snap) => snap.docs.map((doc) => ({ id: doc.id, ...doc.data(), companyId })))
-      .catch(() => []),
+    fetchCompanyDocs("inventoryParts", companyId).catch(() => []),
   ]);
 
   const companyBreakdowns = breakdowns.filter((item) => getCompanyId(item) === companyId);
@@ -118,9 +121,21 @@ exports.autoCompileShiftSummary = onCall(async (request) => {
     wosPending: pendingWOs.length,
     pmsCompleted: countBy(pmHistory, (item) => isAfter(item.completedAt || item.createdAt, shiftStart)),
     pmsMissed: countBy(companyWOs, (item) => normalizeStatus(item.woType || item.workOrderType).includes("pm") && isOpenStatus(item.status) && asDate(item.dueDate) && asDate(item.dueDate) < now),
-    partsIssued: stockIssuedThisShift.length || partsThisShift.length,
+    // Total part quantity issued during the shift, not the number of
+    // movement docs — issue movements record quantityChange as negative.
+    partsIssued: stockIssuedThisShift.length
+      ? Math.round(sum(stockIssuedThisShift, (item) => Math.abs(item.quantityChange ?? item.quantity ?? 0)))
+      : partsThisShift.length,
     partsIssuedValue: sum(stockIssuedThisShift, (item) => item.totalCost || item.totalValue || item.value),
-    productionHoursLost: Number((sum(companyBreakdowns.filter((item) => isAfter(item.closedAt || item.resolvedAt, shiftStart)), (item) => item.downtimeMinutes || item.durationMinutes) / 60).toFixed(2)),
+    // "Hours Lost" = total time spent completing work orders during the
+    // shift (actualStartTime/createdAt -> completedAt), not breakdown
+    // downtime.
+    productionHoursLost: Number((sum(completedWOsThisShift, (item) => {
+      const start = asDate(item.actualStartTime || item.createdAt);
+      const end = asDate(item.completedAt || item.closedAt || item.resolvedAt);
+      if (!start || !end) return 0;
+      return Math.max(0, (end.getTime() - start.getTime()) / 3600000);
+    })).toFixed(2)),
   };
 
   const lowStockAlerts = inventoryParts
