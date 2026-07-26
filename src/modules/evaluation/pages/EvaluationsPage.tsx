@@ -9,6 +9,7 @@ import EvaluationForm, { type FormData } from '../components/EvaluationForm';
 import EvaluationTemplateBuilder from '../components/EvaluationTemplateBuilder';
 import {
   fetchEvaluations,
+  subscribeEvaluations,
   submitEvaluation,
   saveDraftEvaluation,
   logEvaluationAction,
@@ -57,7 +58,17 @@ export default function EvaluationsPage() {
     }
   }
 
-  useEffect(() => { void load(); }, [companyId]);
+  useEffect(() => {
+    if (!companyId) return;
+    setLoadError(null);
+    // Live list so submitted/updated evaluations appear immediately.
+    const unsub = subscribeEvaluations(
+      companyId,
+      (rows) => { setSessions(rows); setLoading(false); },
+      (message) => { setLoadError(message); setLoading(false); },
+    );
+    return () => unsub();
+  }, [companyId]);
 
   function buildSessionPayload(data: FormData) {
     return {

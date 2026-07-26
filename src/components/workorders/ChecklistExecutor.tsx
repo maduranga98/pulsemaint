@@ -144,7 +144,15 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false }: Che
 
       <ol className="space-y-3">
         {visibleRows.map(({ item, index }) => {
-          const isMeasurement = item.inputType === 'measurement';
+          // Treat a step as a measurement if it's typed as one OR carries any
+          // measurement config the creator entered — so the value input and
+          // acceptable range always show even if inputType wasn't persisted.
+          const isMeasurement =
+            item.inputType === 'measurement' ||
+            item.acceptableMin != null ||
+            item.acceptableMax != null ||
+            !!item.method ||
+            !!item.unit;
           const currentRawValue = localValues[index] ?? (item.actualValue !== null ? String(item.actualValue) : '');
           const currentResult = item.result;
           const repairNote = repairNotes[index] ?? item.repairNote ?? '';
