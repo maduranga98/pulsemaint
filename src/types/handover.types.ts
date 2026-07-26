@@ -56,6 +56,9 @@ export interface WatchFlag {
   reason: string;
   recommendedAction: string;
   linkedBreakdownId: string | null;
+  /** Ticket number/type of the linked breakdown, captured at flag-creation time so exports can show a readable reference without a live lookup. */
+  linkedBreakdownTicketNumber: string | null;
+  linkedBreakdownType: string | null;
   status: WatchFlagStatus;
   resolvedAt: Date | null;
   resolvedBy: string | null;
@@ -162,6 +165,8 @@ export interface DraftWatchFlag {
   reason: string;
   recommendedAction: string;
   linkedBreakdownId: string | null;
+  linkedBreakdownTicketNumber: string | null;
+  linkedBreakdownType: string | null;
 }
 
 export interface DraftHandover {

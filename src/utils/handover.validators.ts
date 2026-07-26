@@ -18,6 +18,8 @@ export const watchFlagSchema = z.object({
   reason: z.string().trim().min(3, 'Watch reason is required'),
   recommendedAction: z.string().trim().min(2, 'Recommended action is required'),
   linkedBreakdownId: z.string().nullable(),
+  linkedBreakdownTicketNumber: z.string().nullable(),
+  linkedBreakdownType: z.string().nullable(),
 });
 
 export const pendingWOSnapshotSchema = z.object({

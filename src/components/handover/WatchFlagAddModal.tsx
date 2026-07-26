@@ -27,6 +27,7 @@ type BreakdownOption = {
   ticketNumber: string;
   severity: string;
   status: string;
+  type: string;
 };
 
 const OPEN_BREAKDOWN_STATUSES = ['reported', 'acknowledged', 'triage_in_progress', 'assigned', 'en_route', 'repair_in_progress', 'on_hold_parts', 'on_hold_approval'];
@@ -105,6 +106,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
                 ticketNumber: (data.ticketNumber as string) ?? d.id,
                 severity: (data.severity as string) ?? '',
                 status: (data.status as string) ?? '',
+                type: (data.type as string) ?? '',
               };
             })
             .filter((b) => b.machineId === selectedMachineId && OPEN_BREAKDOWN_STATUSES.includes(b.status)),
@@ -132,6 +134,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
   if (!open) return null;
 
   const selected = machines.find((m) => m.id === selectedMachineId);
+  const selectedBreakdown = breakdowns.find((b) => b.id === linkedBreakdownId);
 
   function add() {
     if (!selected || !reason || !recommendedAction) return;
@@ -143,6 +146,8 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
       reason,
       recommendedAction,
       linkedBreakdownId: linkedBreakdownId || null,
+      linkedBreakdownTicketNumber: selectedBreakdown?.ticketNumber ?? null,
+      linkedBreakdownType: selectedBreakdown?.type ?? null,
     });
     onClose();
   }
@@ -234,7 +239,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
               </option>
               {breakdowns.map((b) => (
                 <option key={b.id} value={b.id}>
-                  {b.ticketNumber} · {b.severity} · {b.status.replace(/_/g, ' ')}
+                  {b.ticketNumber} · {b.type.replace(/_/g, ' ')} · {b.severity} · {b.status.replace(/_/g, ' ')}
                 </option>
               ))}
             </select>
