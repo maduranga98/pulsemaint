@@ -67,7 +67,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       const recipients = usersSnap.docs
         .map((d) => (d.data() as any).email as string | undefined)
         .filter(Boolean) as string[];
-      const supplierFacing = event === 'approved' || event === 'sent' || event === 'invoice_priced';
+      const supplierFacing = event === 'sent' || event === 'invoice_priced';
       if (recipients.length === 0 && !(order.supplierEmail && supplierFacing)) return;
       await addDoc(collection(db, 'po_notifications'), {
         companyId: order.companyId,
