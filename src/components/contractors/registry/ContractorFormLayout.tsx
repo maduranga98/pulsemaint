@@ -199,7 +199,10 @@ export function ContractorFormLayout({ mode }: ContractorFormLayoutProps) {
       status: 'active',
       avgRating: 0,
       ratingCount: 0,
-      totalJobsCount: 0,
+      // Credits any prior jobs mentioned on this form immediately — the
+      // recalculateContractorMetricsOnCreate Cloud Function trigger will
+      // also (re)confirm this right after, once the doc exists.
+      totalJobsCount: previouslyCompletedProjects.length,
       breakdownJobsCount: 0,
       pmJobsCount: 0,
       installationJobsCount: 0,
