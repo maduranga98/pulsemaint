@@ -51,6 +51,7 @@ export function ReceiveAgainstPo() {
   const [notes, setNotes] = useState('');
   const [rowData, setRowData] = useState<Record<string, ItemRowData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
 
   const selectedPo = pendingOrders.find((o) => o.id === selectedPoId);
 
@@ -72,6 +73,69 @@ export function ReceiveAgainstPo() {
   const handleRowUpdate = useCallback((itemId: string, data: ItemRowData) => {
     setRowData((prev) => ({ ...prev, [itemId]: data }));
   }, []);
+
+  // Queues a supplier email reflecting whatever is currently in the form —
+  // quantities, condition, and notes — so a correction made after the
+  // receipt was already confirmed (or before submitting at all) can be
+  // sent without re-running the stock-affecting transaction. Shared by
+  // both Confirm Receipt (always sends once) and the standalone Resend
+  // Email button (sends again with the form's current/changed details).
+  async function sendReceiptEmail() {
+    if (!selectedPo || !companyId) return false;
+    const lines = selectedPo.items
+      .map((item) => {
+        const row = rowData[item.id];
+        return {
+          partNumber: item.partNumber,
+          partName: item.partName,
+          quantity: row?.quantityReceived ?? 0,
+          condition: row?.condition ?? 'good',
+          notes: row?.notes ?? '',
+        };
+      })
+      .filter((l) => l.quantity > 0);
+    const receivedItems = lines.filter((l) => l.condition === 'good');
+    const issueItems = lines.filter((l) => l.condition !== 'good');
+
+    if (!selectedPo.supplierEmail || (receivedItems.length === 0 && issueItems.length === 0)) return false;
+
+    await addDoc(collection(db, 'po_notifications'), {
+      companyId,
+      poId: selectedPo.id,
+      poNumber: selectedPo.poNumber,
+      supplierName: selectedPo.supplierName,
+      supplierEmail: selectedPo.supplierEmail,
+      total: selectedPo.totalOrderValue,
+      currency: selectedPo.currency,
+      recipients: [],
+      event: 'received',
+      receivedItems,
+      issueItems,
+      deliveryRef,
+      receiveDate,
+      notes,
+      status: 'queued',
+      createdAt: serverTimestamp(),
+    });
+    return true;
+  }
+
+  async function handleResendEmail() {
+    setIsResendingEmail(true);
+    try {
+      const sent = await sendReceiptEmail();
+      if (sent) {
+        toast.success('Email resent with the current receipt details.');
+      } else {
+        toast.error('Nothing to send — add a received/damaged quantity or check the supplier has an email on file.');
+      }
+    } catch (err) {
+      console.error('Failed to resend receipt email', err);
+      toast.error('Failed to resend email.');
+    } finally {
+      setIsResendingEmail(false);
+    }
+  }
 
   async function handleSubmit() {
     if (!selectedPo || !userProfile || !companyId) return;
@@ -194,41 +258,7 @@ export function ReceiveAgainstPo() {
       // The sendPoEmails Cloud Function consumes po_notifications and dispatches
       // it. Best-effort — never block the receipt on the email.
       try {
-        const lines = selectedPo.items
-          .map((item) => {
-            const row = rowData[item.id];
-            return {
-              partNumber: item.partNumber,
-              partName: item.partName,
-              quantity: row?.quantityReceived ?? 0,
-              condition: row?.condition ?? 'good',
-              notes: row?.notes ?? '',
-            };
-          })
-          .filter((l) => l.quantity > 0);
-        const receivedItems = lines.filter((l) => l.condition === 'good');
-        const issueItems = lines.filter((l) => l.condition !== 'good');
-
-        if (selectedPo.supplierEmail && (receivedItems.length > 0 || issueItems.length > 0)) {
-          await addDoc(collection(db, 'po_notifications'), {
-            companyId,
-            poId: selectedPo.id,
-            poNumber: selectedPo.poNumber,
-            supplierName: selectedPo.supplierName,
-            supplierEmail: selectedPo.supplierEmail,
-            total: selectedPo.totalOrderValue,
-            currency: selectedPo.currency,
-            recipients: [],
-            event: 'received',
-            receivedItems,
-            issueItems,
-            deliveryRef,
-            receiveDate,
-            notes,
-            status: 'queued',
-            createdAt: serverTimestamp(),
-          });
-        }
+        await sendReceiptEmail();
       } catch (emailErr) {
         console.error('Failed to queue receipt email', emailErr);
       }
@@ -331,13 +361,23 @@ export function ReceiveAgainstPo() {
           </div>
 
           {/* Submit */}
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting ? 'Confirming Receipt…' : 'Confirm Receipt'}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="flex-1 py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isSubmitting ? 'Confirming Receipt…' : 'Confirm Receipt'}
+            </button>
+            <button
+              onClick={handleResendEmail}
+              disabled={isResendingEmail || isSubmitting}
+              title="Send the supplier an email with whatever is currently in this form — use this if you've changed a quantity, condition, or note after already confirming a receipt"
+              className="sm:flex-none px-5 py-3 rounded-xl bg-white border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isResendingEmail ? 'Sending…' : 'Resend Email'}
+            </button>
+          </div>
         </>
       )}
     </div>
