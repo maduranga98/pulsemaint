@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PackageCheck, XCircle, CheckCircle2, FileText, Send } from 'lucide-react';
-import { updateDoc, doc, serverTimestamp, addDoc, collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { PackageCheck, XCircle, CheckCircle2, FileText, Send, Upload, Paperclip } from 'lucide-react';
+import { updateDoc, doc, serverTimestamp, addDoc, collection, getDocs, query, where, arrayUnion, Timestamp } from 'firebase/firestore';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '@/lib/firebase';
 import { useToast } from '@/hooks/useToast';
 import { useAuthStore } from '@/store/authStore';
-import type { PurchaseOrder, PurchaseOrderStatus } from '@/types/inventory';
+import type { PurchaseOrder, PurchaseOrderItem, PurchaseOrderStatus } from '@/types/inventory';
 import { openPOPrintView } from '@/lib/inventory/poPrintView';
 
 interface PurchaseOrderDetailProps {
@@ -18,6 +19,7 @@ const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> 
   approved: { label: 'Approved', cls: 'bg-emerald-100 text-emerald-700' },
   rejected: { label: 'Rejected', cls: 'bg-red-100 text-red-700' },
   sent: { label: 'Sent', cls: 'bg-blue-100 text-blue-700' },
+  invoice_received: { label: 'Invoice Received', cls: 'bg-purple-100 text-purple-700' },
   acknowledged: { label: 'Acknowledged', cls: 'bg-cyan-100 text-cyan-700' },
   received: { label: 'Received', cls: 'bg-green-100 text-green-700' },
   partially_received: { label: 'Partially Received', cls: 'bg-amber-100 text-amber-700' },
@@ -27,6 +29,7 @@ const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> 
 const TIMELINE_STEPS: { key: keyof PurchaseOrder; label: string }[] = [
   { key: 'raisedAt', label: 'Raised' },
   { key: 'sentAt', label: 'Sent' },
+  { key: 'invoiceReceivedAt', label: 'Invoice Received' },
   { key: 'acknowledgedAt', label: 'Acknowledged' },
   { key: 'receivedAt', label: 'Received' },
 ];
@@ -49,9 +52,14 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   const [sendModal, setSendModal] = useState(false);
   const [sendMessage, setSendMessage] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [invoiceModal, setInvoiceModal] = useState(false);
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
+  const [uploadingInvoice, setUploadingInvoice] = useState(false);
+  const [reviewCosts, setReviewCosts] = useState<Record<string, number> | null>(null);
+  const [reviewSaving, setReviewSaving] = useState(false);
   const sc = statusConfig[order.status];
 
-  async function queueEmail(event: PurchaseOrderStatus, message?: string) {
+  async function queueEmail(event: PurchaseOrderStatus | 'invoice_priced', message?: string, override?: { total: number }) {
     try {
       const usersSnap = await getDocs(
         query(collection(db, `companies/${order.companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
@@ -59,14 +67,15 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       const recipients = usersSnap.docs
         .map((d) => (d.data() as any).email as string | undefined)
         .filter(Boolean) as string[];
-      if (recipients.length === 0 && !(order.supplierEmail && (event === 'approved' || event === 'sent'))) return;
+      const supplierFacing = event === 'approved' || event === 'sent' || event === 'invoice_priced';
+      if (recipients.length === 0 && !(order.supplierEmail && supplierFacing)) return;
       await addDoc(collection(db, 'po_notifications'), {
         companyId: order.companyId,
         poId: order.id,
         poNumber: order.poNumber,
         supplierName: order.supplierName,
         supplierEmail: order.supplierEmail ?? '',
-        total: order.totalOrderValue,
+        total: override?.total ?? order.totalOrderValue,
         currency: order.currency,
         recipients,
         event,
@@ -176,6 +185,82 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       setActionLoading(false);
       setSendModal(false);
       setSendMessage('');
+    }
+  }
+
+  async function submitInvoice() {
+    if (!invoiceFile || !userProfile) return;
+    setUploadingInvoice(true);
+    try {
+      const path = `companies/${order.companyId}/purchaseOrders/${order.id}/invoice/${Date.now()}_${invoiceFile.name}`;
+      const sref = storageRef(storage, path);
+      await uploadBytes(sref, invoiceFile);
+      const url = await getDownloadURL(sref);
+      await updateDoc(doc(db, 'purchaseOrders', order.id), {
+        status: 'invoice_received',
+        invoiceReceivedAt: serverTimestamp(),
+        invoiceUploadedBy: userProfile.id,
+        invoiceUploadedByName: userProfile.fullName ?? '',
+        attachments: arrayUnion({ name: `Invoice - ${invoiceFile.name}`, url }),
+        updatedAt: serverTimestamp(),
+      });
+      await queueEmail('invoice_received');
+      addToast('Invoice submitted. Review it to confirm pricing.', 'success');
+      setInvoiceModal(false);
+      setInvoiceFile(null);
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to submit invoice.', 'error');
+    } finally {
+      setUploadingInvoice(false);
+    }
+  }
+
+  function openReview() {
+    const initial: Record<string, number> = {};
+    order.items.forEach((it) => { initial[it.id] = it.unitCost; });
+    setReviewCosts(initial);
+  }
+
+  // Confirms the invoice-derived prices (whether left as-is or edited) and
+  // sends a fresh priced PO email to the supplier. Re-runnable any number of
+  // times — every save is a new "invoice revision" with its own email, which
+  // is how a later price correction gets communicated too.
+  async function savePricedPO() {
+    if (!reviewCosts || !userProfile) return;
+    setReviewSaving(true);
+    try {
+      const updatedItems: PurchaseOrderItem[] = order.items.map((it) => {
+        const unitCost = reviewCosts[it.id] ?? it.unitCost;
+        return { ...it, unitCost, totalCost: unitCost * it.quantityOrdered };
+      });
+      const totalOrderValue = updatedItems.reduce((sum, it) => sum + it.totalCost, 0);
+      await updateDoc(doc(db, 'purchaseOrders', order.id), {
+        items: updatedItems,
+        totalOrderValue,
+        invoiceRevisions: arrayUnion({
+          revisedAt: Timestamp.now(),
+          revisedBy: userProfile.id,
+          revisedByName: userProfile.fullName ?? '',
+          items: updatedItems.map((it) => ({
+            partId: it.partId,
+            partNumber: it.partNumber,
+            partName: it.partName,
+            unitCost: it.unitCost,
+            totalCost: it.totalCost,
+          })),
+          totalOrderValue,
+        }),
+        updatedAt: serverTimestamp(),
+      });
+      await queueEmail('invoice_priced', undefined, { total: totalOrderValue });
+      addToast('Priced PO sent to supplier.', 'success');
+      setReviewCosts(null);
+    } catch (err) {
+      console.error(err);
+      addToast('Failed to save invoice pricing.', 'error');
+    } finally {
+      setReviewSaving(false);
     }
   }
 
@@ -315,6 +400,28 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
           </div>
         </div>
 
+        {/* Invoice attachments */}
+        {order.attachments && order.attachments.length > 0 && (
+          <div className="bg-white border border-gray-200 rounded-xl p-5">
+            <h3 className="font-semibold text-gray-900 mb-2 text-sm">Attachments</h3>
+            <ul className="space-y-1.5">
+              {order.attachments.map((att, i) => (
+                <li key={i}>
+                  <a
+                    href={att.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    <Paperclip className="w-3.5 h-3.5" />
+                    {att.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Notes */}
         {order.notes && (
           <div className="bg-white border border-gray-200 rounded-xl p-5">
@@ -388,6 +495,27 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
 
           {order.status === 'sent' && (
             <button
+              onClick={() => setInvoiceModal(true)}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+            >
+              <Upload className="w-4 h-4" />
+              Submit Received Invoice
+            </button>
+          )}
+
+          {order.status === 'invoice_received' && !reviewCosts && (
+            <button
+              onClick={openReview}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm"
+            >
+              <FileText className="w-4 h-4" />
+              Review Invoice &amp; Send Priced PO
+            </button>
+          )}
+
+          {order.status === 'invoice_received' && (
+            <button
               onClick={markAcknowledged}
               disabled={actionLoading}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
@@ -397,7 +525,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             </button>
           )}
 
-          {(order.status === 'sent' || order.status === 'acknowledged' || order.status === 'partially_received') && (
+          {(order.status === 'sent' || order.status === 'invoice_received' || order.status === 'acknowledged' || order.status === 'partially_received') && (
             <button
               onClick={() => navigate(`/app/inventory/receive?poId=${order.id}`)}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors text-sm"
@@ -451,6 +579,91 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
                 {actionLoading ? 'Sending…' : 'Send'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Submit received invoice */}
+      {invoiceModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">Submit Received Invoice</h3>
+            <p className="text-sm text-gray-600">
+              Attach the invoice the supplier sent for <strong>{order.poNumber}</strong>. You'll review and confirm its pricing next.
+            </p>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Invoice file</label>
+              <input
+                type="file"
+                accept="image/*,.pdf"
+                onChange={(e) => setInvoiceFile(e.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-purple-50 file:text-purple-700 file:text-sm file:font-medium hover:file:bg-purple-100"
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setInvoiceModal(false); setInvoiceFile(null); }}
+                disabled={uploadingInvoice}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitInvoice}
+                disabled={uploadingInvoice || !invoiceFile}
+                className="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+              >
+                {uploadingInvoice ? 'Uploading…' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review invoice pricing — accept as-is or edit, then send priced PO */}
+      {reviewCosts && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-gray-900">Review Invoice Pricing</h3>
+            <p className="text-sm text-gray-600">
+              Enter the unit cost from the supplier's invoice for each item — pre-filled with the current PO price.
+              Sending will email the supplier the finalized priced PO. You can come back and revise again later if the price changes.
+            </p>
+            <div className="space-y-3">
+              {order.items.map((it) => (
+                <div key={it.id} className="border border-gray-200 rounded-lg p-3">
+                  <p className="text-sm font-medium text-gray-900">{it.partName}</p>
+                  <p className="font-mono text-xs text-gray-500 mb-2">{it.partNumber} · Qty {it.quantityOrdered}</p>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Unit Cost ({order.currency})</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={reviewCosts[it.id] ?? it.unitCost}
+                    onChange={(e) =>
+                      setReviewCosts((prev) => ({ ...(prev ?? {}), [it.id]: Math.max(0, parseFloat(e.target.value) || 0) }))
+                    }
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setReviewCosts(null)}
+                disabled={reviewSaving}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={savePricedPO}
+                disabled={reviewSaving}
+                className="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+              >
+                {reviewSaving ? 'Sending…' : 'Confirm & Send Priced PO'}
               </button>
             </div>
           </div>

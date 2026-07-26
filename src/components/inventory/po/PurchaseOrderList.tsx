@@ -15,6 +15,7 @@ interface PurchaseOrderListProps {
 const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> = {
   draft: { label: 'Draft', cls: 'bg-gray-100 text-gray-600' },
   sent: { label: 'Sent', cls: 'bg-blue-100 text-blue-700' },
+  invoice_received: { label: 'Invoice Received', cls: 'bg-purple-100 text-purple-700' },
   acknowledged: { label: 'Acknowledged', cls: 'bg-cyan-100 text-cyan-700' },
   received: { label: 'Received', cls: 'bg-green-100 text-green-700' },
   partially_received: { label: 'Partial', cls: 'bg-amber-100 text-amber-700' },
@@ -31,6 +32,7 @@ const STATUS_FILTERS: { label: string; value: PurchaseOrderStatus | 'all' }[] = 
   { label: 'Approved', value: 'approved' },
   { label: 'Rejected', value: 'rejected' },
   { label: 'Sent', value: 'sent' },
+  { label: 'Invoice Received', value: 'invoice_received' },
   { label: 'Acknowledged', value: 'acknowledged' },
   { label: 'Received', value: 'received' },
   { label: 'Partial', value: 'partially_received' },
@@ -165,7 +167,7 @@ export function PurchaseOrderList({
                             Reject
                           </button>
                         )}
-                        {onMarkReceived && (order.status === 'sent' || order.status === 'acknowledged' || order.status === 'partially_received') && (
+                        {onMarkReceived && (order.status === 'sent' || order.status === 'invoice_received' || order.status === 'acknowledged' || order.status === 'partially_received') && (
                           <button
                             onClick={() => onMarkReceived(order.id)}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"

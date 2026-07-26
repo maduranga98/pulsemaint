@@ -13,11 +13,15 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * Wrap body HTML in the branded PulseMaint email shell.
+ * Wrap body HTML in the branded email shell.
  * @param {string} bodyHtml inner HTML for the white card body
+ * @param {string} [companyName] tenant name to show in the header/footer
+ *   instead of the generic "PulseMaint" — supplier-facing emails (POs,
+ *   receipts) should read as coming from the company, not the platform.
  * @return {string} full HTML document
  */
-function brandedEmail(bodyHtml) {
+function brandedEmail(bodyHtml, companyName) {
+  const displayName = companyName || "PulseMaint";
   return `
 <!DOCTYPE html>
 <html>
@@ -33,7 +37,7 @@ function brandedEmail(bodyHtml) {
           <tr>
             <td style="background: linear-gradient(135deg, #0A1628 0%, #1A56DB 100%);padding:32px 40px;text-align:center;">
               <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">
-                <span style="color:#ffffff;">Pulse</span><span style="color:#00C2FF;">Maint</span>
+                ${displayName}
               </h1>
             </td>
           </tr>
@@ -45,7 +49,7 @@ function brandedEmail(bodyHtml) {
           <tr>
             <td style="background:#f8fafc;padding:20px 40px;text-align:center;border-top:1px solid #eee;">
               <p style="margin:0;color:#aaa;font-size:11px;">
-                &copy; ${new Date().getFullYear()} PulseMaint by FeedSolve. All rights reserved.
+                &copy; ${new Date().getFullYear()} ${displayName}. All rights reserved.
               </p>
             </td>
           </tr>
@@ -61,13 +65,14 @@ function brandedEmail(bodyHtml) {
  * Send one email; failures are logged, not thrown, so one bad address
  * never blocks the rest of a batch.
  * @param {{to: string, subject: string, html: string, text?: string,
+ *   fromName?: string,
  *   attachments?: Array<{filename: string, content: Buffer|string, contentType?: string}>}} options
  * @return {Promise<boolean>} true when sent
  */
-async function sendEmail({to, subject, html, text, attachments}) {
+async function sendEmail({to, subject, html, text, attachments, fromName}) {
   try {
     await transporter.sendMail({
-      from: "\"PulseMaint\" <hello@feedsolve.com>",
+      from: `"${fromName || "PulseMaint"}" <hello@feedsolve.com>`,
       to,
       subject,
       html,

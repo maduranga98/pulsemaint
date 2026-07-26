@@ -6,6 +6,7 @@ import { PartDetailHeader } from '@/components/inventory/catalog/PartDetailHeade
 import { PartOverviewTab } from '@/components/inventory/catalog/PartOverviewTab';
 import { PartStockHistoryTab } from '@/components/inventory/catalog/PartStockHistoryTab';
 import { PartQrModal } from '@/components/inventory/catalog/PartQrModal';
+import { PartActiveRequestsTab } from '@/components/inventory/catalog/PartActiveRequestsTab';
 
 type TabId = 'overview' | 'history' | 'requests' | 'files' | 'analytics';
 
@@ -90,9 +91,7 @@ export function PartDetailPage() {
       <div>
         {activeTab === 'overview' && <PartOverviewTab part={part} />}
         {activeTab === 'history' && <PartStockHistoryTab partId={part.id} />}
-        {activeTab === 'requests' && (
-          <div className="text-sm text-gray-500 py-8 text-center">Active requests for this part will appear here.</div>
-        )}
+        {activeTab === 'requests' && <PartActiveRequestsTab partId={part.id} />}
         {activeTab === 'files' && (
           <div className="space-y-5">
             {[

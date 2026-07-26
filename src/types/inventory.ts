@@ -74,6 +74,7 @@ export type PurchaseOrderStatus =
   | 'approved'
   | 'rejected'
   | 'sent'
+  | 'invoice_received'
   | 'acknowledged'
   | 'received'
   | 'partially_received'
@@ -355,11 +356,29 @@ export interface PurchaseOrder {
   rejectedReason?: string | null;
 
   sentAt: Timestamp | null;
+  invoiceReceivedAt?: Timestamp | null;
   acknowledgedAt: Timestamp | null;
   receivedAt: Timestamp | null;
 
   notes: string;
   attachments: { name: string; url: string }[];
+
+  // Set once the supplier's invoice is uploaded (status → invoice_received).
+  // The invoice document itself is stored as an entry in `attachments`.
+  invoiceUploadedBy?: string | null;
+  invoiceUploadedByName?: string | null;
+
+  // One entry per time the invoice was reviewed and a priced PO email was
+  // sent to the supplier — whether accepted as-is or edited. Lets the
+  // "edit again → new priced email" loop happen any number of times while
+  // keeping a full audit trail of what price each revision used.
+  invoiceRevisions?: {
+    revisedAt: Timestamp;
+    revisedBy: string;
+    revisedByName: string;
+    items: { partId: string; partNumber: string; partName: string; unitCost: number; totalCost: number }[];
+    totalOrderValue: number;
+  }[];
 
   // One entry per "Confirm Receipt" submission against this PO.
   receiptHistory?: {

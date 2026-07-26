@@ -30,7 +30,7 @@ export function ReceiveAgainstPo() {
 
   const { orders, loading: ordersLoading } = usePurchaseOrders();
   const pendingOrders = orders.filter((o) =>
-    ['sent', 'acknowledged', 'partially_received', 'draft'].includes(o.status)
+    ['sent', 'invoice_received', 'acknowledged', 'partially_received', 'draft'].includes(o.status)
   );
 
   const [searchParams] = useSearchParams();
