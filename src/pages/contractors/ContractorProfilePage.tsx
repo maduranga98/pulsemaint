@@ -41,7 +41,7 @@ export function ContractorProfilePage() {
       {tab === 'Overview' && <ContractorOverviewTab contractor={contractor} />}
       {tab === 'Documents' && <ContractorDocumentsTab documents={documents} contractorId={contractor.id} />}
       {tab === 'Team Members' && <ContractorTechniciansTab contractorId={contractor.id} technicians={technicians} />}
-      {tab === 'Job History' && <ContractorJobHistoryTab jobs={jobs} />}
+      {tab === 'Job History' && <ContractorJobHistoryTab jobs={jobs} previouslyCompletedProjects={contractor.previouslyCompletedProjects} />}
       {tab === 'Analytics' && <ContractorAnalyticsTab contractor={contractor} jobs={jobs} />}
     </div>
   );
