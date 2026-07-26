@@ -194,6 +194,8 @@ export interface HandoverHistoryFilters {
   supervisorName: string;
   shiftName: string;
   department: string;
+  /** Only show rows where the person started their shift late. */
+  lateOnly: boolean;
 }
 
 export interface CompiledShiftSummary {

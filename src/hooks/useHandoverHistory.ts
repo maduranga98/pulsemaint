@@ -9,6 +9,7 @@ const defaultFilters: HandoverHistoryFilters = {
   supervisorName: '',
   shiftName: '',
   department: '',
+  lateOnly: false,
 };
 
 export function useHandoverHistory(filters: HandoverHistoryFilters = defaultFilters) {
@@ -38,7 +39,7 @@ export function useHandoverHistory(filters: HandoverHistoryFilters = defaultFilt
       },
     );
     return () => unsub();
-  }, [companyId, filters.dateFrom, filters.dateTo, filters.department, filters.shiftName, filters.supervisorName]);
+  }, [companyId, filters.dateFrom, filters.dateTo, filters.department, filters.shiftName, filters.supervisorName, filters.lateOnly]);
 
   return { handoverHistory, loading, error, refresh: () => {} };
 }

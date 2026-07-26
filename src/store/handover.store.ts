@@ -28,6 +28,7 @@ const emptyFilters: HandoverHistoryFilters = {
   supervisorName: '',
   shiftName: '',
   department: '',
+  lateOnly: false,
 };
 
 function requireProfile() {
