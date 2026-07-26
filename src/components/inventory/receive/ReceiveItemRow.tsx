@@ -8,6 +8,7 @@ interface ItemData {
   unit: string;
   quantityOrdered?: number;
   quantityReceivedSoFar?: number;
+  unitCost?: number;
 }
 
 interface RowData {
@@ -30,9 +31,19 @@ const CONDITIONS = [
   { value: 'wrong_item', label: 'Wrong Item' },
 ];
 
+// Default the receive quantity to whatever is still outstanding on the PO
+// line (ordered minus already received) and the unit cost to the PO's own
+// price, so the form starts pre-filled with what's actually expected —
+// still fully editable in case the delivery differs.
+function defaultQuantity(item: ItemData): number {
+  if (item.quantityOrdered === undefined) return 0;
+  const remaining = item.quantityOrdered - (item.quantityReceivedSoFar ?? 0);
+  return Math.max(0, remaining);
+}
+
 export function ReceiveItemRow({ index, item, onUpdate, onRemove }: Props) {
-  const [quantityReceived, setQuantityReceived] = useState(0);
-  const [unitCost, setUnitCost] = useState(0);
+  const [quantityReceived, setQuantityReceived] = useState(() => defaultQuantity(item));
+  const [unitCost, setUnitCost] = useState(() => item.unitCost ?? 0);
   const [condition, setCondition] = useState('good');
   const [notes, setNotes] = useState('');
 

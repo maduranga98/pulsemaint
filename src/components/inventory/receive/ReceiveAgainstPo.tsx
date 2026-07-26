@@ -294,6 +294,7 @@ export function ReceiveAgainstPo() {
                   unit: 'pcs',
                   quantityOrdered: item.quantityOrdered,
                   quantityReceivedSoFar: item.quantityReceived,
+                  unitCost: item.unitCost,
                 }}
                 onUpdate={(data) => handleRowUpdate(item.id, data)}
               />
