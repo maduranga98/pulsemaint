@@ -1,4 +1,4 @@
-import { CheckCircle, AlertTriangle, XCircle, Pencil, PackagePlus, RefreshCw, ShoppingCart } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Pencil, PackagePlus, RefreshCw, ShoppingCart, QrCode } from 'lucide-react';
 import type { InventoryPart } from '@/types/inventory';
 import { PartStatusBadge } from '@/components/inventory/shared/PartStatusBadge';
 import { PartCriticalityBadge } from '@/components/inventory/shared/PartCriticalityBadge';
@@ -12,6 +12,7 @@ interface PartDetailHeaderProps {
   onReceive?: () => void;
   onAdjust?: () => void;
   onRaisePO?: () => void;
+  onShowQr?: () => void;
 }
 
 export function PartDetailHeader({
@@ -20,6 +21,7 @@ export function PartDetailHeader({
   onReceive,
   onAdjust,
   onRaisePO,
+  onShowQr,
 }: PartDetailHeaderProps) {
   const { canAccess } = useAuthStore();
   const stockStatus = getStockStatus(part);
@@ -139,6 +141,15 @@ export function PartDetailHeader({
           >
             <ShoppingCart className="w-4 h-4" />
             Raise PO
+          </button>
+        )}
+        {onShowQr && (
+          <button
+            onClick={onShowQr}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <QrCode className="w-4 h-4" />
+            View QR
           </button>
         )}
       </div>

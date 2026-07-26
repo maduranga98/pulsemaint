@@ -5,6 +5,7 @@ import { useInventoryPart } from '@/hooks/inventory/useInventoryPart';
 import { PartDetailHeader } from '@/components/inventory/catalog/PartDetailHeader';
 import { PartOverviewTab } from '@/components/inventory/catalog/PartOverviewTab';
 import { PartStockHistoryTab } from '@/components/inventory/catalog/PartStockHistoryTab';
+import { PartQrModal } from '@/components/inventory/catalog/PartQrModal';
 
 type TabId = 'overview' | 'history' | 'requests' | 'files' | 'analytics';
 
@@ -35,6 +36,7 @@ export function PartDetailPage() {
   const { partId } = useParams<{ partId: string }>();
   const { part, loading, error } = useInventoryPart(partId);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const [showQr, setShowQr] = useState(false);
 
   if (loading) return <SkeletonDetail />;
 
@@ -62,7 +64,8 @@ export function PartDetailPage() {
       </Link>
 
       {/* Header */}
-      <PartDetailHeader part={part} />
+      <PartDetailHeader part={part} onShowQr={() => setShowQr(true)} />
+      {showQr && <PartQrModal part={part} onClose={() => setShowQr(false)} />}
 
       {/* Tabs */}
       <div className="border-b border-gray-200 overflow-x-auto">
