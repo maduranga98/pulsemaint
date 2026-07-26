@@ -52,11 +52,13 @@ export function EndShiftButton() {
   async function confirm() {
     const completed = await endShift();
     setOpen(false);
-    setSummarySession(completed);
-    if (!completed && canHandover) {
-      // No persisted session (legacy state) — go straight to the handover form.
+    if (canHandover) {
+      // Supervisors go straight from confirming end-shift into the handover
+      // form to submit — no separate "Shift Ended" summary stop in between.
       navigate('/app/shift/handover/create');
+      return;
     }
+    setSummarySession(completed);
   }
 
   if (summarySession) {
@@ -123,6 +125,7 @@ export function EndShiftButton() {
         shift={currentShift}
         shiftStartTime={shiftStartTime}
         loading={isCompilingStats}
+        canHandover={canHandover}
         onCancel={() => setOpen(false)}
         onConfirm={() => void confirm()}
       />

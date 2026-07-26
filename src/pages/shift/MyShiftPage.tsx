@@ -94,6 +94,12 @@ export function MyShiftPage() {
     setBusy(true);
     try {
       const completed = await endShift();
+      if (canHandover) {
+        // Supervisors go straight from ending their shift into the handover
+        // form to submit — no separate "Shift Ended" summary stop in between.
+        navigate('/app/shift/handover/create');
+        return;
+      }
       setSummarySession(completed);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to end shift');
