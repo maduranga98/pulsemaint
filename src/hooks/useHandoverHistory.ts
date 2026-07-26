@@ -6,7 +6,8 @@ import type { HandoverHistoryFilters, ShiftHandover } from '@/types/handover.typ
 const defaultFilters: HandoverHistoryFilters = {
   dateFrom: null,
   dateTo: null,
-  supervisorName: '',
+  personName: '',
+  role: '',
   shiftName: '',
   department: '',
   lateOnly: false,
@@ -39,7 +40,7 @@ export function useHandoverHistory(filters: HandoverHistoryFilters = defaultFilt
       },
     );
     return () => unsub();
-  }, [companyId, filters.dateFrom, filters.dateTo, filters.department, filters.shiftName, filters.supervisorName, filters.lateOnly]);
+  }, [companyId, filters.dateFrom, filters.dateTo]);
 
   return { handoverHistory, loading, error, refresh: () => {} };
 }

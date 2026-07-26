@@ -25,7 +25,8 @@ import { detectCurrentShift, getMyShiftPlans } from '@/utils/handover.utils';
 const emptyFilters: HandoverHistoryFilters = {
   dateFrom: null,
   dateTo: null,
-  supervisorName: '',
+  personName: '',
+  role: '',
   shiftName: '',
   department: '',
   lateOnly: false,
