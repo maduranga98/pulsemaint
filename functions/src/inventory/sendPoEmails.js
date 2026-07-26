@@ -445,23 +445,29 @@ exports.sendPoEmails = onDocumentCreated(
       // Cancellation notice — only fires when the PO had already been sent
       // to the supplier (queueEmail on the client only queues this event as
       // supplier-facing in that case), since a PO cancelled before dispatch
-      // never reached them in the first place.
-      if (poEvent === "cancelled" && supplierEmail) {
+      // never reached them in the first place. Rendered as the same PO
+      // document (with all the filled-in PO details) under a cancelled
+      // banner, rather than a bare notice, so the supplier can see exactly
+      // which order is being called off.
+      if (poEvent === "cancelled" && supplierEmail && poData) {
+        const companyMeta = await companyMetaFor(companyId);
         const reasonHtml = message
-          ? `<p style="color:#555;font-size:14px;"><strong>Reason:</strong> ${String(message).replace(/\n/g, "<br/>")}</p>`
+          ? `<p style="color:#555;font-size:14px;"><strong>Reason:</strong> ${esc(message).replace(/\n/g, "<br/>")}</p>`
           : "";
-        const bodyHtml = `
-          <h2 style="margin:0 0 12px;color:#B91C1C;font-size:18px;">Purchase Order ${poNumber} — cancelled</h2>
-          <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
-          <p style="color:#555;font-size:14px;">Purchase order <strong>${poNumber}</strong>, previously sent to you, has been cancelled. Please stop any preparation or shipment against it.</p>
-          ${reasonHtml}
-          <p style="color:#555;font-size:14px;">We apologize for any inconvenience. Please reach out if you have already incurred costs against this order.</p>
+        const introHtml = `
+          <div style="border:1px solid #B91C1C;background:#FEF2F2;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+            <div style="font-weight:700;font-size:15px;color:#B91C1C;margin-bottom:4px;">CANCELLED</div>
+            <p style="color:#555;font-size:14px;margin:0 0 4px;">Dear ${esc(supplierName) || "Supplier"},</p>
+            <p style="color:#555;font-size:14px;margin:0;">This purchase order, previously sent to you, has been cancelled. Please stop any preparation or shipment against it.</p>
+            ${reasonHtml}
+          </div>
         `;
+        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml});
         await sendEmail({
           to: supplierEmail,
           subject: `Purchase Order ${poNumber} — cancelled`,
-          html: brandedEmail(bodyHtml, companyName),
-          fromName: companyName,
+          html: plainEmailShell(bodyHtml, companyMeta.name),
+          fromName: companyMeta.name,
         });
       }
     },
