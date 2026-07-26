@@ -11,8 +11,10 @@
  *     one who quotes/sends prices via their invoice) when the event is
  *     "sent" (i.e. actually dispatched to the supplier, not just approved),
  *   - a priced PO email once the received invoice has been reviewed
- *     (accepted as-is or edited) — event "invoice_priced" — and
- *   - the delivery receipt confirmation once stock is received.
+ *     (accepted as-is or edited) — event "invoice_priced",
+ *   - the delivery receipt confirmation once stock is received, and
+ *   - a cancellation notice, with the reason given, when a PO that had
+ *     already been sent to the supplier is cancelled — event "cancelled".
  * Every supplier-facing email is branded with the tenant's own company name
  * instead of the generic "PulseMaint" platform name.
  */
@@ -33,6 +35,7 @@ const EVENT_LABELS = {
   invoice_priced: "priced after invoice review",
   acknowledged: "acknowledged",
   received: "received",
+  cancelled: "cancelled",
 };
 
 async function companyNameFor(companyId) {
@@ -265,6 +268,29 @@ exports.sendPoEmails = onDocumentCreated(
         await sendEmail({
           to: supplierEmail,
           subject: `Purchase Order ${poNumber} — priced per invoice`,
+          html: brandedEmail(bodyHtml, companyName),
+          fromName: companyName,
+        });
+      }
+
+      // Cancellation notice — only fires when the PO had already been sent
+      // to the supplier (queueEmail on the client only queues this event as
+      // supplier-facing in that case), since a PO cancelled before dispatch
+      // never reached them in the first place.
+      if (poEvent === "cancelled" && supplierEmail) {
+        const reasonHtml = message
+          ? `<p style="color:#555;font-size:14px;"><strong>Reason:</strong> ${String(message).replace(/\n/g, "<br/>")}</p>`
+          : "";
+        const bodyHtml = `
+          <h2 style="margin:0 0 12px;color:#B91C1C;font-size:18px;">Purchase Order ${poNumber} — cancelled</h2>
+          <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
+          <p style="color:#555;font-size:14px;">Purchase order <strong>${poNumber}</strong>, previously sent to you, has been cancelled. Please stop any preparation or shipment against it.</p>
+          ${reasonHtml}
+          <p style="color:#555;font-size:14px;">We apologize for any inconvenience. Please reach out if you have already incurred costs against this order.</p>
+        `;
+        await sendEmail({
+          to: supplierEmail,
+          subject: `Purchase Order ${poNumber} — cancelled`,
           html: brandedEmail(bodyHtml, companyName),
           fromName: companyName,
         });
