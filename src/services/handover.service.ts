@@ -411,6 +411,8 @@ export async function submitHandoverCallable(params: {
     reason: flag.reason,
     recommendedAction: flag.recommendedAction,
     linkedBreakdownId: flag.linkedBreakdownId ?? null,
+    linkedBreakdownTicketNumber: flag.linkedBreakdownTicketNumber ?? null,
+    linkedBreakdownType: flag.linkedBreakdownType ?? null,
     status: 'active' as const,
     resolvedAt: null,
     resolvedBy: null,

@@ -94,8 +94,17 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
 
   section(
     'Watch Machine Flags',
-    ['Machine', 'Level', 'Reason', 'Recommended Action'],
-    handover.watchFlags.map((f) => [f.machineName, f.watchLevel.replace(/_/g, ' '), f.reason, f.recommendedAction]),
+    ['Machine', 'Location', 'Level', 'Reason', 'Recommended Action', 'Linked Breakdown'],
+    handover.watchFlags.map((f) => [
+      f.machineName,
+      f.machineLocation || '-',
+      f.watchLevel.replace(/_/g, ' '),
+      f.reason,
+      f.recommendedAction,
+      f.linkedBreakdownTicketNumber
+        ? `${f.linkedBreakdownTicketNumber}${f.linkedBreakdownType ? ` (${f.linkedBreakdownType.replace(/_/g, ' ')})` : ''}`
+        : '-',
+    ]),
   );
 
   section(
