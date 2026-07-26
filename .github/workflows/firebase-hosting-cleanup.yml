@@ -1,0 +1,22 @@
+name: Clean up Firebase Hosting preview channel
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete_preview_channel:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    env:
+      VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+    steps:
+      - name: Delete preview channel for this PR
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PULSEMAINT }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
+          CHANNEL_ID=$(echo "pr${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.ref }}" | tr -c 'a-zA-Z0-9-' '_')
+          npx firebase-tools@latest hosting:channel:delete "$CHANNEL_ID" --project "$VITE_FIREBASE_PROJECT_ID" --force || true
+          rm -f "$RUNNER_TEMP/firebase-sa.json"

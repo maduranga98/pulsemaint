@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import type { ContractorJob } from '@/lib/contractors/contractorTypes';
+import type { ContractorCompletedProject, ContractorJob } from '@/lib/contractors/contractorTypes';
 import { formatLkr } from '@/lib/contractors/invoiceCalculator';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
 import ContractorJobStatusBadge from '@/components/contractors/jobs/ContractorJobStatusBadge';
@@ -7,6 +7,7 @@ import InvoiceVarianceBadge from '@/components/contractors/jobs/InvoiceVarianceB
 
 interface ContractorJobHistoryTabProps {
   jobs: ContractorJob[];
+  previouslyCompletedProjects?: ContractorCompletedProject[];
 }
 
 function fmtTs(ts?: { toDate: () => Date } | null): string {
@@ -18,7 +19,7 @@ function waitMinutes(start?: { toDate: () => Date } | null, end?: { toDate: () =
   return Math.max(0, Math.round((end.toDate().getTime() - start.toDate().getTime()) / 60000));
 }
 
-export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) {
+export function ContractorJobHistoryTab({ jobs, previouslyCompletedProjects = [] }: ContractorJobHistoryTabProps) {
   // Job detail pages carry active work-log/sign-off/invoice actions gated to
   // supervisor/plant_manager/admin — roles without that access (e.g.
   // hr_officer viewing job history for compliance) get the reference number
@@ -77,6 +78,28 @@ export function ContractorJobHistoryTab({ jobs }: ContractorJobHistoryTabProps) 
         ))}
         {!jobs.length && <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">No job history yet.</div>}
       </div>
+      {previouslyCompletedProjects.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-slate-700">Previously Completed Projects</h3>
+          <p className="text-xs text-slate-500">Projects recorded before the contractor was onboarded into the system.</p>
+          {previouslyCompletedProjects.map((project, index) => (
+            <article key={`${project.name}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-semibold text-slate-900">{project.name}</span>
+                {project.contractType && <span className="rounded-full bg-slate-200 px-2 py-1 text-xs">{project.contractType}</span>}
+              </div>
+              <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-600">
+                <span>Rating: {project.rating || '-'}</span>
+                <span className="font-medium text-slate-800">Project cost: {project.cost || '-'}</span>
+                {project.duration && <span>Duration: {project.duration}</span>}
+              </div>
+              {project.forbiddenActions && (
+                <p className="mt-2 text-xs text-red-700">Forbidden actions: {project.forbiddenActions}</p>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

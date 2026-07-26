@@ -25,6 +25,28 @@ jobs:
         with:
           node-version: '24.16.0'
       - run: npm ci && npm run build
+      - name: Clean up stale preview channels
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PULSEMAINT }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
+          STALE_CHANNELS=$(npx firebase-tools@latest hosting:channel:list --project "$VITE_FIREBASE_PROJECT_ID" --json \
+            | node -e "
+              const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+              const channels = (data.result && data.result.channels) || [];
+              const preview = channels
+                .filter((c) => !c.name.endsWith('/channels/live'))
+                .sort((a, b) => new Date(a.updateTime) - new Date(b.updateTime));
+              const KEEP = 15;
+              preview.slice(0, Math.max(0, preview.length - KEEP))
+                .forEach((c) => console.log(c.name.split('/').pop()));
+            ")
+          for CHANNEL_ID in $STALE_CHANNELS; do
+            echo "Deleting stale preview channel: $CHANNEL_ID"
+            npx firebase-tools@latest hosting:channel:delete "$CHANNEL_ID" --project "$VITE_FIREBASE_PROJECT_ID" --force || true
+          done
+          rm -f "$RUNNER_TEMP/firebase-sa.json"
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
