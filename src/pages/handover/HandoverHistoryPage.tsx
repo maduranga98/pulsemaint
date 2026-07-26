@@ -5,14 +5,15 @@ import HandoverHistoryTable, { type ShiftTableRow } from '@/components/handover/
 import ShiftStatusPanel from '@/components/handover/ShiftStatusPanel';
 import { useHandoverHistory } from '@/hooks/useHandoverHistory';
 import { useAuthStore } from '@/store/authStore';
-import { subscribeCompletedShiftSessions } from '@/services/handover.service';
+import { subscribeCompletedShiftSessions, subscribeShiftConfigs } from '@/services/handover.service';
 import { calculateLateStartMinutes } from '@/utils/handover.utils';
-import type { HandoverHistoryFilters, ShiftSession } from '@/types/handover.types';
+import type { HandoverHistoryFilters, ShiftConfig, ShiftSession } from '@/types/handover.types';
 
 const initialFilters: HandoverHistoryFilters = {
   dateFrom: null,
   dateTo: null,
-  supervisorName: '',
+  personName: '',
+  role: '',
   shiftName: '',
   department: '',
   lateOnly: false,
@@ -22,23 +23,51 @@ export function HandoverHistoryPage() {
   const [filters, setFilters] = useState(initialFilters);
   const { handoverHistory, loading, error } = useHandoverHistory(filters);
 
+  const companyId = useAuthStore((s) => s.userProfile?.companyId);
+
   // Completed shift sessions for every role (technician, store keeper, operator…)
   // so ending a shift shows up in the table even without a supervisor handover.
-  const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [sessions, setSessions] = useState<ShiftSession[]>([]);
   useEffect(() => {
     if (!companyId) return;
     return subscribeCompletedShiftSessions(companyId, setSessions);
   }, [companyId]);
 
+  // Shift plans, only to resolve each row's department (handovers/sessions
+  // don't carry department themselves) and to populate the Shift/Department
+  // filter selects with the plans that actually exist.
+  const [shiftConfigs, setShiftConfigs] = useState<ShiftConfig[]>([]);
+  useEffect(() => {
+    if (!companyId) return;
+    return subscribeShiftConfigs(companyId, setShiftConfigs, (msg) => console.error('HandoverHistoryPage: shift configs error', msg));
+  }, [companyId]);
+
+  const departmentByShiftConfigId = useMemo(() => {
+    const map = new Map<string, string | null>();
+    shiftConfigs.forEach((s) => map.set(s.id, s.department ?? null));
+    return map;
+  }, [shiftConfigs]);
+
+  const shiftNameOptions = useMemo(
+    () => Array.from(new Set(shiftConfigs.map((s) => s.shiftName))).sort(),
+    [shiftConfigs],
+  );
+  const departmentOptions = useMemo(
+    () => Array.from(new Set(shiftConfigs.map((s) => s.department).filter((d): d is string => Boolean(d)))).sort(),
+    [shiftConfigs],
+  );
+
   const rows = useMemo<ShiftTableRow[]>(() => {
-    // Handover rows.
+    // Handover rows — always submitted by a supervisor (see SUP-018: only
+    // supervisors compile/hand over a shift report on end-shift).
     const handoverRows: ShiftTableRow[] = handoverHistory.map((h) => ({
       id: `handover-${h.id}`,
       kind: 'handover',
       shiftName: h.shiftName,
       personName: h.outgoingSupervisorName,
-      personRole: h.outgoingSupervisorDesignation ?? null,
+      personRole: 'supervisor',
+      department: departmentByShiftConfigId.get(h.shiftConfigId) ?? null,
+      shiftDate: h.shiftDate,
       start: h.shiftActualStart,
       end: h.shiftActualEnd ?? h.handoverSubmittedAt,
       scheduledStart: h.scheduledStart,
@@ -52,20 +81,14 @@ export function HandoverHistoryPage() {
     // Session rows — skip any session already represented by a handover.
     const sessionRows: ShiftTableRow[] = sessions
       .filter((s) => !s.handoverId)
-      .filter((s) => {
-        if (filters.supervisorName && !s.userName.toLowerCase().includes(filters.supervisorName.toLowerCase())) return false;
-        if (filters.shiftName && !s.shiftName.toLowerCase().includes(filters.shiftName.toLowerCase())) return false;
-        if (filters.dateFrom && s.shiftDate < filters.dateFrom) return false;
-        if (filters.dateTo && s.shiftDate > filters.dateTo) return false;
-        if (filters.lateOnly && calculateLateStartMinutes(s.scheduledStart, s.actualStart) <= 0) return false;
-        return true;
-      })
       .map((s) => ({
         id: `session-${s.id}`,
         kind: 'session' as const,
         shiftName: s.shiftName,
         personName: s.userName,
         personRole: s.userRole || null,
+        department: departmentByShiftConfigId.get(s.shiftConfigId) ?? null,
+        shiftDate: s.shiftDate,
         start: s.actualStart,
         end: s.actualEnd,
         scheduledStart: s.scheduledStart || null,
@@ -75,12 +98,27 @@ export function HandoverHistoryPage() {
         watchFlags: [],
       }));
 
-    return [...handoverRows, ...sessionRows].sort((a, b) => {
-      const at = (a.end ?? a.start)?.getTime() ?? 0;
-      const bt = (b.end ?? b.start)?.getTime() ?? 0;
-      return bt - at;
-    });
-  }, [handoverHistory, sessions, filters]);
+    // Person name / role / shift / department / lateOnly are applied once,
+    // uniformly, here — date range is already applied to handoverHistory by
+    // useHandoverHistory (sessions have no date filter upstream, so it must
+    // also be reapplied here for them).
+    return [...handoverRows, ...sessionRows]
+      .filter((row) => {
+        if (filters.personName && !row.personName.toLowerCase().includes(filters.personName.toLowerCase())) return false;
+        if (filters.role && row.personRole !== filters.role) return false;
+        if (filters.shiftName && row.shiftName !== filters.shiftName) return false;
+        if (filters.department && (row.department ?? '') !== filters.department) return false;
+        if (filters.dateFrom && row.shiftDate < filters.dateFrom) return false;
+        if (filters.dateTo && row.shiftDate > filters.dateTo) return false;
+        if (filters.lateOnly && !(row.scheduledStart && row.start && calculateLateStartMinutes(row.scheduledStart, row.start) > 0)) return false;
+        return true;
+      })
+      .sort((a, b) => {
+        const at = (a.end ?? a.start)?.getTime() ?? 0;
+        const bt = (b.end ?? b.start)?.getTime() ?? 0;
+        return bt - at;
+      });
+  }, [handoverHistory, sessions, filters, departmentByShiftConfigId]);
 
   return (
     <div className="space-y-5 p-4 lg:p-6">
@@ -89,7 +127,12 @@ export function HandoverHistoryPage() {
         <p className="mt-1 text-sm text-slate-500">Timestamped archive of supervisor accountability transfers across every shift and user.</p>
       </div>
       <ShiftStatusPanel />
-      <HandoverFilterBar filters={filters} onChange={setFilters} />
+      <HandoverFilterBar
+        filters={filters}
+        onChange={setFilters}
+        shiftOptions={shiftNameOptions}
+        departmentOptions={departmentOptions}
+      />
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {error}

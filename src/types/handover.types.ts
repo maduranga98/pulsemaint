@@ -191,8 +191,13 @@ export interface DraftHandover {
 export interface HandoverHistoryFilters {
   dateFrom: string | null;
   dateTo: string | null;
-  supervisorName: string;
+  /** Free-text search across any row's person name. */
+  personName: string;
+  /** Exact role match ('' = all roles). */
+  role: string;
+  /** Exact shift-plan name match, picked from a select ('' = all shifts). */
   shiftName: string;
+  /** Exact department match, picked from a select ('' = all departments). */
   department: string;
   /** Only show rows where the person started their shift late. */
   lateOnly: boolean;

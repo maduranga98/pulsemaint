@@ -515,9 +515,8 @@ export async function fetchHandoverHistory(companyId: string, filters: HandoverH
   }
   const rows = snap.docs.map((item) => mapHandover(item.id, item.data()));
   const filtered = rows.filter((handover) => {
-    if (filters.supervisorName && !handover.outgoingSupervisorName.toLowerCase().includes(filters.supervisorName.toLowerCase())) return false;
-    if (filters.shiftName && !handover.shiftName.toLowerCase().includes(filters.shiftName.toLowerCase())) return false;
-    if (filters.department && !handover.shiftName.toLowerCase().includes(filters.department.toLowerCase())) return false;
+    if (filters.personName && !handover.outgoingSupervisorName.toLowerCase().includes(filters.personName.toLowerCase())) return false;
+    if (filters.shiftName && handover.shiftName !== filters.shiftName) return false;
     if (filters.dateFrom && handover.shiftDate < filters.dateFrom) return false;
     if (filters.dateTo && handover.shiftDate > filters.dateTo) return false;
     return true;
@@ -526,15 +525,14 @@ export async function fetchHandoverHistory(companyId: string, filters: HandoverH
   return filtered;
 }
 
+// Only the date range is applied here — person name / role / shift / department
+// / lateOnly are applied once, uniformly, on the merged handover+session rows
+// in HandoverHistoryPage (a session has no ShiftHandover doc to filter here).
 function applyHandoverFilters(rows: ShiftHandover[], filters: HandoverHistoryFilters): ShiftHandover[] {
   return rows
     .filter((handover) => {
-      if (filters.supervisorName && !handover.outgoingSupervisorName.toLowerCase().includes(filters.supervisorName.toLowerCase())) return false;
-      if (filters.shiftName && !handover.shiftName.toLowerCase().includes(filters.shiftName.toLowerCase())) return false;
-      if (filters.department && !handover.shiftName.toLowerCase().includes(filters.department.toLowerCase())) return false;
       if (filters.dateFrom && handover.shiftDate < filters.dateFrom) return false;
       if (filters.dateTo && handover.shiftDate > filters.dateTo) return false;
-      if (filters.lateOnly && !(handover.overlapMinutes && handover.overlapMinutes > 0)) return false;
       return true;
     })
     .sort((a, b) => b.handoverSubmittedAt.getTime() - a.handoverSubmittedAt.getTime());

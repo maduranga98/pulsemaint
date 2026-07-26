@@ -12,6 +12,8 @@ export interface ShiftTableRow {
   shiftName: string;
   personName: string;
   personRole: string | null;
+  department: string | null;
+  shiftDate: string;
   start: Date | null;
   end: Date | null;
   /** The assigned shift's scheduled start time (HH:MM), used to flag a late start. */
@@ -41,11 +43,12 @@ function fmtDateTime(d: Date | null | undefined): string {
 export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
   return (
     <div className="overflow-x-auto scrollbar-hide rounded-lg border border-slate-200 bg-white">
-      <table className="w-full text-sm min-w-[980px]">
+      <table className="w-full text-sm min-w-[1080px]">
         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-4 py-3">Shift Name</th>
             <th className="px-4 py-3">Person &amp; Role</th>
+            <th className="px-4 py-3">Department</th>
             <th className="px-4 py-3">Shift Started</th>
             <th className="px-4 py-3">Late By</th>
             <th className="px-4 py-3">Shift Ended</th>
@@ -71,6 +74,7 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
                     <div className="text-xs capitalize text-slate-500">{row.personRole.replace(/_/g, ' ')}</div>
                   )}
                 </td>
+                <td className="px-4 py-3">{row.department || <span className="text-slate-400">-</span>}</td>
                 <td className={`px-4 py-3 whitespace-nowrap ${isLate ? 'font-semibold text-red-600' : ''}`}>{fmtDateTime(row.start)}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {isLate ? (
