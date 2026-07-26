@@ -188,6 +188,13 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
     }
   }
 
+  // The first invoice received against a "sent" PO advances the status and
+  // opens the review/pricing step. A renewed invoice attached later (after
+  // the PO has already been resent with revised pricing, or at any later
+  // stage) is just a new attachment on the existing record — the status and
+  // pricing are updated separately, via Review Invoice.
+  const isInitialInvoice = order.status === 'sent';
+
   async function submitInvoice() {
     if (!invoiceFile || !userProfile) return;
     setUploadingInvoice(true);
@@ -196,16 +203,16 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       const sref = storageRef(storage, path);
       await uploadBytes(sref, invoiceFile);
       const url = await getDownloadURL(sref);
+      const attachmentLabel = isInitialInvoice ? `Invoice - ${invoiceFile.name}` : `Renewed Invoice - ${invoiceFile.name}`;
       await updateDoc(doc(db, 'purchaseOrders', order.id), {
-        status: 'invoice_received',
-        invoiceReceivedAt: serverTimestamp(),
+        ...(isInitialInvoice ? { status: 'invoice_received', invoiceReceivedAt: serverTimestamp() } : {}),
         invoiceUploadedBy: userProfile.id,
         invoiceUploadedByName: userProfile.fullName ?? '',
-        attachments: arrayUnion({ name: `Invoice - ${invoiceFile.name}`, url }),
+        attachments: arrayUnion({ name: attachmentLabel, url }),
         updatedAt: serverTimestamp(),
       });
-      await queueEmail('invoice_received');
-      addToast('Invoice submitted. Review it to confirm pricing.', 'success');
+      if (isInitialInvoice) await queueEmail('invoice_received');
+      addToast(isInitialInvoice ? 'Invoice submitted. Review it to confirm pricing.' : 'Renewed invoice attached.', 'success');
       setInvoiceModal(false);
       setInvoiceFile(null);
     } catch (err) {
@@ -432,13 +439,15 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
-          <button
-            onClick={downloadPdf}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-xl transition-colors text-sm"
-          >
-            <FileText className="w-4 h-4" />
-            Download / Print PDF
-          </button>
+          {order.status === 'received' && (
+            <button
+              onClick={downloadPdf}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-xl transition-colors text-sm"
+            >
+              <FileText className="w-4 h-4" />
+              Download / Print PDF
+            </button>
+          )}
 
           {(order.status === 'draft' || order.status === 'pending_approval') && (
             <button
@@ -504,7 +513,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             </button>
           )}
 
-          {order.status === 'invoice_received' && !reviewCosts && (
+          {(order.status === 'invoice_received' || order.status === 'acknowledged' || order.status === 'partially_received' || order.status === 'received') && !reviewCosts && (
             <button
               onClick={openReview}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm"
@@ -522,6 +531,20 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             >
               <CheckCircle2 className="w-4 h-4" />
               Mark as Acknowledged
+            </button>
+          )}
+
+          {/* After the PO has been resent with revised pricing (or at any
+              later stage), the supplier may come back with an updated
+              invoice — attach it here without resetting the PO's status. */}
+          {(order.status === 'invoice_received' || order.status === 'acknowledged' || order.status === 'partially_received' || order.status === 'received') && (
+            <button
+              onClick={() => setInvoiceModal(true)}
+              disabled={actionLoading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-purple-300 text-purple-700 hover:bg-purple-50 font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
+            >
+              <Upload className="w-4 h-4" />
+              Attach Renewed Invoice
             </button>
           )}
 
@@ -589,9 +612,11 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       {invoiceModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Submit Received Invoice</h3>
+            <h3 className="text-lg font-bold text-gray-900">{isInitialInvoice ? 'Submit Received Invoice' : 'Attach Renewed Invoice'}</h3>
             <p className="text-sm text-gray-600">
-              Attach the invoice the supplier sent for <strong>{order.poNumber}</strong>. You'll review and confirm its pricing next.
+              {isInitialInvoice
+                ? <>Attach the invoice the supplier sent for <strong>{order.poNumber}</strong>. You'll review and confirm its pricing next.</>
+                : <>Attach an updated invoice from the supplier for <strong>{order.poNumber}</strong>. Use Review Invoice &amp; Send Priced PO to apply any new pricing from it.</>}
             </p>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Invoice file</label>
