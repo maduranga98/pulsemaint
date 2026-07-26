@@ -360,6 +360,11 @@ export interface PurchaseOrder {
   acknowledgedAt: Timestamp | null;
   receivedAt: Timestamp | null;
 
+  cancelledBy?: string | null;
+  cancelledByName?: string | null;
+  cancelledAt?: Timestamp | null;
+  cancelledReason?: string | null;
+
   notes: string;
   attachments: { name: string; url: string }[];
 
