@@ -11,7 +11,7 @@ import {
 import DashboardWidget from '../shared/DashboardWidget';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
-import { useTeamPerformanceAnalytics } from '../../../hooks/dashboard/useTeamPerformanceAnalytics';
+import { useTeamPerformanceByRole } from '../../../hooks/dashboard/useTeamPerformanceByRole';
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin',
@@ -32,7 +32,7 @@ interface HrActivityByRoleChartProps {
 // Evaluations, Audit sessions, and Triage (Quick Assessment) activity by
 // role in one chart — feeds the HR dashboard's graphical metrics (HR-002).
 export default function HrActivityByRoleChart({ companyId }: HrActivityByRoleChartProps) {
-  const { data, loading, error, refetch } = useTeamPerformanceAnalytics(companyId);
+  const { data, loading, error, refetch } = useTeamPerformanceByRole(companyId);
 
   const chartData = data
     .filter((row) => row.evaluationCount > 0 || row.auditCount > 0 || row.quizAttempts > 0)

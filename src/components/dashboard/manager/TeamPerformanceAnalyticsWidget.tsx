@@ -1,4 +1,4 @@
-import { Users, ClipboardCheck, BookOpen, CheckSquare } from 'lucide-react';
+import { ClipboardCheck, BookOpen, CheckSquare } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTeamPerformanceAnalytics } from '../../../hooks/dashboard/useTeamPerformanceAnalytics';
 import EmptyState from '../shared/EmptyState';
@@ -26,6 +26,10 @@ interface TeamPerformanceAnalyticsWidgetProps {
   companyId: string;
 }
 
+// Shows the same 6 columns as the "Team Performance" report
+// (technician_performance): Name, Role, Evaluation Score, Audit Score,
+// Trainings Completed, Quizzes Passed — both read from
+// fetchTeamPerformanceByUser so the numbers never drift apart.
 export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerformanceAnalyticsWidgetProps) {
   const { data, loading, error, refetch } = useTeamPerformanceAnalytics(companyId);
 
@@ -43,20 +47,12 @@ export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerfor
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
-                <th className="pb-2 font-medium">Role</th>
-                <th className="pb-2 font-medium text-center">
-                  <span className="flex items-center justify-center gap-1">
-                    <Users className="w-3 h-3" /> Members
-                  </span>
-                </th>
+                <th className="pb-2 font-medium">Name</th>
+                <th className="pb-2 font-medium hidden sm:table-cell">Role</th>
+                <th className="pb-2 font-medium text-center">Evaluation Score</th>
                 <th className="pb-2 font-medium text-center hidden sm:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    Avg Score
-                  </span>
-                </th>
-                <th className="pb-2 font-medium text-center hidden sm:table-cell">
-                  <span className="flex items-center justify-center gap-1">
-                    <ClipboardCheck className="w-3 h-3" /> Audits
+                    <ClipboardCheck className="w-3 h-3" /> Audit Score
                   </span>
                 </th>
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
@@ -69,48 +65,40 @@ export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerfor
                     <CheckSquare className="w-3 h-3" /> Quizzes Passed
                   </span>
                 </th>
-                <th className="pb-2 font-medium text-center hidden md:table-cell">
-                  <span className="flex items-center justify-center gap-1">
-                    <CheckSquare className="w-3 h-3" /> Quick Assessment Mark
-                  </span>
-                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]/50">
               {data.map((row) => (
-                <tr key={row.role} className="hover:bg-[#1E3A5F]/20">
-                  <td className="py-2.5 text-[#F0F4F8] font-medium">
+                <tr key={row.userId} className="hover:bg-[#1E3A5F]/20">
+                  <td className="py-2.5 text-[#F0F4F8] font-medium">{row.name}</td>
+                  <td className="py-2.5 text-[#8BA3BF] hidden sm:table-cell">
                     {ROLE_LABELS[row.role] ?? row.role}
                   </td>
-                  <td className="py-2.5 text-center text-[#8BA3BF]">{row.memberCount}</td>
-                  <td className="py-2.5 text-center hidden sm:table-cell">
-                    {row.evaluationCount > 0 ? (
-                      <span className={`font-semibold ${scoreColor(row.avgEvaluationScore)}`}>
-                        {row.avgEvaluationScore}
+                  <td className="py-2.5 text-center">
+                    {row.hasEvaluation ? (
+                      <span className={`font-semibold ${scoreColor(row.evaluationScore)}`}>
+                        {row.evaluationScore}
                         <span className="text-[#8BA3BF] font-normal">/100</span>
                       </span>
                     ) : (
                       <span className="text-[#8BA3BF]">—</span>
                     )}
                   </td>
-                  <td className="py-2.5 text-center text-[#8BA3BF] hidden sm:table-cell">
-                    {row.auditCount || ''}
+                  <td className="py-2.5 text-center hidden sm:table-cell">
+                    {row.hasAudit ? (
+                      <span className={`font-semibold ${scoreColor(row.auditScore)}`}>
+                        {row.auditScore}
+                        <span className="text-[#8BA3BF] font-normal">/100</span>
+                      </span>
+                    ) : (
+                      <span className="text-[#8BA3BF]">—</span>
+                    )}
                   </td>
                   <td className="py-2.5 text-center text-[#8BA3BF] hidden md:table-cell">
                     {row.trainingsCompleted || ''}
                   </td>
                   <td className="py-2.5 text-center text-[#8BA3BF] hidden md:table-cell">
                     {row.quizzesPassed || ''}
-                  </td>
-                  <td className="py-2.5 text-center hidden md:table-cell">
-                    {row.quizAttempts > 0 ? (
-                      <span className={`font-semibold ${scoreColor(row.avgQuizMark)}`}>
-                        {row.avgQuizMark}
-                        <span className="text-[#8BA3BF] font-normal">/100</span>
-                      </span>
-                    ) : (
-                      <span className="text-[#8BA3BF]">—</span>
-                    )}
                   </td>
                 </tr>
               ))}
