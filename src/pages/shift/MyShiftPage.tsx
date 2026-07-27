@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CalendarDays, Clock, Play, Square, TrendingUp } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useHandoverStore } from '@/store/handover.store';
-import { fetchMyRecentSessions, fetchShiftConfigs } from '@/services/handover.service';
+import { fetchMyRecentSessions, subscribeShiftConfigs } from '@/services/handover.service';
 import {
   formatDuration,
   formatTimeRange,
@@ -47,24 +47,36 @@ export function MyShiftPage() {
     if (profile && !isShiftStateLoaded) void initShiftState();
   }, [profile, isShiftStateLoaded, initShiftState]);
 
+  // Live shift-config subscription — so a reassignment (or an edit to the
+  // shift plan itself) made in Settings → Shifts/Users shows up here
+  // immediately instead of only after the next full page load.
+  useEffect(() => {
+    if (!profile) return;
+    setLoading(true);
+    const unsubscribe = subscribeShiftConfigs(
+      profile.companyId,
+      (configs) => {
+        setPlans(getMyShiftPlans(configs, { id: profile.id, role: profile.role, shiftId: profile.shiftId, department: profile.department }));
+        setError(null);
+        setLoading(false);
+      },
+      (message) => {
+        setError(message);
+        setLoading(false);
+      },
+    );
+    return unsubscribe;
+  }, [profile]);
+
   useEffect(() => {
     if (!profile) return;
     let cancelled = false;
     (async () => {
-      setLoading(true);
       try {
-        const [configs, sessions] = await Promise.all([
-          fetchShiftConfigs(profile.companyId),
-          fetchMyRecentSessions(profile.companyId, profile.id),
-        ]);
-        if (cancelled) return;
-        setPlans(getMyShiftPlans(configs, { id: profile.id, role: profile.role, shiftId: profile.shiftId, department: profile.department }));
-        setRecent(sessions);
-        setError(null);
+        const sessions = await fetchMyRecentSessions(profile.companyId, profile.id);
+        if (!cancelled) setRecent(sessions);
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load shift plans');
-      } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load recent shifts');
       }
     })();
     return () => { cancelled = true; };
