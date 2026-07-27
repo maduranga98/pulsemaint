@@ -3,13 +3,10 @@ import { Plus, Trash2, Save, Loader2, GripVertical } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import {
   ANSWER_TYPE_LABELS,
-  AUDIT_SCOPE_LABELS,
   FINDING_KIND_LABELS,
-  ALL_FINDING_KINDS,
   type AnswerType,
   type AuditTemplate,
   type AuditTask,
-  type AuditScope,
   type FindingKind,
 } from '../types/audit.types';
 import { saveTemplate, createCustomCategory } from '../services/audit.service';
@@ -28,8 +25,10 @@ interface Props {
 export function AuditTaskConfigurator({ plantId, template, createNew = false, onSaved, onClose }: Props) {
   const [name, setName] = useState(template?.name ?? '');
   const [tasks, setTasks] = useState<AuditTask[]>(template?.tasks ?? []);
-  const [scope, setScope] = useState<AuditScope>('machines');
-  const [enabledFindingKinds, setEnabledFindingKinds] = useState<FindingKind[]>(ALL_FINDING_KINDS);
+  // Custom categories are filled in manually (Department/Location free text, no
+  // machine/contractor/inventory/work-order picker) — the 'departments' scope
+  // already renders that manual-only form in AuditSessionForm.
+  const [enabledFindingKinds, setEnabledFindingKinds] = useState<FindingKind[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +61,7 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
     setSaving(true);
     try {
       if (createNew) {
-        const created = await createCustomCategory(plantId, name, cleanTasks, scope, enabledFindingKinds);
+        const created = await createCustomCategory(plantId, name, cleanTasks, 'departments', enabledFindingKinds);
         onSaved(created);
         return;
       }
@@ -99,44 +98,27 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
       </div>
 
       {createNew && (
-        <>
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Scope</label>
-            <select
-              value={scope}
-              onChange={(e) => setScope(e.target.value as AuditScope)}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-blue-500 focus:outline-none"
-            >
-              {(Object.keys(AUDIT_SCOPE_LABELS) as AuditScope[]).map((s) => (
-                <option key={s} value={s}>{AUDIT_SCOPE_LABELS[s]}</option>
-              ))}
-            </select>
-            <p className="mt-1 text-[11px] text-slate-500">
-              What this audit is about — determines which selector (machines, contractors,
-              inventory, work orders, departments) shows on the audit form. Cannot be changed
-              after the category is created.
-            </p>
+        <div>
+          <label className="block text-xs font-semibold text-slate-400 mb-1.5">
+            Finding types allowed
+          </label>
+          <p className="mb-1.5 text-[11px] text-slate-500">
+            None are enabled by default — check off which finding types this form should offer.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {(Object.keys(FINDING_KIND_LABELS) as FindingKind[]).map((kind) => (
+              <label key={kind} className="flex items-center gap-1.5 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={enabledFindingKinds.includes(kind)}
+                  onChange={() => toggleFindingKind(kind)}
+                  className="accent-blue-500"
+                />
+                {FINDING_KIND_LABELS[kind]}
+              </label>
+            ))}
           </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-              Finding types allowed
-            </label>
-            <div className="flex flex-wrap gap-3">
-              {(Object.keys(FINDING_KIND_LABELS) as FindingKind[]).map((kind) => (
-                <label key={kind} className="flex items-center gap-1.5 text-xs text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={enabledFindingKinds.includes(kind)}
-                    onChange={() => toggleFindingKind(kind)}
-                    className="accent-blue-500"
-                  />
-                  {FINDING_KIND_LABELS[kind]}
-                </label>
-              ))}
-            </div>
-          </div>
-        </>
+        </div>
       )}
 
       <div className="space-y-2">

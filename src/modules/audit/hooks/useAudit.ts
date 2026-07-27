@@ -30,6 +30,10 @@ import {
  */
 const RETIRED_CATEGORIES = new Set(['oee']);
 
+function isRetiredCategory(category: string): boolean {
+  return RETIRED_CATEGORIES.has((category ?? '').trim().toLowerCase());
+}
+
 export function usePlantId(): string | undefined {
   return useAuthStore((s) => s.userProfile?.companyId);
 }
@@ -53,7 +57,7 @@ export function useAuditTemplates(): { templates: AuditTemplate[]; loading: bool
         unsub = subscribeTemplates(
           plantId,
           (data) => {
-            const live = data.filter((t) => !RETIRED_CATEGORIES.has(t.category));
+            const live = data.filter((t) => !isRetiredCategory(t.category));
             setTemplates(live);
             setLoading(false);
 
@@ -63,7 +67,7 @@ export function useAuditTemplates(): { templates: AuditTemplate[]; loading: bool
             // deletes, and the filter above already hides these either way.
             if (role === 'admin') {
               data
-                .filter((t) => RETIRED_CATEGORIES.has(t.category))
+                .filter((t) => isRetiredCategory(t.category))
                 .forEach((t) => {
                   deleteTemplate(plantId, t.id).catch(() => {});
                 });

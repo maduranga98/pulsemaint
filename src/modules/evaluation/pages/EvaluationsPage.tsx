@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Plus, X, ClipboardList, Calendar, TrendingUp, Download,
   GraduationCap, ArrowUpCircle, ArrowDownCircle, Settings2, Clock,
+  HardHat, Wrench, ShieldCheck, Building2, GraduationCap as CapIcon, Users,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import EvaluationForm, { type FormData } from '../components/EvaluationForm';
@@ -16,13 +17,23 @@ import {
   updateEvaluateePosition,
 } from '../services/evaluation.service';
 import { downloadEvaluationPdf } from '../utils/evaluationPdf';
-import type { EvaluationSession, EvaluationActionType } from '../types/evaluation.types';
+import type { EvaluationSession, EvaluationActionType, EvaluationRole } from '../types/evaluation.types';
 import { EVALUATION_ROLE_LABELS } from '../types/evaluation.types';
 
 const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 const CAN_ASSIGN_TRAINING_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer'];
 
 type StatusFilter = 'submitted' | 'draft';
+
+const ROLE_ORDER: EvaluationRole[] = ['operator', 'technician', 'supervisor', 'plant_manager', 'trainee', 'other'];
+const ROLE_ICON: Record<EvaluationRole, typeof HardHat> = {
+  operator: HardHat,
+  technician: Wrench,
+  supervisor: ShieldCheck,
+  plant_manager: Building2,
+  trainee: CapIcon,
+  other: Users,
+};
 
 export default function EvaluationsPage() {
   const navigate = useNavigate();
@@ -38,6 +49,7 @@ export default function EvaluationsPage() {
   const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
   const [selected, setSelected] = useState<EvaluationSession | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('submitted');
+  const [roleFilter, setRoleFilter] = useState<EvaluationRole | null>(null);
   const [positionNote, setPositionNote] = useState('');
   const [actionBusy, setActionBusy] = useState<EvaluationActionType | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -159,7 +171,9 @@ export default function EvaluationsPage() {
   const scoreBg = (score: number) =>
     score >= 80 ? 'bg-emerald-50 border-emerald-200' : score >= 60 ? 'bg-blue-50 border-blue-200' : score >= 40 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
 
-  const filteredSessions = sessions.filter((s) => s.status === statusFilter);
+  const filteredSessions = sessions.filter(
+    (s) => s.status === statusFilter && (!roleFilter || s.evaluateeRole === roleFilter),
+  );
 
   const ACTION_LABEL: Record<EvaluationActionType, string> = {
     training_assigned: 'Training Assigned',
@@ -194,6 +208,40 @@ export default function EvaluationsPage() {
             New Evaluation
           </button>
         </div>
+      </div>
+
+      {/* Categories */}
+      <div className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <button
+          type="button"
+          onClick={() => setRoleFilter(null)}
+          className={`rounded-xl border p-3 text-left transition-colors ${
+            roleFilter === null ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
+          }`}
+        >
+          <ClipboardList className={`h-5 w-5 mb-2 ${roleFilter === null ? 'text-blue-600' : 'text-gray-400'}`} />
+          <p className="text-sm font-semibold text-gray-900">All</p>
+          <p className="text-xs text-gray-500 mt-0.5">{sessions.length} evaluation{sessions.length !== 1 ? 's' : ''}</p>
+        </button>
+        {ROLE_ORDER.map((r) => {
+          const RoleIcon = ROLE_ICON[r];
+          const count = sessions.filter((s) => s.evaluateeRole === r).length;
+          const active = roleFilter === r;
+          return (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRoleFilter(active ? null : r)}
+              className={`rounded-xl border p-3 text-left transition-colors ${
+                active ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
+              }`}
+            >
+              <RoleIcon className={`h-5 w-5 mb-2 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+              <p className="text-sm font-semibold text-gray-900">{EVALUATION_ROLE_LABELS[r]}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{count} evaluation{count !== 1 ? 's' : ''}</p>
+            </button>
+          );
+        })}
       </div>
 
       {showForm && !selected && (
@@ -355,23 +403,26 @@ export default function EvaluationsPage() {
         </div>
       )}
 
-      {/* Status Tabs */}
-      <div className="flex items-center gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
-        {([
-          { id: 'submitted' as const, label: 'Completed' },
-          { id: 'draft' as const, label: 'Ongoing' },
-        ]).map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setStatusFilter(tab.id)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              statusFilter === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {tab.label} ({sessions.filter((s) => s.status === tab.id).length})
-          </button>
-        ))}
+      {/* Recent Evaluations */}
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-base font-bold text-gray-900">Recent Evaluations</h2>
+        <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+          {([
+            { id: 'submitted' as const, label: 'Completed' },
+            { id: 'draft' as const, label: 'Ongoing' },
+          ]).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setStatusFilter(tab.id)}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                statusFilter === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab.label} ({sessions.filter((s) => s.status === tab.id && (!roleFilter || s.evaluateeRole === roleFilter)).length})
+            </button>
+          ))}
+        </div>
       </div>
 
       {loadError && (

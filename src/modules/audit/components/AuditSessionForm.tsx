@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useAuthStore } from '../../../store/authStore';
-import { useDepartments } from '../../../hooks/useDepartments';
 import { useContractorJobs } from '../../../hooks/contractors/useContractorJobs';
 import { RatingStarSelector } from '../../../components/contractors/jobs/RatingStarSelector';
 import { ContractorJobStatusBadge } from '../../../components/contractors/jobs/ContractorJobStatusBadge';
@@ -151,7 +150,6 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone }:
   const plantId = profile?.companyId ?? '';
   const { machines } = useAuditMachines();
   const { users } = useAuditUsers();
-  const { departments } = useDepartments(plantId);
 
   const [selectedMachines, setSelectedMachines] = useState<MachineRef[]>([]);
   const [selectedContractors, setSelectedContractors] = useState<ContractorRef[]>([]);
@@ -492,18 +490,12 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone }:
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">Department</label>
-              <select
+              <input
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-blue-500 focus:outline-none"
-              >
-                <option value="">Select department…</option>
-                {['Production', 'Maintenance', 'Quality', 'Safety', 'Electrical', ...departments]
-                  .filter((v, i, arr) => arr.indexOf(v) === i)
-                  .map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-              </select>
+                placeholder="e.g. Production, Maintenance, Quality"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">

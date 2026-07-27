@@ -997,12 +997,14 @@ service cloud.firestore {
       allow write: if false; // Cloud-Function-only marker collection
     }
 
+    // Doc id is the tenant's companyId (see useSiteId() in src/modules/moe/hooks/useMoe.ts),
+    // so this is scoped like every other collection via belongsToCompany — isSameSite()
+    // checks a `siteId` field that doesn't exist on user docs (the real field is
+    // companyId; see UserProfile in src/types/auth.ts) and always failed here.
     match /moeConfig/{siteId} {
-      allow read: if isAdmin() || (isAuthenticated()
-        && (getUserData().siteId == null || isSameSite(siteId))
+      allow read: if isAdmin() || (belongsToCompany(siteId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
-      allow write: if isAdmin() || (isAuthenticated()
-        && (getUserData().siteId == null || isSameSite(siteId))
+      allow write: if isAdmin() || (belongsToCompany(siteId)
         && getUserData().role == 'plant_manager');
     }
 
