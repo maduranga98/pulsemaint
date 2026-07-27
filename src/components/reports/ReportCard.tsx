@@ -12,14 +12,11 @@ export default function ReportCard({
 }) {
   return (
     <article className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-5 transition duration-200 hover:-translate-y-0.5 hover:border-[#2E5A8F]">
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-[#1E3A5F] bg-[#0A1628] text-[#00C2FF]">
           <ReportCategoryIcon icon={report.icon} className="h-5 w-5" />
         </div>
-        <div className="min-w-0 flex-1">
-          <h3 className="font-[Sora] text-base font-semibold text-[#F0F4F8]">{report.name}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-[#8BA3BF]">{report.description}</p>
-        </div>
+        <h3 className="min-w-0 flex-1 truncate font-[Sora] text-base font-semibold text-[#F0F4F8]">{report.name}</h3>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -28,8 +25,7 @@ export default function ReportCard({
         {report.supportsSheets && <ReportFormatChip format="google_sheets" />}
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <p className="truncate text-xs text-[#8BA3BF]">{report.primaryUsers.join(' · ')}</p>
+      <div className="mt-4 flex justify-end">
         <button
           type="button"
           onClick={() => onGenerate(report.type)}
