@@ -61,6 +61,8 @@ export interface Invitation {
   fullName: string;
   department: string | null;
   jobTitle: string | null;
+  employeeId: string | null;
+  phone: string | null;
   token: string;
   status: 'pending' | 'accepted' | 'expired' | 'revoked';
   invitedBy: string;

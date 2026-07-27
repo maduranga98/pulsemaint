@@ -1,37 +1,47 @@
 import { Link } from 'react-router-dom';
 import { Building2, Clock, Users, Boxes, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import type { UserRole } from '../../types/auth';
 
 interface Tile {
   title: string;
   description: string;
   to: string;
   icon: React.ReactNode;
+  /** Omit to show to everyone who can reach Settings. */
+  roles?: UserRole[];
 }
 
 export default function SettingsPage() {
   const company = useAuthStore((s) => s.company);
+  const role = useAuthStore((s) => s.userProfile?.role);
 
-  const tiles: Tile[] = [
+  const allTiles: Tile[] = [
     {
       title: 'Users',
       description: 'Manage team members, roles, and invites.',
       to: '/app/settings/users',
       icon: <Users className="w-5 h-5" />,
+      // Matches the roles the old top-level "Users" nav item was visible to.
+      roles: ['admin', 'supervisor', 'plant_manager', 'hr_officer'],
     },
     {
       title: 'Shifts',
       description: 'Configure shift schedules and handover rules.',
       to: '/app/settings/shifts',
       icon: <Clock className="w-5 h-5" />,
+      // Matches the old top-level "Shifts" nav item, which was admin-only.
+      roles: ['admin'],
     },
     {
       title: 'Inventory Settings',
       description: 'Reorder thresholds, units, and stock policies.',
       to: '/app/inventory/settings',
       icon: <Boxes className="w-5 h-5" />,
+      roles: ['admin', 'supervisor', 'plant_manager'],
     },
   ];
+  const tiles = allTiles.filter((t) => !t.roles || (role && t.roles.includes(role)));
 
   return (
     <div className="min-h-full">

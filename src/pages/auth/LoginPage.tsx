@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -68,6 +68,18 @@ export default function LoginPage() {
   const [confirmPin, setConfirmPin] = useState('');
   const [pinInput, setPinInput] = useState('');
   const recaptchaRef = useRef<HTMLDivElement>(null);
+
+  // Surfaces the reason when useAuthInit force-signed the user out mid-session
+  // (e.g. an admin just marked their account inactive) — the store's error is
+  // cleared by the reset() that accompanies the sign-out, so this is stashed
+  // separately for the login screen to show once.
+  useEffect(() => {
+    const notice = sessionStorage.getItem('pulsemaint:deactivation-notice');
+    if (notice) {
+      setError(notice);
+      sessionStorage.removeItem('pulsemaint:deactivation-notice');
+    }
+  }, []);
 
   const emailForm = useForm<EmailLoginForm>({
     resolver: zodResolver(emailLoginSchema),

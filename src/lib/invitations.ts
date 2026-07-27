@@ -32,13 +32,30 @@ export async function createInvitation(data: {
   fullName: string;
   department: string | null;
   jobTitle: string | null;
+  employeeId?: string | null;
+  phone?: string | null;
   invitedBy: string;
   invitedByName: string;
 }): Promise<Invitation> {
+  const normalizedEmail = data.email.toLowerCase().trim();
+
+  // An email still registered to an active user (not deleted) can't be
+  // re-invited/re-added — the existing account is the login for that email.
+  const activeUser = await getDocs(
+    query(
+      collection(db, `companies/${data.companyId}/users`),
+      where('email', '==', normalizedEmail),
+      where('status', '==', 'active'),
+    ),
+  );
+  if (!activeUser.empty) {
+    throw new Error('This email is already registered to an active user.');
+  }
+
   const existing = await getDocs(
     query(
       collection(db, `companies/${data.companyId}/invitations`),
-      where('email', '==', data.email.toLowerCase().trim()),
+      where('email', '==', normalizedEmail),
       where('status', '==', 'pending'),
     ),
   );
@@ -57,11 +74,13 @@ export async function createInvitation(data: {
     id,
     companyId: data.companyId,
     companyName: data.companyName,
-    email: data.email.toLowerCase().trim(),
+    email: normalizedEmail,
     role: data.role,
     fullName: data.fullName.trim(),
     department: data.department,
     jobTitle: data.jobTitle,
+    employeeId: data.employeeId?.trim() || null,
+    phone: data.phone?.trim() || null,
     token,
     status: 'pending',
     invitedBy: data.invitedBy,
@@ -189,8 +208,8 @@ async function createUserFromInvitation(
     role: invitation.role,
     fullName: fullName.trim(),
     email: invitation.email,
-    phone: null,
-    employeeId: null,
+    phone: invitation.phone ?? null,
+    employeeId: invitation.employeeId ?? null,
     department: invitation.department,
     jobTitle: invitation.jobTitle,
     status: 'active',

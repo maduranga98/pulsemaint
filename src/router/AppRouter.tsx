@@ -719,7 +719,9 @@ export default function AppRouter() {
         <Route
           path="settings"
           element={
-            <ProtectedRoute requiredRoles={['admin']}>
+            // Union of the roles that used to reach Users/Shifts via their
+            // own top-level nav items, now folded into Settings.
+            <ProtectedRoute requiredRoles={['admin', 'supervisor', 'plant_manager', 'hr_officer']}>
               <SettingsPage />
             </ProtectedRoute>
           }
