@@ -14,6 +14,7 @@ import {
   subscribeEvaluations,
   submitEvaluation,
   saveDraftEvaluation,
+  updateEvaluation,
   logEvaluationAction,
   updateEvaluateePosition,
 } from '../services/evaluation.service';
@@ -58,6 +59,7 @@ export default function EvaluationsPage() {
   const [newEvalTarget, setNewEvalTarget] = useState<EvaluationTargetType>('individual');
   const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
   const [selected, setSelected] = useState<EvaluationSession | null>(null);
+  const [editingSession, setEditingSession] = useState<EvaluationSession | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('submitted');
   const [viewMode, setViewMode] = useState<ViewMode>('role');
   const [roleFilter, setRoleFilter] = useState<EvaluationRole | null>(null);
@@ -113,22 +115,33 @@ export default function EvaluationsPage() {
       attachments: data.attachments,
       templateId: data.templateId,
       templateName: data.templateName,
-      actionLog: [],
-      status: 'submitted' as const,
+      actionLog: editingSession?.actionLog ?? [],
       evaluationDate: data.evaluationDate,
     };
   }
 
   async function handleSubmit(data: FormData) {
-    await submitEvaluation(buildSessionPayload(data));
+    const payload = buildSessionPayload(data);
+    if (editingSession) {
+      await updateEvaluation(editingSession.id, payload, 'submitted');
+    } else {
+      await submitEvaluation({ ...payload, status: 'submitted' });
+    }
     setShowForm(false);
+    setEditingSession(null);
     setStatusFilter('submitted');
     void load();
   }
 
   async function handleSaveDraft(data: FormData) {
-    await saveDraftEvaluation(buildSessionPayload(data));
+    const payload = buildSessionPayload(data);
+    if (editingSession) {
+      await updateEvaluation(editingSession.id, payload, 'draft');
+    } else {
+      await saveDraftEvaluation({ ...payload, status: 'draft' });
+    }
     setShowForm(false);
+    setEditingSession(null);
     setStatusFilter('draft');
     void load();
   }
@@ -210,6 +223,24 @@ export default function EvaluationsPage() {
     setFormKey((k) => k + 1);
   }
 
+  function handleRowClick(session: EvaluationSession) {
+    if (session.status === 'draft') {
+      // Resume the paused draft instead of opening the read-only detail view.
+      setEditingSession(session);
+      setNewEvalTarget(session.targetType ?? 'individual');
+      setSelected(null);
+      setShowForm(true);
+      setFormKey((k) => k + 1);
+    } else {
+      setSelected(session);
+    }
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setEditingSession(null);
+  }
+
   const ACTION_LABEL: Record<EvaluationActionType, string> = {
     training_assigned: 'Training Assigned',
     position_upgraded: 'Position Upgraded',
@@ -249,7 +280,7 @@ export default function EvaluationsPage() {
           <button
             key={tab.id}
             type="button"
-            onClick={() => { setViewMode(tab.id); setShowForm(false); }}
+            onClick={() => { setViewMode(tab.id); closeForm(); }}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
               viewMode === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
@@ -261,10 +292,10 @@ export default function EvaluationsPage() {
 
       {/* Categories */}
       {viewMode === 'role' ? (
-        <div className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div key="role-grid" className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <button
             type="button"
-            onClick={() => { setRoleFilter(null); setShowForm(false); }}
+            onClick={() => { setRoleFilter(null); closeForm(); }}
             className={`rounded-xl border p-3 text-left transition-colors ${
               roleFilter === null ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
             }`}
@@ -287,7 +318,7 @@ export default function EvaluationsPage() {
                 key={r}
                 type="button"
                 onClick={() => {
-                  if (active) { setRoleFilter(null); setShowForm(false); } else { openIndividualEval(r); }
+                  if (active) { setRoleFilter(null); closeForm(); } else { openIndividualEval(r); }
                 }}
                 className={`rounded-xl border p-3 text-left transition-colors ${
                   active ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
@@ -301,10 +332,10 @@ export default function EvaluationsPage() {
           })}
         </div>
       ) : (
-        <div className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div key="department-grid" className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <button
             type="button"
-            onClick={() => { setDeptFilter(null); setShowForm(false); }}
+            onClick={() => { setDeptFilter(null); closeForm(); }}
             className={`rounded-xl border p-3 text-left transition-colors ${
               deptFilter === null ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
             }`}
@@ -329,7 +360,7 @@ export default function EvaluationsPage() {
                   key={d}
                   type="button"
                   onClick={() => {
-                    if (active) { setDeptFilter(null); setShowForm(false); } else { openDepartmentEval(d); }
+                    if (active) { setDeptFilter(null); closeForm(); } else { openDepartmentEval(d); }
                   }}
                   className={`rounded-xl border p-3 text-left transition-colors ${
                     active ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
@@ -355,9 +386,10 @@ export default function EvaluationsPage() {
             targetType={newEvalTarget}
             initialRole={newEvalTarget === 'individual' ? roleFilter ?? undefined : undefined}
             initialDepartment={newEvalTarget === 'department' ? deptFilter ?? undefined : undefined}
+            existing={editingSession ?? undefined}
             onSubmit={handleSubmit}
             onSaveDraft={handleSaveDraft}
-            onCancel={() => setShowForm(false)}
+            onCancel={closeForm}
           />
         </div>
       )}
@@ -555,7 +587,7 @@ export default function EvaluationsPage() {
             <button
               key={session.id}
               type="button"
-              onClick={() => setSelected(session)}
+              onClick={() => handleRowClick(session)}
               className="w-full rounded-xl border border-gray-200 bg-white p-4 text-left hover:border-blue-300 hover:shadow-sm transition-all"
             >
               <div className="flex items-center justify-between gap-4">
