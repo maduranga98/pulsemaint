@@ -975,9 +975,9 @@ service cloud.firestore {
     }
 
     match /moeConfig/{siteId} {
-      allow read: if isAuthenticated() && belongsToCompany(siteId)
+      allow read: if isAuthenticated() && isSameSite(siteId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow write: if isAuthenticated() && belongsToCompany(siteId)
+      allow write: if isAuthenticated() && isSameSite(siteId)
         && getUserData().role in ['plant_manager', 'admin'];
     }
 

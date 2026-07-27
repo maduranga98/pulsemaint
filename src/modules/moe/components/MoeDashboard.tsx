@@ -7,8 +7,6 @@ import type { MoeDateRange, MoeMachineSummary } from '../types/moe.types';
 
 interface MoeDashboardProps {
   onSelectMachine: (machineId: string, range: MoeDateRange) => void;
-  onOpenConfig?: () => void;
-  canConfigure?: boolean;
 }
 
 function MachineRow({ m, onClick }: { m: MoeMachineSummary; onClick: () => void }) {
@@ -36,7 +34,7 @@ function MachineRow({ m, onClick }: { m: MoeMachineSummary; onClick: () => void 
   );
 }
 
-export function MoeDashboard({ onSelectMachine, onOpenConfig, canConfigure }: MoeDashboardProps) {
+export function MoeDashboard({ onSelectMachine }: MoeDashboardProps) {
   const [range, setRange] = useState<MoeDateRange>(() => buildRange('30d'));
   const { data, loading, error } = useMoeDashboard(range.start, range.end);
 
@@ -53,15 +51,6 @@ export function MoeDashboard({ onSelectMachine, onOpenConfig, canConfigure }: Mo
             system.
           </p>
         </div>
-        {canConfigure && onOpenConfig && (
-          <button
-            type="button"
-            onClick={onOpenConfig}
-            className="px-3 py-2 text-sm rounded-lg border border-[#1E3A5F] text-[#8BA3BF] hover:text-white hover:border-[#2E5A8F]"
-          >
-            Configure weights
-          </button>
-        )}
       </div>
 
       <MoeMachineFilter
