@@ -237,7 +237,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
         additionalNotes: row.additionalNotes || null,
         sopLibraryRefs: [],
         qrCode: generateMachineQrUrl(ref.id, siteId),
-        oeeData: null,
+        moeData: null,
         iotSensorId: null,
         createdAt: serverTimestamp(),
         createdBy: userId,

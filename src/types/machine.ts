@@ -119,7 +119,7 @@ export interface Machine {
   qrCode: string | null; // Firebase Storage URL
 
   // Phase 3 Placeholders
-  oeeData: Record<string, unknown> | null;
+  moeData: Record<string, unknown> | null;
   iotSensorId: string | null;
 
   // Metadata
