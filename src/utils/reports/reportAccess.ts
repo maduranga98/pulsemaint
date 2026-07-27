@@ -9,7 +9,6 @@ const SUPERVISOR_EXCLUDED_REPORTS: ReportType[] = [
   'inventory_listing',
   'training_compliance',
   'low_stock_alert',
-  'parts_consumption',
   'inventory_usage',
   'shift_handover_summary',
   'audit_trail',
@@ -29,7 +28,6 @@ const HR_OFFICER_REPORTS: ReportType[] = [
 ];
 
 const STORE_KEEPER_REPORTS: ReportType[] = [
-  'parts_consumption',
   'inventory_usage',
   'low_stock_alert',
   'inventory_listing',

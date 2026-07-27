@@ -17,7 +17,8 @@ import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggregation';
 import { fetchTeamPerformanceByUser } from './teamPerformance.service';
-import { computeWoTotalCost } from '../lib/reportsCostUtils';
+import { computeWoTotalCost, flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
+import { getCategoryLabel } from '../modules/audit/types/audit.types';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { logAuditEvent } from '../utils/reports/auditLogger';
 import type {
@@ -278,6 +279,177 @@ export async function fetchReportRows(
     }));
   }
 
+  // Training Compliance covers both the general trainingAssignments
+  // collection (employee/machine training) and the trainee programme system
+  // (traineeProgrammes) — one row per person, aggregating both sources.
+  if (reportType === 'training_compliance') {
+    const [assignmentSnap, programmeSnap, usersSnap] = await Promise.all([
+      getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId), limit(2000))),
+      getDocs(query(collection(db, 'traineeProgrammes'), where('companyId', '==', companyId), limit(1000))),
+      getDocs(query(collection(db, 'users'), where('companyId', '==', companyId), limit(1000))),
+    ]);
+
+    const roleByUserId = new Map<string, string>();
+    usersSnap.docs.forEach((item) => {
+      const u = item.data();
+      roleByUserId.set(item.id, String(u.role ?? ''));
+    });
+
+    interface PersonAgg {
+      name: string;
+      role: string;
+      assigned: number;
+      completed: number;
+      totalMarks: number;
+    }
+    const byPerson = new Map<string, PersonAgg>();
+    const completedStatuses = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
+
+    assignmentSnap.docs.forEach((item) => {
+      const a = item.data();
+      const traineeId = String(a.traineeId ?? '');
+      if (!traineeId) return;
+      const entry = byPerson.get(traineeId) ?? {
+        name: String(a.traineeName ?? 'Unknown'),
+        role: roleByUserId.get(traineeId) ?? 'trainee',
+        assigned: 0,
+        completed: 0,
+        totalMarks: 0,
+      };
+      entry.assigned += 1;
+      if (completedStatuses.has(String(a.status))) entry.completed += 1;
+      entry.totalMarks += Number(a.bestScore ?? a.latestScore ?? 0);
+      byPerson.set(traineeId, entry);
+    });
+
+    // The trainee programme's own final mark (quiz + final assessment
+    // aggregate) is tracked separately from module-level assignments — add
+    // it on top so a trainee's Total Marks reflects both.
+    programmeSnap.docs.forEach((item) => {
+      const p = item.data();
+      const traineeId = String(p.traineeId ?? '');
+      if (!traineeId) return;
+      const entry = byPerson.get(traineeId) ?? {
+        name: String(p.traineeName ?? 'Unknown'),
+        role: roleByUserId.get(traineeId) ?? 'trainee',
+        assigned: 0,
+        completed: 0,
+        totalMarks: 0,
+      };
+      if (p.finalMark != null) entry.totalMarks += Number(p.finalMark);
+      if (p.status === 'completed') entry.completed += 1;
+      byPerson.set(traineeId, entry);
+    });
+
+    return Array.from(byPerson.values())
+      .map((p) => ({
+        name: p.name,
+        role: p.role,
+        trainingsAssigned: p.assigned,
+        trainingsCompleted: p.completed,
+        totalMarks: Math.round(p.totalMarks),
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  // Downtime Analysis: computed from workOrders (createdAt → sign-off), not
+  // breakdown_tickets — breakdown_tickets doesn't carry a sign-off timestamp,
+  // so downtime (created → signed off) can't be computed from it. Only
+  // work orders that have actually been signed off have a known downtime.
+  if (reportType === 'downtime_analysis') {
+    const woSnap = await getDocs(
+      query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000)),
+    );
+    const rowsOut: Record<string, unknown>[] = [];
+    woSnap.docs.forEach((item) => {
+      const w = item.data();
+      const createdAt = w.createdAt as Timestamp | undefined;
+      const signedOffAt = w.supervisorSignOffAt as Timestamp | undefined;
+      if (!createdAt || typeof createdAt.toDate !== 'function') return;
+      if (!signedOffAt || typeof signedOffAt.toDate !== 'function') return;
+      const createdDate = createdAt.toDate();
+      const downtimeMinutes = Math.max(0, (signedOffAt.toDate().getTime() - createdDate.getTime()) / 60000);
+      const isoDate = createdDate.toISOString().slice(0, 10);
+      if (isoDate < config.dateFrom || isoDate > config.dateTo) return;
+      rowsOut.push({
+        id: item.id,
+        woTicket: w.woNumber ?? item.id,
+        machineName: w.machineName ?? '',
+        machineId: w.machineId ?? '',
+        location: w.machineLocation ?? '',
+        woType: w.woType ?? '',
+        department: w.machineDepartment ?? '',
+        createdAt,
+        downtimeMinutes: Math.round(downtimeMinutes),
+      });
+    });
+    const matchesList = (value: unknown, selected: string[]) =>
+      selected.length === 0 ||
+      (value != null && selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
+    return rowsOut.filter(
+      (row) =>
+        matchesList(row.machineId, config.machines) &&
+        matchesList(row.department, config.departments) &&
+        matchesList(row.woType, config.woTypes),
+    );
+  }
+
+  // Audit Trail now reads the Audit module's own completed sessions
+  // (audit_sessions/{companyId}/sessions), not the audit_logs system
+  // mutation log — the user wants to see what was audited, not who edited
+  // what record.
+  if (reportType === 'audit_trail') {
+    const snap = await getDocs(collection(db, 'audit_sessions', companyId, 'sessions'));
+    const rowsOut: Record<string, unknown>[] = [];
+    snap.docs.forEach((item) => {
+      const a = item.data();
+      if (a.status !== 'submitted') return;
+      const scopeParts: string[] = [];
+      if (Array.isArray(a.machines) && a.machines.length > 0) {
+        scopeParts.push((a.machines as Record<string, unknown>[]).map((m) => String(m.name ?? '')).join(', '));
+      }
+      if (Array.isArray(a.contractors) && a.contractors.length > 0) {
+        scopeParts.push((a.contractors as Record<string, unknown>[]).map((c) => String(c.name ?? '')).join(', '));
+      }
+      if (a.department) scopeParts.push(String(a.department));
+      if (a.location) scopeParts.push(String(a.location));
+      const submittedAt = a.submittedAt ?? a.createdAt ?? a.auditDate ?? null;
+      const isoDate = submittedAt && typeof (submittedAt as Timestamp).toDate === 'function'
+        ? (submittedAt as Timestamp).toDate().toISOString().slice(0, 10)
+        : String(a.auditDate ?? '');
+      if (isoDate && /^\d{4}-\d{2}-\d{2}/.test(isoDate) && (isoDate < config.dateFrom || isoDate > config.dateTo)) return;
+      rowsOut.push({
+        id: item.id,
+        date: submittedAt,
+        category: a.category ?? '',
+        categoryLabel: getCategoryLabel(String(a.category ?? ''), String(a.templateName ?? '')),
+        scopeDetails: scopeParts.filter(Boolean).join(' · '),
+        doneBy: a.auditorName ?? '',
+        participants: Array.isArray(a.participants) ? (a.participants as Record<string, unknown>[]).map((p) => String(p.name ?? '')).filter(Boolean) : [],
+        marks: Number(a.score ?? 0),
+      });
+    });
+    return rowsOut;
+  }
+
+  // PO History is flattened to one row per PO line item (see
+  // flattenPoLineItems in reportsCostUtils.ts) — PO Code, Supplier, Item,
+  // Quantity, Unit Price (final invoice-confirmed price), Total, Status,
+  // Raised By, Date.
+  if (reportType === 'po_history') {
+    const poSnap = await getDocs(
+      query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId), limit(1000)),
+    );
+    const pos = poSnap.docs.map((item) => ({ id: item.id, ...item.data() }));
+    const filteredPos = pos.filter((po) => {
+      const raisedAt = (po as Record<string, unknown>).raisedAt as Timestamp | undefined;
+      if (!raisedAt || typeof raisedAt.toDate !== 'function') return true;
+      const isoDate = raisedAt.toDate().toISOString().slice(0, 10);
+      return isoDate >= config.dateFrom && isoDate <= config.dateTo;
+    });
+    return flattenPoLineItems(filteredPos as unknown as PoHistoryInput[]) as unknown as Record<string, unknown>[];
+  }
+
   // Maps each report to the Firestore collection(s) it reads from. These must
   // match the actual collection names used elsewhere in the app.
   const sourceMap: Record<ReportType, string[]> = {
@@ -294,21 +466,26 @@ export async function fetchReportRows(
     technician_performance: [],
     contractor_performance: ['contractorJobs'],
     inventory_usage: ['stockMovements'],
-    parts_consumption: ['stockMovements'],
     low_stock_alert: ['inventoryParts'],
     inventory_listing: ['inventoryParts'],
     pm_compliance: ['pm_history'],
-    // 'training_records' never existed as a collection — training data lives
-    // in trainingAssignments (see src/hooks/training/useComplianceData.ts).
-    // The report silently returned zero rows before this fix.
-    training_compliance: ['trainingAssignments'],
+    // training_compliance is a computed branch below (per-person rollup of
+    // trainingAssignments + traineeProgrammes) — not a raw collection dump.
+    training_compliance: [],
     sla_compliance: ['breakdown_tickets'],
     shift_handover_summary: ['shift_handovers'],
-    downtime_analysis: ['breakdown_tickets'],
+    // downtime_analysis is a computed branch below (sourced from workOrders,
+    // which unlike breakdown_tickets carries both createdAt and a sign-off
+    // timestamp needed to compute downtime).
+    downtime_analysis: [],
     executive_monthly: ['analytics_monthly'],
-    safety_near_miss: ['shift_handovers'],
-    audit_trail: ['audit_logs'],
-    po_history: ['purchaseOrders'],
+    // audit_trail now reads the Audit module's own sessions (audit_sessions/
+    // {companyId}/sessions), not the audit_logs system mutation log — see the
+    // computed branch below.
+    audit_trail: [],
+    // po_history is a computed branch below (flattened to one row per PO
+    // line item).
+    po_history: [],
   };
 
   // Registry/snapshot collections describe current state (machines, parts,
@@ -404,11 +581,6 @@ export async function fetchReportRows(
         const min = Number(data.minStockLevel ?? data.reorderLevel ?? 0);
         if (current > min) return;
       }
-      // safety_near_miss reads the same shift_handovers collection as
-      // shift_handover_summary — without this filter every shift (not just
-      // ones with a recorded incident) shows up, which reads as noise, not
-      // a near-miss report.
-      if (reportType === 'safety_near_miss' && data.safetyIncidentOccurred !== true) return;
       // shift_handovers keeps its counters under a nested `stats` object;
       // flatten them to top-level keys so report columns (which only read
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
@@ -436,16 +608,13 @@ export async function fetchReportRows(
         row.participants = [...techNames, ...contractorNames, ...contractorCompany].map((n) => String(n)).filter(Boolean);
       }
 
-      // PO History: list the requested parts/quantities, and use the most
-      // recent invoice revision's total (the final, invoice-confirmed price)
-      // rather than the PO's original as-raised total when one exists.
-      if (reportType === 'po_history') {
-        const items = Array.isArray(data.items) ? (data.items as Record<string, unknown>[]) : [];
-        row.partNames = items.map((i) => String(i.partName ?? '')).filter(Boolean);
-        row.partQuantities = items.map((i) => String(i.quantityOrdered ?? ''));
-        const revisions = Array.isArray(data.invoiceRevisions) ? (data.invoiceRevisions as Record<string, unknown>[]) : [];
-        const latestRevision = revisions[revisions.length - 1];
-        row.finalTotalCost = latestRevision?.totalOrderValue ?? data.totalOrderValue ?? 0;
+      // Shift Handover Summary: expose "Late By" minutes at a flat key
+      // (overlapMinutes is "minutes the supervisor clocked in late against
+      // their assigned shift's scheduled start" — see handover.types.ts) and
+      // a plain count of watch flags raised during the shift.
+      if (reportType === 'shift_handover_summary') {
+        row.lateByMinutes = Number(data.overlapMinutes ?? 0);
+        row.watchFlagsCount = Array.isArray(data.watchFlags) ? (data.watchFlags as unknown[]).length : 0;
       }
 
       rows.push({ source, row });
@@ -456,6 +625,44 @@ export async function fetchReportRows(
   // source was unreadable — the user needs to know it's a permissions issue.
   if (rows.length === 0 && sourceErrors.length > 0) {
     throw new Error(`Could not read report data (${sourceErrors.join('; ')})`);
+  }
+
+  // Low Stock Alert: cross-reference each currently-low/out-of-stock part
+  // against purchaseOrders raised for it, to surface the PO's progress
+  // status. NOTE (data-availability limitation): InventoryPart has no
+  // historical "went low" event log — only current live low-stock state is
+  // tracked — so "Date of Received Low Stock Alert" uses the part's
+  // updatedAt as the best available proxy, and "Refilled Date" is always
+  // empty for a currently-low part (a part that's since been refilled no
+  // longer matches the low-stock filter above, so it can't appear here with
+  // a refill date). See the PR description for the honest limitation.
+  if (reportType === 'low_stock_alert' && rows.length > 0) {
+    const poSnap = await getDocs(
+      query(collection(db, 'purchaseOrders'), where('companyId', '==', companyId), limit(1000)),
+    );
+    const posByPartId = new Map<string, { status: string; raisedAtMs: number }[]>();
+    poSnap.docs.forEach((item) => {
+      const po = item.data();
+      const items = Array.isArray(po.items) ? (po.items as Record<string, unknown>[]) : [];
+      const raisedAtMs = po.raisedAt && typeof (po.raisedAt as Timestamp).toDate === 'function'
+        ? (po.raisedAt as Timestamp).toDate().getTime()
+        : 0;
+      items.forEach((poItem) => {
+        const partId = String(poItem.partId ?? '');
+        if (!partId) return;
+        const list = posByPartId.get(partId) ?? [];
+        list.push({ status: String(po.status ?? ''), raisedAtMs });
+        posByPartId.set(partId, list);
+      });
+    });
+    rows.forEach(({ row }) => {
+      const partId = String(row.id ?? '');
+      const matches = posByPartId.get(partId) ?? [];
+      const latest = matches.sort((a, b) => b.raisedAtMs - a.raisedAtMs)[0];
+      row.lowStockAlertDate = row.updatedAt ?? null;
+      row.poStatus = latest ? prettifyEnum(latest.status) : 'No PO Raised';
+      row.refilledDate = null;
+    });
   }
 
   const dateFiltered = rows

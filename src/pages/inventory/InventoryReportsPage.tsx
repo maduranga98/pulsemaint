@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BarChart3, DollarSign, AlertTriangle, Package, X, FileText, Table } from 'lucide-react';
+import { BarChart3, DollarSign, AlertTriangle, X, FileText, Table } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { useAuthStore } from '@/store/authStore';
 import { Navigate } from 'react-router-dom';
@@ -32,13 +32,6 @@ const REPORTS: Report[] = [
     icon: <AlertTriangle className="w-6 h-6 text-amber-600" />,
     title: 'Low Stock Alert Report',
     description: 'Parts currently at or below minimum stock levels that require reordering.',
-    lastGenerated: null,
-  },
-  {
-    id: 'consumption',
-    icon: <Package className="w-6 h-6 text-purple-600" />,
-    title: 'Parts Consumption Report',
-    description: 'Detailed breakdown of parts issued per work order, technician, and machine.',
     lastGenerated: null,
   },
 ];
