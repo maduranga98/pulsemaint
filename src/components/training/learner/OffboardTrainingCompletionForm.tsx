@@ -13,11 +13,11 @@ interface OffboardTrainingCompletionFormProps {
 }
 
 function formatDate(value: unknown): string {
-  if (!value) return '';
+  if (!value) return '—';
   const d = (value as { toDate?: () => Date }).toDate
     ? (value as { toDate: () => Date }).toDate()
     : new Date(value as string);
-  if (isNaN(d.getTime())) return '';
+  if (isNaN(d.getTime())) return '—';
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
@@ -145,9 +145,9 @@ export default function OffboardTrainingCompletionForm({
           <h1 className="text-lg font-semibold text-gray-900">{module.title}</h1>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <div><span className="text-gray-400">Provider</span><p className="text-gray-800">{details?.thirdPartyCompany || ''}</p></div>
-          <div><span className="text-gray-400">Country</span><p className="text-gray-800">{details?.country || ''}</p></div>
-          <div><span className="text-gray-400">Mode</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : ''}</p></div>
+          <div><span className="text-gray-400">Provider</span><p className="text-gray-800">{details?.thirdPartyCompany || '—'}</p></div>
+          <div><span className="text-gray-400">Country</span><p className="text-gray-800">{details?.country || '—'}</p></div>
+          <div><span className="text-gray-400">Mode</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : '—'}</p></div>
           <div><span className="text-gray-400">Duration</span><p className="text-gray-800">{details?.durationDays ?? 0} day(s)</p></div>
           <div><span className="text-gray-400">Start</span><p className="text-gray-800">{formatDate(details?.startDate)}</p></div>
           <div><span className="text-gray-400">End</span><p className="text-gray-800">{formatDate(details?.endDate)}</p></div>

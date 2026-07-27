@@ -1,10 +1,11 @@
-import { CheckCircle, PlayCircle, Circle, Video, FileText, Images, AlignLeft, type LucideIcon } from 'lucide-react';
+import { CheckCircle, PlayCircle, Circle, Lock, Video, FileText, Images, AlignLeft, type LucideIcon } from 'lucide-react';
 import type { LessonItem, LessonProgress, LessonType } from '@/lib/training/trainingTypes';
 
 interface LessonListItemProps {
   lesson: LessonItem;
   progress?: LessonProgress;
   isCurrent?: boolean;
+  isLocked?: boolean;
   onClick?: () => void;
 }
 
@@ -37,30 +38,41 @@ export default function LessonListItem({
   lesson,
   progress,
   isCurrent,
+  isLocked = false,
   onClick,
 }: LessonListItemProps) {
   const isCompleted = progress?.completed ?? false;
   const TypeIcon = TYPE_ICONS[lesson.type];
   const durationLabel = formatDuration(lesson);
 
+  const handleActivate = () => {
+    if (isLocked) return;
+    onClick?.();
+  };
+
   return (
     <div
       className={[
-        'flex items-center gap-3 px-4 py-3 min-h-[52px] cursor-pointer transition-colors',
-        isCurrent ? 'bg-blue-50' : 'hover:bg-slate-50',
+        'flex items-center gap-3 px-4 py-3 min-h-[52px] transition-colors',
+        isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+        !isLocked && isCurrent ? 'bg-blue-50' : '',
+        !isLocked && !isCurrent ? 'hover:bg-slate-50' : '',
       ].join(' ')}
-      onClick={onClick}
+      onClick={handleActivate}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onClick?.();
+        if (e.key === 'Enter' || e.key === ' ') handleActivate();
       }}
       role="button"
-      tabIndex={0}
-      aria-label={`${isCompleted ? 'Completed: ' : isCurrent ? 'Current lesson: ' : ''}${lesson.title}`}
+      tabIndex={isLocked ? -1 : 0}
+      aria-disabled={isLocked}
+      aria-label={`${isLocked ? 'Locked: ' : isCompleted ? 'Completed: ' : isCurrent ? 'Current lesson: ' : ''}${lesson.title}`}
       aria-current={isCurrent ? 'step' : undefined}
     >
       {/* Status icon */}
       <div className="shrink-0 w-6 h-6 flex items-center justify-center">
-        {isCompleted ? (
+        {isLocked ? (
+          <Lock size={18} className="text-slate-300" aria-hidden="true" />
+        ) : isCompleted ? (
           <CheckCircle size={22} className="text-green-500" aria-hidden="true" />
         ) : isCurrent ? (
           <PlayCircle size={22} className="text-blue-600" aria-hidden="true" />
@@ -75,7 +87,7 @@ export default function LessonListItem({
           <span className="text-xs text-slate-400 shrink-0">{lesson.order}.</span>
           <span
             className={`text-sm font-medium truncate ${
-              isCurrent ? 'text-blue-700' : 'text-slate-800'
+              isCurrent && !isLocked ? 'text-blue-700' : 'text-slate-800'
             }`}
           >
             {lesson.title}

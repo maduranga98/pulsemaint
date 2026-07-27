@@ -149,6 +149,18 @@ export function useQuizSession(): UseQuizSessionReturn {
           const saved = JSON.parse(savedRaw) as QuizSessionState;
           // Restore, but fix startedAt back to a Date
           saved.startedAt = new Date(saved.startedAt);
+          // The persisted `timeRemaining` only advances while the tab is open,
+          // so simply restoring it let a trainee pause a timed test by closing
+          // the page. Recompute it from wall-clock elapsed time instead.
+          if (module.quiz.timeLimit > 0) {
+            const elapsed = Math.floor(
+              (Date.now() - saved.startedAt.getTime()) / 1000
+            );
+            saved.timeRemaining = Math.max(
+              0,
+              module.quiz.timeLimit * 60 - elapsed
+            );
+          }
           setSession(saved);
           return;
         } catch {
@@ -240,12 +252,13 @@ export function useQuizSession(): UseQuizSessionReturn {
     setIsSubmitting(true);
 
     try {
-      const timeTakenSeconds =
-        session.timeRemaining !== null
-          ? (session.timeRemaining > 0
-              ? Math.round((Date.now() - session.startedAt.getTime()) / 1000)
-              : session.questions.length * 60) // fallback when time ran out
-          : Math.round((Date.now() - session.startedAt.getTime()) / 1000);
+      // Always derive elapsed time from wall-clock time. The previous
+      // fallback (`questions.length * 60`) when the countdown hit zero was an
+      // arbitrary guess unrelated to how long the trainee actually spent, and
+      // skewed reports/analytics that key off timeTakenSeconds.
+      const timeTakenSeconds = Math.round(
+        (Date.now() - session.startedAt.getTime()) / 1000
+      );
 
       const raw = scoreQuizAttempt(session.questions, session.answers);
 
@@ -317,9 +330,15 @@ export function useQuizSession(): UseQuizSessionReturn {
         lastActivityAt: now,
       });
 
-      // Cooldown on failure
+      // Cooldown on failure. The cooldown-ticker effect only recomputes
+      // `cooldownSeconds` when `session.assignmentId` changes (i.e. on quiz
+      // start), so without updating state here the 30-minute retry cooldown
+      // was silently skipped for the very attempt that just failed — the
+      // results screen showed 0s remaining and let the trainee retry
+      // immediately. Push the freshly-computed cooldown into state now.
       if (!passed) {
         localStorage.setItem(buildCooldownKey(session.assignmentId), String(Date.now()));
+        setCooldownSeconds(getCooldownSeconds(session.assignmentId));
       }
 
       // Clear saved session
@@ -344,9 +363,14 @@ export function useQuizSession(): UseQuizSessionReturn {
   const startQuizWithPassingScore = useCallback(
     (assignment: TrainingAssignment, module: TrainingModule) => {
       if (module.quiz) {
+        // The pass mark shown to the trainee (pre-screen, results screen) comes
+        // from the quiz, which the quiz builder edits independently of the
+        // module-level default. Grading against `module.passingScore` meant a
+        // trainee could be failed against a different threshold than the one
+        // displayed. Prefer the quiz's own pass mark.
         localStorage.setItem(
           `quiz_passing_${assignment.id}`,
-          String(module.passingScore)
+          String(module.quiz.passingScore ?? module.passingScore)
         );
         localStorage.setItem(
           `quiz_bestscore_${assignment.id}`,
