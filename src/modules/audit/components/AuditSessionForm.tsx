@@ -604,11 +604,14 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone }:
         </div>
       </div>
 
-      {/* Findings */}
-      <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
-        <SectionTitle>Losses, Breakdowns, Safety &amp; Maintenance Findings</SectionTitle>
-        <FindingsSection findings={findings} onChange={setFindings} allowedKinds={template.enabledFindingKinds} />
-      </div>
+      {/* Findings — only shown when the template was set up (via "Finding types
+          allowed" in the custom category builder) to allow at least one kind. */}
+      {template.enabledFindingKinds.length > 0 && (
+        <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
+          <SectionTitle>Losses, Breakdowns, Safety &amp; Maintenance Findings</SectionTitle>
+          <FindingsSection findings={findings} onChange={setFindings} allowedKinds={template.enabledFindingKinds} />
+        </div>
+      )}
 
       {/* Attachments */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
