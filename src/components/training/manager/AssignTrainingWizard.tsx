@@ -98,7 +98,8 @@ export default function AssignTrainingWizard({
     ? modules.filter(
         (m) =>
           (m.title ?? '').toLowerCase().includes(moduleSearch.toLowerCase()) ||
-          (m.machineName ?? '').toLowerCase().includes(moduleSearch.toLowerCase())
+          (m.machineName ?? '').toLowerCase().includes(moduleSearch.toLowerCase()) ||
+          (m.providerName ?? '').toLowerCase().includes(moduleSearch.toLowerCase())
       )
     : modules;
 
@@ -182,8 +183,10 @@ export default function AssignTrainingWizard({
           companyId,
           moduleId: module.id,
           moduleName: module.title,
+          moduleCategory: module.moduleCategory ?? 'machine',
           machineId: module.machineId ?? '',
-          machineName: module.machineName,
+          machineName: module.machineName ?? '',
+          providerName: module.providerName ?? '',
           traineeId: trainee.id,
           traineeName: trainee.fullName,
           traineeEmail: trainee.email ?? '',
@@ -433,7 +436,11 @@ export default function AssignTrainingWizard({
                         {mod.title}
                       </p>
                       <p className="text-xs text-gray-500 flex items-center gap-2">
-                        <span>{mod.machineName}</span>
+                        <span>
+                          {mod.moduleCategory === 'offboard_external'
+                            ? mod.providerName || 'Offboard / External'
+                            : mod.machineName}
+                        </span>
                         <span>&middot;</span>
                         <span>{mod.lessons.length} lessons</span>
                         <span>&middot;</span>

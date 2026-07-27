@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
-import type { TrainingModule, TrainingLanguage, TrainingModuleStatus } from '@/lib/training/trainingTypes';
+import type {
+  TrainingModule,
+  TrainingLanguage,
+  TrainingModuleStatus,
+  ModuleCategory,
+} from '@/lib/training/trainingTypes';
 
 interface ModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
@@ -12,7 +17,12 @@ interface ModuleSettingsFormProps {
 interface FormValues {
   title: string;
   description: string;
+  moduleCategory: ModuleCategory;
   machineName: string;
+  providerName: string;
+  providerContact: string;
+  trainingLocation: string;
+  externalCertificateUrl: string;
   estimatedMinutes: number;
   language: TrainingLanguage;
   passingScore: number;
@@ -38,7 +48,12 @@ export default function ModuleSettingsForm({
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
+      moduleCategory: defaultValues?.moduleCategory ?? 'machine',
       machineName: defaultValues?.machineName ?? '',
+      providerName: defaultValues?.providerName ?? '',
+      providerContact: defaultValues?.providerContact ?? '',
+      trainingLocation: defaultValues?.trainingLocation ?? '',
+      externalCertificateUrl: defaultValues?.externalCertificateUrl ?? '',
       estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
       language: defaultValues?.language ?? 'en',
       passingScore: defaultValues?.passingScore ?? 70,
@@ -58,6 +73,8 @@ export default function ModuleSettingsForm({
   const practicalRequired = watchedValues[0];
   const shuffleQuestions = watchedValues[1];
   const shuffleOptions = watchedValues[2];
+  const moduleCategory = watch('moduleCategory');
+  const isExternal = moduleCategory === 'offboard_external';
 
   async function handleFormSubmit(values: FormValues) {
     const tags = values.tags
@@ -68,7 +85,13 @@ export default function ModuleSettingsForm({
     const data: Partial<TrainingModule> = {
       title: values.title,
       description: values.description,
-      machineName: values.machineName,
+      moduleCategory: values.moduleCategory,
+      machineName: values.moduleCategory === 'machine' ? values.machineName : '',
+      providerName: values.moduleCategory === 'offboard_external' ? values.providerName : '',
+      providerContact: values.moduleCategory === 'offboard_external' ? values.providerContact : '',
+      trainingLocation: values.moduleCategory === 'offboard_external' ? values.trainingLocation : '',
+      externalCertificateUrl:
+        values.moduleCategory === 'offboard_external' ? values.externalCertificateUrl : '',
       estimatedMinutes: Number(values.estimatedMinutes),
       language: values.language,
       passingScore: Number(values.passingScore),
@@ -112,19 +135,90 @@ export default function ModuleSettingsForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">
-          Machine Name <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          {...register('machineName', { required: 'Machine name is required' })}
-          placeholder="e.g. Lathe Machine L-200"
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        {errors.machineName && (
-          <p className="text-xs text-red-500">{errors.machineName.message}</p>
-        )}
+        <label className="text-sm font-medium text-gray-700">Module Category</label>
+        <select
+          {...register('moduleCategory')}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        >
+          <option value="machine">Machine-specific</option>
+          <option value="offboard_external">Offboard / External training</option>
+        </select>
+        <p className="text-xs text-gray-400">
+          {isExternal
+            ? 'Training delivered off-site or by an external provider, not tied to a machine.'
+            : 'In-house training tied to a specific machine or machine type.'}
+        </p>
       </div>
+
+      {!isExternal && (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
+            Machine Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            {...register('machineName', {
+              required: isExternal ? false : 'Machine name is required',
+            })}
+            placeholder="e.g. Lathe Machine L-200"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {errors.machineName && (
+            <p className="text-xs text-red-500">{errors.machineName.message}</p>
+          )}
+        </div>
+      )}
+
+      {isExternal && (
+        <div className="flex flex-col gap-3 border border-amber-200 bg-amber-50 rounded-lg p-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
+              Provider / Institution <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              {...register('providerName', {
+                required: isExternal ? 'Provider name is required' : false,
+              })}
+              placeholder="e.g. National Apprenticeship Board"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            />
+            {errors.providerName && (
+              <p className="text-xs text-red-500">{errors.providerName.message}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Provider Contact</label>
+            <input
+              type="text"
+              {...register('providerContact')}
+              placeholder="Phone, email, or contact person"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Training Location</label>
+            <input
+              type="text"
+              {...register('trainingLocation')}
+              placeholder="e.g. Colombo Training Center"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">External Certificate URL</label>
+            <input
+              type="text"
+              {...register('externalCertificateUrl')}
+              placeholder="Link to the provider-issued certificate, if any"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">

@@ -1,4 +1,4 @@
-import { Cpu } from 'lucide-react';
+import { Cpu, Building2 } from 'lucide-react';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import TrainingStatusBadge from '../shared/TrainingStatusBadge';
 import TrainingProgressBar from '../shared/TrainingProgressBar';
@@ -24,6 +24,7 @@ function formatDueDate(dueDate: { seconds: number } | null): {
 
 export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
   const dueInfo = formatDueDate(assignment.dueDate as unknown as { seconds: number } | null);
+  const isExternal = assignment.moduleCategory === 'offboard_external';
 
   return (
     <div
@@ -41,12 +42,16 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
         {assignment.moduleName ? (
           <>
             <div className="absolute inset-0 flex items-center justify-center">
-              <Cpu size={40} className="text-white/30" aria-hidden="true" />
+              {isExternal ? (
+                <Building2 size={40} className="text-white/30" aria-hidden="true" />
+              ) : (
+                <Cpu size={40} className="text-white/30" aria-hidden="true" />
+              )}
             </div>
             {/* Module name overlay */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-3 py-2">
               <span className="text-white text-xs font-medium truncate block">
-                {assignment.machineName}
+                {isExternal ? (assignment.providerName || 'External training') : assignment.machineName}
               </span>
             </div>
           </>
@@ -56,7 +61,11 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
       {/* Card body */}
       <div className="p-4 space-y-3">
         <div className="space-y-1">
-          <ModuleTypeBadge machineName={assignment.machineName} />
+          <ModuleTypeBadge
+            machineName={assignment.machineName}
+            moduleCategory={assignment.moduleCategory}
+            providerName={assignment.providerName}
+          />
           <h3 className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2">
             {assignment.moduleName}
           </h3>

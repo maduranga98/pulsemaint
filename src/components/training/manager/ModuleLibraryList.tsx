@@ -42,10 +42,17 @@ export default function ModuleLibraryList({
     const matchesSearch =
       search.trim() === '' ||
       m.title.toLowerCase().includes(search.toLowerCase()) ||
-      m.machineName.toLowerCase().includes(search.toLowerCase());
+      (m.machineName ?? '').toLowerCase().includes(search.toLowerCase()) ||
+      (m.providerName ?? '').toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  function machineOrProviderLabel(m: TrainingModule): string {
+    return m.moduleCategory === 'offboard_external'
+      ? m.providerName || 'Offboard / External'
+      : m.machineName;
+  }
 
   const filterButtons: { label: string; value: StatusFilter }[] = [
     { label: 'All', value: 'all' },
@@ -116,7 +123,7 @@ export default function ModuleLibraryList({
                   <td className="px-4 py-3">
                     <span className="font-medium text-gray-900">{module.title}</span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{module.machineName || '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{machineOrProviderLabel(module) || '—'}</td>
                   <td className="px-4 py-3 text-center text-gray-600">{module.lessons.length}</td>
                   <td className="px-4 py-3 text-center">
                     {module.quiz ? (
@@ -196,7 +203,7 @@ export default function ModuleLibraryList({
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-gray-900 truncate">{module.title}</p>
-                  <p className="text-sm text-gray-500 truncate">{module.machineName || 'No machine'}</p>
+                  <p className="text-sm text-gray-500 truncate">{machineOrProviderLabel(module) || 'No machine'}</p>
                 </div>
                 <span
                   className={`flex-shrink-0 inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[module.status]}`}
