@@ -7,7 +7,15 @@ import type { WODocument } from './workOrder';
 // TrainingModule assignments (see lib/training/trainingTypes.ts).
 // ---------------------------------------------------------------------------
 
-export type ProgrammeDuration = 6 | 12;
+// Actual placement length in months (used for display / certificate text).
+// For a preset programme this equals the preset (6 or 12); for a custom
+// date-range programme it's the approximate whole-month span between
+// startDate and expectedEndDate.
+export type ProgrammeDuration = number;
+// What the admin picked when assigning the programme: a fixed preset, or a
+// custom start/end date range (trainees arrive for varying internship
+// periods, so presets are a convenience, not the only option).
+export type ProgrammeDurationPreset = 6 | 12 | 'custom';
 export type ProgrammeStatus = 'active' | 'completed' | 'discontinued';
 
 export interface ProgrammeMonth {
@@ -24,6 +32,7 @@ export interface TraineeProgramme {
   traineeId: string;
   traineeName: string;
   durationMonths: ProgrammeDuration;
+  durationPreset: ProgrammeDurationPreset;
   startDate: Timestamp;
   expectedEndDate: Timestamp;
   status: ProgrammeStatus;
@@ -91,6 +100,7 @@ export interface TraineeProgrammeCertificate {
   traineeName: string;
   traineeEmployeeId: string | null;
   durationMonths: ProgrammeDuration;
+  durationPreset: ProgrammeDurationPreset;
   startDate: Timestamp;
   completedDate: Timestamp;
   moduleResults: ProgrammeModuleResult[];

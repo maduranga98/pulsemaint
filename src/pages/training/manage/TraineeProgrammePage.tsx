@@ -18,7 +18,8 @@ import { issueProgrammeCertificate } from '@/lib/traineeProgram/programmeCertifi
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import type { UserProfile } from '@/types/auth';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
-import type { ProgrammeDuration, ProgrammeMonth } from '@/types/traineeProgram';
+import type { ProgrammeDurationPreset, ProgrammeMonth } from '@/types/traineeProgram';
+import { computeDurationInMonths, isValidDurationRange } from '@/lib/traineeProgram/programmeDuration';
 
 interface MonthDraft {
   month: number;
@@ -27,8 +28,8 @@ interface MonthDraft {
   weekendTasksText: string;
 }
 
-function buildDefaultMonths(duration: ProgrammeDuration): MonthDraft[] {
-  return Array.from({ length: duration }, (_, i) => ({
+function buildDefaultMonths(count: number): MonthDraft[] {
+  return Array.from({ length: Math.max(1, count) }, (_, i) => ({
     month: i + 1,
     title: '',
     moduleIds: [],
@@ -52,8 +53,9 @@ export default function TraineeProgrammePage() {
   const { programme, loading: programmeLoading } = useProgrammeById(programmeId);
   const { summaries } = useWeekendSummaries(programmeId);
 
-  const [duration, setDuration] = useState<ProgrammeDuration>(6);
+  const [durationPreset, setDurationPreset] = useState<ProgrammeDurationPreset>(6);
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [customEndDate, setCustomEndDate] = useState('');
   const [months, setMonths] = useState<MonthDraft[]>(buildDefaultMonths(6));
   const [saving, setSaving] = useState(false);
   const [issuingCert, setIssuingCert] = useState(false);
@@ -101,9 +103,23 @@ export default function TraineeProgrammePage() {
     return () => unsub();
   }, [userId, companyId]);
 
-  function handleDurationChange(d: ProgrammeDuration) {
-    setDuration(d);
-    setMonths(buildDefaultMonths(d));
+  function handleDurationPresetChange(preset: ProgrammeDurationPreset) {
+    setDurationPreset(preset);
+    if (preset !== 'custom') {
+      setMonths(buildDefaultMonths(preset));
+    }
+  }
+
+  // For a custom range, the month-by-month plan is sized off the approximate
+  // month span between start and end date once both are picked.
+  const customMonthCount = durationPreset === 'custom' && startDate && customEndDate
+    ? computeDurationInMonths(new Date(startDate), new Date(customEndDate))
+    : 0;
+
+  function handleApplyCustomRange() {
+    if (customMonthCount > 0) {
+      setMonths(buildDefaultMonths(customMonthCount));
+    }
   }
 
   function toggleModuleForMonth(monthIndex: number, moduleId: string) {
@@ -123,6 +139,19 @@ export default function TraineeProgrammePage() {
 
   async function handleCreateProgramme() {
     if (!trainee || !userProfile) return;
+
+    const start = new Date(startDate);
+    if (durationPreset === 'custom') {
+      if (!customEndDate) {
+        toast.error('Pick an end date for a custom duration.');
+        return;
+      }
+      if (!isValidDurationRange(start, new Date(customEndDate))) {
+        toast.error('End date must be after the start date.');
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       const programmeMonths: ProgrammeMonth[] = months.map((m) => ({
@@ -140,8 +169,9 @@ export default function TraineeProgrammePage() {
         siteId: trainee.siteIds?.[0] ?? companyId,
         traineeId: trainee.id,
         traineeName: trainee.fullName,
-        durationMonths: duration,
-        startDate: new Date(startDate),
+        durationPreset,
+        startDate: start,
+        customEndDate: durationPreset === 'custom' ? new Date(customEndDate) : null,
         months: programmeMonths,
         createdBy: userProfile.id,
         createdByName: userProfile.fullName,
@@ -206,6 +236,7 @@ export default function TraineeProgrammePage() {
         programmeId: programme.id,
         trainee,
         durationMonths: programme.durationMonths,
+        durationPreset: programme.durationPreset ?? programme.durationMonths,
         startDate: programme.startDate.toDate(),
         moduleResults,
         finalMark,
@@ -348,12 +379,16 @@ export default function TraineeProgrammePage() {
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Duration</label>
                 <select
-                  value={duration}
-                  onChange={(e) => handleDurationChange(Number(e.target.value) as ProgrammeDuration)}
+                  value={durationPreset}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    handleDurationPresetChange(v === 'custom' ? 'custom' : (Number(v) as 6 | 12));
+                  }}
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 >
                   <option value={6}>6 Months</option>
                   <option value={12}>1 Year</option>
+                  <option value="custom">Custom range…</option>
                 </select>
               </div>
               <div>
@@ -365,7 +400,24 @@ export default function TraineeProgrammePage() {
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 />
               </div>
+              {durationPreset === 'custom' && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={customEndDate}
+                    onChange={(e) => setCustomEndDate(e.target.value)}
+                    onBlur={handleApplyCustomRange}
+                    className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                  />
+                </div>
+              )}
             </div>
+            {durationPreset === 'custom' && customMonthCount > 0 && (
+              <p className="text-xs text-slate-500">
+                This is a {customMonthCount}-month placement — the plan below has been sized to match.
+              </p>
+            )}
 
             <div className="space-y-4">
               {months.map((m, idx) => (

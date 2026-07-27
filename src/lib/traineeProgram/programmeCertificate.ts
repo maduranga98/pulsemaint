@@ -4,7 +4,7 @@ import { db, storage } from '../firebase';
 import { USER_ROLE_LABELS } from '../../constants/copy';
 import { buildProgrammeCertificatePdf } from './programmeCertificatePdf';
 import type { UserProfile } from '../../types/auth';
-import type { ProgrammeDuration, ProgrammeModuleResult } from '../../types/traineeProgram';
+import type { ProgrammeDuration, ProgrammeDurationPreset, ProgrammeModuleResult } from '../../types/traineeProgram';
 
 interface IssueProgrammeCertificateInput {
   companyId: string;
@@ -12,6 +12,7 @@ interface IssueProgrammeCertificateInput {
   programmeId: string;
   trainee: { id: string; fullName: string; employeeId: string | null };
   durationMonths: ProgrammeDuration;
+  durationPreset: ProgrammeDurationPreset;
   startDate: Date;
   moduleResults: ProgrammeModuleResult[];
   finalMark: number;
@@ -42,6 +43,7 @@ export async function issueProgrammeCertificate(input: IssueProgrammeCertificate
     traineeName: input.trainee.fullName,
     traineeEmployeeId: input.trainee.employeeId,
     durationMonths: input.durationMonths,
+    durationPreset: input.durationPreset,
     startDate: input.startDate,
     completedDate,
     moduleResults: input.moduleResults,
@@ -68,6 +70,7 @@ export async function issueProgrammeCertificate(input: IssueProgrammeCertificate
     traineeName: input.trainee.fullName,
     traineeEmployeeId: input.trainee.employeeId,
     durationMonths: input.durationMonths,
+    durationPreset: input.durationPreset,
     startDate: Timestamp.fromDate(input.startDate),
     completedDate: Timestamp.fromDate(completedDate),
     moduleResults: input.moduleResults,

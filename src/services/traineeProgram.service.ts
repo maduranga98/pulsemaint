@@ -16,20 +16,15 @@ import { db, storage } from '../lib/firebase';
 import type { WODocument, DocumentFileType } from '../types/workOrder';
 import type { TrainingModule } from '../lib/training/trainingTypes';
 import type {
-  ProgrammeDuration,
+  ProgrammeDurationPreset,
   ProgrammeMonth,
   TraineeProgramme,
   WeekendTaskEntry,
 } from '../types/traineeProgram';
+import { computeExpectedEndDate, computeDurationInMonths } from '../lib/traineeProgram/programmeDuration';
 
 const PROGRAMMES_COL = 'traineeProgrammes';
 const SUMMARIES_COL = 'weekendSummaries';
-
-function addMonths(date: Date, months: number): Date {
-  const d = new Date(date);
-  d.setMonth(d.getMonth() + months);
-  return d;
-}
 
 function detectFileType(file: File): DocumentFileType {
   const mime = file.type.toLowerCase();
@@ -44,21 +39,27 @@ interface CreateProgrammePayload {
   siteId: string;
   traineeId: string;
   traineeName: string;
-  durationMonths: ProgrammeDuration;
+  durationPreset: ProgrammeDurationPreset;
   startDate: Date;
+  /** Required when durationPreset === 'custom'; ignored for 6/12 presets. */
+  customEndDate?: Date | null;
   months: ProgrammeMonth[];
   createdBy: string;
   createdByName: string;
 }
 
 export async function createTraineeProgramme(payload: CreateProgrammePayload): Promise<string> {
-  const expectedEndDate = addMonths(payload.startDate, payload.durationMonths);
+  const expectedEndDate = computeExpectedEndDate(payload.durationPreset, payload.startDate, payload.customEndDate);
+  const durationMonths = payload.durationPreset === 'custom'
+    ? computeDurationInMonths(payload.startDate, expectedEndDate)
+    : payload.durationPreset;
   const docRef = await addDoc(collection(db, PROGRAMMES_COL), {
     companyId: payload.companyId,
     siteId: payload.siteId,
     traineeId: payload.traineeId,
     traineeName: payload.traineeName,
-    durationMonths: payload.durationMonths,
+    durationMonths,
+    durationPreset: payload.durationPreset,
     startDate: Timestamp.fromDate(payload.startDate),
     expectedEndDate: Timestamp.fromDate(expectedEndDate),
     status: 'active',
