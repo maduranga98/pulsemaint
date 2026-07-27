@@ -964,8 +964,11 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /moeSnapshots/{snapshotId} {
-      allow read: if isAuthenticated() && isSameSite(resource.data.siteId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
+      // Admin: full access. Other roles: site-scoped, or unrestricted if the
+      // user has no single-site assignment (siteId == null = company-wide).
+      allow read: if isAdmin() || (isAuthenticated()
+        && (getUserData().siteId == null || isSameSite(resource.data.siteId))
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
       allow write: if false; // written only by Cloud Functions (admin SDK bypasses rules)
     }
 
@@ -975,10 +978,12 @@ service cloud.firestore {
     }
 
     match /moeConfig/{siteId} {
-      allow read: if isAuthenticated() && isSameSite(siteId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow write: if isAuthenticated() && isSameSite(siteId)
-        && getUserData().role in ['plant_manager', 'admin'];
+      allow read: if isAdmin() || (isAuthenticated()
+        && (getUserData().siteId == null || isSameSite(siteId))
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
+      allow write: if isAdmin() || (isAuthenticated()
+        && (getUserData().siteId == null || isSameSite(siteId))
+        && getUserData().role == 'plant_manager');
     }
 
     // rca — Root Cause Analysis records
