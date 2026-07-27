@@ -28,7 +28,9 @@ jobs:
           # Functions deploy fails outright if the project's Firestore
           # "(default)" database doesn't exist yet (e.g. a freshly created
           # Firebase project). Provision it first; a no-op if it's already
-          # there.
+          # there. Requires the deploy service account to hold
+          # Service Usage Admin (to enable cloudbilling.googleapis.com
+          # and friends) in addition to its existing deploy roles.
           npx firebase-tools@latest firestore:databases:create "(default)" \
             --location=nam5 \
             --project "$VITE_FIREBASE_PROJECT_ID" \
