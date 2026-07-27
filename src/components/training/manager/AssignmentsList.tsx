@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import type { TrainingAssignment, AssignmentStatus } from '@/lib/training/trainingTypes';
 import type { Timestamp } from 'firebase/firestore';
-import { Eye } from 'lucide-react';
+import { Eye, FileText } from 'lucide-react';
+import { isOffboardAssignment } from '@/lib/training/offboardTraining';
 
 interface AssignmentsListProps {
   assignments: TrainingAssignment[];
   loading: boolean;
   onViewProgress?: (id: string) => void;
+  onViewOffboardReport?: (assignment: TrainingAssignment) => void;
 }
 
 function formatTs(ts: Timestamp | null | undefined): string {
@@ -57,6 +59,7 @@ export default function AssignmentsList({
   assignments,
   loading,
   onViewProgress,
+  onViewOffboardReport,
 }: AssignmentsListProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -149,7 +152,11 @@ export default function AssignmentsList({
                     <p className="text-xs text-gray-500">{a.department}</p>
                   </td>
                   <td className="px-4 py-3 text-gray-700">{a.moduleName}</td>
-                  <td className="px-4 py-3 text-gray-600">{a.machineName || '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {isOffboardAssignment(a)
+                      ? `${a.offboardDetails?.country || '—'} · ${a.offboardDetails?.thirdPartyCompany || 'External'}`
+                      : a.machineName || '—'}
+                  </td>
                   <td className="px-4 py-3 text-gray-600">{formatTs(a.assignedAt)}</td>
                   <td className="px-4 py-3 text-gray-600">{formatTs(a.dueDate)}</td>
                   <td className="px-4 py-3">
@@ -182,15 +189,26 @@ export default function AssignmentsList({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    {onViewProgress && (
-                      <button
-                        onClick={() => onViewProgress(a.traineeId)}
-                        className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
-                      >
-                        <Eye className="w-3 h-3" />
-                        View
-                      </button>
-                    )}
+                    <div className="flex items-center justify-end gap-2">
+                      {isOffboardAssignment(a) && onViewOffboardReport && (
+                        <button
+                          onClick={() => onViewOffboardReport(a)}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-purple-600 bg-purple-50 rounded hover:bg-purple-100 transition-colors"
+                        >
+                          <FileText className="w-3 h-3" />
+                          Report
+                        </button>
+                      )}
+                      {onViewProgress && (
+                        <button
+                          onClick={() => onViewProgress(a.traineeId)}
+                          className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          <Eye className="w-3 h-3" />
+                          View
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

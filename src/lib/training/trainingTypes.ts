@@ -19,6 +19,13 @@ export type AssignmentStatus =
 export type TrainingLanguage = 'en' | 'si' | 'ta' | 'bn';
 export type ContentLibraryItemType = 'video' | 'document' | 'image';
 
+// Category distinguishes in-house machine-specific training from
+// offboard/external training run by a third party. Existing docs predate
+// this field and have no `category` set — treat missing as 'machine'
+// everywhere (see getModuleCategory in offboardTraining.ts).
+export type TrainingModuleCategory = 'machine' | 'offboard';
+export type OffboardTrainingMode = 'in-person' | 'online' | 'hybrid';
+
 // ---------------------------------------------------------------------------
 // Lesson
 // ---------------------------------------------------------------------------
@@ -72,6 +79,24 @@ export interface TrainingQuiz {
 }
 
 // ---------------------------------------------------------------------------
+// Offboard / External Training
+// ---------------------------------------------------------------------------
+
+export interface OffboardTrainingDetails {
+  country: string;
+  thirdPartyCompany: string;
+  thirdPartyContactName: string;
+  thirdPartyContactInfo: string;
+  mode: OffboardTrainingMode;
+  startDate: Timestamp | null;
+  endDate: Timestamp | null;
+  durationDays: number;
+  topic: string;
+  linkedMachineId: string | null;
+  assessmentQuestions: string[];
+}
+
+// ---------------------------------------------------------------------------
 // Training Module
 // ---------------------------------------------------------------------------
 
@@ -99,6 +124,9 @@ export interface TrainingModule {
   prerequisiteModuleIds: string[];
   usageCount: number;
   completionCount: number;
+  // Optional: absent on legacy docs — treat as 'machine' when reading.
+  category?: TrainingModuleCategory;
+  offboardDetails?: OffboardTrainingDetails | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -142,6 +170,25 @@ export interface PracticalSignOff {
 }
 
 // ---------------------------------------------------------------------------
+// Offboard Training Completion (employee-submitted knowledge report)
+// ---------------------------------------------------------------------------
+
+export interface OffboardAssessmentAnswer {
+  question: string;
+  answer: string;
+}
+
+export interface OffboardCompletion {
+  knowledgeGained: string;
+  assessmentAnswers: OffboardAssessmentAnswer[];
+  attachmentUrls: string[];
+  actualStartDate: Timestamp | null;
+  actualEndDate: Timestamp | null;
+  reportSubmittedAt: Timestamp | null;
+  reportGeneratedPdfUrl: string;
+}
+
+// ---------------------------------------------------------------------------
 // Training Assignment
 // ---------------------------------------------------------------------------
 
@@ -181,6 +228,10 @@ export interface TrainingAssignment {
   startedAt: Timestamp | null;
   completedAt: Timestamp | null;
   lastActivityAt: Timestamp | null;
+  // Optional: absent on legacy/machine assignments.
+  category?: TrainingModuleCategory;
+  offboardDetails?: OffboardTrainingDetails | null;
+  offboardCompletion?: OffboardCompletion | null;
 }
 
 // ---------------------------------------------------------------------------

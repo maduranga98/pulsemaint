@@ -11,8 +11,10 @@ import {
   BarChart2,
   ListChecks,
 } from 'lucide-react';
+import { Globe2, FileClock } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+import { isOffboardAssignment } from '@/lib/training/offboardTraining';
 
 const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 
@@ -88,6 +90,17 @@ export default function TrainingDashboard({
   const role = useAuthStore((s) => s.userProfile?.role);
   const canAuthor = !!role && CAN_AUTHOR_ROLES.includes(role);
 
+  const now = new Date();
+  const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+  const offboardAssignments = allAssignments.filter(isOffboardAssignment);
+  const offboardThisQuarter = offboardAssignments.filter((a) => {
+    const assignedAt = (a.assignedAt as unknown as { toDate?: () => Date })?.toDate?.();
+    return assignedAt ? assignedAt >= quarterStart : false;
+  }).length;
+  const pendingKnowledgeReports = offboardAssignments.filter(
+    (a) => !a.offboardCompletion?.reportSubmittedAt
+  ).length;
+
   return (
     <div className="space-y-6">
       {/* Alert Banners */}
@@ -145,6 +158,18 @@ export default function TrainingDashboard({
           value={stats.modulesCreated}
           icon={<Layers className="w-6 h-6 text-purple-600" />}
           colorClass="bg-purple-50"
+        />
+        <StatCard
+          label="Offboard Trainings This Quarter"
+          value={offboardThisQuarter}
+          icon={<Globe2 className="w-6 h-6 text-fuchsia-600" />}
+          colorClass="bg-fuchsia-50"
+        />
+        <StatCard
+          label="Pending Knowledge Reports"
+          value={pendingKnowledgeReports}
+          icon={<FileClock className="w-6 h-6 text-orange-600" />}
+          colorClass="bg-orange-50"
         />
       </div>
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Loader2, Eye, ClipboardList } from 'lucide-react';
 import type { TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
+import { isOffboardModule } from '@/lib/training/offboardTraining';
 import ModuleSettingsForm from './ModuleSettingsForm';
 import LessonListEditor from './LessonListEditor';
 import LessonEditorPanel from './LessonEditorPanel';
@@ -106,6 +107,7 @@ export default function ModuleEditorLayout({
   }
 
   const hasQuiz = !!module?.quiz;
+  const isOffboard = isOffboardModule(module);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
@@ -122,17 +124,19 @@ export default function ModuleEditorLayout({
         >
           Settings
         </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('lessons')}
-          className={`flex-1 py-3 text-sm font-medium transition-colors ${
-            activeTab === 'lessons'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Lessons {lessons.length > 0 && `(${lessons.length})`}
-        </button>
+        {!isOffboard && (
+          <button
+            type="button"
+            onClick={() => setActiveTab('lessons')}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === 'lessons'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Lessons {lessons.length > 0 && `(${lessons.length})`}
+          </button>
+        )}
       </div>
 
       {/* Main layout */}
@@ -158,7 +162,8 @@ export default function ModuleEditorLayout({
           </div>
         </div>
 
-        {/* Right panel: Lessons + Quiz */}
+        {/* Right panel: Lessons + Quiz (machine training only) */}
+        {isOffboard ? null : (
         <div
           className={`flex-1 min-w-0 flex flex-col gap-5 ${
             activeTab !== 'lessons' ? 'hidden lg:flex' : ''
@@ -240,6 +245,7 @@ export default function ModuleEditorLayout({
             )}
           </div>
         </div>
+        )}
       </div>
 
       {/* Sticky footer bar */}

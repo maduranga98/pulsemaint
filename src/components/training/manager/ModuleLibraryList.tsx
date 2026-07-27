@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Edit2, UserPlus, Archive, Trash2, BookOpen, HelpCircle, Layers } from 'lucide-react';
+import { Edit2, UserPlus, Archive, Trash2, BookOpen, HelpCircle, Layers, Globe2 } from 'lucide-react';
 import type { TrainingModule, TrainingModuleStatus } from '@/lib/training/trainingTypes';
+import { isOffboardModule } from '@/lib/training/offboardTraining';
 
 interface ModuleLibraryListProps {
   modules: TrainingModule[];
@@ -116,7 +117,16 @@ export default function ModuleLibraryList({
                   <td className="px-4 py-3">
                     <span className="font-medium text-gray-900">{module.title}</span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{module.machineName || '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {isOffboardModule(module) ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Globe2 className="w-3 h-3 text-purple-500" />
+                        {module.offboardDetails?.country || '—'} · {module.offboardDetails?.thirdPartyCompany || 'External'}
+                      </span>
+                    ) : (
+                      module.machineName || '—'
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-center text-gray-600">{module.lessons.length}</td>
                   <td className="px-4 py-3 text-center">
                     {module.quiz ? (
@@ -196,7 +206,11 @@ export default function ModuleLibraryList({
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-gray-900 truncate">{module.title}</p>
-                  <p className="text-sm text-gray-500 truncate">{module.machineName || 'No machine'}</p>
+                  <p className="text-sm text-gray-500 truncate">
+                    {isOffboardModule(module)
+                      ? `${module.offboardDetails?.country || '—'} · ${module.offboardDetails?.thirdPartyCompany || 'External'}`
+                      : module.machineName || 'No machine'}
+                  </p>
                 </div>
                 <span
                   className={`flex-shrink-0 inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_BADGE[module.status]}`}
