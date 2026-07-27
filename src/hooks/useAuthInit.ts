@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
@@ -78,6 +78,23 @@ export function useAuthInit() {
                   return;
                 }
                 const userProfile = userSnap.data() as UserProfile;
+
+                // An admin marking this account inactive puts a temporary
+                // hold on the login — end the session immediately rather
+                // than waiting for the user's token to expire naturally.
+                // reset() (triggered by the resulting onAuthStateChanged
+                // firing with user=null) clears the store's error, so the
+                // reason is stashed here for LoginPage to surface instead.
+                if (userProfile.status === 'inactive') {
+                  unsubscribeProfile();
+                  sessionStorage.setItem(
+                    'pulsemaint:deactivation-notice',
+                    'Your account has been deactivated. Contact your administrator.',
+                  );
+                  signOut(auth).catch(() => {});
+                  return;
+                }
+
                 setUserProfile(userProfile);
 
                 if (isFirstSnapshot) {

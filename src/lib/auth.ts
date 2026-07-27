@@ -39,7 +39,23 @@ export const authErrorMessages: Record<string, string> = {
   PIN_INVALID: 'Invalid PIN. Please try again.',
   INVITE_EXPIRED: 'This invitation has expired.',
   INVITE_USED: 'This invitation has already been used.',
+  ACCOUNT_INACTIVE: 'Your account has been deactivated. Contact your administrator.',
 };
+
+/**
+ * Marking a user inactive in Settings → Users should put a temporary hold
+ * on their login rather than just hiding the row — every login path that
+ * loads an existing profile calls this right after the credential check
+ * and before hydrating the store, so an inactive account never gets in.
+ */
+async function rejectIfInactive(userProfile: UserProfile): Promise<void> {
+  if (userProfile.status === 'inactive') {
+    await signOut(auth);
+    const error = new Error('Your account has been deactivated. Contact your administrator.');
+    (error as Error & { code: string }).code = 'ACCOUNT_INACTIVE';
+    throw error;
+  }
+}
 
 export async function registerCompany(data: {
   companyName: string;
@@ -149,6 +165,7 @@ export async function loginWithEmail(email: string, password: string): Promise<U
     if (!userProfile) {
       throw new Error('User profile not found.');
     }
+    await rejectIfInactive(userProfile);
 
     // Hydrate store immediately so the caller can navigate without racing
     // against onAuthStateChanged's async Firestore fetch.
@@ -203,6 +220,9 @@ export async function confirmOTP(
     }
 
     let userProfile = await fetchUserProfile(uid, companyId);
+    if (userProfile) {
+      await rejectIfInactive(userProfile);
+    }
     if (!userProfile) {
       // Create a basic profile for phone-based signup
       const userRef = doc(collection(db, `companies/${companyId}/users`), uid);
@@ -275,6 +295,9 @@ export async function loginWithGoogle(): Promise<UserProfile> {
 
     // Fetch user profile
     let userProfile = await fetchUserProfile(uid, companyId);
+    if (userProfile) {
+      await rejectIfInactive(userProfile);
+    }
     if (!userProfile) {
       // Create profile for Google login
       const userRef = doc(collection(db, `companies/${companyId}/users`), uid);
@@ -357,6 +380,7 @@ export async function loginWithPin(companyId: string, pin: string): Promise<User
     if (!userProfile) {
       throw new Error('User profile not found.');
     }
+    await rejectIfInactive(userProfile);
 
     // Hydrate store immediately so the caller can navigate (or read uid for
     // PIN-change flow) without racing against onAuthStateChanged.
