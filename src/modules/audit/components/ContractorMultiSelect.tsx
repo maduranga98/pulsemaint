@@ -83,7 +83,7 @@ export function ContractorMultiSelect({ selected, onChange }: Props) {
               <span>
                 <span className="text-sm text-white">{c.companyName}</span>
                 <span className="block text-xs text-slate-500">
-                  {c.tradeName || '—'} {c.status ? `· ${c.status}` : ''}
+                  {c.tradeName || ''} {c.status ? `· ${c.status}` : ''}
                 </span>
               </span>
               {isSel && <Check className="h-4 w-4 text-blue-400" />}

@@ -8,11 +8,11 @@ interface OffboardTrainingReportViewerProps {
 }
 
 function formatDate(value: unknown): string {
-  if (!value) return '—';
+  if (!value) return '';
   const d = (value as { toDate?: () => Date }).toDate
     ? (value as { toDate: () => Date }).toDate()
     : new Date(value as string);
-  if (isNaN(d.getTime())) return '—';
+  if (isNaN(d.getTime())) return '';
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
@@ -41,9 +41,9 @@ export default function OffboardTrainingReportViewer({
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Training Details</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div><span className="text-gray-400">Trainee</span><p className="text-gray-800">{assignment.traineeName}</p></div>
-              <div><span className="text-gray-400">Provider</span><p className="text-gray-800">{details?.thirdPartyCompany || '—'}</p></div>
-              <div><span className="text-gray-400">Country</span><p className="text-gray-800">{details?.country || '—'}</p></div>
-              <div><span className="text-gray-400">Mode</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : '—'}</p></div>
+              <div><span className="text-gray-400">Provider</span><p className="text-gray-800">{details?.thirdPartyCompany || ''}</p></div>
+              <div><span className="text-gray-400">Country</span><p className="text-gray-800">{details?.country || ''}</p></div>
+              <div><span className="text-gray-400">Mode</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : ''}</p></div>
               <div><span className="text-gray-400">Duration</span><p className="text-gray-800">{details?.durationDays ?? 0} day(s)</p></div>
               <div><span className="text-gray-400">Dates</span><p className="text-gray-800">{formatDate(details?.startDate)} — {formatDate(details?.endDate)}</p></div>
             </div>
@@ -63,7 +63,7 @@ export default function OffboardTrainingReportViewer({
                     {completion.assessmentAnswers.map((qa, i) => (
                       <div key={i}>
                         <p className="text-sm font-medium text-gray-700">{qa.question}</p>
-                        <p className="text-sm text-gray-600">{qa.answer || '—'}</p>
+                        <p className="text-sm text-gray-600">{qa.answer || ''}</p>
                       </div>
                     ))}
                   </div>

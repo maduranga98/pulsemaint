@@ -27,8 +27,8 @@ export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
   const requestedDate = request.requestedAt?.toDate?.();
   const ageText = requestedDate
     ? formatDistanceToNow(requestedDate, { addSuffix: true })
-    : '—';
-  const dateStr = requestedDate ? requestedDate.toLocaleDateString() : '—';
+    : '';
+  const dateStr = requestedDate ? requestedDate.toLocaleDateString() : '';
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4">

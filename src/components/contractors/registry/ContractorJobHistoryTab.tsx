@@ -11,7 +11,7 @@ interface ContractorJobHistoryTabProps {
 }
 
 function fmtTs(ts?: { toDate: () => Date } | null): string {
-  return ts ? ts.toDate().toLocaleDateString() : '—';
+  return ts ? ts.toDate().toLocaleDateString() : '';
 }
 
 function waitMinutes(start?: { toDate: () => Date } | null, end?: { toDate: () => Date } | null): number | null {

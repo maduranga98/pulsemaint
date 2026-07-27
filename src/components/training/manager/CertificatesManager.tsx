@@ -18,7 +18,7 @@ interface CertificatesManagerProps {
 type ExpiryFilter = 'all' | 'valid' | 'expired' | 'expiring-soon';
 
 function formatTs(ts: Timestamp | null | undefined): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const date = new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return date.toLocaleDateString('en-GB', {
     day: '2-digit',
@@ -189,7 +189,7 @@ export default function CertificatesManager({
                       {cert.traineeName}
                     </td>
                     <td className="px-4 py-3 text-gray-600">
-                      {cert.machineName || '—'}
+                      {cert.machineName || ''}
                     </td>
                     <td className="px-4 py-3 text-gray-600">{cert.moduleName}</td>
                     <td className="px-4 py-3 text-gray-600">

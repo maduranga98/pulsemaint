@@ -278,7 +278,7 @@ export default function BreakdownsPage() {
                   <tr className="hover:bg-slate-50 transition-colors">
                     <td className="px-4 py-3 font-medium text-blue-600">
                       <button type="button" onClick={() => setExpandedId(expandedId === b.id ? null : b.id)} className="hover:underline">
-                        {b.ticketNumber || '—'}
+                        {b.ticketNumber || ''}
                       </button>
                     </td>
                     <td className="px-4 py-3">
@@ -312,9 +312,9 @@ export default function BreakdownsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-slate-700">{b.reporterName || '—'}</td>
+                    <td className="px-4 py-3 text-slate-700">{b.reporterName || ''}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">
-                      {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : '—'}
+                      {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : ''}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">

@@ -693,10 +693,10 @@ function InvitationRow({
         </span>
       </td>
       <td className="px-4 py-3 text-xs text-slate-500">
-        {inv.createdAt?.toDate ? inv.createdAt.toDate().toLocaleDateString() : '—'}
+        {inv.createdAt?.toDate ? inv.createdAt.toDate().toLocaleDateString() : ''}
       </td>
       <td className="px-4 py-3 text-xs text-slate-500">
-        {inv.expiresAt?.toDate ? inv.expiresAt.toDate().toLocaleDateString() : '—'}
+        {inv.expiresAt?.toDate ? inv.expiresAt.toDate().toLocaleDateString() : ''}
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center justify-end gap-1">

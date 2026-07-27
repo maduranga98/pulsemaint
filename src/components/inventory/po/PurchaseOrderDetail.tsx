@@ -35,7 +35,7 @@ const TIMELINE_STEPS: { key: keyof PurchaseOrder; label: string }[] = [
 ];
 
 function formatDate(ts: PurchaseOrder['raisedAt'] | null | undefined): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const d = ts.toDate ? ts.toDate() : new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return d.toLocaleDateString();
 }

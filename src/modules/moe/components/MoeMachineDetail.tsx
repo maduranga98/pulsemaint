@@ -117,7 +117,7 @@ export function MoeMachineDetail({ machineId, initialRange, onBack }: MoeMachine
             <Stat label="Downtime (est.)" value={`${totalDowntimeHrs.toFixed(1)} hrs`} />
             <Stat label="Avg Availability" value={`${avgAvailability.toFixed(1)}%`} />
             <Stat label="Avg PM Compliance" value={`${avgCompliance.toFixed(1)}%`} />
-            <Stat label="Health Score" value={`${latest?.healthScore.toFixed(0) ?? '—'}`} />
+            <Stat label="Health Score" value={`${latest?.healthScore.toFixed(0) ?? ''}`} />
           </div>
 
           <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-4">

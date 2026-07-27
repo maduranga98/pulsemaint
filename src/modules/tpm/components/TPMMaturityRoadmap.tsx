@@ -69,7 +69,7 @@ function MachineRow({ machine }: { machine: TPMMachineScore }) {
   const c = LEVEL_COLORS[machine.maturityLevel];
   const assessed = machine.lastAssessed
     ? (machine.lastAssessed as Timestamp).toDate().toLocaleDateString()
-    : '—';
+    : '';
 
   return (
     <tr className="border-b border-slate-800 hover:bg-slate-800/40 transition-colors">

@@ -6,7 +6,7 @@ interface CertificatePreviewProps {
 }
 
 function formatDate(timestamp: { seconds: number } | null): string {
-  if (!timestamp) return '—';
+  if (!timestamp) return '';
   return new Date(timestamp.seconds * 1000).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: 'short',

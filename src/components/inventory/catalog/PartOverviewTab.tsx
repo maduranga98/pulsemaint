@@ -85,7 +85,7 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
       <Card title="Location & Storage">
         <div className="text-center py-2">
           <p className="text-xs text-gray-500 mb-1">Store Location</p>
-          <p className="text-2xl font-bold text-gray-900 font-mono">{part.storeLocation || '—'}</p>
+          <p className="text-2xl font-bold text-gray-900 font-mono">{part.storeLocation || ''}</p>
         </div>
         {part.compatibleMachineIds.length > 0 && (
           <div>

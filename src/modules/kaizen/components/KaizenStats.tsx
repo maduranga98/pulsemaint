@@ -81,7 +81,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
     },
     {
       label: 'Avg Days to Implement',
-      value: stats.avgTimeToImplement || '—',
+      value: stats.avgTimeToImplement || '',
       icon: <Clock size={18} className="text-amber-500" />,
       color: 'amber',
     },
@@ -90,7 +90,7 @@ export function KaizenStats({ isProPlan = false }: Props) {
       value:
         stats.totalActualBenefit > 0
           ? `LKR ${(stats.totalActualBenefit * 12).toLocaleString()}`
-          : '—',
+          : '',
       icon: <DollarSign size={18} className="text-purple-500" />,
       color: 'purple',
     },

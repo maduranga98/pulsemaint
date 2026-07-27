@@ -33,7 +33,7 @@ export function WOCard({ workOrder, onClick }: WOCardProps) {
 
       {/* WO Number + Machine */}
       <p className="font-semibold text-gray-900 text-sm truncate">
-        {workOrder.woNumber || '—'}
+        {workOrder.woNumber || ''}
       </p>
       <p className="text-sm text-gray-700 truncate">{workOrder.machineName}</p>
       <p className="text-xs text-gray-400 truncate">{workOrder.machineLocation}</p>

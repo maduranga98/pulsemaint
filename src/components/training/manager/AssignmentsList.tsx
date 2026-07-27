@@ -12,7 +12,7 @@ interface AssignmentsListProps {
 }
 
 function formatTs(ts: Timestamp | null | undefined): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const date = new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return date.toLocaleDateString('en-GB', {
     day: '2-digit',
@@ -154,8 +154,8 @@ export default function AssignmentsList({
                   <td className="px-4 py-3 text-gray-700">{a.moduleName}</td>
                   <td className="px-4 py-3 text-gray-600">
                     {isOffboardAssignment(a)
-                      ? `${a.offboardDetails?.country || '—'} · ${a.offboardDetails?.thirdPartyCompany || 'External'}`
-                      : a.machineName || '—'}
+                      ? `${a.offboardDetails?.country || ''} · ${a.offboardDetails?.thirdPartyCompany || 'External'}`
+                      : a.machineName || ''}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{formatTs(a.assignedAt)}</td>
                   <td className="px-4 py-3 text-gray-600">{formatTs(a.dueDate)}</td>

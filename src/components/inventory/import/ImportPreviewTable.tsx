@@ -57,10 +57,10 @@ export function ImportPreviewTable({
                     {row.partNumber || <span className="italic text-gray-400 font-sans">auto-generated</span>}
                   </td>
                   <td className="px-3 py-2 text-gray-800 max-w-[160px] truncate">{row.name}</td>
-                  <td className="px-3 py-2 text-gray-600">{row.category || '—'}</td>
-                  <td className="px-3 py-2 text-gray-600">{row.unit || '—'}</td>
+                  <td className="px-3 py-2 text-gray-600">{row.category || ''}</td>
+                  <td className="px-3 py-2 text-gray-600">{row.unit || ''}</td>
                   <td className="px-3 py-2 text-gray-800">{row.currentStock || '0'}</td>
-                  <td className="px-3 py-2 text-gray-800">{row.unitCost ? `LKR ${row.unitCost}` : '—'}</td>
+                  <td className="px-3 py-2 text-gray-800">{row.unitCost ? `LKR ${row.unitCost}` : ''}</td>
                   <td className="px-3 py-2">
                     <span
                       className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide

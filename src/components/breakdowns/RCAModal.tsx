@@ -262,7 +262,7 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
                 <p className="font-medium text-gray-700">Summary</p>
                 <div>
                   <span className="text-gray-500 text-xs">Root Cause: </span>
-                  <span className="text-gray-800">{rootCause || '—'}</span>
+                  <span className="text-gray-800">{rootCause || ''}</span>
                 </div>
                 {correctiveAction && (
                   <div>

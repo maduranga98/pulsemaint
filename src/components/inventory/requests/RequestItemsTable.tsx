@@ -65,7 +65,7 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
                   requested={item.quantityRequested}
                 />
               </td>
-              <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{item.notes || '—'}</td>
+              <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{item.notes || ''}</td>
             </tr>
           ))}
         </tbody>

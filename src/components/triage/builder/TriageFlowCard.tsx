@@ -11,7 +11,7 @@ export default function TriageFlowCard({ flow, onToggleActive }: Props) {
   const { t } = useTranslation();
   const lastUsed = flow.lastUsedAt
     ? new Date(flow.lastUsedAt.seconds * 1000).toLocaleDateString()
-    : '—';
+    : '';
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">

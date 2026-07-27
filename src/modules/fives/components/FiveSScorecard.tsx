@@ -162,14 +162,14 @@ export function FiveSScorecard({ snapshots, factoryScore }: FiveSScorecardsProps
                     return (
                       <td key={pillar.id} className="px-3 py-2.5 text-center">
                         <span className={`inline-block px-2 py-0.5 rounded text-xs font-bold ${heatColor(ps)}`}>
-                          {ps !== null ? ps.toFixed(1) : '—'}
+                          {ps !== null ? ps.toFixed(1) : ''}
                         </span>
                       </td>
                     );
                   })}
                   <td className="px-3 py-2.5 text-center">
                     <span className={`text-sm font-black font-sora ${overallColor(zone.lastAuditScore ?? 0)}`}>
-                      {zone.lastAuditScore !== null ? `${zone.lastAuditScore}%` : '—'}
+                      {zone.lastAuditScore !== null ? `${zone.lastAuditScore}%` : ''}
                     </span>
                   </td>
                 </tr>

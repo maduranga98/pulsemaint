@@ -84,7 +84,7 @@ export function RCAHistoryList({ machineId }: RCAHistoryListProps) {
               ? new Date(
                   (rca.createdAt as any)?.toMillis?.() ?? Number(rca.createdAt),
                 ).toLocaleDateString()
-              : '—'}
+              : ''}
             {' · '}By {rca.createdByName}
           </div>
         </div>

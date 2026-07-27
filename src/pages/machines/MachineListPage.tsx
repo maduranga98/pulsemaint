@@ -330,7 +330,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
                             <td className="px-2 py-1">{row.department}</td>
                             <td className="px-2 py-1">{row.status}</td>
                             <td className="px-2 py-1">{row.criticality}</td>
-                            <td className="px-2 py-1 text-red-600">{row._error ?? '—'}</td>
+                            <td className="px-2 py-1 text-red-600">{row._error ?? ''}</td>
                           </tr>
                         ))}
                       </tbody>

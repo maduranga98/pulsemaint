@@ -25,7 +25,7 @@ function currentProgrammeMonth(startDate: { toDate?: () => Date } | null | undef
 }
 
 function formatTs(ts: { toDate?: () => Date } | null | undefined): string {
-  if (!ts?.toDate) return '—';
+  if (!ts?.toDate) return '';
   return ts.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 

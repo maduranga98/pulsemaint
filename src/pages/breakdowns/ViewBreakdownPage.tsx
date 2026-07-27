@@ -282,17 +282,17 @@ export default function ViewBreakdownPage() {
             </div>
             <div>
               <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Reported By</p>
-              <p className="text-slate-900 font-medium">{b.reporterName || '—'}</p>
+              <p className="text-slate-900 font-medium">{b.reporterName || ''}</p>
               <p className="text-slate-500 text-xs capitalize">{b.reporterRole?.replace(/_/g, ' ') || ''}</p>
               <p className="text-slate-500 text-xs">
-                {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : '—'}
+                {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : ''}
               </p>
             </div>
           </div>
 
           <div>
             <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened</p>
-            <p className="text-slate-800 text-sm">{b.description || '—'}</p>
+            <p className="text-slate-800 text-sm">{b.description || ''}</p>
           </div>
 
           {b.productionImpact && (

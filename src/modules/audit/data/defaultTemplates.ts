@@ -1,4 +1,4 @@
-import type { AuditCategory, AuditTask } from '../types/audit.types';
+import type { BuiltinAuditCategory, AuditTask } from '../types/audit.types';
 
 let _seq = 0;
 const t = (text: string, answerType: AuditTask['answerType'], critical = false): AuditTask => ({
@@ -13,7 +13,7 @@ const t = (text: string, answerType: AuditTask['answerType'], critical = false):
  * template the first time a plant opens a category, so auditors can add/remove
  * tasks and change answer types freely afterwards.
  */
-export const DEFAULT_TASKS: Record<AuditCategory, AuditTask[]> = {
+export const DEFAULT_TASKS: Record<BuiltinAuditCategory, AuditTask[]> = {
   tpm: [
     t('Autonomous maintenance checklist completed by operator', 'yes_no', true),
     t('Equipment cleaned and free of leaks/contamination', 'scale'),

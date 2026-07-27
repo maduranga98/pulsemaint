@@ -9,7 +9,7 @@ interface ImportHistoryTableProps {
 }
 
 function formatDate(ts: InventoryImportSession['startedAt']): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const d = ts.toDate ? ts.toDate() : new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return d.toLocaleString();
 }

@@ -1,9 +1,9 @@
 import type { PurchaseOrder } from '@/types/inventory';
 
 function fmtDate(ts: any): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const d = ts?.toDate ? ts.toDate() : ts?.seconds ? new Date(ts.seconds * 1000) : null;
-  return d ? d.toLocaleDateString() : '—';
+  return d ? d.toLocaleDateString() : '';
 }
 
 function money(amount: number, currency: string): string {

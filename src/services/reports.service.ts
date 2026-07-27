@@ -426,9 +426,9 @@ export async function fetchMachineProfile(machineId: string): Promise<MachinePro
 
   const asDate = (value: unknown): string => {
     if (value && typeof (value as Timestamp).toDate === 'function') return (value as Timestamp).toDate().toLocaleDateString();
-    return value ? String(value) : '—';
+    return value ? String(value) : '';
   };
-  const text = (value: unknown): string => (value == null || value === '' ? '—' : String(value));
+  const text = (value: unknown): string => (value == null || value === '' ? '' : String(value));
 
   const location = [data.department, data.floor, data.bay, data.station]
     .filter((part) => part != null && part !== '')
@@ -440,12 +440,12 @@ export async function fetchMachineProfile(machineId: string): Promise<MachinePro
     { label: 'Manufacturer', value: text(data.manufacturer) },
     { label: 'Model', value: text(data.model) },
     { label: 'Serial Number', value: text(data.serialNumber) },
-    { label: 'Type', value: prettifyEnum(data.type) || '—' },
+    { label: 'Type', value: prettifyEnum(data.type) || '' },
     { label: 'Department', value: text(data.department) },
-    { label: 'Location', value: location || '—' },
-    { label: 'Status', value: prettifyEnum(data.status) || '—' },
+    { label: 'Location', value: location || '' },
+    { label: 'Status', value: prettifyEnum(data.status) || '' },
     { label: 'Criticality', value: text(data.criticality) },
-    { label: 'Health Score', value: data.healthScore != null ? String(data.healthScore) : '—' },
+    { label: 'Health Score', value: data.healthScore != null ? String(data.healthScore) : '' },
     { label: 'Installation Date', value: asDate(data.installationDate) },
     { label: 'Last Service', value: asDate(data.lastServiceDate) },
     { label: 'Next PM Due', value: asDate(data.nextPmDue) },

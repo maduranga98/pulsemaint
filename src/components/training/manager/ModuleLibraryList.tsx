@@ -121,10 +121,10 @@ export default function ModuleLibraryList({
                     {isOffboardModule(module) ? (
                       <span className="inline-flex items-center gap-1">
                         <Globe2 className="w-3 h-3 text-purple-500" />
-                        {module.offboardDetails?.country || '—'} · {module.offboardDetails?.thirdPartyCompany || 'External'}
+                        {module.offboardDetails?.country || ''} · {module.offboardDetails?.thirdPartyCompany || 'External'}
                       </span>
                     ) : (
-                      module.machineName || '—'
+                      module.machineName || ''
                     )}
                   </td>
                   <td className="px-4 py-3 text-center text-gray-600">{module.lessons.length}</td>
@@ -208,7 +208,7 @@ export default function ModuleLibraryList({
                   <p className="font-semibold text-gray-900 truncate">{module.title}</p>
                   <p className="text-sm text-gray-500 truncate">
                     {isOffboardModule(module)
-                      ? `${module.offboardDetails?.country || '—'} · ${module.offboardDetails?.thirdPartyCompany || 'External'}`
+                      ? `${module.offboardDetails?.country || ''} · ${module.offboardDetails?.thirdPartyCompany || 'External'}`
                       : module.machineName || 'No machine'}
                   </p>
                 </div>
