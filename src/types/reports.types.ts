@@ -8,7 +8,6 @@ export type ReportType =
   | 'contractor_performance'
   | 'inventory_usage'
   | 'inventory_listing'
-  | 'parts_consumption'
   | 'low_stock_alert'
   | 'pm_compliance'
   | 'training_compliance'
@@ -16,7 +15,6 @@ export type ReportType =
   | 'shift_handover_summary'
   | 'downtime_analysis'
   | 'executive_monthly'
-  | 'safety_near_miss'
   | 'audit_trail'
   | 'po_history';
 

@@ -1,5 +1,7 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { collection, getDocs, query, where, limit } from 'firebase/firestore';
+import { db } from '../../../lib/firebase';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
 import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '../../../services/reports.service';
@@ -7,7 +9,13 @@ import type { ReportConfig, ReportType } from '../../../types/reports.types';
 import { resolveColumns, formatCell } from '../reportColumns';
 import type { ReportColumn } from '../reportColumns';
 import { renderBarChart, type ChartDatum } from './chartRenderer';
-import { topHealthScores, totalCostByWoType } from '../../../lib/reportsCostUtils';
+import {
+  topHealthScores,
+  totalCostByWoType,
+  computeStockStatusBuckets,
+  downtimeByWeekday,
+  lateByBuckets,
+} from '../../../lib/reportsCostUtils';
 
 // Columns that make sense as a chart category (a small set of repeated values).
 const CATEGORY_KEYS = [
@@ -65,6 +73,39 @@ function countBy(
     .map(([label, value]) => ({ label, value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, max);
+}
+
+/**
+ * Sums a numeric field across rows, grouped by another field's value — used
+ * for the Training Compliance chart (role vs trainings-completed count).
+ */
+function sumByKey(
+  rows: Record<string, unknown>[],
+  groupKey: string,
+  valueKey: string,
+): ChartDatum[] {
+  const totals = new Map<string, number>();
+  rows.forEach((r) => {
+    const group = String(r[groupKey] ?? 'Unknown');
+    totals.set(group, (totals.get(group) ?? 0) + Number(r[valueKey] ?? 0));
+  });
+  return Array.from(totals.entries())
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => b.value - a.value);
+}
+
+/**
+ * Fetches the current inventory parts catalogue's stock-status counts (In
+ * Stock / Low Stock / Out of Stock) — used by the Inventory Usage report's
+ * chart, which sources its table from stockMovements (not inventoryParts), so
+ * the stock-status snapshot needs its own fetch.
+ */
+async function fetchInventoryStockStatusChart(companyId: string): Promise<ChartDatum[]> {
+  const snap = await getDocs(
+    query(collection(db, 'inventoryParts'), where('companyId', '==', companyId), limit(2000)),
+  );
+  const parts = snap.docs.map((d) => d.data());
+  return computeStockStatusBuckets(parts as { isLowStock?: boolean; currentStock?: number }[]);
 }
 
 /**
@@ -176,6 +217,51 @@ export async function exportGenericReportPdf(
           .filter((r) => r.rating != null && r.rating !== '')
           .map((r) => ({ label: String(r.contractorName ?? ''), value: Number(r.rating ?? 0) }));
         renderChart('Contractor vs Rating', data, true);
+      } else if (reportType === 'inventory_usage') {
+        // Stock-status snapshot of the current parts catalogue (not derived
+        // from the movement rows themselves — see fetchInventoryStockStatusChart).
+        const data = await fetchInventoryStockStatusChart(companyId);
+        renderChart('Stock Status (Low / Out / In Stock)', data, true);
+      } else if (reportType === 'inventory_listing') {
+        renderChart(
+          'Stock Status (Low / Out / In Stock)',
+          computeStockStatusBuckets(rows as unknown as { isLowStock?: boolean; currentStock?: number }[]),
+          true,
+        );
+      } else if (reportType === 'low_stock_alert') {
+        // Months vs count of low-stock alerts (see lowStockAlertDate
+        // enrichment in fetchReportRows).
+        const byMonth = new Map<string, number>();
+        rows.forEach((r) => {
+          const d = r.lowStockAlertDate;
+          const date = d && typeof (d as { toDate?: () => Date }).toDate === 'function'
+            ? (d as { toDate: () => Date }).toDate()
+            : d instanceof Date
+              ? d
+              : null;
+          if (!date) return;
+          const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+          byMonth.set(key, (byMonth.get(key) ?? 0) + 1);
+        });
+        const data = Array.from(byMonth.entries()).map(([label, value]) => ({ label, value }));
+        renderChart('Low Stock Alerts by Month', data);
+      } else if (reportType === 'training_compliance') {
+        renderChart('Trainings Completed by Role', sumByKey(rows, 'role', 'trainingsCompleted'), true);
+      } else if (reportType === 'shift_handover_summary') {
+        const data = lateByBuckets(rows.map((r) => ({ lateMinutes: Number(r.lateByMinutes ?? 0) })));
+        renderChart('Late By (count of people)', data, true);
+      } else if (reportType === 'downtime_analysis') {
+        const data = downtimeByWeekday(
+          rows.map((r) => ({
+            createdAt: r.createdAt && typeof (r.createdAt as { toDate?: () => Date }).toDate === 'function'
+              ? (r.createdAt as { toDate: () => Date }).toDate()
+              : null,
+            downtimeMinutes: Number(r.downtimeMinutes ?? 0),
+          })),
+        );
+        renderChart('Downtime vs Day of Week', data, true);
+      } else if (reportType === 'audit_trail') {
+        renderChart('Completed Audits by Category', countBy(rows, 'categoryLabel'));
       } else {
         const chart = buildChartData(allColumns, rows);
         if (chart) renderChart(chart.title, chart.data);

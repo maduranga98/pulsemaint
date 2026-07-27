@@ -52,3 +52,163 @@ export function totalCostByWoType(
     .map(([label, value]) => ({ label, value }))
     .sort((a, b) => b.value - a.value);
 }
+
+// ---------------------------------------------------------------------------
+// Inventory stock-status buckets — shared by Inventory Usage and Inventory
+// Listing report charts ("Low Stock / Out of Stock / In Stock" counts).
+// ---------------------------------------------------------------------------
+
+export interface StockStatusPart {
+  isLowStock?: boolean;
+  currentStock?: number;
+}
+
+/**
+ * Buckets a set of inventory parts into In Stock / Low Stock / Out of Stock
+ * counts. A part with currentStock <= 0 is Out of Stock regardless of the
+ * isLowStock flag; otherwise isLowStock decides Low Stock vs In Stock.
+ */
+export function computeStockStatusBuckets(
+  parts: StockStatusPart[],
+): Array<{ label: string; value: number }> {
+  let inStock = 0;
+  let lowStock = 0;
+  let outOfStock = 0;
+  parts.forEach((p) => {
+    const stock = Number(p.currentStock ?? 0);
+    if (stock <= 0) outOfStock += 1;
+    else if (p.isLowStock) lowStock += 1;
+    else inStock += 1;
+  });
+  return [
+    { label: 'In Stock', value: inStock },
+    { label: 'Low Stock', value: lowStock },
+    { label: 'Out of Stock', value: outOfStock },
+  ];
+}
+
+// ---------------------------------------------------------------------------
+// Downtime Analysis — Downtime vs day-of-week the WO was created.
+// ---------------------------------------------------------------------------
+
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+export interface DowntimeRow {
+  createdAt?: Date | null;
+  downtimeMinutes?: number;
+}
+
+/**
+ * Sums downtime minutes per day-of-week the WO was created, always returning
+ * all 7 weekdays (Mon..Sun) in order, zero-filled where there's no data.
+ */
+export function downtimeByWeekday(rows: DowntimeRow[]): Array<{ label: string; value: number }> {
+  const totals = new Array(7).fill(0);
+  rows.forEach((r) => {
+    if (!r.createdAt) return;
+    const day = r.createdAt.getDay();
+    totals[day] += Number(r.downtimeMinutes ?? 0);
+  });
+  // Reorder Sun-first totals into Mon..Sun for display.
+  const order = [1, 2, 3, 4, 5, 6, 0];
+  return order.map((day) => ({ label: WEEKDAY_LABELS[day], value: Math.round(totals[day]) }));
+}
+
+// ---------------------------------------------------------------------------
+// Shift Handover Summary — "Late By" bucket counts of people.
+// ---------------------------------------------------------------------------
+
+const LATE_BUCKETS: Array<{ label: string; max: number }> = [
+  { label: 'On Time', max: 0 },
+  { label: '1-15 min', max: 15 },
+  { label: '16-30 min', max: 30 },
+  { label: '31-60 min', max: 60 },
+  { label: '60+ min', max: Infinity },
+];
+
+/**
+ * Buckets handovers by how late the person clocked in (minutes), returning a
+ * count of people per bucket. Used by the Shift Handover Summary report's
+ * "Late By" chart.
+ */
+export function lateByBuckets(rows: Array<{ lateMinutes?: number }>): Array<{ label: string; value: number }> {
+  const counts = new Map<string, number>(LATE_BUCKETS.map((b) => [b.label, 0]));
+  rows.forEach((r) => {
+    const minutes = Math.max(0, Number(r.lateMinutes ?? 0));
+    const bucket = LATE_BUCKETS.find((b) => minutes <= b.max) ?? LATE_BUCKETS[LATE_BUCKETS.length - 1];
+    counts.set(bucket.label, (counts.get(bucket.label) ?? 0) + 1);
+  });
+  return LATE_BUCKETS.map((b) => ({ label: b.label, value: counts.get(b.label) ?? 0 }));
+}
+
+// ---------------------------------------------------------------------------
+// PO History — flatten one PO into one row per line item.
+// ---------------------------------------------------------------------------
+
+export interface PoLineItemInput {
+  partId?: string;
+  partName?: string;
+  quantityOrdered?: number;
+  unitCost?: number;
+}
+
+export interface PoInvoiceRevisionInput {
+  items?: Array<{ partId?: string; unitCost?: number }>;
+}
+
+export interface PoHistoryInput {
+  id?: string;
+  poNumber?: string;
+  supplierName?: string;
+  status?: string;
+  raisedByName?: string;
+  raisedAt?: unknown;
+  items?: PoLineItemInput[];
+  invoiceRevisions?: PoInvoiceRevisionInput[];
+}
+
+export interface PoLineItemRow {
+  poId: string;
+  poNumber: string;
+  supplierName: string;
+  itemName: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+  status: string;
+  raisedByName: string;
+  raisedAt: unknown;
+}
+
+/**
+ * Flattens purchase orders into one row per line item — PO Code, Supplier,
+ * Item, Quantity, Unit Price (most recent invoice revision's price for that
+ * part, falling back to the item's own unitCost), Total, Status, Raised By,
+ * Date. Used by the PO History report (one row per PO item, not per PO).
+ */
+export function flattenPoLineItems(pos: PoHistoryInput[]): PoLineItemRow[] {
+  const rows: PoLineItemRow[] = [];
+  pos.forEach((po) => {
+    const revisions = po.invoiceRevisions ?? [];
+    const latestRevision = revisions[revisions.length - 1];
+    const items = po.items ?? [];
+    items.forEach((item) => {
+      const revisedItem = latestRevision?.items?.find((ri) => ri.partId === item.partId);
+      const unitPrice = Number(revisedItem?.unitCost ?? item.unitCost ?? 0);
+      const quantity = Number(item.quantityOrdered ?? 0);
+      rows.push({
+        poId: String(po.id ?? ''),
+        poNumber: String(po.poNumber ?? ''),
+        supplierName: String(po.supplierName ?? ''),
+        itemName: String(item.partName ?? ''),
+        quantity,
+        unitPrice,
+        lineTotal: quantity * unitPrice,
+        status: String(po.status ?? ''),
+        raisedByName: String(po.raisedByName ?? ''),
+        raisedAt: po.raisedAt ?? null,
+      });
+    });
+  });
+  return rows;
+}
