@@ -5,7 +5,6 @@ import {
   getDocs,
   query,
   where,
-  setDoc,
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
@@ -27,19 +26,6 @@ export async function fetchMoeConfig(siteId: string): Promise<MoeConfig> {
   const snap = await getDoc(ref);
   if (snap.exists()) return snap.data() as MoeConfig;
   return { siteId, ...DEFAULT_MOE_CONFIG };
-}
-
-export async function saveMoeConfig(config: MoeConfig): Promise<void> {
-  const sum =
-    config.weights.availability +
-    config.weights.maintenanceCompliance +
-    config.weights.reliability +
-    config.weights.health;
-  if (Math.abs(sum - 1) > 0.005) {
-    throw new Error('MOE weights must sum to 1.0');
-  }
-  const ref = doc(db, 'moeConfig', config.siteId);
-  await setDoc(ref, { ...config, updatedAt: Timestamp.now() }, { merge: true });
 }
 
 // ─── Pure calculation helpers ────────────────────────────────────────────────
