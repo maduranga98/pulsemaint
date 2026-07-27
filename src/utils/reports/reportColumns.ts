@@ -70,7 +70,7 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'severity', label: 'Severity' },
     { key: 'type', label: 'Type' },
     { key: 'status', label: 'Status' },
-    { key: 'reporterName', label: 'Reported By' },
+    { key: 'reportedAt', label: 'Reported Date', format: 'date' },
     { key: 'resolvedAt', label: 'Completed', format: 'date' },
     { key: 'rcaReason', label: 'RCA Reason' },
   ],

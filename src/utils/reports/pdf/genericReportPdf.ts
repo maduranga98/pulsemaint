@@ -155,9 +155,8 @@ export async function exportGenericReportPdf(
     // falls back to the single best-fit categorical distribution.
     if (config.includeCharts) {
       if (reportType === 'breakdown_summary') {
-        // Breakdown counts by type and by machine.
+        // Breakdown counts by type.
         renderChart('Breakdown counts by type', countBy(rows, 'type'));
-        renderChart('Breakdown counts by machine', countBy(rows, 'machineName'));
       } else if (reportType === 'machine_history') {
         // Work-order counts for this machine, coloured by count magnitude.
         renderChart('Work order counts by type', countBy(rows, 'woType'), true);
