@@ -13,6 +13,8 @@ const SUPERVISOR_EXCLUDED_REPORTS: ReportType[] = [
   'inventory_usage',
   'shift_handover_summary',
   'audit_trail',
+  // PO History is admin/plant_manager/store_keeper only.
+  'po_history',
 ];
 
 // hr_officer and store_keeper only ever see this exact set — everything else

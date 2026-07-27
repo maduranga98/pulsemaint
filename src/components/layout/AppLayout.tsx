@@ -119,15 +119,13 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M7 7h10"/><path d="M7 12h7"/><path d="M7 17h5"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M16 3v4h4"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
+    roles: ['plant_manager', 'admin', 'hr_officer'],
   },
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
   // Training can be assigned to any role, so everyone gets a "My Training"
-  // entry — except admin, who manages training rather than taking it.
+  // entry (the route allows any authenticated user).
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
-  // My Certificates is open to every training-taking role (FEATURES.md) but
-  // had no nav entry, so the page was only reachable by typing the URL.
-  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
+  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
   { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
   {
     label: 'Triage',
@@ -167,7 +165,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/><path d="M9 7h6"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
+    roles: ['plant_manager', 'admin', 'hr_officer'],
   },
   {
     label: 'Evaluations',
@@ -182,11 +180,11 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['plant_manager', 'admin', 'hr_officer'],
   },
-  { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
+  { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
   // Users and Shifts moved inside Settings — same access as before (Users'
   // union of roles), just reached via the Settings tiles instead of their
   // own top-level nav entries.
-  { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'supervisor', 'plant_manager', 'hr_officer'] },
+  { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'plant_manager', 'hr_officer'] },
   {
     label: 'Billing & Plan',
     to: '/app/billing',
