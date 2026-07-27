@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
-import type { TrainingModule, TrainingLanguage, TrainingModuleStatus } from '@/lib/training/trainingTypes';
+import type { TrainingModule, TrainingLanguage, TrainingModuleStatus, TrainingModuleCategory } from '@/lib/training/trainingTypes';
+import { getModuleCategory, computeDurationDays } from '@/lib/training/offboardTraining';
+import OffboardTrainingFields, {
+  offboardDetailsToFormValues,
+  defaultOffboardFormValues,
+  type OffboardFormValues,
+} from './OffboardTrainingFields';
 
 interface ModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
@@ -33,6 +39,13 @@ export default function ModuleSettingsForm({
   isLoading = false,
 }: ModuleSettingsFormProps) {
   const [quizOpen, setQuizOpen] = useState(false);
+  const [category, setCategory] = useState<TrainingModuleCategory>(
+    getModuleCategory(defaultValues as TrainingModule | undefined)
+  );
+  const [offboard, setOffboard] = useState<OffboardFormValues>(
+    offboardDetailsToFormValues(defaultValues?.offboardDetails)
+      ?? defaultOffboardFormValues()
+  );
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
@@ -68,13 +81,32 @@ export default function ModuleSettingsForm({
     const data: Partial<TrainingModule> = {
       title: values.title,
       description: values.description,
-      machineName: values.machineName,
+      machineName: category === 'offboard' ? '' : values.machineName,
       estimatedMinutes: Number(values.estimatedMinutes),
       language: values.language,
       passingScore: Number(values.passingScore),
       status: values.status,
       tags,
+      category,
     };
+
+    if (category === 'offboard') {
+      data.offboardDetails = {
+        country: offboard.country,
+        thirdPartyCompany: offboard.thirdPartyCompany,
+        thirdPartyContactName: offboard.thirdPartyContactName,
+        thirdPartyContactInfo: offboard.thirdPartyContactInfo,
+        mode: offboard.mode,
+        startDate: offboard.startDate ? (new Date(offboard.startDate) as any) : null,
+        endDate: offboard.endDate ? (new Date(offboard.endDate) as any) : null,
+        durationDays: computeDurationDays(offboard.startDate || null, offboard.endDate || null),
+        topic: offboard.topic,
+        linkedMachineId: offboard.linkedMachineId || null,
+        assessmentQuestions: offboard.assessmentQuestions,
+      };
+    } else {
+      data.offboardDetails = null;
+    }
 
     await onSubmit(data);
   }
@@ -112,19 +144,53 @@ export default function ModuleSettingsForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">
-          Machine Name <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          {...register('machineName', { required: 'Machine name is required' })}
-          placeholder="e.g. Lathe Machine L-200"
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-        {errors.machineName && (
-          <p className="text-xs text-red-500">{errors.machineName.message}</p>
-        )}
+        <label className="text-sm font-medium text-gray-700">Category</label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setCategory('machine')}
+            className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+              category === 'machine'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Machine Training
+          </button>
+          <button
+            type="button"
+            onClick={() => setCategory('offboard')}
+            className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+              category === 'offboard'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            Offboard / External
+          </button>
+        </div>
       </div>
+
+      {category === 'machine' ? (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
+            Machine Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            {...register('machineName', {
+              required: category === 'machine' ? 'Machine name is required' : false,
+            })}
+            placeholder="e.g. Lathe Machine L-200"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {errors.machineName && (
+            <p className="text-xs text-red-500">{errors.machineName.message}</p>
+          )}
+        </div>
+      ) : (
+        <OffboardTrainingFields value={offboard} onChange={setOffboard} />
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">

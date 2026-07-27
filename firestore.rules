@@ -1036,6 +1036,8 @@ service cloud.firestore {
     match /trainingModules/{moduleId} {
       // Authoring (create/update/delete) is a Plant Manager / Admin action —
       // supervisors and other roles may only read and assign modules.
+      // `category`/`offboardDetails` (offboard/external training) are just
+      // additional fields on the same document — no extra rule needed.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['plant_manager', 'admin']);
@@ -1052,7 +1054,11 @@ service cloud.firestore {
           || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
-      // Trainees update their own progress/quiz attempts; managers update any
+      // Trainees update their own progress/quiz attempts; managers update any.
+      // For offboard/external assignments the trainee-writable surface is
+      // `offboardCompletion` (knowledge report + attachments) — this block
+      // is unrestricted on field names for the owning trainee already, so
+      // no extra whitelist entry is required.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
           || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));

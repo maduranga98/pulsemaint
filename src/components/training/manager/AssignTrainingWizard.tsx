@@ -14,6 +14,7 @@ import { useTraineeList } from '@/hooks/training/useTraineeList';
 import { useTrainingModules } from '@/hooks/training/useTrainingModules';
 import type { UserProfile } from '@/types/auth';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
+import { getModuleCategory } from '@/lib/training/offboardTraining';
 import {
   Users,
   BookOpen,
@@ -178,6 +179,9 @@ export default function AssignTrainingWizard({
           continue;
         }
 
+        const category = getModuleCategory(module);
+        const isOffboard = category === 'offboard';
+
         await addDoc(collection(db, 'trainingAssignments'), {
           companyId,
           moduleId: module.id,
@@ -193,7 +197,9 @@ export default function AssignTrainingWizard({
           assignedAt: serverTimestamp(),
           dueDate: settings.dueDate
             ? new Date(settings.dueDate)
-            : null,
+            // Offboard trainings default the due date to the training's end
+            // date when the assigner didn't pick one explicitly.
+            : (isOffboard && module.offboardDetails?.endDate) || null,
           status: 'not_started',
           isRetraining: settings.isRetraining,
           retrainingReason: settings.isRetraining
@@ -205,29 +211,43 @@ export default function AssignTrainingWizard({
           lessonProgress: {},
           overallProgress: 0,
           lessonsCompleted: 0,
-          totalLessons: module.lessons?.length ?? 0,
+          totalLessons: isOffboard ? 0 : module.lessons?.length ?? 0,
           quizAttempts: [],
           bestScore: 0,
           latestScore: 0,
           quizPassed: false,
           quizPassedAt: null,
           attemptsUsed: 0,
-          practicalSignOff: module.quiz
-            ? {
-                required: true,
-                signedOffBy: '',
-                signedOffByName: '',
-                signedOffAt: null,
-                observations: '',
-                passed: false,
-              }
-            : null,
+          practicalSignOff:
+            !isOffboard && module.quiz
+              ? {
+                  required: true,
+                  signedOffBy: '',
+                  signedOffByName: '',
+                  signedOffAt: null,
+                  observations: '',
+                  passed: false,
+                }
+              : null,
           certificateId: null,
           certifiedAt: null,
           certificateExpiryDate: null,
           startedAt: null,
           completedAt: null,
           lastActivityAt: null,
+          category,
+          offboardDetails: isOffboard ? module.offboardDetails ?? null : null,
+          offboardCompletion: isOffboard
+            ? {
+                knowledgeGained: '',
+                assessmentAnswers: [],
+                attachmentUrls: [],
+                actualStartDate: null,
+                actualEndDate: null,
+                reportSubmittedAt: null,
+                reportGeneratedPdfUrl: '',
+              }
+            : null,
         });
       }
 
@@ -432,14 +452,24 @@ export default function AssignTrainingWizard({
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {mod.title}
                       </p>
-                      <p className="text-xs text-gray-500 flex items-center gap-2">
-                        <span>{mod.machineName}</span>
-                        <span>&middot;</span>
-                        <span>{mod.lessons.length} lessons</span>
-                        <span>&middot;</span>
-                        <Clock className="w-3 h-3" />
-                        <span>{mod.estimatedMinutes} min</span>
-                      </p>
+                      {getModuleCategory(mod) === 'offboard' ? (
+                        <p className="text-xs text-gray-500 flex items-center gap-2">
+                          <span>{mod.offboardDetails?.country || 'Offboard'}</span>
+                          <span>&middot;</span>
+                          <span>{mod.offboardDetails?.thirdPartyCompany || 'External provider'}</span>
+                          <span>&middot;</span>
+                          <span>{mod.offboardDetails?.durationDays ?? 0}d</span>
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-500 flex items-center gap-2">
+                          <span>{mod.machineName}</span>
+                          <span>&middot;</span>
+                          <span>{mod.lessons.length} lessons</span>
+                          <span>&middot;</span>
+                          <Clock className="w-3 h-3" />
+                          <span>{mod.estimatedMinutes} min</span>
+                        </p>
+                      )}
                     </div>
                   </label>
                 ))

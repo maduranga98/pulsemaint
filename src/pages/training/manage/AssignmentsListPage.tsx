@@ -12,6 +12,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment, AssignmentStatus } from '@/lib/training/trainingTypes';
 import AssignmentsList from '@/components/training/manager/AssignmentsList';
+import OffboardTrainingReportViewer from '@/components/training/manager/OffboardTrainingReportViewer';
 
 const STATUS_OPTIONS: { label: string; value: AssignmentStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
@@ -29,6 +30,7 @@ export default function AssignmentsListPage() {
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<AssignmentStatus | 'all'>('all');
+  const [reportAssignment, setReportAssignment] = useState<TrainingAssignment | null>(null);
 
   useEffect(() => {
     if (!companyId) return;
@@ -80,7 +82,15 @@ export default function AssignmentsListPage() {
         assignments={assignments}
         loading={loading}
         onViewProgress={(id) => navigate(`/app/training/manage/trainees/${id}`)}
+        onViewOffboardReport={(assignment) => setReportAssignment(assignment)}
       />
+
+      {reportAssignment && (
+        <OffboardTrainingReportViewer
+          assignment={reportAssignment}
+          onClose={() => setReportAssignment(null)}
+        />
+      )}
     </div>
   );
 }

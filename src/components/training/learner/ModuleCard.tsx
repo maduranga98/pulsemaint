@@ -1,5 +1,6 @@
-import { Cpu } from 'lucide-react';
+import { Cpu, Globe2 } from 'lucide-react';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+import { isOffboardAssignment } from '@/lib/training/offboardTraining';
 import TrainingStatusBadge from '../shared/TrainingStatusBadge';
 import TrainingProgressBar from '../shared/TrainingProgressBar';
 import ModuleTypeBadge from '../shared/ModuleTypeBadge';
@@ -24,6 +25,8 @@ function formatDueDate(dueDate: { seconds: number } | null): {
 
 export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
   const dueInfo = formatDueDate(assignment.dueDate as unknown as { seconds: number } | null);
+  const isOffboard = isOffboardAssignment(assignment);
+  const offboard = assignment.offboardDetails;
 
   return (
     <div
@@ -41,12 +44,18 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
         {assignment.moduleName ? (
           <>
             <div className="absolute inset-0 flex items-center justify-center">
-              <Cpu size={40} className="text-white/30" aria-hidden="true" />
+              {isOffboard ? (
+                <Globe2 size={40} className="text-white/30" aria-hidden="true" />
+              ) : (
+                <Cpu size={40} className="text-white/30" aria-hidden="true" />
+              )}
             </div>
             {/* Module name overlay */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent px-3 py-2">
               <span className="text-white text-xs font-medium truncate block">
-                {assignment.machineName}
+                {isOffboard
+                  ? `${offboard?.country || ''}${offboard?.thirdPartyCompany ? ` · ${offboard.thirdPartyCompany}` : ''}`
+                  : assignment.machineName}
               </span>
             </div>
           </>
@@ -56,18 +65,24 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
       {/* Card body */}
       <div className="p-4 space-y-3">
         <div className="space-y-1">
-          <ModuleTypeBadge machineName={assignment.machineName} />
+          <ModuleTypeBadge machineName={assignment.machineName} category={assignment.category} />
           <h3 className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2">
             {assignment.moduleName}
           </h3>
         </div>
 
-        <div className="space-y-1.5">
-          <TrainingProgressBar progress={assignment.overallProgress} showLabel />
+        {isOffboard ? (
           <p className="text-xs text-slate-500">
-            {assignment.lessonsCompleted} of {assignment.totalLessons} lessons
+            {offboard?.mode ? `${offboard.mode} · ` : ''}{offboard?.durationDays ?? 0} day{(offboard?.durationDays ?? 0) !== 1 ? 's' : ''}
           </p>
-        </div>
+        ) : (
+          <div className="space-y-1.5">
+            <TrainingProgressBar progress={assignment.overallProgress} showLabel />
+            <p className="text-xs text-slate-500">
+              {assignment.lessonsCompleted} of {assignment.totalLessons} lessons
+            </p>
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           <TrainingStatusBadge status={assignment.status} />

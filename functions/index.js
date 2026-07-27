@@ -108,12 +108,18 @@ const { checkRetrainingTrigger } = require("./src/training/checkRetrainingTrigge
 const { sendTrainingReminders } = require("./src/training/sendTrainingReminders");
 const { generateComplianceReportPdf } = require("./src/training/generateComplianceReportPdf");
 const { notifyPracticalSignOffRequired } = require("./src/training/notifyPracticalSignOffRequired");
+const { onOffboardTrainingAssigned } = require("./src/training/onOffboardTrainingAssigned");
+const { onOffboardTrainingCompleted } = require("./src/training/onOffboardTrainingCompleted");
+const { checkOverdueOffboardReports } = require("./src/training/checkOverdueOffboardReports");
 
 exports.generateTrainingCertificate = generateTrainingCertificate;
 exports.checkRetrainingTrigger = checkRetrainingTrigger;
 exports.sendTrainingReminders = sendTrainingReminders;
 exports.generateComplianceReportPdf = generateComplianceReportPdf;
 exports.notifyPracticalSignOffRequired = notifyPracticalSignOffRequired;
+exports.onOffboardTrainingAssigned = onOffboardTrainingAssigned;
+exports.onOffboardTrainingCompleted = onOffboardTrainingCompleted;
+exports.checkOverdueOffboardReports = checkOverdueOffboardReports;
 
 // ---------------------------------------------------------------------------
 // Reports Module — Cloud Functions

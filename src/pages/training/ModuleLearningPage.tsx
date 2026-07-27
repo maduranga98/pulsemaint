@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAssignment } from '@/hooks/training/useAssignment';
+import { isOffboardAssignment } from '@/lib/training/offboardTraining';
 import ModuleLearningScreen from '@/components/training/learner/ModuleLearningScreen';
+import OffboardTrainingCompletionForm from '@/components/training/learner/OffboardTrainingCompletionForm';
 
 export default function ModuleLearningPage() {
   const { assignmentId } = useParams<{ assignmentId: string }>();
@@ -25,6 +27,18 @@ export default function ModuleLearningPage() {
         >
           Back to My Training
         </button>
+      </div>
+    );
+  }
+
+  if (isOffboardAssignment(assignment)) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-6 px-4">
+        <OffboardTrainingCompletionForm
+          assignment={assignment}
+          module={module}
+          onBack={() => navigate('/app/training/my-modules')}
+        />
       </div>
     );
   }
