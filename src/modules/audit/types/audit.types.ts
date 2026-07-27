@@ -8,7 +8,7 @@ import type { Timestamp } from 'firebase/firestore';
  * (see `AuditTemplate.category`) without a code change — the built-in IDs
  * below are just well-known values with dedicated labels/icons.
  */
-export const BUILTIN_AUDIT_CATEGORIES = ['tpm', 'fives', 'oee', 'contractor'] as const;
+export const BUILTIN_AUDIT_CATEGORIES = ['tpm', 'fives', 'moe', 'contractor'] as const;
 export type BuiltinAuditCategory = (typeof BUILTIN_AUDIT_CATEGORIES)[number];
 
 export type AuditCategory = string;
@@ -16,7 +16,7 @@ export type AuditCategory = string;
 export const AUDIT_CATEGORY_LABELS: Record<BuiltinAuditCategory, string> = {
   tpm: 'TPM Audit',
   fives: '5S Audit',
-  oee: 'OEE Audit',
+  moe: 'MOE Audit',
   contractor: 'Contractor Audit',
 };
 
@@ -122,6 +122,16 @@ export interface ContractorRef {
   name: string;
 }
 
+/** A single per-job rating + note captured during a Contractor Audit. */
+export interface ContractorJobRating {
+  jobId: string;
+  workOrderNumber: string;
+  contractorId: string;
+  contractorName: string;
+  rating: number;
+  notes: string;
+}
+
 export interface AIRootCauseSuggestion {
   findingId: string;
   findingDescription: string;
@@ -143,8 +153,13 @@ export interface AuditSession {
   // Scope
   machines: MachineRef[];
   contractors: ContractorRef[];
+  /** Denormalized contractor ids for `array-contains` queries (Contractor Audits only). */
+  contractorIds: string[];
   department: string;
   location: string;
+
+  /** Per-job star rating + notes captured during a Contractor Audit (empty for other categories). */
+  contractorJobRatings: ContractorJobRating[];
 
   // Auto-captured auditor (logged-in user)
   auditorId: string;
@@ -181,6 +196,7 @@ export interface AuditDraft {
   contractors: ContractorRef[];
   department: string;
   location: string;
+  contractorJobRatings: ContractorJobRating[];
   participants: AuditParticipant[];
   answers: Record<string, AuditAnswer>;
   findings: AuditFinding[];

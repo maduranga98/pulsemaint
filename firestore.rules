@@ -936,7 +936,7 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Audit module — configurable TPM/5S/OEE/Contractor audit templates, plus
+    // Audit module — configurable TPM/5S/MOE/Contractor audit templates, plus
     // any additional admin-defined categories.
     // Path is scoped by plantId (the user's companyId).
     match /audit_templates/{plantId}/templates/{templateId} {

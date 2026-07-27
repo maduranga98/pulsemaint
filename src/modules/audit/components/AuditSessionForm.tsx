@@ -10,6 +10,9 @@ import {
 import { nanoid } from 'nanoid';
 import { useAuthStore } from '../../../store/authStore';
 import { useDepartments } from '../../../hooks/useDepartments';
+import { useContractorJobs } from '../../../hooks/contractors/useContractorJobs';
+import { RatingStarSelector } from '../../../components/contractors/jobs/RatingStarSelector';
+import { ContractorJobStatusBadge } from '../../../components/contractors/jobs/ContractorJobStatusBadge';
 import {
   getCategoryLabel,
   type AuditTemplate,
@@ -19,6 +22,7 @@ import {
   type AuditParticipant,
   type MachineRef,
   type ContractorRef,
+  type ContractorJobRating,
   type AuditSession,
 } from '../types/audit.types';
 import { useAuditMachines, useAuditUsers } from '../hooks/useAudit';
@@ -31,6 +35,94 @@ import { ParticipantSelector } from './ParticipantSelector';
 import { AttachmentUploader } from './AttachmentUploader';
 import { FindingsSection } from './FindingsSection';
 import { AIRootCausePanel } from './AIRootCausePanel';
+
+/** Read-only job history + per-job rating/notes for one contractor, shown in
+ * the Scope section of a Contractor Audit once that contractor is selected. */
+function ContractorJobHistoryPanel({
+  contractor,
+  ratings,
+  onRateJob,
+  onNoteJob,
+}: {
+  contractor: ContractorRef;
+  ratings: Record<string, ContractorJobRating>;
+  onRateJob: (job: { id: string; workOrderNumber: string; contractorId?: string; contractorName: string }, rating: number) => void;
+  onNoteJob: (job: { id: string; workOrderNumber: string; contractorId?: string; contractorName: string }, notes: string) => void;
+}) {
+  const { jobs: activeJobs, loading: loadingActive } = useContractorJobs({
+    contractorId: contractor.id,
+    status: 'active',
+  });
+  const { jobs: completedJobs, loading: loadingCompleted } = useContractorJobs({
+    contractorId: contractor.id,
+    status: 'completed',
+  });
+
+  const renderJobRow = (job: (typeof activeJobs)[number]) => {
+    const jobRating = ratings[job.id];
+    const dateLabel = job.workCompletedAt
+      ? `Completed ${job.workCompletedAt.toDate().toLocaleDateString()}`
+      : job.workStartedAt
+        ? `Started ${job.workStartedAt.toDate().toLocaleDateString()}`
+        : '';
+    return (
+      <div key={job.id} className="p-2.5 bg-slate-900/60 border border-slate-700 rounded-lg space-y-2">
+        <div className="flex items-center justify-between flex-wrap gap-1.5">
+          <div className="text-xs text-slate-200">
+            <span className="font-semibold">{job.workOrderNumber}</span>
+            <span className="text-slate-500"> · {job.machineName}</span>
+            {dateLabel && <span className="text-slate-500"> · {dateLabel}</span>}
+          </div>
+          <ContractorJobStatusBadge status={job.status} />
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <RatingStarSelector
+            value={jobRating?.rating ?? 0}
+            onChange={(v) => onRateJob(job, v)}
+          />
+          <input
+            value={jobRating?.notes ?? ''}
+            onChange={(e) => onNoteJob(job, e.target.value)}
+            placeholder="Special notes (optional)…"
+            className="flex-1 min-w-[10rem] px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-md text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+          />
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="mt-3 p-3 bg-slate-900/40 border border-slate-700/70 rounded-lg">
+      <p className="text-xs font-semibold text-slate-300 mb-2">{contractor.name} — Work Orders</p>
+      <div className="space-y-3">
+        <div>
+          <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-wide mb-1.5">
+            Currently Running
+          </p>
+          {loadingActive ? (
+            <p className="text-xs text-slate-500">Loading…</p>
+          ) : activeJobs.length ? (
+            <div className="space-y-2">{activeJobs.map(renderJobRow)}</div>
+          ) : (
+            <p className="text-xs text-slate-500">No active jobs.</p>
+          )}
+        </div>
+        <div>
+          <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wide mb-1.5">
+            Previously Completed
+          </p>
+          {loadingCompleted ? (
+            <p className="text-xs text-slate-500">Loading…</p>
+          ) : completedJobs.length ? (
+            <div className="space-y-2">{completedJobs.map(renderJobRow)}</div>
+          ) : (
+            <p className="text-xs text-slate-500">No completed jobs yet.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface Props {
   template: AuditTemplate;
@@ -61,6 +153,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
   const [department, setDepartment] = useState('');
   const [location, setLocation] = useState('');
   const [locationAutoFilled, setLocationAutoFilled] = useState(false);
+  const [contractorJobRatings, setContractorJobRatings] = useState<Record<string, ContractorJobRating>>({});
   const [participants, setParticipants] = useState<AuditParticipant[]>([]);
   const [answers, setAnswers] = useState<Record<string, AuditAnswer>>({});
   const [findings, setFindings] = useState<AuditFinding[]>([]);
@@ -135,6 +228,44 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
   };
 
   const answerList = useMemo(() => Object.values(answers), [answers]);
+  const contractorJobRatingList = useMemo(
+    () => Object.values(contractorJobRatings),
+    [contractorJobRatings],
+  );
+
+  const rateContractorJob = (
+    job: { id: string; workOrderNumber: string; contractorId?: string; contractorName: string },
+    rating: number,
+  ) => {
+    setContractorJobRatings((prev) => ({
+      ...prev,
+      [job.id]: {
+        jobId: job.id,
+        workOrderNumber: job.workOrderNumber,
+        contractorId: job.contractorId ?? '',
+        contractorName: job.contractorName,
+        rating,
+        notes: prev[job.id]?.notes ?? '',
+      },
+    }));
+  };
+
+  const noteContractorJob = (
+    job: { id: string; workOrderNumber: string; contractorId?: string; contractorName: string },
+    notes: string,
+  ) => {
+    setContractorJobRatings((prev) => ({
+      ...prev,
+      [job.id]: {
+        jobId: job.id,
+        workOrderNumber: job.workOrderNumber,
+        contractorId: job.contractorId ?? '',
+        contractorName: job.contractorName,
+        rating: prev[job.id]?.rating ?? 0,
+        notes,
+      },
+    }));
+  };
 
   // Live AI preview from findings + failed answers.
   const aiPreview = useMemo(
@@ -161,14 +292,28 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       templateId: template.id,
       machines: selectedMachines,
       contractors: selectedContractors,
-      department,
-      location,
+      department: isContractorAudit ? '' : department,
+      location: isContractorAudit ? '' : location,
+      contractorJobRatings: contractorJobRatingList,
       participants,
       answers,
       findings,
       lastSaved: new Date().toISOString(),
     });
-  }, [plantId, template, selectedMachines, selectedContractors, department, location, participants, answers, findings, result]);
+  }, [
+    plantId,
+    template,
+    selectedMachines,
+    selectedContractors,
+    department,
+    location,
+    contractorJobRatingList,
+    isContractorAudit,
+    participants,
+    answers,
+    findings,
+    result,
+  ]);
 
   const handleSubmit = async () => {
     setError(null);
@@ -184,8 +329,10 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
         templateName: template.name,
         machines: selectedMachines,
         contractors: selectedContractors,
-        department,
-        location,
+        contractorIds: isContractorAudit ? selectedContractors.map((c) => c.id) : [],
+        department: isContractorAudit ? '' : department,
+        location: isContractorAudit ? '' : location,
+        contractorJobRatings: isContractorAudit ? contractorJobRatingList : [],
         auditorId: profile?.id ?? '',
         auditorName: profile?.fullName ?? 'Unknown',
         auditorEmployeeId: profile?.employeeId ?? '',
@@ -290,50 +437,60 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
           <>
             <label className="block text-xs font-semibold text-slate-400 mb-1">Contractors</label>
             <ContractorMultiSelect selected={selectedContractors} onChange={setSelectedContractors} />
+
+            {selectedContractors.map((contractor) => (
+              <ContractorJobHistoryPanel
+                key={contractor.id}
+                contractor={contractor}
+                ratings={contractorJobRatings}
+                onRateJob={rateContractorJob}
+                onNoteJob={noteContractorJob}
+              />
+            ))}
           </>
         ) : (
           <>
             <label className="block text-xs font-semibold text-slate-400 mb-1">Machines</label>
             <MachineMultiSelect machines={machines} selected={selectedMachines} onChange={setSelectedMachines} />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Department</label>
+                <select
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-blue-500 focus:outline-none"
+                >
+                  <option value="">Select department…</option>
+                  {['Production', 'Maintenance', 'Quality', 'Safety', 'Electrical', ...departments]
+                    .filter((v, i, arr) => arr.indexOf(v) === i)
+                    .map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                  Location / Zone
+                  {locationAutoFilled && (
+                    <span className="ml-1.5 text-[10px] font-normal text-emerald-400">
+                      auto-filled from machine · editable
+                    </span>
+                  )}
+                </label>
+                <input
+                  value={location}
+                  onChange={(e) => {
+                    setLocation(e.target.value);
+                    setLocationAutoFilled(false);
+                  }}
+                  placeholder="e.g. Factory Floor A, Bay 3, Compressor Room"
+                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
           </>
         )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Department</label>
-            <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Select department…</option>
-              {['Production', 'Maintenance', 'Quality', 'Safety', 'Electrical', ...departments]
-                .filter((v, i, arr) => arr.indexOf(v) === i)
-                .map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">
-              Location / Zone
-              {locationAutoFilled && (
-                <span className="ml-1.5 text-[10px] font-normal text-emerald-400">
-                  auto-filled from machine · editable
-                </span>
-              )}
-            </label>
-            <input
-              value={location}
-              onChange={(e) => {
-                setLocation(e.target.value);
-                setLocationAutoFilled(false);
-              }}
-              placeholder="e.g. Factory Floor A, Bay 3, Compressor Room"
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-            />
-          </div>
-        </div>
       </div>
 
       {/* Participants */}

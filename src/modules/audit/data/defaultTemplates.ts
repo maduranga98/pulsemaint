@@ -31,7 +31,7 @@ export const DEFAULT_TASKS: Record<BuiltinAuditCategory, AuditTask[]> = {
     t('Sustain — previous actions maintained', 'scale', true),
     t('Safety hazards observed in zone (describe)', 'text', true),
   ],
-  oee: [
+  moe: [
     t('Availability — unplanned downtime recorded', 'scale', true),
     t('Performance — speed losses / minor stops noted', 'scale', true),
     t('Quality — defects / rework recorded', 'scale', true),
