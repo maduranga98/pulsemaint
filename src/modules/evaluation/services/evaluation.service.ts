@@ -90,6 +90,19 @@ export async function saveDraftEvaluation(
   return docRef.id;
 }
 
+/** Resumes an ongoing (draft) evaluation and either re-saves it as a draft or submits it. */
+export async function updateEvaluation(
+  id: string,
+  session: Omit<EvaluationSession, 'id' | 'createdAt' | 'submittedAt' | 'status'>,
+  status: 'draft' | 'submitted',
+): Promise<void> {
+  await updateDoc(doc(db, COL, id), {
+    ...session,
+    status,
+    submittedAt: status === 'submitted' ? serverTimestamp() : null,
+  });
+}
+
 // ─── Custom evaluation form templates (PM-122) ──────────────────────────────
 
 export async function fetchEvaluationTemplates(companyId: string): Promise<EvaluationTemplate[]> {
