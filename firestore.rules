@@ -936,13 +936,30 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Audit module — configurable TPM/5S/OEE/Contractor audit templates.
+    // Audit module — configurable TPM/5S/OEE/Contractor audit templates, plus
+    // any additional admin-defined categories.
     // Path is scoped by plantId (the user's companyId).
     match /audit_templates/{plantId}/templates/{templateId} {
       allow read: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer'];
-      allow write: if isAuthenticated() && belongsToCompany(plantId)
+      // Editing tasks on an existing (built-in or custom) template stays open
+      // to the existing set of roles.
+      allow update: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+      // Creating a brand-new category/template is admin-only — enforced
+      // server-side, not just hidden in the UI. The default-templates seeder
+      // (ensureDefaultTemplates) also runs as one of these broader roles, so
+      // it must still be allowed to create the 4 built-in docs.
+      allow create: if isAuthenticated() && belongsToCompany(plantId)
+        && (
+          getUserData().role == 'admin'
+          || (
+            getUserData().role in ['supervisor', 'plant_manager', 'technician']
+            && request.resource.data.isDefault == true
+          )
+        );
+      allow delete: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role == 'admin';
     }
 
     // Audit sessions — submitted audit records (with findings, attachments,

@@ -135,7 +135,7 @@ export default function PMScheduleDetailPage() {
                   </div>
                   <div className="flex justify-between sm:block">
                     <span className="text-gray-500">End Date</span>
-                    <span className="font-medium">{schedule.noEndDate ? 'No end date' : schedule.endDate ? schedule.endDate.toDate().toLocaleDateString() : '—'}</span>
+                    <span className="font-medium">{schedule.noEndDate ? 'No end date' : schedule.endDate ? schedule.endDate.toDate().toLocaleDateString() : ''}</span>
                   </div>
                 </>
               )}
@@ -147,7 +147,7 @@ export default function PMScheduleDetailPage() {
                   </div>
                   <div className="flex justify-between sm:block">
                     <span className="text-gray-500">Current Meter</span>
-                    <span className="font-medium">{schedule.currentMeterValue ?? '—'}</span>
+                    <span className="font-medium">{schedule.currentMeterValue ?? ''}</span>
                   </div>
                 </>
               )}
@@ -214,7 +214,7 @@ export default function PMScheduleDetailPage() {
                       ? (h.completedDate instanceof Date
                           ? h.completedDate.toLocaleDateString()
                           : h.completedDate.toDate().toLocaleDateString())
-                      : '—'}
+                      : ''}
                   </td>
                   <td className="px-4 py-3">
                     <span
@@ -232,7 +232,7 @@ export default function PMScheduleDetailPage() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{(h.technicianNames ?? []).join(', ')}</td>
-                  <td className="px-4 py-3 text-gray-600">{h.duration ? `${h.duration}m` : '—'}</td>
+                  <td className="px-4 py-3 text-gray-600">{h.duration ? `${h.duration}m` : ''}</td>
                 </tr>
               ))}
             </tbody>

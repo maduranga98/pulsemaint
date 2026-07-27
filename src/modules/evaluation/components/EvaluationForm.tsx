@@ -525,7 +525,7 @@ export default function EvaluationForm({
                   <div key={c.id} className="flex items-center justify-between gap-3 py-1.5 border-b border-gray-100 last:border-0">
                     <span className="text-sm text-gray-700">{c.label}</span>
                     <span className={`text-sm font-semibold ${r?.score ? (r.score >= 4 ? 'text-emerald-600' : r.score >= 3 ? 'text-blue-600' : 'text-red-600') : 'text-gray-400'}`}>
-                      {r?.score ? `${r.score}/5` : '—'}
+                      {r?.score ? `${r.score}/5` : ''}
                     </span>
                   </div>
                 );

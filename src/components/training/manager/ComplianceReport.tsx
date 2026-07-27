@@ -22,7 +22,7 @@ interface ComplianceReportProps {
 }
 
 function formatTs(ts: Timestamp | null | undefined): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const date = new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return date.toLocaleDateString('en-GB', {
     day: '2-digit',

@@ -94,13 +94,13 @@ export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerfor
                     )}
                   </td>
                   <td className="py-2.5 text-center text-[#8BA3BF] hidden sm:table-cell">
-                    {row.auditCount || '—'}
+                    {row.auditCount || ''}
                   </td>
                   <td className="py-2.5 text-center text-[#8BA3BF] hidden md:table-cell">
-                    {row.trainingsCompleted || '—'}
+                    {row.trainingsCompleted || ''}
                   </td>
                   <td className="py-2.5 text-center text-[#8BA3BF] hidden md:table-cell">
-                    {row.quizzesPassed || '—'}
+                    {row.quizzesPassed || ''}
                   </td>
                   <td className="py-2.5 text-center hidden md:table-cell">
                     {row.quizAttempts > 0 ? (

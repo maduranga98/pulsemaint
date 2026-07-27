@@ -14,22 +14,22 @@ export function WOStatsBar() {
   const statItems = [
     {
       label: WO_COPY.openWOs,
-      value: stats?.openCount ?? '—',
+      value: stats?.openCount ?? '',
       color: 'text-blue-600',
     },
     {
       label: WO_COPY.overdueWOs,
-      value: stats?.overdueCount ?? '—',
+      value: stats?.overdueCount ?? '',
       color: 'text-red-600',
     },
     {
       label: WO_COPY.avgCompletionTime,
-      value: stats ? formatDuration(stats.avgCompletionTimeMinutes) : '—',
+      value: stats ? formatDuration(stats.avgCompletionTimeMinutes) : '',
       color: 'text-gray-700',
     },
     {
       label: WO_COPY.completedThisWeek,
-      value: stats?.completedThisWeek ?? '—',
+      value: stats?.completedThisWeek ?? '',
       color: 'text-emerald-600',
     },
   ];

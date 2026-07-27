@@ -567,7 +567,7 @@ export function AuditForm({
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Auditor</label>
             <div className="bg-slate-800/50 border border-slate-700 rounded-xl px-4 py-3 text-white text-sm">
-              {userProfile?.fullName ?? '—'}
+              {userProfile?.fullName ?? ''}
             </div>
           </div>
 

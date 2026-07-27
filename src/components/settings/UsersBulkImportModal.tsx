@@ -199,8 +199,8 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
                       <tbody className="divide-y divide-slate-100">
                         {rows.map((r, i) => (
                           <tr key={i} className={r.error ? 'bg-red-50' : ''}>
-                            <td className="px-3 py-2">{r.fullName || '—'}</td>
-                            <td className="px-3 py-2">{r.email || '—'}</td>
+                            <td className="px-3 py-2">{r.fullName || ''}</td>
+                            <td className="px-3 py-2">{r.email || ''}</td>
                             <td className="px-3 py-2">{r.role}</td>
                             <td className="px-3 py-2">
                               {r.error ? <span className="text-red-600">{r.error}</span> : <span className="text-emerald-600">Ready</span>}

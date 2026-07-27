@@ -472,7 +472,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-lg font-bold text-gray-900">
                         {card.estimatedCost != null
                           ? `LKR ${card.estimatedCost.toLocaleString()}`
-                          : '—'}
+                          : ''}
                       </p>
                     </div>
                     <div className="p-3 bg-gray-50 rounded-lg">
@@ -480,7 +480,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-lg font-bold text-gray-900">
                         {card.actualCost != null
                           ? `LKR ${card.actualCost.toLocaleString()}`
-                          : '—'}
+                          : ''}
                       </p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-lg">
@@ -488,7 +488,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-lg font-bold text-emerald-700">
                         {card.estimatedBenefit != null
                           ? `LKR ${card.estimatedBenefit.toLocaleString()}`
-                          : '—'}
+                          : ''}
                       </p>
                     </div>
                     <div className="p-3 bg-green-50 rounded-lg">
@@ -496,7 +496,7 @@ export function KaizenDetail({ cardId, onClose, isProPlan = false }: Props) {
                       <p className="text-lg font-bold text-emerald-700">
                         {card.actualBenefit != null
                           ? `LKR ${card.actualBenefit.toLocaleString()}`
-                          : '—'}
+                          : ''}
                       </p>
                     </div>
                   </div>

@@ -210,7 +210,7 @@ export default function BillingPage() {
               {PLANS.find((p) => p.id === currentPlan)?.name ?? currentPlan}
             </p>
             <p className="text-sm text-slate-400 mt-0.5 capitalize">
-              Status: <span className="font-medium text-slate-300">{company?.status ?? '—'}</span>
+              Status: <span className="font-medium text-slate-300">{company?.status ?? ''}</span>
             </p>
           </div>
           {company?.trialEndsAt && company.status === 'trial' && (

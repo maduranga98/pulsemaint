@@ -1,6 +1,6 @@
 import { ArrowLeft, Download, FileCheck, UserCheck } from 'lucide-react';
 import {
-  AUDIT_CATEGORY_LABELS,
+  getCategoryLabel,
   FINDING_KIND_LABELS,
   type AuditSession,
 } from '../types/audit.types';
@@ -8,9 +8,9 @@ import { downloadAuditPdf } from '../utils/auditPdf';
 import { AIRootCausePanel } from './AIRootCausePanel';
 
 function answerDisplay(value: string, answerType: string): string {
-  if (answerType === 'yes_no') return value === 'yes' ? 'Yes' : value === 'no' ? 'No' : '—';
-  if (answerType === 'scale') return value ? `${value} / 5` : '—';
-  return value || '—';
+  if (answerType === 'yes_no') return value === 'yes' ? 'Yes' : value === 'no' ? 'No' : '';
+  if (answerType === 'scale') return value ? `${value} / 5` : '';
+  return value || '';
 }
 
 export function AuditDetail({ session, onBack }: { session: AuditSession; onBack: () => void }) {
@@ -23,7 +23,7 @@ export function AuditDetail({ session, onBack }: { session: AuditSession; onBack
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-lg font-bold text-white font-sora">
-            {AUDIT_CATEGORY_LABELS[session.category]}
+            {getCategoryLabel(session.category, session.templateName)}
           </h2>
           <p className="text-xs text-slate-400">{session.templateName} · {session.auditDate}</p>
         </div>
@@ -55,14 +55,14 @@ export function AuditDetail({ session, onBack }: { session: AuditSession; onBack
       </div>
 
       <div className="grid grid-cols-2 gap-3 text-sm">
-        <Info label="Department" value={session.department || '—'} />
-        <Info label="Location / Zone" value={session.location || '—'} />
+        <Info label="Department" value={session.department || ''} />
+        <Info label="Location / Zone" value={session.location || ''} />
         {session.category === 'contractor' ? (
-          <Info label="Contractors" value={(session.contractors ?? []).map((c) => c.name).join(', ') || '—'} />
+          <Info label="Contractors" value={(session.contractors ?? []).map((c) => c.name).join(', ') || ''} />
         ) : (
-          <Info label="Machines" value={session.machines.map((m) => m.name).join(', ') || '—'} />
+          <Info label="Machines" value={session.machines.map((m) => m.name).join(', ') || ''} />
         )}
-        <Info label="Participants" value={session.participants.map((p) => p.name).join(', ') || '—'} />
+        <Info label="Participants" value={session.participants.map((p) => p.name).join(', ') || ''} />
       </div>
 
       <Section title="Checklist Responses">
@@ -87,8 +87,8 @@ export function AuditDetail({ session, onBack }: { session: AuditSession; onBack
                   {FINDING_KIND_LABELS[f.kind]}
                 </span>
                 <p className="text-white mt-1.5">{f.description}</p>
-                <p className="text-slate-400 text-xs mt-1"><b>Reason:</b> {f.reason || '—'}</p>
-                <p className="text-slate-400 text-xs"><b>Solution:</b> {f.solution || '—'}</p>
+                <p className="text-slate-400 text-xs mt-1"><b>Reason:</b> {f.reason || ''}</p>
+                <p className="text-slate-400 text-xs"><b>Solution:</b> {f.solution || ''}</p>
               </div>
             ))}
           </div>

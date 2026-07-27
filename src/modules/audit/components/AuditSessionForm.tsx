@@ -11,7 +11,7 @@ import { nanoid } from 'nanoid';
 import { useAuthStore } from '../../../store/authStore';
 import { useDepartments } from '../../../hooks/useDepartments';
 import {
-  AUDIT_CATEGORY_LABELS,
+  getCategoryLabel,
   type AuditTemplate,
   type AuditAnswer,
   type AuditFinding,
@@ -60,6 +60,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
   const isContractorAudit = template.category === 'contractor';
   const [department, setDepartment] = useState('');
   const [location, setLocation] = useState('');
+  const [locationAutoFilled, setLocationAutoFilled] = useState(false);
   const [participants, setParticipants] = useState<AuditParticipant[]>([]);
   const [answers, setAnswers] = useState<Record<string, AuditAnswer>>({});
   const [findings, setFindings] = useState<AuditFinding[]>([]);
@@ -71,6 +72,39 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
 
   // Stable key so attachments for this in-progress audit share a storage folder.
   const [sessionKey] = useState(() => nanoid());
+
+  // Auto-fill Location (and Department, if blank) from the primary (first)
+  // selected machine's registry record, mirroring WatchFlagAddModal's
+  // auto-fill pattern — the auditor no longer has to type these by hand.
+  // The `Machine` type doesn't model a dedicated `location` field (only
+  // department/floor/bay/station), so we build a display location the same
+  // way Step2MachineSelect does — floor / bay / station joined together —
+  // falling back to a raw `location` field if the Firestore doc happens to
+  // carry one (some legacy records do, per WatchFlagAddModal). When multiple
+  // machines are selected with different locations, the first one picked is
+  // used as the default; the field stays editable so the auditor can
+  // override it.
+  useEffect(() => {
+    if (isContractorAudit || selectedMachines.length === 0) {
+      setLocationAutoFilled(false);
+      return;
+    }
+    const primary = machines.find((m) => m.id === selectedMachines[0].id);
+    if (!primary) return;
+    const legacyLocation = (primary as unknown as { location?: string }).location;
+    const derivedLocation =
+      legacyLocation || [primary.floor, primary.bay, primary.station].filter(Boolean).join(' / ');
+    if (derivedLocation) {
+      setLocation(derivedLocation);
+      setLocationAutoFilled(true);
+    } else {
+      setLocationAutoFilled(false);
+    }
+    if (primary.department) {
+      setDepartment((prev) => prev || primary.department);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMachines, machines, isContractorAudit]);
 
   const setAnswer = (taskId: string, taskText: string, answerType: AuditAnswer['answerType'], value: string, notes?: string) => {
     setAnswers((prev) => ({
@@ -225,7 +259,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold text-white font-sora">
-            {AUDIT_CATEGORY_LABELS[template.category]}
+            {getCategoryLabel(template.category, template.name)}
           </h2>
           <p className="text-xs text-slate-400">{template.name}</p>
         </div>
@@ -281,10 +315,20 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Location / Zone</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">
+              Location / Zone
+              {locationAutoFilled && (
+                <span className="ml-1.5 text-[10px] font-normal text-emerald-400">
+                  auto-filled from machine · editable
+                </span>
+              )}
+            </label>
             <input
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e) => {
+                setLocation(e.target.value);
+                setLocationAutoFilled(false);
+              }}
               placeholder="e.g. Factory Floor A, Bay 3, Compressor Room"
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
             />

@@ -753,11 +753,11 @@ export function CreateWODrawer({
                   />
                   <SummaryRow
                     label="Start"
-                    value={form.watch('scheduledStart') ? new Date(form.watch('scheduledStart') as Date).toLocaleString() : '—'}
+                    value={form.watch('scheduledStart') ? new Date(form.watch('scheduledStart') as Date).toLocaleString() : ''}
                   />
                   <SummaryRow
                     label="Due"
-                    value={form.watch('dueDate') ? new Date(form.watch('dueDate') as Date).toLocaleString() : '—'}
+                    value={form.watch('dueDate') ? new Date(form.watch('dueDate') as Date).toLocaleString() : ''}
                   />
                   {isContractorWO ? (
                     <SummaryRow

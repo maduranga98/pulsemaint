@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import { EVALUATION_ROLE_LABELS, type EvaluationSession } from '../types/evaluation.types';
 
 function scoreDisplay(score: number | null): string {
-  return score ? `${score} / 5` : '—';
+  return score ? `${score} / 5` : '';
 }
 
 /**
@@ -36,8 +36,8 @@ export function buildEvaluationPdf(session: EvaluationSession): jsPDF {
     theme: 'plain',
     styles: { fontSize: 9, cellPadding: 2 },
     body: [
-      ['Evaluator', session.evaluatorName || '—'],
-      ['Employee ID', session.evaluateeEmployeeId || '—'],
+      ['Evaluator', session.evaluatorName || ''],
+      ['Employee ID', session.evaluateeEmployeeId || ''],
       ['Status', session.status === 'submitted' ? 'Completed' : 'Ongoing (Draft)'],
     ],
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 110, textColor: [71, 85, 105] } },

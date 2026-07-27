@@ -327,7 +327,7 @@ export function KaizenListView({ isProPlan = false }: Props) {
                       <td className="px-3 py-2.5 text-sm text-emerald-700">
                         {card.estimatedBenefit != null
                           ? `LKR ${card.estimatedBenefit.toLocaleString()}`
-                          : '—'}
+                          : ''}
                       </td>
                     )}
                     <td className="px-3 py-2.5 text-xs text-gray-400 whitespace-nowrap">

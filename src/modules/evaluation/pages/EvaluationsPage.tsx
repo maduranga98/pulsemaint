@@ -263,7 +263,7 @@ export default function EvaluationsPage() {
                     <span className="text-sm text-gray-700">{c.label}</span>
                     <div className="text-right">
                       <span className={`text-sm font-semibold ${c.score ? (c.score >= 4 ? 'text-emerald-600' : c.score >= 3 ? 'text-blue-600' : 'text-red-600') : 'text-gray-400'}`}>
-                        {c.score ? `${c.score}/5` : '—'}
+                        {c.score ? `${c.score}/5` : ''}
                       </span>
                       {c.comments && <p className="text-xs text-gray-400 max-w-xs truncate">{c.comments}</p>}
                     </div>

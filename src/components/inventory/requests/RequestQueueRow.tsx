@@ -8,7 +8,7 @@ interface Props {
 }
 
 function formatAge(ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } {
-  if (!ts) return { label: '—', isOld: false };
+  if (!ts) return { label: '', isOld: false };
   const diffMs = Date.now() - ts.seconds * 1000;
   const diffH = diffMs / 3600000;
   const diffD = diffMs / 86400000;
@@ -32,7 +32,7 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
 export function RequestQueueRow({ request, onReview }: Props) {
   const age = formatAge(request.requestedAt);
   const statusCfg = STATUS_BADGE[request.status] ?? { label: request.status, className: 'bg-gray-100 text-gray-600' };
-  const firstPart = request.items[0]?.partName ?? '—';
+  const firstPart = request.items[0]?.partName ?? '';
   const extraParts = request.items.length - 1;
 
   return (
@@ -41,7 +41,7 @@ export function RequestQueueRow({ request, onReview }: Props) {
         {request.requestNumber}
       </td>
       <td className="px-4 py-3 text-sm whitespace-nowrap">
-        <span className="font-semibold text-gray-900">{request.workOrderNumber ?? '—'}</span>
+        <span className="font-semibold text-gray-900">{request.workOrderNumber ?? ''}</span>
         {request.workOrderType && (
           <span className="ml-1.5 text-xs text-gray-500">{request.workOrderType}</span>
         )}

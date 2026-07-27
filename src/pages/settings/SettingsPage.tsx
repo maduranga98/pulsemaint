@@ -49,27 +49,27 @@ export default function SettingsPage() {
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-sm">
             <div>
               <dt className="text-slate-500">Name</dt>
-              <dd className="font-medium text-slate-900">{company?.name || '—'}</dd>
+              <dd className="font-medium text-slate-900">{company?.name || ''}</dd>
             </div>
             <div>
               <dt className="text-slate-500">Industry</dt>
-              <dd className="font-medium text-slate-900">{company?.industry || '—'}</dd>
+              <dd className="font-medium text-slate-900">{company?.industry || ''}</dd>
             </div>
             <div>
               <dt className="text-slate-500">Country</dt>
-              <dd className="font-medium text-slate-900">{company?.country || '—'}</dd>
+              <dd className="font-medium text-slate-900">{company?.country || ''}</dd>
             </div>
             <div>
               <dt className="text-slate-500">Timezone</dt>
-              <dd className="font-medium text-slate-900">{company?.timezone || '—'}</dd>
+              <dd className="font-medium text-slate-900">{company?.timezone || ''}</dd>
             </div>
             <div>
               <dt className="text-slate-500">Currency</dt>
-              <dd className="font-medium text-slate-900">{company?.currency || '—'}</dd>
+              <dd className="font-medium text-slate-900">{company?.currency || ''}</dd>
             </div>
             <div>
               <dt className="text-slate-500">Plan</dt>
-              <dd className="font-medium text-slate-900 capitalize">{company?.plan || '—'} ({company?.status || '—'})</dd>
+              <dd className="font-medium text-slate-900 capitalize">{company?.plan || ''} ({company?.status || ''})</dd>
             </div>
           </dl>
         </section>

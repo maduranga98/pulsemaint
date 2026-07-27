@@ -58,7 +58,7 @@ export function Step2MachineSelect({ machines }: Step2MachineSelectProps) {
           <div className="flex justify-between">
             <span className="text-gray-500">Location</span>
             <span className="font-medium text-gray-900">
-              {[selectedMachine.floor, selectedMachine.bay, selectedMachine.station].filter(Boolean).join(' / ') || '—'}
+              {[selectedMachine.floor, selectedMachine.bay, selectedMachine.station].filter(Boolean).join(' / ') || ''}
             </span>
           </div>
           <div className="flex justify-between">

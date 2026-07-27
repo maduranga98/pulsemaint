@@ -194,7 +194,7 @@ export function ManualIssuePage() {
             </div>
             <div>
               <p className="text-gray-400 text-xs">Store Location</p>
-              <p className="font-semibold text-gray-900">{part.storeLocation || '—'}</p>
+              <p className="font-semibold text-gray-900">{part.storeLocation || ''}</p>
             </div>
           </div>
 

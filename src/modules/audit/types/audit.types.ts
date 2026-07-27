@@ -2,14 +2,32 @@ import type { Timestamp } from 'firebase/firestore';
 
 // ─── Categories & Answer Types ──────────────────────────────────────────────
 
-export type AuditCategory = 'tpm' | 'fives' | 'oee' | 'contractor';
+/**
+ * The 4 categories that ship built-in with the app. `AuditCategory` itself is
+ * a plain string so admins can create additional, site-defined categories
+ * (see `AuditTemplate.category`) without a code change — the built-in IDs
+ * below are just well-known values with dedicated labels/icons.
+ */
+export const BUILTIN_AUDIT_CATEGORIES = ['tpm', 'fives', 'oee', 'contractor'] as const;
+export type BuiltinAuditCategory = (typeof BUILTIN_AUDIT_CATEGORIES)[number];
 
-export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
+export type AuditCategory = string;
+
+export const AUDIT_CATEGORY_LABELS: Record<BuiltinAuditCategory, string> = {
   tpm: 'TPM Audit',
   fives: '5S Audit',
   oee: 'OEE Audit',
   contractor: 'Contractor Audit',
 };
+
+/** Human-readable label for a category: built-in label if known, otherwise the template/fallback name. */
+export function getCategoryLabel(category: AuditCategory, fallbackName?: string): string {
+  return (AUDIT_CATEGORY_LABELS as Record<string, string>)[category] ?? fallbackName ?? category;
+}
+
+export function isBuiltinCategory(category: string): category is BuiltinAuditCategory {
+  return (BUILTIN_AUDIT_CATEGORIES as readonly string[]).includes(category);
+}
 
 /** Answer types selectable per task when configuring an audit template. */
 export type AnswerType = 'yes_no' | 'scale' | 'text';

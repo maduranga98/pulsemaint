@@ -7,19 +7,22 @@ import {
   type AuditTemplate,
   type AuditTask,
 } from '../types/audit.types';
-import { saveTemplate } from '../services/audit.service';
+import { saveTemplate, createCustomCategory } from '../services/audit.service';
 
 interface Props {
   plantId: string;
-  template: AuditTemplate;
-  onSaved: () => void;
+  /** Edit-existing-template mode. Omit and pass `createNew` to build a brand-new category+form instead. */
+  template?: AuditTemplate;
+  /** Create-new-category mode: renders a "Category name" field and creates a new AuditTemplate on save. */
+  createNew?: boolean;
+  onSaved: (template: AuditTemplate) => void;
   onClose: () => void;
 }
 
-/** Lets users customize the checklist tasks and answer types per category. */
-export function AuditTaskConfigurator({ plantId, template, onSaved, onClose }: Props) {
-  const [name, setName] = useState(template.name);
-  const [tasks, setTasks] = useState<AuditTask[]>(template.tasks);
+/** Lets users customize the checklist tasks and answer types per category, or build a brand-new custom category from scratch. */
+export function AuditTaskConfigurator({ plantId, template, createNew = false, onSaved, onClose }: Props) {
+  const [name, setName] = useState(template?.name ?? '');
+  const [tasks, setTasks] = useState<AuditTask[]>(template?.tasks ?? []);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,19 +35,36 @@ export function AuditTaskConfigurator({ plantId, template, onSaved, onClose }: P
   const remove = (id: string) => setTasks(tasks.filter((t) => t.id !== id));
 
   const handleSave = async () => {
-    setSaving(true);
     setError(null);
+    const cleanTasks = tasks.filter((t) => t.text.trim());
+    if (createNew) {
+      if (!name.trim()) {
+        setError('Give the new category a name.');
+        return;
+      }
+      if (cleanTasks.length === 0) {
+        setError('Add at least one task/question.');
+        return;
+      }
+    }
+    setSaving(true);
     try {
+      if (createNew) {
+        const created = await createCustomCategory(plantId, name, cleanTasks);
+        onSaved(created);
+        return;
+      }
+      if (!template) return;
       await saveTemplate(plantId, {
         id: template.id,
         category: template.category,
         name: name.trim() || template.name,
-        tasks: tasks.filter((t) => t.text.trim()),
+        tasks: cleanTasks,
         plantId,
         isDefault: false, // editing makes it a customized template
         updatedAt: null,
       });
-      onSaved();
+      onSaved({ ...template, name: name.trim() || template.name, tasks: cleanTasks });
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -55,11 +75,14 @@ export function AuditTaskConfigurator({ plantId, template, onSaved, onClose }: P
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-xs font-semibold text-slate-400 mb-1">Template name</label>
+        <label className="block text-xs font-semibold text-slate-400 mb-1">
+          {createNew ? 'Category / form name' : 'Template name'}
+        </label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-blue-500 focus:outline-none"
+          placeholder={createNew ? 'e.g. Warehouse Safety Audit' : undefined}
+          className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
         />
       </div>
 
@@ -124,7 +147,7 @@ export function AuditTaskConfigurator({ plantId, template, onSaved, onClose }: P
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-50"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save Configuration
+          {createNew ? 'Create Category' : 'Save Configuration'}
         </button>
         <button
           type="button"

@@ -388,23 +388,23 @@ export function SuppliersPage() {
                   <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 border-t border-gray-100 pt-3 text-sm">
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Contact Person</dt>
-                      <dd className="text-gray-800">{s.contactPerson || '—'}</dd>
+                      <dd className="text-gray-800">{s.contactPerson || ''}</dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Phone</dt>
-                      <dd className="text-gray-800">{s.phone || '—'}</dd>
+                      <dd className="text-gray-800">{s.phone || ''}</dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Email</dt>
-                      <dd className="text-gray-800 break-all">{s.email || '—'}</dd>
+                      <dd className="text-gray-800 break-all">{s.email || ''}</dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Address</dt>
-                      <dd className="text-gray-800 whitespace-pre-line">{s.address || '—'}</dd>
+                      <dd className="text-gray-800 whitespace-pre-line">{s.address || ''}</dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Country</dt>
-                      <dd className="text-gray-800">{s.country || '—'}</dd>
+                      <dd className="text-gray-800">{s.country || ''}</dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Website</dt>
@@ -413,20 +413,20 @@ export function SuppliersPage() {
                           <a href={s.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
                             {s.website}
                           </a>
-                        ) : '—'}
+                        ) : ''}
                       </dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Payment Method</dt>
-                      <dd className="text-gray-800">{s.paymentMethod || '—'}</dd>
+                      <dd className="text-gray-800">{s.paymentMethod || ''}</dd>
                     </div>
                     <div>
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Bank Details</dt>
-                      <dd className="text-gray-800">{s.bankDetails || '—'}</dd>
+                      <dd className="text-gray-800">{s.bankDetails || ''}</dd>
                     </div>
                     <div className="sm:col-span-2">
                       <dt className="text-xs uppercase tracking-wide text-gray-400">Notes</dt>
-                      <dd className="text-gray-800 whitespace-pre-line">{s.notes || '—'}</dd>
+                      <dd className="text-gray-800 whitespace-pre-line">{s.notes || ''}</dd>
                     </div>
                   </dl>
                 )}

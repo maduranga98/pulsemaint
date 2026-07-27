@@ -50,7 +50,7 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                 schedule.nextDueDate instanceof Date
                   ? schedule.nextDueDate
                   : schedule.nextDueDate?.toDate?.()
-              )?.toLocaleDateString() ?? '—';
+              )?.toLocaleDateString() ?? '';
 
               const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
               const linkedWo = linkedWoId ? woLookup?.get(linkedWoId) : undefined;
@@ -133,7 +133,7 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                     </div>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {assignedNames.join(', ') || '—'}
+                    {assignedNames.join(', ') || ''}
                   </td>
                   <td className="px-4 py-3">
                     {linkedWo ? (

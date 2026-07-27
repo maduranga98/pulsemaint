@@ -182,7 +182,7 @@ export function PurchaseOrderItemRow({
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">Unit</label>
           <div className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 text-sm font-semibold text-gray-800">
-            {value.unit || '—'}
+            {value.unit || ''}
           </div>
         </div>
 

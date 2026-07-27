@@ -11,7 +11,7 @@ interface JobTimelineSectionProps {
 }
 
 function fmt(ts?: { toDate: () => Date } | null): string {
-  return ts ? ts.toDate().toLocaleString() : '—';
+  return ts ? ts.toDate().toLocaleString() : '';
 }
 
 /**

@@ -51,7 +51,7 @@ function CustomTooltip({
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: p.color }} />
           <span className="text-slate-300">{p.name}:</span>
-          <span className="font-bold text-white">{p.value ?? '—'}</span>
+          <span className="font-bold text-white">{p.value ?? ''}</span>
         </div>
       ))}
     </div>
