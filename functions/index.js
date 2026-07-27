@@ -156,6 +156,33 @@ exports.recalculateMttr = recalculateMttr;
 exports.metricsDaily = metricsDaily;
 
 // ---------------------------------------------------------------------------
+// MOE Module (Machine Overall Effectiveness) — Cloud Functions
+// Replaces the retired OEE module: real production-count/IoT data was never
+// captured by this factory, so MOE is a composite score computed entirely
+// from data already in the system (breakdowns, PM history, machine health,
+// criticality). See src/modules/moe/services/moe.service.ts for the client
+// mirror of this math.
+// ---------------------------------------------------------------------------
+
+const { calculateDailyMoeSnapshots } = require("./src/moe/calculateDailyMoeSnapshots");
+const {
+  recalculateMoeOnBreakdownChange,
+  recalculateMoeOnPmHistoryChange,
+  recalculateMoeOnWorkOrderChange,
+  processMoeRecalcQueue,
+} = require("./src/moe/recalculateMoeOnDataChange");
+const { getMoeAggregates } = require("./src/moe/getMoeAggregates");
+const { backfillMoeSnapshots } = require("./src/moe/backfillMoeSnapshots");
+
+exports.calculateDailyMoeSnapshots = calculateDailyMoeSnapshots;
+exports.recalculateMoeOnBreakdownChange = recalculateMoeOnBreakdownChange;
+exports.recalculateMoeOnPmHistoryChange = recalculateMoeOnPmHistoryChange;
+exports.recalculateMoeOnWorkOrderChange = recalculateMoeOnWorkOrderChange;
+exports.processMoeRecalcQueue = processMoeRecalcQueue;
+exports.getMoeAggregates = getMoeAggregates;
+exports.backfillMoeSnapshots = backfillMoeSnapshots;
+
+// ---------------------------------------------------------------------------
 // Invitations Module — Cloud Functions
 // ---------------------------------------------------------------------------
 

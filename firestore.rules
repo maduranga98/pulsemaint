@@ -958,30 +958,27 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------------
-    // OEE Module — plantId is the companyId
+    // MOE Module (Machine Overall Effectiveness) — replaces the old OEE module.
+    // moeSnapshots are Cloud-Function-only writes (scheduled daily calc +
+    // recalc-on-data-change / backfill); the client only reads.
     // ---------------------------------------------------------------------------
 
-    match /oee_records/{plantId}/records/{recordId} {
-      allow read: if isAuthenticated() && belongsToCompany(plantId)
+    match /moeSnapshots/{snapshotId} {
+      allow read: if isAuthenticated() && isSameSite(resource.data.siteId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow create, update: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
-      allow delete: if isAuthenticated() && belongsToCompany(plantId)
+      allow write: if false; // written only by Cloud Functions (admin SDK bypasses rules)
+    }
+
+    match /moeRecalcQueue/{queueId} {
+      allow read: if false;
+      allow write: if false; // Cloud-Function-only marker collection
+    }
+
+    match /moeConfig/{siteId} {
+      allow read: if isAuthenticated() && belongsToCompany(siteId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
+      allow write: if isAuthenticated() && belongsToCompany(siteId)
         && getUserData().role in ['plant_manager', 'admin'];
-    }
-
-    match /oee_trends/{plantId}/machines/{machineId}/monthly/{month} {
-      allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow write: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
-    }
-
-    match /oee_targets/{plantId}/machines/{machineId} {
-      allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow write: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
     }
 
     // rca — Root Cause Analysis records
