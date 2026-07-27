@@ -15,6 +15,7 @@ import { RatingStarSelector } from '../../../components/contractors/jobs/RatingS
 import { ContractorJobStatusBadge } from '../../../components/contractors/jobs/ContractorJobStatusBadge';
 import {
   getCategoryLabel,
+  normalizeTemplate,
   type AuditTemplate,
   type AuditAnswer,
   type AuditFinding,
@@ -22,6 +23,8 @@ import {
   type AuditParticipant,
   type MachineRef,
   type ContractorRef,
+  type InventoryItemRef,
+  type WorkOrderRef,
   type ContractorJobRating,
   type AuditSession,
 } from '../types/audit.types';
@@ -31,6 +34,8 @@ import { analyzeAudit } from '../utils/aiRootCause';
 import { downloadAuditPdf } from '../utils/auditPdf';
 import { MachineMultiSelect } from './MachineMultiSelect';
 import { ContractorMultiSelect } from './ContractorMultiSelect';
+import { InventoryMultiSelect } from './InventoryMultiSelect';
+import { WorkOrderMultiSelect } from './WorkOrderMultiSelect';
 import { ParticipantSelector } from './ParticipantSelector';
 import { AttachmentUploader } from './AttachmentUploader';
 import { FindingsSection } from './FindingsSection';
@@ -140,7 +145,8 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h3 className="text-sm font-bold text-white font-sora mb-3">{children}</h3>
 );
 
-export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
+export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone }: Props) {
+  const template = useMemo(() => normalizeTemplate(rawTemplate), [rawTemplate]);
   const profile = useAuthStore((s) => s.userProfile);
   const plantId = profile?.companyId ?? '';
   const { machines } = useAuditMachines();
@@ -149,7 +155,10 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
 
   const [selectedMachines, setSelectedMachines] = useState<MachineRef[]>([]);
   const [selectedContractors, setSelectedContractors] = useState<ContractorRef[]>([]);
-  const isContractorAudit = template.category === 'contractor';
+  const [selectedInventoryItems, setSelectedInventoryItems] = useState<InventoryItemRef[]>([]);
+  const [selectedWorkOrders, setSelectedWorkOrders] = useState<WorkOrderRef[]>([]);
+  const scope = template.scope;
+  const isContractorAudit = scope === 'contractors';
   const [department, setDepartment] = useState('');
   const [location, setLocation] = useState('');
   const [locationAutoFilled, setLocationAutoFilled] = useState(false);
@@ -178,7 +187,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
   // used as the default; the field stays editable so the auditor can
   // override it.
   useEffect(() => {
-    if (isContractorAudit || selectedMachines.length === 0) {
+    if (scope !== 'machines' || selectedMachines.length === 0) {
       setLocationAutoFilled(false);
       return;
     }
@@ -197,7 +206,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       setDepartment((prev) => prev || primary.department);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMachines, machines, isContractorAudit]);
+  }, [selectedMachines, machines, scope]);
 
   const setAnswer = (taskId: string, taskText: string, answerType: AuditAnswer['answerType'], value: string, notes?: string) => {
     setAnswers((prev) => ({
@@ -292,6 +301,8 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       templateId: template.id,
       machines: selectedMachines,
       contractors: selectedContractors,
+      inventoryItems: selectedInventoryItems,
+      workOrders: selectedWorkOrders,
       department: isContractorAudit ? '' : department,
       location: isContractorAudit ? '' : location,
       contractorJobRatings: contractorJobRatingList,
@@ -305,6 +316,8 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
     template,
     selectedMachines,
     selectedContractors,
+    selectedInventoryItems,
+    selectedWorkOrders,
     department,
     location,
     contractorJobRatingList,
@@ -330,6 +343,8 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
         machines: selectedMachines,
         contractors: selectedContractors,
         contractorIds: isContractorAudit ? selectedContractors.map((c) => c.id) : [],
+        inventoryItems: scope === 'inventory' ? selectedInventoryItems : [],
+        workOrders: scope === 'workOrders' ? selectedWorkOrders : [],
         department: isContractorAudit ? '' : department,
         location: isContractorAudit ? '' : location,
         contractorJobRatings: isContractorAudit ? contractorJobRatingList : [],
@@ -433,7 +448,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       {/* Scope */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
         <SectionTitle>Scope</SectionTitle>
-        {isContractorAudit ? (
+        {scope === 'contractors' && (
           <>
             <label className="block text-xs font-semibold text-slate-400 mb-1">Contractors</label>
             <ContractorMultiSelect selected={selectedContractors} onChange={setSelectedContractors} />
@@ -448,48 +463,68 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
               />
             ))}
           </>
-        ) : (
+        )}
+
+        {scope === 'inventory' && (
+          <>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Inventory / Parts</label>
+            <InventoryMultiSelect selected={selectedInventoryItems} onChange={setSelectedInventoryItems} />
+          </>
+        )}
+
+        {scope === 'workOrders' && (
+          <>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Work Orders</label>
+            <WorkOrderMultiSelect selected={selectedWorkOrders} onChange={setSelectedWorkOrders} />
+          </>
+        )}
+
+        {scope === 'machines' && (
           <>
             <label className="block text-xs font-semibold text-slate-400 mb-1">Machines</label>
             <MachineMultiSelect machines={machines} selected={selectedMachines} onChange={setSelectedMachines} />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Department</label>
-                <select
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-blue-500 focus:outline-none"
-                >
-                  <option value="">Select department…</option>
-                  {['Production', 'Maintenance', 'Quality', 'Safety', 'Electrical', ...departments]
-                    .filter((v, i, arr) => arr.indexOf(v) === i)
-                    .map((d) => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">
-                  Location / Zone
-                  {locationAutoFilled && (
-                    <span className="ml-1.5 text-[10px] font-normal text-emerald-400">
-                      auto-filled from machine · editable
-                    </span>
-                  )}
-                </label>
-                <input
-                  value={location}
-                  onChange={(e) => {
-                    setLocation(e.target.value);
-                    setLocationAutoFilled(false);
-                  }}
-                  placeholder="e.g. Factory Floor A, Bay 3, Compressor Room"
-                  className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
-                />
-              </div>
-            </div>
           </>
+        )}
+
+        {/* Department / Location: manual for every scope except contractors (which has neither),
+            auto-filled only for the machines scope. */}
+        {scope !== 'contractors' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Department</label>
+              <select
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-blue-500 focus:outline-none"
+              >
+                <option value="">Select department…</option>
+                {['Production', 'Maintenance', 'Quality', 'Safety', 'Electrical', ...departments]
+                  .filter((v, i, arr) => arr.indexOf(v) === i)
+                  .map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">
+                Location / Zone
+                {locationAutoFilled && (
+                  <span className="ml-1.5 text-[10px] font-normal text-emerald-400">
+                    auto-filled from machine · editable
+                  </span>
+                )}
+              </label>
+              <input
+                value={location}
+                onChange={(e) => {
+                  setLocation(e.target.value);
+                  setLocationAutoFilled(false);
+                }}
+                placeholder="e.g. Factory Floor A, Bay 3, Compressor Room"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
         )}
       </div>
 
@@ -580,7 +615,7 @@ export function AuditSessionForm({ template, onConfigure, onDone }: Props) {
       {/* Findings */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
         <SectionTitle>Losses, Breakdowns, Safety &amp; Maintenance Findings</SectionTitle>
-        <FindingsSection findings={findings} onChange={setFindings} />
+        <FindingsSection findings={findings} onChange={setFindings} allowedKinds={template.enabledFindingKinds} />
       </div>
 
       {/* Attachments */}
