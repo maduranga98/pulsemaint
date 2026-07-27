@@ -39,7 +39,11 @@ export default function CertificatePreview({ certificate }: CertificatePreviewPr
         {/* Module & Machine */}
         <div className="space-y-1">
           <p className="text-sm font-medium text-slate-700">{certificate.moduleName}</p>
-          <p className="text-sm text-slate-500">Machine: {certificate.machineName}</p>
+          <p className="text-sm text-slate-500">
+            {certificate.moduleCategory === 'offboard_external'
+              ? `Provider: ${certificate.providerName || 'External'}`
+              : `Machine: ${certificate.machineName}`}
+          </p>
         </div>
 
         {/* Dates */}

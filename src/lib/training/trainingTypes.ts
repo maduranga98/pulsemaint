@@ -18,6 +18,13 @@ export type AssignmentStatus =
   | 'retraining_required';
 export type TrainingLanguage = 'en' | 'si' | 'ta' | 'bn';
 export type ContentLibraryItemType = 'video' | 'document' | 'image';
+/**
+ * `machine` — the traditional in-house, machine-specific training module.
+ * `offboard_external` — training delivered off-site or by an external
+ * provider (e.g. a vendor certification course, an external safety
+ * workshop) that isn't tied to a specific machine in the registry.
+ */
+export type ModuleCategory = 'machine' | 'offboard_external';
 
 // Category distinguishes in-house machine-specific training from
 // offboard/external training run by a third party. Existing docs predate
@@ -105,9 +112,15 @@ export interface TrainingModule {
   companyId: string;
   title: string;
   description: string;
+  moduleCategory?: ModuleCategory;
   machineId: string | null;
   machineTypeId: string | null;
   machineName: string;
+  /** Only set when moduleCategory === 'offboard_external'. */
+  providerName?: string;
+  providerContact?: string;
+  trainingLocation?: string;
+  externalCertificateUrl?: string;
   coverImageUrl: string;
   estimatedMinutes: number;
   passingScore: number;
@@ -197,8 +210,10 @@ export interface TrainingAssignment {
   companyId: string;
   moduleId: string;
   moduleName: string;
+  moduleCategory?: ModuleCategory;
   machineId: string;
   machineName: string;
+  providerName?: string;
   traineeId: string;
   traineeName: string;
   traineeEmail: string;
@@ -249,9 +264,11 @@ export interface TrainingCertificate {
   traineeDesignation: string;
   moduleId: string;
   moduleName: string;
+  moduleCategory?: ModuleCategory;
   machineId: string;
   machineName: string;
   machineType: string;
+  providerName?: string;
   issuedBy: string;
   issuedByName: string;
   issuedAt: Timestamp;

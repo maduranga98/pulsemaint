@@ -4,23 +4,45 @@ import { z } from 'zod';
 // Create Training Module
 // ---------------------------------------------------------------------------
 
-export const createTrainingModuleSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional().default(''),
-  machineName: z.string().min(1, 'Machine name is required'),
-  machineId: z.string().optional(),
-  machineTypeId: z.string().optional(),
-  estimatedMinutes: z.number().int().positive().default(30),
-  passingScore: z
-    .number()
-    .int()
-    .min(50, 'Passing score must be at least 50')
-    .max(100, 'Passing score cannot exceed 100')
-    .default(70),
-  status: z.enum(['draft', 'active', 'archived']).default('draft'),
-  language: z.enum(['en', 'si', 'ta', 'bn']).default('en'),
-  tags: z.array(z.string()).optional().default([]),
-});
+export const createTrainingModuleSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required'),
+    description: z.string().optional().default(''),
+    moduleCategory: z.enum(['machine', 'offboard_external']).default('machine'),
+    machineName: z.string().optional().default(''),
+    machineId: z.string().optional(),
+    machineTypeId: z.string().optional(),
+    providerName: z.string().optional().default(''),
+    providerContact: z.string().optional().default(''),
+    trainingLocation: z.string().optional().default(''),
+    externalCertificateUrl: z.string().optional().default(''),
+    estimatedMinutes: z.number().int().positive().default(30),
+    passingScore: z
+      .number()
+      .int()
+      .min(50, 'Passing score must be at least 50')
+      .max(100, 'Passing score cannot exceed 100')
+      .default(70),
+    status: z.enum(['draft', 'active', 'archived']).default('draft'),
+    language: z.enum(['en', 'si', 'ta', 'bn']).default('en'),
+    tags: z.array(z.string()).optional().default([]),
+  })
+  .superRefine((data, ctx) => {
+    if (data.moduleCategory === 'machine' && !data.machineName.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Machine name is required for machine-specific modules',
+        path: ['machineName'],
+      });
+    }
+    if (data.moduleCategory === 'offboard_external' && !data.providerName.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Provider / institution name is required for offboard & external training',
+        path: ['providerName'],
+      });
+    }
+  });
 
 export type CreateTrainingModuleInput = z.infer<typeof createTrainingModuleSchema>;
 

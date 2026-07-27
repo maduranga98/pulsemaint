@@ -17,6 +17,11 @@ exports.generateTrainingCertificate = onDocumentUpdated({ database: "default", d
     assignmentId: event.params.assignmentId,
     traineeId: after.traineeId || "",
     moduleId: after.moduleId || "",
+    moduleName: after.moduleName || "",
+    moduleCategory: after.moduleCategory || "machine",
+    machineId: after.machineId || "",
+    machineName: after.machineName || "",
+    providerName: after.providerName || "",
     issuedAt: FieldValue.serverTimestamp(),
     status: "active",
   });

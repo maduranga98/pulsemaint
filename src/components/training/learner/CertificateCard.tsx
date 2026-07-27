@@ -54,9 +54,13 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
         </div>
 
         <div>
-          <p className="text-xs text-slate-500">Machine</p>
+          <p className="text-xs text-slate-500">
+            {certificate.moduleCategory === 'offboard_external' ? 'Provider' : 'Machine'}
+          </p>
           <p className="font-bold text-green-700 text-lg leading-tight">
-            {certificate.machineName}
+            {certificate.moduleCategory === 'offboard_external'
+              ? certificate.providerName || 'External'
+              : certificate.machineName}
           </p>
         </div>
 

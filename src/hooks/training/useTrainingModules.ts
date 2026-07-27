@@ -8,10 +8,11 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import type { TrainingModule, TrainingModuleStatus } from '@/lib/training/trainingTypes';
+import type { TrainingModule, TrainingModuleStatus, ModuleCategory } from '@/lib/training/trainingTypes';
 
 export interface UseTrainingModulesOptions {
   status?: TrainingModuleStatus;
+  moduleCategory?: ModuleCategory;
   searchQuery?: string;
 }
 
@@ -24,7 +25,7 @@ interface UseTrainingModulesResult {
 export function useTrainingModules(
   options: UseTrainingModulesOptions = {}
 ): UseTrainingModulesResult {
-  const { status, searchQuery } = options;
+  const { status, moduleCategory, searchQuery } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
   const [modules, setModules] = useState<TrainingModule[]>([]);
@@ -46,6 +47,10 @@ export function useTrainingModules(
 
     if (status) {
       constraints.push(where('status', '==', status));
+    }
+
+    if (moduleCategory) {
+      constraints.push(where('moduleCategory', '==', moduleCategory));
     }
 
     // Sorted client-side: companyId + orderBy(updatedAt) without a status
@@ -83,7 +88,7 @@ export function useTrainingModules(
     );
 
     return () => unsubscribe();
-  }, [companyId, status, searchQuery]);
+  }, [companyId, status, moduleCategory, searchQuery]);
 
   return { modules, loading, error };
 }
