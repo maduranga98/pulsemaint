@@ -7,6 +7,7 @@ import type { ReportConfig, ReportType } from '../../../types/reports.types';
 import { resolveColumns, formatCell } from '../reportColumns';
 import type { ReportColumn } from '../reportColumns';
 import { renderBarChart, type ChartDatum } from './chartRenderer';
+import { topHealthScores, totalCostByWoType } from '../../../lib/reportsCostUtils';
 
 // Columns that make sense as a chart category (a small set of repeated values).
 const CATEGORY_KEYS = [
@@ -158,8 +159,23 @@ export async function exportGenericReportPdf(
         // Breakdown counts by type.
         renderChart('Breakdown counts by type', countBy(rows, 'type'));
       } else if (reportType === 'machine_history') {
-        // Work-order counts for this machine, coloured by count magnitude.
-        renderChart('Work order counts by type', countBy(rows, 'woType'), true);
+        // Machine History is table/details only — no chart for this report.
+      } else if (reportType === 'machine_health_score') {
+        // Top 5 healthiest machines only, sorted by health score descending.
+        const top5 = topHealthScores(
+          rows.map((r) => ({ machineName: String(r.machineName ?? ''), healthScore: Number(r.healthScore ?? 0) })),
+          5,
+        );
+        renderChart('Top 5 Machines by Health Score', top5, true);
+      } else if (reportType === 'maintenance_cost') {
+        // Total cost summed by WO type.
+        renderChart('Total Cost vs WO Type', totalCostByWoType(rows), true);
+      } else if (reportType === 'contractor_performance') {
+        // Contractor vs Rating.
+        const data = rows
+          .filter((r) => r.rating != null && r.rating !== '')
+          .map((r) => ({ label: String(r.contractorName ?? ''), value: Number(r.rating ?? 0) }));
+        renderChart('Contractor vs Rating', data, true);
       } else {
         const chart = buildChartData(allColumns, rows);
         if (chart) renderChart(chart.title, chart.data);

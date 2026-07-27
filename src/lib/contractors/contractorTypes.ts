@@ -308,6 +308,11 @@ export interface ContractorJob {
   // sign-off. Mirrored into systemInvoiceAmount so it flows into the machine
   // and maintenance cost analysis.
   totalProjectCost?: number;
+  // Explicit sign-off-scoped copies of rating/cost, read by the Contractor
+  // Performance report — kept in sync with `rating.overallScore` and
+  // `totalProjectCost` at sign-off time (see SignOffForm.tsx).
+  signOffRating?: number | null;
+  signOffTotalProjectCost?: number | null;
   isDisputed?: boolean;
   disputeNotes?: string;
   contractorInvoiceAmount?: number;

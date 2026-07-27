@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchTeamPerformanceByRole, type RolePerformanceSummary } from '../../services/teamPerformance.service';
+import { fetchTeamPerformanceByUser, type UserPerformanceSummary } from '../../services/teamPerformance.service';
 
-export type { RolePerformanceSummary };
+export type { UserPerformanceSummary };
 
 export function useTeamPerformanceAnalytics(companyId: string) {
-  const [data, setData] = useState<RolePerformanceSummary[]>([]);
+  const [data, setData] = useState<UserPerformanceSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,7 +16,7 @@ export function useTeamPerformanceAnalytics(companyId: string) {
     setLoading(true);
     setError(null);
     try {
-      setData(await fetchTeamPerformanceByRole(companyId));
+      setData(await fetchTeamPerformanceByUser(companyId));
     } catch (err) {
       setError((err as Error).message);
     } finally {

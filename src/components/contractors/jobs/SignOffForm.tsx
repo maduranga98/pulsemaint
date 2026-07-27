@@ -27,15 +27,31 @@ export function SignOffForm({ job }: SignOffFormProps) {
   const [signature, setSignature] = useState('');
   const [hasConcerns, setHasConcerns] = useState(Boolean(job.isDisputed));
   const [notes, setNotes] = useState(job.signOffNotes ?? job.disputeNotes ?? '');
-  const [totalProjectCost, setTotalProjectCost] = useState(
-    job.totalProjectCost != null ? String(job.totalProjectCost) : job.systemInvoiceAmount != null ? String(job.systemInvoiceAmount) : '',
-  );
+  // Total Project Cost = auto-computed parts cost (from stock movements /
+  // parts issued against this job, already rolled up into totalPartsCost)
+  // + the contractor's own labor/service cost, entered here at sign-off.
+  const autoPartsCost = job.totalPartsCost ?? 0;
+  const initialContractorCost = job.totalProjectCost != null
+    ? Math.max(0, job.totalProjectCost - autoPartsCost)
+    : job.systemInvoiceAmount != null
+      ? Math.max(0, job.systemInvoiceAmount - autoPartsCost)
+      : 0;
+  const [contractorCost, setContractorCost] = useState(initialContractorCost ? String(initialContractorCost) : '');
   const [speed, setSpeed] = useState(job.rating?.speedScore ?? 0);
   const [quality, setQuality] = useState(job.rating?.qualityScore ?? 0);
   const [professionalism, setProfessionalism] = useState(job.rating?.professionalismScore ?? 0);
   const [communication, setCommunication] = useState(job.rating?.communicationScore ?? 0);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const parsedContractorCost = useMemo(() => {
+    const n = contractorCost.trim() ? Number(contractorCost.replace(/,/g, '')) : 0;
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }, [contractorCost]);
+  const totalProjectCost = useMemo(
+    () => Number((autoPartsCost + parsedContractorCost).toFixed(2)),
+    [autoPartsCost, parsedContractorCost],
+  );
 
   const overallRating = useMemo(() => {
     const scores = [speed, quality, professionalism, communication];
@@ -54,9 +70,8 @@ export function SignOffForm({ job }: SignOffFormProps) {
       setError('A signature is required to sign off this job.');
       return;
     }
-    const parsedCost = totalProjectCost.trim() ? Number(totalProjectCost.replace(/,/g, '')) : null;
-    if (parsedCost != null && (Number.isNaN(parsedCost) || parsedCost < 0)) {
-      setError('Enter a valid total project cost.');
+    if (contractorCost.trim() && (Number.isNaN(Number(contractorCost.replace(/,/g, ''))) || Number(contractorCost.replace(/,/g, '')) < 0)) {
+      setError('Enter a valid contractor cost.');
       return;
     }
     setError(null);
@@ -89,12 +104,16 @@ export function SignOffForm({ job }: SignOffFormProps) {
         isDisputed: hasConcerns,
         disputeNotes: hasConcerns ? notes.trim() || null : null,
         rating: ratingPayload,
-        // Total project cost feeds the contractor job history, the machine's
+        // Total project cost = auto-computed parts cost + the contractor's own
+        // cost entered here. Feeds the contractor job history, the machine's
         // cost roll-up and the maintenance cost analysis (which read
-        // systemInvoiceAmount), so mirror it across both fields.
-        ...(parsedCost != null
-          ? { totalProjectCost: parsedCost, systemInvoiceAmount: parsedCost }
-          : {}),
+        // systemInvoiceAmount / totalProjectCost), so mirror it across both
+        // fields, plus explicit sign-off-scoped fields the Contractor
+        // Performance report reads from.
+        totalProjectCost,
+        systemInvoiceAmount: totalProjectCost,
+        signOffRating: overallRating > 0 ? overallRating : (job.rating?.overallScore ?? null),
+        signOffTotalProjectCost: totalProjectCost,
         updatedAt: serverTimestamp(),
       });
 
@@ -144,17 +163,34 @@ export function SignOffForm({ job }: SignOffFormProps) {
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-950">Total Project Cost</h2>
         <p className="mt-1 text-xs text-slate-500">
-          Recorded against this work order, the machine's cost history and the maintenance cost analysis.
+          Auto-computed parts cost plus the contractor's own labor/service cost. Recorded against this
+          work order, the machine's cost history and the maintenance cost analysis.
         </p>
-        <div className="mt-3 flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-500">LKR</span>
-          <input
-            value={totalProjectCost}
-            onChange={(event) => setTotalProjectCost(event.target.value)}
-            inputMode="decimal"
-            placeholder="0.00"
-            className="h-10 w-48 rounded-md border border-slate-200 px-3 text-sm"
-          />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="text-xs font-medium text-slate-500">Parts Cost (auto)</label>
+            <div className="mt-1 flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
+              <span className="font-medium text-slate-500">LKR</span>
+              <span>{autoPartsCost.toFixed(2)}</span>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-500">Contractor Cost</label>
+            <div className="mt-1 flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-500">LKR</span>
+              <input
+                value={contractorCost}
+                onChange={(event) => setContractorCost(event.target.value)}
+                inputMode="decimal"
+                placeholder="0.00"
+                className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 rounded-lg bg-slate-50 p-3">
+          <p className="text-xs text-slate-500">Total project cost</p>
+          <p className="text-lg font-bold text-slate-950">LKR {totalProjectCost.toFixed(2)}</p>
         </div>
       </section>
 

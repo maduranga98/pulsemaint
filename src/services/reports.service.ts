@@ -16,7 +16,8 @@ import {
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggregation';
-import { fetchTeamPerformanceByRole } from './teamPerformance.service';
+import { fetchTeamPerformanceByUser } from './teamPerformance.service';
+import { computeWoTotalCost } from '../lib/reportsCostUtils';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { logAuditEvent } from '../utils/reports/auditLogger';
 import type {
@@ -124,18 +125,33 @@ export async function fetchReportRows(
   // not a raw workOrders dump, which only ever showed technician workload,
   // never evaluation/training/assessment data (PMGR-016/017).
   if (reportType === 'technician_performance') {
-    return (await fetchTeamPerformanceByRole(companyId)) as unknown as Record<string, unknown>[];
+    return (await fetchTeamPerformanceByUser(companyId)) as unknown as Record<string, unknown>[];
   }
 
-  // Maintenance Cost is a computed cost breakdown (labor hours + parts
-  // consumed + contractor/project spend), not a raw dump of workOrders /
-  // stockMovements / contractorJobs — those three collections don't share a
-  // row shape, so reading them as one flat table produced garbage columns.
+  // Maintenance Cost is a computed cost breakdown — one row per work order,
+  // merging used-parts cost (+ labor) from workOrders with the contractor's
+  // sign-off "total project cost" (see SignOffForm) keyed by workOrderId, so
+  // a contractor WO shows a single, complete Total Cost figure instead of two
+  // disconnected rows. NOTE: this used to `return` here, which meant the
+  // shared machines/departments/woTypes/contractors filter block further down
+  // this function never ran for this report — every filter silently produced
+  // zero matches. Filters are now applied explicitly below before returning.
   if (reportType === 'maintenance_cost') {
     const [woSnap, contractorSnap] = await Promise.all([
       getDocs(query(collection(db, 'workOrders'), where('companyId', '==', companyId), limit(1000))),
       getDocs(query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000))),
     ]);
+
+    // Contractor total project cost (parts auto-included + contractor's own
+    // cost, captured at sign-off — see SignOffForm.tsx), keyed by workOrderId.
+    const contractorCostByWoId = new Map<string, { cost: number; signedOffAt: unknown }>();
+    contractorSnap.docs.forEach((item) => {
+      const c = item.data();
+      const woId = String(c.workOrderId ?? '');
+      if (!woId) return;
+      const cost = Number(c.totalProjectCost ?? c.systemInvoiceAmount ?? 0);
+      contractorCostByWoId.set(woId, { cost, signedOffAt: c.signedOffAt ?? null });
+    });
 
     const woCost = (w: Record<string, unknown>) => {
       const partsCost = Array.isArray(w.partsUsed)
@@ -151,45 +167,115 @@ export async function fetchReportRows(
     woSnap.docs.forEach((item) => {
       const w = item.data();
       const { partsCost, laborCost } = woCost(w);
-      if (partsCost === 0 && laborCost === 0) return;
+      const contractorEntry = contractorCostByWoId.get(item.id);
+      const contractorCost = contractorEntry?.cost ?? 0;
+      if (partsCost === 0 && laborCost === 0 && contractorCost === 0) return;
+      const department = String(w.machineDepartment ?? w.department ?? '');
       costRows.push({
         id: item.id,
         source: 'Work Order',
         reference: w.woNumber ?? item.id,
+        woTicket: w.woNumber ?? item.id,
+        woType: w.woType ?? '',
         machineName: w.machineName ?? '',
-        machineDepartment: w.machineDepartment ?? w.department ?? '',
+        machineId: w.machineId ?? '',
+        machineDepartment: department,
+        department,
+        contractorCompanyId: w.contractorCompanyId ?? w.contractorId ?? '',
+        priority: w.priority ?? '',
         laborCost,
         partsCost,
-        contractorCost: 0,
-        totalCost: laborCost + partsCost,
+        contractorCost,
+        totalCost: computeWoTotalCost(partsCost, laborCost, contractorCost),
+        signedOffDate: contractorEntry?.signedOffAt ?? w.supervisorSignOffAt ?? null,
         createdAt: w.actualEndTime ?? w.createdAt ?? null,
       });
     });
-    contractorSnap.docs.forEach((item) => {
-      const c = item.data();
-      const contractorCost = Number(c.systemInvoiceAmount ?? c.contractorInvoiceAmount ?? 0);
-      const partsCost = Number(c.totalPartsCost ?? 0);
-      if (contractorCost === 0 && partsCost === 0) return;
-      costRows.push({
-        id: item.id,
-        source: 'Contractor Job',
-        reference: c.workOrderNumber ?? item.id,
-        machineName: c.machineName ?? '',
-        machineDepartment: '',
-        laborCost: 0,
-        partsCost,
-        contractorCost,
-        totalCost: contractorCost + partsCost,
-        createdAt: c.workCompletedAt ?? c.createdAt ?? null,
-      });
-    });
 
-    return costRows.filter((row) => {
+    const matchesList = (value: unknown, selected: string[]) =>
+      selected.length === 0 ||
+      (value != null && selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
+
+    const filtered = costRows.filter((row) => {
+      if (!matchesList(row.machineId, config.machines)) return false;
+      if (!matchesList(row.department, config.departments)) return false;
+      if (!matchesList(row.woType, config.woTypes)) return false;
+      if (!matchesList(row.contractorCompanyId, config.contractors)) return false;
+      if (!matchesList(row.priority, config.priorities)) return false;
       const raw = row.createdAt as { toDate?: () => Date } | null;
       const d = raw && typeof raw.toDate === 'function' ? raw.toDate().toISOString().slice(0, 10) : null;
       if (!d) return true;
       return d >= config.dateFrom && d <= config.dateTo;
     });
+
+    return filtered;
+  }
+
+  // Contractor Performance is a per-contractor rollup of their contractor
+  // jobs — Name, WOs Completed, Rating, Signed Off Date, Signed Off By, Total
+  // Project Cost — not a per-job dump, since "WOs Completed"/"Rating" are
+  // aggregates, not fields on a single job document.
+  if (reportType === 'contractor_performance') {
+    const snap = await getDocs(
+      query(collection(db, 'contractorJobs'), where('companyId', '==', companyId), limit(1000)),
+    );
+
+    const byContractor = new Map<string, {
+      name: string;
+      wosCompleted: number;
+      ratingTotal: number;
+      ratingCount: number;
+      totalProjectCost: number;
+      lastSignedOffAt: unknown;
+      lastSignedOffAtMs: number;
+      lastSignedOffByName: string;
+    }>();
+
+    const asMs = (value: unknown): number => {
+      if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
+        return (value as { toDate: () => Date }).toDate().getTime();
+      }
+      return 0;
+    };
+
+    snap.docs.forEach((item) => {
+      const c = item.data();
+      const key = String(c.contractorId ?? c.manualContractorName ?? c.contractorName ?? item.id);
+      const name = String(c.contractorName ?? c.manualContractorName ?? 'Unknown Contractor');
+      const entry = byContractor.get(key) ?? {
+        name,
+        wosCompleted: 0,
+        ratingTotal: 0,
+        ratingCount: 0,
+        totalProjectCost: 0,
+        lastSignedOffAt: null,
+        lastSignedOffAtMs: 0,
+        lastSignedOffByName: '',
+      };
+      if (c.status === 'signed_off' || c.status === 'completed') entry.wosCompleted += 1;
+      const rating = c.rating as Record<string, unknown> | undefined;
+      if (rating?.overallScore != null) {
+        entry.ratingTotal += Number(rating.overallScore);
+        entry.ratingCount += 1;
+      }
+      entry.totalProjectCost += Number(c.totalProjectCost ?? c.systemInvoiceAmount ?? 0);
+      const signedOffMs = asMs(c.signedOffAt);
+      if (signedOffMs >= entry.lastSignedOffAtMs) {
+        entry.lastSignedOffAtMs = signedOffMs;
+        entry.lastSignedOffAt = c.signedOffAt ?? null;
+        entry.lastSignedOffByName = String(c.signedOffByName ?? '');
+      }
+      byContractor.set(key, entry);
+    });
+
+    return Array.from(byContractor.values()).map((entry) => ({
+      contractorName: entry.name,
+      wosCompleted: entry.wosCompleted,
+      rating: entry.ratingCount > 0 ? Number((entry.ratingTotal / entry.ratingCount).toFixed(2)) : null,
+      signedOffDate: entry.lastSignedOffAt,
+      signedOffByName: entry.lastSignedOffByName,
+      totalProjectCost: entry.totalProjectCost,
+    }));
   }
 
   // Maps each report to the Firestore collection(s) it reads from. These must
@@ -197,9 +283,10 @@ export async function fetchReportRows(
   const sourceMap: Record<ReportType, string[]> = {
     breakdown_summary: ['breakdown_tickets'],
     work_order_detail: ['workOrders'],
-    // Machine History lists the machine's own work orders (with dates/types),
-    // filtered to the chosen machine below.
-    machine_history: ['workOrders'],
+    // Machine History is a machine-registry snapshot (one row per machine —
+    // name/type/purchased/installed/department/location/last-service/next-PM),
+    // not a per-work-order history list.
+    machine_history: ['machines'],
     machine_health_score: ['machine_health'],
     maintenance_cost: ['workOrders', 'stockMovements', 'contractorJobs'],
     // technician_performance (display name: "Team Performance Report") is a
@@ -229,6 +316,11 @@ export async function fetchReportRows(
   // hid every entity registered before the range and produced empty reports.
   // Only event-style rows participate in date filtering.
   const snapshotSources = new Set(['machines', 'machine_health', 'inventoryParts', 'analytics_monthly']);
+  const locationOf = (data: Record<string, unknown>): string =>
+    [data.floor, data.bay, data.station]
+      .filter((part) => part != null && part !== '')
+      .map((part) => String(part))
+      .join(' · ');
 
   const rows: { source: string; row: Record<string, unknown> }[] = [];
   const sourceErrors: string[] = [];
@@ -244,7 +336,16 @@ export async function fetchReportRows(
         const chunk = siteIds.slice(i, i + 10);
         try {
           const snap = await getDocs(query(collection(db, 'machines'), where('siteId', 'in', chunk)));
-          snap.docs.forEach((item) => rows.push({ source, row: { id: item.id, ...item.data() } }));
+          snap.docs.forEach((item) => {
+            const data = item.data();
+            const row: Record<string, unknown> = { id: item.id, ...data };
+            if (reportType === 'machine_history') {
+              row.machineName = data.name ?? '';
+              row.machineType = prettifyEnum(data.type);
+              row.location = locationOf(data);
+            }
+            rows.push({ source, row });
+          });
         } catch {
           /* skip unreadable sites */
         }
@@ -383,9 +484,9 @@ export async function fetchReportRows(
     selected.length === 0 ||
     (Array.isArray(values) && values.some((v) => selected.some((s) => s.toLowerCase() === String(v).toLowerCase())));
 
-  // Only the health-score report is keyed by machine doc-id; machine_history
-  // now reads work orders, which reference the machine via machineId.
-  const isMachineReport = reportType === 'machine_health_score';
+  // machine_health_score and machine_history are both keyed by machine doc-id
+  // (one row per machine); other reports reference the machine via machineId.
+  const isMachineReport = reportType === 'machine_health_score' || reportType === 'machine_history';
 
   return dateFiltered.filter((row) => {
     // Machine rows themselves carry the machine ID as the doc ID; other rows

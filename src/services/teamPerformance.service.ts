@@ -1,6 +1,25 @@
 import { collection, query, where, getDocs, type QuerySnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
+// Per-person Team Performance row — shared by the Team Performance report
+// (technician_performance) and the Analytics "Team Performance" dashboard
+// widget, so both surfaces show exactly the same 6 columns computed the
+// same way: Name, Role, Evaluation Score, Audit Score, Trainings Completed,
+// Quizzes Passed.
+export interface UserPerformanceSummary {
+  userId: string;
+  name: string;
+  role: string;
+  // Most recent submitted Evaluation's overall score (0-100); 0 if none.
+  evaluationScore: number;
+  hasEvaluation: boolean;
+  // Most recent submitted Audit's score (0-100); 0 if none.
+  auditScore: number;
+  hasAudit: boolean;
+  trainingsCompleted: number;
+  quizzesPassed: number;
+}
+
 export interface RolePerformanceSummary {
   role: string;
   memberCount: number;
@@ -145,4 +164,108 @@ export async function fetchTeamPerformanceByRole(companyId: string): Promise<Rol
       quizAttempts: roleQuizMarks[role]?.count ?? 0,
     }))
     .sort((a, b) => b.memberCount - a.memberCount);
+}
+
+/**
+ * Team Performance, one row per user — Name, Role, most-recent Evaluation
+ * score, most-recent Audit score, Trainings Completed, Quizzes Passed.
+ * Shared by the "Team Performance" report (technician_performance) and the
+ * Analytics "Team Performance" dashboard widget (TeamPerformanceAnalyticsWidget).
+ */
+export async function fetchTeamPerformanceByUser(companyId: string): Promise<UserPerformanceSummary[]> {
+  const [evals, audits, users, assignments, quizResults] = await Promise.all([
+    safeDocs(getDocs(
+      query(
+        collection(db, 'evaluations'),
+        where('companyId', '==', companyId),
+        where('status', '==', 'submitted'),
+      ),
+    )),
+    safeDocs(getDocs(collection(db, 'audit_sessions', companyId, 'sessions'))),
+    safeDocs(getDocs(query(collection(db, 'users'), where('companyId', '==', companyId)))),
+    safeDocs(getDocs(
+      query(
+        collection(db, 'trainingAssignments'),
+        where('companyId', '==', companyId),
+      ),
+    )),
+    safeDocs(getDocs(
+      query(
+        collection(db, 'triage_assessment_results'),
+        where('companyId', '==', companyId),
+      ),
+    )),
+  ]);
+
+  const asMillis = (value: unknown): number => {
+    if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
+      return (value as { toDate: () => Date }).toDate().getTime();
+    }
+    if (value instanceof Date) return value.getTime();
+    const parsed = new Date(String(value ?? ''));
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+  };
+
+  // Most-recent submitted Evaluation per evaluatee.
+  const latestEval = new Map<string, { score: number; at: number }>();
+  evals.forEach((row) => {
+    const userId = String(row.evaluateeId ?? '');
+    if (!userId) return;
+    const at = asMillis(row.submittedAt ?? row.updatedAt ?? row.createdAt);
+    const existing = latestEval.get(userId);
+    if (!existing || at >= existing.at) {
+      latestEval.set(userId, { score: Number(row.overallScore ?? 0), at });
+    }
+  });
+
+  // Most-recent submitted Audit per auditor.
+  const latestAudit = new Map<string, { score: number; at: number }>();
+  audits.forEach((row) => {
+    if (row.status && row.status !== 'submitted') return;
+    const userId = String(row.auditorId ?? '');
+    if (!userId) return;
+    const at = asMillis(row.submittedAt ?? row.createdAt);
+    const existing = latestAudit.get(userId);
+    if (!existing || at >= existing.at) {
+      latestAudit.set(userId, { score: Number(row.score ?? 0), at });
+    }
+  });
+
+  // Training completions per user.
+  const completedTraining = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
+  const userTrainingCount = new Map<string, number>();
+  assignments.forEach((row) => {
+    if (!completedTraining.has(String(row.status))) return;
+    const userId = String(row.traineeId ?? row.userId ?? '');
+    if (!userId) return;
+    userTrainingCount.set(userId, (userTrainingCount.get(userId) ?? 0) + 1);
+  });
+
+  // Quizzes passed per user.
+  const userQuizPassed = new Map<string, number>();
+  quizResults.forEach((row) => {
+    if (!row.passed) return;
+    const userId = String(row.userId ?? '');
+    if (!userId) return;
+    userQuizPassed.set(userId, (userQuizPassed.get(userId) ?? 0) + 1);
+  });
+
+  return users
+    .map((u) => {
+      const userId = String(u.uid ?? u.id ?? '');
+      const evalEntry = latestEval.get(userId);
+      const auditEntry = latestAudit.get(userId);
+      return {
+        userId,
+        name: String(u.fullName ?? u.name ?? 'Unknown'),
+        role: String(u.role ?? 'other'),
+        evaluationScore: evalEntry?.score ?? 0,
+        hasEvaluation: Boolean(evalEntry),
+        auditScore: auditEntry?.score ?? 0,
+        hasAudit: Boolean(auditEntry),
+        trainingsCompleted: userTrainingCount.get(userId) ?? 0,
+        quizzesPassed: userQuizPassed.get(userId) ?? 0,
+      };
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
