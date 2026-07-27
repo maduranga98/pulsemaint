@@ -28,7 +28,10 @@ import type {
   AuditAttachment,
   AttachmentType,
   AuditDraft,
+  AuditScope,
+  FindingKind,
 } from '../types/audit.types';
+import { normalizeTemplate, ALL_FINDING_KINDS } from '../types/audit.types';
 import { DEFAULT_TASKS } from '../data/defaultTemplates';
 import { analyzeAuditWithAI, buildFailedAnswerInputs } from '../utils/aiRootCause';
 import { auditPdfBlob } from '../utils/auditPdf';
@@ -49,7 +52,8 @@ export function subscribeTemplates(
   const q = query(templatesCol(plantId), orderBy('category'));
   return onSnapshot(
     q,
-    (snap) => onData(snap.docs.map((d) => ({ id: d.id, ...d.data() } as AuditTemplate))),
+    (snap) =>
+      onData(snap.docs.map((d) => normalizeTemplate({ id: d.id, ...d.data() } as AuditTemplate))),
     onError,
   );
 }
@@ -75,6 +79,8 @@ export async function ensureDefaultTemplates(plantId: string): Promise<void> {
           plantId,
           isDefault: true,
           updatedAt: Timestamp.now(),
+          scope: category === 'contractor' ? 'contractors' : 'machines',
+          enabledFindingKinds: ALL_FINDING_KINDS,
         };
         return setDoc(doc(templatesCol(plantId), id), tmpl);
       }),
@@ -116,6 +122,8 @@ export async function createCustomCategory(
   plantId: string,
   name: string,
   tasks: AuditTask[],
+  scope: AuditScope = 'machines',
+  enabledFindingKinds: FindingKind[] = ALL_FINDING_KINDS,
 ): Promise<AuditTemplate> {
   const snap = await getDocs(templatesCol(plantId));
   const existingCategories = new Set(snap.docs.map((d) => (d.data() as AuditTemplate).category));
@@ -135,6 +143,8 @@ export async function createCustomCategory(
     plantId,
     isDefault: false,
     updatedAt: serverTimestamp() as unknown as AuditTemplate['updatedAt'],
+    scope,
+    enabledFindingKinds,
   };
   await setDoc(doc(templatesCol(plantId), id), payload);
   return { id, ...payload };
