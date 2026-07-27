@@ -152,22 +152,28 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'poStatus', label: 'Status' },
     { key: 'refilledDate', label: 'Refilled Date', format: 'date' },
   ],
+  // Exact column set/order requested: Part Number, Part Name, Location,
+  // Category, Criticality, Status, Min Stock Level, Available Stock, Unit
+  // Cost, Total Cost. Brand/Max Stock Level/Unit/Supplier/Lead Time exist on
+  // InventoryPart but are intentionally dropped from this report.
   inventory_listing: [
-    { key: 'partNumber', label: 'Part #' },
-    { key: 'name', label: 'Name' },
-    { key: 'brand', label: 'Brand' },
-    { key: 'category', label: 'Category' },
-    { key: 'status', label: 'Status' },
-    { key: 'criticality', label: 'Criticality' },
-    { key: 'currentStock', label: 'Current Stock', format: 'number' },
-    { key: 'minStockLevel', label: 'Min Level', format: 'number' },
-    { key: 'maxStockLevel', label: 'Max Level', format: 'number' },
-    { key: 'availableStock', label: 'Available', format: 'number' },
-    { key: 'unit', label: 'Unit' },
-    { key: 'unitCost', label: 'Unit Cost', format: 'currency' },
+    { key: 'partNumber', label: 'Part Number' },
+    { key: 'name', label: 'Part Name' },
     { key: 'storeLocation', label: 'Location' },
-    { key: 'supplierName', label: 'Supplier' },
-    { key: 'leadTimeDays', label: 'Lead Time (days)', format: 'number' },
+    { key: 'category', label: 'Category' },
+    { key: 'criticality', label: 'Criticality' },
+    { key: 'status', label: 'Status' },
+    { key: 'minStockLevel', label: 'Min Stock Level', format: 'number' },
+    { key: 'availableStock', label: 'Available Stock', format: 'number' },
+    { key: 'unitCost', label: 'Unit Cost', format: 'currency' },
+    // Total value of stock currently held (unitCost x currentStock — the
+    // standard inventory-valuation figure), computed in fetchReportRows since
+    // it isn't stored on the document. Uses currentStock rather than
+    // availableStock so it values everything physically on the shelf,
+    // including stock reserved against open work orders/POs, consistent with
+    // how "Total Cost" is used as a valuation figure elsewhere in this report
+    // set (not a per-transaction cost like Maintenance Cost/PO History).
+    { key: 'totalCost', label: 'Total Cost', format: 'currency' },
   ],
   pm_compliance: [
     { key: 'scheduleName', label: 'Schedule' },
@@ -247,6 +253,7 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'status', label: 'Status' },
     { key: 'raisedByName', label: 'Raised By' },
     { key: 'raisedAt', label: 'Date', format: 'date' },
+    { key: 'receivedAt', label: 'Received Date', format: 'date' },
   ],
 };
 

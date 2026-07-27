@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { CalendarClock, FileSpreadsheet, FileText, X } from 'lucide-react';
+import { FileSpreadsheet, FileText, X } from 'lucide-react';
 import { REPORT_DEFINITIONS } from '../../utils/reports/reportDefinitions';
 import { useReportGeneration } from '../../hooks/reports/useReportGeneration';
 import { useReportsStore } from '../../store/reports.store';
@@ -13,11 +12,9 @@ import PdfOptionsSection from './config/PdfOptionsSection';
 import ReportFilterSection from './config/ReportFilterSection';
 import ReportReadyActions from './generation/ReportReadyActions';
 import ReportPreview from './ReportPreview';
-import ScheduleReportModal from './ScheduleReportModal';
 import { useAuthStore } from '../../store/authStore';
 
 export default function ReportConfigPanel() {
-  const [showSchedule, setShowSchedule] = useState(false);
   const selectedReportType = useReportsStore((state) => state.selectedReportType);
   const isOpen = useReportsStore((state) => state.isConfigPanelOpen);
   const close = useReportsStore((state) => state.closeConfigPanel);
@@ -58,7 +55,7 @@ export default function ReportConfigPanel() {
           <ReportFilterSection report={report} config={config} onChange={updateConfig} />
           <OutputFormatToggle report={report} config={config} onChange={updateConfig} />
           <GoogleSheetsConnector visible={config.outputFormat === 'google_sheets'} />
-          <PdfOptionsSection config={config} onChange={updateConfig} />
+          <PdfOptionsSection config={config} onChange={updateConfig} reportType={selectedReportType} />
 
           <ReportPreview reportType={selectedReportType} config={config} companyId={companyId} />
 
@@ -80,25 +77,8 @@ export default function ReportConfigPanel() {
             <FormatIcon className="h-4 w-4" />
             {isGenerating ? 'Generating…' : `Generate ${formatLabel}`}
           </button>
-          <button
-            type="button"
-            onClick={() => setShowSchedule(true)}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] text-sm font-semibold text-[#F0F4F8] hover:bg-[#0A1628]"
-          >
-            <CalendarClock className="h-4 w-4" />
-            Schedule This Report
-          </button>
         </footer>
       </aside>
-
-      {showSchedule && (
-        <ScheduleReportModal
-          reportType={selectedReportType}
-          config={config}
-          companyId={companyId}
-          onClose={() => setShowSchedule(false)}
-        />
-      )}
     </div>
   );
 }

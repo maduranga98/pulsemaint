@@ -142,6 +142,39 @@ export function lateByBuckets(rows: Array<{ lateMinutes?: number }>): Array<{ la
 }
 
 // ---------------------------------------------------------------------------
+// Team Performance — Top 5 Employees vs Total Marks of all performances.
+// ---------------------------------------------------------------------------
+
+export interface TeamPerformanceMarksRow {
+  name?: string;
+  evaluationScore?: number;
+  auditScore?: number;
+  quizzesPassed?: number;
+}
+
+/**
+ * "Total marks of all performances" composite: Evaluation Score + Audit Score
+ * + Quizzes Passed. Trainings Completed is deliberately excluded — it's a
+ * completion count, not a mark/score, so summing it directly into a 0-100-ish
+ * scored total would skew the figure toward people who simply did more
+ * trainings rather than performed better. Returns the top N employees by that
+ * composite, descending, for the report's bar chart (x = employee name,
+ * y = total marks).
+ */
+export function topByTotalMarks(
+  rows: TeamPerformanceMarksRow[],
+  count = 5,
+): Array<{ label: string; value: number }> {
+  return rows
+    .map((r) => ({
+      label: r.name ?? '',
+      value: Number(r.evaluationScore ?? 0) + Number(r.auditScore ?? 0) + Number(r.quizzesPassed ?? 0),
+    }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, count);
+}
+
+// ---------------------------------------------------------------------------
 // PO History — flatten one PO into one row per line item.
 // ---------------------------------------------------------------------------
 
@@ -163,6 +196,7 @@ export interface PoHistoryInput {
   status?: string;
   raisedByName?: string;
   raisedAt?: unknown;
+  receivedAt?: unknown;
   items?: PoLineItemInput[];
   invoiceRevisions?: PoInvoiceRevisionInput[];
 }
@@ -178,6 +212,7 @@ export interface PoLineItemRow {
   status: string;
   raisedByName: string;
   raisedAt: unknown;
+  receivedAt: unknown;
 }
 
 /**
@@ -207,6 +242,7 @@ export function flattenPoLineItems(pos: PoHistoryInput[]): PoLineItemRow[] {
         status: String(po.status ?? ''),
         raisedByName: String(po.raisedByName ?? ''),
         raisedAt: po.raisedAt ?? null,
+        receivedAt: po.receivedAt ?? null,
       });
     });
   });

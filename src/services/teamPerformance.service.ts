@@ -63,7 +63,12 @@ export async function fetchTeamPerformanceByRole(companyId: string): Promise<Rol
     )),
     // Audits live in the audit_sessions/{plantId}/sessions subcollection.
     safeDocs(getDocs(collection(db, 'audit_sessions', companyId, 'sessions'))),
-    safeDocs(getDocs(query(collection(db, 'users'), where('companyId', '==', companyId)))),
+    // NOTE: the top-level `users` collection is only a thin auth-routing
+    // mapping doc ({ uid, companyId, role, siteId } — see src/lib/auth.ts)
+    // written for Firestore rules; it does NOT carry fullName. The real user
+    // profile (fullName, department, etc.) lives at
+    // `companies/{companyId}/users/{uid}`.
+    safeDocs(getDocs(collection(db, `companies/${companyId}/users`))),
     // Training completions come from trainingAssignments (the training
     // module's live collection).
     safeDocs(getDocs(
@@ -182,7 +187,10 @@ export async function fetchTeamPerformanceByUser(companyId: string): Promise<Use
       ),
     )),
     safeDocs(getDocs(collection(db, 'audit_sessions', companyId, 'sessions'))),
-    safeDocs(getDocs(query(collection(db, 'users'), where('companyId', '==', companyId)))),
+    // See NOTE in fetchTeamPerformanceByRole above — the real profile (with
+    // fullName) lives under companies/{companyId}/users, not the top-level
+    // `users` auth-routing collection.
+    safeDocs(getDocs(collection(db, `companies/${companyId}/users`))),
     safeDocs(getDocs(
       query(
         collection(db, 'trainingAssignments'),

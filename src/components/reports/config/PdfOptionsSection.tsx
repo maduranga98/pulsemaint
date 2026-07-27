@@ -1,21 +1,29 @@
-import type { ReportConfig } from '../../../types/reports.types';
+import type { ReportConfig, ReportType } from '../../../types/reports.types';
 
 export default function PdfOptionsSection({
   config,
   onChange,
+  reportType,
 }: {
   config: ReportConfig;
   onChange: (updates: Partial<ReportConfig>) => void;
+  reportType?: ReportType | null;
 }) {
   if (config.outputFormat !== 'pdf') return null;
+
+  // Machine History is table-only (no graphical/chart view at all — see
+  // genericReportPdf.ts) so there is no "include charts" choice to offer.
+  const supportsCharts = reportType !== 'machine_history';
 
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">
       <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">PDF Options</h3>
-      <label className="flex min-h-11 items-center justify-between rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 text-sm text-[#F0F4F8]">
-        Include charts
-        <input type="checkbox" checked={config.includeCharts} onChange={(event) => onChange({ includeCharts: event.target.checked })} className="h-4 w-4 accent-[#1A56DB]" />
-      </label>
+      {supportsCharts && (
+        <label className="flex min-h-11 items-center justify-between rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 text-sm text-[#F0F4F8]">
+          Include charts
+          <input type="checkbox" checked={config.includeCharts} onChange={(event) => onChange({ includeCharts: event.target.checked })} className="h-4 w-4 accent-[#1A56DB]" />
+        </label>
+      )}
       <label className="flex min-h-11 items-center justify-between rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 text-sm text-[#F0F4F8]">
         Include raw data table
         <input type="checkbox" checked={config.includeDataTable} onChange={(event) => onChange({ includeDataTable: event.target.checked })} className="h-4 w-4 accent-[#1A56DB]" />
