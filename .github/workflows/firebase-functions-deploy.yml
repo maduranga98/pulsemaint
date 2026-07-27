@@ -30,7 +30,8 @@ jobs:
           # Firebase project). Provision it first; a no-op if it's already
           # there. Requires the deploy service account to hold
           # Service Usage Admin (to enable cloudbilling.googleapis.com
-          # and friends) in addition to its existing deploy roles.
+          # and friends), plus Service Account User on the default compute
+          # service account (Cloud Functions v2 acts-as it per revision).
           npx firebase-tools@latest firestore:databases:create "(default)" \
             --location=nam5 \
             --project "$VITE_FIREBASE_PROJECT_ID" \
