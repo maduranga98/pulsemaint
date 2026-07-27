@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Plus, X, ClipboardList, Calendar, TrendingUp, Download,
+  X, ClipboardList, Calendar, TrendingUp, Download,
   GraduationCap, ArrowUpCircle, ArrowDownCircle, Settings2, Clock,
   HardHat, Wrench, ShieldCheck, Building2, GraduationCap as CapIcon, Users, Layers,
 } from 'lucide-react';
@@ -192,6 +192,24 @@ export default function EvaluationsPage() {
 
   const filteredSessions = sessions.filter((s) => s.status === statusFilter && matchesView(s));
 
+  const [formKey, setFormKey] = useState(0);
+
+  function openIndividualEval(r: EvaluationRole) {
+    setRoleFilter(r);
+    setNewEvalTarget('individual');
+    setSelected(null);
+    setShowForm(true);
+    setFormKey((k) => k + 1);
+  }
+
+  function openDepartmentEval(d: string) {
+    setDeptFilter(d);
+    setNewEvalTarget('department');
+    setSelected(null);
+    setShowForm(true);
+    setFormKey((k) => k + 1);
+  }
+
   const ACTION_LABEL: Record<EvaluationActionType, string> = {
     training_assigned: 'Training Assigned',
     position_upgraded: 'Position Upgraded',
@@ -216,24 +234,11 @@ export default function EvaluationsPage() {
               Custom Forms
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => { setNewEvalTarget('individual'); setShowForm(true); setSelected(null); }}
-            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4" />
-            New Evaluation
-          </button>
-          <button
-            type="button"
-            onClick={() => { setNewEvalTarget('department'); setShowForm(true); setSelected(null); }}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-          >
-            <Layers className="h-4 w-4" />
-            New Department Evaluation
-          </button>
         </div>
       </div>
+      <p className="mb-4 -mt-4 text-xs text-gray-400">
+        Click a category below to start an evaluation for it.
+      </p>
 
       {/* Category view toggle */}
       <div className="mb-3 flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
@@ -244,7 +249,7 @@ export default function EvaluationsPage() {
           <button
             key={tab.id}
             type="button"
-            onClick={() => setViewMode(tab.id)}
+            onClick={() => { setViewMode(tab.id); setShowForm(false); }}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
               viewMode === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
@@ -259,7 +264,7 @@ export default function EvaluationsPage() {
         <div className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <button
             type="button"
-            onClick={() => setRoleFilter(null)}
+            onClick={() => { setRoleFilter(null); setShowForm(false); }}
             className={`rounded-xl border p-3 text-left transition-colors ${
               roleFilter === null ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
             }`}
@@ -281,7 +286,9 @@ export default function EvaluationsPage() {
               <button
                 key={r}
                 type="button"
-                onClick={() => setRoleFilter(active ? null : r)}
+                onClick={() => {
+                  if (active) { setRoleFilter(null); setShowForm(false); } else { openIndividualEval(r); }
+                }}
                 className={`rounded-xl border p-3 text-left transition-colors ${
                   active ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
                 }`}
@@ -297,7 +304,7 @@ export default function EvaluationsPage() {
         <div className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <button
             type="button"
-            onClick={() => setDeptFilter(null)}
+            onClick={() => { setDeptFilter(null); setShowForm(false); }}
             className={`rounded-xl border p-3 text-left transition-colors ${
               deptFilter === null ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
             }`}
@@ -321,7 +328,9 @@ export default function EvaluationsPage() {
                 <button
                   key={d}
                   type="button"
-                  onClick={() => setDeptFilter(active ? null : d)}
+                  onClick={() => {
+                    if (active) { setDeptFilter(null); setShowForm(false); } else { openDepartmentEval(d); }
+                  }}
                   className={`rounded-xl border p-3 text-left transition-colors ${
                     active ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
                   }`}
@@ -339,10 +348,13 @@ export default function EvaluationsPage() {
       {showForm && !selected && (
         <div className="mb-6">
           <EvaluationForm
+            key={formKey}
             companyId={companyId}
             evaluatorId={userProfile?.id ?? ''}
             evaluatorName={userProfile?.fullName ?? ''}
             targetType={newEvalTarget}
+            initialRole={newEvalTarget === 'individual' ? roleFilter ?? undefined : undefined}
+            initialDepartment={newEvalTarget === 'department' ? deptFilter ?? undefined : undefined}
             onSubmit={handleSubmit}
             onSaveDraft={handleSaveDraft}
             onCancel={() => setShowForm(false)}
