@@ -10,23 +10,29 @@ import type {
   EvaluationAttachment,
   EvaluationCriterionScore,
   EvaluationTemplate,
+  EvaluationTargetType,
 } from '../types/evaluation.types';
 import {
   EVALUATION_ROLE_LABELS,
   ROLE_CRITERIA,
+  DEPARTMENT_CRITERIA,
 } from '../types/evaluation.types';
 import { uploadEvaluationAttachment, fetchEvaluationTemplates } from '../services/evaluation.service';
+import { useDepartments } from '@/hooks/useDepartments';
 
 interface EvaluationFormProps {
   companyId: string;
   evaluatorId: string;
   evaluatorName: string;
+  /** 'department' renders a department-vs-role picker and scores against DEPARTMENT_CRITERIA. */
+  targetType?: EvaluationTargetType;
   onSubmit: (data: FormData) => Promise<void>;
   onSaveDraft?: (data: FormData) => Promise<void>;
   onCancel?: () => void;
 }
 
 export interface FormData {
+  targetType: EvaluationTargetType;
   evaluateeId: string;
   evaluateeName: string;
   evaluateeRole: EvaluationRole;
@@ -106,10 +112,13 @@ export default function EvaluationForm({
   companyId,
   evaluatorId,
   evaluatorName,
+  targetType = 'individual',
   onSubmit,
   onSaveDraft,
   onCancel,
 }: EvaluationFormProps) {
+  const isDepartment = targetType === 'department';
+  const { departments } = useDepartments(companyId);
   const [step, setStep] = useState<'info' | 'criteria' | 'summary'>('info');
   const [companyUsers, setCompanyUsers] = useState<UserProfile[]>([]);
   const [evaluateeId, setEvaluateeId] = useState('');
@@ -141,7 +150,9 @@ export default function EvaluationForm({
   const allTemplates = [...SAMPLE_TEMPLATES, ...templates];
   const selectedTemplate = allTemplates.find((t) => t.id === templateId) ?? null;
   const roleCriteria = ROLE_CRITERIA[evaluateeRole] ?? ROLE_CRITERIA.other;
-  const criteria = selectedTemplate?.criteria?.length ? selectedTemplate.criteria : roleCriteria;
+  const criteria = isDepartment
+    ? DEPARTMENT_CRITERIA
+    : selectedTemplate?.criteria?.length ? selectedTemplate.criteria : roleCriteria;
   // Role-based sample templates for the selected role first, then the
   // company's custom templates that apply to this role.
   const availableTemplates = allTemplates.filter((t) => t.role === 'custom' || t.role === evaluateeRole);
@@ -245,12 +256,13 @@ export default function EvaluationForm({
         ? criteriaResults
         : criteria.map((c) => ({ criterionId: c.id, label: c.label, score: null, comments: '' }));
     return {
-      evaluateeId,
+      targetType,
+      evaluateeId: isDepartment ? '' : evaluateeId,
       evaluateeName: evaluateeName.trim(),
-      evaluateeRole,
-      evaluateeJobTitle: evaluateeJobTitle.trim(),
-      evaluateeEmployeeId: evaluateeEmployeeId.trim(),
-      evaluateeCustomRole: evaluateeCustomRole.trim(),
+      evaluateeRole: isDepartment ? 'other' : evaluateeRole,
+      evaluateeJobTitle: isDepartment ? '' : evaluateeJobTitle.trim(),
+      evaluateeEmployeeId: isDepartment ? '' : evaluateeEmployeeId.trim(),
+      evaluateeCustomRole: isDepartment ? 'Department' : evaluateeCustomRole.trim(),
       criteria: results,
       overallScore,
       overallComments: overallComments.trim(),
@@ -322,7 +334,45 @@ export default function EvaluationForm({
 
       <div className="p-6 space-y-5">
         {/* Step 1: Employee Info */}
-        {step === 'info' && (
+        {step === 'info' && isDepartment && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+              <div className="relative">
+                <select
+                  value={evaluateeName}
+                  onChange={(e) => setEvaluateeName(e.target.value)}
+                  className="w-full min-h-11 appearance-none rounded-lg border border-gray-200 px-3 pr-9 text-sm focus:border-blue-400 focus:outline-none"
+                >
+                  <option value="">— Select a department —</option>
+                  {departments.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Evaluation Date</label>
+              <input
+                type="date"
+                value={evaluationDate}
+                onChange={(e) => setEvaluationDate(e.target.value)}
+                className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => { if (criteriaResults.length === 0) initCriteriaFrom(criteria); setStep('criteria'); }}
+              disabled={!evaluateeName.trim()}
+              className="mt-2 min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              Next: Scoring →
+            </button>
+          </div>
+        )}
+
+        {step === 'info' && !isDepartment && (
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Select Employee *</label>
@@ -440,8 +490,14 @@ export default function EvaluationForm({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">
-                Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> as{' '}
-                <span className="font-semibold text-gray-800">{EVALUATION_ROLE_LABELS[evaluateeRole]}</span>
+                {isDepartment ? (
+                  <>Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> department</>
+                ) : (
+                  <>
+                    Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> as{' '}
+                    <span className="font-semibold text-gray-800">{EVALUATION_ROLE_LABELS[evaluateeRole]}</span>
+                  </>
+                )}
               </p>
               {overallScore > 0 && (
                 <span className={`text-lg font-bold ${scoreColor}`}>{overallScore}%</span>
