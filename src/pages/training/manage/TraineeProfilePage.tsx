@@ -21,7 +21,7 @@ import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadg
 import PracticalSignOffCard from '@/components/training/manager/PracticalSignOffCard';
 
 function formatTs(ts: Timestamp | null | undefined): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const d = new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }

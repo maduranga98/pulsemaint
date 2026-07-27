@@ -936,13 +936,30 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // Audit module — configurable TPM/5S/OEE/Contractor audit templates.
+    // Audit module — configurable TPM/5S/MOE/Contractor audit templates, plus
+    // any additional admin-defined categories.
     // Path is scoped by plantId (the user's companyId).
     match /audit_templates/{plantId}/templates/{templateId} {
       allow read: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer'];
-      allow write: if isAuthenticated() && belongsToCompany(plantId)
+      // Editing tasks on an existing (built-in or custom) template stays open
+      // to the existing set of roles.
+      allow update: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+      // Creating a brand-new category/template is admin-only — enforced
+      // server-side, not just hidden in the UI. The default-templates seeder
+      // (ensureDefaultTemplates) also runs as one of these broader roles, so
+      // it must still be allowed to create the 4 built-in docs.
+      allow create: if isAuthenticated() && belongsToCompany(plantId)
+        && (
+          getUserData().role == 'admin'
+          || (
+            getUserData().role in ['supervisor', 'plant_manager', 'technician']
+            && request.resource.data.isDefault == true
+          )
+        );
+      allow delete: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role == 'admin';
     }
 
     // Audit sessions — submitted audit records (with findings, attachments,
@@ -958,30 +975,37 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------------
-    // OEE Module — plantId is the companyId
+    // MOE Module (Machine Overall Effectiveness) — replaces the old OEE module.
+    // moeSnapshots are Cloud-Function-only writes (scheduled daily calc +
+    // recalc-on-data-change / backfill); the client only reads.
+    // (Touched to trigger the new firestore-rules-deploy workflow and push
+    // these rules — plus the earlier isSameSite/isAdmin permission fixes —
+    // live for the first time.)
     // ---------------------------------------------------------------------------
 
-    match /oee_records/{plantId}/records/{recordId} {
-      allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow create, update: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
-      allow delete: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['plant_manager', 'admin'];
+    match /moeSnapshots/{snapshotId} {
+      // Admin: full access. Other roles: site-scoped, or unrestricted if the
+      // user has no single-site assignment (siteId == null = company-wide).
+      allow read: if isAdmin() || (isAuthenticated()
+        && (getUserData().siteId == null || isSameSite(resource.data.siteId))
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
+      allow write: if false; // written only by Cloud Functions (admin SDK bypasses rules)
     }
 
-    match /oee_trends/{plantId}/machines/{machineId}/monthly/{month} {
-      allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow write: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    match /moeRecalcQueue/{queueId} {
+      allow read: if false;
+      allow write: if false; // Cloud-Function-only marker collection
     }
 
-    match /oee_targets/{plantId}/machines/{machineId} {
-      allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician'];
-      allow write: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+    // Doc id is the tenant's companyId (see useSiteId() in src/modules/moe/hooks/useMoe.ts),
+    // so this is scoped like every other collection via belongsToCompany — isSameSite()
+    // checks a `siteId` field that doesn't exist on user docs (the real field is
+    // companyId; see UserProfile in src/types/auth.ts) and always failed here.
+    match /moeConfig/{siteId} {
+      allow read: if isAdmin() || (belongsToCompany(siteId)
+        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'technician']);
+      allow write: if isAdmin() || (belongsToCompany(siteId)
+        && getUserData().role == 'plant_manager');
     }
 
     // rca — Root Cause Analysis records

@@ -8,7 +8,7 @@ import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadg
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 
 function formatDate(ts: { toDate?: () => Date } | null | undefined): string {
-  if (!ts?.toDate) return '—';
+  if (!ts?.toDate) return '';
   return ts.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 

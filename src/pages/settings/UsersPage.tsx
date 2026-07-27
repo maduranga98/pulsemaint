@@ -26,7 +26,6 @@ import {
   RefreshCw,
   Link2,
 } from 'lucide-react';
-import { nanoid } from 'nanoid';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../hooks/useToast';
@@ -273,35 +272,32 @@ export default function UsersPage() {
     }
   };
 
+  // Adding a member manually goes through the same invitation flow as
+  // "Invite Member" — writing a Firestore profile directly here (as this
+  // used to do, keyed by a random id) left the person with no matching
+  // Firebase Auth account, so their email could never actually sign in.
+  // This way the email they're given is the one they set a password
+  // against and log in with, exactly like an invited member's first login.
+  // Shift assignment needs a real uid, so it's set afterward via Edit once
+  // they've accepted and a user doc exists.
   const handleAdd = async (values: UserFormValues) => {
-    if (!company?.id) throw new Error('No company in session');
-    const id = nanoid();
-    const ref = doc(db, `companies/${company.id}/users/${id}`);
-    const payload = {
-      id,
+    if (!company?.id || !currentUser) throw new Error('No company in session');
+    if (!values.email.trim()) throw new Error('Email is required so the user can be invited to sign in.');
+    await createInvitation({
       companyId: company.id,
-      siteIds: [],
+      companyName: company.name,
+      email: values.email.trim(),
       role: values.role,
       fullName: values.fullName.trim(),
-      email: values.email.trim() || null,
-      phone: values.phone.trim() || null,
-      employeeId: values.employeeId.trim() || null,
       department: values.department.trim() || null,
       jobTitle: values.jobTitle.trim() || null,
-      shiftId: values.shiftId || null,
-      status: values.status,
-      loginMethod: 'email' as const,
-      hasPin: false,
-      mustChangePinOnLogin: false,
-      profilePhoto: null,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-      lastLoginAt: null,
-      invitedBy: currentUser?.id ?? null,
-    };
-    await setDoc(ref, payload);
-    await syncShiftMembership(id, values.fullName.trim(), values.shiftId || null);
-    toast.success(`Added ${values.fullName}`);
+      employeeId: values.employeeId.trim() || null,
+      phone: values.phone.trim() || null,
+      invitedBy: currentUser.id,
+      invitedByName: currentUser.fullName,
+    });
+    toast.success(`Invitation sent to ${values.email.trim()}`);
+    if (activeTab === 'invitations') loadInvitations();
   };
 
   const handleEdit = async (userId: string, values: UserFormValues) => {
@@ -693,10 +689,10 @@ function InvitationRow({
         </span>
       </td>
       <td className="px-4 py-3 text-xs text-slate-500">
-        {inv.createdAt?.toDate ? inv.createdAt.toDate().toLocaleDateString() : '—'}
+        {inv.createdAt?.toDate ? inv.createdAt.toDate().toLocaleDateString() : ''}
       </td>
       <td className="px-4 py-3 text-xs text-slate-500">
-        {inv.expiresAt?.toDate ? inv.expiresAt.toDate().toLocaleDateString() : '—'}
+        {inv.expiresAt?.toDate ? inv.expiresAt.toDate().toLocaleDateString() : ''}
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center justify-end gap-1">
@@ -967,7 +963,11 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
       setFormError('Full name is required.');
       return;
     }
-    if (!values.email.trim() && !values.phone.trim()) {
+    if (isAdd && !values.email.trim()) {
+      setFormError('Email is required — the invitation to set a password and sign in is sent there.');
+      return;
+    }
+    if (!isAdd && !values.email.trim() && !values.phone.trim()) {
       setFormError('Provide an email or phone so the user can sign in.');
       return;
     }
@@ -1052,20 +1052,28 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
                 ))}
               </select>
             </Field>
-            <Field label="Status">
-              <select
-                value={values.status}
-                onChange={(e) => set('status', e.target.value as UserProfile['status'])}
-                disabled={isView}
-                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
-              >
-                {STATUS_OPTIONS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-            </Field>
+            {isAdd ? (
+              <Field label="Status">
+                <p className="px-3 py-2 text-sm text-slate-500 rounded-lg border border-dashed border-slate-200 bg-slate-50">
+                  Pending invite — becomes active once they accept
+                </p>
+              </Field>
+            ) : (
+              <Field label="Status">
+                <select
+                  value={values.status}
+                  onChange={(e) => set('status', e.target.value as UserProfile['status'])}
+                  disabled={isView}
+                  className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+                >
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1098,25 +1106,39 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
-            <Field label="Shift">
-              <select
-                value={values.shiftId}
-                onChange={(e) => set('shiftId', e.target.value)}
-                disabled={isView}
-                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
-              >
-                <option value="">No shift assigned</option>
-                {shifts
-                  .filter((s) => s.status === 'active')
-                  .map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.shiftName}
-                      {s.department ? ` · ${s.department}` : ''}
-                    </option>
-                  ))}
-              </select>
-            </Field>
+            {isAdd ? (
+              <Field label="Shift">
+                <p className="px-3 py-2 text-sm text-slate-500 rounded-lg border border-dashed border-slate-200 bg-slate-50">
+                  Assign once they've accepted, via Edit
+                </p>
+              </Field>
+            ) : (
+              <Field label="Shift">
+                <select
+                  value={values.shiftId}
+                  onChange={(e) => set('shiftId', e.target.value)}
+                  disabled={isView}
+                  className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+                >
+                  <option value="">No shift assigned</option>
+                  {shifts
+                    .filter((s) => s.status === 'active')
+                    .map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.shiftName}
+                        {s.department ? ` · ${s.department}` : ''}
+                      </option>
+                    ))}
+                </select>
+              </Field>
+            )}
           </div>
+
+          {isAdd && (
+            <p className="text-xs text-slate-500">
+              They'll receive an email invite to set a password and sign in for the first time — same as "Invite Member".
+            </p>
+          )}
 
           {formError && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
@@ -1139,7 +1161,7 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
                 disabled={saving}
                 className="px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] disabled:opacity-60"
               >
-                {saving ? 'Saving...' : isAdd ? 'Add user' : 'Save changes'}
+                {saving ? 'Sending...' : isAdd ? 'Send invite' : 'Save changes'}
               </button>
             )}
           </div>

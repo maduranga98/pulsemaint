@@ -4,6 +4,7 @@ import { useContractor } from '@/hooks/contractors/useContractor';
 import { useContractorDocuments } from '@/hooks/contractors/useContractorDocuments';
 import { useContractorJobs } from '@/hooks/contractors/useContractorJobs';
 import { useContractorTechnicians } from '@/hooks/contractors/useContractorTechnicians';
+import { useContractorAuditRatings } from '@/hooks/contractors/useContractorAuditRatings';
 import ContractorAlertBanner from '@/components/contractors/registry/ContractorAlertBanner';
 import ContractorAnalyticsTab from '@/components/contractors/registry/ContractorAnalyticsTab';
 import ContractorDocumentsTab from '@/components/contractors/registry/ContractorDocumentsTab';
@@ -22,6 +23,7 @@ export function ContractorProfilePage() {
   const { documents } = useContractorDocuments(contractorId);
   const { technicians } = useContractorTechnicians(contractorId);
   const { jobs } = useContractorJobs({ contractorId });
+  const { ratings: auditRatings } = useContractorAuditRatings(contractorId);
 
   if (loading) return <div className="p-6 text-slate-500">Loading contractor...</div>;
   if (!contractor) return <div className="p-6 text-slate-500">Contractor not found.</div>;
@@ -41,7 +43,7 @@ export function ContractorProfilePage() {
       {tab === 'Overview' && <ContractorOverviewTab contractor={contractor} />}
       {tab === 'Documents' && <ContractorDocumentsTab documents={documents} contractorId={contractor.id} />}
       {tab === 'Team Members' && <ContractorTechniciansTab contractorId={contractor.id} technicians={technicians} />}
-      {tab === 'Job History' && <ContractorJobHistoryTab jobs={jobs} previouslyCompletedProjects={contractor.previouslyCompletedProjects} />}
+      {tab === 'Job History' && <ContractorJobHistoryTab jobs={jobs} previouslyCompletedProjects={contractor.previouslyCompletedProjects} auditRatings={auditRatings} />}
       {tab === 'Analytics' && <ContractorAnalyticsTab contractor={contractor} jobs={jobs} />}
     </div>
   );

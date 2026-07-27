@@ -200,7 +200,7 @@ function buildPrompt(inputs: { id: string; kind: FindingKind; description: strin
   const items = inputs
     .map(
       (f, i) =>
-        `${i + 1}. id="${f.id}" kind=${f.kind}\n   Description: ${f.description || '—'}\n   Reported reason: ${f.reason || '—'}\n   Auditor-proposed solution: ${f.solution || '—'}`,
+        `${i + 1}. id="${f.id}" kind=${f.kind}\n   Description: ${f.description || ''}\n   Reported reason: ${f.reason || ''}\n   Auditor-proposed solution: ${f.solution || ''}`,
     )
     .join('\n');
 

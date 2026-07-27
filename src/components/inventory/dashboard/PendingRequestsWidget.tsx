@@ -7,7 +7,7 @@ interface Props {
 }
 
 function formatAge(ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } {
-  if (!ts) return { label: '—', isOld: false };
+  if (!ts) return { label: '', isOld: false };
   const diffMs = Date.now() - ts.seconds * 1000;
   const diffH = diffMs / 3600000;
   const diffD = diffMs / 86400000;
@@ -72,7 +72,7 @@ export function PendingRequestsWidget({ requests }: Props) {
                         {r.requestNumber}
                       </td>
                       <td className="px-4 py-2.5 text-sm text-gray-700 whitespace-nowrap">
-                        {r.workOrderNumber ?? '—'}
+                        {r.workOrderNumber ?? ''}
                       </td>
                       <td className="px-4 py-2.5 text-sm text-gray-700 whitespace-nowrap">
                         {r.requestedByName}

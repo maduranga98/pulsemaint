@@ -7,7 +7,7 @@ interface Props {
 }
 
 function formatAge(ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } {
-  if (!ts) return { label: '—', isOld: false };
+  if (!ts) return { label: '', isOld: false };
   const diffMs = Date.now() - ts.seconds * 1000;
   const diffH = diffMs / 3600000;
   const diffD = diffMs / 86400000;

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Plus, X, ClipboardList, Calendar, TrendingUp, Download,
+  X, ClipboardList, Calendar, TrendingUp, Download,
   GraduationCap, ArrowUpCircle, ArrowDownCircle, Settings2, Clock,
+  HardHat, Wrench, ShieldCheck, Building2, GraduationCap as CapIcon, Users, Layers,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartments } from '@/hooks/useDepartments';
 import EvaluationForm, { type FormData } from '../components/EvaluationForm';
 import EvaluationTemplateBuilder from '../components/EvaluationTemplateBuilder';
 import {
@@ -12,17 +14,35 @@ import {
   subscribeEvaluations,
   submitEvaluation,
   saveDraftEvaluation,
+  updateEvaluation,
   logEvaluationAction,
   updateEvaluateePosition,
 } from '../services/evaluation.service';
 import { downloadEvaluationPdf } from '../utils/evaluationPdf';
-import type { EvaluationSession, EvaluationActionType } from '../types/evaluation.types';
+import type { EvaluationSession, EvaluationActionType, EvaluationRole, EvaluationTargetType } from '../types/evaluation.types';
 import { EVALUATION_ROLE_LABELS } from '../types/evaluation.types';
 
 const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 const CAN_ASSIGN_TRAINING_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer'];
 
 type StatusFilter = 'submitted' | 'draft';
+type ViewMode = 'role' | 'department';
+
+/** Human label for an evaluation row/detail header, department-aware. */
+function evaluateeSubtitle(s: EvaluationSession): string {
+  if ((s.targetType ?? 'individual') === 'department') return 'Department Evaluation';
+  return EVALUATION_ROLE_LABELS[s.evaluateeRole] ?? s.evaluateeRole;
+}
+
+const ROLE_ORDER: EvaluationRole[] = ['operator', 'technician', 'supervisor', 'plant_manager', 'trainee', 'other'];
+const ROLE_ICON: Record<EvaluationRole, typeof HardHat> = {
+  operator: HardHat,
+  technician: Wrench,
+  supervisor: ShieldCheck,
+  plant_manager: Building2,
+  trainee: CapIcon,
+  other: Users,
+};
 
 export default function EvaluationsPage() {
   const navigate = useNavigate();
@@ -31,13 +51,19 @@ export default function EvaluationsPage() {
   const role = userProfile?.role;
   const canManageTemplates = !!role && CAN_MANAGE_TEMPLATES_ROLES.includes(role);
   const canAssignTraining = !!role && CAN_ASSIGN_TRAINING_ROLES.includes(role);
+  const { departments } = useDepartments(companyId);
 
   const [sessions, setSessions] = useState<EvaluationSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [newEvalTarget, setNewEvalTarget] = useState<EvaluationTargetType>('individual');
   const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
   const [selected, setSelected] = useState<EvaluationSession | null>(null);
+  const [editingSession, setEditingSession] = useState<EvaluationSession | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('submitted');
+  const [viewMode, setViewMode] = useState<ViewMode>('role');
+  const [roleFilter, setRoleFilter] = useState<EvaluationRole | null>(null);
+  const [deptFilter, setDeptFilter] = useState<string | null>(null);
   const [positionNote, setPositionNote] = useState('');
   const [actionBusy, setActionBusy] = useState<EvaluationActionType | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -73,6 +99,7 @@ export default function EvaluationsPage() {
   function buildSessionPayload(data: FormData) {
     return {
       companyId,
+      targetType: data.targetType,
       evaluateeId: data.evaluateeId,
       evaluateeName: data.evaluateeName,
       evaluateeRole: data.evaluateeRole,
@@ -88,22 +115,33 @@ export default function EvaluationsPage() {
       attachments: data.attachments,
       templateId: data.templateId,
       templateName: data.templateName,
-      actionLog: [],
-      status: 'submitted' as const,
+      actionLog: editingSession?.actionLog ?? [],
       evaluationDate: data.evaluationDate,
     };
   }
 
   async function handleSubmit(data: FormData) {
-    await submitEvaluation(buildSessionPayload(data));
+    const payload = buildSessionPayload(data);
+    if (editingSession) {
+      await updateEvaluation(editingSession.id, payload, 'submitted');
+    } else {
+      await submitEvaluation({ ...payload, status: 'submitted' });
+    }
     setShowForm(false);
+    setEditingSession(null);
     setStatusFilter('submitted');
     void load();
   }
 
   async function handleSaveDraft(data: FormData) {
-    await saveDraftEvaluation(buildSessionPayload(data));
+    const payload = buildSessionPayload(data);
+    if (editingSession) {
+      await updateEvaluation(editingSession.id, payload, 'draft');
+    } else {
+      await saveDraftEvaluation({ ...payload, status: 'draft' });
+    }
     setShowForm(false);
+    setEditingSession(null);
     setStatusFilter('draft');
     void load();
   }
@@ -159,7 +197,49 @@ export default function EvaluationsPage() {
   const scoreBg = (score: number) =>
     score >= 80 ? 'bg-emerald-50 border-emerald-200' : score >= 60 ? 'bg-blue-50 border-blue-200' : score >= 40 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
 
-  const filteredSessions = sessions.filter((s) => s.status === statusFilter);
+  function matchesView(s: EvaluationSession): boolean {
+    const isDept = (s.targetType ?? 'individual') === 'department';
+    if (viewMode === 'department') return isDept && (!deptFilter || s.evaluateeName === deptFilter);
+    return !isDept && (!roleFilter || s.evaluateeRole === roleFilter);
+  }
+
+  const filteredSessions = sessions.filter((s) => s.status === statusFilter && matchesView(s));
+
+  const [formKey, setFormKey] = useState(0);
+
+  function openIndividualEval(r: EvaluationRole) {
+    setRoleFilter(r);
+    setNewEvalTarget('individual');
+    setSelected(null);
+    setShowForm(true);
+    setFormKey((k) => k + 1);
+  }
+
+  function openDepartmentEval(d: string) {
+    setDeptFilter(d);
+    setNewEvalTarget('department');
+    setSelected(null);
+    setShowForm(true);
+    setFormKey((k) => k + 1);
+  }
+
+  function handleRowClick(session: EvaluationSession) {
+    if (session.status === 'draft') {
+      // Resume the paused draft instead of opening the read-only detail view.
+      setEditingSession(session);
+      setNewEvalTarget(session.targetType ?? 'individual');
+      setSelected(null);
+      setShowForm(true);
+      setFormKey((k) => k + 1);
+    } else {
+      setSelected(session);
+    }
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setEditingSession(null);
+  }
 
   const ACTION_LABEL: Record<EvaluationActionType, string> = {
     training_assigned: 'Training Assigned',
@@ -185,26 +265,131 @@ export default function EvaluationsPage() {
               Custom Forms
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => { setShowForm(true); setSelected(null); }}
-            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            <Plus className="h-4 w-4" />
-            New Evaluation
-          </button>
         </div>
       </div>
+      <p className="mb-4 -mt-4 text-xs text-gray-400">
+        Click a category below to start an evaluation for it.
+      </p>
+
+      {/* Category view toggle */}
+      <div className="mb-3 flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+        {([
+          { id: 'role' as const, label: 'By Role' },
+          { id: 'department' as const, label: 'By Department' },
+        ]).map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => { setViewMode(tab.id); closeForm(); }}
+            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              viewMode === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Categories */}
+      {viewMode === 'role' ? (
+        <div key="role-grid" className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <button
+            type="button"
+            onClick={() => { setRoleFilter(null); closeForm(); }}
+            className={`rounded-xl border p-3 text-left transition-colors ${
+              roleFilter === null ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
+            }`}
+          >
+            <ClipboardList className={`h-5 w-5 mb-2 ${roleFilter === null ? 'text-blue-600' : 'text-gray-400'}`} />
+            <p className="text-sm font-semibold text-gray-900">All</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {sessions.filter((s) => (s.targetType ?? 'individual') !== 'department').length} evaluation
+              {sessions.length !== 1 ? 's' : ''}
+            </p>
+          </button>
+          {ROLE_ORDER.map((r) => {
+            const RoleIcon = ROLE_ICON[r];
+            const count = sessions.filter(
+              (s) => (s.targetType ?? 'individual') !== 'department' && s.evaluateeRole === r,
+            ).length;
+            const active = roleFilter === r;
+            return (
+              <button
+                key={r}
+                type="button"
+                onClick={() => {
+                  if (active) { setRoleFilter(null); closeForm(); } else { openIndividualEval(r); }
+                }}
+                className={`rounded-xl border p-3 text-left transition-colors ${
+                  active ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
+                }`}
+              >
+                <RoleIcon className={`h-5 w-5 mb-2 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+                <p className="text-sm font-semibold text-gray-900">{EVALUATION_ROLE_LABELS[r]}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{count} evaluation{count !== 1 ? 's' : ''}</p>
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <div key="department-grid" className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <button
+            type="button"
+            onClick={() => { setDeptFilter(null); closeForm(); }}
+            className={`rounded-xl border p-3 text-left transition-colors ${
+              deptFilter === null ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
+            }`}
+          >
+            <Layers className={`h-5 w-5 mb-2 ${deptFilter === null ? 'text-blue-600' : 'text-gray-400'}`} />
+            <p className="text-sm font-semibold text-gray-900">All Departments</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {sessions.filter((s) => s.targetType === 'department').length} evaluation
+              {sessions.length !== 1 ? 's' : ''}
+            </p>
+          </button>
+          {departments.length === 0 ? (
+            <p className="col-span-full text-sm text-gray-500 py-2">
+              No departments set up yet — add one from the department picker when creating a department evaluation.
+            </p>
+          ) : (
+            departments.map((d) => {
+              const count = sessions.filter((s) => s.targetType === 'department' && s.evaluateeName === d).length;
+              const active = deptFilter === d;
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => {
+                    if (active) { setDeptFilter(null); closeForm(); } else { openDepartmentEval(d); }
+                  }}
+                  className={`rounded-xl border p-3 text-left transition-colors ${
+                    active ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-white hover:border-blue-200'
+                  }`}
+                >
+                  <Building2 className={`h-5 w-5 mb-2 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <p className="text-sm font-semibold text-gray-900">{d}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{count} evaluation{count !== 1 ? 's' : ''}</p>
+                </button>
+              );
+            })
+          )}
+        </div>
+      )}
 
       {showForm && !selected && (
         <div className="mb-6">
           <EvaluationForm
+            key={formKey}
             companyId={companyId}
             evaluatorId={userProfile?.id ?? ''}
             evaluatorName={userProfile?.fullName ?? ''}
+            targetType={newEvalTarget}
+            initialRole={newEvalTarget === 'individual' ? roleFilter ?? undefined : undefined}
+            initialDepartment={newEvalTarget === 'department' ? deptFilter ?? undefined : undefined}
+            existing={editingSession ?? undefined}
             onSubmit={handleSubmit}
             onSaveDraft={handleSaveDraft}
-            onCancel={() => setShowForm(false)}
+            onCancel={closeForm}
           />
         </div>
       )}
@@ -221,7 +406,7 @@ export default function EvaluationsPage() {
               <div>
                 <h2 className="text-lg font-bold text-slate-900">{selected.evaluateeName}</h2>
                 <p className="text-sm text-slate-500">
-                  {EVALUATION_ROLE_LABELS[selected.evaluateeRole]}{selected.evaluateeJobTitle ? ` · ${selected.evaluateeJobTitle}` : ''}
+                  {evaluateeSubtitle(selected)}{selected.evaluateeJobTitle ? ` · ${selected.evaluateeJobTitle}` : ''}
                   {' · '}
                   <span className={selected.status === 'submitted' ? 'text-emerald-600' : 'text-amber-600'}>
                     {selected.status === 'submitted' ? 'Completed' : 'Ongoing (Draft)'}
@@ -263,7 +448,7 @@ export default function EvaluationsPage() {
                     <span className="text-sm text-gray-700">{c.label}</span>
                     <div className="text-right">
                       <span className={`text-sm font-semibold ${c.score ? (c.score >= 4 ? 'text-emerald-600' : c.score >= 3 ? 'text-blue-600' : 'text-red-600') : 'text-gray-400'}`}>
-                        {c.score ? `${c.score}/5` : '—'}
+                        {c.score ? `${c.score}/5` : ''}
                       </span>
                       {c.comments && <p className="text-xs text-gray-400 max-w-xs truncate">{c.comments}</p>}
                     </div>
@@ -355,23 +540,26 @@ export default function EvaluationsPage() {
         </div>
       )}
 
-      {/* Status Tabs */}
-      <div className="flex items-center gap-1 mb-4 bg-gray-100 p-1 rounded-lg w-fit">
-        {([
-          { id: 'submitted' as const, label: 'Completed' },
-          { id: 'draft' as const, label: 'Ongoing' },
-        ]).map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setStatusFilter(tab.id)}
-            className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-              statusFilter === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {tab.label} ({sessions.filter((s) => s.status === tab.id).length})
-          </button>
-        ))}
+      {/* Recent Evaluations */}
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-base font-bold text-gray-900">Recent Evaluations</h2>
+        <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+          {([
+            { id: 'submitted' as const, label: 'Completed' },
+            { id: 'draft' as const, label: 'Ongoing' },
+          ]).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setStatusFilter(tab.id)}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                statusFilter === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab.label} ({sessions.filter((s) => s.status === tab.id && matchesView(s)).length})
+            </button>
+          ))}
+        </div>
       </div>
 
       {loadError && (
@@ -399,7 +587,7 @@ export default function EvaluationsPage() {
             <button
               key={session.id}
               type="button"
-              onClick={() => setSelected(session)}
+              onClick={() => handleRowClick(session)}
               className="w-full rounded-xl border border-gray-200 bg-white p-4 text-left hover:border-blue-300 hover:shadow-sm transition-all"
             >
               <div className="flex items-center justify-between gap-4">
@@ -410,7 +598,7 @@ export default function EvaluationsPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-gray-900 truncate">{session.evaluateeName}</p>
                     <p className="text-sm text-gray-500 truncate">
-                      {EVALUATION_ROLE_LABELS[session.evaluateeRole]}
+                      {evaluateeSubtitle(session)}
                       {session.evaluateeJobTitle ? ` · ${session.evaluateeJobTitle}` : ''}
                     </p>
                   </div>

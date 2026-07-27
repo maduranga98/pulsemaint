@@ -147,8 +147,8 @@ import SignOffQueuePage from '../pages/workorders/SignOffQueuePage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
 
-// Module 16 — OEE
-import { OEEPage } from '../modules/oee/pages/OEEPage';
+// Module 16 — MOE (Machine Overall Effectiveness)
+import { MoePage } from '../modules/moe/pages/MoePage';
 
 // Module 18 — Kaizen
 import { KaizenPage } from '../modules/kaizen/pages/KaizenPage';
@@ -719,7 +719,9 @@ export default function AppRouter() {
         <Route
           path="settings"
           element={
-            <ProtectedRoute requiredRoles={['admin']}>
+            // Union of the roles that used to reach Users/Shifts via their
+            // own top-level nav items, now folded into Settings.
+            <ProtectedRoute requiredRoles={['admin', 'supervisor', 'plant_manager', 'hr_officer']}>
               <SettingsPage />
             </ProtectedRoute>
           }
@@ -791,12 +793,12 @@ export default function AppRouter() {
           }
         />
 
-        {/* OEE — Module 16 */}
+        {/* MOE (Machine Overall Effectiveness) — Module 16 */}
         <Route
-          path="oee"
+          path="moe"
           element={
             <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
-              <OEEPage />
+              <MoePage />
             </ProtectedRoute>
           }
         />

@@ -120,10 +120,10 @@ export default function MachineAnalyticsTable({ companyId }: MachineAnalyticsTab
                     </span>
                   </td>
                   <td className="py-2.5 text-right text-[#8BA3BF] hidden sm:table-cell">
-                    {m.mttrHours > 0 ? `${m.mttrHours.toFixed(1)}h` : '—'}
+                    {m.mttrHours > 0 ? `${m.mttrHours.toFixed(1)}h` : ''}
                   </td>
                   <td className="py-2.5 text-right text-[#8BA3BF] hidden sm:table-cell">
-                    {m.mtbfDays > 0 ? `${m.mtbfDays.toFixed(0)}d` : '—'}
+                    {m.mtbfDays > 0 ? `${m.mtbfDays.toFixed(0)}d` : ''}
                   </td>
                   <td className="py-2.5 text-center hidden md:table-cell">
                     <span

@@ -40,7 +40,7 @@ const STATUS_FILTERS: { label: string; value: PurchaseOrderStatus | 'all' }[] = 
 ];
 
 function formatDate(ts: PurchaseOrder['raisedAt']): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const d = ts.toDate ? ts.toDate() : new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return d.toLocaleDateString();
 }

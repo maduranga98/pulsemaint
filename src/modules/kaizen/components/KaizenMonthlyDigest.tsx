@@ -127,7 +127,7 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
                     { label: 'Verified', value: verifiedThisMonth.length },
                     {
                       label: 'Implementation Rate',
-                      value: stats ? `${stats.implementationRate}%` : '—',
+                      value: stats ? `${stats.implementationRate}%` : '',
                     },
                   ].map((kpi) => (
                     <div key={kpi.label} className="bg-gray-50 rounded-lg p-3 text-center">
@@ -214,10 +214,10 @@ export function KaizenMonthlyDigest({ isProPlan = false, defaultMonth }: Props) 
                             {KAIZEN_CATEGORY_META[c.category].icon} {KAIZEN_CATEGORY_META[c.category].label}
                           </td>
                           <td className="py-1.5 pr-3 text-gray-700">
-                            {c.actualCost != null ? c.actualCost.toLocaleString() : '—'}
+                            {c.actualCost != null ? c.actualCost.toLocaleString() : ''}
                           </td>
                           <td className="py-1.5 text-emerald-700 font-medium">
-                            {c.actualBenefit != null ? c.actualBenefit.toLocaleString() : '—'}
+                            {c.actualBenefit != null ? c.actualBenefit.toLocaleString() : ''}
                           </td>
                         </tr>
                       ))}

@@ -84,7 +84,7 @@ export function MachineMultiSelect({ machines, selected, onChange }: Props) {
               <span>
                 <span className="text-sm text-white">{m.name}</span>
                 <span className="block text-xs text-slate-500">
-                  {m.department || '—'} {m.serialNumber ? `· ${m.serialNumber}` : ''}
+                  {m.department || ''} {m.serialNumber ? `· ${m.serialNumber}` : ''}
                 </span>
               </span>
               {isSel && <Check className="h-4 w-4 text-blue-400" />}

@@ -12,11 +12,11 @@ interface HandoverDetailViewProps {
 }
 
 function formatDateTime(value: Date | null | undefined): string {
-  if (!value) return '—';
+  if (!value) return '';
   try {
     return value.toLocaleString();
   } catch {
-    return '—';
+    return '';
   }
 }
 
@@ -34,7 +34,7 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <div>
             <dt className="font-semibold text-slate-500">Shift taken from</dt>
-            <dd className="text-slate-900">{handover.outgoingSupervisorName || '—'}</dd>
+            <dd className="text-slate-900">{handover.outgoingSupervisorName || ''}</dd>
           </div>
           <div>
             <dt className="font-semibold text-slate-500">Shift handed over to</dt>
@@ -58,13 +58,13 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
           </div>
           <div>
             <dt className="font-semibold text-slate-500">Overlap (minutes)</dt>
-            <dd className="text-slate-900">{handover.overlapMinutes ?? '—'}</dd>
+            <dd className="text-slate-900">{handover.overlapMinutes ?? ''}</dd>
           </div>
           {/* SUP-020: OT = actual worked minutes beyond the scheduled shift length. */}
           <div>
             <dt className="font-semibold text-slate-500">Overtime (OT)</dt>
             <dd className="text-slate-900">
-              {handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : '—'}
+              {handover.otMinutes != null ? formatDuration(handover.otMinutes * 60000) : ''}
               {handover.scheduledMinutes != null && handover.totalMinutes != null && (
                 <span className="ml-1 text-xs text-slate-500">
                   (worked {formatDuration(handover.totalMinutes * 60000)} vs scheduled {formatDuration(handover.scheduledMinutes * 60000)})
@@ -110,7 +110,7 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
         <dl className="mt-3 grid gap-3 text-sm">
           <div>
             <dt className="font-semibold text-slate-500">Parts notes</dt>
-            <dd className="whitespace-pre-wrap text-slate-800">{handover.partsNotes || '—'}</dd>
+            <dd className="whitespace-pre-wrap text-slate-800">{handover.partsNotes || ''}</dd>
           </div>
           {handover.lowStockAlerts && handover.lowStockAlerts.length > 0 && (
             <div>
@@ -140,15 +140,15 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
           </div>
           <div>
             <dt className="font-semibold text-slate-500">Restricted areas</dt>
-            <dd className="whitespace-pre-wrap text-slate-800">{handover.restrictedAreas || '—'}</dd>
+            <dd className="whitespace-pre-wrap text-slate-800">{handover.restrictedAreas || ''}</dd>
           </div>
           <div>
             <dt className="font-semibold text-slate-500">Temporary repairs</dt>
-            <dd className="whitespace-pre-wrap text-slate-800">{handover.temporaryRepairs || '—'}</dd>
+            <dd className="whitespace-pre-wrap text-slate-800">{handover.temporaryRepairs || ''}</dd>
           </div>
           <div>
             <dt className="font-semibold text-slate-500">General notes</dt>
-            <dd className="whitespace-pre-wrap text-slate-800">{handover.generalNotes || '—'}</dd>
+            <dd className="whitespace-pre-wrap text-slate-800">{handover.generalNotes || ''}</dd>
           </div>
         </dl>
       </section>

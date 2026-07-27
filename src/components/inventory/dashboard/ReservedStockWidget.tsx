@@ -6,7 +6,7 @@ interface Props {
 }
 
 function formatTimestamp(ts: { seconds: number } | null | undefined): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const d = new Date(ts.seconds * 1000);
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) +
     ', ' +

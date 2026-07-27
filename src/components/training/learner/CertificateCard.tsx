@@ -6,7 +6,7 @@ interface CertificateCardProps {
 }
 
 function formatDate(ts: { seconds: number } | null): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   return new Date(ts.seconds * 1000).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: 'short',

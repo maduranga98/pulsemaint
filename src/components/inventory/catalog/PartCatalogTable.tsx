@@ -147,7 +147,7 @@ export function PartCatalogTable({
                 {part.brand && <p className="text-xs text-gray-500">{part.brand}</p>}
               </td>
               <td className="px-4 py-3 text-xs text-gray-600 max-w-[120px] truncate">
-                {part.storeLocation || '—'}
+                {part.storeLocation || ''}
               </td>
               <td className="px-4 py-3">
                 <CategoryBadge category={part.category} />

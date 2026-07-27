@@ -241,7 +241,7 @@ export function MyShiftPage() {
                     <td className="px-4 py-3 text-slate-700">{session.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                     <td className="px-4 py-3 text-slate-700">{session.actualEnd ? session.actualEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                     <td className="px-4 py-3 font-semibold text-cyan-700">{session.totalMinutes != null ? formatDuration(session.totalMinutes * 60000) : '-'}</td>
-                    <td className="px-4 py-3 font-semibold text-amber-700">{session.otMinutes ? formatDuration(session.otMinutes * 60000) : '—'}</td>
+                    <td className="px-4 py-3 font-semibold text-amber-700">{session.otMinutes ? formatDuration(session.otMinutes * 60000) : ''}</td>
                   </tr>
                 ))}
               </tbody>

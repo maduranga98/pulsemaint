@@ -223,7 +223,7 @@ export function WOListView() {
                         onClick={() => setSelectedWO(wo)}
                         className="hover:bg-gray-50 cursor-pointer transition-colors"
                       >
-                        <td className="px-4 py-3 font-medium text-blue-600">{wo.woNumber || '—'}</td>
+                        <td className="px-4 py-3 font-medium text-blue-600">{wo.woNumber || ''}</td>
                         <td className="px-4 py-3"><WOTypeBadge woType={wo.woType} size="sm" /></td>
                         <td className="px-4 py-3"><PriorityBadge priority={wo.priority} size="sm" /></td>
                         <td className="px-4 py-3">

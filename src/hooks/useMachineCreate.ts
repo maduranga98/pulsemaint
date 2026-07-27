@@ -109,7 +109,7 @@ export function useMachineCreate({
         additionalNotes: payload.additionalNotes || null,
         sopLibraryRefs: [],
         qrCode: generateMachineQrUrl(newId, payload.siteId),
-        oeeData: null,
+        moeData: null,
         iotSensorId: null,
         createdAt: serverTimestamp(),
         createdBy: userId,

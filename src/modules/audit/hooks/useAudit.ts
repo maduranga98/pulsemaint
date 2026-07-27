@@ -19,7 +19,20 @@ import {
   subscribeTemplates,
   subscribeSessions,
   ensureDefaultTemplates,
+  deleteTemplate,
 } from '../services/audit.service';
+
+/**
+ * Categories retired from the app that may still have legacy Firestore
+ * template docs from before the rename/removal. Filtered out of every
+ * template listing regardless of role, and best-effort purged for admins so
+ * the stray doc doesn't linger forever.
+ */
+const RETIRED_CATEGORIES = new Set(['oee']);
+
+function isRetiredCategory(category: string): boolean {
+  return RETIRED_CATEGORIES.has((category ?? '').trim().toLowerCase());
+}
 
 export function usePlantId(): string | undefined {
   return useAuthStore((s) => s.userProfile?.companyId);
@@ -29,6 +42,7 @@ export function usePlantId(): string | undefined {
 
 export function useAuditTemplates(): { templates: AuditTemplate[]; loading: boolean; error: string | null } {
   const plantId = usePlantId();
+  const role = useAuthStore((s) => s.userProfile?.role);
   const [templates, setTemplates] = useState<AuditTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,8 +57,21 @@ export function useAuditTemplates(): { templates: AuditTemplate[]; loading: bool
         unsub = subscribeTemplates(
           plantId,
           (data) => {
-            setTemplates(data);
+            const live = data.filter((t) => !isRetiredCategory(t.category));
+            setTemplates(live);
             setLoading(false);
+
+            // Best-effort purge of stray legacy-category docs (e.g. the old
+            // "Standard OEE Checklist") so they don't linger in Firestore.
+            // Silently ignored for non-admins — the rules only allow admin
+            // deletes, and the filter above already hides these either way.
+            if (role === 'admin') {
+              data
+                .filter((t) => isRetiredCategory(t.category))
+                .forEach((t) => {
+                  deleteTemplate(plantId, t.id).catch(() => {});
+                });
+            }
           },
           (e) => {
             setError(e.message);
@@ -53,7 +80,7 @@ export function useAuditTemplates(): { templates: AuditTemplate[]; loading: bool
         );
       });
     return () => unsub();
-  }, [plantId]);
+  }, [plantId, role]);
 
   return { templates, loading, error };
 }

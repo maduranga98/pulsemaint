@@ -130,7 +130,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 <PriorityBadge priority={workOrder.priority} size="sm" />
                 <WOStatusBadge status={workOrder.status} size="sm" />
               </div>
-              <h1 className="font-bold text-xl text-gray-900">{workOrder.woNumber || '—'}</h1>
+              <h1 className="font-bold text-xl text-gray-900">{workOrder.woNumber || ''}</h1>
               <p className="text-sm text-gray-600 truncate">{workOrder.machineName} · {workOrder.machineLocation}</p>
               <div className="mt-1">
                 <SLACountdownTimer slaDeadline={workOrder.slaDeadline} status={workOrder.status} />
@@ -418,7 +418,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     <p className="text-sm text-gray-700 italic">"{workOrder.supervisorSignOffNotes}"</p>
                   )}
                   <p className="text-xs text-gray-500">
-                    Signed off by {workOrder.supervisorSignOffByName || workOrder.closedByName || '—'}
+                    Signed off by {workOrder.supervisorSignOffByName || workOrder.closedByName || ''}
                     {workOrder.supervisorSignOffAt?.toDate
                       ? ` · ${workOrder.supervisorSignOffAt.toDate().toLocaleString()}`
                       : ''}
@@ -502,7 +502,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                                         Spec (set by supervisor):{' '}
                                         {item.method && <>{item.method} · </>}
                                         {(item.acceptableMin != null || item.acceptableMax != null) && (
-                                          <>Acceptable {item.acceptableMin ?? '—'}–{item.acceptableMax ?? '—'}{item.unit ? ` ${item.unit}` : ''}</>
+                                          <>Acceptable {item.acceptableMin ?? ''}–{item.acceptableMax ?? ''}{item.unit ? ` ${item.unit}` : ''}</>
                                         )}
                                       </p>
                                     )}
@@ -527,7 +527,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                                 )}
                                 {item.isCompleted && (
                                   <p className="text-xs text-emerald-600 mt-0.5">
-                                    ✓ {item.completedByName || '—'}
+                                    ✓ {item.completedByName || ''}
                                     {item.completedAt?.toDate && ` · ${item.completedAt.toDate().toLocaleString()}`}
                                   </p>
                                 )}
@@ -618,7 +618,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                           </p>
                         </div>
                         <span className="text-sm font-semibold text-green-900 whitespace-nowrap">
-                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : '—'}
+                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : ''}
                         </span>
                       </div>
                     ))}

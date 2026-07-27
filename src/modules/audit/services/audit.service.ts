@@ -21,12 +21,17 @@ import { nanoid } from 'nanoid';
 import { db, storage } from '../../../lib/firebase';
 import type {
   AuditCategory,
+  BuiltinAuditCategory,
   AuditTemplate,
+  AuditTask,
   AuditSession,
   AuditAttachment,
   AttachmentType,
   AuditDraft,
+  AuditScope,
+  FindingKind,
 } from '../types/audit.types';
+import { normalizeTemplate, ALL_FINDING_KINDS } from '../types/audit.types';
 import { DEFAULT_TASKS } from '../data/defaultTemplates';
 import { analyzeAuditWithAI, buildFailedAnswerInputs } from '../utils/aiRootCause';
 import { auditPdfBlob } from '../utils/auditPdf';
@@ -47,7 +52,8 @@ export function subscribeTemplates(
   const q = query(templatesCol(plantId), orderBy('category'));
   return onSnapshot(
     q,
-    (snap) => onData(snap.docs.map((d) => ({ id: d.id, ...d.data() } as AuditTemplate))),
+    (snap) =>
+      onData(snap.docs.map((d) => normalizeTemplate({ id: d.id, ...d.data() } as AuditTemplate))),
     onError,
   );
 }
@@ -59,7 +65,7 @@ export function subscribeTemplates(
 export async function ensureDefaultTemplates(plantId: string): Promise<void> {
   const snap = await getDocs(templatesCol(plantId));
   const existing = new Set(snap.docs.map((d) => (d.data() as AuditTemplate).category));
-  const categories: AuditCategory[] = ['tpm', 'fives', 'oee', 'contractor'];
+  const categories: BuiltinAuditCategory[] = ['tpm', 'fives', 'moe', 'contractor'];
 
   await Promise.all(
     categories
@@ -73,6 +79,8 @@ export async function ensureDefaultTemplates(plantId: string): Promise<void> {
           plantId,
           isDefault: true,
           updatedAt: Timestamp.now(),
+          scope: category === 'contractor' ? 'contractors' : 'machines',
+          enabledFindingKinds: ALL_FINDING_KINDS,
         };
         return setDoc(doc(templatesCol(plantId), id), tmpl);
       }),
@@ -95,6 +103,51 @@ export async function saveTemplate(
 
 export async function deleteTemplate(plantId: string, templateId: string): Promise<void> {
   await deleteDoc(doc(templatesCol(plantId), templateId));
+}
+
+function slugify(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '') || 'category';
+}
+
+/**
+ * Creates a brand-new admin-defined audit category + template. The category
+ * id is slugified from the name and de-duplicated against existing templates
+ * for the plant (server-side `create` is admin-only, see firestore.rules).
+ */
+export async function createCustomCategory(
+  plantId: string,
+  name: string,
+  tasks: AuditTask[],
+  scope: AuditScope = 'machines',
+  enabledFindingKinds: FindingKind[] = ALL_FINDING_KINDS,
+): Promise<AuditTemplate> {
+  const snap = await getDocs(templatesCol(plantId));
+  const existingCategories = new Set(snap.docs.map((d) => (d.data() as AuditTemplate).category));
+
+  const base = slugify(name);
+  let category = base;
+  let n = 2;
+  while (existingCategories.has(category)) {
+    category = `${base}_${n++}`;
+  }
+
+  const id = `custom_${category}`;
+  const payload: Omit<AuditTemplate, 'id'> = {
+    category,
+    name: name.trim() || 'Custom Audit',
+    tasks,
+    plantId,
+    isDefault: false,
+    updatedAt: serverTimestamp() as unknown as AuditTemplate['updatedAt'],
+    scope,
+    enabledFindingKinds,
+  };
+  await setDoc(doc(templatesCol(plantId), id), payload);
+  return { id, ...payload };
 }
 
 // ─── Attachments ──────────────────────────────────────────────────────────────
@@ -141,6 +194,23 @@ export function subscribeSessions(
 export async function fetchSession(plantId: string, sessionId: string): Promise<AuditSession | null> {
   const d = await getDoc(doc(sessionsCol(plantId), sessionId));
   return d.exists() ? ({ id: d.id, ...d.data() } as AuditSession) : null;
+}
+
+/**
+ * Fetches Contractor Audit sessions that rated a given contractor, via the
+ * denormalized `contractorIds` array (set on submit for `category ===
+ * 'contractor'` sessions) — Firestore can't query array-of-objects
+ * (`contractors[].id`) directly, hence the flat id array.
+ */
+export async function fetchSessionsByContractor(plantId: string, contractorId: string): Promise<AuditSession[]> {
+  const q = query(
+    sessionsCol(plantId),
+    where('contractorIds', 'array-contains', contractorId),
+    orderBy('createdAt', 'desc'),
+    limit(50),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as AuditSession));
 }
 
 /**

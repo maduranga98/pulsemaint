@@ -63,7 +63,7 @@ const PLANS: PlanDef[] = [
     name: 'Factory Pro',
     price: '$149',
     period: '/month',
-    description: 'Full OEE analytics and advanced modules for production facilities.',
+    description: 'Full MOE analytics and advanced modules for production facilities.',
     icon: <Factory className="h-5 w-5" />,
     color: 'text-violet-400',
     borderColor: 'border-violet-700/60',
@@ -71,8 +71,8 @@ const PLANS: PlanDef[] = [
     features: [
       'Everything in Workshop',
       'Up to 100 users',
-      'OEE Trend Analytics',
-      'OEE Shift Comparison',
+      'MOE Trend Analytics',
+      'MOE Machine Comparison',
       'Kaizen ROI & Digest',
       'Triage knowledge builder',
       'Advanced reports hub',
@@ -210,7 +210,7 @@ export default function BillingPage() {
               {PLANS.find((p) => p.id === currentPlan)?.name ?? currentPlan}
             </p>
             <p className="text-sm text-slate-400 mt-0.5 capitalize">
-              Status: <span className="font-medium text-slate-300">{company?.status ?? '—'}</span>
+              Status: <span className="font-medium text-slate-300">{company?.status ?? ''}</span>
             </p>
           </div>
           {company?.trialEndsAt && company.status === 'trial' && (

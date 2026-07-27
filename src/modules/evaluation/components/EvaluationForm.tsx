@@ -10,23 +10,36 @@ import type {
   EvaluationAttachment,
   EvaluationCriterionScore,
   EvaluationTemplate,
+  EvaluationTargetType,
+  EvaluationSession,
 } from '../types/evaluation.types';
 import {
   EVALUATION_ROLE_LABELS,
   ROLE_CRITERIA,
+  DEPARTMENT_CRITERIA,
 } from '../types/evaluation.types';
 import { uploadEvaluationAttachment, fetchEvaluationTemplates } from '../services/evaluation.service';
+import { useDepartments } from '@/hooks/useDepartments';
 
 interface EvaluationFormProps {
   companyId: string;
   evaluatorId: string;
   evaluatorName: string;
+  /** 'department' renders a department-vs-role picker and scores against DEPARTMENT_CRITERIA. */
+  targetType?: EvaluationTargetType;
+  /** Pre-selects the role (individual mode) from the category card that was clicked. */
+  initialRole?: EvaluationRole;
+  /** Pre-selects the department (department mode) from the category card that was clicked. */
+  initialDepartment?: string;
+  /** Resuming a saved draft — pre-fills every field and jumps straight to Scoring. */
+  existing?: EvaluationSession;
   onSubmit: (data: FormData) => Promise<void>;
   onSaveDraft?: (data: FormData) => Promise<void>;
   onCancel?: () => void;
 }
 
 export interface FormData {
+  targetType: EvaluationTargetType;
   evaluateeId: string;
   evaluateeName: string;
   evaluateeRole: EvaluationRole;
@@ -106,23 +119,29 @@ export default function EvaluationForm({
   companyId,
   evaluatorId,
   evaluatorName,
+  targetType = 'individual',
+  initialRole,
+  initialDepartment,
+  existing,
   onSubmit,
   onSaveDraft,
   onCancel,
 }: EvaluationFormProps) {
-  const [step, setStep] = useState<'info' | 'criteria' | 'summary'>('info');
+  const isDepartment = targetType === 'department';
+  const { departments } = useDepartments(companyId);
+  const [step, setStep] = useState<'info' | 'criteria' | 'summary'>(existing ? 'criteria' : 'info');
   const [companyUsers, setCompanyUsers] = useState<UserProfile[]>([]);
-  const [evaluateeId, setEvaluateeId] = useState('');
-  const [evaluateeName, setEvaluateeName] = useState('');
-  const [evaluateeRole, setEvaluateeRole] = useState<EvaluationRole>('technician');
-  const [evaluateeJobTitle, setEvaluateeJobTitle] = useState('');
-  const [evaluateeEmployeeId, setEvaluateeEmployeeId] = useState('');
-  const [evaluateeCustomRole, setEvaluateeCustomRole] = useState('');
-  const [evaluationDate, setEvaluationDate] = useState(new Date().toISOString().slice(0, 10));
-  const [criteriaResults, setCriteriaResults] = useState<EvaluationCriterionResult[]>([]);
-  const [overallComments, setOverallComments] = useState('');
-  const [developmentPlan, setDevelopmentPlan] = useState('');
-  const [attachments, setAttachments] = useState<EvaluationAttachment[]>([]);
+  const [evaluateeId, setEvaluateeId] = useState(existing?.evaluateeId ?? '');
+  const [evaluateeName, setEvaluateeName] = useState(existing?.evaluateeName ?? initialDepartment ?? '');
+  const [evaluateeRole, setEvaluateeRole] = useState<EvaluationRole>(existing?.evaluateeRole ?? initialRole ?? 'technician');
+  const [evaluateeJobTitle, setEvaluateeJobTitle] = useState(existing?.evaluateeJobTitle ?? '');
+  const [evaluateeEmployeeId, setEvaluateeEmployeeId] = useState(existing?.evaluateeEmployeeId ?? '');
+  const [evaluateeCustomRole, setEvaluateeCustomRole] = useState(existing?.evaluateeCustomRole ?? '');
+  const [evaluationDate, setEvaluationDate] = useState(existing?.evaluationDate ?? new Date().toISOString().slice(0, 10));
+  const [criteriaResults, setCriteriaResults] = useState<EvaluationCriterionResult[]>(existing?.criteria ?? []);
+  const [overallComments, setOverallComments] = useState(existing?.overallComments ?? '');
+  const [developmentPlan, setDevelopmentPlan] = useState(existing?.developmentPlan ?? '');
+  const [attachments, setAttachments] = useState<EvaluationAttachment[]>(existing?.attachments ?? []);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
@@ -131,7 +150,7 @@ export default function EvaluationForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [templates, setTemplates] = useState<EvaluationTemplate[]>([]);
-  const [templateId, setTemplateId] = useState<string>('');
+  const [templateId, setTemplateId] = useState<string>(existing?.templateId ?? '');
 
   useEffect(() => {
     if (!companyId) return;
@@ -141,10 +160,16 @@ export default function EvaluationForm({
   const allTemplates = [...SAMPLE_TEMPLATES, ...templates];
   const selectedTemplate = allTemplates.find((t) => t.id === templateId) ?? null;
   const roleCriteria = ROLE_CRITERIA[evaluateeRole] ?? ROLE_CRITERIA.other;
-  const criteria = selectedTemplate?.criteria?.length ? selectedTemplate.criteria : roleCriteria;
+  const criteria = isDepartment
+    ? DEPARTMENT_CRITERIA
+    : selectedTemplate?.criteria?.length ? selectedTemplate.criteria : roleCriteria;
   // Role-based sample templates for the selected role first, then the
   // company's custom templates that apply to this role.
   const availableTemplates = allTemplates.filter((t) => t.role === 'custom' || t.role === evaluateeRole);
+  // Only employees actually registered under the selected role/department —
+  // picking a category shouldn't offer the whole company roster.
+  const roleFilteredUsers = companyUsers.filter((u) => (USER_ROLE_TO_EVAL_ROLE[u.role] ?? 'other') === evaluateeRole);
+  const departmentUsers = companyUsers.filter((u) => u.department === evaluateeName);
 
   // Load the company's registered users (Users tab) so the evaluatee can be
   // selected and their details auto-filled.
@@ -245,12 +270,13 @@ export default function EvaluationForm({
         ? criteriaResults
         : criteria.map((c) => ({ criterionId: c.id, label: c.label, score: null, comments: '' }));
     return {
-      evaluateeId,
+      targetType,
+      evaluateeId: isDepartment ? '' : evaluateeId,
       evaluateeName: evaluateeName.trim(),
-      evaluateeRole,
-      evaluateeJobTitle: evaluateeJobTitle.trim(),
-      evaluateeEmployeeId: evaluateeEmployeeId.trim(),
-      evaluateeCustomRole: evaluateeCustomRole.trim(),
+      evaluateeRole: isDepartment ? 'other' : evaluateeRole,
+      evaluateeJobTitle: isDepartment ? '' : evaluateeJobTitle.trim(),
+      evaluateeEmployeeId: isDepartment ? '' : evaluateeEmployeeId.trim(),
+      evaluateeCustomRole: isDepartment ? 'Department' : evaluateeCustomRole.trim(),
       criteria: results,
       overallScore,
       overallComments: overallComments.trim(),
@@ -322,7 +348,64 @@ export default function EvaluationForm({
 
       <div className="p-6 space-y-5">
         {/* Step 1: Employee Info */}
-        {step === 'info' && (
+        {step === 'info' && isDepartment && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+              <div className="relative">
+                <select
+                  value={evaluateeName}
+                  onChange={(e) => setEvaluateeName(e.target.value)}
+                  className="w-full min-h-11 appearance-none rounded-lg border border-gray-200 px-3 pr-9 text-sm focus:border-blue-400 focus:outline-none"
+                >
+                  <option value="">— Select a department —</option>
+                  {departments.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Evaluation Date</label>
+              <input
+                type="date"
+                value={evaluationDate}
+                onChange={(e) => setEvaluationDate(e.target.value)}
+                className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
+              />
+            </div>
+            {evaluateeName && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  People in {evaluateeName}
+                </label>
+                {departmentUsers.length === 0 ? (
+                  <p className="text-xs text-gray-400">No registered users found under this department.</p>
+                ) : (
+                  <ul className="rounded-lg border border-gray-200 divide-y divide-gray-100 max-h-40 overflow-y-auto">
+                    {departmentUsers.map((u) => (
+                      <li key={u.id} className="px-3 py-2 text-sm text-gray-700 flex items-center justify-between">
+                        <span>{u.fullName}</span>
+                        <span className="text-xs text-gray-400">{u.jobTitle || u.role.replace(/_/g, ' ')}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => { if (criteriaResults.length === 0) initCriteriaFrom(criteria); setStep('criteria'); }}
+              disabled={!evaluateeName.trim()}
+              className="mt-2 min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              Next: Scoring →
+            </button>
+          </div>
+        )}
+
+        {step === 'info' && !isDepartment && (
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Select Employee *</label>
@@ -333,7 +416,7 @@ export default function EvaluationForm({
                   className="w-full min-h-11 appearance-none rounded-lg border border-gray-200 px-3 pr-9 text-sm focus:border-blue-400 focus:outline-none"
                 >
                   <option value="">— Select a registered employee —</option>
-                  {companyUsers.map((u) => (
+                  {roleFilteredUsers.map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.fullName}
                       {u.employeeId ? ` (${u.employeeId})` : ''}
@@ -344,7 +427,9 @@ export default function EvaluationForm({
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               </div>
               <p className="mt-1 text-xs text-gray-400">
-                Picking an employee auto-fills their details from the Users register. You can still adjust the fields below.
+                {roleFilteredUsers.length === 0
+                  ? `No registered users found for ${EVALUATION_ROLE_LABELS[evaluateeRole]}. You can still fill in the fields below manually.`
+                  : 'Only employees registered under this role are listed. Picking one auto-fills their details — you can still adjust the fields below.'}
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -440,8 +525,14 @@ export default function EvaluationForm({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">
-                Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> as{' '}
-                <span className="font-semibold text-gray-800">{EVALUATION_ROLE_LABELS[evaluateeRole]}</span>
+                {isDepartment ? (
+                  <>Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> department</>
+                ) : (
+                  <>
+                    Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> as{' '}
+                    <span className="font-semibold text-gray-800">{EVALUATION_ROLE_LABELS[evaluateeRole]}</span>
+                  </>
+                )}
               </p>
               {overallScore > 0 && (
                 <span className={`text-lg font-bold ${scoreColor}`}>{overallScore}%</span>
@@ -525,7 +616,7 @@ export default function EvaluationForm({
                   <div key={c.id} className="flex items-center justify-between gap-3 py-1.5 border-b border-gray-100 last:border-0">
                     <span className="text-sm text-gray-700">{c.label}</span>
                     <span className={`text-sm font-semibold ${r?.score ? (r.score >= 4 ? 'text-emerald-600' : r.score >= 3 ? 'text-blue-600' : 'text-red-600') : 'text-gray-400'}`}>
-                      {r?.score ? `${r.score}/5` : '—'}
+                      {r?.score ? `${r.score}/5` : ''}
                     </span>
                   </div>
                 );

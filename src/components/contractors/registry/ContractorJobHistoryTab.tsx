@@ -1,17 +1,20 @@
+import { Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { ContractorCompletedProject, ContractorJob } from '@/lib/contractors/contractorTypes';
 import { formatLkr } from '@/lib/contractors/invoiceCalculator';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
+import type { ContractorAuditRatingRow } from '@/hooks/contractors/useContractorAuditRatings';
 import ContractorJobStatusBadge from '@/components/contractors/jobs/ContractorJobStatusBadge';
 import InvoiceVarianceBadge from '@/components/contractors/jobs/InvoiceVarianceBadge';
 
 interface ContractorJobHistoryTabProps {
   jobs: ContractorJob[];
   previouslyCompletedProjects?: ContractorCompletedProject[];
+  auditRatings?: ContractorAuditRatingRow[];
 }
 
 function fmtTs(ts?: { toDate: () => Date } | null): string {
-  return ts ? ts.toDate().toLocaleDateString() : '—';
+  return ts ? ts.toDate().toLocaleDateString() : '';
 }
 
 function waitMinutes(start?: { toDate: () => Date } | null, end?: { toDate: () => Date } | null): number | null {
@@ -19,7 +22,7 @@ function waitMinutes(start?: { toDate: () => Date } | null, end?: { toDate: () =
   return Math.max(0, Math.round((end.toDate().getTime() - start.toDate().getTime()) / 60000));
 }
 
-export function ContractorJobHistoryTab({ jobs, previouslyCompletedProjects = [] }: ContractorJobHistoryTabProps) {
+export function ContractorJobHistoryTab({ jobs, previouslyCompletedProjects = [], auditRatings = [] }: ContractorJobHistoryTabProps) {
   // Job detail pages carry active work-log/sign-off/invoice actions gated to
   // supervisor/plant_manager/admin — roles without that access (e.g.
   // hr_officer viewing job history for compliance) get the reference number
@@ -78,6 +81,28 @@ export function ContractorJobHistoryTab({ jobs, previouslyCompletedProjects = []
         ))}
         {!jobs.length && <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">No job history yet.</div>}
       </div>
+      {auditRatings.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-slate-700">Audit Ratings</h3>
+          <p className="text-xs text-slate-500">Per-job star ratings and notes captured during Contractor Audits.</p>
+          {auditRatings.map((r, index) => (
+            <article key={`${r.sessionId}-${r.jobId}-${index}`} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-semibold text-slate-900">{r.workOrderNumber || 'Unlinked job'}</span>
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star key={n} className={`h-4 w-4 ${n <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
+                  ))}
+                </div>
+              </div>
+              {r.notes && <p className="mt-2 text-sm text-slate-600">{r.notes}</p>}
+              <p className="mt-2 text-xs text-slate-500">
+                From audit by {r.auditorName || 'Unknown'} on {r.auditDate || (r.submittedAt ? r.submittedAt.toDate().toLocaleDateString() : '-')}
+              </p>
+            </article>
+          ))}
+        </div>
+      )}
       {previouslyCompletedProjects.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-slate-700">Previously Completed Projects</h3>

@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import { EVALUATION_ROLE_LABELS, type EvaluationSession } from '../types/evaluation.types';
 
 function scoreDisplay(score: number | null): string {
-  return score ? `${score} / 5` : '—';
+  return score ? `${score} / 5` : '';
 }
 
 /**
@@ -15,19 +15,33 @@ export function buildEvaluationPdf(session: EvaluationSession): jsPDF {
   const marginX = 40;
   let y = 48;
 
+  const isDepartment = (session.targetType ?? 'individual') === 'department';
+  const roleLabel = session.evaluateeRole === 'other' && session.evaluateeCustomRole
+    ? session.evaluateeCustomRole
+    : EVALUATION_ROLE_LABELS[session.evaluateeRole];
+
+  // Title reflects the specific category being evaluated (role or
+  // department) rather than one generic heading reused for every export.
   doc.setFontSize(18);
   doc.setTextColor(15, 23, 42);
-  doc.text('Performance Evaluation Report', marginX, y);
+  doc.text(
+    isDepartment
+      ? `${session.evaluateeName} Department — Performance Evaluation Report`
+      : `${roleLabel} Performance Evaluation Report`,
+    marginX,
+    y,
+  );
 
   y += 18;
   doc.setFontSize(10);
   doc.setTextColor(100, 116, 139);
-  const roleLabel = session.evaluateeRole === 'other' && session.evaluateeCustomRole
-    ? session.evaluateeCustomRole
-    : EVALUATION_ROLE_LABELS[session.evaluateeRole];
-  doc.text(`${session.evaluateeName} · ${roleLabel}${session.evaluateeJobTitle ? ' · ' + session.evaluateeJobTitle : ''}`, marginX, y);
+  if (isDepartment) {
+    doc.text(`Department: ${session.evaluateeName}`, marginX, y);
+  } else {
+    doc.text(`${session.evaluateeName} · ${roleLabel}${session.evaluateeJobTitle ? ' · ' + session.evaluateeJobTitle : ''}`, marginX, y);
+  }
   y += 14;
-  doc.text(`Date: ${session.evaluationDate}    Overall Score: ${session.overallScore}%${session.templateName ? `    Template: ${session.templateName}` : ''}`, marginX, y);
+  doc.text(`Date: ${session.evaluationDate}    Overall Score: ${session.overallScore}%${session.templateName ? `    Form: ${session.templateName}` : ''}`, marginX, y);
 
   // ── Header table ────────────────────────────────────────────────────────
   y += 14;
@@ -36,8 +50,8 @@ export function buildEvaluationPdf(session: EvaluationSession): jsPDF {
     theme: 'plain',
     styles: { fontSize: 9, cellPadding: 2 },
     body: [
-      ['Evaluator', session.evaluatorName || '—'],
-      ['Employee ID', session.evaluateeEmployeeId || '—'],
+      ['Evaluator', session.evaluatorName || ''],
+      ...(isDepartment ? [] : [['Employee ID', session.evaluateeEmployeeId || '']]),
       ['Status', session.status === 'submitted' ? 'Completed' : 'Ongoing (Draft)'],
     ],
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 110, textColor: [71, 85, 105] } },

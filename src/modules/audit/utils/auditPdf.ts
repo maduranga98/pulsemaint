@@ -1,15 +1,15 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {
-  AUDIT_CATEGORY_LABELS,
+  getCategoryLabel,
   FINDING_KIND_LABELS,
   type AuditSession,
 } from '../types/audit.types';
 
 function answerDisplay(value: string, answerType: string): string {
-  if (answerType === 'yes_no') return value === 'yes' ? 'Yes' : value === 'no' ? 'No' : '—';
-  if (answerType === 'scale') return value ? `${value} / 5` : '—';
-  return value || '—';
+  if (answerType === 'yes_no') return value === 'yes' ? 'Yes' : value === 'no' ? 'No' : '';
+  if (answerType === 'scale') return value ? `${value} / 5` : '';
+  return value || '';
 }
 
 /**
@@ -23,7 +23,7 @@ export function buildAuditPdf(session: AuditSession): jsPDF {
 
   doc.setFontSize(18);
   doc.setTextColor(15, 23, 42);
-  doc.text(`${AUDIT_CATEGORY_LABELS[session.category]} Report`, marginX, y);
+  doc.text(`${getCategoryLabel(session.category, session.templateName)} Report`, marginX, y);
 
   y += 18;
   doc.setFontSize(10);
@@ -40,12 +40,12 @@ export function buildAuditPdf(session: AuditSession): jsPDF {
     styles: { fontSize: 9, cellPadding: 2 },
     body: [
       ['Conducted by', `${session.auditorName} (${session.auditorRole}${session.auditorEmployeeId ? ', #' + session.auditorEmployeeId : ''})`],
-      ['Department', session.department || '—'],
-      ['Location / Zone', session.location || '—'],
+      ['Department', session.department || ''],
+      ['Location / Zone', session.location || ''],
       session.category === 'contractor'
-        ? ['Contractors', (session.contractors ?? []).map((c) => c.name).join(', ') || '—']
-        : ['Machines', session.machines.map((m) => m.name).join(', ') || '—'],
-      ['Participants', session.participants.map((p) => `${p.name} (${p.role})`).join(', ') || '—'],
+        ? ['Contractors', (session.contractors ?? []).map((c) => c.name).join(', ') || '']
+        : ['Machines', session.machines.map((m) => m.name).join(', ') || ''],
+      ['Participants', session.participants.map((p) => `${p.name} (${p.role})`).join(', ') || ''],
     ],
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 110, textColor: [71, 85, 105] } },
   });

@@ -10,7 +10,7 @@ const MOVEMENT_TYPES: MovementType[] = [
 ];
 
 function formatDateTime(ts: StockMovement['performedAt']): string {
-  if (!ts) return '—';
+  if (!ts) return '';
   const d = ts.toDate ? ts.toDate() : new Date((ts as unknown as { seconds: number }).seconds * 1000);
   return d.toLocaleString();
 }
@@ -175,11 +175,11 @@ export function StockMovementLogPage() {
                           {m.quantityBefore} → {m.quantityAfter}
                         </td>
                         <td className="px-4 py-3 text-gray-600 text-xs font-mono whitespace-nowrap">
-                          {m.referenceId ? m.referenceId.slice(0, 8) + '…' : '—'}
+                          {m.referenceId ? m.referenceId.slice(0, 8) + '…' : ''}
                         </td>
-                        <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{m.performedByName || '—'}</td>
+                        <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{m.performedByName || ''}</td>
                         <td className="px-4 py-3 text-gray-500 text-xs max-w-[200px] truncate">
-                          {m.notes || '—'}
+                          {m.notes || ''}
                           <span className="ml-1">{isExpanded ? <ChevronDown className="inline w-3 h-3" /> : <ChevronRight className="inline w-3 h-3" />}</span>
                         </td>
                       </tr>
@@ -193,7 +193,7 @@ export function StockMovementLogPage() {
                               </div>
                               <div>
                                 <p className="text-xs text-gray-500">Work Order</p>
-                                <p className="font-medium">{m.workOrderNumber || '—'}</p>
+                                <p className="font-medium">{m.workOrderNumber || ''}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-gray-500">Unit Cost at Time</p>
@@ -205,7 +205,7 @@ export function StockMovementLogPage() {
                               </div>
                               <div className="col-span-2 sm:col-span-4">
                                 <p className="text-xs text-gray-500">Notes</p>
-                                <p>{m.notes || '—'}</p>
+                                <p>{m.notes || ''}</p>
                               </div>
                             </div>
                           </td>
@@ -244,7 +244,7 @@ export function StockMovementLogPage() {
                     <span className="text-gray-500">{m.quantityBefore} → {m.quantityAfter}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-gray-400">
-                    <span>{m.performedByName || '—'}</span>
+                    <span>{m.performedByName || ''}</span>
                     <span>{formatDateTime(m.performedAt)}</span>
                   </div>
                 </div>

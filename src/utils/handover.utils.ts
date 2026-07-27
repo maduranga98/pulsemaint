@@ -12,7 +12,7 @@ export function formatDuration(ms: number): string {
 }
 
 export function formatTimeRange(startTime: string, endTime: string): string {
-  if (!startTime || !endTime) return '—';
+  if (!startTime || !endTime) return '';
   return `${startTime} - ${endTime}`;
 }
 

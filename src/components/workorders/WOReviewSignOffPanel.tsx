@@ -140,10 +140,10 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
         <div className="flex-1 overflow-y-auto p-4">
           {step === 'review' && (
             <div className="space-y-4">
-              <Field label="Work done">{wo.workDoneDescription || '—'}</Field>
+              <Field label="Work done">{wo.workDoneDescription || ''}</Field>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Machine status after">{wo.machineStatusAfterRepair ? MACHINE_STATUS_LABEL[wo.machineStatusAfterRepair] : '—'}</Field>
-                <Field label="Test run">{wo.testRunResult ? TEST_RESULT_LABEL[wo.testRunResult] : '—'}</Field>
+                <Field label="Machine status after">{wo.machineStatusAfterRepair ? MACHINE_STATUS_LABEL[wo.machineStatusAfterRepair] : ''}</Field>
+                <Field label="Test run">{wo.testRunResult ? TEST_RESULT_LABEL[wo.testRunResult] : ''}</Field>
                 <Field label="Checklist">{checklistDone}/{wo.checklist?.length ?? 0} complete</Field>
                 <Field label="Parts used">{wo.partsUsed?.length ?? 0}</Field>
               </div>
@@ -162,7 +162,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                           </p>
                         </div>
                         <span className="whitespace-nowrap text-sm font-semibold text-gray-700">
-                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : '—'}
+                          {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : ''}
                         </span>
                       </div>
                     ))}

@@ -46,6 +46,9 @@ export interface EvaluationAttachment {
 
 export type EvaluationStatus = 'draft' | 'submitted';
 
+/** 'individual' evaluates one person by role; 'department' evaluates a whole department/team. */
+export type EvaluationTargetType = 'individual' | 'department';
+
 export type EvaluationActionType = 'training_assigned' | 'position_upgraded' | 'position_degraded';
 
 export interface EvaluationActionLog {
@@ -60,7 +63,10 @@ export interface EvaluationActionLog {
 export interface EvaluationSession {
   id: string;
   companyId: string;
+  /** Missing on older documents — treat as 'individual'. */
+  targetType?: EvaluationTargetType;
   evaluateeId: string;
+  /** For a department evaluation, this holds the department name. */
   evaluateeName: string;
   evaluateeRole: EvaluationRole;
   evaluateeJobTitle: string;
@@ -155,6 +161,18 @@ const OTHER_CRITERIA: EvaluationCriterion[] = [
   { id: 'teamwork', label: 'Teamwork & Collaboration', description: 'Cooperation and contribution to team goals.', weight: 20 },
   { id: 'safety_compliance', label: 'Safety Compliance', description: 'Adherence to safety rules and safe work practices.', weight: 15 },
   { id: 'initiative', label: 'Initiative & Problem Solving', description: 'Proactive identification and resolution of issues.', weight: 15 },
+];
+
+// ─── Department-level evaluation criteria ───────────────────────────────────
+// Evaluates a whole department/team's performance, distinct from an
+// individual's role-based evaluation above.
+
+export const DEPARTMENT_CRITERIA: EvaluationCriterion[] = [
+  { id: 'dept_output', label: 'Output & Productivity', description: 'Department met production/output targets for the period.', weight: 25 },
+  { id: 'dept_safety', label: 'Safety Record', description: 'Incident-free operation and adherence to safety protocols across the department.', weight: 20 },
+  { id: 'dept_quality', label: 'Quality Standards', description: 'Consistency in meeting quality standards and reducing defects/rework.', weight: 20 },
+  { id: 'dept_coordination', label: 'Cross-Team Coordination', description: 'Effectiveness of coordination with other departments and shifts.', weight: 15 },
+  { id: 'dept_compliance', label: 'Process & Compliance Adherence', description: 'Adherence to SOPs, audits, and regulatory requirements.', weight: 20 },
 ];
 
 export const ROLE_CRITERIA: Record<EvaluationRole, EvaluationCriterion[]> = {

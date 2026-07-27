@@ -56,7 +56,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
   { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
   { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
-  { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'admin', 'trainee', 'supervisor', 'plant_manager'] },
+  { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
   { label: 'Sign-Off Queue', to: '/app/sign-off-queue', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'admin'] },
   {
     label: 'PM Schedules',
@@ -121,22 +121,13 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
   },
-  {
-    label: 'Shifts',
-    to: '/app/settings/shifts',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/><path d="M3 3l2 2"/><path d="M21 3l-2 2"/>
-      </svg>
-    ),
-    roles: ['admin'],
-  },
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
-  // Training can be assigned to any role, so everyone gets a "My Training" entry.
-  { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
-  // My Certificates is open to every role (FEATURES.md) but had no nav entry,
-  // so the page was only reachable by typing the URL.
-  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
+  // Training can be assigned to any role, so everyone gets a "My Training"
+  // entry — except admin, who manages training rather than taking it.
+  { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
+  // My Certificates is open to every training-taking role (FEATURES.md) but
+  // had no nav entry, so the page was only reachable by typing the URL.
+  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
   { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
   {
     label: 'Triage',
@@ -159,8 +150,8 @@ const NAV_ITEMS: NavItem[] = [
     roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
   },
   {
-    label: 'OEE',
-    to: '/app/oee',
+    label: 'MOE',
+    to: '/app/moe',
     icon: (
       <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
@@ -191,9 +182,11 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['plant_manager', 'admin', 'hr_officer'],
   },
-  { label: 'Users', to: '/app/settings/users', icon: Icon.users, roles: ['admin', 'supervisor', 'plant_manager', 'hr_officer'] },
   { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'supervisor', 'plant_manager', 'admin'] },
-  { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin'] },
+  // Users and Shifts moved inside Settings — same access as before (Users'
+  // union of roles), just reached via the Settings tiles instead of their
+  // own top-level nav entries.
+  { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'supervisor', 'plant_manager', 'hr_officer'] },
   {
     label: 'Billing & Plan',
     to: '/app/billing',
