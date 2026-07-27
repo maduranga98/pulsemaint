@@ -15,6 +15,7 @@ import {
   computeStockStatusBuckets,
   downtimeByWeekday,
   lateByBuckets,
+  topByTotalMarks,
 } from '../../../lib/reportsCostUtils';
 
 // Columns that make sense as a chart category (a small set of repeated values).
@@ -262,6 +263,19 @@ export async function exportGenericReportPdf(
         renderChart('Downtime vs Day of Week', data, true);
       } else if (reportType === 'audit_trail') {
         renderChart('Completed Audits by Category', countBy(rows, 'categoryLabel'));
+      } else if (reportType === 'technician_performance') {
+        // Top 5 Employees vs Total Marks of all performances (Evaluation
+        // Score + Audit Score + Quizzes Passed — see topByTotalMarks).
+        const top5 = topByTotalMarks(
+          rows.map((r) => ({
+            name: String(r.name ?? ''),
+            evaluationScore: Number(r.evaluationScore ?? 0),
+            auditScore: Number(r.auditScore ?? 0),
+            quizzesPassed: Number(r.quizzesPassed ?? 0),
+          })),
+          5,
+        );
+        renderChart('Top 5 Employees vs Total Marks of All Performances', top5, true);
       } else {
         const chart = buildChartData(allColumns, rows);
         if (chart) renderChart(chart.title, chart.data);

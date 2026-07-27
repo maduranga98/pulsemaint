@@ -27,8 +27,6 @@ import type {
   ReportConfig,
   ReportHistory,
   ReportHistoryFilters,
-  ReportSchedule,
-  ReportScheduleFrequency,
   ReportType,
 } from '../types/reports.types';
 
@@ -125,6 +123,14 @@ export async function fetchReportRows(
   // per-role rollup of Evaluations, Audits, Training, and Quick Assessment —
   // not a raw workOrders dump, which only ever showed technician workload,
   // never evaluation/training/assessment data (PMGR-016/017).
+  // Date range is deliberately NOT applied here (same treatment as
+  // executive_monthly): this report is a "current state" rollup — each
+  // person's *most recent* Evaluation/Audit score plus lifetime training/quiz
+  // counts, not a list of dated events. Scoping it to a date window would
+  // require re-deriving "most recent as of date X" and re-counting trainings/
+  // quizzes within the window across 4 separate collections inside
+  // fetchTeamPerformanceByUser — a real feature, not a bug fix, and out of
+  // scope here. Documented rather than silently left broken, per the task.
   if (reportType === 'technician_performance') {
     return (await fetchTeamPerformanceByUser(companyId)) as unknown as Record<string, unknown>[];
   }
@@ -239,7 +245,29 @@ export async function fetchReportRows(
       return 0;
     };
 
-    snap.docs.forEach((item) => {
+    const matchesList = (value: unknown, selected: string[]) =>
+      selected.length === 0 ||
+      (value != null && selected.some((s) => s.toLowerCase() === String(value).toLowerCase()));
+
+    // Same bug class as maintenance_cost: this branch used to `return`
+    // straight from the aggregation with no date-range or contractor-filter
+    // applied at all, so both the date pickers and the Contractor multi-
+    // select in the UI silently did nothing for this report. Filtered here,
+    // per-job, before rolling up into the per-contractor summary — using
+    // signedOffAt for the date range (a contractor job only has one
+    // meaningful date: when it was signed off) and contractorId for the
+    // Contractor filter.
+    const filteredDocs = snap.docs.filter((item) => {
+      const c = item.data();
+      const contractorRef = c.contractorId ?? c.manualContractorName ?? c.contractorName;
+      if (!matchesList(contractorRef, config.contractors)) return false;
+      const signedOffMs = asMs(c.signedOffAt);
+      if (signedOffMs === 0) return true;
+      const isoDate = new Date(signedOffMs).toISOString().slice(0, 10);
+      return isoDate >= config.dateFrom && isoDate <= config.dateTo;
+    });
+
+    filteredDocs.forEach((item) => {
       const c = item.data();
       const key = String(c.contractorId ?? c.manualContractorName ?? c.contractorName ?? item.id);
       const name = String(c.contractorName ?? c.manualContractorName ?? 'Unknown Contractor');
@@ -282,11 +310,18 @@ export async function fetchReportRows(
   // Training Compliance covers both the general trainingAssignments
   // collection (employee/machine training) and the trainee programme system
   // (traineeProgrammes) — one row per person, aggregating both sources.
+  // Like technician_performance, this is a lifetime per-person rollup with no
+  // natural per-row date, and its report definition offers no date/list
+  // filters (availableFilters: []) — there is nothing to bypass here.
   if (reportType === 'training_compliance') {
     const [assignmentSnap, programmeSnap, usersSnap] = await Promise.all([
       getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId), limit(2000))),
       getDocs(query(collection(db, 'traineeProgrammes'), where('companyId', '==', companyId), limit(1000))),
-      getDocs(query(collection(db, 'users'), where('companyId', '==', companyId), limit(1000))),
+      // The top-level `users` collection is only an auth-routing mapping doc
+      // ({ uid, companyId, role, siteId }); role lookups need the real
+      // per-company profile at companies/{companyId}/users (see
+      // teamPerformance.service.ts for the same fix on the Name bug).
+      getDocs(query(collection(db, `companies/${companyId}/users`), limit(1000))),
     ]);
 
     const roleByUserId = new Map<string, string>();
@@ -581,6 +616,12 @@ export async function fetchReportRows(
         const min = Number(data.minStockLevel ?? data.reorderLevel ?? 0);
         if (current > min) return;
       }
+      // Inventory Listing's "Total Cost" column is a valuation figure (unit
+      // cost x stock on hand), not stored on the document.
+      if (reportType === 'inventory_listing') {
+        (data as Record<string, unknown>).totalCost =
+          Number(data.unitCost ?? 0) * Number(data.currentStock ?? 0);
+      }
       // shift_handovers keeps its counters under a nested `stats` object;
       // flatten them to top-level keys so report columns (which only read
       // row[col.key], not dot-paths) can reference wosOpened, etc. directly.
@@ -612,12 +653,42 @@ export async function fetchReportRows(
       // (overlapMinutes is "minutes the supervisor clocked in late against
       // their assigned shift's scheduled start" — see handover.types.ts) and
       // a plain count of watch flags raised during the shift.
+      //
+      // "Breakdowns during Shift" / "WOs during Shift" mirror what the Shift
+      // Handovers tab itself shows in those columns (HandoverHistoryTable.tsx)
+      // — the ongoingBreakdowns/pendingWOs snapshot lists carried into the
+      // handover — NOT stats.breakdownsOpened/wosOpened, which count a
+      // differently-scoped thing (breakdowns/WOs newly opened during the
+      // shift, including ones already closed by handover time). The prior
+      // round wired this to the stats counters, which is a real report-vs-tab
+      // mismatch; fixed here to genuinely match the tab.
       if (reportType === 'shift_handover_summary') {
         row.lateByMinutes = Number(data.overlapMinutes ?? 0);
         row.watchFlagsCount = Array.isArray(data.watchFlags) ? (data.watchFlags as unknown[]).length : 0;
+        row.breakdownsOpened = Array.isArray(data.ongoingBreakdowns) ? (data.ongoingBreakdowns as unknown[]).length : 0;
+        row.wosOpened = Array.isArray(data.pendingWOs) ? (data.pendingWOs as unknown[]).length : 0;
       }
 
       rows.push({ source, row });
+    });
+  }
+
+  // Inventory Usage's "Part Category" filter (availableFilters: ['part_category'])
+  // compared against config.partCategories, but stockMovements rows don't
+  // carry a category field at all (see StockMovement type) — the filter
+  // control was shown in the UI and silently did nothing. Join each
+  // movement's category from the parts catalogue by partId so the filter has
+  // something real to compare against.
+  if (reportType === 'inventory_usage' && rows.length > 0) {
+    const partsSnap = await getDocs(
+      query(collection(db, 'inventoryParts'), where('companyId', '==', companyId), limit(2000)),
+    );
+    const categoryByPartId = new Map<string, string>();
+    partsSnap.docs.forEach((item) => {
+      categoryByPartId.set(item.id, String(item.data().category ?? ''));
+    });
+    rows.forEach(({ row }) => {
+      row.category = categoryByPartId.get(String(row.partId ?? '')) ?? '';
     });
   }
 
@@ -707,6 +778,7 @@ export async function fetchReportRows(
     if (!matchesList(row.type, config.breakdownTypes)) return false;
     if (!matchesList(row.contractorCompanyId ?? row.contractorId, config.contractors)) return false;
     if (!matchesList(row.priority, config.priorities)) return false;
+    if (!matchesList(row.category, config.partCategories)) return false;
     if (config.technicians.length > 0 && (row.assignedTechnicianIds !== undefined || row.traineeId !== undefined)) {
       const matchesTech = matchesAnyInList(row.assignedTechnicianIds, config.technicians) || matchesList(row.traineeId, config.technicians);
       if (!matchesTech) return false;
@@ -856,107 +928,6 @@ export async function markReportHistoryFailed(reportId: string, errorMessage: st
     status: 'failed',
     errorMessage,
   });
-}
-
-// ---------------------------------------------------------------------------
-// Report scheduling — recurring export delivery (PMGR-009)
-// ---------------------------------------------------------------------------
-
-const toReportSchedule = (id: string, data: Record<string, unknown>): ReportSchedule => ({
-  id,
-  companyId: String(data.companyId ?? ''),
-  reportType: data.reportType as ReportType,
-  reportName: String(data.reportName ?? ''),
-  frequency: data.frequency as ReportScheduleFrequency,
-  dayOfWeek: (data.dayOfWeek as number | null) ?? null,
-  dayOfMonth: (data.dayOfMonth as number | null) ?? null,
-  recipients: Array.isArray(data.recipients) ? (data.recipients as string[]) : [],
-  filters: (data.filters as Record<string, unknown>) ?? {},
-  active: data.active !== false,
-  createdBy: String(data.createdBy ?? ''),
-  createdByName: String(data.createdByName ?? ''),
-  createdAt: toDate(data.createdAt),
-  lastRunAt: data.lastRunAt ? toDate(data.lastRunAt) : null,
-  nextRunAt: data.nextRunAt ? toDate(data.nextRunAt) : null,
-});
-
-function computeNextRunAt(
-  frequency: ReportScheduleFrequency,
-  dayOfWeek: number | null,
-  dayOfMonth: number | null,
-  from: Date = new Date(),
-): Date {
-  const next = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate(), 4, 0, 0));
-  if (next <= from) next.setUTCDate(next.getUTCDate() + 1);
-
-  if (frequency === 'daily') return next;
-
-  if (frequency === 'weekly') {
-    const target = dayOfWeek ?? 1;
-    while (next.getUTCDay() !== target) next.setUTCDate(next.getUTCDate() + 1);
-    return next;
-  }
-
-  // monthly
-  const target = Math.min(Math.max(dayOfMonth ?? 1, 1), 28);
-  next.setUTCDate(1);
-  if (next <= from) next.setUTCMonth(next.getUTCMonth() + 1);
-  next.setUTCDate(target);
-  return next;
-}
-
-export async function createReportSchedule(input: {
-  companyId: string;
-  reportType: ReportType;
-  frequency: ReportScheduleFrequency;
-  dayOfWeek?: number | null;
-  dayOfMonth?: number | null;
-  recipients: string[];
-  createdBy: string;
-  createdByName: string;
-  config: ReportConfig;
-}): Promise<string> {
-  const definition = REPORT_DEFINITIONS[input.reportType];
-  const dayOfWeek = input.dayOfWeek ?? null;
-  const dayOfMonth = input.dayOfMonth ?? null;
-  const ref = await addDoc(collection(db, 'report_schedules'), {
-    companyId: input.companyId,
-    reportType: input.reportType,
-    reportName: definition.name,
-    frequency: input.frequency,
-    dayOfWeek,
-    dayOfMonth,
-    recipients: input.recipients,
-    filters: filtersFromConfig(input.config),
-    active: true,
-    createdBy: input.createdBy,
-    createdByName: input.createdByName,
-    createdAt: serverTimestamp(),
-    lastRunAt: null,
-    nextRunAt: computeNextRunAt(input.frequency, dayOfWeek, dayOfMonth),
-  });
-  return ref.id;
-}
-
-export async function fetchReportSchedules(
-  companyId: string,
-  reportType?: ReportType,
-): Promise<ReportSchedule[]> {
-  const snap = await getDocs(
-    query(collection(db, 'report_schedules'), where('companyId', '==', companyId)),
-  );
-  return snap.docs
-    .map((item) => toReportSchedule(item.id, item.data()))
-    .filter((s) => !reportType || s.reportType === reportType)
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-}
-
-export async function setReportScheduleActive(scheduleId: string, active: boolean): Promise<void> {
-  await updateDoc(doc(db, 'report_schedules', scheduleId), { active });
-}
-
-export async function deleteReportSchedule(scheduleId: string): Promise<void> {
-  await deleteDoc(doc(db, 'report_schedules', scheduleId));
 }
 
 export async function fetchAuditLogs(companyId: string): Promise<AuditLog[]> {

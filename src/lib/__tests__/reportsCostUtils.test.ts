@@ -7,6 +7,7 @@ import {
   downtimeByWeekday,
   lateByBuckets,
   flattenPoLineItems,
+  topByTotalMarks,
 } from '../reportsCostUtils';
 
 describe('topHealthScores', () => {
@@ -195,5 +196,40 @@ describe('flattenPoLineItems', () => {
 
   it('returns no rows for a PO with no items', () => {
     expect(flattenPoLineItems([{ id: 'po1', poNumber: 'PO-003', items: [] }])).toEqual([]);
+  });
+
+  it('carries receivedAt through onto each line item', () => {
+    const rows = flattenPoLineItems([
+      {
+        id: 'po1',
+        poNumber: 'PO-004',
+        raisedAt: '2026-01-01',
+        receivedAt: '2026-01-10',
+        items: [{ partId: 'p1', partName: 'Bolt', quantityOrdered: 5, unitCost: 4 }],
+      },
+    ]);
+    expect(rows[0].receivedAt).toBe('2026-01-10');
+  });
+});
+
+describe('topByTotalMarks', () => {
+  it('sorts descending by evaluation + audit + quizzes and takes top N', () => {
+    const rows = [
+      { name: 'Alice', evaluationScore: 80, auditScore: 70, quizzesPassed: 5 },
+      { name: 'Bob', evaluationScore: 90, auditScore: 90, quizzesPassed: 10 },
+      { name: 'Carol', evaluationScore: 40, auditScore: 30, quizzesPassed: 1 },
+      { name: 'Dave', evaluationScore: 60, auditScore: 60, quizzesPassed: 2 },
+      { name: 'Eve', evaluationScore: 50, auditScore: 50, quizzesPassed: 3 },
+      { name: 'Frank', evaluationScore: 20, auditScore: 20, quizzesPassed: 0 },
+    ];
+    const top = topByTotalMarks(rows, 5);
+    expect(top).toHaveLength(5);
+    expect(top[0]).toEqual({ label: 'Bob', value: 190 });
+    expect(top.map((t) => t.label)).not.toContain('Frank');
+  });
+
+  it('treats missing fields as zero', () => {
+    const top = topByTotalMarks([{ name: 'Solo' }], 5);
+    expect(top).toEqual([{ label: 'Solo', value: 0 }]);
   });
 });
