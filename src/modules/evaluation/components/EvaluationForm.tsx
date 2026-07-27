@@ -26,6 +26,10 @@ interface EvaluationFormProps {
   evaluatorName: string;
   /** 'department' renders a department-vs-role picker and scores against DEPARTMENT_CRITERIA. */
   targetType?: EvaluationTargetType;
+  /** Pre-selects the role (individual mode) from the category card that was clicked. */
+  initialRole?: EvaluationRole;
+  /** Pre-selects the department (department mode) from the category card that was clicked. */
+  initialDepartment?: string;
   onSubmit: (data: FormData) => Promise<void>;
   onSaveDraft?: (data: FormData) => Promise<void>;
   onCancel?: () => void;
@@ -113,6 +117,8 @@ export default function EvaluationForm({
   evaluatorId,
   evaluatorName,
   targetType = 'individual',
+  initialRole,
+  initialDepartment,
   onSubmit,
   onSaveDraft,
   onCancel,
@@ -122,8 +128,8 @@ export default function EvaluationForm({
   const [step, setStep] = useState<'info' | 'criteria' | 'summary'>('info');
   const [companyUsers, setCompanyUsers] = useState<UserProfile[]>([]);
   const [evaluateeId, setEvaluateeId] = useState('');
-  const [evaluateeName, setEvaluateeName] = useState('');
-  const [evaluateeRole, setEvaluateeRole] = useState<EvaluationRole>('technician');
+  const [evaluateeName, setEvaluateeName] = useState(initialDepartment ?? '');
+  const [evaluateeRole, setEvaluateeRole] = useState<EvaluationRole>(initialRole ?? 'technician');
   const [evaluateeJobTitle, setEvaluateeJobTitle] = useState('');
   const [evaluateeEmployeeId, setEvaluateeEmployeeId] = useState('');
   const [evaluateeCustomRole, setEvaluateeCustomRole] = useState('');
