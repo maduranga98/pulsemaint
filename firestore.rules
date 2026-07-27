@@ -961,6 +961,9 @@ service cloud.firestore {
     // MOE Module (Machine Overall Effectiveness) — replaces the old OEE module.
     // moeSnapshots are Cloud-Function-only writes (scheduled daily calc +
     // recalc-on-data-change / backfill); the client only reads.
+    // (Touched to trigger the new firestore-rules-deploy workflow and push
+    // these rules — plus the earlier isSameSite/isAdmin permission fixes —
+    // live for the first time.)
     // ---------------------------------------------------------------------------
 
     match /moeSnapshots/{snapshotId} {
