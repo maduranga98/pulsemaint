@@ -61,7 +61,7 @@ export function subscribeTemplates(
 export async function ensureDefaultTemplates(plantId: string): Promise<void> {
   const snap = await getDocs(templatesCol(plantId));
   const existing = new Set(snap.docs.map((d) => (d.data() as AuditTemplate).category));
-  const categories: BuiltinAuditCategory[] = ['tpm', 'fives', 'oee', 'contractor'];
+  const categories: BuiltinAuditCategory[] = ['tpm', 'fives', 'moe', 'contractor'];
 
   await Promise.all(
     categories
@@ -184,6 +184,23 @@ export function subscribeSessions(
 export async function fetchSession(plantId: string, sessionId: string): Promise<AuditSession | null> {
   const d = await getDoc(doc(sessionsCol(plantId), sessionId));
   return d.exists() ? ({ id: d.id, ...d.data() } as AuditSession) : null;
+}
+
+/**
+ * Fetches Contractor Audit sessions that rated a given contractor, via the
+ * denormalized `contractorIds` array (set on submit for `category ===
+ * 'contractor'` sessions) — Firestore can't query array-of-objects
+ * (`contractors[].id`) directly, hence the flat id array.
+ */
+export async function fetchSessionsByContractor(plantId: string, contractorId: string): Promise<AuditSession[]> {
+  const q = query(
+    sessionsCol(plantId),
+    where('contractorIds', 'array-contains', contractorId),
+    orderBy('createdAt', 'desc'),
+    limit(50),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as AuditSession));
 }
 
 /**

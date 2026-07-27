@@ -33,7 +33,7 @@ const ALLOWED_ROLES: UserRole[] = ['supervisor', 'plant_manager', 'admin', 'hr_o
 const CATEGORY_META: Record<string, { icon: typeof Wrench; color: string; desc: string }> = {
   tpm: { icon: Wrench, color: 'text-blue-400', desc: 'Total Productive Maintenance checks' },
   fives: { icon: Sparkles, color: 'text-emerald-400', desc: 'Workplace 5S organisation audit' },
-  oee: { icon: Gauge, color: 'text-amber-400', desc: 'Availability, performance & quality losses' },
+  moe: { icon: Gauge, color: 'text-amber-400', desc: 'Availability, performance & quality losses' },
   contractor: { icon: HardHat, color: 'text-purple-400', desc: 'Contractor safety & work-quality audit' },
 };
 const DEFAULT_CATEGORY_META = { icon: ClipboardList, color: 'text-slate-400', desc: 'Custom audit checklist' };
@@ -166,7 +166,7 @@ export function AuditPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white font-sora">Audits</h1>
-            <p className="text-sm text-slate-400">TPM · 5S · OEE · Contractor audits with AI root-cause analysis</p>
+            <p className="text-sm text-slate-400">TPM · 5S · MOE · Contractor audits with AI root-cause analysis</p>
           </div>
         </div>
         {isAdmin && (
