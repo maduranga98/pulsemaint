@@ -25,17 +25,35 @@ export default function LessonList({
 }: LessonListProps) {
   const sorted = [...lessons].sort((a, b) => a.order - b.order);
 
+  // Trainees must complete lessons in order: a lesson is locked until every
+  // earlier *required* lesson has been completed. Non-required lessons never
+  // block later ones, but the required chain must still be respected.
+  let priorRequiredIncomplete = false;
+  const lockedById = new Map<string, boolean>();
+  for (const lesson of sorted) {
+    lockedById.set(lesson.id, priorRequiredIncomplete);
+    if (lesson.isRequired && !lessonProgress[lesson.id]?.completed) {
+      priorRequiredIncomplete = true;
+    }
+  }
+
   return (
     <div className="divide-y divide-slate-100">
-      {sorted.map((lesson) => (
-        <LessonListItem
-          key={lesson.id}
-          lesson={lesson}
-          progress={lessonProgress[lesson.id]}
-          isCurrent={lesson.id === currentLessonId}
-          onClick={() => onLessonClick?.(lesson)}
-        />
-      ))}
+      {sorted.map((lesson) => {
+        const isLocked = lockedById.get(lesson.id) ?? false;
+        return (
+          <LessonListItem
+            key={lesson.id}
+            lesson={lesson}
+            progress={lessonProgress[lesson.id]}
+            isCurrent={lesson.id === currentLessonId}
+            isLocked={isLocked}
+            onClick={() => {
+              if (!isLocked) onLessonClick?.(lesson);
+            }}
+          />
+        );
+      })}
 
       {/* Quiz section */}
       <div className="p-4">

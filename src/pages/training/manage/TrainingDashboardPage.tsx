@@ -29,6 +29,7 @@ interface DashboardStats {
 export default function TrainingDashboardPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
+  const userFullName = useAuthStore((s) => s.userProfile?.fullName);
 
   const [stats, setStats] = useState<DashboardStats>({
     totalTrainees: 0,
@@ -153,6 +154,8 @@ export default function TrainingDashboardPage() {
       status: 'certified',
       'practicalSignOff.passed': true,
       'practicalSignOff.signedOffBy': userId,
+      // Without this the issued certificate had a blank "issued by" name.
+      'practicalSignOff.signedOffByName': userFullName ?? '',
       'practicalSignOff.signedOffAt': serverTimestamp(),
       updatedAt: serverTimestamp(),
     });

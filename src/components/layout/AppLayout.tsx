@@ -134,6 +134,9 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
   // Training can be assigned to any role, so everyone gets a "My Training" entry.
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
+  // My Certificates is open to every role (FEATURES.md) but had no nav entry,
+  // so the page was only reachable by typing the URL.
+  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin'] },
   { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
   {
     label: 'Triage',

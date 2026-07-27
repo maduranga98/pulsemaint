@@ -1034,17 +1034,19 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /trainingModules/{moduleId} {
-      // Authoring (create/update/delete) is a Plant Manager / Admin action —
-      // supervisors and other roles may only read and assign modules.
+      // Authoring (create/update/delete) is a Plant Manager / Admin / HR
+      // Officer action (see FEATURES.md and the router's module-authoring
+      // routes) — supervisors and other roles may only read and assign
+      // modules.
       // `category`/`offboardDetails` (offboard/external training) are just
       // additional fields on the same document — no extra rule needed.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
     }
 
     match /trainingAssignments/{assignmentId} {
@@ -1070,10 +1072,18 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
           || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
-      // Issued client-side on quiz pass (trainee) or by managers/HR
+      // Certificates are only ever issued by generateTrainingCertificate
+      // (functions/src/training/generateTrainingCertificate.ts), which runs
+      // with the Admin SDK and bypasses these rules entirely — no client
+      // code ever calls addDoc/setDoc on this collection. The previous rule
+      // let any trainee create a document here with
+      // `traineeId == request.auth.uid`, which meant a trainee could forge
+      // their own passing certificate (arbitrary score, certificate number,
+      // signed-off-by name) via a direct Firestore write. Restrict client
+      // creates to management roles only, matching the company-scoped
+      // /companies/{companyId}/trainingCertificates rule below.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && (request.resource.data.traineeId == request.auth.uid
-          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       // Revocation and edits are a management action
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
@@ -1082,10 +1092,11 @@ service cloud.firestore {
 
     match /trainingContentLibrary/{contentId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      // hr_officer can reach the content library page per the router/FEATURES.md.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
       allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
     }
 
     match /training_records/{recordId} {

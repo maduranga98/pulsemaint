@@ -23,7 +23,7 @@ export default function ModuleLearningScreen({
   onStartQuiz,
 }: ModuleLearningScreenProps) {
   const [activeLesson, setActiveLesson] = useState<LessonItem | null>(null);
-  const [completedLessonTitle, setCompletedLessonTitle] = useState<string | null>(null);
+  const [completedLessonId, setCompletedLessonId] = useState<string | null>(null);
   const [finalizing, setFinalizing] = useState(false);
   const { markLessonComplete, markAssignmentComplete } = useLessonProgress();
 
@@ -59,22 +59,45 @@ export default function ModuleLearningScreen({
   };
 
   const handleLessonComplete = async (lessonId: string) => {
-    const currentCompleted = Object.values(lessonProgress).filter((p) => p.completed).length;
-    await markLessonComplete(assignment.id, lessonId, lessons.length, currentCompleted);
-    const lesson = lessons.find((l) => l.id === lessonId);
-    if (lesson) {
-      setCompletedLessonTitle(lesson.title);
+    if (lessonProgress[lessonId]?.completed) {
+      setActiveLesson(null);
+      return;
     }
+    const currentCompleted = Object.values(lessonProgress).filter((p) => p.completed).length;
+    await markLessonComplete(
+      assignment.id,
+      lessonId,
+      lessons.length,
+      currentCompleted,
+      assignment.status
+    );
+    setCompletedLessonId(lessonId);
     setActiveLesson(null);
   };
 
   const handleOverlayNext = () => {
-    setCompletedLessonTitle(null);
-    const next = getNextLesson(lessons, lessonProgress);
+    // The Firestore snapshot for the lesson we just completed may not have
+    // arrived yet, so treat it as complete locally — otherwise "Next lesson"
+    // re-opened the lesson the trainee had just finished.
+    const progressWithCompleted = completedLessonId
+      ? {
+          ...lessonProgress,
+          [completedLessonId]: {
+            ...(lessonProgress[completedLessonId] ?? {
+              completedAt: null,
+              watchedSeconds: 0,
+              percentComplete: 100,
+            }),
+            completed: true,
+          },
+        }
+      : lessonProgress;
+    setCompletedLessonId(null);
+    const next = getNextLesson(lessons, progressWithCompleted);
     if (next) setActiveLesson(next);
   };
 
-  const handleOverlayDismiss = () => setCompletedLessonTitle(null);
+  const handleOverlayDismiss = () => setCompletedLessonId(null);
 
   const completedCount = Object.values(lessonProgress).filter((p) => p.completed).length;
 
@@ -132,7 +155,7 @@ export default function ModuleLearningScreen({
           currentLessonId={activeLesson?.id}
           quizStatus={quizStatus}
           quizScore={assignment.bestScore}
-          passingScore={module.passingScore}
+          passingScore={module.quiz?.passingScore ?? module.passingScore}
           onLessonClick={(lesson) => setActiveLesson(lesson)}
           onStartQuiz={onStartQuiz}
         />
@@ -171,12 +194,12 @@ export default function ModuleLearningScreen({
       )}
 
       {/* Lesson complete overlay */}
-      {completedLessonTitle && (
+      {completedLessonId && (
         <LessonCompleteOverlay
-          lessonTitle={completedLessonTitle}
-          remainingCount={remainingAfterComplete(
-            lessons.find((l) => l.title === completedLessonTitle)?.id ?? ''
-          )}
+          lessonTitle={
+            lessons.find((l) => l.id === completedLessonId)?.title ?? ''
+          }
+          remainingCount={remainingAfterComplete(completedLessonId)}
           onNext={handleOverlayNext}
           onDismiss={handleOverlayDismiss}
         />

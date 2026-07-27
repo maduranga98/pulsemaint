@@ -17,7 +17,8 @@ interface UseLessonProgressReturn {
     assignmentId: string,
     lessonId: string,
     totalLessons: number,
-    currentLessonsCompleted: number
+    currentLessonsCompleted: number,
+    currentStatus?: string
   ) => Promise<void>;
   markAssignmentComplete: (assignmentId: string) => Promise<void>;
   isUpdating: boolean;
@@ -88,7 +89,8 @@ export function useLessonProgress(): UseLessonProgressReturn {
       assignmentId: string,
       lessonId: string,
       totalLessons: number,
-      currentLessonsCompleted: number
+      currentLessonsCompleted: number,
+      currentStatus?: string
     ) => {
       try {
         setIsUpdating(true);
@@ -111,6 +113,12 @@ export function useLessonProgress(): UseLessonProgressReturn {
           lessonsCompleted: newLessonsCompleted,
           overallProgress,
           lastActivityAt: serverTimestamp(),
+          // Nothing else moved an assignment off 'not_started', so the
+          // "In Progress" filters/dashboard counters were always empty and
+          // `startedAt` was never recorded.
+          ...(currentStatus === 'not_started'
+            ? { status: 'in_progress', startedAt: serverTimestamp() }
+            : {}),
         });
       } catch (err) {
         console.error('Failed to mark lesson complete:', err);

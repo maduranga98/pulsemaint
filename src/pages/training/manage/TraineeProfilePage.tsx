@@ -31,6 +31,7 @@ export default function TraineeProfilePage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const currentUserId = useAuthStore((s) => s.userProfile?.id);
+  const currentUserFullName = useAuthStore((s) => s.userProfile?.fullName);
 
   const [trainee, setTrainee] = useState<UserProfile | null>(null);
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
@@ -75,6 +76,8 @@ export default function TraineeProfilePage() {
           passed: data.passed,
           observations: data.observations,
           signedOffBy: currentUserId,
+          // Without this the issued certificate had a blank "issued by" name.
+          signedOffByName: currentUserFullName ?? '',
           signedOffAt: serverTimestamp(),
         },
         updatedAt: serverTimestamp(),
