@@ -324,12 +324,14 @@ export async function fetchReportRows(
       }
 
       // Work Order Detail: roll every person who participated in the work
-      // (assigned internal technicians + any contractor technicians) into one
-      // list column; sign-off and creator details come from their own fields.
+      // (assigned internal technicians + any contractor technicians, plus the
+      // contractor company itself for contractor WOs) into one list column;
+      // sign-off and creator details come from their own fields.
       if (reportType === 'work_order_detail') {
         const techNames = Array.isArray(data.assignedTechnicianNames) ? (data.assignedTechnicianNames as unknown[]) : [];
         const contractorNames = Array.isArray(data.contractorTechnicianNames) ? (data.contractorTechnicianNames as unknown[]) : [];
-        row.participants = [...techNames, ...contractorNames].map((n) => String(n)).filter(Boolean);
+        const contractorCompany = data.contractorCompanyName ? [data.contractorCompanyName as unknown] : [];
+        row.participants = [...techNames, ...contractorNames, ...contractorCompany].map((n) => String(n)).filter(Boolean);
       }
 
       rows.push({ source, row });

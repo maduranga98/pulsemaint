@@ -174,11 +174,15 @@ export async function exportGenericReportPdf(
     const head = [columns.map((c) => c.label)];
     const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format))));
 
+    // Work Order Detail carries every column (no cap above), so it needs a
+    // touch smaller text to keep the table from overflowing the page.
+    const bodyFontSize = reportType === 'work_order_detail' ? 6 : 7;
+
     autoTable(doc, {
       head,
       body,
       startY: cursorY,
-      styles: { fontSize: 7, cellPadding: 3, overflow: 'linebreak' },
+      styles: { fontSize: bodyFontSize, cellPadding: 3, overflow: 'linebreak' },
       headStyles: { fillColor: [10, 22, 40], textColor: 255 },
       margin: { left: 40, right: 40 },
     });
