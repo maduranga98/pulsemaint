@@ -560,8 +560,8 @@ export default function AppRouter() {
         <Route path="shift/handover/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverHistoryPage /></ProtectedRoute>} />
         <Route path="shift/handover/:id" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverDetailPage /></ProtectedRoute>} />
         <Route path="settings/shifts" element={<ProtectedRoute requiredRoles={['admin']}><ShiftConfigPage /></ProtectedRoute>} />
-        <Route path="reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin']}><MainReportsHubPage /></ProtectedRoute>} />
-        <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin']}><ReportHistoryPage /></ProtectedRoute>} />
+        <Route path="reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper']}><MainReportsHubPage /></ProtectedRoute>} />
+        <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper']}><ReportHistoryPage /></ProtectedRoute>} />
         <Route
           path="training"
           element={<Navigate to="/app/training/manage/modules" replace />}

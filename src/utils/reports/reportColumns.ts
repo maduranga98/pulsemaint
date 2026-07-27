@@ -268,6 +268,19 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'entityType', label: 'Entity' },
     { key: 'entityName', label: 'Name' },
   ],
+  po_history: [
+    { key: 'poNumber', label: 'PO Code' },
+    { key: 'supplierName', label: 'Supplier' },
+    { key: 'partNames', label: 'Parts', format: 'list' },
+    { key: 'partQuantities', label: 'Quantity', format: 'list' },
+    // Final invoice-priced total (see `finalTotalCost` enrichment in
+    // fetchReportRows) — falls back to the PO's own total when no invoice
+    // revision was ever recorded.
+    { key: 'finalTotalCost', label: 'Total Cost', format: 'currency' },
+    { key: 'raisedAt', label: 'Requested Date', format: 'date' },
+    { key: 'receivedAt', label: 'Delivered Date', format: 'date' },
+    { key: 'status', label: 'Progress' },
+  ],
 };
 
 /**

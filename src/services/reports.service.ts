@@ -221,6 +221,7 @@ export async function fetchReportRows(
     executive_monthly: ['analytics_monthly'],
     safety_near_miss: ['shift_handovers'],
     audit_trail: ['audit_logs'],
+    po_history: ['purchaseOrders'],
   };
 
   // Registry/snapshot collections describe current state (machines, parts,
@@ -334,6 +335,18 @@ export async function fetchReportRows(
         row.participants = [...techNames, ...contractorNames, ...contractorCompany].map((n) => String(n)).filter(Boolean);
       }
 
+      // PO History: list the requested parts/quantities, and use the most
+      // recent invoice revision's total (the final, invoice-confirmed price)
+      // rather than the PO's original as-raised total when one exists.
+      if (reportType === 'po_history') {
+        const items = Array.isArray(data.items) ? (data.items as Record<string, unknown>[]) : [];
+        row.partNames = items.map((i) => String(i.partName ?? '')).filter(Boolean);
+        row.partQuantities = items.map((i) => String(i.quantityOrdered ?? ''));
+        const revisions = Array.isArray(data.invoiceRevisions) ? (data.invoiceRevisions as Record<string, unknown>[]) : [];
+        const latestRevision = revisions[revisions.length - 1];
+        row.finalTotalCost = latestRevision?.totalOrderValue ?? data.totalOrderValue ?? 0;
+      }
+
       rows.push({ source, row });
     });
   }
@@ -347,7 +360,7 @@ export async function fetchReportRows(
   const dateFiltered = rows
     .filter(({ source, row }) => {
       if (snapshotSources.has(source)) return true;
-      const rawDate = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt;
+      const rawDate = row.createdAt ?? row.timestamp ?? row.date ?? row.generatedAt ?? row.reportedAt ?? row.raisedAt;
       const rowDate = rawDate && typeof (rawDate as Timestamp).toDate === 'function'
         ? (rawDate as Timestamp).toDate().toISOString().slice(0, 10)
         : String(rawDate ?? '');
