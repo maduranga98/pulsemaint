@@ -915,8 +915,9 @@ service cloud.firestore {
       // Plant managers can archive/delete PM schedules (but not create them).
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
+      // Admins can archive (update) PM schedules but not delete them.
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
+        && getUserData().role in ['supervisor', 'plant_manager'];
     }
 
     // pm_history — PM execution history

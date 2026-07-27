@@ -23,6 +23,8 @@ export default function PMSchedulesPage() {
   const company = useAuthStore((s) => s.company);
   const userProfile = useAuthStore((s) => s.userProfile);
   const isSupervisor = useAuthStore((s) => s.isSupervisor || s.isAdmin);
+  const isAdmin = useAuthStore((s) => s.isAdmin);
+  const canDeleteSchedules = !isAdmin;
 
   const filters = usePMStore((s) => s.filters);
   const setFilters = usePMStore((s) => s.setFilters);
@@ -55,6 +57,7 @@ export default function PMSchedulesPage() {
 
   const handleBulkAction = async (action: 'archive' | 'delete') => {
     if (selectedIds.length === 0) return;
+    if (action === 'delete' && !canDeleteSchedules) return;
     try {
       switch (action) {
         case 'archive':
@@ -119,9 +122,11 @@ export default function PMSchedulesPage() {
             <Button size="sm" variant="ghost" onClick={() => handleBulkAction('archive')}>
               Archive
             </Button>
-            <Button size="sm" variant="danger" onClick={() => handleBulkAction('delete')}>
-              Delete
-            </Button>
+            {canDeleteSchedules && (
+              <Button size="sm" variant="danger" onClick={() => handleBulkAction('delete')}>
+                Delete
+              </Button>
+            )}
           </div>
         )}
 
