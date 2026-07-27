@@ -25,5 +25,13 @@ jobs:
         run: |
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
+          # Functions deploy fails outright if the project's Firestore
+          # "(default)" database doesn't exist yet (e.g. a freshly created
+          # Firebase project). Provision it first; a no-op if it's already
+          # there.
+          npx firebase-tools@latest firestore:databases:create "(default)" \
+            --location=nam5 \
+            --project "$VITE_FIREBASE_PROJECT_ID" \
+            --non-interactive || true
           npx firebase-tools@latest deploy --only functions --project "$VITE_FIREBASE_PROJECT_ID" --non-interactive
           rm -f "$RUNNER_TEMP/firebase-sa.json"
