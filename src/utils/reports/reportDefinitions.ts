@@ -248,6 +248,19 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     availableFilters: [],
     estimatedGenerationSecs: 5,
   },
+  po_history: {
+    type: 'po_history',
+    name: 'PO History Report',
+    description: 'Purchase order register with supplier, parts, invoice-final pricing, dates, and progress.',
+    category: 'inventory',
+    icon: 'ReceiptText',
+    supportsPdf: true,
+    supportsExcel: true,
+    supportsSheets: true,
+    primaryUsers: ['Store Keeper', 'Manager'],
+    availableFilters: [],
+    estimatedGenerationSecs: 4,
+  },
 };
 
 export const REPORT_LIST = Object.values(REPORT_DEFINITIONS);

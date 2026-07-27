@@ -8,21 +8,29 @@ import ReportSearchBar from '../../components/reports/ReportSearchBar';
 import { useAuthStore } from '../../store/authStore';
 import { useReportsStore } from '../../store/reports.store';
 import { REPORT_LIST } from '../../utils/reports/reportDefinitions';
+import { filterReportTypesForRole } from '../../utils/reports/reportAccess';
 
 export default function ReportsHubPage() {
   const canAccess = useAuthStore((state) => state.canAccess(['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']));
+  const role = useAuthStore((state) => state.userProfile?.role);
   const openConfigPanel = useReportsStore((state) => state.openConfigPanel);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<ReportCategoryTab>('all');
 
   // SLA Compliance and PM Compliance reports have been retired from the hub.
   const HIDDEN_REPORTS = new Set(['sla_compliance', 'pm_compliance']);
-  const reports = useMemo(() => REPORT_LIST.filter((report) => {
-    if (HIDDEN_REPORTS.has(report.type)) return false;
-    const matchesSearch = report.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = category === 'all' || report.category === category;
-    return matchesSearch && matchesCategory;
-  }), [category, search]);
+  const reports = useMemo(() => {
+    const allowedTypes = new Set(
+      filterReportTypesForRole(REPORT_LIST.map((r) => r.type), role)
+    );
+    return REPORT_LIST.filter((report) => {
+      if (HIDDEN_REPORTS.has(report.type)) return false;
+      if (!allowedTypes.has(report.type)) return false;
+      const matchesSearch = report.name.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = category === 'all' || report.category === category;
+      return matchesSearch && matchesCategory;
+    });
+  }, [category, search, role]);
 
   if (!canAccess) return <Navigate to="/app/dashboard" replace />;
 
