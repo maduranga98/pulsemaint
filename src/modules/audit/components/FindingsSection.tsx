@@ -2,6 +2,7 @@ import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import {
   FINDING_KIND_LABELS,
+  ALL_FINDING_KINDS,
   type AuditFinding,
   type FindingKind,
 } from '../types/audit.types';
@@ -9,13 +10,15 @@ import {
 interface Props {
   findings: AuditFinding[];
   onChange: (next: AuditFinding[]) => void;
+  /** Which finding-type buttons to show; defaults to all 4 for backward compat with templates that predate this field. */
+  allowedKinds?: FindingKind[];
 }
 
 /**
  * Captures losses / breakdowns / safety / maintenance findings — every finding
  * always prompts for a reason and a corrective solution.
  */
-export function FindingsSection({ findings, onChange }: Props) {
+export function FindingsSection({ findings, onChange, allowedKinds = ALL_FINDING_KINDS }: Props) {
   const add = (kind: FindingKind) =>
     onChange([...findings, { id: nanoid(), kind, description: '', reason: '', solution: '' }]);
 
@@ -27,7 +30,7 @@ export function FindingsSection({ findings, onChange }: Props) {
   return (
     <div>
       <div className="flex flex-wrap gap-2 mb-3">
-        {(Object.keys(FINDING_KIND_LABELS) as FindingKind[]).map((kind) => (
+        {allowedKinds.map((kind) => (
           <button
             key={kind}
             type="button"

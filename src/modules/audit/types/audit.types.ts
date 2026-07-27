@@ -29,6 +29,25 @@ export function isBuiltinCategory(category: string): category is BuiltinAuditCat
   return (BUILTIN_AUDIT_CATEGORIES as readonly string[]).includes(category);
 }
 
+export const ALL_FINDING_KINDS: FindingKind[] = ['loss', 'breakdown', 'safety', 'maintenance'];
+
+/**
+ * Normalizes a template read from Firestore so every consumer can treat
+ * `scope` and `enabledFindingKinds` as always-present, regardless of whether
+ * the underlying document predates those fields. `scope` is derived from the
+ * legacy `category === 'contractor'` convention to preserve current
+ * behavior exactly; `enabledFindingKinds` defaults to all 4 kinds.
+ */
+export function normalizeTemplate<T extends { category: AuditCategory; scope?: AuditScope; enabledFindingKinds?: FindingKind[] }>(
+  template: T,
+): T & { scope: AuditScope; enabledFindingKinds: FindingKind[] } {
+  return {
+    ...template,
+    scope: template.scope ?? (template.category === 'contractor' ? 'contractors' : 'machines'),
+    enabledFindingKinds: template.enabledFindingKinds ?? ALL_FINDING_KINDS,
+  };
+}
+
 /** Answer types selectable per task when configuring an audit template. */
 export type AnswerType = 'yes_no' | 'scale' | 'text';
 
@@ -39,6 +58,22 @@ export const ANSWER_TYPE_LABELS: Record<AnswerType, string> = {
 };
 
 export type AuditStatus = 'draft' | 'submitted';
+
+/**
+ * What a template's checklist is "about" — drives which item picker (if any)
+ * and Department/Location behavior the session form renders. Explicit and
+ * admin-selectable at category-creation time (see `AuditTaskConfigurator`
+ * `createNew` mode); not editable afterwards since it drives the session UI.
+ */
+export type AuditScope = 'machines' | 'contractors' | 'inventory' | 'workOrders' | 'departments';
+
+export const AUDIT_SCOPE_LABELS: Record<AuditScope, string> = {
+  machines: 'Machines',
+  contractors: 'Contractors',
+  inventory: 'Inventory / Parts',
+  workOrders: 'Work Orders',
+  departments: 'Departments',
+};
 
 /** Finding kinds that always prompt for a reason + corrective solution. */
 export type FindingKind = 'loss' | 'breakdown' | 'safety' | 'maintenance';
@@ -70,6 +105,19 @@ export interface AuditTemplate {
   /** A built-in default template ships with the app and can be cloned/edited. */
   isDefault: boolean;
   updatedAt: Timestamp | null;
+  /**
+   * What this template's checklist is scoped to. Optional on the type only to
+   * model documents persisted before this field existed — always read
+   * templates through `normalizeTemplate()` so callers can treat this as
+   * required. New/created templates always set it explicitly.
+   */
+  scope?: AuditScope;
+  /**
+   * Which Finding types (Losses/Breakdowns/Safety/Maintenance) this
+   * template's session form offers. Optional for the same backward-compat
+   * reason as `scope` — read via `normalizeTemplate()`.
+   */
+  enabledFindingKinds?: FindingKind[];
 }
 
 // ─── Session sub-records ────────────────────────────────────────────────────
@@ -122,6 +170,18 @@ export interface ContractorRef {
   name: string;
 }
 
+export interface InventoryItemRef {
+  id: string;
+  name: string;
+  partNumber?: string;
+}
+
+export interface WorkOrderRef {
+  id: string;
+  woNumber: string;
+  machineName?: string;
+}
+
 /** A single per-job rating + note captured during a Contractor Audit. */
 export interface ContractorJobRating {
   jobId: string;
@@ -155,6 +215,8 @@ export interface AuditSession {
   contractors: ContractorRef[];
   /** Denormalized contractor ids for `array-contains` queries (Contractor Audits only). */
   contractorIds: string[];
+  inventoryItems: InventoryItemRef[];
+  workOrders: WorkOrderRef[];
   department: string;
   location: string;
 
@@ -194,6 +256,8 @@ export interface AuditDraft {
   templateId: string;
   machines: MachineRef[];
   contractors: ContractorRef[];
+  inventoryItems: InventoryItemRef[];
+  workOrders: WorkOrderRef[];
   department: string;
   location: string;
   contractorJobRatings: ContractorJobRating[];
