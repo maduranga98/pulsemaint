@@ -378,7 +378,7 @@ export const WO_COPY = {
   sourceLabelExternal:    'External Purchase',
   unitCostLabel:          'Unit Cost (LKR)',
   totalCostLabel:         'Total Cost (LKR)',
-  techLogsLabel:          'Technician Work Logs',
+  techLogsLabel:          'Team Work Logs',
   hoursWorkedLabel:       'Hours Worked',
   tasksDescLabel:         'Tasks Performed',
   contractorHoursLabel:   'Contractor Hours',

@@ -37,6 +37,9 @@ export async function createInvitation(data: {
   address?: string | null;
   invitedBy: string;
   invitedByName: string;
+  trainingPeriodPreset?: 6 | 12 | 'custom' | null;
+  trainingStartDate?: Date | null;
+  trainingEndDate?: Date | null;
 }): Promise<Invitation> {
   const normalizedEmail = data.email.toLowerCase().trim();
 
@@ -91,6 +94,9 @@ export async function createInvitation(data: {
     expiresAt,
     acceptedAt: null,
     acceptedUserId: null,
+    trainingPeriodPreset: data.trainingPeriodPreset ?? null,
+    trainingStartDate: data.trainingStartDate ? Timestamp.fromDate(data.trainingStartDate) : null,
+    trainingEndDate: data.trainingEndDate ? Timestamp.fromDate(data.trainingEndDate) : null,
   };
 
   await setDoc(doc(db, `companies/${data.companyId}/invitations/${id}`), invitation);
@@ -224,6 +230,9 @@ async function createUserFromInvitation(
     updatedAt: serverTimestamp(),
     lastLoginAt: serverTimestamp(),
     invitedBy: invitation.invitedBy,
+    trainingPeriodPreset: invitation.trainingPeriodPreset ?? null,
+    trainingStartDate: invitation.trainingStartDate ?? null,
+    trainingEndDate: invitation.trainingEndDate ?? null,
   };
 
   await setDoc(userRef, userProfile);

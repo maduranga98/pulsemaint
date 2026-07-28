@@ -37,7 +37,14 @@ function SectionHeader({ title, description }: { title: string; description?: st
 }
 
 export default function AnalyticsPage() {
-  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  // workOrders (and the charts fed from it — Work Order distribution,
+  // Maintenance Cost Overview) are scoped by siteId, not companyId; for a
+  // multi-site user those differ, so resolve siteIds[0] first the same way
+  // the rest of the app does (useWorkOrders, ManagerDashboard, etc.) —
+  // otherwise those two charts silently show no data for anyone whose
+  // siteId isn't identical to their companyId.
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const companyId = userProfile?.siteIds?.[0] || userProfile?.companyId || '';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   const [range, setRange] = useState<Range>('mtd');
 

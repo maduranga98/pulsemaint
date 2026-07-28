@@ -17,8 +17,8 @@ interface QuickStockAdjustProps {
   onComplete?: () => void;
 }
 
-type AllowedRole = 'store_keeper' | 'supervisor' | 'manager' | 'admin';
-const ALLOWED_ROLES: AllowedRole[] = ['store_keeper', 'supervisor', 'manager', 'admin'];
+type AllowedRole = 'store_keeper' | 'supervisor' | 'plant_manager' | 'admin';
+const ALLOWED_ROLES: AllowedRole[] = ['store_keeper', 'supervisor', 'plant_manager', 'admin'];
 
 export function QuickStockAdjust({ partId, currentStock, unit, onComplete }: QuickStockAdjustProps) {
   const userProfile = useAuthStore((s) => s.userProfile);

@@ -32,6 +32,10 @@ export interface UserProfile {
   updatedAt: Timestamp;
   lastLoginAt: Timestamp | null;
   invitedBy: string | null;
+  /** Trainee-only: training period, set at registration. Preset is 6/12 months or 'custom'. */
+  trainingPeriodPreset?: 6 | 12 | 'custom' | null;
+  trainingStartDate?: Timestamp | null;
+  trainingEndDate?: Timestamp | null;
 }
 
 export interface CompanyProfile {
@@ -41,6 +45,10 @@ export interface CompanyProfile {
   industry: string;
   country: string;
   logoUrl: string | null;
+  /** Data URL captured at upload time — avoids a cross-origin fetch of Storage's
+   *  download URL (often blocked by CORS) when embedding the logo in generated
+   *  PDFs like service letters. */
+  logoDataUrl?: string | null;
   language: string;
   timezone: string;
   currency: 'LKR' | 'USD' | 'AED' | 'SAR';
@@ -92,6 +100,10 @@ export interface Invitation {
   expiresAt: Timestamp;
   acceptedAt: Timestamp | null;
   acceptedUserId: string | null;
+  /** Trainee-only: training period, set at registration. Preset is 6/12 months or 'custom'. */
+  trainingPeriodPreset?: 6 | 12 | 'custom' | null;
+  trainingStartDate?: Timestamp | null;
+  trainingEndDate?: Timestamp | null;
 }
 
 export interface AuthState {

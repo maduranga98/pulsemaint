@@ -47,7 +47,10 @@ function timestampToDate(ts: unknown): Date | null {
  */
 export async function generateServiceLetter(input: GenerateServiceLetterInput): Promise<void> {
   const { company, employee, roleLabel, form, issuedBy, signatureImageDataUrl } = input;
-  const logoDataUrl = company.logoUrl ? await fetchImageAsDataUrl(company.logoUrl) : null;
+  // Prefer the data URL captured at upload time — fetching the Storage
+  // download URL cross-origin can fail silently if the bucket has no CORS
+  // rule for this origin, which used to make the logo vanish from letters.
+  const logoDataUrl = company.logoDataUrl || (company.logoUrl ? await fetchImageAsDataUrl(company.logoUrl) : null);
 
   const pdf = buildServiceLetterPdf({
     companyName: company.name,

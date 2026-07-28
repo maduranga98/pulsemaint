@@ -41,6 +41,7 @@ import type { UserProfile, UserRole, Invitation } from '../../types/auth';
 import { UsersBulkImportModal, type ParsedUserRow } from '../../components/settings/UsersBulkImportModal';
 import { ServiceLetterModal } from '../../components/settings/ServiceLetterModal';
 import { Upload, FileText } from 'lucide-react';
+import { computeExpectedEndDate, type DurationPreset } from '../../lib/traineeProgram/programmeDuration';
 
 const ROLE_LABEL: Record<UserRole, string> = {
   admin: 'Admin',
@@ -97,6 +98,10 @@ interface InviteFormValues {
   department: string;
   jobTitle: string;
   address: string;
+  /** Trainee-only. */
+  trainingPeriodPreset: 6 | 12 | 'custom';
+  trainingStartDate: string;
+  trainingEndDate: string;
 }
 
 const emptyInviteForm: InviteFormValues = {
@@ -106,6 +111,9 @@ const emptyInviteForm: InviteFormValues = {
   department: '',
   jobTitle: '',
   address: '',
+  trainingPeriodPreset: 6,
+  trainingStartDate: new Date().toISOString().slice(0, 10),
+  trainingEndDate: '',
 };
 
 /**
@@ -288,6 +296,18 @@ export default function UsersPage() {
 
   const handleInvite = async (values: InviteFormValues) => {
     if (!company?.id || !currentUser) throw new Error('No company in session');
+    const isTrainee = values.role === 'trainee';
+    const trainingStart = isTrainee && values.trainingStartDate ? new Date(values.trainingStartDate) : null;
+    const trainingEnd =
+      isTrainee && trainingStart
+        ? computeExpectedEndDate(
+            values.trainingPeriodPreset,
+            trainingStart,
+            values.trainingPeriodPreset === 'custom' && values.trainingEndDate
+              ? new Date(values.trainingEndDate)
+              : null,
+          )
+        : null;
     const inv = await createInvitation({
       companyId: company.id,
       companyName: company.name,
@@ -299,6 +319,9 @@ export default function UsersPage() {
       address: values.address.trim() || null,
       invitedBy: currentUser.id,
       invitedByName: currentUser.fullName,
+      trainingPeriodPreset: isTrainee ? values.trainingPeriodPreset : null,
+      trainingStartDate: trainingStart,
+      trainingEndDate: trainingEnd,
     });
     toast.success(`Invitation sent to ${values.email}`);
     if (activeTab === 'invitations') loadInvitations();
@@ -733,6 +756,24 @@ function InviteModal({
       setFormError('Please enter a valid email address.');
       return;
     }
+    if (values.role === 'trainee') {
+      if (!values.trainingStartDate) {
+        setFormError('Training start date is required for trainees.');
+        return;
+      }
+      if (values.trainingPeriodPreset === 'custom' && !values.trainingEndDate) {
+        setFormError('Custom training end date is required.');
+        return;
+      }
+      if (
+        values.trainingPeriodPreset === 'custom' &&
+        values.trainingEndDate &&
+        new Date(values.trainingEndDate) <= new Date(values.trainingStartDate)
+      ) {
+        setFormError('Training end date must be after the start date.');
+        return;
+      }
+    }
     setSaving(true);
     setFormError(null);
     try {
@@ -882,6 +923,63 @@ function InviteModal({
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </Field>
+
+          {values.role === 'trainee' && (
+            <div className="border border-slate-200 rounded-lg p-3 space-y-3">
+              <p className="text-xs font-semibold text-slate-700">Training Period</p>
+
+              <Field label="Registration / start date" required>
+                <input
+                  type="date"
+                  value={values.trainingStartDate}
+                  onChange={(e) => set('trainingStartDate', e.target.value)}
+                  className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                />
+              </Field>
+
+              <div className="flex gap-2">
+                {([6, 12, 'custom'] as DurationPreset[]).map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => set('trainingPeriodPreset', preset)}
+                    className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+                      values.trainingPeriodPreset === preset
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {preset === 'custom' ? 'Custom' : `${preset} months`}
+                  </button>
+                ))}
+              </div>
+
+              {values.trainingPeriodPreset === 'custom' ? (
+                <Field label="Custom end date" required>
+                  <input
+                    type="date"
+                    value={values.trainingEndDate}
+                    min={values.trainingStartDate}
+                    onChange={(e) => set('trainingEndDate', e.target.value)}
+                    className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  />
+                </Field>
+              ) : (
+                values.trainingStartDate && (
+                  <p className="text-xs text-slate-500">
+                    Ends automatically on{' '}
+                    <strong className="text-slate-700">
+                      {computeExpectedEndDate(values.trainingPeriodPreset, new Date(values.trainingStartDate)).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric',
+                      })}
+                    </strong>
+                  </p>
+                )
+              )}
+            </div>
+          )}
 
           <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
             <strong>How it works:</strong> A unique invite link will be generated. Share it with the member — they can sign up with email/password or Google to join your team with the assigned role.
