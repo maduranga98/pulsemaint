@@ -17,6 +17,8 @@ import TrainingDashboardPage from '../pages/training/manage/TrainingDashboardPag
 import ModuleLibraryPage from '../pages/training/manage/ModuleLibraryPage';
 import CreateModulePage from '../pages/training/manage/CreateModulePage';
 import EditModulePage from '../pages/training/manage/EditModulePage';
+import CreateTraineeModulePage from '../pages/training/manage/CreateTraineeModulePage';
+import EditTraineeModulePage from '../pages/training/manage/EditTraineeModulePage';
 import QuizBuilderPage from '../pages/training/manage/QuizBuilderPage';
 import AssignTrainingPage from '../pages/training/manage/AssignTrainingPage';
 import AssignmentsListPage from '../pages/training/manage/AssignmentsListPage';
@@ -654,6 +656,39 @@ export default function AppRouter() {
         />
         <Route
           path="training/manage/modules/:moduleId/quiz"
+          element={
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+              <QuizBuilderPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Trainee Management's module library has its own editor routes, so
+            the two libraries no longer share one editor switched by a query
+            param. Same requiredRoles as the Training library's editor routes.
+            The index redirects to Trainee Management, which is where the
+            trainee library lives. */}
+        <Route
+          path="training/manage/trainee-modules"
+          element={<Navigate to="/app/training/manage/assignments" replace />}
+        />
+        <Route
+          path="training/manage/trainee-modules/new"
+          element={
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+              <CreateTraineeModulePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/trainee-modules/:moduleId"
+          element={
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+              <EditTraineeModulePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/trainee-modules/:moduleId/quiz"
           element={
             <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <QuizBuilderPage />

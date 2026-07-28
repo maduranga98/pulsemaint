@@ -11,9 +11,9 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
 import { useTraineeList } from '@/hooks/training/useTraineeList';
-import { useTrainingModules } from '@/hooks/training/useTrainingModules';
+import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
 import type { UserProfile } from '@/types/auth';
-import type { TrainingModule, TraineeTrainingType } from '@/lib/training/trainingTypes';
+import type { TraineeLibraryModule, TraineeTrainingType } from '@/lib/training/trainingTypes';
 import { TRAINEE_TRAINING_TYPE_LABELS } from '@/lib/training/trainingTypes';
 import { getModuleCategory } from '@/lib/training/offboardTraining';
 import { notifyUsers } from '@/services/notifications.service';
@@ -101,12 +101,10 @@ export default function AssignTrainingWizard({
     if (match) setSelectedTrainees([match]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultTraineeId, trainees]);
-  const { modules, loading: modulesLoading } = useTrainingModules({
-    status: 'active',
-    // Trainee Management only ever assigns from its own module library —
-    // never the Training tab's.
-    libraryScope: 'trainee_management',
-  });
+  // Trainee Management only ever assigns from its own module library — the
+  // hook itself is scoped to it, so the Training tab's modules can never
+  // reach this wizard.
+  const { modules, loading: modulesLoading } = useTraineeLibraryModules({ status: 'active' });
 
   // Pre-select the module (and its category, for the filter dropdown) this
   // wizard was launched for (e.g. from a Module Library "Assign" action).
@@ -123,10 +121,10 @@ export default function AssignTrainingWizard({
   // The category dropdown just filters which modules are browsable —
   // trainees can be assigned one or more specific modules, picked via
   // checkbox, rather than the whole category as a set.
-  const browsableModules: TrainingModule[] = selectedCategory
+  const browsableModules: TraineeLibraryModule[] = selectedCategory
     ? modules.filter((m) => m.trainingType === selectedCategory)
     : modules;
-  const selectedModules: TrainingModule[] = modules.filter((m) => selectedModuleIds.has(m.id));
+  const selectedModules: TraineeLibraryModule[] = modules.filter((m) => selectedModuleIds.has(m.id));
 
   function toggleModule(moduleId: string) {
     setSelectedModuleIds((prev) => {
@@ -176,7 +174,7 @@ export default function AssignTrainingWizard({
 
     try {
       let skipped = 0;
-      const pairs: { trainee: UserProfile; module: TrainingModule }[] = [];
+      const pairs: { trainee: UserProfile; module: TraineeLibraryModule }[] = [];
 
       for (const trainee of selectedTrainees) {
         for (const mod of selectedModules) {

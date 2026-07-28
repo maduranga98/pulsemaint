@@ -8,29 +8,42 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import type { TrainingModule, TrainingModuleStatus, ModuleCategory, TrainingModuleLibraryScope } from '@/lib/training/trainingTypes';
+import type {
+  TraineeLibraryModule,
+  TraineeTrainingType,
+  TrainingModuleStatus,
+} from '@/lib/training/trainingTypes';
 
-export interface UseTrainingModulesOptions {
+export interface UseTraineeLibraryModulesOptions {
   status?: TrainingModuleStatus;
-  moduleCategory?: ModuleCategory;
+  trainingType?: TraineeTrainingType;
   searchQuery?: string;
-  /** Training tab and Trainee Management have entirely separate module libraries — always pass this. */
-  libraryScope?: TrainingModuleLibraryScope;
 }
 
-interface UseTrainingModulesResult {
-  modules: TrainingModule[];
+interface UseTraineeLibraryModulesResult {
+  modules: TraineeLibraryModule[];
   loading: boolean;
   error: string | null;
 }
 
-export function useTrainingModules(
-  options: UseTrainingModulesOptions = {}
-): UseTrainingModulesResult {
-  const { status, moduleCategory, searchQuery, libraryScope } = options;
+/**
+ * Trainee Management's module library — programme modules only.
+ *
+ * Owns its own query: `libraryScope == 'trainee_management'` is a
+ * server-side filter, so the Training tab's machine/competency modules are
+ * never returned here and can never be assigned through the trainee-first
+ * flow. The Training tab has its own hook (`useTrainingLibraryModules`).
+ *
+ * Requires the composite indexes companyId+libraryScope and
+ * companyId+libraryScope+status (see firestore.indexes.json).
+ */
+export function useTraineeLibraryModules(
+  options: UseTraineeLibraryModulesOptions = {}
+): UseTraineeLibraryModulesResult {
+  const { status, trainingType, searchQuery } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
-  const [modules, setModules] = useState<TrainingModule[]>([]);
+  const [modules, setModules] = useState<TraineeLibraryModule[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,37 +58,28 @@ export function useTrainingModules(
 
     const constraints: QueryConstraint[] = [
       where('companyId', '==', companyId),
+      where('libraryScope', '==', 'trainee_management'),
     ];
+    if (status) constraints.push(where('status', '==', status));
 
-    if (status) {
-      constraints.push(where('status', '==', status));
-    }
-
-    if (moduleCategory) {
-      constraints.push(where('moduleCategory', '==', moduleCategory));
-    }
-
-    // Sorted client-side: companyId + orderBy(updatedAt) without a status
-    // filter has no composite index deployed and would fail silently.
+    // trainingType is filtered client-side: adding it to the query would
+    // need a further composite index per combination, and the trainee
+    // library is small enough that the snapshot is cheap to filter.
     const q = query(collection(db, 'trainingModules'), ...constraints);
 
     const unsubscribe = onSnapshot(
       q,
       (snap) => {
         let docs = snap.docs
-          .map((d) => ({ id: d.id, ...d.data() }) as TrainingModule)
+          .map((d) => ({ id: d.id, ...d.data() }) as TraineeLibraryModule)
           .sort(
             (a, b) =>
               ((b.updatedAt as any)?.toMillis?.() ?? 0) -
               ((a.updatedAt as any)?.toMillis?.() ?? 0)
           );
 
-        if (libraryScope) {
-          // Firestore's `==` filter would exclude legacy docs that predate
-          // this field entirely, hiding them from both libraries — filter
-          // client-side instead so a missing libraryScope is treated as
-          // 'training' (this app's original, only library).
-          docs = docs.filter((m) => (m.libraryScope ?? 'training') === libraryScope);
+        if (trainingType) {
+          docs = docs.filter((m) => m.trainingType === trainingType);
         }
 
         if (searchQuery && searchQuery.trim() !== '') {
@@ -83,7 +87,6 @@ export function useTrainingModules(
           docs = docs.filter(
             (m) =>
               (m.title ?? '').toLowerCase().includes(term) ||
-              (m.machineName ?? '').toLowerCase().includes(term) ||
               (m.tags ?? []).some((tag) => tag.toLowerCase().includes(term))
           );
         }
@@ -98,7 +101,7 @@ export function useTrainingModules(
     );
 
     return () => unsubscribe();
-  }, [companyId, status, moduleCategory, searchQuery, libraryScope]);
+  }, [companyId, status, trainingType, searchQuery]);
 
   return { modules, loading, error };
 }

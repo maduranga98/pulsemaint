@@ -5,7 +5,7 @@ import { collection, doc, getDoc, onSnapshot, query, where } from 'firebase/fire
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import { useTrainingModules } from '@/hooks/training/useTrainingModules';
+import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
 import { useProgrammeById } from '@/hooks/traineeProgram/useProgrammeById';
 import { useWeekendSummaries } from '@/hooks/traineeProgram/useWeekendSummaries';
 import {
@@ -49,7 +49,7 @@ export default function TraineeProgrammePage() {
   const [findingProgramme, setFindingProgramme] = useState(true);
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
 
-  const { modules } = useTrainingModules({ status: 'active', libraryScope: 'trainee_management' });
+  const { modules } = useTraineeLibraryModules({ status: 'active' });
   const { programme, loading: programmeLoading } = useProgrammeById(programmeId);
   const { summaries } = useWeekendSummaries(programmeId);
 

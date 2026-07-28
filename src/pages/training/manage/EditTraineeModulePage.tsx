@@ -5,14 +5,14 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useTrainingModule } from '@/hooks/training/useTrainingModule';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
-import { isTrainingLibraryModule } from '@/lib/training/trainingTypes';
+import { isTraineeLibraryModule } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
-import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
+import TraineeModuleSettingsForm from '@/components/training/manager/TraineeModuleSettingsForm';
 
-/** Edits a module in the Training tab's library. A module belonging to
- *  Trainee Management's library cannot be opened here — it has its own
- *  editor at training/manage/trainee-modules/:moduleId. */
-export default function EditModulePage() {
+/** Edits a module in Trainee Management's library. A Training-tab module
+ *  cannot be opened here — it has its own editor at
+ *  training/manage/modules/:moduleId. */
+export default function EditTraineeModulePage() {
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
   const { module, loading, error } = useTrainingModule(moduleId ?? '');
@@ -31,8 +31,6 @@ export default function EditModulePage() {
     }
   };
 
-  // The settings form itself already persisted status: 'active' (and every
-  // other field) via handleSave before this fires — just navigate away.
   const handlePublish = () => navigate(-1);
 
   if (loading) {
@@ -54,15 +52,13 @@ export default function EditModulePage() {
     );
   }
 
-  // Cross-library guard: opening a trainee-library module through the
-  // Training tab's route would edit it with the wrong settings form and
-  // silently rewrite its libraryScope.
-  if (!isTrainingLibraryModule(module)) {
+  // Cross-library guard — see EditModulePage for the mirror case.
+  if (!isTraineeLibraryModule(module)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600 px-6 text-center">
         <p className="font-medium">Not found in this library.</p>
         <p className="text-sm text-slate-500">
-          This module belongs to the Trainee Management library. Open it from Trainee Management instead.
+          This module belongs to the Training library. Open it from the Training tab instead.
         </p>
         <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline text-sm">
           Back
@@ -83,7 +79,7 @@ export default function EditModulePage() {
         </button>
         <h1 className="font-semibold text-slate-900 text-sm truncate flex-1">{module.title}</h1>
         <button
-          onClick={() => navigate(`/app/training/manage/modules/${moduleId}/quiz`)}
+          onClick={() => navigate(`/app/training/manage/trainee-modules/${moduleId}/quiz`)}
           className="text-xs text-blue-600 hover:underline shrink-0"
         >
           Quiz Builder
@@ -95,9 +91,9 @@ export default function EditModulePage() {
         onPublish={handlePublish}
         isSaving={isSaving}
         moduleId={moduleId}
-        editorBasePath="/app/training/manage/modules"
+        editorBasePath="/app/training/manage/trainee-modules"
         renderSettings={(ref) => (
-          <ModuleSettingsForm ref={ref} defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
+          <TraineeModuleSettingsForm ref={ref} defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
     </div>

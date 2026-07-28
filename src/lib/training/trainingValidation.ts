@@ -47,6 +47,77 @@ export const createTrainingModuleSchema = z
 export type CreateTrainingModuleInput = z.infer<typeof createTrainingModuleSchema>;
 
 // ---------------------------------------------------------------------------
+// Per-library module validation
+//
+// The two module libraries require different things of an author, so each
+// validates its own shape rather than sharing one permissive schema:
+//   • Training tab       — machine/competency modules, Internal vs Offboard.
+//   • Trainee Management — programme modules: training type, delivery mode,
+//                          and a default training period are all mandatory.
+// ---------------------------------------------------------------------------
+
+const moduleCoreShape = {
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional().default(''),
+  estimatedMinutes: z.number().int().positive().default(30),
+  passingScore: z
+    .number()
+    .int()
+    .min(50, 'Passing score must be at least 50')
+    .max(100, 'Passing score cannot exceed 100')
+    .default(70),
+  status: z.enum(['draft', 'active', 'archived']).default('draft'),
+  language: z.enum(['en', 'si', 'ta', 'bn']).default('en'),
+  tags: z.array(z.string()).optional().default([]),
+};
+
+/** Validates a module authored in the Training tab's library. */
+export const trainingLibraryModuleSchema = z
+  .object({
+    ...moduleCoreShape,
+    libraryScope: z.literal('training').default('training'),
+    category: z.enum(['machine', 'offboard']).default('machine'),
+    machineName: z.string().optional().default(''),
+    providerName: z.string().optional().default(''),
+  })
+  .superRefine((data, ctx) => {
+    if (data.category === 'machine' && !data.machineName.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Machine is required for internal training modules',
+        path: ['machineName'],
+      });
+    }
+  });
+
+export type TrainingLibraryModuleInput = z.infer<typeof trainingLibraryModuleSchema>;
+
+/** Validates a module authored in Trainee Management's library. */
+export const traineeLibraryModuleSchema = z.object({
+  ...moduleCoreShape,
+  libraryScope: z.literal('trainee_management').default('trainee_management'),
+  trainingType: z.enum([
+    'electrical_trainee',
+    'mechanical_trainee',
+    'hr_trainee',
+    'civil_trainee',
+    'technician_trainee',
+    'operator_trainee',
+    'other_trainee',
+  ], { errorMap: () => ({ message: 'Training type is required' }) }),
+  trainingMode: z.enum(['online', 'onsite'], {
+    errorMap: () => ({ message: 'Mode is required' }),
+  }),
+  defaultTrainingPeriodMonths: z
+    .number()
+    .int()
+    .min(1, 'Default period must be at least 1 month')
+    .max(60, 'Default period must be 60 months or fewer'),
+});
+
+export type TraineeLibraryModuleInput = z.infer<typeof traineeLibraryModuleSchema>;
+
+// ---------------------------------------------------------------------------
 // Create Assignment
 // ---------------------------------------------------------------------------
 

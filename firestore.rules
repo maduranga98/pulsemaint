@@ -43,6 +43,14 @@ service cloud.firestore {
       return isRole('admin');
     }
 
+    // A trainingModules doc must declare which of the two module libraries
+    // it belongs to. On an update request.resource.data is the merged
+    // result, so a doc that already carries a scope stays writable without
+    // the client having to resend the field.
+    function hasValidLibraryScope() {
+      return request.resource.data.libraryScope in ['training', 'trainee_management'];
+    }
+
     function isSupervisor() {
       return isRole('supervisor') || isRole('maintenance_supervisor');
     }
@@ -1065,11 +1073,17 @@ service cloud.firestore {
       // through Trainee Management, same as the other authoring roles.
       // `category`/`offboardDetails` (offboard/external training) are just
       // additional fields on the same document — no extra rule needed.
+      // Every module belongs to exactly one of the two module libraries —
+      // the Training tab's or Trainee Management's — and both libraries
+      // query on `libraryScope`. A write without a valid scope would create
+      // a module that neither library can see, so it is rejected here.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor'])
+        && hasValidLibraryScope();
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor'])
+        && hasValidLibraryScope();
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role == 'admin';
     }
