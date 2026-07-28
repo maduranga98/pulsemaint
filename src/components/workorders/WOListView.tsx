@@ -54,8 +54,10 @@ export function WOListView() {
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = userProfile?.role;
-  const isSupervisorOrAdmin =
-    role === 'supervisor' || role === 'admin';
+  // Plant managers create work orders alongside supervisors and admins —
+  // firestore.rules grants them the matching create permission.
+  const canCreateWorkOrder =
+    role === 'supervisor' || role === 'admin' || role === 'plant_manager';
 
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -132,7 +134,7 @@ export function WOListView() {
               </button>
             </div>
 
-            {isSupervisorOrAdmin && (
+            {canCreateWorkOrder && (
               <button
                 type="button"
                 onClick={() => setShowCreateDrawer(true)}

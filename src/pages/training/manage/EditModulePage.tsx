@@ -31,9 +31,6 @@ export default function EditModulePage() {
     }
   };
 
-  // The settings form itself already persisted status: 'active' (and every
-  // other field) via handleSave before this fires — just navigate away.
-  const handlePublish = () => navigate(-1);
 
   if (loading) {
     return (
@@ -92,12 +89,10 @@ export default function EditModulePage() {
       <ModuleEditorLayout
         module={module}
         onSave={handleSave}
-        onPublish={handlePublish}
-        isSaving={isSaving}
         moduleId={moduleId}
         editorBasePath="/app/training/manage/modules"
-        renderSettings={(ref) => (
-          <ModuleSettingsForm ref={ref} defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
+        renderSettings={() => (
+          <ModuleSettingsForm defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
     </div>

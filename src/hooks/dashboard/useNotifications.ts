@@ -1,10 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useAuthStore } from '../../store/authStore';
+import { isNotificationForUser } from '../../lib/notifications/recipients';
 import type { DashboardNotification } from '../../types/analytics.types';
 
+/**
+ * Dashboard notification feed. Applies the same strict targeting as the
+ * notification bell — a notification raised for one role never shows up on
+ * another role's dashboard. Unlike the bell it keeps read notifications,
+ * since the dashboard feed is a recent-activity view rather than a to-do list.
+ */
 export function useNotifications(companyId: string) {
-  const [notifications, setNotifications] = useState<DashboardNotification[]>([]);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const [all, setAll] = useState<DashboardNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +34,7 @@ export function useNotifications(companyId: string) {
       q,
       (snapshot) => {
         const data = snapshot.docs.map((d) => ({ ...d.data(), id: d.id } as DashboardNotification));
-        setNotifications(data);
+        setAll(data);
         setLoading(false);
       },
       (err) => {
@@ -36,6 +45,11 @@ export function useNotifications(companyId: string) {
 
     return () => unsubscribe();
   }, [companyId]);
+
+  const notifications = useMemo(
+    () => all.filter((n) => isNotificationForUser(n, userProfile?.role, userProfile?.id)),
+    [all, userProfile],
+  );
 
   return { notifications, loading, error };
 }

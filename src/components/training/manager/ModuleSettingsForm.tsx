@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import type {
@@ -43,24 +43,17 @@ interface FormValues {
   };
 }
 
-export interface ModuleSettingsFormHandle {
-  /** Submits the form's current values with the given status forced — used by the
-   *  editor's "Save Draft"/"Publish Module" footer buttons so they persist every
-   *  field the admin has typed, not just the status. Rejects if validation fails. */
-  submitAs: (status: TrainingModuleStatus) => Promise<void>;
-}
-
 /**
  * Settings form for the Training tab's module library only — machine /
  * competency modules, including the Internal vs Offboard-External category
  * picker. Trainee Management has its own form
  * (`TraineeModuleSettingsForm`); neither branches on which library it is in.
  */
-const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFormProps>(function ModuleSettingsForm({
+export default function ModuleSettingsForm({
   defaultValues,
   onSubmit,
   isLoading = false,
-}, ref) {
+}: ModuleSettingsFormProps) {
   const [quizOpen, setQuizOpen] = useState(false);
   const [category, setCategory] = useState<TrainingModuleCategory>(
     getModuleCategory(defaultValues as TrainingModule | undefined)
@@ -140,20 +133,6 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
 
     await onSubmit(data);
   }
-
-  useImperativeHandle(ref, () => ({
-    submitAs: (status: TrainingModuleStatus) =>
-      new Promise<void>((resolve, reject) => {
-        setValue('status', status);
-        handleSubmit(
-          async (values) => {
-            await handleFormSubmit({ ...values, status });
-            resolve();
-          },
-          () => reject(new Error('Please fix the highlighted fields first.'))
-        )();
-      }),
-  }));
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
@@ -376,9 +355,7 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
       </button>
     </form>
   );
-});
-
-export default ModuleSettingsForm;
+}
 
 interface ToggleRowProps {
   label: string;
