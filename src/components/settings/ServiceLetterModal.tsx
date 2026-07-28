@@ -33,9 +33,20 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
   const [addressedTo, setAddressedTo] = useState('To Whom It May Concern');
   const [body, setBody] = useState('');
   const [remarks, setRemarks] = useState('');
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
 
   const selectedUser = users.find((u) => u.id === selectedUserId) ?? null;
+
+  function handleSignatureFile(file: File | null) {
+    if (!file) {
+      setSignatureDataUrl(null);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setSignatureDataUrl(reader.result as string);
+    reader.readAsDataURL(file);
+  }
 
   useEffect(() => {
     if (!selectedUser) return;
@@ -58,6 +69,7 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
         roleLabel: roleLabels[selectedUser.role] ?? selectedUser.role,
         form: { subject: subject.trim(), addressedTo: addressedTo.trim(), body: body.trim(), remarks: remarks.trim() },
         issuedBy: { name: userProfile.fullName ?? '', role: roleLabels[userProfile.role] ?? userProfile.role },
+        signatureImageDataUrl: signatureDataUrl,
       });
       toast.success('Service letter generated.');
       onClose();
@@ -123,6 +135,35 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">Remarks (optional)</label>
                 <textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm resize-none" />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-blue-900 mb-1">Digital Signature (optional)</label>
+                <p className="text-xs text-slate-500 mb-2">
+                  Attach a scanned/digital signature image to use instead of a typed signature. Leave blank to sign with your name in{' '}
+                  <span className="font-semibold text-blue-900">dark blue</span>.
+                </p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleSignatureFile(e.target.files?.[0] ?? null)}
+                  className="w-full text-sm text-blue-900 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border file:border-blue-900 file:text-xs file:font-medium file:bg-white file:text-blue-900 hover:file:bg-blue-50"
+                />
+                {signatureDataUrl && (
+                  <div className="mt-2 flex items-center gap-3 border border-blue-200 rounded-lg p-2 bg-blue-50">
+                    <img src={signatureDataUrl} alt="Attached signature preview" className="h-10 object-contain" />
+                    <button
+                      type="button"
+                      onClick={() => setSignatureDataUrl(null)}
+                      className="text-xs font-medium text-blue-900 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+                <p className="mt-2 text-sm font-semibold italic text-blue-900">
+                  {signatureDataUrl ? '' : userProfile?.fullName}
+                </p>
               </div>
             </>
           )}

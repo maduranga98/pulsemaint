@@ -13,6 +13,7 @@ interface ModuleEditorLayoutProps {
   onPublish: () => Promise<void>;
   isSaving?: boolean;
   moduleId?: string;
+  hideCategorySection?: boolean;
 }
 
 type ActiveTab = 'settings' | 'lessons';
@@ -23,6 +24,7 @@ export default function ModuleEditorLayout({
   onPublish,
   isSaving = false,
   moduleId,
+  hideCategorySection = false,
 }: ModuleEditorLayoutProps) {
   const navigate = useNavigate();
   const [lessons, setLessons] = useState<LessonItem[]>(module?.lessons ?? []);
@@ -110,7 +112,7 @@ export default function ModuleEditorLayout({
   const isOffboard = isOffboardModule(module);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-20">
+    <div className="flex flex-col min-h-screen bg-gray-50 pb-24">
       {/* Mobile tab switcher */}
       <div className="lg:hidden flex border-b border-gray-200 bg-white sticky top-0 z-10">
         <button
@@ -147,7 +149,7 @@ export default function ModuleEditorLayout({
             activeTab !== 'settings' ? 'hidden lg:block' : ''
           }`}
         >
-          <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-5 sticky top-6 max-h-[calc(100vh-6rem)] overflow-y-auto">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen size={18} className="text-blue-600" />
               <h2 className="text-base font-semibold text-gray-800">
@@ -158,6 +160,7 @@ export default function ModuleEditorLayout({
               defaultValues={module}
               onSubmit={onSave}
               isLoading={isSaving}
+              hideCategorySection={hideCategorySection}
             />
           </div>
         </div>

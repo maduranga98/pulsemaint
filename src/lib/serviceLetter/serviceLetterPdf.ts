@@ -8,6 +8,8 @@ export interface ServiceLetterInput {
   companyDescription?: string | null;
   companyLogoDataUrl?: string | null;
 
+  signatureImageDataUrl?: string | null;
+
   employeeName: string;
   employeeId: string | null;
   jobTitle: string | null;
@@ -30,6 +32,15 @@ const INK = { r: 15, g: 23, b: 42 };
 const MUTED = { r: 100, g: 116, b: 139 };
 const NAVY = { r: 30, g: 58, b: 95 };
 
+/** jsPDF's addImage needs a format matching the actual image data — a data URL's mime type tells us which. */
+function imageFormatFromDataUrl(dataUrl: string): string {
+  const match = /^data:image\/([a-zA-Z0-9+.-]+);base64,/.exec(dataUrl);
+  const type = (match?.[1] ?? 'png').toLowerCase();
+  if (type === 'jpg' || type === 'jpeg') return 'JPEG';
+  if (type === 'webp') return 'WEBP';
+  return 'PNG';
+}
+
 /**
  * Builds a professional Service Letter as a letterhead document: company
  * logo + description in the header, employee details, a customizable body
@@ -44,7 +55,7 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): jsPDF {
   // Letterhead
   if (input.companyLogoDataUrl) {
     try {
-      doc.addImage(input.companyLogoDataUrl, 'PNG', marginX, y - 20, 48, 48);
+      doc.addImage(input.companyLogoDataUrl, imageFormatFromDataUrl(input.companyLogoDataUrl), marginX, y - 20, 48, 48);
     } catch {
       // Malformed/unsupported image data — skip the logo rather than fail
       // the whole letter generation.
@@ -144,22 +155,38 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): jsPDF {
   // Signature block
   const pageHeight = doc.internal.pageSize.getHeight();
   const sigY = Math.max(y + 50, pageHeight - 140);
-  doc.setFont('times', 'bolditalic');
-  doc.setFontSize(18);
-  doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-  doc.text(input.issuedByName, marginX, sigY - 8);
 
-  doc.setDrawColor(INK.r, INK.g, INK.b);
+  if (input.signatureImageDataUrl) {
+    try {
+      doc.addImage(
+        input.signatureImageDataUrl,
+        imageFormatFromDataUrl(input.signatureImageDataUrl),
+        marginX,
+        sigY - 42,
+        140,
+        36
+      );
+    } catch {
+      // Malformed/unsupported signature image — fall back to the printed name below the line.
+    }
+  } else {
+    doc.setFont('times', 'bolditalic');
+    doc.setFontSize(18);
+    doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
+    doc.text(input.issuedByName, marginX, sigY - 8);
+  }
+
+  doc.setDrawColor(NAVY.r, NAVY.g, NAVY.b);
   doc.setLineWidth(0.75);
   doc.line(marginX, sigY, marginX + 200, sigY);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
-  doc.setTextColor(INK.r, INK.g, INK.b);
+  doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
   doc.text(input.issuedByName, marginX, sigY + 14);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
-  doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
+  doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
   doc.text(input.issuedByRole, marginX, sigY + 26);
 
   return doc;

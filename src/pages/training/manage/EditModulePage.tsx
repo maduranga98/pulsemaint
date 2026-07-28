@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -10,6 +10,8 @@ import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout
 export default function EditModulePage() {
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isTraineeContext = searchParams.get('context') === 'trainee';
   const { module, loading, error } = useTrainingModule(moduleId ?? '');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -86,6 +88,7 @@ export default function EditModulePage() {
         onPublish={handlePublish}
         isSaving={isSaving}
         moduleId={moduleId}
+        hideCategorySection={isTraineeContext}
       />
     </div>
   );

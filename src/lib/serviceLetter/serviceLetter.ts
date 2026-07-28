@@ -14,6 +14,8 @@ interface GenerateServiceLetterInput {
   roleLabel: string;
   form: ServiceLetterFormInput;
   issuedBy: { name: string; role: string };
+  /** Optional data URL of a manually attached digital signature image, rendered in place of the typed-name signature. */
+  signatureImageDataUrl?: string | null;
 }
 
 async function fetchImageAsDataUrl(url: string): Promise<string | null> {
@@ -44,7 +46,7 @@ function timestampToDate(ts: unknown): Date | null {
  * download. Generated entirely client-side — not persisted.
  */
 export async function generateServiceLetter(input: GenerateServiceLetterInput): Promise<void> {
-  const { company, employee, roleLabel, form, issuedBy } = input;
+  const { company, employee, roleLabel, form, issuedBy, signatureImageDataUrl } = input;
   const logoDataUrl = company.logoUrl ? await fetchImageAsDataUrl(company.logoUrl) : null;
 
   const pdf = buildServiceLetterPdf({
@@ -54,6 +56,7 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
     companyEmail: company.email,
     companyDescription: company.description,
     companyLogoDataUrl: logoDataUrl,
+    signatureImageDataUrl: signatureImageDataUrl ?? null,
 
     employeeName: employee.fullName,
     employeeId: employee.employeeId,

@@ -57,6 +57,19 @@ export interface CompanyProfile {
   address?: string | null;
   phone?: string | null;
   email?: string | null;
+  /** Defaults to 'monthly' on legacy companies. */
+  billingCycle?: 'monthly' | 'yearly';
+  paymentMethods?: PaymentMethod[];
+}
+
+export interface PaymentMethod {
+  id: string;
+  brand: 'Visa' | 'Mastercard' | 'Amex' | 'Other';
+  last4: string;
+  expiryMonth: number;
+  expiryYear: number;
+  cardholderName: string;
+  isDefault: boolean;
 }
 
 export interface Invitation {
