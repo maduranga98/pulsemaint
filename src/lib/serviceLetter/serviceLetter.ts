@@ -49,15 +49,19 @@ function timestampToDate(ts: unknown): Date | null {
  * download. The PDF itself is generated client-side and not persisted, but
  * an audit record (who was issued a letter, by whom, when) is logged to
  * `serviceLetterHistory` for the export history view.
+ *
+ * Returns whether the company logo actually made it into the letter, so
+ * the caller can warn the admin if it didn't (e.g. no logo uploaded yet, or
+ * the upload predates logoDataUrl and the network fetch fallback failed).
  */
-export async function generateServiceLetter(input: GenerateServiceLetterInput): Promise<void> {
+export async function generateServiceLetter(input: GenerateServiceLetterInput): Promise<{ logoEmbedded: boolean }> {
   const { company, employee, roleLabel, form, issuedBy, signatureImageDataUrl } = input;
   // Prefer the data URL captured at upload time — fetching the Storage
   // download URL cross-origin can fail silently if the bucket has no CORS
   // rule for this origin, which used to make the logo vanish from letters.
   const logoDataUrl = company.logoDataUrl || (company.logoUrl ? await fetchImageAsDataUrl(company.logoUrl) : null);
 
-  const pdf = buildServiceLetterPdf({
+  const { doc: pdf, logoEmbedded } = buildServiceLetterPdf({
     companyName: company.name,
     companyAddress: company.address,
     companyPhone: company.phone,
@@ -109,4 +113,6 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
     type: 'document',
     message: `A service letter ("${form.subject}") has been issued for you by ${issuedBy.name}`,
   });
+
+  return { logoEmbedded };
 }

@@ -103,6 +103,9 @@ export default function AssignTrainingWizard({
   }, [defaultTraineeId, trainees]);
   const { modules, loading: modulesLoading } = useTrainingModules({
     status: 'active',
+    // Trainee Management only ever assigns from its own module library —
+    // never the Training tab's.
+    libraryScope: 'trainee_management',
   });
 
   // Pre-select the module (and its category, for the filter dropdown) this

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Upload, Loader2 } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -45,6 +45,38 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
       reader.readAsDataURL(file);
     });
   }
+
+  // Logos uploaded before logoDataUrl existed (or that failed to convert at
+  // upload time) never got the data URL that generated documents need —
+  // best-effort backfill it in the background so the logo starts showing up
+  // on service letters etc. without requiring a re-upload. Silently no-ops
+  // if the fetch fails (e.g. no CORS rule on the bucket for this origin).
+  useEffect(() => {
+    if (!company.logoUrl || company.logoDataUrl) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(company.logoUrl!);
+        const blob = await res.blob();
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        if (cancelled) return;
+        await updateDoc(doc(db, 'companies', company.id), { logoDataUrl: dataUrl });
+        setCompany({ ...company, logoDataUrl: dataUrl });
+      } catch {
+        // Best-effort only — the "Upload Logo" flow above always works
+        // since it reads the local file directly, no network fetch involved.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [company.id, company.logoUrl, company.logoDataUrl]);
 
   async function handleSave() {
     setSaving(true);

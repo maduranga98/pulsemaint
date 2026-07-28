@@ -54,7 +54,7 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
     }
     setGenerating(true);
     try {
-      await generateServiceLetter({
+      const { logoEmbedded } = await generateServiceLetter({
         company,
         employee: selectedUser,
         roleLabel: roleLabels[selectedUser.role] ?? selectedUser.role,
@@ -62,7 +62,11 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
         issuedBy: { id: userProfile.id, name: userProfile.fullName ?? '', role: roleLabels[userProfile.role] ?? userProfile.role },
         signatureImageDataUrl: signatureDataUrl,
       });
-      toast.success('Service letter generated.');
+      if (company.logoUrl && !logoEmbedded) {
+        toast.error('Service letter generated, but the company logo could not be embedded — try re-uploading it in Settings.');
+      } else {
+        toast.success('Service letter generated.');
+      }
       onClose();
     } catch (err) {
       console.error('Failed to generate service letter', err);

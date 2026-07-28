@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
 
 export interface ServiceLetterInput {
   companyName: string;
@@ -32,37 +33,36 @@ const INK = { r: 15, g: 23, b: 42 };
 const MUTED = { r: 100, g: 116, b: 139 };
 const NAVY = { r: 30, g: 58, b: 95 };
 
-/** jsPDF's addImage needs a format matching the actual image data — a data URL's mime type tells us which. */
-function imageFormatFromDataUrl(dataUrl: string): string {
-  const match = /^data:image\/([a-zA-Z0-9+.-]+);base64,/.exec(dataUrl);
-  const type = (match?.[1] ?? 'png').toLowerCase();
-  if (type === 'jpg' || type === 'jpeg') return 'JPEG';
-  if (type === 'webp') return 'WEBP';
-  return 'PNG';
-}
-
 /**
  * Builds a professional Service Letter as a letterhead document: company
  * logo + description in the header, employee details, a customizable body
  * paragraph, and a signature block for the issuing officer.
  */
-export function buildServiceLetterPdf(input: ServiceLetterInput): jsPDF {
+export interface ServiceLetterPdfResult {
+  doc: jsPDF;
+  /** False when a logo data URL was supplied but jsPDF couldn't embed it (malformed/unsupported image). */
+  logoEmbedded: boolean;
+}
+
+export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterPdfResult {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
   const pageWidth = doc.internal.pageSize.getWidth();
   const marginX = 56;
   let y = 56;
+  let logoEmbedded = false;
 
   // Letterhead
   if (input.companyLogoDataUrl) {
     try {
       doc.addImage(input.companyLogoDataUrl, imageFormatFromDataUrl(input.companyLogoDataUrl), marginX, y - 20, 48, 48);
+      logoEmbedded = true;
     } catch {
       // Malformed/unsupported image data — skip the logo rather than fail
       // the whole letter generation.
     }
   }
 
-  const headerX = input.companyLogoDataUrl ? marginX + 60 : marginX;
+  const headerX = logoEmbedded ? marginX + 60 : marginX;
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
@@ -189,5 +189,5 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): jsPDF {
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
   doc.text(input.issuedByRole, marginX, sigY + 26);
 
-  return doc;
+  return { doc, logoEmbedded };
 }
