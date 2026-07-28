@@ -40,6 +40,72 @@ function formatDate(ts: PurchaseOrder['raisedAt'] | null | undefined): string {
   return d.toLocaleDateString();
 }
 
+function formatDateTime(ts: unknown): string {
+  if (!ts) return '';
+  const t = ts as { toDate?: () => Date; seconds?: number };
+  const d = t.toDate ? t.toDate() : t.seconds ? new Date(t.seconds * 1000) : null;
+  return d ? `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : '';
+}
+
+interface ProcessHistoryEvent {
+  label: string;
+  at: unknown;
+  detail?: string;
+}
+
+function buildProcessHistory(order: PurchaseOrder): ProcessHistoryEvent[] {
+  const events: ProcessHistoryEvent[] = [];
+  if (order.raisedAt) {
+    events.push({ label: 'Raised', at: order.raisedAt, detail: order.raisedByName || undefined });
+  }
+  if (order.status === 'rejected' && order.approvedAt) {
+    events.push({
+      label: 'Rejected',
+      at: order.approvedAt,
+      detail: [order.approvedByName, order.rejectedReason].filter(Boolean).join(' — ') || undefined,
+    });
+  } else if (order.approvedAt) {
+    events.push({
+      label: 'Approved',
+      at: order.approvedAt,
+      detail: order.approvedByName
+        ? `${order.approvedByName}${order.approvedByRole ? ` (${order.approvedByRole})` : ''}`
+        : undefined,
+    });
+  }
+  if (order.sentAt) {
+    events.push({ label: 'Sent to Supplier', at: order.sentAt });
+  }
+  if (order.invoiceReceivedAt) {
+    events.push({ label: 'Invoice Received', at: order.invoiceReceivedAt, detail: order.invoiceUploadedByName || undefined });
+  }
+  (order.invoiceRevisions ?? []).forEach((rev, idx) => {
+    events.push({
+      label: `Priced PO Sent${(order.invoiceRevisions?.length ?? 0) > 1 ? ` (revision ${idx + 1})` : ''}`,
+      at: rev.revisedAt,
+      detail: `${rev.revisedByName} — ${rev.totalOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${order.currency}`,
+    });
+  });
+  if (order.acknowledgedAt) {
+    events.push({ label: 'Acknowledged', at: order.acknowledgedAt });
+  }
+  (order.receiptHistory ?? []).forEach((r) => {
+    events.push({
+      label: 'Stock Received',
+      at: r.receivedAt,
+      detail: [r.receivedByName, r.deliveryRef].filter(Boolean).join(' — ') || undefined,
+    });
+  });
+  if (order.cancelledAt) {
+    events.push({
+      label: 'Cancelled',
+      at: order.cancelledAt,
+      detail: [order.cancelledByName, order.cancelledReason].filter(Boolean).join(' — ') || undefined,
+    });
+  }
+  return events.filter((e) => e.at);
+}
+
 export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -100,6 +166,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         status: 'approved',
         approvedBy: userProfile.id,
         approvedByName: userProfile.fullName ?? '',
+        approvedByRole: userProfile.role ?? '',
         approvedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -124,6 +191,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         rejectedReason: reason,
         approvedBy: userProfile.id,
         approvedByName: userProfile.fullName ?? '',
+        approvedByRole: userProfile.role ?? '',
         approvedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -304,12 +372,21 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   }
 
   function downloadPdf() {
-    openPOPrintView(order, {
-      name: company?.name ?? 'Company',
-      address: (company as any)?.address,
-      phone: (company as any)?.phone,
-      email: (company as any)?.email,
-    });
+    openPOPrintView(
+      order,
+      {
+        name: company?.name ?? 'Company',
+        address: (company as any)?.address,
+        phone: (company as any)?.phone,
+        email: (company as any)?.email,
+      },
+      {
+        approver: order.approvedByName
+          ? { name: order.approvedByName, role: order.approvedByRole ?? undefined }
+          : undefined,
+        generatedAt: new Date(),
+      },
+    );
   }
 
   // Once a PO has been sent to the supplier, cancelling it needs to tell
@@ -386,6 +463,39 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               );
             })}
           </div>
+        </div>
+
+        {/* Process History */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Process History</h3>
+          {(() => {
+            const history = buildProcessHistory(order).sort((a, b) => {
+              const toMillis = (ts: unknown) => {
+                const t = ts as { toDate?: () => Date; seconds?: number };
+                return t.toDate ? t.toDate().getTime() : t.seconds ? t.seconds * 1000 : 0;
+              };
+              return toMillis(a.at) - toMillis(b.at);
+            });
+            if (history.length === 0) {
+              return <p className="text-sm text-gray-400">No history yet.</p>;
+            }
+            return (
+              <ul className="space-y-3">
+                {history.map((event, idx) => (
+                  <li key={idx} className="flex items-start gap-3 text-sm">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium text-gray-900">{event.label}</span>
+                        <span className="text-xs text-gray-400">{formatDateTime(event.at)}</span>
+                      </div>
+                      {event.detail && <p className="text-xs text-gray-500">{event.detail}</p>}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
         </div>
 
         {/* Items table */}
