@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '@/store/authStore';
 import { useContentLibrary } from '@/hooks/training/useContentLibrary';
 import ContentLibraryGrid from '@/components/training/manager/ContentLibraryGrid';
 import ContentLibraryUpload from '@/components/training/manager/ContentLibraryUpload';
@@ -9,6 +10,8 @@ export default function ContentLibraryPage() {
   const navigate = useNavigate();
   const [showUpload, setShowUpload] = useState(false);
   const { items, loading, deleteItem } = useContentLibrary();
+  // Matches the firestore.rules delete rule for trainingContentLibrary — admin only.
+  const canDelete = useAuthStore((s) => s.isAdmin);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this item from the library? This cannot be undone.')) return;
@@ -41,7 +44,7 @@ export default function ContentLibraryPage() {
             <ContentLibraryUpload onUploadComplete={() => setShowUpload(false)} />
           </div>
         )}
-        <ContentLibraryGrid items={items} loading={loading} onDelete={handleDelete} />
+        <ContentLibraryGrid items={items} loading={loading} onDelete={canDelete ? handleDelete : undefined} />
       </div>
     </div>
   );

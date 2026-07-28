@@ -7,6 +7,8 @@ interface ModuleLibraryListProps {
   modules: TrainingModule[];
   loading: boolean;
   canAuthor: boolean;
+  /** Matches the firestore.rules delete rule for trainingModules — admin only. */
+  canDelete: boolean;
   onEdit: (id: string) => void;
   onArchive: (id: string) => void;
   onDelete: (id: string) => void;
@@ -30,6 +32,7 @@ export default function ModuleLibraryList({
   modules,
   loading,
   canAuthor,
+  canDelete,
   onEdit,
   onArchive,
   onDelete,
@@ -161,7 +164,7 @@ export default function ModuleLibraryList({
                           Archive
                         </button>
                       )}
-                      {canAuthor && (
+                      {canDelete && (
                         <button
                           onClick={() => onDelete(module.id)}
                           className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
@@ -228,7 +231,7 @@ export default function ModuleLibraryList({
                     Edit
                   </button>
                 )}
-                {canAuthor && (
+                {canDelete && (
                   <button
                     onClick={() => onDelete(module.id)}
                     className="flex-1 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"

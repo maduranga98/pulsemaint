@@ -51,6 +51,9 @@ export default function EvaluationsPage() {
   const role = userProfile?.role;
   const canManageTemplates = !!role && CAN_MANAGE_TEMPLATES_ROLES.includes(role);
   const canAssignTraining = !!role && CAN_ASSIGN_TRAINING_ROLES.includes(role);
+  // Plant managers don't evaluate (or get listed as evaluatees in) the
+  // "Plant Manager" category — no self-evaluation for that role.
+  const visibleRoleOrder = role === 'plant_manager' ? ROLE_ORDER.filter((r) => r !== 'plant_manager') : ROLE_ORDER;
   const { departments } = useDepartments(companyId);
 
   const [sessions, setSessions] = useState<EvaluationSession[]>([]);
@@ -307,7 +310,7 @@ export default function EvaluationsPage() {
               {sessions.length !== 1 ? 's' : ''}
             </p>
           </button>
-          {ROLE_ORDER.map((r) => {
+          {visibleRoleOrder.map((r) => {
             const RoleIcon = ROLE_ICON[r];
             const count = sessions.filter(
               (s) => (s.targetType ?? 'individual') !== 'department' && s.evaluateeRole === r,

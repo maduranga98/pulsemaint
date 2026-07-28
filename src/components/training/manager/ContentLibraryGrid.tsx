@@ -13,7 +13,7 @@ import {
 interface ContentLibraryGridProps {
   items: ContentLibraryItem[];
   loading: boolean;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
   onSelect?: (item: ContentLibraryItem) => void;
 }
 
@@ -74,6 +74,7 @@ export default function ContentLibraryGrid({
   ];
 
   async function handleDelete(id: string) {
+    if (!onDelete) return;
     setDeleting(true);
     try {
       onDelete(id);
@@ -186,18 +187,20 @@ export default function ContentLibraryGrid({
                       Select
                     </button>
                   )}
-                  <button
-                    onClick={() => setConfirmDeleteId(item.id)}
-                    disabled={item.usedInModules.length > 0}
-                    className="flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-medium text-red-500 bg-red-50 rounded hover:bg-red-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                    title={
-                      item.usedInModules.length > 0
-                        ? 'Cannot delete — used in modules'
-                        : 'Delete'
-                    }
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
+                  {onDelete && (
+                    <button
+                      onClick={() => setConfirmDeleteId(item.id)}
+                      disabled={item.usedInModules.length > 0}
+                      className="flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-medium text-red-500 bg-red-50 rounded hover:bg-red-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={
+                        item.usedInModules.length > 0
+                          ? 'Cannot delete — used in modules'
+                          : 'Delete'
+                      }
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

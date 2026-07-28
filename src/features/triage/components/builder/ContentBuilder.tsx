@@ -96,6 +96,8 @@ export function ContentBuilder() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const uid = user?.uid ?? '';
+  // Matches the firestore.rules delete rules for triage_categories/triage_content_items — admin only.
+  const canDelete = userProfile?.role === 'admin';
 
   const [cats, setCats] = useState<TriageCategory[]>([]);
   const [previewCatId, setPreviewCatId] = useState<string>('');
@@ -593,13 +595,15 @@ export function ContentBuilder() {
                       </td>
                       <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{c.pinned ? 'Yes' : ''}</td>
                       <td className="px-4 py-2.5 text-right">
-                        <button
-                          onClick={() => deleteCategory(c.id)}
-                          className="text-base opacity-50 hover:opacity-100 transition-opacity"
-                          title="Delete category"
-                        >
-                          🗑
-                        </button>
+                        {canDelete && (
+                          <button
+                            onClick={() => deleteCategory(c.id)}
+                            className="text-base opacity-50 hover:opacity-100 transition-opacity"
+                            title="Delete category"
+                          >
+                            🗑
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -640,7 +644,7 @@ export function ContentBuilder() {
           )}
 
           {previewCat ? (
-            <ContentList category={previewCat} showDelete />
+            <ContentList category={previewCat} showDelete={canDelete} />
           ) : (
             <div className="text-sm text-center py-10" style={{ color: '#3d5070' }}>
               Add a category to see the preview

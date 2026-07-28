@@ -30,6 +30,8 @@ interface Props {
 export default function EvaluationTemplateBuilder({ onClose }: Props) {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
+  // Matches the firestore.rules delete rule for evaluation_templates — admin only.
+  const canDelete = userProfile?.role === 'admin';
 
   const [templates, setTemplates] = useState<EvaluationTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -195,9 +197,11 @@ export default function EvaluationTemplateBuilder({ onClose }: Props) {
                       <button type="button" onClick={() => startEdit(t)} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-blue-600">
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button type="button" onClick={() => void handleDelete(t.id)} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-red-600">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {canDelete && (
+                        <button type="button" onClick={() => void handleDelete(t.id)} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-red-600">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

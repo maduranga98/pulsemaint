@@ -25,6 +25,8 @@ export function AssessmentBuilder() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const uid = user?.uid ?? '';
+  // Matches the firestore.rules delete rule for triage_assessments — admin only.
+  const canDelete = userProfile?.role === 'admin';
 
   const [cats, setCats] = useState<TriageCategory[]>([]);
   const [assessments, setAssessments] = useState<TriageAssessment[]>([]);
@@ -302,13 +304,15 @@ export function AssessmentBuilder() {
                   </span>
                 </div>
               </div>
-              <button
-                onClick={() => deleteAssessment(a.id)}
-                className="text-lg opacity-50 hover:opacity-100 transition-opacity shrink-0"
-                title="Delete assessment"
-              >
-                🗑
-              </button>
+              {canDelete && (
+                <button
+                  onClick={() => deleteAssessment(a.id)}
+                  className="text-lg opacity-50 hover:opacity-100 transition-opacity shrink-0"
+                  title="Delete assessment"
+                >
+                  🗑
+                </button>
+              )}
             </div>
           ))}
         </div>

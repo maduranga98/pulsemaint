@@ -9,6 +9,8 @@ import { useReportHistory } from '../../hooks/reports/useReportHistory';
 
 export default function ReportHistoryPage() {
   const canAccess = useAuthStore((state) => state.canAccess(['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']));
+  // Matches the firestore.rules delete rule for report_history — admin only.
+  const canDelete = useAuthStore((state) => state.isAdmin);
   const { reportHistory, historyLoading, historyFilters, updateHistoryFilters, deleteReportHistory } = useReportHistory();
 
   if (!canAccess) return <Navigate to="/app/dashboard" replace />;
@@ -34,10 +36,10 @@ export default function ReportHistoryPage() {
           <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-8 text-center text-sm text-[#8BA3BF]">Loading report history...</div>
         ) : (
           <>
-            <ReportHistoryTable reports={reportHistory} onDelete={(id) => void deleteReportHistory(id)} />
+            <ReportHistoryTable reports={reportHistory} onDelete={canDelete ? (id) => void deleteReportHistory(id) : undefined} />
             <div className="grid gap-3 lg:hidden">
               {reportHistory.map((report) => (
-                <ReportHistoryCard key={report.id} report={report} onDelete={(id) => void deleteReportHistory(id)} />
+                <ReportHistoryCard key={report.id} report={report} onDelete={canDelete ? (id) => void deleteReportHistory(id) : undefined} />
               ))}
             </div>
             {!reportHistory.length && (

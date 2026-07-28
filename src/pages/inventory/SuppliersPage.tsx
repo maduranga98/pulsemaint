@@ -100,12 +100,12 @@ export function SuppliersPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const role = useAuthStore((s) => s.userProfile?.role);
-  // firestore.rules only allows plant_manager/admin to delete a supplier doc
-  // (store_keeper/supervisor can create & edit, same as parts and POs) — the
+  // firestore.rules only allows admin to delete a supplier doc (store_keeper/
+  // supervisor/plant_manager can create & edit, same as parts and POs) — the
   // delete button must stay hidden for the other roles that can reach this
   // page, otherwise it renders as a working action that always fails with a
   // permission-denied error when clicked.
-  const canDelete = role === 'plant_manager' || role === 'admin';
+  const canDelete = role === 'admin';
   const { suppliers, loading } = useSuppliers();
 
   const [modalOpen, setModalOpen] = useState(false);

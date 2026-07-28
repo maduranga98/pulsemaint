@@ -31,6 +31,8 @@ export default function ModuleLibrarySection({
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
   const canAuthor = !!role && CAN_AUTHOR_ROLES.includes(role);
+  // Matches the firestore.rules delete rule for trainingModules — admin only.
+  const canDelete = role === 'admin';
   const [statusFilter, setStatusFilter] = useState<TrainingModuleStatus | undefined>(undefined);
   const [seeding, setSeeding] = useState(false);
   const { modules, loading } = useTrainingModules({ status: statusFilter });
@@ -121,6 +123,7 @@ export default function ModuleLibrarySection({
         modules={modules}
         loading={loading}
         canAuthor={canAuthor}
+        canDelete={canDelete}
         onEdit={(id) => navigate(`/app/training/manage/modules/${id}${contextQuery}`)}
         onArchive={handleArchive}
         onDelete={(id) => void handleDelete(id)}

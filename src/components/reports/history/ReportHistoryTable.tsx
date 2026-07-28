@@ -7,7 +7,7 @@ export default function ReportHistoryTable({
   onDelete,
 }: {
   reports: ReportHistory[];
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) {
   return (
     <div className="hidden overflow-hidden rounded-lg border border-[#1E3A5F] bg-[#0F1E35] lg:block">
@@ -40,9 +40,11 @@ export default function ReportHistoryTable({
                   <button type="button" onClick={() => void navigator.clipboard.writeText(report.downloadUrl ?? report.googleSheetsUrl ?? '')} className="flex h-10 w-10 items-center justify-center rounded-lg text-[#8BA3BF] hover:bg-[#0A1628] hover:text-[#F0F4F8]" aria-label="Copy share link">
                     <Link2 className="h-4 w-4" />
                   </button>
-                  <button type="button" onClick={() => onDelete(report.id)} className="flex h-10 w-10 items-center justify-center rounded-lg text-[#FCA5A5] hover:bg-[#EF4444]/10" aria-label="Delete history entry">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {onDelete && (
+                    <button type="button" onClick={() => onDelete(report.id)} className="flex h-10 w-10 items-center justify-center rounded-lg text-[#FCA5A5] hover:bg-[#EF4444]/10" aria-label="Delete history entry">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               </td>
             </tr>
