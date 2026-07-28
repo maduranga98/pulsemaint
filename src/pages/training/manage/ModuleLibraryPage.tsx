@@ -108,7 +108,6 @@ export default function ModuleLibraryPage() {
         loading={loading}
         canAuthor={canAuthor}
         onEdit={(id) => navigate(`/app/training/manage/modules/${id}`)}
-        onAssign={(id) => navigate(`/app/training/manage/assign?moduleId=${id}`)}
         onArchive={handleArchive}
         onDelete={(id) => void handleDelete(id)}
       />
