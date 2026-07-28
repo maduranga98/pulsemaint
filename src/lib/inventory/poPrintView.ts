@@ -29,6 +29,7 @@ export function buildPOPrintHTML(po: PurchaseOrder, company: PrintCompanyMeta): 
         <td>${idx + 1}</td>
         <td><div class="mono">${it.partNumber || ''}</div><div>${it.partName || ''}</div></td>
         <td class="right">${it.quantityOrdered}</td>
+        <td>${fmtDate(it.expectedDelivery) || '—'}</td>
         <td class="right">${money(it.unitCost, po.currency)}</td>
         <td class="right">${money(it.totalCost, po.currency)}</td>
       </tr>`,
@@ -115,6 +116,7 @@ export function buildPOPrintHTML(po: PurchaseOrder, company: PrintCompanyMeta): 
           <th style="width:32px">#</th>
           <th>Part</th>
           <th class="right" style="width:90px">Qty</th>
+          <th style="width:120px">Expected Delivery</th>
           <th class="right" style="width:140px">Unit Cost</th>
           <th class="right" style="width:160px">Line Total</th>
         </tr>

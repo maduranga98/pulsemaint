@@ -61,7 +61,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   const [reviewSaving, setReviewSaving] = useState(false);
   const sc = statusConfig[order.status];
 
-  async function queueEmail(event: PurchaseOrderStatus | 'invoice_priced', message?: string, override?: { total: number }) {
+  async function queueEmail(event: PurchaseOrderStatus | 'invoice_priced', message?: string, override?: { total: number }): Promise<boolean> {
     try {
       const usersSnap = await getDocs(
         query(collection(db, `companies/${order.companyId}/users`), where('role', 'in', ['plant_manager', 'admin'])),
@@ -70,7 +70,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         .map((d) => (d.data() as any).email as string | undefined)
         .filter(Boolean) as string[];
       const supplierFacing = event === 'sent' || event === 'invoice_priced' || event === 'cancelled';
-      if (recipients.length === 0 && !(order.supplierEmail && supplierFacing)) return;
+      if (recipients.length === 0 && !(order.supplierEmail && supplierFacing)) return true;
       await addDoc(collection(db, 'po_notifications'), {
         companyId: order.companyId,
         poId: order.id,
@@ -85,8 +85,10 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         status: 'queued',
         createdAt: serverTimestamp(),
       });
+      return true;
     } catch (err) {
       console.error('Failed to queue PO email notification', err);
+      return false;
     }
   }
 
@@ -171,6 +173,10 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   }
 
   async function markSent() {
+    if (!order.supplierEmail?.trim()) {
+      addToast('Add a supplier email to this PO before sending — without one, no email can go out.', 'error');
+      return;
+    }
     setActionLoading(true);
     try {
       await updateDoc(doc(db, 'purchaseOrders', order.id), {
@@ -178,8 +184,12 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         sentAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      await queueEmail('sent', sendMessage);
-      addToast('PO sent to supplier.', 'success');
+      const queued = await queueEmail('sent', sendMessage);
+      if (queued) {
+        addToast('PO sent to supplier.', 'success');
+      } else {
+        addToast('PO marked as sent, but the supplier email could not be queued. Check the console and retry.', 'error');
+      }
     } catch (err) {
       console.error(err);
       addToast('Failed to update PO.', 'error');
@@ -276,8 +286,13 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             }).catch((err) => console.error(`Failed to update last purchase price for part ${it.partId}`, err)),
           ),
       );
-      await queueEmail('invoice_priced', reviewMessage.trim(), { total: totalOrderValue });
-      addToast('Priced PO sent to supplier.', 'success');
+      const queued = await queueEmail('invoice_priced', reviewMessage.trim(), { total: totalOrderValue });
+      addToast(
+        queued
+          ? 'Priced PO sent to supplier.'
+          : 'Pricing saved, but the priced PO email could not be queued. Check the console and retry.',
+        queued ? 'success' : 'error',
+      );
       setReviewCosts(null);
       setReviewMessage('');
     } catch (err) {
@@ -543,6 +558,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             <button
               onClick={() => setSendModal(true)}
               disabled={actionLoading}
+              title={!order.supplierEmail?.trim() ? 'Add a supplier email to this PO before sending' : undefined}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <Send className="w-4 h-4" />

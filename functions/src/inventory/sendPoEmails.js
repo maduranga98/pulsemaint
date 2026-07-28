@@ -145,6 +145,7 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
         <div>${esc(it.partName)}</div>
       </td>
       <td style="padding:8px;border:1px solid #ddd;font-size:13px;text-align:right;">${it.quantityOrdered ?? ""}</td>
+      <td style="padding:8px;border:1px solid #ddd;font-size:13px;">${fmtDate(it.expectedDelivery)}</td>
       ${showPricing ? `<td style="padding:8px;border:1px solid #ddd;font-size:13px;text-align:right;">${formatMoney(it.unitCost, po.currency)}</td>
       <td style="padding:8px;border:1px solid #ddd;font-size:13px;text-align:right;">${formatMoney(it.totalCost, po.currency)}</td>` : ""}
     </tr>`,
@@ -201,6 +202,7 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
       <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;width:32px;">#</td>
       <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;">Part</td>
       <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">Qty</td>
+      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;">Expected Delivery</td>
       ${showPricing ? `<td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">Unit Cost</td>
       <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">Line Total</td>` : ""}
     </tr>
@@ -281,6 +283,7 @@ function itemsTableHtmlPriced(items, currency) {
       <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${idx + 1}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${i.partNumber || ""} — ${i.partName || ""}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${i.quantityOrdered ?? ""}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${fmtDate(i.expectedDelivery)}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${formatMoney(i.unitCost, currency)}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${formatMoney(i.totalCost, currency)}</td>
     </tr>`,
@@ -293,6 +296,7 @@ function itemsTableHtmlPriced(items, currency) {
       <td style="padding:8px 10px;font-size:12px;color:#888;width:32px;">#</td>
       <td style="padding:8px 10px;font-size:12px;color:#888;">Part</td>
       <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Qty</td>
+      <td style="padding:8px 10px;font-size:12px;color:#888;">Expected Delivery</td>
       <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Unit Cost</td>
       <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Line Total</td>
     </tr>
