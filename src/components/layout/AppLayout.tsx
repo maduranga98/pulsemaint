@@ -180,7 +180,7 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['plant_manager', 'admin', 'hr_officer'],
   },
-  { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+  { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['supervisor', 'hr_officer', 'plant_manager', 'admin'] },
   // Users and Shifts moved inside Settings — same access as before (Users'
   // union of roles), just reached via the Settings tiles instead of their
   // own top-level nav entries.
