@@ -68,7 +68,7 @@ export default function CreateModulePage() {
         status: 'active',
         updatedAt: serverTimestamp(),
       });
-      navigate('/app/training/manage/modules');
+      navigate(-1);
     } finally {
       setIsSaving(false);
     }
@@ -78,9 +78,9 @@ export default function CreateModulePage() {
     <div className="min-h-full">
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 flex items-center gap-3 px-4 h-12">
         <button
-          onClick={() => navigate('/app/training/manage/modules')}
+          onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back to modules"
+          aria-label="Back"
         >
           <ArrowLeft size={18} />
         </button>

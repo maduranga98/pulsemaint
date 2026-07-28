@@ -34,7 +34,7 @@ export default function EditModulePage() {
         status: 'active',
         updatedAt: serverTimestamp(),
       });
-      navigate('/app/training/manage/modules');
+      navigate(-1);
     } finally {
       setIsSaving(false);
     }
@@ -53,10 +53,10 @@ export default function EditModulePage() {
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
         <p className="font-medium">Module not found.</p>
         <button
-          onClick={() => navigate('/app/training/manage/modules')}
+          onClick={() => navigate(-1)}
           className="text-blue-600 hover:underline text-sm"
         >
-          Back to Modules
+          Back
         </button>
       </div>
     );
@@ -66,9 +66,9 @@ export default function EditModulePage() {
     <div className="min-h-full">
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 flex items-center gap-3 px-4 h-12">
         <button
-          onClick={() => navigate('/app/training/manage/modules')}
+          onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back to modules"
+          aria-label="Back"
         >
           <ArrowLeft size={18} />
         </button>
