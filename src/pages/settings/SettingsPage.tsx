@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Clock, Users, Boxes, ChevronRight } from 'lucide-react';
+import { Building2, Clock, Users, Boxes, ChevronRight, Pencil } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import type { UserRole } from '../../types/auth';
+import { CompanyProfileEditModal } from '../../components/settings/CompanyProfileEditModal';
 
 interface Tile {
   title: string;
@@ -15,6 +17,7 @@ interface Tile {
 export default function SettingsPage() {
   const company = useAuthStore((s) => s.company);
   const role = useAuthStore((s) => s.userProfile?.role);
+  const [editOpen, setEditOpen] = useState(false);
 
   const allTiles: Tile[] = [
     {
@@ -52,10 +55,36 @@ export default function SettingsPage() {
 
       <div className="px-6 py-5 space-y-6">
         <section className="bg-white rounded-xl border border-slate-200 p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <Building2 className="w-5 h-5 text-slate-500" />
-            <h2 className="font-semibold text-slate-900">Company</h2>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <Building2 className="w-5 h-5 text-slate-500" />
+              <h2 className="font-semibold text-slate-900">Company</h2>
+            </div>
+            {role === 'admin' && (
+              <button
+                type="button"
+                onClick={() => setEditOpen(true)}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Edit Profile
+              </button>
+            )}
           </div>
+
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden flex-shrink-0">
+              {company?.logoUrl ? (
+                <img src={company.logoUrl} alt={`${company.name} logo`} className="w-full h-full object-contain" />
+              ) : (
+                <Building2 className="w-6 h-6 text-slate-300" />
+              )}
+            </div>
+            {company?.description && (
+              <p className="text-sm text-slate-600">{company.description}</p>
+            )}
+          </div>
+
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-sm">
             <div>
               <dt className="text-slate-500">Name</dt>
@@ -81,8 +110,30 @@ export default function SettingsPage() {
               <dt className="text-slate-500">Plan</dt>
               <dd className="font-medium text-slate-900 capitalize">{company?.plan || ''} ({company?.status || ''})</dd>
             </div>
+            {company?.phone && (
+              <div>
+                <dt className="text-slate-500">Phone</dt>
+                <dd className="font-medium text-slate-900">{company.phone}</dd>
+              </div>
+            )}
+            {company?.email && (
+              <div>
+                <dt className="text-slate-500">Email</dt>
+                <dd className="font-medium text-slate-900">{company.email}</dd>
+              </div>
+            )}
+            {company?.address && (
+              <div className="sm:col-span-2">
+                <dt className="text-slate-500">Address</dt>
+                <dd className="font-medium text-slate-900 whitespace-pre-wrap">{company.address}</dd>
+              </div>
+            )}
           </dl>
         </section>
+
+        {editOpen && company && (
+          <CompanyProfileEditModal company={company} onClose={() => setEditOpen(false)} />
+        )}
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tiles.map((t) => (

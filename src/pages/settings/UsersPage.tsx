@@ -39,7 +39,8 @@ import {
 } from '../../lib/invitations';
 import type { UserProfile, UserRole, Invitation } from '../../types/auth';
 import { UsersBulkImportModal, type ParsedUserRow } from '../../components/settings/UsersBulkImportModal';
-import { Upload } from 'lucide-react';
+import { ServiceLetterModal } from '../../components/settings/ServiceLetterModal';
+import { Upload, FileText } from 'lucide-react';
 
 const ROLE_LABEL: Record<UserRole, string> = {
   admin: 'Admin',
@@ -181,6 +182,7 @@ export default function UsersPage() {
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState<ModalState>({ mode: 'closed' });
   const [importOpen, setImportOpen] = useState(false);
+  const [serviceLetterOpen, setServiceLetterOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabState>('users');
 
   useEffect(() => {
@@ -373,6 +375,14 @@ export default function UsersPage() {
             >
               <Upload className="w-4 h-4" />
               Import Users
+            </button>
+            <button
+              type="button"
+              onClick={() => setServiceLetterOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <FileText className="w-4 h-4" />
+              Service Letter
             </button>
             <button
               type="button"
@@ -583,6 +593,13 @@ export default function UsersPage() {
         <UsersBulkImportModal
           onClose={() => setImportOpen(false)}
           onImport={handleBulkImport}
+        />
+      )}
+      {serviceLetterOpen && (
+        <ServiceLetterModal
+          users={users}
+          roleLabels={ROLE_LABEL}
+          onClose={() => setServiceLetterOpen(false)}
         />
       )}
       {modal.mode === 'invite' && (
