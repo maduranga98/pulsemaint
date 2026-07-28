@@ -1060,18 +1060,18 @@ service cloud.firestore {
 
     match /trainingModules/{moduleId} {
       // Authoring (create/update/delete) is a Plant Manager / Admin / HR
-      // Officer action (see FEATURES.md and the router's module-authoring
-      // routes) — supervisors and other roles may only read and assign
-      // modules.
+      // Officer / Supervisor action (see FEATURES.md and the router's
+      // module-authoring routes) — supervisors build/manage trainee modules
+      // through Trainee Management, same as the other authoring roles.
       // `category`/`offboardDetails` (offboard/external training) are just
       // additional fields on the same document — no extra rule needed.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor']);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor']);
     }
 
     match /trainingAssignments/{assignmentId} {

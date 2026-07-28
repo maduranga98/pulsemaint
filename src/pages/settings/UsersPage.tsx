@@ -15,7 +15,6 @@ import {
   Phone,
   Pencil,
   Eye,
-  UserPlus,
   X,
   Send,
   Copy,
@@ -71,7 +70,6 @@ const INVITE_STATUS_COLOR: Record<Invitation['status'], string> = {
 
 type ModalState =
   | { mode: 'closed' }
-  | { mode: 'add' }
   | { mode: 'view'; user: UserProfile }
   | { mode: 'edit'; user: UserProfile }
   | { mode: 'invite' };
@@ -99,19 +97,6 @@ interface InviteFormValues {
   jobTitle: string;
   address: string;
 }
-
-const emptyForm: UserFormValues = {
-  fullName: '',
-  email: '',
-  phone: '',
-  role: 'technician',
-  jobTitle: '',
-  department: '',
-  employeeId: '',
-  shiftId: '',
-  address: '',
-  status: 'pending',
-};
 
 const emptyInviteForm: InviteFormValues = {
   email: '',
@@ -277,35 +262,6 @@ export default function UsersPage() {
     }
   };
 
-  // Adding a member manually goes through the same invitation flow as
-  // "Invite Member" — writing a Firestore profile directly here (as this
-  // used to do, keyed by a random id) left the person with no matching
-  // Firebase Auth account, so their email could never actually sign in.
-  // This way the email they're given is the one they set a password
-  // against and log in with, exactly like an invited member's first login.
-  // Shift assignment needs a real uid, so it's set afterward via Edit once
-  // they've accepted and a user doc exists.
-  const handleAdd = async (values: UserFormValues) => {
-    if (!company?.id || !currentUser) throw new Error('No company in session');
-    if (!values.email.trim()) throw new Error('Email is required so the user can be invited to sign in.');
-    await createInvitation({
-      companyId: company.id,
-      companyName: company.name,
-      email: values.email.trim(),
-      role: values.role,
-      fullName: values.fullName.trim(),
-      department: values.department.trim() || null,
-      jobTitle: values.jobTitle.trim() || null,
-      employeeId: values.employeeId.trim() || null,
-      phone: values.phone.trim() || null,
-      address: values.address.trim() || null,
-      invitedBy: currentUser.id,
-      invitedByName: currentUser.fullName,
-    });
-    toast.success(`Invitation sent to ${values.email.trim()}`);
-    if (activeTab === 'invitations') loadInvitations();
-  };
-
   const handleEdit = async (userId: string, values: UserFormValues) => {
     if (!company?.id) throw new Error('No company in session');
     const ref = doc(db, `companies/${company.id}/users/${userId}`);
@@ -425,14 +381,6 @@ export default function UsersPage() {
             >
               <Send className="w-4 h-4" />
               Invite Member
-            </button>
-            <button
-              type="button"
-              onClick={() => setModal({ mode: 'add' })}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] transition-colors"
-            >
-              <UserPlus className="w-4 h-4" />
-              Add User
             </button>
           </div>
         )}
@@ -648,7 +596,6 @@ export default function UsersPage() {
           state={modal}
           shifts={shifts}
           onClose={() => setModal({ mode: 'closed' })}
-          onAdd={handleAdd}
           onEdit={handleEdit}
         />
       )}
@@ -957,14 +904,12 @@ interface UserModalProps {
   state: Exclude<ModalState, { mode: 'closed' } | { mode: 'invite' }>;
   shifts: Array<{ id: string; shiftName: string; department: string | null; status: string }>;
   onClose: () => void;
-  onAdd: (values: UserFormValues) => Promise<void>;
   onEdit: (userId: string, values: UserFormValues) => Promise<void>;
 }
 
-function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
+function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
   const isView = state.mode === 'view';
-  const isAdd = state.mode === 'add';
-  const initial: UserFormValues = isAdd ? emptyForm : toForm(state.user);
+  const initial: UserFormValues = toForm(state.user);
 
   const [values, setValues] = useState<UserFormValues>(initial);
   const [saving, setSaving] = useState(false);
@@ -973,7 +918,7 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
   const set = <K extends keyof UserFormValues>(key: K, value: UserFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
 
-  const title = isAdd ? 'Add user' : isView ? 'User details' : 'Edit user';
+  const title = isView ? 'User details' : 'Edit user';
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -982,19 +927,14 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
       setFormError('Full name is required.');
       return;
     }
-    if (isAdd && !values.email.trim()) {
-      setFormError('Email is required — the invitation to set a password and sign in is sent there.');
-      return;
-    }
-    if (!isAdd && !values.email.trim() && !values.phone.trim()) {
+    if (!values.email.trim() && !values.phone.trim()) {
       setFormError('Provide an email or phone so the user can sign in.');
       return;
     }
     setSaving(true);
     setFormError(null);
     try {
-      if (isAdd) await onAdd(values);
-      else await onEdit(state.user.id, values);
+      await onEdit(state.user.id, values);
       onClose();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Failed to save user');
@@ -1071,28 +1011,20 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
                 ))}
               </select>
             </Field>
-            {isAdd ? (
-              <Field label="Status">
-                <p className="px-3 py-2 text-sm text-slate-500 rounded-lg border border-dashed border-slate-200 bg-slate-50">
-                  Pending invite — becomes active once they accept
-                </p>
-              </Field>
-            ) : (
-              <Field label="Status">
-                <select
-                  value={values.status}
-                  onChange={(e) => set('status', e.target.value as UserProfile['status'])}
-                  disabled={isView}
-                  className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
-                >
-                  {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-            )}
+            <Field label="Status">
+              <select
+                value={values.status}
+                onChange={(e) => set('status', e.target.value as UserProfile['status'])}
+                disabled={isView}
+                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </Field>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1125,32 +1057,24 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
-            {isAdd ? (
-              <Field label="Shift">
-                <p className="px-3 py-2 text-sm text-slate-500 rounded-lg border border-dashed border-slate-200 bg-slate-50">
-                  Assign once they've accepted, via Edit
-                </p>
-              </Field>
-            ) : (
-              <Field label="Shift">
-                <select
-                  value={values.shiftId}
-                  onChange={(e) => set('shiftId', e.target.value)}
-                  disabled={isView}
-                  className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
-                >
-                  <option value="">No shift assigned</option>
-                  {shifts
-                    .filter((s) => s.status === 'active')
-                    .map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.shiftName}
-                        {s.department ? ` · ${s.department}` : ''}
-                      </option>
-                    ))}
-                </select>
-              </Field>
-            )}
+            <Field label="Shift">
+              <select
+                value={values.shiftId}
+                onChange={(e) => set('shiftId', e.target.value)}
+                disabled={isView}
+                className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+              >
+                <option value="">No shift assigned</option>
+                {shifts
+                  .filter((s) => s.status === 'active')
+                  .map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.shiftName}
+                      {s.department ? ` · ${s.department}` : ''}
+                    </option>
+                  ))}
+              </select>
+            </Field>
           </div>
 
           <Field label="Address">
@@ -1163,12 +1087,6 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
             />
           </Field>
-
-          {isAdd && (
-            <p className="text-xs text-slate-500">
-              They'll receive an email invite to set a password and sign in for the first time — same as "Invite Member".
-            </p>
-          )}
 
           {formError && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
@@ -1191,7 +1109,7 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
                 disabled={saving}
                 className="px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] disabled:opacity-60"
               >
-                {saving ? 'Sending...' : isAdd ? 'Send invite' : 'Save changes'}
+                {saving ? 'Saving...' : 'Save changes'}
               </button>
             )}
           </div>

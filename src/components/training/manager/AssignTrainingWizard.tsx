@@ -232,6 +232,7 @@ export default function AssignTrainingWizard({
           traineeId: trainee.id,
           traineeName: trainee.fullName,
           traineeEmail: trainee.email ?? '',
+          traineeRole: trainee.role,
           department: trainee.department ?? '',
           assignedBy: userProfile?.id ?? '',
           assignedByName: userProfile?.fullName ?? '',

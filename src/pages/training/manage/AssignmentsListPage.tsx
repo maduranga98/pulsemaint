@@ -43,7 +43,14 @@ export default function AssignmentsListPage() {
     const q = query(collection(db, 'trainingAssignments'), ...constraints);
 
     const unsub = onSnapshot(q, (snap) => {
-      setAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment)));
+      // Trainee Management only tracks trainee-role assignments — legacy
+      // assignments made before traineeRole was recorded (or made to other
+      // workforce roles, back when this flow wasn't trainee-only) are
+      // excluded rather than shown alongside them.
+      const rows = snap.docs
+        .map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment))
+        .filter((a) => a.traineeRole === 'trainee');
+      setAssignments(rows);
       setLoading(false);
     });
 
@@ -53,7 +60,7 @@ export default function AssignmentsListPage() {
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-slate-900">Assignments</h1>
+        <h1 className="text-xl font-bold text-slate-900">Trainee Trainings</h1>
         <button
           onClick={() => navigate('/app/training/manage/assign')}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
