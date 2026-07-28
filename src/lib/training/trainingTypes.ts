@@ -99,23 +99,33 @@ export interface TrainingQuiz {
 // Trainee-specific categorisation (Trainee Management assignment flow)
 // ---------------------------------------------------------------------------
 
-/** The six trainee-programme categories used to seed sample modules and to
- * classify a module/assignment for the "Training Type" picker. */
+/** The trainee-programme categories used to seed sample modules and to
+ * classify a module/assignment for the Category picker. */
 export type TraineeTrainingType =
   | 'electrical_trainee'
   | 'mechanical_trainee'
   | 'hr_trainee'
   | 'civil_trainee'
   | 'technician_trainee'
-  | 'operator_trainee';
+  | 'operator_trainee'
+  | 'other_trainee';
 
 export const TRAINEE_TRAINING_TYPE_LABELS: Record<TraineeTrainingType, string> = {
-  electrical_trainee: 'Electrical Trainee',
-  mechanical_trainee: 'Mechanical Trainee',
-  hr_trainee: 'HR Trainee',
-  civil_trainee: 'Civil Trainee',
-  technician_trainee: 'Technician Trainee',
-  operator_trainee: 'Operator Trainee',
+  electrical_trainee: 'Electrical',
+  mechanical_trainee: 'Mechanical',
+  hr_trainee: 'HR',
+  civil_trainee: 'Civil',
+  technician_trainee: 'Technician',
+  operator_trainee: 'Operator',
+  other_trainee: 'Other',
+};
+
+/** Where a training module/assignment is delivered. */
+export type TrainingDeliveryMode = 'online' | 'onsite';
+
+export const TRAINING_DELIVERY_MODE_LABELS: Record<TrainingDeliveryMode, string> = {
+  online: 'Online',
+  onsite: 'Onsite',
 };
 
 // ---------------------------------------------------------------------------
@@ -176,8 +186,10 @@ export interface TrainingModule {
   // Optional: absent on legacy docs — treat as 'machine' when reading.
   category?: TrainingModuleCategory;
   offboardDetails?: OffboardTrainingDetails | null;
-  /** Trainee-programme category (Electrical/Mechanical/HR/Civil/Technician/Operator Trainee). */
+  /** Trainee-programme category (Electrical/Mechanical/HR/Civil/Technician/Operator/Other). */
   trainingType?: TraineeTrainingType;
+  /** Where this module is delivered — online or onsite. */
+  trainingMode?: TrainingDeliveryMode;
   /** Default training period, in months, applied when this module is assigned to a trainee (e.g. 6). */
   defaultTrainingPeriodMonths?: number;
 }
