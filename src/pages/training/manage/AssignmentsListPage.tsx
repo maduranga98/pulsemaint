@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, BookOpen } from 'lucide-react';
 import {
   collection,
   query,
@@ -14,6 +14,8 @@ import type { TrainingAssignment, AssignmentStatus } from '@/lib/training/traini
 import AssignmentsList from '@/components/training/manager/AssignmentsList';
 import OffboardTrainingReportViewer from '@/components/training/manager/OffboardTrainingReportViewer';
 
+const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor'];
+
 const STATUS_OPTIONS: { label: string; value: AssignmentStatus | 'all' }[] = [
   { label: 'All', value: 'all' },
   { label: 'In Progress', value: 'in_progress' },
@@ -26,6 +28,8 @@ const STATUS_OPTIONS: { label: string; value: AssignmentStatus | 'all' }[] = [
 
 export default function AssignmentsListPage() {
   const navigate = useNavigate();
+  const role = useAuthStore((s) => s.userProfile?.role);
+  const canAuthor = !!role && CAN_AUTHOR_ROLES.includes(role);
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,12 +65,22 @@ export default function AssignmentsListPage() {
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold text-slate-900">Trainee Trainings</h1>
-        <button
-          onClick={() => navigate('/app/training/manage/assign')}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          <Plus size={16} /> Assign Training
-        </button>
+        <div className="flex items-center gap-2">
+          {canAuthor && (
+            <button
+              onClick={() => navigate('/app/training/manage/modules')}
+              className="flex items-center gap-2 border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              <BookOpen size={16} /> Manage Training Modules
+            </button>
+          )}
+          <button
+            onClick={() => navigate('/app/training/manage/assign')}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus size={16} /> Assign Training
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 flex-wrap mb-4">
