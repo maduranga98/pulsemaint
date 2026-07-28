@@ -37,16 +37,30 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
     if (file) setLogoPreview(URL.createObjectURL(file));
   }
 
+  function readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function handleSave() {
     setSaving(true);
     try {
       let logoUrl = company.logoUrl ?? null;
+      let logoDataUrl = company.logoDataUrl ?? null;
       if (logoFile) {
         const ext = logoFile.name.split('.').pop() || 'png';
         const path = `companies/${company.id}/branding/logo.${ext}`;
         const fileRef = storageRef(storage, path);
         await uploadBytes(fileRef, logoFile);
         logoUrl = await getDownloadURL(fileRef);
+        // Also captured as a data URL from the local file (no network fetch)
+        // so PDF generation (service letters, invoices) can embed the logo
+        // without depending on the Storage bucket's CORS configuration.
+        logoDataUrl = await readFileAsDataUrl(logoFile);
       }
 
       const updates = {
@@ -61,6 +75,7 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
         phone: phone.trim() || null,
         email: email.trim() || null,
         logoUrl,
+        logoDataUrl,
       };
 
       await updateDoc(doc(db, 'companies', company.id), updates);

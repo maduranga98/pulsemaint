@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Check, Lock, Zap, Building2, Factory, Star, CreditCard, Trash2, AlertTriangle } from 'lucide-react';
+import { Check, Lock, Zap, Building2, Factory, Star, CreditCard, Trash2, AlertTriangle, Download } from 'lucide-react';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { CompanyProfile, PaymentMethod } from '../../types/auth';
+import { generateBillingInvoice } from '../../lib/billing/billingInvoice';
 
 type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
@@ -177,6 +178,7 @@ export default function BillingPage() {
   const setCompany = useAuthStore((s) => s.setCompany);
   const isAdmin = useAuthStore((s) => s.isAdmin);
 
+  const userProfile = useAuthStore((s) => s.userProfile);
   const currentPlan = company?.plan ?? 'starter';
   const billingCycle: BillingCycle = company?.billingCycle ?? 'monthly';
   const paymentMethods = company?.paymentMethods ?? [];
@@ -186,6 +188,8 @@ export default function BillingPage() {
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
   const [pendingDowngrade, setPendingDowngrade] = useState<PlanDef | null>(null);
+  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
+  const [lastInvoice, setLastInvoice] = useState<{ plan: PlanDef; cycle: BillingCycle } | null>(null);
 
   const [cardForm, setCardForm] = useState({ name: '', number: '', expiry: '', cvc: '' });
   const [cardError, setCardError] = useState('');
@@ -207,11 +211,53 @@ export default function BillingPage() {
       });
 
       setCompany({ ...company, plan, billingCycle: cycle, status: 'active', trialEndsAt: null });
-      setSuccessMsg(`Plan updated to ${PLANS.find((p) => p.id === plan)?.name ?? plan} (billed ${cycle}).`);
+      const planDef = PLANS.find((p) => p.id === plan);
+      setSuccessMsg(`Plan updated to ${planDef?.name ?? plan} (billed ${cycle}).`);
+
+      if (planDef && userProfile) {
+        const amount = planPrice(planDef, cycle);
+        if (amount) {
+          setLastInvoice({ plan: planDef, cycle });
+          try {
+            await generateBillingInvoice({
+              company: { ...company, plan, billingCycle: cycle },
+              billedBy: userProfile,
+              planName: planDef.name,
+              billingCycle: cycle,
+              amount,
+              discountApplied: hasDefaultCard,
+              discountPercent: Math.round(SAVED_CARD_DISCOUNT * 100),
+            });
+          } catch (invoiceErr) {
+            console.error('Failed to generate subscription invoice', invoiceErr);
+          }
+        }
+      }
     } catch (err: any) {
       setError(err?.message ?? 'Failed to update plan. Please try again.');
     } finally {
       setUpgrading(null);
+    }
+  }
+
+  async function handleDownloadInvoice() {
+    if (!company || !userProfile || !lastInvoice) return;
+    setDownloadingInvoice(true);
+    try {
+      const amount = planPrice(lastInvoice.plan, lastInvoice.cycle);
+      if (amount) {
+        await generateBillingInvoice({
+          company,
+          billedBy: userProfile,
+          planName: lastInvoice.plan.name,
+          billingCycle: lastInvoice.cycle,
+          amount,
+          discountApplied: hasDefaultCard,
+          discountPercent: Math.round(SAVED_CARD_DISCOUNT * 100),
+        });
+      }
+    } finally {
+      setDownloadingInvoice(false);
     }
   }
 
@@ -345,8 +391,18 @@ export default function BillingPage() {
 
       {/* Messages */}
       {successMsg && (
-        <div className="rounded-xl bg-green-900/20 border border-green-700/50 p-4 text-sm text-green-300">
-          {successMsg}
+        <div className="rounded-xl bg-green-900/20 border border-green-700/50 p-4 text-sm text-green-300 flex items-center justify-between flex-wrap gap-3">
+          <span>{successMsg}</span>
+          {lastInvoice && (
+            <button
+              onClick={() => void handleDownloadInvoice()}
+              disabled={downloadingInvoice}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-800/40 hover:bg-green-800/60 text-green-200 disabled:opacity-60"
+            >
+              <Download className="h-3.5 w-3.5" />
+              {downloadingInvoice ? 'Preparing…' : 'Download Invoice'}
+            </button>
+          )}
         </div>
       )}
       {error && (
