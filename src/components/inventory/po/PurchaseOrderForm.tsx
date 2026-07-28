@@ -15,6 +15,7 @@ import {
   where,
   orderBy,
   limit,
+  Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -218,7 +219,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         unitCost: it.unitCost,
         totalCost: it.quantityOrdered * it.unitCost,
         leadTimeDays: it.leadTimeDays,
-        expectedDelivery: null,
+        expectedDelivery: it.expectedDelivery ? Timestamp.fromDate(new Date(it.expectedDelivery)) : null,
       }));
 
       const supplierFields = {
