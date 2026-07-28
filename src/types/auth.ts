@@ -51,6 +51,12 @@ export interface CompanyProfile {
   createdAt: Timestamp;
   adminUserId: string;
   onboardingCompletedAt: Timestamp | null;
+  /** Shown on the letterhead of generated documents (service letters, PO
+   * exports) and the company profile — a short "about the company" blurb. */
+  description?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
 }
 
 export interface Invitation {
