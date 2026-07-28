@@ -20,6 +20,7 @@ import {
 } from '../types/evaluation.types';
 import { uploadEvaluationAttachment, fetchEvaluationTemplates } from '../services/evaluation.service';
 import { useDepartments } from '@/hooks/useDepartments';
+import { useAuthStore } from '@/store/authStore';
 
 interface EvaluationFormProps {
   companyId: string;
@@ -128,6 +129,11 @@ export default function EvaluationForm({
   onCancel,
 }: EvaluationFormProps) {
   const isDepartment = targetType === 'department';
+  const currentUserRole = useAuthStore((s) => s.userProfile?.role);
+  // Plant managers don't evaluate the "Plant Manager" category — no self-evaluation for that role.
+  const selectableEvaluationRoles = (Object.keys(EVALUATION_ROLE_LABELS) as EvaluationRole[]).filter(
+    (r) => !(currentUserRole === 'plant_manager' && r === 'plant_manager')
+  );
   const { departments } = useDepartments(companyId);
   const [step, setStep] = useState<'info' | 'criteria' | 'summary'>(existing ? 'criteria' : 'info');
   const [companyUsers, setCompanyUsers] = useState<UserProfile[]>([]);
@@ -458,7 +464,7 @@ export default function EvaluationForm({
                   onChange={(e) => handleRoleChange(e.target.value as EvaluationRole)}
                   className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
                 >
-                  {(Object.keys(EVALUATION_ROLE_LABELS) as EvaluationRole[]).map((r) => (
+                  {selectableEvaluationRoles.map((r) => (
                     <option key={r} value={r}>{EVALUATION_ROLE_LABELS[r]}</option>
                   ))}
                 </select>

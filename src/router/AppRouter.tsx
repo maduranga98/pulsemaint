@@ -192,7 +192,7 @@ export default function AppRouter() {
       <Route
         path="/app/triage/:sessionId"
         element={
-          <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+          <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
             <TriageRunnerPage />
           </ProtectedRoute>
         }
@@ -200,7 +200,7 @@ export default function AppRouter() {
       <Route
         path="/app/triage/:sessionId/complete"
         element={
-          <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+          <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
             <TriageCompletePage />
           </ProtectedRoute>
         }
@@ -225,7 +225,7 @@ export default function AppRouter() {
         <Route
           path="dashboard/supervisor"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <SupervisorDashboard />
             </ProtectedRoute>
           }
@@ -241,7 +241,7 @@ export default function AppRouter() {
         <Route
           path="dashboard/technician"
           element={
-            <ProtectedRoute requiredRoles={['technician', 'admin']}>
+            <ProtectedRoute requiredRoles={['technician', 'plant_manager', 'admin']}>
               <TechnicianDashboard />
             </ProtectedRoute>
           }
@@ -257,7 +257,7 @@ export default function AppRouter() {
         <Route
           path="dashboard/inventory"
           element={
-            <ProtectedRoute requiredRoles={['store_keeper', 'admin']}>
+            <ProtectedRoute requiredRoles={['store_keeper', 'plant_manager', 'admin']}>
               <InventoryDashboard />
             </ProtectedRoute>
           }
@@ -265,7 +265,7 @@ export default function AppRouter() {
         <Route
           path="dashboard/training"
           element={
-            <ProtectedRoute requiredRoles={['hr_officer', 'admin']}>
+            <ProtectedRoute requiredRoles={['hr_officer', 'plant_manager', 'admin']}>
               <TrainingDashboard />
             </ProtectedRoute>
           }
@@ -429,7 +429,7 @@ export default function AppRouter() {
         <Route
           path="inventory/issue/:requestId"
           element={
-            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
               <PhysicalIssuePage />
             </ProtectedRoute>
           }
@@ -437,7 +437,7 @@ export default function AppRouter() {
         <Route
           path="inventory/receive"
           element={
-            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
               <ReceiveStockPage />
             </ProtectedRoute>
           }
@@ -525,7 +525,7 @@ export default function AppRouter() {
         <Route
           path="inventory/issue/manual"
           element={
-            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
               <ManualIssuePage />
             </ProtectedRoute>
           }
@@ -540,8 +540,8 @@ export default function AppRouter() {
         <Route path="contractors/reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><ReportsHubPage /></ProtectedRoute>} />
         <Route path="contractors/jobs" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorJobsListPage /></ProtectedRoute>} />
         <Route path="contractors/jobs/:jobId" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ContractorJobDetailPage /></ProtectedRoute>} />
-        <Route path="contractors/jobs/:jobId/log-work" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><LogWorkPage /></ProtectedRoute>} />
-        <Route path="contractors/jobs/:jobId/sign-off" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><SignOffPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs/:jobId/log-work" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><LogWorkPage /></ProtectedRoute>} />
+        <Route path="contractors/jobs/:jobId/sign-off" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><SignOffPage /></ProtectedRoute>} />
         <Route path="contractors/jobs/:jobId/invoice" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><InvoiceComparisonPage /></ProtectedRoute>} />
         <Route path="contractors/jobs/:jobId/rate" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><RateContractorPage /></ProtectedRoute>} />
         <Route path="contractors/:contractorId" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><ContractorProfilePage /></ProtectedRoute>} />
@@ -555,11 +555,11 @@ export default function AppRouter() {
 
         {/* Shift handover */}
         <Route path="shift/my" element={<ProtectedRoute><MyShiftPage /></ProtectedRoute>} />
-        <Route path="shift/handover/create" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><HandoverCreatePage /></ProtectedRoute>} />
-        <Route path="shift/handover/briefing" element={<ProtectedRoute requiredRoles={['supervisor', 'admin']}><ShiftBriefingPage /></ProtectedRoute>} />
+        <Route path="shift/handover/create" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><HandoverCreatePage /></ProtectedRoute>} />
+        <Route path="shift/handover/briefing" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}><ShiftBriefingPage /></ProtectedRoute>} />
         <Route path="shift/handover/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverHistoryPage /></ProtectedRoute>} />
         <Route path="shift/handover/:id" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}><HandoverDetailPage /></ProtectedRoute>} />
-        <Route path="settings/shifts" element={<ProtectedRoute requiredRoles={['admin']}><ShiftConfigPage /></ProtectedRoute>} />
+        <Route path="settings/shifts" element={<ProtectedRoute requiredRoles={['plant_manager', 'admin']}><ShiftConfigPage /></ProtectedRoute>} />
         <Route path="reports" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper']}><MainReportsHubPage /></ProtectedRoute>} />
         <Route path="reports/history" element={<ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper']}><ReportHistoryPage /></ProtectedRoute>} />
         <Route
@@ -754,7 +754,7 @@ export default function AppRouter() {
         <Route
           path="pm-schedules/:id/edit"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
               <PMScheduleEditPage />
             </ProtectedRoute>
           }
@@ -874,7 +874,7 @@ export default function AppRouter() {
         <Route
           path="triage-builder/new"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TriageBuilderCreatePage />
             </ProtectedRoute>
           }
@@ -898,7 +898,7 @@ export default function AppRouter() {
         <Route
           path="triage-builder/:flowId/edit"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TriageBuilderEditPage />
             </ProtectedRoute>
           }

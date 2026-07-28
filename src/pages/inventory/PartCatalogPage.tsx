@@ -19,7 +19,7 @@ export function PartCatalogPage() {
     s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin'])
   );
   // Matches the firestore.rules delete rule for inventoryParts.
-  const canDelete = useAuthStore((s) => s.canAccess(['plant_manager', 'admin']));
+  const canDelete = useAuthStore((s) => s.canAccess(['admin']));
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [deleting, setDeleting] = useState(false);
 

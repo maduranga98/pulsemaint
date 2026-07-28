@@ -24,6 +24,8 @@ export function ContactBuilder() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const uid = user?.uid ?? '';
+  // Matches the firestore.rules delete rule for triage_contacts — admin only.
+  const canDelete = userProfile?.role === 'admin';
 
   const [form, setForm] = useState<ContactForm>(EMPTY);
   const [saving, setSaving] = useState(false);
@@ -157,7 +159,7 @@ export function ContactBuilder() {
         <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
           Current Contacts
         </div>
-        <ContactList showDelete />
+        <ContactList showDelete={canDelete} />
       </div>
     </div>
   );

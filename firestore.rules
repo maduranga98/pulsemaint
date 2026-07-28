@@ -648,7 +648,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && getUserData().companyId == resource.data.companyId
         && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
       allow delete: if isAuthenticated() && getUserData().companyId == resource.data.companyId
-        && getUserData().role in ['plant_manager', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     match /stockMovements/{movementId} {
@@ -676,7 +676,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && getUserData().companyId == resource.data.companyId
         && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
       allow delete: if isAuthenticated() && getUserData().companyId == resource.data.companyId
-        && getUserData().role in ['plant_manager', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     match /suppliers/{supplierId} {
@@ -686,7 +686,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && getUserData().companyId == resource.data.companyId
         && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
       allow delete: if isAuthenticated() && getUserData().companyId == resource.data.companyId
-        && getUserData().role in ['plant_manager', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     match /inventoryImportSessions/{sessionId} {
@@ -720,9 +720,9 @@ service cloud.firestore {
       // Update: store_keeper, supervisor, plant_manager, admin
       allow update: if isAuthenticated() && getUserData().companyId == companyId
         && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
-      // Delete: plant_manager and admin only (never technician or store_keeper)
+      // Delete: admin only
       allow delete: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role in ['plant_manager', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     // stockMovements — IMMUTABLE audit log — never allow delete or update
@@ -756,7 +756,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && getUserData().companyId == companyId
         && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
       allow delete: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role in ['plant_manager', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     // inventoryImportSessions
@@ -798,7 +798,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && getUserData().companyId == companyId
         && getUserData().role in ['plant_manager', 'admin'];
       allow delete: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role in ['plant_manager', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     // trainingAssignments — individual learner enrolments, company-scoped
@@ -912,12 +912,12 @@ service cloud.firestore {
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
       allow create: if isAuthenticated()
         && getUserData().role in ['supervisor', 'admin'];
-      // Plant managers can archive/delete PM schedules (but not create them).
+      // Supervisors/plant managers can archive (update) PM schedules but not delete them.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
-      // Admins can archive (update) PM schedules but not delete them.
+      // Deleting a PM schedule is admin-only.
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager'];
+        && getUserData().role == 'admin';
     }
 
     // pm_history — PM execution history
@@ -972,7 +972,7 @@ service cloud.firestore {
       allow create, update: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer'];
       allow delete: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     // ---------------------------------------------------------------------------
@@ -1071,7 +1071,7 @@ service cloud.firestore {
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor']);
+        && getUserData().role == 'admin';
     }
 
     match /trainingAssignments/{assignmentId} {
@@ -1120,8 +1120,10 @@ service cloud.firestore {
       // hr_officer can reach the content library page per the router/FEATURES.md.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
     }
 
     match /training_records/{recordId} {
@@ -1190,36 +1192,46 @@ service cloud.firestore {
     match /triage_categories/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
     }
 
     match /triage_content_items/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
     }
 
     match /triage_contacts/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
     }
 
     match /triage_assessments/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
     }
 
     match /triage_assessment_results/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
     }
 
     match /triage_sessions/{docId} {
@@ -1239,7 +1251,7 @@ service cloud.firestore {
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && getUserData().role == 'admin';
     }
 
     // report_schedules — recurring report export schedules (read/created/
@@ -1283,7 +1295,7 @@ service cloud.firestore {
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && getUserData().role == 'admin';
     }
 
     match /technician_status/{docId} {
@@ -1329,8 +1341,10 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['plant_manager', 'admin']);
-      allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['plant_manager', 'admin']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
     }
 
     // ---------------------------------------------------------------------------
@@ -1342,7 +1356,7 @@ service cloud.firestore {
       allow create, update: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role in ['technician', 'store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'];
       allow delete: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+        && getUserData().role == 'admin';
     }
 
     // ---------------------------------------------------------------------------

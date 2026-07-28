@@ -24,7 +24,7 @@ export default function PMSchedulesPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const isSupervisor = useAuthStore((s) => s.isSupervisor || s.isAdmin);
   const isAdmin = useAuthStore((s) => s.isAdmin);
-  const canDeleteSchedules = !isAdmin;
+  const canDeleteSchedules = isAdmin;
 
   const filters = usePMStore((s) => s.filters);
   const setFilters = usePMStore((s) => s.setFilters);

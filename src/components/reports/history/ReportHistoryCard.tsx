@@ -7,7 +7,7 @@ export default function ReportHistoryCard({
   onDelete,
 }: {
   report: ReportHistory;
-  onDelete: (id: string) => void;
+  onDelete?: (id: string) => void;
 }) {
   return (
     <article className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-4 lg:hidden">
@@ -24,9 +24,11 @@ export default function ReportHistoryCard({
           <Download className="h-4 w-4" />
           Open
         </a>
-        <button type="button" onClick={() => onDelete(report.id)} className="flex min-h-11 w-12 items-center justify-center rounded-lg border border-[#EF4444]/40 text-[#FCA5A5]" aria-label="Delete history entry">
-          <Trash2 className="h-4 w-4" />
-        </button>
+        {onDelete && (
+          <button type="button" onClick={() => onDelete(report.id)} className="flex min-h-11 w-12 items-center justify-center rounded-lg border border-[#EF4444]/40 text-[#FCA5A5]" aria-label="Delete history entry">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </article>
   );
