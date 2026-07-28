@@ -257,6 +257,8 @@ export interface TrainingAssignment {
   traineeId: string;
   traineeName: string;
   traineeEmail: string;
+  // Absent on assignments created before this field was added.
+  traineeRole?: string;
   department: string;
   assignedBy: string;
   assignedByName: string;

@@ -639,7 +639,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/new"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <CreateModulePage />
             </ProtectedRoute>
           }
@@ -647,7 +647,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/:moduleId"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <EditModulePage />
             </ProtectedRoute>
           }
@@ -655,7 +655,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/:moduleId/quiz"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <QuizBuilderPage />
             </ProtectedRoute>
           }
