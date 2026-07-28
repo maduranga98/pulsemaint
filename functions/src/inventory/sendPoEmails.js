@@ -76,6 +76,27 @@ async function companyMetaFor(companyId) {
   }
 }
 
+// Approver's phone/email for the Ship To card — the PO only stores the
+// approver's id/name/role, so their contact details come from their user
+// profile at send time.
+async function approverContactFor(companyId, po) {
+  if (!companyId || !po || !po.approvedBy) return null;
+  try {
+    const snap = await db.collection(`companies/${companyId}/users`).doc(po.approvedBy).get();
+    if (!snap.exists) return {name: po.approvedByName || "", role: po.approvedByRole || ""};
+    const data = snap.data() || {};
+    return {
+      name: po.approvedByName || data.fullName || "",
+      role: po.approvedByRole || "",
+      phone: data.phone || "",
+      email: data.email || "",
+    };
+  } catch (err) {
+    logger.warn(`Could not load approver ${po.approvedBy} for PO document email`, err);
+    return {name: po.approvedByName || "", role: po.approvedByRole || ""};
+  }
+}
+
 function esc(s) {
   if (s == null) return "";
   return String(s)
@@ -134,7 +155,7 @@ function plainEmailShell(bodyHtml, companyName) {
 // columns appear: false for the initial "sent" email (the supplier is the
 // one who quotes cost), true for the "invoice_priced" email once the
 // supplier's invoice has given us prices to confirm back to them.
-function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
+function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml, approverContact}) {
   const rows = (Array.isArray(items) ? items : [])
     .map(
       (it, idx) => `
@@ -192,6 +213,13 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
           <div style="font-size:13px;color:#333;">${esc(po.deliveryAddress || companyMeta.address || companyMeta.name)}</div>
           ${po.paymentTerms ? `<div style="font-size:13px;color:#333;margin-top:6px;"><strong>Payment Terms:</strong> ${esc(po.paymentTerms)}</div>` : ""}
           <div style="font-size:13px;color:#333;margin-top:6px;"><strong>Currency:</strong> ${esc(po.currency)}</div>
+          ${approverContact && approverContact.name ? `
+          <div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#888;">Approved By</div>
+            <div style="font-size:13px;color:#333;"><strong>${esc(approverContact.name)}</strong>${approverContact.role ? ` (${esc(approverContact.role)})` : ""}</div>
+            ${approverContact.phone ? `<div style="font-size:12px;color:#555;">Phone: ${esc(approverContact.phone)}</div>` : ""}
+            ${approverContact.email ? `<div style="font-size:12px;color:#555;">Email: ${esc(approverContact.email)}</div>` : ""}
+          </div>` : ""}
         </div>
       </td>
     </tr>
@@ -233,7 +261,7 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
         Prepared by: ${esc(po.raisedByName)}${po.raisedByRole ? ` (${esc(po.raisedByRole)})` : ""}
       </td>
       <td width="50%" style="border-top:1px solid #111;padding-top:6px;font-size:12px;color:#555;">
-        Approved by: ${esc(po.approvedByName || "—")}
+        Approved by: ${esc(po.approvedByName || "—")}${po.approvedByRole ? ` (${esc(po.approvedByRole)})` : ""}
       </td>
     </tr>
   </table>`;
@@ -408,11 +436,12 @@ exports.sendPoEmails = onDocumentCreated(
       // an internal step the supplier has no part in.
       if (poEvent === "sent" && supplierEmail && poData) {
         const companyMeta = await companyMetaFor(companyId);
+        const approverContact = await approverContactFor(companyId, poData);
         const introHtml = `
           <p style="color:#555;font-size:14px;margin:0 0 4px;">Dear ${esc(supplierName) || "Supplier"},</p>
           <p style="color:#555;font-size:14px;">${message ? esc(message).replace(/\n/g, "<br/>") : "Please find our purchase order below. Kindly confirm receipt and send your invoice with pricing for our review."}</p>
         `;
-        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml});
+        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml, approverContact});
         const sent = await sendEmail({
           to: supplierEmail,
           subject: `Purchase Order ${poNumber}`,
@@ -433,11 +462,12 @@ exports.sendPoEmails = onDocumentCreated(
       // fresh priced email goes out with the updated numbers.
       if (poEvent === "invoice_priced" && supplierEmail && poData) {
         const companyMeta = await companyMetaFor(companyId);
+        const approverContact = await approverContactFor(companyId, poData);
         const introHtml = `
           <p style="color:#555;font-size:14px;margin:0 0 4px;">Dear ${esc(supplierName) || "Supplier"},</p>
           <p style="color:#555;font-size:14px;">${message ? esc(message).replace(/\n/g, "<br/>") : "Thank you for your invoice. Here is the suggested pricing based on it — please confirm."}</p>
         `;
-        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: true, introHtml});
+        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: true, introHtml, approverContact});
         await sendEmail({
           to: supplierEmail,
           subject: `Purchase Order ${poNumber} — suggested pricing per invoice`,

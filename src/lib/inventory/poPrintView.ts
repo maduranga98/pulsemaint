@@ -6,6 +6,10 @@ function fmtDate(ts: any): string {
   return d ? d.toLocaleDateString() : '';
 }
 
+function fmtDateTime(d: Date): string {
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+
 function money(amount: number, currency: string): string {
   return `${currency} ${amount.toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -20,7 +24,19 @@ export interface PrintCompanyMeta {
   email?: string;
 }
 
-export function buildPOPrintHTML(po: PurchaseOrder, company: PrintCompanyMeta): string {
+export interface PrintApproverContact {
+  name?: string;
+  role?: string;
+  phone?: string;
+  email?: string;
+}
+
+export function buildPOPrintHTML(
+  po: PurchaseOrder,
+  company: PrintCompanyMeta,
+  options: { approver?: PrintApproverContact; generatedAt?: Date } = {},
+): string {
+  const { approver, generatedAt } = options;
   const total = po.items.reduce((s, it) => s + it.totalCost, 0);
   const rows = po.items
     .map(
@@ -88,6 +104,7 @@ export function buildPOPrintHTML(po: PurchaseOrder, company: PrintCompanyMeta): 
       <div class="num">${escape(po.poNumber)}</div>
       <div>Date: ${fmtDate(po.raisedAt)}</div>
       <div>Status: ${escape(po.status)}</div>
+      ${generatedAt ? `<div class="small">Generated: ${escape(fmtDateTime(generatedAt))}</div>` : ''}
     </div>
   </div>
 
@@ -106,6 +123,13 @@ export function buildPOPrintHTML(po: PurchaseOrder, company: PrintCompanyMeta): 
       <div class="notes">${escape(po.deliveryAddress || company.address || company.name)}</div>
       ${po.paymentTerms ? `<div style="margin-top:8px"><strong>Payment Terms:</strong> ${escape(po.paymentTerms)}</div>` : ''}
       <div style="margin-top:8px"><strong>Currency:</strong> ${escape(po.currency)}</div>
+      ${approver?.name ? `
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid #eee;">
+        <div class="small" style="text-transform:uppercase;letter-spacing:0.6px;color:#888;">Approved By</div>
+        <div><strong>${escape(approver.name)}</strong>${approver.role ? ` (${escape(approver.role)})` : ''}</div>
+        ${approver.phone ? `<div class="small">Phone: ${escape(approver.phone)}</div>` : ''}
+        ${approver.email ? `<div class="small">Email: ${escape(approver.email)}</div>` : ''}
+      </div>` : ''}
     </div>
   </div>
 
@@ -136,7 +160,7 @@ export function buildPOPrintHTML(po: PurchaseOrder, company: PrintCompanyMeta): 
 
   <div class="sign">
     <div class="line">Prepared by: ${escape(po.raisedByName || '')}${po.raisedByRole ? ` (${escape(po.raisedByRole)})` : ''}</div>
-    <div class="line">Approved by: ${escape(po.approvedByName || '')}</div>
+    <div class="line">Approved by: ${escape(po.approvedByName || '')}${po.approvedByRole ? ` (${escape(po.approvedByRole)})` : ''}</div>
   </div>
 
   <div class="toolbar no-print">
@@ -155,8 +179,12 @@ function escape(s: string | undefined | null): string {
     .replace(/"/g, '&quot;');
 }
 
-export function openPOPrintView(po: PurchaseOrder, company: PrintCompanyMeta): void {
-  const html = buildPOPrintHTML(po, company);
+export function openPOPrintView(
+  po: PurchaseOrder,
+  company: PrintCompanyMeta,
+  options?: { approver?: PrintApproverContact; generatedAt?: Date },
+): void {
+  const html = buildPOPrintHTML(po, company, options);
   const w = window.open('', '_blank');
   if (!w) return;
   w.document.open();

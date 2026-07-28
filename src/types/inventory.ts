@@ -352,6 +352,7 @@ export interface PurchaseOrder {
 
   approvedBy?: string | null;
   approvedByName?: string | null;
+  approvedByRole?: string | null;
   approvedAt?: Timestamp | null;
   rejectedReason?: string | null;
 

@@ -4,6 +4,7 @@ import {
   doc,
   collection,
   addDoc,
+  updateDoc,
   runTransaction,
   serverTimestamp,
   Timestamp,
@@ -13,8 +14,9 @@ import { useAuthStore } from '@/store/authStore';
 import { usePurchaseOrders } from '@/hooks/inventory/usePurchaseOrders';
 import { useToast } from '@/hooks/useToast';
 import { ReceiveItemRow } from './ReceiveItemRow';
-import type { PurchaseOrderItem } from '@/types/inventory';
+import type { PurchaseOrder, PurchaseOrderItem } from '@/types/inventory';
 import { getNextDeliveryRef } from '@/lib/inventory/deliveryRefGenerator';
+import { openPOPrintView } from '@/lib/inventory/poPrintView';
 
 interface ItemRowData {
   quantityReceived: number;
@@ -25,6 +27,7 @@ interface ItemRowData {
 
 export function ReceiveAgainstPo() {
   const userProfile = useAuthStore((s) => s.userProfile);
+  const company = useAuthStore((s) => s.company);
   const companyId = userProfile?.companyId;
   const toast = useToast();
   const navigate = useNavigate();
@@ -120,12 +123,22 @@ export function ReceiveAgainstPo() {
     return true;
   }
 
+  // Resend Email never touches stock — it only re-sends the
+  // received/faults notice with whatever is currently in the form. Since a
+  // resend implies the receipt needs correcting, it also sends the PO back
+  // to "Invoice Received" so it goes through Receive New Stock again rather
+  // than staying marked as (partially) received against unconfirmed numbers.
   async function handleResendEmail() {
+    if (!selectedPo) return;
     setIsResendingEmail(true);
     try {
       const sent = await sendReceiptEmail();
       if (sent) {
-        toast.success('Email resent with the current receipt details.');
+        await updateDoc(doc(db, 'purchaseOrders', selectedPo.id), {
+          status: 'invoice_received',
+          updatedAt: serverTimestamp(),
+        });
+        toast.success('Email resent with the current receipt details. PO moved back to Invoice Received.');
       } else {
         toast.error('Nothing to send — add a received/damaged quantity or check the supplier has an email on file.');
       }
@@ -263,6 +276,40 @@ export function ReceiveAgainstPo() {
         console.error('Failed to queue receipt email', emailErr);
       }
 
+      // Export the final PO — with the just-confirmed final costs and a
+      // generated timestamp — so the store keeper has a record of exactly
+      // what was received and at what price, right at the Received stage.
+      try {
+        const finalItems: PurchaseOrderItem[] = selectedPo.items.map((item) => {
+          const row = rowData[item.id];
+          const qty = row?.quantityReceived ?? 0;
+          const cost = row?.unitCost ?? item.unitCost;
+          return {
+            ...item,
+            quantityReceived: item.quantityReceived + qty,
+            unitCost: cost,
+            totalCost: cost * (item.quantityReceived + qty),
+          };
+        });
+        openPOPrintView(
+          { ...selectedPo, items: finalItems } as PurchaseOrder,
+          {
+            name: company?.name ?? 'Company',
+            address: (company as any)?.address,
+            phone: (company as any)?.phone,
+            email: (company as any)?.email,
+          },
+          {
+            approver: selectedPo.approvedByName
+              ? { name: selectedPo.approvedByName, role: selectedPo.approvedByRole ?? undefined }
+              : undefined,
+            generatedAt: new Date(),
+          },
+        );
+      } catch (exportErr) {
+        console.error('Failed to export final PO', exportErr);
+      }
+
       toast.success('Stock received successfully');
       setSelectedPoId('');
       setRowData({});
@@ -346,6 +393,26 @@ export function ReceiveAgainstPo() {
                 onUpdate={(data) => handleRowUpdate(item.id, data)}
               />
             ))}
+          </div>
+
+          {/* Final added costs */}
+          <div className="flex justify-end">
+            <div className="w-full sm:w-72 border border-gray-200 rounded-xl px-4 py-3 bg-gray-50">
+              <div className="flex items-center justify-between text-sm font-semibold text-gray-900">
+                <span>Final Cost Total</span>
+                <span>
+                  {selectedPo.currency}{' '}
+                  {selectedPo.items
+                    .reduce((sum, item) => {
+                      const row = rowData[item.id];
+                      const qty = row?.quantityReceived ?? 0;
+                      const cost = row?.unitCost ?? item.unitCost;
+                      return sum + qty * cost;
+                    }, 0)
+                    .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Notes */}
