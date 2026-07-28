@@ -5,7 +5,6 @@ import {
   where,
   getDocs,
   doc,
-  updateDoc,
   setDoc,
   serverTimestamp,
 } from 'firebase/firestore';
@@ -29,7 +28,6 @@ interface DashboardStats {
 export default function TrainingDashboardPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
-  const userFullName = useAuthStore((s) => s.userProfile?.fullName);
 
   const [stats, setStats] = useState<DashboardStats>({
     totalTrainees: 0,
@@ -39,7 +37,6 @@ export default function TrainingDashboardPage() {
     retrainingRequired: 0,
     modulesCreated: 0,
   });
-  const [awaitingSignOff, setAwaitingSignOff] = useState<TrainingAssignment[]>([]);
   const [allAssignments, setAllAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
@@ -83,8 +80,6 @@ export default function TrainingDashboardPage() {
         return due < now;
       }).length;
 
-      const awaiting = assignments.filter((a) => a.status === 'awaiting_practical');
-
       setStats({
         totalTrainees: traineeCount,
         activeAssignments: assignments.filter((a) => a.status === 'in_progress').length,
@@ -93,7 +88,6 @@ export default function TrainingDashboardPage() {
         retrainingRequired: assignments.filter((a) => a.status === 'retraining_required').length,
         modulesCreated: moduleSnap?.size ?? 0,
       });
-      setAwaitingSignOff(awaiting);
       setAllAssignments(assignments);
     } catch (err) {
       console.error('Failed to load training dashboard', err);
@@ -148,23 +142,6 @@ export default function TrainingDashboardPage() {
     void load();
   }, [load]);
 
-  const handleSignOff = async (assignmentId: string) => {
-    if (!userId) return;
-    await updateDoc(doc(db, 'trainingAssignments', assignmentId), {
-      status: 'certified',
-      'practicalSignOff.passed': true,
-      'practicalSignOff.signedOffBy': userId,
-      // Without this the issued certificate had a blank "issued by" name.
-      'practicalSignOff.signedOffByName': userFullName ?? '',
-      'practicalSignOff.signedOffAt': serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    });
-    setAwaitingSignOff((prev) => prev.filter((a) => a.id !== assignmentId));
-    setAllAssignments((prev) =>
-      prev.map((a) => (a.id === assignmentId ? { ...a, status: 'certified' } : a))
-    );
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -186,12 +163,7 @@ export default function TrainingDashboardPage() {
           Add Trainee
         </button>
       </div>
-      <TrainingDashboard
-        stats={stats}
-        awaitingSignOff={awaitingSignOff}
-        allAssignments={allAssignments}
-        onSignOff={(id) => void handleSignOff(id)}
-      />
+      <TrainingDashboard stats={stats} allAssignments={allAssignments} />
 
       {addOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
