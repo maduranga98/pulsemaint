@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import {
   collection,
@@ -16,6 +16,8 @@ import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout
 
 export default function CreateModulePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isTraineeContext = searchParams.get('context') === 'trainee';
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
   const [isSaving, setIsSaving] = useState(false);
@@ -92,6 +94,7 @@ export default function CreateModulePage() {
         onPublish={handlePublish}
         isSaving={isSaving}
         moduleId={moduleId}
+        hideCategorySection={isTraineeContext}
       />
     </div>
   );

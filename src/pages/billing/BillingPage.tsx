@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Check, Lock, Zap, Building2, Factory, Star } from 'lucide-react';
+import { Check, Lock, Zap, Building2, Factory, Star, CreditCard, Trash2, AlertTriangle } from 'lucide-react';
 import { doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
-import type { CompanyProfile } from '../../types/auth';
+import type { CompanyProfile, PaymentMethod } from '../../types/auth';
 
 type Plan = CompanyProfile['plan'];
+type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
 
 interface PlanDef {
   id: Plan;
   name: string;
-  price: string;
-  period: string;
+  monthlyPrice: number | null;
+  yearlyPrice: number | null;
+  priceLabel: string;
   description: string;
   icon: React.ReactNode;
   color: string;
@@ -20,12 +22,14 @@ interface PlanDef {
   highlight?: boolean;
 }
 
+// Yearly billing is discounted to roughly 10 months' worth of the monthly rate (2 months free).
 const PLANS: PlanDef[] = [
   {
     id: 'starter',
     name: 'Starter',
-    price: 'Free',
-    period: '',
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    priceLabel: 'Free',
     description: 'For small teams getting started with maintenance tracking.',
     icon: <Star className="h-5 w-5" />,
     color: 'text-slate-400',
@@ -42,8 +46,9 @@ const PLANS: PlanDef[] = [
   {
     id: 'workshop',
     name: 'Workshop',
-    price: '$49',
-    period: '/month',
+    monthlyPrice: 49,
+    yearlyPrice: 490,
+    priceLabel: '',
     description: 'For growing workshops that need structured maintenance workflows.',
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
@@ -61,8 +66,9 @@ const PLANS: PlanDef[] = [
   {
     id: 'factory',
     name: 'Factory Pro',
-    price: '$149',
-    period: '/month',
+    monthlyPrice: 149,
+    yearlyPrice: 1490,
+    priceLabel: '',
     description: 'Full MOE analytics and advanced modules for production facilities.',
     icon: <Factory className="h-5 w-5" />,
     color: 'text-violet-400',
@@ -81,8 +87,9 @@ const PLANS: PlanDef[] = [
   {
     id: 'enterprise',
     name: 'Enterprise',
-    price: 'Custom',
-    period: '',
+    monthlyPrice: null,
+    yearlyPrice: null,
+    priceLabel: 'Custom',
     description: 'Unlimited scale with full TPM, 5S, and enterprise integrations.',
     icon: <Building2 className="h-5 w-5" />,
     color: 'text-amber-400',
@@ -106,6 +113,20 @@ const PLAN_RANK: Record<Plan, number> = {
   factory: 2,
   enterprise: 3,
 };
+
+const SAVED_CARD_DISCOUNT = 0.05;
+
+function formatCardBrand(cardNumber: string): PaymentMethod['brand'] {
+  const digits = cardNumber.replace(/\s+/g, '');
+  if (/^4/.test(digits)) return 'Visa';
+  if (/^5[1-5]/.test(digits)) return 'Mastercard';
+  if (/^3[47]/.test(digits)) return 'Amex';
+  return 'Other';
+}
+
+function planPrice(plan: PlanDef, cycle: BillingCycle): number | null {
+  return cycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
+}
 
 function TrialBanner({
   status,
@@ -157,14 +178,21 @@ export default function BillingPage() {
   const isAdmin = useAuthStore((s) => s.isAdmin);
 
   const currentPlan = company?.plan ?? 'starter';
+  const billingCycle: BillingCycle = company?.billingCycle ?? 'monthly';
+  const paymentMethods = company?.paymentMethods ?? [];
+  const hasDefaultCard = paymentMethods.some((m) => m.isDefault);
+
   const [upgrading, setUpgrading] = useState<Plan | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
+  const [pendingDowngrade, setPendingDowngrade] = useState<PlanDef | null>(null);
 
-  async function handleUpgrade(plan: Plan) {
-    if (!company || !isAdmin) return;
-    if (plan === currentPlan) return;
+  const [cardForm, setCardForm] = useState({ name: '', number: '', expiry: '', cvc: '' });
+  const [cardError, setCardError] = useState('');
+  const [savingCard, setSavingCard] = useState(false);
 
+  async function persistPlan(plan: Plan, cycle: BillingCycle) {
+    if (!company) return;
     setUpgrading(plan);
     setError('');
     setSuccessMsg('');
@@ -173,17 +201,103 @@ export default function BillingPage() {
       const ref = doc(db, 'companies', company.id);
       await updateDoc(ref, {
         plan,
+        billingCycle: cycle,
         status: 'active',
         trialEndsAt: null,
       });
 
-      setCompany({ ...company, plan, status: 'active', trialEndsAt: null });
-      setSuccessMsg(`Plan updated to ${PLANS.find((p) => p.id === plan)?.name ?? plan}.`);
+      setCompany({ ...company, plan, billingCycle: cycle, status: 'active', trialEndsAt: null });
+      setSuccessMsg(`Plan updated to ${PLANS.find((p) => p.id === plan)?.name ?? plan} (billed ${cycle}).`);
     } catch (err: any) {
       setError(err?.message ?? 'Failed to update plan. Please try again.');
     } finally {
       setUpgrading(null);
     }
+  }
+
+  function handlePlanClick(plan: PlanDef) {
+    if (!company || !isAdmin || plan.id === currentPlan) return;
+    const isDowngrade = PLAN_RANK[plan.id] < PLAN_RANK[currentPlan];
+    if (isDowngrade) {
+      setPendingDowngrade(plan);
+      return;
+    }
+    void persistPlan(plan.id, billingCycle);
+  }
+
+  async function confirmDowngrade() {
+    if (!pendingDowngrade) return;
+    await persistPlan(pendingDowngrade.id, billingCycle);
+    setPendingDowngrade(null);
+  }
+
+  async function handleCycleChange(cycle: BillingCycle) {
+    if (!company || !isAdmin || cycle === billingCycle) return;
+    await persistPlan(currentPlan, cycle);
+  }
+
+  async function handleAddCard(e: React.FormEvent) {
+    e.preventDefault();
+    if (!company) return;
+    setCardError('');
+
+    const digits = cardForm.number.replace(/\s+/g, '');
+    const expiryMatch = /^(\d{2})\/(\d{2})$/.exec(cardForm.expiry.trim());
+    if (!cardForm.name.trim()) {
+      setCardError('Cardholder name is required.');
+      return;
+    }
+    if (digits.length < 12 || digits.length > 19 || !/^\d+$/.test(digits)) {
+      setCardError('Enter a valid card number.');
+      return;
+    }
+    if (!expiryMatch) {
+      setCardError('Enter expiry as MM/YY.');
+      return;
+    }
+    if (!/^\d{3,4}$/.test(cardForm.cvc.trim())) {
+      setCardError('Enter a valid CVC.');
+      return;
+    }
+
+    setSavingCard(true);
+    try {
+      const newCard: PaymentMethod = {
+        id: `card_${Date.now()}`,
+        brand: formatCardBrand(digits),
+        last4: digits.slice(-4),
+        expiryMonth: Number(expiryMatch[1]),
+        expiryYear: 2000 + Number(expiryMatch[2]),
+        cardholderName: cardForm.name.trim(),
+        isDefault: paymentMethods.length === 0,
+      };
+      const updated = [...paymentMethods, newCard];
+      await updateDoc(doc(db, 'companies', company.id), { paymentMethods: updated });
+      setCompany({ ...company, paymentMethods: updated });
+      setCardForm({ name: '', number: '', expiry: '', cvc: '' });
+      setSuccessMsg('Payment method saved.');
+    } catch (err: any) {
+      setCardError(err?.message ?? 'Failed to save card. Please try again.');
+    } finally {
+      setSavingCard(false);
+    }
+  }
+
+  async function handleRemoveCard(id: string) {
+    if (!company) return;
+    const remaining = paymentMethods.filter((m) => m.id !== id);
+    if (remaining.length > 0 && !remaining.some((m) => m.isDefault)) {
+      remaining[0].isDefault = true;
+    }
+    await updateDoc(doc(db, 'companies', company.id), { paymentMethods: remaining });
+    setCompany({ ...company, paymentMethods: remaining });
+  }
+
+  async function handleSetDefaultCard(id: string) {
+    if (!company) return;
+    const updated = paymentMethods.map((m) => ({ ...m, isDefault: m.id === id }));
+    await updateDoc(doc(db, 'companies', company.id), { paymentMethods: updated });
+    setCompany({ ...company, paymentMethods: updated });
   }
 
   return (
@@ -211,6 +325,7 @@ export default function BillingPage() {
             </p>
             <p className="text-sm text-slate-400 mt-0.5 capitalize">
               Status: <span className="font-medium text-slate-300">{company?.status ?? ''}</span>
+              {' · '}Billed <span className="font-medium text-slate-300">{billingCycle}</span>
             </p>
           </div>
           {company?.trialEndsAt && company.status === 'trial' && (
@@ -240,12 +355,36 @@ export default function BillingPage() {
         </div>
       )}
 
+      {/* Billing cycle toggle */}
+      <div className="flex items-center justify-center gap-3">
+        <div className="inline-flex items-center bg-[#0F1E35] border border-[#1E3A5F] rounded-full p-1">
+          {(['monthly', 'yearly'] as BillingCycle[]).map((cycle) => (
+            <button
+              key={cycle}
+              onClick={() => void handleCycleChange(cycle)}
+              disabled={!isAdmin || !!upgrading}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium capitalize transition-colors ${
+                billingCycle === cycle
+                  ? 'bg-blue-600 text-white'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {cycle}
+              {cycle === 'yearly' && (
+                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">Save ~17%</span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Plan cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {PLANS.map((plan) => {
           const isCurrent = plan.id === currentPlan;
           const isDowngrade = PLAN_RANK[plan.id] < PLAN_RANK[currentPlan];
           const isEnterprise = plan.id === 'enterprise';
+          const price = planPrice(plan, billingCycle);
 
           return (
             <div
@@ -268,10 +407,23 @@ export default function BillingPage() {
               <div>
                 <div className={`mb-2 ${plan.color}`}>{plan.icon}</div>
                 <h3 className="text-base font-bold text-white">{plan.name}</h3>
-                <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-2xl font-bold text-white">{plan.price}</span>
-                  {plan.period && (
-                    <span className="text-sm text-slate-400">{plan.period}</span>
+                <div className="flex items-baseline gap-1 mt-1 flex-wrap">
+                  {price === null ? (
+                    <span className="text-2xl font-bold text-white">{plan.priceLabel}</span>
+                  ) : price === 0 ? (
+                    <span className="text-2xl font-bold text-white">Free</span>
+                  ) : (
+                    <>
+                      <span className="text-2xl font-bold text-white">
+                        ${hasDefaultCard ? Math.round(price * (1 - SAVED_CARD_DISCOUNT) * 100) / 100 : price}
+                      </span>
+                      <span className="text-sm text-slate-400">/{billingCycle === 'yearly' ? 'year' : 'month'}</span>
+                      {hasDefaultCard && (
+                        <span className="text-[10px] font-semibold text-emerald-400 ml-1">
+                          5% saved card discount applied
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
                 <p className="text-xs text-slate-400 mt-1.5">{plan.description}</p>
@@ -302,11 +454,11 @@ export default function BillingPage() {
                   </a>
                 ) : isAdmin ? (
                   <button
-                    onClick={() => handleUpgrade(plan.id)}
-                    disabled={!!upgrading || isDowngrade}
-                    className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                    onClick={() => handlePlanClick(plan)}
+                    disabled={!!upgrading}
+                    className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60 ${
                       isDowngrade
-                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                        ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600'
                         : plan.highlight
                         ? 'bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-900/30'
                         : 'bg-blue-700 hover:bg-blue-600 text-white'
@@ -315,7 +467,7 @@ export default function BillingPage() {
                     {upgrading === plan.id
                       ? 'Updating…'
                       : isDowngrade
-                      ? 'Contact support to downgrade'
+                      ? `Downgrade to ${plan.name}`
                       : `Upgrade to ${plan.name}`}
                   </button>
                 ) : (
@@ -330,14 +482,162 @@ export default function BillingPage() {
         })}
       </div>
 
+      {/* Payment methods */}
+      {isAdmin && (
+        <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5 space-y-4">
+          <div>
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-blue-400" /> Payment Methods
+            </h2>
+            <p className="text-xs text-slate-400 mt-1">
+              Save a card for automatic renewal — subscriptions billed to a saved card get a{' '}
+              <span className="text-emerald-400 font-medium">{Math.round(SAVED_CARD_DISCOUNT * 100)}% discount</span> vs. manual invoicing.
+            </p>
+          </div>
+
+          {paymentMethods.length > 0 && (
+            <div className="space-y-2">
+              {paymentMethods.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex items-center justify-between gap-3 border border-[#1E3A5F] rounded-lg px-4 py-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="h-4 w-4 text-slate-400" />
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        {m.brand} •••• {m.last4}
+                        {m.isDefault && (
+                          <span className="ml-2 text-[10px] font-semibold text-blue-400 uppercase">Default</span>
+                        )}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {m.cardholderName} · Expires {String(m.expiryMonth).padStart(2, '0')}/{m.expiryYear}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {!m.isDefault && (
+                      <button
+                        onClick={() => void handleSetDefaultCard(m.id)}
+                        className="text-xs font-medium text-blue-400 hover:underline"
+                      >
+                        Set default
+                      </button>
+                    )}
+                    <button
+                      onClick={() => void handleRemoveCard(m.id)}
+                      className="text-slate-500 hover:text-red-400"
+                      aria-label="Remove card"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <form onSubmit={handleAddCard} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2">
+              <label className="text-xs text-slate-400">Cardholder name</label>
+              <input
+                type="text"
+                value={cardForm.name}
+                onChange={(e) => setCardForm((f) => ({ ...f, name: e.target.value }))}
+                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
+                placeholder="Full name on card"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="text-xs text-slate-400">Card number</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={cardForm.number}
+                onChange={(e) => setCardForm((f) => ({ ...f, number: e.target.value }))}
+                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
+                placeholder="1234 5678 9012 3456"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">Expiry (MM/YY)</label>
+              <input
+                type="text"
+                value={cardForm.expiry}
+                onChange={(e) => setCardForm((f) => ({ ...f, expiry: e.target.value }))}
+                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
+                placeholder="MM/YY"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-400">CVC</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={cardForm.cvc}
+                onChange={(e) => setCardForm((f) => ({ ...f, cvc: e.target.value }))}
+                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
+                placeholder="123"
+              />
+            </div>
+            {cardError && <p className="sm:col-span-2 text-sm text-red-400">{cardError}</p>}
+            <div className="sm:col-span-2">
+              <button
+                type="submit"
+                disabled={savingCard}
+                className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-60"
+              >
+                {savingCard ? 'Saving…' : 'Save Card'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
       {/* Note */}
       <p className="text-xs text-slate-500 text-center pb-4">
-        Prices shown in USD. Enterprise plans are billed annually. Contact{' '}
+        Prices shown in USD. Yearly billing is discounted vs. paying monthly. Contact{' '}
         <a href="mailto:support@pulsemaint.com" className="underline hover:text-slate-400">
           support@pulsemaint.com
         </a>{' '}
-        for billing questions or to request a downgrade.
+        for billing questions.
       </p>
+
+      {/* Downgrade confirmation */}
+      {pendingDowngrade && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-6 max-w-md w-full space-y-4">
+            <div className="flex items-center gap-2 text-amber-400">
+              <AlertTriangle className="h-5 w-5" />
+              <h3 className="text-base font-bold text-white">Confirm downgrade</h3>
+            </div>
+            <p className="text-sm text-slate-300">
+              You're switching from <strong>{PLANS.find((p) => p.id === currentPlan)?.name}</strong> to{' '}
+              <strong>{pendingDowngrade.name}</strong>. Any unused balance from your current billing
+              period is not refunded — you'll continue to be charged at the current plan's rate through
+              the end of this {billingCycle === 'yearly' ? 'year' : 'month'}, and the lower {pendingDowngrade.name} rate
+              takes effect on your next billing cycle. Features exclusive to your current plan will
+              become unavailable immediately.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setPendingDowngrade(null)}
+                className="px-4 py-2 text-sm font-medium border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => void confirmDowngrade()}
+                disabled={!!upgrading}
+                className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg disabled:opacity-60"
+              >
+                {upgrading ? 'Updating…' : 'Confirm Downgrade'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

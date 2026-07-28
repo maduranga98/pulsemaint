@@ -67,7 +67,7 @@ export default function AssignmentsListPage() {
         onViewOffboardReport={(assignment) => setReportAssignment(assignment)}
       />
 
-      <ModuleLibrarySection />
+      <ModuleLibrarySection variant="trainee" />
 
       {reportAssignment && (
         <OffboardTrainingReportViewer

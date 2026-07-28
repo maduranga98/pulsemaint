@@ -13,14 +13,20 @@ const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor'];
 
 interface ModuleLibrarySectionProps {
   title?: string;
+  /** 'trainee' when embedded in Trainee Management — hides the Internal/Offboard category picker in the module editor, which only applies to Training's own modules. */
+  variant?: 'training' | 'trainee';
 }
 
 // Self-contained module authoring + library view — used standalone on the
 // Training tab's Module Library page, and embedded directly in Trainee
 // Management so it never has to navigate into the Training tab to create or
 // browse modules.
-export default function ModuleLibrarySection({ title = 'Training Module Library' }: ModuleLibrarySectionProps) {
+export default function ModuleLibrarySection({
+  title = 'Training Module Library',
+  variant = 'training',
+}: ModuleLibrarySectionProps) {
   const navigate = useNavigate();
+  const contextQuery = variant === 'trainee' ? '?context=trainee' : '';
   const role = useAuthStore((s) => s.userProfile?.role);
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
@@ -86,7 +92,7 @@ export default function ModuleLibrarySection({ title = 'Training Module Library'
               <Sparkles size={16} /> {seeding ? 'Loading…' : 'Load Sample Modules'}
             </button>
             <button
-              onClick={() => navigate('/app/training/manage/modules/new')}
+              onClick={() => navigate(`/app/training/manage/modules/new${contextQuery}`)}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               <Plus size={16} /> Create Training Module
@@ -115,7 +121,7 @@ export default function ModuleLibrarySection({ title = 'Training Module Library'
         modules={modules}
         loading={loading}
         canAuthor={canAuthor}
-        onEdit={(id) => navigate(`/app/training/manage/modules/${id}`)}
+        onEdit={(id) => navigate(`/app/training/manage/modules/${id}${contextQuery}`)}
         onArchive={handleArchive}
         onDelete={(id) => void handleDelete(id)}
       />

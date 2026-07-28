@@ -21,6 +21,8 @@ interface ModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
   onSubmit: (data: Partial<TrainingModule>) => Promise<void>;
   isLoading?: boolean;
+  /** Trainee Management authors modules for internal trainees only — hide the Internal/Offboard category picker there. */
+  hideCategorySection?: boolean;
 }
 
 interface FormValues {
@@ -46,10 +48,11 @@ export default function ModuleSettingsForm({
   defaultValues,
   onSubmit,
   isLoading = false,
+  hideCategorySection = false,
 }: ModuleSettingsFormProps) {
   const [quizOpen, setQuizOpen] = useState(false);
   const [category, setCategory] = useState<TrainingModuleCategory>(
-    getModuleCategory(defaultValues as TrainingModule | undefined)
+    hideCategorySection ? 'machine' : getModuleCategory(defaultValues as TrainingModule | undefined)
   );
   const [offboard, setOffboard] = useState<OffboardFormValues>(
     offboardDetailsToFormValues(defaultValues?.offboardDetails)
@@ -155,35 +158,37 @@ export default function ModuleSettingsForm({
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Category</label>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setCategory('machine')}
-            className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
-              category === 'machine'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Internal Training
-          </button>
-          <button
-            type="button"
-            onClick={() => setCategory('offboard')}
-            className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
-              category === 'offboard'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-            }`}
-          >
-            Offboard / External
-          </button>
+      {!hideCategorySection && (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Category</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setCategory('machine')}
+              className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+                category === 'machine'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              Internal Training
+            </button>
+            <button
+              type="button"
+              onClick={() => setCategory('offboard')}
+              className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+                category === 'offboard'
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              Offboard / External
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {category === 'offboard' && (
+      {!hideCategorySection && category === 'offboard' && (
         <OffboardTrainingFields value={offboard} onChange={setOffboard} />
       )}
 

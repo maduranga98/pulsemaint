@@ -39,8 +39,6 @@ interface AssignTrainingWizardProps {
 
 interface AssignmentSettings {
   dueDate: string;
-  isRetraining: boolean;
-  retrainingReason: string;
   notifyTrainee: boolean;
   /** Training Type category (Task 5) — defaults from the selected module when unambiguous. */
   trainingType: TraineeTrainingType | '';
@@ -77,8 +75,6 @@ export default function AssignTrainingWizard({
   const [selectedCategory, setSelectedCategory] = useState<TraineeTrainingType | ''>('');
   const [settings, setSettings] = useState<AssignmentSettings>({
     dueDate: '',
-    isRetraining: false,
-    retrainingReason: '',
     notifyTrainee: true,
     trainingType: '',
     trainingPeriodPreset: 6,
@@ -189,7 +185,7 @@ export default function AssignTrainingWizard({
           );
         });
 
-        if (hasActive && !settings.isRetraining) {
+        if (hasActive) {
           skipped++;
           continue;
         }
@@ -229,13 +225,9 @@ export default function AssignTrainingWizard({
           trainingType: settings.trainingType || module.trainingType || null,
           trainingPeriodMonths,
           status: 'not_started',
-          isRetraining: settings.isRetraining,
-          retrainingReason: settings.isRetraining
-            ? settings.retrainingReason
-            : '',
-          retrainingTriggeredAt: settings.isRetraining
-            ? serverTimestamp()
-            : null,
+          isRetraining: false,
+          retrainingReason: '',
+          retrainingTriggeredAt: null,
           lessonProgress: {},
           overallProgress: 0,
           lessonsCompleted: 0,
@@ -583,50 +575,6 @@ export default function AssignTrainingWizard({
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-            <div>
-              <p className="text-sm font-medium text-gray-900">Is Retraining</p>
-              <p className="text-xs text-gray-500">
-                Mark this as a retraining assignment
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() =>
-                setSettings((s) => ({ ...s, isRetraining: !s.isRetraining }))
-              }
-              className={`w-11 h-6 rounded-full transition-colors relative ${
-                settings.isRetraining ? 'bg-blue-600' : 'bg-gray-300'
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  settings.isRetraining ? 'translate-x-5' : 'translate-x-0.5'
-                }`}
-              />
-            </button>
-          </div>
-
-          {settings.isRetraining && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Retraining Reason
-              </label>
-              <textarea
-                rows={3}
-                value={settings.retrainingReason}
-                onChange={(e) =>
-                  setSettings((s) => ({
-                    ...s,
-                    retrainingReason: e.target.value,
-                  }))
-                }
-                placeholder="Explain why retraining is required..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
-            </div>
-          )}
 
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <div>
