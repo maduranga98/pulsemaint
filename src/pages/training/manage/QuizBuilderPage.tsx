@@ -39,10 +39,10 @@ export default function QuizBuilderPage() {
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
         <p className="font-medium">Module not found.</p>
         <button
-          onClick={() => navigate('/app/training/manage/modules')}
+          onClick={() => navigate(-1)}
           className="text-blue-600 hover:underline text-sm"
         >
-          Back to Modules
+          Back
         </button>
       </div>
     );

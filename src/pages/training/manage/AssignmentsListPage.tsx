@@ -11,26 +11,16 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTraineeList } from '@/hooks/training/useTraineeList';
 import { useTraineeWorkOrderCounts } from '@/hooks/training/useTraineeWorkOrderCounts';
-import type { TrainingAssignment, AssignmentStatus } from '@/lib/training/trainingTypes';
+import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import TraineeManagementList from '@/components/training/manager/TraineeManagementList';
+import ModuleLibrarySection from '@/components/training/manager/ModuleLibrarySection';
 import OffboardTrainingReportViewer from '@/components/training/manager/OffboardTrainingReportViewer';
-
-const STATUS_OPTIONS: { label: string; value: AssignmentStatus | 'all' }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'In Progress', value: 'in_progress' },
-  { label: 'Not Started', value: 'not_started' },
-  { label: 'Awaiting Sign-Off', value: 'awaiting_practical' },
-  { label: 'Overdue', value: 'expired' },
-  { label: 'Certified', value: 'certified' },
-  { label: 'Retraining', value: 'retraining_required' },
-];
 
 export default function AssignmentsListPage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<AssignmentStatus | 'all'>('all');
   const [reportAssignment, setReportAssignment] = useState<TrainingAssignment | null>(null);
 
   const { trainees, loading: traineesLoading } = useTraineeList();
@@ -40,11 +30,7 @@ export default function AssignmentsListPage() {
     if (!companyId) return;
 
     setLoading(true);
-    const constraints = [where('companyId', '==', companyId)];
-    if (statusFilter !== 'all') {
-      constraints.push(where('status', '==', statusFilter));
-    }
-    const q = query(collection(db, 'trainingAssignments'), ...constraints);
+    const q = query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId));
 
     const unsub = onSnapshot(q, (snap) => {
       // Trainee Management only tracks trainee-role assignments — legacy
@@ -59,11 +45,11 @@ export default function AssignmentsListPage() {
     });
 
     return () => unsub();
-  }, [companyId, statusFilter]);
+  }, [companyId]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-8">
+      <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold text-slate-900">Trainee Management</h1>
         <button
           onClick={() => navigate('/app/training/manage/assign')}
@@ -73,22 +59,6 @@ export default function AssignmentsListPage() {
         </button>
       </div>
 
-      <div className="flex gap-2 flex-wrap mb-4">
-        {STATUS_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            onClick={() => setStatusFilter(opt.value)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              statusFilter === opt.value
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
       <TraineeManagementList
         trainees={trainees}
         assignments={assignments}
@@ -96,6 +66,8 @@ export default function AssignmentsListPage() {
         loading={loading || traineesLoading}
         onViewOffboardReport={(assignment) => setReportAssignment(assignment)}
       />
+
+      <ModuleLibrarySection />
 
       {reportAssignment && (
         <OffboardTrainingReportViewer
