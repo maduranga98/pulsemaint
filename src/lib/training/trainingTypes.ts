@@ -194,14 +194,36 @@ export interface TrainingModule {
   defaultTrainingPeriodMonths?: number;
   /**
    * Which module library this belongs to — the Training tab's own library
-   * or Trainee Management's. The two are entirely separate; a module
-   * created in one is never visible or assignable from the other. Absent
-   * on legacy docs — treat as 'training' when reading.
+   * or Trainee Management's. The two are entirely separate: a module created
+   * in one is never visible, editable, or assignable from the other.
+   *
+   * Required. Docs written before this field existed have no value for it
+   * and are invisible to both libraries until `seed/backfillLibraryScope.mjs`
+   * stamps them with 'training' (the scope the old shared library behaved as).
    */
-  libraryScope?: TrainingModuleLibraryScope;
+  libraryScope: TrainingModuleLibraryScope;
 }
 
 export type TrainingModuleLibraryScope = 'training' | 'trainee_management';
+
+export const TRAINING_MODULE_LIBRARY_SCOPES: TrainingModuleLibraryScope[] = [
+  'training',
+  'trainee_management',
+];
+
+/** A module belonging to the Training tab's library (machine/competency oriented). */
+export type TrainingLibraryModule = TrainingModule & { libraryScope: 'training' };
+
+/** A module belonging to Trainee Management's library (programme oriented). */
+export type TraineeLibraryModule = TrainingModule & { libraryScope: 'trainee_management' };
+
+export function isTrainingLibraryModule(m: TrainingModule): m is TrainingLibraryModule {
+  return m.libraryScope === 'training';
+}
+
+export function isTraineeLibraryModule(m: TrainingModule): m is TraineeLibraryModule {
+  return m.libraryScope === 'trainee_management';
+}
 
 // ---------------------------------------------------------------------------
 // Assignment Progress

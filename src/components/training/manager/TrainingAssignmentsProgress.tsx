@@ -3,7 +3,7 @@ import { collection, onSnapshot, query, where, type Timestamp } from 'firebase/f
 import { ClipboardList } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import { useTrainingModules } from '@/hooks/training/useTrainingModules';
+import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryModules';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 
@@ -28,6 +28,13 @@ function finalDecision(a: TrainingAssignment): string {
   return '—';
 }
 
+/** Marks are only meaningful once the learner has actually attempted the
+ *  quiz — a score of 0 with attempts used is a real result, not "no data". */
+function marks(a: TrainingAssignment): string {
+  if ((a.attemptsUsed ?? 0) === 0 && !a.quizPassed) return '—';
+  return `${a.bestScore ?? 0}%`;
+}
+
 /**
  * Live per-assignment progress table for the Training tab's own module
  * library (libraryScope: 'training') — module topic, who it's assigned to,
@@ -38,7 +45,7 @@ function finalDecision(a: TrainingAssignment): string {
  */
 export default function TrainingAssignmentsProgress() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const { modules } = useTrainingModules({ libraryScope: 'training' });
+  const { modules } = useTrainingLibraryModules();
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -91,6 +98,7 @@ export default function TrainingAssignmentsProgress() {
                 <th className="px-4 py-3 text-left">Assigned By</th>
                 <th className="px-4 py-3 text-left">Assigned</th>
                 <th className="px-4 py-3 text-left">Completed</th>
+                <th className="px-4 py-3 text-left">Progress</th>
                 <th className="px-4 py-3 text-left">Marks</th>
                 <th className="px-4 py-3 text-left">Status</th>
                 <th className="px-4 py-3 text-left">Final Decision</th>
@@ -103,8 +111,21 @@ export default function TrainingAssignmentsProgress() {
                   <td className="px-4 py-3 text-gray-700">{a.traineeName}</td>
                   <td className="px-4 py-3 text-gray-500">{a.assignedByName}</td>
                   <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(a.assignedAt)}</td>
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(a.completedAt)}</td>
-                  <td className="px-4 py-3 text-gray-700">{a.bestScore ? `${a.bestScore}%` : '—'}</td>
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                    {formatDate(a.completedAt ?? a.certifiedAt)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-16 bg-gray-200 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 rounded-full"
+                          style={{ width: `${Math.min(100, Math.max(0, a.overallProgress ?? 0))}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500">{a.overallProgress ?? 0}%</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-gray-700">{marks(a)}</td>
                   <td className="px-4 py-3"><TrainingStatusBadge status={a.status} /></td>
                   <td className="px-4 py-3 text-gray-500">{finalDecision(a)}</td>
                 </tr>

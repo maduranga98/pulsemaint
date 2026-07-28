@@ -6,10 +6,7 @@ import type {
   TrainingLanguage,
   TrainingModuleStatus,
   TrainingModuleCategory,
-  TraineeTrainingType,
-  TrainingDeliveryMode,
 } from '@/lib/training/trainingTypes';
-import { TRAINEE_TRAINING_TYPE_LABELS, TRAINING_DELIVERY_MODE_LABELS } from '@/lib/training/trainingTypes';
 import { getModuleCategory, computeDurationDays } from '@/lib/training/offboardTraining';
 import OffboardTrainingFields, {
   offboardDetailsToFormValues,
@@ -21,8 +18,6 @@ interface ModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
   onSubmit: (data: Partial<TrainingModule>) => Promise<void>;
   isLoading?: boolean;
-  /** Trainee Management authors modules for internal trainees only — hide the Internal/Offboard category picker there. */
-  hideCategorySection?: boolean;
 }
 
 interface FormValues {
@@ -33,8 +28,7 @@ interface FormValues {
   passingScore: number;
   status: TrainingModuleStatus;
   tags: string;
-  trainingType: TraineeTrainingType | '';
-  trainingMode: TrainingDeliveryMode | '';
+  machineName: string;
   quizSettings: {
     practicalSignOffRequired: boolean;
     maxAttempts: number;
@@ -51,15 +45,20 @@ export interface ModuleSettingsFormHandle {
   submitAs: (status: TrainingModuleStatus) => Promise<void>;
 }
 
+/**
+ * Settings form for the Training tab's module library only — machine /
+ * competency modules, including the Internal vs Offboard-External category
+ * picker. Trainee Management has its own form
+ * (`TraineeModuleSettingsForm`); neither branches on which library it is in.
+ */
 const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFormProps>(function ModuleSettingsForm({
   defaultValues,
   onSubmit,
   isLoading = false,
-  hideCategorySection = false,
 }, ref) {
   const [quizOpen, setQuizOpen] = useState(false);
   const [category, setCategory] = useState<TrainingModuleCategory>(
-    hideCategorySection ? 'machine' : getModuleCategory(defaultValues as TrainingModule | undefined)
+    getModuleCategory(defaultValues as TrainingModule | undefined)
   );
   const [offboard, setOffboard] = useState<OffboardFormValues>(
     offboardDetailsToFormValues(defaultValues?.offboardDetails)
@@ -75,8 +74,7 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
       passingScore: defaultValues?.passingScore ?? 70,
       status: defaultValues?.status ?? 'draft',
       tags: (defaultValues?.tags ?? []).join(', '),
-      trainingType: defaultValues?.trainingType ?? '',
-      trainingMode: defaultValues?.trainingMode ?? '',
+      machineName: defaultValues?.machineName ?? '',
       quizSettings: {
         practicalSignOffRequired: true,
         maxAttempts: defaultValues?.quiz?.maxAttempts ?? 3,
@@ -101,15 +99,16 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
     const data: Partial<TrainingModule> = {
       title: values.title,
       description: values.description,
-      machineName: '',
+      // Machine is authored here rather than hard-coded to '' — the library's
+      // Machine column and machine filter both read this field.
+      machineName: category === 'machine' ? values.machineName.trim() : '',
       estimatedMinutes: Number(values.estimatedMinutes),
       language: values.language,
       passingScore: Number(values.passingScore),
       status: values.status,
       tags,
       category,
-      trainingType: values.trainingType || undefined,
-      trainingMode: values.trainingMode || undefined,
+      libraryScope: 'training',
     };
 
     if (category === 'offboard') {
@@ -179,8 +178,7 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
         />
       </div>
 
-      {!hideCategorySection && (
-        <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">Category</label>
           <div className="flex gap-2">
             <button
@@ -207,39 +205,26 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
             </button>
           </div>
         </div>
-      )}
 
-      {!hideCategorySection && category === 'offboard' && (
+      {category === 'offboard' ? (
         <OffboardTrainingFields value={offboard} onChange={setOffboard} />
+      ) : (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
+            Machine <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            {...register('machineName', {
+              validate: (v) =>
+                category !== 'machine' || v.trim().length > 0 || 'Machine is required for internal training',
+            })}
+            placeholder="e.g. CNC Lathe #2, or Plant-wide"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          {errors.machineName && <p className="text-xs text-red-500">{errors.machineName.message}</p>}
+        </div>
       )}
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Training Type</label>
-          <select
-            {...register('trainingType')}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-          >
-            <option value="">Select training type…</option>
-            {Object.entries(TRAINEE_TRAINING_TYPE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Training Mode</label>
-          <select
-            {...register('trainingMode')}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-          >
-            <option value="">Select mode…</option>
-            {Object.entries(TRAINING_DELIVERY_MODE_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>{label}</option>
-            ))}
-          </select>
-        </div>
-      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">

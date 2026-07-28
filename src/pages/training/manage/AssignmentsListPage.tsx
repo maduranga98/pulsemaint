@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import {
@@ -10,21 +10,26 @@ import {
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTraineeList } from '@/hooks/training/useTraineeList';
+import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
 import { useTraineeWorkOrderCounts } from '@/hooks/training/useTraineeWorkOrderCounts';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import TraineeManagementList from '@/components/training/manager/TraineeManagementList';
-import ModuleLibrarySection from '@/components/training/manager/ModuleLibrarySection';
+import TraineeModuleLibrary from '@/components/training/manager/library/TraineeModuleLibrary';
 import OffboardTrainingReportViewer from '@/components/training/manager/OffboardTrainingReportViewer';
 
 export default function AssignmentsListPage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
+  const [allAssignments, setAllAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
   const [reportAssignment, setReportAssignment] = useState<TrainingAssignment | null>(null);
 
   const { trainees, loading: traineesLoading } = useTraineeList();
   const { counts: woCounts } = useTraineeWorkOrderCounts();
+  // Trainee Management only reports on its own library's modules — an
+  // assignment made from the Training tab's library never appears here,
+  // even when it happens to target a trainee.
+  const { modules: traineeModules, loading: modulesLoading } = useTraineeLibraryModules();
 
   useEffect(() => {
     if (!companyId) return;
@@ -33,19 +38,20 @@ export default function AssignmentsListPage() {
     const q = query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId));
 
     const unsub = onSnapshot(q, (snap) => {
-      // Trainee Management only tracks trainee-role assignments — legacy
-      // assignments made before traineeRole was recorded (or made to other
-      // workforce roles, back when this flow wasn't trainee-only) are
-      // excluded rather than shown alongside them.
-      const rows = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment))
-        .filter((a) => a.traineeRole === 'trainee');
-      setAssignments(rows);
+      setAllAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment)));
       setLoading(false);
     });
 
     return () => unsub();
   }, [companyId]);
+
+  const assignments = useMemo(() => {
+    const traineeModuleIds = new Set(traineeModules.map((m) => m.id));
+    // Trainee Management tracks trainee-role assignments made from its own
+    // module library. Legacy assignments made before traineeRole was
+    // recorded, and anything assigned out of the Training tab, are excluded.
+    return allAssignments.filter((a) => a.traineeRole === 'trainee' && traineeModuleIds.has(a.moduleId));
+  }, [allAssignments, traineeModules]);
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-8">
@@ -63,11 +69,11 @@ export default function AssignmentsListPage() {
         trainees={trainees}
         assignments={assignments}
         woCounts={woCounts}
-        loading={loading || traineesLoading}
+        loading={loading || traineesLoading || modulesLoading}
         onViewOffboardReport={(assignment) => setReportAssignment(assignment)}
       />
 
-      <ModuleLibrarySection variant="trainee" />
+      <TraineeModuleLibrary />
 
       {reportAssignment && (
         <OffboardTrainingReportViewer

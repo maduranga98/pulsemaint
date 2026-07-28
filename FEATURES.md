@@ -56,7 +56,7 @@ Authentication is Firebase Auth + a Firestore `users` collection; state is held 
 | Audit (TPM/5S/OEE/Contractor) | ✓ | ✓ | ✓ | — | — | ✓ | — | — |
 | Evaluations | ✓ | ✓ | ✓ | — | — | ✓ | — | — |
 | User Management | ✓ | ✓ | ✓ | — | — | ✓ | — | — |
-| Shift Config | ✓ | — | — | — | — | — | — | — |
+| Shift Config | ✓ | ✓ | — | — | — | — | — | — |
 | Settings | ✓ | — | — | — | — | — | — | — |
 | Billing & Plan | ✓ | — | — | — | — | — | — | — |
 
@@ -113,11 +113,14 @@ Contractor registry, technician sub-records, documents & compliance tracking, pe
 ### Shift Management
 - **My Shift**: available to everyone.
 - **Shift Handover**: create/briefing (supervisor/admin), history/detail (adds plant_manager/hr_officer as viewers). Auto-compiles a shift summary snapshot (pending WOs, ongoing breakdowns, low-stock alerts, watch flags).
-- **Shift Config**: admin only.
+- **Shift Config**: admin and plant_manager (create/edit); deleting a shift stays admin-only.
 
 ### Training
 - **Learner-facing** (My Modules, quizzes, My Certificates, My Program, Weekend Summary): available to everyone; "My Program" is trainee-focused (+admin).
-- **Management** (dashboard, module library, create/edit modules, quiz builder, assign training, assignment tracking, trainee profiles/programmes, certificates manager, compliance report, content library): supervisor/plant_manager/admin/hr_officer, with module *authoring* and compliance reporting narrowed to plant_manager/admin/hr_officer.
+- **Management** (dashboard, module libraries, create/edit modules, quiz builder, assign training, assignment tracking, trainee profiles/programmes, certificates manager, compliance report, content library): supervisor/plant_manager/admin/hr_officer, with module *authoring* and compliance reporting narrowed to plant_manager/admin/hr_officer.
+- **Two separate module libraries.** They share no templates, no queries, no components, and no assign flow:
+  - *Training tab* (`training/manage/modules*`) — machine/competency modules (`libraryScope: 'training'`). Internal vs Offboard/External category, machine filter, per-module Assign to users/roles/departments, and a live Assignment Progress table (module topic, assignee, assigner, assigned/completed dates, progress, marks, final decision).
+  - *Trainee Management* (`training/manage/trainee-modules*`) — programme modules (`libraryScope: 'trainee_management'`). Training type / delivery mode / default training period are required; no per-module Assign — assignment stays trainee-first through the Assign Training wizard.
 - Includes a structured 6–12 month **Trainee Programme** model with supervisor-reviewed weekend self-reports.
 
 ### Triage (Guided Troubleshooting)

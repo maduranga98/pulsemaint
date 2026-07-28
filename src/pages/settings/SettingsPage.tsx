@@ -33,8 +33,11 @@ export default function SettingsPage() {
       description: 'Configure shift schedules and handover rules.',
       to: '/app/settings/shifts',
       icon: <Clock className="w-5 h-5" />,
-      // Matches the old top-level "Shifts" nav item, which was admin-only.
-      roles: ['admin'],
+      // Plant managers get the same Shifts tab as admins — the route guard
+      // (`settings/shifts`) and firestore.rules already allow them to create
+      // and edit shift configs; only the tile was still admin-only, which
+      // made the page reachable by URL but invisible in the UI.
+      roles: ['admin', 'plant_manager'],
     },
     {
       title: 'Inventory Settings',

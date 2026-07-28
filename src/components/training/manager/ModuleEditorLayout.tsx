@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
+import type { Ref } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Loader2, ClipboardList } from 'lucide-react';
 import type { TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
 import { isOffboardModule } from '@/lib/training/offboardTraining';
-import ModuleSettingsForm, { type ModuleSettingsFormHandle } from './ModuleSettingsForm';
+import { type ModuleSettingsFormHandle } from './ModuleSettingsForm';
 import LessonListEditor from './LessonListEditor';
 import LessonEditorPanel from './LessonEditorPanel';
 
@@ -14,7 +15,18 @@ interface ModuleEditorLayoutProps {
   onPublish: () => void;
   isSaving?: boolean;
   moduleId?: string;
-  hideCategorySection?: boolean;
+  /**
+   * The settings form for whichever library this editor belongs to. The
+   * layout owns lessons, the quiz panel, and the Save Draft / Publish
+   * footer; each library composes only the settings sections it needs
+   * (`ModuleSettingsForm` for the Training tab, `TraineeModuleSettingsForm`
+   * for Trainee Management) rather than the layout branching on a flag.
+   */
+  renderSettings: (ref: Ref<ModuleSettingsFormHandle>) => React.ReactNode;
+  /** Route base for this library's editor, e.g. '/app/training/manage/modules'
+   *  — used to build the quiz-builder link so the editor never hard-codes the
+   *  other library's routes. */
+  editorBasePath: string;
 }
 
 type ActiveTab = 'settings' | 'lessons';
@@ -25,7 +37,8 @@ export default function ModuleEditorLayout({
   onPublish,
   isSaving = false,
   moduleId,
-  hideCategorySection = false,
+  renderSettings,
+  editorBasePath,
 }: ModuleEditorLayoutProps) {
   const navigate = useNavigate();
   const settingsFormRef = useRef<ModuleSettingsFormHandle>(null);
@@ -178,13 +191,7 @@ export default function ModuleEditorLayout({
                 {module?.title || 'New Module'}
               </h2>
             </div>
-            <ModuleSettingsForm
-              ref={settingsFormRef}
-              defaultValues={module}
-              onSubmit={onSave}
-              isLoading={isSaving}
-              hideCategorySection={hideCategorySection}
-            />
+            {renderSettings(settingsFormRef)}
           </div>
         </div>
 
@@ -244,7 +251,7 @@ export default function ModuleEditorLayout({
                 {moduleId && (
                   <button
                     type="button"
-                    onClick={() => navigate(`/app/training/manage/modules/${moduleId}/quiz`)}
+                    onClick={() => navigate(`${editorBasePath}/${moduleId}/quiz`)}
                     className="text-xs font-medium text-blue-600 hover:text-blue-700 border border-blue-300 hover:border-blue-400 rounded-lg px-3 py-1.5 transition-colors whitespace-nowrap"
                   >
                     Edit Quiz
@@ -261,7 +268,7 @@ export default function ModuleEditorLayout({
                 {moduleId && (
                   <button
                     type="button"
-                    onClick={() => navigate(`/app/training/manage/modules/${moduleId}/quiz`)}
+                    onClick={() => navigate(`${editorBasePath}/${moduleId}/quiz`)}
                     className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-300 hover:border-blue-400 rounded-lg px-4 py-2 transition-colors"
                   >
                     Add Quiz

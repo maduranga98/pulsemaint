@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  doc,
-  updateDoc,
-} from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
-import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
+import TraineeModuleSettingsForm from '@/components/training/manager/TraineeModuleSettingsForm';
 
-/** Authors a module into the Training tab's library (libraryScope 'training'). */
-export default function CreateModulePage() {
+/**
+ * Authors a module into Trainee Management's library
+ * (libraryScope 'trainee_management'). Separate page from the Training tab's
+ * CreateModulePage — no shared query param decides which library you are in.
+ */
+export default function CreateTraineeModulePage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
@@ -33,11 +31,7 @@ export default function CreateModulePage() {
           ...updates,
           companyId,
           createdBy: userId,
-          // This page only ever writes into the Training tab's library —
-          // the trainee library has its own editor pages.
-          libraryScope: 'training',
-          // Respect the status chosen in the settings form — forcing 'draft'
-          // here left modules unassignable (Assign only works on 'active').
+          libraryScope: 'trainee_management',
           status: updates.status ?? 'draft',
           lessons: updates.lessons ?? [],
           estimatedMinutes: updates.estimatedMinutes ?? 0,
@@ -50,14 +44,14 @@ export default function CreateModulePage() {
           id: ref.id,
           companyId,
           createdBy: userId,
-          libraryScope: 'training',
+          libraryScope: 'trainee_management',
           status: 'draft',
           lessons: [],
           estimatedMinutes: 0,
           passingScore: 80,
           ...updates,
         } as TrainingModule);
-        toast.success('Module saved.');
+        toast.success('Trainee module saved.');
       } else {
         await updateDoc(doc(db, 'trainingModules', moduleId), {
           ...updates,
@@ -70,9 +64,6 @@ export default function CreateModulePage() {
     }
   };
 
-  // The settings form itself already created/saved the module with
-  // status: 'active' (and every other field) via handleSave before this
-  // fires — just navigate away.
   const handlePublish = () => navigate(-1);
 
   return (
@@ -85,7 +76,7 @@ export default function CreateModulePage() {
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm">Create Training Module</h1>
+        <h1 className="font-semibold text-slate-900 text-sm">Create Trainee Module</h1>
       </div>
       <ModuleEditorLayout
         module={module}
@@ -93,9 +84,9 @@ export default function CreateModulePage() {
         onPublish={handlePublish}
         isSaving={isSaving}
         moduleId={moduleId}
-        editorBasePath="/app/training/manage/modules"
+        editorBasePath="/app/training/manage/trainee-modules"
         renderSettings={(ref) => (
-          <ModuleSettingsForm ref={ref} defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
+          <TraineeModuleSettingsForm ref={ref} defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
     </div>

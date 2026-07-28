@@ -7,6 +7,10 @@ import type { ShiftConfig } from '@/types/handover.types';
 
 export function ShiftConfigPage() {
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
+  const role = useAuthStore((state) => state.userProfile?.role);
+  // Mirrors the shift_config delete rule in firestore.rules — plant managers
+  // can create and edit shifts, but deletes stay admin-only company-wide.
+  const canDelete = role === 'admin';
   const { shifts, loading, save, remove } = useShiftConfig();
   const [editing, setEditing] = useState<ShiftConfig | undefined>(undefined);
 
@@ -29,7 +33,7 @@ export function ShiftConfigPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="font-[Sora] text-2xl font-bold text-slate-950">Shift Configuration</h1>
-          <p className="mt-1 text-sm text-slate-500">Admin setup for company shift structure.</p>
+          <p className="mt-1 text-sm text-slate-500">Company shift structure setup.</p>
         </div>
         <button type="button" onClick={() => void seedDefaults()} className="min-h-12 rounded-md border border-blue-200 bg-white px-4 text-sm font-bold text-blue-700">Seed Defaults</button>
       </div>
@@ -79,9 +83,11 @@ export function ShiftConfigPage() {
                 <button type="button" onClick={() => setEditing(shift)} className="text-sm font-semibold text-blue-600 hover:text-blue-800">
                   Edit
                 </button>
-                <button type="button" onClick={() => void handleDelete(shift.id)} className="text-sm font-semibold text-red-600 hover:text-red-800">
-                  Delete
-                </button>
+                {canDelete && (
+                  <button type="button" onClick={() => void handleDelete(shift.id)} className="text-sm font-semibold text-red-600 hover:text-red-800">
+                    Delete
+                  </button>
+                )}
               </div>
             </article>
           ))
