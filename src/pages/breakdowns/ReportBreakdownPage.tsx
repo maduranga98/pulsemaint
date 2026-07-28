@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
+import { notifyRoles } from '../../services/notifications.service';
 import type { BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 
 interface MachineOption {
@@ -181,6 +182,12 @@ export default function ReportBreakdownPage() {
         resolvedAt: null,
         closedAt: null,
         slaDeadline: null,
+      });
+      void notifyRoles(userProfile.companyId, ['supervisor', 'plant_manager', 'admin'], {
+        type: 'breakdown',
+        message: `${machine.name}: new ${severity} breakdown reported by ${userProfile.fullName}`,
+        severity,
+        linkTo: '/app/breakdowns',
       });
       navigate('/app/breakdowns', { replace: true });
     } catch (err: any) {

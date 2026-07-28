@@ -1,3 +1,6 @@
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { notifyUsers } from '@/services/notifications.service';
 import type { CompanyProfile, UserProfile } from '@/types/auth';
 import { buildServiceLetterPdf } from './serviceLetterPdf';
 
@@ -13,7 +16,7 @@ interface GenerateServiceLetterInput {
   employee: UserProfile;
   roleLabel: string;
   form: ServiceLetterFormInput;
-  issuedBy: { name: string; role: string };
+  issuedBy: { id: string; name: string; role: string };
   /** Optional data URL of a manually attached digital signature image, rendered in place of the typed-name signature. */
   signatureImageDataUrl?: string | null;
 }
@@ -43,7 +46,9 @@ function timestampToDate(ts: unknown): Date | null {
 /**
  * Builds a Service Letter PDF for the given employee, using the company's
  * profile (logo + description) as the letterhead, and triggers a browser
- * download. Generated entirely client-side — not persisted.
+ * download. The PDF itself is generated client-side and not persisted, but
+ * an audit record (who was issued a letter, by whom, when) is logged to
+ * `serviceLetterHistory` for the export history view.
  */
 export async function generateServiceLetter(input: GenerateServiceLetterInput): Promise<void> {
   const { company, employee, roleLabel, form, issuedBy, signatureImageDataUrl } = input;
@@ -81,4 +86,27 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
 
   const fileName = `Service-Letter-${employee.fullName.replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`;
   pdf.save(fileName);
+
+  try {
+    await addDoc(collection(db, 'serviceLetterHistory'), {
+      companyId: company.id,
+      issuedAt: serverTimestamp(),
+      subject: form.subject,
+      toUserId: employee.id,
+      toName: employee.fullName,
+      toRole: roleLabel,
+      byUserId: issuedBy.id,
+      byName: issuedBy.name,
+      byRole: issuedBy.role,
+    });
+  } catch (err) {
+    // The letter itself already downloaded successfully — a failed audit
+    // log entry shouldn't be surfaced as a generation failure.
+    console.error('Failed to record service letter history', err);
+  }
+
+  void notifyUsers(company.id, [employee.id], {
+    type: 'document',
+    message: `A service letter ("${form.subject}") has been issued for you by ${issuedBy.name}`,
+  });
 }

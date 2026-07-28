@@ -42,6 +42,7 @@ import { UsersBulkImportModal, type ParsedUserRow } from '../../components/setti
 import { ServiceLetterModal } from '../../components/settings/ServiceLetterModal';
 import { Upload, FileText } from 'lucide-react';
 import { computeExpectedEndDate, type DurationPreset } from '../../lib/traineeProgram/programmeDuration';
+import { ServiceLetterHistoryTab } from '../../components/settings/ServiceLetterHistoryTab';
 
 const ROLE_LABEL: Record<UserRole, string> = {
   admin: 'Admin',
@@ -76,7 +77,7 @@ type ModalState =
   | { mode: 'edit'; user: UserProfile }
   | { mode: 'invite' };
 
-type TabState = 'users' | 'invitations';
+type TabState = 'users' | 'invitations' | 'service-letters';
 
 interface UserFormValues {
   fullName: string;
@@ -444,15 +445,29 @@ export default function UsersPage() {
                 Invitations ({invitations.filter((i) => i.status === 'pending').length} pending)
               </button>
             )}
+            {canManageUsers && (
+              <button
+                onClick={() => setActiveTab('service-letters')}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === 'service-letters'
+                    ? 'text-[#00C2FF] border-b-2 border-[#00C2FF]'
+                    : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
+                }`}
+              >
+                Service Letter History
+              </button>
+            )}
           </div>
 
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={activeTab === 'users' ? 'Search by name, email, phone, or role...' : 'Search invitations...'}
-            className="w-full sm:max-w-sm px-3 py-2 text-sm rounded-lg outline-none border"
-          />
+          {activeTab !== 'service-letters' && (
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={activeTab === 'users' ? 'Search by name, email, phone, or role...' : 'Search invitations...'}
+              className="w-full sm:max-w-sm px-3 py-2 text-sm rounded-lg outline-none border"
+            />
+          )}
         </div>
 
         {error && (
@@ -610,6 +625,8 @@ export default function UsersPage() {
             )}
           </>
         )}
+
+        {activeTab === 'service-letters' && <ServiceLetterHistoryTab companyId={company?.id ?? ''} />}
       </div>
 
       {importOpen && (

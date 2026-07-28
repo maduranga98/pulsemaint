@@ -16,6 +16,7 @@ import type { UserProfile } from '@/types/auth';
 import type { TrainingModule, TraineeTrainingType } from '@/lib/training/trainingTypes';
 import { TRAINEE_TRAINING_TYPE_LABELS } from '@/lib/training/trainingTypes';
 import { getModuleCategory } from '@/lib/training/offboardTraining';
+import { notifyUsers } from '@/services/notifications.service';
 import type { DurationPreset } from '@/lib/traineeProgram/programmeDuration';
 import { computeExpectedEndDate } from '@/lib/traineeProgram/programmeDuration';
 import {
@@ -283,6 +284,14 @@ export default function AssignTrainingWizard({
               }
             : null,
         });
+
+        if (settings.notifyTrainee) {
+          void notifyUsers(companyId, [trainee.id], {
+            type: 'training',
+            message: `You've been assigned a new training module: ${module.title}`,
+            linkTo: '/app/training',
+          });
+        }
       }
 
       setSkippedCount(skipped);
@@ -545,52 +554,7 @@ export default function AssignTrainingWizard({
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Training Period
-            </label>
-            <div className="flex items-center gap-3 flex-wrap">
-              {[6, 12].map((months) => (
-                <button
-                  type="button"
-                  key={months}
-                  onClick={() => setSettings((s) => ({ ...s, trainingPeriodPreset: months as DurationPreset }))}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                    settings.trainingPeriodPreset === months
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  {months} months
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => setSettings((s) => ({ ...s, trainingPeriodPreset: 'custom' }))}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
-                  settings.trainingPeriodPreset === 'custom'
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                Custom
-              </button>
-              {settings.trainingPeriodPreset === 'custom' && (
-                <input
-                  type="number"
-                  min={1}
-                  value={settings.trainingPeriodCustomMonths}
-                  onChange={(e) =>
-                    setSettings((s) => ({ ...s, trainingPeriodCustomMonths: Number(e.target.value) || 1 }))
-                  }
-                  className="w-24 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              )}
-            </div>
-            <p className="text-xs text-gray-400 mt-1">Defaults to 6 months, same preset model as the Trainee Programme duration picker.</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Due Date <span className="text-gray-400 font-normal">(optional — defaults to training period end)</span>
+              Due Date <span className="text-gray-400 font-normal">(optional)</span>
             </label>
             <input
               type="date"

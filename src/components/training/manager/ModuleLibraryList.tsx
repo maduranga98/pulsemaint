@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Edit2, Archive, Trash2, BookOpen, HelpCircle, Layers, Globe2 } from 'lucide-react';
+import { Edit2, Archive, Trash2, BookOpen, HelpCircle, Layers, Globe2, UserPlus } from 'lucide-react';
 import type { TrainingModule, TrainingModuleStatus } from '@/lib/training/trainingTypes';
 import { isOffboardModule } from '@/lib/training/offboardTraining';
 
@@ -12,6 +12,8 @@ interface ModuleLibraryListProps {
   onEdit: (id: string) => void;
   onArchive: (id: string) => void;
   onDelete: (id: string) => void;
+  /** Opens the module-scoped Assign form (users/roles/departments) — omit to hide the action. */
+  onAssign?: (id: string) => void;
 }
 
 type StatusFilter = 'all' | TrainingModuleStatus;
@@ -36,6 +38,7 @@ export default function ModuleLibraryList({
   onEdit,
   onArchive,
   onDelete,
+  onAssign,
 }: ModuleLibraryListProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -146,6 +149,15 @@ export default function ModuleLibraryList({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      {onAssign && module.status === 'active' && (
+                        <button
+                          onClick={() => onAssign(module.id)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          <UserPlus className="w-3 h-3" />
+                          Assign
+                        </button>
+                      )}
                       {canAuthor && (
                         <button
                           onClick={() => onEdit(module.id)}
@@ -223,6 +235,14 @@ export default function ModuleLibraryList({
                 )}
               </div>
               <div className="flex gap-2">
+                {onAssign && module.status === 'active' && (
+                  <button
+                    onClick={() => onAssign(module.id)}
+                    className="flex-1 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    Assign
+                  </button>
+                )}
                 {canAuthor && (
                   <button
                     onClick={() => onEdit(module.id)}

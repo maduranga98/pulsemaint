@@ -18,6 +18,7 @@ import {
   getDownloadURL,
 } from 'firebase/storage';
 import { db } from '@/lib/firebase';
+import { notifyRoles } from '@/services/notifications.service';
 import { nanoid } from 'nanoid';
 import type {
   EvaluationSession,
@@ -74,6 +75,11 @@ export async function submitEvaluation(
     status: 'submitted',
     createdAt: serverTimestamp(),
     submittedAt: serverTimestamp(),
+  });
+  void notifyRoles(session.companyId, ['hr_officer', 'plant_manager'], {
+    type: 'evaluation',
+    message: `New evaluation submitted for ${session.evaluateeName} by ${session.evaluatorName}`,
+    linkTo: '/app/evaluations',
   });
   return docRef.id;
 }
