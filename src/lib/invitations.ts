@@ -34,6 +34,7 @@ export async function createInvitation(data: {
   jobTitle: string | null;
   employeeId?: string | null;
   phone?: string | null;
+  address?: string | null;
   invitedBy: string;
   invitedByName: string;
 }): Promise<Invitation> {
@@ -81,6 +82,7 @@ export async function createInvitation(data: {
     jobTitle: data.jobTitle,
     employeeId: data.employeeId?.trim() || null,
     phone: data.phone?.trim() || null,
+    address: data.address?.trim() || null,
     token,
     status: 'pending',
     invitedBy: data.invitedBy,
@@ -212,6 +214,7 @@ async function createUserFromInvitation(
     employeeId: invitation.employeeId ?? null,
     department: invitation.department,
     jobTitle: invitation.jobTitle,
+    address: invitation.address ?? null,
     status: 'active',
     loginMethod: photoURL ? 'google' : 'email',
     hasPin: false,
@@ -274,6 +277,7 @@ export async function resendInvitation(companyId: string, invitationId: string):
     fullName: old.fullName,
     department: old.department,
     jobTitle: old.jobTitle,
+    address: old.address,
     invitedBy: old.invitedBy,
     invitedByName: old.invitedByName,
   });

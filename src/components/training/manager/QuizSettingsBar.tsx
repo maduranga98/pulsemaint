@@ -99,6 +99,26 @@ export default function QuizSettingsBar({
               className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-500">Date</label>
+            <input
+              type="date"
+              value={quiz.scheduledDate ?? ''}
+              onChange={(e) => onChange({ scheduledDate: e.target.value || undefined })}
+              className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-500">Time</label>
+            <input
+              type="time"
+              value={quiz.scheduledTime ?? ''}
+              onChange={(e) => onChange({ scheduledTime: e.target.value || undefined })}
+              className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
         </div>
 
         {/* Toggles */}

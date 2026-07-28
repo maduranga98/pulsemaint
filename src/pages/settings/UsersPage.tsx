@@ -87,6 +87,7 @@ interface UserFormValues {
   department: string;
   employeeId: string;
   shiftId: string;
+  address: string;
   status: UserProfile['status'];
 }
 
@@ -96,6 +97,7 @@ interface InviteFormValues {
   role: UserRole;
   department: string;
   jobTitle: string;
+  address: string;
 }
 
 const emptyForm: UserFormValues = {
@@ -107,6 +109,7 @@ const emptyForm: UserFormValues = {
   department: '',
   employeeId: '',
   shiftId: '',
+  address: '',
   status: 'pending',
 };
 
@@ -116,6 +119,7 @@ const emptyInviteForm: InviteFormValues = {
   role: 'technician',
   department: '',
   jobTitle: '',
+  address: '',
 };
 
 /**
@@ -166,6 +170,7 @@ function toForm(u: UserProfile): UserFormValues {
     department: u.department ?? '',
     employeeId: u.employeeId ?? '',
     shiftId: u.shiftId ?? '',
+    address: u.address ?? '',
     status: u.status,
   };
 }
@@ -293,6 +298,7 @@ export default function UsersPage() {
       jobTitle: values.jobTitle.trim() || null,
       employeeId: values.employeeId.trim() || null,
       phone: values.phone.trim() || null,
+      address: values.address.trim() || null,
       invitedBy: currentUser.id,
       invitedByName: currentUser.fullName,
     });
@@ -312,6 +318,7 @@ export default function UsersPage() {
       department: values.department.trim() || null,
       employeeId: values.employeeId.trim() || null,
       shiftId: values.shiftId || null,
+      address: values.address.trim() || null,
       status: values.status,
       updatedAt: serverTimestamp(),
     });
@@ -331,6 +338,7 @@ export default function UsersPage() {
       fullName: values.fullName,
       department: values.department.trim() || null,
       jobTitle: values.jobTitle.trim() || null,
+      address: values.address.trim() || null,
       invitedBy: currentUser.id,
       invitedByName: currentUser.fullName,
     });
@@ -354,6 +362,7 @@ export default function UsersPage() {
           fullName: row.fullName,
           department: row.department,
           jobTitle: row.jobTitle,
+          address: row.address,
           invitedBy: currentUser.id,
           invitedByName: currentUser.fullName,
         });
@@ -900,6 +909,16 @@ function InviteModal({
             </Field>
           </div>
 
+          <Field label="Address">
+            <input
+              type="text"
+              value={values.address}
+              onChange={(e) => set('address', e.target.value)}
+              placeholder="e.g. 123 Main St, Springfield"
+              className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+            />
+          </Field>
+
           <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
             <strong>How it works:</strong> A unique invite link will be generated. Share it with the member — they can sign up with email/password or Google to join your team with the assigned role.
           </div>
@@ -1133,6 +1152,17 @@ function UserModal({ state, shifts, onClose, onAdd, onEdit }: UserModalProps) {
               </Field>
             )}
           </div>
+
+          <Field label="Address">
+            <input
+              type="text"
+              value={values.address}
+              onChange={(e) => set('address', e.target.value)}
+              disabled={isView}
+              placeholder="e.g. 123 Main St, Springfield"
+              className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
+            />
+          </Field>
 
           {isAdd && (
             <p className="text-xs text-slate-500">

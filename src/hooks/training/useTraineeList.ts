@@ -44,18 +44,14 @@ export function useTraineeList(
     // top-level `users` collection returned nothing, which is why the
     // assign-training wizard showed no trainees.
     //
-    // Training also applies to factory members generally (technicians,
-    // operators, store keepers, supervisors, etc.) — not just dedicated
-    // trainees — so widen the role filter accordingly. Admin & plant
-    // manager are excluded since they aren't typical training recipients.
-    const TRAINABLE_ROLES = [
-      'trainee',
-      'floor_operator',
-      'technician',
-      'store_keeper',
-      'supervisor',
-      'hr_officer',
-    ];
+    // This hook backs the "Trainee Management" assignment flow
+    // (AssignTrainingWizard / AssignTrainingPage), which is trainee-specific
+    // — only accounts with role `trainee` should be assignable here. General
+    // workforce training for other roles (technician, floor_operator,
+    // store_keeper, supervisor, hr_officer) is not exposed through this
+    // flow; if/when a separate general-workforce assignment flow exists it
+    // should query independently rather than widening this list.
+    const TRAINABLE_ROLES = ['trainee'];
     // No orderBy here: `role in […]` + orderBy(fullName) needs a composite
     // index that isn't deployed, which made the query fail silently and the
     // assign-training wizard show "No trainees found". Sort client-side.

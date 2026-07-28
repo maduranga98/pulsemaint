@@ -8,7 +8,7 @@ import type { UserRole } from '@/types/auth';
  * see PM-082/083) is created for each row.
  */
 
-const TEMPLATE_COLUMNS = ['Full Name', 'Email', 'Role', 'Department', 'Designation', 'Employee ID'] as const;
+const TEMPLATE_COLUMNS = ['Full Name', 'Email', 'Role', 'Department', 'Designation', 'Employee ID', 'Address'] as const;
 
 const VALID_ROLES: UserRole[] = [
   'admin', 'plant_manager', 'supervisor', 'technician',
@@ -22,6 +22,7 @@ export interface ParsedUserRow {
   department: string | null;
   jobTitle: string | null;
   employeeId: string | null;
+  address: string | null;
   error?: string;
 }
 
@@ -47,7 +48,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
     const XLSX = await import('xlsx');
     const ws = XLSX.utils.aoa_to_sheet([
       [...TEMPLATE_COLUMNS],
-      ['Jane Doe', 'jane@company.com', 'technician', 'Maintenance', 'Senior Technician', 'EMP-001'],
+      ['Jane Doe', 'jane@company.com', 'technician', 'Maintenance', 'Senior Technician', 'EMP-001', '123 Main St, Springfield'],
     ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Users');
@@ -83,6 +84,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
           department: get('Department') || null,
           jobTitle: get('Designation') || null,
           employeeId: get('Employee ID') || null,
+          address: get('Address') || null,
           error: rowError,
         };
       });

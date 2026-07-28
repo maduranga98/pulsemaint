@@ -39,8 +39,11 @@ export default function ModuleLibraryPage() {
     setSeeding(true);
     try {
       for (const sample of sampleTrainingModules()) {
+        const { quiz: practiceQuiz, finalTest, ...rest } = sample;
         await addDoc(collection(db, 'trainingModules'), {
-          ...sample,
+          ...rest,
+          quiz: finalTest,
+          practiceQuiz,
           companyId,
           createdBy: userId,
           status: 'active',
