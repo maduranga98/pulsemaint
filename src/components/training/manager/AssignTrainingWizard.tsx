@@ -56,7 +56,7 @@ const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [
 
 const STEPS = [
   { label: 'Select Trainees', icon: Users },
-  { label: 'Select Modules', icon: BookOpen },
+  { label: 'Select Category', icon: BookOpen },
   { label: 'Settings', icon: Settings },
   { label: 'Review & Confirm', icon: CheckCircle },
 ];
@@ -73,11 +73,8 @@ export default function AssignTrainingWizard({
   const [step, setStep] = useState(0);
   const [traineeSearch, setTraineeSearch] = useState('');
   const [traineeDepartment, setTraineeDepartment] = useState('');
-  const [moduleSearch, setModuleSearch] = useState('');
   const [selectedTrainees, setSelectedTrainees] = useState<UserProfile[]>([]);
-  const [selectedModules, setSelectedModules] = useState<TrainingModule[]>(
-    []
-  );
+  const [selectedCategory, setSelectedCategory] = useState<TraineeTrainingType | ''>('');
   const [settings, setSettings] = useState<AssignmentSettings>({
     dueDate: '',
     isRetraining: false,
@@ -110,14 +107,21 @@ export default function AssignTrainingWizard({
     status: 'active',
   });
 
-  // Pre-select defaultModuleId once modules load
-  const filteredModules = moduleSearch.trim()
-    ? modules.filter(
-        (m) =>
-          (m.title ?? '').toLowerCase().includes(moduleSearch.toLowerCase()) ||
-          (m.machineName ?? '').toLowerCase().includes(moduleSearch.toLowerCase())
-      )
-    : modules;
+  // Pre-select the category of the module this wizard was launched for
+  // (e.g. from a Module Library "Assign" action).
+  useEffect(() => {
+    if (!defaultModuleId || selectedCategory) return;
+    const def = modules.find((m) => m.id === defaultModuleId);
+    if (def?.trainingType) setSelectedCategory(def.trainingType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultModuleId, modules]);
+
+  // Trainee Training assigns by Category, not by browsing the Module
+  // Library — every active module tagged with the chosen category is
+  // assigned as a set, rather than picking individual modules.
+  const selectedModules: TrainingModule[] = selectedCategory
+    ? modules.filter((m) => m.trainingType === selectedCategory)
+    : [];
 
   function toggleTrainee(trainee: UserProfile) {
     setSelectedTrainees((prev) =>
@@ -127,38 +131,16 @@ export default function AssignTrainingWizard({
     );
   }
 
-  function toggleModule(mod: TrainingModule) {
-    setSelectedModules((prev) => {
-      if (prev.find((m) => m.id === mod.id)) {
-        return prev.filter((m) => m.id !== mod.id);
-      }
-      // Pre-select defaultModuleId
-      if (defaultModuleId && mod.id === defaultModuleId && prev.length === 0) {
-        return [mod];
-      }
-      return [...prev, mod];
-    });
-  }
-
-  // Ensure defaultModuleId gets pre-selected when step 1 is first shown
   function handleStepChange(next: number) {
-    if (next === 1 && defaultModuleId && selectedModules.length === 0) {
-      const def = modules.find((m) => m.id === defaultModuleId);
-      if (def) setSelectedModules([def]);
-    }
-    // Default Training Type / Training Period from the selected module(s)
-    // when entering the Settings step, so the admin doesn't have to re-enter
-    // what the module already implies (Task 5). If multiple modules with
-    // different trainingTypes are selected, leave the picker blank rather
-    // than guessing.
+    // Default Training Period from the category's modules when entering the
+    // Settings step, so the admin doesn't have to re-enter what the module
+    // already implies.
     if (next === 2 && selectedModules.length > 0) {
-      const types = new Set(selectedModules.map((m) => m.trainingType).filter(Boolean));
-      const inferredType = types.size === 1 ? (selectedModules[0].trainingType ?? '') : '';
       const inferredMonths =
         selectedModules.find((m) => m.defaultTrainingPeriodMonths)?.defaultTrainingPeriodMonths ?? 6;
       setSettings((s) => ({
         ...s,
-        trainingType: s.trainingType || inferredType,
+        trainingType: selectedCategory,
         trainingPeriodPreset: s.trainingPeriodPreset,
         trainingPeriodCustomMonths: s.trainingPeriodCustomMonths === 6 ? inferredMonths : s.trainingPeriodCustomMonths,
       }));
@@ -472,90 +454,16 @@ export default function AssignTrainingWizard({
         </div>
       )}
 
-      {/* Step 1 — Select Modules */}
+      {/* Step 1 — Select Category */}
       {step === 1 && (
         <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search modules..."
-              value={moduleSearch}
-              onChange={(e) => setModuleSearch(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {modulesLoading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-            </div>
-          ) : (
-            <div className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100 max-h-96 overflow-y-auto">
-              {filteredModules.length === 0 ? (
-                <p className="text-center py-8 text-sm text-gray-400">
-                  No active modules found.
-                </p>
-              ) : (
-                filteredModules.map((mod) => (
-                  <label
-                    key={mod.id}
-                    className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={!!selectedModules.find((m) => m.id === mod.id)}
-                      onChange={() => toggleModule(mod)}
-                      className="rounded"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {mod.title}
-                      </p>
-                      {getModuleCategory(mod) === 'offboard' ? (
-                        <p className="text-xs text-gray-500 flex items-center gap-2">
-                          <span>{mod.offboardDetails?.country || 'Offboard'}</span>
-                          <span>&middot;</span>
-                          <span>{mod.offboardDetails?.thirdPartyCompany || 'External provider'}</span>
-                          <span>&middot;</span>
-                          <span>{mod.offboardDetails?.durationDays ?? 0}d</span>
-                        </p>
-                      ) : (
-                        <p className="text-xs text-gray-500 flex items-center gap-2">
-                          <span>{mod.machineName}</span>
-                          <span>&middot;</span>
-                          <span>{mod.lessons.length} lessons</span>
-                          <span>&middot;</span>
-                          <Clock className="w-3 h-3" />
-                          <span>{mod.estimatedMinutes} min</span>
-                        </p>
-                      )}
-                    </div>
-                  </label>
-                ))
-              )}
-            </div>
-          )}
-
-          <p className="text-sm text-gray-500">
-            {selectedModules.length} module
-            {selectedModules.length !== 1 ? 's' : ''} selected
-          </p>
-        </div>
-      )}
-
-      {/* Step 2 — Settings */}
-      {step === 2 && (
-        <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Category
             </label>
             <select
-              value={settings.trainingType}
-              onChange={(e) =>
-                setSettings((s) => ({ ...s, trainingType: e.target.value as TraineeTrainingType | '' }))
-              }
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value as TraineeTrainingType | '')}
               className="w-full sm:w-72 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select category…</option>
@@ -565,6 +473,58 @@ export default function AssignTrainingWizard({
             </select>
           </div>
 
+          {modulesLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            </div>
+          ) : (
+            selectedCategory && (
+              <div className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                {selectedModules.length === 0 ? (
+                  <p className="text-center py-8 text-sm text-gray-400">
+                    No active modules found for this category.
+                  </p>
+                ) : (
+                  selectedModules.map((mod) => (
+                    <div key={mod.id} className="flex items-center gap-3 px-4 py-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {mod.title}
+                        </p>
+                        {getModuleCategory(mod) === 'offboard' ? (
+                          <p className="text-xs text-gray-500 flex items-center gap-2">
+                            <span>{mod.offboardDetails?.country || 'Offboard'}</span>
+                            <span>&middot;</span>
+                            <span>{mod.offboardDetails?.thirdPartyCompany || 'External provider'}</span>
+                            <span>&middot;</span>
+                            <span>{mod.offboardDetails?.durationDays ?? 0}d</span>
+                          </p>
+                        ) : (
+                          <p className="text-xs text-gray-500 flex items-center gap-2">
+                            <span>{mod.lessons.length} lessons</span>
+                            <span>&middot;</span>
+                            <Clock className="w-3 h-3" />
+                            <span>{mod.estimatedMinutes} min</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )
+          )}
+
+          <p className="text-sm text-gray-500">
+            {selectedModules.length} module
+            {selectedModules.length !== 1 ? 's' : ''} in this category
+          </p>
+        </div>
+      )}
+
+      {/* Step 2 — Settings */}
+      {step === 2 && (
+        <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Training Period
@@ -763,7 +723,7 @@ export default function AssignTrainingWizard({
             onClick={() => handleStepChange(step + 1)}
             disabled={
               (step === 0 && selectedTrainees.length === 0) ||
-              (step === 1 && selectedModules.length === 0)
+              (step === 1 && (!selectedCategory || selectedModules.length === 0))
             }
             className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
