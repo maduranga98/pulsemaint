@@ -2,6 +2,8 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/authStore';
+import { imageFormatFromDataUrl } from '../../../lib/pdf/logoUtils';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
 import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '../../../services/reports.service';
@@ -137,6 +139,17 @@ export async function exportGenericReportPdf(
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const bottomMargin = 40;
+
+  // Company letterhead logo, top-right — same data URL used by other
+  // generated documents (service letters), avoiding a cross-origin fetch.
+  const company = useAuthStore.getState().company;
+  if (company?.logoDataUrl) {
+    try {
+      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), pageWidth - 40 - 36, 20, 36, 36);
+    } catch {
+      // Malformed/unsupported image data — skip the logo rather than fail the export.
+    }
+  }
 
   // Header
   doc.setFontSize(16);

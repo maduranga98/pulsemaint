@@ -8,12 +8,14 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import type { TrainingModule, TrainingModuleStatus, ModuleCategory } from '@/lib/training/trainingTypes';
+import type { TrainingModule, TrainingModuleStatus, ModuleCategory, TrainingModuleLibraryScope } from '@/lib/training/trainingTypes';
 
 export interface UseTrainingModulesOptions {
   status?: TrainingModuleStatus;
   moduleCategory?: ModuleCategory;
   searchQuery?: string;
+  /** Training tab and Trainee Management have entirely separate module libraries — always pass this. */
+  libraryScope?: TrainingModuleLibraryScope;
 }
 
 interface UseTrainingModulesResult {
@@ -25,7 +27,7 @@ interface UseTrainingModulesResult {
 export function useTrainingModules(
   options: UseTrainingModulesOptions = {}
 ): UseTrainingModulesResult {
-  const { status, moduleCategory, searchQuery } = options;
+  const { status, moduleCategory, searchQuery, libraryScope } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
   const [modules, setModules] = useState<TrainingModule[]>([]);
@@ -68,6 +70,14 @@ export function useTrainingModules(
               ((a.updatedAt as any)?.toMillis?.() ?? 0)
           );
 
+        if (libraryScope) {
+          // Firestore's `==` filter would exclude legacy docs that predate
+          // this field entirely, hiding them from both libraries — filter
+          // client-side instead so a missing libraryScope is treated as
+          // 'training' (this app's original, only library).
+          docs = docs.filter((m) => (m.libraryScope ?? 'training') === libraryScope);
+        }
+
         if (searchQuery && searchQuery.trim() !== '') {
           const term = searchQuery.trim().toLowerCase();
           docs = docs.filter(
@@ -88,7 +98,7 @@ export function useTrainingModules(
     );
 
     return () => unsubscribe();
-  }, [companyId, status, moduleCategory, searchQuery]);
+  }, [companyId, status, moduleCategory, searchQuery, libraryScope]);
 
   return { modules, loading, error };
 }

@@ -49,7 +49,7 @@ export default function TraineeProgrammePage() {
   const [findingProgramme, setFindingProgramme] = useState(true);
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
 
-  const { modules } = useTrainingModules({ status: 'active' });
+  const { modules } = useTrainingModules({ status: 'active', libraryScope: 'trainee_management' });
   const { programme, loading: programmeLoading } = useProgrammeById(programmeId);
   const { summaries } = useWeekendSummaries(programmeId);
 

@@ -37,7 +37,8 @@ export default function ModuleLibrarySection({
   const [statusFilter, setStatusFilter] = useState<TrainingModuleStatus | undefined>(undefined);
   const [seeding, setSeeding] = useState(false);
   const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
-  const { modules, loading } = useTrainingModules({ status: statusFilter });
+  const libraryScope = variant === 'trainee' ? 'trainee_management' : 'training';
+  const { modules, loading } = useTrainingModules({ status: statusFilter, libraryScope });
 
   const handleArchive = async (id: string) => {
     if (!confirm('Archive this module? It will no longer be visible to trainees.')) return;
@@ -65,6 +66,7 @@ export default function ModuleLibrarySection({
           companyId,
           createdBy: userId,
           status: 'active',
+          libraryScope,
           machineId: null,
           machineTypeId: null,
           coverImageUrl: '',

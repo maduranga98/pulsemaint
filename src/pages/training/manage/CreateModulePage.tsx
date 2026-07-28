@@ -29,10 +29,12 @@ export default function CreateModulePage() {
     setIsSaving(true);
     try {
       if (!moduleId) {
+        const libraryScope = isTraineeContext ? 'trainee_management' : 'training';
         const ref = await addDoc(collection(db, 'trainingModules'), {
           ...updates,
           companyId,
           createdBy: userId,
+          libraryScope,
           // Respect the status chosen in the settings form — forcing 'draft'
           // here left modules unassignable (Assign only works on 'active').
           status: updates.status ?? 'draft',
@@ -43,7 +45,7 @@ export default function CreateModulePage() {
           updatedAt: serverTimestamp(),
         });
         setModuleId(ref.id);
-        setModule({ id: ref.id, companyId, createdBy: userId, status: 'draft', lessons: [], estimatedMinutes: 0, passingScore: 80, ...updates } as TrainingModule);
+        setModule({ id: ref.id, companyId, createdBy: userId, libraryScope, status: 'draft', lessons: [], estimatedMinutes: 0, passingScore: 80, ...updates } as TrainingModule);
         toast.success('Module saved.');
       } else {
         await updateDoc(doc(db, 'trainingModules', moduleId), {

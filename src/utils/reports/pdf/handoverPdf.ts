@@ -2,6 +2,8 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { ShiftHandover } from '@/types/handover.types';
 import { formatDuration, formatTimeRange } from '@/utils/handover.utils';
+import { useAuthStore } from '@/store/authStore';
+import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
 
 // SUP-024: shift-handover exports used to build an ad-hoc HTML print window
 // (see HandoverDetailPage's old handleExportPdf), which produced a
@@ -26,6 +28,15 @@ function fmt(value: Date | null | undefined): string {
 export function exportHandoverPdf(handover: ShiftHandover): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
+
+  const company = useAuthStore.getState().company;
+  if (company?.logoDataUrl) {
+    try {
+      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), pageWidth - 40 - 36, 20, 36, 36);
+    } catch {
+      // Malformed/unsupported image data — skip the logo rather than fail the export.
+    }
+  }
 
   // Header — same layout as genericReportPdf: 16pt title, gray 10pt metadata lines.
   doc.setFontSize(16);

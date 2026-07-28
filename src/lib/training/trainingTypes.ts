@@ -192,7 +192,16 @@ export interface TrainingModule {
   trainingMode?: TrainingDeliveryMode;
   /** Default training period, in months, applied when this module is assigned to a trainee (e.g. 6). */
   defaultTrainingPeriodMonths?: number;
+  /**
+   * Which module library this belongs to — the Training tab's own library
+   * or Trainee Management's. The two are entirely separate; a module
+   * created in one is never visible or assignable from the other. Absent
+   * on legacy docs — treat as 'training' when reading.
+   */
+  libraryScope?: TrainingModuleLibraryScope;
 }
+
+export type TrainingModuleLibraryScope = 'training' | 'trainee_management';
 
 // ---------------------------------------------------------------------------
 // Assignment Progress
