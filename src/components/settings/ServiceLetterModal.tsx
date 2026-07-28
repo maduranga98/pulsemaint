@@ -59,7 +59,7 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
         employee: selectedUser,
         roleLabel: roleLabels[selectedUser.role] ?? selectedUser.role,
         form: { subject: subject.trim(), addressedTo: addressedTo.trim(), body: body.trim(), remarks: remarks.trim() },
-        issuedBy: { name: userProfile.fullName ?? '', role: roleLabels[userProfile.role] ?? userProfile.role },
+        issuedBy: { id: userProfile.id, name: userProfile.fullName ?? '', role: roleLabels[userProfile.role] ?? userProfile.role },
         signatureImageDataUrl: signatureDataUrl,
       });
       toast.success('Service letter generated.');

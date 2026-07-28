@@ -12,6 +12,7 @@ import {
 import { db, storage } from '../lib/firebase';
 import type { CreateWOPayload, WODocument } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
+import { notifyUsers } from '../services/notifications.service';
 import { toast } from 'sonner';
 
 interface UploadProgress {
@@ -221,6 +222,15 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
 
       const docRef = await addDoc(collection(db, 'workOrders'), woData);
       const woId = docRef.id;
+
+      if ((payload.assignedTechnicianIds?.length ?? 0) > 0) {
+        void notifyUsers(companyId, payload.assignedTechnicianIds!, {
+          type: 'work_order',
+          message: `You've been assigned to a new work order: ${payload.description?.slice(0, 60) || woId}`,
+          severity: payload.priority === 'critical' || payload.priority === 'high' ? 'high' : 'medium',
+          linkTo: '/app/work-orders',
+        });
+      }
 
       // Link back to the breakdown ticket and move it to "In Progress" so the
       // Breakdowns tab reflects that a repair WO has been raised.

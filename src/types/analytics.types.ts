@@ -253,16 +253,33 @@ export interface TechnicianStatusDoc {
 // Notification Feed
 // ---------------------------------------------------------------------------
 
-export type DashboardNotificationType = 'breakdown' | 'work_order' | 'parts' | 'pm' | 'alert';
+export type DashboardNotificationType =
+  | 'breakdown'
+  | 'work_order'
+  | 'parts'
+  | 'pm'
+  | 'alert'
+  | 'training'
+  | 'evaluation'
+  | 'document';
 
 export interface DashboardNotification {
   id: string;
+  companyId?: string;
   type: DashboardNotificationType;
   message: string;
   timestamp: Timestamp;
   severity: 'critical' | 'high' | 'medium' | 'low';
   linkTo: string | null;
   read: boolean;
+  /** Targeting: notification is relevant to a user if their role is in
+   *  recipientRoles, OR their id is in recipientUserIds. If both are empty/
+   *  absent, it's a company-wide broadcast. */
+  recipientRoles?: string[];
+  recipientUserIds?: string[];
+  /** Per-user read state — `read` above is legacy/unused and kept only for
+   *  backward compatibility with older readers of this collection. */
+  readBy?: string[];
 }
 
 // ---------------------------------------------------------------------------

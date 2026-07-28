@@ -1,13 +1,16 @@
-import { AlertTriangle, Wrench, Package, Calendar, Bell } from 'lucide-react';
+import { AlertTriangle, Wrench, Package, Calendar, Bell, GraduationCap, ClipboardCheck, FileText } from 'lucide-react';
 import { relativeTime } from '../../../utils/analytics.utils';
-import type { DashboardNotification } from '../../../types/analytics.types';
+import type { DashboardNotification, DashboardNotificationType } from '../../../types/analytics.types';
 
-const ICON_MAP = {
+const ICON_MAP: Record<DashboardNotificationType, typeof Bell> = {
   breakdown: AlertTriangle,
   work_order: Wrench,
   parts: Package,
   pm: Calendar,
   alert: Bell,
+  training: GraduationCap,
+  evaluation: ClipboardCheck,
+  document: FileText,
 };
 
 const COLOR_MAP: Record<string, string> = {

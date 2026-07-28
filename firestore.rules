@@ -1298,6 +1298,19 @@ service cloud.firestore {
         && getUserData().role == 'admin';
     }
 
+    // serviceLetterHistory — audit log of generated Service Letters (who was
+    // issued a letter, by whom, when). Same roles as the Users page's
+    // Service Letter action (admin/plant_manager/hr_officer).
+    match /serviceLetterHistory/{entryId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer']);
+      allow update: if false;
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && getUserData().role == 'admin';
+    }
+
     match /technician_status/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);

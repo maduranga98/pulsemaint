@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useMyJobQueue } from '@/hooks/dashboard/useMyJobQueue';
 import { PartSearchInput } from '@/components/inventory/shared/PartSearchInput';
+import { notifyRoles } from '@/services/notifications.service';
 import type { InventoryPart, RequestItem } from '@/types/inventory';
 
 interface WorkOrderContext {
@@ -155,6 +156,12 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
         returnedAt: null,
         priorityLevel,
         isUrgent,
+      });
+      void notifyRoles(userProfile.companyId, ['store_keeper', 'supervisor', 'plant_manager'], {
+        type: 'parts',
+        message: `New parts request from ${userProfile.fullName}${isUrgent ? ' (urgent)' : ''}`,
+        severity: isUrgent ? 'high' : 'medium',
+        linkTo: '/app/inventory/requests',
       });
       setDone(true);
       onCreated?.(docRef.id);

@@ -6,8 +6,9 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTrainingModules } from '@/hooks/training/useTrainingModules';
 import { sampleTrainingModules } from '@/lib/training/sampleTrainingModules';
-import type { TrainingModuleStatus } from '@/lib/training/trainingTypes';
+import type { TrainingModule, TrainingModuleStatus } from '@/lib/training/trainingTypes';
 import ModuleLibraryList from './ModuleLibraryList';
+import ModuleAssignForm from './ModuleAssignForm';
 
 const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor'];
 
@@ -35,6 +36,7 @@ export default function ModuleLibrarySection({
   const canDelete = role === 'admin';
   const [statusFilter, setStatusFilter] = useState<TrainingModuleStatus | undefined>(undefined);
   const [seeding, setSeeding] = useState(false);
+  const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
   const { modules, loading } = useTrainingModules({ status: statusFilter });
 
   const handleArchive = async (id: string) => {
@@ -127,7 +129,23 @@ export default function ModuleLibrarySection({
         onEdit={(id) => navigate(`/app/training/manage/modules/${id}${contextQuery}`)}
         onArchive={handleArchive}
         onDelete={(id) => void handleDelete(id)}
+        onAssign={
+          // The Training tab gets its own module-scoped assign flow (users/
+          // roles/departments) — Trainee Management keeps its separate
+          // trainee-first AssignTrainingWizard, reached from its own button.
+          variant === 'training' && canAuthor
+            ? (id) => setAssigningModule(modules.find((m) => m.id === id) ?? null)
+            : undefined
+        }
       />
+
+      {assigningModule && (
+        <ModuleAssignForm
+          module={assigningModule}
+          onClose={() => setAssigningModule(null)}
+          onAssigned={() => setAssigningModule(null)}
+        />
+      )}
     </div>
   );
 }
