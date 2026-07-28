@@ -24,10 +24,15 @@ type SampleModuleBase = Pick<
 };
 
 /**
- * A Training-tab sample: machine/competency shaped. Carries no trainee
- * programme fields — those only exist in Trainee Management's library.
+ * A Training-tab sample. Classified by training type and delivery mode (the
+ * fields the Training module editor authors); it carries no
+ * `defaultTrainingPeriodMonths`, which is a trainee-programme concept and
+ * only exists in Trainee Management's library.
  */
-export type TrainingLibrarySampleModule = SampleModuleBase;
+export type TrainingLibrarySampleModule = SampleModuleBase & {
+  trainingType: TraineeTrainingType;
+  trainingMode: TrainingDeliveryMode;
+};
 
 /**
  * A Trainee Management sample: programme shaped. Training type, delivery
@@ -298,6 +303,8 @@ export function sampleTrainingLibraryModules(): TrainingLibrarySampleModule[] {
       passingScore: 80,
       language: 'en',
       tags: ['safety', 'induction', 'workforce'],
+      trainingType: 'other_trainee',
+      trainingMode: 'onsite',
       lessons: [
         lesson(1, 'Plant Layout & Emergency Exits', 'Muster points, exit routes, and where emergency equipment is kept.'),
         lesson(2, 'PPE Selection by Work Area', 'Which protective equipment is mandatory in each zone of the plant.', 'image_gallery'),
@@ -322,6 +329,8 @@ export function sampleTrainingLibraryModules(): TrainingLibrarySampleModule[] {
       passingScore: 85,
       language: 'en',
       tags: ['loto', 'isolation', 'safety'],
+      trainingType: 'electrical_trainee',
+      trainingMode: 'onsite',
       lessons: [
         lesson(1, 'Energy Sources & Isolation Points', 'Electrical, hydraulic, pneumatic, thermal, and stored-energy sources on plant equipment.'),
         lesson(2, 'Applying Locks, Tags & Personal Keys', 'One lock per person, personal key control, and correct tag information.'),
@@ -346,6 +355,8 @@ export function sampleTrainingLibraryModules(): TrainingLibrarySampleModule[] {
       passingScore: 75,
       language: 'en',
       tags: ['pm', 'planning', 'compliance'],
+      trainingType: 'technician_trainee',
+      trainingMode: 'onsite',
       lessons: [
         lesson(1, 'Why Planned Beats Reactive', 'The cost difference between planned maintenance and running to failure.'),
         lesson(2, 'Reading a PM Schedule & Checklist', 'Frequency, trigger type, and what each checklist line is asking for.'),
@@ -370,6 +381,8 @@ export function sampleTrainingLibraryModules(): TrainingLibrarySampleModule[] {
       passingScore: 75,
       language: 'en',
       tags: ['breakdown', 'rca', 'reporting'],
+      trainingType: 'technician_trainee',
+      trainingMode: 'onsite',
       lessons: [
         lesson(1, 'What Makes a Report Actionable', 'Symptom, time, severity, and what was happening just before the fault.'),
         lesson(2, 'Severity & Downtime Classification', 'Choosing the right severity so priority and analytics stay meaningful.'),
@@ -394,6 +407,8 @@ export function sampleTrainingLibraryModules(): TrainingLibrarySampleModule[] {
       passingScore: 75,
       language: 'en',
       tags: ['inventory', 'stores', 'parts'],
+      trainingType: 'other_trainee',
+      trainingMode: 'onsite',
       lessons: [
         lesson(1, 'Part Identification & Catalog Codes', 'Finding the right catalog entry instead of creating duplicates.'),
         lesson(2, 'Issuing Parts Against a Work Order', 'Why every issue must be tied to a job for cost and usage tracking.'),
@@ -418,6 +433,8 @@ export function sampleTrainingLibraryModules(): TrainingLibrarySampleModule[] {
       passingScore: 75,
       language: 'en',
       tags: ['handover', 'communication', 'shift'],
+      trainingType: 'operator_trainee',
+      trainingMode: 'onsite',
       lessons: [
         lesson(1, 'What Must Always Be Handed Over', 'Open jobs, isolations still in place, abnormal conditions, and pending decisions.'),
         lesson(2, 'Writing the Handover Record', 'Facts over impressions, and enough detail for someone who was not there.'),

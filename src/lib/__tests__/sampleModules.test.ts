@@ -56,17 +56,17 @@ describe('sampleTraineeProgrammeModules (Trainee Management library)', () => {
 describe('sampleTrainingLibraryModules (Training tab library)', () => {
   const modules = sampleTrainingLibraryModules();
 
-  it('provides plant-wide workforce modules', () => {
+  it('provides plant-wide workforce modules classified by training type and mode', () => {
     expect(modules.length).toBeGreaterThan(0);
     for (const m of modules) {
       expect(m.title.trim()).not.toBe('');
-      expect(m.machineName.trim()).not.toBe('');
+      expect(m.trainingType).toBeTruthy();
+      expect(['online', 'onsite']).toContain(m.trainingMode);
     }
   });
 
-  it('carries no trainee-programme fields', () => {
+  it('carries no trainee-programme training period', () => {
     for (const m of modules) {
-      expect(m).not.toHaveProperty('trainingType');
       expect(m).not.toHaveProperty('defaultTrainingPeriodMonths');
     }
   });

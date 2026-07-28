@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorJob } from '@/lib/contractors/contractorTypes';
 import { syncContractorMetrics } from '@/lib/contractors/contractorMetricsSync';
+import { notifyRoles } from '@/services/notifications.service';
 import RatingQuickTags from './RatingQuickTags';
 import RatingStarSelector from './RatingStarSelector';
 import FollowUpFlagToggle from './FollowUpFlagToggle';
@@ -70,6 +71,14 @@ export function RatingForm({ job }: RatingFormProps) {
           console.error('Failed to sync contractor metrics after rating', syncErr);
         }
       }
+
+      // Oversight roles are copied on every notification (see
+      // notifications.service).
+      void notifyRoles(job.companyId, ['supervisor'], {
+        type: 'work_order',
+        message: `${userProfile?.fullName ?? 'Someone'} rated ${job.contractorName} ${overall.toFixed(1)}/5 on job ${job.workOrderNumber}`,
+        linkTo: `/app/contractors/jobs/${job.id}`,
+      });
 
       toast.success('Rating submitted');
       navigate(`/app/contractors/jobs/${job.id}`);

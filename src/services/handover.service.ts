@@ -18,6 +18,7 @@ import {
 } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import app, { db } from '@/lib/firebase';
+import { notifyRoles } from './notifications.service';
 import type {
   CompiledShiftSummary,
   DraftHandover,
@@ -477,6 +478,16 @@ export async function submitHandoverCallable(params: {
   };
 
   const ref = await addDoc(collection(db, 'shift_handovers'), data);
+
+  // Oversight roles are copied on every notification (see
+  // notifications.service), so a submitted handover reaches admins and plant
+  // managers as well as the supervisors on shift.
+  void notifyRoles(data.companyId as string, ['supervisor'], {
+    type: 'alert',
+    message: `${(data.outgoingSupervisorName as string) || 'A supervisor'} submitted a shift handover`,
+    linkTo: `/app/shift/handover/${ref.id}`,
+  });
+
   return ref.id;
 }
 

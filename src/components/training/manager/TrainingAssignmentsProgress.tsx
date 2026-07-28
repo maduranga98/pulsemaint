@@ -16,18 +16,6 @@ function formatDate(ts: Timestamp | null | undefined): string {
   });
 }
 
-function finalDecision(a: TrainingAssignment): string {
-  if (a.status === 'certified') {
-    return a.practicalSignOff?.signedOffByName
-      ? `Certified — signed off by ${a.practicalSignOff.signedOffByName}`
-      : 'Certified';
-  }
-  if (a.status === 'retraining_required') return 'Retraining required';
-  if (a.status === 'quiz_failed') return 'Failed';
-  if (a.status === 'expired') return 'Expired';
-  return '—';
-}
-
 /** Marks are only meaningful once the learner has actually attempted the
  *  quiz — a score of 0 with attempts used is a real result, not "no data". */
 function marks(a: TrainingAssignment): string {
@@ -38,10 +26,9 @@ function marks(a: TrainingAssignment): string {
 /**
  * Live per-assignment progress table for the Training tab's own module
  * library (libraryScope: 'training') — module topic, who it's assigned to,
- * who assigned it, assigned/completed dates, marks, and the final decision
- * (certified/failed/retraining, and who signed it off). Trainee Management
- * has its own equivalent view (TraineeManagementList) scoped to its own
- * library and to the trainee role.
+ * who assigned it, assigned/completed dates, progress, marks, and status.
+ * Trainee Management has its own equivalent view (TraineeManagementList)
+ * scoped to its own library and to the trainee role.
  */
 export default function TrainingAssignmentsProgress() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
@@ -101,7 +88,6 @@ export default function TrainingAssignmentsProgress() {
                 <th className="px-4 py-3 text-left">Progress</th>
                 <th className="px-4 py-3 text-left">Marks</th>
                 <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Final Decision</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -127,7 +113,6 @@ export default function TrainingAssignmentsProgress() {
                   </td>
                   <td className="px-4 py-3 text-gray-700">{marks(a)}</td>
                   <td className="px-4 py-3"><TrainingStatusBadge status={a.status} /></td>
-                  <td className="px-4 py-3 text-gray-500">{finalDecision(a)}</td>
                 </tr>
               ))}
             </tbody>

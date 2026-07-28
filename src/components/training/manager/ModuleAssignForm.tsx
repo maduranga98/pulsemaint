@@ -7,6 +7,7 @@ import { useDepartments } from '@/hooks/useDepartments';
 import { notifyUsers } from '@/services/notifications.service';
 import type { UserProfile, UserRole } from '@/types/auth';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
+import { getModuleCategory } from '@/lib/training/offboardTraining';
 
 const ROLE_LABEL: Record<UserRole, string> = {
   admin: 'Admin',
@@ -136,8 +137,33 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
           overallProgress: 0,
           lessonsCompleted: 0,
           totalLessons: module.lessons?.length ?? 0,
+          // The full assignment shape. Leaving the quiz/progress fields out
+          // made `attemptsUsed` undefined, so the quiz pre-screen computed
+          // `maxAttempts - undefined = NaN`, showed "NaN attempts remaining"
+          // and disabled Start Quiz — the assignee could never take the quiz.
           quizAttempts: [],
           bestScore: 0,
+          latestScore: 0,
+          quizPassed: false,
+          quizPassedAt: null,
+          attemptsUsed: 0,
+          practicalSignOff: module.quiz
+            ? {
+                required: true,
+                signedOffBy: '',
+                signedOffByName: '',
+                signedOffAt: null,
+                observations: '',
+                passed: false,
+              }
+            : null,
+          certificateId: null,
+          certifiedAt: null,
+          certificateExpiryDate: null,
+          startedAt: null,
+          completedAt: null,
+          lastActivityAt: null,
+          category: getModuleCategory(module),
           notifyTrainee,
         });
         assigned++;

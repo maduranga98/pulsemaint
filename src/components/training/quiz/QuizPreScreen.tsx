@@ -1,5 +1,6 @@
 import { FileText, Clock, Target, RotateCcw, BookOpen } from 'lucide-react';
 import type { TrainingQuiz } from '@/lib/training/trainingTypes';
+import { attemptsRemaining as computeAttemptsRemaining } from '@/lib/training/quizScorer';
 
 interface QuizPreScreenProps {
   quiz: TrainingQuiz;
@@ -16,8 +17,9 @@ export default function QuizPreScreen({
   attemptsUsed,
   onStart,
 }: QuizPreScreenProps) {
-  const attemptsRemaining =
-    quiz.maxAttempts === 0 ? null : quiz.maxAttempts - attemptsUsed;
+  // null = unlimited. See attemptsRemaining() for why both inputs are
+  // defended against missing values.
+  const attemptsRemaining = computeAttemptsRemaining(quiz.maxAttempts, attemptsUsed);
 
   const infoCards = [
     {

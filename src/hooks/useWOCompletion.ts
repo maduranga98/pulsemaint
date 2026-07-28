@@ -17,6 +17,7 @@ import {
 import { db, storage } from '../lib/firebase';
 import type { WOCompletionPayload } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
+import { notifyRoles } from '../services/notifications.service';
 import { toast } from 'sonner';
 
 interface UploadProgress {
@@ -330,9 +331,11 @@ export function useWOCompletion(): UseWOCompletionResult {
         }
 
         // Sync linked breakdown progress.
+        let woNumberForNotice = woId;
         try {
           const woSnap = await getDoc(doc(db, 'workOrders', woId));
           const woData = woSnap.data() as any;
+          woNumberForNotice = woData?.woNumber ?? woId;
           if (woData?.linkedBreakdownId) {
             await updateDoc(doc(db, 'breakdown_tickets', woData.linkedBreakdownId), {
               status: 'resolved',
@@ -348,6 +351,18 @@ export function useWOCompletion(): UseWOCompletionResult {
           }
         } catch (bdErr) {
           console.error('Failed to sync linked breakdown on completion', bdErr);
+        }
+
+        // Oversight roles are copied on every notification (see
+        // notifications.service), so a completion awaiting sign-off now
+        // reaches admins and plant managers as well as supervisors.
+        const profile = useAuthStore.getState().userProfile;
+        if (profile?.companyId) {
+          void notifyRoles(profile.companyId, ['supervisor'], {
+            type: 'work_order',
+            message: `${user.displayName || profile.fullName || 'A technician'} submitted work order ${woNumberForNotice} for sign-off`,
+            linkTo: '/app/sign-off-queue',
+          });
         }
 
         toast.success('Completion submitted. Supervisor notified for sign-off.');

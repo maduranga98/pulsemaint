@@ -96,3 +96,22 @@ export function scoreQuizAttempt(
 export function hasPassedQuiz(score: number, passingScore: number): boolean {
   return score >= passingScore;
 }
+
+/**
+ * Attempts a learner has left on a quiz — `null` means unlimited.
+ *
+ * Both inputs are defensive: an assignment written before every progress
+ * field was persisted has no `attemptsUsed`, and an old quiz can be missing
+ * `maxAttempts`. Subtracting either straight through produced NaN, which the
+ * quiz screens rendered as "NaN attempts remaining" and read as "no attempts
+ * left", locking the learner out of a quiz they had never taken.
+ */
+export function attemptsRemaining(
+  maxAttempts: number | null | undefined,
+  attemptsUsed: number | null | undefined,
+): number | null {
+  const max = Number.isFinite(maxAttempts) ? Number(maxAttempts) : 0;
+  const used = Number.isFinite(attemptsUsed) ? Number(attemptsUsed) : 0;
+  if (max <= 0) return null;
+  return Math.max(0, max - used);
+}

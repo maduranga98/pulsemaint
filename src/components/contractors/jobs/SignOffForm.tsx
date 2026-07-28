@@ -6,6 +6,9 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorJob, MachineStatusAfter } from '@/lib/contractors/contractorTypes';
 import { syncContractorMetrics } from '@/lib/contractors/contractorMetricsSync';
+import { useJobPartsCost } from '@/hooks/contractors/useJobPartsCost';
+import { notifyRoles } from '@/services/notifications.service';
+import { formatLkr } from '@/lib/contractors/invoiceCalculator';
 import RatingStarSelector from './RatingStarSelector';
 import SignaturePad from './SignaturePad';
 
@@ -27,16 +30,19 @@ export function SignOffForm({ job }: SignOffFormProps) {
   const [signature, setSignature] = useState('');
   const [hasConcerns, setHasConcerns] = useState(Boolean(job.isDisputed));
   const [notes, setNotes] = useState(job.signOffNotes ?? job.disputeNotes ?? '');
-  // Total Project Cost = auto-computed parts cost (from stock movements /
-  // parts issued against this job, already rolled up into totalPartsCost)
-  // + the contractor's own labor/service cost, entered here at sign-off.
-  const autoPartsCost = job.totalPartsCost ?? 0;
-  const initialContractorCost = job.totalProjectCost != null
-    ? Math.max(0, job.totalProjectCost - autoPartsCost)
-    : job.systemInvoiceAmount != null
-      ? Math.max(0, job.systemInvoiceAmount - autoPartsCost)
-      : 0;
-  const [contractorCost, setContractorCost] = useState(initialContractorCost ? String(initialContractorCost) : '');
+  // Total cost = used-parts cost + the project cost entered here.
+  // The parts figure is derived live from the linked work order's partsUsed
+  // (and any materials logged on the job itself) rather than from the
+  // never-written `job.totalPartsCost`, which always read 0.
+  const autoPartsCost = useJobPartsCost(job);
+  const initialProjectCost = job.projectCost != null
+    ? job.projectCost
+    : job.totalProjectCost != null
+      ? Math.max(0, job.totalProjectCost - autoPartsCost)
+      : job.systemInvoiceAmount != null
+        ? Math.max(0, job.systemInvoiceAmount - autoPartsCost)
+        : 0;
+  const [projectCost, setProjectCost] = useState(initialProjectCost ? String(initialProjectCost) : '');
   const [speed, setSpeed] = useState(job.rating?.speedScore ?? 0);
   const [quality, setQuality] = useState(job.rating?.qualityScore ?? 0);
   const [professionalism, setProfessionalism] = useState(job.rating?.professionalismScore ?? 0);
@@ -44,13 +50,13 @@ export function SignOffForm({ job }: SignOffFormProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const parsedContractorCost = useMemo(() => {
-    const n = contractorCost.trim() ? Number(contractorCost.replace(/,/g, '')) : 0;
+  const parsedProjectCost = useMemo(() => {
+    const n = projectCost.trim() ? Number(projectCost.replace(/,/g, '')) : 0;
     return Number.isFinite(n) && n >= 0 ? n : 0;
-  }, [contractorCost]);
+  }, [projectCost]);
   const totalProjectCost = useMemo(
-    () => Number((autoPartsCost + parsedContractorCost).toFixed(2)),
-    [autoPartsCost, parsedContractorCost],
+    () => Number((autoPartsCost + parsedProjectCost).toFixed(2)),
+    [autoPartsCost, parsedProjectCost],
   );
 
   const overallRating = useMemo(() => {
@@ -70,8 +76,12 @@ export function SignOffForm({ job }: SignOffFormProps) {
       setError('A signature is required to sign off this job.');
       return;
     }
-    if (contractorCost.trim() && (Number.isNaN(Number(contractorCost.replace(/,/g, ''))) || Number(contractorCost.replace(/,/g, '')) < 0)) {
-      setError('Enter a valid contractor cost.');
+    if (projectCost.trim() && (Number.isNaN(Number(projectCost.replace(/,/g, ''))) || Number(projectCost.replace(/,/g, '')) < 0)) {
+      setError('Enter a valid project cost.');
+      return;
+    }
+    if (overallRating === 0 && !job.rating) {
+      setError('Rate all four areas before signing off this job.');
       return;
     }
     setError(null);
@@ -104,12 +114,12 @@ export function SignOffForm({ job }: SignOffFormProps) {
         isDisputed: hasConcerns,
         disputeNotes: hasConcerns ? notes.trim() || null : null,
         rating: ratingPayload,
-        // Total project cost = auto-computed parts cost + the contractor's own
-        // cost entered here. Feeds the contractor job history, the machine's
-        // cost roll-up and the maintenance cost analysis (which read
-        // systemInvoiceAmount / totalProjectCost), so mirror it across both
-        // fields, plus explicit sign-off-scoped fields the Contractor
-        // Performance report reads from.
+        // Total cost = used-parts cost + project cost. Each part is stored
+        // separately so the contractor's job history can show the breakdown,
+        // and the total is mirrored into systemInvoiceAmount because the
+        // machine cost roll-up and maintenance cost analysis read that field.
+        totalPartsCost: autoPartsCost,
+        projectCost: parsedProjectCost,
         totalProjectCost,
         systemInvoiceAmount: totalProjectCost,
         signOffRating: overallRating > 0 ? overallRating : (job.rating?.overallScore ?? null),
@@ -124,6 +134,15 @@ export function SignOffForm({ job }: SignOffFormProps) {
           console.error('Failed to sync contractor metrics after sign-off', syncErr);
         }
       }
+
+      // Oversight roles are copied on every notification (see
+      // notifications.service), so a contractor sign-off reaches admins and
+      // plant managers whoever performed it.
+      void notifyRoles(job.companyId, ['supervisor'], {
+        type: 'work_order',
+        message: `${userProfile?.fullName ?? 'Someone'} signed off contractor job ${job.workOrderNumber} (${job.contractorName}) — total ${formatLkr(totalProjectCost)}`,
+        linkTo: `/app/contractors/jobs/${job.id}`,
+      });
 
       toast.success('Job signed off successfully');
       navigate(`/app/contractors/jobs/${job.id}`);
@@ -161,26 +180,26 @@ export function SignOffForm({ job }: SignOffFormProps) {
       </section>
 
       <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-semibold text-slate-950">Total Project Cost</h2>
+        <h2 className="font-semibold text-slate-950">Total Cost</h2>
         <p className="mt-1 text-xs text-slate-500">
-          Auto-computed parts cost plus the contractor's own labor/service cost. Recorded against this
-          work order, the machine's cost history and the maintenance cost analysis.
+          Used-parts cost (from this work order) plus the project cost you enter below. Recorded against
+          this work order, the machine's cost history and the maintenance cost analysis.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="text-xs font-medium text-slate-500">Parts Cost (auto)</label>
+            <label className="text-xs font-medium text-slate-500">Used Parts Cost (auto)</label>
             <div className="mt-1 flex h-10 items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-700">
               <span className="font-medium text-slate-500">LKR</span>
               <span>{autoPartsCost.toFixed(2)}</span>
             </div>
           </div>
           <div>
-            <label className="text-xs font-medium text-slate-500">Contractor Cost</label>
+            <label className="text-xs font-medium text-slate-500">Project Cost</label>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-sm font-medium text-slate-500">LKR</span>
               <input
-                value={contractorCost}
-                onChange={(event) => setContractorCost(event.target.value)}
+                value={projectCost}
+                onChange={(event) => setProjectCost(event.target.value)}
                 inputMode="decimal"
                 placeholder="0.00"
                 className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm"
@@ -189,14 +208,18 @@ export function SignOffForm({ job }: SignOffFormProps) {
           </div>
         </div>
         <div className="mt-3 rounded-lg bg-slate-50 p-3">
-          <p className="text-xs text-slate-500">Total project cost</p>
-          <p className="text-lg font-bold text-slate-950">LKR {totalProjectCost.toFixed(2)}</p>
+          <p className="text-xs text-slate-500">
+            Total cost — used parts {formatLkr(autoPartsCost)} + project {formatLkr(parsedProjectCost)}
+          </p>
+          <p className="text-lg font-bold text-slate-950">{formatLkr(totalProjectCost)}</p>
         </div>
       </section>
 
       <section className="rounded-lg border border-slate-200 bg-white p-4">
         <h2 className="font-semibold text-slate-950">Contractor Rating</h2>
-        <p className="mt-1 text-xs text-slate-500">Rate all four areas to record a rating with this sign-off.</p>
+        <p className="mt-1 text-xs text-slate-500">
+          Rate all four areas — a rating is required to sign off, and appears in this contractor's job history.
+        </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {ratingDimensions.map(({ label, value, setter }) => (
             <div key={label} className="rounded-lg border border-slate-200 p-3">

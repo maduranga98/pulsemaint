@@ -3,9 +3,14 @@ import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import type {
   TrainingModule,
-  TrainingLanguage,
   TrainingModuleStatus,
   TrainingModuleCategory,
+  TraineeTrainingType,
+  TrainingDeliveryMode,
+} from '@/lib/training/trainingTypes';
+import {
+  TRAINEE_TRAINING_TYPE_LABELS,
+  TRAINING_DELIVERY_MODE_LABELS,
 } from '@/lib/training/trainingTypes';
 import { getModuleCategory, computeDurationDays } from '@/lib/training/offboardTraining';
 import OffboardTrainingFields, {
@@ -24,11 +29,11 @@ interface FormValues {
   title: string;
   description: string;
   estimatedMinutes: number;
-  language: TrainingLanguage;
   passingScore: number;
   status: TrainingModuleStatus;
   tags: string;
-  machineName: string;
+  trainingType: TraineeTrainingType | '';
+  trainingMode: TrainingDeliveryMode | '';
   quizSettings: {
     practicalSignOffRequired: boolean;
     maxAttempts: number;
@@ -70,11 +75,11 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
       estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
-      language: defaultValues?.language ?? 'en',
       passingScore: defaultValues?.passingScore ?? 70,
       status: defaultValues?.status ?? 'draft',
       tags: (defaultValues?.tags ?? []).join(', '),
-      machineName: defaultValues?.machineName ?? '',
+      trainingType: defaultValues?.trainingType ?? '',
+      trainingMode: defaultValues?.trainingMode ?? '',
       quizSettings: {
         practicalSignOffRequired: true,
         maxAttempts: defaultValues?.quiz?.maxAttempts ?? 3,
@@ -99,15 +104,19 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
     const data: Partial<TrainingModule> = {
       title: values.title,
       description: values.description,
-      // Machine is authored here rather than hard-coded to '' — the library's
-      // Machine column and machine filter both read this field.
-      machineName: category === 'machine' ? values.machineName.trim() : '',
+      // Modules are classified by training type and delivery mode rather than
+      // by machine, so keep machineName empty and preserve the module's
+      // existing language (the picker was removed — everything is authored in
+      // the company's own language).
+      machineName: '',
       estimatedMinutes: Number(values.estimatedMinutes),
-      language: values.language,
+      language: defaultValues?.language ?? 'en',
       passingScore: Number(values.passingScore),
       status: values.status,
       tags,
       category,
+      trainingType: values.trainingType as TraineeTrainingType,
+      trainingMode: values.trainingMode as TrainingDeliveryMode,
       libraryScope: 'training',
     };
 
@@ -206,25 +215,39 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
           </div>
         </div>
 
-      {category === 'offboard' ? (
-        <OffboardTrainingFields value={offboard} onChange={setOffboard} />
-      ) : (
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">
-            Machine <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            {...register('machineName', {
-              validate: (v) =>
-                category !== 'machine' || v.trim().length > 0 || 'Machine is required for internal training',
-            })}
-            placeholder="e.g. CNC Lathe #2, or Plant-wide"
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          {errors.machineName && <p className="text-xs text-red-500">{errors.machineName.message}</p>}
-        </div>
-      )}
+      {category === 'offboard' && <OffboardTrainingFields value={offboard} onChange={setOffboard} />}
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">
+          Training Type <span className="text-red-500">*</span>
+        </label>
+        <select
+          {...register('trainingType', { required: 'Training type is required' })}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        >
+          <option value="">Select training type…</option>
+          {Object.entries(TRAINEE_TRAINING_TYPE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">
+          Mode <span className="text-red-500">*</span>
+        </label>
+        <select
+          {...register('trainingMode', { required: 'Mode is required' })}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        >
+          <option value="">Select mode…</option>
+          {Object.entries(TRAINING_DELIVERY_MODE_LABELS).map(([value, label]) => (
+            <option key={value} value={value}>{label}</option>
+          ))}
+        </select>
+        {errors.trainingMode && <p className="text-xs text-red-500">{errors.trainingMode.message}</p>}
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
@@ -255,31 +278,16 @@ const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFo
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Language</label>
-          <select
-            {...register('language')}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-          >
-            <option value="en">English</option>
-            <option value="si">Sinhala</option>
-            <option value="ta">Tamil</option>
-            <option value="bn">Bengali</option>
-          </select>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Status</label>
-          <select
-            {...register('status')}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-          >
-            <option value="draft">Draft</option>
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">Status</label>
+        <select
+          {...register('status')}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+        >
+          <option value="draft">Draft</option>
+          <option value="active">Active</option>
+          <option value="archived">Archived</option>
+        </select>
       </div>
 
       <div className="flex flex-col gap-1">

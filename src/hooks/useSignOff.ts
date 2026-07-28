@@ -12,6 +12,7 @@ import type { WOSignOffPayload } from '../types/workOrder';
 import type { BreakdownStatus } from '../types/breakdown';
 import { useAuthStore } from '../store/authStore';
 import { logAuditEvent } from '../utils/reports/auditLogger';
+import { notifyRoles } from '../services/notifications.service';
 import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 import { toast } from 'sonner';
 
@@ -108,9 +109,11 @@ export function useSignOff(): UseSignOffResult {
         await syncPmScheduleWoStatus(woId, 'CLOSED');
 
         // Keep a linked breakdown ticket in sync — closing the WO closes it.
+        let woNumber = woId;
         try {
           const snap = await getDoc(doc(db, 'workOrders', woId));
           const data = snap.data() as { linkedBreakdownId?: string | null; woNumber?: string } | undefined;
+          woNumber = data?.woNumber ?? woId;
           if (data?.linkedBreakdownId) {
             const bdStatus: BreakdownStatus = 'closed';
             await updateDoc(doc(db, 'breakdown_tickets', data.linkedBreakdownId), {
@@ -130,6 +133,15 @@ export function useSignOff(): UseSignOffResult {
         }
 
         if (profile) {
+          // Oversight roles are copied on every notification (see
+          // notifications.service), so signing off a work order now reaches
+          // admins and plant managers whoever performed it.
+          void notifyRoles(profile.companyId, ['supervisor'], {
+            type: 'work_order',
+            message: `${actorName || 'Someone'} signed off and closed work order ${woNumber}`,
+            linkTo: '/app/work-orders',
+          });
+
           logAuditEvent({
             companyId: profile.companyId,
             userId: user.uid,

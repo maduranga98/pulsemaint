@@ -8,7 +8,16 @@ import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryMo
 import { useModuleAssignmentCounts } from '@/hooks/training/useModuleAssignmentCounts';
 import { sampleTrainingLibraryModules } from '@/lib/training/sampleModules';
 import { isOffboardModule } from '@/lib/training/offboardTraining';
-import type { TrainingLibraryModule, TrainingModuleStatus } from '@/lib/training/trainingTypes';
+import {
+  TRAINEE_TRAINING_TYPE_LABELS,
+  TRAINING_DELIVERY_MODE_LABELS,
+} from '@/lib/training/trainingTypes';
+import type {
+  TraineeTrainingType,
+  TrainingDeliveryMode,
+  TrainingLibraryModule,
+  TrainingModuleStatus,
+} from '@/lib/training/trainingTypes';
 import ModuleAssignForm from '../ModuleAssignForm';
 import ModuleStatusBadge from './shared/ModuleStatusBadge';
 import { LibraryEmpty, LibraryLoading } from './shared/LibraryStates';
@@ -20,6 +29,7 @@ const STATUS_FILTERS: { label: string; value: 'all' | TrainingModuleStatus }[] =
   { label: 'Active', value: 'active' },
   { label: 'Archived', value: 'archived' },
 ];
+const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [TraineeTrainingType, string][];
 
 /**
  * The Training tab's module library — machine/competency oriented.
@@ -40,34 +50,23 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | TrainingModuleStatus>('all');
-  const [machineFilter, setMachineFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState<TraineeTrainingType | ''>('');
   const [seeding, setSeeding] = useState(false);
   const [assigningModule, setAssigningModule] = useState<TrainingLibraryModule | null>(null);
 
   const { modules, loading } = useTrainingLibraryModules();
   const { counts: assignmentCounts } = useModuleAssignmentCounts();
 
-  const machines = useMemo(
-    () =>
-      Array.from(new Set(modules.map((m) => (m.machineName ?? '').trim()).filter(Boolean))).sort((a, b) =>
-        a.localeCompare(b)
-      ),
-    [modules]
-  );
-
   const filtered = useMemo(
     () =>
       modules.filter((m) => {
         const term = search.trim().toLowerCase();
-        const matchesSearch =
-          term === '' ||
-          (m.title ?? '').toLowerCase().includes(term) ||
-          (m.machineName ?? '').toLowerCase().includes(term);
+        const matchesSearch = term === '' || (m.title ?? '').toLowerCase().includes(term);
         const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
-        const matchesMachine = machineFilter === '' || (m.machineName ?? '').trim() === machineFilter;
-        return matchesSearch && matchesStatus && matchesMachine;
+        const matchesType = typeFilter === '' || m.trainingType === typeFilter;
+        return matchesSearch && matchesStatus && matchesType;
       }),
-    [modules, search, statusFilter, machineFilter]
+    [modules, search, statusFilter, typeFilter]
   );
 
   const handleArchive = async (id: string) => {
@@ -113,6 +112,8 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
 
   const assignedOf = (id: string) => assignmentCounts[id]?.assigned ?? 0;
   const completedOf = (id: string) => assignmentCounts[id]?.completed ?? 0;
+  const typeLabel = (t?: TraineeTrainingType) => (t ? TRAINEE_TRAINING_TYPE_LABELS[t] ?? t : '—');
+  const modeLabel = (m?: TrainingDeliveryMode) => (m ? TRAINING_DELIVERY_MODE_LABELS[m] ?? m : '—');
 
   return (
     <div className="space-y-4">
@@ -137,25 +138,25 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
         )}
       </div>
 
-      {/* Filter bar — status and machine, the two axes that matter for
-          machine/competency training. */}
+      {/* Filter bar — status and training type, matching the fields the
+          module editor now authors. */}
       <div className="flex flex-col lg:flex-row gap-3">
         <input
           type="text"
-          placeholder="Search modules by title or machine..."
+          placeholder="Search modules by title..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
-          value={machineFilter}
-          onChange={(e) => setMachineFilter(e.target.value)}
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value as TraineeTrainingType | '')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 lg:w-56"
         >
-          <option value="">All machines</option>
-          {machines.map((m) => (
-            <option key={m} value={m}>
-              {m}
+          <option value="">All training types</option>
+          {TRAINING_TYPE_OPTIONS.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
             </option>
           ))}
         </select>
@@ -185,7 +186,8 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Title</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Machine</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Training Type</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Mode</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Lessons</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Has Quiz</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Assigned</th>
@@ -200,16 +202,15 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
                     <span className="font-medium text-gray-900">{module.title}</span>
                   </td>
                   <td className="px-4 py-3 text-gray-600">
-                    {isOffboardModule(module) ? (
-                      <span className="inline-flex items-center gap-1">
-                        <Globe2 className="w-3 h-3 text-purple-500" />
-                        {module.offboardDetails?.country || '—'} ·{' '}
-                        {module.offboardDetails?.thirdPartyCompany || 'External'}
+                    {typeLabel(module.trainingType)}
+                    {isOffboardModule(module) && (
+                      <span className="mt-0.5 flex items-center gap-1 text-[11px] text-purple-500">
+                        <Globe2 className="w-3 h-3" />
+                        {module.offboardDetails?.thirdPartyCompany || 'External provider'}
                       </span>
-                    ) : (
-                      module.machineName || '—'
                     )}
                   </td>
+                  <td className="px-4 py-3 text-gray-600">{modeLabel(module.trainingMode)}</td>
                   <td className="px-4 py-3 text-center text-gray-600">{module.lessons?.length ?? 0}</td>
                   <td className="px-4 py-3 text-center">
                     {module.quiz ? (
@@ -289,11 +290,9 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-gray-900 truncate">{module.title}</p>
                   <p className="text-sm text-gray-500 truncate">
-                    {isOffboardModule(module)
-                      ? `${module.offboardDetails?.country || '—'} · ${
-                          module.offboardDetails?.thirdPartyCompany || 'External'
-                        }`
-                      : module.machineName || 'No machine'}
+                    {typeLabel(module.trainingType)} · {modeLabel(module.trainingMode)}
+                    {isOffboardModule(module) &&
+                      ` · ${module.offboardDetails?.thirdPartyCompany || 'External provider'}`}
                   </p>
                 </div>
                 <ModuleStatusBadge status={module.status} />
