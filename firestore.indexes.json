@@ -859,6 +859,20 @@
       ]
     },
     {
+      "collectionGroup": "trainingAssignments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "trainingCertificates",
       "queryScope": "COLLECTION",
       "fields": [

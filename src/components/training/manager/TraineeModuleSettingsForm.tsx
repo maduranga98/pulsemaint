@@ -1,4 +1,4 @@
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import type {
@@ -11,7 +11,6 @@ import {
   TRAINEE_TRAINING_TYPE_LABELS,
   TRAINING_DELIVERY_MODE_LABELS,
 } from '@/lib/training/trainingTypes';
-import type { ModuleSettingsFormHandle } from './ModuleSettingsForm';
 
 interface TraineeModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
@@ -47,8 +46,11 @@ interface FormValues {
  * machine field — those are Training-tab concepts and live in
  * `ModuleSettingsForm`. Neither form branches on which library it is in.
  */
-const TraineeModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, TraineeModuleSettingsFormProps>(
-  function TraineeModuleSettingsForm({ defaultValues, onSubmit, isLoading = false }, ref) {
+export default function TraineeModuleSettingsForm({
+  defaultValues,
+  onSubmit,
+  isLoading = false,
+}: TraineeModuleSettingsFormProps) {
     const [quizOpen, setQuizOpen] = useState(false);
 
     const {
@@ -116,20 +118,6 @@ const TraineeModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, TraineeMo
 
       await onSubmit(data);
     }
-
-    useImperativeHandle(ref, () => ({
-      submitAs: (status: TrainingModuleStatus) =>
-        new Promise<void>((resolve, reject) => {
-          setValue('status', status);
-          handleSubmit(
-            async (values) => {
-              await handleFormSubmit({ ...values, status });
-              resolve();
-            },
-            () => reject(new Error('Please fix the highlighted fields first.'))
-          )();
-        }),
-    }));
 
     return (
       <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
@@ -345,10 +333,7 @@ const TraineeModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, TraineeMo
         </button>
       </form>
     );
-  }
-);
-
-export default TraineeModuleSettingsForm;
+}
 
 interface ToggleRowProps {
   label: string;

@@ -70,10 +70,6 @@ export default function CreateModulePage() {
     }
   };
 
-  // The settings form itself already created/saved the module with
-  // status: 'active' (and every other field) via handleSave before this
-  // fires — just navigate away.
-  const handlePublish = () => navigate(-1);
 
   return (
     <div className="min-h-full">
@@ -90,12 +86,10 @@ export default function CreateModulePage() {
       <ModuleEditorLayout
         module={module}
         onSave={handleSave}
-        onPublish={handlePublish}
-        isSaving={isSaving}
         moduleId={moduleId}
         editorBasePath="/app/training/manage/modules"
-        renderSettings={(ref) => (
-          <ModuleSettingsForm ref={ref} defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
+        renderSettings={() => (
+          <ModuleSettingsForm defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
     </div>

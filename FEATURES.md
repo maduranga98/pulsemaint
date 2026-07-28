@@ -95,7 +95,12 @@ Role-specific landing dashboards, each showing relevant KPIs:
 Report, track, and resolve equipment breakdowns. Kanban-style status board, severity/type/root-cause tracking, notification log (push/SMS/email/in-app), QR-triggered check-in/report flows, optional WhatsApp integration. Open to `floor_operator`, `technician`, `supervisor`, `plant_manager`, `admin`, `trainee` (editing excludes trainee).
 
 ### Work Orders
-Full work-order lifecycle: `DRAFT → OPEN → ASSIGNED → IN_PROGRESS → ON_HOLD (parts/approval) → COMPLETED → SIGNED_OFF → CLOSED/CANCELLED`. Supports multi-technician checklists with measurement inputs, time-segment tracking (travel/waiting/working), parts requests, and root-cause capture. A dedicated **Sign-Off Queue** lets supervisors/managers/admins approve closure. "My Work Orders" gives technicians/trainees a personal task view.
+Full work-order lifecycle: `DRAFT → OPEN → ASSIGNED → IN_PROGRESS → ON_HOLD (parts/approval) → COMPLETED → SIGNED_OFF → CLOSED/CANCELLED`. Supports multi-technician checklists with measurement inputs, time-segment tracking (travel/waiting/working), parts requests, and root-cause capture. Work orders can be **created** by supervisors, plant managers, and admins. "My Work Orders" gives technicians/trainees a personal task view.
+
+### Sign-Off Queue
+One queue for everything awaiting approval, reachable by supervisor/plant_manager/admin, with two tabs:
+- **Work Orders** — completed WOs awaiting review and closure. A plant manager cannot sign off a work order they created.
+- **Trainings** — completed trainings awaiting their practical assessment (learner passed the final test, status `awaiting_practical`). A plant manager cannot sign off a training they assigned. The same rule applies wherever the practical sign-off appears, including the trainee profile.
 
 ### Preventive Maintenance (PM)
 Schedules (calendar-based or meter-based via operating hours/production cycles), PM calendar view, and a compliance dashboard (monthly trends, per-machine and per-technician compliance records, workload view). Editing restricted to supervisor/admin.
@@ -114,6 +119,11 @@ Contractor registry, technician sub-records, documents & compliance tracking, pe
 - **My Shift**: available to everyone.
 - **Shift Handover**: create/briefing (supervisor/admin), history/detail (adds plant_manager/hr_officer as viewers). Auto-compiles a shift summary snapshot (pending WOs, ongoing breakdowns, low-stock alerts, watch flags).
 - **Shift Config**: admin and plant_manager (create/edit); deleting a shift stays admin-only.
+
+### Notifications
+- Written through one path (`services/notifications.service`). Targeting is **strict** — a notification raised for one role never appears in another role's notification bar or dashboard feed.
+- **admin** and **plant_manager** are copied on every targeted notification, so plant leadership sees all activity.
+- The bell is a to-do list, not an archive: reading a notification removes it from that user's bar, and a **Mark all as read** action clears the lot. Read state is per-user, so clearing yours never hides anything from anyone else.
 
 ### Training
 - **Learner-facing** (My Modules, quizzes, My Certificates, My Program, Weekend Summary): available to everyone; "My Program" is trainee-focused (+admin).

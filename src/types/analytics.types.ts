@@ -272,9 +272,12 @@ export interface DashboardNotification {
   severity: 'critical' | 'high' | 'medium' | 'low';
   linkTo: string | null;
   read: boolean;
-  /** Targeting: notification is relevant to a user if their role is in
-   *  recipientRoles, OR their id is in recipientUserIds. If both are empty/
-   *  absent, it's a company-wide broadcast. */
+  /** Targeting: a notification is relevant to a user if their role is in
+   *  recipientRoles, OR their id is in recipientUserIds — strictly, so one
+   *  role's notifications never surface in another role's bar. Every targeted
+   *  notification is written with admin/plant_manager appended (see
+   *  lib/notifications/recipients). Documents with neither field set predate
+   *  targeting and are shown to those oversight roles only. */
   recipientRoles?: string[];
   recipientUserIds?: string[];
   /** Per-user read state — `read` above is legacy/unused and kept only for

@@ -19,6 +19,7 @@ import type { Timestamp } from 'firebase/firestore';
 import TrainingProgressBar from '@/components/training/shared/TrainingProgressBar';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import PracticalSignOffCard from '@/components/training/manager/PracticalSignOffCard';
+import { canSignOffTraining } from '@/lib/training/trainingSignOff';
 
 function formatTs(ts: Timestamp | null | undefined): string {
   if (!ts) return '';
@@ -31,6 +32,7 @@ export default function TraineeProfilePage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const currentUserId = useAuthStore((s) => s.userProfile?.id);
+  const currentUserRole = useAuthStore((s) => s.userProfile?.role);
   const currentUserFullName = useAuthStore((s) => s.userProfile?.fullName);
 
   const [trainee, setTrainee] = useState<UserProfile | null>(null);
@@ -139,14 +141,24 @@ export default function TraineeProfilePage() {
           <section>
             <h2 className="text-sm font-semibold text-slate-700 mb-3">Awaiting Practical Sign-Off</h2>
             <div className="space-y-3">
-              {awaitingSignOff.map((a) => (
-                <PracticalSignOffCard
-                  key={a.id}
-                  assignment={a}
-                  onSignOff={(data) => handleSignOff(a.id, data)}
-                  isLoading={signOffLoading === a.id}
-                />
-              ))}
+              {/* Same rule as the Sign-Off Queue: a plant manager cannot
+                  sign off training they assigned themselves. */}
+              {awaitingSignOff.map((a) => {
+                const permission = canSignOffTraining(a, currentUserRole, currentUserId);
+                return permission.allowed ? (
+                  <PracticalSignOffCard
+                    key={a.id}
+                    assignment={a}
+                    onSignOff={(data) => handleSignOff(a.id, data)}
+                    isLoading={signOffLoading === a.id}
+                  />
+                ) : (
+                  <div key={a.id} className="bg-white rounded-xl border border-slate-200 p-4">
+                    <p className="font-medium text-slate-900 text-sm">{a.moduleName}</p>
+                    <p className="mt-1 text-sm text-slate-500">{permission.reason}</p>
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}

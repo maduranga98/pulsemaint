@@ -124,9 +124,9 @@ service cloud.firestore {
       // Admin: full access
       allow read, write: if isAdmin();
 
-      // Supervisor: create WOs for their site. Checked against the incoming
-      // document because resource does not exist yet on create.
-      allow create: if isSupervisor()
+      // Supervisor / Plant Manager: create WOs for their site. Checked against
+      // the incoming document because resource does not exist yet on create.
+      allow create: if (isSupervisor() || isPlantManager())
         && (getUserData().siteId == null || isSameSite(request.resource.data.siteId));
 
       // Supervisor: full read/write for their site (or all sites if unrestricted)
@@ -150,7 +150,10 @@ service cloud.firestore {
           'checklist', 'documents', 'updatedAt',
           'cancelledAt', 'cancelReason', 'timeSegments',
           'supervisorSignOffSignature', 'supervisorSignOffBy',
-          'supervisorSignOffAt', 'supervisorSignOffNotes'
+          'supervisorSignOffAt', 'supervisorSignOffNotes',
+          // Back-references written straight after a plant manager creates a
+          // PM work order (see useCreateWorkOrder).
+          'pmHistoryId', 'pmScheduleId'
         ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
@@ -919,7 +922,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
       allow create: if isAuthenticated()
-        && getUserData().role in ['supervisor', 'admin'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
       // Supervisors/plant managers can archive (update) PM schedules but not delete them.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'plant_manager', 'admin'];

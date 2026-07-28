@@ -64,7 +64,6 @@ export default function CreateTraineeModulePage() {
     }
   };
 
-  const handlePublish = () => navigate(-1);
 
   return (
     <div className="min-h-full">
@@ -81,12 +80,10 @@ export default function CreateTraineeModulePage() {
       <ModuleEditorLayout
         module={module}
         onSave={handleSave}
-        onPublish={handlePublish}
-        isSaving={isSaving}
         moduleId={moduleId}
         editorBasePath="/app/training/manage/trainee-modules"
-        renderSettings={(ref) => (
-          <TraineeModuleSettingsForm ref={ref} defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
+        renderSettings={() => (
+          <TraineeModuleSettingsForm defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
     </div>

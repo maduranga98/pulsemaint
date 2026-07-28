@@ -1,28 +1,27 @@
-import { useState, useRef } from 'react';
-import type { Ref } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Loader2, ClipboardList } from 'lucide-react';
+import { BookOpen, ClipboardList } from 'lucide-react';
 import type { TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
 import { isOffboardModule } from '@/lib/training/offboardTraining';
-import { type ModuleSettingsFormHandle } from './ModuleSettingsForm';
 import LessonListEditor from './LessonListEditor';
 import LessonEditorPanel from './LessonEditorPanel';
 
 interface ModuleEditorLayoutProps {
   module?: TrainingModule;
   onSave: (updates: Partial<TrainingModule>) => Promise<void>;
-  /** Called once the module has been saved with status 'active' — navigation only, no Firestore write. */
-  onPublish: () => void;
-  isSaving?: boolean;
   moduleId?: string;
   /**
-   * The settings form for whichever library this editor belongs to. The
-   * layout owns lessons, the quiz panel, and the Save Draft / Publish
-   * footer; each library composes only the settings sections it needs
-   * (`ModuleSettingsForm` for the Training tab, `TraineeModuleSettingsForm`
-   * for Trainee Management) rather than the layout branching on a flag.
+   * The settings form for whichever library this editor belongs to. Each
+   * library composes only the sections it needs (`ModuleSettingsForm` for
+   * the Training tab, `TraineeModuleSettingsForm` for Trainee Management)
+   * rather than the layout branching on a flag.
+   *
+   * The form owns saving: its own Save Module button writes the module, and
+   * its Status picker chooses draft/active/archived. There is no separate
+   * Save Draft / Publish footer — that bar floated over the sidebar and the
+   * page content, and duplicated what the form already does.
    */
-  renderSettings: (ref: Ref<ModuleSettingsFormHandle>) => React.ReactNode;
+  renderSettings: () => React.ReactNode;
   /** Route base for this library's editor, e.g. '/app/training/manage/modules'
    *  — used to build the quiz-builder link so the editor never hard-codes the
    *  other library's routes. */
@@ -34,21 +33,16 @@ type ActiveTab = 'settings' | 'lessons';
 export default function ModuleEditorLayout({
   module,
   onSave,
-  onPublish,
-  isSaving = false,
   moduleId,
   renderSettings,
   editorBasePath,
 }: ModuleEditorLayoutProps) {
   const navigate = useNavigate();
-  const settingsFormRef = useRef<ModuleSettingsFormHandle>(null);
   const [lessons, setLessons] = useState<LessonItem[]>(module?.lessons ?? []);
   const [editingLesson, setEditingLesson] = useState<Partial<LessonItem> | null>(null);
   const [isNewLesson, setIsNewLesson] = useState(false);
   const [selectedLessonId, setSelectedLessonId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<ActiveTab>('settings');
-  const [isPublishing, setIsPublishing] = useState(false);
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   function handleAddLesson() {
     setEditingLesson({});
@@ -115,39 +109,11 @@ export default function ModuleEditorLayout({
     onSave({ lessons: updated });
   }
 
-  async function handleSaveDraft() {
-    setIsSavingDraft(true);
-    try {
-      // Submits the settings form's *current* values with status forced to
-      // 'draft' — previously this called onSave({ status: 'draft' }) directly,
-      // which only ever wrote the status field and silently discarded any
-      // title/description/etc the admin had just typed but not separately
-      // submitted via the inline "Save Module" button.
-      await settingsFormRef.current?.submitAs('draft');
-    } catch {
-      // Validation errors are already shown inline on the settings form.
-    } finally {
-      setIsSavingDraft(false);
-    }
-  }
-
-  async function handlePublish() {
-    setIsPublishing(true);
-    try {
-      await settingsFormRef.current?.submitAs('active');
-      onPublish();
-    } catch {
-      // Validation errors are already shown inline on the settings form.
-    } finally {
-      setIsPublishing(false);
-    }
-  }
-
   const hasQuiz = !!module?.quiz;
   const isOffboard = isOffboardModule(module);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-24">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Mobile tab switcher */}
       <div className="lg:hidden flex border-b border-gray-200 bg-white sticky top-0 z-10">
         <button
@@ -191,7 +157,7 @@ export default function ModuleEditorLayout({
                 {module?.title || 'New Module'}
               </h2>
             </div>
-            {renderSettings(settingsFormRef)}
+            {renderSettings()}
           </div>
         </div>
 
@@ -281,28 +247,6 @@ export default function ModuleEditorLayout({
         )}
       </div>
 
-      {/* Sticky footer bar */}
-      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center gap-3 z-20">
-        <button
-          type="button"
-          onClick={() => void handleSaveDraft()}
-          disabled={isSaving || isSavingDraft || isPublishing}
-          className="flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-60 font-medium rounded-lg py-2 px-4 text-sm transition-colors"
-        >
-          {isSavingDraft && <Loader2 size={14} className="animate-spin" />}
-          Save Draft
-        </button>
-
-        <button
-          type="button"
-          onClick={() => void handlePublish()}
-          disabled={isPublishing || isSaving || isSavingDraft}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg py-2 px-4 text-sm transition-colors"
-        >
-          {isPublishing && <Loader2 size={14} className="animate-spin" />}
-          Publish Module
-        </button>
-      </div>
     </div>
   );
 }
