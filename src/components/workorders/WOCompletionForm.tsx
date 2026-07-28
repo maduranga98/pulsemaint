@@ -34,13 +34,25 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
       workOrder.assignedTechnicianIds.length,
       workOrder.assignedTechnicianNames.length,
     );
-    return Array.from({ length: count }, (_, i) => ({
-      technicianId: workOrder.assignedTechnicianIds[i] ?? '',
-      technicianName:
-        workOrder.assignedTechnicianNames[i] ?? workOrder.assignedTechnicianIds[i] ?? `Technician ${i + 1}`,
-      hoursWorked: 0,
-      tasksDescription: '',
-    }));
+    return Array.from({ length: count }, (_, i) => {
+      const technicianId = workOrder.assignedTechnicianIds[i] ?? '';
+      // Pre-fill from the checklist steps this person actually completed
+      // during the job, instead of starting from a blank textarea — the
+      // checklist already records who did what and when.
+      const completedSteps = workOrder.checklist.filter(
+        (item) => item.isCompleted && item.completedBy === technicianId,
+      );
+      const tasksDescription = completedSteps
+        .map((item) => `✓ ${item.stepDescription}`)
+        .join('\n');
+      return {
+        technicianId,
+        technicianName:
+          workOrder.assignedTechnicianNames[i] ?? workOrder.assignedTechnicianIds[i] ?? `Technician ${i + 1}`,
+        hoursWorked: 0,
+        tasksDescription,
+      };
+    });
   });
   const [postRepairChecklist, setPostRepairChecklist] = useState<PostRepairChecklistItem[]>(
     workOrder.checklist.map((item) => ({
@@ -291,7 +303,14 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         step="any"
                         value={part.unitCost}
                         onChange={(e) => update({ unitCost: Number(e.target.value) || 0 })}
-                        className="w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-900"
+                        // Catalog-sourced parts carry a fixed catalog price —
+                        // only manually-entered external/purchased parts (no
+                        // partId) can have their unit cost typed in.
+                        readOnly={part.partId !== null}
+                        title={part.partId !== null ? 'Catalog price — not editable' : undefined}
+                        className={`w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm ${
+                          part.partId !== null ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'
+                        }`}
                       />
                     </div>
                   </div>
@@ -342,6 +361,8 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
             <p className="text-sm font-medium text-gray-700">{WO_COPY.techLogsLabel}</p>
             <p className="text-xs text-gray-400">
               Hours worked are calculated automatically from the WO's actual start and end times.
+              Tasks performed are pre-filled from each person's completed checklist steps — add
+              anything else that isn't already captured there.
             </p>
             {techLogs.length === 0 && (
               <p className="text-sm text-gray-400">No technicians are assigned to this work order.</p>
