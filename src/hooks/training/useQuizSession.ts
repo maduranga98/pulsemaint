@@ -182,7 +182,9 @@ export function useQuizSession(): UseQuizSessionReturn {
       const newSession: QuizSessionState = {
         assignmentId: assignment.id,
         moduleId: module.id,
-        attemptNumber: assignment.attemptsUsed + 1,
+        // `?? 0` — assignments written before every progress field was
+        // persisted have no attemptsUsed, which produced a NaN attempt number.
+        attemptNumber: (assignment.attemptsUsed ?? 0) + 1,
         startedAt: new Date(),
         timeRemaining:
           module.quiz.timeLimit > 0 ? module.quiz.timeLimit * 60 : null,

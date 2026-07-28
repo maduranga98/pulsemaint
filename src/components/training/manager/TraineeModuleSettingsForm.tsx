@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import type {
   TrainingModule,
-  TrainingLanguage,
   TrainingModuleStatus,
   TraineeTrainingType,
   TrainingDeliveryMode,
@@ -24,7 +23,6 @@ interface FormValues {
   title: string;
   description: string;
   estimatedMinutes: number;
-  language: TrainingLanguage;
   passingScore: number;
   status: TrainingModuleStatus;
   tags: string;
@@ -64,7 +62,6 @@ const TraineeModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, TraineeMo
         title: defaultValues?.title ?? '',
         description: defaultValues?.description ?? '',
         estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
-        language: defaultValues?.language ?? 'en',
         passingScore: defaultValues?.passingScore ?? 70,
         status: defaultValues?.status ?? 'draft',
         tags: (defaultValues?.tags ?? []).join(', '),
@@ -101,7 +98,9 @@ const TraineeModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, TraineeMo
         description: values.description,
         machineName: '',
         estimatedMinutes: Number(values.estimatedMinutes),
-        language: values.language,
+        // The language picker was removed — preserve whatever the module
+        // already had rather than resetting it.
+        language: defaultValues?.language ?? 'en',
         passingScore: Number(values.passingScore),
         status: values.status,
         tags,
@@ -252,31 +251,16 @@ const TraineeModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, TraineeMo
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Language</label>
-            <select
-              {...register('language')}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="en">English</option>
-              <option value="si">Sinhala</option>
-              <option value="ta">Tamil</option>
-              <option value="bn">Bengali</option>
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Status</label>
-            <select
-              {...register('status')}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="draft">Draft</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
-            </select>
-          </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Status</label>
+          <select
+            {...register('status')}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option value="draft">Draft</option>
+            <option value="active">Active</option>
+            <option value="archived">Archived</option>
+          </select>
         </div>
 
         <div className="flex flex-col gap-1">

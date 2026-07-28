@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAssignment } from '@/hooks/training/useAssignment';
+import { attemptsRemaining as computeAttemptsRemaining } from '@/lib/training/quizScorer';
 import { useQuizSession } from '@/hooks/training/useQuizSession';
 import QuizPreScreen from '@/components/training/quiz/QuizPreScreen';
 import QuizRunner from '@/components/training/quiz/QuizRunner';
@@ -43,7 +44,11 @@ export default function QuizPage() {
   }
 
   const quiz = module.quiz;
-  const attemptsRemaining = quiz.maxAttempts === 0 ? Infinity : quiz.maxAttempts - assignment.attemptsUsed;
+  const maxAttempts = Number.isFinite(quiz.maxAttempts) ? quiz.maxAttempts : 0;
+  const attemptsUsed = Number.isFinite(assignment.attemptsUsed) ? assignment.attemptsUsed : 0;
+  // null = unlimited; the results screen wants a number, so map it to a
+  // sentinel there rather than here.
+  const attemptsRemaining = computeAttemptsRemaining(quiz.maxAttempts, assignment.attemptsUsed);
 
   // Pre-screen
   if (!session) {
@@ -52,7 +57,7 @@ export default function QuizPage() {
         quiz={quiz}
         moduleName={module.title}
         machineName={module.machineName}
-        attemptsUsed={assignment.attemptsUsed}
+        attemptsUsed={attemptsUsed}
         onStart={() => startQuiz(assignment, module)}
       />
     );
@@ -65,8 +70,8 @@ export default function QuizPage() {
         <QuizResultsScreen
           result={session.results}
           passingScore={quiz.passingScore}
-          attemptsRemaining={typeof attemptsRemaining === 'number' && isFinite(attemptsRemaining) ? attemptsRemaining : 999}
-          maxAttempts={quiz.maxAttempts}
+          attemptsRemaining={attemptsRemaining ?? 999}
+          maxAttempts={maxAttempts}
           cooldownSeconds={cooldownSeconds}
           onRetry={() => startQuiz(assignment, module)}
           onContinue={() => navigate(`/app/training/my-modules/${assignmentId}`)}

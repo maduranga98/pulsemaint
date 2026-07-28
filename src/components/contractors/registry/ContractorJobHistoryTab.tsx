@@ -30,7 +30,12 @@ export function ContractorJobHistoryTab({ jobs, previouslyCompletedProjects = []
   const { canReadRegistry } = useContractorAccess();
   const ratedJobs = jobs.filter((job) => job.rating);
   const avgRating = ratedJobs.reduce((sum, job) => sum + (job.rating?.overallScore ?? 0), 0) / Math.max(1, ratedJobs.length);
+  // Total cost = used-parts cost + project cost, as captured at sign-off.
+  // Older jobs only stored the combined figure, so fall back to it and treat
+  // the whole amount as project cost when the breakdown wasn't recorded.
+  const partsCost = (job: ContractorJob) => job.totalPartsCost ?? 0;
   const jobCost = (job: ContractorJob) => job.totalProjectCost ?? job.systemInvoiceAmount ?? 0;
+  const projectCost = (job: ContractorJob) => job.projectCost ?? Math.max(0, jobCost(job) - partsCost(job));
   const totalCost = jobs.reduce((sum, job) => sum + jobCost(job), 0);
 
   return (
@@ -62,10 +67,56 @@ export function ContractorJobHistoryTab({ jobs, previouslyCompletedProjects = []
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
               <span>On-site: {job.onSiteDurationMinutes ?? 0} min</span>
-              <span>Rating: {job.rating ? `${job.rating.overallScore.toFixed(1)} ★` : '-'}</span>
-              <span className="font-medium text-slate-800">Project cost: {formatLkr(jobCost(job))}</span>
               {typeof job.invoiceVariancePercent === 'number' && <InvoiceVarianceBadge percent={job.invoiceVariancePercent} />}
             </div>
+
+            {/* Cost breakdown captured at sign-off: used parts + project cost. */}
+            <div className="mt-3 grid gap-2 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-3">
+              <div>
+                <p className="text-xs text-slate-500">Used parts cost</p>
+                <p className="font-medium text-slate-800">{formatLkr(partsCost(job))}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Project cost</p>
+                <p className="font-medium text-slate-800">{formatLkr(projectCost(job))}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Total cost</p>
+                <p className="font-bold text-slate-950">{formatLkr(jobCost(job))}</p>
+              </div>
+            </div>
+
+            {/* Rating given for the job at sign-off. */}
+            {job.rating ? (
+              <div className="mt-3 rounded-lg border border-slate-200 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm font-semibold text-slate-900">
+                    Job rating: {job.rating.overallScore.toFixed(1)} / 5
+                  </p>
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <Star
+                        key={n}
+                        className={`h-4 w-4 ${n <= Math.round(job.rating!.overallScore) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+                  <span>Speed: {job.rating.speedScore}</span>
+                  <span>Quality: {job.rating.qualityScore}</span>
+                  <span>Professionalism: {job.rating.professionalismScore}</span>
+                  <span>Communication: {job.rating.communicationScore}</span>
+                </div>
+                {job.rating.notes && <p className="mt-2 text-sm text-slate-600">{job.rating.notes}</p>}
+                <p className="mt-2 text-xs text-slate-500">
+                  Rated by {job.rating.ratedByName || 'Unknown'}
+                  {job.rating.ratedAt ? ` on ${fmtTs(job.rating.ratedAt)}` : ''}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-3 text-xs text-slate-500">Not rated yet.</p>
+            )}
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
               <span>Started: {fmtTs(job.workStartedAt)}</span>
               <span>Completed: {fmtTs(job.workCompletedAt)}</span>

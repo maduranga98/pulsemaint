@@ -119,8 +119,9 @@ Contractor registry, technician sub-records, documents & compliance tracking, pe
 - **Learner-facing** (My Modules, quizzes, My Certificates, My Program, Weekend Summary): available to everyone; "My Program" is trainee-focused (+admin).
 - **Management** (dashboard, module libraries, create/edit modules, quiz builder, assign training, assignment tracking, trainee profiles/programmes, certificates manager, compliance report, content library): supervisor/plant_manager/admin/hr_officer, with module *authoring* and compliance reporting narrowed to plant_manager/admin/hr_officer.
 - **Two separate module libraries.** They share no templates, no queries, no components, and no assign flow:
-  - *Training tab* (`training/manage/modules*`) — machine/competency modules (`libraryScope: 'training'`). Internal vs Offboard/External category, machine filter, per-module Assign to users/roles/departments, and a live Assignment Progress table (module topic, assignee, assigner, assigned/completed dates, progress, marks, final decision).
+  - *Training tab* (`training/manage/modules*`) — workforce modules (`libraryScope: 'training'`). Internal vs Offboard/External category, required training type and delivery mode, training-type filter, per-module Assign to users/roles/departments, and a live Assignment Progress table (module topic, assignee, assigner, assigned/completed dates, progress, marks, status).
   - *Trainee Management* (`training/manage/trainee-modules*`) — programme modules (`libraryScope: 'trainee_management'`). Training type / delivery mode / default training period are required; no per-module Assign — assignment stays trainee-first through the Assign Training wizard.
+  - Neither editor exposes a language picker or a machine field; a module's stored language is preserved as-is.
 - Includes a structured 6–12 month **Trainee Programme** model with supervisor-reviewed weekend self-reports.
 
 ### Triage (Guided Troubleshooting)

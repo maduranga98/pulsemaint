@@ -304,9 +304,13 @@ export interface ContractorJob {
   signedOffAt?: Timestamp | null;
   signOffNotes?: string;
   signOffSignature?: string;
+  // The contractor's own project cost (labor/service), entered at sign-off.
+  // Kept separate from the parts cost so the job history can show the
+  // breakdown rather than only the combined figure.
+  projectCost?: number;
   // Total cost of the work captured by the supervisor/plant manager/admin at
-  // sign-off. Mirrored into systemInvoiceAmount so it flows into the machine
-  // and maintenance cost analysis.
+  // sign-off: parts cost + projectCost. Mirrored into systemInvoiceAmount so
+  // it flows into the machine and maintenance cost analysis.
   totalProjectCost?: number;
   // Explicit sign-off-scoped copies of rating/cost, read by the Contractor
   // Performance report — kept in sync with `rating.overallScore` and
