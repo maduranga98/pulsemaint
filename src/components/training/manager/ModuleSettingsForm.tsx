@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import type {
@@ -44,12 +44,19 @@ interface FormValues {
   };
 }
 
-export default function ModuleSettingsForm({
+export interface ModuleSettingsFormHandle {
+  /** Submits the form's current values with the given status forced — used by the
+   *  editor's "Save Draft"/"Publish Module" footer buttons so they persist every
+   *  field the admin has typed, not just the status. Rejects if validation fails. */
+  submitAs: (status: TrainingModuleStatus) => Promise<void>;
+}
+
+const ModuleSettingsForm = forwardRef<ModuleSettingsFormHandle, ModuleSettingsFormProps>(function ModuleSettingsForm({
   defaultValues,
   onSubmit,
   isLoading = false,
   hideCategorySection = false,
-}: ModuleSettingsFormProps) {
+}, ref) {
   const [quizOpen, setQuizOpen] = useState(false);
   const [category, setCategory] = useState<TrainingModuleCategory>(
     hideCategorySection ? 'machine' : getModuleCategory(defaultValues as TrainingModule | undefined)
@@ -125,6 +132,20 @@ export default function ModuleSettingsForm({
 
     await onSubmit(data);
   }
+
+  useImperativeHandle(ref, () => ({
+    submitAs: (status: TrainingModuleStatus) =>
+      new Promise<void>((resolve, reject) => {
+        setValue('status', status);
+        handleSubmit(
+          async (values) => {
+            await handleFormSubmit({ ...values, status });
+            resolve();
+          },
+          () => reject(new Error('Please fix the highlighted fields first.'))
+        )();
+      }),
+  }));
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
@@ -362,7 +383,9 @@ export default function ModuleSettingsForm({
       </button>
     </form>
   );
-}
+});
+
+export default ModuleSettingsForm;
 
 interface ToggleRowProps {
   label: string;

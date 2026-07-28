@@ -59,24 +59,12 @@ export default function CreateModulePage() {
     }
   };
 
-  const handlePublish = async () => {
-    if (!moduleId) {
-      // Publishing used to silently do nothing until the settings form had
-      // been saved once — surface why instead.
-      toast.error('Fill in the module settings and click "Save Module" first, then publish.');
-      return;
-    }
-    setIsSaving(true);
-    try {
-      await updateDoc(doc(db, 'trainingModules', moduleId), {
-        status: 'active',
-        updatedAt: serverTimestamp(),
-      });
-      navigate(-1);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  // The settings form itself already created/saved the module with
+  // status: 'active' (and every other field) via handleSave before this
+  // fires — just navigate away. No separate "fill in settings first" guard
+  // needed anymore since Publish now creates the module itself if it
+  // doesn't exist yet.
+  const handlePublish = () => navigate(-1);
 
   return (
     <div className="min-h-full">

@@ -28,19 +28,9 @@ export default function EditModulePage() {
     }
   };
 
-  const handlePublish = async () => {
-    if (!moduleId) return;
-    setIsSaving(true);
-    try {
-      await updateDoc(doc(db, 'trainingModules', moduleId), {
-        status: 'active',
-        updatedAt: serverTimestamp(),
-      });
-      navigate(-1);
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  // The settings form itself already persisted status: 'active' (and every
+  // other field) via handleSave before this fires — just navigate away.
+  const handlePublish = () => navigate(-1);
 
   if (loading) {
     return (

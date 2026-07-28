@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
   where,
-  getDocs,
+  onSnapshot,
   doc,
   setDoc,
   serverTimestamp,
@@ -13,8 +13,9 @@ import { UserPlus, X } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
-import type { Timestamp } from 'firebase/firestore';
+import type { QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 import TrainingDashboard from '@/components/training/manager/TrainingDashboard';
+import TrainingAssignmentsProgress from '@/components/training/manager/TrainingAssignmentsProgress';
 
 interface DashboardStats {
   totalTrainees: number;
@@ -29,72 +30,83 @@ export default function TrainingDashboardPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
 
-  const [stats, setStats] = useState<DashboardStats>({
-    totalTrainees: 0,
-    activeAssignments: 0,
-    certsThisMonth: 0,
-    overdue: 0,
-    retrainingRequired: 0,
-    modulesCreated: 0,
-  });
-  const [allAssignments, setAllAssignments] = useState<TrainingAssignment[]>([]);
+  const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
+  const [certDocs, setCertDocs] = useState<QueryDocumentSnapshot[]>([]);
+  const [moduleCount, setModuleCount] = useState(0);
+  const [userDocs, setUserDocs] = useState<QueryDocumentSnapshot[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState({ fullName: '', email: '', phone: '', department: '', employeeId: '' });
   const [addSaving, setAddSaving] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  // Live listeners, not one-time reads — these stats used to only refresh
+  // on a full page reload/remount, so a quiz completed or a sign-off made
+  // elsewhere never showed up here until the admin navigated away and back.
+  // Each is independently fault-tolerant: one denied read (e.g. certificates
+  // for a role without access) must not blank the whole dashboard.
+  useEffect(() => {
     if (!companyId) return;
-    try {
-      // Each query is independently fault-tolerant: one denied read (e.g.
-      // certificates for a role without access) must not blank the whole
-      // dashboard — that's why assignments never showed for some roles.
-      const safe = async <T,>(p: Promise<T>, fallback: T): Promise<T> => p.catch(() => fallback);
-      const [assignSnap, certSnap, moduleSnap, usersSnap] = await Promise.all([
-        getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId))),
-        safe(getDocs(query(collection(db, 'trainingCertificates'), where('companyId', '==', companyId))), null),
-        safe(getDocs(query(collection(db, 'trainingModules'), where('companyId', '==', companyId))), null),
-        // Profiles live in companies/{id}/users — the top-level `users`
-        // role-map is not listable by supervisors/HR, which rejected the
-        // whole Promise.all and left the dashboard empty.
-        safe(getDocs(collection(db, `companies/${companyId}/users`)), null),
-      ]);
-
-      const assignments = assignSnap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment));
-      const traineeCount = usersSnap
-        ? usersSnap.docs.filter((d) => ['trainee', 'floor_operator'].includes(String(d.data().role))).length
-        : new Set(assignments.map((a) => a.traineeId)).size;
-      const now = new Date();
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-      const certsThisMonth = (certSnap?.docs ?? []).filter((d) => {
-        const ts = d.data().issuedAt as Timestamp | undefined;
-        if (!ts) return false;
-        return new Date((ts as unknown as { seconds: number }).seconds * 1000) >= monthStart;
-      }).length;
-
-      const overdue = assignments.filter((a) => {
-        if (!a.dueDate || a.status === 'certified') return false;
-        const due = new Date((a.dueDate as unknown as { seconds: number }).seconds * 1000);
-        return due < now;
-      }).length;
-
-      setStats({
-        totalTrainees: traineeCount,
-        activeAssignments: assignments.filter((a) => a.status === 'in_progress').length,
-        certsThisMonth,
-        overdue,
-        retrainingRequired: assignments.filter((a) => a.status === 'retraining_required').length,
-        modulesCreated: moduleSnap?.size ?? 0,
-      });
-      setAllAssignments(assignments);
-    } catch (err) {
-      console.error('Failed to load training dashboard', err);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    const unsubs = [
+      onSnapshot(
+        query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
+        (snap) => {
+          setAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment)));
+          setLoading(false);
+        },
+        () => setLoading(false)
+      ),
+      onSnapshot(
+        query(collection(db, 'trainingCertificates'), where('companyId', '==', companyId)),
+        (snap) => setCertDocs(snap.docs),
+        () => setCertDocs([])
+      ),
+      onSnapshot(
+        query(collection(db, 'trainingModules'), where('companyId', '==', companyId)),
+        (snap) => setModuleCount(snap.size),
+        () => setModuleCount(0)
+      ),
+      // Profiles live in companies/{id}/users — the top-level `users`
+      // role-map is not listable by supervisors/HR, which used to reject
+      // the whole Promise.all and leave the dashboard empty.
+      onSnapshot(
+        collection(db, `companies/${companyId}/users`),
+        (snap) => setUserDocs(snap.docs),
+        () => setUserDocs(null)
+      ),
+    ];
+    return () => unsubs.forEach((u) => u());
   }, [companyId]);
+
+  const stats: DashboardStats = useMemo(() => {
+    const traineeCount = userDocs
+      ? userDocs.filter((d) => ['trainee', 'floor_operator'].includes(String(d.data().role))).length
+      : new Set(assignments.map((a) => a.traineeId)).size;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const certsThisMonth = certDocs.filter((d) => {
+      const ts = d.data().issuedAt as Timestamp | undefined;
+      if (!ts) return false;
+      return new Date((ts as unknown as { seconds: number }).seconds * 1000) >= monthStart;
+    }).length;
+
+    const overdue = assignments.filter((a) => {
+      if (!a.dueDate || a.status === 'certified') return false;
+      const due = new Date((a.dueDate as unknown as { seconds: number }).seconds * 1000);
+      return due < now;
+    }).length;
+
+    return {
+      totalTrainees: traineeCount,
+      activeAssignments: assignments.filter((a) => a.status === 'in_progress').length,
+      certsThisMonth,
+      overdue,
+      retrainingRequired: assignments.filter((a) => a.status === 'retraining_required').length,
+      modulesCreated: moduleCount,
+    };
+  }, [assignments, certDocs, moduleCount, userDocs]);
 
   async function handleAddTrainee() {
     if (!companyId) return;
@@ -129,7 +141,8 @@ export default function TrainingDashboardPage() {
       });
       setAddForm({ fullName: '', email: '', phone: '', department: '', employeeId: '' });
       setAddOpen(false);
-      await load();
+      // No manual refetch needed — the users listener above will pick up
+      // the new trainee automatically.
     } catch (err) {
       console.error('Add trainee failed', err);
       setAddError(err instanceof Error ? err.message : 'Failed to add trainee.');
@@ -137,10 +150,6 @@ export default function TrainingDashboardPage() {
       setAddSaving(false);
     }
   }
-
-  useEffect(() => {
-    void load();
-  }, [load]);
 
   if (loading) {
     return (
@@ -163,7 +172,11 @@ export default function TrainingDashboardPage() {
           Add Trainee
         </button>
       </div>
-      <TrainingDashboard stats={stats} allAssignments={allAssignments} />
+      <TrainingDashboard stats={stats} allAssignments={assignments} />
+
+      <div className="mt-6">
+        <TrainingAssignmentsProgress />
+      </div>
 
       {addOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
