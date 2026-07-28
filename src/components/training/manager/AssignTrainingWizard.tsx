@@ -549,7 +549,7 @@ export default function AssignTrainingWizard({
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Training Type
+              Category
             </label>
             <select
               value={settings.trainingType}
@@ -558,7 +558,7 @@ export default function AssignTrainingWizard({
               }
               className="w-full sm:w-72 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select training type…</option>
+              <option value="">Select category…</option>
               {TRAINING_TYPE_OPTIONS.map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}

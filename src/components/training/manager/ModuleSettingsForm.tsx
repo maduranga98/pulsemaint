@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { ChevronDown, Loader2 } from 'lucide-react';
-import type { TrainingModule, TrainingLanguage, TrainingModuleStatus, TrainingModuleCategory } from '@/lib/training/trainingTypes';
+import type {
+  TrainingModule,
+  TrainingLanguage,
+  TrainingModuleStatus,
+  TrainingModuleCategory,
+  TraineeTrainingType,
+  TrainingDeliveryMode,
+} from '@/lib/training/trainingTypes';
+import { TRAINEE_TRAINING_TYPE_LABELS, TRAINING_DELIVERY_MODE_LABELS } from '@/lib/training/trainingTypes';
 import { getModuleCategory, computeDurationDays } from '@/lib/training/offboardTraining';
 import OffboardTrainingFields, {
   offboardDetailsToFormValues,
@@ -18,12 +26,13 @@ interface ModuleSettingsFormProps {
 interface FormValues {
   title: string;
   description: string;
-  machineName: string;
   estimatedMinutes: number;
   language: TrainingLanguage;
   passingScore: number;
   status: TrainingModuleStatus;
   tags: string;
+  trainingType: TraineeTrainingType | '';
+  trainingMode: TrainingDeliveryMode | '';
   quizSettings: {
     practicalSignOffRequired: boolean;
     maxAttempts: number;
@@ -51,12 +60,13 @@ export default function ModuleSettingsForm({
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
-      machineName: defaultValues?.machineName ?? '',
       estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
       language: defaultValues?.language ?? 'en',
       passingScore: defaultValues?.passingScore ?? 70,
       status: defaultValues?.status ?? 'draft',
       tags: (defaultValues?.tags ?? []).join(', '),
+      trainingType: defaultValues?.trainingType ?? '',
+      trainingMode: defaultValues?.trainingMode ?? '',
       quizSettings: {
         practicalSignOffRequired: true,
         maxAttempts: defaultValues?.quiz?.maxAttempts ?? 3,
@@ -81,13 +91,15 @@ export default function ModuleSettingsForm({
     const data: Partial<TrainingModule> = {
       title: values.title,
       description: values.description,
-      machineName: category === 'offboard' ? '' : values.machineName,
+      machineName: '',
       estimatedMinutes: Number(values.estimatedMinutes),
       language: values.language,
       passingScore: Number(values.passingScore),
       status: values.status,
       tags,
       category,
+      trainingType: values.trainingType || undefined,
+      trainingMode: values.trainingMode || undefined,
     };
 
     if (category === 'offboard') {
@@ -155,7 +167,7 @@ export default function ModuleSettingsForm({
                 : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
             }`}
           >
-            Machine Training
+            Internal Training
           </button>
           <button
             type="button"
@@ -171,26 +183,37 @@ export default function ModuleSettingsForm({
         </div>
       </div>
 
-      {category === 'machine' ? (
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">
-            Machine Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            {...register('machineName', {
-              required: category === 'machine' ? 'Machine name is required' : false,
-            })}
-            placeholder="e.g. Lathe Machine L-200"
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          {errors.machineName && (
-            <p className="text-xs text-red-500">{errors.machineName.message}</p>
-          )}
-        </div>
-      ) : (
+      {category === 'offboard' && (
         <OffboardTrainingFields value={offboard} onChange={setOffboard} />
       )}
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Training Type</label>
+          <select
+            {...register('trainingType')}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option value="">Select training type…</option>
+            {Object.entries(TRAINEE_TRAINING_TYPE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Training Mode</label>
+          <select
+            {...register('trainingMode')}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option value="">Select mode…</option>
+            {Object.entries(TRAINING_DELIVERY_MODE_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>{label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
