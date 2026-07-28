@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Loader2, Eye, ClipboardList } from 'lucide-react';
+import { BookOpen, Loader2, ClipboardList } from 'lucide-react';
 import type { TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
 import { isOffboardModule } from '@/lib/training/offboardTraining';
-import ModuleSettingsForm from './ModuleSettingsForm';
+import ModuleSettingsForm, { type ModuleSettingsFormHandle } from './ModuleSettingsForm';
 import LessonListEditor from './LessonListEditor';
 import LessonEditorPanel from './LessonEditorPanel';
 
 interface ModuleEditorLayoutProps {
   module?: TrainingModule;
   onSave: (updates: Partial<TrainingModule>) => Promise<void>;
-  onPublish: () => Promise<void>;
+  /** Called once the module has been saved with status 'active' — navigation only, no Firestore write. */
+  onPublish: () => void;
   isSaving?: boolean;
   moduleId?: string;
   hideCategorySection?: boolean;
@@ -27,12 +28,14 @@ export default function ModuleEditorLayout({
   hideCategorySection = false,
 }: ModuleEditorLayoutProps) {
   const navigate = useNavigate();
+  const settingsFormRef = useRef<ModuleSettingsFormHandle>(null);
   const [lessons, setLessons] = useState<LessonItem[]>(module?.lessons ?? []);
   const [editingLesson, setEditingLesson] = useState<Partial<LessonItem> | null>(null);
   const [isNewLesson, setIsNewLesson] = useState(false);
   const [selectedLessonId, setSelectedLessonId] = useState<string | undefined>(undefined);
   const [activeTab, setActiveTab] = useState<ActiveTab>('settings');
   const [isPublishing, setIsPublishing] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
 
   function handleAddLesson() {
     setEditingLesson({});
@@ -99,10 +102,29 @@ export default function ModuleEditorLayout({
     onSave({ lessons: updated });
   }
 
+  async function handleSaveDraft() {
+    setIsSavingDraft(true);
+    try {
+      // Submits the settings form's *current* values with status forced to
+      // 'draft' — previously this called onSave({ status: 'draft' }) directly,
+      // which only ever wrote the status field and silently discarded any
+      // title/description/etc the admin had just typed but not separately
+      // submitted via the inline "Save Module" button.
+      await settingsFormRef.current?.submitAs('draft');
+    } catch {
+      // Validation errors are already shown inline on the settings form.
+    } finally {
+      setIsSavingDraft(false);
+    }
+  }
+
   async function handlePublish() {
     setIsPublishing(true);
     try {
-      await onPublish();
+      await settingsFormRef.current?.submitAs('active');
+      onPublish();
+    } catch {
+      // Validation errors are already shown inline on the settings form.
     } finally {
       setIsPublishing(false);
     }
@@ -157,6 +179,7 @@ export default function ModuleEditorLayout({
               </h2>
             </div>
             <ModuleSettingsForm
+              ref={settingsFormRef}
               defaultValues={module}
               onSubmit={onSave}
               isLoading={isSaving}
@@ -252,38 +275,26 @@ export default function ModuleEditorLayout({
       </div>
 
       {/* Sticky footer bar */}
-      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center justify-between gap-3 z-20">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => onSave({ status: 'draft' })}
-            disabled={isSaving}
-            className="flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-60 font-medium rounded-lg py-2 px-4 text-sm transition-colors"
-          >
-            {isSaving && <Loader2 size={14} className="animate-spin" />}
-            Save Draft
-          </button>
+      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 px-4 py-3 flex items-center gap-3 z-20">
+        <button
+          type="button"
+          onClick={() => void handleSaveDraft()}
+          disabled={isSaving || isSavingDraft || isPublishing}
+          className="flex items-center gap-2 border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-60 font-medium rounded-lg py-2 px-4 text-sm transition-colors"
+        >
+          {isSavingDraft && <Loader2 size={14} className="animate-spin" />}
+          Save Draft
+        </button>
 
-          <button
-            type="button"
-            onClick={handlePublish}
-            disabled={isPublishing || isSaving}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg py-2 px-4 text-sm transition-colors"
-          >
-            {isPublishing && <Loader2 size={14} className="animate-spin" />}
-            Publish Module
-          </button>
-        </div>
-
-        {moduleId && (
-          <a
-            href={`/training/modules/${moduleId}/preview`}
-            className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
-          >
-            <Eye size={15} />
-            Preview
-          </a>
-        )}
+        <button
+          type="button"
+          onClick={() => void handlePublish()}
+          disabled={isPublishing || isSaving || isSavingDraft}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg py-2 px-4 text-sm transition-colors"
+        >
+          {isPublishing && <Loader2 size={14} className="animate-spin" />}
+          Publish Module
+        </button>
       </div>
     </div>
   );
