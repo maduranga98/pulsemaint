@@ -49,6 +49,10 @@ export interface LessonItem {
   pageCount: number;
   isRequired: boolean;
   subtitleUrl: string;
+  /** Scheduled delivery date, 'YYYY-MM-DD'. Optional — legacy lessons have none. */
+  scheduledDate?: string;
+  /** Scheduled delivery time, 'HH:mm' (24h). Optional — legacy lessons have none. */
+  scheduledTime?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,13 +81,42 @@ export interface TrainingQuiz {
   id: string;
   title: string;
   instructions: string;
+  /** Duration allotted, in minutes. 0 = no limit. */
   timeLimit: number;
   maxAttempts: number;
   passingScore: number;
   shuffleQuestions: boolean;
   shuffleOptions: boolean;
   questions: QuizQuestion[];
+  /** Scheduled date/time for a practice quiz or the final test, 'YYYY-MM-DD' / 'HH:mm'. */
+  scheduledDate?: string;
+  scheduledTime?: string;
+  /** True for the module's final test (as opposed to a practice quiz). */
+  isFinalTest?: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Trainee-specific categorisation (Trainee Management assignment flow)
+// ---------------------------------------------------------------------------
+
+/** The six trainee-programme categories used to seed sample modules and to
+ * classify a module/assignment for the "Training Type" picker. */
+export type TraineeTrainingType =
+  | 'electrical_trainee'
+  | 'mechanical_trainee'
+  | 'hr_trainee'
+  | 'civil_trainee'
+  | 'technician_trainee'
+  | 'operator_trainee';
+
+export const TRAINEE_TRAINING_TYPE_LABELS: Record<TraineeTrainingType, string> = {
+  electrical_trainee: 'Electrical Trainee',
+  mechanical_trainee: 'Mechanical Trainee',
+  hr_trainee: 'HR Trainee',
+  civil_trainee: 'Civil Trainee',
+  technician_trainee: 'Technician Trainee',
+  operator_trainee: 'Operator Trainee',
+};
 
 // ---------------------------------------------------------------------------
 // Offboard / External Training
@@ -132,7 +165,10 @@ export interface TrainingModule {
   updatedAt: Timestamp;
   updatedBy: string;
   lessons: LessonItem[];
+  /** The final test — passing this (existing completion/certificate pipeline) certifies the module. */
   quiz: TrainingQuiz | null;
+  /** Optional practice quiz shown before the final test; does not gate completion. */
+  practiceQuiz?: TrainingQuiz | null;
   tags: string[];
   prerequisiteModuleIds: string[];
   usageCount: number;
@@ -140,6 +176,10 @@ export interface TrainingModule {
   // Optional: absent on legacy docs — treat as 'machine' when reading.
   category?: TrainingModuleCategory;
   offboardDetails?: OffboardTrainingDetails | null;
+  /** Trainee-programme category (Electrical/Mechanical/HR/Civil/Technician/Operator Trainee). */
+  trainingType?: TraineeTrainingType;
+  /** Default training period, in months, applied when this module is assigned to a trainee (e.g. 6). */
+  defaultTrainingPeriodMonths?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -247,6 +287,10 @@ export interface TrainingAssignment {
   category?: TrainingModuleCategory;
   offboardDetails?: OffboardTrainingDetails | null;
   offboardCompletion?: OffboardCompletion | null;
+  /** Training Type picker value (Task 5) — defaults from the module's trainingType. */
+  trainingType?: TraineeTrainingType;
+  /** Training Period picker value in months (Task 5) — defaults to 6, same preset model as Trainee Programme. */
+  trainingPeriodMonths?: number;
 }
 
 // ---------------------------------------------------------------------------

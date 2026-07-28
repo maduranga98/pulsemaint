@@ -60,6 +60,8 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
   const [durationSeconds, setDurationSeconds] = useState(lesson?.durationSeconds ?? 0);
   const [thumbnailUrl, setThumbnailUrl] = useState(lesson?.thumbnailUrl ?? '');
   const [pageCount, setPageCount] = useState(lesson?.pageCount ?? 0);
+  const [scheduledDate, setScheduledDate] = useState(lesson?.scheduledDate ?? '');
+  const [scheduledTime, setScheduledTime] = useState(lesson?.scheduledTime ?? '');
   const [textContent, setTextContent] = useState(lesson?.contentUrl ?? '');
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(() => {
     if (lesson?.type === 'image_gallery' && lesson.contentUrl) {
@@ -100,6 +102,8 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
       pageCount,
       subtitleUrl: lesson?.subtitleUrl ?? '',
       order: lesson?.order ?? 0,
+      scheduledDate: scheduledDate || undefined,
+      scheduledTime: scheduledTime || undefined,
     };
 
     onSave(saved);
@@ -179,6 +183,38 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
         onChange={setIsRequired}
         label="Required to complete"
       />
+
+      {/* Schedule & duration */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Date</label>
+          <input
+            type="date"
+            value={scheduledDate}
+            onChange={(e) => setScheduledDate(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Time</label>
+          <input
+            type="time"
+            value={scheduledTime}
+            onChange={(e) => setScheduledTime(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Duration (minutes)</label>
+          <input
+            type="number"
+            min={0}
+            value={Math.round(durationSeconds / 60)}
+            onChange={(e) => setDurationSeconds((Number(e.target.value) || 0) * 60)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
 
       {/* Content upload section */}
       <div className="flex flex-col gap-2">

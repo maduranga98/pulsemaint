@@ -13,8 +13,11 @@ import { useDepartments } from '@/hooks/useDepartments';
 import { useTraineeList } from '@/hooks/training/useTraineeList';
 import { useTrainingModules } from '@/hooks/training/useTrainingModules';
 import type { UserProfile } from '@/types/auth';
-import type { TrainingModule } from '@/lib/training/trainingTypes';
+import type { TrainingModule, TraineeTrainingType } from '@/lib/training/trainingTypes';
+import { TRAINEE_TRAINING_TYPE_LABELS } from '@/lib/training/trainingTypes';
 import { getModuleCategory } from '@/lib/training/offboardTraining';
+import type { DurationPreset } from '@/lib/traineeProgram/programmeDuration';
+import { computeExpectedEndDate } from '@/lib/traineeProgram/programmeDuration';
 import {
   Users,
   BookOpen,
@@ -39,7 +42,17 @@ interface AssignmentSettings {
   isRetraining: boolean;
   retrainingReason: string;
   notifyTrainee: boolean;
+  /** Training Type category (Task 5) — defaults from the selected module when unambiguous. */
+  trainingType: TraineeTrainingType | '';
+  /** Training Period preset — same 6/12/custom model as the Trainee Programme duration picker. */
+  trainingPeriodPreset: DurationPreset;
+  trainingPeriodCustomMonths: number;
 }
+
+const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [
+  TraineeTrainingType,
+  string,
+][];
 
 const STEPS = [
   { label: 'Select Trainees', icon: Users },
@@ -70,6 +83,9 @@ export default function AssignTrainingWizard({
     isRetraining: false,
     retrainingReason: '',
     notifyTrainee: true,
+    trainingType: '',
+    trainingPeriodPreset: 6,
+    trainingPeriodCustomMonths: 6,
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -130,6 +146,23 @@ export default function AssignTrainingWizard({
       const def = modules.find((m) => m.id === defaultModuleId);
       if (def) setSelectedModules([def]);
     }
+    // Default Training Type / Training Period from the selected module(s)
+    // when entering the Settings step, so the admin doesn't have to re-enter
+    // what the module already implies (Task 5). If multiple modules with
+    // different trainingTypes are selected, leave the picker blank rather
+    // than guessing.
+    if (next === 2 && selectedModules.length > 0) {
+      const types = new Set(selectedModules.map((m) => m.trainingType).filter(Boolean));
+      const inferredType = types.size === 1 ? (selectedModules[0].trainingType ?? '') : '';
+      const inferredMonths =
+        selectedModules.find((m) => m.defaultTrainingPeriodMonths)?.defaultTrainingPeriodMonths ?? 6;
+      setSettings((s) => ({
+        ...s,
+        trainingType: s.trainingType || inferredType,
+        trainingPeriodPreset: s.trainingPeriodPreset,
+        trainingPeriodCustomMonths: s.trainingPeriodCustomMonths === 6 ? inferredMonths : s.trainingPeriodCustomMonths,
+      }));
+    }
     setStep(next);
   }
 
@@ -182,6 +215,14 @@ export default function AssignTrainingWizard({
         const category = getModuleCategory(module);
         const isOffboard = category === 'offboard';
 
+        const trainingPeriodMonths =
+          settings.trainingPeriodPreset === 'custom'
+            ? settings.trainingPeriodCustomMonths
+            : settings.trainingPeriodPreset;
+        const computedDueDate = settings.dueDate
+          ? new Date(settings.dueDate)
+          : computeExpectedEndDate(settings.trainingPeriodPreset, new Date(), new Date(new Date().setMonth(new Date().getMonth() + settings.trainingPeriodCustomMonths)));
+
         await addDoc(collection(db, 'trainingAssignments'), {
           companyId,
           moduleId: module.id,
@@ -195,11 +236,15 @@ export default function AssignTrainingWizard({
           assignedBy: userProfile?.id ?? '',
           assignedByName: userProfile?.fullName ?? '',
           assignedAt: serverTimestamp(),
-          dueDate: settings.dueDate
-            ? new Date(settings.dueDate)
+          dueDate:
             // Offboard trainings default the due date to the training's end
-            // date when the assigner didn't pick one explicitly.
-            : (isOffboard && module.offboardDetails?.endDate) || null,
+            // date when the assigner didn't pick one explicitly; otherwise
+            // fall back to the computed training-period end date.
+            settings.dueDate
+              ? new Date(settings.dueDate)
+              : (isOffboard && module.offboardDetails?.endDate) || computedDueDate,
+          trainingType: settings.trainingType || module.trainingType || null,
+          trainingPeriodMonths,
           status: 'not_started',
           isRetraining: settings.isRetraining,
           retrainingReason: settings.isRetraining
@@ -409,6 +454,20 @@ export default function AssignTrainingWizard({
             {selectedTrainees.length} trainee
             {selectedTrainees.length !== 1 ? 's' : ''} selected
           </p>
+
+          {/* Auto-filled trainee details — no manual re-entry needed (Task 5). */}
+          {selectedTrainees.length > 0 && (
+            <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
+              {selectedTrainees.map((t) => (
+                <div key={t.id} className="px-4 py-2 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs">
+                  <div><span className="text-gray-400">Name:</span> <span className="text-gray-800 font-medium">{t.fullName}</span></div>
+                  <div><span className="text-gray-400">Employee ID:</span> <span className="text-gray-800">{t.employeeId ?? '—'}</span></div>
+                  <div><span className="text-gray-400">Role:</span> <span className="text-gray-800">{t.role}</span></div>
+                  <div><span className="text-gray-400">Department:</span> <span className="text-gray-800">{t.department ?? '—'}</span></div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -489,7 +548,70 @@ export default function AssignTrainingWizard({
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Due Date <span className="text-gray-400 font-normal">(optional)</span>
+              Training Type
+            </label>
+            <select
+              value={settings.trainingType}
+              onChange={(e) =>
+                setSettings((s) => ({ ...s, trainingType: e.target.value as TraineeTrainingType | '' }))
+              }
+              className="w-full sm:w-72 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select training type…</option>
+              {TRAINING_TYPE_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Training Period
+            </label>
+            <div className="flex items-center gap-3 flex-wrap">
+              {[6, 12].map((months) => (
+                <button
+                  type="button"
+                  key={months}
+                  onClick={() => setSettings((s) => ({ ...s, trainingPeriodPreset: months as DurationPreset }))}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                    settings.trainingPeriodPreset === months
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {months} months
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setSettings((s) => ({ ...s, trainingPeriodPreset: 'custom' }))}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+                  settings.trainingPeriodPreset === 'custom'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Custom
+              </button>
+              {settings.trainingPeriodPreset === 'custom' && (
+                <input
+                  type="number"
+                  min={1}
+                  value={settings.trainingPeriodCustomMonths}
+                  onChange={(e) =>
+                    setSettings((s) => ({ ...s, trainingPeriodCustomMonths: Number(e.target.value) || 1 }))
+                  }
+                  className="w-24 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              )}
+            </div>
+            <p className="text-xs text-gray-400 mt-1">Defaults to 6 months, same preset model as the Trainee Programme duration picker.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Due Date <span className="text-gray-400 font-normal">(optional — defaults to training period end)</span>
             </label>
             <input
               type="date"

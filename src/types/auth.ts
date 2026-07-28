@@ -21,6 +21,7 @@ export interface UserProfile {
   employeeId: string | null;
   department: string | null;
   jobTitle: string | null;
+  address: string | null;
   shiftId?: string | null;
   status: 'active' | 'inactive' | 'pending';
   loginMethod: 'email' | 'phone' | 'pin' | 'google';
@@ -63,6 +64,7 @@ export interface Invitation {
   jobTitle: string | null;
   employeeId: string | null;
   phone: string | null;
+  address: string | null;
   token: string;
   status: 'pending' | 'accepted' | 'expired' | 'revoked';
   invitedBy: string;
