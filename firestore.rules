@@ -1114,15 +1114,14 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
           || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
-      // Certificates are only ever issued by generateTrainingCertificate
-      // (functions/src/training/generateTrainingCertificate.ts), which runs
-      // with the Admin SDK and bypasses these rules entirely — no client
-      // code ever calls addDoc/setDoc on this collection. The previous rule
-      // let any trainee create a document here with
+      // Certificates are issued when a manager signs off the practical
+      // assessment (services/trainingCertificates.service), so the write does
+      // come from the client — but only ever from a management role. An
+      // earlier rule allowed any trainee to create a document here with
       // `traineeId == request.auth.uid`, which meant a trainee could forge
       // their own passing certificate (arbitrary score, certificate number,
-      // signed-off-by name) via a direct Firestore write. Restrict client
-      // creates to management roles only, matching the company-scoped
+      // signed-off-by name) via a direct Firestore write. Creates stay
+      // restricted to management roles, matching the company-scoped
       // /companies/{companyId}/trainingCertificates rule below.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);

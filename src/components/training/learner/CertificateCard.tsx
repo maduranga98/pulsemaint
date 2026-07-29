@@ -1,4 +1,7 @@
 import { Award, Download, Calendar } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuthStore } from '@/store/authStore';
+import { buildTrainingCertificatePdf, certificateFileName } from '@/lib/training/certificatePdf';
 import type { TrainingCertificate } from '@/lib/training/trainingTypes';
 
 interface CertificateCardProps {
@@ -21,9 +24,41 @@ function isExpiringSoon(ts: { seconds: number } | null): boolean {
 }
 
 export default function CertificateCard({ certificate }: CertificateCardProps) {
+  const company = useAuthStore((s) => s.company);
   const expiry = certificate.expiryDate as unknown as { seconds: number } | null;
   const issuedAt = certificate.issuedAt as unknown as { seconds: number };
   const expiringSoon = isExpiringSoon(expiry);
+  const isExternal = certificate.moduleCategory === 'offboard_external';
+
+  // Rendered on demand from the company's letterhead rather than fetched —
+  // there is no stored PDF for a certificate issued in-app.
+  function handleDownload() {
+    try {
+      const doc = buildTrainingCertificatePdf({
+        certificateNumber: certificate.certificateNumber,
+        traineeName: certificate.traineeName,
+        traineeDesignation: certificate.traineeDesignation || null,
+        moduleName: certificate.moduleName,
+        subjectLabel: isExternal ? 'Provider' : 'Machine',
+        subjectValue: isExternal ? certificate.providerName || 'External' : certificate.machineName,
+        quizScore: certificate.quizScore ?? 0,
+        issuedAt: issuedAt ? new Date(issuedAt.seconds * 1000) : new Date(),
+        expiryDate: expiry ? new Date(expiry.seconds * 1000) : null,
+        issuedByName: certificate.issuedByName || '',
+        practicalObservations: certificate.practicalObservations || null,
+        companyName: company?.name || certificate.companyName || '',
+        companyDescription: company?.description ?? null,
+        companyAddress: company?.address ?? null,
+        companyPhone: company?.phone ?? null,
+        companyEmail: company?.email ?? null,
+        companyLogoDataUrl: company?.logoDataUrl ?? null,
+      });
+      doc.save(certificateFileName(certificate.traineeName, certificate.certificateNumber));
+    } catch (err) {
+      console.error('Failed to build certificate PDF', err);
+      toast.error('Could not generate the certificate PDF.');
+    }
+  }
 
   return (
     <div className="relative bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl overflow-hidden shadow-sm">
@@ -96,17 +131,16 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
           <span className="text-xs text-slate-500">
             Score: <strong className="text-slate-700">{certificate.quizScore}%</strong>
           </span>
-          {certificate.pdfUrl && !certificate.isRevoked && (
-            <a
-              href={certificate.pdfUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+          {!certificate.isRevoked && (
+            <button
+              type="button"
+              onClick={handleDownload}
               className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              aria-label="Download certificate PDF"
+              aria-label="Download certificate as an A4 PDF"
             >
               <Download size={14} />
-              Download PDF
-            </a>
+              Download A4 PDF
+            </button>
           )}
         </div>
       </div>

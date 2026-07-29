@@ -20,6 +20,7 @@ import TrainingProgressBar from '@/components/training/shared/TrainingProgressBa
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import PracticalSignOffCard from '@/components/training/manager/PracticalSignOffCard';
 import { canSignOffTraining } from '@/lib/training/trainingSignOff';
+import { issueTrainingCertificate } from '@/services/trainingCertificates.service';
 
 function formatTs(ts: Timestamp | null | undefined): string {
   if (!ts) return '';
@@ -34,6 +35,7 @@ export default function TraineeProfilePage() {
   const currentUserId = useAuthStore((s) => s.userProfile?.id);
   const currentUserRole = useAuthStore((s) => s.userProfile?.role);
   const currentUserFullName = useAuthStore((s) => s.userProfile?.fullName);
+  const company = useAuthStore((s) => s.company);
 
   const [trainee, setTrainee] = useState<UserProfile | null>(null);
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
@@ -82,8 +84,22 @@ export default function TraineeProfilePage() {
           signedOffByName: currentUserFullName ?? '',
           signedOffAt: serverTimestamp(),
         },
+        ...(data.passed ? { certifiedAt: serverTimestamp(), completedAt: serverTimestamp() } : {}),
         updatedAt: serverTimestamp(),
       });
+
+      // Same certificate the Sign-Off Queue issues — see
+      // services/trainingCertificates.service.
+      const assignment = assignments.find((a) => a.id === assignmentId);
+      if (data.passed && assignment) {
+        await issueTrainingCertificate({
+          assignment,
+          company,
+          issuedBy: currentUserId,
+          issuedByName: currentUserFullName ?? '',
+          practicalObservations: data.observations,
+        });
+      }
     } finally {
       setSignOffLoading(null);
     }

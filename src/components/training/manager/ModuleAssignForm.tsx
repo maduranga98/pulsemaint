@@ -57,10 +57,18 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
 
   useEffect(() => {
     if (!companyId) return;
+    // Everyone except deactivated accounts. Filtering on status == 'active'
+    // hid every invited-but-not-yet-accepted person (`pending`) — including
+    // every trainee added through the Training Dashboard, which creates them
+    // as pending — so the picker came up empty and nothing could be assigned.
     const unsub = onSnapshot(
-      query(collection(db, `companies/${companyId}/users`), where('status', '==', 'active')),
+      collection(db, `companies/${companyId}/users`),
       (snap) => {
-        setAllUsers(snap.docs.map((d) => ({ ...d.data(), id: d.id }) as UserProfile));
+        setAllUsers(
+          snap.docs
+            .map((d) => ({ ...d.data(), id: d.id }) as UserProfile)
+            .filter((u) => u.status !== 'inactive')
+        );
         setUsersLoading(false);
       },
       () => setUsersLoading(false)
@@ -256,6 +264,11 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
                         className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                       <span className="text-sm text-gray-900 truncate">{u.fullName}</span>
+                      {u.status === 'pending' && (
+                        <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                          Invite pending
+                        </span>
+                      )}
                       <span className="text-xs text-gray-400 ml-auto">{ROLE_LABEL[u.role]}</span>
                     </label>
                   ))}

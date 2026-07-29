@@ -945,6 +945,20 @@
       ]
     },
     {
+      "collectionGroup": "trainingCertificates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "assignmentId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "contractorJobs",
       "queryScope": "COLLECTION",
       "fields": [

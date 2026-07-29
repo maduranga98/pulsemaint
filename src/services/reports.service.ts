@@ -689,6 +689,10 @@ export async function fetchReportRows(
       // round wired this to the stats counters, which is a real report-vs-tab
       // mismatch; fixed here to genuinely match the tab.
       if (reportType === 'shift_handover_summary') {
+        // Department lives on the shift plan, not on the handover/session
+        // itself — the tab resolves it the same way. Without this join the
+        // Department column was always blank.
+        row.shiftConfigId = String(data.shiftConfigId ?? '');
         if (source === 'shift_sessions') {
           // A session row that already rolled up into a handover would double
           // count — the tab drops those too.
@@ -705,6 +709,8 @@ export async function fetchReportRows(
           row.personName = String(data.outgoingSupervisorName ?? '');
           // Handovers are only ever filed by supervisors (see SUP-018).
           row.personRole = 'supervisor';
+          // Same fallback the tab uses when a handover has no explicit end.
+          row.shiftActualEnd = data.shiftActualEnd ?? data.handoverSubmittedAt ?? null;
           row.lateByMinutes = Number(data.overlapMinutes ?? 0);
           row.watchFlagsCount = Array.isArray(data.watchFlags) ? (data.watchFlags as unknown[]).length : 0;
           row.breakdownsOpened = Array.isArray(data.ongoingBreakdowns) ? (data.ongoingBreakdowns as unknown[]).length : 0;
@@ -714,6 +720,27 @@ export async function fetchReportRows(
 
       rows.push({ source, row });
     });
+  }
+
+  // Shift Handover Summary's Department column: handovers and shift sessions
+  // only carry a shiftConfigId, so resolve the department off the shift plan
+  // exactly as the Shift Handovers tab does.
+  if (reportType === 'shift_handover_summary' && rows.length > 0) {
+    try {
+      const shiftSnap = await getDocs(
+        query(collection(db, 'shift_config'), where('companyId', '==', companyId), limit(500)),
+      );
+      const departmentByShiftId = new Map<string, string>();
+      shiftSnap.docs.forEach((item) => {
+        departmentByShiftId.set(item.id, String(item.data().department ?? ''));
+      });
+      rows.forEach(({ row }) => {
+        row.department = departmentByShiftId.get(String(row.shiftConfigId ?? '')) ?? '';
+      });
+    } catch {
+      // Shift plans unreadable — leave Department blank rather than failing
+      // the whole report.
+    }
   }
 
   // Inventory Usage's "Part Category" filter (availableFilters: ['part_category'])
