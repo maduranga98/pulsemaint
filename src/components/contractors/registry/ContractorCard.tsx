@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Phone } from 'lucide-react';
 import type { Contractor, ContractorDocument } from '@/lib/contractors/contractorTypes';
 import { getContractorDocumentStatus } from '@/lib/contractors/documentExpiryHelper';
+import { useContractorJobStats } from '@/hooks/contractors/useContractorJobStats';
 import ContractorDocStatusDot from './ContractorDocStatusDot';
 import ContractorRatingDisplay from './ContractorRatingDisplay';
 import ContractorSpecializationTags from './ContractorSpecializationTags';
@@ -13,6 +14,8 @@ interface ContractorCardProps {
 }
 
 export function ContractorCard({ contractor, documents = [] }: ContractorCardProps) {
+  // Live figures, same as the desktop table — see useContractorJobStats.
+  const { stats } = useContractorJobStats();
   const docStatus = contractor.blocksAssignment
     ? { status: 'expired' as const, label: 'Expired documents' }
     : getContractorDocumentStatus(documents);
@@ -30,8 +33,12 @@ export function ContractorCard({ contractor, documents = [] }: ContractorCardPro
         <ContractorSpecializationTags tags={contractor.specializationTags} limit={4} />
       </div>
       <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-        <ContractorRatingDisplay rating={contractor.avgRating} count={contractor.ratingCount} compact />
-        <span className="text-slate-500">{contractor.totalJobsCount} jobs</span>
+        <ContractorRatingDisplay
+          rating={stats[contractor.id]?.ratingCount ? stats[contractor.id].avgRating : contractor.avgRating}
+          count={stats[contractor.id]?.ratingCount ?? contractor.ratingCount}
+          compact
+        />
+        <span className="text-slate-500">{stats[contractor.id]?.jobCount ?? contractor.totalJobsCount ?? 0} jobs</span>
       </div>
       <div className="mt-3">
         <ContractorDocStatusDot status={docStatus.status} label={docStatus.label} />

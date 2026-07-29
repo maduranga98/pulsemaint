@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
+import { useContractorJobStats } from '@/hooks/contractors/useContractorJobStats';
 import ContractorDocStatusDot from './ContractorDocStatusDot';
 import ContractorRatingDisplay from './ContractorRatingDisplay';
 import ContractorSpecializationTags from './ContractorSpecializationTags';
@@ -21,6 +22,9 @@ function relativeDate(value: Contractor['lastJobDate']) {
 
 export function ContractorListTable({ contractors }: ContractorListTableProps) {
   const { canManageContractors } = useContractorAccess();
+  // Live figures — the stored counters on the contractor document are only
+  // written by syncContractorMetrics, which never runs. See the hook.
+  const { stats } = useContractorJobStats();
   if (!contractors.length) {
     return <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">No contractors registered. Add your first contractor.</div>;
   }
@@ -51,9 +55,18 @@ export function ContractorListTable({ contractors }: ContractorListTableProps) {
                 <ContractorSpecializationTags tags={contractor.specializationTags} limit={3} />
               </td>
               <td className="px-4 py-3"><ContractorStatusBadge status={contractor.status} size="sm" /></td>
-              <td className="px-4 py-3"><ContractorRatingDisplay rating={contractor.avgRating} count={contractor.ratingCount} /></td>
-              <td className="px-4 py-3 text-slate-700">{contractor.totalJobsCount}</td>
-              <td className="px-4 py-3 text-slate-600">{relativeDate(contractor.lastJobDate)}</td>
+              <td className="px-4 py-3">
+                <ContractorRatingDisplay
+                  rating={stats[contractor.id]?.ratingCount ? stats[contractor.id].avgRating : contractor.avgRating}
+                  count={stats[contractor.id]?.ratingCount ?? contractor.ratingCount}
+                />
+              </td>
+              <td className="px-4 py-3 text-slate-700">
+                {stats[contractor.id]?.jobCount ?? contractor.totalJobsCount ?? 0}
+              </td>
+              <td className="px-4 py-3 text-slate-600">
+                {relativeDate(stats[contractor.id]?.lastJobAt ?? contractor.lastJobDate)}
+              </td>
               <td className="px-4 py-3">
                 <ContractorDocStatusDot status={contractor.blocksAssignment ? 'expired' : 'valid'} />
               </td>
