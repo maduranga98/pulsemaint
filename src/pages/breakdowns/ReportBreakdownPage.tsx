@@ -186,6 +186,9 @@ export default function ReportBreakdownPage() {
       void notifyRoles(userProfile.companyId, ['supervisor', 'plant_manager', 'admin'], {
         type: 'breakdown',
         message: `${machine.name}: new ${severity} breakdown reported by ${userProfile.fullName}`,
+        oversightMessage: `reported a new ${severity} breakdown on ${machine.name}`,
+        actorName: userProfile.fullName ?? '',
+        actorRole: userProfile.role,
         severity,
         linkTo: '/app/breakdowns',
       });

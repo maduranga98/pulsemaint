@@ -160,6 +160,9 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
       void notifyRoles(userProfile.companyId, ['store_keeper', 'supervisor', 'plant_manager'], {
         type: 'parts',
         message: `New parts request from ${userProfile.fullName}${isUrgent ? ' (urgent)' : ''}`,
+        oversightMessage: `raised a${isUrgent ? 'n urgent' : ''} parts request`,
+        actorName: userProfile.fullName ?? '',
+        actorRole: userProfile.role,
         severity: isUrgent ? 'high' : 'medium',
         linkTo: '/app/inventory/requests',
       });

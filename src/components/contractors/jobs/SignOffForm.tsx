@@ -141,6 +141,9 @@ export function SignOffForm({ job }: SignOffFormProps) {
       void notifyRoles(job.companyId, ['supervisor'], {
         type: 'work_order',
         message: `${userProfile?.fullName ?? 'Someone'} signed off contractor job ${job.workOrderNumber} (${job.contractorName}) — total ${formatLkr(totalProjectCost)}`,
+        oversightMessage: `signed off contractor job ${job.workOrderNumber} (${job.contractorName}) — total ${formatLkr(totalProjectCost)}`,
+        actorName: userProfile?.fullName ?? '',
+        actorRole: userProfile?.role,
         linkTo: `/app/contractors/jobs/${job.id}`,
       });
 

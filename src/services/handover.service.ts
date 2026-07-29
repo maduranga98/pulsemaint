@@ -485,6 +485,9 @@ export async function submitHandoverCallable(params: {
   void notifyRoles(data.companyId as string, ['supervisor'], {
     type: 'alert',
     message: `${(data.outgoingSupervisorName as string) || 'A supervisor'} submitted a shift handover`,
+    oversightMessage: 'submitted a shift handover',
+    actorName: (data.outgoingSupervisorName as string) || '',
+    actorRole: 'supervisor',
     linkTo: `/app/shift/handover/${ref.id}`,
   });
 

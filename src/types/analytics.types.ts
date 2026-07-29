@@ -283,6 +283,15 @@ export interface DashboardNotification {
   /** Per-user read state — `read` above is legacy/unused and kept only for
    *  backward compatibility with older readers of this collection. */
   readBy?: string[];
+  /** Who the notification was raised for, before admin/plant_manager were
+   *  appended. Lets the bell tell an addressed-to-me entry from an oversight
+   *  copy and word it accordingly (see lib/notifications/recipients). */
+  targetRoles?: string[];
+  targetUserIds?: string[];
+  /** Who performed the action, and a third-person phrasing of it. */
+  actorName?: string | null;
+  actorRole?: string | null;
+  oversightMessage?: string | null;
 }
 
 // ---------------------------------------------------------------------------

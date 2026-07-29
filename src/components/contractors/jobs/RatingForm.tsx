@@ -77,6 +77,9 @@ export function RatingForm({ job }: RatingFormProps) {
       void notifyRoles(job.companyId, ['supervisor'], {
         type: 'work_order',
         message: `${userProfile?.fullName ?? 'Someone'} rated ${job.contractorName} ${overall.toFixed(1)}/5 on job ${job.workOrderNumber}`,
+        oversightMessage: `rated ${job.contractorName} ${overall.toFixed(1)}/5 on job ${job.workOrderNumber}`,
+        actorName: userProfile?.fullName ?? '',
+        actorRole: userProfile?.role,
         linkTo: `/app/contractors/jobs/${job.id}`,
       });
 

@@ -3,7 +3,10 @@ import {
   OVERSIGHT_ROLES,
   isNotificationForUser,
   isNotificationUnreadBy,
+  isOversightCopy,
+  notificationDisplayMessage,
   resolveRecipientRoles,
+  roleLabel,
 } from '../notifications/recipients';
 
 describe('resolveRecipientRoles', () => {
@@ -74,5 +77,72 @@ describe('isNotificationUnreadBy', () => {
   it('treats a missing readBy as unread', () => {
     expect(isNotificationUnreadBy({}, 'u-1')).toBe(true);
     expect(isNotificationUnreadBy({ readBy: null }, 'u-1')).toBe(true);
+  });
+});
+
+describe('isOversightCopy', () => {
+  const traineeTargeted = { targetRoles: [], targetUserIds: ['trainee-1'] };
+
+  it('is true for a plant manager reading a trainee-targeted notification', () => {
+    expect(isOversightCopy(traineeTargeted, 'plant_manager', 'pm-1')).toBe(true);
+    expect(isOversightCopy(traineeTargeted, 'admin', 'a-1')).toBe(true);
+  });
+
+  it('is false for the person it was raised for', () => {
+    expect(isOversightCopy(traineeTargeted, 'trainee', 'trainee-1')).toBe(false);
+  });
+
+  it('is false for an oversight role that was itself a target', () => {
+    const targeted = { targetRoles: ['plant_manager'], targetUserIds: [] };
+    expect(isOversightCopy(targeted, 'plant_manager', 'pm-1')).toBe(false);
+  });
+
+  it('is false for an oversight user targeted by id', () => {
+    const targeted = { targetRoles: [], targetUserIds: ['pm-1'] };
+    expect(isOversightCopy(targeted, 'plant_manager', 'pm-1')).toBe(false);
+  });
+
+  it('is false for non-oversight roles regardless of targeting', () => {
+    expect(isOversightCopy(traineeTargeted, 'supervisor', 's-1')).toBe(false);
+  });
+
+  it('leaves legacy notifications with no recorded target alone', () => {
+    expect(isOversightCopy({}, 'plant_manager', 'pm-1')).toBe(false);
+  });
+});
+
+describe('notificationDisplayMessage', () => {
+  const base = {
+    message: "You've been assigned a new training module: Electrical Trainee Orientation",
+    oversightMessage: 'assigned "Electrical Trainee Orientation" to Julia Perera',
+    actorName: 'Chamathka Perera',
+    actorRole: 'plant_manager',
+    targetRoles: [],
+    targetUserIds: ['trainee-1'],
+  };
+
+  it('attributes the action with name and role for an oversight reader', () => {
+    expect(notificationDisplayMessage(base, 'admin', 'a-1')).toBe(
+      'Chamathka Perera (Plant Manager) — assigned "Electrical Trainee Orientation" to Julia Perera',
+    );
+  });
+
+  it('leaves the original wording for the person it was raised for', () => {
+    expect(notificationDisplayMessage(base, 'trainee', 'trainee-1')).toBe(base.message);
+  });
+
+  it('falls back to the original message when no oversight phrasing was supplied', () => {
+    const n = { ...base, oversightMessage: null };
+    expect(notificationDisplayMessage(n, 'admin', 'a-1')).toBe(`Chamathka Perera (Plant Manager) — ${base.message}`);
+  });
+
+  it('drops the attribution prefix when the actor is unknown', () => {
+    const n = { ...base, actorName: null };
+    expect(notificationDisplayMessage(n, 'admin', 'a-1')).toBe(base.oversightMessage);
+  });
+
+  it('uses the raw role when it has no friendly label', () => {
+    expect(roleLabel('maintenance_supervisor')).toBe('maintenance supervisor');
+    expect(roleLabel(undefined)).toBe('');
   });
 });

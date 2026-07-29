@@ -112,6 +112,8 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
   void notifyUsers(company.id, [employee.id], {
     type: 'document',
     message: `A service letter ("${form.subject}") has been issued for you by ${issuedBy.name}`,
+    oversightMessage: `issued a service letter ("${form.subject}") for ${employee.fullName}`,
+    actorName: issuedBy.name,
   });
 
   return { logoEmbedded };

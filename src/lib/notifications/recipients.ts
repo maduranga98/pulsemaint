@@ -76,3 +76,76 @@ export function isNotificationUnreadBy(
   if (!userId) return true;
   return !(notification.readBy ?? []).includes(userId);
 }
+
+/** Human-readable role labels used when an action is attributed to someone. */
+const ROLE_LABELS: Record<string, string> = {
+  admin: 'Admin',
+  plant_manager: 'Plant Manager',
+  supervisor: 'Supervisor',
+  technician: 'Technician',
+  store_keeper: 'Store Keeper',
+  hr_officer: 'HR Officer',
+  trainee: 'Trainee',
+  floor_operator: 'Floor Operator',
+};
+
+export function roleLabel(role: string | null | undefined): string {
+  if (!role) return '';
+  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+}
+
+/** The fields a notification carries about who performed the action. */
+export interface NotificationActor {
+  /** Roles the notification was raised for, before the oversight copy. */
+  targetRoles?: string[] | null;
+  targetUserIds?: string[] | null;
+  actorName?: string | null;
+  actorRole?: string | null;
+  /** Third-person phrasing for people reading this as oversight. */
+  oversightMessage?: string | null;
+}
+
+/**
+ * Whether this user is seeing the notification only because they are an
+ * oversight role, rather than because it was raised for them.
+ *
+ * The distinction matters for wording: a message written for its target
+ * ("You've been assigned a new training module") reads as though it is
+ * addressed to the plant manager when they see the oversight copy, which is
+ * what made the bell look like other roles' notifications were leaking in.
+ */
+export function isOversightCopy(
+  notification: NotificationActor,
+  role: UserRole | undefined,
+  userId: string | undefined,
+): boolean {
+  if (!role || !OVERSIGHT_ROLES.includes(role)) return false;
+  const targetRoles = notification.targetRoles ?? [];
+  const targetUserIds = notification.targetUserIds ?? [];
+  // No recorded target means we can't tell — treat it as addressed to them
+  // and leave the wording alone.
+  if (targetRoles.length === 0 && targetUserIds.length === 0) return false;
+  if (!!userId && targetUserIds.includes(userId)) return false;
+  return !targetRoles.includes(role as string);
+}
+
+/**
+ * What to show in this user's notification bar.
+ *
+ * For an oversight reader, the action is attributed: "Julia Perera (Trainee)
+ * — passed the final test for Electrical Trainee Orientation". For the person
+ * it was actually raised for, the original message is shown unchanged.
+ */
+export function notificationDisplayMessage(
+  notification: NotificationActor & { message: string },
+  role: UserRole | undefined,
+  userId: string | undefined,
+): string {
+  if (!isOversightCopy(notification, role, userId)) return notification.message;
+
+  const actor = (notification.actorName ?? '').trim();
+  const label = roleLabel(notification.actorRole);
+  const body = (notification.oversightMessage ?? '').trim() || notification.message;
+  if (!actor) return body;
+  return label ? `${actor} (${label}) — ${body}` : `${actor} — ${body}`;
+}

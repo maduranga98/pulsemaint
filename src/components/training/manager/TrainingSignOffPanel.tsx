@@ -62,6 +62,11 @@ export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSi
         message: data.passed
           ? `${userProfile.fullName ?? 'A manager'} signed off your training: ${assignment.moduleName}`
           : `Your training ${assignment.moduleName} did not pass the practical assessment`,
+        oversightMessage: data.passed
+          ? `signed off "${assignment.moduleName}" for ${assignment.traineeName}`
+          : `failed ${assignment.traineeName} on the practical for "${assignment.moduleName}"`,
+        actorName: userProfile.fullName ?? '',
+        actorRole: userProfile.role,
         linkTo: '/app/training/my-modules',
       });
 

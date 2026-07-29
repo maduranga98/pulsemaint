@@ -97,6 +97,9 @@ Report, track, and resolve equipment breakdowns. Kanban-style status board, seve
 ### Work Orders
 Full work-order lifecycle: `DRAFT → OPEN → ASSIGNED → IN_PROGRESS → ON_HOLD (parts/approval) → COMPLETED → SIGNED_OFF → CLOSED/CANCELLED`. Supports multi-technician checklists with measurement inputs, time-segment tracking (travel/waiting/working), parts requests, and root-cause capture. Work orders can be **created** by supervisors, plant managers, and admins. "My Work Orders" gives technicians/trainees a personal task view.
 
+### Contractors — work order sign-off
+Contractor-type work orders capture, at sign-off: the **project cost** (the contractor's own labour/service cost), the **total cost** as used-parts cost + project cost, and a four-dimension **contractor rating** (speed, quality, professionalism, communication). All are required to close a contractor WO. They appear in the contractor's profile under **Job History**, which reads contractor-type work orders as well as `contractorJobs` records.
+
 ### Sign-Off Queue
 One queue for everything awaiting approval, reachable by supervisor/plant_manager/admin, with two tabs:
 - **Work Orders** — completed WOs awaiting review and closure. A plant manager cannot sign off a work order they created.
@@ -128,6 +131,7 @@ Contractor registry, technician sub-records, documents & compliance tracking, pe
 - Written through one path (`services/notifications.service`). Targeting is **strict** — a notification raised for one role never appears in another role's notification bar or dashboard feed.
 - **admin** and **plant_manager** are copied on every targeted notification, so plant leadership sees all activity.
 - The bell is a to-do list, not an archive: reading a notification removes it from that user's bar, and a **Mark all as read** action clears the lot. Read state is per-user, so clearing yours never hides anything from anyone else.
+- Oversight copies are **attributed, not echoed**. When an admin or plant manager sees another role's action, it reads as "*Name (Role) — did X*" rather than repeating the message written for its target (which used to read as though it were addressed to them). Notifications raised *for* them keep their original wording.
 
 ### Training
 - **Learner-facing** (My Modules, quizzes, My Certificates, My Program, Weekend Summary): available to everyone; "My Program" is trainee-focused (+admin).

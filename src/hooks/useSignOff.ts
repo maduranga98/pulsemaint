@@ -87,7 +87,27 @@ export function useSignOff(): UseSignOffResult {
           note: null,
         };
 
+        // Contractor sign-off figures, when the form supplied them. Parts
+        // cost is recomputed from the WO's own partsUsed rather than trusted
+        // from the client, so the total always matches what the panel lists.
+        const contractorFields: Record<string, unknown> = {};
+        if (payload.projectCost != null || payload.contractorRating) {
+          const woSnap = await getDoc(doc(db, 'workOrders', woId));
+          const partsUsed = (woSnap.data()?.partsUsed ?? []) as Array<{ totalCost?: number }>;
+          const partsCost = Number(
+            partsUsed.reduce((sum, p) => sum + (p.totalCost ?? 0), 0).toFixed(2),
+          );
+          const projectCost = Math.max(0, Number(payload.projectCost ?? 0));
+          contractorFields.totalPartsCost = partsCost;
+          contractorFields.projectCost = projectCost;
+          contractorFields.totalProjectCost = Number((partsCost + projectCost).toFixed(2));
+          if (payload.contractorRating) {
+            contractorFields.contractorRating = { ...payload.contractorRating, ratedAt: now };
+          }
+        }
+
         await updateDoc(doc(db, 'workOrders', woId), {
+          ...contractorFields,
           status: 'CLOSED',
           // Sign-off and close happen together — record both transitions.
           statusHistory: arrayUnion(signOffEntry, closedEntry),
@@ -139,6 +159,9 @@ export function useSignOff(): UseSignOffResult {
           void notifyRoles(profile.companyId, ['supervisor'], {
             type: 'work_order',
             message: `${actorName || 'Someone'} signed off and closed work order ${woNumber}`,
+            oversightMessage: `signed off and closed work order ${woNumber}`,
+            actorName,
+            actorRole: profile.role,
             linkTo: '/app/work-orders',
           });
 

@@ -151,6 +151,8 @@ service cloud.firestore {
           'cancelledAt', 'cancelReason', 'timeSegments',
           'supervisorSignOffSignature', 'supervisorSignOffBy',
           'supervisorSignOffAt', 'supervisorSignOffNotes',
+          // Contractor sign-off figures captured on the work order itself.
+          'totalPartsCost', 'projectCost', 'totalProjectCost', 'contractorRating',
           // Back-references written straight after a plant manager creates a
           // PM work order (see useCreateWorkOrder).
           'pmHistoryId', 'pmScheduleId'

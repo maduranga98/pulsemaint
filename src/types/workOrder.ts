@@ -242,6 +242,14 @@ export interface WorkOrder {
   partsUsed: PartUsed[];
   technicianWorkLogs: TechnicianWorkLog[];
   contractorHoursLog: ContractorHoursLog | null;
+  // Contractor sign-off figures: parts used cost is recomputed from
+  // partsUsed, projectCost is the contractor's own cost, and the total is
+  // their sum. Kept as three fields so the contractor's job history can show
+  // the breakdown rather than only the combined figure.
+  totalPartsCost?: number;
+  projectCost?: number;
+  totalProjectCost?: number;
+  contractorRating?: WOContractorRating | null;
   postRepairChecklist: PostRepairChecklistItem[];
   testRunResult: TestRunResult | null;
   testRunNotes: string | null;
@@ -380,6 +388,24 @@ export interface WOSignOffPayload {
   // Required when outcome is 'not_complete' or 'failed'; optional otherwise.
   outcomeReason: string | null;
   notes: string;
+  /** Contractor work orders only — the contractor's own labour/service cost,
+   *  entered at sign-off. Total cost = parts used + this. */
+  projectCost?: number | null;
+  /** Contractor work orders only — how the contractor performed on this job. */
+  contractorRating?: WOContractorRating | null;
+}
+
+/** Per-job contractor rating captured at work order sign-off. Mirrors the
+ *  four-dimension model used by the contractor jobs area. */
+export interface WOContractorRating {
+  speedScore: number;
+  qualityScore: number;
+  professionalismScore: number;
+  communicationScore: number;
+  overallScore: number;
+  ratedBy: string;
+  ratedByName: string;
+  ratedAt: Timestamp | null;
 }
 
 // ---------------------------------------------------------------------------
