@@ -5,6 +5,7 @@ import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
+import { useContractorJobStats } from '@/hooks/contractors/useContractorJobStats';
 import ContractorRatingDisplay from './ContractorRatingDisplay';
 import ContractorSpecializationTags from './ContractorSpecializationTags';
 import ContractorStatusBadge from './ContractorStatusBadge';
@@ -15,6 +16,10 @@ interface ContractorProfileHeaderProps {
 
 export function ContractorProfileHeader({ contractor }: ContractorProfileHeaderProps) {
   const access = useContractorAccess();
+  // Same live figures as the registry list — otherwise a contractor listed
+  // with 5 jobs opens a profile claiming 0.
+  const { stats } = useContractorJobStats();
+  const live = stats[contractor.id];
   const [rating, setRating] = useState(false);
 
   return (
@@ -28,8 +33,11 @@ export function ContractorProfileHeader({ contractor }: ContractorProfileHeaderP
             <ContractorSpecializationTags tags={contractor.specializationTags} />
           </div>
           <div className="mt-3 flex items-center gap-2 text-sm text-slate-600">
-            <ContractorRatingDisplay rating={contractor.avgRating} count={contractor.ratingCount} />
-            <span>{contractor.totalJobsCount} jobs</span>
+            <ContractorRatingDisplay
+              rating={live?.ratingCount ? live.avgRating : contractor.avgRating}
+              count={live?.ratingCount ?? contractor.ratingCount}
+            />
+            <span>{live?.jobCount ?? contractor.totalJobsCount ?? 0} jobs</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
