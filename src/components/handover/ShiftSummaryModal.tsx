@@ -39,10 +39,14 @@ export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToH
           </div>
         </div>
 
-        <dl className="mt-3 grid gap-2 rounded-lg bg-slate-50 p-4 text-sm">
-          <div className="flex justify-between gap-3"><dt className="text-slate-500">Scheduled</dt><dd>{formatTimeRange(session.scheduledStart, session.scheduledEnd)} ({formatDuration(session.scheduledMinutes * 60000)})</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-500">Started</dt><dd>{session.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-500">Ended</dt><dd>{session.actualEnd ? session.actualEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</dd></div>
+        {/* Explicit black text on both the labels and the values. The muted
+            label colour, and the values' inherited colour, both rendered
+            light against this light card under the app's dark theme, leaving
+            the schedule unreadable. */}
+        <dl className="mt-3 grid gap-2 rounded-lg bg-slate-50 p-4 text-sm text-slate-950">
+          <div className="flex justify-between gap-3"><dt className="text-slate-950">Scheduled</dt><dd className="text-slate-950">{formatTimeRange(session.scheduledStart, session.scheduledEnd)} ({formatDuration(session.scheduledMinutes * 60000)})</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-slate-950">Started</dt><dd className="text-slate-950">{session.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-slate-950">Ended</dt><dd className="text-slate-950">{session.actualEnd ? session.actualEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</dd></div>
         </dl>
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
