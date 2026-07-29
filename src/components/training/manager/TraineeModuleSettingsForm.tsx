@@ -65,7 +65,9 @@ export default function TraineeModuleSettingsForm({
         description: defaultValues?.description ?? '',
         estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
         passingScore: defaultValues?.passingScore ?? 70,
-        status: defaultValues?.status ?? 'draft',
+        // New modules default to Active so the assign wizard (which only
+        // offers active modules) can see them immediately.
+        status: defaultValues?.status ?? 'active',
         tags: (defaultValues?.tags ?? []).join(', '),
         trainingType: defaultValues?.trainingType ?? '',
         trainingMode: defaultValues?.trainingMode ?? '',

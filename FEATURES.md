@@ -119,7 +119,7 @@ Contractor registry, technician sub-records, documents & compliance tracking, pe
 - **My Shift**: available to everyone.
 - **Shift Handover**: create/briefing (supervisor/admin), history/detail (adds plant_manager/hr_officer as viewers). Auto-compiles a shift summary snapshot (pending WOs, ongoing breakdowns, low-stock alerts, watch flags).
 - **Shift Config**: admin and plant_manager (create/edit); deleting a shift stays admin-only.
-- **Shift Handover Summary report**: covers supervisor handovers *and* completed shift sessions for every other role, matching the Shift Handovers tab row for row (shift, person + role, department, start, late by, end, OT, breakdowns/WOs during shift, watch flags). The PDF leads with a Late vs On-Time head-count chart, followed by the how-late breakdown.
+- **Shift Handover Summary report**: covers supervisor handovers *and* completed shift sessions for every other role, matching the Shift Handovers tab row for row (shift, person + role, department, start, late by, end, OT, breakdowns/WOs during shift, watch flags). Department is resolved from the shift plan, and every column is exported — the report is exempt from the PDF column cap. The PDF carries one chart: Late vs On-Time head counts.
 
 ### Analytics & Dashboards
 - Admin and plant_manager are both plant-wide roles and resolve to the **same company-wide scope**, so the Manager Dashboard and the Analytics tab report identical numbers for both. Every other role stays scoped to their own site.
@@ -137,6 +137,8 @@ Contractor registry, technician sub-records, documents & compliance tracking, pe
   - *Trainee Management* (`training/manage/trainee-modules*`) — programme modules (`libraryScope: 'trainee_management'`). Training type / delivery mode / default training period are required; no per-module Assign — assignment stays trainee-first through the Assign Training wizard.
   - Neither editor exposes a language picker or a machine field; a module's stored language is preserved as-is.
 - Includes a structured 6–12 month **Trainee Programme** model with supervisor-reviewed weekend self-reports.
+- **Certificates** are issued the moment a manager signs off the practical assessment, and appear under the trainee's My Certificates. Each one downloads as an A4 certificate on the company's own letterhead — logo, name, and contact details — rendered client-side, so no Cloud Function is needed.
+- New modules are created **Active** so they can be assigned straight away; Draft remains an explicit choice in the editor's Status picker.
 
 ### Triage (Guided Troubleshooting)
 - **Triage** (current/"knowledge" version): open to all 8 roles — multilingual (English/Sinhala/Tamil/Bengali) branching decision trees for safety guidance, categorized by phase (safety/assessment/safe action/document/wait) and danger level.

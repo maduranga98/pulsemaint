@@ -36,9 +36,10 @@ export default function CreateModulePage() {
           // This page only ever writes into the Training tab's library —
           // the trainee library has its own editor pages.
           libraryScope: 'training',
-          // Respect the status chosen in the settings form — forcing 'draft'
-          // here left modules unassignable (Assign only works on 'active').
-          status: updates.status ?? 'draft',
+          // Respect the status chosen in the settings form, which defaults to
+          // 'active' — forcing 'draft' here left modules unassignable
+          // (Assign only works on 'active').
+          status: updates.status ?? 'active',
           lessons: updates.lessons ?? [],
           estimatedMinutes: updates.estimatedMinutes ?? 0,
           passingScore: updates.passingScore ?? 80,
@@ -51,7 +52,7 @@ export default function CreateModulePage() {
           companyId,
           createdBy: userId,
           libraryScope: 'training',
-          status: 'draft',
+          status: 'active',
           lessons: [],
           estimatedMinutes: 0,
           passingScore: 80,

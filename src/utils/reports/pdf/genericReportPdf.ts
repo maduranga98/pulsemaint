@@ -16,7 +16,6 @@ import {
   totalCostByWoType,
   computeStockStatusBuckets,
   downtimeByWeekday,
-  lateByBuckets,
   lateVsOnTimeCounts,
   topByTotalMarks,
 } from '../../../lib/reportsCostUtils';
@@ -263,11 +262,11 @@ export async function exportGenericReportPdf(
       } else if (reportType === 'training_compliance') {
         renderChart('Trainings Completed by Role', sumByKey(rows, 'role', 'trainingsCompleted'), true);
       } else if (reportType === 'shift_handover_summary') {
+        // One chart: how many people were late vs on time. The minute-bucket
+        // breakdown was dropped — the report is asked "how many were late",
+        // not "how late were they".
         const lateRows = rows.map((r) => ({ lateMinutes: Number(r.lateByMinutes ?? 0) }));
-        // Headline split first — how many people were late vs on time — then
-        // the how-late breakdown for the ones who were.
         renderChart('Late vs On-Time (count of people)', lateVsOnTimeCounts(lateRows), true);
-        renderChart('Late By (count of people)', lateByBuckets(lateRows), true);
       } else if (reportType === 'downtime_analysis') {
         const data = downtimeByWeekday(
           rows.map((r) => ({
@@ -299,17 +298,20 @@ export async function exportGenericReportPdf(
       }
     }
 
-    // Use curated columns; cap how many fit the page width. Work Order Detail
-    // is exempt from the cap because its people/date columns are all required —
-    // autoTable wraps them to fit rather than dropping them.
-    const columnCap = reportType === 'work_order_detail' ? allColumns.length : landscape ? 10 : 7;
+    // Use curated columns; cap how many fit the page width. A couple of
+    // reports are exempt because every one of their columns is required —
+    // autoTable wraps them to fit rather than dropping them. Shift Handover
+    // Summary is one: the portrait cap of 7 silently dropped Shift Ended, OT,
+    // and the during-shift counts, so the export didn't match the tab.
+    const UNCAPPED_REPORTS = ['work_order_detail', 'shift_handover_summary'];
+    const columnCap = UNCAPPED_REPORTS.includes(reportType) ? allColumns.length : landscape ? 10 : 7;
     const columns = allColumns.slice(0, columnCap);
     const head = [columns.map((c) => c.label)];
     const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format))));
 
     // Work Order Detail carries every column (no cap above), so it needs a
     // touch smaller text to keep the table from overflowing the page.
-    const bodyFontSize = reportType === 'work_order_detail' ? 6 : 7;
+    const bodyFontSize = UNCAPPED_REPORTS.includes(reportType) ? 6 : 7;
 
     autoTable(doc, {
       head,

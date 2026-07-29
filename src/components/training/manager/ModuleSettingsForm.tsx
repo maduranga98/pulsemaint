@@ -69,7 +69,11 @@ export default function ModuleSettingsForm({
       description: defaultValues?.description ?? '',
       estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
       passingScore: defaultValues?.passingScore ?? 70,
-      status: defaultValues?.status ?? 'draft',
+      // New modules default to Active so they can be assigned as soon as
+      // they're created — a draft has no Assign action, which left authors
+      // with a module they couldn't hand to anyone. Draft stays an explicit
+      // choice in the picker below.
+      status: defaultValues?.status ?? 'active',
       tags: (defaultValues?.tags ?? []).join(', '),
       trainingType: defaultValues?.trainingType ?? '',
       trainingMode: defaultValues?.trainingMode ?? '',

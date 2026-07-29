@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { canSignOffTraining } from '@/lib/training/trainingSignOff';
 import { notifyUsers } from '@/services/notifications.service';
+import { issueTrainingCertificate } from '@/services/trainingCertificates.service';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import PracticalSignOffCard from './PracticalSignOffCard';
 
@@ -21,6 +22,7 @@ interface TrainingSignOffPanelProps {
  */
 export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSignOffPanelProps) {
   const userProfile = useAuthStore((s) => s.userProfile);
+  const company = useAuthStore((s) => s.company);
   const [saving, setSaving] = useState(false);
 
   const permission = canSignOffTraining(assignment, userProfile?.role, userProfile?.id);
@@ -42,6 +44,17 @@ export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSi
         ...(data.passed ? { certifiedAt: serverTimestamp(), completedAt: serverTimestamp() } : {}),
         updatedAt: serverTimestamp(),
       });
+
+      // A pass issues the certificate the trainee sees under My Certificates.
+      if (data.passed) {
+        await issueTrainingCertificate({
+          assignment,
+          company,
+          issuedBy: userProfile.id,
+          issuedByName: userProfile.fullName ?? '',
+          practicalObservations: data.observations,
+        });
+      }
 
       // Tell the learner; oversight roles are copied automatically.
       void notifyUsers(assignment.companyId, [assignment.traineeId], {
