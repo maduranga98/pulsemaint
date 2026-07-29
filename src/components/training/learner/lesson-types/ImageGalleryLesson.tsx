@@ -61,10 +61,27 @@ export default function ImageGalleryLesson({
     setTouchStart(null);
   };
 
+  // A gallery lesson with no images (empty contentUrl) previously rendered a
+  // dead end — no complete button at all, so the learner could never finish
+  // the module. Let them mark it complete instead.
   if (images.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-400">
-        No images available.
+      <div className="flex flex-col items-center justify-center gap-4 h-64 px-4 text-center">
+        <p className="text-slate-400 text-sm">No images have been added to this lesson.</p>
+        {progress?.completed ? (
+          <div className="flex items-center gap-2 text-green-600 font-medium">
+            <CheckCircle size={18} />
+            Completed
+          </div>
+        ) : (
+          <button
+            onClick={() => onComplete(lesson.id)}
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
+          >
+            <CheckCircle size={18} />
+            Mark as Complete
+          </button>
+        )}
       </div>
     );
   }

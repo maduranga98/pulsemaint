@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { useMyProgramme } from '@/hooks/traineeProgram/useMyProgramme';
 import { useProgrammeCertificate } from '@/hooks/traineeProgram/useProgrammeCertificate';
 import { useMyAssignments } from '@/hooks/training/useMyAssignments';
+import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
 import TrainingProgressBar from '@/components/training/shared/TrainingProgressBar';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
@@ -21,6 +22,42 @@ export default function MyProgramPage() {
   const assignmentByModuleId = new Map<string, TrainingAssignment>();
   for (const a of assignments) assignmentByModuleId.set(a.moduleId, a);
 
+  // Everything assigned to this trainee out of the Trainee Management module
+  // library. A programme groups a subset of these into months, but plenty of
+  // trainees are assigned modules without a formal programme ever being set
+  // up — those used to be invisible on this page entirely.
+  const { modules: traineeModules } = useTraineeLibraryModules();
+  const traineeModuleIds = new Set(traineeModules.map((m) => m.id));
+  const traineeAssignments = assignments.filter((a) => traineeModuleIds.has(a.moduleId));
+
+  const assignedModulesSection = (
+    <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <h2 className="font-semibold text-slate-900 mb-3">Assigned Trainee Modules</h2>
+      {traineeAssignments.length === 0 ? (
+        <p className="text-sm text-slate-500">No trainee modules have been assigned to you yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {traineeAssignments.map((a) => (
+            <button
+              key={a.id}
+              onClick={() => navigate(`/app/training/my-modules/${a.id}`)}
+              className="w-full flex items-center justify-between gap-3 rounded-lg border border-slate-100 px-3 py-2.5 text-left hover:border-blue-300 transition-colors"
+            >
+              <span className="min-w-0">
+                <span className="block text-sm font-medium text-slate-800 truncate">{a.moduleName}</span>
+                <span className="block text-xs text-slate-500">
+                  Assigned {formatDate(a.assignedAt)}
+                  {a.dueDate ? ` · due ${formatDate(a.dueDate)}` : ''}
+                </span>
+              </span>
+              <TrainingStatusBadge status={a.status} />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -31,11 +68,12 @@ export default function MyProgramPage() {
 
   if (!programme) {
     return (
-      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">My Training Programme</h1>
-        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
-          No training programme has been set up for you yet. Ask your supervisor or plant manager to enroll you.
+      <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
+        <h1 className="text-2xl font-bold text-slate-900">My Training Programme</h1>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
+          No month-by-month programme has been set up for you yet — the trainee modules assigned to you are below.
         </div>
+        {assignedModulesSection}
       </div>
     );
   }
@@ -102,6 +140,8 @@ export default function MyProgramPage() {
           );
         })}
       </div>
+
+      <div className="mt-6">{assignedModulesSection}</div>
 
       <div className="mt-6">
         <button

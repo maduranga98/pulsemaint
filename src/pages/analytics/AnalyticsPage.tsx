@@ -21,6 +21,7 @@ import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import { complianceColor } from '../../utils/analytics.utils';
 import { ReliabilitySection } from '../../components/analytics/ReliabilitySection';
+import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 
 type Range = 'mtd' | '3m' | '6m' | '12m';
 
@@ -39,12 +40,11 @@ function SectionHeader({ title, description }: { title: string; description?: st
 export default function AnalyticsPage() {
   // workOrders (and the charts fed from it — Work Order distribution,
   // Maintenance Cost Overview) are scoped by siteId, not companyId; for a
-  // multi-site user those differ, so resolve siteIds[0] first the same way
-  // the rest of the app does (useWorkOrders, ManagerDashboard, etc.) —
-  // otherwise those two charts silently show no data for anyone whose
-  // siteId isn't identical to their companyId.
+  // multi-site user those differ, so resolve the scope the same way the rest
+  // of the app does. Admin and plant manager both resolve to the company
+  // scope, so the two roles see identical analytics for the same plant.
   const userProfile = useAuthStore((s) => s.userProfile);
-  const companyId = userProfile?.siteIds?.[0] || userProfile?.companyId || '';
+  const companyId = resolveAnalyticsScopeId(userProfile);
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   const [range, setRange] = useState<Range>('mtd');
 

@@ -7,10 +7,9 @@ import { formatDate } from '../../lib/dateUtils';
 import { exportMachineDetailsPdf, formatMachineTypeLabel } from '../../lib/machineExport';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
-import { RCAHistoryList } from '../../components/machines/RCAHistoryList';
 import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields';
 
-type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics' | 'rca';
+type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
 export function MachineProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -75,7 +74,6 @@ export function MachineProfilePage() {
     { name: 'history', label: 'Breakdown History' },
     { name: 'maintenance', label: 'Maintenance History' },
     { name: 'analytics', label: 'Analytics' },
-    { name: 'rca', label: 'RCA History' },
   ];
 
   const analyticsTabDisabled = userProfile.role !== 'plant_manager' && userProfile.role !== 'admin';
@@ -231,12 +229,6 @@ export function MachineProfilePage() {
         {activeTab === 'history' && <HistoryTab machine={machine} />}
         {activeTab === 'maintenance' && <MaintenanceTab machine={machine} />}
         {activeTab === 'analytics' && <AnalyticsTab machine={machine} />}
-        {activeTab === 'rca' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">RCA History</h3>
-            <RCAHistoryList machineId={machine.id} />
-          </div>
-        )}
       </div>
     </div>
   );

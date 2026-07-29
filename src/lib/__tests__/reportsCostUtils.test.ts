@@ -6,6 +6,7 @@ import {
   computeStockStatusBuckets,
   downtimeByWeekday,
   lateByBuckets,
+  lateVsOnTimeCounts,
   flattenPoLineItems,
   topByTotalMarks,
 } from '../reportsCostUtils';
@@ -231,5 +232,35 @@ describe('topByTotalMarks', () => {
   it('treats missing fields as zero', () => {
     const top = topByTotalMarks([{ name: 'Solo' }], 5);
     expect(top).toEqual([{ label: 'Solo', value: 0 }]);
+  });
+});
+
+describe('lateVsOnTimeCounts', () => {
+  it('splits people into on time and late', () => {
+    const result = lateVsOnTimeCounts([
+      { lateMinutes: 0 },
+      { lateMinutes: 12 },
+      { lateMinutes: 0 },
+      { lateMinutes: 750 },
+    ]);
+    expect(result).toEqual([
+      { label: 'On time', value: 2 },
+      { label: 'Late', value: 2 },
+    ]);
+  });
+
+  it('counts a missing or negative value as on time', () => {
+    const result = lateVsOnTimeCounts([{}, { lateMinutes: -5 }]);
+    expect(result).toEqual([
+      { label: 'On time', value: 2 },
+      { label: 'Late', value: 0 },
+    ]);
+  });
+
+  it('returns both buckets at zero for no rows', () => {
+    expect(lateVsOnTimeCounts([])).toEqual([
+      { label: 'On time', value: 0 },
+      { label: 'Late', value: 0 },
+    ]);
   });
 });

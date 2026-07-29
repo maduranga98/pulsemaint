@@ -131,6 +131,27 @@ const LATE_BUCKETS: Array<{ label: string; max: number }> = [
  * count of people per bucket. Used by the Shift Handover Summary report's
  * "Late By" chart.
  */
+/**
+ * Head-count split of a shift report into people who clocked in on time and
+ * people who clocked in late. Drives the Shift Handover Summary PDF's chart —
+ * the question the report is actually asked is "how many were late", not
+ * "how late were they", which the minute buckets answer.
+ */
+export function lateVsOnTimeCounts(
+  rows: Array<{ lateMinutes?: number }>,
+): Array<{ label: string; value: number }> {
+  let late = 0;
+  let onTime = 0;
+  rows.forEach((r) => {
+    if (Math.max(0, Number(r.lateMinutes ?? 0)) > 0) late += 1;
+    else onTime += 1;
+  });
+  return [
+    { label: 'On time', value: onTime },
+    { label: 'Late', value: late },
+  ];
+}
+
 export function lateByBuckets(rows: Array<{ lateMinutes?: number }>): Array<{ label: string; value: number }> {
   const counts = new Map<string, number>(LATE_BUCKETS.map((b) => [b.label, 0]));
   rows.forEach((r) => {
