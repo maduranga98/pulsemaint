@@ -79,6 +79,8 @@ export async function submitEvaluation(
   void notifyRoles(session.companyId, ['hr_officer', 'plant_manager'], {
     type: 'evaluation',
     message: `New evaluation submitted for ${session.evaluateeName} by ${session.evaluatorName}`,
+    oversightMessage: `submitted an evaluation for ${session.evaluateeName}`,
+    actorName: session.evaluatorName ?? '',
     linkTo: '/app/evaluations',
   });
   return docRef.id;

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useContractor } from '@/hooks/contractors/useContractor';
 import { useContractorDocuments } from '@/hooks/contractors/useContractorDocuments';
 import { useContractorJobs } from '@/hooks/contractors/useContractorJobs';
+import { useContractorWorkOrders } from '@/hooks/contractors/useContractorWorkOrders';
 import { useContractorTechnicians } from '@/hooks/contractors/useContractorTechnicians';
 import { useContractorAuditRatings } from '@/hooks/contractors/useContractorAuditRatings';
 import ContractorAlertBanner from '@/components/contractors/registry/ContractorAlertBanner';
@@ -23,6 +24,7 @@ export function ContractorProfilePage() {
   const { documents } = useContractorDocuments(contractorId);
   const { technicians } = useContractorTechnicians(contractorId);
   const { jobs } = useContractorJobs({ contractorId });
+  const { workOrders: contractorWorkOrders } = useContractorWorkOrders(contractorId);
   const { ratings: auditRatings } = useContractorAuditRatings(contractorId);
 
   if (loading) return <div className="p-6 text-slate-500">Loading contractor...</div>;
@@ -43,7 +45,7 @@ export function ContractorProfilePage() {
       {tab === 'Overview' && <ContractorOverviewTab contractor={contractor} />}
       {tab === 'Documents' && <ContractorDocumentsTab documents={documents} contractorId={contractor.id} />}
       {tab === 'Team Members' && <ContractorTechniciansTab contractorId={contractor.id} technicians={technicians} />}
-      {tab === 'Job History' && <ContractorJobHistoryTab jobs={jobs} previouslyCompletedProjects={contractor.previouslyCompletedProjects} auditRatings={auditRatings} />}
+      {tab === 'Job History' && <ContractorJobHistoryTab jobs={jobs} workOrders={contractorWorkOrders} previouslyCompletedProjects={contractor.previouslyCompletedProjects} auditRatings={auditRatings} />}
       {tab === 'Analytics' && <ContractorAnalyticsTab contractor={contractor} jobs={jobs} />}
     </div>
   );

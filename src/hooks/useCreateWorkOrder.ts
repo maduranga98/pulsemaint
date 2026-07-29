@@ -227,6 +227,9 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         void notifyUsers(companyId, payload.assignedTechnicianIds!, {
           type: 'work_order',
           message: `You've been assigned to a new work order: ${payload.description?.slice(0, 60) || woId}`,
+          oversightMessage: `created work order ${payload.description?.slice(0, 60) || woId} and assigned it`,
+          actorName: userName,
+          actorRole: userProfile.role,
           severity: payload.priority === 'critical' || payload.priority === 'high' ? 'high' : 'medium',
           linkTo: '/app/work-orders',
         });

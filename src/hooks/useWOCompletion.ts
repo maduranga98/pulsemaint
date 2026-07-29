@@ -361,6 +361,9 @@ export function useWOCompletion(): UseWOCompletionResult {
           void notifyRoles(profile.companyId, ['supervisor'], {
             type: 'work_order',
             message: `${user.displayName || profile.fullName || 'A technician'} submitted work order ${woNumberForNotice} for sign-off`,
+            oversightMessage: `submitted work order ${woNumberForNotice} for sign-off`,
+            actorName: user.displayName || profile.fullName || '',
+            actorRole: profile.role,
             linkTo: '/app/sign-off-queue',
           });
         }

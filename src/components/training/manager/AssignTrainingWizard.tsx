@@ -290,6 +290,9 @@ export default function AssignTrainingWizard({
           void notifyUsers(companyId, [trainee.id], {
             type: 'training',
             message: `You've been assigned a new training module: ${module.title}`,
+            oversightMessage: `assigned "${module.title}" to ${trainee.fullName}`,
+            actorName: userProfile?.fullName ?? '',
+            actorRole: userProfile?.role,
             linkTo: '/app/training',
           });
         }

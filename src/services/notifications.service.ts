@@ -16,6 +16,12 @@ interface CreateNotificationInput {
   recipientRoles?: UserRole[];
   /** Notify these specific users, in addition to any recipientRoles. */
   recipientUserIds?: string[];
+  /** Who performed the action. Shown to oversight readers so the entry reads
+   *  as "Name (Role) — did X" rather than as a message addressed to them. */
+  actorName?: string | null;
+  actorRole?: UserRole | null;
+  /** Third-person phrasing of `message`, for oversight readers. */
+  oversightMessage?: string | null;
 }
 
 /**
@@ -33,7 +39,18 @@ interface CreateNotificationInput {
  * people it was meant for.
  */
 export async function createNotification(input: CreateNotificationInput): Promise<void> {
-  const { companyId, type, message, severity = 'medium', linkTo = null, recipientRoles = [], recipientUserIds = [] } = input;
+  const {
+    companyId,
+    type,
+    message,
+    severity = 'medium',
+    linkTo = null,
+    recipientRoles = [],
+    recipientUserIds = [],
+    actorName = null,
+    actorRole = null,
+    oversightMessage = null,
+  } = input;
   if (!companyId) return;
   const roles = resolveRecipientRoles(recipientRoles, recipientUserIds);
   try {
@@ -48,6 +65,14 @@ export async function createNotification(input: CreateNotificationInput): Promis
       readBy: [],
       recipientRoles: roles,
       recipientUserIds,
+      // Who it was originally raised for, before the oversight copy was
+      // appended — the bell needs this to tell "addressed to me" from
+      // "I'm seeing it as oversight" and word the entry accordingly.
+      targetRoles: recipientRoles,
+      targetUserIds: recipientUserIds,
+      actorName,
+      actorRole,
+      oversightMessage,
     });
   } catch (err) {
     // Notifications are best-effort — never let a failed notification write

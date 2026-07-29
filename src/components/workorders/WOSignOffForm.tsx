@@ -1,8 +1,37 @@
-import { useState } from 'react';
-import { CheckCircle2, AlertTriangle, XCircle, Lock } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { CheckCircle2, AlertTriangle, XCircle, Lock, Star } from 'lucide-react';
 import type { WorkOrder, WOSignOffOutcome } from '../../types/workOrder';
 import { useSignOff } from '../../hooks/useSignOff';
+import { useAuthStore } from '../../store/authStore';
+import { formatLkr } from '../../lib/contractors/invoiceCalculator';
 import { toast } from 'sonner';
+
+const RATING_DIMENSIONS = [
+  { key: 'speedScore', label: 'Speed' },
+  { key: 'qualityScore', label: 'Quality' },
+  { key: 'professionalismScore', label: 'Professionalism' },
+  { key: 'communicationScore', label: 'Communication' },
+] as const;
+
+type RatingKey = (typeof RATING_DIMENSIONS)[number]['key'];
+
+function StarRow({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          aria-label={`${n} star${n > 1 ? 's' : ''}`}
+          className="p-0.5"
+        >
+          <Star className={`h-5 w-5 ${n <= value ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`} />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 interface Props {
   workOrder: WorkOrder;
@@ -47,9 +76,39 @@ const OUTCOMES: {
 // person who signs off/closes is recorded automatically — no signature.
 export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
   const { signOff, loading } = useSignOff();
+  const userProfile = useAuthStore((s) => s.userProfile);
   const [outcome, setOutcome] = useState<WOSignOffOutcome>('complete');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
+
+  // Contractor work orders capture the contractor's own cost and a rating for
+  // the job at sign-off — the two things the contractor's history is judged on.
+  const isContractorWO = workOrder.woType === 'CONTRACTOR';
+  const [projectCost, setProjectCost] = useState(
+    workOrder.projectCost != null ? String(workOrder.projectCost) : '',
+  );
+  const [scores, setScores] = useState<Record<RatingKey, number>>({
+    speedScore: workOrder.contractorRating?.speedScore ?? 0,
+    qualityScore: workOrder.contractorRating?.qualityScore ?? 0,
+    professionalismScore: workOrder.contractorRating?.professionalismScore ?? 0,
+    communicationScore: workOrder.contractorRating?.communicationScore ?? 0,
+  });
+
+  const partsCost = useMemo(
+    () => Number((workOrder.partsUsed ?? []).reduce((sum, p) => sum + (p.totalCost ?? 0), 0).toFixed(2)),
+    [workOrder.partsUsed],
+  );
+  const parsedProjectCost = useMemo(() => {
+    const n = projectCost.trim() ? Number(projectCost.replace(/,/g, '')) : 0;
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }, [projectCost]);
+  const totalCost = Number((partsCost + parsedProjectCost).toFixed(2));
+  const overallRating = useMemo(() => {
+    const values = RATING_DIMENSIONS.map((d) => scores[d.key]);
+    return values.every(Boolean)
+      ? Number((values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(2))
+      : 0;
+  }, [scores]);
 
   const needsReason = outcome === 'not_complete' || outcome === 'failed';
 
@@ -62,16 +121,102 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
       );
       return;
     }
+    if (isContractorWO) {
+      if (projectCost.trim() && !Number.isFinite(Number(projectCost.replace(/,/g, '')))) {
+        toast.error('Enter a valid project cost.');
+        return;
+      }
+      if (overallRating === 0) {
+        toast.error('Rate all four areas before signing off this contractor job.');
+        return;
+      }
+    }
+
     const ok = await signOff(workOrder.id, workOrder.siteId, {
       outcome,
       outcomeReason: needsReason ? reason.trim() : null,
       notes,
+      projectCost: isContractorWO ? parsedProjectCost : null,
+      contractorRating: isContractorWO
+        ? {
+            ...scores,
+            overallScore: overallRating,
+            ratedBy: userProfile?.id ?? '',
+            ratedByName: userProfile?.fullName ?? '',
+            ratedAt: null,
+          }
+        : null,
     });
     if (ok) onDone?.();
   }
 
   return (
     <div className="space-y-4">
+      {/* Contractor jobs: total cost and a rating, both required to close. */}
+      {isContractorWO && (
+        <>
+          <div className="rounded-lg border border-gray-200 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Total cost</p>
+            <p className="mt-0.5 text-xs text-gray-400">
+              Used-parts cost from this work order plus the contractor's project cost.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">Used Parts Cost (auto)</label>
+                <p className="flex h-10 items-center rounded-md border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700">
+                  {formatLkr(partsCost)}
+                </p>
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-gray-500">Project Cost</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-500">LKR</span>
+                  <input
+                    value={projectCost}
+                    onChange={(e) => setProjectCost(e.target.value)}
+                    inputMode="decimal"
+                    placeholder="0.00"
+                    className="h-10 w-full rounded-md border border-gray-300 px-3 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="mt-3 rounded-md bg-gray-50 p-3">
+              <p className="text-xs text-gray-500">
+                Used parts {formatLkr(partsCost)} + project {formatLkr(parsedProjectCost)}
+              </p>
+              <p className="text-lg font-bold text-gray-900">{formatLkr(totalCost)}</p>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-gray-200 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Contractor rating</p>
+            <p className="mt-0.5 text-xs text-gray-400">
+              Rate all four areas — required to sign off, and shown in this contractor's job history.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {RATING_DIMENSIONS.map((d) => (
+                <div key={d.key} className="rounded-md border border-gray-200 p-2.5">
+                  <p className="text-sm font-medium text-gray-800">{d.label}</p>
+                  <div className="mt-1.5">
+                    <StarRow
+                      value={scores[d.key]}
+                      onChange={(v) => setScores((prev) => ({ ...prev, [d.key]: v }))}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 rounded-md bg-gray-50 p-3 text-center">
+              <p className="text-xs text-gray-500">Overall score</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {overallRating ? overallRating.toFixed(1) : '-'}
+              </p>
+            </div>
+          </div>
+        </>
+      )}
+
       <div>
         <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
           Completion outcome

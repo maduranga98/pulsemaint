@@ -5,6 +5,7 @@ import { useMyNotifications } from '@/hooks/useMyNotifications';
 import { relativeTime } from '@/utils/analytics.utils';
 import type { DashboardNotification, DashboardNotificationType } from '@/types/analytics.types';
 import { useAuthStore } from '@/store/authStore';
+import { notificationDisplayMessage } from '@/lib/notifications/recipients';
 
 const ICON_MAP: Record<DashboardNotificationType, typeof Bell> = {
   breakdown: AlertTriangle,
@@ -95,7 +96,9 @@ export default function NotificationBell() {
                   >
                     <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[n.severity] ?? 'text-slate-400'}`} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm leading-snug text-slate-900 font-medium">{n.message}</p>
+                      <p className="text-sm leading-snug text-slate-900 font-medium">
+                        {notificationDisplayMessage(n, userProfile.role, userProfile.id)}
+                      </p>
                       <p className="text-xs text-slate-400 mt-0.5">{relativeTime(n.timestamp)}</p>
                     </div>
                     <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
