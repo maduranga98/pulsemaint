@@ -17,6 +17,7 @@ import {
   computeStockStatusBuckets,
   downtimeByWeekday,
   lateByBuckets,
+  lateVsOnTimeCounts,
   topByTotalMarks,
 } from '../../../lib/reportsCostUtils';
 
@@ -262,8 +263,11 @@ export async function exportGenericReportPdf(
       } else if (reportType === 'training_compliance') {
         renderChart('Trainings Completed by Role', sumByKey(rows, 'role', 'trainingsCompleted'), true);
       } else if (reportType === 'shift_handover_summary') {
-        const data = lateByBuckets(rows.map((r) => ({ lateMinutes: Number(r.lateByMinutes ?? 0) })));
-        renderChart('Late By (count of people)', data, true);
+        const lateRows = rows.map((r) => ({ lateMinutes: Number(r.lateByMinutes ?? 0) }));
+        // Headline split first — how many people were late vs on time — then
+        // the how-late breakdown for the ones who were.
+        renderChart('Late vs On-Time (count of people)', lateVsOnTimeCounts(lateRows), true);
+        renderChart('Late By (count of people)', lateByBuckets(lateRows), true);
       } else if (reportType === 'downtime_analysis') {
         const data = downtimeByWeekday(
           rows.map((r) => ({

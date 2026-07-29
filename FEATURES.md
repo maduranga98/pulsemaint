@@ -119,6 +119,10 @@ Contractor registry, technician sub-records, documents & compliance tracking, pe
 - **My Shift**: available to everyone.
 - **Shift Handover**: create/briefing (supervisor/admin), history/detail (adds plant_manager/hr_officer as viewers). Auto-compiles a shift summary snapshot (pending WOs, ongoing breakdowns, low-stock alerts, watch flags).
 - **Shift Config**: admin and plant_manager (create/edit); deleting a shift stays admin-only.
+- **Shift Handover Summary report**: covers supervisor handovers *and* completed shift sessions for every other role, matching the Shift Handovers tab row for row (shift, person + role, department, start, late by, end, OT, breakdowns/WOs during shift, watch flags). The PDF leads with a Late vs On-Time head-count chart, followed by the how-late breakdown.
+
+### Analytics & Dashboards
+- Admin and plant_manager are both plant-wide roles and resolve to the **same company-wide scope**, so the Manager Dashboard and the Analytics tab report identical numbers for both. Every other role stays scoped to their own site.
 
 ### Notifications
 - Written through one path (`services/notifications.service`). Targeting is **strict** — a notification raised for one role never appears in another role's notification bar or dashboard feed.

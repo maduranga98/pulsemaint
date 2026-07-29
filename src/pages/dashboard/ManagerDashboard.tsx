@@ -16,11 +16,15 @@ import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/T
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
+import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 
 export default function ManagerDashboard() {
-  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
-  const role = useAuthStore((s) => s.userProfile?.role);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const companyId = userProfile?.companyId ?? '';
+  // Admin and plant manager are both plant-wide roles, so both resolve to the
+  // company scope and see identical numbers on this dashboard.
+  const siteId = resolveAnalyticsScopeId(userProfile);
+  const role = userProfile?.role;
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Manager';
   const dashboardTitle = role === 'admin' ? 'Admin Dashboard' : 'Manager Dashboard';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);

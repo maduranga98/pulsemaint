@@ -201,7 +201,11 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
   ],
   shift_handover_summary: [
     { key: 'shiftName', label: 'Shift Name' },
-    { key: 'outgoingSupervisorName', label: 'Person' },
+    // personName/personRole are normalised across handovers and shift
+    // sessions in fetchReportRows so both sources render the same columns
+    // the Shift Handovers tab shows.
+    { key: 'personName', label: 'Person' },
+    { key: 'personRole', label: 'Role' },
     { key: 'department', label: 'Department' },
     { key: 'shiftActualStart', label: 'Shift Started', format: 'datetime' },
     { key: 'lateByMinutes', label: 'Late By (min)', format: 'number' },

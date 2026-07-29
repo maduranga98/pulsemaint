@@ -30,6 +30,28 @@ import type {
   ReportType,
 } from '../types/reports.types';
 
+/**
+ * Minutes a shift session started late against its scheduled start time.
+ * Mirrors calculateLateStartMinutes in handover.utils, working from the raw
+ * Firestore values the report rows carry.
+ */
+function computeLateMinutes(actualStart: unknown, scheduledStart: unknown): number {
+  const start =
+    actualStart && typeof (actualStart as { toDate?: () => Date }).toDate === 'function'
+      ? (actualStart as { toDate: () => Date }).toDate()
+      : actualStart instanceof Date
+        ? actualStart
+        : null;
+  const scheduled = typeof scheduledStart === 'string' ? scheduledStart : '';
+  if (!start || !scheduled) return 0;
+  const [hours, minutes] = scheduled.split(':').map(Number);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return 0;
+  const due = new Date(start);
+  due.setHours(hours, minutes, 0, 0);
+  return Math.max(0, Math.round((start.getTime() - due.getTime()) / 60000));
+}
+
+
 const toDate = (value: unknown): Date => {
   if (value && typeof (value as Timestamp).toDate === 'function') return (value as Timestamp).toDate();
   if (value instanceof Date) return value;
@@ -508,7 +530,11 @@ export async function fetchReportRows(
     // trainingAssignments + traineeProgrammes) — not a raw collection dump.
     training_compliance: [],
     sla_compliance: ['breakdown_tickets'],
-    shift_handover_summary: ['shift_handovers'],
+    // The Shift Handovers tab lists supervisor handovers *and* completed
+    // shift sessions for every other role (see HandoverHistoryPage). The
+    // report used to read handovers alone, so it showed a fraction of the
+    // rows the tab does — most roles never file a handover.
+    shift_handover_summary: ['shift_handovers', 'shift_sessions'],
     // downtime_analysis is a computed branch below (sourced from workOrders,
     // which unlike breakdown_tickets carries both createdAt and a sign-off
     // timestamp needed to compute downtime).
@@ -663,10 +689,27 @@ export async function fetchReportRows(
       // round wired this to the stats counters, which is a real report-vs-tab
       // mismatch; fixed here to genuinely match the tab.
       if (reportType === 'shift_handover_summary') {
-        row.lateByMinutes = Number(data.overlapMinutes ?? 0);
-        row.watchFlagsCount = Array.isArray(data.watchFlags) ? (data.watchFlags as unknown[]).length : 0;
-        row.breakdownsOpened = Array.isArray(data.ongoingBreakdowns) ? (data.ongoingBreakdowns as unknown[]).length : 0;
-        row.wosOpened = Array.isArray(data.pendingWOs) ? (data.pendingWOs as unknown[]).length : 0;
+        if (source === 'shift_sessions') {
+          // A session row that already rolled up into a handover would double
+          // count — the tab drops those too.
+          if (data.handoverId) return;
+          row.personName = String(data.userName ?? '');
+          row.personRole = String(data.userRole ?? '');
+          row.shiftActualStart = data.actualStart ?? null;
+          row.shiftActualEnd = data.actualEnd ?? null;
+          row.lateByMinutes = computeLateMinutes(data.actualStart, data.scheduledStart);
+          row.watchFlagsCount = 0;
+          row.breakdownsOpened = 0;
+          row.wosOpened = 0;
+        } else {
+          row.personName = String(data.outgoingSupervisorName ?? '');
+          // Handovers are only ever filed by supervisors (see SUP-018).
+          row.personRole = 'supervisor';
+          row.lateByMinutes = Number(data.overlapMinutes ?? 0);
+          row.watchFlagsCount = Array.isArray(data.watchFlags) ? (data.watchFlags as unknown[]).length : 0;
+          row.breakdownsOpened = Array.isArray(data.ongoingBreakdowns) ? (data.ongoingBreakdowns as unknown[]).length : 0;
+          row.wosOpened = Array.isArray(data.pendingWOs) ? (data.pendingWOs as unknown[]).length : 0;
+        }
       }
 
       rows.push({ source, row });

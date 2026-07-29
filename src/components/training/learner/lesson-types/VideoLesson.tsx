@@ -203,10 +203,21 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
     }
   };
 
-  const watchedPct = duration > 0 ? (currentTime / duration) * 100 : 0;
-  const canComplete = watchedPct >= AUTO_COMPLETE_PCT;
+  // A lesson with no playable media (empty contentUrl, or a source whose
+  // duration never resolves) can never reach the 80% watch threshold, which
+  // left the learner staring at a permanently disabled "Watch 80% to
+  // complete" button with no way to finish the module. Treat "nothing to
+  // watch" as immediately completable.
+  const hasPlayableVideo = !!lesson.contentUrl && Number.isFinite(duration) && duration > 0;
+  const watchedPct = hasPlayableVideo ? (currentTime / duration) * 100 : 100;
+  const canComplete = !hasPlayableVideo || watchedPct >= AUTO_COMPLETE_PCT;
 
   return (
+    // The player and its overlaid controls own their own stacking context;
+    // the Mark-as-Complete footer sits outside it. Previously the controls bar
+    // was absolutely positioned against the whole component, so it covered the
+    // footer and hid the completion button behind the seek bar.
+    <div className="flex flex-col">
     <div
       ref={containerRef}
       className="relative bg-black select-none"
@@ -355,6 +366,8 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
         </div>
+      </div>
+
       </div>
 
       {/* Mark as Complete button */}
