@@ -18,6 +18,7 @@ const ROLE_LABEL: Record<UserRole, string> = {
   hr_officer: 'HR Officer',
   trainee: 'Trainee',
   floor_operator: 'Floor Operator',
+  safety_officer: 'Safety Officer',
 };
 const ROLE_OPTIONS = Object.keys(ROLE_LABEL) as UserRole[];
 

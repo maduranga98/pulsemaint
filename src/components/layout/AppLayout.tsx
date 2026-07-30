@@ -53,10 +53,10 @@ const Icon = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'] },
-  { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
-  { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
-  { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
+  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'] },
+  { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
+  { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+  { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['safety_officer', 'technician', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
   { label: 'Sign-Off Queue', to: '/app/sign-off-queue', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'admin'] },
   {
@@ -67,7 +67,7 @@ const NAV_ITEMS: NavItem[] = [
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+    roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician'],
   },
   {
     label: 'PM Calendar',
@@ -87,7 +87,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>
       </svg>
     ),
-    roles: ['plant_manager', 'admin', 'supervisor'],
+    roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor'],
   },
   {
     label: 'PM Compliance',
@@ -99,9 +99,9 @@ const NAV_ITEMS: NavItem[] = [
     ),
     roles: ['supervisor', 'plant_manager', 'admin'],
   },
-  { label: 'Inventory / Parts', to: '/app/inventory', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
-  { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
-  { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper'] },
+  { label: 'Inventory / Parts', to: '/app/inventory', icon: Icon.box, roles: ['safety_officer', 'store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+  { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer'] },
+  { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper'] },
   {
     label: 'My Shift',
     to: '/app/shift/my',
@@ -110,7 +110,7 @@ const NAV_ITEMS: NavItem[] = [
         <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
       </svg>
     ),
-    roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
+    roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
   },
   {
     label: 'Shift Handovers',
@@ -120,13 +120,13 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M7 7h10"/><path d="M7 12h7"/><path d="M7 17h5"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M16 3v4h4"/>
       </svg>
     ),
-    roles: ['plant_manager', 'admin', 'hr_officer'],
+    roles: ['safety_officer', 'plant_manager', 'admin', 'hr_officer'],
   },
-  { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin', 'supervisor'] },
+  { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['safety_officer', 'hr_officer', 'plant_manager', 'admin', 'supervisor'] },
   // Training can be assigned to any role, so everyone gets a "My Training"
   // entry (the route allows any authenticated user).
-  { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
-  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
+  { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
+  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'store_keeper'] },
   { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
   {
     label: 'Triage',
@@ -136,7 +136,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
       </svg>
     ),
-    roles: ['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
+    roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
   },
   {
     label: 'Triage Builder',
@@ -146,7 +146,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
       </svg>
     ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'],
+    roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer'],
   },
   {
     label: 'MOE',
@@ -166,7 +166,7 @@ const NAV_ITEMS: NavItem[] = [
         <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/><path d="M9 7h6"/>
       </svg>
     ),
-    roles: ['plant_manager', 'admin', 'hr_officer'],
+    roles: ['safety_officer', 'plant_manager', 'admin', 'hr_officer'],
   },
   {
     label: 'Evaluations',

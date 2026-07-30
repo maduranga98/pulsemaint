@@ -67,6 +67,7 @@ const USER_ROLE_TO_EVAL_ROLE: Record<UserRole, EvaluationRole> = {
   hr_officer: 'other',
   trainee: 'trainee',
   floor_operator: 'operator',
+  safety_officer: 'other',
 };
 
 // Built-in sample templates — one per role, backed by the role's default

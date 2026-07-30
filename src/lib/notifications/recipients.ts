@@ -87,6 +87,7 @@ const ROLE_LABELS: Record<string, string> = {
   hr_officer: 'HR Officer',
   trainee: 'Trainee',
   floor_operator: 'Floor Operator',
+  safety_officer: 'Safety Officer',
 };
 
 export function roleLabel(role: string | null | undefined): string {

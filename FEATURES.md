@@ -8,7 +8,7 @@ PulseMaint is a multi-tenant maintenance management platform (React + TypeScript
 
 ## 1. User Roles
 
-PulseMaint has **8 roles**, stored on the user's Firestore profile (`users/{uid}.role`) and enforced via `ProtectedRoute`/`requiredRoles` on every route.
+PulseMaint has **9 roles**, stored on the user's Firestore profile (`users/{uid}.role`) and enforced via `ProtectedRoute`/`requiredRoles` on every route.
 
 | Role (code value) | Description |
 |---|---|
@@ -20,6 +20,11 @@ PulseMaint has **8 roles**, stored on the user's Firestore profile (`users/{uid}
 | `hr_officer` | Human resources — training, compliance, contractor oversight |
 | `trainee` | New employee in onboarding/training programme |
 | `floor_operator` | Machine operator on the production floor |
+| `safety_officer` | EHS / safety oversight — read-oriented, company-wide visibility |
+
+### Safety Officer access
+
+`safety_officer` is a read-oriented oversight role. It has **company-wide view access** to Machines, Breakdowns, Work Orders, PM Schedules, Inventory/Parts, Contractors, Reports, Analytics, Training (management view + its own learner training/certificates), Triage & Triage Builder, Kaizen, Audit, and Shift/Shift Handovers, and lands on the manager dashboard. It has **no** access to My Work Orders, Sign-Off Queue, OEE/MOE, Evaluations, User Management, Shift Config, Settings/Billing, or My Program, and performs no repair/write actions in the operational modules (it does not acknowledge/assign/close breakdowns or sign off work orders). The dedicated safety modules (incidents, inspections, permit-to-work, hazard registry) from the role's design spec are **not yet built** — the role currently maps onto the existing modules above.
 
 > **Note on naming:** `AUTHENTICATION_README.md` refers to this role as `maintenance_supervisor`, but the codebase (`src/types/auth.ts`, router, nav config) uses `supervisor`. `supervisor` is the source of truth.
 

@@ -8,7 +8,8 @@ export type UserRole =
   | 'store_keeper'
   | 'hr_officer'
   | 'trainee'
-  | 'floor_operator';
+  | 'floor_operator'
+  | 'safety_officer';
 
 export interface UserProfile {
   id: string;

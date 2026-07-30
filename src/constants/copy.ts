@@ -107,6 +107,7 @@ export const USER_ROLE_LABELS: Record<string, string> = {
   plant_manager:          'Plant Manager',
   hr_officer:             'HR Officer',
   admin:                  'Admin',
+  safety_officer:         'Safety Officer',
 };
 
 // ---------------------------------------------------------------------------
