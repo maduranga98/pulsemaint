@@ -23,6 +23,16 @@ interface WODetailPanelProps {
   fullPage?: boolean;
 }
 
+const WORK_LOG_ROLE_LABELS: Record<string, string> = {
+  technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
+  plant_manager: 'Plant Manager', store_keeper: 'Store Keeper',
+  floor_operator: 'Floor Operator', hr_officer: 'HR Officer',
+  safety_officer: 'Safety Officer', admin: 'Admin',
+};
+function detailRoleLabel(role: string): string {
+  return WORK_LOG_ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+}
+
 export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetailPanelProps) {
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [showCompletionForm, setShowCompletionForm] = useState(false);
@@ -291,15 +301,19 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 </div>
               </section>
 
-              {/* Technician work logs (recorded at completion) */}
+              {/* Technician work logs (recorded at completion) — one entry per
+                  assigned person, so a team WO shows all tasks by everyone. */}
               {(workOrder.technicianWorkLogs ?? []).length > 0 && (
                 <section>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Work Logs</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Work Done by Team</h3>
                   <div className="space-y-2">
                     {workOrder.technicianWorkLogs.map((log, i) => (
                       <div key={i} className="bg-gray-50 rounded-lg px-3 py-2 text-sm">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-gray-800">{log.technicianName}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-gray-800">
+                            {log.technicianName}
+                            {log.technicianRole && <span className="ml-1 text-xs font-normal text-gray-500">({detailRoleLabel(log.technicianRole)})</span>}
+                          </span>
                           <span className="text-xs text-gray-500">{log.hoursWorked}h</span>
                         </div>
                         {log.tasksDescription && (

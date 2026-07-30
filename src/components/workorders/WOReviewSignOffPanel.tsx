@@ -17,6 +17,16 @@ interface Props {
 
 type Step = 'review' | 'signoff';
 
+const ROLE_LABELS: Record<string, string> = {
+  technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
+  plant_manager: 'Plant Manager', store_keeper: 'Store Keeper',
+  floor_operator: 'Floor Operator', hr_officer: 'HR Officer',
+  safety_officer: 'Safety Officer', admin: 'Admin',
+};
+function signOffRoleLabel(role: string): string {
+  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+}
+
 const STEPS: { key: Step; label: string }[] = [
   { key: 'review', label: 'Review' },
   { key: 'signoff', label: 'Sign-off' },
@@ -152,6 +162,32 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                 <Field label="Parts used">{wo.partsUsed?.length ?? 0}</Field>
               </div>
               {wo.testRunNotes && <Field label="Test notes">{wo.testRunNotes}</Field>}
+
+              {/* Work done by each assigned person, with their role — so the
+                  supervisor signing off sees exactly who did what. */}
+              {(wo.technicianWorkLogs ?? []).length > 0 && (
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Work done by team</p>
+                  <div className="space-y-2">
+                    {(wo.technicianWorkLogs ?? []).map((log, i) => (
+                      <div key={log.technicianId || i} className="rounded-lg border border-blue-800 bg-blue-950 px-4 py-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-white">
+                            {log.technicianName}
+                            {log.technicianRole && <span className="ml-1 text-xs font-normal text-blue-200">({signOffRoleLabel(log.technicianRole)})</span>}
+                          </p>
+                          <span className="whitespace-nowrap text-xs text-blue-200">{log.hoursWorked.toFixed(2)} hrs</span>
+                        </div>
+                        {log.tasksDescription ? (
+                          <p className="mt-1 whitespace-pre-wrap text-xs text-blue-100">{log.tasksDescription}</p>
+                        ) : (
+                          <p className="mt-1 text-xs text-blue-300/70">No individual tasks recorded.</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {(wo.partsUsed ?? []).length > 0 && (
                 <div>

@@ -138,6 +138,8 @@ export interface PartUsed {
 export interface TechnicianWorkLog {
   technicianId: string;
   technicianName: string;
+  /** The person's role/designation, so a team WO shows who did what. */
+  technicianRole?: string;
   hoursWorked: number;
   tasksDescription: string;
 }
