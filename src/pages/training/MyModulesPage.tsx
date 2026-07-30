@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/store/authStore';
 import { useMyAssignments } from '@/hooks/training/useMyAssignments';
+import { isLearnerOutstanding } from '@/lib/training/assignmentStatus';
 import MyModulesList from '@/components/training/learner/MyModulesList';
 
 export default function MyModulesPage() {
@@ -7,9 +8,10 @@ export default function MyModulesPage() {
   const { assignments, loading, error } = useMyAssignments();
 
   const name = userProfile?.fullName?.split(' ')[0] ?? 'there';
-  const pendingCount = assignments.filter(
-    (a) => a.status !== 'certified' && a.status !== 'expired'
-  ).length;
+  // Anything the learner still has to act on. A module waiting on a manager's
+  // practical sign-off isn't one of those — it sits in the Completed tab, so
+  // counting it here would tell the learner to complete something they can't.
+  const pendingCount = assignments.filter((a) => isLearnerOutstanding(a.status)).length;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">

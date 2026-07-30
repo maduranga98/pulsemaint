@@ -189,6 +189,7 @@ export default function ReportBreakdownPage() {
         oversightMessage: `reported a new ${severity} breakdown on ${machine.name}`,
         actorName: userProfile.fullName ?? '',
         actorRole: userProfile.role,
+        actorUserId: userProfile.id,
         severity,
         linkTo: '/app/breakdowns',
       });

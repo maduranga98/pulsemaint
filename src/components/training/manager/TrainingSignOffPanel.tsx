@@ -67,6 +67,7 @@ export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSi
           : `failed ${assignment.traineeName} on the practical for "${assignment.moduleName}"`,
         actorName: userProfile.fullName ?? '',
         actorRole: userProfile.role,
+        actorUserId: userProfile.id,
         linkTo: '/app/training/my-modules',
       });
 

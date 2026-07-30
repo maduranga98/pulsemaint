@@ -144,6 +144,7 @@ export function SignOffForm({ job }: SignOffFormProps) {
         oversightMessage: `signed off contractor job ${job.workOrderNumber} (${job.contractorName}) — total ${formatLkr(totalProjectCost)}`,
         actorName: userProfile?.fullName ?? '',
         actorRole: userProfile?.role,
+        actorUserId: userProfile?.id ?? null,
         linkTo: `/app/contractors/jobs/${job.id}`,
       });
 

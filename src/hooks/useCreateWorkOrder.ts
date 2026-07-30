@@ -230,6 +230,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
           oversightMessage: `created work order ${payload.description?.slice(0, 60) || woId} and assigned it`,
           actorName: userName,
           actorRole: userProfile.role,
+          actorUserId: userProfile.id,
           severity: payload.priority === 'critical' || payload.priority === 'high' ? 'high' : 'medium',
           linkTo: '/app/work-orders',
         });

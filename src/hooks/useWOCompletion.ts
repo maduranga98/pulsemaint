@@ -364,6 +364,7 @@ export function useWOCompletion(): UseWOCompletionResult {
             oversightMessage: `submitted work order ${woNumberForNotice} for sign-off`,
             actorName: user.displayName || profile.fullName || '',
             actorRole: profile.role,
+            actorUserId: profile.id,
             linkTo: '/app/sign-off-queue',
           });
         }

@@ -183,6 +183,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
             oversightMessage: `assigned "${module.title}" to ${trainee.fullName}`,
             actorName: userProfile.fullName ?? '',
             actorRole: userProfile.role,
+            actorUserId: userProfile.id,
             linkTo: '/app/training',
           });
         }

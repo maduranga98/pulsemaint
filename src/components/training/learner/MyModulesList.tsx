@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { TrainingAssignment, AssignmentStatus } from '@/lib/training/trainingTypes';
+import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+import { isLearnerCompletedStatus } from '@/lib/training/assignmentStatus';
 import ModuleCard from './ModuleCard';
 import TrainingEmptyState from '../shared/TrainingEmptyState';
 
@@ -19,8 +20,6 @@ const TABS: { key: FilterTab; label: string }[] = [
   { key: 'retraining', label: 'Retraining' },
 ];
 
-const COMPLETED_STATUSES: AssignmentStatus[] = ['certified'];
-
 function filterAssignments(
   assignments: TrainingAssignment[],
   tab: FilterTab
@@ -31,7 +30,10 @@ function filterAssignments(
     case 'not_started':
       return assignments.filter((a) => a.status === 'not_started');
     case 'completed':
-      return assignments.filter((a) => COMPLETED_STATUSES.includes(a.status));
+      // Includes modules waiting on a manager's practical sign-off — the
+      // learner has finished their part, so it shows here (badged "Awaiting
+      // Sign-Off") rather than in no tab at all.
+      return assignments.filter((a) => isLearnerCompletedStatus(a.status));
     case 'retraining':
       return assignments.filter(
         (a) => a.isRetraining || a.status === 'retraining_required'

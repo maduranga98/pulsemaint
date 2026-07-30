@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   computeShiftTotals,
+  describeShiftAssignment,
   getMyShiftPlans,
   isUserAssignedToShift,
+  resolveShiftAssignBy,
   scheduledShiftMinutes,
 } from '../../utils/handover.utils';
 import type { ShiftConfig } from '../../types/handover.types';
@@ -128,5 +130,61 @@ describe('isUserAssignedToShift / getMyShiftPlans', () => {
         department: 'Machining',
       }),
     ).toBe(false);
+  });
+});
+
+describe('resolveShiftAssignBy', () => {
+  it('uses the category the shift was saved with', () => {
+    // Even where other targeting is present, the stored choice wins.
+    expect(resolveShiftAssignBy(makeShift({ assignBy: 'role', memberIds: ['u1'] }))).toBe('role');
+    expect(resolveShiftAssignBy(makeShift({ assignBy: 'employee' }))).toBe('employee');
+  });
+
+  it('derives the category for shifts saved before the selector existed', () => {
+    expect(resolveShiftAssignBy(makeShift({ memberIds: ['u1'] }))).toBe('employee');
+    expect(resolveShiftAssignBy(makeShift({ roles: ['technician'] }))).toBe('role');
+    expect(resolveShiftAssignBy(makeShift({ department: 'Machining' }))).toBe('department');
+  });
+
+  it('prefers named members over roles when a legacy shift has both', () => {
+    expect(resolveShiftAssignBy(makeShift({ memberIds: ['u1'], roles: ['technician'] }))).toBe('employee');
+  });
+
+  it('falls back to department for a shift with no targeting at all', () => {
+    expect(resolveShiftAssignBy(makeShift())).toBe('department');
+  });
+});
+
+describe('describeShiftAssignment', () => {
+  it('describes a department plan', () => {
+    expect(describeShiftAssignment(makeShift({ assignBy: 'department', department: 'Machining' }))).toBe(
+      'Department: Machining',
+    );
+  });
+
+  it('describes a role plan with readable role names', () => {
+    expect(
+      describeShiftAssignment(makeShift({ assignBy: 'role', roles: ['technician', 'floor_operator'] })),
+    ).toBe('Roles: technician, floor operator');
+  });
+
+  it('describes an employee plan by name', () => {
+    expect(
+      describeShiftAssignment(
+        makeShift({ assignBy: 'employee', memberIds: ['u1', 'u2'], memberNames: ['Asitha Perera', 'Nuwan Silva'] }),
+      ),
+    ).toBe('Employees: Asitha Perera, Nuwan Silva');
+  });
+
+  it('falls back to a count when member names were never stored', () => {
+    expect(describeShiftAssignment(makeShift({ assignBy: 'employee', memberIds: ['u1', 'u2'] }))).toBe(
+      '2 employees assigned',
+    );
+  });
+
+  it('says what is still missing on a half-configured plan', () => {
+    expect(describeShiftAssignment(makeShift({ assignBy: 'department' }))).toBe('No department selected yet');
+    expect(describeShiftAssignment(makeShift({ assignBy: 'role' }))).toBe('No roles selected yet');
+    expect(describeShiftAssignment(makeShift({ assignBy: 'employee' }))).toBe('No employees selected yet');
   });
 });

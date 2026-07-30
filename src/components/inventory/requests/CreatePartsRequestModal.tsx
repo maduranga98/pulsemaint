@@ -163,6 +163,7 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
         oversightMessage: `raised a${isUrgent ? 'n urgent' : ''} parts request`,
         actorName: userProfile.fullName ?? '',
         actorRole: userProfile.role,
+        actorUserId: userProfile.id,
         severity: isUrgent ? 'high' : 'medium',
         linkTo: '/app/inventory/requests',
       });

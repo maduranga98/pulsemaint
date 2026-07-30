@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, onSnapshot, orderBy, query, updateDoc, where, arrayUnion, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import { isNotificationForUser, isNotificationUnreadBy } from '@/lib/notifications/recipients';
+import { isNotificationUnreadBy, isNotificationVisibleTo } from '@/lib/notifications/recipients';
 import type { DashboardNotification } from '@/types/analytics.types';
 
 /**
@@ -12,7 +12,9 @@ import type { DashboardNotification } from '@/types/analytics.types';
  * `lib/notifications/recipients`:
  *  - Targeting is strict — one role's notifications never appear in another
  *    role's bar; only the oversight roles (admin, plant_manager) are copied
- *    on everything, and that copy is made at write time.
+ *    on everything, and that copy is made at write time. The one subtraction
+ *    from that copy is admin company-administration work, which is dropped
+ *    from a plant manager's bar unless it was raised for them.
  *  - Reading one clears it. The bar is a list of things still to look at, so
  *    a notification the user has already opened drops out of it. `readBy` is
  *    per-user, so clearing yours never hides it from anyone else.
@@ -49,7 +51,7 @@ export function useMyNotifications() {
     if (!userProfile) return [];
     return all.filter(
       (n) =>
-        isNotificationForUser(n, userProfile.role, userProfile.id) &&
+        isNotificationVisibleTo(n, userProfile.role, userProfile.id) &&
         isNotificationUnreadBy(n, userProfile.id)
     );
   }, [all, userProfile]);
