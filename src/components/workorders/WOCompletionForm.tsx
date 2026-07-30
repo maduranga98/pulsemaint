@@ -3,6 +3,8 @@ import { useForm } from 'react-hook-form';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
 import { WO_COPY } from '../../constants/copy';
 import { useWOCompletion } from '../../hooks/useWOCompletion';
+import { useAuthStore } from '../../store/authStore';
+import { useCompanyUsers } from '../../hooks/useCompanyUsers';
 import { PartSearchInput } from '../inventory/shared/PartSearchInput';
 import type { WorkOrder, PartUsed, PostRepairChecklistItem } from '../../types/workOrder';
 import { buildTechnicianWorkLogs } from '../../lib/workorders/technicianWorkLogs';
@@ -11,6 +13,22 @@ interface WOCompletionFormProps {
   workOrder: WorkOrder;
   onCompleted: () => void;
   onCancel: () => void;
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  technician: 'Technician',
+  trainee: 'Trainee',
+  supervisor: 'Supervisor',
+  plant_manager: 'Plant Manager',
+  store_keeper: 'Store Keeper',
+  floor_operator: 'Floor Operator',
+  hr_officer: 'HR Officer',
+  safety_officer: 'Safety Officer',
+  admin: 'Admin',
+};
+
+function roleLabel(role: string): string {
+  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
 }
 
 const STEPS = [
@@ -26,6 +44,19 @@ const STEPS = [
 export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOCompletionFormProps) {
   const [step, setStep] = useState(0);
   const [partsUsed, setPartsUsed] = useState<PartUsed[]>(workOrder.partsUsed ?? []);
+  // Each assignee's own "work done" text — kept separate per person so a team
+  // work order records who did what instead of one description for everyone.
+  const [perTechWorkDone, setPerTechWorkDone] = useState<Record<string, string>>({});
+
+  // Roles/designations for the assigned people, so each work log shows the
+  // person's role and the sign-off/detail views can display "Name (Role)".
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const { users: companyUsers } = useCompanyUsers(companyId);
+  const roleById = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const u of companyUsers) m[u.id] = u.role;
+    return m;
+  }, [companyUsers]);
   // Build one work-log row per assigned person. Pair ids with names by index,
   // but drive off whichever array is longer so nobody is dropped if the two
   // arrays are out of sync (an assignee with a name but no id — or vice versa —
@@ -38,12 +69,16 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
       workOrder.assignedTechnicianIds.length,
       workOrder.assignedTechnicianNames.length,
     );
-    return Array.from({ length: count }, (_, i) => ({
-      technicianId: workOrder.assignedTechnicianIds[i] ?? '',
-      technicianName:
-        workOrder.assignedTechnicianNames[i] ?? workOrder.assignedTechnicianIds[i] ?? `Technician ${i + 1}`,
-    }));
-  }, [workOrder.assignedTechnicianIds, workOrder.assignedTechnicianNames]);
+    return Array.from({ length: count }, (_, i) => {
+      const technicianId = workOrder.assignedTechnicianIds[i] ?? '';
+      return {
+        technicianId,
+        technicianName:
+          workOrder.assignedTechnicianNames[i] ?? workOrder.assignedTechnicianIds[i] ?? `Technician ${i + 1}`,
+        technicianRole: roleById[technicianId] ?? '',
+      };
+    });
+  }, [workOrder.assignedTechnicianIds, workOrder.assignedTechnicianNames, roleById]);
 
   const [postRepairChecklist, setPostRepairChecklist] = useState<PostRepairChecklistItem[]>(
     workOrder.checklist.map((item) => ({
@@ -95,11 +130,19 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
 
   // Same builder the submission uses, so what the form shows is exactly what
   // gets written.
-  const workDoneDescription = watch('workDoneDescription');
-  const previewLogs = useMemo(
-    () => buildTechnicianWorkLogs(assignees, workOrder.checklist, workDoneDescription ?? '', previewHoursWorked),
-    [assignees, workOrder.checklist, workDoneDescription, previewHoursWorked],
-  );
+  // The auto-compiled checklist steps a given person ticked off — computed via
+  // the same builder used at submit (with no work-done text) so the preview is
+  // exactly what gets stored for that person's steps.
+  function completedStepsFor(technicianId: string): string {
+    if (!technicianId) return '';
+    const [log] = buildTechnicianWorkLogs(
+      [{ technicianId, technicianName: '' }],
+      workOrder.checklist,
+      {},
+      previewHoursWorked,
+    );
+    return log?.tasksDescription ?? '';
+  }
 
   async function handleSubmit() {
     const values = form.getValues();
@@ -108,7 +151,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
     const finalTechLogs = buildTechnicianWorkLogs(
       assignees,
       workOrder.checklist,
-      values.workDoneDescription ?? '',
+      perTechWorkDone,
       hoursWorked,
     );
 
@@ -359,41 +402,56 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
           </div>
         )}
 
-        {/* Step 2: Technician Logs */}
+        {/* Step 2: Technician Logs — one card per assigned person, capturing
+            what that person did (not one shared description for the team). */}
         {step === 2 && (
           <div className="space-y-4">
             <p className="text-sm font-medium text-gray-700">{WO_COPY.techLogsLabel}</p>
             <p className="text-xs text-gray-400">
-              Compiled automatically — hours from the WO's actual start and end times, tasks from each
-              person's completed checklist steps (with their notes and measurements) plus the work-done
-              description you entered. Nothing here is typed in by hand.
+              Record what each assigned person did. Their completed checklist steps (with notes and
+              measurements) are compiled automatically; add anything else they did in their own box.
+              Hours come from the WO's actual start and end times.
             </p>
             {assignees.length === 0 && (
               <p className="text-sm text-gray-400">No technicians are assigned to this work order.</p>
             )}
-            {previewLogs.map((log, i) => (
-              <div key={log.technicianId || i} className="bg-gray-50 rounded-xl p-4 space-y-3">
-                <p className="text-sm font-semibold text-gray-800">{log.technicianName}</p>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">{WO_COPY.hoursWorkedLabel}</label>
-                  <p className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
-                    {previewHoursWorked.toFixed(2)} hrs
+            {assignees.map((a, i) => {
+              const steps = completedStepsFor(a.technicianId);
+              return (
+                <div key={a.technicianId || i} className="bg-gray-50 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-gray-800">
+                    {a.technicianName}
+                    {a.technicianRole && <span className="ml-1 text-xs font-normal text-gray-500">({roleLabel(a.technicianRole)})</span>}
                   </p>
-                </div>
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">{WO_COPY.tasksDescLabel}</label>
-                  {log.tasksDescription ? (
-                    <p className="w-full whitespace-pre-wrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
-                      {log.tasksDescription}
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">{WO_COPY.hoursWorkedLabel}</label>
+                    <p className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
+                      {previewHoursWorked.toFixed(2)} hrs
                     </p>
-                  ) : (
-                    <p className="w-full rounded-lg border border-dashed border-gray-200 bg-white px-3 py-2 text-sm text-gray-400">
-                      No checklist steps completed by this person yet.
-                    </p>
-                  )}
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Completed checklist steps</label>
+                    {steps ? (
+                      <p className="w-full whitespace-pre-wrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">{steps}</p>
+                    ) : (
+                      <p className="w-full rounded-lg border border-dashed border-gray-200 bg-white px-3 py-2 text-sm text-gray-400">
+                        No checklist steps completed by this person yet.
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">Work done by {a.technicianName}</label>
+                    <textarea
+                      rows={2}
+                      value={perTechWorkDone[a.technicianId] ?? ''}
+                      onChange={(e) => setPerTechWorkDone((prev) => ({ ...prev, [a.technicianId]: e.target.value }))}
+                      placeholder={`What did ${a.technicianName} do on this job?`}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
