@@ -99,6 +99,7 @@ import SafetyDashboard from '../modules/safety/pages/SafetyDashboard';
 import WorkPermitsPage from '../modules/safety/pages/WorkPermitsPage';
 import SafetyCalendarPage from '../modules/safety/pages/SafetyCalendarPage';
 import SafetyAnalyticsPage from '../modules/safety/pages/SafetyAnalyticsPage';
+import SafetyCasesPage from '../modules/safety/pages/SafetyCasesPage';
 
 // Dashboard
 import {
@@ -540,7 +541,8 @@ export default function AppRouter() {
         />
         {/* Safety (EHS) — safety officer workspace, with manager oversight */}
         <Route path="safety" element={<Navigate to="/app/safety/dashboard" replace />} />
-        <Route path="safety/dashboard" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><SafetyDashboard /></ProtectedRoute>} />
+        <Route path="safety/dashboard" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyDashboard /></ProtectedRoute>} />
+        <Route path="safety/cases" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor']}><SafetyCasesPage /></ProtectedRoute>} />
         <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><WorkPermitsPage /></ProtectedRoute>} />
         <Route path="safety/calendar" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><SafetyCalendarPage /></ProtectedRoute>} />
         <Route path="safety/analytics" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><SafetyAnalyticsPage /></ProtectedRoute>} />
