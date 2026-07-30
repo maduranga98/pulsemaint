@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Wrench, FileText, BookOpen, TrendingUp, Award } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Mail, Phone, MapPin, Wrench, FileText, BookOpen, TrendingUp, Award, CalendarRange } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import type { TrainingAssignment, AssignmentStatus } from '@/lib/training/trainingTypes';
 import type { UserProfile } from '@/types/auth';
@@ -48,6 +49,7 @@ export default function TraineeManagementList({
   loading,
   onViewOffboardReport,
 }: TraineeManagementListProps) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -174,16 +176,28 @@ export default function TraineeManagementList({
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-white rounded-xl border border-gray-200 p-4">
-              <div className="flex items-center gap-2 text-gray-600">
-                <Mail className="w-3.5 h-3.5 text-gray-400" /> {selectedTrainee.email ?? '—'}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-white rounded-xl border border-gray-200 p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs flex-1 min-w-0">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Mail className="w-3.5 h-3.5 text-gray-400" /> {selectedTrainee.email ?? '—'}
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <Phone className="w-3.5 h-3.5 text-gray-400" /> {selectedTrainee.phone ?? '—'}
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <MapPin className="w-3.5 h-3.5 text-gray-400" /> {selectedTrainee.address ?? '—'}
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <Phone className="w-3.5 h-3.5 text-gray-400" /> {selectedTrainee.phone ?? '—'}
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <MapPin className="w-3.5 h-3.5 text-gray-400" /> {selectedTrainee.address ?? '—'}
-              </div>
+              {/* Set up / manage the trainee's month-by-month training
+                  programme (the "My Program" view the trainee sees). */}
+              <button
+                type="button"
+                onClick={() => navigate(`/app/training/manage/trainees/${selectedTrainee.id}/programme`)}
+                className="inline-flex items-center gap-1.5 shrink-0 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+              >
+                <CalendarRange className="w-3.5 h-3.5" />
+                Set up Training Programme
+              </button>
             </div>
 
             {selectedAssignments.length === 0 ? (
