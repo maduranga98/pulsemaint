@@ -63,6 +63,15 @@ export function formatCell(value: unknown, format?: ColumnFormat): string | numb
 // Curated columns per report. Reports not listed fall back to the document's
 // own fields (see resolveColumns).
 export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
+  safety_incidents: [
+    { key: 'reportedAt', label: 'Reported' },
+    { key: 'type', label: 'Type' },
+    { key: 'title', label: 'Case' },
+    { key: 'severity', label: 'Severity' },
+    { key: 'status', label: 'Status' },
+    { key: 'location', label: 'Location' },
+    { key: 'reportedByName', label: 'Reported By' },
+  ],
   breakdown_summary: [
     { key: 'ticketNumber', label: 'Ticket' },
     { key: 'machineName', label: 'Machine' },

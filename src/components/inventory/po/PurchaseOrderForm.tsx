@@ -19,6 +19,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { notifyRoles } from '@/services/notifications.service';
+import type { UserRole } from '@/types/auth';
 import { purchaseOrderSchema, type PurchaseOrderFormValues } from '@/schemas/inventory';
 import type { PurchaseOrder, InventoryCurrency, PurchaseOrderStatus } from '@/types/inventory';
 import { generatePONumber } from '@/lib/inventory/poNumberGenerator';
@@ -289,6 +291,19 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         const created = { id: ref.id, ...payload } as unknown as PurchaseOrder;
         onSave(created);
         if (status === 'pending_approval' || status === 'approved') await queueEmail(created);
+        // A PO awaiting approval should reach the people who approve it.
+        if (status === 'pending_approval') {
+          void notifyRoles(companyId, ['plant_manager', 'admin'], {
+            type: 'parts',
+            message: `Purchase order ${created.poNumber} submitted for approval`,
+            oversightMessage: `submitted purchase order ${created.poNumber} for approval`,
+            actorName: userName,
+            actorRole: (userRole || null) as UserRole | null,
+            actorUserId: userId,
+            severity: 'medium',
+            linkTo: `/app/inventory/purchase-orders/${ref.id}`,
+          });
+        }
       }
       const msg =
         status === 'draft'

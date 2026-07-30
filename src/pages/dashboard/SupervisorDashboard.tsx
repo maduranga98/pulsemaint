@@ -9,7 +9,6 @@ import BreakdownKanbanBoard from '../../components/dashboard/supervisor/Breakdow
 import WorkOrdersWidget from '../../components/dashboard/supervisor/WorkOrdersWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
-import SlaStatusWidget from '../../components/dashboard/supervisor/SlaStatusWidget';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
@@ -89,14 +88,13 @@ export default function SupervisorDashboard() {
           </div>
         </div>
 
-        {/* Row 3: Floor Map + Tech Status + SLA */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Row 3: Floor Map + Tech Status */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FactoryFloorMap companyId={companyId} />
           <TechnicianStatusList companyId={companyId} />
-          <SlaStatusWidget siteId={siteId} />
         </div>
 
-        {/* Row 4: Assigned Audits / Evaluations / Trainings */}
+        {/* Row 4: Assigned WOs / Audits / Evaluations / Trainings (today's shift) */}
         <AssignedTasksWidget />
       </div>
 

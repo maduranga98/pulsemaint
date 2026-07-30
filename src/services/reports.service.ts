@@ -507,6 +507,35 @@ export async function fetchReportRows(
     return flattenPoLineItems(filteredPos as unknown as PoHistoryInput[]) as unknown as Record<string, unknown>[];
   }
 
+  // Safety Incidents — the register of safety cases (incidents, near-misses,
+  // hazards, unsafe acts) reported across the plant, most recent first.
+  if (reportType === 'safety_incidents') {
+    const snap = await getDocs(
+      query(collection(db, 'safety_cases'), where('companyId', '==', companyId), limit(1000)),
+    );
+    const TYPE_LABEL: Record<string, string> = {
+      incident: 'Incident', near_miss: 'Near-Miss', hazard: 'Hazard', unsafe_act: 'Unsafe Act',
+    };
+    return snap.docs
+      .map((d) => d.data() as Record<string, unknown>)
+      .filter((c) => {
+        const ts = c.reportedAt as Timestamp | undefined;
+        if (!ts || typeof ts.toDate !== 'function') return true;
+        const iso = ts.toDate().toISOString().slice(0, 10);
+        return iso >= config.dateFrom && iso <= config.dateTo;
+      })
+      .sort((a, b) => ((b.reportedAt as Timestamp)?.seconds ?? 0) - ((a.reportedAt as Timestamp)?.seconds ?? 0))
+      .map((c) => ({
+        type: TYPE_LABEL[String(c.type)] ?? String(c.type ?? ''),
+        title: String(c.title ?? ''),
+        severity: String(c.severity ?? ''),
+        status: String(c.status ?? ''),
+        location: String(c.location ?? ''),
+        reportedByName: String(c.reportedByName ?? ''),
+        reportedAt: (c.reportedAt as Timestamp | undefined)?.toDate?.().toLocaleDateString() ?? '',
+      }));
+  }
+
   // Maps each report to the Firestore collection(s) it reads from. These must
   // match the actual collection names used elsewhere in the app.
   const sourceMap: Record<ReportType, string[]> = {
@@ -547,6 +576,9 @@ export async function fetchReportRows(
     // po_history is a computed branch below (flattened to one row per PO
     // line item).
     po_history: [],
+    // safety_incidents is a computed branch above (reads the safety_cases
+    // collection directly).
+    safety_incidents: [],
   };
 
   // Registry/snapshot collections describe current state (machines, parts,

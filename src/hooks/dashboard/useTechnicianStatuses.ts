@@ -7,6 +7,7 @@ interface ShiftSessionRow {
   userId: string;
   userName: string;
   userRole: string;
+  shiftName: string;
   actualStart: any;
 }
 
@@ -116,6 +117,8 @@ export function useTechnicianStatuses(companyId: string) {
           companyId,
           userId: s.userId,
           name: s.userName,
+          role: s.userRole,
+          shiftName: s.shiftName ?? null,
           currentStatus: activeWo ? 'on_job' : 'available',
           currentWoId: null,
           currentWoNumber: activeWo?.woNumber ?? null,

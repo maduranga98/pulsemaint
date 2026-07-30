@@ -24,6 +24,16 @@ interface AuditRow {
   plantId: string;
 }
 
+export interface AssignedWoRow {
+  id: string;
+  woNumber: string;
+  machineName: string;
+  woType: string;
+  status: string;
+}
+
+const OPEN_WO_STATUSES = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
+
 // SUP-006: supervisor dashboard must surface the supervisor's own
 // pending/assigned audits, evaluations, and trainings.
 export function useAssignedTasks() {
@@ -33,6 +43,7 @@ export function useAssignedTasks() {
   const [trainings, setTrainings] = useState<TrainingAssignment[]>([]);
   const [evaluations, setEvaluations] = useState<EvaluationRow[]>([]);
   const [audits, setAudits] = useState<AuditRow[]>([]);
+  const [workOrders, setWorkOrders] = useState<AssignedWoRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,9 +55,45 @@ export function useAssignedTasks() {
     let trainingsLoaded = false;
     let evaluationsLoaded = false;
     let auditsLoaded = false;
+    let wosLoaded = false;
     const markLoaded = () => {
-      if (trainingsLoaded && evaluationsLoaded && auditsLoaded) setLoading(false);
+      if (trainingsLoaded && evaluationsLoaded && auditsLoaded && wosLoaded) setLoading(false);
     };
+
+    // Work orders assigned to this user (as technician-in-charge or the WO's
+    // supervisor), open only. Two listeners merged, deduped by id.
+    const woAssigned: Record<string, AssignedWoRow> = {};
+    const woSupervised: Record<string, AssignedWoRow> = {};
+    const pushWos = () => {
+      const merged = new Map<string, AssignedWoRow>();
+      [...Object.values(woAssigned), ...Object.values(woSupervised)].forEach((w) => merged.set(w.id, w));
+      setWorkOrders([...merged.values()].filter((w) => OPEN_WO_STATUSES.includes(w.status)));
+    };
+    const toWoRow = (id: string, d: Record<string, unknown>): AssignedWoRow => ({
+      id,
+      woNumber: String(d.woNumber ?? ''),
+      machineName: String(d.machineName ?? ''),
+      woType: String(d.woType ?? ''),
+      status: String(d.status ?? ''),
+    });
+    const unsubWoAssigned = onSnapshot(
+      query(collection(db, 'workOrders'), where('companyId', '==', companyId), where('assignedTechnicianIds', 'array-contains', userId)),
+      (snap) => {
+        for (const k of Object.keys(woAssigned)) delete woAssigned[k];
+        snap.docs.forEach((d) => { woAssigned[d.id] = toWoRow(d.id, d.data()); });
+        pushWos(); wosLoaded = true; markLoaded();
+      },
+      () => { wosLoaded = true; markLoaded(); },
+    );
+    const unsubWoSup = onSnapshot(
+      query(collection(db, 'workOrders'), where('companyId', '==', companyId), where('supervisorInChargeId', '==', userId)),
+      (snap) => {
+        for (const k of Object.keys(woSupervised)) delete woSupervised[k];
+        snap.docs.forEach((d) => { woSupervised[d.id] = toWoRow(d.id, d.data()); });
+        pushWos();
+      },
+      () => {},
+    );
 
     const trainingsQuery = query(
       collection(db, 'trainingAssignments'),
@@ -111,8 +158,10 @@ export function useAssignedTasks() {
       unsubTrainings();
       unsubEvaluations();
       unsubAudits();
+      unsubWoAssigned();
+      unsubWoSup();
     };
   }, [companyId, userId]);
 
-  return { trainings, evaluations, audits, loading };
+  return { trainings, evaluations, audits, workOrders, loading };
 }

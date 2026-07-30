@@ -7,12 +7,11 @@ import Section1AutoStats from './Section1AutoStats';
 import Section2WatchFlags from './Section2WatchFlags';
 import Section3PendingWOs from './Section3PendingWOs';
 import Section4OngoingBreakdowns from './Section4OngoingBreakdowns';
-import Section5PartsNotes from './Section5PartsNotes';
 import Section6SafetyIncidents from './Section6SafetyIncidents';
 import Section7GeneralNotes from './Section7GeneralNotes';
 import Section8SignOff from './Section8SignOff';
 
-const STEPS = ['Stats', 'Watch', 'WOs', 'Breakdowns', 'Parts', 'Safety', 'Notes', 'Sign-Off'];
+const STEPS = ['Stats', 'Watch', 'WOs', 'Breakdowns', 'Safety', 'Notes', 'Sign-Off'];
 
 export function HandoverCreateForm() {
   const navigate = useNavigate();
@@ -64,7 +63,6 @@ export function HandoverCreateForm() {
     <Section2WatchFlags key="watch" flags={draft.watchFlags} onChange={(watchFlags) => updateDraftHandover({ watchFlags })} />,
     <Section3PendingWOs key="wos" items={draft.pendingWOs} onChange={(pendingWOs) => updateDraftHandover({ pendingWOs })} />,
     <Section4OngoingBreakdowns key="breakdowns" items={draft.ongoingBreakdowns} onChange={(ongoingBreakdowns) => updateDraftHandover({ ongoingBreakdowns })} />,
-    <Section5PartsNotes key="parts" lowStockAlerts={draft.lowStockAlerts} partsNotes={draft.partsNotes} onChange={(partsNotes) => updateDraftHandover({ partsNotes })} />,
     <Section6SafetyIncidents
       key="safety"
       safetyIncidentOccurred={draft.safetyIncidentOccurred}
