@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import TrainingComplianceStrip from '../../components/dashboard/training/TrainingComplianceStrip';
-import ComplianceByMachineTable from '../../components/dashboard/training/ComplianceByMachineTable';
 import OperatorTrainingTable from '../../components/dashboard/training/OperatorTrainingTable';
+import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
 import TrainingActivityChart from '../../components/dashboard/training/TrainingActivityChart';
 import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
 import HrActivityByRoleChart from '../../components/dashboard/training/HrActivityByRoleChart';
@@ -35,8 +35,10 @@ export default function TrainingDashboard() {
         {/* Staff headcount by role (HR-001) */}
         <StaffByRoleChart companyId={companyId} />
 
+        {/* Today's shifts grouped by department (replaces Compliance by Machine) */}
+        <TodayShiftsByDepartment companyId={companyId} />
+
         {/* Tables */}
-        <ComplianceByMachineTable companyId={companyId} />
         <OperatorTrainingTable companyId={companyId} />
 
         {/* Graphical HR metrics: Team Performance, Trainings, Evaluations, Audit, Triage (HR-002) */}
