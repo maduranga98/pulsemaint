@@ -60,6 +60,10 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Safety Training', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
   { label: 'Safety Calendar', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'admin', 'plant_manager'] },
   { label: 'Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
+  // Safety module surfaced for oversight roles too — admins and plant managers
+  // get the Safety Dashboard and Safety Analytics alongside the safety officer.
+  { label: 'Safety Dashboard', to: '/app/safety/dashboard', icon: Icon.dashboard, roles: ['admin', 'plant_manager'] },
+  { label: 'Safety Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['admin', 'plant_manager'] },
   { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
   { label: 'Sign-Off Queue', to: '/app/sign-off-queue', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'admin'] },
