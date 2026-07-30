@@ -162,6 +162,7 @@ export function useSignOff(): UseSignOffResult {
             oversightMessage: `signed off and closed work order ${woNumber}`,
             actorName,
             actorRole: profile.role,
+            actorUserId: profile.id,
             linkTo: '/app/work-orders',
           });
 

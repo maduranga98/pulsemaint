@@ -31,7 +31,7 @@ import type {
   ShiftStatsAuto,
   WatchFlag,
 } from '@/types/handover.types';
-import { calculateLateStartMinutes, computeShiftTotals, scheduledShiftMinutes } from '@/utils/handover.utils';
+import { calculateLateStartMinutes, computeShiftTotals, resolveShiftAssignBy, scheduledShiftMinutes } from '@/utils/handover.utils';
 
 const functions = getFunctions(app);
 
@@ -89,6 +89,15 @@ function mapShiftConfig(id: string, data: DocumentData): ShiftConfig {
     memberIds: data.memberIds ?? [],
     memberNames: data.memberNames ?? [],
     roles: data.roles ?? [],
+    // Shifts created before the assignment-category selector have no stored
+    // `assignBy` — derive it from the targeting they carry so the edit form
+    // and the shift cards agree with how the plan actually resolves.
+    assignBy: resolveShiftAssignBy({
+      assignBy: data.assignBy ?? null,
+      memberIds: data.memberIds ?? [],
+      roles: data.roles ?? [],
+      department: data.department ?? null,
+    }),
     createdAt: toDate(data.createdAt) ?? undefined,
     updatedAt: toDate(data.updatedAt) ?? undefined,
   };
@@ -488,6 +497,7 @@ export async function submitHandoverCallable(params: {
     oversightMessage: 'submitted a shift handover',
     actorName: (data.outgoingSupervisorName as string) || '',
     actorRole: 'supervisor',
+    actorUserId: (data.outgoingSupervisorId as string) || null,
     linkTo: `/app/shift/handover/${ref.id}`,
   });
 

@@ -80,6 +80,7 @@ export function RatingForm({ job }: RatingFormProps) {
         oversightMessage: `rated ${job.contractorName} ${overall.toFixed(1)}/5 on job ${job.workOrderNumber}`,
         actorName: userProfile?.fullName ?? '',
         actorRole: userProfile?.role,
+        actorUserId: userProfile?.id ?? null,
         linkTo: `/app/contractors/jobs/${job.id}`,
       });
 

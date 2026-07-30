@@ -2,13 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
-import { isNotificationForUser } from '../../lib/notifications/recipients';
+import { isNotificationVisibleTo } from '../../lib/notifications/recipients';
 import type { DashboardNotification } from '../../types/analytics.types';
 
 /**
  * Dashboard notification feed. Applies the same strict targeting as the
  * notification bell — a notification raised for one role never shows up on
- * another role's dashboard. Unlike the bell it keeps read notifications,
+ * another role's dashboard, and admin company-administration work is kept out
+ * of a plant manager's feed. Unlike the bell it keeps read notifications,
  * since the dashboard feed is a recent-activity view rather than a to-do list.
  */
 export function useNotifications(companyId: string) {
@@ -47,7 +48,7 @@ export function useNotifications(companyId: string) {
   }, [companyId]);
 
   const notifications = useMemo(
-    () => all.filter((n) => isNotificationForUser(n, userProfile?.role, userProfile?.id)),
+    () => all.filter((n) => isNotificationVisibleTo(n, userProfile?.role, userProfile?.id)),
     [all, userProfile],
   );
 

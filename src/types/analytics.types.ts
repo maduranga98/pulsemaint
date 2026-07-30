@@ -291,6 +291,10 @@ export interface DashboardNotification {
   /** Who performed the action, and a third-person phrasing of it. */
   actorName?: string | null;
   actorRole?: string | null;
+  /** The actor's user id, so their own entries read as "You ..." rather than
+   *  naming them back to themselves — oversight roles are copied on
+   *  everything, including their own actions. */
+  actorUserId?: string | null;
   oversightMessage?: string | null;
 }
 

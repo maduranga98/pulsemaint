@@ -20,6 +20,9 @@ interface CreateNotificationInput {
    *  as "Name (Role) — did X" rather than as a message addressed to them. */
   actorName?: string | null;
   actorRole?: UserRole | null;
+  /** The actor's user id. Lets their own entries read as "You ..." instead of
+   *  naming them — oversight roles are copied on their own actions too. */
+  actorUserId?: string | null;
   /** Third-person phrasing of `message`, for oversight readers. */
   oversightMessage?: string | null;
 }
@@ -49,6 +52,7 @@ export async function createNotification(input: CreateNotificationInput): Promis
     recipientUserIds = [],
     actorName = null,
     actorRole = null,
+    actorUserId = null,
     oversightMessage = null,
   } = input;
   if (!companyId) return;
@@ -72,6 +76,7 @@ export async function createNotification(input: CreateNotificationInput): Promis
       targetUserIds: recipientUserIds,
       actorName,
       actorRole,
+      actorUserId,
       oversightMessage,
     });
   } catch (err) {

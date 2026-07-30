@@ -1,7 +1,7 @@
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { notifyUsers } from '@/services/notifications.service';
-import type { CompanyProfile, UserProfile } from '@/types/auth';
+import type { CompanyProfile, UserProfile, UserRole } from '@/types/auth';
 import { buildServiceLetterPdf } from './serviceLetterPdf';
 
 export interface ServiceLetterFormInput {
@@ -114,6 +114,8 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
     message: `A service letter ("${form.subject}") has been issued for you by ${issuedBy.name}`,
     oversightMessage: `issued a service letter ("${form.subject}") for ${employee.fullName}`,
     actorName: issuedBy.name,
+    actorRole: (issuedBy.role || null) as UserRole | null,
+    actorUserId: issuedBy.id,
   });
 
   return { logoEmbedded };

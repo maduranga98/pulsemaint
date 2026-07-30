@@ -1,4 +1,4 @@
-import type { ShiftConfig, ShiftDay } from '@/types/handover.types';
+import type { ShiftAssignBy, ShiftConfig, ShiftDay } from '@/types/handover.types';
 
 const DAY_LABELS: ShiftDay[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -147,6 +147,50 @@ export function getMyShiftPlans(
     .sort((a, b) => matchSpecificity(a, user) - matchSpecificity(b, user));
 }
 
+/**
+ * Which dimension a shift plan assigns people by.
+ *
+ * Shifts created through the assignment-category selector store this
+ * explicitly. Shifts created before it existed don't, so it is derived from
+ * the targeting they actually carry, most specific first — named members, then
+ * scheduled roles, then a department-wide plan. Departments are the fallback
+ * because a plan with none of the three still displays as (and can be edited
+ * into) a department assignment.
+ */
+export function resolveShiftAssignBy(
+  shift: Pick<ShiftConfig, 'memberIds' | 'roles' | 'department'> & { assignBy?: ShiftAssignBy | null },
+): ShiftAssignBy {
+  if (shift.assignBy) return shift.assignBy;
+  if ((shift.memberIds ?? []).length > 0) return 'employee';
+  if ((shift.roles ?? []).length > 0) return 'role';
+  return 'department';
+}
+
+/**
+ * One-line summary of who a shift plan covers, for the shift cards in
+ * Settings → Shifts.
+ */
+export function describeShiftAssignment(
+  shift: Pick<ShiftConfig, 'memberIds' | 'memberNames' | 'roles' | 'department'> & { assignBy?: ShiftAssignBy | null },
+): string {
+  switch (resolveShiftAssignBy(shift)) {
+    case 'employee': {
+      const count = (shift.memberIds ?? []).length;
+      if (count === 0) return 'No employees selected yet';
+      const names = (shift.memberNames ?? []).filter(Boolean);
+      return names.length > 0
+        ? `Employees: ${names.join(', ')}`
+        : `${count} employee${count === 1 ? '' : 's'} assigned`;
+    }
+    case 'role': {
+      const roles = (shift.roles ?? []).map((role) => role.replace(/_/g, ' '));
+      return roles.length > 0 ? `Roles: ${roles.join(', ')}` : 'No roles selected yet';
+    }
+    default:
+      return shift.department ? `Department: ${shift.department}` : 'No department selected yet';
+  }
+}
+
 export function severityClass(severity: string): string {
   const normalized = severity.toLowerCase();
   if (normalized.includes('critical')) return 'text-red-700';
@@ -156,9 +200,22 @@ export function severityClass(severity: string): string {
 
 export function defaultShiftConfigs(companyId: string): Omit<ShiftConfig, 'id'>[] {
   const activeDays: ShiftDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  // Seeded as department plans with no department picked yet — the times are
+  // the useful part, and whoever seeds them then edits each one to choose the
+  // department, roles, or employees it covers.
+  const shared = {
+    companyId,
+    activeDays,
+    department: null,
+    status: 'active' as const,
+    memberIds: [],
+    memberNames: [],
+    roles: [],
+    assignBy: 'department' as const,
+  };
   return [
-    { companyId, shiftName: 'Morning Shift', startTime: '06:00', endTime: '14:00', color: '#00C2FF', activeDays, department: null, status: 'active', memberIds: [], memberNames: [], roles: [] },
-    { companyId, shiftName: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', color: '#F59E0B', activeDays, department: null, status: 'active', memberIds: [], memberNames: [], roles: [] },
-    { companyId, shiftName: 'Night Shift', startTime: '22:00', endTime: '06:00', color: '#0A1628', activeDays, department: null, status: 'active', memberIds: [], memberNames: [], roles: [] },
+    { ...shared, shiftName: 'Morning Shift', startTime: '06:00', endTime: '14:00', color: '#00C2FF' },
+    { ...shared, shiftName: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', color: '#F59E0B' },
+    { ...shared, shiftName: 'Night Shift', startTime: '22:00', endTime: '06:00', color: '#0A1628' },
   ];
 }

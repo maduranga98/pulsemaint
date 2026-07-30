@@ -293,6 +293,7 @@ export default function AssignTrainingWizard({
             oversightMessage: `assigned "${module.title}" to ${trainee.fullName}`,
             actorName: userProfile?.fullName ?? '',
             actorRole: userProfile?.role,
+            actorUserId: userProfile?.id ?? null,
             linkTo: '/app/training',
           });
         }

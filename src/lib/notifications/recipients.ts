@@ -101,8 +101,76 @@ export interface NotificationActor {
   targetUserIds?: string[] | null;
   actorName?: string | null;
   actorRole?: string | null;
+  /** Who performed the action, so their own entries can read as "You ...". */
+  actorUserId?: string | null;
   /** Third-person phrasing for people reading this as oversight. */
   oversightMessage?: string | null;
+}
+
+/**
+ * Whether the signed-in user is the person who performed the action.
+ *
+ * Their own entries are worded in the second person ("You signed off ...")
+ * instead of naming them, which is what a plant manager or admin expects when
+ * they see the oversight copy of something they did themselves.
+ */
+export function isOwnAction(
+  notification: NotificationActor,
+  userId: string | undefined,
+): boolean {
+  return !!userId && !!notification.actorUserId && notification.actorUserId === userId;
+}
+
+/**
+ * Whether a notification was raised for this user in particular — their own
+ * role was named, or they were named by id. The distinction from the oversight
+ * copy decides whether the stored second-person message still applies.
+ */
+export function isAddressedToUser(
+  notification: NotificationActor,
+  role: UserRole | undefined,
+  userId: string | undefined,
+): boolean {
+  const targetRoles = notification.targetRoles ?? [];
+  const targetUserIds = notification.targetUserIds ?? [];
+  if (!!userId && targetUserIds.includes(userId)) return true;
+  return !!role && targetRoles.includes(role as string);
+}
+
+/**
+ * An admin action a plant manager has no part in.
+ *
+ * Plant managers are copied on everything so nothing in the plant goes
+ * unseen, but admin work is company administration (users, billing, company
+ * settings, other sites) rather than plant operations — it filled the plant
+ * manager's bell with entries they can't act on. Admin actions raised *for*
+ * the plant manager (their role named, or them named by id) still come
+ * through, as does anything they did themselves.
+ *
+ * Admins keep seeing everything, including other admins' actions.
+ */
+export function isHiddenAdminAction(
+  notification: NotificationActor,
+  role: UserRole | undefined,
+  userId: string | undefined,
+): boolean {
+  if (role !== 'plant_manager') return false;
+  if (notification.actorRole !== 'admin') return false;
+  if (isOwnAction(notification, userId)) return false;
+  return !isAddressedToUser(notification, role, userId);
+}
+
+/**
+ * Whether a notification belongs in this user's bell at all: targeted at
+ * them, and not an admin action a plant manager has no part in.
+ */
+export function isNotificationVisibleTo(
+  notification: NotificationTargeting & NotificationActor,
+  role: UserRole | undefined,
+  userId: string | undefined,
+): boolean {
+  if (!isNotificationForUser(notification, role, userId)) return false;
+  return !isHiddenAdminAction(notification, role, userId);
 }
 
 /**
@@ -130,22 +198,63 @@ export function isOversightCopy(
 }
 
 /**
+ * Rewrites a stored message so it addresses the person who performed the
+ * action: "New parts request from Chamathka Perera" → "New parts request from
+ * you". Used only as a fallback for notifications written without a
+ * third-person `oversightMessage`.
+ */
+function addressActorAsYou(message: string, actorName: string | null | undefined): string {
+  const actor = (actorName ?? '').trim();
+  if (!actor) return message;
+  const escaped = actor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return message.replace(new RegExp(escaped, 'g'), (_match, offset: number) =>
+    offset === 0 ? 'You' : 'you',
+  );
+}
+
+/**
  * What to show in this user's notification bar.
  *
- * For an oversight reader, the action is attributed: "Julia Perera (Trainee)
- * — passed the final test for Electrical Trainee Orientation". For the person
- * it was actually raised for, the original message is shown unchanged.
+ * Three wordings, in priority order:
+ *  - The reader performed the action: second person, "You signed off
+ *    "Electrical Trainee Orientation" for Julia Perera". A plant manager or
+ *    admin sees their own work in their bell (they are copied on everything)
+ *    and it should not read as though a stranger with their name did it.
+ *  - The reader is one of the people it was raised for: the stored message,
+ *    which is already written to them ("You've been assigned ...").
+ *  - Anyone else's action, seen by an oversight reader: attributed with name
+ *    and role — "Julia Perera (Trainee) — passed the final test for
+ *    Electrical Trainee Orientation".
  */
 export function notificationDisplayMessage(
   notification: NotificationActor & { message: string },
   role: UserRole | undefined,
   userId: string | undefined,
 ): string {
-  if (!isOversightCopy(notification, role, userId)) return notification.message;
-
   const actor = (notification.actorName ?? '').trim();
+  const oversightBody = (notification.oversightMessage ?? '').trim();
+
+  if (isOwnAction(notification, userId)) {
+    return oversightBody
+      ? `You ${oversightBody}`
+      : addressActorAsYou(notification.message, notification.actorName);
+  }
+
+  // Someone else's action. Oversight roles get it attributed by name and role,
+  // whether it named their role or reached them as the oversight copy —
+  // "Nuwan Silva (Supervisor) — ..." rather than a message that reads as
+  // though it were addressed to them. A notification raised for them
+  // personally keeps its own wording, which already says "you"/"your".
+  const attributed =
+    !!role &&
+    OVERSIGHT_ROLES.includes(role) &&
+    !!actor &&
+    !(!!userId && (notification.targetUserIds ?? []).includes(userId));
+
+  if (!attributed && !isOversightCopy(notification, role, userId)) return notification.message;
+
   const label = roleLabel(notification.actorRole);
-  const body = (notification.oversightMessage ?? '').trim() || notification.message;
+  const body = oversightBody || notification.message;
   if (!actor) return body;
   return label ? `${actor} (${label}) — ${body}` : `${actor} — ${body}`;
 }

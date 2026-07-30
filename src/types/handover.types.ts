@@ -6,6 +6,14 @@ export type WatchFlagStatus = 'active' | 'resolved' | 'carried_forward';
 export type ShiftStatus = 'active' | 'inactive';
 export type ShiftDay = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 
+/**
+ * How a shift plan picks the people on it — chosen when the shift is created.
+ * Exactly one dimension is used: a whole department, whole roles, or named
+ * employees. Saving a shift clears the other two so a plan never quietly
+ * covers more people than the category that was picked for it.
+ */
+export type ShiftAssignBy = 'department' | 'role' | 'employee';
+
 export interface ShiftConfig {
   id: string;
   companyId: string;
@@ -20,6 +28,12 @@ export interface ShiftConfig {
   memberNames: string[];
   /** Roles scheduled for this shift plan. Any user with one of these roles is part of the plan. */
   roles: string[];
+  /**
+   * Which of department/roles/memberIds this plan assigns by. Absent on shifts
+   * created before the selector existed — `resolveShiftAssignBy` derives it
+   * from whichever targeting fields those shifts actually carry.
+   */
+  assignBy?: ShiftAssignBy;
   createdAt?: Date;
   updatedAt?: Date;
 }

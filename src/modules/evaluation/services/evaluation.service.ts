@@ -81,6 +81,7 @@ export async function submitEvaluation(
     message: `New evaluation submitted for ${session.evaluateeName} by ${session.evaluatorName}`,
     oversightMessage: `submitted an evaluation for ${session.evaluateeName}`,
     actorName: session.evaluatorName ?? '',
+    actorUserId: session.evaluatorId ?? null,
     linkTo: '/app/evaluations',
   });
   return docRef.id;

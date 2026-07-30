@@ -1,5 +1,7 @@
 import { AlertTriangle, Wrench, Package, Calendar, Bell, GraduationCap, ClipboardCheck, FileText } from 'lucide-react';
 import { relativeTime } from '../../../utils/analytics.utils';
+import { useAuthStore } from '../../../store/authStore';
+import { notificationDisplayMessage } from '../../../lib/notifications/recipients';
 import type { DashboardNotification, DashboardNotificationType } from '../../../types/analytics.types';
 
 const ICON_MAP: Record<DashboardNotificationType, typeof Bell> = {
@@ -25,8 +27,12 @@ interface NotificationFeedItemProps {
 }
 
 export default function NotificationFeedItem({ notification }: NotificationFeedItemProps) {
+  const userProfile = useAuthStore((s) => s.userProfile);
   const Icon = ICON_MAP[notification.type] ?? Bell;
   const colorClass = COLOR_MAP[notification.severity] ?? 'text-[#8BA3BF]';
+  // Same wording rules as the notification bell: the reader's own actions read
+  // as "You ...", someone else's are attributed by name and role.
+  const message = notificationDisplayMessage(notification, userProfile?.role, userProfile?.id);
 
   return (
     <div className="flex items-start gap-3 px-4 py-3 hover:bg-[#1E3A5F]/30 transition-colors cursor-pointer">
@@ -34,7 +40,7 @@ export default function NotificationFeedItem({ notification }: NotificationFeedI
         <Icon className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-[#F0F4F8] leading-snug">{notification.message}</p>
+        <p className="text-sm text-[#F0F4F8] leading-snug">{message}</p>
         <div className="flex items-center gap-2 mt-1">
           <span className={`w-1.5 h-1.5 rounded-full ${colorClass.replace('text-', 'bg-')}`} />
           <span className="text-[11px] text-[#8BA3BF]">{relativeTime(notification.timestamp)}</span>
