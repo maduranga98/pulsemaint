@@ -568,7 +568,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
               </div>
             )}
             {finalPhotos.length === 0 && (
-              <p className="text-xs text-red-500">At least 1 photo is required.</p>
+              <p className="text-xs text-gray-400">Photos are optional but recommended as evidence of the completed work.</p>
             )}
           </div>
         )}
@@ -663,7 +663,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={loading || finalPhotos.length === 0}
+            disabled={loading}
             className="px-6 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
           >
             {loading ? 'Submitting…' : WO_COPY.submitCompletionButton}

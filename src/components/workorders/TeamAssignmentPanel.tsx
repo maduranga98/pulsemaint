@@ -304,44 +304,53 @@ export function TeamAssignmentPanel({
             <p className="mt-0.5 text-xs text-gray-400">{WO_COPY.contractorTechsHint}</p>
           </div>
 
-          {/* Internal supervisors responsible for the contractor job — they
-              can start the WO and complete checklist tasks. Stored in
-              assignedTechnicianIds so queue queries and security rules treat
-              them as assigned responsible persons. */}
-          {supervisors.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Internal supervisors on this job
-              </label>
-              <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100">
-                {supervisors.map((s) => {
-                  const isSelected = selectedTechIds.includes(s.id);
+          {/* Optional internal technicians on the contractor job — they can
+              start the WO and complete checklist tasks alongside the
+              contractor. Stored in assignedTechnicianIds so queue queries and
+              security rules treat them as assigned responsible persons. */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Assign internal technicians <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <input
+              type="text"
+              value={techSearch}
+              onChange={(e) => setTechSearch(e.target.value)}
+              placeholder={WO_COPY.techniciansPlaceholder}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 mb-2"
+            />
+            <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100">
+              {filteredTechs.length === 0 ? (
+                <p className="text-xs text-gray-400 px-3 py-2">No technicians found</p>
+              ) : (
+                filteredTechs.map((tech) => {
+                  const isSelected = selectedTechIds.includes(tech.id);
                   return (
                     <button
-                      key={s.id}
+                      key={tech.id}
                       type="button"
-                      onClick={() => toggleAssignee(s.id, s.name)}
-                      className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                      onClick={() => toggleTechnician(tech)}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
                         isSelected ? 'bg-blue-50' : ''
                       }`}
                     >
-                      <span
-                        className={`h-5 w-5 rounded border-2 flex items-center justify-center ${
-                          isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'
-                        }`}
-                      >
-                        {isSelected && <span className="text-white text-xs">✓</span>}
+                      <span className="flex items-center gap-2">
+                        <span className={`h-5 w-5 rounded border-2 flex items-center justify-center ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
+                          {isSelected && <span className="text-white text-xs">✓</span>}
+                        </span>
+                        <span className="font-medium">{tech.name}</span>
+                        <span className="text-gray-400">{tech.department}</span>
                       </span>
-                      <span className="font-medium">{s.name}</span>
+                      <span className="text-xs text-gray-500">{tech.activeWOCount} active WOs</span>
                     </button>
                   );
-                })}
-              </div>
-              <p className="mt-1 text-xs text-gray-400">
-                Assigned supervisors can start this job and complete its tasks.
-              </p>
+                })
+              )}
             </div>
-          )}
+            {selectedTechIds.length > 0 && (
+              <p className="mt-1 text-xs text-blue-600">{selectedTechIds.length} technician(s) selected</p>
+            )}
+          </div>
         </div>
       )}
     </div>
