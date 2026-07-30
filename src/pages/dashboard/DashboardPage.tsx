@@ -11,7 +11,7 @@ const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
   hr_officer: '/app/dashboard/training',
   trainee: '/app/dashboard/trainee',
   floor_operator: '/app/dashboard', // No access
-  safety_officer: '/app/dashboard/manager',
+  safety_officer: '/app/safety/dashboard',
 };
 
 export default function DashboardPage() {
