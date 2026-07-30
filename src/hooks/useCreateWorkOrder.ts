@@ -13,6 +13,7 @@ import { db, storage } from '../lib/firebase';
 import type { CreateWOPayload, WODocument } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
 import { notifyUsers } from '../services/notifications.service';
+import { createWorkPermit } from '../services/safety.service';
 import { toast } from 'sonner';
 
 interface UploadProgress {
@@ -222,6 +223,45 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
 
       const docRef = await addDoc(collection(db, 'workOrders'), woData);
       const woId = docRef.id;
+
+      // Safety Work Permit raised alongside the WO. It lands in the same
+      // `work_permits` collection the Safety Officer's Work Permits tab reads,
+      // and flags the WO so it can't be started until the permit is active.
+      if (payload.workPermit) {
+        try {
+          const wp = payload.workPermit;
+          const permitId = await createWorkPermit({
+            companyId,
+            siteId,
+            category: wp.category,
+            title: wp.title.trim() || (payload.description?.slice(0, 60) ?? 'Work permit'),
+            description: payload.description ?? '',
+            location: payload.machineName ?? payload.machineLocation ?? '',
+            machineId: payload.machineId ?? null,
+            status: 'active',
+            validFrom: wp.validFrom,
+            validTo: wp.validTo,
+            hazards: wp.hazards.trim(),
+            precautions: wp.precautions,
+            ppeRequired: wp.ppeRequired.trim(),
+            workOrderId: woId,
+            workOrderNumber: null,
+            woType: payload.woType,
+            woDescription: payload.description ?? '',
+            woCreatedBy: userId,
+            woCreatedByName: userName,
+            supervisorId: payload.supervisorInChargeId || null,
+            supervisorName: payload.supervisorInChargeName || null,
+            requestedBy: userId,
+            requestedByName: userName,
+            requestedByRole: userProfile.role ?? '',
+          });
+          const { updateDoc } = await import('firebase/firestore');
+          await updateDoc(docRef, { requiresWorkPermit: true, workPermitId: permitId });
+        } catch (wpErr) {
+          console.error('Failed to create linked work permit', wpErr);
+        }
+      }
 
       if ((payload.assignedTechnicianIds?.length ?? 0) > 0) {
         void notifyUsers(companyId, payload.assignedTechnicianIds!, {

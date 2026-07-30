@@ -14,6 +14,7 @@ import { TeamAssignmentPanel } from './TeamAssignmentPanel';
 import { ChecklistBuilder } from './ChecklistBuilder';
 import { DocumentUploadZone } from './DocumentUploadZone';
 import type { WOType, ChecklistItem } from '../../types/workOrder';
+import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '../../types/safety';
 
 type MachineOption = {
   id: string;
@@ -78,6 +79,17 @@ export function CreateWODrawer({
   >([]);
   const [breakdownSearch, setBreakdownSearch] = useState('');
   const [showBreakdownDropdown, setShowBreakdownDropdown] = useState(false);
+
+  // Optional Work Permit (Permit-to-Work) raised with the WO. Kept in local
+  // state (not the RHF schema) so the WO form's validation is untouched.
+  const today = new Date().toISOString().slice(0, 10);
+  const [wpEnabled, setWpEnabled] = useState(false);
+  const [wpCategory, setWpCategory] = useState<WorkPermitCategory>('general');
+  const [wpValidFrom, setWpValidFrom] = useState(today);
+  const [wpValidTo, setWpValidTo] = useState(today);
+  const [wpHazards, setWpHazards] = useState('');
+  const [wpPpe, setWpPpe] = useState('');
+  const [wpPrecautions, setWpPrecautions] = useState<Record<string, boolean>>({});
 
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
@@ -276,11 +288,23 @@ export function CreateWODrawer({
 
   async function handleSubmit(values: CreateWOFormValues) {
     setSubmitErrors([]);
+    const wpCategoryDef = WORK_PERMIT_CATEGORIES.find((c) => c.value === wpCategory)!;
     const woId = await createWO({
       ...values,
       dueDate: values.dueDate as Date,
       scheduledStart: values.scheduledStart ?? null,
       documents: pendingFiles.filter((f) => !f.error).map((f) => f.file),
+      workPermit: wpEnabled
+        ? {
+            category: wpCategory,
+            title: `Permit — ${values.description?.slice(0, 50) ?? 'Work order'}`,
+            validFrom: wpValidFrom,
+            validTo: wpValidTo,
+            hazards: wpHazards,
+            ppeRequired: wpPpe,
+            precautions: wpCategoryDef.precautions.filter((p) => wpPrecautions[p]),
+          }
+        : null,
     });
     if (woId) {
       onCreated?.(woId);
@@ -733,6 +757,63 @@ export function CreateWODrawer({
                   placeholder="e.g., torque wrench (50–100 Nm), hydraulic puller, replacement V-belt B-72…"
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 resize-none"
                 />
+              </div>
+
+              {/* ── Work Permit (Permit-to-Work) ──
+                  Optional at creation. When enabled the WO can't be started
+                  until this permit is active, and it lands in the Safety
+                  Officer's Work Permits tab automatically. */}
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                  <input type="checkbox" checked={wpEnabled} onChange={(e) => setWpEnabled(e.target.checked)} />
+                  Require a Work Permit before this job can start
+                </label>
+                <p className="mt-1 text-xs text-gray-500">
+                  Raises a Permit-to-Work linked to this WO. Technicians can't start the job until it's active.
+                </p>
+                {wpEnabled && (
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-gray-600">Permit category</label>
+                      <select
+                        value={wpCategory}
+                        onChange={(e) => { setWpCategory(e.target.value as WorkPermitCategory); setWpPrecautions({}); }}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500"
+                      >
+                        {WORK_PERMIT_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                      </select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-gray-600">Valid from</label>
+                        <input type="date" value={wpValidFrom} onChange={(e) => setWpValidFrom(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-gray-600">Valid to (duration)</label>
+                        <input type="date" value={wpValidTo} onChange={(e) => setWpValidTo(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-gray-600">Hazards identified</label>
+                      <textarea value={wpHazards} onChange={(e) => setWpHazards(e.target.value)} rows={2} className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-gray-600">Precautions in place</p>
+                      <div className="space-y-1.5 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        {WORK_PERMIT_CATEGORIES.find((c) => c.value === wpCategory)!.precautions.map((p) => (
+                          <label key={p} className="flex items-center gap-2 text-sm text-gray-800">
+                            <input type="checkbox" checked={!!wpPrecautions[p]} onChange={(e) => setWpPrecautions((prev) => ({ ...prev, [p]: e.target.checked }))} />
+                            {p}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-gray-600">PPE required</label>
+                      <input value={wpPpe} onChange={(e) => setWpPpe(e.target.value)} placeholder="e.g. Helmet, gloves, harness" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Review summary — everything captured so far, so the creator can

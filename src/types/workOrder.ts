@@ -184,6 +184,10 @@ export interface WorkOrder {
   status: WOStatus;
   description: string;
   ptwCategory: string | null;
+  // Safety Work Permit (Permit-to-Work) gate — when `requiresWorkPermit` is
+  // set, the WO can't be started until its linked `work_permits` doc is active.
+  requiresWorkPermit?: boolean;
+  workPermitId?: string | null;
   specialToolsRequired: string;
   dueDate: Timestamp;
   slaDeadline: Timestamp;
@@ -365,6 +369,21 @@ export interface CreateWOPayload {
   checklist: Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>[];
   documents: File[];
   partsRequests: Omit<PartsRequest, 'id' | 'requestedBy' | 'requestedByName' | 'requestedAt' | 'status' | 'approvedBy' | 'approvedAt' | 'rejectedReason' | 'issuedBy' | 'issuedAt'>[];
+
+  // Optional Work Permit raised together with the WO. When present, the WO is
+  // flagged `requiresWorkPermit` and can't start until the permit is active.
+  workPermit?: CreateWOWorkPermit | null;
+}
+
+/** Minimal Work Permit captured inline on the WO creation form. */
+export interface CreateWOWorkPermit {
+  category: import('./safety').WorkPermitCategory;
+  title: string;
+  validFrom: string;
+  validTo: string;
+  hazards: string;
+  ppeRequired: string;
+  precautions: string[];
 }
 
 export interface WOCompletionPayload {

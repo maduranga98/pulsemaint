@@ -107,6 +107,34 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
           console.error('LOTO gate check error', gateErr);
           // Non-blocking: if check fails (e.g. permission error on an isolated network), allow transition
         }
+
+        // Work Permit gate: a WO flagged `requiresWorkPermit` can't start until
+        // its linked Permit-to-Work is active (issued and not yet closed/expired).
+        try {
+          const woSnap = await getDoc(doc(db, 'workOrders', id));
+          const woData = woSnap.data() as WorkOrder | undefined;
+          if (woData?.requiresWorkPermit) {
+            const wpQuery = query(
+              collection(db, 'work_permits'),
+              where('workOrderId', '==', id),
+              limit(1),
+            );
+            const wpSnap = await getDocs(wpQuery);
+            const wp = wpSnap.empty ? null : (wpSnap.docs[0].data() as { status?: string });
+            if (!wp || wp.status !== 'active') {
+              const msg = !wp
+                ? 'A Work Permit must be created before this job can start.'
+                : 'The Work Permit for this job is not active. Issue or re-activate it before starting.';
+              setError(msg);
+              toast.error(msg);
+              setLoading(false);
+              return false;
+            }
+          }
+        } catch (wpErr) {
+          console.error('Work permit gate check error', wpErr);
+          // Non-blocking on infra errors, consistent with the LOTO gate above.
+        }
       }
 
       const historyEntry = {

@@ -656,7 +656,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/new"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <CreateModulePage />
             </ProtectedRoute>
           }
@@ -664,7 +664,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/:moduleId"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <EditModulePage />
             </ProtectedRoute>
           }
@@ -672,7 +672,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/modules/:moduleId/quiz"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <QuizBuilderPage />
             </ProtectedRoute>
           }
@@ -689,7 +689,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/trainee-modules/new"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <CreateTraineeModulePage />
             </ProtectedRoute>
           }
@@ -697,7 +697,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/trainee-modules/:moduleId"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <EditTraineeModulePage />
             </ProtectedRoute>
           }
@@ -705,7 +705,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/trainee-modules/:moduleId/quiz"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'hr_officer', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'hr_officer', 'supervisor']}>
               <QuizBuilderPage />
             </ProtectedRoute>
           }
@@ -713,7 +713,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/assignments"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <AssignmentsListPage />
             </ProtectedRoute>
           }
@@ -721,7 +721,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/assign"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <AssignTrainingPage />
             </ProtectedRoute>
           }
@@ -729,7 +729,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/trainees/:userId"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TraineeProfilePage />
             </ProtectedRoute>
           }
@@ -737,7 +737,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/trainees/:userId/programme"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TraineeProgrammePage />
             </ProtectedRoute>
           }
@@ -745,7 +745,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/certificates"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <CertificatesManagerPage />
             </ProtectedRoute>
           }
@@ -761,7 +761,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/content-library"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <ContentLibraryPage />
             </ProtectedRoute>
           }
@@ -924,7 +924,7 @@ export default function AppRouter() {
         <Route
           path="triage-builder/new"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TriageBuilderCreatePage />
             </ProtectedRoute>
           }
@@ -932,7 +932,7 @@ export default function AppRouter() {
         <Route
           path="triage-builder/templates"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TriageBuilderTemplatesPage />
             </ProtectedRoute>
           }
@@ -940,7 +940,7 @@ export default function AppRouter() {
         <Route
           path="triage-builder/:flowId"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TriageBuilderFlowDetailPage />
             </ProtectedRoute>
           }
@@ -948,7 +948,7 @@ export default function AppRouter() {
         <Route
           path="triage-builder/:flowId/edit"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <TriageBuilderEditPage />
             </ProtectedRoute>
           }

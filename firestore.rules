@@ -1136,10 +1136,10 @@ service cloud.firestore {
       // a module that neither library can see, so it is rejected here.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor'])
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor', 'safety_officer'])
         && hasValidLibraryScope();
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor'])
+        && isAnyRole(['plant_manager', 'admin', 'hr_officer', 'supervisor', 'safety_officer'])
         && hasValidLibraryScope();
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role == 'admin';
@@ -1149,9 +1149,9 @@ service cloud.firestore {
       // Trainees read their own assignments; managers/HR read all in company
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
-          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
       // Trainees update their own progress/quiz attempts; managers update any.
       // For offboard/external assignments the trainee-writable surface is
       // `offboardCompletion` (knowledge report + attachments) — this block
@@ -1159,7 +1159,7 @@ service cloud.firestore {
       // no extra whitelist entry is required.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
-          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
     }
@@ -1167,7 +1167,7 @@ service cloud.firestore {
     match /trainingCertificates/{certId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
-          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
       // Certificates are issued when a manager signs off the practical
       // assessment (services/trainingCertificates.service), so the write does
       // come from the client — but only ever from a management role. An
@@ -1178,10 +1178,10 @@ service cloud.firestore {
       // restricted to management roles, matching the company-scoped
       // /companies/{companyId}/trainingCertificates rule below.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
       // Revocation and edits are a management action
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
       allow delete: if isAdmin();
     }
 
@@ -1189,9 +1189,9 @@ service cloud.firestore {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       // hr_officer can reach the content library page per the router/FEATURES.md.
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer']);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer']);
       allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role == 'admin';
     }
