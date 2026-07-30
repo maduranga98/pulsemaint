@@ -23,6 +23,51 @@ export const SAFETY_CASE_SEVERITIES: { value: SafetyCaseSeverity; label: string 
   { value: 'critical', label: 'Critical' },
 ];
 
+/**
+ * "Points" for a safety issue are derived automatically from its severity — a
+ * simple escalating weight so higher-severity cases carry more risk points on
+ * dashboards and reports. Auto-categorised, never entered by hand.
+ */
+export const SAFETY_CASE_SEVERITY_POINTS: Record<SafetyCaseSeverity, number> = {
+  low: 1,
+  medium: 3,
+  high: 6,
+  critical: 10,
+};
+
+export function severityPoints(severity: SafetyCaseSeverity): number {
+  return SAFETY_CASE_SEVERITY_POINTS[severity] ?? 0;
+}
+
+// What a safety case is "near" / about — drives the conditional picker on the
+// report form (a work order, a named person, a contractor, or nothing).
+export type SafetyCaseSubjectType =
+  | 'work_order'
+  | 'operator'
+  | 'technician'
+  | 'contractor'
+  | 'other';
+
+export const SAFETY_CASE_SUBJECT_TYPES: { value: SafetyCaseSubjectType; label: string }[] = [
+  { value: 'work_order', label: 'Work Order' },
+  { value: 'operator', label: 'Operator' },
+  { value: 'technician', label: 'Technician' },
+  { value: 'contractor', label: 'Contractor' },
+  { value: 'other', label: 'Other' },
+];
+
+// An action logged against a safety case by whoever is managing it (safety
+// officer, or a manager the case was reported to).
+export interface SafetyCaseAction {
+  note: string;
+  /** Status the case moved to with this action, if it changed. */
+  newStatus: SafetyCaseStatus | null;
+  by: string;
+  byName: string;
+  byRole: string;
+  at: Timestamp | null;
+}
+
 export interface SafetyCase {
   id: string;
   companyId: string;
@@ -31,11 +76,25 @@ export interface SafetyCase {
   title: string;
   description: string;
   severity: SafetyCaseSeverity;
+  /** Auto-derived from severity via {@link severityPoints}. */
+  points: number;
   status: SafetyCaseStatus;
   location: string;
   machineId: string | null;
   machineName: string | null;
+  /** What the case is near/about. */
+  subjectType: SafetyCaseSubjectType;
+  subjectId: string | null;
+  subjectName: string | null;
   correctiveAction: string;
+  /** "Action that should be taken" captured at report time. */
+  actionToTake: string;
+  // Optional escalation to a manager (admin / plant manager / supervisor).
+  reportedToRole: string | null;
+  reportedToUserId: string | null;
+  reportedToName: string | null;
+  /** Chronological log of actions taken on the case. */
+  actions: SafetyCaseAction[];
   reportedBy: string;
   reportedByName: string;
   reportedByRole: string;

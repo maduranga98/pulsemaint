@@ -1,5 +1,6 @@
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   getDocs,
@@ -8,12 +9,14 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  Timestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type {
   SafetyCase,
+  SafetyCaseAction,
   SafetyCaseInput,
   SafetyCaseStatus,
   WorkPermit,
@@ -61,6 +64,28 @@ export async function updateSafetyCaseStatus(id: string, status: SafetyCaseStatu
     updatedAt: serverTimestamp(),
     closedAt: status === 'closed' ? serverTimestamp() : null,
   });
+}
+
+/**
+ * Append an action to a case's log and, optionally, move its status. Used from
+ * the Safety Cases tab where the safety officer (or the manager the case was
+ * reported to) records what was done about the case.
+ */
+export async function addSafetyCaseAction(
+  id: string,
+  action: Omit<SafetyCaseAction, 'at'>,
+): Promise<void> {
+  // serverTimestamp() can't be used inside array elements, so stamp locally.
+  const entry: SafetyCaseAction = { ...action, at: Timestamp.now() };
+  const patch: Record<string, unknown> = {
+    actions: arrayUnion(entry),
+    updatedAt: serverTimestamp(),
+  };
+  if (action.newStatus) {
+    patch.status = action.newStatus;
+    patch.closedAt = action.newStatus === 'closed' ? serverTimestamp() : null;
+  }
+  await updateDoc(doc(db, CASES, id), patch);
 }
 
 // ── Work permits ─────────────────────────────────────────────────────────────

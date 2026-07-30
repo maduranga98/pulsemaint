@@ -56,13 +56,14 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'] },
   { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
   { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+  { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer'] },
   { label: 'Work Permits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager'] },
   { label: 'Safety Training', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
   { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'admin', 'plant_manager'] },
   { label: 'Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
-  // Safety module surfaced for oversight roles too — admins and plant managers
-  // get the Safety Dashboard and Safety Analytics alongside the safety officer.
-  { label: 'Safety Dashboard', to: '/app/safety/dashboard', icon: Icon.dashboard, roles: ['admin', 'plant_manager'] },
+  // Safety module surfaced for oversight roles too — admins, plant managers, and
+  // supervisors see cases the safety team escalates to them, plus analytics.
+  { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
   { label: 'Safety Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['admin', 'plant_manager'] },
   { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
   { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
