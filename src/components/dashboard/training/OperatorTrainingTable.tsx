@@ -16,7 +16,7 @@ export default function OperatorTrainingTable({ companyId }: OperatorTrainingTab
   };
 
   return (
-    <DashboardWidget title="Operator Training Status" loading={loading} error={error}>
+    <DashboardWidget title="Training Status" loading={loading} error={error}>
       {operators.length === 0 ? (
         <EmptyState message="No operator data" />
       ) : (

@@ -5,6 +5,8 @@ export type EvaluationRole =
   | 'technician'
   | 'supervisor'
   | 'plant_manager'
+  | 'hr_officer'
+  | 'safety_officer'
   | 'trainee'
   | 'other';
 
@@ -13,6 +15,8 @@ export const EVALUATION_ROLE_LABELS: Record<EvaluationRole, string> = {
   technician: 'Technician',
   supervisor: 'Supervisor',
   plant_manager: 'Plant Manager',
+  hr_officer: 'HR Officer',
+  safety_officer: 'Safety Officer',
   trainee: 'Trainee',
   other: 'Other',
 };
@@ -155,6 +159,22 @@ const TRAINEE_CRITERIA: EvaluationCriterion[] = [
   { id: 'safety_awareness', label: 'Safety Awareness', description: 'Understanding and demonstration of workplace safety practices.', weight: 15 },
 ];
 
+const HR_OFFICER_CRITERIA: EvaluationCriterion[] = [
+  { id: 'recruitment_onboarding', label: 'Recruitment & Onboarding', description: 'Effectiveness of hiring, onboarding, and workforce planning support.', weight: 20 },
+  { id: 'training_compliance', label: 'Training & Compliance Management', description: 'Tracking of training completion, certifications, and compliance rates.', weight: 20 },
+  { id: 'records_accuracy', label: 'Records & Documentation Accuracy', description: 'Accuracy and upkeep of employee records, contracts, and HR documentation.', weight: 20 },
+  { id: 'employee_relations', label: 'Employee Relations & Grievance Handling', description: 'Handling of grievances, engagement, and staff welfare fairly and promptly.', weight: 20 },
+  { id: 'policy_adherence', label: 'Policy & Regulatory Adherence', description: 'Ensuring HR policies and labour/regulatory requirements are followed.', weight: 20 },
+];
+
+const SAFETY_OFFICER_CRITERIA: EvaluationCriterion[] = [
+  { id: 'incident_management', label: 'Incident & Near-Miss Management', description: 'Timely logging, investigation, and corrective-action follow-through on incidents.', weight: 25 },
+  { id: 'inspections_audits', label: 'Safety Inspections & Audits', description: 'Completion and quality of scheduled safety inspections and audits.', weight: 20 },
+  { id: 'hazard_risk', label: 'Hazard Identification & Risk Assessment', description: 'Proactive identification of hazards and rigor of risk assessments.', weight: 20 },
+  { id: 'permit_compliance', label: 'Permit-to-Work Compliance', description: 'Correct issuing, review, and closure of work permits (hot work, confined space, LOTO).', weight: 15 },
+  { id: 'training_awareness', label: 'Safety Training & Awareness', description: 'Delivery of toolbox talks and driving of a positive safety culture.', weight: 20 },
+];
+
 const OTHER_CRITERIA: EvaluationCriterion[] = [
   { id: 'job_knowledge', label: 'Job Knowledge', description: 'Knowledge of role-specific duties and responsibilities.', weight: 25 },
   { id: 'quality_of_work', label: 'Quality of Work', description: 'Accuracy, thoroughness, and reliability of work output.', weight: 25 },
@@ -180,6 +200,8 @@ export const ROLE_CRITERIA: Record<EvaluationRole, EvaluationCriterion[]> = {
   technician: TECHNICIAN_CRITERIA,
   supervisor: SUPERVISOR_CRITERIA,
   plant_manager: PLANT_MANAGER_CRITERIA,
+  hr_officer: HR_OFFICER_CRITERIA,
+  safety_officer: SAFETY_OFFICER_CRITERIA,
   trainee: TRAINEE_CRITERIA,
   other: OTHER_CRITERIA,
 };

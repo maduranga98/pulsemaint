@@ -4,6 +4,7 @@ import {
   X, ClipboardList, Calendar, TrendingUp, Download,
   GraduationCap, ArrowUpCircle, ArrowDownCircle, Settings2, Clock,
   HardHat, Wrench, ShieldCheck, Building2, GraduationCap as CapIcon, Users, Layers,
+  UserCog, ShieldAlert,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
@@ -34,12 +35,14 @@ function evaluateeSubtitle(s: EvaluationSession): string {
   return EVALUATION_ROLE_LABELS[s.evaluateeRole] ?? s.evaluateeRole;
 }
 
-const ROLE_ORDER: EvaluationRole[] = ['operator', 'technician', 'supervisor', 'plant_manager', 'trainee', 'other'];
+const ROLE_ORDER: EvaluationRole[] = ['operator', 'technician', 'supervisor', 'plant_manager', 'hr_officer', 'safety_officer', 'trainee', 'other'];
 const ROLE_ICON: Record<EvaluationRole, typeof HardHat> = {
   operator: HardHat,
   technician: Wrench,
   supervisor: ShieldCheck,
   plant_manager: Building2,
+  hr_officer: UserCog,
+  safety_officer: ShieldAlert,
   trainee: CapIcon,
   other: Users,
 };

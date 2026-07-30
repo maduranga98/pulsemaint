@@ -35,7 +35,7 @@ export default function OnboardingWizard() {
 
   // Step 3
   const [memberName, setMemberName] = useState('');
-  const [memberRole, setMemberRole] = useState<'technician' | 'maintenance_supervisor' | 'plant_manager' | 'store_keeper' | 'hr_officer'>('technician');
+  const [memberRole, setMemberRole] = useState<'technician' | 'maintenance_supervisor' | 'plant_manager' | 'store_keeper' | 'hr_officer' | 'safety_officer'>('technician');
   const [memberEmail, setMemberEmail] = useState('');
   const [memberPhone, setMemberPhone] = useState('');
 
@@ -380,6 +380,7 @@ export default function OnboardingWizard() {
                   <option value="plant_manager">Plant Manager</option>
                   <option value="store_keeper">Store Keeper</option>
                   <option value="hr_officer">HR Officer</option>
+                  <option value="safety_officer">Safety Officer</option>
                 </select>
               </div>
 
