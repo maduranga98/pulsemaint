@@ -52,15 +52,15 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
   const [step, setStep] = useState<Step>('review');
 
-  // Only the assigned supervisor / plant manager / admin may sign off. A
-  // plant manager may not sign off a work order they themselves created —
-  // that sign-off has to come from someone else (supervisor or admin) to
-  // keep it a second set of eyes.
+  // Only the assigned supervisor / plant manager / admin may sign off. Neither
+  // a supervisor nor a plant manager may sign off a work order they themselves
+  // raised — that sign-off has to come from someone else (another
+  // supervisor/plant manager, or an admin) to keep it a second set of eyes.
+  // Admins are exempt and can sign off anything, including their own.
   const isOwnWorkOrder = userProfile?.id != null && wo.createdBy === userProfile.id;
   const canSignOff =
-    userProfile?.role === 'supervisor' ||
     userProfile?.role === 'admin' ||
-    (userProfile?.role === 'plant_manager' && !isOwnWorkOrder);
+    ((userProfile?.role === 'supervisor' || userProfile?.role === 'plant_manager') && !isOwnWorkOrder);
 
   // Optional root-cause analysis (not required to sign off).
   const [showRCA, setShowRCA] = useState(false);

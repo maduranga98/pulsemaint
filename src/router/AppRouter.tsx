@@ -810,7 +810,7 @@ export default function AppRouter() {
         <Route
           path="pm-calendar"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
               <PMCalendarPage />
             </ProtectedRoute>
           }

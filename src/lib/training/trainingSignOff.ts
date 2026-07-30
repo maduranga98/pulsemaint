@@ -13,10 +13,11 @@ export interface TrainingSignOffPermission {
 /**
  * Who may sign off a training that is awaiting its practical assessment.
  *
- * Mirrors the work order rule: a plant manager may not sign off training they
- * assigned themselves. The sign-off is meant to be a second set of eyes, so
- * the person who handed the training out cannot also be the one who certifies
- * it — that has to come from a supervisor or an admin.
+ * The sign-off is meant to be a second set of eyes: whoever handed the
+ * training out cannot also certify it. So a supervisor or plant manager may
+ * not sign off a training they assigned themselves — that has to come from
+ * someone else (another supervisor/plant manager, or an admin). Admins are
+ * exempt: they can sign off anything, including their own assignments.
  */
 export function canSignOffTraining(
   assignment: Pick<TrainingAssignment, 'assignedBy'>,
@@ -29,11 +30,15 @@ export function canSignOffTraining(
       reason: 'Only a supervisor, plant manager, or admin can sign off a training.',
     };
   }
-  if (role === 'plant_manager' && !!userId && assignment.assignedBy === userId) {
+  if (
+    (role === 'plant_manager' || role === 'supervisor') &&
+    !!userId &&
+    assignment.assignedBy === userId
+  ) {
     return {
       allowed: false,
       reason:
-        "You assigned this training, so you can't sign it off yourself — ask a supervisor or admin to sign off.",
+        "You assigned this training, so you can't sign it off yourself — ask another supervisor, plant manager, or an admin to sign off.",
     };
   }
   return { allowed: true };
