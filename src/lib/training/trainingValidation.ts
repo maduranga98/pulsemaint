@@ -103,6 +103,7 @@ export const traineeLibraryModuleSchema = z.object({
     'civil_trainee',
     'technician_trainee',
     'operator_trainee',
+    'safety_training',
     'other_trainee',
   ], { errorMap: () => ({ message: 'Training type is required' }) }),
   trainingMode: z.enum(['online', 'onsite'], {
