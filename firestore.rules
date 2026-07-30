@@ -336,6 +336,31 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------------
+    // Safety (EHS) — safety cases and work permits (Permit-to-Work). Distinct
+    // from the LOTO `permits` collection above. Any company member can report a
+    // safety case (near-miss/hazard reporting should be frictionless); safety
+    // officers and management triage/close them and issue work permits.
+    // ---------------------------------------------------------------------------
+
+    function canManageSafety() {
+      return isAnyRole(['safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+    }
+
+    match /safety_cases/{caseId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canManageSafety();
+      allow delete: if isAdmin();
+    }
+
+    match /work_permits/{permitId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && canManageSafety();
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canManageSafety();
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
     // Condition Monitoring readings — machine profile condition tab
     // ---------------------------------------------------------------------------
 

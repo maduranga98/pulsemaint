@@ -94,6 +94,12 @@ import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
 import SuppliersPage from '../pages/inventory/SuppliersPage';
 import ManualIssuePage from '../pages/inventory/ManualIssuePage';
 
+// Safety (EHS)
+import SafetyDashboard from '../modules/safety/pages/SafetyDashboard';
+import WorkPermitsPage from '../modules/safety/pages/WorkPermitsPage';
+import SafetyCalendarPage from '../modules/safety/pages/SafetyCalendarPage';
+import SafetyAnalyticsPage from '../modules/safety/pages/SafetyAnalyticsPage';
+
 // Dashboard
 import {
   DashboardPage,
@@ -532,6 +538,13 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        {/* Safety (EHS) — safety officer workspace, with manager oversight */}
+        <Route path="safety" element={<Navigate to="/app/safety/dashboard" replace />} />
+        <Route path="safety/dashboard" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><SafetyDashboard /></ProtectedRoute>} />
+        <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><WorkPermitsPage /></ProtectedRoute>} />
+        <Route path="safety/calendar" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><SafetyCalendarPage /></ProtectedRoute>} />
+        <Route path="safety/analytics" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><SafetyAnalyticsPage /></ProtectedRoute>} />
+
         {/* Training - /training redirects based on role */}
 
         {/* Contractors */}
