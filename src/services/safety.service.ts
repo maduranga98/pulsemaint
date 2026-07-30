@@ -20,6 +20,7 @@ import type {
   SafetyCaseInput,
   SafetyCaseStatus,
   WorkPermit,
+  WorkPermitCompletion,
   WorkPermitInput,
   WorkPermitStatus,
 } from '../types/safety';
@@ -117,6 +118,12 @@ export async function createWorkPermit(input: WorkPermitInput): Promise<string> 
   const ref = await addDoc(collection(db, PERMITS), {
     ...input,
     permitNumber,
+    completion: null,
+    completionNote: '',
+    signedOffBy: null,
+    signedOffByName: null,
+    signedOffAt: null,
+    overdueNotifiedAt: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     closedAt: null,
@@ -130,4 +137,41 @@ export async function updateWorkPermitStatus(id: string, status: WorkPermitStatu
     updatedAt: serverTimestamp(),
     closedAt: status === 'closed' || status === 'expired' ? serverTimestamp() : null,
   });
+}
+
+/** Push a permit's validity out to a new end date (extension). */
+export async function extendWorkPermit(id: string, newValidTo: string): Promise<void> {
+  await updateDoc(doc(db, PERMITS, id), {
+    validTo: newValidTo,
+    status: 'active',
+    // A fresh window means the overdue reminder should be able to fire again.
+    overdueNotifiedAt: null,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+interface SignOffWorkPermitInput {
+  completion: WorkPermitCompletion;
+  completionNote: string;
+  signedOffBy: string;
+  signedOffByName: string;
+}
+
+/** Finish a permit: record completion status + optional note and close it. */
+export async function signOffWorkPermit(id: string, input: SignOffWorkPermitInput): Promise<void> {
+  await updateDoc(doc(db, PERMITS, id), {
+    status: 'closed',
+    completion: input.completion,
+    completionNote: input.completionNote,
+    signedOffBy: input.signedOffBy,
+    signedOffByName: input.signedOffByName,
+    signedOffAt: serverTimestamp(),
+    closedAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/** Stamp that the overdue reminder has been sent, so it isn't sent again. */
+export async function markWorkPermitOverdueNotified(id: string): Promise<void> {
+  await updateDoc(doc(db, PERMITS, id), { overdueNotifiedAt: serverTimestamp() });
 }

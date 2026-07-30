@@ -1,8 +1,34 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, limit, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { subscribeSafetyCases, subscribeWorkPermits } from '../../services/safety.service';
 import type { SafetyCase, WorkPermit } from '../../types/safety';
+
+/** The latest Work Permit linked to a given work order, live (or null). */
+export function useWorkOrderPermit(workOrderId: string | undefined) {
+  const [permit, setPermit] = useState<WorkPermit | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!workOrderId) {
+      setPermit(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    const unsub = onSnapshot(
+      query(collection(db, 'work_permits'), where('workOrderId', '==', workOrderId), limit(1)),
+      (snap) => {
+        setPermit(snap.empty ? null : ({ id: snap.docs[0].id, ...snap.docs[0].data() } as WorkPermit));
+        setLoading(false);
+      },
+      () => setLoading(false),
+    );
+    return () => unsub();
+  }, [workOrderId]);
+
+  return { permit, loading };
+}
 
 /** Live safety cases for the company, newest first. */
 export function useSafetyCases(companyId: string) {

@@ -124,6 +124,15 @@ export type WorkPermitCategory =
 
 export type WorkPermitStatus = 'draft' | 'active' | 'closed' | 'expired';
 
+// How a permit's work turned out, recorded when it is signed off/closed.
+export type WorkPermitCompletion = 'completed' | 'partially_completed' | 'not_completed';
+
+export const WORK_PERMIT_COMPLETIONS: { value: WorkPermitCompletion; label: string }[] = [
+  { value: 'completed', label: 'Completed' },
+  { value: 'partially_completed', label: 'Partially Completed' },
+  { value: 'not_completed', label: 'Not Completed' },
+];
+
 export const WORK_PERMIT_CATEGORIES: {
   value: WorkPermitCategory;
   label: string;
@@ -184,6 +193,25 @@ export interface WorkPermit {
   hazards: string;
   precautions: string[];
   ppeRequired: string;
+  // Linked work order — a permit can be raised against a specific WO, which
+  // pulls in the WO's type/description and who created it.
+  workOrderId: string | null;
+  workOrderNumber: string | null;
+  woType: string | null;
+  woDescription: string | null;
+  woCreatedBy: string | null;
+  woCreatedByName: string | null;
+  // Optional supervisor who owns finishing/signing off the permit.
+  supervisorId: string | null;
+  supervisorName: string | null;
+  // Sign-off / completion — set when the permit is finished.
+  completion: WorkPermitCompletion | null;
+  completionNote: string;
+  signedOffBy: string | null;
+  signedOffByName: string | null;
+  signedOffAt: Timestamp | null;
+  /** Set once the creator has been told the permit ran past its validity. */
+  overdueNotifiedAt: Timestamp | null;
   requestedBy: string;
   requestedByName: string;
   requestedByRole: string;
@@ -194,5 +222,22 @@ export interface WorkPermit {
 
 export type WorkPermitInput = Omit<
   WorkPermit,
-  'id' | 'permitNumber' | 'createdAt' | 'updatedAt' | 'closedAt'
+  | 'id'
+  | 'permitNumber'
+  | 'completion'
+  | 'completionNote'
+  | 'signedOffBy'
+  | 'signedOffByName'
+  | 'signedOffAt'
+  | 'overdueNotifiedAt'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'closedAt'
 >;
+
+/** A permit is overdue once today is past its `validTo` and it is still active. */
+export function isWorkPermitOverdue(p: Pick<WorkPermit, 'status' | 'validTo'>): boolean {
+  if (p.status !== 'active') return false;
+  const today = new Date().toISOString().slice(0, 10);
+  return today > p.validTo;
+}

@@ -11,7 +11,7 @@ import { REPORT_LIST } from '../../utils/reports/reportDefinitions';
 import { filterReportTypesForRole } from '../../utils/reports/reportAccess';
 
 export default function ReportsHubPage() {
-  const canAccess = useAuthStore((state) => state.canAccess(['supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']));
+  const canAccess = useAuthStore((state) => state.canAccess(['safety_officer', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']));
   const role = useAuthStore((state) => state.userProfile?.role);
   const openConfigPanel = useReportsStore((state) => state.openConfigPanel);
   const [search, setSearch] = useState('');

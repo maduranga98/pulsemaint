@@ -6,6 +6,7 @@ import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
 import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { usePermit } from '../../../hooks/usePermit';
+import { useWorkOrderPermit } from '../../../hooks/safety/useSafety';
 import { LotoGate } from '../LotoGate';
 import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
 import { useAuthStore } from '../../../store/authStore';
@@ -47,6 +48,11 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
     machineId: wo.machineId,
     siteId: wo.siteId,
   });
+
+  // Safety Work Permit gate — a WO flagged `requiresWorkPermit` can't start
+  // until its linked Permit-to-Work is active.
+  const { permit: workPermit } = useWorkOrderPermit(wo.requiresWorkPermit ? wo.id : undefined);
+  const workPermitActive = !wo.requiresWorkPermit || workPermit?.status === 'active';
 
   // Load the machine's isolation points so the LOTO/PTW safety checklist can
   // be completed before starting work.
@@ -157,15 +163,34 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
             <div className="space-y-5">
               {canStart && !safetyPreview && (
                 <div className="space-y-3">
+                  {/* Work Permit gate — surfaced before the WO can be started. */}
+                  {wo.requiresWorkPermit && (
+                    <div className={`rounded-lg border p-3 ${workPermitActive ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-orange-500/40 bg-orange-500/10'}`}>
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className={`h-4 w-4 ${workPermitActive ? 'text-emerald-400' : 'text-orange-300'}`} />
+                        <p className="text-sm font-semibold text-[#F0F4F8]">Work Permit</p>
+                      </div>
+                      {workPermit ? (
+                        <p className="mt-1 text-xs text-[#8BA3BF]">
+                          {workPermit.permitNumber} · {workPermit.title} — <span className={workPermitActive ? 'text-emerald-400' : 'text-orange-300'}>{workPermit.status}</span>
+                          {` · valid ${workPermit.validFrom} → ${workPermit.validTo}`}
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-xs text-orange-300">No work permit found. A Work Permit must be created before this job can start.</p>
+                      )}
+                    </div>
+                  )}
                   <button
                     onClick={handleStartWOClick}
-                    disabled={loading || isolationPoints === null}
+                    disabled={loading || isolationPoints === null || !workPermitActive}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
                     <Play className="h-5 w-5" /> Start WO
                   </button>
                   <p className="text-center text-[11px] text-[#8BA3BF]">
-                    {safetyGateApplies
+                    {!workPermitActive
+                      ? 'This job needs an active Work Permit before it can start.'
+                      : safetyGateApplies
                       ? 'You will review the safety precautions before work begins.'
                       : 'This will record your check-in and start the job.'}
                   </p>
