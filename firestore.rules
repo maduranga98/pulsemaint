@@ -76,11 +76,11 @@ service cloud.firestore {
     }
 
     function canReadContractors() {
-      return isAnyRole(['safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      return isAnyRole(['safety_officer', 'hr_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
     }
 
     function canManageContractors() {
-      return isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      return isAnyRole(['hr_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
     }
 
     // ---------------------------------------------------------------------------
@@ -395,6 +395,7 @@ service cloud.firestore {
         && (
           isAdmin()
           || isPlantManager()
+          || isHrOfficer()
           || (
             isSupervisor()
             && !request.resource.data.diff(resource.data).affectedKeys().hasAny(financialKeys())
@@ -455,13 +456,14 @@ service cloud.firestore {
       }
 
       allow read: if isAuthenticated() && jobCompanyMatches()
-        && isAnyRole(['safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['safety_officer', 'hr_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
       allow create: if false;
       allow update: if isAuthenticated() && jobCompanyMatches()
         && newJobCompanyMatches()
         && (
           isAdmin()
           || isPlantManager()
+          || isHrOfficer()
           || (
             isSupervisor()
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly([

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import TrainingComplianceStrip from '../../components/dashboard/training/TrainingComplianceStrip';
+import HrKpiStrip from '../../components/dashboard/training/HrKpiStrip';
 import OperatorTrainingTable from '../../components/dashboard/training/OperatorTrainingTable';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
 import TrainingActivityChart from '../../components/dashboard/training/TrainingActivityChart';
@@ -29,8 +29,9 @@ export default function TrainingDashboard() {
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        {/* KPI Strip */}
-        <TrainingComplianceStrip companyId={companyId} />
+        {/* KPI Strip — HR-focused headline numbers (attendance, in-flight
+            training/evaluations, headcount) */}
+        <HrKpiStrip companyId={companyId} />
 
         {/* Staff headcount by role (HR-001) */}
         <StaffByRoleChart companyId={companyId} />
