@@ -21,13 +21,16 @@ describe('resolveAnalyticsScopeId', () => {
     );
   });
 
+  it('scopes supervisors to the company (they read the full-plant analytics)', () => {
+    expect(resolveAnalyticsScopeId(profile('supervisor', ['site-a']))).toBe('company-1');
+  });
+
   it('scopes every other role to their first site', () => {
-    expect(resolveAnalyticsScopeId(profile('supervisor', ['site-a']))).toBe('site-a');
     expect(resolveAnalyticsScopeId(profile('technician', ['site-x', 'site-y']))).toBe('site-x');
   });
 
   it('falls back to the company when a site-scoped role has no site', () => {
-    expect(resolveAnalyticsScopeId(profile('supervisor', []))).toBe('company-1');
+    expect(resolveAnalyticsScopeId(profile('technician', []))).toBe('company-1');
   });
 
   it('returns an empty string with no profile', () => {

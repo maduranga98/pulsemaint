@@ -8,6 +8,28 @@ const STATUS_CONFIG: Record<string, { dot: string; label: string; pulse: boolean
   off_shift: { dot: 'bg-[#374151]', label: 'Off Shift', pulse: false },
 };
 
+const ROLE_LABELS: Record<string, string> = {
+  technician: 'Technician',
+  trainee: 'Trainee',
+  supervisor: 'Supervisor',
+  store_keeper: 'Store Keeper',
+  floor_operator: 'Floor Operator',
+};
+
+function roleLabel(role: string): string {
+  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+}
+
+/** "clocked in 06:04, 30 Jul" from the shift session start. */
+function formatShiftStart(ts: { toDate?: () => Date } | Date | null): string | null {
+  if (!ts) return null;
+  const d = ts instanceof Date ? ts : ts.toDate?.();
+  if (!d) return null;
+  const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const date = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+  return `${time} · ${date}`;
+}
+
 interface TechnicianStatusRowProps {
   technician: TechnicianStatusDoc;
 }
@@ -42,9 +64,16 @@ export default function TechnicianStatusRow({ technician }: TechnicianStatusRowP
           </span>
         </div>
 
+        {/* Designation + which shift they're on and when they clocked in. */}
+        <p className="text-[11px] text-[#8BA3BF] truncate mt-0.5">
+          {roleLabel(technician.role)}
+          {technician.shiftName ? ` · ${technician.shiftName}` : ''}
+          {formatShiftStart(technician.shiftStartTime) ? ` · ${formatShiftStart(technician.shiftStartTime)}` : ''}
+        </p>
+
         {technician.currentWoNumber && (
-          <p className="text-[11px] text-[#8BA3BF] truncate mt-0.5">
-            {technician.currentWoNumber} · {technician.currentMachineName}
+          <p className="text-[11px] text-[#5B8DEF] truncate mt-0.5">
+            On {technician.currentWoNumber} · {technician.currentMachineName}
           </p>
         )}
       </div>

@@ -136,6 +136,13 @@ service cloud.firestore {
       // Supervisor: full read/write for their site (or all sites if unrestricted)
       allow read, write: if isSupervisor() && woSiteMatches();
 
+      // Supervisor: company-wide read for the full-plant Analytics page, which
+      // queries workOrders by companyId (see analyticsScope.ts). A site-gated
+      // read made that whole company-wide query fail for a supervisor whose
+      // mapping doc carries a siteId, leaving Maintenance Cost Overview and the
+      // WO distribution empty. Writes stay site-gated above.
+      allow read: if isSupervisor() && belongsToCompany(resource.data.companyId);
+
       // Plant Manager: company-wide read. Plant managers are plant-level
       // oversight (see src/lib/analytics/analyticsScope.ts and OVERSIGHT_ROLES),
       // and breakdown_tickets/machines already grant them company-wide reads.

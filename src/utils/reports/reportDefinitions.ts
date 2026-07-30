@@ -235,6 +235,19 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     availableFilters: [],
     estimatedGenerationSecs: 4,
   },
+  safety_incidents: {
+    type: 'safety_incidents',
+    name: 'Safety Incidents Report',
+    description: 'Register of safety cases — incidents, near-misses, hazards and unsafe acts reported across the plant.',
+    category: 'compliance',
+    icon: 'ShieldAlert',
+    supportsPdf: true,
+    supportsExcel: true,
+    supportsSheets: true,
+    primaryUsers: ['Safety Officer', 'Manager'],
+    availableFilters: [],
+    estimatedGenerationSecs: 4,
+  },
 };
 
 export const REPORT_LIST = Object.values(REPORT_DEFINITIONS);

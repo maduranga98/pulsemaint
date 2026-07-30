@@ -34,6 +34,15 @@ const STORE_KEEPER_REPORTS: ReportType[] = [
   'po_history',
 ];
 
+// safety_officer sees safety and safety-adjacent compliance reports.
+const SAFETY_OFFICER_REPORTS: ReportType[] = [
+  'safety_incidents',
+  'maintenance_cost',
+  'shift_handover_summary',
+  'audit_trail',
+  'training_compliance',
+];
+
 /**
  * Filters a list of report types down to what a given role is allowed to see
  * in the Reports hub. Roles not covered here (technician, trainee, floor
@@ -51,6 +60,8 @@ export function filterReportTypesForRole(types: ReportType[], role: UserRole | u
       return types.filter((t) => HR_OFFICER_REPORTS.includes(t));
     case 'store_keeper':
       return types.filter((t) => STORE_KEEPER_REPORTS.includes(t));
+    case 'safety_officer':
+      return types.filter((t) => SAFETY_OFFICER_REPORTS.includes(t));
     default:
       return [];
   }

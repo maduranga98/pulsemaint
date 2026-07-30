@@ -14,7 +14,6 @@ import TechnicianPerformanceTable from '../../components/dashboard/manager/Techn
 import PmComplianceWidget from '../../components/dashboard/manager/PmComplianceWidget';
 import PmTrendChart from '../../components/dashboard/manager/PmTrendChart';
 import WoTypeDistributionChart from '../../components/dashboard/manager/WoTypeDistributionChart';
-import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import MachineAnalyticsTable from '../../components/dashboard/manager/MachineAnalyticsTable';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
@@ -193,17 +192,10 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        {/* ── Team Performance ───────────────────────────────────────────── */}
-        <SectionHeader title="Team Performance" description="Per-role metrics from evaluations, audits & training" />
+        {/* ── Performance by Work Orders ─────────────────────────────────── */}
+        <SectionHeader title="Performance by Work Orders" description="Per-technician work-order completion & repair metrics" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6">
-            <TeamPerformanceAnalyticsWidget companyId={companyId} />
-          </div>
-          <div className="lg:col-span-6">
-            <TechnicianPerformanceTable companyId={companyId} month={currentMonth} />
-          </div>
-        </div>
+        <TechnicianPerformanceTable companyId={companyId} month={currentMonth} />
 
         {/* ── Machine Analytics ──────────────────────────────────────────── */}
         <SectionHeader title="Machine Analytics" description="Per-machine breakdown count, MTTR, MTBF & health" />

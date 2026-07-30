@@ -16,7 +16,8 @@ export type ReportType =
   | 'downtime_analysis'
   | 'executive_monthly'
   | 'audit_trail'
-  | 'po_history';
+  | 'po_history'
+  | 'safety_incidents';
 
 export type QuickDateRange =
   | 'today'

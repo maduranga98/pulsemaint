@@ -14,6 +14,8 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { usePartsRequest } from '@/hooks/inventory/usePartsRequest';
 import { useToast } from '@/hooks/useToast';
+import { notifyRoles, notifyUsers } from '@/services/notifications.service';
+import type { UserRole } from '@/types/auth';
 import { RequestDetailHeader } from '@/components/inventory/requests/RequestDetailHeader';
 import { RequestWoContextCard } from '@/components/inventory/requests/RequestWoContextCard';
 import { RequestItemsTable } from '@/components/inventory/requests/RequestItemsTable';
@@ -183,6 +185,34 @@ export function RequestDetailPage() {
         companyId,
         requestId: request.id,
       });
+
+      // Notify the people who need to act on the outcome: the requester on a
+      // decision about their request, and supervisors when a request is
+      // escalated for their approval. (Oversight roles are copied automatically.)
+      const actor = { actorName: userName, actorRole: (userRole || null) as UserRole | null, actorUserId: userId };
+      const link = `/app/inventory/requests/${request.id}`;
+      if (decision === 'reject') {
+        void notifyUsers(companyId, [request.requestedBy], {
+          type: 'parts',
+          message: `Your parts request ${request.requestNumber} was rejected`,
+          oversightMessage: `rejected parts request ${request.requestNumber} from ${request.requestedByName}`,
+          severity: 'medium', linkTo: link, ...actor,
+        });
+      } else if (decision === 'escalate') {
+        void notifyRoles(companyId, ['supervisor', 'plant_manager'], {
+          type: 'parts',
+          message: `Parts request ${request.requestNumber} needs supervisor approval`,
+          oversightMessage: `escalated parts request ${request.requestNumber} for approval`,
+          severity: 'high', linkTo: link, ...actor,
+        });
+      } else {
+        void notifyUsers(companyId, [request.requestedBy], {
+          type: 'parts',
+          message: `Your parts request ${request.requestNumber} is approved — ready to collect`,
+          oversightMessage: `approved parts request ${request.requestNumber} for ${request.requestedByName}`,
+          severity: 'medium', linkTo: link, ...actor,
+        });
+      }
 
       addToast(
         decision === 'reject'

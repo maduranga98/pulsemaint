@@ -238,6 +238,10 @@ export interface TechnicianStatusDoc {
   companyId: string;
   userId: string;
   name: string;
+  /** The person's role/designation, e.g. Technician / Trainee. */
+  role: string;
+  /** Name of the shift plan they clocked in on, e.g. "Morning Shift". */
+  shiftName: string | null;
   currentStatus: TechnicianCurrentStatus;
   currentWoId: string | null;
   currentWoNumber: string | null;

@@ -228,6 +228,75 @@ function FullInventoryDashboard() {
   );
 }
 
+// Supervisor inventory view: focused on the parts requests and POs a
+// supervisor actually acts on — request parts, browse the catalog, approve
+// escalated (awaiting-supervisor) requests, and see purchase orders pending
+// approval. The store keeper's full stock/receiving/movements toolkit is left
+// out deliberately.
+function SupervisorInventoryView() {
+  const navigate = useNavigate();
+  const [showRequest, setShowRequest] = useState(false);
+  const { requests, loading } = usePartsRequests({ status: 'all' });
+  const { parts: catalogParts, totalCount: catalogCount } = useInventoryParts({ pageSize: 5 });
+  const { orders: purchaseOrders } = usePurchaseOrders();
+
+  const awaitingSupervisor = requests.filter((r) => r.status === 'pending_supervisor');
+  const pendingPOs = purchaseOrders.filter((po) => po.status === 'pending_approval');
+
+  return (
+    <div className="space-y-6">
+      {showRequest && <CreatePartsRequestModal onClose={() => setShowRequest(false)} />}
+
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Inventory</h1>
+          <p className="text-gray-500 text-sm mt-0.5">Requests awaiting your approval, purchase orders, and the parts catalog.</p>
+        </div>
+        <button
+          onClick={() => setShowRequest(true)}
+          className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg"
+        >
+          <PackagePlus className="w-4 h-4" />
+          Request Parts
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="space-y-4"><SkeletonCard /><SkeletonCard /></div>
+      ) : (
+        <>
+          {/* Awaiting supervisor approval */}
+          <div>
+            <h2 className="mb-2 text-sm font-semibold text-gray-700">Awaiting Supervisor Approval ({awaitingSupervisor.length})</h2>
+            <PendingRequestsWidget requests={awaitingSupervisor} />
+          </div>
+
+          {/* Purchase orders pending approval */}
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 text-gray-500" />
+                Pending PO Requests
+                <span className="text-xs font-normal text-gray-500">({pendingPOs.length})</span>
+              </h2>
+              <Link to="/app/inventory/purchase-orders" className="text-sm text-blue-600 hover:text-blue-800 font-medium">View all</Link>
+            </div>
+            <div className="p-2">
+              <PurchaseOrderList
+                orders={pendingPOs.slice(0, 5)}
+                onView={(id) => navigate(`/app/inventory/purchase-orders/${id}`)}
+                onEdit={(id) => navigate(`/app/inventory/purchase-orders/${id}/edit`)}
+              />
+            </div>
+          </div>
+
+          <PartsCatalogWidget parts={catalogParts} totalCount={catalogCount} />
+        </>
+      )}
+    </div>
+  );
+}
+
 // Technicians and trainees share the same restricted inventory route
 // permissions (catalog + requests only, see AppRouter) — route them to the
 // scoped view instead of the store keeper's full management dashboard.
@@ -235,6 +304,9 @@ export function InventoryDashboardPage() {
   const role = useAuthStore((s) => s.userProfile?.role);
   if (role === 'technician' || role === 'trainee') {
     return <TechnicianInventoryView />;
+  }
+  if (role === 'supervisor') {
+    return <SupervisorInventoryView />;
   }
   return <FullInventoryDashboard />;
 }
