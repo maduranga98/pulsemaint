@@ -64,10 +64,10 @@ const USER_ROLE_TO_EVAL_ROLE: Record<UserRole, EvaluationRole> = {
   supervisor: 'supervisor',
   technician: 'technician',
   store_keeper: 'other',
-  hr_officer: 'other',
+  hr_officer: 'hr_officer',
   trainee: 'trainee',
   floor_operator: 'operator',
-  safety_officer: 'other',
+  safety_officer: 'safety_officer',
 };
 
 // Built-in sample templates — one per role, backed by the role's default
