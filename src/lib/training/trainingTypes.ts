@@ -108,6 +108,7 @@ export type TraineeTrainingType =
   | 'civil_trainee'
   | 'technician_trainee'
   | 'operator_trainee'
+  | 'safety_training'
   | 'other_trainee';
 
 export const TRAINEE_TRAINING_TYPE_LABELS: Record<TraineeTrainingType, string> = {
@@ -117,8 +118,12 @@ export const TRAINEE_TRAINING_TYPE_LABELS: Record<TraineeTrainingType, string> =
   civil_trainee: 'Civil',
   technician_trainee: 'Technician',
   operator_trainee: 'Operator',
+  safety_training: 'Safety Training',
   other_trainee: 'Other',
 };
+
+/** The training type used to mark a module as safety training. */
+export const SAFETY_TRAINING_TYPE: TraineeTrainingType = 'safety_training';
 
 /** Where a training module/assignment is delivered. */
 export type TrainingDeliveryMode = 'online' | 'onsite';

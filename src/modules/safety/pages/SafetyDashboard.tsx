@@ -82,7 +82,7 @@ export default function SafetyDashboard() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <QuickLink to="/app/safety/permits" icon={<FileCheck className="h-4 w-4" />} label="Work Permits" />
           <QuickLink to="/app/training/manage/modules" icon={<ShieldAlert className="h-4 w-4" />} label="Safety Training" />
-          <QuickLink to="/app/safety/calendar" icon={<CalendarDays className="h-4 w-4" />} label="Safety Calendar" />
+          <QuickLink to="/app/safety/calendar" icon={<CalendarDays className="h-4 w-4" />} label="Safety Training Schedules" />
           <QuickLink to="/app/safety/analytics" icon={<ShieldAlert className="h-4 w-4" />} label="Safety Analytics" />
         </div>
 
