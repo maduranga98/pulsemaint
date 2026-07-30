@@ -511,6 +511,10 @@ export function getDashboardRoute(role: UserRole): string {
     hr_officer: '/app/dashboard/training',
     trainee: '/app/dashboard/trainee',
     floor_operator: '/app/training/my-modules',
+    // Safety officers land on the fleet-wide manager dashboard — a read-only
+    // overview of breakdowns, work orders, PM and analytics, which is the
+    // oversight view their role is built around.
+    safety_officer: '/app/dashboard/manager',
   };
 
   return routes[role];

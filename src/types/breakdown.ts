@@ -12,7 +12,8 @@ export type UserRole =
   | 'maintenance_supervisor'
   | 'plant_manager'
   | 'hr_officer'
-  | 'admin';
+  | 'admin'
+  | 'safety_officer';
 
 // ---------------------------------------------------------------------------
 // Breakdown Domain Types

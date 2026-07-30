@@ -12,7 +12,7 @@ const TEMPLATE_COLUMNS = ['Full Name', 'Email', 'Role', 'Department', 'Designati
 
 const VALID_ROLES: UserRole[] = [
   'admin', 'plant_manager', 'supervisor', 'technician',
-  'store_keeper', 'hr_officer', 'trainee', 'floor_operator',
+  'store_keeper', 'hr_officer', 'trainee', 'floor_operator', 'safety_officer',
 ];
 
 export interface ParsedUserRow {

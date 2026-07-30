@@ -20,6 +20,7 @@ const SCHEDULABLE_ROLES: Array<{ value: string; label: string }> = [
   { value: 'trainee', label: 'Trainee' },
   { value: 'plant_manager', label: 'Plant Manager' },
   { value: 'hr_officer', label: 'HR Officer' },
+  { value: 'safety_officer', label: 'Safety Officer' },
 ];
 
 const ASSIGN_BY_OPTIONS: Array<{ value: ShiftAssignBy; label: string; hint: string }> = [

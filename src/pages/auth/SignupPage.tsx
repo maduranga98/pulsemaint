@@ -11,6 +11,7 @@ const ROLES: { value: UserRole; label: string; description: string }[] = [
   { value: 'store_keeper', label: 'Store Keeper', description: 'Inventory management' },
   { value: 'hr_officer', label: 'HR Officer', description: 'Human resources' },
   { value: 'trainee', label: 'Trainee', description: 'New employee trainee' },
+  { value: 'safety_officer', label: 'Safety Officer', description: 'EHS & safety oversight' },
   { value: 'admin', label: 'Admin', description: 'System administrator' },
 ];
 

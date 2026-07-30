@@ -71,8 +71,12 @@ service cloud.firestore {
       return isRole('hr_officer');
     }
 
+    function isSafetyOfficer() {
+      return isRole('safety_officer');
+    }
+
     function canReadContractors() {
-      return isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      return isAnyRole(['safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
     }
 
     function canManageContractors() {
@@ -142,6 +146,11 @@ service cloud.firestore {
       // Overview" and "Work Order Distribution" rendered empty while admins
       // (unconditional read) saw the data. Writes below stay site-gated.
       allow read: if isPlantManager() && belongsToCompany(resource.data.companyId);
+
+      // Safety Officer: company-wide read for safety oversight — breakdown/WO
+      // follow-up and the analytics dashboards (which query workOrders by
+      // companyId). Read-only; safety officers never modify work orders.
+      allow read: if isSafetyOfficer() && belongsToCompany(resource.data.companyId);
 
       // Plant Manager: manual check-in / start / execution updates on WOs,
       // plus final review sign-off (plant managers sign off completed WOs).
@@ -240,6 +249,7 @@ service cloud.firestore {
 
     match /machineHistory/{machineId}/entries/{entryId} {
       allow read: if isAuthenticated() && isAnyRole([
+        'safety_officer',
         'maintenance_supervisor',
         'supervisor',
         'plant_manager',
@@ -263,7 +273,7 @@ service cloud.firestore {
     // breakdown_tickets — used by dashboard widgets and Module 1 list/report pages
     match /breakdown_tickets/{ticketId} {
       allow read: if isAuthenticated() && isAnyRole([
-        'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
+        'safety_officer', 'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin'
       ]);
       allow create: if isAuthenticated() && isAnyRole([
@@ -278,7 +288,7 @@ service cloud.firestore {
 
     match /breakdowns/{breakdownId} {
       allow read: if isAuthenticated() && isAnyRole([
-        'supervisor', 'maintenance_supervisor', 'plant_manager', 'technician',
+        'safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'technician',
         'floor_operator', 'trainee', 'admin'
       ]);
       allow create: if isAuthenticated() && isAnyRole([
@@ -299,7 +309,7 @@ service cloud.firestore {
       // breakdown report form, which loads machines to auto-select the one
       // scanned (PM-093).
       allow read: if isAuthenticated() && isAnyRole([
-        'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
+        'safety_officer', 'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
         'plant_manager', 'store_keeper', 'trainee', 'admin'
       ]);
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
@@ -317,7 +327,7 @@ service cloud.firestore {
 
     match /permits/{permitId} {
       allow read: if isAuthenticated() && isAnyRole([
-        'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
+        'safety_officer', 'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
       ]);
       allow create, update: if isAuthenticated() && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'admin'
@@ -331,7 +341,7 @@ service cloud.firestore {
 
     match /conditionReadings/{readingId} {
       allow read: if isAuthenticated() && isAnyRole([
-        'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
+        'safety_officer', 'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
       ]);
       allow create: if isAuthenticated() && isAnyRole([
         'technician', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'
@@ -347,7 +357,7 @@ service cloud.firestore {
 
     match /parts/{partId} {
       allow read: if isAuthenticated() && isAnyRole([
-        'technician', 'maintenance_supervisor', 'plant_manager',
+        'safety_officer', 'technician', 'maintenance_supervisor', 'plant_manager',
         'store_keeper', 'admin'
       ]);
       allow write: if isAdmin() || isStoreKeeper();
@@ -445,7 +455,7 @@ service cloud.firestore {
       }
 
       allow read: if isAuthenticated() && jobCompanyMatches()
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
       allow create: if false;
       allow update: if isAuthenticated() && jobCompanyMatches()
         && newJobCompanyMatches()
@@ -570,7 +580,7 @@ service cloud.firestore {
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
-              && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor'])
+              && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor', 'safety_officer'])
         );
 
       // Self-create during signup; admins create anyone; supervisors/plant

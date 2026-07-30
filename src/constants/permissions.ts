@@ -29,6 +29,9 @@ export const ALLOWED_TRANSITIONS: Record<UserRole, Partial<Record<BreakdownStatu
   trainee:        {},
   store_keeper:   {},
   hr_officer:     {},
+  // Safety officers oversee breakdowns for safety follow-up but don't drive
+  // the repair workflow, so no status transitions.
+  safety_officer: {},
 };
 
 // ---------------------------------------------------------------------------
@@ -142,5 +145,20 @@ export const ROLE_PERMISSIONS: Record<UserRole, {
     canViewDashboard:         false,
     canViewTechnicianTracker: false,
     canViewFactoryMap:        false,
+  },
+  // Safety officer: full read/oversight of breakdowns (view-only, like a
+  // plant manager) but none of the repair actions — they watch breakdowns
+  // for safety follow-up, they don't acknowledge/assign/close them.
+  safety_officer: {
+    canCreateBreakdown:       false,
+    canAcknowledge:           false,
+    canAssign:                false,
+    canClose:                 false,
+    canDragKanban:            false,
+    canViewAllBreakdowns:     true,
+    canExportHistory:         true,
+    canViewDashboard:         true,
+    canViewTechnicianTracker: true,
+    canViewFactoryMap:        true,
   },
 };
