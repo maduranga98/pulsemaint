@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react';
-import { ShieldAlert, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { ShieldAlert, Plus, ChevronDown, ChevronRight, Send } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
 import EmptyState from '@/components/dashboard/shared/EmptyState';
 import { useSafetyCases } from '@/hooks/safety/useSafety';
-import { addSafetyCaseAction } from '@/services/safety.service';
+import { useCompanyUsers } from '@/hooks/useCompanyUsers';
+import { addSafetyCaseAction, reportSafetyCaseTo } from '@/services/safety.service';
+import { createNotification } from '@/services/notifications.service';
+import type { UserRole } from '@/types/auth';
 import {
   SAFETY_CASE_SUBJECT_TYPES,
   SAFETY_CASE_TYPES,
@@ -99,8 +102,54 @@ function CaseRow({ c, canAct }: { c: SafetyCase; canAct: boolean }) {
   const [note, setNote] = useState('');
   const [newStatus, setNewStatus] = useState<SafetyCaseStatus | ''>('');
   const [saving, setSaving] = useState(false);
+  const [reportTo, setReportTo] = useState('');
+  const [reporting, setReporting] = useState(false);
 
   const actions = c.actions ?? [];
+
+  // People a case can be escalated to — oversight roles in the company.
+  const { users } = useCompanyUsers(profile?.companyId);
+  const reportRecipients = useMemo(
+    () => users.filter((u) => REPORTED_TO_ROLES.includes(u.role) && u.id !== profile?.id),
+    [users, profile?.id],
+  );
+
+  async function submitReportTo() {
+    const target = reportRecipients.find((u) => u.id === reportTo);
+    if (!target) {
+      toast.error('Choose who to report this case to.');
+      return;
+    }
+    setReporting(true);
+    try {
+      await reportSafetyCaseTo(c.id, {
+        toUserId: target.id,
+        toUserName: target.fullName,
+        toUserRole: target.role,
+        by: profile?.id ?? '',
+        byName: profile?.fullName ?? '',
+        byRole: profile?.role ?? '',
+      });
+      await createNotification({
+        companyId: profile?.companyId ?? '',
+        type: 'alert',
+        severity: c.severity === 'critical' ? 'critical' : 'high',
+        message: `Safety case reported to you: ${c.title}`,
+        linkTo: '/app/safety/cases',
+        recipientUserIds: [target.id],
+        actorName: profile?.fullName ?? '',
+        actorRole: (profile?.role ?? null) as UserRole | null,
+        actorUserId: profile?.id ?? null,
+      }).catch(() => {/* notification is best-effort */});
+      toast.success(`Reported to ${target.fullName}.`);
+      setReportTo('');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to report the case.');
+    } finally {
+      setReporting(false);
+    }
+  }
 
   async function submitAction() {
     if (!note.trim() && !newStatus) {
@@ -202,6 +251,28 @@ function CaseRow({ c, canAct }: { c: SafetyCase; canAct: boolean }) {
                   className="inline-flex items-center gap-1.5 rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
                 >
                   <Plus className="h-4 w-4" /> {saving ? 'Saving…' : 'Record'}
+                </button>
+              </div>
+
+              {/* Report to — escalate this case to a manager/supervisor, who
+                  then sees it on their Safety Cases board and gets notified. */}
+              <div className="flex flex-wrap items-center gap-2 border-t border-[#1E3A5F] pt-2">
+                <span className="flex items-center gap-1.5 text-xs font-medium text-[#8BA3BF]">
+                  <Send className="h-3.5 w-3.5" /> Report to
+                </span>
+                <select value={reportTo} onChange={(e) => setReportTo(e.target.value)} className={`${field} sm:w-auto`}>
+                  <option value="">Select a person…</option>
+                  {reportRecipients.map((u) => (
+                    <option key={u.id} value={u.id}>{u.fullName} ({u.role})</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => void submitReportTo()}
+                  disabled={reporting || !reportTo}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#1A56DB] px-4 py-2 text-sm font-bold text-[#5B8DEF] disabled:opacity-60"
+                >
+                  <Send className="h-4 w-4" /> {reporting ? 'Reporting…' : 'Report'}
                 </button>
               </div>
             </div>
