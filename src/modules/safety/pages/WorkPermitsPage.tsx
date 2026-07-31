@@ -44,6 +44,9 @@ export default function WorkPermitsPage() {
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [signingOff, setSigningOff] = useState<WorkPermit | null>(null);
+  const [extending, setExtending] = useState<WorkPermit | null>(null);
+  const [extendValue, setExtendValue] = useState('');
+  const [extendSaving, setExtendSaving] = useState(false);
 
   const filtered = useMemo(
     () => (filter === 'all' ? permits : permits.filter((p) => p.category === filter)),
@@ -69,18 +72,33 @@ export default function WorkPermitsPage() {
     });
   }, [permits, companyId]);
 
-  async function extend(p: WorkPermit) {
-    const next = window.prompt('Extend permit until (YYYY-MM-DD or YYYY-MM-DDTHH:mm):', p.validTo);
-    if (!next) return;
-    if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(next) || next < p.validFrom) {
-      toast.error('Enter a valid date/time on or after the start.');
+  // Open the date/time picker for a permit. Seed it with the current validity
+  // end, trimmed to the 'YYYY-MM-DDTHH:mm' shape a datetime-local input needs.
+  function openExtend(p: WorkPermit) {
+    const seed = (p.validTo || '').length === 10 ? `${p.validTo}T17:00` : (p.validTo || '').slice(0, 16);
+    setExtendValue(seed);
+    setExtending(p);
+  }
+
+  async function saveExtend() {
+    if (!extending) return;
+    if (!extendValue) {
+      toast.error('Pick a new date and time.');
       return;
     }
+    if (extendValue <= extending.validFrom || extendValue <= (extending.validTo || '')) {
+      toast.error('New end must be later than the current validity.');
+      return;
+    }
+    setExtendSaving(true);
     try {
-      await extendWorkPermit(p.id, next);
+      await extendWorkPermit(extending.id, extendValue);
       toast.success('Permit extended.');
+      setExtending(null);
     } catch {
       toast.error('Failed to extend permit.');
+    } finally {
+      setExtendSaving(false);
     }
   }
 
@@ -163,7 +181,7 @@ export default function WorkPermitsPage() {
                   )}
                   {p.status === 'active' && (
                     <div className="mt-3 flex flex-wrap gap-3 border-t border-[#1E3A5F] pt-3">
-                      <button type="button" onClick={() => void extend(p)} className="text-xs font-semibold text-[#5B8DEF] hover:underline">Extend time</button>
+                      <button type="button" onClick={() => openExtend(p)} className="text-xs font-semibold text-[#5B8DEF] hover:underline">Extend time</button>
                       <button type="button" onClick={() => setSigningOff(p)} className="text-xs font-semibold text-[#10B981] hover:underline">Finish &amp; sign off</button>
                     </div>
                   )}
@@ -182,6 +200,49 @@ export default function WorkPermitsPage() {
           signedOffBy={profile?.id ?? ''}
           signedOffByName={profile?.fullName ?? ''}
         />
+      )}
+      {extending && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setExtending(null)}>
+          <div className="w-full max-w-sm rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-5 text-[#F0F4F8]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between">
+              <h3 className="text-base font-semibold">Extend permit</h3>
+              <button type="button" onClick={() => setExtending(null)} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-[#8BA3BF]">
+              {extending.permitNumber} · {extending.title}
+            </p>
+            <p className="mt-2 text-xs text-[#8BA3BF]">
+              Currently valid until {formatPermitDateTime(extending.validTo)}.
+            </p>
+            <label className="mt-3 block text-xs font-medium text-[#8BA3BF]">New valid until</label>
+            <input
+              type="datetime-local"
+              value={extendValue}
+              min={(extending.validFrom || '').slice(0, 16)}
+              onChange={(e) => setExtendValue(e.target.value)}
+              className={`${field} mt-1 [color-scheme:dark]`}
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setExtending(null)}
+                className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-4 py-2 text-sm text-[#F0F4F8]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void saveExtend()}
+                disabled={extendSaving}
+                className="rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+              >
+                {extendSaving ? 'Extending…' : 'Extend'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
