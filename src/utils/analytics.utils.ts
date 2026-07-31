@@ -110,8 +110,13 @@ export function tsToDate(ts: Timestamp | null | undefined): Date | null {
   return ts ? ts.toDate() : null;
 }
 
-export function relativeTime(ts: Timestamp): string {
-  const diffMs = Date.now() - ts.toMillis();
+export function relativeTime(ts: Timestamp | null | undefined): string {
+  // A doc written with serverTimestamp() has a null timestamp in the local
+  // snapshot until the server resolves it — guard so a just-created record
+  // (e.g. a notification raised during WO sign-off) can't crash the render.
+  const ms = (ts as { toMillis?: () => number } | null | undefined)?.toMillis?.();
+  if (ms == null) return 'just now';
+  const diffMs = Date.now() - ms;
   const diffMin = Math.floor(diffMs / 60_000);
   if (diffMin < 1) return 'just now';
   if (diffMin < 60) return `${diffMin}m ago`;
