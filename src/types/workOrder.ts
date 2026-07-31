@@ -150,6 +150,26 @@ export interface TechnicianWorkLog {
  * technician has recorded their own completion here. Each entry holds only the
  * work that person did — never anyone else's.
  */
+/** The per-assignee working status on a shared work order. */
+export type AssigneeWorkStatus = 'IN_PROGRESS' | 'ON_HOLD_PARTS' | 'ON_HOLD_APPROVAL';
+
+/**
+ * One assigned technician's own working state on a work order shared by several
+ * people. Each person starts / holds / resumes independently: one starting
+ * doesn't start the job for everyone, and one holding for parts doesn't pause
+ * a teammate. The shared `status` is an aggregate for the supervisor's view.
+ */
+export interface AssigneeWorkState {
+  technicianId: string;
+  technicianName: string;
+  status: AssigneeWorkStatus;
+  /** When this person first started their own work. */
+  startedAt: Timestamp | null;
+  /** Reason shown while this person is on hold. */
+  holdReason?: string;
+  updatedAt: Timestamp | null;
+}
+
 export interface AssigneeCompletion {
   technicianId: string;
   technicianName: string;
@@ -268,6 +288,8 @@ export interface WorkOrder {
   // Per-assignee self-completions — each assigned person records their own
   // work here before the WO can be finalised. Absent on older/solo WOs.
   assigneeCompletions?: AssigneeCompletion[];
+  /** Per-assignee start/hold/resume state on a team WO (see AssigneeWorkState). */
+  assigneeStates?: AssigneeWorkState[];
   contractorHoursLog: ContractorHoursLog | null;
   // Contractor sign-off figures: parts used cost is recomputed from
   // partsUsed, projectCost is the contractor's own cost, and the total is
