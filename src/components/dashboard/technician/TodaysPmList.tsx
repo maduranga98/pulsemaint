@@ -34,16 +34,46 @@ export default function TodaysPmList({ technicianId, siteId }: TodaysPmListProps
       where('siteId', '==', siteId),
       where('assignedTechnicianIds', 'array-contains', technicianId),
     );
+    // End of today — a PM belongs on "today's" list if it is due today or is
+    // already overdue. Archived/paused schedules are left out.
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
     const unsubscribe = onSnapshot(
       q,
       (snap) => {
-        const data = snap.docs.map((d) => ({
-          id: d.id,
-          machineName: d.data().machineName || 'Unknown',
-          pmType: d.data().scheduleType || 'Routine',
-          scheduledTime: d.data().nextDueDate?.toDate?.().toLocaleTimeString?.() ?? '09:00',
-          status: 'pending' as const,
-        }));
+        const data = snap.docs
+          .map((d) => {
+            const raw = d.data();
+            const due = raw.nextDueDate?.toDate?.() ?? null;
+            // Map the linked work order's live status onto the PM row so a job
+            // started or completed elsewhere is reflected here automatically.
+            const woStatus = String(raw.activeWoStatus ?? '');
+            const status: PMTask['status'] =
+              woStatus === 'COMPLETED' || woStatus === 'SIGNED_OFF' || woStatus === 'CLOSED'
+                ? 'completed'
+                : woStatus === 'IN_PROGRESS'
+                ? 'in_progress'
+                : 'pending';
+            return {
+              id: d.id,
+              machineName: raw.machineName || 'Unknown',
+              pmType: raw.pmType || raw.scheduleType || 'Routine',
+              scheduledTime: due?.toLocaleTimeString?.([], { hour: '2-digit', minute: '2-digit' }) ?? '09:00',
+              status,
+              scheduleStatus: String(raw.status ?? 'active'),
+              due,
+            };
+          })
+          .filter((t) => t.scheduleStatus === 'active' && t.due != null && t.due <= endOfToday)
+          .sort((a, b) => (a.due?.getTime() ?? 0) - (b.due?.getTime() ?? 0))
+          .map(({ id, machineName, pmType, scheduledTime, status }) => ({
+            id,
+            machineName,
+            pmType,
+            scheduledTime,
+            status,
+          }));
         setTasks(data);
         setLoading(false);
       },

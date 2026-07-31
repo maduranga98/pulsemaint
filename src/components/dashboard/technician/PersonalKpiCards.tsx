@@ -1,19 +1,19 @@
 import { useMemo } from 'react';
 import { Wrench, Timer, Clock, Shield } from 'lucide-react';
-import { useMyJobQueue } from '../../../hooks/dashboard/useMyJobQueue';
+import { useMyCompletedWorkOrders } from '../../../hooks/dashboard/useMyCompletedWorkOrders';
 import { formatDurationMinutes } from '../../../utils/analytics.utils';
-import type { WorkOrder } from '../../../types';
 
 interface PersonalKpiCardsProps {
   technicianId: string;
   siteId: string;
 }
 
-export default function PersonalKpiCards({ technicianId, siteId }: PersonalKpiCardsProps) {
-  const { workOrders } = useMyJobQueue(technicianId, siteId);
+export default function PersonalKpiCards({ technicianId }: PersonalKpiCardsProps) {
+  // Completed work is excluded from the active job queue, so the KPIs read from
+  // a dedicated live query of the technician's finished work orders.
+  const { workOrders: completed } = useMyCompletedWorkOrders(technicianId);
 
   const stats = useMemo(() => {
-    const completed = workOrders.filter((wo: WorkOrder) => wo.status === 'COMPLETED');
     const totalResponseMins = completed.reduce((sum, wo) => {
       const reported = wo.createdAt?.toDate?.().getTime() ?? 0;
       const started = wo.actualStartTime?.toDate?.().getTime() ?? 0;
@@ -36,7 +36,7 @@ export default function PersonalKpiCards({ technicianId, siteId }: PersonalKpiCa
       avgRepairMins: completed.length ? totalRepairMins / completed.length : 0,
       slaCompliance: Math.round((slaCompliant / total) * 100),
     };
-  }, [workOrders]);
+  }, [completed]);
 
   const cards = [
     { label: 'Jobs Completed', value: stats.jobsCompleted, icon: <Wrench className="w-5 h-5" />, color: 'text-[#1A56DB]' },

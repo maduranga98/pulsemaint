@@ -86,12 +86,14 @@ export default function TechnicianDashboard() {
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        {/* Active Job */}
-        <ActiveJobCard
-          workOrder={activeJob}
-          onOpen={(wo) => setSelectedId(wo.id)}
-          onRequestParts={(wo) => openPartsRequest(wo)}
-        />
+        {/* Active Job — only shown when a job is actually in progress */}
+        {activeJob && (
+          <ActiveJobCard
+            workOrder={activeJob}
+            onOpen={(wo) => setSelectedId(wo.id)}
+            onRequestParts={(wo) => openPartsRequest(wo)}
+          />
+        )}
 
         {/* Job Queue */}
         <JobQueueList
