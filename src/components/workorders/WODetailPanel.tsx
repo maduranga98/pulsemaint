@@ -15,6 +15,8 @@ import { LotoGate } from './LotoGate';
 import { WorkPermitDetails } from './WorkPermitDetails';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
 import { useWorkOrderPermit } from '../../hooks/safety/useSafety';
+import { useMyWorkCompletion, allAssigneesCompleted } from '../../hooks/useMyWorkCompletion';
+import { buildTechnicianWorkLogs } from '../../lib/workorders/technicianWorkLogs';
 import { useAuthStore } from '../../store/authStore';
 
 type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history';
@@ -60,6 +62,37 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   // Assignment may be stored under the Firebase Auth uid or the user profile id.
   const myIds = [user?.uid, userProfile?.id].filter(Boolean) as string[];
   const isAssigned = workOrder.assignedTechnicianIds.some((id) => myIds.includes(id));
+
+  // Per-assignee completion: the WO can only be finalised once every assigned
+  // person has recorded their own work. A technician sees only their own state.
+  const everyoneDone = allAssigneesCompleted(workOrder);
+  const myId = workOrder.assignedTechnicianIds.find((id) => myIds.includes(id)) ?? myIds[0] ?? '';
+  const myCompletion = (workOrder.assigneeCompletions ?? []).find((c) => c.technicianId === myId) ?? null;
+  const completedAssigneeCount = new Set((workOrder.assigneeCompletions ?? []).map((c) => c.technicianId)).size;
+  const totalAssignees = workOrder.assignedTechnicianIds.length;
+  const { submitMyWork, loading: myWorkLoading } = useMyWorkCompletion();
+  const [myWorkDone, setMyWorkDone] = useState('');
+  const [showMyWorkForm, setShowMyWorkForm] = useState(false);
+
+  async function handleSubmitMyWork() {
+    const myCompletedSteps = myId
+      ? buildTechnicianWorkLogs([{ technicianId: myId, technicianName: userProfile?.fullName ?? '' }], workOrder.checklist, {}, 0)[0]?.tasksDescription ?? ''
+      : '';
+    const ok = await submitMyWork(workOrder.id, {
+      technicianId: myId,
+      technicianName: userProfile?.fullName ?? user?.displayName ?? 'You',
+      technicianRole: role,
+      workDoneDescription: myWorkDone.trim(),
+      completedStepsDescription: myCompletedSteps,
+      hoursWorked: workOrder.actualStartTime
+        ? Math.round(((Date.now() - workOrder.actualStartTime.toDate().getTime()) / 3600000) * 100) / 100
+        : 0,
+    });
+    if (ok) {
+      setShowMyWorkForm(false);
+      setMyWorkDone('');
+    }
+  }
 
   // Time consumed is derived from the start/complete timestamps (no manual
   // wrench-time entry).
@@ -343,6 +376,38 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                         </div>
                         {log.tasksDescription && (
                           <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-line">{log.tasksDescription}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Per-assignee self-completions — visible to the sign-off
+                  authority (and anyone with panel access) so they can see each
+                  person's own recorded work before/at finalisation. */}
+              {isSupervisor && (workOrder.assigneeCompletions ?? []).length > 0 && (
+                <section>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+                    Assignee Completions ({completedAssigneeCount}/{totalAssignees})
+                  </h3>
+                  <div className="space-y-2">
+                    {(workOrder.assigneeCompletions ?? []).map((c, i) => (
+                      <div key={i} className="bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 text-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium text-gray-800">
+                            {c.technicianName}
+                            {c.technicianRole && <span className="ml-1 text-xs font-normal text-gray-500">({detailRoleLabel(c.technicianRole)})</span>}
+                          </span>
+                          <span className="text-xs text-emerald-600">
+                            {c.completedAt?.toDate?.().toLocaleString?.() ?? 'completed'}
+                          </span>
+                        </div>
+                        {c.completedStepsDescription && (
+                          <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-line">{c.completedStepsDescription}</p>
+                        )}
+                        {c.workDoneDescription && (
+                          <p className="text-xs text-gray-700 mt-0.5 whitespace-pre-line">{c.workDoneDescription}</p>
                         )}
                       </div>
                     ))}
@@ -824,9 +889,13 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 <button
                   type="button"
                   onClick={() => setShowCompletionForm(true)}
-                  className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
+                  disabled={!everyoneDone}
+                  title={everyoneDone ? undefined : 'All assigned team members must complete their own work first'}
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {WO_COPY.completeButton}
+                  {everyoneDone
+                    ? WO_COPY.completeButton
+                    : `Awaiting team (${completedAssigneeCount}/${totalAssignees})`}
                 </button>
               )}
               {!['CLOSED', 'CANCELLED', 'SIGNED_OFF'].includes(workOrder.status) && (
@@ -872,15 +941,62 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   >
                     Parts Needed
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowCompletionForm(true)}
-                    className="flex-1 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
-                  >
-                    {WO_COPY.completeButton}
-                  </button>
+                  {/* Each assignee completes only their own work first. */}
+                  {myCompletion ? (
+                    <div className="flex-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-sm font-medium text-emerald-700">
+                      ✓ Your work is complete
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowMyWorkForm(true)}
+                      className="flex-1 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
+                    >
+                      Complete My Work
+                    </button>
+                  )}
+                  {everyoneDone && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCompletionForm(true)}
+                      className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700"
+                    >
+                      {WO_COPY.completeButton}
+                    </button>
+                  )}
                 </>
               )}
+            </div>
+          )}
+
+          {/* Per-person completion form for an assigned technician. */}
+          {isTechnician && isAssigned && showMyWorkForm && !myCompletion && (
+            <div className="mt-3 rounded-lg border border-gray-200 bg-white p-3 space-y-2">
+              <p className="text-sm font-semibold text-gray-800">Complete my work</p>
+              <textarea
+                rows={3}
+                value={myWorkDone}
+                onChange={(e) => setMyWorkDone(e.target.value)}
+                placeholder="Describe the work you did on this job"
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleSubmitMyWork}
+                  disabled={myWorkLoading || !myWorkDone.trim()}
+                  className="flex-1 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  Submit my work
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowMyWorkForm(false)}
+                  className="px-4 py-2 border border-gray-200 text-gray-700 text-sm rounded-lg"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           )}
         </div>
