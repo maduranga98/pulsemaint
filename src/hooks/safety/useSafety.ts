@@ -1,31 +1,63 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, limit, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { subscribeSafetyCases, subscribeWorkPermits } from '../../services/safety.service';
 import type { SafetyCase, WorkPermit } from '../../types/safety';
 
-/** The latest Work Permit linked to a given work order, live (or null). */
-export function useWorkOrderPermit(workOrderId: string | undefined) {
-  const [permit, setPermit] = useState<WorkPermit | null>(null);
+/**
+ * The Work Permit gating a given work order, live (or null).
+ *
+ * Matches every permit linked to the WO by `workOrderId` (not just one) and
+ * surfaces the one that actually gates the job — an `active` permit wins over a
+ * closed/expired one, so a WO that has been signed off once and re-permitted
+ * still shows its live permit. `limit(1)` with no ordering used to return an
+ * arbitrary permit, which could hand back a closed one (or miss the active one
+ * entirely) and leave the start gate insisting no permit exists.
+ */
+export function useWorkOrderPermit(
+  workOrderId: string | undefined,
+  workPermitId?: string | null,
+) {
+  const [byWorkOrder, setByWorkOrder] = useState<WorkPermit[]>([]);
+  const [byId, setById] = useState<WorkPermit | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!workOrderId) {
-      setPermit(null);
+      setByWorkOrder([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     const unsub = onSnapshot(
-      query(collection(db, 'work_permits'), where('workOrderId', '==', workOrderId), limit(1)),
+      query(collection(db, 'work_permits'), where('workOrderId', '==', workOrderId)),
       (snap) => {
-        setPermit(snap.empty ? null : ({ id: snap.docs[0].id, ...snap.docs[0].data() } as WorkPermit));
+        setByWorkOrder(snap.docs.map((d) => ({ id: d.id, ...d.data() } as WorkPermit)));
         setLoading(false);
       },
       () => setLoading(false),
     );
     return () => unsub();
   }, [workOrderId]);
+
+  // Fallback link: the WO stores the id of the permit it was gated on. This
+  // covers a permit whose `workOrderId` field was never written (older data),
+  // so the start gate still finds it.
+  useEffect(() => {
+    if (!workPermitId) {
+      setById(null);
+      return;
+    }
+    const unsub = onSnapshot(
+      doc(db, 'work_permits', workPermitId),
+      (snap) => setById(snap.exists() ? ({ id: snap.id, ...snap.data() } as WorkPermit) : null),
+      () => setById(null),
+    );
+    return () => unsub();
+  }, [workPermitId]);
+
+  const all = byId ? [byId, ...byWorkOrder.filter((p) => p.id !== byId.id)] : byWorkOrder;
+  const permit = all.find((p) => p.status === 'active') ?? all[0] ?? null;
 
   return { permit, loading };
 }
