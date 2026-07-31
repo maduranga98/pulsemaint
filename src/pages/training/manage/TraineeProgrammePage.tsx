@@ -215,8 +215,15 @@ export default function TraineeProgrammePage() {
 
   const allModuleIds = programme?.months.flatMap((m) => m.moduleIds) ?? [];
   const assignmentByModuleId = new Map(assignments.map((a) => [a.moduleId, a]));
-  const allCertified = allModuleIds.length > 0
-    && allModuleIds.every((id) => assignmentByModuleId.get(id)?.status === 'certified');
+  // A programme module is "done" once the trainee passes its final test.
+  // Programme modules are not certified individually (that would mint a
+  // per-module certificate) — they sit at `quiz_passed` until the whole
+  // programme is signed off here.
+  const isModuleDone = (id: string) => {
+    const a = assignmentByModuleId.get(id);
+    return !!a && (a.quizPassed === true || a.status === 'quiz_passed' || a.status === 'certified');
+  };
+  const allCertified = allModuleIds.length > 0 && allModuleIds.every(isModuleDone);
 
   async function handleIssueCertificate() {
     if (!programme || !trainee || !userProfile || !recommendation.trim()) return;
@@ -317,7 +324,7 @@ export default function TraineeProgrammePage() {
                   {summaries.map((s) => (
                     <div key={s.id} className="border border-slate-100 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-slate-800">Knowledge write-up</span>
+                        <span className="text-sm font-medium text-slate-800">{s.moduleName || 'Knowledge write-up'}</span>
                         <span className="text-xs text-slate-500">{s.reviewStatus}</span>
                       </div>
                       <p className="text-sm text-slate-600 whitespace-pre-wrap">{s.summaryText}</p>

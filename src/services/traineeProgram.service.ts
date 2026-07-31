@@ -165,6 +165,8 @@ interface SubmitWeekendSummaryPayload {
   traineeName: string;
   weekEndingDate: string;
   month: number;
+  moduleId?: string | null;
+  moduleName?: string | null;
   summaryText: string;
   tasks: WeekendTaskEntry[];
   files: File[];
@@ -232,6 +234,8 @@ export async function submitWeekendSummary(payload: SubmitWeekendSummaryPayload)
     traineeName: payload.traineeName,
     weekEndingDate: payload.weekEndingDate,
     month: payload.month,
+    moduleId: payload.moduleId ?? null,
+    moduleName: payload.moduleName ?? null,
     summaryText: payload.summaryText,
     tasks: payload.tasks,
     attachments,

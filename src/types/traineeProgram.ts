@@ -68,6 +68,10 @@ export interface WeekendSummary {
   traineeName: string;
   weekEndingDate: string; // YYYY-MM-DD, the Saturday/Sunday the week ends on
   month: number; // which programme month this week falls in
+  // Which programme module this knowledge write-up is about (optional — older
+  // weekend-summary records predate module tagging).
+  moduleId?: string | null;
+  moduleName?: string | null;
   summaryText: string;
   tasks: WeekendTaskEntry[];
   attachments: WODocument[];

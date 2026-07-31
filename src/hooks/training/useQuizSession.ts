@@ -287,9 +287,12 @@ export function useQuizSession(): UseQuizSessionReturn {
       const passed = hasPassedQuiz(raw.score, passingScore);
 
       // Trainee-programme modules (Trainee Management library) are not signed
-      // off one-by-one: passing the module's final test completes it outright,
-      // and the single practical sign-off happens once, at programme
-      // completion, when the certificate is issued. Regular training-library
+      // off or certified one-by-one: passing the module's final test just
+      // completes it (`quiz_passed`). The single practical sign-off — and the
+      // one programme certificate — happen once, at programme completion.
+      // Marking the module `certified` here would fire the
+      // `generateTrainingCertificate` Cloud Function and mint a certificate per
+      // module, which is exactly what we must avoid. Regular training-library
       // modules keep the per-module practical sign-off (`awaiting_practical`).
       const isProgrammeModule =
         localStorage.getItem(`quiz_scope_${session.assignmentId}`) === 'trainee_management';
@@ -333,8 +336,7 @@ export function useQuizSession(): UseQuizSessionReturn {
           ? isProgrammeModule
             ? {
                 quizPassedAt: now,
-                status: 'certified',
-                certifiedAt: now,
+                status: 'quiz_passed',
                 completedAt: now,
               }
             : {
