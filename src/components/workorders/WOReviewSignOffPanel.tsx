@@ -52,15 +52,20 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
   const [step, setStep] = useState<Step>('review');
 
-  // Only the assigned supervisor / plant manager / admin may sign off. Neither
-  // a supervisor nor a plant manager may sign off a work order they themselves
-  // raised — that sign-off has to come from someone else (another
-  // supervisor/plant manager, or an admin) to keep it a second set of eyes.
-  // Admins are exempt and can sign off anything, including their own.
+  // Who may sign off:
+  //  - Admins: anything, including their own.
+  //  - The supervisor assigned as supervisor-in-charge of this WO: they own it,
+  //    so they sign it off — even if they also raised it (raising and assigning
+  //    a job to your own team is the normal supervisor flow).
+  //  - Any other supervisor / plant manager: may sign off a WO they didn't
+  //    raise, keeping the "second set of eyes" on jobs that aren't theirs.
   const isOwnWorkOrder = userProfile?.id != null && wo.createdBy === userProfile.id;
+  const isAssignedSupervisor =
+    userProfile?.id != null && wo.supervisorInChargeId === userProfile.id;
   const canSignOff =
     userProfile?.role === 'admin' ||
-    ((userProfile?.role === 'supervisor' || userProfile?.role === 'plant_manager') && !isOwnWorkOrder);
+    (userProfile?.role === 'supervisor' && (isAssignedSupervisor || !isOwnWorkOrder)) ||
+    (userProfile?.role === 'plant_manager' && !isOwnWorkOrder);
 
   // Optional root-cause analysis (not required to sign off).
   const [showRCA, setShowRCA] = useState(false);
@@ -336,8 +341,8 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
               {!canSignOff ? (
                 <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
-                  {userProfile?.role === 'plant_manager' && isOwnWorkOrder
-                    ? "You created this work order, so you can't sign it off yourself — ask a supervisor or admin to sign off."
+                  {(userProfile?.role === 'plant_manager' || userProfile?.role === 'supervisor') && isOwnWorkOrder
+                    ? "You created this work order and aren't its supervisor-in-charge, so you can't sign it off yourself — ask its assigned supervisor, another manager, or an admin."
                     : 'You have view-only access — only a supervisor, plant manager, or admin can sign off this work order.'}
                 </p>
               ) : (
