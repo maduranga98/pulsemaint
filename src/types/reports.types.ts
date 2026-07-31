@@ -17,7 +17,8 @@ export type ReportType =
   | 'executive_monthly'
   | 'audit_trail'
   | 'po_history'
-  | 'safety_incidents';
+  | 'safety_incidents'
+  | 'work_permit_history';
 
 export type QuickDateRange =
   | 'today'

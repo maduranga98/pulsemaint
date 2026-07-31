@@ -37,6 +37,7 @@ const STORE_KEEPER_REPORTS: ReportType[] = [
 // safety_officer sees safety and safety-adjacent compliance reports.
 const SAFETY_OFFICER_REPORTS: ReportType[] = [
   'safety_incidents',
+  'work_permit_history',
   'maintenance_cost',
   'shift_handover_summary',
   'audit_trail',
