@@ -74,7 +74,13 @@ export default function QuizPage() {
           maxAttempts={maxAttempts}
           cooldownSeconds={cooldownSeconds}
           onRetry={() => startQuiz(assignment, module)}
-          onContinue={() => navigate(`/app/training/my-modules/${assignmentId}`)}
+          onContinue={() =>
+            navigate(
+              module.libraryScope === 'trainee_management'
+                ? '/app/training/my-program'
+                : `/app/training/my-modules/${assignmentId}`,
+            )
+          }
           moduleName={module.title}
         />
         <div className="px-4 pb-8">
