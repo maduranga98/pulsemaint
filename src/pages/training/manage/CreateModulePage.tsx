@@ -1,20 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, UserPlus } from 'lucide-react';
-import {
-  collection,
-  addDoc,
-  serverTimestamp,
-  doc,
-  updateDoc,
-} from 'firebase/firestore';
+import { ArrowLeft } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
 import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
-import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
 
 /** Authors a module into the Training tab's library (libraryScope 'training'). */
 export default function CreateModulePage() {
@@ -22,64 +15,42 @@ export default function CreateModulePage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
   const [isSaving, setIsSaving] = useState(false);
-  const [moduleId, setModuleId] = useState<string | undefined>(undefined);
-  const [module, setModule] = useState<TrainingModule | undefined>(undefined);
-  const [assigning, setAssigning] = useState(false);
 
+  // The very first save creates the module document, then we hand off to the
+  // module's own Edit page. That page loads the saved module (confirming the
+  // write), keeps the user in the editor — it does NOT bounce back to the
+  // Training dashboard — and is where the Assign action lives, so a module can
+  // be assigned immediately after it's created.
   const handleSave = async (updates: Partial<TrainingModule>) => {
     if (!companyId || !userId) return;
     setIsSaving(true);
     try {
-      if (!moduleId) {
-        const status = updates.status ?? 'active';
-        const ref = await addDoc(collection(db, 'trainingModules'), {
-          ...updates,
-          companyId,
-          createdBy: userId,
-          // This page only ever writes into the Training tab's library —
-          // the trainee library has its own editor pages.
-          libraryScope: 'training',
-          // Respect the status chosen in the settings form, which defaults to
-          // 'active' — forcing 'draft' here left modules unassignable
-          // (Assign only works on 'active').
-          status,
-          lessons: updates.lessons ?? [],
-          estimatedMinutes: updates.estimatedMinutes ?? 0,
-          passingScore: updates.passingScore ?? 80,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
-        setModuleId(ref.id);
-        setModule({
-          id: ref.id,
-          companyId,
-          createdBy: userId,
-          libraryScope: 'training',
-          lessons: [],
-          estimatedMinutes: 0,
-          passingScore: 80,
-          ...updates,
-          status,
-        } as TrainingModule);
-        toast.success('Module saved. You can now assign it.');
-      } else {
-        await updateDoc(doc(db, 'trainingModules', moduleId), {
-          ...updates,
-          updatedAt: serverTimestamp(),
-        });
-        setModule((prev) => (prev ? { ...prev, ...updates } : prev));
-        toast.success('Module updated.');
-      }
+      const status = updates.status ?? 'active';
+      const ref = await addDoc(collection(db, 'trainingModules'), {
+        ...updates,
+        companyId,
+        createdBy: userId,
+        // This page only ever writes into the Training tab's library —
+        // the trainee library has its own editor pages.
+        libraryScope: 'training',
+        // Respect the status chosen in the settings form, which defaults to
+        // 'active' — forcing 'draft' here left modules unassignable
+        // (Assign only works on 'active').
+        status,
+        lessons: updates.lessons ?? [],
+        estimatedMinutes: updates.estimatedMinutes ?? 0,
+        passingScore: updates.passingScore ?? 80,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      toast.success('Module saved. You can now add a quiz or assign it.');
+      navigate(`/app/training/manage/modules/${ref.id}`, { replace: true });
     } catch (err) {
       console.error('Failed to save training module', err);
       toast.error('Failed to save module. Please try again.');
-    } finally {
       setIsSaving(false);
     }
   };
-
-  const canAssign = !!moduleId && module?.status === 'active';
-
 
   return (
     <div className="min-h-full">
@@ -92,31 +63,16 @@ export default function CreateModulePage() {
           <ArrowLeft size={18} />
         </button>
         <h1 className="font-semibold text-slate-900 text-sm flex-1">Create Training Module</h1>
-        {canAssign && (
-          <button
-            onClick={() => setAssigning(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
-          >
-            <UserPlus size={14} /> Assign
-          </button>
-        )}
       </div>
       <ModuleEditorLayout
-        module={module}
+        module={undefined}
         onSave={handleSave}
-        moduleId={moduleId}
+        moduleId={undefined}
         editorBasePath="/app/training/manage/modules"
         renderSettings={() => (
-          <ModuleSettingsForm defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
+          <ModuleSettingsForm defaultValues={undefined} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
-      {assigning && module && (
-        <ModuleAssignForm
-          module={module}
-          onClose={() => setAssigning(false)}
-          onAssigned={() => setAssigning(false)}
-        />
-      )}
     </div>
   );
 }
