@@ -52,7 +52,10 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
   // Safety Work Permit gate — a WO flagged `requiresWorkPermit` can't start
   // until its linked Permit-to-Work is active.
-  const { permit: workPermit } = useWorkOrderPermit(wo.requiresWorkPermit ? wo.id : undefined);
+  const { permit: workPermit } = useWorkOrderPermit(
+    wo.requiresWorkPermit ? wo.id : undefined,
+    wo.requiresWorkPermit ? wo.workPermitId : undefined,
+  );
   const workPermitActive = !wo.requiresWorkPermit || workPermit?.status === 'active';
 
   // Load the machine's isolation points so the LOTO/PTW safety checklist can

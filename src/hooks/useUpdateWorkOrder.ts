@@ -112,17 +112,28 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
         // its linked Permit-to-Work is active (issued and not yet closed/expired).
         try {
           const woSnap = await getDoc(doc(db, 'workOrders', id));
-          const woData = woSnap.data() as WorkOrder | undefined;
+          const woData = woSnap.data() as (WorkOrder & { workPermitId?: string | null }) | undefined;
           if (woData?.requiresWorkPermit) {
-            const wpQuery = query(
-              collection(db, 'work_permits'),
-              where('workOrderId', '==', id),
-              limit(1),
+            // Consider every permit linked to this WO (by workOrderId), plus the
+            // permit the WO itself points at (workPermitId). A single `limit(1)`
+            // query with no ordering could return a closed permit — or miss the
+            // active one — and wrongly block a job whose permit is issued.
+            const wpSnap = await getDocs(
+              query(collection(db, 'work_permits'), where('workOrderId', '==', id)),
             );
-            const wpSnap = await getDocs(wpQuery);
-            const wp = wpSnap.empty ? null : (wpSnap.docs[0].data() as { status?: string });
-            if (!wp || wp.status !== 'active') {
-              const msg = !wp
+            const statuses = wpSnap.docs.map((d) => (d.data() as { status?: string }).status);
+            if (woData.workPermitId) {
+              try {
+                const linked = await getDoc(doc(db, 'work_permits', woData.workPermitId));
+                if (linked.exists()) statuses.push((linked.data() as { status?: string }).status);
+              } catch {
+                // best-effort — the workOrderId query above is the primary check
+              }
+            }
+            const hasActive = statuses.some((s) => s === 'active');
+            const hasAny = statuses.length > 0;
+            if (!hasActive) {
+              const msg = !hasAny
                 ? 'A Work Permit must be created before this job can start.'
                 : 'The Work Permit for this job is not active. Issue or re-activate it before starting.';
               setError(msg);
