@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bell, AlertTriangle, Wrench, Package, Calendar, GraduationCap, ClipboardCheck, FileText, CheckCheck } from 'lucide-react';
 import { useMyNotifications } from '@/hooks/useMyNotifications';
+import { useDerivedAlerts } from '@/hooks/useDerivedAlerts';
 import { relativeTime } from '@/utils/analytics.utils';
 import type { DashboardNotification, DashboardNotificationType } from '@/types/analytics.types';
 import { useAuthStore } from '@/store/authStore';
@@ -30,8 +31,15 @@ export default function NotificationBell() {
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useMyNotifications();
+  const derivedAlerts = useDerivedAlerts();
+  // Session-dismissed derived alerts (they re-appear next session if still
+  // unresolved — they're state-derived, so they clear on their own once fixed).
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const alerts = derivedAlerts.filter((a) => !dismissed.has(a.id));
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+
+  const totalCount = unreadCount + alerts.length;
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -58,9 +66,9 @@ export default function NotificationBell() {
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5" />
-        {unreadCount > 0 && (
+        {totalCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
-            {unreadCount > 9 ? '9+' : unreadCount}
+            {totalCount > 9 ? '9+' : totalCount}
           </span>
         )}
       </button>
@@ -80,7 +88,42 @@ export default function NotificationBell() {
               </button>
             )}
           </div>
-          {notifications.length === 0 ? (
+          {/* State-derived alerts: expiring/due items and stock/PO alerts,
+              shown to the roles that own them. They clear automatically once
+              the underlying condition is resolved. */}
+          {alerts.length > 0 && (
+            <div className="divide-y divide-amber-100 bg-amber-50/40">
+              <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                Needs attention
+              </p>
+              {alerts.slice(0, 30).map((a) => {
+                const Icon = ICON_MAP[a.type] ?? Bell;
+                return (
+                  <div key={a.id} className="w-full flex items-start gap-3 px-4 py-3 hover:bg-amber-50 transition-colors">
+                    <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[a.severity] ?? 'text-slate-400'}`} />
+                    <button
+                      onClick={() => {
+                        setOpen(false);
+                        if (a.linkTo) navigate(a.linkTo);
+                      }}
+                      className="flex-1 min-w-0 text-left"
+                    >
+                      <p className="text-sm leading-snug text-slate-900 font-medium">{a.message}</p>
+                    </button>
+                    <button
+                      onClick={() => setDismissed((prev) => new Set(prev).add(a.id))}
+                      className="text-slate-300 hover:text-slate-500 text-xs shrink-0"
+                      aria-label="Dismiss"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {notifications.length === 0 && alerts.length === 0 ? (
             <p className="text-center py-10 text-sm text-slate-400">You&rsquo;re all caught up.</p>
           ) : (
             <div className="divide-y divide-slate-100">
