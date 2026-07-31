@@ -100,21 +100,63 @@ export function ReliabilitySection({}: ReliabilitySectionProps) {
             return;
           }
 
-          // Fallback: WOs completed before time-segment tracking existed (or via
-          // the technician execution sheet) still carry real hands-on duration in
-          // the WO detail. Count that as working ("wrench") time so the overview
-          // reflects actual completed-work data instead of sitting empty.
+          // Fallback: WOs without time segments (completed via the technician
+          // execution sheet, or before segment tracking existed) still carry the
+          // real timings we need — how long they spent working, waiting on parts,
+          // and waiting on a permit — in their status history and completion
+          // fields. Derive the three buckets from that so the overview reflects
+          // actual WO data instead of only hands-on time.
+
+          // Time spent in each status, from the status-history transitions.
+          const history = (wo.statusHistory ?? []) as Array<{ status?: string; changedAt?: unknown }>;
+          const sorted = [...history]
+            .map((h) => ({ status: String(h.status ?? ''), ms: toMs(h.changedAt) }))
+            .filter((h) => h.ms > 0)
+            .sort((a, b) => a.ms - b.ms);
+          const endFallbackMs = toMs(wo.actualEndTime) || toMs(wo.updatedAt) || Date.now();
+          const statusMs: Record<string, number> = {};
+          for (let i = 0; i < sorted.length; i++) {
+            const nextMs = i + 1 < sorted.length ? sorted[i + 1].ms : endFallbackMs;
+            const dur = Math.max(0, nextMs - sorted[i].ms);
+            statusMs[sorted[i].status] = (statusMs[sorted[i].status] ?? 0) + dur;
+          }
+
+          // Completing (working) time — prefer the recorded duration, else the
+          // in-progress span, else the start→end span.
           let workingMs = 0;
           if (typeof wo.totalDurationMinutes === 'number' && wo.totalDurationMinutes > 0) {
             workingMs = wo.totalDurationMinutes * 60000;
+          } else if (statusMs['IN_PROGRESS']) {
+            workingMs = statusMs['IN_PROGRESS'];
           } else {
             const startMs = toMs(wo.actualStartTime);
             const endMs = toMs(wo.actualEndTime);
             if (startMs && endMs && endMs > startMs) workingMs = endMs - startMs;
           }
+
+          // Waiting on parts — time the WO sat on hold for parts.
+          const waitingPartsMs = statusMs['ON_HOLD_PARTS'] ?? 0;
+
+          // Waiting on a permit — for permit-gated WOs, the time it sat assigned
+          // before it could start (the permit gate), plus any approval hold.
+          let waitingPermitMs = statusMs['ON_HOLD_APPROVAL'] ?? 0;
+          if (wo.requiresWorkPermit) {
+            waitingPermitMs += (statusMs['ASSIGNED'] ?? 0) + (statusMs['OPEN'] ?? 0);
+          }
+
           if (workingMs > 0) {
             stateMs.working += workingMs;
             totalMs += workingMs;
+            hasAnySegments = true;
+          }
+          if (waitingPartsMs > 0) {
+            stateMs['waiting-parts'] += waitingPartsMs;
+            totalMs += waitingPartsMs;
+            hasAnySegments = true;
+          }
+          if (waitingPermitMs > 0) {
+            stateMs['waiting-permit'] += waitingPermitMs;
+            totalMs += waitingPermitMs;
             hasAnySegments = true;
           }
         });
