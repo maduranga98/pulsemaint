@@ -184,7 +184,9 @@ service cloud.firestore {
           'totalPartsCost', 'projectCost', 'totalProjectCost', 'contractorRating',
           // Back-references written straight after a plant manager creates a
           // PM work order (see useCreateWorkOrder).
-          'pmHistoryId', 'pmScheduleId'
+          'pmHistoryId', 'pmScheduleId',
+          // Per-assignee self-completion entries.
+          'assigneeCompletions'
         ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
@@ -221,7 +223,10 @@ service cloud.firestore {
           'partsUsed', 'technicianWorkLogs', 'contractorHoursLog',
           'postRepairChecklist', 'testRunResult', 'testRunNotes',
           'finalPhotos', 'machineStatusAfterRepair',
-          'checklist', 'documents', 'updatedAt', 'timeSegments'
+          'checklist', 'documents', 'updatedAt', 'timeSegments',
+          // Per-assignee self-completion: each assigned technician/trainee
+          // records their own work here before the WO can be finalised.
+          'assigneeCompletions'
         ]);
 
       // Parts requests sub-collection
