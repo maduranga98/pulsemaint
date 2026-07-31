@@ -10,7 +10,7 @@ import ModuleLearningPage from '../pages/training/ModuleLearningPage';
 import QuizPage from '../pages/training/QuizPage';
 import MyCertificatesPage from '../pages/training/MyCertificatesPage';
 import MyProgramPage from '../pages/training/MyProgramPage';
-import WeekendSummaryPage from '../pages/training/WeekendSummaryPage';
+import KnowledgeWriteupPage from '../pages/training/KnowledgeWriteupPage';
 
 // Training pages - Management
 import TrainingDashboardPage from '../pages/training/manage/TrainingDashboardPage';
@@ -631,10 +631,10 @@ export default function AppRouter() {
           }
         />
         <Route
-          path="training/weekend-summary"
+          path="training/knowledge-writeup"
           element={
             <ProtectedRoute requiredRoles={['trainee', 'admin']}>
-              <WeekendSummaryPage />
+              <KnowledgeWriteupPage />
             </ProtectedRoute>
           }
         />

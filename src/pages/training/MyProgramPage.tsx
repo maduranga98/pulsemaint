@@ -145,10 +145,10 @@ export default function MyProgramPage() {
 
       <div className="mt-6">
         <button
-          onClick={() => navigate('/app/training/weekend-summary')}
+          onClick={() => navigate('/app/training/knowledge-writeup')}
           className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
         >
-          Submit Weekend Summary
+          First Module Knowledge Write-up
         </button>
       </div>
     </div>

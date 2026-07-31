@@ -13,7 +13,14 @@ interface ScheduledLesson {
 }
 
 function ymd(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  // Format in local time. `toISOString()` converts to UTC first, which shifts
+  // the calendar day by one in any timezone west of UTC — the grid cells (built
+  // from local `new Date(y, m, d)`) then failed to line up with lesson dates and
+  // "today" highlighting landed on the wrong cell.
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 function tsToYmd(ts: unknown): string | null {
