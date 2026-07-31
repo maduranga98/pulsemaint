@@ -1,11 +1,27 @@
+import { useMemo } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useMyAssignments } from '@/hooks/training/useMyAssignments';
+import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
 import { isLearnerOutstanding } from '@/lib/training/assignmentStatus';
 import MyModulesList from '@/components/training/learner/MyModulesList';
 
 export default function MyModulesPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
-  const { assignments, loading, error } = useMyAssignments();
+  const { assignments: allAssignments, loading, error } = useMyAssignments();
+
+  // "My Training" and "My Programme" are separate tabs: the trainee programme
+  // owns its month-by-month modules (the Trainee Management library), so those
+  // must not also appear here. Only regular training-library modules belong in
+  // this tab.
+  const { modules: traineeModules } = useTraineeLibraryModules();
+  const traineeModuleIds = useMemo(
+    () => new Set(traineeModules.map((m) => m.id)),
+    [traineeModules],
+  );
+  const assignments = useMemo(
+    () => allAssignments.filter((a) => !traineeModuleIds.has(a.moduleId)),
+    [allAssignments, traineeModuleIds],
+  );
 
   const name = userProfile?.fullName?.split(' ')[0] ?? 'there';
   // Anything the learner still has to act on. A module waiting on a manager's

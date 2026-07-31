@@ -286,6 +286,14 @@ export function useQuizSession(): UseQuizSessionReturn {
 
       const passed = hasPassedQuiz(raw.score, passingScore);
 
+      // Trainee-programme modules (Trainee Management library) are not signed
+      // off one-by-one: passing the module's final test completes it outright,
+      // and the single practical sign-off happens once, at programme
+      // completion, when the certificate is issued. Regular training-library
+      // modules keep the per-module practical sign-off (`awaiting_practical`).
+      const isProgrammeModule =
+        localStorage.getItem(`quiz_scope_${session.assignmentId}`) === 'trainee_management';
+
       const result = { ...raw, passed, timeTakenSeconds };
 
       // Firestore has no atomic "keep the max" update, so we read the prior
@@ -322,10 +330,17 @@ export function useQuizSession(): UseQuizSessionReturn {
         bestScore,
         quizPassed: passed,
         ...(passed
-          ? {
-              quizPassedAt: now,
-              status: 'awaiting_practical',
-            }
+          ? isProgrammeModule
+            ? {
+                quizPassedAt: now,
+                status: 'certified',
+                certifiedAt: now,
+                completedAt: now,
+              }
+            : {
+                quizPassedAt: now,
+                status: 'awaiting_practical',
+              }
           : {
               status: 'quiz_failed',
             }),
@@ -347,6 +362,7 @@ export function useQuizSession(): UseQuizSessionReturn {
       localStorage.removeItem(buildSessionKey(session.assignmentId));
       localStorage.removeItem(`quiz_passing_${session.assignmentId}`);
       localStorage.removeItem(`quiz_bestscore_${session.assignmentId}`);
+      localStorage.removeItem(`quiz_scope_${session.assignmentId}`);
 
       setSession((prev) =>
         prev ? { ...prev, isSubmitted: true, results: result } : prev
@@ -378,6 +394,9 @@ export function useQuizSession(): UseQuizSessionReturn {
           `quiz_bestscore_${assignment.id}`,
           String(assignment.bestScore ?? 0)
         );
+        // Remember whether this is a trainee-programme module so submitQuiz can
+        // decide between an outright completion and a per-module sign-off.
+        localStorage.setItem(`quiz_scope_${assignment.id}`, module.libraryScope ?? 'training');
       }
       startQuiz(assignment, module);
     },

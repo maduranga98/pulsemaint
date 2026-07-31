@@ -18,6 +18,8 @@ interface IssueProgrammeCertificateInput {
   finalMark: number;
   recommendation: string;
   recommender: UserProfile;
+  /** PNG data URL of the authorizer's hand-drawn signature, if captured. */
+  signatureImageDataUrl?: string | null;
 }
 
 /**
@@ -51,6 +53,7 @@ export async function issueProgrammeCertificate(input: IssueProgrammeCertificate
     recommendation: input.recommendation,
     recommendedByName: input.recommender.fullName,
     recommendedByRole,
+    signatureImageDataUrl: input.signatureImageDataUrl ?? null,
   });
   const pdfBlob = pdf.output('blob');
 

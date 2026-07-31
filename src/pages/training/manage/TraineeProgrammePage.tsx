@@ -16,6 +16,7 @@ import {
 } from '@/services/traineeProgram.service';
 import { issueProgrammeCertificate } from '@/lib/traineeProgram/programmeCertificate';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
+import { SignaturePad } from '@/components/settings/SignaturePad';
 import type { UserProfile } from '@/types/auth';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import type { ProgrammeDurationPreset, ProgrammeMonth } from '@/types/traineeProgram';
@@ -60,6 +61,7 @@ export default function TraineeProgrammePage() {
   const [saving, setSaving] = useState(false);
   const [issuingCert, setIssuingCert] = useState(false);
   const [recommendation, setRecommendation] = useState('');
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // The full profile (fullName, email, department, siteIds, …) lives in
@@ -218,6 +220,10 @@ export default function TraineeProgrammePage() {
 
   async function handleIssueCertificate() {
     if (!programme || !trainee || !userProfile || !recommendation.trim()) return;
+    if (!signatureDataUrl) {
+      toast.error('Please add your signature to authorize the certificate.');
+      return;
+    }
     setIssuingCert(true);
     try {
       const moduleResults = programme.months.flatMap((m) =>
@@ -242,6 +248,7 @@ export default function TraineeProgrammePage() {
         finalMark,
         recommendation: recommendation.trim(),
         recommender: userProfile,
+        signatureImageDataUrl: signatureDataUrl,
       });
 
       await updateTraineeProgramme(programme.id, {
@@ -302,7 +309,7 @@ export default function TraineeProgrammePage() {
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-5">
-              <h2 className="font-semibold text-slate-900 mb-3">Weekend Summaries</h2>
+              <h2 className="font-semibold text-slate-900 mb-3">Knowledge Write-ups</h2>
               {summaries.length === 0 ? (
                 <p className="text-sm text-slate-500">No submissions yet.</p>
               ) : (
@@ -310,7 +317,7 @@ export default function TraineeProgrammePage() {
                   {summaries.map((s) => (
                     <div key={s.id} className="border border-slate-100 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-slate-800">Week ending {s.weekEndingDate}</span>
+                        <span className="text-sm font-medium text-slate-800">Knowledge write-up</span>
                         <span className="text-xs text-slate-500">{s.reviewStatus}</span>
                       </div>
                       <p className="text-sm text-slate-600 whitespace-pre-wrap">{s.summaryText}</p>
@@ -359,9 +366,15 @@ export default function TraineeProgrammePage() {
                       placeholder="Recommendation from the in-charge (supervisor / admin / plant manager)..."
                       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm mb-3"
                     />
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium text-slate-700 mb-1">
+                        Authorizing signature ({userProfile?.fullName})
+                      </label>
+                      <SignaturePad onChange={setSignatureDataUrl} />
+                    </div>
                     <button
                       onClick={() => void handleIssueCertificate()}
-                      disabled={issuingCert || !recommendation.trim()}
+                      disabled={issuingCert || !recommendation.trim() || !signatureDataUrl}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50"
                     >
                       {issuingCert ? 'Issuing…' : 'Issue Certificate'}

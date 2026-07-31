@@ -1,27 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Loader2, Paperclip, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { useMyProgramme } from '@/hooks/traineeProgram/useMyProgramme';
 import { useWeekendSummaries } from '@/hooks/traineeProgram/useWeekendSummaries';
 import { submitWeekendSummary } from '@/services/traineeProgram.service';
-import type { WeekendTaskEntry } from '@/types/traineeProgram';
 
-function upcomingWeekEndingDate(): string {
-  const now = new Date();
-  const day = now.getDay(); // 0 = Sunday, 6 = Saturday
-  const diffToSaturday = (6 - day + 7) % 7;
-  const saturday = new Date(now);
-  saturday.setDate(now.getDate() + diffToSaturday);
-  return saturday.toISOString().slice(0, 10);
-}
-
-function currentProgrammeMonth(startDate: { toDate?: () => Date } | null | undefined): number {
-  if (!startDate?.toDate) return 1;
-  const start = startDate.toDate();
-  const now = new Date();
-  const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth());
-  return Math.max(1, months + 1);
+function todayYmd(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function formatTs(ts: { toDate?: () => Date } | null | undefined): string {
@@ -35,30 +22,24 @@ const REVIEW_LABEL: Record<string, string> = {
   needs_revision: 'Needs Revision',
 };
 
-export default function WeekendSummaryPage() {
+/**
+ * Where a trainee writes up the knowledge they gathered during the first module
+ * of their training programme, optionally attaching supporting files. This
+ * replaces the earlier weekend-summary workflow; it is backed by the same
+ * `weekendSummaries` collection (summary text + attachments), reused as the
+ * knowledge note store.
+ */
+export default function KnowledgeWriteupPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const { programme, loading: programmeLoading } = useMyProgramme();
   const { summaries, loading: summariesLoading } = useWeekendSummaries(programme?.id ?? null);
 
-  const month = currentProgrammeMonth(programme?.startDate);
-  const monthPlan = programme?.months.find((m) => m.month === month);
-
-  const [weekEndingDate, setWeekEndingDate] = useState(upcomingWeekEndingDate());
   const [summaryText, setSummaryText] = useState('');
-  const [tasks, setTasks] = useState<WeekendTaskEntry[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
-  // The programme (and its monthly task template) loads asynchronously, so
-  // seed the checklist once it's available rather than at initial mount.
-  useEffect(() => {
-    setTasks(
-      monthPlan?.weekendTaskTemplate.map((label, i) => ({ id: `t${i}`, description: label, completed: false })) ?? [],
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [monthPlan?.month, monthPlan?.weekendTaskTemplate.join('|')]);
-
-  const canSubmit = programme && weekEndingDate && summaryText.trim().length > 0;
+  const firstModuleTitle = programme?.months.find((m) => m.month === 1)?.title;
+  const canSubmit = !!programme && summaryText.trim().length > 0;
 
   const handleSubmit = async () => {
     if (!programme || !userProfile || !canSubmit) return;
@@ -69,27 +50,24 @@ export default function WeekendSummaryPage() {
         programmeId: programme.id,
         traineeId: userProfile.id,
         traineeName: userProfile.fullName,
-        weekEndingDate,
-        month,
+        weekEndingDate: todayYmd(),
+        month: 1,
         summaryText: summaryText.trim(),
-        tasks,
+        tasks: [],
         files,
         uploadedByName: userProfile.fullName,
       });
-      toast.success('Weekend summary submitted.');
+      toast.success('Knowledge write-up submitted.');
       setSummaryText('');
       setFiles([]);
-      setTasks((prev) => prev.map((t) => ({ ...t, completed: false })));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to submit summary');
+      toast.error(err instanceof Error ? err.message : 'Failed to submit write-up');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const loading = programmeLoading;
-
-  if (loading) {
+  if (programmeLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <Loader2 className="animate-spin text-blue-600" size={28} />
@@ -100,9 +78,9 @@ export default function WeekendSummaryPage() {
   if (!programme) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Weekend Work Summary</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">First Module Knowledge Write-up</h1>
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
-          You need an active training programme before you can submit a weekend summary.
+          You need an active training programme before you can submit a knowledge write-up.
         </div>
       </div>
     );
@@ -111,57 +89,27 @@ export default function WeekendSummaryPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Weekend Work Summary</h1>
-        <p className="mt-1 text-slate-600">Record your summary of work for the week and mark off this month's expected tasks.</p>
+        <h1 className="text-2xl font-bold text-slate-900">First Module Knowledge Write-up</h1>
+        <p className="mt-1 text-slate-600">
+          Write up the knowledge you gathered during the first module
+          {firstModuleTitle ? ` — ${firstModuleTitle}` : ''}. Attachments are optional.
+        </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Week Ending</label>
-          <input
-            type="date"
-            value={weekEndingDate}
-            onChange={(e) => setWeekEndingDate(e.target.value)}
-            className="w-full sm:w-56 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Summary of Work</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">What you learned</label>
           <textarea
             value={summaryText}
             onChange={(e) => setSummaryText(e.target.value)}
-            rows={5}
-            placeholder="Describe what you worked on this week..."
+            rows={7}
+            placeholder="Summarise the knowledge you gathered during the first module..."
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
         </div>
 
-        {tasks.length > 0 && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Month {month} Weekend Tasks
-            </label>
-            <div className="space-y-2">
-              {tasks.map((t) => (
-                <label key={t.id} className="flex items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={t.completed}
-                    onChange={(e) =>
-                      setTasks((prev) => prev.map((p) => (p.id === t.id ? { ...p, completed: e.target.checked } : p)))
-                    }
-                    className="rounded border-slate-300"
-                  />
-                  {t.description}
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
-
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Attachments</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Attachments (optional)</label>
           <input
             type="file"
             multiple
@@ -187,7 +135,7 @@ export default function WeekendSummaryPage() {
           disabled={!canSubmit || submitting}
           className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50"
         >
-          {submitting ? 'Submitting…' : 'Submit Summary'}
+          {submitting ? 'Submitting…' : 'Submit Write-up'}
         </button>
       </div>
 
@@ -202,7 +150,7 @@ export default function WeekendSummaryPage() {
             {summaries.map((s) => (
               <div key={s.id} className="rounded-lg border border-slate-200 bg-white p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-800">Week ending {s.weekEndingDate}</span>
+                  <span className="text-sm font-medium text-slate-800">Knowledge write-up</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     s.reviewStatus === 'reviewed' ? 'bg-green-100 text-green-700'
                     : s.reviewStatus === 'needs_revision' ? 'bg-red-100 text-red-700'
@@ -211,7 +159,17 @@ export default function WeekendSummaryPage() {
                     {REVIEW_LABEL[s.reviewStatus]}
                   </span>
                 </div>
+                <p className="text-sm text-slate-600 mt-1 whitespace-pre-wrap">{s.summaryText}</p>
                 <p className="text-xs text-slate-500 mt-1">Submitted {formatTs(s.submittedAt)}</p>
+                {s.attachments.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {s.attachments.map((att) => (
+                      <a key={att.id} href={att.url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 underline">
+                        {att.name}
+                      </a>
+                    ))}
+                  </div>
+                )}
                 {s.reviewComments && (
                   <p className="text-xs text-slate-600 mt-2 italic">"{s.reviewComments}"</p>
                 )}

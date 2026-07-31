@@ -17,6 +17,8 @@ export interface ProgrammeCertificateInput {
   recommendation: string;
   recommendedByName: string;
   recommendedByRole: string;
+  /** PNG data URL of the authorizer's hand-drawn signature, if captured. */
+  signatureImageDataUrl?: string | null;
 }
 
 const INK = { r: 15, g: 23, b: 42 };
@@ -146,12 +148,26 @@ export function buildProgrammeCertificatePdf(input: ProgrammeCertificateInput): 
   doc.text(`Issued: ${new Date().toLocaleDateString('en-GB')}`, marginX, footerY + 14);
 
   const sigX = pageWidth - marginX - 200;
-  // Signature rendered in a bold script (italic) font to read as a
-  // handwritten authorization by the admin/plant manager/HR officer.
-  doc.setFont('times', 'bolditalic');
-  doc.setFontSize(22);
-  doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-  doc.text(input.recommendedByName, sigX + 100, footerY - 10, { align: 'center' });
+  if (input.signatureImageDataUrl) {
+    // The authorizer's actual hand-drawn signature, captured at issue time.
+    try {
+      doc.addImage(input.signatureImageDataUrl, 'PNG', sigX + 40, footerY - 46, 120, 40);
+    } catch {
+      // A malformed data URL shouldn't block certificate generation — fall back
+      // to the script-font name below.
+      doc.setFont('times', 'bolditalic');
+      doc.setFontSize(22);
+      doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
+      doc.text(input.recommendedByName, sigX + 100, footerY - 10, { align: 'center' });
+    }
+  } else {
+    // No drawn signature: render the name in a bold script (italic) font so it
+    // still reads as a handwritten authorization.
+    doc.setFont('times', 'bolditalic');
+    doc.setFontSize(22);
+    doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
+    doc.text(input.recommendedByName, sigX + 100, footerY - 10, { align: 'center' });
+  }
 
   doc.setDrawColor(INK.r, INK.g, INK.b);
   doc.setLineWidth(0.75);
