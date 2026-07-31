@@ -89,6 +89,39 @@ export async function addSafetyCaseAction(
   await updateDoc(doc(db, CASES, id), patch);
 }
 
+/**
+ * Escalate a safety case to a specific person ("Report to"). Sets the case's
+ * reportedTo* fields — which is what makes it visible on that person's Safety
+ * Cases board — and records an action noting who it was reported to.
+ */
+export async function reportSafetyCaseTo(
+  id: string,
+  input: {
+    toUserId: string;
+    toUserName: string;
+    toUserRole: string;
+    by: string;
+    byName: string;
+    byRole: string;
+  },
+): Promise<void> {
+  const entry: SafetyCaseAction = {
+    note: `Reported to ${input.toUserName}${input.toUserRole ? ` (${input.toUserRole})` : ''}`,
+    newStatus: null,
+    by: input.by,
+    byName: input.byName,
+    byRole: input.byRole,
+    at: Timestamp.now(),
+  };
+  await updateDoc(doc(db, CASES, id), {
+    reportedToUserId: input.toUserId,
+    reportedToName: input.toUserName,
+    reportedToRole: input.toUserRole,
+    actions: arrayUnion(entry),
+    updatedAt: serverTimestamp(),
+  });
+}
+
 // ── Work permits ─────────────────────────────────────────────────────────────
 
 export function subscribeWorkPermits(
