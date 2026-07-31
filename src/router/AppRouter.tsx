@@ -26,6 +26,7 @@ import TraineeProfilePage from '../pages/training/manage/TraineeProfilePage';
 import TraineeProgrammePage from '../pages/training/manage/TraineeProgrammePage';
 import CertificatesManagerPage from '../pages/training/manage/CertificatesManagerPage';
 import ComplianceReportPage from '../pages/training/manage/ComplianceReportPage';
+import SafetyTrainingsPage from '../pages/training/manage/SafetyTrainingsPage';
 import ContentLibraryPage from '../pages/training/manage/ContentLibraryPage';
 
 // Scan redirect
@@ -747,6 +748,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer']}>
               <CertificatesManagerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/safety-trainings"
+          element={
+            <ProtectedRoute requiredRoles={['admin', 'plant_manager']}>
+              <SafetyTrainingsPage />
             </ProtectedRoute>
           }
         />

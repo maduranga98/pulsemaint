@@ -12,7 +12,9 @@ import { WOCompletionForm } from './WOCompletionForm';
 import { WOSignOffForm } from './WOSignOffForm';
 import { ChecklistExecutor } from './ChecklistExecutor';
 import { LotoGate } from './LotoGate';
+import { WorkPermitDetails } from './WorkPermitDetails';
 import { useUpdateWorkOrder } from '../../hooks/useUpdateWorkOrder';
+import { useWorkOrderPermit } from '../../hooks/safety/useSafety';
 import { useAuthStore } from '../../store/authStore';
 
 type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history';
@@ -45,6 +47,13 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = (userProfile?.role ?? '') as string;
+
+  // Linked Work Permit (Permit-to-Work) for a WO that requires one — its full
+  // detail is surfaced in the Overview so approvers see the permit in context.
+  const { permit: workPermit } = useWorkOrderPermit(
+    workOrder.requiresWorkPermit ? workOrder.id : undefined,
+    workOrder.requiresWorkPermit ? workOrder.workPermitId : undefined,
+  );
 
   const isSupervisor = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'].includes(role);
   const isTechnician = role === 'technician';
@@ -211,6 +220,22 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     Safety Precautions (LOTO / PTW)
                   </h3>
                   <LotoGate workOrder={workOrder} machineIsolationPoints={isolationPoints ?? []} />
+                </section>
+              )}
+
+              {/* Linked Work Permit — full Permit-to-Work detail */}
+              {workOrder.requiresWorkPermit && (
+                <section className="bg-white border border-gray-200 rounded-xl p-4">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                    Work Permit
+                  </h3>
+                  {workPermit ? (
+                    <WorkPermitDetails permit={workPermit} variant="light" />
+                  ) : (
+                    <p className="text-xs text-orange-600">
+                      This work order requires a Work Permit, but none was found.
+                    </p>
+                  )}
                 </section>
               )}
 

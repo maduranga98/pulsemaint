@@ -133,6 +133,7 @@ const NAV_ITEMS: NavItem[] = [
     roles: ['plant_manager', 'admin', 'hr_officer'],
   },
   { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+  { label: 'Safety Trainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin'] },
   // Training can be assigned to any role, so everyone gets a "My Training"
   // entry (the route allows any authenticated user).
   { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
