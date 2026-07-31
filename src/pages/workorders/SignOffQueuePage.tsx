@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ClipboardCheck, GraduationCap } from 'lucide-react';
-import { useWorkOrders } from '../../hooks/useWorkOrders';
+import { useCompletedWorkOrdersForSignOff } from '../../hooks/useCompletedWorkOrdersForSignOff';
 import { useAuthStore } from '../../store/authStore';
 import { useTrainingSignOffQueue } from '../../hooks/training/useTrainingSignOffQueue';
 import { WOTypeBadge } from '../../components/workorders/WOTypeBadge';
@@ -17,7 +17,7 @@ import type { TrainingAssignment } from '../../lib/training/trainingTypes';
  * managers no longer have to open each trainee's profile to certify them.
  */
 export default function SignOffQueuePage() {
-  const { workOrders, loading, error } = useWorkOrders({ status: ['COMPLETED'] });
+  const { workOrders, loading, error } = useCompletedWorkOrdersForSignOff();
   const { assignments: trainingQueue, loading: trainingLoading } = useTrainingSignOffQueue();
   const userId = useAuthStore((s) => s.userProfile?.id);
   const role = useAuthStore((s) => s.userProfile?.role);
