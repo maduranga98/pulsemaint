@@ -59,7 +59,16 @@ export function useWorkOrderPermit(
   const all = byId ? [byId, ...byWorkOrder.filter((p) => p.id !== byId.id)] : byWorkOrder;
   const permit = all.find((p) => p.status === 'active') ?? all[0] ?? null;
 
-  return { permit, loading };
+  // Every permit linked to the WO — those attached when the WO was created and
+  // those raised later from the Work Permits tab with this WO selected. Active
+  // permits first, then the rest newest-ish (their query order). `permit` stays
+  // the single gating permit used by the start-gate.
+  const permits = [...all].sort((a, b) => {
+    if (a.status === b.status) return 0;
+    return a.status === 'active' ? -1 : b.status === 'active' ? 1 : 0;
+  });
+
+  return { permit, permits, loading };
 }
 
 /** Live safety cases for the company, newest first. */
