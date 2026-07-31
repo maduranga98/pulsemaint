@@ -772,8 +772,12 @@ service cloud.firestore {
     }
 
     match /inventorySettings/{settingsId} {
-      allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId;
-      allow write: if isAuthenticated() && getUserData().companyId == resource.data.companyId
+      // The doc id is the companyId (client writes to inventorySettings/{companyId}).
+      // Key the check off the id, not resource.data — on the first save the doc
+      // doesn't exist yet, so resource.data is null and the old rule denied the
+      // create, surfacing as "Failed to save settings".
+      allow read: if isAuthenticated() && getUserData().companyId == settingsId;
+      allow write: if isAuthenticated() && getUserData().companyId == settingsId
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
     }
 
