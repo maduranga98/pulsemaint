@@ -1,5 +1,5 @@
 /**
- * Seed script for PulseMaint triage templates.
+ * Seed script for FirmiCore triage templates.
  * Run with: npx ts-node -r tsconfig-paths/register seed/triageTemplates.ts
  */
 

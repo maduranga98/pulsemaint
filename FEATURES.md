@@ -1,6 +1,6 @@
-# PulseMaint — Features & Role-Based Access Guide
+# FirmiCore — Features & Role-Based Access Guide
 
-PulseMaint is a multi-tenant maintenance management platform (React + TypeScript + Vite + Firebase). Access to every route is enforced by role, and the sidebar navigation mirrors those restrictions. This document lists every feature module, its purpose, and exactly which roles can use it.
+FirmiCore is a multi-tenant maintenance management platform (React + TypeScript + Vite + Firebase). Access to every route is enforced by role, and the sidebar navigation mirrors those restrictions. This document lists every feature module, its purpose, and exactly which roles can use it.
 
 > **Note:** The repo also contains a legacy/unused Vue scaffold (`App.vue`, `main.js`, generic `README.md` boilerplate) — this is not the active app. The real application entry point is `src/main.tsx` → `src/App.tsx` → `src/router/AppRouter.tsx`.
 
@@ -8,7 +8,7 @@ PulseMaint is a multi-tenant maintenance management platform (React + TypeScript
 
 ## 1. User Roles
 
-PulseMaint has **9 roles**, stored on the user's Firestore profile (`users/{uid}.role`) and enforced via `ProtectedRoute`/`requiredRoles` on every route.
+FirmiCore has **9 roles**, stored on the user's Firestore profile (`users/{uid}.role`) and enforced via `ProtectedRoute`/`requiredRoles` on every route.
 
 | Role (code value) | Description |
 |---|---|

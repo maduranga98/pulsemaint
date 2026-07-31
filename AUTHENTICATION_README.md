@@ -1,10 +1,10 @@
-# PulseMaint Authentication System
+# FirmiCore Authentication System
 
-This document describes the complete authentication flow for PulseMaint.
+This document describes the complete authentication flow for FirmiCore.
 
 ## Overview
 
-PulseMaint uses Firebase Authentication for user management with role-based access control and multi-tenant site isolation.
+FirmiCore uses Firebase Authentication for user management with role-based access control and multi-tenant site isolation.
 
 ## Architecture
 
