@@ -144,6 +144,24 @@ export interface TechnicianWorkLog {
   tasksDescription: string;
 }
 
+/**
+ * One assigned person's own completion of their part of a team work order.
+ * A WO is only finalised (moved to COMPLETED / sign-off) once every assigned
+ * technician has recorded their own completion here. Each entry holds only the
+ * work that person did — never anyone else's.
+ */
+export interface AssigneeCompletion {
+  technicianId: string;
+  technicianName: string;
+  technicianRole?: string;
+  /** Their own free-text description of what they did. */
+  workDoneDescription: string;
+  /** Auto-compiled from the checklist steps they personally ticked off. */
+  completedStepsDescription: string;
+  hoursWorked: number;
+  completedAt: Timestamp | null;
+}
+
 export interface ContractorHoursLog {
   hoursOnSite: number;
   hoursBilled: number;
@@ -247,6 +265,9 @@ export interface WorkOrder {
   rootCauseDescription: string | null;
   partsUsed: PartUsed[];
   technicianWorkLogs: TechnicianWorkLog[];
+  // Per-assignee self-completions — each assigned person records their own
+  // work here before the WO can be finalised. Absent on older/solo WOs.
+  assigneeCompletions?: AssigneeCompletion[];
   contractorHoursLog: ContractorHoursLog | null;
   // Contractor sign-off figures: parts used cost is recomputed from
   // partsUsed, projectCost is the contractor's own cost, and the total is

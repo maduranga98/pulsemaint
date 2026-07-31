@@ -46,7 +46,16 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
   const [partsUsed, setPartsUsed] = useState<PartUsed[]>(workOrder.partsUsed ?? []);
   // Each assignee's own "work done" text — kept separate per person so a team
   // work order records who did what instead of one description for everyone.
-  const [perTechWorkDone, setPerTechWorkDone] = useState<Record<string, string>>({});
+  // Seeded from each person's own self-completion (assigneeCompletions) so the
+  // finaliser never re-types (or overwrites) someone else's words.
+  const submittedWorkDone = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const c of workOrder.assigneeCompletions ?? []) {
+      if (c.workDoneDescription?.trim()) m[c.technicianId] = c.workDoneDescription.trim();
+    }
+    return m;
+  }, [workOrder.assigneeCompletions]);
+  const [perTechWorkDone, setPerTechWorkDone] = useState<Record<string, string>>(submittedWorkDone);
 
   // Roles/designations for the assigned people, so each work log shows the
   // person's role and the sign-off/detail views can display "Name (Role)".
@@ -441,13 +450,21 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                   </div>
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">Work done by {a.technicianName}</label>
-                    <textarea
-                      rows={2}
-                      value={perTechWorkDone[a.technicianId] ?? ''}
-                      onChange={(e) => setPerTechWorkDone((prev) => ({ ...prev, [a.technicianId]: e.target.value }))}
-                      placeholder={`What did ${a.technicianName} do on this job?`}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
-                    />
+                    {submittedWorkDone[a.technicianId] != null ? (
+                      // The person recorded their own work — shown read-only so
+                      // the finaliser can review it but not rewrite it.
+                      <p className="w-full whitespace-pre-wrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
+                        {submittedWorkDone[a.technicianId]}
+                      </p>
+                    ) : (
+                      <textarea
+                        rows={2}
+                        value={perTechWorkDone[a.technicianId] ?? ''}
+                        onChange={(e) => setPerTechWorkDone((prev) => ({ ...prev, [a.technicianId]: e.target.value }))}
+                        placeholder={`What did ${a.technicianName} do on this job?`}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
+                      />
+                    )}
                   </div>
                 </div>
               );

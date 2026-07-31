@@ -4,6 +4,8 @@ import { X, Play, Pause, PackageX, PackagePlus, ClipboardCheck, CheckCircle2, Sh
 import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { useWorkOrderPermit } from '../../../hooks/safety/useSafety';
+import { useMyWorkCompletion, allAssigneesCompleted } from '../../../hooks/useMyWorkCompletion';
+import { buildTechnicianWorkLogs } from '../../../lib/workorders/technicianWorkLogs';
 import { WorkPermitDetails } from '../WorkPermitDetails';
 import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
 import { useAuthStore } from '../../../store/authStore';
@@ -55,6 +57,48 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const isInProgress = wo.status === 'IN_PROGRESS';
   const isOnHold = wo.status === 'ON_HOLD_PARTS' || wo.status === 'ON_HOLD_APPROVAL';
   const canStart = wo.status === 'ASSIGNED' || wo.status === 'OPEN';
+
+  // Per-assignee completion. Each assigned person completes only their own
+  // work; the WO can't be finalised until everyone has. A person only ever
+  // sees/edits their own work-done — teammates' details are not shown here.
+  const myId = user?.uid ?? userProfile?.id ?? '';
+  const myName = userProfile?.fullName ?? user?.displayName ?? 'You';
+  const isAssignee = wo.assignedTechnicianIds?.includes(myId) ?? false;
+  const myCompletion = (wo.assigneeCompletions ?? []).find((c) => c.technicianId === myId) ?? null;
+  const completedIds = new Set((wo.assigneeCompletions ?? []).map((c) => c.technicianId));
+  const assigneeRows = (wo.assignedTechnicianIds ?? []).map((id, i) => ({
+    id,
+    name: wo.assignedTechnicianNames?.[i] ?? id,
+    done: completedIds.has(id),
+  }));
+  const completedCount = assigneeRows.filter((a) => a.done).length;
+  const everyoneDone = allAssigneesCompleted(wo);
+  const { submitMyWork, loading: myWorkLoading } = useMyWorkCompletion();
+  const [showMyWorkForm, setShowMyWorkForm] = useState(false);
+  const [myWorkDone, setMyWorkDone] = useState('');
+
+  // The checklist steps this person personally ticked off, compiled the same
+  // way the finalisation form does — shown to them as their recorded work.
+  const myCompletedSteps = myId
+    ? buildTechnicianWorkLogs([{ technicianId: myId, technicianName: myName }], wo.checklist, {}, 0)[0]?.tasksDescription ?? ''
+    : '';
+
+  async function handleSubmitMyWork() {
+    const ok = await submitMyWork(wo.id, {
+      technicianId: myId,
+      technicianName: myName,
+      technicianRole: userProfile?.role ?? '',
+      workDoneDescription: myWorkDone.trim(),
+      completedStepsDescription: myCompletedSteps,
+      hoursWorked: wo.actualStartTime
+        ? Math.round(((Date.now() - wo.actualStartTime.toDate().getTime()) / 3600000) * 100) / 100
+        : 0,
+    });
+    if (ok) {
+      setShowMyWorkForm(false);
+      setMyWorkDone('');
+    }
+  }
 
   // The supervisor/assigner's own attachments — kept distinct from the
   // technician's own field media, which is captured separately below via
@@ -356,12 +400,100 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                         </button>
                       </div>
 
-                      <button
-                        onClick={() => setShowCompletion(true)}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700"
-                      >
-                        <CheckCircle2 className="h-5 w-5" /> Complete Job
-                      </button>
+                      {/* Team progress — each assignee's own completion state
+                          plus the supervisor's sign-off status. No teammate's
+                          work-done details are shown here. */}
+                      {assigneeRows.length > 1 && (
+                        <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3">
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">
+                            Team progress · {completedCount}/{assigneeRows.length} completed
+                          </p>
+                          <div className="space-y-1.5">
+                            {assigneeRows.map((a) => (
+                              <div key={a.id} className="flex items-center justify-between text-sm">
+                                <span className={a.id === myId ? 'font-semibold text-[#F0F4F8]' : 'text-[#F0F4F8]'}>
+                                  {a.name}{a.id === myId ? ' (you)' : ''}
+                                </span>
+                                <span className={`text-xs ${a.done ? 'text-emerald-400' : 'text-[#8BA3BF]'}`}>
+                                  {a.done ? '✓ Completed' : 'In progress'}
+                                </span>
+                              </div>
+                            ))}
+                            <div className="flex items-center justify-between border-t border-[#1E3A5F] pt-1.5 text-sm">
+                              <span className="text-[#8BA3BF]">Supervisor sign-off</span>
+                              <span className={`text-xs ${wo.supervisorSignOffAt ? 'text-emerald-400' : 'text-[#8BA3BF]'}`}>
+                                {wo.supervisorSignOffAt ? '✓ Signed off' : 'Pending'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Each assignee completes only their own work first. */}
+                      {isAssignee && (
+                        myCompletion ? (
+                          <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3">
+                            <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
+                              <CheckCircle2 className="h-4 w-4" /> You’ve completed your work
+                            </p>
+                            {myCompletion.workDoneDescription && (
+                              <p className="mt-1 text-xs text-[#8BA3BF] whitespace-pre-line">{myCompletion.workDoneDescription}</p>
+                            )}
+                          </div>
+                        ) : showMyWorkForm ? (
+                          <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3 space-y-2">
+                            <p className="text-sm font-semibold text-[#F0F4F8]">Complete my work</p>
+                            {myCompletedSteps && (
+                              <p className="whitespace-pre-line rounded-md bg-[#0A1628] px-3 py-2 text-xs text-[#8BA3BF]">{myCompletedSteps}</p>
+                            )}
+                            <textarea
+                              rows={3}
+                              value={myWorkDone}
+                              onChange={(e) => setMyWorkDone(e.target.value)}
+                              placeholder="Describe the work you did on this job"
+                              className="w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] placeholder-[#8BA3BF]"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={handleSubmitMyWork}
+                                disabled={myWorkLoading || !myWorkDone.trim()}
+                                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                              >
+                                <CheckCircle2 className="h-4 w-4" /> Submit my work
+                              </button>
+                              <button
+                                onClick={() => setShowMyWorkForm(false)}
+                                className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-4 py-2.5 text-sm text-[#F0F4F8]"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setShowMyWorkForm(true)}
+                            className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700"
+                          >
+                            <CheckCircle2 className="h-5 w-5" /> Complete My Work
+                          </button>
+                        )
+                      )}
+
+                      {/* Finalise the whole WO — only once every assignee has
+                          completed their own work. */}
+                      {everyoneDone ? (
+                        <button
+                          onClick={() => setShowCompletion(true)}
+                          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8]"
+                        >
+                          <CheckCircle2 className="h-5 w-5" /> Complete &amp; Submit Work Order
+                        </button>
+                      ) : (
+                        <p className="text-center text-[11px] text-[#8BA3BF]">
+                          The work order can be submitted for sign-off once all assigned team members
+                          have completed their own work ({completedCount}/{assigneeRows.length}).
+                        </p>
+                      )}
                     </>
                   )}
                 </>
