@@ -159,6 +159,11 @@ service cloud.firestore {
       // companyId). Read-only; safety officers never modify work orders.
       allow read: if isSafetyOfficer() && belongsToCompany(resource.data.companyId);
 
+      // HR Officer: company-wide read so the Contractor Registry can compute
+      // live Jobs / Last Job stats from CONTRACTOR work orders. Read-only; HR
+      // never modifies work orders.
+      allow read: if isHrOfficer() && belongsToCompany(resource.data.companyId);
+
       // Plant Manager: manual check-in / start / execution updates on WOs,
       // plus final review sign-off (plant managers sign off completed WOs).
       allow update: if isPlantManager()
