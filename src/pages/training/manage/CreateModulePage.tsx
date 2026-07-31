@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, UserPlus } from 'lucide-react';
 import {
   collection,
   addDoc,
@@ -14,6 +14,7 @@ import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
 import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
+import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
 
 /** Authors a module into the Training tab's library (libraryScope 'training'). */
 export default function CreateModulePage() {
@@ -23,12 +24,14 @@ export default function CreateModulePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [moduleId, setModuleId] = useState<string | undefined>(undefined);
   const [module, setModule] = useState<TrainingModule | undefined>(undefined);
+  const [assigning, setAssigning] = useState(false);
 
   const handleSave = async (updates: Partial<TrainingModule>) => {
     if (!companyId || !userId) return;
     setIsSaving(true);
     try {
       if (!moduleId) {
+        const status = updates.status ?? 'active';
         const ref = await addDoc(collection(db, 'trainingModules'), {
           ...updates,
           companyId,
@@ -39,7 +42,7 @@ export default function CreateModulePage() {
           // Respect the status chosen in the settings form, which defaults to
           // 'active' — forcing 'draft' here left modules unassignable
           // (Assign only works on 'active').
-          status: updates.status ?? 'active',
+          status,
           lessons: updates.lessons ?? [],
           estimatedMinutes: updates.estimatedMinutes ?? 0,
           passingScore: updates.passingScore ?? 80,
@@ -52,24 +55,30 @@ export default function CreateModulePage() {
           companyId,
           createdBy: userId,
           libraryScope: 'training',
-          status: 'active',
           lessons: [],
           estimatedMinutes: 0,
           passingScore: 80,
           ...updates,
+          status,
         } as TrainingModule);
-        toast.success('Module saved.');
+        toast.success('Module saved. You can now assign it.');
       } else {
         await updateDoc(doc(db, 'trainingModules', moduleId), {
           ...updates,
           updatedAt: serverTimestamp(),
         });
         setModule((prev) => (prev ? { ...prev, ...updates } : prev));
+        toast.success('Module updated.');
       }
+    } catch (err) {
+      console.error('Failed to save training module', err);
+      toast.error('Failed to save module. Please try again.');
     } finally {
       setIsSaving(false);
     }
   };
+
+  const canAssign = !!moduleId && module?.status === 'active';
 
 
   return (
@@ -82,7 +91,15 @@ export default function CreateModulePage() {
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm">Create Training Module</h1>
+        <h1 className="font-semibold text-slate-900 text-sm flex-1">Create Training Module</h1>
+        {canAssign && (
+          <button
+            onClick={() => setAssigning(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+          >
+            <UserPlus size={14} /> Assign
+          </button>
+        )}
       </div>
       <ModuleEditorLayout
         module={module}
@@ -93,6 +110,13 @@ export default function CreateModulePage() {
           <ModuleSettingsForm defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
+      {assigning && module && (
+        <ModuleAssignForm
+          module={module}
+          onClose={() => setAssigning(false)}
+          onAssigned={() => setAssigning(false)}
+        />
+      )}
     </div>
   );
 }

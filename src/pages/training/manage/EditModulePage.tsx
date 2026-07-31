@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, UserPlus } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { useTrainingModule } from '@/hooks/training/useTrainingModule';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import { isTrainingLibraryModule } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
 import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
+import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
 
 /** Edits a module in the Training tab's library. A module belonging to
  *  Trainee Management's library cannot be opened here — it has its own
@@ -17,6 +19,7 @@ export default function EditModulePage() {
   const navigate = useNavigate();
   const { module, loading, error } = useTrainingModule(moduleId ?? '');
   const [isSaving, setIsSaving] = useState(false);
+  const [assigning, setAssigning] = useState(false);
 
   const handleSave = async (updates: Partial<TrainingModule>) => {
     if (!moduleId) return;
@@ -26,6 +29,10 @@ export default function EditModulePage() {
         ...updates,
         updatedAt: serverTimestamp(),
       });
+      toast.success('Module updated.');
+    } catch (err) {
+      console.error('Failed to update training module', err);
+      toast.error('Failed to save module. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -79,6 +86,14 @@ export default function EditModulePage() {
           <ArrowLeft size={18} />
         </button>
         <h1 className="font-semibold text-slate-900 text-sm truncate flex-1">{module.title}</h1>
+        {module.status === 'active' && (
+          <button
+            onClick={() => setAssigning(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors shrink-0"
+          >
+            <UserPlus size={14} /> Assign
+          </button>
+        )}
         <button
           onClick={() => navigate(`/app/training/manage/modules/${moduleId}/quiz`)}
           className="text-xs text-blue-600 hover:underline shrink-0"
@@ -95,6 +110,13 @@ export default function EditModulePage() {
           <ModuleSettingsForm defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
         )}
       />
+      {assigning && (
+        <ModuleAssignForm
+          module={module}
+          onClose={() => setAssigning(false)}
+          onAssigned={() => setAssigning(false)}
+        />
+      )}
     </div>
   );
 }
