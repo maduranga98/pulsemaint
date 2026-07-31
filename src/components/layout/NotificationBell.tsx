@@ -41,6 +41,19 @@ export default function NotificationBell() {
 
   const totalCount = unreadCount + alerts.length;
 
+  // Clear everything currently in the bell: mark all persisted notifications
+  // read and dismiss all state-derived alerts for this session.
+  function handleReadAll() {
+    if (unreadCount > 0) void markAllAsRead();
+    if (alerts.length > 0) {
+      setDismissed((prev) => {
+        const next = new Set(prev);
+        for (const a of alerts) next.add(a.id);
+        return next;
+      });
+    }
+  }
+
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
@@ -77,10 +90,10 @@ export default function NotificationBell() {
         <div className="absolute right-0 mt-2 w-80 max-h-[28rem] overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50">
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-900">Notifications</p>
-            {unreadCount > 0 && (
+            {totalCount > 0 && (
               <button
                 type="button"
-                onClick={() => void markAllAsRead()}
+                onClick={handleReadAll}
                 className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
