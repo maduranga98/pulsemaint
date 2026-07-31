@@ -227,7 +227,7 @@ export default function AppRouter() {
         <Route
           path="dashboard"
           element={
-            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'safety_officer']}>
               <DashboardPage />
             </ProtectedRoute>
           }

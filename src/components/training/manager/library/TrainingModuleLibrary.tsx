@@ -22,7 +22,7 @@ import ModuleAssignForm from '../ModuleAssignForm';
 import ModuleStatusBadge from './shared/ModuleStatusBadge';
 import { LibraryEmpty, LibraryLoading } from './shared/LibraryStates';
 
-const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor'];
+const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor', 'safety_officer'];
 const STATUS_FILTERS: { label: string; value: 'all' | TrainingModuleStatus }[] = [
   { label: 'All', value: 'all' },
   { label: 'Draft', value: 'draft' },
