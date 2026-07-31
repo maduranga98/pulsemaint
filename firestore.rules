@@ -742,6 +742,18 @@ service cloud.firestore {
           || (getUserData().role == 'technician' && resource.data.requestedBy == request.auth.uid
               && request.resource.data.status == 'cancelled'));
       allow delete: if false;
+
+      // Immutable audit trail of each review decision (approve / partial /
+      // escalate / reject) written alongside the transaction that issues parts.
+      // Without a rule here the write was denied *after* the stock-deduction
+      // transaction had already committed, surfacing as "Failed to process
+      // decision" even though the parts were issued.
+      match /reviewHistory/{historyId} {
+        allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId;
+        allow create: if isAuthenticated() && getUserData().companyId == request.resource.data.companyId
+          && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+        allow update, delete: if false;
+      }
     }
 
     match /purchaseOrders/{poId} {

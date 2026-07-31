@@ -5,6 +5,8 @@ import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { useWorkOrderPermit } from '../../../hooks/safety/useSafety';
 import { useMyWorkCompletion, allAssigneesCompleted } from '../../../hooks/useMyWorkCompletion';
+import { useMyWOState } from '../../../hooks/useMyWOState';
+import { resolveMyWorkStatus, isWorkOrderClosed } from '../../../lib/workorders/assigneeState';
 import { buildTechnicianWorkLogs } from '../../../lib/workorders/technicianWorkLogs';
 import { WorkPermitDetails } from '../WorkPermitDetails';
 import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
@@ -33,7 +35,8 @@ function formatElapsed(ms: number): string {
 
 export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const wo = workOrder;
-  const { updateWO, updateStatus, loading } = useUpdateWorkOrder();
+  const { updateWO, loading } = useUpdateWorkOrder();
+  const { setMyState, loading: stateLoading } = useMyWOState();
   const [showCompletion, setShowCompletion] = useState(false);
   const [showPartsRequest, setShowPartsRequest] = useState(false);
   const [safetyPreview, setSafetyPreview] = useState(false);
@@ -56,15 +59,21 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   );
   const workPermitActive = !wo.requiresWorkPermit || workPermit?.status === 'active';
 
-  const isInProgress = wo.status === 'IN_PROGRESS';
-  const isOnHold = wo.status === 'ON_HOLD_PARTS' || wo.status === 'ON_HOLD_APPROVAL';
-  const canStart = wo.status === 'ASSIGNED' || wo.status === 'OPEN';
-
-  // Per-assignee completion. Each assigned person completes only their own
-  // work; the WO can't be finalised until everyone has. A person only ever
-  // sees/edits their own work-done — teammates' details are not shown here.
+  // Per-assignee operation. Each assigned person starts / holds / resumes and
+  // completes their own work independently — one starting doesn't start the job
+  // for the others, and one holding for parts doesn't pause a teammate. The
+  // buttons a person sees are driven by their own status, not the shared one.
   const myId = user?.uid ?? userProfile?.id ?? '';
   const myName = userProfile?.fullName ?? user?.displayName ?? 'You';
+  const myStatus = resolveMyWorkStatus(wo, myId);
+  const isInProgress = myStatus === 'IN_PROGRESS';
+  const isOnHold = myStatus === 'ON_HOLD_PARTS' || myStatus === 'ON_HOLD_APPROVAL';
+  const canStart = !isWorkOrderClosed(wo.status) && myStatus === 'NOT_STARTED';
+  // This person's own hold reason and start time (for the timer), falling back
+  // to the shared WO fields on a legacy/single-assignee ticket.
+  const myState = (wo.assigneeStates ?? []).find((s) => s.technicianId === myId);
+  const myHoldStatus = isOnHold ? myStatus : wo.status;
+  const myStartTime = myState?.startedAt ?? wo.actualStartTime;
   const isAssignee = wo.assignedTechnicianIds?.includes(myId) ?? false;
   const myCompletion = (wo.assigneeCompletions ?? []).find((c) => c.technicianId === myId) ?? null;
   const completedIds = new Set((wo.assigneeCompletions ?? []).map((c) => c.technicianId));
@@ -110,17 +119,15 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   );
 
   useEffect(() => {
-    if (!isInProgress || !wo.actualStartTime) return;
+    if (!isInProgress || !myStartTime) return;
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
-  }, [isInProgress, wo.actualStartTime]);
+  }, [isInProgress, myStartTime]);
 
   async function handleStart() {
-    const ok = await updateStatus(wo.id, 'IN_PROGRESS');
-    if (ok && !wo.actualStartTime) {
-      await updateWO(wo.id, { actualStartTime: Timestamp.now() });
-    }
-    return ok;
+    // Starts only this person's work; the shared status/actualStartTime are
+    // handled inside the hook (first starter moves the ticket to IN_PROGRESS).
+    return setMyState(wo.id, 'IN_PROGRESS', { technicianName: myName });
   }
 
   // Manual check-in — record arrival at the machine, then start work.
@@ -141,7 +148,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
     setSafetyPreview(true);
   }
 
-  const elapsed = wo.actualStartTime ? now - wo.actualStartTime.toDate().getTime() : 0;
+  const elapsed = myStartTime ? now - myStartTime.toDate().getTime() : 0;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" style={{ fontFamily: 'Sora, sans-serif' }}>
@@ -292,7 +299,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   </div>
                   <button
                     onClick={handleCheckInAndStart}
-                    disabled={loading || !safetyConfirmed}
+                    disabled={loading || stateLoading || !safetyConfirmed}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
                     <MapPin className="h-5 w-5" /> Confirm Safety Checks &amp; Start Work
@@ -319,12 +326,12 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                 <div className="space-y-3">
                   <div className="rounded-lg border border-orange-500/40 bg-orange-500/10 p-3">
                     <p className="text-sm font-semibold text-orange-300">
-                      Paused — {wo.status === 'ON_HOLD_PARTS' ? 'waiting for parts' : 'waiting for approval'}
+                      Paused — {myHoldStatus === 'ON_HOLD_PARTS' ? 'waiting for parts' : 'waiting for approval'}
                     </p>
                   </div>
                   <button
-                    onClick={() => updateStatus(wo.id, 'IN_PROGRESS')}
-                    disabled={loading}
+                    onClick={() => setMyState(wo.id, 'IN_PROGRESS', { technicianName: myName })}
+                    disabled={stateLoading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
                     <Play className="h-5 w-5" /> Resume
@@ -395,15 +402,15 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
                       <div className="grid grid-cols-2 gap-2">
                         <button
-                          onClick={() => updateStatus(wo.id, 'ON_HOLD_PARTS', 'Waiting for parts')}
-                          disabled={loading}
+                          onClick={() => setMyState(wo.id, 'ON_HOLD_PARTS', { technicianName: myName, holdReason: 'Waiting for parts' })}
+                          disabled={stateLoading}
                           className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-orange-500 disabled:opacity-50"
                         >
                           <PackageX className="h-4 w-4 text-orange-400" /> Hold · Parts
                         </button>
                         <button
-                          onClick={() => updateStatus(wo.id, 'ON_HOLD_APPROVAL', 'Waiting for approval')}
-                          disabled={loading}
+                          onClick={() => setMyState(wo.id, 'ON_HOLD_APPROVAL', { technicianName: myName, holdReason: 'Waiting for approval' })}
+                          disabled={stateLoading}
                           className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-red-500 disabled:opacity-50"
                         >
                           <Pause className="h-4 w-4 text-red-400" /> Hold · Approval
