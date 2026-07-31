@@ -52,8 +52,8 @@ function buildReportHtml(options) {
         <p>${escapeHtml(options.companyName)} · ${escapeHtml(options.dateRange)}</p>
       </div>
       <div class="header-meta">
-        <div style="font-family:Sora;font-size:16px;font-weight:700;color:#00C2FF;">PulseMaint</div>
-        <div>pulsemaint.com</div>
+        <div style="font-family:Sora;font-size:16px;font-weight:700;color:#00C2FF;">FirmiCore</div>
+        <div>firmicore.com</div>
       </div>
     </div>
     <div class="content">${options.content}</div>

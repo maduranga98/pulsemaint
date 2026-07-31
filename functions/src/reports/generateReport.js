@@ -108,7 +108,7 @@ exports.generateReport = onCall({ memory: "2GiB", timeoutSeconds: 300 }, async (
   const content = REPORTS[reportType].build(rows, options);
   const html = buildReportHtml({
     title: REPORTS[reportType].name,
-    companyName: user.companyName || "PulseMaint Company",
+    companyName: user.companyName || "FirmiCore Company",
     dateRange: `${dateFrom} to ${dateTo}`,
     generatedAt: new Date().toLocaleString(),
     content,
