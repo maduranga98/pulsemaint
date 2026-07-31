@@ -35,9 +35,9 @@ export function useContractorJobStats(): {
 } {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
-  // hr_officer reaches the registry but firestore.rules gives them neither
-  // workOrders nor contractorJobs — don't open listeners that can only be
-  // denied; they keep the stored counters as the fallback, as before.
+  // hr_officer now has registry access and firestore.rules grants them a
+  // company-wide workOrders read plus contractorJobs, so their listeners run
+  // and the Jobs / Last Job columns populate live like every other reader.
   const { canReadRegistry } = useContractorAccess();
 
   const [woRows, setWoRows] = useState<JobRow[]>([]);

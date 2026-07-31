@@ -6,19 +6,21 @@ export function useContractorAccess() {
 
   const hasAny = (roles: UserRole[]) => Boolean(role && roles.includes(role));
 
+  // HR officers own the contractor registry and are granted admin-level access
+  // across the Contractors tab (read, manage, financials, ratings, sign-off).
   return {
     role,
-    canReadRegistry: hasAny(['supervisor', 'plant_manager', 'admin']),
+    canReadRegistry: hasAny(['hr_officer', 'supervisor', 'plant_manager', 'admin']),
     canReadCompliance: hasAny(['hr_officer', 'supervisor', 'plant_manager', 'admin']),
-    canManageContractors: hasAny(['supervisor', 'plant_manager', 'admin']),
-    canManageDocuments: hasAny(['supervisor', 'plant_manager', 'admin']),
-    canManageTechnicians: hasAny(['supervisor', 'plant_manager', 'admin']),
-    canDeactivateOrBlacklist: hasAny(['plant_manager', 'admin']),
-    canViewFinancials: hasAny(['plant_manager', 'admin']),
-    canLogContractorWork: hasAny(['supervisor', 'admin']),
+    canManageContractors: hasAny(['hr_officer', 'supervisor', 'plant_manager', 'admin']),
+    canManageDocuments: hasAny(['hr_officer', 'supervisor', 'plant_manager', 'admin']),
+    canManageTechnicians: hasAny(['hr_officer', 'supervisor', 'plant_manager', 'admin']),
+    canDeactivateOrBlacklist: hasAny(['hr_officer', 'plant_manager', 'admin']),
+    canViewFinancials: hasAny(['hr_officer', 'plant_manager', 'admin']),
+    canLogContractorWork: hasAny(['hr_officer', 'supervisor', 'admin']),
     canLogContractorParts: hasAny(['store_keeper', 'admin']),
-    canRateContractor: hasAny(['supervisor', 'plant_manager', 'admin']),
-    canApproveInvoice: hasAny(['plant_manager', 'admin']),
+    canRateContractor: hasAny(['hr_officer', 'supervisor', 'plant_manager', 'admin']),
+    canApproveInvoice: hasAny(['hr_officer', 'plant_manager', 'admin']),
     isAdmin: role === 'admin',
   };
 }
