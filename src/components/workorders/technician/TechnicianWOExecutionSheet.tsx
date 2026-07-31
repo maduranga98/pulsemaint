@@ -46,11 +46,13 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
 
-  // Safety Work Permit gate — a WO flagged `requiresWorkPermit` can't start
-  // until its linked Permit-to-Work is active.
-  const { permit: workPermit } = useWorkOrderPermit(
-    wo.requiresWorkPermit ? wo.id : undefined,
-    wo.requiresWorkPermit ? wo.workPermitId : undefined,
+  // Work Permits (Permit-to-Work) linked to this WO — attached at creation or
+  // raised later from the Work Permits tab. Loaded for every WO so all linked
+  // permits show. `workPermit` (the gating permit) still drives the start gate:
+  // a WO flagged `requiresWorkPermit` can't start until its permit is active.
+  const { permit: workPermit, permits: workPermits } = useWorkOrderPermit(
+    wo.id,
+    wo.workPermitId,
   );
   const workPermitActive = !wo.requiresWorkPermit || workPermit?.status === 'active';
 
@@ -181,11 +183,19 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
             <div className="space-y-5">
               {canStart && !safetyPreview && (
                 <div className="space-y-3">
-                  {/* Work Permit gate — surfaced before the WO can be started. */}
-                  {wo.requiresWorkPermit && (
+                  {/* Work Permits — the gate before the WO can start, plus every
+                      other permit tied to this WO (attached at creation or
+                      raised later from the Work Permits tab). */}
+                  {(wo.requiresWorkPermit || workPermits.length > 0) && (
                     <div className={`rounded-lg border p-3 ${workPermitActive ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-orange-500/40 bg-orange-500/10'}`}>
-                      {workPermit ? (
-                        <WorkPermitDetails permit={workPermit} variant="dark" />
+                      {workPermits.length > 0 ? (
+                        <div className="space-y-4 divide-y divide-white/10">
+                          {workPermits.map((p, i) => (
+                            <div key={p.id} className={i > 0 ? 'pt-4' : ''}>
+                              <WorkPermitDetails permit={p} variant="dark" />
+                            </div>
+                          ))}
+                        </div>
                       ) : (
                         <div className="flex items-center gap-2">
                           <ShieldCheck className="h-4 w-4 text-orange-300" />

@@ -50,11 +50,13 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = (userProfile?.role ?? '') as string;
 
-  // Linked Work Permit (Permit-to-Work) for a WO that requires one — its full
-  // detail is surfaced in the Overview so approvers see the permit in context.
-  const { permit: workPermit } = useWorkOrderPermit(
-    workOrder.requiresWorkPermit ? workOrder.id : undefined,
-    workOrder.requiresWorkPermit ? workOrder.workPermitId : undefined,
+  // Work Permits (Permit-to-Work) linked to this WO — both the permit(s)
+  // attached when the WO was created and any raised later from the Work Permits
+  // tab against this WO. Loaded for every WO (not just ones flagged
+  // `requiresWorkPermit`) so a manually-linked permit still surfaces here.
+  const { permits: workPermits } = useWorkOrderPermit(
+    workOrder.id,
+    workOrder.workPermitId,
   );
 
   const isSupervisor = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'].includes(role);
@@ -256,14 +258,22 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 </section>
               )}
 
-              {/* Linked Work Permit — full Permit-to-Work detail */}
-              {workOrder.requiresWorkPermit && (
+              {/* Linked Work Permits — every Permit-to-Work tied to this WO,
+                  whether attached at creation or raised later from the Work
+                  Permits tab. */}
+              {(workOrder.requiresWorkPermit || workPermits.length > 0) && (
                 <section className="bg-white border border-gray-200 rounded-xl p-4">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                    Work Permit
+                    {workPermits.length > 1 ? `Work Permits (${workPermits.length})` : 'Work Permit'}
                   </h3>
-                  {workPermit ? (
-                    <WorkPermitDetails permit={workPermit} variant="light" />
+                  {workPermits.length > 0 ? (
+                    <div className="space-y-4 divide-y divide-gray-100">
+                      {workPermits.map((p, i) => (
+                        <div key={p.id} className={i > 0 ? 'pt-4' : ''}>
+                          <WorkPermitDetails permit={p} variant="light" />
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <p className="text-xs text-orange-600">
                       This work order requires a Work Permit, but none was found.
