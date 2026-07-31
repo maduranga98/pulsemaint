@@ -23,16 +23,26 @@ interface LaneDef {
   borderColor: string;
 }
 
-// Supervisor's Live Breakdown Board is scoped to breakdowns that are
-// assigned, currently in progress, or closed out (SUP-001) — reported /
-// triage / on-hold breakdowns are intentionally excluded.
+// Supervisor's Live Breakdown Board focuses the supervisor's action queue on
+// today's breakdowns: the ones just reported and the ones a technician has
+// resolved but still need a supervisor to sign off and close. Breakdowns that
+// are mid-repair, on hold, or already closed are intentionally excluded.
 const LANES: LaneDef[] = [
-  { id: 'assigned', title: 'ASSIGNED', states: ['assigned', 'en_route'], borderColor: '#1A56DB' },
-  { id: 'in_progress', title: 'IN PROGRESS', states: ['repair_in_progress'], borderColor: '#00C2FF' },
-  { id: 'closed', title: 'CLOSED', states: ['resolved', 'closed'], borderColor: '#10B981' },
+  { id: 'newly_reported', title: 'NEWLY REPORTED', states: ['reported', 'acknowledged', 'triage_in_progress'], borderColor: '#F59E0B' },
+  { id: 'sign_off', title: 'SIGN OFF & CLOSE', states: ['resolved'], borderColor: '#10B981' },
 ];
 
 const VISIBLE_STATES = new Set(LANES.flatMap((l) => l.states));
+
+// Only today's breakdowns belong on this board.
+function isToday(date: Date): boolean {
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth() &&
+    date.getDate() === now.getDate()
+  );
+}
 
 function toKanbanCard(b: any): CardType {
   const reportedAt = b.reportedAt?.toDate?.() ?? new Date(b.reportedAt);
@@ -71,9 +81,9 @@ export default function BreakdownKanbanBoard({ companyId }: BreakdownKanbanBoard
   const [cards, setCards] = useState<CardType[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Sync cards from Firestore
+  // Sync cards from Firestore, keeping only breakdowns reported today.
   useMemo(() => {
-    setCards(breakdowns.map(toKanbanCard));
+    setCards(breakdowns.map(toKanbanCard).filter((c) => isToday(c.reportedAt)));
   }, [breakdowns]);
 
   const sensors = useSensors(
