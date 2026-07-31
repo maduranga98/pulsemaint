@@ -1,6 +1,6 @@
 # Module 3: Asset & Machine Registry
 
-This module provides comprehensive machine registration, tracking, and management for PulseMaint.
+This module provides comprehensive machine registration, tracking, and management for FirmiCore.
 
 ## Architecture
 

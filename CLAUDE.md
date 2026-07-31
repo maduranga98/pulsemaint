@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-PulseMaint is a multi-tenant maintenance-management platform (CMMS): machine registry, breakdowns, work orders, PM scheduling, inventory/parts, contractors, shift handovers, training, triage/troubleshooting, OEE, Kaizen, audits, and analytics. Built with React + TypeScript + Vite, backed by Firebase (Auth, Firestore, Storage, Cloud Functions).
+FirmiCore is a multi-tenant maintenance-management platform (CMMS): machine registry, breakdowns, work orders, PM scheduling, inventory/parts, contractors, shift handovers, training, triage/troubleshooting, OEE, Kaizen, audits, and analytics. Built with React + TypeScript + Vite, backed by Firebase (Auth, Firestore, Storage, Cloud Functions).
 
 **The repo also contains a legacy/unused Vue scaffold** (`src/App.vue`, `src/main.js`, and the generic Vue boilerplate in `README.md`) — this is dead weight, not the active app. The real entry point is `src/main.tsx` → `src/App.tsx` → `src/router/AppRouter.tsx`. Don't edit the Vue files; they aren't wired to anything.
 
