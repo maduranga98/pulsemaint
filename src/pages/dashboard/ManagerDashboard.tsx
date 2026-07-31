@@ -14,6 +14,8 @@ import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
 import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
+import SafetySnapshotWidget from '../../components/dashboard/manager/SafetySnapshotWidget';
+import { ShieldAlert } from 'lucide-react';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
@@ -130,6 +132,14 @@ export default function ManagerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ContractorScoreboard companyId={companyId} month={currentMonth} />
           <SlaGaugeWidget companyId={companyId} />
+        </div>
+
+        {/* Row 6: Safety Analytics snapshot (formerly the Safety Analytics tab) */}
+        <div className="space-y-4">
+          <h2 className="flex items-center gap-2 font-[Sora] text-lg font-bold text-[#F0F4F8]">
+            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Analytics
+          </h2>
+          <SafetySnapshotWidget companyId={companyId} />
         </div>
       </div>
 
