@@ -7,23 +7,50 @@ interface ContractorAnalyticsTabProps {
 }
 
 export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
+  // Total cost captured at sign-off — the same figure the Job History tab uses.
+  // systemInvoiceAmount alone is only set for invoiced jobs, so Cost per Job sat
+  // at zero for most jobs; fall back through the cost fields that are actually
+  // populated.
+  const jobCost = (job: ContractorJob) =>
+    job.totalProjectCost ?? job.systemInvoiceAmount ?? job.contractorInvoiceAmount ?? 0;
+
+  const currentYear = new Date().getFullYear();
   const monthly = Array.from({ length: 12 }, (_, index) => {
-    const month = new Date(new Date().getFullYear(), index, 1).toLocaleString('en', { month: 'short' });
+    const month = new Date(currentYear, index, 1).toLocaleString('en', { month: 'short' });
     const monthJobs = jobs.filter((job) => {
       const created = job.createdAt?.toDate ? job.createdAt.toDate() : null;
-      return created ? created.getMonth() === index : false;
+      return created ? created.getFullYear() === currentYear && created.getMonth() === index : false;
     });
+    const ratedJobs = monthJobs.filter((job) => job.rating?.overallScore != null);
     return {
       month,
       jobs: monthJobs.length,
-      rating: monthJobs.reduce((sum, job) => sum + (job.rating?.overallScore ?? 0), 0) / Math.max(1, monthJobs.filter((job) => job.rating).length),
-      cost: monthJobs.reduce((sum, job) => sum + (job.systemInvoiceAmount ?? 0), 0) / Math.max(1, monthJobs.length),
+      rating: ratedJobs.length
+        ? ratedJobs.reduce((sum, job) => sum + (job.rating?.overallScore ?? 0), 0) / ratedJobs.length
+        : 0,
+      cost: monthJobs.length
+        ? monthJobs.reduce((sum, job) => sum + jobCost(job), 0) / monthJobs.length
+        : 0,
     };
   });
-  const distribution = ['breakdown', 'pm', 'installation'].map((name) => ({
-    name,
-    value: jobs.filter((job) => (job.workOrderType ?? '').toLowerCase().includes(name)).length,
-  }));
+
+  // Distribution across whatever job types actually occur, normalised to a
+  // readable label — the old fixed ['breakdown','pm','installation'] substring
+  // buckets never matched values like 'preventive_maintenance' and dropped
+  // every other type, so the pie looked frozen.
+  const TYPE_LABELS: Record<string, string> = {
+    breakdown_repair: 'Breakdown', breakdown: 'Breakdown',
+    preventive_maintenance: 'Preventive', preventive: 'Preventive', pm: 'Preventive',
+    corrective_maintenance: 'Corrective', corrective: 'Corrective',
+    installation: 'Installation', modification: 'Modification', inspection: 'Inspection',
+  };
+  const distMap = new Map<string, number>();
+  for (const job of jobs) {
+    const raw = (job.workOrderType ?? '').toLowerCase().trim();
+    const label = TYPE_LABELS[raw] ?? (raw ? raw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Other');
+    distMap.set(label, (distMap.get(label) ?? 0) + 1);
+  }
+  const distribution = [...distMap.entries()].map(([name, value]) => ({ name, value }));
 
   return (
     <div className="grid gap-4 xl:grid-cols-2">
