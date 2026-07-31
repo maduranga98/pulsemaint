@@ -59,7 +59,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer'] },
   { label: 'Work Permits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
   { label: 'Safety Training', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
-  { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'admin', 'plant_manager'] },
+  { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
   { label: 'Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
   // Safety module surfaced for oversight roles too — admins, plant managers, and
   // supervisors see cases the safety team escalates to them, plus analytics.

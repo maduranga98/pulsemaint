@@ -2,7 +2,6 @@ import { useAuthStore } from '@/store/authStore';
 import { useMyAssignments } from '@/hooks/training/useMyAssignments';
 import { isLearnerOutstanding } from '@/lib/training/assignmentStatus';
 import MyModulesList from '@/components/training/learner/MyModulesList';
-import MySafetyTrainings from '@/components/training/learner/MySafetyTrainings';
 
 export default function MyModulesPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -31,7 +30,6 @@ export default function MyModulesPage() {
           Could not load your assigned trainings: {error}
         </div>
       )}
-      {!loading && <MySafetyTrainings assignments={assignments} />}
       <MyModulesList assignments={assignments} loading={loading} />
     </div>
   );

@@ -545,7 +545,9 @@ export default function AppRouter() {
         <Route path="safety/dashboard" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyDashboard /></ProtectedRoute>} />
         <Route path="safety/cases" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor']}><SafetyCasesPage /></ProtectedRoute>} />
         <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor']}><WorkPermitsPage /></ProtectedRoute>} />
-        <Route path="safety/calendar" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager']}><SafetyCalendarPage /></ProtectedRoute>} />
+        {/* Safety Training Schedules — the company-wide safety-training
+            calendar, available to every signed-in role. */}
+        <Route path="safety/calendar" element={<ProtectedRoute><SafetyCalendarPage /></ProtectedRoute>} />
         <Route path="safety/analytics" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyAnalyticsPage /></ProtectedRoute>} />
 
         {/* Training - /training redirects based on role */}
