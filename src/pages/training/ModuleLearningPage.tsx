@@ -9,6 +9,14 @@ export default function ModuleLearningPage() {
   const navigate = useNavigate();
   const { assignment, module, loading, error } = useAssignment(assignmentId ?? '');
 
+  // A programme (Trainee Management library) module belongs to the "My
+  // Programme" tab — completing it should return there, not jump the trainee
+  // over to the separate "My Training" tab.
+  const modulesHome =
+    module?.libraryScope === 'trainee_management'
+      ? '/app/training/my-program'
+      : '/app/training/my-modules';
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -37,7 +45,7 @@ export default function ModuleLearningPage() {
         <OffboardTrainingCompletionForm
           assignment={assignment}
           module={module}
-          onBack={() => navigate('/app/training/my-modules')}
+          onBack={() => navigate(modulesHome)}
         />
       </div>
     );
@@ -47,7 +55,7 @@ export default function ModuleLearningPage() {
     <ModuleLearningScreen
       assignment={assignment}
       module={module}
-      onBack={() => navigate('/app/training/my-modules')}
+      onBack={() => navigate(modulesHome)}
       onStartQuiz={() => navigate(`/app/training/my-modules/${assignmentId}/quiz`)}
     />
   );
