@@ -1,12 +1,10 @@
 import { useState, useCallback } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp, collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import type { BreakdownStatus } from '../types/breakdown';
 import { db } from '../lib/firebase';
 import type { WorkOrder, WOStatus, TimeSegment, TimeSegmentState } from '../types/workOrder';
-import type { Permit } from '../types/permit';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
-import { computeLotoGatePassed } from '../lib/lotoGate';
 import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
 
 interface UseUpdateWorkOrderResult {
@@ -55,59 +53,10 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
       setLoading(true);
       setError(null);
 
-      // LOTO gate check: when transitioning OPEN/ASSIGNED → IN_PROGRESS
+      // The LOTO/PTW safety precautions are now confirmed manually by the
+      // technician on the start sheet (a single confirmation checkbox), so
+      // there is no server-side isolation-point/zero-energy gate here anymore.
       if (status === 'IN_PROGRESS') {
-        try {
-          const woSnap = await getDoc(doc(db, 'workOrders', id));
-          const woData = woSnap.data() as WorkOrder | undefined;
-
-          if (woData && (woData.status === 'ASSIGNED' || woData.status === 'OPEN')) {
-            // Fetch permit for this work order
-            const permitQuery = query(
-              collection(db, 'permits'),
-              where('workOrderId', '==', id),
-              limit(1),
-            );
-            const permitSnap = await getDocs(permitQuery);
-            const permit = permitSnap.empty
-              ? null
-              : ({ id: permitSnap.docs[0].id, ...permitSnap.docs[0].data() } as Permit);
-
-            const ptwCategory = woData.ptwCategory ?? null;
-
-            // Machines without isolation points and WOs without a PTW category
-            // have no safety gate to satisfy — don't block those from starting.
-            let gateApplies = true;
-            if (!permit && !ptwCategory) {
-              const machineSnap = await getDoc(doc(db, 'machines', woData.machineId));
-              const points = (machineSnap.data()?.isolationPoints ?? []) as unknown[];
-              gateApplies = points.length > 0;
-            }
-
-            const gatePassed = !gateApplies || computeLotoGatePassed(permit, ptwCategory);
-
-            if (!gatePassed) {
-              const msg =
-                permit === null
-                  ? 'Safety gate not initialized. Please complete LOTO/PTW before starting work.'
-                  : !permit.isolationChecklist.every((e) => e.locked)
-                  ? 'Not all isolation points are locked. Complete LOTO procedure first.'
-                  : !permit.zeroEnergyVerified
-                  ? 'Zero energy state not verified. Complete verification before starting work.'
-                  : ptwCategory
-                  ? 'Permit to Work must be issued before starting work.'
-                  : 'Safety gate check failed. Complete LOTO/PTW procedure first.';
-              setError(msg);
-              toast.error(msg);
-              setLoading(false);
-              return false;
-            }
-          }
-        } catch (gateErr) {
-          console.error('LOTO gate check error', gateErr);
-          // Non-blocking: if check fails (e.g. permission error on an isolated network), allow transition
-        }
-
         // Work Permit gate: a WO flagged `requiresWorkPermit` can't start until
         // its linked Permit-to-Work is active (issued and not yet closed/expired).
         try {
