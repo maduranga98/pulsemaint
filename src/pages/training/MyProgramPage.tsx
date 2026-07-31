@@ -79,8 +79,15 @@ export default function MyProgramPage() {
   }
 
   const totalModules = programme.months.reduce((n, m) => n + m.moduleIds.length, 0);
+  // A programme module counts as complete once its final test is passed —
+  // programme modules aren't certified one-by-one (that would mint a per-module
+  // certificate); the single certificate is issued at programme completion.
+  const isModuleDone = (id: string) => {
+    const a = assignmentByModuleId.get(id);
+    return !!a && (a.quizPassed === true || a.status === 'quiz_passed' || a.status === 'certified');
+  };
   const completedModules = programme.months.reduce(
-    (n, m) => n + m.moduleIds.filter((id) => assignmentByModuleId.get(id)?.status === 'certified').length,
+    (n, m) => n + m.moduleIds.filter(isModuleDone).length,
     0,
   );
   const overallPercent = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
@@ -140,8 +147,6 @@ export default function MyProgramPage() {
           );
         })}
       </div>
-
-      <div className="mt-6">{assignedModulesSection}</div>
 
       <div className="mt-6">
         <button

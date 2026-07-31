@@ -3,6 +3,7 @@ import { Loader2, Paperclip, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { useMyProgramme } from '@/hooks/traineeProgram/useMyProgramme';
+import { useMyAssignments } from '@/hooks/training/useMyAssignments';
 import { useWeekendSummaries } from '@/hooks/traineeProgram/useWeekendSummaries';
 import { submitWeekendSummary } from '@/services/traineeProgram.service';
 
@@ -32,13 +33,24 @@ const REVIEW_LABEL: Record<string, string> = {
 export default function KnowledgeWriteupPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const { programme, loading: programmeLoading } = useMyProgramme();
+  const { assignments } = useMyAssignments();
   const { summaries, loading: summariesLoading } = useWeekendSummaries(programme?.id ?? null);
 
   const [summaryText, setSummaryText] = useState('');
+  const [moduleId, setModuleId] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
-  const firstModuleTitle = programme?.months.find((m) => m.month === 1)?.title;
+  // Every module in the programme, so the write-up can be tagged to any of them
+  // (not just the first). Falls back to the plan's module ids when an
+  // assignment record hasn't been created yet.
+  const programmeModules = (programme?.months ?? []).flatMap((m) =>
+    m.moduleIds.map((id) => ({
+      id,
+      name: assignments.find((a) => a.moduleId === id)?.moduleName ?? id,
+    })),
+  );
+
   const canSubmit = !!programme && summaryText.trim().length > 0;
 
   const handleSubmit = async () => {
@@ -52,6 +64,8 @@ export default function KnowledgeWriteupPage() {
         traineeName: userProfile.fullName,
         weekEndingDate: todayYmd(),
         month: 1,
+        moduleId: moduleId || null,
+        moduleName: programmeModules.find((m) => m.id === moduleId)?.name ?? null,
         summaryText: summaryText.trim(),
         tasks: [],
         files,
@@ -59,6 +73,7 @@ export default function KnowledgeWriteupPage() {
       });
       toast.success('Knowledge write-up submitted.');
       setSummaryText('');
+      setModuleId('');
       setFiles([]);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to submit write-up');
@@ -89,14 +104,28 @@ export default function KnowledgeWriteupPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">First Module Knowledge Write-up</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Module Knowledge Write-up</h1>
         <p className="mt-1 text-slate-600">
-          Write up the knowledge you gathered during the first module
-          {firstModuleTitle ? ` — ${firstModuleTitle}` : ''}. Attachments are optional.
+          Write up the knowledge you gathered from a module in your programme. Attachments are optional.
         </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
+        {programmeModules.length > 0 && (
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Module</label>
+            <select
+              value={moduleId}
+              onChange={(e) => setModuleId(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            >
+              <option value="">Select a module…</option>
+              {programmeModules.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1">What you learned</label>
           <textarea
@@ -150,7 +179,7 @@ export default function KnowledgeWriteupPage() {
             {summaries.map((s) => (
               <div key={s.id} className="rounded-lg border border-slate-200 bg-white p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-800">Knowledge write-up</span>
+                  <span className="text-sm font-medium text-slate-800">{s.moduleName || 'Knowledge write-up'}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     s.reviewStatus === 'reviewed' ? 'bg-green-100 text-green-700'
                     : s.reviewStatus === 'needs_revision' ? 'bg-red-100 text-red-700'
