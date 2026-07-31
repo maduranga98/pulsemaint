@@ -185,8 +185,8 @@ export default function OnboardingWizard() {
         <div className="text-center mb-8 flex flex-col items-center">
           <img src="/logo.svg" alt="FirmiCore" className="h-16 w-auto mb-3" />
           <div className="text-3xl font-bold mb-2">
-            <span className="text-white">Pulse</span>
-            <span className="text-[#00C2FF]">Maint</span>
+            <span className="text-white">Firmi</span>
+            <span className="text-[#00C2FF]">Core</span>
           </div>
           <p className="text-gray-300">Complete your setup</p>
         </div>

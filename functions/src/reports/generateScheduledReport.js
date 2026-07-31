@@ -174,7 +174,7 @@ exports.generateScheduledReport = onSchedule("every 1 hours", async () => {
       for (const to of recipients) {
         await sendEmail({
           to,
-          subject: `PulseMaint — ${schedule.reportName} (scheduled export)`,
+          subject: `FirmiCore — ${schedule.reportName} (scheduled export)`,
           html: brandedEmail(`
             <p style="margin:0 0 12px;color:#333;font-size:14px;">Your scheduled report is ready.</p>
             <p style="margin:0 0 12px;color:#333;font-size:14px;"><strong>${schedule.reportName}</strong> — ${rows.length} record(s).</p>

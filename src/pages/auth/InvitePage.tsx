@@ -145,8 +145,8 @@ export default function InvitePage() {
         <div className="text-center mb-6 flex flex-col items-center">
           <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto mb-2" />
           <div className="text-2xl font-bold">
-            <span className="text-white">Pulse</span>
-            <span className="text-[#00C2FF]">Maint</span>
+            <span className="text-white">Firmi</span>
+            <span className="text-[#00C2FF]">Core</span>
           </div>
         </div>
 

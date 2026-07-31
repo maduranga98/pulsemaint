@@ -54,7 +54,7 @@ exports.pushToGoogleSheets = onCall(async (request) => {
   const auth = new google.auth.OAuth2();
   auth.setCredentials({ access_token: googleAccessToken });
   const sheets = google.sheets({ version: "v4", auth });
-  const title = `PulseMaint - ${reportType} - ${dateFrom} to ${dateTo}`;
+  const title = `FirmiCore - ${reportType} - ${dateFrom} to ${dateTo}`;
   const created = await sheets.spreadsheets.create({
     requestBody: { properties: { title } },
   });

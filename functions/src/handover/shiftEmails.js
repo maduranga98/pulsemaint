@@ -88,13 +88,13 @@ exports.onShiftPlanUpdated = onDocumentWritten(
 </p>
 ${after ? describeShift(after) : describeShift(before)}
 <p style="margin:0;color:#888;font-size:13px;">
-  Open PulseMaint → <strong>My Shift</strong> to see your current shift plans.
+  Open FirmiCore → <strong>My Shift</strong> to see your current shift plans.
 </p>`;
         const ok = await sendEmail({
           to: user.email,
           subject,
           html: brandedEmail(body),
-          text: `The shift plan ${shiftName} has been ${action}. ${shift.startTime || ""} - ${shift.endTime || ""}. Check PulseMaint → My Shift for details.`,
+          text: `The shift plan ${shiftName} has been ${action}. ${shift.startTime || ""} - ${shift.endTime || ""}. Check FirmiCore → My Shift for details.`,
         });
         if (ok) sent += 1;
       }
@@ -142,13 +142,13 @@ exports.onHandoverSubmitted = onDocumentCreated(
   Please review and accept it to take over the shift.
 </p>
 <p style="margin:0;color:#888;font-size:13px;">
-  Open PulseMaint → <strong>Shift Briefing</strong> to accept the handover.
+  Open FirmiCore → <strong>Shift Briefing</strong> to accept the handover.
 </p>`;
         await sendEmail({
           to: user.email,
           subject: `Handover pending: ${handover.shiftName || "Shift"} (${handover.shiftDate || ""})`,
           html: brandedEmail(body),
-          text: `${handover.outgoingSupervisorName || "The outgoing supervisor"} submitted a handover for ${handover.shiftName || "the shift"}. Review it in PulseMaint.`,
+          text: `${handover.outgoingSupervisorName || "The outgoing supervisor"} submitted a handover for ${handover.shiftName || "the shift"}. Review it in FirmiCore.`,
         });
       }
 
@@ -263,7 +263,7 @@ exports.sendShiftStartReminders = onSchedule("every 30 minutes", async () => {
 </p>
 ${describeShift(shift)}
 <p style="margin:0;color:#888;font-size:13px;">
-  When you arrive, open PulseMaint → <strong>My Shift</strong> and press <strong>Start Shift</strong>.
+  When you arrive, open FirmiCore → <strong>My Shift</strong> and press <strong>Start Shift</strong>.
 </p>`;
       const ok = await sendEmail({
         to: user.email,

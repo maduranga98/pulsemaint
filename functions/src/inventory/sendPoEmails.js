@@ -21,7 +21,7 @@
  *   - a cancellation notice, with the reason given, when a PO that had
  *     already been sent to the supplier is cancelled — event "cancelled".
  * Every supplier-facing email uses the tenant's own registered company name
- * (never the generic "PulseMaint" platform name).
+ * (never the generic "FirmiCore" platform name).
  */
 
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
@@ -114,7 +114,7 @@ function fmtDate(ts) {
 
 // Minimal white-page shell for the PO document emails — the document itself
 // carries the company's name/branding in its header, so this deliberately
-// skips the gradient "PulseMaint"-style hero used by brandedEmail().
+// skips the gradient "FirmiCore"-style hero used by brandedEmail().
 function plainEmailShell(bodyHtml, companyName) {
   return `
 <!DOCTYPE html>

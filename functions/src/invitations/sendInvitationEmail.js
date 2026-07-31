@@ -71,7 +71,7 @@ exports.sendInvitationEmail = onCall(
               <h2 style="margin:0 0 8px;color:#1a1a1a;font-size:22px;font-weight:600;">You're invited!</h2>
               <p style="margin:0 0 24px;color:#555;font-size:15px;line-height:1.6;">
                 <strong>${inv.invitedByName || "Your administrator"}</strong> has invited you to join
-                <strong>${companyName}</strong> on PulseMaint as a
+                <strong>${companyName}</strong> on FirmiCore as a
                 <span style="display:inline-block;background:#EBF5FF;color:#1A56DB;padding:2px 10px;border-radius:4px;font-size:13px;font-weight:600;">${roleName}</span>.
               </p>
 
@@ -122,7 +122,7 @@ exports.sendInvitationEmail = onCall(
           <tr>
             <td style="background:#f8fafc;padding:20px 40px;text-align:center;border-top:1px solid #eee;">
               <p style="margin:0;color:#aaa;font-size:11px;">
-                &copy; ${new Date().getFullYear()} PulseMaint by FeedSolve. All rights reserved.
+                &copy; ${new Date().getFullYear()} FirmiCore by FeedSolve. All rights reserved.
               </p>
             </td>
           </tr>
@@ -135,11 +135,11 @@ exports.sendInvitationEmail = onCall(
 
     try {
       await transporter.sendMail({
-        from: "\"PulseMaint\" <hello@feedsolve.com>",
+        from: "\"FirmiCore\" <hello@feedsolve.com>",
         to: inv.email,
-        subject: `You're invited to join ${companyName} on PulseMaint`,
+        subject: `You're invited to join ${companyName} on FirmiCore`,
         html,
-        text: `You've been invited to join ${companyName} on PulseMaint as a ${roleName}. Accept your invitation here: ${inviteUrl}`,
+        text: `You've been invited to join ${companyName} on FirmiCore as a ${roleName}. Accept your invitation here: ${inviteUrl}`,
       });
 
       logger.info(`Invitation email sent to ${inv.email}`, { invitationId });

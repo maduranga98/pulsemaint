@@ -16,12 +16,12 @@ const transporter = nodemailer.createTransport({
  * Wrap body HTML in the branded email shell.
  * @param {string} bodyHtml inner HTML for the white card body
  * @param {string} [companyName] tenant name to show in the header/footer
- *   instead of the generic "PulseMaint" — supplier-facing emails (POs,
+ *   instead of the generic "FirmiCore" — supplier-facing emails (POs,
  *   receipts) should read as coming from the company, not the platform.
  * @return {string} full HTML document
  */
 function brandedEmail(bodyHtml, companyName) {
-  const displayName = companyName || "PulseMaint";
+  const displayName = companyName || "FirmiCore";
   return `
 <!DOCTYPE html>
 <html>
@@ -72,7 +72,7 @@ function brandedEmail(bodyHtml, companyName) {
 async function sendEmail({to, subject, html, text, attachments, fromName}) {
   try {
     await transporter.sendMail({
-      from: `"${fromName || "PulseMaint"}" <hello@feedsolve.com>`,
+      from: `"${fromName || "FirmiCore"}" <hello@feedsolve.com>`,
       to,
       subject,
       html,

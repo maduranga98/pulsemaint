@@ -5,8 +5,8 @@ export default function AuthLoading() {
         {/* FirmiCore Logo */}
         <div className="text-center">
           <div className="text-4xl font-bold">
-            <span className="text-white">Pulse</span>
-            <span className="text-[#00C2FF]">Maint</span>
+            <span className="text-white">Firmi</span>
+            <span className="text-[#00C2FF]">Core</span>
           </div>
         </div>
 
