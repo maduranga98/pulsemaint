@@ -248,6 +248,19 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     availableFilters: [],
     estimatedGenerationSecs: 4,
   },
+  work_permit_history: {
+    type: 'work_permit_history',
+    name: 'Work Permit History Report',
+    description: 'Permit-to-Work register — category, validity window, precautions, sign-off outcome and who issued each permit.',
+    category: 'compliance',
+    icon: 'HardHat',
+    supportsPdf: true,
+    supportsExcel: true,
+    supportsSheets: true,
+    primaryUsers: ['Safety Officer', 'Supervisor', 'Manager'],
+    availableFilters: [],
+    estimatedGenerationSecs: 4,
+  },
 };
 
 export const REPORT_LIST = Object.values(REPORT_DEFINITIONS);

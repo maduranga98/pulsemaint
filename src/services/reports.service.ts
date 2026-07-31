@@ -536,6 +536,55 @@ export async function fetchReportRows(
       }));
   }
 
+  // Work Permit History — the Permit-to-Work register, most recent first.
+  if (reportType === 'work_permit_history') {
+    const snap = await getDocs(
+      query(collection(db, 'work_permits'), where('companyId', '==', companyId), limit(1000)),
+    );
+    const CAT_LABEL: Record<string, string> = {
+      hot_work: 'Hot Work', confined_space: 'Confined Space', electrical_isolation: 'Electrical Isolation',
+      working_at_height: 'Working at Height', excavation: 'Excavation', chemical_handling: 'Chemical Handling',
+      general: 'General Work Permit',
+    };
+    const COMPLETION_LABEL: Record<string, string> = {
+      completed: 'Completed', partially_completed: 'Partially Completed', not_completed: 'Not Completed',
+    };
+    const permitDate = (v: unknown): string => {
+      const s = String(v ?? '');
+      return s ? s.replace('T', ' ') : '';
+    };
+    return snap.docs
+      .map((d) => d.data() as Record<string, unknown>)
+      .filter((p) => {
+        // Overlap the permit's validity with the report range; fall back to
+        // createdAt, then include if neither is present.
+        const from = String(p.validFrom ?? '').slice(0, 10);
+        const to = String(p.validTo ?? '').slice(0, 10);
+        if (from || to) return (to || from) >= config.dateFrom && (from || to) <= config.dateTo;
+        const c = p.createdAt as Timestamp | undefined;
+        if (c && typeof c.toDate === 'function') {
+          const iso = c.toDate().toISOString().slice(0, 10);
+          return iso >= config.dateFrom && iso <= config.dateTo;
+        }
+        return true;
+      })
+      .sort((a, b) => String(b.validFrom ?? '').localeCompare(String(a.validFrom ?? '')))
+      .map((p) => ({
+        permitNumber: String(p.permitNumber ?? ''),
+        category: CAT_LABEL[String(p.category)] ?? String(p.category ?? ''),
+        title: String(p.title ?? ''),
+        status: String(p.status ?? ''),
+        validFrom: permitDate(p.validFrom),
+        validTo: permitDate(p.validTo),
+        location: String(p.location ?? ''),
+        requestedByName: String(p.requestedByName ?? ''),
+        supervisorName: String(p.supervisorName ?? ''),
+        completion: COMPLETION_LABEL[String(p.completion)] ?? String(p.completion ?? ''),
+        signedOffByName: String(p.signedOffByName ?? ''),
+        signedOffAt: (p.signedOffAt as Timestamp | undefined)?.toDate?.().toLocaleDateString() ?? '',
+      }));
+  }
+
   // Maps each report to the Firestore collection(s) it reads from. These must
   // match the actual collection names used elsewhere in the app.
   const sourceMap: Record<ReportType, string[]> = {
@@ -579,6 +628,8 @@ export async function fetchReportRows(
     // safety_incidents is a computed branch above (reads the safety_cases
     // collection directly).
     safety_incidents: [],
+    // work_permit_history is a computed branch above (reads work_permits).
+    work_permit_history: [],
   };
 
   // Registry/snapshot collections describe current state (machines, parts,
