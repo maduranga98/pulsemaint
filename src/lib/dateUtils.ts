@@ -1,5 +1,5 @@
 /**
- * Simple date utilities for PulseMaint.
+ * Simple date utilities for FirmiCore.
  */
 
 export function formatDistanceToNow(date: Date | number): string {

@@ -1,6 +1,6 @@
 {
-  "short_name": "PulseMaint",
-  "name": "PulseMaint - Machine Maintenance",
+  "short_name": "FirmiCore",
+  "name": "FirmiCore - Machine Maintenance",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#0A1628",

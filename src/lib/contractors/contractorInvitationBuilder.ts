@@ -30,7 +30,7 @@ export function buildContractorInvitationContent(params: {
 
   const html = `
     <div style="font-family:Arial,sans-serif;color:#0A1628;line-height:1.5">
-      <h2 style="margin:0 0 12px">PulseMaint</h2>
+      <h2 style="margin:0 0 12px">FirmiCore</h2>
       <p>Dear ${escapeHtml(contactName)},</p>
       <p>You have been assigned a maintenance job at <strong>${escapeHtml(factoryName)}</strong>.</p>
       <table style="border-collapse:collapse;width:100%;max-width:640px;margin:16px 0">
@@ -44,7 +44,7 @@ export function buildContractorInvitationContent(params: {
       <p><strong>Work Description</strong><br>${escapeHtml(description)}</p>
       <p><strong>Factory Contact</strong><br>${escapeHtml(supervisorName)} - ${escapeHtml(supervisorPhone)}<br>Emergency: ${escapeHtml(contractor.emergencyContact || supervisorPhone)}</p>
       <p>Please confirm receipt of this invitation. Contact the supervisor if you need any additional information before attending.</p>
-      <p style="color:#64748b;font-size:12px">Sent via PulseMaint | pulsemaint.com | ${escapeHtml(factoryName)}<br>Do not reply to this email - contact the supervisor directly.</p>
+      <p style="color:#64748b;font-size:12px">Sent via FirmiCore | pulsemaint.com | ${escapeHtml(factoryName)}<br>Do not reply to this email - contact the supervisor directly.</p>
     </div>
   `;
 

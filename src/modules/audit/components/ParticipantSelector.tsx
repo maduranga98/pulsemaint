@@ -22,7 +22,7 @@ const ROLE_LABELS: Record<string, string> = {
 
 const prettyRole = (r: string) => ROLE_LABELS[r] ?? r;
 
-/** Multi-select attendee panel drawn from the PulseMaint user directory. */
+/** Multi-select attendee panel drawn from the FirmiCore user directory. */
 export function ParticipantSelector({ users, selected, onChange }: Props) {
   const [search, setSearch] = useState('');
   const selectedIds = useMemo(() => new Set(selected.map((p) => p.userId)), [selected]);

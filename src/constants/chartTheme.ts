@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Recharts dark theme constants for PulseMaint dashboards
+// Recharts dark theme constants for FirmiCore dashboards
 // ---------------------------------------------------------------------------
 
 export const CHART_COLORS = {

@@ -23,6 +23,6 @@ export function exportToExcel(config: ExcelExportConfig): void {
     XLSX.utils.book_append_sheet(wb, ws, sheet.name.slice(0, 31));
   });
 
-  const filename = `PulseMaint_${config.reportName}_${config.dateRange}.xlsx`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  const filename = `FirmiCore_${config.reportName}_${config.dateRange}.xlsx`.replace(/[^a-zA-Z0-9_.-]/g, '_');
   XLSX.writeFile(wb, filename);
 }

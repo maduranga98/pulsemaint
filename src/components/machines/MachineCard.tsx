@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { QrCode } from 'lucide-react';
 import type { Machine } from '../../types/machine';
 import { MachineStatusBadge } from './MachineStatusBadge';
 import { MachineCriticalityBadge } from './MachineCriticalityBadge';
@@ -10,6 +11,7 @@ interface MachineCardProps {
 }
 
 export function MachineCard({ machine }: MachineCardProps) {
+  const navigate = useNavigate();
   const lastServiceDate = machine.lastServiceDate
     ? formatDistanceToNow(machine.lastServiceDate.toDate?.() || new Date((machine.lastServiceDate as any).seconds * 1000))
     : 'Never';
@@ -23,8 +25,23 @@ export function MachineCard({ machine }: MachineCardProps) {
             <h3 className="font-semibold text-gray-900">{machine.name}</h3>
             <p className="text-sm text-gray-600">{machine.model}</p>
           </div>
-          <div>
+          <div className="flex items-center gap-2 shrink-0">
             <MachineStatusBadge status={machine.status} size="sm" />
+            {/* QR quick-action — reachable directly from the registry, so the
+                QR view can be opened on mobile without the desktop table. */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                navigate(`/app/machines/${machine.id}/qr`);
+              }}
+              className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50 hover:text-blue-600"
+              aria-label="View QR code"
+              title="View QR code"
+            >
+              <QrCode className="h-4 w-4" />
+            </button>
           </div>
         </div>
 

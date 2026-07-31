@@ -143,7 +143,7 @@ export default function InvitePage() {
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-6 flex flex-col items-center">
-          <img src="/logo.png" alt="PulseMaint" className="h-14 w-auto mb-2" />
+          <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto mb-2" />
           <div className="text-2xl font-bold">
             <span className="text-white">Pulse</span>
             <span className="text-[#00C2FF]">Maint</span>

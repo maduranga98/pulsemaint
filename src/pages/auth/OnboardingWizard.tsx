@@ -183,7 +183,7 @@ export default function OnboardingWizard() {
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4 py-8">
       <div className="w-full max-w-2xl">
         <div className="text-center mb-8 flex flex-col items-center">
-          <img src="/logo.png" alt="PulseMaint" className="h-16 w-auto mb-3" />
+          <img src="/logo.svg" alt="FirmiCore" className="h-16 w-auto mb-3" />
           <div className="text-3xl font-bold mb-2">
             <span className="text-white">Pulse</span>
             <span className="text-[#00C2FF]">Maint</span>
