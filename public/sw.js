@@ -1,6 +1,6 @@
 // Bump this version whenever the app shell changes. Changing the name
 // forces the `activate` handler below to delete every older cache.
-const CACHE_NAME = 'pulsemaint-pm-v2';
+const CACHE_NAME = 'firmicore-pm-v3';
 
 // Only pre-cache things that are safe to serve offline. We intentionally do
 // NOT pre-cache navigations/HTML here so the newest index.html (and the
