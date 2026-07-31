@@ -1,4 +1,4 @@
-// PulseMaint — UI copy constants
+// FirmiCore — UI copy constants
 // All user-facing strings live here. No hardcoded strings in components.
 
 // ---------------------------------------------------------------------------
@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 export const APP = {
-  name: 'PulseMaint',
+  name: 'FirmiCore',
   tagline: 'Keep the pulse of your plant.',
   company: 'Lumora Ventures Pvt Ltd',
 } as const;

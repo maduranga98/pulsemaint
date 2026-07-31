@@ -97,8 +97,8 @@ export function MachineQrPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg border border-gray-200 p-8">
               <div id="qr-print-container" className="flex flex-col items-center gap-6 p-8 bg-white">
-                {/* PulseMaint Logo placeholder */}
-                <div className="text-sm font-semibold text-gray-600">PulseMaint</div>
+                {/* FirmiCore Logo placeholder */}
+                <div className="text-sm font-semibold text-gray-600">FirmiCore</div>
 
                 {/* QR Code */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200">
@@ -107,7 +107,7 @@ export function MachineQrPage() {
                     id="machine-qr-code"
                     width={300}
                     height={300}
-                    className="w-full border border-gray-300"
+                    className="mx-auto h-auto w-full max-w-[280px] border border-gray-300"
                   />
                 </div>
 

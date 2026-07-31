@@ -158,7 +158,7 @@ function TrialBanner({
       <p className="text-sm">
         {expired ? (
           <span>
-            <strong>Your trial has expired.</strong> Upgrade to continue using PulseMaint.
+            <strong>Your trial has expired.</strong> Upgrade to continue using FirmiCore.
           </span>
         ) : daysLeft !== null ? (
           <span>

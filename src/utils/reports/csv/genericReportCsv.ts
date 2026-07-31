@@ -31,7 +31,7 @@ export async function exportGenericReportCsv(
 
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  const filename = `PulseMaint_${definition.name}_${dateRangeLabel(config.dateFrom, config.dateTo)}.csv`.replace(
+  const filename = `FirmiCore_${definition.name}_${dateRangeLabel(config.dateFrom, config.dateTo)}.csv`.replace(
     /[^a-zA-Z0-9_.-]/g,
     '_',
   );

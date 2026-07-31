@@ -1,4 +1,4 @@
-// PulseMaint — Brand color tokens
+// FirmiCore — Brand color tokens
 // Single source of truth. Use these in Tailwind arbitrary values or inline styles.
 
 export const BRAND_COLORS = {

@@ -11,7 +11,7 @@ import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
 // reuses the same jsPDF header/table theme as
 // src/utils/reports/pdf/genericReportPdf.ts (title, gray metadata line,
 // dark autoTable header) so a "Shift Handover" PDF looks like every other
-// PulseMaint report export.
+// FirmiCore report export.
 
 const HEADER_FILL: [number, number, number] = [10, 22, 40];
 
@@ -150,7 +150,7 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
     doc.text(`Page ${i} of ${pageCount}`, pageWidth - 80, doc.internal.pageSize.getHeight() - 20);
   }
 
-  const filename = `PulseMaint_ShiftHandover_${handover.shiftName}_${handover.shiftDate}.pdf`.replace(/[^a-zA-Z0-9_.-]/g, '_');
+  const filename = `FirmiCore_ShiftHandover_${handover.shiftName}_${handover.shiftDate}.pdf`.replace(/[^a-zA-Z0-9_.-]/g, '_');
   doc.save(filename);
 }
 

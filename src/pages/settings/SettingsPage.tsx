@@ -53,7 +53,7 @@ export default function SettingsPage() {
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-sm text-slate-500">Configure how PulseMaint works for your plant.</p>
+        <p className="text-sm text-slate-500">Configure how FirmiCore works for your plant.</p>
       </div>
 
       <div className="px-6 py-5 space-y-6">

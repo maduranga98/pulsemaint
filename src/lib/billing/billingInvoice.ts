@@ -12,7 +12,7 @@ interface GenerateBillingInvoiceInput {
 }
 
 /**
- * Builds a PulseMaint subscription invoice PDF for the company's current
+ * Builds a FirmiCore subscription invoice PDF for the company's current
  * plan/cycle and triggers a browser download. Generated entirely
  * client-side — not persisted.
  */
@@ -41,5 +41,5 @@ export async function generateBillingInvoice(input: GenerateBillingInvoiceInput)
     paymentMethodLabel: defaultCard ? `${defaultCard.brand} •••• ${defaultCard.last4}` : null,
   });
 
-  pdf.save(`PulseMaint-Invoice-${invoiceNumber}.pdf`);
+  pdf.save(`FirmiCore-Invoice-${invoiceNumber}.pdf`);
 }

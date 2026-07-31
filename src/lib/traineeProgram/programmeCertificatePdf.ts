@@ -50,7 +50,7 @@ export function buildProgrammeCertificatePdf(input: ProgrammeCertificateInput): 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-  doc.text((input.companyName || 'PulseMaint').toUpperCase(), pageWidth / 2, y, { align: 'center' });
+  doc.text((input.companyName || 'FirmiCore').toUpperCase(), pageWidth / 2, y, { align: 'center' });
 
   y += 30;
   doc.setFont('times', 'bold');

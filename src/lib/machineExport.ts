@@ -239,7 +239,7 @@ export function exportMachineQrPdf(
 
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.text('PulseMaint', centerX, 30, { align: 'center' });
+  doc.text('FirmiCore', centerX, 30, { align: 'center' });
 
   doc.setFontSize(16);
   doc.text(machine.name, centerX, 45, { align: 'center' });

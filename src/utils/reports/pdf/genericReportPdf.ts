@@ -323,7 +323,7 @@ export async function exportGenericReportPdf(
     });
   }
 
-  const filename = `PulseMaint_${definition.name}_${dateRangeLabel(config.dateFrom, config.dateTo)}.pdf`.replace(
+  const filename = `FirmiCore_${definition.name}_${dateRangeLabel(config.dateFrom, config.dateTo)}.pdf`.replace(
     /[^a-zA-Z0-9_.-]/g,
     '_',
   );

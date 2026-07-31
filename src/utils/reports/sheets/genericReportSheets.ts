@@ -33,7 +33,7 @@ export async function exportGenericReportSheets(
     ['Records', rows.length],
   ];
 
-  const title = `PulseMaint — ${definition.name} (${dateRangeLabel(config.dateFrom, config.dateTo)})`;
+  const title = `FirmiCore — ${definition.name} (${dateRangeLabel(config.dateFrom, config.dateTo)})`;
 
   // 1. Create the spreadsheet with two sheets.
   const createRes = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {

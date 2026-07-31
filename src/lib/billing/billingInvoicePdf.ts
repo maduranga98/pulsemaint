@@ -24,8 +24,8 @@ const MUTED = { r: 100, g: 116, b: 139 };
 const NAVY = { r: 30, g: 58, b: 95 };
 
 /**
- * Builds a PulseMaint subscription invoice for the given plan change —
- * vendor letterhead ("PulseMaint"), bill-to block, a single line item for
+ * Builds a FirmiCore subscription invoice for the given plan change —
+ * vendor letterhead ("FirmiCore"), bill-to block, a single line item for
  * the plan/cycle, and the total due.
  */
 export function buildBillingInvoicePdf(input: BillingInvoiceInput): jsPDF {
@@ -38,7 +38,7 @@ export function buildBillingInvoicePdf(input: BillingInvoiceInput): jsPDF {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-  doc.text('PulseMaint', marginX, y);
+  doc.text('FirmiCore', marginX, y);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
@@ -118,7 +118,7 @@ export function buildBillingInvoicePdf(input: BillingInvoiceInput): jsPDF {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   doc.setTextColor(INK.r, INK.g, INK.b);
-  doc.text(`PulseMaint ${input.planName} Plan Subscription`, col1 + 8, y + 19);
+  doc.text(`FirmiCore ${input.planName} Plan Subscription`, col1 + 8, y + 19);
   doc.text(input.billingCycle === 'yearly' ? 'Yearly' : 'Monthly', col2, y + 19);
   doc.text(`${input.currency} ${input.amount.toFixed(2)}`, col3 - 8, y + 19, { align: 'right' });
 
@@ -161,7 +161,7 @@ export function buildBillingInvoicePdf(input: BillingInvoiceInput): jsPDF {
   doc.setFontSize(8.5);
   doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
   doc.text(
-    'This is a system-generated invoice for your PulseMaint subscription. For billing questions, contact billing@pulsemaint.com.',
+    'This is a system-generated invoice for your FirmiCore subscription. For billing questions, contact billing@pulsemaint.com.',
     marginX,
     pageHeight - 48,
     { maxWidth: pageWidth - marginX * 2 }

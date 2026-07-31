@@ -2,7 +2,7 @@ export default function AuthLoading() {
   return (
     <div className="fixed inset-0 bg-[#0A1628] flex items-center justify-center">
       <div className="flex flex-col items-center gap-6">
-        {/* PulseMaint Logo */}
+        {/* FirmiCore Logo */}
         <div className="text-center">
           <div className="text-4xl font-bold">
             <span className="text-white">Pulse</span>
