@@ -1,14 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Timestamp, doc, getDoc } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
 import { X, Play, Pause, PackageX, PackagePlus, ClipboardCheck, CheckCircle2, ShieldCheck, MapPin, FileText } from 'lucide-react';
-import { db } from '../../../lib/firebase';
 import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
-import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
-import { usePermit } from '../../../hooks/usePermit';
 import { useWorkOrderPermit } from '../../../hooks/safety/useSafety';
 import { WorkPermitDetails } from '../WorkPermitDetails';
-import { LotoGate } from '../LotoGate';
 import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
 import { useAuthStore } from '../../../store/authStore';
 import { WOTypeBadge } from '../WOTypeBadge';
@@ -40,15 +36,13 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const [showPartsRequest, setShowPartsRequest] = useState(false);
   const [safetyPreview, setSafetyPreview] = useState(false);
   const [now, setNow] = useState(Date.now());
-  const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
+  // Manual confirmation that the technician has completed the safety
+  // precautions (LOTO / PTW) — replaces the machine isolation-point checklist
+  // so the gate no longer depends on isolation points being defined on the
+  // machine profile.
+  const [safetyConfirmed, setSafetyConfirmed] = useState(false);
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
-
-  const { lotoGatePassed } = usePermit({
-    workOrderId: wo.id,
-    machineId: wo.machineId,
-    siteId: wo.siteId,
-  });
 
   // Safety Work Permit gate — a WO flagged `requiresWorkPermit` can't start
   // until its linked Permit-to-Work is active.
@@ -58,29 +52,9 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   );
   const workPermitActive = !wo.requiresWorkPermit || workPermit?.status === 'active';
 
-  // Load the machine's isolation points so the LOTO/PTW safety checklist can
-  // be completed before starting work.
-  useEffect(() => {
-    let cancelled = false;
-    getDoc(doc(db, 'machines', wo.machineId))
-      .then((snap) => {
-        if (!cancelled) {
-          setIsolationPoints((snap.data()?.isolationPoints ?? []) as IsolationPoint[]);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setIsolationPoints([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [wo.machineId]);
-
   const isInProgress = wo.status === 'IN_PROGRESS';
   const isOnHold = wo.status === 'ON_HOLD_PARTS' || wo.status === 'ON_HOLD_APPROVAL';
   const canStart = wo.status === 'ASSIGNED' || wo.status === 'OPEN';
-  const safetyGateApplies = (isolationPoints !== null && isolationPoints.length > 0) || !!wo.ptwCategory;
-  const safetyGatePassed = !safetyGateApplies || lotoGatePassed;
 
   // The supervisor/assigner's own attachments — kept distinct from the
   // technician's own field media, which is captured separately below via
@@ -118,11 +92,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   }
 
   function handleStartWOClick() {
-    if (safetyGateApplies) {
-      setSafetyPreview(true);
-    } else {
-      handleCheckInAndStart();
-    }
+    setSafetyPreview(true);
   }
 
   const elapsed = wo.actualStartTime ? now - wo.actualStartTime.toDate().getTime() : 0;
@@ -182,7 +152,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   )}
                   <button
                     onClick={handleStartWOClick}
-                    disabled={loading || isolationPoints === null || !workPermitActive}
+                    disabled={loading || !workPermitActive}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
                     <Play className="h-5 w-5" /> Start WO
@@ -190,9 +160,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   <p className="text-center text-[11px] text-[#8BA3BF]">
                     {!workPermitActive
                       ? 'This job needs an active Work Permit before it can start.'
-                      : safetyGateApplies
-                      ? 'You will review the safety precautions before work begins.'
-                      : 'This will record your check-in and start the job.'}
+                      : 'You will confirm the safety precautions before work begins.'}
                   </p>
 
                   {/* Assignment briefing — the details the assigner entered, so
@@ -242,32 +210,52 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
               {canStart && safetyPreview && (
                 <div className="space-y-3">
-                  {isolationPoints !== null && (
-                    <div className="rounded-lg bg-white p-4">
-                      <div className="mb-3 flex items-center gap-2">
-                        <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                        <h3 className="text-sm font-semibold text-gray-900">Safety Precautions (LOTO / PTW)</h3>
-                      </div>
-                      <LotoGate workOrder={wo} machineIsolationPoints={isolationPoints} />
+                  <div className="rounded-lg bg-white p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                      <h3 className="text-sm font-semibold text-gray-900">Safety Precautions (LOTO / PTW)</h3>
                     </div>
-                  )}
+                    <p className="mb-3 text-sm text-gray-600">
+                      Make sure all required Lock-Out/Tag-Out and Permit-to-Work safety precautions
+                      have been completed for this job, then confirm below to start work.
+                    </p>
+                    {wo.ptwCategory && (
+                      <p className="mb-3 text-xs text-gray-500">
+                        Permit category: <span className="font-medium text-gray-700">{wo.ptwCategory}</span>
+                      </p>
+                    )}
+                    <label className="flex cursor-pointer items-start gap-2">
+                      <input
+                        type="checkbox"
+                        checked={safetyConfirmed}
+                        onChange={(e) => setSafetyConfirmed(e.target.checked)}
+                        className="mt-0.5 rounded border-gray-300 text-emerald-600"
+                      />
+                      <span className="text-sm font-medium text-gray-800">
+                        I confirm all safety precautions (LOTO / PTW) have been completed.
+                      </span>
+                    </label>
+                  </div>
                   <button
                     onClick={handleCheckInAndStart}
-                    disabled={loading || !safetyGatePassed}
+                    disabled={loading || !safetyConfirmed}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
                     <MapPin className="h-5 w-5" /> Confirm Safety Checks &amp; Start Work
                   </button>
                   <button
-                    onClick={() => setSafetyPreview(false)}
+                    onClick={() => {
+                      setSafetyPreview(false);
+                      setSafetyConfirmed(false);
+                    }}
                     disabled={loading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-[#1A56DB] disabled:opacity-50"
                   >
                     Back
                   </button>
-                  {!safetyGatePassed && (
+                  {!safetyConfirmed && (
                     <p className="text-center text-[11px] text-[#8BA3BF]">
-                      Complete all safety precautions above before starting work.
+                      Select the confirmation above before starting work.
                     </p>
                   )}
                 </div>
