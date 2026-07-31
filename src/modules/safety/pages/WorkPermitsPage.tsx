@@ -13,6 +13,7 @@ import { createNotification } from '@/services/notifications.service';
 import {
   WORK_PERMIT_CATEGORIES,
   WORK_PERMIT_COMPLETIONS,
+  formatPermitDateTime,
   isWorkPermitOverdue,
   type WorkPermit,
   type WorkPermitCategory,
@@ -69,10 +70,10 @@ export default function WorkPermitsPage() {
   }, [permits, companyId]);
 
   async function extend(p: WorkPermit) {
-    const next = window.prompt('Extend permit until (YYYY-MM-DD):', p.validTo);
+    const next = window.prompt('Extend permit until (YYYY-MM-DD or YYYY-MM-DDTHH:mm):', p.validTo);
     if (!next) return;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(next) || next < p.validFrom) {
-      toast.error('Enter a valid date on or after the start date.');
+    if (!/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(next) || next < p.validFrom) {
+      toast.error('Enter a valid date/time on or after the start.');
       return;
     }
     try {
@@ -141,7 +142,7 @@ export default function WorkPermitsPage() {
                       <p className="text-xs text-[#8BA3BF]">{p.location || 'No location'} · {p.permitNumber}</p>
                     </div>
                   </div>
-                  <div className="mt-2 text-xs text-[#8BA3BF]">Valid {p.validFrom} → {p.validTo}</div>
+                  <div className="mt-2 text-xs text-[#8BA3BF]">Valid {formatPermitDateTime(p.validFrom)} → {formatPermitDateTime(p.validTo)}</div>
                   {p.workOrderNumber && (
                     <div className="mt-1 text-xs text-[#8BA3BF]">WO: {p.workOrderNumber}{p.woType ? ` (${p.woType})` : ''}</div>
                   )}

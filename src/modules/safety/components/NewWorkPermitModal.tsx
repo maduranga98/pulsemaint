@@ -24,15 +24,20 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
   const profile = useAuthStore((s) => s.userProfile);
   const companyId = profile?.companyId ?? '';
   const toast = useToast();
-  const today = new Date().toISOString().slice(0, 10);
+  // Local 'YYYY-MM-DDTHH:mm' for <input type="datetime-local">, defaulting to now.
+  const nowLocal = (() => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  })();
 
   const [category, setCategory] = useState<WorkPermitCategory>('hot_work');
   const [workOrderId, setWorkOrderId] = useState(presetWorkOrderId ?? '');
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
-  const [validFrom, setValidFrom] = useState(today);
-  const [validTo, setValidTo] = useState(today);
+  const [validFrom, setValidFrom] = useState(nowLocal);
+  const [validTo, setValidTo] = useState(nowLocal);
   const [hazards, setHazards] = useState('');
   const [ppeRequired, setPpeRequired] = useState('');
   const [supervisorId, setSupervisorId] = useState('');
@@ -164,11 +169,11 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>Valid from</label>
-              <input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} className={field} />
+              <input type="datetime-local" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} className={field} />
             </div>
             <div>
               <label className={labelCls}>Valid to (duration)</label>
-              <input type="date" value={validTo} onChange={(e) => setValidTo(e.target.value)} className={field} />
+              <input type="datetime-local" value={validTo} onChange={(e) => setValidTo(e.target.value)} className={field} />
             </div>
           </div>
           <div>

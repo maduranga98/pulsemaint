@@ -187,7 +187,7 @@ export interface WorkPermit {
   location: string;
   machineId: string | null;
   status: WorkPermitStatus;
-  /** ISO date strings 'YYYY-MM-DD'. */
+  /** ISO date-time strings 'YYYY-MM-DDTHH:mm' (legacy permits may be date-only 'YYYY-MM-DD'). */
   validFrom: string;
   validTo: string;
   hazards: string;
@@ -235,9 +235,24 @@ export type WorkPermitInput = Omit<
   | 'closedAt'
 >;
 
-/** A permit is overdue once today is past its `validTo` and it is still active. */
+/** A permit is overdue once the current time is past its `validTo` and it is still active. */
 export function isWorkPermitOverdue(p: Pick<WorkPermit, 'status' | 'validTo'>): boolean {
   if (p.status !== 'active') return false;
-  const today = new Date().toISOString().slice(0, 10);
-  return today > p.validTo;
+  // Date-only legacy values ('YYYY-MM-DD') are treated as end-of-day so a
+  // same-day permit isn't flagged overdue the moment it's created.
+  const raw = p.validTo?.length === 10 ? `${p.validTo}T23:59` : p.validTo;
+  const end = new Date(raw).getTime();
+  if (Number.isNaN(end)) return false;
+  return Date.now() > end;
+}
+
+/** Human-friendly 'Mmm D, HH:mm' for a permit validity value (date or date-time). */
+export function formatPermitDateTime(value: string): string {
+  if (!value) return '—';
+  const raw = value.length === 10 ? `${value}T00:00` : value;
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return value;
+  const datePart = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  if (value.length === 10) return datePart;
+  return `${datePart}, ${d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}`;
 }
