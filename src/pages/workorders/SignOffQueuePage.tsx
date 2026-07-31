@@ -37,9 +37,17 @@ export default function SignOffQueuePage() {
     [visibleWorkOrders, selectedId],
   );
 
+  // A supervisor / plant manager can't sign off a training assigned to
+  // themselves (second set of eyes) — so those aren't shown in their queue.
+  // Admins can sign off anything, so they still see them.
+  const visibleTrainings = useMemo(() => {
+    if (role === 'admin') return trainingQueue;
+    return trainingQueue.filter((t) => t.traineeId !== userId);
+  }, [trainingQueue, role, userId]);
+
   const selectedTraining = useMemo(
-    () => trainingQueue.find((t) => t.id === selectedTrainingId) ?? null,
-    [trainingQueue, selectedTrainingId],
+    () => visibleTrainings.find((t) => t.id === selectedTrainingId) ?? null,
+    [visibleTrainings, selectedTrainingId],
   );
 
   function fmtDate(ts: TrainingAssignment['quizPassedAt']): string {
@@ -82,21 +90,21 @@ export default function SignOffQueuePage() {
               <h2 className="text-sm font-bold uppercase tracking-wide text-gray-500">
                 Trainings awaiting sign-off
               </h2>
-              {trainingQueue.length > 0 && (
+              {visibleTrainings.length > 0 && (
                 <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                  {trainingQueue.length}
+                  {visibleTrainings.length}
                 </span>
               )}
             </div>
             {trainingLoading ? (
               <p className="text-sm text-gray-500">Loading completed trainings…</p>
-            ) : trainingQueue.length === 0 ? (
+            ) : visibleTrainings.length === 0 ? (
               <div className="rounded-xl border border-gray-200 bg-white p-6 text-center text-sm text-gray-500">
                 No trainings awaiting sign-off.
               </div>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {trainingQueue.map((t) => (
+                {visibleTrainings.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => setSelectedTrainingId(t.id)}

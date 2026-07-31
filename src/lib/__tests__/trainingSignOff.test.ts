@@ -28,6 +28,22 @@ describe('canSignOffTraining', () => {
     expect(result.reason).toMatch(/assigned this training/i);
   });
 
+  it('blocks a supervisor from signing off a training assigned to themselves', () => {
+    const result = canSignOffTraining({ assignedBy: 'pm-1', traineeId: 'sup-5' }, 'supervisor', 'sup-5');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/assigned to you/i);
+  });
+
+  it('blocks a plant manager from signing off their own training', () => {
+    const result = canSignOffTraining({ assignedBy: 'other', traineeId: 'pm-3' }, 'plant_manager', 'pm-3');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toMatch(/assigned to you/i);
+  });
+
+  it('lets an admin sign off their own training', () => {
+    expect(canSignOffTraining({ assignedBy: 'x', traineeId: 'admin-2' }, 'admin', 'admin-2').allowed).toBe(true);
+  });
+
   it('blocks roles that cannot sign off at all', () => {
     for (const role of ['technician', 'trainee', 'store_keeper', 'hr_officer', 'floor_operator'] as const) {
       expect(canSignOffTraining(assignment, role, 'u-1').allowed).toBe(false);
