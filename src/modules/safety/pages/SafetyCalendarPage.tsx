@@ -16,22 +16,39 @@ function ymd(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+function tsToYmd(ts: unknown): string | null {
+  const d = (ts as { toDate?: () => Date; seconds?: number } | null | undefined);
+  if (!d) return null;
+  if (typeof d.toDate === 'function') return ymd(d.toDate());
+  if (typeof d.seconds === 'number') return ymd(new Date(d.seconds * 1000));
+  return null;
+}
+
 /**
- * Scheduled lessons that belong to a *safety training* module — a module whose
- * Training Type is "Safety Training". Assigning such a module surfaces its
- * scheduled sessions here.
+ * The safety-training schedule shown on this page. It combines two sources so
+ * every safety training surfaces here:
+ *  - Scheduled lessons of "Safety Training" modules (lessons with a date).
+ *  - Safety-training *assignments* made from the Training tab — placed on the
+ *    assignment's due date (or the day it was assigned) so an assigned safety
+ *    training shows even when its module lessons carry no per-lesson schedule.
  */
 function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
-  const [lessons, setLessons] = useState<ScheduledLesson[]>([]);
+  const [moduleLessons, setModuleLessons] = useState<ScheduledLesson[]>([]);
+  const [safetyModuleIds, setSafetyModuleIds] = useState<Set<string>>(new Set());
+  const [assignmentEntries, setAssignmentEntries] = useState<ScheduledLesson[]>([]);
+
+  // Safety-training modules: their scheduled lessons + the set of safety module ids.
   useEffect(() => {
     if (!companyId) return;
     const unsub = onSnapshot(
       query(collection(db, 'trainingModules'), where('companyId', '==', companyId)),
       (snap) => {
         const out: ScheduledLesson[] = [];
+        const ids = new Set<string>();
         snap.docs.forEach((d) => {
           const data = d.data();
           if (data.trainingType !== SAFETY_TRAINING_TYPE) return; // safety training only
+          ids.add(d.id);
           const moduleTitle = String(data.title ?? 'Safety Training');
           const ls = (data.lessons ?? []) as Array<{ title?: string; scheduledDate?: string; scheduledTime?: string }>;
           ls.forEach((l) => {
@@ -45,13 +62,44 @@ function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
             }
           });
         });
-        setLessons(out);
+        setModuleLessons(out);
+        setSafetyModuleIds(ids);
       },
-      () => setLessons([]),
+      () => { setModuleLessons([]); setSafetyModuleIds(new Set()); },
     );
     return () => unsub();
   }, [companyId]);
-  return lessons;
+
+  // Safety-training assignments — placed on their due date (or assigned date).
+  // A denied read (roles that can't list all company assignments) just yields
+  // nothing here, leaving the module schedule intact.
+  useEffect(() => {
+    if (!companyId) return;
+    const unsub = onSnapshot(
+      query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
+      (snap) => {
+        const out: ScheduledLesson[] = [];
+        snap.docs.forEach((d) => {
+          const a = d.data();
+          const isSafety = a.trainingType === SAFETY_TRAINING_TYPE || safetyModuleIds.has(String(a.moduleId));
+          if (!isSafety) return;
+          const date = tsToYmd(a.dueDate) ?? tsToYmd(a.assignedAt);
+          if (!date) return;
+          out.push({
+            date,
+            time: '',
+            moduleTitle: String(a.moduleName ?? 'Safety Training'),
+            lessonTitle: a.traineeName ? `Assigned to ${a.traineeName}` : 'Assigned',
+          });
+        });
+        setAssignmentEntries(out);
+      },
+      () => setAssignmentEntries([]),
+    );
+    return () => unsub();
+  }, [companyId, safetyModuleIds]);
+
+  return useMemo(() => [...moduleLessons, ...assignmentEntries], [moduleLessons, assignmentEntries]);
 }
 
 export default function SafetyCalendarPage() {
