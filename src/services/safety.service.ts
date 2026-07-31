@@ -128,6 +128,22 @@ export async function createWorkPermit(input: WorkPermitInput): Promise<string> 
     updatedAt: serverTimestamp(),
     closedAt: null,
   });
+  // When the permit is raised against a work order, flag that WO so the
+  // assigned technician sees the permit gate when they open the WO to start
+  // it. Without this the permit exists but the WO never asks for it.
+  if (input.workOrderId) {
+    try {
+      await updateDoc(doc(db, 'workOrders', input.workOrderId), {
+        requiresWorkPermit: true,
+        workPermitId: ref.id,
+        ptwCategory: input.category,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (err) {
+      // Non-fatal: the permit is created regardless; log for diagnosis.
+      console.error('Failed to flag work order with its work permit', err);
+    }
+  }
   return ref.id;
 }
 

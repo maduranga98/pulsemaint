@@ -7,6 +7,7 @@ import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { usePermit } from '../../../hooks/usePermit';
 import { useWorkOrderPermit } from '../../../hooks/safety/useSafety';
+import { formatPermitDateTime } from '../../../types/safety';
 import { LotoGate } from '../LotoGate';
 import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
 import { useAuthStore } from '../../../store/authStore';
@@ -173,7 +174,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                       {workPermit ? (
                         <p className="mt-1 text-xs text-[#8BA3BF]">
                           {workPermit.permitNumber} · {workPermit.title} — <span className={workPermitActive ? 'text-emerald-400' : 'text-orange-300'}>{workPermit.status}</span>
-                          {` · valid ${workPermit.validFrom} → ${workPermit.validTo}`}
+                          {` · valid ${formatPermitDateTime(workPermit.validFrom)} → ${formatPermitDateTime(workPermit.validTo)}`}
                         </p>
                       ) : (
                         <p className="mt-1 text-xs text-orange-300">No work permit found. A Work Permit must be created before this job can start.</p>

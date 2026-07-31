@@ -82,11 +82,15 @@ export function CreateWODrawer({
 
   // Optional Work Permit (Permit-to-Work) raised with the WO. Kept in local
   // state (not the RHF schema) so the WO form's validation is untouched.
-  const today = new Date().toISOString().slice(0, 10);
+  const nowLocal = (() => {
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  })();
   const [wpEnabled, setWpEnabled] = useState(false);
   const [wpCategory, setWpCategory] = useState<WorkPermitCategory>('general');
-  const [wpValidFrom, setWpValidFrom] = useState(today);
-  const [wpValidTo, setWpValidTo] = useState(today);
+  const [wpValidFrom, setWpValidFrom] = useState(nowLocal);
+  const [wpValidTo, setWpValidTo] = useState(nowLocal);
   const [wpHazards, setWpHazards] = useState('');
   const [wpPpe, setWpPpe] = useState('');
   const [wpPrecautions, setWpPrecautions] = useState<Record<string, boolean>>({});
@@ -773,6 +777,13 @@ export function CreateWODrawer({
                 </p>
                 {wpEnabled && (
                   <div className="mt-3 space-y-3">
+                    <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-gray-700">
+                      {form.watch('supervisorInChargeName') ? (
+                        <>Permit will be assigned to supervisor <span className="font-semibold">{form.watch('supervisorInChargeName')}</span> for sign-off.</>
+                      ) : (
+                        <>Select a supervisor in charge (Team step) — the permit is assigned to them for sign-off.</>
+                      )}
+                    </div>
                     <div>
                       <label className="mb-1 block text-xs font-medium text-gray-600">Permit category</label>
                       <select
@@ -786,11 +797,11 @@ export function CreateWODrawer({
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-600">Valid from</label>
-                        <input type="date" value={wpValidFrom} onChange={(e) => setWpValidFrom(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
+                        <input type="datetime-local" value={wpValidFrom} onChange={(e) => setWpValidFrom(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
                       </div>
                       <div>
                         <label className="mb-1 block text-xs font-medium text-gray-600">Valid to (duration)</label>
-                        <input type="date" value={wpValidTo} onChange={(e) => setWpValidTo(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
+                        <input type="datetime-local" value={wpValidTo} onChange={(e) => setWpValidTo(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
                       </div>
                     </div>
                     <div>

@@ -6,7 +6,7 @@ import KpiCard from '@/components/dashboard/shared/KpiCard';
 import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
 import EmptyState from '@/components/dashboard/shared/EmptyState';
 import { useSafetyCases, useSafetyKpis, useWorkPermits } from '@/hooks/safety/useSafety';
-import { SAFETY_CASE_TYPES, WORK_PERMIT_CATEGORIES } from '@/types/safety';
+import { SAFETY_CASE_TYPES, WORK_PERMIT_CATEGORIES, formatPermitDateTime } from '@/types/safety';
 import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
 
 const TYPE_LABEL = Object.fromEntries(SAFETY_CASE_TYPES.map((t) => [t.value, t.label]));
@@ -141,7 +141,7 @@ export default function SafetyDashboard() {
                         <span className="text-sm font-medium text-[#F0F4F8]">{p.title}</span>
                         <span className="font-mono text-[10px] text-[#8BA3BF]">{p.permitNumber}</span>
                       </div>
-                      <div className="text-xs text-[#8BA3BF]">{CAT_LABEL[p.category] ?? p.category} · until {p.validTo}</div>
+                      <div className="text-xs text-[#8BA3BF]">{CAT_LABEL[p.category] ?? p.category} · until {formatPermitDateTime(p.validTo)}</div>
                     </Link>
                   ))}
                 </div>
