@@ -7,7 +7,7 @@ import type { IsolationPoint } from '../../../types/machine';
 import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { usePermit } from '../../../hooks/usePermit';
 import { useWorkOrderPermit } from '../../../hooks/safety/useSafety';
-import { formatPermitDateTime } from '../../../types/safety';
+import { WorkPermitDetails } from '../WorkPermitDetails';
 import { LotoGate } from '../LotoGate';
 import { CreatePartsRequestModal } from '../../inventory/requests/CreatePartsRequestModal';
 import { useAuthStore } from '../../../store/authStore';
@@ -170,17 +170,13 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   {/* Work Permit gate — surfaced before the WO can be started. */}
                   {wo.requiresWorkPermit && (
                     <div className={`rounded-lg border p-3 ${workPermitActive ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-orange-500/40 bg-orange-500/10'}`}>
-                      <div className="flex items-center gap-2">
-                        <ShieldCheck className={`h-4 w-4 ${workPermitActive ? 'text-emerald-400' : 'text-orange-300'}`} />
-                        <p className="text-sm font-semibold text-[#F0F4F8]">Work Permit</p>
-                      </div>
                       {workPermit ? (
-                        <p className="mt-1 text-xs text-[#8BA3BF]">
-                          {workPermit.permitNumber} · {workPermit.title} — <span className={workPermitActive ? 'text-emerald-400' : 'text-orange-300'}>{workPermit.status}</span>
-                          {` · valid ${formatPermitDateTime(workPermit.validFrom)} → ${formatPermitDateTime(workPermit.validTo)}`}
-                        </p>
+                        <WorkPermitDetails permit={workPermit} variant="dark" />
                       ) : (
-                        <p className="mt-1 text-xs text-orange-300">No work permit found. A Work Permit must be created before this job can start.</p>
+                        <div className="flex items-center gap-2">
+                          <ShieldCheck className="h-4 w-4 text-orange-300" />
+                          <p className="text-xs text-orange-300">No work permit found. A Work Permit must be created before this job can start.</p>
+                        </div>
                       )}
                     </div>
                   )}
