@@ -217,7 +217,11 @@ export default function BillingPage() {
   const [cardError, setCardError] = useState('');
   const [savingCard, setSavingCard] = useState(false);
 
-  async function persistPlan(plan: Plan, cycle: BillingCycle) {
+  // `generateInvoice` is false for a plain Monthly/Yearly toggle on the
+  // *current* plan (no upgrade/downgrade happened, just a billing-cycle
+  // preference) — an invoice should only be raised when the plan itself
+  // actually changes, i.e. from an Upgrade/Downgrade button click.
+  async function persistPlan(plan: Plan, cycle: BillingCycle, generateInvoice: boolean) {
     if (!company) return;
     setUpgrading(plan);
     setError('');
@@ -234,9 +238,13 @@ export default function BillingPage() {
 
       setCompany({ ...company, plan, billingCycle: cycle, status: 'active', trialEndsAt: null });
       const planDef = PLANS.find((p) => p.id === plan);
-      setSuccessMsg(`Plan updated to ${planDef?.name ?? plan} (billed ${cycle}).`);
+      setSuccessMsg(
+        generateInvoice
+          ? `Plan updated to ${planDef?.name ?? plan} (billed ${cycle}).`
+          : `Billing cycle updated to ${cycle}.`,
+      );
 
-      if (planDef && userProfile) {
+      if (generateInvoice && planDef && userProfile) {
         const amount = planPrice(planDef, cycle);
         if (amount) {
           setLastInvoice({ plan: planDef, cycle });
@@ -290,18 +298,20 @@ export default function BillingPage() {
       setPendingDowngrade(plan);
       return;
     }
-    void persistPlan(plan.id, billingCycle);
+    void persistPlan(plan.id, billingCycle, true);
   }
 
   async function confirmDowngrade() {
     if (!pendingDowngrade) return;
-    await persistPlan(pendingDowngrade.id, billingCycle);
+    await persistPlan(pendingDowngrade.id, billingCycle, true);
     setPendingDowngrade(null);
   }
 
+  // Just a Monthly/Yearly display preference on the plan you already have —
+  // no invoice, since nothing was actually purchased.
   async function handleCycleChange(cycle: BillingCycle) {
     if (!company || !isAdmin || cycle === billingCycle) return;
-    await persistPlan(currentPlan, cycle);
+    await persistPlan(currentPlan, cycle, false);
   }
 
   async function handleAddCard(e: React.FormEvent) {
