@@ -238,7 +238,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
       const approvalFields =
         status === 'approved'
-          ? { approvedBy: userId, approvedByName: userName, approvedAt: serverTimestamp() }
+          ? { approvedBy: userId, approvedByName: userName, approvedByRole: userRole, approvedAt: serverTimestamp() }
           : {};
 
       if (initialPO) {
