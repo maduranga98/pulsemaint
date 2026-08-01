@@ -146,6 +146,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         contractorContactPerson: payload.contractorContactPerson,
         contractorContactNumber: payload.contractorContactNumber,
         contractorTechnicianNames: payload.contractorTechnicianNames,
+        contractorTechnicianIds: payload.contractorTechnicianIds ?? [],
         isManualContractor: payload.isManualContractor,
 
         // Checklist (reset completion state)
