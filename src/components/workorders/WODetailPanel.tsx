@@ -403,13 +403,16 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   </h3>
                   <div className="space-y-2">
                     {(workOrder.assigneeCompletions ?? []).map((c, i) => (
-                      <div key={i} className="bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 text-sm">
+                      // Neutral gray card (like "Work Done by Team") so the text
+                      // stays readable under the app's dark rendering — the
+                      // emerald-tinted card left the text low-contrast.
+                      <div key={i} className="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2 text-sm">
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-medium text-gray-800">
                             {c.technicianName}
                             {c.technicianRole && <span className="ml-1 text-xs font-normal text-gray-500">({detailRoleLabel(c.technicianRole)})</span>}
                           </span>
-                          <span className="text-xs text-emerald-600">
+                          <span className="text-xs text-gray-500">
                             {c.completedAt?.toDate?.().toLocaleString?.() ?? 'completed'}
                           </span>
                         </div>
@@ -720,25 +723,25 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   </h3>
                   <div className="space-y-2">
                     {workOrder.partsUsed.map((part, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-lg px-4 py-3">
+                      // Neutral gray card so the text stays readable under the
+                      // app's dark rendering — the green-tinted card + dark green
+                      // text left this low-contrast and hard to read.
+                      <div key={i} className="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-lg px-4 py-3">
                         <div className="flex-1 min-w-0">
-                          {/* Explicit dark green text — the light bg-green-50 card
-                              sits on the app's dark theme, which would otherwise
-                              force this (gray) text light and unreadable. */}
-                          <p className="text-sm font-medium text-green-950 truncate">{part.partName}</p>
-                          <p className="text-xs text-green-700">
+                          <p className="text-sm font-medium text-gray-800 truncate">{part.partName}</p>
+                          <p className="text-xs text-gray-600">
                             {part.quantity} {part.unit} · {part.source === 'stock' ? 'From store stock' : 'External purchase'}
                             {part.warrantyMonths ? ` · ${part.warrantyMonths}mo warranty` : ''}
                           </p>
                         </div>
-                        <span className="text-sm font-semibold text-green-900 whitespace-nowrap">
+                        <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">
                           {part.totalCost > 0 ? `LKR ${part.totalCost.toLocaleString()}` : ''}
                         </span>
                       </div>
                     ))}
-                    <div className="flex justify-end text-sm text-green-800">
+                    <div className="flex justify-end text-sm text-gray-600">
                       Total parts cost:&nbsp;
-                      <span className="font-semibold text-green-950">
+                      <span className="font-semibold text-gray-800">
                         LKR {workOrder.partsUsed.reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
                       </span>
                     </div>
