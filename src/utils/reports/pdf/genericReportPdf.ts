@@ -140,26 +140,34 @@ export async function exportGenericReportPdf(
   const pageHeight = doc.internal.pageSize.getHeight();
   const bottomMargin = 40;
 
-  // Company letterhead logo, top-right — same data URL used by other
-  // generated documents (service letters), avoiding a cross-origin fetch.
+  // Letterhead — logo and company name aligned together at top-left, logo
+  // sized to sit inline with the name rather than dominate the header.
   const company = useAuthStore.getState().company;
+  const companyName = company?.name ?? '';
+  const logoSize = 26;
+  const logoX = 40;
+  const logoY = 24;
+  let nameX = logoX;
   if (company?.logoDataUrl) {
     try {
-      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), pageWidth - 40 - 36, 20, 36, 36);
+      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), logoX, logoY, logoSize, logoSize);
+      nameX = logoX + logoSize + 8;
     } catch {
       // Malformed/unsupported image data — skip the logo rather than fail the export.
     }
   }
-
-  // Header — company name at the top, then the report title and meta.
-  const companyName = company?.name ?? '';
   if (companyName) {
     doc.setFontSize(12);
     doc.setTextColor(10, 22, 40);
-    doc.text(companyName, 40, 34);
+    doc.text(companyName, nameX, logoY + logoSize / 2 + 4);
     doc.setTextColor(0);
   }
-  const titleY = companyName ? 54 : 40;
+
+  const headerRuleY = logoY + logoSize + 10;
+  doc.setDrawColor(10, 22, 40);
+  doc.line(40, headerRuleY, pageWidth - 40, headerRuleY);
+
+  const titleY = headerRuleY + 24;
   doc.setFontSize(16);
   doc.text(definition.name, 40, titleY);
   doc.setFontSize(10);
@@ -168,7 +176,7 @@ export async function exportGenericReportPdf(
   doc.text(`Generated: ${new Date().toLocaleString()}  ·  ${rows.length} record(s)`, 40, titleY + 32);
   doc.setTextColor(0);
 
-  let cursorY = 90;
+  let cursorY = titleY + 50;
 
   // Renders the machine profile as a two-column key/value block.
   const renderProfile = (profile: MachineProfileField[]) => {
