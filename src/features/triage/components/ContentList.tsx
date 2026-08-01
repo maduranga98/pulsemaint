@@ -9,20 +9,12 @@ import { db } from '../../../lib/firebase';
 import { deleteContentItem, COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
 import type { TriageCategory, TriageContentItem } from '../types';
+import { TriageCategoryIcon, TriageContentTypeIcon } from '../triageIcons';
 
 interface Props {
   category: TriageCategory;
   showDelete?: boolean;
 }
-
-const TYPE_ICON: Record<string, string> = {
-  procedure: '🧭',
-  guide: '📄',
-  video: '▶️',
-  pdf: '📑',
-  image: '🖼️',
-  media: '🎞️',
-};
 
 export function ContentList({ category, showDelete = false }: Props) {
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -85,7 +77,7 @@ export function ContentList({ category, showDelete = false }: Props) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
-        <span className="text-2xl">{category.icon}</span>
+        <TriageCategoryIcon icon={category.icon} className="w-6 h-6" />
         <div>
           <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
             {category.title}
@@ -150,7 +142,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                     setExpanded(isOpen ? null : item.id);
                   }}
                 >
-                  <span className="text-xl shrink-0">{TYPE_ICON[item.type] ?? '📄'}</span>
+                  <TriageContentTypeIcon type={item.type} className="w-5 h-5 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium" style={{ color: '#e2e8f0' }}>
                       {item.title}

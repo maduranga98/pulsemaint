@@ -10,6 +10,7 @@ import { db } from '../../../lib/firebase';
 import { COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
 import type { TriageCategory } from '../types';
+import { TriageCategoryIcon } from '../triageIcons';
 
 export type PanelId = 'contacts' | 'assessments' | string;
 
@@ -95,7 +96,7 @@ export function CategoryRail({ selected, onSelect }: Props) {
                   color: active ? cat.color : '#6b7fa3',
                 }}
               >
-                <span className="text-base shrink-0">{cat.icon}</span>
+                <TriageCategoryIcon icon={cat.icon} className="w-4 h-4 shrink-0" />
                 <span className="flex-1 font-medium truncate">{cat.title}</span>
                 {cat.pinned && (
                   <span className="text-[10px] shrink-0" style={{ color: '#3d5070' }}>
