@@ -1,9 +1,14 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
 import { useActiveBreakdowns } from '../../hooks/dashboard/useActiveBreakdowns';
 import { useOpenWorkOrders } from '../../hooks/dashboard/useOpenWorkOrders';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
+import {
+  DASHBOARD_RANGE_LABELS,
+  monthsForDashboardRange,
+  type DashboardRange,
+} from '../../utils/analytics/dashboardRange';
 
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
@@ -34,20 +39,24 @@ export default function ManagerDashboard() {
   const { count: todayBreakdowns } = useActiveBreakdowns(siteId);
   const { count: todayWorkOrders } = useOpenWorkOrders(siteId);
 
-  const currentMonth = useMemo(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  }, []);
+  const [range, setRange] = useState<DashboardRange>('mtd');
+  // The months covered by the selected range drive the monthly-aggregate
+  // KPIs below (Total Breakdowns, MTTR, PM Compliance) — same range control
+  // as the Analytics page, backed by the same buildMonthlyAnalytics pipeline.
+  const months = useMemo(() => monthsForDashboardRange(range), [range]);
+  const monthsKey = months.join(',');
+  const currentMonth = months[months.length - 1];
 
   useEffect(() => {
     if (!companyId) return;
     // Live subscription so the KPIs and breakdown-distribution chart update
     // automatically as breakdowns / work orders / PM records change.
-    const unsub = subscribeMonthlyAnalytics(companyId, currentMonth, (data) => {
+    const unsub = subscribeMonthlyAnalytics(companyId, months, (data) => {
       useDashboardStore.getState().setMonthlyAnalytics(data);
     });
     return () => unsub();
-  }, [companyId, currentMonth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, monthsKey]);
 
   const totalMaintenances =
     (monthly?.totalBreakdowns ?? 0) +
@@ -61,7 +70,7 @@ export default function ManagerDashboard() {
       color: 'cyan' as const,
     },
     {
-      label: 'Total Breakdowns (MTD)',
+      label: `Total Breakdowns (${DASHBOARD_RANGE_LABELS[range]})`,
       value: monthly?.totalBreakdowns ?? 0,
       color: 'blue' as const,
     },
@@ -76,7 +85,7 @@ export default function ManagerDashboard() {
       color: openWoColor(todayWorkOrders),
     },
     {
-      label: 'MTTR (MTD)',
+      label: `MTTR (${DASHBOARD_RANGE_LABELS[range]})`,
       value: (monthly?.avgMttrHours ?? 0).toFixed(1),
       unit: 'hrs',
       color: complianceColor(monthly?.avgMttrHours ? 100 - monthly.avgMttrHours * 10 : 100),
@@ -91,11 +100,27 @@ export default function ManagerDashboard() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{dashboardTitle}</h1>
-        <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Good {getGreeting()}, {firstName}
-        </p>
+      <div className="px-4 py-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{dashboardTitle}</h1>
+          <p className="text-sm text-[#8BA3BF] mt-0.5">
+            Good {getGreeting()}, {firstName}
+          </p>
+        </div>
+        <div className="inline-flex rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-1 text-xs">
+          {(Object.keys(DASHBOARD_RANGE_LABELS) as DashboardRange[]).map((r) => (
+            <button
+              key={r}
+              type="button"
+              onClick={() => setRange(r)}
+              className={`px-3 py-1.5 rounded-md font-medium transition ${
+                range === r ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
+              }`}
+            >
+              {DASHBOARD_RANGE_LABELS[r]}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
@@ -119,7 +144,7 @@ export default function ManagerDashboard() {
         {/* Row 3: Heatmap + Top Problem Machines */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <BreakdownHeatmap companyId={companyId} />
-          <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
+          <TopProblemMachinesChart companyId={companyId} month={months} />
         </div>
 
         {/* Row 4: Today's Shifts by Department + Team Performance (from Evaluations) */}

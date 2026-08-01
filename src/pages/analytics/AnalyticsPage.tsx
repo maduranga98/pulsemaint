@@ -20,22 +20,11 @@ import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import { complianceColor } from '../../utils/analytics.utils';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
-
-type Range = 'mtd' | '3m' | '6m' | '12m';
-
-const RANGE_MONTHS: Record<Range, number> = { mtd: 1, '3m': 3, '6m': 6, '12m': 12 };
-
-/** The list of 'YYYY-MM' months covered by a range, most-recent last. */
-function monthsForRange(range: Range): string[] {
-  const count = RANGE_MONTHS[range];
-  const now = new Date();
-  const out: string[] = [];
-  for (let i = count - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
-  }
-  return out;
-}
+import {
+  DASHBOARD_RANGE_LABELS,
+  monthsForDashboardRange,
+  type DashboardRange as Range,
+} from '../../utils/analytics/dashboardRange';
 
 function SectionHeader({ title, description }: { title: string; description?: string }) {
   return (
@@ -61,7 +50,7 @@ export default function AnalyticsPage() {
   const [range, setRange] = useState<Range>('mtd');
 
   // The months covered by the selected range drive every range-aware section.
-  const months = useMemo(() => monthsForRange(range), [range]);
+  const months = useMemo(() => monthsForDashboardRange(range), [range]);
   const monthsKey = months.join(',');
   // For the few widgets that still take a single month, use the latest one.
   const currentMonth = months[months.length - 1];
@@ -137,7 +126,7 @@ export default function AnalyticsPage() {
                 range === r ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
               }`}
             >
-              {r === 'mtd' ? 'MTD' : r === '3m' ? '3M' : r === '6m' ? '6M' : '12M'}
+              {DASHBOARD_RANGE_LABELS[r]}
             </button>
           ))}
         </div>
