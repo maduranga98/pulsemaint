@@ -14,6 +14,18 @@ import {
 import ShiftSummaryModal from '@/components/handover/ShiftSummaryModal';
 import type { ShiftConfig, ShiftSession } from '@/types/handover.types';
 
+/** Full date + time for the Recent Shifts table (e.g. "31 Jul 2026, 12:25 AM"). */
+function formatDateTime(d: Date | null | undefined): string {
+  if (!d) return '-';
+  return d.toLocaleString([], {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 export function MyShiftPage() {
   const navigate = useNavigate();
   const profile = useAuthStore((state) => state.userProfile);
@@ -237,7 +249,6 @@ export function MyShiftPage() {
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs font-semibold text-slate-500">
-                  <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Shift</th>
                   <th className="px-4 py-3">Started</th>
                   <th className="px-4 py-3">Ended</th>
@@ -248,10 +259,9 @@ export function MyShiftPage() {
               <tbody>
                 {recent.filter((session) => session.status === 'completed').map((session) => (
                   <tr key={session.id} className="border-b border-slate-50">
-                    <td className="px-4 py-3 text-slate-700">{session.shiftDate}</td>
                     <td className="px-4 py-3 font-semibold text-slate-950">{session.shiftName}</td>
-                    <td className="px-4 py-3 text-slate-700">{session.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                    <td className="px-4 py-3 text-slate-700">{session.actualEnd ? session.actualEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                    <td className="px-4 py-3 text-slate-700">{formatDateTime(session.actualStart)}</td>
+                    <td className="px-4 py-3 text-slate-700">{formatDateTime(session.actualEnd)}</td>
                     <td className="px-4 py-3 font-semibold text-cyan-700">{session.totalMinutes != null ? formatDuration(session.totalMinutes * 60000) : '-'}</td>
                     <td className="px-4 py-3 font-semibold text-amber-700">{session.otMinutes ? formatDuration(session.otMinutes * 60000) : ''}</td>
                   </tr>
