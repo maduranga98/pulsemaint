@@ -9,6 +9,18 @@ import { generateBillingInvoice } from '../../lib/billing/billingInvoice';
 type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
 
+interface PlanLimits {
+  machines: string;
+  inventoryItems: string;
+  pmSchedules: string;
+  users: string;
+}
+
+interface FeatureGroup {
+  category: string;
+  items: string[];
+}
+
 interface PlanDef {
   id: Plan;
   name: string;
@@ -19,70 +31,73 @@ interface PlanDef {
   icon: React.ReactNode;
   color: string;
   borderColor: string;
-  features: string[];
+  limits: PlanLimits;
+  featureGroups: FeatureGroup[];
   highlight?: boolean;
 }
 
-// Yearly billing is discounted to roughly 10 months' worth of the monthly rate (2 months free).
+// Yearly billing is discounted to roughly 1 month free vs. paying monthly.
+// Kept in sync with the Product & Sales Catalog — see docs shared with sales.
 const PLANS: PlanDef[] = [
   {
     id: 'starter',
-    name: 'Starter',
-    monthlyPrice: 0,
-    yearlyPrice: 0,
-    priceLabel: 'Free',
-    description: 'For small teams getting started with maintenance tracking.',
+    name: 'Basic',
+    monthlyPrice: 29,
+    yearlyPrice: 199,
+    priceLabel: '',
+    description: 'For a single small team getting started.',
     icon: <Star className="h-5 w-5" />,
     color: 'text-slate-400',
     borderColor: 'border-slate-700',
-    features: [
-      'Machine registry & QR codes',
-      'Breakdown reporting',
-      'Basic work orders',
-      'Up to 5 users',
-      'Preventive maintenance schedules',
-      'Inventory & parts catalog',
+    limits: { machines: '10', inventoryItems: '10', pmSchedules: '10', users: '5' },
+    featureGroups: [
+      {
+        category: 'Core Maintenance',
+        items: [
+          'Machine registry & QR codes',
+          'Breakdown reporting',
+          'Basic work orders',
+          'Preventive maintenance schedules',
+          'Inventory & parts catalog',
+        ],
+      },
     ],
   },
   {
     id: 'workshop',
     name: 'Workshop',
-    monthlyPrice: 49,
-    yearlyPrice: 490,
+    monthlyPrice: 59,
+    yearlyPrice: 499,
     priceLabel: '',
-    description: 'For growing workshops that need structured maintenance workflows.',
+    description: 'For growing workshops with structured workflows.',
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
     borderColor: 'border-blue-800/60',
-    features: [
-      'Everything in Starter',
-      'Up to 20 users',
-      'Contractor management',
-      'Shift handover & briefings',
-      'Training module',
-      'PM compliance dashboard',
-      'Basic analytics',
+    limits: { machines: '100', inventoryItems: '10,000', pmSchedules: 'Unlimited', users: '20' },
+    featureGroups: [
+      { category: 'Core Maintenance', items: ['Everything in Basic & exporting reports'] },
+      {
+        category: 'Team & Operations',
+        items: ['Contractor management', 'Shift handover & briefings', 'Training module & Safety Workspace features'],
+      },
+      { category: 'Analytics & Reporting', items: ['PM compliance dashboard', 'Basic analytics'] },
     ],
   },
   {
     id: 'factory',
     name: 'Factory Pro',
-    monthlyPrice: 149,
-    yearlyPrice: 1490,
+    monthlyPrice: 249,
+    yearlyPrice: 1699,
     priceLabel: '',
-    description: 'Full MOE analytics and advanced modules for production facilities.',
+    description: 'Full MOE analytics for production facilities.',
     icon: <Factory className="h-5 w-5" />,
     color: 'text-violet-400',
     borderColor: 'border-violet-700/60',
     highlight: true,
-    features: [
-      'Everything in Workshop',
-      'Up to 100 users',
-      'MOE Trend Analytics',
-      'MOE Machine Comparison',
-      'Kaizen ROI & Digest',
-      'Triage knowledge builder',
-      'Advanced reports hub',
+    limits: { machines: '1,500', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', users: '100' },
+    featureGroups: [
+      { category: 'Core Maintenance', items: ['Everything in Workshop'] },
+      { category: 'Analytics & Reporting', items: ['MOE trend analytics & machine comparison'] },
     ],
   },
   {
@@ -91,19 +106,26 @@ const PLANS: PlanDef[] = [
     monthlyPrice: null,
     yearlyPrice: null,
     priceLabel: 'Custom',
-    description: 'Unlimited scale with full TPM, 5S, and enterprise integrations.',
+    description: 'Unlimited scale with enterprise integrations.',
     icon: <Building2 className="h-5 w-5" />,
     color: 'text-amber-400',
     borderColor: 'border-amber-700/50',
-    features: [
-      'Everything in Factory Pro',
-      'Unlimited users',
-      'TPM Maturity Roadmap & Trends',
-      '5S Scorecard & Best Practices',
-      'Multi-site management',
-      'SSO / SAML',
-      'Custom integrations & API',
-      'Dedicated support & SLA',
+    limits: { machines: 'Unlimited', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', users: 'Unlimited' },
+    featureGroups: [
+      { category: 'Core Maintenance', items: ['Everything in Factory Pro'] },
+      {
+        category: 'Enterprise & Security',
+        items: [
+          'TPM maturity roadmap & 5S scorecard',
+          'Multi-site management',
+          'Safety Workspace',
+          'Triage knowledge builder',
+          'Advanced reports hub',
+          'SSO / SAML',
+          'Custom integrations & API',
+          'Dedicated support & SLA',
+        ],
+      },
     ],
   },
 ];
@@ -427,7 +449,7 @@ export default function BillingPage() {
             >
               {cycle}
               {cycle === 'yearly' && (
-                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">Save ~17%</span>
+                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">1 month free</span>
               )}
             </button>
           ))}
@@ -485,15 +507,47 @@ export default function BillingPage() {
                 <p className="text-xs text-slate-400 mt-1.5">{plan.description}</p>
               </div>
 
-              {/* Features */}
-              <ul className="flex-1 space-y-2">
-                {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
-                    <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
-                    {f}
-                  </li>
+              {/* Plan limits */}
+              <div className="rounded-lg bg-[#0A1628] border border-[#1E3A5F] p-3">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Plan limits</p>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-slate-400">Machines</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.machines}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-slate-400">Users</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.users}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-slate-400">Inventory items</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.inventoryItems}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2">
+                    <dt className="text-slate-400">PM schedules</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.pmSchedules}</dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Features, grouped by category */}
+              <div className="flex-1 space-y-3">
+                {plan.featureGroups.map((group) => (
+                  <div key={group.category}>
+                    <p className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${plan.color}`}>
+                      {group.category}
+                    </p>
+                    <ul className="space-y-1.5">
+                      {group.items.map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
+                          <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
 
               {/* CTA */}
               <div>
@@ -503,7 +557,7 @@ export default function BillingPage() {
                   </div>
                 ) : isEnterprise ? (
                   <a
-                    href="mailto:sales@pulsemaint.com?subject=Enterprise Plan Enquiry"
+                    href="mailto:info@lumoraventures.com?subject=Enterprise Plan Enquiry"
                     className={`block w-full text-center py-2.5 rounded-xl text-sm font-semibold transition-colors bg-amber-700/20 hover:bg-amber-700/40 text-amber-300 border border-amber-700/50`}
                   >
                     Contact Sales
@@ -653,9 +707,9 @@ export default function BillingPage() {
 
       {/* Note */}
       <p className="text-xs text-slate-500 text-center pb-4">
-        Prices shown in USD. Yearly billing is discounted vs. paying monthly. Contact{' '}
-        <a href="mailto:support@pulsemaint.com" className="underline hover:text-slate-400">
-          support@pulsemaint.com
+        Prices shown in USD. Yearly billing includes 1 month free vs. paying monthly. Contact{' '}
+        <a href="mailto:info@lumoraventures.com" className="underline hover:text-slate-400">
+          info@lumoraventures.com
         </a>{' '}
         for billing questions.
       </p>
