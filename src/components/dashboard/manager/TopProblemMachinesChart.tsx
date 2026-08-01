@@ -26,7 +26,7 @@ const SEVERITY_COLORS: Record<'critical' | 'high' | 'medium' | 'low', string> = 
 
 interface TopProblemMachinesChartProps {
   companyId: string;
-  month: string;
+  month: string | string[];
 }
 
 export default function TopProblemMachinesChart({ companyId, month }: TopProblemMachinesChartProps) {

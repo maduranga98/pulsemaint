@@ -19,10 +19,23 @@ import ContractorScoreboard from '../../components/dashboard/manager/ContractorS
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import { complianceColor } from '../../utils/analytics.utils';
-import { ReliabilitySection } from '../../components/analytics/ReliabilitySection';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 
 type Range = 'mtd' | '3m' | '6m' | '12m';
+
+const RANGE_MONTHS: Record<Range, number> = { mtd: 1, '3m': 3, '6m': 6, '12m': 12 };
+
+/** The list of 'YYYY-MM' months covered by a range, most-recent last. */
+function monthsForRange(range: Range): string[] {
+  const count = RANGE_MONTHS[range];
+  const now = new Date();
+  const out: string[] = [];
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return out;
+}
 
 function SectionHeader({ title, description }: { title: string; description?: string }) {
   return (
@@ -47,18 +60,20 @@ export default function AnalyticsPage() {
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   const [range, setRange] = useState<Range>('mtd');
 
-  const currentMonth = useMemo(() => {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  }, []);
+  // The months covered by the selected range drive every range-aware section.
+  const months = useMemo(() => monthsForRange(range), [range]);
+  const monthsKey = months.join(',');
+  // For the few widgets that still take a single month, use the latest one.
+  const currentMonth = months[months.length - 1];
 
   useEffect(() => {
     if (!companyId) return;
-    const unsub = subscribeMonthlyAnalytics(companyId, currentMonth, (data) => {
+    const unsub = subscribeMonthlyAnalytics(companyId, months, (data) => {
       useDashboardStore.getState().setMonthlyAnalytics(data);
     });
     return () => unsub();
-  }, [companyId, currentMonth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, monthsKey]);
 
   const kpis = [
     {
@@ -179,7 +194,7 @@ export default function AnalyticsPage() {
             <WoTypeDistributionChart companyId={companyId} />
           </div>
           <div className="lg:col-span-6">
-            <MaintenanceCostChart companyId={companyId} month={currentMonth} />
+            <MaintenanceCostChart companyId={companyId} month={months} />
           </div>
         </div>
 
@@ -195,7 +210,7 @@ export default function AnalyticsPage() {
         {/* ── Performance by Work Orders ─────────────────────────────────── */}
         <SectionHeader title="Performance by Work Orders" description="Per-technician work-order completion & repair metrics" />
 
-        <TechnicianPerformanceTable companyId={companyId} month={currentMonth} />
+        <TechnicianPerformanceTable companyId={companyId} month={months} />
 
         {/* ── Machine Analytics ──────────────────────────────────────────── */}
         <SectionHeader title="Machine Analytics" description="Per-machine breakdown count, MTTR, MTBF & health" />
@@ -210,11 +225,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Full width — a 10-row horizontal bar chart needs the room. */}
-        <TopProblemMachinesChart companyId={companyId} month={currentMonth} />
-
-        {/* ── Reliability ────────────────────────────────────────────────── */}
-        <SectionHeader title="Reliability" description="Wrench time from Work Order records" />
-        <ReliabilitySection companyId={companyId} />
+        <TopProblemMachinesChart companyId={companyId} month={months} />
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ import EmptyState from '../shared/EmptyState';
 
 interface MaintenanceCostChartProps {
   companyId: string;
-  month: string;
+  month: string | string[];
 }
 
 export default function MaintenanceCostChart({ companyId, month }: MaintenanceCostChartProps) {

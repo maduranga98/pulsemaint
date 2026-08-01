@@ -8,7 +8,7 @@ type SortKey = 'jobs' | 'response' | 'repair' | 'sla' | 'name';
 
 interface TechnicianPerformanceTableProps {
   companyId: string;
-  month: string;
+  month: string | string[];
 }
 
 export default function TechnicianPerformanceTable({ companyId, month }: TechnicianPerformanceTableProps) {

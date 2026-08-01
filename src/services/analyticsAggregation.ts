@@ -40,6 +40,21 @@ function toDate(value: unknown): Date | null {
 const dateKey = (d: Date) => d.toISOString().slice(0, 10);
 const monthKey = (d: Date) => d.toISOString().slice(0, 7);
 
+/**
+ * A month selector for the analytics computations: a single 'YYYY-MM', a list
+ * of them (the range selector — e.g. the last 3/6/12 months), or 'all' (every
+ * record). Letting the same computation take a set of months is what makes the
+ * Analytics page's MTD / 3M / 6M / 12M range drive every section.
+ */
+export type MonthArg = string | string[];
+
+function monthMatcher(month: MonthArg): { has: (d: Date | null) => boolean; list: string[] | null } {
+  if (month === 'all') return { has: () => true, list: null };
+  const list = Array.isArray(month) ? month : [month];
+  const set = new Set(list);
+  return { has: (d) => (d ? set.has(monthKey(d)) : false), list };
+}
+
 // Short-lived promise cache so the several dashboard hooks that compute
 // analytics concurrently share a single read of each collection.
 const CACHE_TTL_MS = 60_000;
@@ -148,7 +163,7 @@ interface MonthlyRawData {
 
 export async function computeMonthlyAnalytics(
   companyId: string,
-  month: string,
+  month: MonthArg,
 ): Promise<AnalyticsMonthly> {
   const [breakdowns, workOrders, contractorJobs, pmHistory, machines] = await Promise.all([
     fetchAll('breakdown_tickets', companyId),
@@ -167,7 +182,7 @@ export async function computeMonthlyAnalytics(
  */
 export function subscribeMonthlyAnalytics(
   companyId: string,
-  month: string,
+  month: MonthArg,
   callback: (data: AnalyticsMonthly) => void,
 ): () => void {
   if (!companyId) return () => {};
@@ -226,16 +241,14 @@ export function subscribeMonthlyAnalytics(
 
 function buildMonthlyAnalytics(
   companyId: string,
-  month: string,
+  month: MonthArg,
   { breakdowns, workOrders, contractorJobs, pmHistory, machines }: MonthlyRawData,
 ): AnalyticsMonthly {
-  // month === 'all' aggregates across all time (used as a dashboard fallback
-  // when the current month has no activity yet).
-  const inMonth = (value: unknown) => {
-    if (month === 'all') return true;
-    const d = toDate(value);
-    return d ? monthKey(d) === month : false;
-  };
+  // month === 'all' aggregates across all time (dashboard fallback); a string
+  // is a single month; an array is a multi-month range (the range selector).
+  const matcher = monthMatcher(month);
+  const lastMonth = matcher.list ? matcher.list[matcher.list.length - 1] : null;
+  const inMonth = (value: unknown) => matcher.has(toDate(value));
 
   const monthBreakdowns = breakdowns.filter((b) => inMonth(b.reportedAt ?? b.createdAt));
   const monthWOs = workOrders.filter((w) => inMonth(w.actualEndTime ?? w.createdAt));
@@ -388,10 +401,14 @@ function buildMonthlyAnalytics(
       severity: severityFromRank(_sevRank),
     }));
 
-  // MTBF (days): for machines with breakdowns, days-in-month / count, averaged.
-  const daysInMonth = month === 'all'
+  // MTBF (days): for machines with breakdowns, days-in-window / count, averaged.
+  // Over a multi-month range the window is the sum of days across its months.
+  const daysInMonth = matcher.list == null
     ? 30
-    : new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).getDate();
+    : matcher.list.reduce(
+        (s, mk) => s + new Date(Number(mk.slice(0, 4)), Number(mk.slice(5, 7)), 0).getDate(),
+        0,
+      );
   const mtbfValues = Array.from(machineAgg.values())
     .filter((m) => m.breakdownCount > 0)
     .map((m) => daysInMonth / m.breakdownCount);
@@ -492,8 +509,8 @@ function buildMonthlyAnalytics(
 
   return {
     companyId,
-    month,
-    year: month === 'all' ? new Date().getFullYear() : Number(month.slice(0, 4)),
+    month: typeof month === 'string' ? month : (lastMonth ?? ''),
+    year: lastMonth ? Number(lastMonth.slice(0, 4)) : new Date().getFullYear(),
     totalBreakdowns: monthBreakdowns.length,
     avgMttrHours: Number(avgMttrHours.toFixed(2)),
     avgMtbfDays: Number(avgMtbfDays.toFixed(1)),
@@ -553,14 +570,11 @@ export async function computeBreakdownHeatmap(
 
 export async function computeCostByWoType(
   companyId: string,
-  month: string,
+  month: MonthArg,
 ): Promise<Array<{ woType: string; cost: number }>> {
   const workOrders = await fetchAll('workOrders', companyId);
-  const inMonth = (value: unknown) => {
-    if (month === 'all') return true;
-    const d = toDate(value);
-    return d ? monthKey(d) === month : false;
-  };
+  const matcher = monthMatcher(month);
+  const inMonth = (value: unknown) => matcher.has(toDate(value));
   const monthWOs = workOrders.filter((w) => inMonth(w.actualEndTime ?? w.createdAt));
 
   const totals = new Map<string, number>();

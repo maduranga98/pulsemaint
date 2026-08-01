@@ -14,6 +14,7 @@ import {
   computeDailyAnalytics,
   computeMonthlyAnalytics,
   computeMachineHealth,
+  type MonthArg,
 } from './analyticsAggregation';
 import type {
   AnalyticsDaily,
@@ -59,18 +60,22 @@ export async function fetchDailyAnalytics(
 
 export async function fetchMonthlyAnalytics(
   companyId: string,
-  month: string,
+  month: MonthArg,
 ): Promise<AnalyticsMonthly | null> {
-  const ref = doc(db, 'analytics_monthly', `${companyId}_${month}`);
-  try {
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      return { ...snap.data(), id: snap.id } as unknown as AnalyticsMonthly;
+  // A multi-month range has no single precomputed doc — compute it from raw
+  // data. A single month can still use its precomputed aggregate when present.
+  if (typeof month === 'string') {
+    const ref = doc(db, 'analytics_monthly', `${companyId}_${month}`);
+    try {
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        return { ...snap.data(), id: snap.id } as unknown as AnalyticsMonthly;
+      }
+    } catch {
+      // Reading a non-existent doc is rejected by the security rules
+      // (permission-denied instead of not-found), which used to abort here and
+      // leave the dashboards empty. Fall through to computing from raw data.
     }
-  } catch {
-    // Reading a non-existent doc is rejected by the security rules
-    // (permission-denied instead of not-found), which used to abort here and
-    // leave the dashboards empty. Fall through to computing from raw data.
   }
   return computeMonthlyAnalytics(companyId, month);
 }
