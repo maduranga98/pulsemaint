@@ -51,7 +51,16 @@ export default function ReportConfigPanel() {
         </header>
 
         <div className="flex-1 space-y-5 overflow-y-auto p-5">
-          <DateRangeSelector config={config} onChange={updateConfig} />
+          {report.supportsDateRange === false ? (
+            <section className="space-y-1 border-b border-[#1E3A5F] pb-5">
+              <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">Date Range</h3>
+              <p className="text-xs text-[#8BA3BF]">
+                This report reflects current data, not a date window — the date range filter doesn't apply here.
+              </p>
+            </section>
+          ) : (
+            <DateRangeSelector config={config} onChange={updateConfig} />
+          )}
           <ReportFilterSection report={report} config={config} onChange={updateConfig} />
           <OutputFormatToggle report={report} config={config} onChange={updateConfig} />
           <GoogleSheetsConnector visible={config.outputFormat === 'google_sheets'} />
