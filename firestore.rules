@@ -1033,11 +1033,12 @@ service cloud.firestore {
     // Path is scoped by plantId (the user's companyId).
     match /audit_templates/{plantId}/templates/{templateId} {
       allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer', 'safety_officer'];
       // Editing tasks on an existing (built-in or custom) template stays open
-      // to the existing set of roles.
+      // to the existing set of roles. safety_officer is included so its Audit
+      // tab behaves the same as plant_manager's, not read-only.
       allow update: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'safety_officer'];
       // Creating a brand-new category/template is admin-only — enforced
       // server-side, not just hidden in the UI. The default-templates seeder
       // (ensureDefaultTemplates) also runs as one of these broader roles, so
@@ -1046,7 +1047,7 @@ service cloud.firestore {
         && (
           getUserData().role == 'admin'
           || (
-            getUserData().role in ['supervisor', 'plant_manager', 'technician']
+            getUserData().role in ['supervisor', 'plant_manager', 'technician', 'safety_officer']
             && request.resource.data.isDefault == true
           )
         );
@@ -1056,12 +1057,13 @@ service cloud.firestore {
 
     // Audit sessions — submitted audit records (with findings, attachments,
     // AI suggestions, and generated PDF report links). Store Keeper does not
-    // have access to the Audit module.
+    // have access to the Audit module. safety_officer matches plant_manager's
+    // level of access (read/create/update, not delete).
     match /audit_sessions/{plantId}/sessions/{sessionId} {
       allow read: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer', 'safety_officer'];
       allow create, update: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer', 'safety_officer'];
       allow delete: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role == 'admin';
     }
