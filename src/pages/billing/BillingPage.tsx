@@ -73,7 +73,7 @@ const PLANS: PlanDef[] = [
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
     borderColor: 'border-blue-800/60',
-    limits: { machines: '100', inventoryItems: '10,000', pmSchedules: 'Unlimited', users: '20' },
+    limits: { machines: '100', inventoryItems: '10000', pmSchedules: 'Unlimited', users: '20' },
     featureGroups: [
       { category: 'Core Maintenance', items: ['Everything in Basic & exporting reports'] },
       {
