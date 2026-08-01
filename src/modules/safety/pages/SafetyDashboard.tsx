@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldAlert, Plus, FileCheck, CalendarDays } from 'lucide-react';
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { ShieldAlert, Plus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import KpiCard from '@/components/dashboard/shared/KpiCard';
 import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
@@ -8,6 +9,13 @@ import EmptyState from '@/components/dashboard/shared/EmptyState';
 import { useSafetyCases, useSafetyKpis, useWorkPermits } from '@/hooks/safety/useSafety';
 import { SAFETY_CASE_TYPES, WORK_PERMIT_CATEGORIES, formatPermitDateTime } from '@/types/safety';
 import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
+
+const SEV_HEX: Record<string, string> = {
+  low: '#10B981',
+  medium: '#EAB308',
+  high: '#F59E0B',
+  critical: '#EF4444',
+};
 
 const TYPE_LABEL = Object.fromEntries(SAFETY_CASE_TYPES.map((t) => [t.value, t.label]));
 const CAT_LABEL = Object.fromEntries(WORK_PERMIT_CATEGORIES.map((c) => [c.value, c.label]));
@@ -46,6 +54,29 @@ export default function SafetyDashboard() {
   const recentCases = cases.slice(0, 8);
   const activePermits = permits.filter((p) => p.status === 'active').slice(0, 6);
 
+  const severityData = useMemo(() => {
+    const counts = new Map<string, number>();
+    cases.forEach((c) => counts.set(c.severity, (counts.get(c.severity) ?? 0) + 1));
+    return Array.from(counts.entries()).map(([name, value]) => ({ name, value }));
+  }, [cases]);
+
+  const monthlyTrend = useMemo(() => {
+    const now = new Date();
+    const months = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+      return { key: `${d.getFullYear()}-${d.getMonth()}`, label: d.toLocaleString('en', { month: 'short' }), count: 0 };
+    });
+    const byKey = new Map(months.map((m) => [m.key, m]));
+    cases.forEach((c) => {
+      const d = c.reportedAt?.toDate?.();
+      if (!d) return;
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const bucket = byKey.get(key);
+      if (bucket) bucket.count += 1;
+    });
+    return months;
+  }, [cases]);
+
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
@@ -78,12 +109,37 @@ export default function SafetyDashboard() {
           </div>
         )}
 
-        {/* Quick links */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <QuickLink to="/app/safety/permits" icon={<FileCheck className="h-4 w-4" />} label="Work Permits" />
-          <QuickLink to="/app/training/manage/modules" icon={<ShieldAlert className="h-4 w-4" />} label="Safety Training" />
-          <QuickLink to="/app/safety/calendar" icon={<CalendarDays className="h-4 w-4" />} label="Safety Training Schedules" />
-          <QuickLink to="/app/safety/analytics" icon={<ShieldAlert className="h-4 w-4" />} label="Safety Analytics" />
+        {/* Charts */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <DashboardWidget title="Cases by Severity">
+            {severityData.length === 0 ? (
+              <EmptyState message="No safety cases logged yet" />
+            ) : (
+              <div className="h-56">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie data={severityData} dataKey="value" nameKey="name" innerRadius={40} outerRadius={75} paddingAngle={2}>
+                      {severityData.map((d) => <Cell key={d.name} fill={SEV_HEX[d.name] ?? '#5B8DEF'} />)}
+                    </Pie>
+                    <Tooltip contentStyle={{ background: '#0F1E35', border: '1px solid #1E3A5F', color: '#F0F4F8' }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </DashboardWidget>
+          <DashboardWidget title="Cases Reported — Last 6 Months">
+            <div className="h-56">
+              <ResponsiveContainer>
+                <BarChart data={monthlyTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1E3A5F" />
+                  <XAxis dataKey="label" stroke="#8BA3BF" fontSize={11} />
+                  <YAxis allowDecimals={false} stroke="#8BA3BF" fontSize={11} />
+                  <Tooltip contentStyle={{ background: '#0F1E35', border: '1px solid #1E3A5F', color: '#F0F4F8' }} />
+                  <Bar dataKey="count" fill="#1A56DB" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </DashboardWidget>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -153,18 +209,6 @@ export default function SafetyDashboard() {
 
       {reporting && <ReportSafetyCaseModal onClose={() => setReporting(false)} />}
     </div>
-  );
-}
-
-function QuickLink({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
-  return (
-    <Link
-      to={to}
-      className="flex items-center gap-2 rounded-xl border border-[#1E3A5F] bg-[#0F1E35] px-4 py-3 text-sm font-medium text-[#F0F4F8] hover:border-[#2E5A8F]"
-    >
-      <span className="text-[#5B8DEF]">{icon}</span>
-      {label}
-    </Link>
   );
 }
 

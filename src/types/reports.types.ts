@@ -57,6 +57,7 @@ export type FilterType =
   | 'supervisor'
   | 'priority'
   | 'training_status'
+  | 'training_type'
   | 'sla_status';
 
 export interface ReportDefinition {
@@ -98,6 +99,7 @@ export interface ReportConfig {
   supervisors: string[];
   priorities: string[];
   trainingStatuses: string[];
+  trainingTypes: string[];
   slaStatuses: string[];
   outputFormat: ExportFormat;
   includeCharts: boolean;

@@ -36,6 +36,7 @@ const defaultConfig: ReportConfig = {
   supervisors: [],
   priorities: [],
   trainingStatuses: [],
+  trainingTypes: [],
   slaStatuses: [],
   outputFormat: 'pdf',
   includeCharts: true,
