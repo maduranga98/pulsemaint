@@ -54,6 +54,7 @@ export function PurchaseOrdersPage() {
         status: 'approved',
         approvedBy: userProfile.id,
         approvedByName: userProfile.fullName ?? '',
+        approvedByRole: userProfile.role,
         approvedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -85,6 +86,7 @@ export function PurchaseOrdersPage() {
         rejectedReason: reason,
         approvedBy: userProfile.id,
         approvedByName: userProfile.fullName ?? '',
+        approvedByRole: userProfile.role,
         approvedAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
