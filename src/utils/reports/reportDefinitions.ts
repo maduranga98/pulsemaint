@@ -39,6 +39,8 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     primaryUsers: ['Supervisor', 'Technician'],
     availableFilters: ['machine'],
     estimatedGenerationSecs: 7,
+    // One row per machine's current registry state — no per-row date to filter on.
+    supportsDateRange: false,
   },
   machine_health_score: {
     type: 'machine_health_score',
@@ -52,6 +54,8 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     primaryUsers: ['Manager'],
     availableFilters: ['machine', 'department'],
     estimatedGenerationSecs: 4,
+    // Current health scores snapshot — no per-row date to filter on.
+    supportsDateRange: false,
   },
   maintenance_cost: {
     type: 'maintenance_cost',
@@ -78,6 +82,8 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     primaryUsers: ['Supervisor', 'Manager'],
     availableFilters: [],
     estimatedGenerationSecs: 5,
+    // Lifetime per-person rollup (most recent scores + lifetime totals) — not scoped to a date window.
+    supportsDateRange: false,
   },
   contractor_performance: {
     type: 'contractor_performance',
@@ -117,6 +123,8 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     primaryUsers: ['Store Keeper'],
     availableFilters: ['part_category'],
     estimatedGenerationSecs: 3,
+    // Current low-stock state snapshot — no per-row date to filter on.
+    supportsDateRange: false,
   },
   inventory_listing: {
     type: 'inventory_listing',
@@ -130,6 +138,8 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     primaryUsers: ['Store Keeper', 'Manager'],
     availableFilters: ['part_category'],
     estimatedGenerationSecs: 3,
+    // Current inventory catalogue snapshot — no per-row date to filter on.
+    supportsDateRange: false,
   },
   pm_compliance: {
     type: 'pm_compliance',
@@ -156,6 +166,8 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     primaryUsers: ['HR', 'Manager'],
     availableFilters: [],
     estimatedGenerationSecs: 4,
+    // Lifetime per-person training rollup — not scoped to a date window.
+    supportsDateRange: false,
   },
   sla_compliance: {
     type: 'sla_compliance',

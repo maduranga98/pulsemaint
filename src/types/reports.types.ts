@@ -71,6 +71,15 @@ export interface ReportDefinition {
   primaryUsers: string[];
   availableFilters: FilterType[];
   estimatedGenerationSecs: number;
+  /**
+   * Whether the report's data is actually scoped by the Date Range picker.
+   * Registry/snapshot and lifetime-rollup reports (current machine state,
+   * current inventory levels, lifetime training/evaluation totals) have no
+   * per-row date to filter on — fetchReportRows ignores dateFrom/dateTo for
+   * them entirely, so showing the picker made it look broken. Defaults to
+   * true; set false to hide the picker and explain why instead.
+   */
+  supportsDateRange?: boolean;
 }
 
 export interface ReportConfig {
