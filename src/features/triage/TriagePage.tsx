@@ -80,7 +80,7 @@ export default function TriagePage() {
 
       <DashboardMetrics />
 
-      <div className="flex gap-5" style={{ minHeight: 600 }}>
+      <div className="flex flex-col sm:flex-row gap-5" style={{ minHeight: 600 }}>
         <CategoryRail selected={selected} onSelect={setSelected} />
 
         <div className="flex-1 min-w-0 overflow-hidden">

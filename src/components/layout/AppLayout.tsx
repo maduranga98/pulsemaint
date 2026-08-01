@@ -360,7 +360,7 @@ export default function AppLayout() {
 
         <main className="app-main-dark flex-1 min-w-0 bg-[#0A1628] overflow-y-auto">
           <TrialExpiryBanner />
-          <div className="px-4 sm:px-6 lg:px-8 py-5 max-w-[1400px] mx-auto w-full">
+          <div className="px-4 sm:px-6 lg:px-8 py-5 pb-24 sm:pb-5 max-w-[1400px] mx-auto w-full">
             <ErrorBoundary key={location.pathname}>
               <Outlet />
             </ErrorBoundary>

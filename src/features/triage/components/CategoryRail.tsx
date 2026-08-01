@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { ClipboardCheck, UserCog, type LucideIcon } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
@@ -42,12 +43,12 @@ export function CategoryRail({ selected, onSelect }: Props) {
   function RailBtn({
     id,
     label,
-    icon,
+    icon: Icon,
     color,
   }: {
     id: PanelId;
     label: string;
-    icon: string;
+    icon: LucideIcon;
     color: string;
   }) {
     const active = selected === id;
@@ -61,7 +62,7 @@ export function CategoryRail({ selected, onSelect }: Props) {
           color: active ? color : '#6b7fa3',
         }}
       >
-        <span className="text-base shrink-0">{icon}</span>
+        <Icon className="w-4 h-4 shrink-0" />
         <span className="flex-1 font-medium">{label}</span>
       </button>
     );
@@ -69,8 +70,8 @@ export function CategoryRail({ selected, onSelect }: Props) {
 
   return (
     <div
-      className="shrink-0 rounded-xl flex flex-col overflow-hidden"
-      style={{ width: 250, background: '#0a0f1c', border: '1px solid #1a2840' }}
+      className="w-full max-h-80 sm:w-[250px] sm:max-h-none sm:shrink-0 rounded-xl flex flex-col overflow-hidden"
+      style={{ background: '#0a0f1c', border: '1px solid #1a2840' }}
     >
       {/* Categories */}
       <div className="flex-1 overflow-y-auto p-3">
@@ -114,8 +115,8 @@ export function CategoryRail({ selected, onSelect }: Props) {
 
       {/* Bottom */}
       <div className="p-3 space-y-0.5" style={{ borderTop: '1px solid #1a2840' }}>
-        <RailBtn id="contacts" label="Responsible Persons" icon="🟤" color="#f97316" />
-        <RailBtn id="assessments" label="Quick Assessments" icon="🟡" color="#fbbf24" />
+        <RailBtn id="contacts" label="Responsible Persons" icon={UserCog} color="#f97316" />
+        <RailBtn id="assessments" label="Quick Assessments" icon={ClipboardCheck} color="#fbbf24" />
       </div>
     </div>
   );
