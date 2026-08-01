@@ -13,9 +13,10 @@ interface PMScheduleListProps {
   onSelect: (id: string, selected: boolean) => void;
   onSelectAll: (selected: boolean) => void;
   woLookup?: Map<string, PMWorkOrderLookupEntry>;
+  showSelect?: boolean;
 }
 
-export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, woLookup }: PMScheduleListProps) {
+export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, woLookup, showSelect = true }: PMScheduleListProps) {
   const navigate = useNavigate();
   const allSelected = schedules.length > 0 && schedules.every((s) => selectedIds.includes(s.id));
 
@@ -25,14 +26,16 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 w-10">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={(e) => onSelectAll(e.target.checked)}
-                  className="rounded border-gray-300"
-                />
-              </th>
+              {showSelect && (
+                <th className="px-4 py-3 w-10">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={(e) => onSelectAll(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                </th>
+              )}
               <th className="px-4 py-3 text-left font-medium text-gray-700">Schedule</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Machine</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Type</th>
@@ -90,14 +93,16 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                   }
                   className="hover:bg-gray-50 cursor-pointer"
                 >
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(schedule.id)}
-                      onChange={(e) => onSelect(schedule.id, e.target.checked)}
-                      className="rounded border-gray-300"
-                    />
-                  </td>
+                  {showSelect && (
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.includes(schedule.id)}
+                        onChange={(e) => onSelect(schedule.id, e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                    </td>
+                  )}
                   <td className="px-4 py-3">
                     <div className="font-medium text-gray-900">{schedule.name}</div>
                     {linkedWo?.woNumber && (

@@ -14,12 +14,19 @@ export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
   const jobCost = (job: ContractorJob) =>
     job.totalProjectCost ?? job.systemInvoiceAmount ?? job.contractorInvoiceAmount ?? 0;
 
-  const currentYear = new Date().getFullYear();
-  const monthly = Array.from({ length: 12 }, (_, index) => {
-    const month = new Date(currentYear, index, 1).toLocaleString('en', { month: 'short' });
+  // Rolling 12-month window ending this month, rather than a fixed calendar
+  // year — a contractor's jobs rarely land neatly within Jan-Dec of "now", so
+  // pinning to currentYear silently dropped everything from a prior year and
+  // the charts looked frozen/empty even though jobs kept coming in.
+  const now = new Date();
+  const monthly = Array.from({ length: 12 }, (_, offset) => {
+    const bucket = new Date(now.getFullYear(), now.getMonth() - (11 - offset), 1);
+    const month = bucket.toLocaleString('en', { month: 'short', year: '2-digit' });
     const monthJobs = jobs.filter((job) => {
       const created = job.createdAt?.toDate ? job.createdAt.toDate() : null;
-      return created ? created.getFullYear() === currentYear && created.getMonth() === index : false;
+      return created
+        ? created.getFullYear() === bucket.getFullYear() && created.getMonth() === bucket.getMonth()
+        : false;
     });
     const ratedJobs = monthJobs.filter((job) => job.rating?.overallScore != null);
     return {

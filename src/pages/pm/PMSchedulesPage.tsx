@@ -145,6 +145,7 @@ export default function PMSchedulesPage() {
                 onSelect={handleSelect}
                 onSelectAll={handleSelectAll}
                 woLookup={woLookup}
+                showSelect={isAdmin}
               />
             </div>
             <div className="sm:hidden grid grid-cols-1 gap-3">
@@ -153,7 +154,7 @@ export default function PMSchedulesPage() {
                   key={s.id}
                   schedule={s}
                   selected={selectedIds.includes(s.id)}
-                  onSelect={handleSelect}
+                  onSelect={isAdmin ? handleSelect : undefined}
                   woLookup={woLookup}
                 />
               ))}
@@ -166,7 +167,7 @@ export default function PMSchedulesPage() {
                 key={s.id}
                 schedule={s}
                 selected={selectedIds.includes(s.id)}
-                onSelect={handleSelect}
+                onSelect={isAdmin ? handleSelect : undefined}
                 woLookup={woLookup}
               />
             ))}
