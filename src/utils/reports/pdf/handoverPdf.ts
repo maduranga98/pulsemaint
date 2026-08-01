@@ -29,30 +29,49 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
 
+  // Letterhead — logo and company name aligned together at top-left, logo
+  // sized to sit inline with the name rather than dominate the header.
   const company = useAuthStore.getState().company;
+  const companyName = company?.name ?? '';
+  const logoSize = 26;
+  const logoX = 40;
+  const logoY = 24;
+  let nameX = logoX;
   if (company?.logoDataUrl) {
     try {
-      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), pageWidth - 40 - 36, 20, 36, 36);
+      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), logoX, logoY, logoSize, logoSize);
+      nameX = logoX + logoSize + 8;
     } catch {
       // Malformed/unsupported image data — skip the logo rather than fail the export.
     }
   }
+  if (companyName) {
+    doc.setFontSize(12);
+    doc.setTextColor(10, 22, 40);
+    doc.text(companyName, nameX, logoY + logoSize / 2 + 4);
+    doc.setTextColor(0);
+  }
+
+  const headerRuleY = logoY + logoSize + 10;
+  doc.setDrawColor(10, 22, 40);
+  doc.line(40, headerRuleY, pageWidth - 40, headerRuleY);
 
   // Header — same layout as genericReportPdf: 16pt title, gray 10pt metadata lines.
+  const titleY = headerRuleY + 24;
   doc.setFontSize(16);
-  doc.text(`${handover.shiftName} Shift Handover`, 40, 40);
+  doc.text(`${handover.shiftName} Shift Handover`, 40, titleY);
   doc.setFontSize(10);
   doc.setTextColor(120);
-  doc.text(`Shift date: ${handover.shiftDate}`, 40, 58);
+  doc.text(`Shift date: ${handover.shiftDate}`, 40, titleY + 18);
   doc.text(
     `Shift started: ${fmt(handover.shiftActualStart)}   ·   Shift ended: ${fmt(handover.shiftActualEnd)}`,
     40,
-    72,
+    titleY + 32,
   );
-  doc.text(`Generated: ${new Date().toLocaleString()}`, 40, 86);
+  doc.text(`Generated: ${new Date().toLocaleString()}`, 40, titleY + 46);
   doc.setTextColor(0);
 
-  let y = 105;
+  let y = titleY + 65;
 
   const assignedShift = handover.scheduledStart && handover.scheduledEnd
     ? `${formatTimeRange(handover.scheduledStart, handover.scheduledEnd)} (${handover.scheduledMinutes != null ? formatDuration(handover.scheduledMinutes * 60000) : '-'})`
