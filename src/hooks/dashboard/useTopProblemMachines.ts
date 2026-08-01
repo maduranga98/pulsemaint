@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
-import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
+import { subscribeMonthlyAnalytics, type MonthArg } from '../../services/analyticsAggregation';
 import type { AnalyticsMonthly } from '../../types/analytics.types';
 
-export function useTopProblemMachines(companyId: string, month: string) {
+export function useTopProblemMachines(companyId: string, month: MonthArg) {
   const [data, setData] = useState<AnalyticsMonthly | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   // Bump to force the live subscription to tear down and re-establish.
   const [nonce, setNonce] = useState(0);
+  const monthKey = Array.isArray(month) ? month.join(',') : month;
 
   useEffect(() => {
-    if (!companyId || !month) {
+    if (!companyId || !monthKey) {
       setLoading(false);
       return;
     }
@@ -26,7 +27,8 @@ export function useTopProblemMachines(companyId: string, month: string) {
       cancelled = true;
       unsub();
     };
-  }, [companyId, month, nonce]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, monthKey, nonce]);
 
   return { data, loading, error, refetch: () => setNonce((n) => n + 1) };
 }

@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchMonthlyAnalytics } from '../../services/analytics.service';
-import { computeMonthlyAnalytics } from '../../services/analyticsAggregation';
+import { computeMonthlyAnalytics, type MonthArg } from '../../services/analyticsAggregation';
 import type { AnalyticsMonthly } from '../../types/analytics.types';
 
-export function useTechnicianPerformance(companyId: string, month: string) {
+export function useTechnicianPerformance(companyId: string, month: MonthArg) {
   const [data, setData] = useState<AnalyticsMonthly | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const monthKey = Array.isArray(month) ? month.join(',') : month;
 
   const fetch = useCallback(async () => {
-    if (!companyId || !month) {
+    if (!companyId || !monthKey) {
       setLoading(false);
       return;
     }
@@ -28,7 +29,8 @@ export function useTechnicianPerformance(companyId: string, month: string) {
     } finally {
       setLoading(false);
     }
-  }, [companyId, month]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, monthKey]);
 
   useEffect(() => {
     fetch();
