@@ -151,13 +151,21 @@ export async function exportGenericReportPdf(
     }
   }
 
-  // Header
+  // Header — company name at the top, then the report title and meta.
+  const companyName = company?.name ?? '';
+  if (companyName) {
+    doc.setFontSize(12);
+    doc.setTextColor(10, 22, 40);
+    doc.text(companyName, 40, 34);
+    doc.setTextColor(0);
+  }
+  const titleY = companyName ? 54 : 40;
   doc.setFontSize(16);
-  doc.text(definition.name, 40, 40);
+  doc.text(definition.name, 40, titleY);
   doc.setFontSize(10);
   doc.setTextColor(120);
-  doc.text(`Date range: ${dateRangeLabel(config.dateFrom, config.dateTo)}`, 40, 58);
-  doc.text(`Generated: ${new Date().toLocaleString()}  ·  ${rows.length} record(s)`, 40, 72);
+  doc.text(`Date range: ${dateRangeLabel(config.dateFrom, config.dateTo)}`, 40, titleY + 18);
+  doc.text(`Generated: ${new Date().toLocaleString()}  ·  ${rows.length} record(s)`, 40, titleY + 32);
   doc.setTextColor(0);
 
   let cursorY = 90;
@@ -303,7 +311,7 @@ export async function exportGenericReportPdf(
     // autoTable wraps them to fit rather than dropping them. Shift Handover
     // Summary is one: the portrait cap of 7 silently dropped Shift Ended, OT,
     // and the during-shift counts, so the export didn't match the tab.
-    const UNCAPPED_REPORTS = ['work_order_detail', 'shift_handover_summary'];
+    const UNCAPPED_REPORTS = ['work_order_detail', 'shift_handover_summary', 'work_permit_history'];
     const columnCap = UNCAPPED_REPORTS.includes(reportType) ? allColumns.length : landscape ? 10 : 7;
     const columns = allColumns.slice(0, columnCap);
     const head = [columns.map((c) => c.label)];
