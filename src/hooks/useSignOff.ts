@@ -4,6 +4,7 @@ import {
   getDoc,
   updateDoc,
   arrayUnion,
+  increment,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
@@ -132,8 +133,33 @@ export function useSignOff(): UseSignOffResult {
         let woNumber = woId;
         try {
           const snap = await getDoc(doc(db, 'workOrders', woId));
-          const data = snap.data() as { linkedBreakdownId?: string | null; woNumber?: string } | undefined;
+          const data = snap.data() as {
+            linkedBreakdownId?: string | null;
+            woNumber?: string;
+            contractorCompanyId?: string | null;
+            contractorTechnicianIds?: string[];
+          } | undefined;
           woNumber = data?.woNumber ?? woId;
+
+          // A signed-off contractor job counts as a completed visit for each of
+          // its assigned team members — bump their "jobs at this factory" count
+          // and stamp their last visit. Best-effort; a failure here never blocks
+          // the sign-off.
+          const contractorId = data?.contractorCompanyId;
+          const memberIds = data?.contractorTechnicianIds ?? [];
+          if (contractorId && memberIds.length > 0) {
+            await Promise.all(
+              memberIds.map((memberId) =>
+                updateDoc(doc(db, 'contractors', contractorId, 'technicians', memberId), {
+                  jobsAtThisFactory: increment(1),
+                  lastVisitedAt: serverTimestamp(),
+                  lastVisitedJobId: woId,
+                  updatedAt: serverTimestamp(),
+                }).catch((e) => console.error('Failed to update contractor team member on sign-off', e)),
+              ),
+            );
+          }
+
           if (data?.linkedBreakdownId) {
             const bdStatus: BreakdownStatus = 'closed';
             await updateDoc(doc(db, 'breakdown_tickets', data.linkedBreakdownId), {

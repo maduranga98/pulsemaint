@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { WO_COPY } from '../../constants/copy';
+import { useContractorTechnicians } from '../../hooks/contractors/useContractorTechnicians';
 
 // Stub types — replace with real data from Module 3 / users collection
 interface TechnicianOption {
@@ -50,6 +51,24 @@ export function TeamAssignmentPanel({
   const selectedTechIds = watch('assignedTechnicianIds') ?? [];
   const selectedContractorId = watch('contractorCompanyId');
   const isManualContractor = watch('isManualContractor');
+
+  // The registered team members of the selected contractor company — the
+  // technicians/supervisors to assign to a contractor job. Their ids drive the
+  // per-member "jobs" and "last visit" counters when the WO is signed off.
+  const { technicians: contractorTeam } = useContractorTechnicians(selectedContractorId || undefined);
+  const selectedContractorTechIds: string[] = watch('contractorTechnicianIds') ?? [];
+
+  function toggleContractorTech(id: string, name: string) {
+    const ids: string[] = watch('contractorTechnicianIds') ?? [];
+    const names: string[] = watch('contractorTechnicianNames') ?? [];
+    if (ids.includes(id)) {
+      setValue('contractorTechnicianIds', ids.filter((i) => i !== id));
+      setValue('contractorTechnicianNames', names.filter((n) => n !== name));
+    } else {
+      setValue('contractorTechnicianIds', [...ids, id]);
+      setValue('contractorTechnicianNames', [...names, name]);
+    }
+  }
 
   function toggleAssignee(id: string, name: string) {
     const ids: string[] = watch('assignedTechnicianIds') ?? [];
@@ -284,24 +303,61 @@ export function TeamAssignmentPanel({
             />
           </div>
 
-          {/* On-site Technician Names */}
+          {/* On-site team members */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {WO_COPY.contractorTechsLabel}
             </label>
-            <textarea
-              rows={3}
-              placeholder={WO_COPY.contractorTechsHint}
-              onChange={(e) => {
-                const names = e.target.value
-                  .split('\n')
-                  .map((n) => n.trim())
-                  .filter(Boolean);
-                setValue('contractorTechnicianNames', names);
-              }}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-            <p className="mt-0.5 text-xs text-gray-400">{WO_COPY.contractorTechsHint}</p>
+
+            {selectedContractorId && !isManualContractor ? (
+              // Registered contractor: pick from its team members. The selected
+              // members' jobs/last-visit counters update when the WO is signed off.
+              contractorTeam.length === 0 ? (
+                <p className="text-xs text-gray-400 px-1 py-2">
+                  No team members registered for this contractor yet. Add them on the contractor's Team Members tab.
+                </p>
+              ) : (
+                <div className="space-y-1 max-h-56 overflow-y-auto rounded-lg border border-gray-100">
+                  {contractorTeam.map((member) => {
+                    const isSelected = selectedContractorTechIds.includes(member.id);
+                    return (
+                      <button
+                        key={member.id}
+                        type="button"
+                        onClick={() => toggleContractorTech(member.id, member.fullName)}
+                        className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''}`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <span className={`h-5 w-5 rounded border-2 flex items-center justify-center ${isSelected ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
+                            {isSelected && <span className="text-white text-xs">✓</span>}
+                          </span>
+                          <span className="text-gray-800">{member.fullName}</span>
+                        </span>
+                        <span className="text-xs text-gray-400 capitalize">{String(member.designation ?? '').replace(/_/g, ' ')}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )
+            ) : (
+              // Manual (unregistered) contractor: fall back to free-text names.
+              <>
+                <textarea
+                  rows={3}
+                  placeholder={WO_COPY.contractorTechsHint}
+                  onChange={(e) => {
+                    const names = e.target.value
+                      .split('\n')
+                      .map((n) => n.trim())
+                      .filter(Boolean);
+                    setValue('contractorTechnicianNames', names);
+                    setValue('contractorTechnicianIds', []);
+                  }}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 resize-none"
+                />
+                <p className="mt-0.5 text-xs text-gray-400">{WO_COPY.contractorTechsHint}</p>
+              </>
+            )}
           </div>
 
           {/* Optional internal technicians on the contractor job — they can
