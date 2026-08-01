@@ -17,15 +17,9 @@ import {
 import { useAuthStore } from '../../../../store/authStore';
 import type { TriageCategory, TriageContentType } from '../../types';
 import { ContentList } from '../ContentList';
+import { TRIAGE_ICON_OPTIONS, TriageCategoryIcon } from '../../triageIcons';
 
 const COLOR_PRESETS = ['#ef4444', '#f97316', '#fbbf24', '#22c55e', '#3b82f6', '#a78bfa'];
-
-// Selectable sample icons offered when creating a category. Icons are stored as
-// emoji strings to stay compatible with every consumer that renders {cat.icon}.
-const ICON_PRESETS = [
-  '🔧', '⚙️', '🛠️', '⚡', '🔥', '🚨', '🦺', '🧯',
-  '💧', '🌡️', '🔋', '🧰', '📋', '🏭', '🚜', '🧪',
-];
 
 // Suggested category titles surfaced as quick-fill chips.
 const TITLE_SUGGESTIONS = [
@@ -244,30 +238,22 @@ export function ContentBuilder() {
                 Icon
               </label>
               <div className="flex flex-wrap gap-1.5">
-                {ICON_PRESETS.map((ic) => (
+                {TRIAGE_ICON_OPTIONS.map(({ emoji, Icon }) => (
                   <button
-                    key={ic}
+                    key={emoji}
                     type="button"
-                    onClick={() => setCatIcon(ic)}
+                    onClick={() => setCatIcon(emoji)}
                     className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
                     style={{
-                      fontSize: 18,
-                      background: catIcon === ic ? '#1d4ed8' : '#0e1628',
-                      border: `1px solid ${catIcon === ic ? '#3b82f6' : '#1a2840'}`,
+                      color: '#e2e8f0',
+                      background: catIcon === emoji ? '#1d4ed8' : '#0e1628',
+                      border: `1px solid ${catIcon === emoji ? '#3b82f6' : '#1a2840'}`,
                     }}
+                    title={emoji}
                   >
-                    {ic}
+                    <Icon className="w-4 h-4" />
                   </button>
                 ))}
-                <input
-                  value={catIcon}
-                  onChange={(e) => setCatIcon(e.target.value)}
-                  maxLength={2}
-                  className="w-8 h-8 rounded-lg text-center"
-                  style={{ ...inputStyle, fontSize: 18 }}
-                  title="Or type your own"
-                  aria-label="Custom icon"
-                />
               </div>
             </div>
             <div>
@@ -588,7 +574,7 @@ export function ContentBuilder() {
                 <tbody>
                   {cats.map((c) => (
                     <tr key={c.id} style={{ borderBottom: '1px solid #1a2840' }}>
-                      <td className="px-4 py-2.5">{c.icon}</td>
+                      <td className="px-4 py-2.5"><TriageCategoryIcon icon={c.icon} className="w-4 h-4" /></td>
                       <td className="px-4 py-2.5" style={{ color: '#e2e8f0' }}>{c.title}</td>
                       <td className="px-4 py-2.5">
                         <div className="w-3 h-3 rounded-full" style={{ background: c.color }} />
@@ -630,14 +616,15 @@ export function ContentBuilder() {
                 <button
                   key={c.id}
                   onClick={() => setPreviewCatId(c.id)}
-                  className="px-2.5 py-1 rounded-full text-xs font-medium transition-colors"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors"
                   style={{
                     background: previewCatId === c.id ? c.color + '1e' : '#1a2840',
                     color: previewCatId === c.id ? c.color : '#6b7fa3',
                     border: `1px solid ${previewCatId === c.id ? c.color + '66' : 'transparent'}`,
                   }}
                 >
-                  {c.icon} {c.title}
+                  <TriageCategoryIcon icon={c.icon} className="w-3.5 h-3.5" />
+                  {c.title}
                 </button>
               ))}
             </div>
