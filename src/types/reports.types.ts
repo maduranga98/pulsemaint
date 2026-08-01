@@ -68,7 +68,6 @@ export interface ReportDefinition {
   icon: string;
   supportsPdf: boolean;
   supportsExcel: boolean;
-  supportsSheets: boolean;
   primaryUsers: string[];
   availableFilters: FilterType[];
   estimatedGenerationSecs: number;

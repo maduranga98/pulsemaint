@@ -3,7 +3,6 @@ import type { ExportFormat, ReportDefinition, ReportConfig } from '../../../type
 const options: { value: ExportFormat; label: string }[] = [
   { value: 'pdf', label: 'PDF' },
   { value: 'excel', label: 'Excel (.xlsx)' },
-  { value: 'google_sheets', label: 'Google Sheets' },
 ];
 
 export default function OutputFormatToggle({
@@ -16,7 +15,7 @@ export default function OutputFormatToggle({
   onChange: (updates: Partial<ReportConfig>) => void;
 }) {
   const supported = (format: ExportFormat) =>
-    format === 'pdf' ? report.supportsPdf : format === 'excel' ? report.supportsExcel : report.supportsSheets;
+    format === 'pdf' ? report.supportsPdf : report.supportsExcel;
 
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">

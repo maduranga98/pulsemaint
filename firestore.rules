@@ -1236,10 +1236,13 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /traineeProgrammes/{programmeId} {
-      // Read: own programme (trainee) OR management roles
+      // Read: own programme (trainee) OR management roles. safety_officer is
+      // included so the Training Compliance report (which rolls up both
+      // trainingAssignments and traineeProgrammes) doesn't fail outright for
+      // that role — Training Compliance is one of the few reports it can run.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && (resource.data.traineeId == request.auth.uid
-          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']));
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
       // Create/update/delete: management sets up and manages the programme
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
