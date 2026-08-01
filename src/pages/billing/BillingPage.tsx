@@ -502,13 +502,11 @@ export default function BillingPage() {
                     <span className="text-2xl font-bold text-white">Free</span>
                   ) : (
                     <>
-                      <span className="text-2xl font-bold text-white">
-                        ${hasDefaultCard ? Math.round(price * (1 - SAVED_CARD_DISCOUNT) * 100) / 100 : price}
-                      </span>
+                      <span className="text-2xl font-bold text-white">${price}</span>
                       <span className="text-sm text-slate-400">/{billingCycle === 'yearly' ? 'year' : 'month'}</span>
                       {hasDefaultCard && (
                         <span className="text-[10px] font-semibold text-emerald-400 ml-1">
-                          5% saved card discount applied
+                          5% discount applies at checkout with your saved card
                         </span>
                       )}
                     </>
