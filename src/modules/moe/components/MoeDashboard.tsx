@@ -5,19 +5,11 @@ import { MoeMachineFilter, buildRange } from './MoeMachineFilter';
 import { getMoeStatus, MOE_STATUS_META } from '../types/moe.types';
 import type { MoeDateRange, MoeMachineSummary } from '../types/moe.types';
 
-interface MoeDashboardProps {
-  onSelectMachine: (machineId: string, range: MoeDateRange) => void;
-}
-
-function MachineRow({ m, onClick }: { m: MoeMachineSummary; onClick: () => void }) {
+function MachineRow({ m }: { m: MoeMachineSummary }) {
   const status = getMoeStatus(m.moeScore);
   const meta = MOE_STATUS_META[status];
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#132743] transition-colors text-left"
-    >
+    <div className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg">
       <div className="min-w-0">
         <p className="text-sm text-white font-medium truncate">{m.machineName}</p>
         <p className="text-xs text-[#8BA3BF] truncate">
@@ -30,11 +22,11 @@ function MachineRow({ m, onClick }: { m: MoeMachineSummary; onClick: () => void 
           {m.moeScore.toFixed(1)}
         </span>
       </div>
-    </button>
+    </div>
   );
 }
 
-export function MoeDashboard({ onSelectMachine }: MoeDashboardProps) {
+export function MoeDashboard() {
   const [range, setRange] = useState<MoeDateRange>(() => buildRange('30d'));
   const { data, loading, error } = useMoeDashboard(range.start, range.end);
 
@@ -112,7 +104,7 @@ export function MoeDashboard({ onSelectMachine }: MoeDashboardProps) {
               </h2>
               <div className="divide-y divide-[#1E3A5F]">
                 {data.criticalMachines.map((m) => (
-                  <MachineRow key={m.machineId} m={m} onClick={() => onSelectMachine(m.machineId, range)} />
+                  <MachineRow key={m.machineId} m={m} />
                 ))}
               </div>
             </div>
@@ -124,7 +116,7 @@ export function MoeDashboard({ onSelectMachine }: MoeDashboardProps) {
               <div className="divide-y divide-[#1E3A5F]">
                 {data.bestMachines.length === 0 && <p className="text-sm text-[#8BA3BF] py-2">No data yet.</p>}
                 {data.bestMachines.map((m) => (
-                  <MachineRow key={m.machineId} m={m} onClick={() => onSelectMachine(m.machineId, range)} />
+                  <MachineRow key={m.machineId} m={m} />
                 ))}
               </div>
             </div>
@@ -133,7 +125,7 @@ export function MoeDashboard({ onSelectMachine }: MoeDashboardProps) {
               <div className="divide-y divide-[#1E3A5F]">
                 {data.worstMachines.length === 0 && <p className="text-sm text-[#8BA3BF] py-2">No data yet.</p>}
                 {data.worstMachines.map((m) => (
-                  <MachineRow key={m.machineId} m={m} onClick={() => onSelectMachine(m.machineId, range)} />
+                  <MachineRow key={m.machineId} m={m} />
                 ))}
               </div>
             </div>
