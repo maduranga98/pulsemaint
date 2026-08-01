@@ -119,7 +119,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
               className="w-full rounded-lg border border-gray-300 px-2 py-1 text-xs focus:ring-2 focus:ring-blue-500 outline-none bg-white"
               size={4}
             >
-              {(['active', 'paused', 'completed', 'archived'] as PMStatus[]).map((s) => (
+              {(['active', 'paused', 'completed'] as PMStatus[]).map((s) => (
                 <option key={s} value={s}>{PM_STATUS_CONFIG[s].label}</option>
               ))}
             </select>

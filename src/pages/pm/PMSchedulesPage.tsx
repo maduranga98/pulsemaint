@@ -29,7 +29,7 @@ export default function PMSchedulesPage() {
   const filters = usePMStore((s) => s.filters);
   const setFilters = usePMStore((s) => s.setFilters);
 
-  const { schedules, loading, bulkUpdateStatus, bulkDelete } =
+  const { schedules, loading, bulkDelete } =
     usePMSchedules({ companyId: company?.id || '', filters });
   const { machines } = useMachines({ siteId: company?.id || '', pageSize: 500 });
   const woLookup = usePMWorkOrderLookup(userProfile?.siteIds?.[0] || company?.id || '');
@@ -55,21 +55,13 @@ export default function PMSchedulesPage() {
     setSelectedIds(selected ? schedules.map((s) => s.id) : []);
   };
 
-  const handleBulkAction = async (action: 'archive' | 'delete') => {
+  const handleBulkAction = async (action: 'delete') => {
     if (selectedIds.length === 0) return;
     if (action === 'delete' && !canDeleteSchedules) return;
     try {
-      switch (action) {
-        case 'archive':
-          await bulkUpdateStatus(selectedIds, 'archived');
-          toast.success(`${selectedIds.length} schedules archived`);
-          break;
-        case 'delete':
-          if (confirm('Are you sure? This cannot be undone.')) {
-            await bulkDelete(selectedIds);
-            toast.success(`${selectedIds.length} schedules deleted`);
-          }
-          break;
+      if (action === 'delete' && confirm('Are you sure? This cannot be undone.')) {
+        await bulkDelete(selectedIds);
+        toast.success(`${selectedIds.length} schedules deleted`);
       }
       setSelectedIds([]);
     } catch {
@@ -119,9 +111,6 @@ export default function PMSchedulesPage() {
               {selectedIds.length} selected
             </span>
             <div className="flex-1" />
-            <Button size="sm" variant="ghost" onClick={() => handleBulkAction('archive')}>
-              Archive
-            </Button>
             {canDeleteSchedules && (
               <Button size="sm" variant="danger" onClick={() => handleBulkAction('delete')}>
                 Delete

@@ -201,11 +201,6 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
     await updateDoc(ref, { status: 'active', updatedAt: serverTimestamp() });
   }, []);
 
-  const archiveSchedule = useCallback(async (scheduleId: string): Promise<void> => {
-    const ref = doc(db, COLLECTION, scheduleId);
-    await updateDoc(ref, { status: 'archived', updatedAt: serverTimestamp() });
-  }, []);
-
   const deleteSchedule = useCallback(async (scheduleId: string): Promise<void> => {
     await deleteDoc(doc(db, COLLECTION, scheduleId));
   }, []);
@@ -261,7 +256,6 @@ export function usePMSchedules({ companyId, filters }: UsePMSchedulesOptions) {
     updateSchedule,
     pauseSchedule,
     activateSchedule,
-    archiveSchedule,
     deleteSchedule,
     bulkUpdateStatus,
     bulkDelete,
