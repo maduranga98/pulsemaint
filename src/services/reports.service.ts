@@ -105,6 +105,7 @@ export function filtersFromConfig(config: ReportConfig): Record<string, unknown>
     supervisors: config.supervisors,
     priorities: config.priorities,
     trainingStatuses: config.trainingStatuses,
+    trainingTypes: config.trainingTypes,
     slaStatuses: config.slaStatuses,
   };
 }
@@ -331,11 +332,21 @@ export async function fetchReportRows(
 
   // Training Compliance covers both the general trainingAssignments
   // collection (employee/machine training) and the trainee programme system
-  // (traineeProgrammes) — one row per person, aggregating both sources.
-  // Like technician_performance, this is a lifetime per-person rollup with no
-  // natural per-row date, and its report definition offers no date/list
-  // filters (availableFilters: []) — there is nothing to bypass here.
+  // (traineeProgrammes) — one row per person, aggregating both sources. Like
+  // technician_performance, this is a lifetime per-person rollup with no
+  // natural per-row date, so date range doesn't apply — but it does support a
+  // Training Type filter (Safety Training vs General Training), which
+  // safety_officer relies on to isolate safety-training compliance from
+  // everything else, since that's the only report the role can select
+  // training details from at all.
   if (reportType === 'training_compliance') {
+    const trainingTypeFilter = new Set(config.trainingTypes);
+    const wantSafety = trainingTypeFilter.has('Safety Training');
+    const wantGeneral = trainingTypeFilter.has('General Training');
+    // Neither/both checked = no restriction, same as every other filter here.
+    const restrictToSafety = wantSafety && !wantGeneral;
+    const restrictToGeneral = wantGeneral && !wantSafety;
+
     const [assignmentSnap, programmeSnap, usersSnap] = await Promise.all([
       getDocs(query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId), limit(2000))),
       getDocs(query(collection(db, 'traineeProgrammes'), where('companyId', '==', companyId), limit(1000))),
@@ -366,6 +377,9 @@ export async function fetchReportRows(
       const a = item.data();
       const traineeId = String(a.traineeId ?? '');
       if (!traineeId) return;
+      const isSafety = a.trainingType === 'safety_training';
+      if (restrictToSafety && !isSafety) return;
+      if (restrictToGeneral && isSafety) return;
       const entry = byPerson.get(traineeId) ?? {
         name: String(a.traineeName ?? 'Unknown'),
         role: roleByUserId.get(traineeId) ?? 'trainee',
@@ -381,8 +395,10 @@ export async function fetchReportRows(
 
     // The trainee programme's own final mark (quiz + final assessment
     // aggregate) is tracked separately from module-level assignments — add
-    // it on top so a trainee's Total Marks reflects both.
-    programmeSnap.docs.forEach((item) => {
+    // it on top so a trainee's Total Marks reflects both. Trainee programmes
+    // aren't safety-training-specific, so they're excluded entirely when the
+    // report is restricted to Safety Training only.
+    if (!restrictToSafety) programmeSnap.docs.forEach((item) => {
       const p = item.data();
       const traineeId = String(p.traineeId ?? '');
       if (!traineeId) return;

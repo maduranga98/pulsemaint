@@ -34,13 +34,11 @@ const STORE_KEEPER_REPORTS: ReportType[] = [
   'po_history',
 ];
 
-// safety_officer sees safety and safety-adjacent compliance reports.
+// safety_officer only sees the safety-scoped reports — Training Compliance
+// covers safety training since it's filterable/selectable by training details.
 const SAFETY_OFFICER_REPORTS: ReportType[] = [
   'safety_incidents',
   'work_permit_history',
-  'maintenance_cost',
-  'shift_handover_summary',
-  'audit_trail',
   'training_compliance',
 ];
 

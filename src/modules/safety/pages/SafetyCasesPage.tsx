@@ -86,7 +86,9 @@ export default function SafetyCasesPage() {
             <EmptyState message={isSafetyOfficer ? 'No safety cases logged yet' : 'No cases have been reported to you'} />
           ) : (
             <div className="space-y-2">
-              {visible.map((c) => <CaseRow key={c.id} c={c} canAct={isSafetyOfficer || REPORTED_TO_ROLES.includes(role)} />)}
+              {visible.map((c) => (
+                <CaseRow key={c.id} c={c} canAct={c.status !== 'closed' && (isSafetyOfficer || REPORTED_TO_ROLES.includes(role))} />
+              ))}
             </div>
           )}
         </DashboardWidget>
@@ -226,6 +228,10 @@ function CaseRow({ c, canAct }: { c: SafetyCase; canAct: boolean }) {
               </ul>
             )}
           </div>
+
+          {c.status === 'closed' && (
+            <p className="text-xs text-[#8BA3BF]">This case is closed and can no longer be edited.</p>
+          )}
 
           {canAct && (
             <div className="space-y-2 rounded-lg border border-[#1E3A5F] bg-[#0A1628] p-3">

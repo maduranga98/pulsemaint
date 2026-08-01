@@ -164,7 +164,7 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
     supportsExcel: true,
     supportsSheets: true,
     primaryUsers: ['HR', 'Manager'],
-    availableFilters: [],
+    availableFilters: ['training_type'],
     estimatedGenerationSecs: 4,
     // Lifetime per-person training rollup — not scoped to a date window.
     supportsDateRange: false,
