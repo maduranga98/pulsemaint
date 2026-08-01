@@ -6,7 +6,6 @@ import DateRangeSelector from './config/DateRangeSelector';
 import GenerationErrorState from './generation/GenerationErrorState';
 import GenerationProgressBar from './generation/GenerationProgressBar';
 import GenerationStatusMessage from './generation/GenerationStatusMessage';
-import GoogleSheetsConnector from './config/GoogleSheetsConnector';
 import OutputFormatToggle from './config/OutputFormatToggle';
 import PdfOptionsSection from './config/PdfOptionsSection';
 import ReportFilterSection from './config/ReportFilterSection';
@@ -20,7 +19,7 @@ export default function ReportConfigPanel() {
   const close = useReportsStore((state) => state.closeConfigPanel);
   const config = useReportsStore((state) => state.config);
   const updateConfig = useReportsStore((state) => state.updateConfig);
-  const { generationStatus, generationProgress, generationError, lastDownloadUrl, lastSheetsUrl, generatePdf, exportExcel, pushToSheets, isGenerating } = useReportGeneration();
+  const { generationStatus, generationProgress, generationError, lastDownloadUrl, generatePdf, exportExcel, isGenerating } = useReportGeneration();
   const companyId = useAuthStore((state) => state.company?.id ?? state.userProfile?.companyId ?? '');
 
   if (!isOpen || !selectedReportType) return null;
@@ -28,12 +27,10 @@ export default function ReportConfigPanel() {
 
   // The output format is already chosen once via OutputFormatToggle above —
   // the footer must act on that single selection instead of listing the
-  // same PDF/Excel/Sheets options again as three separate buttons.
-  const formatSupported =
-    config.outputFormat === 'pdf' ? report.supportsPdf : config.outputFormat === 'excel' ? report.supportsExcel : report.supportsSheets;
-  const generateForSelectedFormat =
-    config.outputFormat === 'pdf' ? generatePdf : config.outputFormat === 'excel' ? exportExcel : pushToSheets;
-  const formatLabel = config.outputFormat === 'pdf' ? 'PDF' : config.outputFormat === 'excel' ? 'Excel' : 'Google Sheets';
+  // same PDF/Excel options again as separate buttons.
+  const formatSupported = config.outputFormat === 'pdf' ? report.supportsPdf : report.supportsExcel;
+  const generateForSelectedFormat = config.outputFormat === 'pdf' ? generatePdf : exportExcel;
+  const formatLabel = config.outputFormat === 'pdf' ? 'PDF' : 'Excel';
   const FormatIcon = config.outputFormat === 'pdf' ? FileText : FileSpreadsheet;
 
   return (
@@ -63,7 +60,6 @@ export default function ReportConfigPanel() {
           )}
           <ReportFilterSection report={report} config={config} onChange={updateConfig} />
           <OutputFormatToggle report={report} config={config} onChange={updateConfig} />
-          <GoogleSheetsConnector visible={config.outputFormat === 'google_sheets'} />
           <PdfOptionsSection config={config} onChange={updateConfig} reportType={selectedReportType} />
 
           <ReportPreview reportType={selectedReportType} config={config} companyId={companyId} />
@@ -71,8 +67,8 @@ export default function ReportConfigPanel() {
           <section className="space-y-3">
             <GenerationStatusMessage status={generationStatus} />
             {isGenerating && <GenerationProgressBar progress={generationProgress} />}
-            <GenerationErrorState message={generationError} onRetry={config.outputFormat === 'pdf' ? generatePdf : config.outputFormat === 'excel' ? exportExcel : pushToSheets} />
-            <ReportReadyActions downloadUrl={lastDownloadUrl} sheetsUrl={lastSheetsUrl} />
+            <GenerationErrorState message={generationError} onRetry={generateForSelectedFormat} />
+            <ReportReadyActions downloadUrl={lastDownloadUrl} />
           </section>
         </div>
 

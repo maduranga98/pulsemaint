@@ -126,12 +126,10 @@ exports.checkOverdueOffboardReports = checkOverdueOffboardReports;
 // ---------------------------------------------------------------------------
 
 const { generateReport } = require("./src/reports/generateReport");
-const { pushToGoogleSheets } = require("./src/reports/pushToGoogleSheets");
 const { cleanupOldReports } = require("./src/reports/cleanupOldReports");
 const { generateScheduledReport } = require("./src/reports/generateScheduledReport");
 
 exports.generateReport = generateReport;
-exports.pushToGoogleSheets = pushToGoogleSheets;
 exports.cleanupOldReports = cleanupOldReports;
 exports.generateScheduledReport = generateScheduledReport;
 

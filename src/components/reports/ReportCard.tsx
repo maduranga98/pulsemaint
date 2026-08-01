@@ -22,7 +22,6 @@ export default function ReportCard({
       <div className="mt-4 flex flex-wrap gap-2">
         {report.supportsPdf && <ReportFormatChip format="pdf" />}
         {report.supportsExcel && <ReportFormatChip format="excel" />}
-        {report.supportsSheets && <ReportFormatChip format="google_sheets" />}
       </div>
 
       <div className="mt-4 flex justify-end">

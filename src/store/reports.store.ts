@@ -4,8 +4,6 @@ import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { resolveQuickDateRange } from '../utils/reports/dateRangeUtils';
 import { exportGenericReportExcel } from '../utils/reports/excel/reports/genericReportExcel';
 import { exportGenericReportPdf } from '../utils/reports/pdf/genericReportPdf';
-import { exportGenericReportCsv } from '../utils/reports/csv/genericReportCsv';
-import { exportGenericReportSheets } from '../utils/reports/sheets/genericReportSheets';
 import {
   createReportHistory,
   deleteReportHistory as deleteReportHistoryDoc,
@@ -53,7 +51,6 @@ interface ReportsStore {
   generationProgress: number;
   lastGeneratedReportId: string | null;
   lastDownloadUrl: string | null;
-  lastSheetsUrl: string | null;
   generationError: string | null;
   reportHistory: ReportHistory[];
   historyLoading: boolean;
@@ -64,7 +61,6 @@ interface ReportsStore {
   resetConfig: () => void;
   generatePdf: () => Promise<void>;
   exportExcel: () => Promise<void>;
-  pushToSheets: () => Promise<void>;
   fetchReportHistory: () => Promise<void>;
   deleteReportHistory: (reportId: string) => Promise<void>;
   updateHistoryFilters: (updates: Partial<ReportHistoryFilters>) => void;
@@ -87,7 +83,6 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
   generationProgress: 0,
   lastGeneratedReportId: null,
   lastDownloadUrl: null,
-  lastSheetsUrl: null,
   generationError: null,
   reportHistory: [],
   historyLoading: false,
@@ -106,8 +101,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
     generationProgress: 0,
     generationError: null,
     lastDownloadUrl: null,
-    lastSheetsUrl: null,
-  }),
+    }),
   closeConfigPanel: () => set({ isConfigPanelOpen: false }),
   updateConfig: (updates) => set((state) => ({ config: { ...state.config, ...updates } })),
   resetConfig: () => set({ config: defaultConfig }),
@@ -193,92 +187,6 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
       set({
         generationStatus: 'error',
         generationError: err instanceof Error ? err.message : 'Excel export failed.',
-      });
-    }
-  },
-
-  pushToSheets: async () => {
-    const { selectedReportType, config } = get();
-    const { companyId } = getAuthContext();
-    if (!selectedReportType || !companyId) {
-      set({
-        generationStatus: 'error',
-        generationError: !companyId
-          ? 'Missing company context. Please log in again.'
-          : 'Please select a report type before exporting.',
-      });
-      return;
-    }
-    if (!config.dateFrom || !config.dateTo) {
-      set({
-        generationStatus: 'error',
-        generationError: 'Please choose a Date From and Date To before exporting.',
-      });
-      return;
-    }
-    const googleAccessToken = localStorage.getItem('pulsemaint_google_sheets_token') ?? '';
-    if (!googleAccessToken) {
-      // Sheets isn't connected — fall back to a CSV download that imports
-      // directly into Google Sheets, so the action still produces a file.
-      set({ generationStatus: 'building', generationProgress: 45, generationError: null });
-      try {
-        const { userId, userName } = getAuthContext();
-        const rowCount = await exportGenericReportCsv(selectedReportType, companyId, config);
-        const reportId = await createReportHistory({
-          companyId,
-          reportType: selectedReportType,
-          generatedBy: userId,
-          generatedByName: userName,
-          format: 'csv',
-          config,
-          rowCount,
-        });
-        set({ generationStatus: 'ready', generationProgress: 100, lastGeneratedReportId: reportId });
-      } catch (err) {
-        set({
-          generationStatus: 'error',
-          generationError: err instanceof Error ? err.message : 'CSV export failed.',
-        });
-      }
-      return;
-    }
-    set({ generationStatus: 'building', generationProgress: 45, generationError: null });
-    try {
-      const { userId, userName } = getAuthContext();
-      // Push directly to Google Sheets from the browser using the OAuth token.
-      const { rowCount, sheetsUrl } = await exportGenericReportSheets(
-        selectedReportType,
-        companyId,
-        config,
-        googleAccessToken,
-      );
-      const reportId = await createReportHistory({
-        companyId,
-        reportType: selectedReportType,
-        generatedBy: userId,
-        generatedByName: userName,
-        format: 'google_sheets',
-        config,
-        rowCount,
-        googleSheetsUrl: sheetsUrl,
-      });
-      set({
-        generationStatus: 'ready',
-        generationProgress: 100,
-        lastGeneratedReportId: reportId,
-        lastSheetsUrl: sheetsUrl,
-      });
-    } catch (err) {
-      // If the token is stale/invalid, prompt a reconnect.
-      const msg = err instanceof Error ? err.message : 'Google Sheets export failed.';
-      if (/401|403|invalid|unauthor/i.test(msg)) {
-        localStorage.removeItem('pulsemaint_google_sheets_token');
-      }
-      set({
-        generationStatus: 'error',
-        generationError: /401|403|invalid|unauthor/i.test(msg)
-          ? 'Google session expired. Please reconnect Google Sheets and try again.'
-          : msg,
       });
     }
   },
