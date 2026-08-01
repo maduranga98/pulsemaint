@@ -200,7 +200,7 @@ export function MachineProfilePage() {
 
       {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex gap-1 border-b border-gray-200 bg-white">
+        <div className="flex gap-1 border-b border-gray-200 bg-white overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.name}
@@ -210,7 +210,7 @@ export function MachineProfilePage() {
                 }
               }}
               disabled={tab.name === 'analytics' && analyticsTabDisabled}
-              className={`px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
+              className={`shrink-0 whitespace-nowrap px-4 py-3 font-medium text-sm border-b-2 transition-colors ${
                 activeTab === tab.name
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-600 hover:text-gray-900'

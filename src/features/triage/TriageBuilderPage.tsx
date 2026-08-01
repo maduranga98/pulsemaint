@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { BookOpen, ClipboardList, Lock, Users } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { ContentBuilder } from './components/builder/ContentBuilder';
 import { ContactBuilder } from './components/builder/ContactBuilder';
@@ -6,10 +7,10 @@ import { AssessmentBuilder } from './components/builder/AssessmentBuilder';
 
 type Tab = 'content' | 'contacts' | 'assessments';
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'content', label: 'Content & Categories', icon: '📚' },
-  { id: 'contacts', label: 'Contacts', icon: '👥' },
-  { id: 'assessments', label: 'Assessments', icon: '📋' },
+const TABS: { id: Tab; label: string; icon: typeof BookOpen }[] = [
+  { id: 'content', label: 'Content & Categories', icon: BookOpen },
+  { id: 'contacts', label: 'Contacts', icon: Users },
+  { id: 'assessments', label: 'Assessments', icon: ClipboardList },
 ];
 
 const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer'] as const;
@@ -22,7 +23,7 @@ export default function TriageBuilderPage() {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="text-4xl mb-4">🔒</div>
+          <Lock className="w-10 h-10 mx-auto mb-4" style={{ color: '#6b7fa3' }} />
           <h2 className="text-lg font-semibold mb-2" style={{ color: '#e2e8f0' }}>
             Access Restricted
           </h2>
@@ -60,7 +61,7 @@ export default function TriageBuilderPage() {
               color: activeTab === tab.id ? 'white' : '#6b7fa3',
             }}
           >
-            <span>{tab.icon}</span>
+            <tab.icon className="w-4 h-4" />
             <span>{tab.label}</span>
           </button>
         ))}
