@@ -13,7 +13,7 @@ const TABS: { id: Tab; label: string; icon: typeof BookOpen }[] = [
   { id: 'assessments', label: 'Assessments', icon: ClipboardList },
 ];
 
-const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer'] as const;
+const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer'] as const;
 
 export default function TriageBuilderPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -28,7 +28,7 @@ export default function TriageBuilderPage() {
             Access Restricted
           </h2>
           <p className="text-sm" style={{ color: '#6b7fa3' }}>
-            The Triage Builder is available to Supervisors, Plant Managers, and Admins only.
+            The Triage Builder is available to Supervisors, Plant Managers, HR Officers, Safety Officers, and Admins only.
           </p>
         </div>
       </div>

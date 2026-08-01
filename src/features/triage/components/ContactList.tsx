@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { Phone, Siren, Trash2, User, UserCog } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { deleteContact, COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
@@ -29,7 +30,7 @@ export function ContactList({ showDelete = false }: Props) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
-        <span className="text-2xl">🟤</span>
+        <UserCog className="w-6 h-6" style={{ color: '#f97316' }} />
         <div>
           <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
             Responsible Persons
@@ -62,8 +63,8 @@ export function ContactList({ showDelete = false }: Props) {
             }}
           >
             <div className="flex items-start gap-3">
-              <span className="text-xl shrink-0">
-                {contact.level === 'emergency' ? '🚨' : '👤'}
+              <span className="shrink-0" style={{ color: contact.level === 'emergency' ? '#ef4444' : '#6b7fa3' }}>
+                {contact.level === 'emergency' ? <Siren className="w-5 h-5" /> : <User className="w-5 h-5" />}
               </span>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm" style={{ color: '#e2e8f0' }}>
@@ -79,16 +80,16 @@ export function ContactList({ showDelete = false }: Props) {
                     color: contact.level === 'emergency' ? '#ef4444' : '#e2e8f0',
                   }}
                 >
-                  📞 {contact.phone}
+                  <Phone className="w-3 h-3" /> {contact.phone}
                 </div>
               </div>
               {showDelete && (
                 <button
                   onClick={() => deleteContact(contact.id)}
-                  className="text-lg opacity-50 hover:opacity-100 transition-opacity"
+                  className="opacity-50 hover:opacity-100 transition-opacity"
                   title="Delete contact"
                 >
-                  🗑
+                  <Trash2 className="w-4 h-4" />
                 </button>
               )}
             </div>
