@@ -4,9 +4,8 @@ import {
   computeMoeSummaries,
   aggregatePlantMoe,
   fetchMoeConfig,
-  fetchMoeTrendForMachine,
 } from '../services/moe.service';
-import type { MoeConfig, MoePlantAggregate, MoeTrendPoint } from '../types/moe.types';
+import type { MoeConfig, MoePlantAggregate } from '../types/moe.types';
 
 function subtractRangeDuration(start: Date, end: Date): { start: Date; end: Date } {
   const durationMs = end.getTime() - start.getTime();
@@ -57,39 +56,6 @@ export function useMoeDashboard(start: Date, end: Date) {
   }, [load]);
 
   return { data, config, loading, error, reload: load };
-}
-
-export function useMoeMachineTrend(machineId: string | null, start: Date, end: Date) {
-  const siteId = useSiteId();
-  const [trend, setTrend] = useState<MoeTrendPoint[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    if (!siteId || !machineId) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    fetchMoeTrendForMachine(siteId, machineId, start, end)
-      .then((res) => {
-        if (!cancelled) setTrend(res);
-      })
-      .catch((e) => {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to compute MOE trend');
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [siteId, machineId, start.getTime(), end.getTime()]);
-
-  return { trend, loading, error };
 }
 
 export function useMoeConfig() {
