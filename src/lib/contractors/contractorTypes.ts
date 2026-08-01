@@ -179,6 +179,16 @@ export interface ContractorDocument {
   lastExpiryNotificationKey?: string | null;
 }
 
+/** An uploaded certification file attached to a contractor team member. */
+export interface TechnicianCertificationDoc {
+  id: string;
+  name: string;
+  url: string;
+  storagePath: string;
+  fileSize: number;
+  uploadedAt: Timestamp;
+}
+
 export interface ContractorTechnician {
   id: string;
   contractorId: string;
@@ -190,6 +200,8 @@ export interface ContractorTechnician {
   designation: TechnicianDesignation;
   specialization: ContractorSpecializationTag[];
   certifications: string[];
+  /** Uploaded certification files, viewable/downloadable from the profile. */
+  certificationDocuments?: TechnicianCertificationDoc[];
   phone?: string;
   email?: string;
   status: TechnicianStatus;

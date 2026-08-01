@@ -264,6 +264,7 @@ export function CreateWODrawer({
       contractorContactPerson: null,
       contractorContactNumber: null,
       contractorTechnicianNames: [],
+      contractorTechnicianIds: [],
       isManualContractor: false,
       checklist: [],
       partsRequests: [],

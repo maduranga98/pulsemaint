@@ -57,6 +57,23 @@ export function TechnicianDetailModal({ technician, onClose }: TechnicianDetailM
           <dt className="text-slate-400">Certifications</dt>
           <dd className="text-slate-900">{technician.certifications.join(', ') || '-'}</dd>
         </div>
+
+        {(technician.certificationDocuments?.length ?? 0) > 0 && (
+          <div className="mt-4 text-sm">
+            <dt className="mb-1 text-slate-400">Certification files</dt>
+            <ul className="space-y-1">
+              {technician.certificationDocuments!.map((d) => (
+                <li key={d.id} className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-1.5">
+                  <span className="truncate text-slate-800">{d.name}</span>
+                  <span className="ml-3 flex shrink-0 gap-3 text-xs font-medium">
+                    <a href={d.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">View</a>
+                    <a href={d.url} download={d.name} className="text-blue-600 hover:underline">Download</a>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

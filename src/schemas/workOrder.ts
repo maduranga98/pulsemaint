@@ -120,6 +120,7 @@ export const woSection3InternalSchema = z.object({
   contractorContactPerson: z.null().default(null),
   contractorContactNumber: z.null().default(null),
   contractorTechnicianNames: z.array(z.string()).default([]),
+  contractorTechnicianIds: z.array(z.string()).default([]),
   isManualContractor: z.literal(false).default(false),
 });
 
@@ -135,6 +136,7 @@ export const woSection3ContractorSchema = z.object({
   contractorContactPerson: z.string().min(1, 'Contact person is required'),
   contractorContactNumber: z.string().min(1, 'Contact number is required'),
   contractorTechnicianNames: z.array(z.string()),
+  contractorTechnicianIds: z.array(z.string()).default([]),
   isManualContractor: z.boolean(),
 });
 
@@ -167,6 +169,7 @@ export const createWOSchema = woSection1Schema
       contractorContactPerson: z.string().nullable(),
       contractorContactNumber: z.string().nullable(),
       contractorTechnicianNames: z.array(z.string()),
+  contractorTechnicianIds: z.array(z.string()).default([]),
       isManualContractor: z.boolean(),
     }),
   )

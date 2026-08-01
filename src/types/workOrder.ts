@@ -260,6 +260,7 @@ export interface WorkOrder {
   contractorContactPerson: string | null;
   contractorContactNumber: string | null;
   contractorTechnicianNames: string[];
+  contractorTechnicianIds: string[];
   isManualContractor: boolean;
 
   // Task Checklist
@@ -362,6 +363,7 @@ export interface MachineHistoryEntry {
   internalTeamNames: string[];
   contractorName: string | null;
   contractorTechnicianNames: string[];
+  contractorTechnicianIds: string[];
   partsUsed: PartUsed[];
   totalPartsCost: number;
   testRunResult: string;
@@ -407,6 +409,7 @@ export interface CreateWOPayload {
   contractorContactPerson: string | null;
   contractorContactNumber: string | null;
   contractorTechnicianNames: string[];
+  contractorTechnicianIds: string[];
   isManualContractor: boolean;
 
   checklist: Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>[];

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -16,6 +17,7 @@ import type {
   TechnicianStatus,
 } from '@/lib/contractors/contractorTypes';
 import PhotoUploadCrop from './PhotoUploadCrop';
+import type { TechnicianCertificationDoc } from '@/lib/contractors/contractorTypes';
 
 export function TechnicianForm() {
   const navigate = useNavigate();
@@ -31,6 +33,8 @@ export function TechnicianForm() {
   const [email, setEmail] = useState('');
   const [specialization, setSpecialization] = useState<ContractorSpecializationTag[]>([]);
   const [certifications, setCertifications] = useState('');
+  const [certFiles, setCertFiles] = useState<File[]>([]);
+  const [existingCertDocs, setExistingCertDocs] = useState<TechnicianCertificationDoc[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | undefined>();
   const [saving, setSaving] = useState(false);
@@ -51,6 +55,7 @@ export function TechnicianForm() {
       setEmail(data.email ?? '');
       setSpecialization(data.specialization ?? []);
       setCertifications((data.certifications ?? []).join(', '));
+      setExistingCertDocs((data.certificationDocuments ?? []) as TechnicianCertificationDoc[]);
       setExistingPhotoUrl(data.photoUrl);
     })();
     return () => { cancelled = true; };
@@ -91,6 +96,25 @@ export function TechnicianForm() {
         .map((c) => c.trim())
         .filter(Boolean);
 
+      // Upload any newly attached certification files and keep the existing ones.
+      const uploadedCertDocs: TechnicianCertificationDoc[] = await Promise.all(
+        certFiles.map(async (file) => {
+          const path = `contractors/${contractorId}/technicians/certifications/${Date.now()}_${file.name}`;
+          const sref = storageRef(storage, path);
+          await uploadBytes(sref, file);
+          const url = await getDownloadURL(sref);
+          return {
+            id: nanoid(),
+            name: file.name,
+            url,
+            storagePath: path,
+            fileSize: file.size,
+            uploadedAt: Timestamp.now(),
+          };
+        }),
+      );
+      const certificationDocuments = [...existingCertDocs, ...uploadedCertDocs];
+
       const payload: Record<string, unknown> = {
         companyId: userProfile.companyId,
         contractorId,
@@ -103,6 +127,7 @@ export function TechnicianForm() {
         email: email.trim(),
         specialization,
         certifications: certList,
+        certificationDocuments,
         photoUrl,
         updatedAt: serverTimestamp(),
       };
@@ -162,6 +187,34 @@ export function TechnicianForm() {
         </div>
       </div>
       <input placeholder="Certifications, comma separated" value={certifications} onChange={(e) => setCertifications(e.target.value)} className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm" />
+
+      <div>
+        <p className="mb-1 text-sm font-medium text-slate-700">Certification attachments</p>
+        {existingCertDocs.length > 0 && (
+          <ul className="mb-2 space-y-1">
+            {existingCertDocs.map((d) => (
+              <li key={d.id} className="flex items-center justify-between rounded-md bg-slate-50 px-2 py-1 text-xs text-slate-600">
+                <a href={d.url} target="_blank" rel="noreferrer" className="truncate text-blue-600 hover:underline">{d.name}</a>
+                <button type="button" onClick={() => setExistingCertDocs((prev) => prev.filter((x) => x.id !== d.id))} className="ml-2 text-slate-400 hover:text-red-500">✕</button>
+              </li>
+            ))}
+          </ul>
+        )}
+        <input
+          type="file"
+          multiple
+          onChange={(e) => setCertFiles(Array.from(e.target.files ?? []))}
+          className="text-sm"
+        />
+        {certFiles.length > 0 && (
+          <ul className="mt-1 space-y-0.5">
+            {certFiles.map((f, i) => (
+              <li key={i} className="truncate text-xs text-slate-500">{f.name}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <button type="submit" disabled={saving} className="rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
         {saving ? 'Saving…' : 'Save Technician'}
       </button>
