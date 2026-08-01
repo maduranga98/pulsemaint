@@ -581,7 +581,8 @@ export async function fetchReportRows(
         supervisorName: String(p.supervisorName ?? ''),
         completion: COMPLETION_LABEL[String(p.completion)] ?? String(p.completion ?? ''),
         signedOffByName: String(p.signedOffByName ?? ''),
-        signedOffAt: (p.signedOffAt as Timestamp | undefined)?.toDate?.().toLocaleDateString() ?? '',
+        // Full date + time, so the report shows exactly when it was signed off.
+        signedOffAt: (p.signedOffAt as Timestamp | undefined)?.toDate?.().toLocaleString() ?? '',
       }));
   }
 
