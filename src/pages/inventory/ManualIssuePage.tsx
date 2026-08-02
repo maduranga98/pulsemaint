@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ScanLine, PackageMinus, Trash2, Search } from 'lucide-react';
 import {
   collection,
@@ -11,6 +11,7 @@ import {
   runTransaction,
   serverTimestamp,
 } from 'firebase/firestore';
+import { nanoid } from 'nanoid';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
@@ -26,7 +27,13 @@ import {
   setLineQuantity,
   type IssueCartLine,
 } from '@/lib/inventory/issueCart';
-import type { InventoryPart } from '@/types/inventory';
+import type { InventoryPart, RequestItem } from '@/types/inventory';
+
+function makeRequestNumber(): string {
+  const d = new Date();
+  const ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
+  return `PR-${ymd}-${nanoid(5).toUpperCase()}`;
+}
 
 const ISSUE_REASONS = [
   'Breakdown repair (no WO request raised)',
@@ -38,6 +45,7 @@ const ISSUE_REASONS = [
 
 export function ManualIssuePage() {
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
 
@@ -133,6 +141,11 @@ export function ManualIssuePage() {
     setSubmitting(true);
     try {
       const selectedWo = workOrders.find((wo) => wo.id === workOrderId);
+      // A manual issue still needs to be physically handed over and confirmed
+      // — it's reserved here (stock deducted, request parked in "Parts to
+      // Collect"), not completed, so it goes through the same collection
+      // step as a normal request-based issue.
+      const requestRef = doc(collection(db, 'partsRequests'));
 
       await runTransaction(db, async (tx) => {
         // Firestore requires every read before any write, so read all the
@@ -142,6 +155,7 @@ export function ManualIssuePage() {
         const partSnaps = await Promise.all(partRefs.map((ref) => tx.get(ref)));
 
         const now = serverTimestamp();
+        const requestItems: RequestItem[] = [];
 
         lines.forEach((line, idx) => {
           const partSnap = partSnaps[idx];
@@ -160,10 +174,13 @@ export function ManualIssuePage() {
         lines.forEach((line, idx) => {
           const data = partSnaps[idx].data() as Record<string, unknown>;
           const currentStock = (data.currentStock as number) ?? 0;
+          const reservedStock = (data.reservedStock as number) ?? 0;
           const totalUsedAllTime = (data.totalUsedAllTime as number) ?? 0;
+          const newCurrent = currentStock - line.quantity;
 
           tx.update(partRefs[idx], {
-            currentStock: currentStock - line.quantity,
+            currentStock: newCurrent,
+            availableStock: Math.max(0, newCurrent - reservedStock),
             totalUsedAllTime: totalUsedAllTime + line.quantity,
             lastIssuedAt: now,
             updatedAt: now,
@@ -179,30 +196,83 @@ export function ManualIssuePage() {
             movementType: 'issue',
             quantityBefore: currentStock,
             quantityChange: -line.quantity,
-            quantityAfter: currentStock - line.quantity,
-            referenceType: 'manual_qr_issue',
-            referenceId: null,
+            quantityAfter: newCurrent,
+            referenceType: 'parts_request',
+            referenceId: requestRef.id,
             workOrderId: selectedWo?.id ?? null,
             workOrderNumber: selectedWo?.woNumber ?? null,
-            partsRequestId: null,
+            partsRequestId: requestRef.id,
             performedBy: userProfile.id,
             performedByName: userProfile.fullName,
             performedByRole: userProfile.role,
             performedAt: now,
-            notes: finalReason,
+            notes: `${finalReason} — issued, awaiting collection`,
             unitCostAtTime: line.unitCost,
             totalCostImpact: line.unitCost * line.quantity,
           });
+
+          requestItems.push({
+            id: nanoid(),
+            partId: line.partId,
+            partNumber: line.partNumber,
+            partName: line.partName,
+            unitCost: line.unitCost,
+            quantityRequested: line.quantity,
+            quantityApproved: line.quantity,
+            quantityIssued: line.quantity,
+            quantityReturned: 0,
+            unit: line.unit as RequestItem['unit'],
+            notes: '',
+            availableAtRequest: currentStock,
+            isAvailable: true,
+            isCritical: false,
+          });
+        });
+
+        tx.set(requestRef, {
+          companyId,
+          requestNumber: makeRequestNumber(),
+          workOrderId: selectedWo?.id ?? null,
+          workOrderNumber: selectedWo?.woNumber ?? null,
+          workOrderType: selectedWo?.woType ?? null,
+          machineId: selectedWo?.machineId ?? null,
+          machineName: selectedWo?.machineName ?? null,
+          requestedBy: userProfile.id,
+          requestedByName: userProfile.fullName,
+          requestedByRole: userProfile.role,
+          requestedAt: now,
+          purpose: finalReason,
+          isContractorJob: false,
+          contractorCompany: null,
+          items: requestItems,
+          totalEstimatedCost: totals.totalCost,
+          totalApprovedCost: totals.totalCost,
+          status: 'parts_reserved',
+          storeKeeperReview: null,
+          supervisorReview: null,
+          reservedAt: now,
+          issuedAt: now,
+          issuedBy: userProfile.id,
+          issuedByName: userProfile.fullName,
+          collectedByName: null,
+          collectedAt: null,
+          confirmedBy: null,
+          confirmedByName: null,
+          completedAt: null,
+          returnedAt: null,
+          priorityLevel: 'medium',
+          isUrgent: false,
         });
       });
 
       addToast(
         lines.length === 1
-          ? 'Part issued successfully.'
-          : `${lines.length} parts issued successfully.`,
+          ? 'Part reserved — mark it collected from Parts to Collect once handed over.'
+          : `${lines.length} parts reserved — mark them collected from Parts to Collect once handed over.`,
         'success',
       );
       reset();
+      navigate(`/app/inventory/requests/${requestRef.id}`);
     } catch (err) {
       console.error(err);
       addToast(err instanceof Error ? err.message : 'Failed to issue parts.', 'error');
