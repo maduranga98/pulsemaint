@@ -28,7 +28,7 @@ export function PartReturnsPage() {
   const [activeTab, setActiveTab] = useState<TabId>('pending');
   const { returns, loading } = usePartReturns({ status: activeTab });
 
-  async function handleConfirm(partReturn: PartReturn) {
+  async function handleConfirm(partReturn: PartReturn, condition: 'good' | 'damaged' | 'wrong_item', notes: string) {
     try {
       await runTransaction(db, async (tx) => {
         const returnRef = doc(db, 'partReturns', partReturn.id);
@@ -48,7 +48,10 @@ export function PartReturnsPage() {
         const partData = partSnap.data();
         const currentStock = (partData.currentStock as number) ?? 0;
         const reservedStock = (partData.reservedStock as number) ?? 0;
-        const newCurrent = currentStock + partReturn.quantity;
+        // Damaged / wrong-item returns still close out the loan, but aren't
+        // fit to go back on the shelf as sellable stock.
+        const restock = condition === 'good' ? partReturn.quantity : 0;
+        const newCurrent = currentStock + restock;
 
         tx.update(partRef, {
           currentStock: newCurrent,
@@ -62,6 +65,8 @@ export function PartReturnsPage() {
           storeKeeperConfirmedBy: userId,
           storeKeeperConfirmedByName: userName,
           storeKeeperConfirmedAt: serverTimestamp(),
+          condition,
+          notes,
         });
 
         const movementRef = doc(collection(db, 'stockMovements'));
@@ -72,7 +77,7 @@ export function PartReturnsPage() {
           partName: partReturn.partName,
           movementType: 'return',
           quantityBefore: currentStock,
-          quantityChange: partReturn.quantity,
+          quantityChange: restock,
           quantityAfter: newCurrent,
           referenceType: 'parts_request',
           referenceId: partReturn.partsRequestId,
@@ -83,7 +88,7 @@ export function PartReturnsPage() {
           performedByName: userName,
           performedByRole: userRole,
           performedAt: serverTimestamp(),
-          notes: 'Returnable part confirmed returned',
+          notes: notes || `Returnable part received (${condition.replace('_', ' ')})`,
           unitCostAtTime: 0,
           totalCostImpact: 0,
         });

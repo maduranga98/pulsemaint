@@ -1,10 +1,44 @@
-import type { PartsRequest, RequestStatus } from '@/types/inventory';
+import type { Timestamp } from 'firebase/firestore';
+import type { PartsRequest, PartReturnStatus, RequestStatus } from '@/types/inventory';
 import { RequestPriorityBadge } from './RequestPriorityBadge';
 import { CostDisplay } from '@/components/inventory/shared/CostDisplay';
 
+export interface ReturnInfo {
+  status: PartReturnStatus;
+  at: Timestamp | null;
+  byName: string | null;
+}
+
 interface Props {
   request: PartsRequest;
+  returnInfo?: ReturnInfo | null;
   onReview: () => void;
+}
+
+const RETURN_BADGE: Record<PartReturnStatus, { label: string; className: string }> = {
+  pending: { label: 'Return Pending', className: 'bg-purple-100 text-purple-700' },
+  returned: { label: 'Returned', className: 'bg-green-100 text-green-700' },
+  rejected: { label: 'Return Rejected', className: 'bg-red-100 text-red-700' },
+  cancelled: { label: 'Return Cancelled', className: 'bg-gray-100 text-gray-500' },
+};
+
+export function ReturnCell({ returnInfo, hasPendingReturn }: { returnInfo?: ReturnInfo | null; hasPendingReturn: boolean }) {
+  if (!returnInfo) {
+    if (!hasPendingReturn) return <span className="text-gray-300">—</span>;
+    return <span className="text-xs text-gray-400">Not yet requested</span>;
+  }
+  const cfg = RETURN_BADGE[returnInfo.status];
+  return (
+    <div>
+      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cfg.className}`}>
+        {cfg.label}
+      </span>
+      <p className="text-xs text-gray-400 mt-0.5">
+        {returnInfo.byName && <>{returnInfo.byName} · </>}
+        {returnInfo.at?.toDate?.().toLocaleString?.() ?? ''}
+      </p>
+    </div>
+  );
 }
 
 function formatAge(ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } {
@@ -29,7 +63,7 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
   cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
 };
 
-export function RequestQueueRow({ request, onReview }: Props) {
+export function RequestQueueRow({ request, returnInfo, onReview }: Props) {
   const age = formatAge(request.requestedAt);
   const statusCfg = STATUS_BADGE[request.status] ?? { label: request.status, className: 'bg-gray-100 text-gray-600' };
   const firstPart = request.items[0]?.partName ?? '';
@@ -69,11 +103,9 @@ export function RequestQueueRow({ request, onReview }: Props) {
         >
           {statusCfg.label}
         </span>
-        {hasPendingReturn && (
-          <span className="ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
-            Return Pending
-          </span>
-        )}
+      </td>
+      <td className="px-4 py-3 whitespace-nowrap">
+        <ReturnCell returnInfo={returnInfo} hasPendingReturn={hasPendingReturn} />
       </td>
       <td className={`px-4 py-3 text-sm whitespace-nowrap ${age.isOld ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
         {age.label}
