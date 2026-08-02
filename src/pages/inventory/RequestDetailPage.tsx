@@ -233,7 +233,11 @@ export function RequestDetailPage() {
   // Collected → completed (and the issued parts are recorded on the linked WO).
   // Not collected → the previously-deducted stock is returned and the request
   // is closed.
-  async function handleCollection(collected: boolean, collectorName: string) {
+  async function handleCollection(
+    collected: boolean,
+    collectorName: string,
+    returnableItemIds?: Record<string, boolean>,
+  ) {
     if (!request) return;
 
     const issuedQtyFor = (item: (typeof request.items)[number]) =>
@@ -250,6 +254,10 @@ export function RequestDetailPage() {
             collectedAt: nowTs,
             confirmedBy: userId,
             confirmedByName: userName,
+            items: request.items.map((item) => ({
+              ...item,
+              isReturnable: !!returnableItemIds?.[item.id],
+            })),
             updatedAt: serverTimestamp(),
           });
 
@@ -348,6 +356,45 @@ export function RequestDetailPage() {
     }
   }
 
+  // Requester marks a returnable, already-collected item as being handed
+  // back. Creates a pending `partReturns` doc — stock isn't touched until a
+  // store keeper confirms it from the Part Returns queue.
+  async function handleRequestReturn(itemId: string, quantity: number) {
+    if (!request) return;
+    const item = request.items.find((i) => i.id === itemId);
+    if (!item || quantity <= 0) return;
+
+    try {
+      await addDoc(collection(db, 'partReturns'), {
+        companyId,
+        partsRequestId: request.id,
+        requestNumber: request.requestNumber,
+        partId: item.partId,
+        partNumber: item.partNumber,
+        partName: item.partName,
+        quantity,
+        unit: item.unit,
+        requestedBy: userId,
+        requestedByName: userName,
+        requestedAt: serverTimestamp(),
+        status: 'pending',
+        storeKeeperConfirmedBy: null,
+        storeKeeperConfirmedByName: null,
+        storeKeeperConfirmedAt: null,
+        notes: '',
+        workOrderId: request.workOrderId,
+        workOrderNumber: request.workOrderNumber,
+        machineId: request.machineId,
+        machineName: request.machineName,
+        issuedAt: request.issuedAt,
+      });
+      addToast('Return requested — a store keeper will confirm it.', 'success');
+    } catch (err) {
+      addToast('Failed to request return.', 'error');
+      console.error(err);
+    }
+  }
+
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
       <Link
@@ -369,6 +416,7 @@ export function RequestDetailPage() {
         request={request}
         onDecision={handleDecision}
         onCollection={handleCollection}
+        onRequestReturn={handleRequestReturn}
       />
 
       <RequestReviewHistory request={request} />

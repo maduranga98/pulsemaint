@@ -94,6 +94,7 @@ import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
 import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
 import SuppliersPage from '../pages/inventory/SuppliersPage';
 import ManualIssuePage from '../pages/inventory/ManualIssuePage';
+import PartReturnsPage from '../pages/inventory/PartReturnsPage';
 
 // Safety (EHS)
 import SafetyDashboard from '../modules/safety/pages/SafetyDashboard';
@@ -550,6 +551,14 @@ export default function AppRouter() {
         <Route path="safety/calendar" element={<ProtectedRoute><SafetyCalendarPage /></ProtectedRoute>} />
         <Route path="safety/analytics" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyAnalyticsPage /></ProtectedRoute>} />
 
+        <Route
+          path="inventory/returns"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <PartReturnsPage />
+            </ProtectedRoute>
+          }
+        />
         {/* Training - /training redirects based on role */}
 
         {/* Contractors */}

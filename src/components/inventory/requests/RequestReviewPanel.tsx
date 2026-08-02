@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, PackageCheck, Undo2, ArrowUp } from 'lucide-react';
+import { CheckCircle, XCircle, PackageCheck, Undo2, ArrowUp, RotateCcw } from 'lucide-react';
 import type { PartsRequest } from '@/types/inventory';
 import { useAuthStore } from '@/store/authStore';
+import { usePartReturns } from '@/hooks/inventory/usePartReturns';
 
 interface Props {
   request: PartsRequest;
@@ -11,8 +12,10 @@ interface Props {
     escalationReason?: string;
     rejectionReason?: string;
     approvedQuantities?: Record<string, number>;
+    returnableItemIds?: Record<string, boolean>;
   }) => Promise<void>;
-  onCollection: (collected: boolean, collectorName: string) => Promise<void>;
+  onCollection: (collected: boolean, collectorName: string, returnableItemIds?: Record<string, boolean>) => Promise<void>;
+  onRequestReturn: (itemId: string, quantity: number) => Promise<void>;
 }
 
 const ESCALATION_REASONS = [
@@ -33,8 +36,9 @@ function formatStatus(status: string): string {
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function RequestReviewPanel({ request, onDecision, onCollection }: Props) {
+export function RequestReviewPanel({ request, onDecision, onCollection, onRequestReturn }: Props) {
   const role = useAuthStore((s) => s.userProfile?.role);
+  const userId = useAuthStore((s) => s.userProfile?.id);
 
   const [isLoading, setIsLoading] = useState(false);
   const [activeAction, setActiveAction] = useState<
@@ -49,8 +53,21 @@ export function RequestReviewPanel({ request, onDecision, onCollection }: Props)
       request.items.map((i) => [i.id, i.quantityApproved > 0 ? i.quantityApproved : i.quantityRequested]),
     ),
   );
+  const [returnableItemIds, setReturnableItemIds] = useState<Record<string, boolean>>({});
+  const [returnQuantities, setReturnQuantities] = useState<Record<string, number>>({});
+  const [returningItemId, setReturningItemId] = useState<string | null>(null);
 
   const canManage = role === 'store_keeper' || role === 'supervisor' || role === 'admin' || role === 'plant_manager';
+  const isRequester = request.requestedBy === userId;
+
+  const { returns: myPendingReturns } = usePartReturns({ ownOnly: true, status: 'pending' });
+  const pendingReturnQtyFor = (itemId: string) => {
+    const item = request.items.find((i) => i.id === itemId);
+    if (!item) return 0;
+    return myPendingReturns
+      .filter((r) => r.partsRequestId === request.id && r.partId === item.partId)
+      .reduce((sum, r) => sum + r.quantity, 0);
+  };
 
   async function run(action: typeof activeAction, fn: () => Promise<void>) {
     setIsLoading(true);
@@ -82,6 +99,22 @@ export function RequestReviewPanel({ request, onDecision, onCollection }: Props)
 
         {canManage ? (
           <div className="space-y-3">
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-gray-600">Mark items as returnable</p>
+              {request.items.map((item) => (
+                <label key={item.id} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={!!returnableItemIds[item.id]}
+                    onChange={(e) =>
+                      setReturnableItemIds((prev) => ({ ...prev, [item.id]: e.target.checked }))
+                    }
+                    className="rounded text-indigo-600"
+                  />
+                  {item.partName}
+                </label>
+              ))}
+            </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Collected by</label>
               <input
@@ -94,7 +127,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection }: Props)
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => run('collect', () => onCollection(true, collectorName))}
+                onClick={() => run('collect', () => onCollection(true, collectorName, returnableItemIds))}
                 disabled={isLoading}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
@@ -121,26 +154,89 @@ export function RequestReviewPanel({ request, onDecision, onCollection }: Props)
   // ── Completed / issued (legacy) ───────────────────────────────────────────
   if (['issued', 'completed'].includes(request.status)) {
     const collectedAt = request.collectedAt ?? request.issuedAt;
+    const returnableItems = request.items.filter((i) => i.isReturnable && !i.isReturned);
     return (
-      <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-        <div className="flex items-center gap-2 text-green-700 font-semibold">
-          <CheckCircle className="w-5 h-5" />
-          <span>{formatStatus(request.status)}</span>
+      <div className="space-y-3">
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+          <div className="flex items-center gap-2 text-green-700 font-semibold">
+            <CheckCircle className="w-5 h-5" />
+            <span>{formatStatus(request.status)}</span>
+          </div>
+          <div className="text-sm text-green-700 mt-2 space-y-1">
+            {request.collectedByName && (
+              <p>
+                Collected by <strong>{request.collectedByName}</strong>
+                {collectedAt && <> on {collectedAt.toDate().toLocaleString()}</>}
+              </p>
+            )}
+            {(request.confirmedByName || request.issuedByName) && (
+              <p>
+                Confirmed by <strong>{request.confirmedByName ?? request.issuedByName}</strong>
+              </p>
+            )}
+            {!request.collectedByName && <p className="text-green-600">This request has been processed.</p>}
+          </div>
         </div>
-        <div className="text-sm text-green-700 mt-2 space-y-1">
-          {request.collectedByName && (
-            <p>
-              Collected by <strong>{request.collectedByName}</strong>
-              {collectedAt && <> on {collectedAt.toDate().toLocaleString()}</>}
-            </p>
-          )}
-          {(request.confirmedByName || request.issuedByName) && (
-            <p>
-              Confirmed by <strong>{request.confirmedByName ?? request.issuedByName}</strong>
-            </p>
-          )}
-          {!request.collectedByName && <p className="text-green-600">This request has been processed.</p>}
-        </div>
+
+        {isRequester && returnableItems.length > 0 && (
+          <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-purple-700 font-semibold">
+              <RotateCcw className="w-5 h-5" />
+              <span>Returnable Items</span>
+            </div>
+            {returnableItems.map((item) => {
+              const alreadyIssued = item.quantityIssued > 0 ? item.quantityIssued : item.quantityApproved;
+              const alreadyPending = pendingReturnQtyFor(item.id);
+              const remaining = Math.max(0, alreadyIssued - alreadyPending);
+              if (remaining <= 0) {
+                return (
+                  <div key={item.id} className="flex items-center justify-between text-sm text-purple-700">
+                    <span>{item.partName}</span>
+                    <span className="text-xs bg-purple-100 px-2 py-0.5 rounded-full">Return pending confirmation</span>
+                  </div>
+                );
+              }
+              return (
+                <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-800 truncate">{item.partName}</p>
+                    <p className="text-xs text-gray-500">Issued: {alreadyIssued} {item.unit}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <input
+                      type="number"
+                      min={1}
+                      max={remaining}
+                      value={returnQuantities[item.id] ?? remaining}
+                      onChange={(e) =>
+                        setReturnQuantities((prev) => ({
+                          ...prev,
+                          [item.id]: Math.min(remaining, Math.max(1, parseInt(e.target.value, 10) || 1)),
+                        }))
+                      }
+                      className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <button
+                      onClick={async () => {
+                        setReturningItemId(item.id);
+                        try {
+                          await onRequestReturn(item.id, returnQuantities[item.id] ?? remaining);
+                        } finally {
+                          setReturningItemId(null);
+                        }
+                      }}
+                      disabled={returningItemId === item.id}
+                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 disabled:opacity-50"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      {returningItemId === item.id ? 'Requesting…' : 'Mark as Returned'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   }
