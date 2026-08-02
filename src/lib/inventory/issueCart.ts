@@ -17,6 +17,8 @@ export interface IssueCartLine {
   availableStock: number;
   /** Quantity to issue. */
   quantity: number;
+  /** Whether this part is expected back in stock once the job is done. */
+  isReturnable: boolean;
 }
 
 /** Turns a scanned part into a fresh cart line with a quantity of 1. */
@@ -30,6 +32,7 @@ export function toCartLine(part: InventoryPart): IssueCartLine {
     storeLocation: part.storeLocation ?? '',
     availableStock: part.currentStock ?? 0,
     quantity: 1,
+    isReturnable: false,
   };
 }
 
@@ -66,6 +69,15 @@ export function setLineQuantity(
 ): IssueCartLine[] {
   const safe = Number.isFinite(quantity) ? Math.max(1, Math.floor(quantity)) : 1;
   return lines.map((line) => (line.partId === partId ? { ...line, quantity: safe } : line));
+}
+
+/** Toggles whether a line is expected back in stock (returnable). */
+export function setLineReturnable(
+  lines: IssueCartLine[],
+  partId: string,
+  isReturnable: boolean,
+): IssueCartLine[] {
+  return lines.map((line) => (line.partId === partId ? { ...line, isReturnable } : line));
 }
 
 /** Removes a line from the batch. */

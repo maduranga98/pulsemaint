@@ -16,7 +16,9 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { useWorkOrders } from '@/hooks/useWorkOrders';
+import { useCompanyUsers } from '@/hooks/useCompanyUsers';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
+import { notifyUsers } from '@/services/notifications.service';
 import { PartQrScanModal } from '@/components/inventory/shared/PartQrScanModal';
 import {
   addScannedPart,
@@ -25,6 +27,7 @@ import {
   isCartIssuable,
   removeLine,
   setLineQuantity,
+  setLineReturnable,
   type IssueCartLine,
 } from '@/lib/inventory/issueCart';
 import type { InventoryPart, RequestItem } from '@/types/inventory';
@@ -59,9 +62,12 @@ export function ManualIssuePage() {
   const [reason, setReason] = useState(ISSUE_REASONS[0]);
   const [customReason, setCustomReason] = useState('');
   const [workOrderId, setWorkOrderId] = useState('');
+  const [recipientId, setRecipientId] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const { workOrders } = useWorkOrders({ status: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS'] });
+  const { users: companyUsers } = useCompanyUsers(companyId);
+  const recipientOptions = companyUsers.filter((u) => u.id !== userProfile?.id);
   const { parts: searchResults, loading: searching } = useInventoryParts({
     searchQuery: searchQuery.trim() || undefined,
     pageSize: 8,
@@ -121,6 +127,7 @@ export function ManualIssuePage() {
     setReason(ISSUE_REASONS[0]);
     setCustomReason('');
     setWorkOrderId('');
+    setRecipientId('');
     setShowScanner(false);
     setShowSearch(false);
     setSearchQuery('');
@@ -135,6 +142,11 @@ export function ManualIssuePage() {
     }
     if (!issuable) {
       addToast('Fix the highlighted quantities before issuing.', 'error');
+      return;
+    }
+    const recipient = recipientOptions.find((u) => u.id === recipientId);
+    if (!recipient) {
+      addToast('Select who is taking these parts.', 'error');
       return;
     }
 
@@ -226,6 +238,7 @@ export function ManualIssuePage() {
             availableAtRequest: currentStock,
             isAvailable: true,
             isCritical: false,
+            isReturnable: line.isReturnable,
           });
         });
 
@@ -237,9 +250,9 @@ export function ManualIssuePage() {
           workOrderType: selectedWo?.woType ?? null,
           machineId: selectedWo?.machineId ?? null,
           machineName: selectedWo?.machineName ?? null,
-          requestedBy: userProfile.id,
-          requestedByName: userProfile.fullName,
-          requestedByRole: userProfile.role,
+          requestedBy: recipient.id,
+          requestedByName: recipient.fullName,
+          requestedByRole: recipient.role,
           requestedAt: now,
           purpose: finalReason,
           isContractorJob: false,
@@ -265,10 +278,24 @@ export function ManualIssuePage() {
         });
       });
 
+      const anyReturnable = lines.some((line) => line.isReturnable);
+      void notifyUsers(companyId, [recipient.id], {
+        type: 'parts',
+        message: anyReturnable
+          ? `${userProfile.fullName} issued you ${lines.length} part${lines.length === 1 ? '' : 's'} — some are returnable, return them once done`
+          : `${userProfile.fullName} issued you ${lines.length} part${lines.length === 1 ? '' : 's'}`,
+        oversightMessage: `manually issued ${lines.length} part${lines.length === 1 ? '' : 's'} to ${recipient.fullName}`,
+        actorName: userProfile.fullName,
+        actorRole: userProfile.role,
+        actorUserId: userProfile.id,
+        severity: 'medium',
+        linkTo: `/app/inventory/requests/${requestRef.id}`,
+      });
+
       addToast(
         lines.length === 1
-          ? 'Part reserved — mark it collected from Parts to Collect once handed over.'
-          : `${lines.length} parts reserved — mark them collected from Parts to Collect once handed over.`,
+          ? `Part reserved for ${recipient.fullName} — mark it collected once handed over.`
+          : `${lines.length} parts reserved for ${recipient.fullName} — mark them collected once handed over.`,
         'success',
       );
       reset();
@@ -431,6 +458,18 @@ export function ManualIssuePage() {
                   </span>
                 </div>
 
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={line.isReturnable}
+                    onChange={(e) =>
+                      setLines((prev) => setLineReturnable(prev, line.partId, e.target.checked))
+                    }
+                    className="rounded text-purple-600"
+                  />
+                  Returnable — expected back in stock once the job is done
+                </label>
+
                 {error && <p className="text-xs text-red-600">{error}</p>}
               </div>
             );
@@ -441,6 +480,23 @@ export function ManualIssuePage() {
       {/* Shared reason + WO for the whole batch */}
       {lines.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Issuing To *</label>
+            <select
+              value={recipientId}
+              onChange={(e) => setRecipientId(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">— Select who is taking these parts —</option>
+              {recipientOptions.map((u) => (
+                <option key={u.id} value={u.id}>{u.fullName} · {u.role.replace(/_/g, ' ')}</option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-gray-400">
+              They'll be notified, and this shows up under their own Parts to Collect / Pending Return.
+            </p>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Reason *</label>
             <select
@@ -491,7 +547,7 @@ export function ManualIssuePage() {
             </div>
             <button
               onClick={handleSubmit}
-              disabled={submitting || !issuable}
+              disabled={submitting || !issuable || !recipientId}
               className="ml-auto py-3 px-5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm flex items-center justify-center gap-2 disabled:opacity-60"
             >
               <PackageMinus className="w-4 h-4" />
