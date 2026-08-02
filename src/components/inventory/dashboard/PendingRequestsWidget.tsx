@@ -4,6 +4,8 @@ import { RequestPriorityBadge } from '@/components/inventory/requests/RequestPri
 
 interface Props {
   requests: PartsRequest[];
+  title?: string;
+  emptyMessage?: string;
 }
 
 function formatAge(ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } {
@@ -28,13 +30,13 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
   cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
 };
 
-export function PendingRequestsWidget({ requests }: Props) {
+export function PendingRequestsWidget({ requests, title = 'Pending Requests', emptyMessage = 'No pending requests' }: Props) {
   const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-        <h2 className="font-semibold text-gray-900">Pending Requests</h2>
+        <h2 className="font-semibold text-gray-900">{title}</h2>
         <Link
           to="/app/inventory/requests"
           className="text-sm text-blue-600 hover:text-blue-700 font-medium"
@@ -44,7 +46,7 @@ export function PendingRequestsWidget({ requests }: Props) {
       </div>
 
       {requests.length === 0 ? (
-        <div className="px-4 py-8 text-center text-gray-400 text-sm">No pending requests</div>
+        <div className="px-4 py-8 text-center text-gray-400 text-sm">{emptyMessage}</div>
       ) : (
         <>
           {/* Desktop table */}
