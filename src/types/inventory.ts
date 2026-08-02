@@ -126,6 +126,12 @@ export interface RequestItem {
   availableAtRequest: number;
   isAvailable: boolean;
   isCritical: boolean;
+  // Set by the store keeper at issue/collection time — marks this item as
+  // eligible for the requester to later hand it back via the return workflow.
+  isReturnable?: boolean;
+  // True once all returnable quantity for this item has been confirmed back
+  // into stock by a store keeper (see `partReturns`).
+  isReturned?: boolean;
 }
 
 export interface StoreKeeperReview {
@@ -321,6 +327,49 @@ export interface StockMovement {
   notes: string;
   unitCostAtTime: number;
   totalCostImpact: number;
+
+  // Set on 'issue' movements — carried over from the request item / manual
+  // issue cart line so the physical hand-off is known to be returnable.
+  isReturnable?: boolean;
+}
+
+export type PartReturnStatus = 'pending' | 'returned' | 'rejected';
+
+// One doc per return event — created when a requester marks an issued,
+// returnable item as being handed back, and closed out by a store keeper
+// confirming (or rejecting) the physical return.
+export interface PartReturn {
+  id: string;
+  companyId: string;
+
+  partsRequestId: string;
+  requestNumber: string;
+
+  partId: string;
+  partNumber: string;
+  partName: string;
+  quantity: number;
+  unit: PartUnit;
+
+  requestedBy: string;
+  requestedByName: string;
+  requestedAt: Timestamp;
+
+  status: PartReturnStatus;
+
+  storeKeeperConfirmedBy: string | null;
+  storeKeeperConfirmedByName: string | null;
+  storeKeeperConfirmedAt: Timestamp | null;
+
+  notes: string;
+
+  // Snapshot of the originating request's context so the store keeper sees
+  // full history without an extra join.
+  workOrderId: string | null;
+  workOrderNumber: string | null;
+  machineId: string | null;
+  machineName: string | null;
+  issuedAt: Timestamp | null;
 }
 
 export interface PurchaseOrder {

@@ -756,6 +756,17 @@ service cloud.firestore {
       }
     }
 
+    match /partReturns/{returnId} {
+      allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId;
+      allow create: if isAuthenticated() && getUserData().companyId == request.resource.data.companyId
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.resource.data.status == 'pending';
+      allow update: if isAuthenticated() && getUserData().companyId == resource.data.companyId
+        && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']
+        && request.resource.data.status in ['returned', 'rejected'];
+      allow delete: if false;
+    }
+
     match /purchaseOrders/{poId} {
       allow read: if isAuthenticated() && getUserData().companyId == resource.data.companyId;
       allow create: if isAuthenticated() && getUserData().companyId == request.resource.data.companyId

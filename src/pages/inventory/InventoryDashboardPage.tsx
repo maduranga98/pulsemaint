@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AlertTriangle, Plus, ShoppingCart, Bell, Truck, ScanLine, PackagePlus } from 'lucide-react';
+import { AlertTriangle, Plus, ShoppingCart, Bell, Truck, ScanLine, PackagePlus, RotateCcw } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useInventoryStats } from '@/hooks/inventory/useInventoryStats';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
@@ -143,6 +143,13 @@ function FullInventoryDashboard() {
           >
             <ScanLine className="w-4 h-4" />
             Scan &amp; Issue
+          </Link>
+          <Link
+            to="/app/inventory/returns"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-lg"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Parts Returns
           </Link>
           <Link
             to="/app/inventory/suppliers"
