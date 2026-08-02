@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ScanLine, PackageMinus, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, ScanLine, PackageMinus, Trash2, Search } from 'lucide-react';
 import {
   collection,
   query,
@@ -15,6 +15,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { useWorkOrders } from '@/hooks/useWorkOrders';
+import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
 import { PartQrScanModal } from '@/components/inventory/shared/PartQrScanModal';
 import {
   addScannedPart,
@@ -40,9 +41,11 @@ export function ManualIssuePage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
 
-  const [showScanner, setShowScanner] = useState(true);
-  // The batch being built up — scan as many parts as needed, each with its own
-  // quantity, then issue them all at once.
+  const [showScanner, setShowScanner] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  // The batch being built up — scan or search as many parts as needed, each
+  // with its own quantity, then issue them all at once.
   const [lines, setLines] = useState<IssueCartLine[]>([]);
   const [lookingUp, setLookingUp] = useState(false);
   const [reason, setReason] = useState(ISSUE_REASONS[0]);
@@ -51,9 +54,26 @@ export function ManualIssuePage() {
   const [submitting, setSubmitting] = useState(false);
 
   const { workOrders } = useWorkOrders({ status: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS'] });
+  const { parts: searchResults, loading: searching } = useInventoryParts({
+    searchQuery: searchQuery.trim() || undefined,
+    pageSize: 8,
+  });
 
   const totals = cartTotals(lines);
   const issuable = isCartIssuable(lines);
+
+  function addPartToBatch(part: InventoryPart) {
+    if ((part.currentStock ?? 0) <= 0) {
+      addToast(`${part.name} is out of stock.`, 'error');
+      return;
+    }
+    const already = lines.some((line) => line.partId === part.id);
+    setLines((prev) => addScannedPart(prev, part));
+    addToast(
+      already ? `Added another ${part.name} to the batch.` : `${part.name} added to the batch.`,
+      'success',
+    );
+  }
 
   async function handleScan(partNumber: string) {
     setShowScanner(false);
@@ -74,16 +94,7 @@ export function ManualIssuePage() {
       }
       const docSnap = snap.docs[0];
       const part = { ...docSnap.data(), id: docSnap.id } as InventoryPart;
-      if ((part.currentStock ?? 0) <= 0) {
-        addToast(`${part.name} is out of stock.`, 'error');
-        return;
-      }
-      const already = lines.some((line) => line.partId === part.id);
-      setLines((prev) => addScannedPart(prev, part));
-      addToast(
-        already ? `Added another ${part.name} to the batch.` : `${part.name} added to the batch.`,
-        'success',
-      );
+      addPartToBatch(part);
     } catch (err) {
       console.error(err);
       addToast('Failed to look up part.', 'error');
@@ -92,12 +103,19 @@ export function ManualIssuePage() {
     }
   }
 
+  function handleSearchPick(part: InventoryPart) {
+    addPartToBatch(part);
+    setSearchQuery('');
+  }
+
   function reset() {
     setLines([]);
     setReason(ISSUE_REASONS[0]);
     setCustomReason('');
     setWorkOrderId('');
-    setShowScanner(true);
+    setShowScanner(false);
+    setShowSearch(false);
+    setSearchQuery('');
   }
 
   async function handleSubmit() {
@@ -202,30 +220,80 @@ export function ManualIssuePage() {
         <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Scan &amp; Issue Parts</h1>
       </div>
       <p className="text-sm text-gray-500">
-        Scan one or more part QR codes to issue them directly from stock — for cases where no parts
-        request exists yet (e.g. a breakdown handled on the spot). Scan every part you need, set the
-        quantities, then issue the whole batch at once.
+        Scan a part QR code or search for it by name/number to issue it directly from stock — for
+        cases where no parts request exists yet (e.g. a breakdown handled on the spot). Add every
+        part you need, set the quantities, then issue the whole batch at once.
       </p>
 
-      {/* Scan trigger — always available so more parts can be added to the batch. */}
-      <button
-        onClick={() => setShowScanner(true)}
-        disabled={lookingUp}
-        className={[
-          'w-full flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-2xl transition-colors',
-          lines.length === 0 ? 'py-10' : 'py-6',
-          'border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-600',
-        ].join(' ')}
-      >
-        {lines.length === 0 ? <ScanLine className="w-8 h-8" /> : <Plus className="w-6 h-6" />}
-        <span className="font-medium">
-          {lookingUp
-            ? 'Looking up part…'
-            : lines.length === 0
-              ? 'Tap to scan part QR'
-              : 'Scan another part'}
-        </span>
-      </button>
+      {/* Scan / search triggers — always available so more parts can be added to the batch. */}
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => { setShowScanner(true); setShowSearch(false); }}
+          disabled={lookingUp}
+          className={[
+            'flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-2xl transition-colors',
+            lines.length === 0 ? 'py-8' : 'py-5',
+            'border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-600',
+          ].join(' ')}
+        >
+          <ScanLine className="w-7 h-7" />
+          <span className="font-medium text-sm">
+            {lookingUp ? 'Looking up…' : lines.length === 0 ? 'Scan part QR' : 'Scan another'}
+          </span>
+        </button>
+        <button
+          onClick={() => { setShowSearch((v) => !v); setShowScanner(false); }}
+          className={[
+            'flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-2xl transition-colors',
+            lines.length === 0 ? 'py-8' : 'py-5',
+            showSearch
+              ? 'border-blue-400 text-blue-600'
+              : 'border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-600',
+          ].join(' ')}
+        >
+          <Search className="w-7 h-7" />
+          <span className="font-medium text-sm">Search manually</span>
+        </button>
+      </div>
+
+      {showSearch && (
+        <div className="relative bg-white border border-gray-200 rounded-xl p-3 space-y-2">
+          <input
+            type="text"
+            autoFocus
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by part name or number…"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          {searchQuery.trim() && (
+            <div className="max-h-64 overflow-y-auto divide-y divide-gray-100 border border-gray-100 rounded-lg">
+              {searching ? (
+                <p className="px-3 py-3 text-sm text-gray-400">Searching…</p>
+              ) : searchResults.length === 0 ? (
+                <p className="px-3 py-3 text-sm text-gray-400">No parts match "{searchQuery}".</p>
+              ) : (
+                searchResults.map((part) => (
+                  <button
+                    key={part.id}
+                    onClick={() => handleSearchPick(part)}
+                    disabled={(part.currentStock ?? 0) <= 0}
+                    className="w-full flex items-center justify-between gap-3 px-3 py-2 text-left hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{part.name}</p>
+                      <p className="text-xs text-gray-400 font-mono">{part.partNumber}</p>
+                    </div>
+                    <span className="text-xs text-gray-500 shrink-0">
+                      {part.currentStock ?? 0} {part.unit} in stock
+                    </span>
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Batch list */}
       {lines.length > 0 && (

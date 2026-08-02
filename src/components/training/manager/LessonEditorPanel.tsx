@@ -184,10 +184,10 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
         label="Required to complete"
       />
 
-      {/* Schedule & duration */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* Due date/time for completion */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Date</label>
+          <label className="text-sm font-medium text-gray-700">Due Date</label>
           <input
             type="date"
             value={scheduledDate}
@@ -196,21 +196,11 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Time</label>
+          <label className="text-sm font-medium text-gray-700">Due Time</label>
           <input
             type="time"
             value={scheduledTime}
             onChange={(e) => setScheduledTime(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Duration (minutes)</label>
-          <input
-            type="number"
-            min={0}
-            value={Math.round(durationSeconds / 60)}
-            onChange={(e) => setDurationSeconds((Number(e.target.value) || 0) * 60)}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

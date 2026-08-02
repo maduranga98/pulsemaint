@@ -10,6 +10,10 @@ interface ScheduledLesson {
   time: string;
   moduleTitle: string;
   lessonTitle: string;
+  // Only set for assignment-derived entries — every person this training was
+  // assigned to on this date, so multiple assignees collapse into one entry
+  // instead of one row per person.
+  assignees?: string[];
 }
 
 function ymd(d: Date): string {
@@ -85,21 +89,34 @@ function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
     const unsub = onSnapshot(
       query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
       (snap) => {
-        const out: ScheduledLesson[] = [];
+        // One entry per (module, date) — every assignee collapses into that
+        // entry's `assignees` list rather than producing a duplicate row.
+        const grouped = new Map<string, ScheduledLesson>();
         snap.docs.forEach((d) => {
           const a = d.data();
           const isSafety = a.trainingType === SAFETY_TRAINING_TYPE || safetyModuleIds.has(String(a.moduleId));
           if (!isSafety) return;
           const date = tsToYmd(a.dueDate) ?? tsToYmd(a.assignedAt);
           if (!date) return;
-          out.push({
-            date,
-            time: '',
-            moduleTitle: String(a.moduleName ?? 'Safety Training'),
-            lessonTitle: a.traineeName ? `Assigned to ${a.traineeName}` : 'Assigned',
-          });
+          const moduleTitle = String(a.moduleName ?? 'Safety Training');
+          const key = `${a.moduleId ?? moduleTitle}|${date}`;
+          const traineeName = a.traineeName ? String(a.traineeName) : null;
+          const existing = grouped.get(key);
+          if (existing) {
+            if (traineeName && !existing.assignees?.includes(traineeName)) {
+              existing.assignees = [...(existing.assignees ?? []), traineeName];
+            }
+          } else {
+            grouped.set(key, {
+              date,
+              time: '',
+              moduleTitle,
+              lessonTitle: '',
+              assignees: traineeName ? [traineeName] : [],
+            });
+          }
         });
-        setAssignmentEntries(out);
+        setAssignmentEntries([...grouped.values()]);
       },
       () => setAssignmentEntries([]),
     );
@@ -171,11 +188,14 @@ export default function SafetyCalendarPage() {
                 <div key={i} className={`min-h-[84px] rounded-lg border p-1.5 ${isToday ? 'border-[#1A56DB] bg-[#1A56DB]/10' : 'border-[#1E3A5F] bg-[#0F1E35]'}`}>
                   <div className="text-xs font-semibold text-[#8BA3BF]">{Number(date.slice(8, 10))}</div>
                   <div className="mt-1 space-y-1">
-                    {dayLessons.slice(0, 3).map((l, idx) => (
-                      <div key={idx} className="truncate rounded bg-[#5B8DEF]/15 px-1 py-0.5 text-[10px] text-[#5B8DEF]" title={`${l.moduleTitle}${l.lessonTitle ? ': ' + l.lessonTitle : ''}`}>
-                        {l.moduleTitle}
-                      </div>
-                    ))}
+                    {dayLessons.slice(0, 3).map((l, idx) => {
+                      const detail = l.lessonTitle || (l.assignees?.length ? `Assigned to ${l.assignees.join(', ')}` : '');
+                      return (
+                        <div key={idx} className="truncate rounded bg-[#5B8DEF]/15 px-1 py-0.5 text-[10px] text-[#5B8DEF]" title={`${l.moduleTitle}${detail ? ': ' + detail : ''}`}>
+                          {l.moduleTitle}
+                        </div>
+                      );
+                    })}
                     {dayLessons.length > 3 && <div className="text-[10px] text-[#8BA3BF]">+{dayLessons.length - 3} more</div>}
                   </div>
                 </div>
@@ -202,6 +222,11 @@ export default function SafetyCalendarPage() {
                       {l.time ? ` · ${l.time}` : ''}
                       {l.lessonTitle ? ` · ${l.lessonTitle}` : ''}
                     </p>
+                    {l.assignees && l.assignees.length > 0 && (
+                      <p className="mt-1 text-xs text-[#5B8DEF]">
+                        Assigned to {l.assignees.join(', ')}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
