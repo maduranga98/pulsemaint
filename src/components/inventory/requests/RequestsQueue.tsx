@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InboxIcon } from 'lucide-react';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
+import { usePartReturns } from '@/hooks/inventory/usePartReturns';
 import { useAuthStore } from '@/store/authStore';
-import type { RequestStatus } from '@/types/inventory';
-import { RequestQueueRow } from './RequestQueueRow';
+import type { PartReturn, RequestStatus } from '@/types/inventory';
+import { RequestQueueRow, type ReturnInfo } from './RequestQueueRow';
 import { RequestQueueCard } from './RequestQueueCard';
 
 type TabId = 'all' | 'pending_return' | RequestStatus;
@@ -76,6 +77,26 @@ export function RequestsQueue() {
     priorityLevel: priorityFilter || undefined,
     ownOnly,
   });
+
+  // Per-request return status/timing/who, for the Return column — pending
+  // takes priority over a settled outcome so an in-progress return is never
+  // hidden behind an older resolved one for the same request.
+  const { returns } = usePartReturns({ status: 'all', ownOnly });
+  const returnByRequestId = useMemo(() => {
+    const map = new Map<string, ReturnInfo>();
+    const priority: Record<PartReturn['status'], number> = { pending: 0, returned: 1, rejected: 1, cancelled: 2 };
+    for (const r of returns) {
+      const existing = map.get(r.partsRequestId);
+      if (!existing || priority[r.status] < priority[existing.status]) {
+        map.set(r.partsRequestId, {
+          status: r.status,
+          at: r.status === 'pending' ? r.requestedAt : r.storeKeeperConfirmedAt,
+          byName: r.status === 'pending' ? null : r.storeKeeperConfirmedByName,
+        });
+      }
+    }
+    return map;
+  }, [returns]);
 
   const hasPendingReturn = (r: (typeof requests)[number]) =>
     r.items.some((i) => i.isReturnable && !i.isReturned);
@@ -164,7 +185,7 @@ export function RequestsQueue() {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {['Request #', 'WO # / Type', 'Requested By', 'Parts', 'Total Cost', 'Priority', 'Status', 'Age', ''].map(
+              {['Request #', 'WO # / Type', 'Requested By', 'Parts', 'Total Cost', 'Priority', 'Status', 'Return', 'Age', ''].map(
                 (h) => (
                   <th
                     key={h}
@@ -185,14 +206,19 @@ export function RequestsQueue() {
               </>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-12 text-center">
+                <td colSpan={10} className="px-4 py-12 text-center">
                   <InboxIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
                   <p className="text-gray-500 text-sm">No requests found</p>
                 </td>
               </tr>
             ) : (
               filtered.map((r) => (
-                <RequestQueueRow key={r.id} request={r} onReview={() => handleReview(r.id)} />
+                <RequestQueueRow
+                  key={r.id}
+                  request={r}
+                  returnInfo={returnByRequestId.get(r.id) ?? null}
+                  onReview={() => handleReview(r.id)}
+                />
               ))
             )}
           </tbody>
@@ -212,7 +238,12 @@ export function RequestsQueue() {
           </div>
         ) : (
           filtered.map((r) => (
-            <RequestQueueCard key={r.id} request={r} onReview={() => handleReview(r.id)} />
+            <RequestQueueCard
+              key={r.id}
+              request={r}
+              returnInfo={returnByRequestId.get(r.id) ?? null}
+              onReview={() => handleReview(r.id)}
+            />
           ))
         )}
       </div>

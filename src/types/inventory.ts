@@ -363,6 +363,10 @@ export interface PartReturn {
 
   notes: string;
 
+  // Condition the part was received back in — captured by the store keeper
+  // when confirming, not set when the return is only requested.
+  condition?: 'good' | 'damaged' | 'wrong_item' | null;
+
   // Snapshot of the originating request's context so the store keeper sees
   // full history without an extra join.
   workOrderId: string | null;

@@ -1,8 +1,10 @@
 import type { PartsRequest, RequestStatus } from '@/types/inventory';
 import { RequestPriorityBadge } from './RequestPriorityBadge';
+import { ReturnCell, type ReturnInfo } from './RequestQueueRow';
 
 interface Props {
   request: PartsRequest;
+  returnInfo?: ReturnInfo | null;
   onReview: () => void;
 }
 
@@ -28,7 +30,7 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
   cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
 };
 
-export function RequestQueueCard({ request, onReview }: Props) {
+export function RequestQueueCard({ request, returnInfo, onReview }: Props) {
   const age = formatAge(request.requestedAt);
   const statusCfg = STATUS_BADGE[request.status] ?? {
     label: request.status,
@@ -54,12 +56,11 @@ export function RequestQueueCard({ request, onReview }: Props) {
         >
           {statusCfg.label}
         </span>
-        {hasPendingReturn && (
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap bg-purple-100 text-purple-700">
-            Return Pending
-          </span>
-        )}
       </div>
+
+      {(returnInfo || hasPendingReturn) && (
+        <ReturnCell returnInfo={returnInfo} hasPendingReturn={hasPendingReturn} />
+      )}
 
       {/* WO + Machine */}
       <div>
