@@ -38,9 +38,12 @@ function SkeletonCard() {
 // so surfacing those links here just leads to dead ends.
 function TechnicianInventoryView() {
   const [showRequest, setShowRequest] = useState(false);
-  const { requests, loading } = usePartsRequests({ status: 'all' });
+  // ownOnly — a technician/trainee should only ever see their own requests
+  // here, never their colleagues'.
+  const { requests, loading } = usePartsRequests({ status: 'all', ownOnly: true });
   const { parts: catalogParts, totalCount: catalogCount } = useInventoryParts({ pageSize: 5 });
   const pendingRequests = requests.filter((r) => PENDING_STATUSES.has(r.status));
+  const pendingReturnRequests = requests.filter((r) => r.items.some((i) => i.isReturnable && !i.isReturned));
 
   return (
     <div className="space-y-6">
@@ -68,6 +71,11 @@ function TechnicianInventoryView() {
       ) : (
         <>
           <PendingRequestsWidget requests={pendingRequests} />
+          <PendingRequestsWidget
+            requests={pendingReturnRequests}
+            title="Pending Return"
+            emptyMessage="No returnable items awaiting return"
+          />
           <PartsCatalogWidget parts={catalogParts} totalCount={catalogCount} />
         </>
       )}
