@@ -531,6 +531,20 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "requestedBy",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "partsRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "companyId",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "isUrgent",
           "order": "ASCENDING"
         },

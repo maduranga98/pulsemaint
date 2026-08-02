@@ -13,6 +13,8 @@ export interface UsePartsRequestsOptions {
   status?: RequestStatus | 'all';
   priorityLevel?: string;
   pageSize?: number;
+  // Scope to only the current user's own requests (requester view).
+  ownOnly?: boolean;
 }
 
 interface UsePartsRequestsResult {
@@ -30,15 +32,16 @@ const PRIORITY_ORDER: Record<string, number> = {
 };
 
 export function usePartsRequests(options: UsePartsRequestsOptions = {}): UsePartsRequestsResult {
-  const { status, priorityLevel, pageSize = 100 } = options;
+  const { status, priorityLevel, pageSize = 100, ownOnly } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const userId = useAuthStore((s) => s.userProfile?.id);
 
   const [requests, setRequests] = useState<PartsRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!companyId) {
+    if (!companyId || (ownOnly && !userId)) {
       setLoading(false);
       return;
     }
@@ -49,6 +52,10 @@ export function usePartsRequests(options: UsePartsRequestsOptions = {}): UsePart
     const constraints: Parameters<typeof query>[1][] = [
       where('companyId', '==', companyId),
     ];
+
+    if (ownOnly && userId) {
+      constraints.push(where('requestedBy', '==', userId));
+    }
 
     if (status && status !== 'all') {
       constraints.push(where('status', '==', status));
@@ -96,7 +103,7 @@ export function usePartsRequests(options: UsePartsRequestsOptions = {}): UsePart
     );
 
     return () => unsubscribe();
-  }, [companyId, status, priorityLevel, pageSize]);
+  }, [companyId, userId, ownOnly, status, priorityLevel, pageSize]);
 
   return { requests, loading, error, totalCount: requests.length };
 }

@@ -2,11 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InboxIcon } from 'lucide-react';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
+import { useAuthStore } from '@/store/authStore';
 import type { RequestStatus } from '@/types/inventory';
 import { RequestQueueRow } from './RequestQueueRow';
 import { RequestQueueCard } from './RequestQueueCard';
 
-type TabId = 'all' | RequestStatus;
+type TabId = 'all' | 'pending_return' | RequestStatus;
+
+const MANAGE_ROLES = ['store_keeper', 'supervisor', 'plant_manager', 'admin'];
 
 interface TabDef {
   id: TabId;
@@ -18,8 +21,20 @@ const TABS: TabDef[] = [
   { id: 'pending_supervisor', label: 'Awaiting Supervisor' },
   { id: 'parts_reserved', label: 'Parts to Collect' },
   { id: 'completed', label: 'Completed' },
+  { id: 'pending_return', label: 'Pending Return' },
   { id: 'rejected', label: 'Rejected' },
   { id: 'all', label: 'All' },
+];
+
+// Requester (technician/trainee/etc.) view — the review-stage tabs don't
+// apply since they can't act on those; keep it focused on their own request
+// lifecycle plus the return flow this component adds.
+const OWN_TABS: TabDef[] = [
+  { id: 'all', label: 'My Requests' },
+  { id: 'parts_reserved', label: 'Parts to Collect' },
+  { id: 'completed', label: 'Completed' },
+  { id: 'pending_return', label: 'Pending Return' },
+  { id: 'rejected', label: 'Rejected' },
 ];
 
 const PRIORITY_OPTIONS = [
@@ -44,19 +59,31 @@ function SkeletonRow() {
 
 export function RequestsQueue() {
   const navigate = useNavigate();
-  // Open on the "Pending" queue (first tab); "All" remains available as the
-  // last tab for seeing every status at once.
-  const [activeTab, setActiveTab] = useState<TabId>('pending_storekeeper');
+  const role = useAuthStore((s) => s.userProfile?.role);
+  // A requester (technician/trainee/etc.) only sees their own requests; the
+  // review-queue tabs (To Review / Awaiting Supervisor) don't apply to them.
+  const ownOnly = !MANAGE_ROLES.includes(role ?? '');
+  const tabs = ownOnly ? OWN_TABS : TABS;
+
+  const [activeTab, setActiveTab] = useState<TabId>(ownOnly ? 'all' : 'pending_storekeeper');
   const [search, setSearch] = useState('');
   const [priorityFilter, setPriorityFilter] = useState('');
 
+  // "Pending Return" is derived client-side from item flags, not a real
+  // request status, so it always fetches the full set.
   const { requests, loading } = usePartsRequests({
-    status: activeTab === 'all' ? 'all' : activeTab,
+    status: activeTab === 'all' || activeTab === 'pending_return' ? 'all' : activeTab,
     priorityLevel: priorityFilter || undefined,
+    ownOnly,
   });
 
+  const hasPendingReturn = (r: (typeof requests)[number]) =>
+    r.items.some((i) => i.isReturnable && !i.isReturned);
+
+  const scoped = activeTab === 'pending_return' ? requests.filter(hasPendingReturn) : requests;
+
   // Client-side search filter
-  const filtered = requests.filter((r) => {
+  const filtered = scoped.filter((r) => {
     if (!search) return true;
     const s = search.toLowerCase();
     return (
@@ -70,6 +97,7 @@ export function RequestsQueue() {
   // Count badges per tab
   function countForTab(tabId: TabId): number {
     if (tabId === 'all') return requests.length;
+    if (tabId === 'pending_return') return requests.filter(hasPendingReturn).length;
     return requests.filter((r) => r.status === tabId).length;
   }
 
@@ -81,7 +109,7 @@ export function RequestsQueue() {
     <div className="space-y-4">
       {/* Tab bar */}
       <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide">
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const count = countForTab(tab.id);
           const isActive = activeTab === tab.id;
           return (

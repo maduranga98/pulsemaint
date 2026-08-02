@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, XCircle, PackageCheck, Undo2, ArrowUp, RotateCcw } from 'lucide-react';
+import { CheckCircle, XCircle, PackageCheck, Undo2, ArrowUp, RotateCcw, X } from 'lucide-react';
 import type { PartsRequest } from '@/types/inventory';
 import { useAuthStore } from '@/store/authStore';
 import { usePartReturns } from '@/hooks/inventory/usePartReturns';
@@ -16,6 +16,7 @@ interface Props {
   }) => Promise<void>;
   onCollection: (collected: boolean, collectorName: string, returnableItemIds?: Record<string, boolean>) => Promise<void>;
   onRequestReturn: (itemId: string, quantity: number) => Promise<void>;
+  onCancelReturn: (returnId: string) => Promise<void>;
 }
 
 const ESCALATION_REASONS = [
@@ -36,7 +37,7 @@ function formatStatus(status: string): string {
   return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-export function RequestReviewPanel({ request, onDecision, onCollection, onRequestReturn }: Props) {
+export function RequestReviewPanel({ request, onDecision, onCollection, onRequestReturn, onCancelReturn }: Props) {
   const role = useAuthStore((s) => s.userProfile?.role);
   const userId = useAuthStore((s) => s.userProfile?.id);
 
@@ -56,18 +57,19 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
   const [returnableItemIds, setReturnableItemIds] = useState<Record<string, boolean>>({});
   const [returnQuantities, setReturnQuantities] = useState<Record<string, number>>({});
   const [returningItemId, setReturningItemId] = useState<string | null>(null);
+  const [cancellingReturnId, setCancellingReturnId] = useState<string | null>(null);
 
   const canManage = role === 'store_keeper' || role === 'supervisor' || role === 'admin' || role === 'plant_manager';
   const isRequester = request.requestedBy === userId;
 
   const { returns: myPendingReturns } = usePartReturns({ ownOnly: true, status: 'pending' });
-  const pendingReturnQtyFor = (itemId: string) => {
+  const pendingReturnsFor = (itemId: string) => {
     const item = request.items.find((i) => i.id === itemId);
-    if (!item) return 0;
-    return myPendingReturns
-      .filter((r) => r.partsRequestId === request.id && r.partId === item.partId)
-      .reduce((sum, r) => sum + r.quantity, 0);
+    if (!item) return [];
+    return myPendingReturns.filter((r) => r.partsRequestId === request.id && r.partId === item.partId);
   };
+  const pendingReturnQtyFor = (itemId: string) =>
+    pendingReturnsFor(itemId).reduce((sum, r) => sum + r.quantity, 0);
 
   async function run(action: typeof activeAction, fn: () => Promise<void>) {
     setIsLoading(true);
@@ -186,52 +188,78 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
             </div>
             {returnableItems.map((item) => {
               const alreadyIssued = item.quantityIssued > 0 ? item.quantityIssued : item.quantityApproved;
+              const pending = pendingReturnsFor(item.id);
               const alreadyPending = pendingReturnQtyFor(item.id);
               const remaining = Math.max(0, alreadyIssued - alreadyPending);
-              if (remaining <= 0) {
-                return (
-                  <div key={item.id} className="flex items-center justify-between text-sm text-purple-700">
-                    <span>{item.partName}</span>
-                    <span className="text-xs bg-purple-100 px-2 py-0.5 rounded-full">Return pending confirmation</span>
-                  </div>
-                );
-              }
               return (
-                <div key={item.id} className="flex items-center justify-between gap-3 text-sm">
-                  <div className="min-w-0">
-                    <p className="font-medium text-gray-800 truncate">{item.partName}</p>
-                    <p className="text-xs text-gray-500">Issued: {alreadyIssued} {item.unit}</p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <input
-                      type="number"
-                      min={1}
-                      max={remaining}
-                      value={returnQuantities[item.id] ?? remaining}
-                      onChange={(e) =>
-                        setReturnQuantities((prev) => ({
-                          ...prev,
-                          [item.id]: Math.min(remaining, Math.max(1, parseInt(e.target.value, 10) || 1)),
-                        }))
-                      }
-                      className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                    <button
-                      onClick={async () => {
-                        setReturningItemId(item.id);
-                        try {
-                          await onRequestReturn(item.id, returnQuantities[item.id] ?? remaining);
-                        } finally {
-                          setReturningItemId(null);
-                        }
-                      }}
-                      disabled={returningItemId === item.id}
-                      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 disabled:opacity-50"
-                    >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      {returningItemId === item.id ? 'Requesting…' : 'Mark as Returned'}
-                    </button>
-                  </div>
+                <div key={item.id} className="space-y-2">
+                  {pending.length > 0 && (
+                    <div className="space-y-1">
+                      {pending.map((r) => (
+                        <div
+                          key={r.id}
+                          className="flex items-center justify-between text-sm bg-purple-100 rounded-lg px-3 py-1.5"
+                        >
+                          <span className="text-purple-800">
+                            {item.partName} · {r.quantity} {item.unit} pending confirmation
+                          </span>
+                          <button
+                            onClick={async () => {
+                              setCancellingReturnId(r.id);
+                              try {
+                                await onCancelReturn(r.id);
+                              } finally {
+                                setCancellingReturnId(null);
+                              }
+                            }}
+                            disabled={cancellingReturnId === r.id}
+                            className="flex items-center gap-1 text-xs font-semibold text-purple-700 hover:text-purple-900 disabled:opacity-50"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            {cancellingReturnId === r.id ? 'Cancelling…' : 'Cancel'}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {remaining > 0 && (
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <div className="min-w-0">
+                        <p className="font-medium text-gray-800 truncate">{item.partName}</p>
+                        <p className="text-xs text-gray-500">Issued: {alreadyIssued} {item.unit}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <input
+                          type="number"
+                          min={1}
+                          max={remaining}
+                          value={returnQuantities[item.id] ?? remaining}
+                          onChange={(e) =>
+                            setReturnQuantities((prev) => ({
+                              ...prev,
+                              [item.id]: Math.min(remaining, Math.max(1, parseInt(e.target.value, 10) || 1)),
+                            }))
+                          }
+                          className="w-16 border border-gray-300 rounded px-2 py-1 text-sm text-gray-900 text-right focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                        <button
+                          onClick={async () => {
+                            setReturningItemId(item.id);
+                            try {
+                              await onRequestReturn(item.id, returnQuantities[item.id] ?? remaining);
+                            } finally {
+                              setReturningItemId(null);
+                            }
+                          }}
+                          disabled={returningItemId === item.id}
+                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 disabled:opacity-50"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          {returningItemId === item.id ? 'Requesting…' : 'Mark as Returned'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
