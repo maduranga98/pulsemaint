@@ -34,6 +34,7 @@ export function RequestQueueRow({ request, onReview }: Props) {
   const statusCfg = STATUS_BADGE[request.status] ?? { label: request.status, className: 'bg-gray-100 text-gray-600' };
   const firstPart = request.items[0]?.partName ?? '';
   const extraParts = request.items.length - 1;
+  const hasPendingReturn = request.items.some((i) => i.isReturnable && !i.isReturned);
 
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
@@ -68,6 +69,11 @@ export function RequestQueueRow({ request, onReview }: Props) {
         >
           {statusCfg.label}
         </span>
+        {hasPendingReturn && (
+          <span className="ml-1.5 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+            Return Pending
+          </span>
+        )}
       </td>
       <td className={`px-4 py-3 text-sm whitespace-nowrap ${age.isOld ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
         {age.label}

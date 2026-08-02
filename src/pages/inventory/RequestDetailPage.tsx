@@ -395,6 +395,18 @@ export function RequestDetailPage() {
     }
   }
 
+  // Lets the requester pull back a return request while it's still pending —
+  // rules only allow this transition for the requester's own 'pending' doc.
+  async function handleCancelReturn(returnId: string) {
+    try {
+      await updateDoc(doc(db, 'partReturns', returnId), { status: 'cancelled' });
+      addToast('Return cancelled.', 'success');
+    } catch (err) {
+      addToast('Failed to cancel return.', 'error');
+      console.error(err);
+    }
+  }
+
   return (
     <div className="space-y-5 max-w-4xl mx-auto">
       <Link
@@ -417,6 +429,7 @@ export function RequestDetailPage() {
         onDecision={handleDecision}
         onCollection={handleCollection}
         onRequestReturn={handleRequestReturn}
+        onCancelReturn={handleCancelReturn}
       />
 
       <RequestReviewHistory request={request} />

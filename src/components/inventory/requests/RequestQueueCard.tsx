@@ -37,6 +37,7 @@ export function RequestQueueCard({ request, onReview }: Props) {
 
   const firstTwo = request.items.slice(0, 2).map((i) => i.partName);
   const remaining = request.items.length - 2;
+  const hasPendingReturn = request.items.some((i) => i.isReturnable && !i.isReturned);
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3 shadow-sm">
@@ -53,6 +54,11 @@ export function RequestQueueCard({ request, onReview }: Props) {
         >
           {statusCfg.label}
         </span>
+        {hasPendingReturn && (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap bg-purple-100 text-purple-700">
+            Return Pending
+          </span>
+        )}
       </div>
 
       {/* WO + Machine */}

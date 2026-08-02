@@ -333,7 +333,7 @@ export interface StockMovement {
   isReturnable?: boolean;
 }
 
-export type PartReturnStatus = 'pending' | 'returned' | 'rejected';
+export type PartReturnStatus = 'pending' | 'returned' | 'rejected' | 'cancelled';
 
 // One doc per return event — created when a requester marks an issued,
 // returnable item as being handed back, and closed out by a store keeper
