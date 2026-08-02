@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Undo2 } from 'lucide-react';
 import { doc, collection, runTransaction, serverTimestamp } from 'firebase/firestore';
@@ -6,7 +7,16 @@ import { useAuthStore } from '@/store/authStore';
 import { usePartReturns } from '@/hooks/inventory/usePartReturns';
 import { useToast } from '@/hooks/useToast';
 import { PartReturnQueueRow } from '@/components/inventory/returns/PartReturnQueueRow';
-import type { PartReturn, RequestItem } from '@/types/inventory';
+import type { PartReturn, PartReturnStatus, RequestItem } from '@/types/inventory';
+
+type TabId = PartReturnStatus;
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: 'pending', label: 'Pending' },
+  { id: 'returned', label: 'Returned' },
+  { id: 'rejected', label: 'Rejected' },
+  { id: 'cancelled', label: 'Cancelled' },
+];
 
 export function PartReturnsPage() {
   const { addToast } = useToast();
@@ -15,7 +25,8 @@ export function PartReturnsPage() {
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
 
-  const { returns, loading } = usePartReturns({ status: 'pending' });
+  const [activeTab, setActiveTab] = useState<TabId>('pending');
+  const { returns, loading } = usePartReturns({ status: activeTab });
 
   async function handleConfirm(partReturn: PartReturn) {
     try {
@@ -150,6 +161,22 @@ export function PartReturnsPage() {
         </p>
       </div>
 
+      <div className="flex gap-1 overflow-x-auto pb-1">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+              activeTab === tab.id
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -159,12 +186,17 @@ export function PartReturnsPage() {
       ) : returns.length === 0 ? (
         <div className="py-12 text-center border border-gray-200 rounded-xl">
           <Undo2 className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-          <p className="text-gray-500 text-sm">No pending returns.</p>
+          <p className="text-gray-500 text-sm">No {activeTab} returns.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {returns.map((r) => (
-            <PartReturnQueueRow key={r.id} partReturn={r} onConfirm={handleConfirm} onReject={handleReject} />
+            <PartReturnQueueRow
+              key={r.id}
+              partReturn={r}
+              onConfirm={activeTab === 'pending' ? handleConfirm : undefined}
+              onReject={activeTab === 'pending' ? handleReject : undefined}
+            />
           ))}
         </div>
       )}

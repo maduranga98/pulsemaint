@@ -5,9 +5,15 @@ import type { PartReturn } from '@/types/inventory';
 
 interface Props {
   partReturn: PartReturn;
-  onConfirm: (partReturn: PartReturn) => Promise<void>;
-  onReject: (partReturn: PartReturn, reason: string) => Promise<void>;
+  onConfirm?: (partReturn: PartReturn) => Promise<void>;
+  onReject?: (partReturn: PartReturn, reason: string) => Promise<void>;
 }
+
+const STATUS_BADGE: Record<string, { label: string; className: string }> = {
+  returned: { label: 'Returned', className: 'bg-green-100 text-green-700' },
+  rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700' },
+  cancelled: { label: 'Cancelled', className: 'bg-gray-100 text-gray-500' },
+};
 
 export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
   const [busy, setBusy] = useState<'confirm' | 'reject' | null>(null);
@@ -35,60 +41,79 @@ export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
           <p className="text-xs text-gray-400 mt-1">
             Requested {partReturn.requestedAt?.toDate?.().toLocaleString?.() ?? ''}
           </p>
+          {partReturn.status !== 'pending' && (
+            <p className="text-xs text-gray-500 mt-1">
+              {partReturn.storeKeeperConfirmedByName && (
+                <>By <strong>{partReturn.storeKeeperConfirmedByName}</strong>{' '}</>
+              )}
+              {partReturn.storeKeeperConfirmedAt?.toDate?.().toLocaleString?.() ?? ''}
+              {partReturn.status === 'rejected' && partReturn.notes && <> — {partReturn.notes}</>}
+            </p>
+          )}
         </div>
-        <div className="flex flex-col gap-2 items-end shrink-0">
-          <div className="flex gap-2">
-            <button
-              disabled={!!busy}
-              onClick={async () => {
-                setBusy('confirm');
-                try {
-                  await onConfirm(partReturn);
-                } finally {
-                  setBusy(null);
-                }
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 disabled:opacity-50"
-            >
-              <CheckCircle className="w-3.5 h-3.5" />
-              {busy === 'confirm' ? 'Confirming…' : 'Mark as Returned'}
-            </button>
-            <button
-              disabled={!!busy}
-              onClick={() => setRejecting((v) => !v)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-xs font-semibold hover:bg-red-50 disabled:opacity-50"
-            >
-              <XCircle className="w-3.5 h-3.5" />
-              Reject
-            </button>
-          </div>
-          {rejecting && (
-            <div className="flex gap-2 items-center">
-              <input
-                type="text"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Reason for dispute"
-                className="border border-gray-300 rounded px-2 py-1 text-xs"
-              />
+        {partReturn.status === 'pending' && onConfirm && onReject ? (
+          <div className="flex flex-col gap-2 items-end shrink-0">
+            <div className="flex gap-2">
               <button
-                disabled={!!busy || !reason.trim()}
+                disabled={!!busy}
                 onClick={async () => {
-                  setBusy('reject');
+                  setBusy('confirm');
                   try {
-                    await onReject(partReturn, reason.trim());
-                    setRejecting(false);
+                    await onConfirm(partReturn);
                   } finally {
                     setBusy(null);
                   }
                 }}
-                className="px-2 py-1 rounded bg-red-600 text-white text-xs font-semibold disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 disabled:opacity-50"
               >
-                {busy === 'reject' ? 'Rejecting…' : 'Confirm Reject'}
+                <CheckCircle className="w-3.5 h-3.5" />
+                {busy === 'confirm' ? 'Confirming…' : 'Mark as Returned'}
+              </button>
+              <button
+                disabled={!!busy}
+                onClick={() => setRejecting((v) => !v)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-300 text-red-600 text-xs font-semibold hover:bg-red-50 disabled:opacity-50"
+              >
+                <XCircle className="w-3.5 h-3.5" />
+                Reject
               </button>
             </div>
-          )}
-        </div>
+            {rejecting && (
+              <div className="flex gap-2 items-center">
+                <input
+                  type="text"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Reason for dispute"
+                  className="border border-gray-300 rounded px-2 py-1 text-xs"
+                />
+                <button
+                  disabled={!!busy || !reason.trim()}
+                  onClick={async () => {
+                    setBusy('reject');
+                    try {
+                      await onReject(partReturn, reason.trim());
+                      setRejecting(false);
+                    } finally {
+                      setBusy(null);
+                    }
+                  }}
+                  className="px-2 py-1 rounded bg-red-600 text-white text-xs font-semibold disabled:opacity-50"
+                >
+                  {busy === 'reject' ? 'Rejecting…' : 'Confirm Reject'}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <span
+            className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
+              STATUS_BADGE[partReturn.status]?.className ?? 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            {STATUS_BADGE[partReturn.status]?.label ?? partReturn.status}
+          </span>
+        )}
       </div>
     </div>
   );
