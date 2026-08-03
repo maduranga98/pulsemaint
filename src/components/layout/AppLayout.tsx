@@ -64,6 +64,9 @@ const NAV_ITEMS: NavItem[] = [
   // Safety module surfaced for oversight roles too — admins, plant managers, and
   // supervisors see cases the safety team escalates to them, plus analytics.
   { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
+  // Frontline roles a safety case can be assigned down to for action — they
+  // land on the same page's "Reported to Me" filtered view.
+  { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['technician', 'floor_operator', 'store_keeper', 'trainee'] },
   // Safety Analytics for admins/plant managers now lives inline on the manager
   // dashboard instead of a dedicated tab.
   { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },

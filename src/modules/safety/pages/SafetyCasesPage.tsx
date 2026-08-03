@@ -32,8 +32,16 @@ const STATUS_COLOR: Record<string, string> = {
 };
 const field = 'w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] outline-none focus:border-[#1A56DB]';
 
-/** Roles that only see cases escalated to them (via "report to"). */
-const REPORTED_TO_ROLES = ['admin', 'plant_manager', 'supervisor'];
+/**
+ * Roles that only see cases escalated to them (via "report to") — both the
+ * managers a safety officer escalates up to, and the frontline roles a case
+ * gets assigned down to for action. Also the set of valid "report to"
+ * recipients, so a case can actually be assigned to any of them.
+ */
+const REPORTED_TO_ROLES = [
+  'admin', 'plant_manager', 'supervisor',
+  'technician', 'floor_operator', 'store_keeper', 'trainee',
+];
 
 function fmt(ts: { toDate?: () => Date } | null | undefined): string {
   if (!ts?.toDate) return '';

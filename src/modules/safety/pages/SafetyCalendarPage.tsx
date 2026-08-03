@@ -9,6 +9,16 @@ import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
 // Roles that can assign safety trainings to people from this schedule.
 const CAN_ASSIGN_ROLES = ['safety_officer', 'supervisor', 'plant_manager', 'admin'];
 
+// Roles the Firestore rules let list every company assignment. Everyone else
+// can only read their own (`traineeId == auth.uid`) — querying the full
+// collection as one of those roles is a `permission-denied`, which the
+// `onSnapshot` error callback below turns into an empty list. That happens
+// on every listener attach, so the calendar would flash "no trainings
+// scheduled" a moment after briefly showing (or never show) — hence the
+// role-aware query: non-management roles fetch only their own assignments,
+// which the rules always allow, instead of the company-wide one.
+const CAN_LIST_ALL_ASSIGNMENTS_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer'];
+
 interface ScheduledLesson {
   date: string;
   time: string;
@@ -48,7 +58,7 @@ function tsToYmd(ts: unknown): string | null {
  *    assignment's due date (or the day it was assigned) so an assigned safety
  *    training shows even when its module lessons carry no per-lesson schedule.
  */
-function useSafetyTrainingSchedule(companyId: string): {
+function useSafetyTrainingSchedule(companyId: string, userId: string, role: string | undefined): {
   lessons: ScheduledLesson[];
   modulesById: Map<string, TrainingModule>;
 } {
@@ -95,12 +105,18 @@ function useSafetyTrainingSchedule(companyId: string): {
   }, [companyId]);
 
   // Safety-training assignments — placed on their due date (or assigned date).
-  // A denied read (roles that can't list all company assignments) just yields
-  // nothing here, leaving the module schedule intact.
+  // Management roles can list every assignment in the company; everyone else
+  // is restricted by the security rules to their own, so they query by
+  // `traineeId` instead — a company-wide query for those roles would be
+  // denied outright and never show anything.
+  const canListAll = !!role && CAN_LIST_ALL_ASSIGNMENTS_ROLES.includes(role);
   useEffect(() => {
-    if (!companyId) return;
+    if (!companyId || (!canListAll && !userId)) return;
+    const constraints = canListAll
+      ? [where('companyId', '==', companyId)]
+      : [where('companyId', '==', companyId), where('traineeId', '==', userId)];
     const unsub = onSnapshot(
-      query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
+      query(collection(db, 'trainingAssignments'), ...constraints),
       (snap) => {
         // One entry per (module, date) — every assignee collapses into that
         // entry's `assignees` list rather than producing a duplicate row.
@@ -135,7 +151,7 @@ function useSafetyTrainingSchedule(companyId: string): {
       () => setAssignmentEntries([]),
     );
     return () => unsub();
-  }, [companyId, safetyModuleIds]);
+  }, [companyId, userId, canListAll, safetyModuleIds]);
 
   const lessons = useMemo(() => [...moduleLessons, ...assignmentEntries], [moduleLessons, assignmentEntries]);
   return useMemo(() => ({ lessons, modulesById }), [lessons, modulesById]);
@@ -143,9 +159,10 @@ function useSafetyTrainingSchedule(companyId: string): {
 
 export default function SafetyCalendarPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const role = useAuthStore((s) => s.userProfile?.role);
   const canAssign = !!role && CAN_ASSIGN_ROLES.includes(role);
-  const { lessons, modulesById } = useSafetyTrainingSchedule(companyId);
+  const { lessons, modulesById } = useSafetyTrainingSchedule(companyId, userId, role);
   const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
   const [cursor, setCursor] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
 

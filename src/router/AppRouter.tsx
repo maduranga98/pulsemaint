@@ -544,7 +544,7 @@ export default function AppRouter() {
         {/* Safety (EHS) — safety officer workspace, with manager oversight */}
         <Route path="safety" element={<Navigate to="/app/safety/dashboard" replace />} />
         <Route path="safety/dashboard" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyDashboard /></ProtectedRoute>} />
-        <Route path="safety/cases" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor']}><SafetyCasesPage /></ProtectedRoute>} />
+        <Route path="safety/cases" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor', 'technician', 'floor_operator', 'store_keeper', 'trainee']}><SafetyCasesPage /></ProtectedRoute>} />
         <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor']}><WorkPermitsPage /></ProtectedRoute>} />
         {/* Safety Training Schedules — the company-wide safety-training
             calendar, available to every signed-in role. */}
