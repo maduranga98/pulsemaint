@@ -366,7 +366,23 @@ service cloud.firestore {
     match /safety_cases/{caseId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId);
-      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canManageSafety();
+      // Safety-management roles can update anything. A case's current
+      // assignee (whoever it was last "reported to") can also record actions
+      // / change status / re-escalate — the frontline roles (technician,
+      // floor_operator, store_keeper, trainee) a case gets assigned to for
+      // action have no other write path here, so this is scoped to the
+      // exact fields addSafetyCaseAction/reportSafetyCaseTo touch.
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (
+          canManageSafety()
+          || (
+            resource.data.reportedToUserId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'actions', 'updatedAt', 'status', 'closedAt',
+              'reportedToUserId', 'reportedToName', 'reportedToRole'
+            ])
+          )
+        );
       allow delete: if isAdmin();
     }
 
