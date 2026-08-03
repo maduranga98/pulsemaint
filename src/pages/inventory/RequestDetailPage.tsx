@@ -388,6 +388,16 @@ export function RequestDetailPage() {
         machineName: request.machineName,
         issuedAt: request.issuedAt,
       });
+      void notifyRoles(companyId, ['store_keeper'], {
+        type: 'parts',
+        message: `${userName} returned ${quantity} × ${item.partName} — confirm receipt in Parts Returns`,
+        oversightMessage: `${userName} requested a return of ${quantity} × ${item.partName}`,
+        severity: 'medium',
+        linkTo: '/app/inventory/returns',
+        actorName: userName,
+        actorRole: (userRole || null) as UserRole | null,
+        actorUserId: userId,
+      });
       addToast('Return requested — a store keeper will confirm it.', 'success');
     } catch (err) {
       addToast('Failed to request return.', 'error');

@@ -5,6 +5,8 @@ import { useToast } from '@/hooks/useToast';
 import { useCompanyUsers } from '@/hooks/useCompanyUsers';
 import { useWorkOrders } from '@/hooks/useWorkOrders';
 import { createWorkPermit } from '@/services/safety.service';
+import { notifyRoles, notifyUsers } from '@/services/notifications.service';
+import type { UserRole } from '@/types/auth';
 import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '@/types/safety';
 
 interface Props {
@@ -108,6 +110,30 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
         requestedByName: profile.fullName ?? '',
         requestedByRole: profile.role ?? '',
       });
+
+      const actor = {
+        actorName: profile.fullName ?? '',
+        actorRole: (profile.role ?? null) as UserRole | null,
+        actorUserId: profile.id,
+      };
+      void notifyRoles(profile.companyId, ['safety_officer'], {
+        type: 'alert',
+        severity: 'medium',
+        message: `New work permit issued: ${title.trim()}`,
+        oversightMessage: `issued work permit "${title.trim()}"`,
+        linkTo: '/app/safety/permits',
+        ...actor,
+      });
+      if (sup) {
+        void notifyUsers(profile.companyId, [sup.id], {
+          type: 'alert',
+          severity: 'medium',
+          message: `You're the responsible supervisor for a new work permit: ${title.trim()}`,
+          oversightMessage: `issued work permit "${title.trim()}" naming ${sup.fullName} as supervisor`,
+          linkTo: '/app/safety/permits',
+          ...actor,
+        });
+      }
       toast.success('Work permit issued.');
       onCreated?.();
       onClose();
