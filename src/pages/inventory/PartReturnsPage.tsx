@@ -6,6 +6,8 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { usePartReturns } from '@/hooks/inventory/usePartReturns';
 import { useToast } from '@/hooks/useToast';
+import { notifyUsers } from '@/services/notifications.service';
+import type { UserRole } from '@/types/auth';
 import { PartReturnQueueRow } from '@/components/inventory/returns/PartReturnQueueRow';
 import type { PartReturn, PartReturnStatus, RequestItem } from '@/types/inventory';
 
@@ -117,6 +119,16 @@ export function PartReturnsPage() {
         }
       });
 
+      void notifyUsers(companyId, [partReturn.requestedBy], {
+        type: 'parts',
+        message: `Your return of ${partReturn.quantity} × ${partReturn.partName} was confirmed`,
+        oversightMessage: `confirmed ${partReturn.requestedByName}'s return of ${partReturn.quantity} × ${partReturn.partName}`,
+        severity: 'low',
+        linkTo: `/app/inventory/requests/${partReturn.partsRequestId}`,
+        actorName: userName,
+        actorRole: (userRole || null) as UserRole | null,
+        actorUserId: userId,
+      });
       addToast('Return confirmed — stock updated.', 'success');
     } catch (err) {
       addToast(err instanceof Error ? err.message : 'Failed to confirm return.', 'error');
@@ -139,6 +151,16 @@ export function PartReturnsPage() {
           storeKeeperConfirmedAt: serverTimestamp(),
           notes: reason,
         });
+      });
+      void notifyUsers(companyId, [partReturn.requestedBy], {
+        type: 'parts',
+        message: `Your return of ${partReturn.quantity} × ${partReturn.partName} was rejected: ${reason}`,
+        oversightMessage: `rejected ${partReturn.requestedByName}'s return of ${partReturn.quantity} × ${partReturn.partName}`,
+        severity: 'medium',
+        linkTo: `/app/inventory/requests/${partReturn.partsRequestId}`,
+        actorName: userName,
+        actorRole: (userRole || null) as UserRole | null,
+        actorUserId: userId,
       });
       addToast('Return rejected.', 'success');
     } catch (err) {

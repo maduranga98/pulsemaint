@@ -6,6 +6,8 @@ import { useCompanyUsers } from '@/hooks/useCompanyUsers';
 import { useWorkOrders } from '@/hooks/useWorkOrders';
 import { useContractors } from '@/hooks/contractors/useContractors';
 import { createSafetyCase } from '@/services/safety.service';
+import { notifyRoles, notifyUsers } from '@/services/notifications.service';
+import type { UserRole } from '@/types/auth';
 import {
   SAFETY_CASE_SEVERITIES,
   SAFETY_CASE_SUBJECT_TYPES,
@@ -118,6 +120,30 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
         reportedByName: profile.fullName ?? '',
         reportedByRole: profile.role ?? '',
       });
+
+      const actor = {
+        actorName: profile.fullName ?? '',
+        actorRole: (profile.role ?? null) as UserRole | null,
+        actorUserId: profile.id,
+      };
+      void notifyRoles(profile.companyId, ['safety_officer'], {
+        type: 'alert',
+        severity: severity === 'critical' ? 'critical' : severity === 'high' ? 'high' : 'medium',
+        message: `New safety case reported: ${title.trim()}`,
+        oversightMessage: `reported a safety case: ${title.trim()}`,
+        linkTo: '/app/safety/cases',
+        ...actor,
+      });
+      if (reportTo) {
+        void notifyUsers(profile.companyId, [reportTo.id], {
+          type: 'alert',
+          severity: severity === 'critical' ? 'critical' : severity === 'high' ? 'high' : 'medium',
+          message: `Safety case reported to you: ${title.trim()}`,
+          oversightMessage: `reported a safety case to ${reportTo.fullName}: ${title.trim()}`,
+          linkTo: '/app/safety/cases',
+          ...actor,
+        });
+      }
       toast.success('Safety case logged.');
       onCreated?.();
       onClose();
