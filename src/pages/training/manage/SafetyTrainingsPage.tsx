@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { Loader2, ShieldAlert, CalendarClock, Users } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import {
   getModuleSessions,
@@ -7,8 +7,9 @@ import {
   useSafetyTrainingModules,
 } from '@/hooks/training/useSafetyTrainings';
 import TrainingStatusBadge from '@/components/training/shared/TrainingStatusBadge';
+import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
 import type { Timestamp } from 'firebase/firestore';
-import type { TrainingAssignment } from '@/lib/training/trainingTypes';
+import type { TrainingAssignment, TrainingModule } from '@/lib/training/trainingTypes';
 
 function formatTimestamp(ts: Timestamp | null | undefined): string {
   const d = (ts as { toDate?: () => Date } | null | undefined)?.toDate?.();
@@ -37,6 +38,7 @@ export default function SafetyTrainingsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const { modules, moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useCompanySafetyAssignments(companyId, moduleIds);
+  const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
 
   const assignmentsByModule = useMemo(() => {
     const m = new Map<string, TrainingAssignment[]>();
@@ -53,6 +55,12 @@ export default function SafetyTrainingsPage() {
     () => [...assignmentsByModule.keys()].filter((id) => !moduleIds.has(id)),
     [assignmentsByModule, moduleIds],
   );
+
+  const modulesById = useMemo(() => {
+    const m = new Map<string, TrainingModule>();
+    for (const mod of modules) m.set(mod.id, mod);
+    return m;
+  }, [modules]);
 
   const loading = modulesLoading || assignmentsLoading;
 
@@ -109,9 +117,20 @@ export default function SafetyTrainingsPage() {
               <div key={row.id} className="rounded-xl border border-slate-200 bg-white p-5">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <h2 className="font-semibold text-slate-900">{row.title}</h2>
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                    <Users className="h-3.5 w-3.5" /> {rowAssignments.length} assigned
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                      <Users className="h-3.5 w-3.5" /> {rowAssignments.length} assigned
+                    </span>
+                    {modulesById.has(row.id) && (
+                      <button
+                        type="button"
+                        onClick={() => setAssigningModule(modulesById.get(row.id) ?? null)}
+                        className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100"
+                      >
+                        <UserPlus className="h-3.5 w-3.5" /> Assign
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {row.sessions.length > 0 && (
@@ -167,6 +186,14 @@ export default function SafetyTrainingsPage() {
             );
           })}
         </div>
+      )}
+
+      {assigningModule && (
+        <ModuleAssignForm
+          module={assigningModule}
+          onClose={() => setAssigningModule(null)}
+          onAssigned={() => setAssigningModule(null)}
+        />
       )}
     </div>
   );

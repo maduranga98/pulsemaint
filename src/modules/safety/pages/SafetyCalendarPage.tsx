@@ -1,13 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, CalendarDays, GraduationCap } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, GraduationCap, UserPlus } from 'lucide-react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import { SAFETY_TRAINING_TYPE } from '@/lib/training/trainingTypes';
+import { SAFETY_TRAINING_TYPE, type TrainingModule } from '@/lib/training/trainingTypes';
+import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
+
+// Roles that can assign safety trainings to people from this schedule.
+const CAN_ASSIGN_ROLES = ['safety_officer', 'supervisor', 'plant_manager', 'admin'];
 
 interface ScheduledLesson {
   date: string;
   time: string;
+  moduleId?: string;
   moduleTitle: string;
   lessonTitle: string;
   // Only set for assignment-derived entries — every person this training was
@@ -43,9 +48,13 @@ function tsToYmd(ts: unknown): string | null {
  *    assignment's due date (or the day it was assigned) so an assigned safety
  *    training shows even when its module lessons carry no per-lesson schedule.
  */
-function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
+function useSafetyTrainingSchedule(companyId: string): {
+  lessons: ScheduledLesson[];
+  modulesById: Map<string, TrainingModule>;
+} {
   const [moduleLessons, setModuleLessons] = useState<ScheduledLesson[]>([]);
   const [safetyModuleIds, setSafetyModuleIds] = useState<Set<string>>(new Set());
+  const [modulesById, setModulesById] = useState<Map<string, TrainingModule>>(new Map());
   const [assignmentEntries, setAssignmentEntries] = useState<ScheduledLesson[]>([]);
 
   // Safety-training modules: their scheduled lessons + the set of safety module ids.
@@ -56,10 +65,12 @@ function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
       (snap) => {
         const out: ScheduledLesson[] = [];
         const ids = new Set<string>();
+        const byId = new Map<string, TrainingModule>();
         snap.docs.forEach((d) => {
           const data = d.data();
           if (data.trainingType !== SAFETY_TRAINING_TYPE) return; // safety training only
           ids.add(d.id);
+          byId.set(d.id, { id: d.id, ...data } as TrainingModule);
           const moduleTitle = String(data.title ?? 'Safety Training');
           const ls = (data.lessons ?? []) as Array<{ title?: string; scheduledDate?: string; scheduledTime?: string }>;
           ls.forEach((l) => {
@@ -67,6 +78,7 @@ function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
               out.push({
                 date: l.scheduledDate,
                 time: String(l.scheduledTime ?? ''),
+                moduleId: d.id,
                 moduleTitle,
                 lessonTitle: String(l.title ?? ''),
               });
@@ -75,8 +87,9 @@ function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
         });
         setModuleLessons(out);
         setSafetyModuleIds(ids);
+        setModulesById(byId);
       },
-      () => { setModuleLessons([]); setSafetyModuleIds(new Set()); },
+      () => { setModuleLessons([]); setSafetyModuleIds(new Set()); setModulesById(new Map()); },
     );
     return () => unsub();
   }, [companyId]);
@@ -110,6 +123,7 @@ function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
             grouped.set(key, {
               date,
               time: '',
+              moduleId: a.moduleId ? String(a.moduleId) : undefined,
               moduleTitle,
               lessonTitle: '',
               assignees: traineeName ? [traineeName] : [],
@@ -123,12 +137,16 @@ function useSafetyTrainingSchedule(companyId: string): ScheduledLesson[] {
     return () => unsub();
   }, [companyId, safetyModuleIds]);
 
-  return useMemo(() => [...moduleLessons, ...assignmentEntries], [moduleLessons, assignmentEntries]);
+  const lessons = useMemo(() => [...moduleLessons, ...assignmentEntries], [moduleLessons, assignmentEntries]);
+  return useMemo(() => ({ lessons, modulesById }), [lessons, modulesById]);
 }
 
 export default function SafetyCalendarPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const lessons = useSafetyTrainingSchedule(companyId);
+  const role = useAuthStore((s) => s.userProfile?.role);
+  const canAssign = !!role && CAN_ASSIGN_ROLES.includes(role);
+  const { lessons, modulesById } = useSafetyTrainingSchedule(companyId);
+  const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
   const [cursor, setCursor] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
 
   const monthLabel = cursor.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
@@ -214,26 +232,48 @@ export default function SafetyCalendarPage() {
               <p className="text-sm text-[#8BA3BF]">No safety trainings scheduled. Create a module with Training Type “Safety Training” and schedule its lessons.</p>
             ) : (
               <div className="space-y-2">
-                {upcoming.map((l, idx) => (
-                  <div key={idx} className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2">
-                    <p className="text-sm font-medium text-[#F0F4F8]">{l.moduleTitle}</p>
-                    <p className="text-xs text-[#8BA3BF]">
-                      {new Date(l.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      {l.time ? ` · ${l.time}` : ''}
-                      {l.lessonTitle ? ` · ${l.lessonTitle}` : ''}
-                    </p>
-                    {l.assignees && l.assignees.length > 0 && (
-                      <p className="mt-1 text-xs text-[#5B8DEF]">
-                        Assigned to {l.assignees.join(', ')}
+                {upcoming.map((l, idx) => {
+                  const module = l.moduleId ? modulesById.get(l.moduleId) : undefined;
+                  return (
+                    <div key={idx} className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-sm font-medium text-[#F0F4F8]">{l.moduleTitle}</p>
+                        {canAssign && module && (
+                          <button
+                            type="button"
+                            onClick={() => setAssigningModule(module)}
+                            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#1E3A5F] px-2 py-1 text-[11px] font-medium text-[#5B8DEF] hover:bg-[#5B8DEF]/10"
+                          >
+                            <UserPlus className="h-3 w-3" /> Assign
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-xs text-[#8BA3BF]">
+                        {new Date(l.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        {l.time ? ` · ${l.time}` : ''}
+                        {l.lessonTitle ? ` · ${l.lessonTitle}` : ''}
                       </p>
-                    )}
-                  </div>
-                ))}
+                      {l.assignees && l.assignees.length > 0 && (
+                        <p className="mt-1 text-xs text-[#5B8DEF]">
+                          Assigned to {l.assignees.join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {assigningModule && (
+        <ModuleAssignForm
+          module={assigningModule}
+          onClose={() => setAssigningModule(null)}
+          onAssigned={() => setAssigningModule(null)}
+        />
+      )}
     </div>
   );
 }
