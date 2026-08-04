@@ -148,22 +148,22 @@ export default function PublicBreakdownReportPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-6 flex flex-col items-center">
-          <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto mb-2" />
-          <div className="text-2xl font-bold">
+        <div className="text-center mb-6 flex flex-col items-center gap-2">
+          <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto" />
+          <div className="text-2xl font-bold" style={{ fontFamily: "'Sora', var(--font-sans)" }}>
             <span className="text-white">Firmi</span>
             <span className="text-[#00C2FF]">Core</span>
           </div>
-          <p className="text-slate-300 text-sm mt-1">Report a breakdown — no sign-in required</p>
+          <p className="text-slate-300 text-sm">Report a breakdown — no sign-in required</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-6">
           {ticketNumber ? (
-            <div className="text-center py-4">
-              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+            <div className="text-center py-4 flex flex-col items-center gap-1.5">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 mb-1" />
               <p className="text-lg font-semibold text-slate-900">Breakdown reported</p>
-              <p className="text-sm text-slate-500 mt-1">Ticket <span className="font-mono font-medium">{ticketNumber}</span> has been sent to the maintenance team.</p>
-              <p className="text-xs text-slate-400 mt-4">You can close this page.</p>
+              <p className="text-sm text-slate-500">Ticket <span className="font-mono font-medium">{ticketNumber}</span> has been sent to the maintenance team.</p>
+              <p className="text-xs text-slate-400 mt-2">You can close this page.</p>
             </div>
           ) : loadingMachine ? (
             <p className="text-sm text-slate-500 text-center py-6">Loading machine…</p>
