@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { ClipboardList } from 'lucide-react';
-import type { WorkOrder, WOFilters, WOStatus, WOType } from '../../types/workOrder';
+import type { WorkOrder, WOFilters, WOType } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
 import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
@@ -12,17 +12,7 @@ import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 
-type TabId = 'all' | 'mine' | 'open' | 'overdue' | 'week';
-
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'all', label: WO_COPY.tabAll },
-  { id: 'mine', label: WO_COPY.tabMyWOs },
-  { id: 'open', label: WO_COPY.tabOpen },
-  { id: 'overdue', label: WO_COPY.tabOverdue },
-  { id: 'week', label: WO_COPY.tabThisWeek },
-];
-
-const OPEN_STATUSES: WOStatus[] = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
+type CategoryId = 'all' | WOType;
 
 // Breakdown Repair and Preventive Maintenance work orders already have their
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
@@ -31,7 +21,7 @@ const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
 const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.includes(t));
 
 export function WOListView() {
-  const [activeTab, setActiveTab] = useState<TabId>('all');
+  const [activeCategory, setActiveCategory] = useState<CategoryId>('all');
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,22 +53,11 @@ export function WOListView() {
   const canCreateWorkOrder =
     role === 'supervisor' || role === 'admin' || role === 'plant_manager';
 
-  const now = new Date();
-  const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
-  startOfWeek.setHours(0, 0, 0, 0);
-
   const filters: WOFilters = {};
   if (searchQuery) filters.searchQuery = searchQuery;
-  if (activeTab === 'mine') filters.technicianId = user?.uid;
   // Firestore rules only let technicians read WOs they are assigned to, so
-  // every tab must constrain the query to their own WOs or it is rejected.
+  // the query must always be constrained to their own WOs or it is rejected.
   if (role === 'technician') filters.technicianId = user?.uid;
-  if (activeTab === 'open') filters.status = OPEN_STATUSES;
-  if (activeTab === 'week') {
-    filters.dateFrom = startOfWeek;
-    filters.dateTo = now;
-  }
 
   const { workOrders, loading, error } = useWorkOrders(filters);
 
@@ -105,14 +84,9 @@ export function WOListView() {
   // (Breakdowns, PM Schedules) — never shown here.
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
-  const displayedWOs = activeTab === 'overdue'
-    ? nonExcludedWOs.filter(
-        (wo) =>
-          wo.slaBreached ||
-          (wo.slaDeadline?.toMillis() < Date.now() &&
-            !['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(wo.status)),
-      )
-    : nonExcludedWOs;
+  const displayedWOs = activeCategory === 'all'
+    ? nonExcludedWOs
+    : nonExcludedWOs.filter((wo) => wo.woType === activeCategory);
 
   const columns = COLUMN_TYPES.map((type) => ({
     type,
@@ -147,23 +121,48 @@ export function WOListView() {
         {/* Stats */}
         <WOStatsBar />
 
-        {/* Tabs + Search */}
+        {/* Category tabs + Search */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-1 overflow-x-auto">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-500 hover:bg-gray-100'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={() => setActiveCategory('all')}
+              className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                activeCategory === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-500 hover:bg-gray-100'
+              }`}
+            >
+              {WO_COPY.tabAll}
+            </button>
+            {COLUMN_TYPES.map((type) => {
+              const config = WO_TYPE_CONFIG[type];
+              const count = nonExcludedWOs.filter((wo) => wo.woType === type).length;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setActiveCategory(type)}
+                  className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                    activeCategory === type
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                >
+                  <span className={activeCategory === type ? 'text-white' : ''} style={activeCategory === type ? undefined : { color: config.color }}>
+                    {config.icon}
+                  </span>
+                  {config.label}
+                  <span
+                    className={`text-xs font-medium rounded-full px-1.5 ${
+                      activeCategory === type ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400'
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           <input
@@ -196,9 +195,9 @@ export function WOListView() {
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">{WO_COPY.noOpenWOs}</p>
             </div>
-          ) : (
-            /* Flat list grouped by WO type — a section header per type,
-               each work order rendered as a single row (not a card grid). */
+          ) : activeCategory === 'all' ? (
+            /* All categories — one section per WO type, each work order a
+               single row (not a card grid). */
             <div className="space-y-6">
               {columns.filter((col) => col.items.length > 0).map((col) => (
                 <div key={col.type}>
@@ -215,6 +214,13 @@ export function WOListView() {
                     ))}
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            /* A single category selected — flat list of its work orders. */
+            <div className="bg-white rounded-lg shadow-sm divide-y divide-gray-100 overflow-hidden">
+              {displayedWOs.map((wo) => (
+                <WORow key={wo.id} workOrder={wo} onClick={setSelectedWO} />
               ))}
             </div>
           )
