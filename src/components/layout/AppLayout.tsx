@@ -82,7 +82,6 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
       { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
       { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
-      { label: 'Sign-Off Queue', to: '/app/sign-off-queue', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'admin'] },
       {
         label: 'PM Schedules',
         to: '/app/pm-schedules',
@@ -92,26 +91,6 @@ const NAV_GROUPS: NavGroup[] = [
           </svg>
         ),
         roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
-      },
-      {
-        label: 'PM Calendar',
-        to: '/app/pm-calendar',
-        icon: (
-          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="1" fill="currentColor"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/>
-          </svg>
-        ),
-        roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
-      },
-      {
-        label: 'PM Compliance',
-        to: '/app/pm-compliance',
-        icon: (
-          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-        ),
-        roles: ['supervisor', 'plant_manager', 'admin'],
       },
     ],
   },
@@ -136,11 +115,29 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    id: 'operations',
-    label: 'Operations',
+    id: 'inventory',
+    label: 'Inventory Management',
     items: [
-      { label: 'Inventory / Parts', to: '/app/inventory', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
-      { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
+      // Parts catalog + low stock alerts + Add Item only — PO and requests
+      // now live in their own tabs instead of one page mixing everything.
+      { label: 'Inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      {
+        label: 'PO',
+        to: '/app/inventory/purchase-orders',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+        ),
+        roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin'],
+      },
+      { label: 'Requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+    ],
+  },
+  {
+    id: 'triage-training',
+    label: 'Triage & Training',
+    items: [
       {
         label: 'Triage',
         to: '/app/triage',
@@ -161,22 +158,15 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer'],
       },
-      {
-        label: 'MOE',
-        to: '/app/moe',
-        icon: (
-          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
-          </svg>
-        ),
-        roles: ['supervisor', 'plant_manager', 'admin'],
-      },
+      { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+      { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
     ],
   },
   {
     id: 'workforce',
     label: 'Workforce',
     items: [
+      { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
       {
         label: 'My Shift',
         to: '/app/shift/my',
@@ -197,13 +187,12 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['plant_manager', 'admin', 'hr_officer'],
       },
-      { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
       // Training can be assigned to any role, so everyone gets a "My Training"
-      // entry (the route allows any authenticated user).
+      // entry (the route allows any authenticated user). The admin-facing
+      // "Training" / "Trainee Management" tabs live under Triage & Training.
       { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
       { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
       { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
-      { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
     ],
   },
   {
@@ -219,6 +208,16 @@ const NAV_GROUPS: NavGroup[] = [
           </svg>
         ),
         roles: ['plant_manager', 'admin', 'supervisor'],
+      },
+      {
+        label: 'MOE',
+        to: '/app/moe',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+          </svg>
+        ),
+        roles: ['supervisor', 'plant_manager', 'admin'],
       },
       { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper'] },
       {

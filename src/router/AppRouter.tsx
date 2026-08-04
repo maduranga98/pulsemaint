@@ -70,11 +70,9 @@ import {
   PMScheduleEditPage,
   PMScheduleDetailPage,
   PMCalendarPage,
-  PMCompliancePage,
 } from '../pages/pm';
 
 // Inventory pages
-import InventoryDashboardPage from '../pages/inventory/InventoryDashboardPage';
 import PartCatalogPage from '../pages/inventory/PartCatalogPage';
 import AddPartPage from '../pages/inventory/AddPartPage';
 import PartDetailPage from '../pages/inventory/PartDetailPage';
@@ -156,7 +154,6 @@ import AttendBreakdownsPage from '../pages/breakdowns/AttendBreakdownsPage';
 import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import MyWorkOrdersPage from '../pages/workorders/MyWorkOrdersPage';
-import SignOffQueuePage from '../pages/workorders/SignOffQueuePage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
 
@@ -384,23 +381,10 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="sign-off-queue"
-          element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
-              <SignOffQueuePage />
-            </ProtectedRoute>
-          }
-        />
-        {/* Inventory */}
-        <Route
-          path="inventory"
-          element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician', 'trainee']}>
-              <InventoryDashboardPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* Inventory — the old mixed-everything dashboard is replaced by three
+            focused tabs (Inventory catalog / PO / Requests) in the sidebar;
+            redirect any stale link to the catalog instead of that page. */}
+        <Route path="inventory" element={<Navigate to="/app/inventory/catalog" replace />} />
         <Route
           path="inventory/catalog"
           element={
@@ -854,14 +838,6 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'supervisor']}>
               <AnalyticsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="pm-compliance"
-          element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
-              <PMCompliancePage />
             </ProtectedRoute>
           }
         />
