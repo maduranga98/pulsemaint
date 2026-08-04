@@ -24,7 +24,6 @@ const TABS: TabDef[] = [
   { id: 'completed', label: 'Completed' },
   { id: 'pending_return', label: 'Pending Return' },
   { id: 'rejected', label: 'Rejected' },
-  { id: 'all', label: 'All' },
 ];
 
 // Requester (technician/trainee/etc.) view — the review-stage tabs don't
