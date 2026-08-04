@@ -1,13 +1,17 @@
+import type { ReactNode } from 'react';
+import { AlertTriangle, Wrench, CalendarClock, Building2, RefreshCw, Search, HardHat, ClipboardList } from 'lucide-react';
 import type { WOPriority, WOStatus, WOType } from '../types/workOrder';
 
 // ---------------------------------------------------------------------------
 // WO Type Configuration
 // ---------------------------------------------------------------------------
 
+const iconClass = 'w-4 h-4';
+
 export interface WOTypeConfig {
   label: string;
   code: WOType;
-  icon: string;          // emoji icon
+  icon: ReactNode;
   color: string;         // hex accent color
   bgClass: string;       // Tailwind bg class
   textClass: string;     // Tailwind text class
@@ -21,7 +25,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   BREAKDOWN: {
     label: 'Breakdown Repair',
     code: 'BREAKDOWN',
-    icon: '🔴',
+    icon: <AlertTriangle className={iconClass} />,
     color: '#EF4444',
     bgClass: 'bg-red-100',
     textClass: 'text-red-800',
@@ -33,7 +37,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   CORRECTIVE: {
     label: 'Corrective Maintenance',
     code: 'CORRECTIVE',
-    icon: '🔧',
+    icon: <Wrench className={iconClass} />,
     color: '#F59E0B',
     bgClass: 'bg-amber-100',
     textClass: 'text-amber-800',
@@ -45,7 +49,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   PREVENTIVE: {
     label: 'Preventive Maintenance',
     code: 'PREVENTIVE',
-    icon: '📅',
+    icon: <CalendarClock className={iconClass} />,
     color: '#1A56DB',
     bgClass: 'bg-blue-100',
     textClass: 'text-blue-800',
@@ -57,7 +61,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   INSTALLATION: {
     label: 'Installation',
     code: 'INSTALLATION',
-    icon: '🏗️',
+    icon: <Building2 className={iconClass} />,
     color: '#8B5CF6',
     bgClass: 'bg-violet-100',
     textClass: 'text-violet-800',
@@ -69,7 +73,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   MODIFICATION: {
     label: 'Modification / Upgrade',
     code: 'MODIFICATION',
-    icon: '🔄',
+    icon: <RefreshCw className={iconClass} />,
     color: '#0EA5E9',
     bgClass: 'bg-sky-100',
     textClass: 'text-sky-800',
@@ -81,7 +85,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   INSPECTION: {
     label: 'Inspection',
     code: 'INSPECTION',
-    icon: '🔍',
+    icon: <Search className={iconClass} />,
     color: '#10B981',
     bgClass: 'bg-emerald-100',
     textClass: 'text-emerald-800',
@@ -93,7 +97,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   CONTRACTOR: {
     label: 'Contractor Job',
     code: 'CONTRACTOR',
-    icon: '🤝',
+    icon: <HardHat className={iconClass} />,
     color: '#6366F1',
     bgClass: 'bg-indigo-100',
     textClass: 'text-indigo-800',
@@ -105,7 +109,7 @@ export const WO_TYPE_CONFIG: Record<WOType, WOTypeConfig> = {
   OTHER: {
     label: 'Other',
     code: 'OTHER',
-    icon: '📋',
+    icon: <ClipboardList className={iconClass} />,
     color: '#6B7280',
     bgClass: 'bg-gray-100',
     textClass: 'text-gray-700',

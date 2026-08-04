@@ -1,3 +1,4 @@
+import { HardHat } from 'lucide-react';
 import type { WorkOrder } from '../../types/workOrder';
 import { WO_PRIORITY_CONFIG } from '../../constants/woConfig';
 import { WOTypeBadge } from './WOTypeBadge';
@@ -25,7 +26,9 @@ export function WOCard({ workOrder, onClick }: WOCardProps) {
         <div className="flex items-center gap-2 flex-wrap min-w-0">
           <WOTypeBadge woType={workOrder.woType} size="sm" />
           {workOrder.woType === 'CONTRACTOR' && (
-            <span className="text-xs text-indigo-600 font-medium">🤝 Contractor</span>
+            <span className="inline-flex items-center gap-1 text-xs text-indigo-600 font-medium">
+              <HardHat className="w-3 h-3" /> Contractor
+            </span>
           )}
         </div>
         <WOStatusBadge status={workOrder.status} size="sm" />

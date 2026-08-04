@@ -1,22 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { ClipboardList } from 'lucide-react';
 import type { WorkOrder, WOFilters, WOStatus, WOType } from '../../types/workOrder';
 import { WO_COPY } from '../../constants/copy';
+import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
 import { WOCard } from './WOCard';
 import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
-import { WOKanbanBoard } from './WOKanbanBoard';
-import { WOTypeBadge } from './WOTypeBadge';
-import { PriorityBadge } from './PriorityBadge';
-import { WOStatusBadge } from './WOStatusBadge';
-import { SLACountdownTimer } from './SLACountdownTimer';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 
 type TabId = 'all' | 'mine' | 'open' | 'overdue' | 'week';
-type ViewMode = 'list' | 'kanban';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'all', label: WO_COPY.tabAll },
@@ -28,9 +24,14 @@ const TABS: { id: TabId; label: string }[] = [
 
 const OPEN_STATUSES: WOStatus[] = ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'];
 
+// Breakdown Repair and Preventive Maintenance work orders already have their
+// own dedicated pages (Breakdowns, PM Schedules) — this list is for
+// everything else, organized into a column per WO type.
+const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
+const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.includes(t));
+
 export function WOListView() {
   const [activeTab, setActiveTab] = useState<TabId>('all');
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -100,14 +101,24 @@ export function WOListView() {
     ? workOrders.find((w) => w.id === selectedWO.id) ?? selectedWO
     : null;
 
+  // Breakdown Repair and Preventive Maintenance WOs live on their own pages
+  // (Breakdowns, PM Schedules) — never shown here.
+  const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
+
   const displayedWOs = activeTab === 'overdue'
-    ? workOrders.filter(
+    ? nonExcludedWOs.filter(
         (wo) =>
           wo.slaBreached ||
           (wo.slaDeadline?.toMillis() < Date.now() &&
             !['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(wo.status)),
       )
-    : workOrders;
+    : nonExcludedWOs;
+
+  const columns = COLUMN_TYPES.map((type) => ({
+    type,
+    config: WO_TYPE_CONFIG[type],
+    items: displayedWOs.filter((wo) => wo.woType === type),
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -116,27 +127,9 @@ export function WOListView() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="font-bold text-2xl text-gray-900">{WO_COPY.listTitle}</h1>
-            <p className="text-sm text-gray-500">{workOrders.length} work orders</p>
+            <p className="text-sm text-gray-500">{nonExcludedWOs.length} work orders</p>
           </div>
           <div className="flex items-center gap-2">
-            {/* View toggle */}
-            <div className="flex rounded-lg border border-gray-200 overflow-hidden">
-              <button
-                type="button"
-                onClick={() => setViewMode('list')}
-                className={`px-3 py-1.5 text-sm ${viewMode === 'list' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
-              >
-                ≡ List
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('kanban')}
-                className={`px-3 py-1.5 text-sm ${viewMode === 'kanban' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
-              >
-                ⊞ Kanban
-              </button>
-            </div>
-
             {canCreateWorkOrder && (
               <button
                 type="button"
@@ -198,73 +191,32 @@ export function WOListView() {
         )}
 
         {!loading && !error && (
-          viewMode === 'kanban' ? (
-            <WOKanbanBoard workOrders={displayedWOs} onSelectWO={setSelectedWO} />
-          ) : displayedWOs.length === 0 ? (
+          displayedWOs.length === 0 ? (
             <div className="text-center py-16">
-              <p className="text-5xl mb-4">📋</p>
+              <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">{WO_COPY.noOpenWOs}</p>
             </div>
           ) : (
-            <>
-              {/* Desktop table (md+) */}
-              <div className="hidden md:block bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
-                    <tr>
-                      <th className="px-4 py-3 text-left">WO #</th>
-                      <th className="px-4 py-3 text-left">Type</th>
-                      <th className="px-4 py-3 text-left">Priority</th>
-                      <th className="px-4 py-3 text-left">Machine</th>
-                      <th className="px-4 py-3 text-left">Status</th>
-                      <th className="px-4 py-3 text-left">Assigned</th>
-                      <th className="px-4 py-3 text-left">SLA</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {displayedWOs.map((wo) => (
-                      <tr
-                        key={wo.id}
-                        onClick={() => setSelectedWO(wo)}
-                        className="hover:bg-gray-50 cursor-pointer transition-colors"
-                      >
-                        <td className="px-4 py-3 font-medium text-blue-600">{wo.woNumber || ''}</td>
-                        <td className="px-4 py-3"><WOTypeBadge woType={wo.woType} size="sm" /></td>
-                        <td className="px-4 py-3"><PriorityBadge priority={wo.priority} size="sm" /></td>
-                        <td className="px-4 py-3">
-                          <p className="font-medium">{wo.machineName}</p>
-                          <p className="text-gray-400 text-xs">{wo.machineLocation}</p>
-                        </td>
-                        <td className="px-4 py-3"><WOStatusBadge status={wo.status} size="sm" /></td>
-                        <td className="px-4 py-3">
-                          <div className="flex -space-x-1.5">
-                            {wo.assignedTechnicianNames.slice(0, 3).map((n, i) => (
-                              <span
-                                key={i}
-                                title={n}
-                                className="h-7 w-7 flex items-center justify-center rounded-full bg-blue-500 ring-2 ring-white text-white text-xs font-bold"
-                              >
-                                {n[0]?.toUpperCase()}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3">
-                          <SLACountdownTimer slaDeadline={wo.slaDeadline} status={wo.status} />
-                        </td>
-                      </tr>
+            /* One column per WO type — each a self-contained board lane so a
+               reviewer can scan by type instead of one long mixed-type list. */
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {columns.filter((col) => col.items.length > 0).map((col) => (
+                <div key={col.type} className="w-72 shrink-0 flex flex-col">
+                  <div className="flex items-center gap-2 px-1 pb-2">
+                    <span style={{ color: col.config.color }}>{col.config.icon}</span>
+                    <h2 className="text-sm font-semibold text-gray-700">{col.config.label}</h2>
+                    <span className="ml-auto text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
+                      {col.items.length}
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {col.items.map((wo) => (
+                      <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />
                     ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile cards */}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:hidden">
-                {displayedWOs.map((wo) => (
-                  <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />
-                ))}
-              </div>
-            </>
+                  </div>
+                </div>
+              ))}
+            </div>
           )
         )}
       </div>
