@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { useAuthActions } from '../../hooks/useAuthActions';
@@ -12,6 +12,12 @@ interface NavItem {
   to: string;
   roles: UserRole[];
   icon: ReactNode;
+}
+
+interface NavGroup {
+  id: string;
+  label: string;
+  items: NavItem[];
 }
 
 const iconClass = 'w-[18px] h-[18px] shrink-0';
@@ -50,165 +56,215 @@ const Icon = {
   menu: (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   ),
+  chevron: (
+    <svg className="w-3.5 h-3.5 shrink-0 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  ),
 };
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', to: '/app/dashboard', icon: Icon.dashboard, roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'] },
-  { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
-  { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
-  { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer'] },
-  { label: 'Work Permits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
-  { label: 'Safety Training', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
-  { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
-  { label: 'Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
-  // Safety module surfaced for oversight roles too — admins, plant managers, and
-  // supervisors see cases the safety team escalates to them, plus analytics.
-  { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
-  // Frontline roles a safety case can be assigned down to for action — they
-  // land on the same page's "Reported to Me" filtered view.
-  { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['technician', 'floor_operator', 'store_keeper', 'trainee'] },
-  // Safety Analytics for admins/plant managers now lives inline on the manager
-  // dashboard instead of a dedicated tab.
-  { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
-  { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
-  { label: 'Sign-Off Queue', to: '/app/sign-off-queue', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'admin'] },
+// Dashboard is the landing page — kept outside every group so it's always
+// one click away instead of buried inside a collapsed section.
+const DASHBOARD_ITEM: NavItem = {
+  label: 'Dashboard',
+  to: '/app/dashboard',
+  icon: Icon.dashboard,
+  roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'],
+};
+
+// Everything else is organized into collapsible sub-tabs (see NavGroup /
+// the sidebar's accordion below) instead of one long flat list, so a given
+// role only has to scan the handful of categories relevant to them.
+const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'PM Schedules',
-    to: '/app/pm-schedules',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-      </svg>
-    ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+    id: 'maintenance',
+    label: 'Maintenance',
+    items: [
+      { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
+      { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
+      { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
+      { label: 'Sign-Off Queue', to: '/app/sign-off-queue', icon: Icon.report, roles: ['supervisor', 'plant_manager', 'admin'] },
+      {
+        label: 'PM Schedules',
+        to: '/app/pm-schedules',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        ),
+        roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+      },
+      {
+        label: 'PM Calendar',
+        to: '/app/pm-calendar',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="1" fill="currentColor"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/>
+          </svg>
+        ),
+        roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+      },
+      {
+        label: 'PM Compliance',
+        to: '/app/pm-compliance',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        ),
+        roles: ['supervisor', 'plant_manager', 'admin'],
+      },
+    ],
   },
   {
-    label: 'PM Calendar',
-    to: '/app/pm-calendar',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="12" cy="15" r="1" fill="currentColor"/><circle cx="8" cy="15" r="1" fill="currentColor"/><circle cx="16" cy="15" r="1" fill="currentColor"/>
-      </svg>
-    ),
-    roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+    id: 'safety',
+    label: 'Safety',
+    items: [
+      { label: 'Work Permits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
+      { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer'] },
+      // Safety module surfaced for oversight roles too — admins, plant managers, and
+      // supervisors see cases the safety team escalates to them, plus analytics.
+      { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
+      // Frontline roles a safety case can be assigned down to for action — they
+      // land on the same page's "Reported to Me" filtered view.
+      { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['technician', 'floor_operator', 'store_keeper', 'trainee'] },
+      { label: 'Safety Training', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
+      { label: 'Safety Trainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin'] },
+      { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
+      // Safety Analytics for admins/plant managers now lives inline on the manager
+      // dashboard instead of a dedicated tab.
+      { label: 'Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
+    ],
   },
   {
-    label: 'Analytics',
-    to: '/app/analytics',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>
-      </svg>
-    ),
-    roles: ['plant_manager', 'admin', 'supervisor'],
+    id: 'operations',
+    label: 'Operations',
+    items: [
+      { label: 'Inventory / Parts', to: '/app/inventory', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
+      {
+        label: 'Triage',
+        to: '/app/triage',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        ),
+        roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
+      },
+      {
+        label: 'Triage Builder',
+        to: '/app/triage-builder',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+        ),
+        roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer'],
+      },
+      {
+        label: 'MOE',
+        to: '/app/moe',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+          </svg>
+        ),
+        roles: ['supervisor', 'plant_manager', 'admin'],
+      },
+    ],
   },
   {
-    label: 'PM Compliance',
-    to: '/app/pm-compliance',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-      </svg>
-    ),
-    roles: ['supervisor', 'plant_manager', 'admin'],
-  },
-  { label: 'Inventory / Parts', to: '/app/inventory', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
-  { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
-  { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper'] },
-  {
-    label: 'My Shift',
-    to: '/app/shift/my',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
-      </svg>
-    ),
-    roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
-  },
-  {
-    label: 'Shift Handovers',
-    to: '/app/shift/handover/history',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M7 7h10"/><path d="M7 12h7"/><path d="M7 17h5"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M16 3v4h4"/>
-      </svg>
-    ),
-    roles: ['plant_manager', 'admin', 'hr_officer'],
-  },
-  { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
-  { label: 'Safety Trainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin'] },
-  // Training can be assigned to any role, so everyone gets a "My Training"
-  // entry (the route allows any authenticated user).
-  { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
-  { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
-  { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
-  {
-    label: 'Triage',
-    to: '/app/triage',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
-    roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
+    id: 'workforce',
+    label: 'Workforce',
+    items: [
+      {
+        label: 'My Shift',
+        to: '/app/shift/my',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+          </svg>
+        ),
+        roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
+      },
+      {
+        label: 'Shift Handovers',
+        to: '/app/shift/handover/history',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 7h10"/><path d="M7 12h7"/><path d="M7 17h5"/><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M16 3v4h4"/>
+          </svg>
+        ),
+        roles: ['plant_manager', 'admin', 'hr_officer'],
+      },
+      { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+      // Training can be assigned to any role, so everyone gets a "My Training"
+      // entry (the route allows any authenticated user).
+      { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
+      { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
+      { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
+      { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+    ],
   },
   {
-    label: 'Triage Builder',
-    to: '/app/triage-builder',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
-      </svg>
-    ),
-    roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer'],
+    id: 'insights',
+    label: 'Insights',
+    items: [
+      {
+        label: 'Analytics',
+        to: '/app/analytics',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>
+          </svg>
+        ),
+        roles: ['plant_manager', 'admin', 'supervisor'],
+      },
+      { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper'] },
+      {
+        label: 'Audit',
+        to: '/app/audit',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/><path d="M9 7h6"/>
+          </svg>
+        ),
+        roles: ['safety_officer', 'plant_manager', 'admin', 'hr_officer'],
+      },
+      {
+        label: 'Evaluations',
+        to: '/app/evaluations',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <line x1="9" y1="12" x2="15" y2="12"/>
+            <line x1="9" y1="16" x2="13" y2="16"/>
+          </svg>
+        ),
+        roles: ['plant_manager', 'admin', 'hr_officer'],
+      },
+    ],
   },
   {
-    label: 'MOE',
-    to: '/app/moe',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
-      </svg>
-    ),
-    roles: ['supervisor', 'plant_manager', 'admin'],
-  },
-  {
-    label: 'Audit',
-    to: '/app/audit',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/><path d="M9 7h6"/>
-      </svg>
-    ),
-    roles: ['safety_officer', 'plant_manager', 'admin', 'hr_officer'],
-  },
-  {
-    label: 'Evaluations',
-    to: '/app/evaluations',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-        <line x1="9" y1="12" x2="15" y2="12"/>
-        <line x1="9" y1="16" x2="13" y2="16"/>
-      </svg>
-    ),
-    roles: ['plant_manager', 'admin', 'hr_officer'],
-  },
-  { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
-  // Users and Shifts moved inside Settings — same access as before (Users'
-  // union of roles), just reached via the Settings tiles instead of their
-  // own top-level nav entries.
-  { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'plant_manager', 'hr_officer'] },
-  {
-    label: 'Billing & Plan',
-    to: '/app/billing',
-    icon: (
-      <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-      </svg>
-    ),
-    roles: ['admin'] as UserRole[],
+    id: 'admin',
+    label: 'Admin',
+    items: [
+      // Users and Shifts moved inside Settings — same access as before (Users'
+      // union of roles), just reached via the Settings tiles instead of their
+      // own top-level nav entries.
+      { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'plant_manager', 'hr_officer'] },
+      {
+        label: 'Billing & Plan',
+        to: '/app/billing',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+          </svg>
+        ),
+        roles: ['admin'] as UserRole[],
+      },
+    ],
   },
 ];
 
@@ -271,7 +327,36 @@ export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const role = userProfile?.role;
-  const visibleItems = role ? NAV_ITEMS.filter((i) => i.roles.includes(role)) : [];
+
+  const visibleDashboard = role && DASHBOARD_ITEM.roles.includes(role) ? DASHBOARD_ITEM : null;
+
+  // Each group keeps only the items this role can see; a group with nothing
+  // left to show is dropped entirely rather than rendering an empty header.
+  const visibleGroups = useMemo(() => {
+    if (!role) return [];
+    return NAV_GROUPS
+      .map((g) => ({ ...g, items: g.items.filter((i) => i.roles.includes(role)) }))
+      .filter((g) => g.items.length > 0);
+  }, [role]);
+
+  // Only the category containing the current page starts expanded — every
+  // other one stays collapsed so the sidebar doesn't dump every category on
+  // screen at once. A manual click can still open/close a different one,
+  // but that override resets whenever the route changes so it doesn't get
+  // stuck open on a page it no longer matches.
+  const activeGroupId = useMemo(
+    () => visibleGroups.find((g) => g.items.some((i) => location.pathname.startsWith(i.to)))?.id ?? null,
+    [visibleGroups, location.pathname],
+  );
+  const [manualOpenGroupId, setManualOpenGroupId] = useState<string | null | undefined>(undefined);
+  const [lastPathname, setLastPathname] = useState(location.pathname);
+  if (lastPathname !== location.pathname) {
+    // Route changed since the last render — drop any manual override so the
+    // sidebar re-syncs to whichever group actually contains the new page.
+    setLastPathname(location.pathname);
+    if (manualOpenGroupId !== undefined) setManualOpenGroupId(undefined);
+  }
+  const openGroupId = manualOpenGroupId !== undefined ? manualOpenGroupId : activeGroupId;
 
   const handleLogout = async () => {
     await logout();
@@ -294,11 +379,10 @@ export default function AppLayout() {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto scrollbar-hide">
-          {visibleItems.map((item) => (
+          {visibleDashboard && (
             <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.to === '/app/dashboard'}
+              to={visibleDashboard.to}
+              end
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
                 `flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
@@ -308,10 +392,53 @@ export default function AppLayout() {
                 }`
               }
             >
-              {item.icon}
-              <span>{item.label}</span>
+              {visibleDashboard.icon}
+              <span>{visibleDashboard.label}</span>
             </NavLink>
-          ))}
+          )}
+
+          {visibleGroups.length > 0 && <div className="my-2 border-t border-[#1E3A5F]" />}
+
+          {visibleGroups.map((group) => {
+            const isOpen = openGroupId === group.id;
+            const groupHasActive = group.id === activeGroupId;
+            return (
+              <div key={group.id}>
+                <button
+                  type="button"
+                  onClick={() => setManualOpenGroupId(isOpen ? null : group.id)}
+                  aria-expanded={isOpen}
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-md text-[11px] font-semibold uppercase tracking-wide transition-colors ${
+                    groupHasActive ? 'text-[#60A5FA]' : 'text-[#6C87A6] hover:text-[#D5DEEA]'
+                  }`}
+                >
+                  <span>{group.label}</span>
+                  <span className={isOpen ? 'rotate-90' : ''}>{Icon.chevron}</span>
+                </button>
+                {isOpen && (
+                  <div className="space-y-0.5 mb-1">
+                    {group.items.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setSidebarOpen(false)}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2.5 pl-6 pr-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
+                            isActive
+                              ? 'bg-[#1A56DB]/15 text-[#60A5FA] border-l-2 border-[#1A56DB] pl-[22px]'
+                              : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
+                          }`
+                        }
+                      >
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
       </aside>
 
