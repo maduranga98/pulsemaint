@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, orderBy, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { AlertCircle, Eye, Pencil, Plus, QrCode, Search, UserPlus, HardHat, X } from 'lucide-react';
+import { AlertCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -300,6 +300,16 @@ export default function BreakdownsPage() {
     }
   }
 
+  // Hands off to the exact same Create Work Order drawer used from the WOs
+  // tab (prefilled with this breakdown), instead of a separate/parallel
+  // creation path — so behavior (checklist, contractor/team assignment,
+  // documents, work permit) stays identical either way.
+  function goToCreateWorkOrder(ticket: Breakdown) {
+    navigate(
+      `/app/workorders?create=1&breakdownId=${ticket.id}&breakdownTicket=${encodeURIComponent(ticket.ticketNumber)}&machineId=${ticket.machineId}&woType=BREAKDOWN`,
+    );
+  }
+
   return (
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
@@ -418,30 +428,39 @@ export default function BreakdownsPage() {
                     .filter(Boolean)
                     .sort((a, b) => (b?.toDate?.().getTime() ?? 0) - (a?.toDate?.().getTime() ?? 0))[0];
                   const hasReported = reportedTickets(g).length > 0;
-                  // Every assigned-but-not-yet-in-progress ticket on this
-                  // machine — the technician can (re)open the shared
-                  // assessment form for any of them until a Work Order
-                  // actually starts the repair, since a pre-existing
-                  // severity value (e.g. legacy data) doesn't mean the
-                  // technician themself has already filled it in.
-                  const assignedTickets = g.tickets.filter((t) => t.status === 'assigned');
+                  // Assigned tickets still waiting on the technician's
+                  // assessment (no severity set yet) — these get "Attend &
+                  // Fill". Once filled, a ticket moves to filledTickets()
+                  // below and only a "Create Work Order" action applies —
+                  // filled/reported tickets are never directly editable from
+                  // this list, only viewable via the ticket link.
+                  const assignedTickets = g.tickets.filter((t) => t.status === 'assigned' && !t.severity);
 
                   return (
                     <tr key={g.machineId} className="hover:bg-slate-50 transition-colors align-top">
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-1">
-                          {g.tickets.map((t) => (
-                            <div key={t.id} className="flex items-center gap-1.5">
-                              <Link to={`/app/breakdowns/${t.id}`} className="font-medium text-blue-600 hover:underline">
-                                {t.ticketNumber}
-                              </Link>
-                              {t.status !== 'reported' && (
-                                <Link to={`/app/breakdowns/${t.id}/edit`} title="Edit assessment" className="text-slate-400 hover:text-slate-600">
-                                  <Pencil className="w-3 h-3" />
+                          {g.tickets.map((t) => {
+                            const isFilled = t.status === 'assigned' && !!t.severity && !t.linkedWOId;
+                            return (
+                              <div key={t.id} className="flex items-center gap-1.5">
+                                <Link to={`/app/breakdowns/${t.id}`} className="font-medium text-blue-600 hover:underline">
+                                  {t.ticketNumber}
                                 </Link>
-                              )}
-                            </div>
-                          ))}
+                                {isFilled && canAssign && (
+                                  <button
+                                    type="button"
+                                    onClick={() => goToCreateWorkOrder(t)}
+                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded hover:bg-purple-100 transition-colors"
+                                    title="Create a Work Order for this breakdown"
+                                  >
+                                    <ClipboardPlus className="w-3 h-3" />
+                                    Create WO
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -488,16 +507,6 @@ export default function BreakdownsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          {g.tickets.length === 1 && (
-                            <Link
-                              to={`/app/breakdowns/${g.tickets[0].id}`}
-                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                              title="View breakdown details"
-                            >
-                              <Eye className="w-3 h-3" />
-                              View
-                            </Link>
-                          )}
                           {hasReported && canAssign && (
                             <button
                               type="button"
