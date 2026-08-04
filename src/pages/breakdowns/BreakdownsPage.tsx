@@ -418,11 +418,13 @@ export default function BreakdownsPage() {
                     .filter(Boolean)
                     .sort((a, b) => (b?.toDate?.().getTime() ?? 0) - (a?.toDate?.().getTime() ?? 0))[0];
                   const hasReported = reportedTickets(g).length > 0;
-                  // Assigned (or already-attended) tickets that still need
-                  // the technician's severity/type/attempted-fixes writeup —
-                  // funneled through the same shared form as self-attend, so
-                  // filling multiple tickets on this machine is one action.
-                  const needsAssessment = g.tickets.filter((t) => t.status !== 'reported' && !t.severity);
+                  // Every assigned-but-not-yet-in-progress ticket on this
+                  // machine — the technician can (re)open the shared
+                  // assessment form for any of them until a Work Order
+                  // actually starts the repair, since a pre-existing
+                  // severity value (e.g. legacy data) doesn't mean the
+                  // technician themself has already filled it in.
+                  const assignedTickets = g.tickets.filter((t) => t.status === 'assigned');
 
                   return (
                     <tr key={g.machineId} className="hover:bg-slate-50 transition-colors align-top">
@@ -433,7 +435,7 @@ export default function BreakdownsPage() {
                               <Link to={`/app/breakdowns/${t.id}`} className="font-medium text-blue-600 hover:underline">
                                 {t.ticketNumber}
                               </Link>
-                              {t.status !== 'reported' && t.severity && (
+                              {t.status !== 'reported' && (
                                 <Link to={`/app/breakdowns/${t.id}/edit`} title="Edit assessment" className="text-slate-400 hover:text-slate-600">
                                   <Pencil className="w-3 h-3" />
                                 </Link>
@@ -519,14 +521,15 @@ export default function BreakdownsPage() {
                               {attendingMachineId === g.machineId ? 'Attending…' : 'Attend'}
                             </button>
                           )}
-                          {!hasReported && needsAssessment.length > 0 && canAttend && (
+                          {!hasReported && assignedTickets.length > 0 && canAttend
+                            && assignedTickets.some((t) => (t.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '')) && (
                             <Link
-                              to={`/app/breakdowns/attend?ids=${needsAssessment.map((t) => t.id).join(',')}`}
+                              to={`/app/breakdowns/attend?ids=${assignedTickets.map((t) => t.id).join(',')}`}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                              title="Fill in the assessment for every ticket on this machine that still needs one"
+                              title="Attend and fill in the assessment for every ticket assigned to you on this machine"
                             >
-                              <Pencil className="w-3 h-3" />
-                              Fill Report{needsAssessment.length > 1 ? ` (${needsAssessment.length})` : ''}
+                              <HardHat className="w-3 h-3" />
+                              Attend &amp; Fill{assignedTickets.length > 1 ? ` (${assignedTickets.length})` : ''}
                             </Link>
                           )}
                         </div>

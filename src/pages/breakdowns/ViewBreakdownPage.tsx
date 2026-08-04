@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { AlertCircle, ArrowLeft, X, CheckCircle, UserPlus, HardHat, Pencil, ClipboardPlus } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle, UserPlus, HardHat, Pencil, ClipboardPlus } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownStatus } from '../../types/breakdown';
 import { RCAModal } from '../../components/breakdowns/RCAModal';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
-import { CancelReasonModal, type CancelReasonResult } from '../../components/ui/CancelReasonModal';
 import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 import { notifyUsers } from '../../services/notifications.service';
 import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
@@ -58,10 +57,8 @@ export default function ViewBreakdownPage() {
   const [breakdown, setBreakdown] = useState<Breakdown | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
   const [showRCAModal, setShowRCAModal] = useState(false);
-  const [pendingAction, setPendingAction] = useState<'cancel' | 'close' | null>(null);
+  const [pendingClose, setPendingClose] = useState(false);
   const [rcaDoc, setRcaDoc] = useState<{ status: string; rootCause: string } | null>(null);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignBusy, setAssignBusy] = useState(false);
@@ -109,34 +106,6 @@ export default function ViewBreakdownPage() {
     }).catch(() => {}); // silently ignore permission errors
   }, [id]);
 
-  async function handleCancel({ reason, category }: CancelReasonResult) {
-    if (!id || !userProfile || !reason.trim()) return;
-    setCancelling(true);
-    try {
-      await updateDoc(doc(db, 'breakdown_tickets', id), {
-        status: 'cancelled',
-        cancelReason: reason.trim(),
-        cancelReasonCategory: category,
-        cancelledBy: userProfile.id,
-        cancelledByName: userProfile.fullName,
-        cancelledAt: serverTimestamp(),
-        statusHistory: arrayUnion({
-          status: 'cancelled',
-          changedBy: userProfile.id,
-          changedByName: userProfile.fullName,
-          changedAt: Timestamp.now(),
-          note: `Cancelled: ${reason.trim()}`,
-        }),
-      });
-      setShowCancelModal(false);
-      navigate('/app/breakdowns', { replace: true });
-    } catch (err: any) {
-      setError(err?.message || 'Failed to cancel breakdown.');
-    } finally {
-      setCancelling(false);
-    }
-  }
-
   async function handleClose() {
     if (!id || !userProfile) return;
     try {
@@ -158,7 +127,9 @@ export default function ViewBreakdownPage() {
   }
 
   async function handleAssign(candidate: { id: string; fullName: string; role: string }) {
-    if (!id || !userProfile) return;
+    // A technician who already attended this ticket themselves owns it —
+    // don't let a supervisor's assignment silently reassign them away.
+    if (!id || !userProfile || breakdown?.attendedBy) return;
     setAssignBusy(true);
     try {
       await updateDoc(doc(db, 'breakdown_tickets', id), {
@@ -259,19 +230,13 @@ export default function ViewBreakdownPage() {
     if (woId) navigate('/app/workorders');
   }
 
-  function handleInitiateClose(action: 'cancel' | 'close') {
+  function handleInitiateClose() {
     if (!breakdown) return;
-    // Cancellation always goes straight to the reason modal — it does not
-    // require an RCA (that gate only applies to a normal resolution/close).
-    if (action === 'cancel') {
-      setShowCancelModal(true);
-      return;
-    }
     if (
       isRCARequired(breakdown.severity) &&
       !canCloseBreakdown(breakdown.severity, rcaDoc, isSupervisorRole)
     ) {
-      setPendingAction(action);
+      setPendingClose(true);
       setShowRCAModal(true);
     } else {
       handleClose();
@@ -280,18 +245,10 @@ export default function ViewBreakdownPage() {
 
   function handleRCASaved(_rcaId: string, completed: boolean) {
     setShowRCAModal(false);
-    // Re-check if we can now proceed
-    const newRca = completed ? { status: 'completed', rootCause: 'completed' } : rcaDoc;
-    if (pendingAction === 'cancel') {
-      if (completed || isSupervisorRole) {
-        setShowCancelModal(true);
-      }
-    } else if (pendingAction === 'close') {
-      if (completed || isSupervisorRole) {
-        handleClose();
-      }
+    if (pendingClose && (completed || isSupervisorRole)) {
+      handleClose();
     }
-    setPendingAction(null);
+    setPendingClose(false);
     // Update local rcaDoc to prevent re-blocking
     if (completed) {
       setRcaDoc({ status: 'completed', rootCause: 'see rca record' });
@@ -349,7 +306,7 @@ export default function ViewBreakdownPage() {
               <ArrowLeft className="w-4 h-4 inline mr-1" />
               Back
             </button>
-            {b.status === 'reported' && isSupervisorRole && (
+            {b.status === 'reported' && !b.attendedBy && isSupervisorRole && (
               <button
                 type="button"
                 onClick={() => setShowAssignModal(true)}
@@ -393,21 +350,11 @@ export default function ViewBreakdownPage() {
             {b.status === 'resolved' && (
               <button
                 type="button"
-                onClick={() => handleInitiateClose('close')}
+                onClick={handleInitiateClose}
                 className="px-4 py-2 border border-emerald-200 bg-emerald-50 text-emerald-700 font-medium rounded-lg hover:bg-emerald-100 text-sm"
               >
                 <CheckCircle className="w-4 h-4 inline mr-1" />
                 Close Breakdown
-              </button>
-            )}
-            {!['resolved', 'closed'].includes(b.status) && (
-              <button
-                type="button"
-                onClick={() => handleInitiateClose('cancel')}
-                className="px-4 py-2 border border-red-200 bg-red-50 text-red-700 font-medium rounded-lg hover:bg-red-100 text-sm"
-              >
-                <X className="w-4 h-4 inline mr-1" />
-                Cancel Breakdown
               </button>
             )}
           </div>
@@ -519,20 +466,10 @@ export default function ViewBreakdownPage() {
       {showRCAModal && breakdown && (
         <RCAModal
           breakdown={breakdown}
-          onClose={() => { setShowRCAModal(false); setPendingAction(null); }}
+          onClose={() => { setShowRCAModal(false); setPendingClose(false); }}
           onSaved={handleRCASaved}
         />
       )}
-
-      <CancelReasonModal
-        open={showCancelModal}
-        title="Cancel Breakdown"
-        description="Please provide a reason for cancelling this breakdown."
-        confirmLabel="Confirm Cancel"
-        loading={cancelling}
-        onClose={() => setShowCancelModal(false)}
-        onConfirm={handleCancel}
-      />
 
       {showAssignModal && userProfile && (
         <AssignTechnicianModal
