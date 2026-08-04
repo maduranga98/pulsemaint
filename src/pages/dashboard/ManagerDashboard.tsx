@@ -10,6 +10,11 @@ import {
 } from '../../utils/analytics/dashboardRange';
 
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
+import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
+import LiveBreakdownsWidget from '../../components/dashboard/manager/LiveBreakdownsWidget';
+import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
+import TodaySafetyCasesWidget from '../../components/dashboard/manager/TodaySafetyCasesWidget';
+import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
@@ -108,9 +113,24 @@ export default function ManagerDashboard() {
           ))}
         </div>
 
+        {/* Live factory floor: every machine with an open WO or breakdown. */}
+        <FactoryFloorMap companyId={companyId} />
+
+        {/* Live Breakdowns + Live PO Requests */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <LiveBreakdownsWidget siteId={siteId} />
+          <LivePOsWidget />
+        </div>
+
+        {/* Today's Safety Cases + Today's Trainings (safety and general) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TodaySafetyCasesWidget companyId={companyId} />
+          <TodayTrainingsWidget companyId={companyId} />
+        </div>
+
         {/* Today's Shifts by Department. Trend charts, heatmaps, per-machine/
             contractor breakdowns, SLA, and Safety/Team Performance analytics
-            now live exclusively on the Analytics tab — see AnalyticsPage. */}
+            live exclusively on the Analytics tab — see AnalyticsPage. */}
         <TodayShiftsByDepartment companyId={companyId} />
       </div>
 
