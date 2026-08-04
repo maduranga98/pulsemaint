@@ -306,7 +306,7 @@ export default function BreakdownsPage() {
   function goToCreateWorkOrder(tickets: Breakdown[]) {
     if (tickets.length === 0) return;
     const ids = tickets.map((t) => t.id).join(',');
-    navigate(`/app/workorders?create=1&breakdownIds=${ids}&machineId=${tickets[0].machineId}&woType=BREAKDOWN`);
+    navigate(`/app/work-orders?create=1&breakdownIds=${ids}&machineId=${tickets[0].machineId}&woType=BREAKDOWN`);
   }
 
   return (
