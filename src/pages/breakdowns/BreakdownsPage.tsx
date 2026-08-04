@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, orderBy, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { AlertCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X } from 'lucide-react';
+import { AlertCircle, CheckCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -537,6 +537,16 @@ export default function BreakdownsPage() {
                               <ClipboardPlus className="w-3 h-3" />
                               Create WO{filledTickets.length > 1 ? ` (${filledTickets.length})` : ''}
                             </button>
+                          )}
+                          {representative.status === 'resolved' && canAssign && (
+                            <Link
+                              to={`/app/breakdowns/${representative.id}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
+                              title="The repair work order is complete — sign off (and RCA if required) to close this breakdown"
+                            >
+                              <CheckCircle className="w-3 h-3" />
+                              Sign-Off &amp; Close
+                            </Link>
                           )}
                         </div>
                       </td>

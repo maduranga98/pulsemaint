@@ -245,6 +245,10 @@ export interface WorkOrder {
   // Links
   linkedBreakdownId: string | null;
   linkedBreakdownTicketNumber: string | null;
+  // Every breakdown ticket this WO covers when it was raised for a whole
+  // machine group — includes linkedBreakdownId. Empty/absent for a WO
+  // linked to a single ticket (or none).
+  linkedBreakdownIds?: string[];
 
   // Assignment
   supervisorInChargeId: string;

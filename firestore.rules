@@ -186,7 +186,10 @@ service cloud.firestore {
           // PM work order (see useCreateWorkOrder).
           'pmHistoryId', 'pmScheduleId',
           // Per-assignee self-completion entries.
-          'assigneeCompletions'
+          'assigneeCompletions',
+          // Per-assignee independent start/hold/resume state (see useMyWOState) —
+          // each assignee's own progress on a shared WO.
+          'assigneeStates'
         ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
@@ -226,7 +229,9 @@ service cloud.firestore {
           'checklist', 'documents', 'updatedAt', 'timeSegments',
           // Per-assignee self-completion: each assigned technician/trainee
           // records their own work here before the WO can be finalised.
-          'assigneeCompletions'
+          'assigneeCompletions',
+          // Per-assignee independent start/hold/resume state (see useMyWOState).
+          'assigneeStates'
         ]);
 
       // Parts requests sub-collection

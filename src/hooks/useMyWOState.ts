@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, writeBatch, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
@@ -77,6 +77,36 @@ export function useMyWOState(): UseMyWOStateResult {
           }),
           updatedAt: serverTimestamp(),
         });
+
+        // The first time anyone actually starts this WO, advance every
+        // breakdown ticket it covers from "assigned" to "in progress" — a
+        // ticket shouldn't show repair progress before work has begun.
+        if (startingWO) {
+          const ticketIds = Array.from(
+            new Set([...(wo?.linkedBreakdownId ? [wo.linkedBreakdownId] : []), ...(wo?.linkedBreakdownIds ?? [])]),
+          );
+          if (ticketIds.length > 0) {
+            try {
+              const bdBatch = writeBatch(db);
+              for (const ticketId of ticketIds) {
+                bdBatch.update(doc(db, 'breakdown_tickets', ticketId), {
+                  status: 'repair_in_progress',
+                  repairStartedAt: now,
+                  statusHistory: arrayUnion({
+                    status: 'repair_in_progress',
+                    changedBy: myId,
+                    changedByName: opts.technicianName,
+                    changedAt: now,
+                    note: `${opts.technicianName} started work on the linked work order`,
+                  }),
+                });
+              }
+              await bdBatch.commit();
+            } catch (bdErr) {
+              console.error('Failed to advance linked breakdown(s) to in-progress', bdErr);
+            }
+          }
+        }
         return true;
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Failed to update your work state');
