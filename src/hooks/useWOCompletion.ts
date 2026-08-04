@@ -365,7 +365,7 @@ export function useWOCompletion(): UseWOCompletionResult {
             actorName: user.displayName || profile.fullName || '',
             actorRole: profile.role,
             actorUserId: profile.id,
-            linkTo: '/app/sign-off-queue',
+            linkTo: '/app/work-orders',
           });
         }
 
