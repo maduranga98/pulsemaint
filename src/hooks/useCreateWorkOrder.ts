@@ -125,6 +125,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         // Links
         linkedBreakdownId: payload.linkedBreakdownId ?? null,
         linkedBreakdownTicketNumber: payload.linkedBreakdownTicketNumber ?? null,
+        linkedBreakdownIds: payload.linkedBreakdownIds ?? [],
 
         // Machine
         machineId: payload.machineId,
@@ -277,29 +278,28 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         });
       }
 
-      // Link back to every breakdown ticket this WO covers and move each to
-      // "In Progress" so the Breakdowns tab reflects that a repair WO has
-      // been raised — one WO can cover several tickets on the same machine
-      // (linkedBreakdownIds), not just the single primary linkedBreakdownId.
+      // Link back to every breakdown ticket this WO covers so the Breakdowns
+      // tab shows a WO has been raised — one WO can cover several tickets on
+      // the same machine (linkedBreakdownIds), not just the single primary
+      // linkedBreakdownId. Status stays "assigned" (not yet "in progress")
+      // until a technician actually starts the WO (see useMyWOState) — a
+      // ticket shouldn't show repair progress before anyone has begun work.
       const ticketIdsToSync = Array.from(
         new Set([...(payload.linkedBreakdownId ? [payload.linkedBreakdownId] : []), ...(payload.linkedBreakdownIds ?? [])]),
       );
       if (ticketIdsToSync.length > 0) {
         try {
           const { doc: docFn, writeBatch, arrayUnion, Timestamp } = await import('firebase/firestore');
-          const hasTechs = (payload.assignedTechnicianIds?.length ?? 0) > 0;
-          const bdStatus = hasTechs ? 'repair_in_progress' : 'assigned';
           const batch = writeBatch(db);
           for (const ticketId of ticketIdsToSync) {
             batch.update(docFn(db, 'breakdown_tickets', ticketId), {
               linkedWOId: woId,
-              status: bdStatus,
+              status: 'assigned',
               assignedTechnicianIds: payload.assignedTechnicianIds ?? [],
               assignedTechnicianNames: payload.assignedTechnicianNames ?? [],
               assignedAt: serverTimestamp(),
-              ...(hasTechs ? { repairStartedAt: serverTimestamp() } : {}),
               statusHistory: arrayUnion({
-                status: bdStatus,
+                status: 'assigned',
                 changedBy: userId,
                 changedByName: userName,
                 changedAt: Timestamp.fromDate(new Date()),

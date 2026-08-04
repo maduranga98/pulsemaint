@@ -312,12 +312,11 @@ export default function ViewBreakdownPage() {
             {isSupervisorRole && b.status !== 'reported' && !b.linkedWOId && (
               <button
                 type="button"
-                disabled={creatingWO}
                 onClick={handleCreateWorkOrder}
-                className="px-4 py-2 border border-purple-200 bg-purple-50 text-purple-700 font-medium rounded-lg hover:bg-purple-100 text-sm disabled:opacity-50"
+                className="px-4 py-2 border border-purple-200 bg-purple-50 text-purple-700 font-medium rounded-lg hover:bg-purple-100 text-sm"
               >
                 <ClipboardPlus className="w-4 h-4 inline mr-1" />
-                {creatingWO ? 'Creating…' : 'Create Work Order'}
+                Create Work Order
               </button>
             )}
             {b.status === 'resolved' && (
