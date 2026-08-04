@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ScanLine } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { RequestsQueue } from '@/components/inventory/requests/RequestsQueue';
 import { CreatePartsRequestModal } from '@/components/inventory/requests/CreatePartsRequestModal';
@@ -22,12 +24,22 @@ export function PartsRequestsPage() {
               : 'Track the parts you’ve requested and their status.'}
           </p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium shrink-0"
-        >
-          + New Request
-        </button>
+        {canManage ? (
+          <Link
+            to="/app/inventory/issue/manual"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium shrink-0"
+          >
+            <ScanLine className="w-4 h-4" />
+            Scan &amp; Issue
+          </Link>
+        ) : (
+          <button
+            onClick={() => setShowCreate(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium shrink-0"
+          >
+            + New Request
+          </button>
+        )}
       </div>
       <RequestsQueue />
     </div>
