@@ -228,20 +228,24 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#080F1F] flex">
       {/* Marketing panel */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#102544] flex-col justify-between p-12">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#102544] flex-col p-12">
         <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
           backgroundImage: 'radial-gradient(circle at 20% 20%, #00C2FF 0, transparent 35%), radial-gradient(circle at 80% 70%, #1A56DB 0, transparent 40%)',
         }} />
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-14">
-            <img src="/logo.svg" alt="FirmiCore" className="h-10 w-auto" />
-            <div className="text-2xl font-bold">
-              <span className="text-white">Firmi</span>
-              <span className="text-[#00C2FF]">Core</span>
-            </div>
-          </div>
 
-          <h1 className="text-4xl font-bold text-white leading-tight mb-4">
+        <div className="relative flex items-center gap-3">
+          <img src="/logo.svg" alt="FirmiCore" className="h-10 w-auto" />
+          <div className="text-2xl font-bold">
+            <span className="text-white">Firmi</span>
+            <span className="text-[#00C2FF]">Core</span>
+          </div>
+        </div>
+
+        <div className="relative flex-1 flex flex-col justify-center">
+          {/* Global `h1,h2,...{color:#0f172a}` in style.css is an unlayered
+              rule, so it beats Tailwind's layered `text-white` utility here —
+              force the color inline rather than fight the cascade. */}
+          <h1 className="text-4xl font-bold leading-tight mb-4" style={{ color: '#ffffff' }}>
             One platform for every machine, breakdown, and technician on your floor.
           </h1>
           <p className="text-slate-300 text-base max-w-md mb-10">
@@ -284,7 +288,6 @@ export default function LoginPage() {
 
         <p className="relative text-slate-500 text-xs">© {new Date().getFullYear()} FirmiCore. All rights reserved.</p>
       </div>
-
       {/* Login form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-md">
@@ -297,7 +300,7 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-[#111C33] border border-white/10 rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-white text-lg font-semibold mb-1">Welcome back</h2>
+          <h2 className="text-lg font-semibold mb-1" style={{ color: '#ffffff' }}>Welcome back</h2>
           <p className="text-slate-400 text-sm mb-5">Sign in to your FirmiCore account</p>
 
           {error && (
