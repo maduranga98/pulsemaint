@@ -282,8 +282,12 @@ export default function LoginPage() {
         <p className="relative text-slate-400 text-xs">© {new Date().getFullYear()} FirmiCore. All rights reserved.</p>
       </div>
 
-      {/* Login form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 bg-[#0D1B33]">
+      {/* Login form. Vertically centering short content is fine on desktop,
+          but on a short mobile viewport it can push the bottom of the form
+          (the QR report button) below the fold with no obvious way to tell
+          there's more to scroll to — so mobile flows from the top instead,
+          only centering from the lg breakpoint up where there's headroom. */}
+      <div className="w-full lg:w-1/2 flex items-start lg:items-center justify-center overflow-y-auto p-4 py-8 sm:p-8 bg-[#0D1B33]">
       <div className="w-full max-w-md">
         <div className="text-center mb-8 flex flex-col items-center gap-2 lg:hidden">
           <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto" />
