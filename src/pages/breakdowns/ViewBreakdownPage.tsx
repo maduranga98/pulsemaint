@@ -199,7 +199,7 @@ export default function ViewBreakdownPage() {
   function handleCreateWorkOrder() {
     if (!breakdown) return;
     navigate(
-      `/app/workorders?create=1&breakdownId=${breakdown.id}&breakdownTicket=${encodeURIComponent(breakdown.ticketNumber)}&machineId=${breakdown.machineId}&woType=BREAKDOWN`,
+      `/app/work-orders?create=1&breakdownId=${breakdown.id}&breakdownTicket=${encodeURIComponent(breakdown.ticketNumber)}&machineId=${breakdown.machineId}&woType=BREAKDOWN`,
     );
   }
 
