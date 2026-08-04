@@ -94,6 +94,7 @@ export const woSection1Schema = z.object({
   scheduledStart: z.date().nullable(),
   linkedBreakdownId: z.string().nullable(),
   linkedBreakdownTicketNumber: z.string().nullable(),
+  linkedBreakdownIds: z.array(z.string()).optional(),
 });
 
 export const woSection2Schema = z.object({

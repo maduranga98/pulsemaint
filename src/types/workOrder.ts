@@ -391,6 +391,11 @@ export interface CreateWOPayload {
   estimatedDurationUnit: EstimatedDurationUnit;
   linkedBreakdownId: string | null;
   linkedBreakdownTicketNumber: string | null;
+  // When one WO covers several breakdown tickets reported on the same
+  // machine (e.g. created from the Breakdowns list for a whole machine
+  // group), every id here — including linkedBreakdownId — gets synced to
+  // this WO instead of raising a separate WO per ticket.
+  linkedBreakdownIds?: string[];
 
   machineId: string;
   machineName: string;

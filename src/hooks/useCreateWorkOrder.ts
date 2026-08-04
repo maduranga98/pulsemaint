@@ -277,30 +277,39 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         });
       }
 
-      // Link back to the breakdown ticket and move it to "In Progress" so the
-      // Breakdowns tab reflects that a repair WO has been raised.
-      if (payload.linkedBreakdownId) {
+      // Link back to every breakdown ticket this WO covers and move each to
+      // "In Progress" so the Breakdowns tab reflects that a repair WO has
+      // been raised — one WO can cover several tickets on the same machine
+      // (linkedBreakdownIds), not just the single primary linkedBreakdownId.
+      const ticketIdsToSync = Array.from(
+        new Set([...(payload.linkedBreakdownId ? [payload.linkedBreakdownId] : []), ...(payload.linkedBreakdownIds ?? [])]),
+      );
+      if (ticketIdsToSync.length > 0) {
         try {
-          const { doc: docFn, updateDoc, arrayUnion, Timestamp } = await import('firebase/firestore');
+          const { doc: docFn, writeBatch, arrayUnion, Timestamp } = await import('firebase/firestore');
           const hasTechs = (payload.assignedTechnicianIds?.length ?? 0) > 0;
           const bdStatus = hasTechs ? 'repair_in_progress' : 'assigned';
-          await updateDoc(docFn(db, 'breakdown_tickets', payload.linkedBreakdownId), {
-            linkedWOId: woId,
-            status: bdStatus,
-            assignedTechnicianIds: payload.assignedTechnicianIds ?? [],
-            assignedTechnicianNames: payload.assignedTechnicianNames ?? [],
-            assignedAt: serverTimestamp(),
-            ...(hasTechs ? { repairStartedAt: serverTimestamp() } : {}),
-            statusHistory: arrayUnion({
+          const batch = writeBatch(db);
+          for (const ticketId of ticketIdsToSync) {
+            batch.update(docFn(db, 'breakdown_tickets', ticketId), {
+              linkedWOId: woId,
               status: bdStatus,
-              changedBy: userId,
-              changedByName: userName,
-              changedAt: Timestamp.fromDate(new Date()),
-              note: `Repair work order created`,
-            }),
-          });
+              assignedTechnicianIds: payload.assignedTechnicianIds ?? [],
+              assignedTechnicianNames: payload.assignedTechnicianNames ?? [],
+              assignedAt: serverTimestamp(),
+              ...(hasTechs ? { repairStartedAt: serverTimestamp() } : {}),
+              statusHistory: arrayUnion({
+                status: bdStatus,
+                changedBy: userId,
+                changedByName: userName,
+                changedAt: Timestamp.fromDate(new Date()),
+                note: `Repair work order created`,
+              }),
+            });
+          }
+          await batch.commit();
         } catch (bdErr) {
-          console.error('Failed to sync linked breakdown on WO creation', bdErr);
+          console.error('Failed to sync linked breakdown(s) on WO creation', bdErr);
         }
       }
 

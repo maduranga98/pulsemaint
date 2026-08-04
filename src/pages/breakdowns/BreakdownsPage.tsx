@@ -301,13 +301,12 @@ export default function BreakdownsPage() {
   }
 
   // Hands off to the exact same Create Work Order drawer used from the WOs
-  // tab (prefilled with this breakdown), instead of a separate/parallel
-  // creation path — so behavior (checklist, contractor/team assignment,
-  // documents, work permit) stays identical either way.
-  function goToCreateWorkOrder(ticket: Breakdown) {
-    navigate(
-      `/app/workorders?create=1&breakdownId=${ticket.id}&breakdownTicket=${encodeURIComponent(ticket.ticketNumber)}&machineId=${ticket.machineId}&woType=BREAKDOWN`,
-    );
+  // tab, prefilled with every filled-in ticket on this machine — one WO
+  // covers the whole group instead of raising a separate WO per ticket.
+  function goToCreateWorkOrder(tickets: Breakdown[]) {
+    if (tickets.length === 0) return;
+    const ids = tickets.map((t) => t.id).join(',');
+    navigate(`/app/workorders?create=1&breakdownIds=${ids}&machineId=${tickets[0].machineId}&woType=BREAKDOWN`);
   }
 
   return (
@@ -528,18 +527,17 @@ export default function BreakdownsPage() {
                               Attend &amp; Fill{assignedTickets.length > 1 ? ` (${assignedTickets.length})` : ''}
                             </Link>
                           )}
-                          {filledTickets.length > 0 && canAssign && filledTickets.map((t) => (
+                          {filledTickets.length > 0 && canAssign && (
                             <button
-                              key={t.id}
                               type="button"
-                              onClick={() => goToCreateWorkOrder(t)}
+                              onClick={() => goToCreateWorkOrder(filledTickets)}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
-                              title={`Create a Work Order for ${t.ticketNumber}`}
+                              title="Create one Work Order covering every filled-in breakdown on this machine"
                             >
                               <ClipboardPlus className="w-3 h-3" />
-                              Create WO{filledTickets.length > 1 ? ` (${t.ticketNumber})` : ''}
+                              Create WO{filledTickets.length > 1 ? ` (${filledTickets.length})` : ''}
                             </button>
-                          ))}
+                          )}
                         </div>
                       </td>
                     </tr>
