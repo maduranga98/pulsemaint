@@ -15,7 +15,7 @@ export default function TodayShiftsByDepartment({ companyId }: Props) {
       {departments.length === 0 ? (
         <EmptyState message="No shifts configured for today" />
       ) : (
-        <div className="space-y-4 max-h-[400px] overflow-y-auto">
+        <div className="space-y-4">
           {departments.map((dept) => (
             <div key={dept.department}>
               <h4 className="text-xs font-semibold text-[#8BA3BF] uppercase tracking-wide mb-2">
