@@ -18,6 +18,8 @@ import MachineAnalyticsTable from '../../components/dashboard/manager/MachineAna
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
+import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
+import SafetySnapshotWidget from '../../components/dashboard/manager/SafetySnapshotWidget';
 import { complianceColor } from '../../utils/analytics.utils';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 import {
@@ -215,6 +217,13 @@ export default function AnalyticsPage() {
 
         {/* Full width — a 10-row horizontal bar chart needs the room. */}
         <TopProblemMachinesChart companyId={companyId} month={months} />
+
+        {/* ── Team & Safety ──────────────────────────────────────────────── */}
+        <SectionHeader title="Team Performance" description="From Evaluations" />
+        <TeamPerformanceAnalyticsWidget companyId={companyId} />
+
+        <SectionHeader title="Safety Analytics" />
+        <SafetySnapshotWidget companyId={companyId} />
       </div>
     </div>
   );
