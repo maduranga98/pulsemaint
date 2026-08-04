@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
 import { useActiveBreakdowns } from '../../hooks/dashboard/useActiveBreakdowns';
@@ -7,23 +7,19 @@ import KpiCard from '../../components/dashboard/shared/KpiCard';
 import {
   DASHBOARD_RANGE_LABELS,
   monthsForDashboardRange,
-  type DashboardRange,
 } from '../../utils/analytics/dashboardRange';
 
-import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
-import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
-import BreakdownHeatmap from '../../components/dashboard/manager/BreakdownHeatmap';
-import TopProblemMachinesChart from '../../components/dashboard/manager/TopProblemMachinesChart';
-import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
-import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
-import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
-import SafetySnapshotWidget from '../../components/dashboard/manager/SafetySnapshotWidget';
-import { ShieldAlert } from 'lucide-react';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
+
+// This dashboard always shows live, current-month figures — the trend
+// charts, heatmaps, and per-machine/contractor breakdowns that used to
+// duplicate the Analytics tab (with its own date-range picker) now live
+// there exclusively; see AnalyticsPage.
+const RANGE = 'mtd' as const;
 
 export default function ManagerDashboard() {
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -39,13 +35,8 @@ export default function ManagerDashboard() {
   const { count: todayBreakdowns } = useActiveBreakdowns(siteId);
   const { count: todayWorkOrders } = useOpenWorkOrders(siteId);
 
-  const [range, setRange] = useState<DashboardRange>('mtd');
-  // The months covered by the selected range drive the monthly-aggregate
-  // KPIs below (Total Breakdowns, MTTR, PM Compliance) — same range control
-  // as the Analytics page, backed by the same buildMonthlyAnalytics pipeline.
-  const months = useMemo(() => monthsForDashboardRange(range), [range]);
+  const months = useMemo(() => monthsForDashboardRange(RANGE), []);
   const monthsKey = months.join(',');
-  const currentMonth = months[months.length - 1];
 
   useEffect(() => {
     if (!companyId) return;
@@ -70,7 +61,7 @@ export default function ManagerDashboard() {
       color: 'cyan' as const,
     },
     {
-      label: `Total Breakdowns (${DASHBOARD_RANGE_LABELS[range]})`,
+      label: `Total Breakdowns (${DASHBOARD_RANGE_LABELS[RANGE]})`,
       value: monthly?.totalBreakdowns ?? 0,
       color: 'blue' as const,
     },
@@ -85,7 +76,7 @@ export default function ManagerDashboard() {
       color: openWoColor(todayWorkOrders),
     },
     {
-      label: `MTTR (${DASHBOARD_RANGE_LABELS[range]})`,
+      label: `MTTR (${DASHBOARD_RANGE_LABELS[RANGE]})`,
       value: (monthly?.avgMttrHours ?? 0).toFixed(1),
       unit: 'hrs',
       color: complianceColor(monthly?.avgMttrHours ? 100 - monthly.avgMttrHours * 10 : 100),
@@ -107,65 +98,20 @@ export default function ManagerDashboard() {
             Good {getGreeting()}, {firstName}
           </p>
         </div>
-        <div className="inline-flex rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-1 text-xs">
-          {(Object.keys(DASHBOARD_RANGE_LABELS) as DashboardRange[]).map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => setRange(r)}
-              className={`px-3 py-1.5 rounded-md font-medium transition ${
-                range === r ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
-              }`}
-            >
-              {DASHBOARD_RANGE_LABELS[r]}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        {/* Row 1: KPI Cards */}
+        {/* Row 1: KPI Cards — live current-month figures */}
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
           ))}
         </div>
 
-        {/* Row 2: MTTR Trend + Breakdown by Type */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <MttrTrendChart companyId={companyId} />
-          </div>
-          <div className="lg:col-span-4">
-            <BreakdownByTypeChart companyId={companyId} />
-          </div>
-        </div>
-
-        {/* Row 3: Heatmap + Top Problem Machines */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <BreakdownHeatmap companyId={companyId} />
-          <TopProblemMachinesChart companyId={companyId} month={months} />
-        </div>
-
-        {/* Row 4: Today's Shifts by Department + Team Performance (from Evaluations) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TodayShiftsByDepartment companyId={companyId} />
-          <TeamPerformanceAnalyticsWidget companyId={companyId} />
-        </div>
-
-        {/* Row 5: Contractor Scoreboard + SLA Gauge */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ContractorScoreboard companyId={companyId} month={currentMonth} />
-          <SlaGaugeWidget companyId={companyId} />
-        </div>
-
-        {/* Row 6: Safety Analytics snapshot (formerly the Safety Analytics tab) */}
-        <div className="space-y-4">
-          <h2 className="flex items-center gap-2 font-[Sora] text-lg font-bold text-[#F0F4F8]">
-            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Analytics
-          </h2>
-          <SafetySnapshotWidget companyId={companyId} />
-        </div>
+        {/* Today's Shifts by Department. Trend charts, heatmaps, per-machine/
+            contractor breakdowns, SLA, and Safety/Team Performance analytics
+            now live exclusively on the Analytics tab — see AnalyticsPage. */}
+        <TodayShiftsByDepartment companyId={companyId} />
       </div>
 
       <DashboardSidePanel />
