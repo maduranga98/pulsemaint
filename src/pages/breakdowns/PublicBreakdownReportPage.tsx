@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -36,6 +36,15 @@ export default function PublicBreakdownReportPage() {
   const [error, setError] = useState<string | null>(null);
   const [ticketNumber, setTicketNumber] = useState<string | null>(null);
 
+  // Whether *this page* created the anonymous session — only that session
+  // is ours to sign back out of. Firebase only allows one active user per
+  // browser: if someone with a real, already-signed-in account (e.g. a
+  // supervisor testing this link, or a technician who left a tab open) ever
+  // lands here, blindly calling signInAnonymously() would silently replace
+  // their real session, and signing out on unmount would then log them out
+  // of the app entirely — surfacing as an unexplained bounce to /login.
+  const createdAnonymousSessionRef = useRef(false);
+
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -45,7 +54,10 @@ export default function PublicBreakdownReportPage() {
         return;
       }
       try {
-        await signInAnonymouslyForReport();
+        if (!auth.currentUser) {
+          await signInAnonymouslyForReport();
+          createdAnonymousSessionRef.current = true;
+        }
         const snap = await getDoc(doc(db, 'machines', machineId));
         if (cancelled) return;
         if (!snap.exists()) {
@@ -72,10 +84,12 @@ export default function PublicBreakdownReportPage() {
   }, [machineId]);
 
   // Anonymous credentials only exist to satisfy the write rule — never leave
-  // one lying around once the visitor is done with this page.
+  // one lying around once the visitor is done with this page. Only clear
+  // the session if *this page* created it (see the ref above) — a visitor
+  // who already had a real signed-in session before landing here keeps it.
   useEffect(() => {
     return () => {
-      if (auth.currentUser?.isAnonymous) {
+      if (createdAnonymousSessionRef.current && auth.currentUser?.isAnonymous) {
         signOut(auth).catch(() => {});
       }
     };

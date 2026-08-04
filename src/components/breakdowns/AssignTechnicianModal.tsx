@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
-import { X, UserPlus } from 'lucide-react';
+import { X, UserPlus, Clock } from 'lucide-react';
 import { db } from '../../lib/firebase';
 
 interface Candidate {
@@ -16,6 +16,8 @@ interface AssignTechnicianModalProps {
   assigning?: boolean;
 }
 
+const ASSIGNABLE_ROLES = ['technician', 'trainee'];
+
 export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning }: AssignTechnicianModalProps) {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,16 +27,25 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
   useEffect(() => {
     if (!companyId) return;
     setLoading(true);
+    // Sourced from active shift_sessions (not the users collection) so the
+    // list only shows technicians/trainees who have actually clocked in —
+    // shift_sessions also carries the real name/role captured at clock-in,
+    // avoiding the lookup that was rendering everyone as "Unnamed".
     getDocs(query(
-      collection(db, 'users'),
+      collection(db, 'shift_sessions'),
       where('companyId', '==', companyId),
-      where('role', 'in', ['technician', 'trainee']),
+      where('status', '==', 'active'),
     ))
       .then((snap) => {
-        setCandidates(snap.docs.map((d) => {
-          const data = d.data() as any;
-          return { id: d.id, fullName: data.fullName || 'Unnamed', role: data.role };
-        }));
+        const onShift = snap.docs
+          .map((d) => {
+            const data = d.data() as any;
+            return { id: data.userId as string, fullName: data.userName as string, role: data.userRole as string };
+          })
+          .filter((c) => ASSIGNABLE_ROLES.includes(c.role));
+        // A user can only have one active session, but de-dupe defensively.
+        const seen = new Set<string>();
+        setCandidates(onShift.filter((c) => (seen.has(c.id) ? false : (seen.add(c.id), true))));
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -45,19 +56,23 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-1">
           <h3 className="text-lg font-semibold text-slate-900">Assign Technician / Trainee</h3>
           <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100">
             <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
+        <p className="text-xs text-slate-500 mb-4 flex items-center gap-1">
+          <Clock className="w-3.5 h-3.5" />
+          Only technicians and trainees currently on shift are shown.
+        </p>
 
         {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
 
         {loading ? (
-          <p className="text-sm text-slate-500">Loading team members…</p>
+          <p className="text-sm text-slate-500">Loading who's on shift…</p>
         ) : candidates.length === 0 ? (
-          <p className="text-sm text-slate-500">No technicians or trainees found for this company.</p>
+          <p className="text-sm text-slate-500">No technicians or trainees are currently clocked in. Ask them to start their shift, or assign once someone is on duty.</p>
         ) : (
           <div className="space-y-1.5 max-h-64 overflow-y-auto mb-4">
             {candidates.map((c) => (
@@ -69,8 +84,11 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
                   selectedId === c.id ? 'border-blue-600 ring-2 ring-blue-100 bg-blue-50' : 'border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                <span className="font-medium text-slate-800">{c.fullName}</span>
+                <span className="font-medium text-slate-800">{c.fullName || 'Unnamed'}</span>
                 <span className="ml-2 text-xs text-slate-500 capitalize">{c.role}</span>
+                <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> On shift
+                </span>
               </button>
             ))}
           </div>
