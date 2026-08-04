@@ -9,7 +9,6 @@ import { RCAModal } from '../../components/breakdowns/RCAModal';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 import { notifyUsers } from '../../services/notifications.service';
-import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
@@ -63,7 +62,6 @@ export default function ViewBreakdownPage() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignBusy, setAssignBusy] = useState(false);
   const [attendBusy, setAttendBusy] = useState(false);
-  const { createWO, loading: creatingWO } = useCreateWorkOrder();
 
   const role = userProfile?.role ?? '';
   const isSupervisorRole = CAN_ASSIGN_ROLES.includes(role);
@@ -194,40 +192,15 @@ export default function ViewBreakdownPage() {
     }
   }
 
-  async function handleCreateWorkOrder() {
-    if (!breakdown || !userProfile) return;
-    const woId = await createWO({
-      woType: 'BREAKDOWN',
-      priority: breakdown.severity === 'critical' || breakdown.severity === 'high' ? 'high' : (breakdown.severity ?? 'medium'),
-      description: breakdown.description,
-      dueDate: new Date(),
-      scheduledStart: null,
-      estimatedDuration: 2,
-      estimatedDurationUnit: 'hours',
-      linkedBreakdownId: breakdown.id,
-      linkedBreakdownTicketNumber: breakdown.ticketNumber,
-      machineId: breakdown.machineId,
-      machineName: breakdown.machineName,
-      machineDepartment: breakdown.machineDepartment,
-      machineLocation: breakdown.machineLocation,
-      machineType: breakdown.type ?? 'other',
-      machineCriticality: breakdown.machineCriticality,
-      supervisorInChargeId: userProfile.id,
-      supervisorInChargeName: userProfile.fullName ?? '',
-      assignedTechnicianIds: breakdown.assignedTechnicianIds ?? [],
-      assignedTechnicianNames: breakdown.assignedTechnicianNames ?? [],
-      contractorCompanyId: null,
-      contractorCompanyName: null,
-      contractorContactPerson: null,
-      contractorContactNumber: null,
-      contractorTechnicianNames: [],
-      contractorTechnicianIds: [],
-      isManualContractor: false,
-      checklist: [],
-      documents: [],
-      partsRequests: [],
-    });
-    if (woId) navigate('/app/workorders');
+  // Hands off to the same Create Work Order drawer used from the WOs tab
+  // (prefilled with this breakdown) instead of creating one directly here,
+  // so the creation flow — checklist, team/contractor assignment, work
+  // permit, documents — is identical either way.
+  function handleCreateWorkOrder() {
+    if (!breakdown) return;
+    navigate(
+      `/app/workorders?create=1&breakdownId=${breakdown.id}&breakdownTicket=${encodeURIComponent(breakdown.ticketNumber)}&machineId=${breakdown.machineId}&woType=BREAKDOWN`,
+    );
   }
 
   function handleInitiateClose() {
@@ -327,13 +300,13 @@ export default function ViewBreakdownPage() {
                 {attendBusy ? 'Attending…' : 'Attend'}
               </button>
             )}
-            {b.status !== 'reported' && (b.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '') && (
+            {b.status !== 'reported' && !b.severity && (b.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '') && (
               <Link
-                to={b.severity ? `/app/breakdowns/${b.id}/edit` : `/app/breakdowns/attend?ids=${b.id}`}
+                to={`/app/breakdowns/attend?ids=${b.id}`}
                 className="px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 text-sm"
               >
                 <Pencil className="w-4 h-4 inline mr-1" />
-                {b.severity ? 'Edit Assessment' : 'Fill Breakdown Report'}
+                Fill Breakdown Report
               </Link>
             )}
             {isSupervisorRole && b.status !== 'reported' && !b.linkedWOId && (
@@ -434,6 +407,37 @@ export default function ViewBreakdownPage() {
             <div>
               <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Assigned Technicians</p>
               <p className="text-slate-800 text-sm">{b.assignedTechnicianNames.join(', ')}</p>
+            </div>
+          )}
+
+          {(b.photos ?? []).length > 0 && (
+            <div>
+              <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">Attached Media</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {b.photos.map((url, i) => {
+                  const isImage = /\.(jpe?g|png|gif|webp|heic|bmp)(\?|$)/i.test(url);
+                  const isVideo = /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
+                  return (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block border border-slate-200 rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-300 transition-shadow"
+                    >
+                      {isImage ? (
+                        <img src={url} alt={`Attachment ${i + 1}`} className="w-full h-24 object-cover" />
+                      ) : isVideo ? (
+                        <video src={url} className="w-full h-24 object-cover" muted />
+                      ) : (
+                        <div className="w-full h-24 flex items-center justify-center bg-slate-50 text-slate-400 text-xs">
+                          File {i + 1}
+                        </div>
+                      )}
+                    </a>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
