@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, writeBatch, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { AlertCircle, ArrowLeft, Paperclip, Lock } from 'lucide-react';
+import { toast } from 'sonner';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
@@ -146,9 +147,14 @@ export default function AttendBreakdownsPage() {
         });
       }
       await batch.commit();
+      toast.success(list.length > 1 ? `Assessment saved for ${list.length} tickets` : 'Assessment saved');
+      // Stays in the Assigned bucket (status is untouched here) — a Work
+      // Order is what actually advances it into Open.
       navigate('/app/breakdowns', { replace: true });
     } catch (err: any) {
-      setError(err?.message || 'Failed to save.');
+      const msg = err?.message || 'Failed to save.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
       setUploading(false);
