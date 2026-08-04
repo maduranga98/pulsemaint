@@ -38,6 +38,9 @@ export function WOListView() {
   const prefilledMachineId = searchParams.get('machineId');
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
+  // Comma-separated list — one WO covering every breakdown ticket in the
+  // group (e.g. raised from the Breakdowns list for a whole machine).
+  const prefilledBreakdownIds = searchParams.get('breakdownIds');
   const prefilledWoType = searchParams.get('woType') as WOType | null;
   const openWoId = searchParams.get('woId');
 
@@ -296,6 +299,7 @@ export function WOListView() {
           prefilledMachineId={prefilledMachineId ?? undefined}
           linkedBreakdownId={prefilledBreakdownId ?? undefined}
           linkedBreakdownTicketNumber={prefilledBreakdownTicket ?? undefined}
+          linkedBreakdownIds={prefilledBreakdownIds ? prefilledBreakdownIds.split(',').filter(Boolean) : undefined}
           defaultWoType={prefilledWoType ?? undefined}
         />
       )}

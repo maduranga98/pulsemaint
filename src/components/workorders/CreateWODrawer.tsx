@@ -38,6 +38,12 @@ interface CreateWODrawerProps {
   onCreated?: (woId: string) => void;
   linkedBreakdownId?: string;
   linkedBreakdownTicketNumber?: string;
+  // Every breakdown ticket this one WO should cover (e.g. every filled-in
+  // ticket reported against one machine) — when set, the drawer locks to
+  // WO type "Breakdown" and shows these as a fixed list instead of the
+  // free-text breakdown search, so a supervisor raises exactly one WO for
+  // the whole group instead of one per ticket.
+  linkedBreakdownIds?: string[];
   prefilledMachineId?: string;
   defaultWoType?: WOType;
 }
@@ -63,6 +69,7 @@ export function CreateWODrawer({
   onCreated,
   linkedBreakdownId,
   linkedBreakdownTicketNumber,
+  linkedBreakdownIds,
   prefilledMachineId,
   defaultWoType,
 }: CreateWODrawerProps) {
@@ -74,6 +81,13 @@ export function CreateWODrawer({
   const [machineSearch, setMachineSearch] = useState('');
   const [showMachineDropdown, setShowMachineDropdown] = useState(false);
   const [linkedBreakdown, setLinkedBreakdown] = useState<{ id: string; ticketNumber: string; severity?: string; machineName?: string; description?: string } | null>(null);
+  const [linkedBreakdownGroup, setLinkedBreakdownGroup] = useState<
+    { id: string; ticketNumber: string; severity?: string }[]
+  >([]);
+  // Arriving via a breakdown deep-link (single or grouped) locks the WO to
+  // type "Breakdown" — this is not a general-purpose WO, so the type grid
+  // and free-text breakdown search are replaced with a fixed summary.
+  const lockedToBreakdown = !!linkedBreakdownId || (linkedBreakdownIds?.length ?? 0) > 0;
   const [breakdownTickets, setBreakdownTickets] = useState<
     { id: string; ticketNumber: string; severity?: string; status: string; machineId?: string; machineName?: string; machineDepartment?: string; machineLocation?: string; machineCriticality?: number; description?: string }[]
   >([]);
@@ -233,6 +247,48 @@ export function CreateWODrawer({
     return () => { cancelled = true; };
   }, [open, linkedBreakdownId]);
 
+  // Grouped multi-ticket flow (one WO for every filled breakdown on a
+  // machine) — fetches all of them, locks the form to Breakdown, and
+  // auto-fills the machine from the first ticket.
+  useEffect(() => {
+    if (!open || !linkedBreakdownIds || linkedBreakdownIds.length === 0) {
+      if (!linkedBreakdownIds || linkedBreakdownIds.length === 0) setLinkedBreakdownGroup([]);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const snaps = await Promise.all(linkedBreakdownIds.map((id) => getDoc(doc(db, 'breakdown_tickets', id))));
+        if (cancelled) return;
+        const found = snaps.filter((s) => s.exists());
+        if (found.length === 0) return;
+        setLinkedBreakdownGroup(
+          found.map((s) => {
+            const data = s.data() as any;
+            return { id: s.id, ticketNumber: data.ticketNumber ?? s.id, severity: data.severity };
+          }),
+        );
+        const first = found[0].data() as any;
+        form.setValue('woType', 'BREAKDOWN' as any);
+        form.setValue('linkedBreakdownId', found[0].id);
+        form.setValue('linkedBreakdownTicketNumber', first.ticketNumber ?? '');
+        form.setValue('linkedBreakdownIds', found.map((s) => s.id));
+        form.setValue('description', found.map((s) => (s.data() as any).ticketNumber).join(', ') + ' — ' + (first.description ?? ''));
+        if (first.machineId) {
+          form.setValue('machineId', first.machineId);
+          form.setValue('machineName' as any, first.machineName ?? '');
+          form.setValue('machineDepartment' as any, first.machineDepartment ?? '');
+          form.setValue('machineLocation' as any, first.machineLocation ?? '');
+          form.setValue('machineCriticality' as any, first.machineCriticality ?? 3);
+          setMachineSearch(first.machineName ?? '');
+        }
+      } catch (err) {
+        console.error('Failed to load linked breakdown group', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, linkedBreakdownIds]);
+
   const { createWO, loading, uploadProgress } = useCreateWorkOrder();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -385,7 +441,24 @@ export function CreateWODrawer({
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <form onSubmit={(form.handleSubmit as any)(handleSubmit)} className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
 
-          {linkedBreakdown && (
+          {linkedBreakdownGroup.length > 0 ? (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
+              <span className="text-red-600 text-lg">⚠️</span>
+              <div className="flex-1 text-sm">
+                <p className="font-semibold text-red-800">
+                  One Work Order for {linkedBreakdownGroup.length} breakdown{linkedBreakdownGroup.length > 1 ? 's' : ''}
+                </p>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {linkedBreakdownGroup.map((t) => (
+                    <span key={t.id} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-white border border-red-200 text-red-700">
+                      {t.ticketNumber}
+                      {t.severity && <span className="uppercase font-semibold">· {t.severity}</span>}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : linkedBreakdown && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-3">
               <span className="text-red-600 text-lg">⚠️</span>
               <div className="flex-1 text-sm">
@@ -410,33 +483,43 @@ export function CreateWODrawer({
           {/* ── STEP 0: Basic Info ── */}
           {step === 0 && (
             <div className="space-y-5">
-              {/* WO Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {WO_COPY.woTypeLabel} <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                  {WO_TYPES_ORDERED.map((type) => {
-                    const cfg = WO_TYPE_CONFIG[type];
-                    const isSelected = woType === type;
-                    return (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => form.setValue('woType', type as WOType)}
-                        className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
-                          isSelected
-                            ? `border-[${cfg.color}] ${cfg.bgClass} ${cfg.textClass}`
-                            : 'border-gray-100 hover:border-gray-300 text-gray-600'
-                        }`}
-                      >
-                        <span className="text-2xl">{cfg.icon}</span>
-                        <span className="text-center leading-tight text-xs">{cfg.label}</span>
-                      </button>
-                    );
-                  })}
+              {/* WO Type — locked to Breakdown when arriving from a breakdown ticket */}
+              {lockedToBreakdown ? (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{WO_COPY.woTypeLabel}</label>
+                  <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-medium ${WO_TYPE_CONFIG.BREAKDOWN.bgClass} ${WO_TYPE_CONFIG.BREAKDOWN.textClass}`} style={{ borderColor: WO_TYPE_CONFIG.BREAKDOWN.color }}>
+                    <span className="text-xl">{WO_TYPE_CONFIG.BREAKDOWN.icon}</span>
+                    {WO_TYPE_CONFIG.BREAKDOWN.label}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {WO_COPY.woTypeLabel} <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                    {WO_TYPES_ORDERED.map((type) => {
+                      const cfg = WO_TYPE_CONFIG[type];
+                      const isSelected = woType === type;
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => form.setValue('woType', type as WOType)}
+                          className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                            isSelected
+                              ? `border-[${cfg.color}] ${cfg.bgClass} ${cfg.textClass}`
+                              : 'border-gray-100 hover:border-gray-300 text-gray-600'
+                          }`}
+                        >
+                          <span className="text-2xl">{cfg.icon}</span>
+                          <span className="text-center leading-tight text-xs">{cfg.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* PM Type (only for Preventive Maintenance WOs) */}
               {woType === 'PREVENTIVE' && (
@@ -533,8 +616,9 @@ export function CreateWODrawer({
                 </div>
               </div>
 
-              {/* Linked Breakdown (only for BREAKDOWN type) */}
-              {woType === 'BREAKDOWN' && (
+              {/* Linked Breakdown search — skipped when the ticket(s) are
+                  already auto-selected via a breakdown deep-link. */}
+              {woType === 'BREAKDOWN' && !lockedToBreakdown && (
                 <div className="relative">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {WO_COPY.linkedBreakdownLabel} <span className="text-red-500">*</span>
