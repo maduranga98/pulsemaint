@@ -3,7 +3,7 @@ export { PriorityBadge } from './PriorityBadge';
 export { WOStatusBadge } from './WOStatusBadge';
 export { SLACountdownTimer } from './SLACountdownTimer';
 export { WOCard } from './WOCard';
-export { WORow } from './WORow';
+export { WOTable } from './WOTable';
 export { WOStatsBar } from './WOStatsBar';
 export { TeamAssignmentPanel } from './TeamAssignmentPanel';
 export { ChecklistBuilder } from './ChecklistBuilder';

@@ -6,7 +6,7 @@ import { WO_COPY } from '../../constants/copy';
 import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
-import { WORow } from './WORow';
+import { WOTable } from './WOTable';
 import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
@@ -196,8 +196,7 @@ export function WOListView() {
               <p className="text-gray-500">{WO_COPY.noOpenWOs}</p>
             </div>
           ) : activeCategory === 'all' ? (
-            /* All categories — one section per WO type, each work order a
-               single row (not a card grid). */
+            /* All categories — one table section per WO type. */
             <div className="space-y-6">
               {columns.filter((col) => col.items.length > 0).map((col) => (
                 <div key={col.type}>
@@ -208,21 +207,13 @@ export function WOListView() {
                       {col.items.length}
                     </span>
                   </div>
-                  <div className="bg-white rounded-lg shadow-sm divide-y divide-gray-100 overflow-hidden">
-                    {col.items.map((wo) => (
-                      <WORow key={wo.id} workOrder={wo} onClick={setSelectedWO} />
-                    ))}
-                  </div>
+                  <WOTable workOrders={col.items} onSelect={setSelectedWO} showTypeColumn={false} />
                 </div>
               ))}
             </div>
           ) : (
-            /* A single category selected — flat list of its work orders. */
-            <div className="bg-white rounded-lg shadow-sm divide-y divide-gray-100 overflow-hidden">
-              {displayedWOs.map((wo) => (
-                <WORow key={wo.id} workOrder={wo} onClick={setSelectedWO} />
-              ))}
-            </div>
+            /* A single category selected — one table of its work orders. */
+            <WOTable workOrders={displayedWOs} onSelect={setSelectedWO} showTypeColumn={false} />
           )
         )}
       </div>
