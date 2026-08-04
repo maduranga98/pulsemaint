@@ -235,50 +235,57 @@ export default function LoginPage() {
 
         <div className="relative flex items-center gap-3">
           <img src="/logo.svg" alt="FirmiCore" className="h-10 w-auto" />
-          <div className="text-2xl font-bold">
+          <div className="text-2xl font-bold" style={{ fontFamily: "'Sora', var(--font-sans)" }}>
             <span className="text-white">Firmi</span>
             <span className="text-[#00C2FF]">Core</span>
           </div>
         </div>
 
-        <div className="relative flex-1 flex flex-col justify-center">
-          {/* Global `h1,h2,...{color:#0f172a}` in style.css is an unlayered
-              rule, so it beats Tailwind's layered `text-white` utility here —
-              force the color inline rather than fight the cascade. */}
-          <h1 className="text-4xl font-bold leading-tight mb-4" style={{ color: '#ffffff' }}>
-            One platform for every machine, breakdown, and technician on your floor.
-          </h1>
-          <p className="text-slate-300 text-base max-w-md mb-10">
-            FirmiCore is the multi-tenant maintenance-management platform that keeps machine
-            registries, breakdowns, work orders, PM scheduling, inventory, and analytics in one
-            place — so nothing falls through the cracks.
-          </p>
+        {/* `p`/`h1`-`h6` get an unlayered `margin: 0` reset in style.css that
+            outranks Tailwind's layered mb-* / space-y-* utilities on those
+            tags, which was collapsing the headline, paragraph, and feature
+            rows on top of each other. `gap` on the flex parent sidesteps
+            that entirely since it isn't a per-child margin. */}
+        <div className="relative flex-1 flex flex-col justify-center gap-8">
+          <div className="flex flex-col gap-4">
+            <h1
+              className="text-4xl leading-tight max-w-lg"
+              style={{ color: '#ffffff', fontFamily: "'Sora', var(--font-sans)", fontWeight: 700, letterSpacing: '-0.01em' }}
+            >
+              One platform for every machine, breakdown, and technician on your floor.
+            </h1>
+            <p className="text-slate-300 text-base leading-relaxed max-w-md">
+              FirmiCore is the multi-tenant maintenance-management platform that keeps machine
+              registries, breakdowns, work orders, PM scheduling, inventory, and analytics in one
+              place — so nothing falls through the cracks.
+            </p>
+          </div>
 
-          <div className="space-y-5 max-w-md">
+          <div className="flex flex-col gap-5 max-w-md">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><Gauge className="w-5 h-5 text-[#00C2FF]" /></div>
-              <div>
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10 shrink-0"><Gauge className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div className="flex flex-col gap-0.5">
                 <p className="text-white font-medium text-sm">Real-time breakdown tracking</p>
                 <p className="text-slate-400 text-sm">From "reported" to "assigned" to "resolved" — everyone sees live status.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><Wrench className="w-5 h-5 text-[#00C2FF]" /></div>
-              <div>
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10 shrink-0"><Wrench className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div className="flex flex-col gap-0.5">
                 <p className="text-white font-medium text-sm">Work orders &amp; PM scheduling</p>
                 <p className="text-slate-400 text-sm">Assign technicians, track parts, and stay ahead of preventive maintenance.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><ShieldCheck className="w-5 h-5 text-[#00C2FF]" /></div>
-              <div>
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10 shrink-0"><ShieldCheck className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div className="flex flex-col gap-0.5">
                 <p className="text-white font-medium text-sm">Role-based access &amp; audit trails</p>
                 <p className="text-slate-400 text-sm">Nine tailored roles, from floor operator to plant manager, each with the right view.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><BarChart3 className="w-5 h-5 text-[#00C2FF]" /></div>
-              <div>
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10 shrink-0"><BarChart3 className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div className="flex flex-col gap-0.5">
                 <p className="text-white font-medium text-sm">Analytics that matter</p>
                 <p className="text-slate-400 text-sm">Machine health, OEE, and reliability trends, computed automatically.</p>
               </div>
@@ -300,8 +307,15 @@ export default function LoginPage() {
         </div>
 
         <div className="bg-[#111C33] border border-white/10 rounded-lg shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-1" style={{ color: '#ffffff' }}>Welcome back</h2>
-          <p className="text-slate-400 text-sm mb-5">Sign in to your FirmiCore account</p>
+          <div className="flex flex-col gap-1 mb-6">
+            <h2
+              className="text-lg"
+              style={{ color: '#ffffff', fontFamily: "'Sora', var(--font-sans)", fontWeight: 600 }}
+            >
+              Welcome back
+            </h2>
+            <p className="text-slate-400 text-sm">Sign in to your FirmiCore account</p>
+          </div>
 
           {error && (
             <div className="mb-6 bg-red-950/40 border border-red-500/30 text-red-300 rounded-lg p-3 flex gap-3">
@@ -318,7 +332,7 @@ export default function LoginPage() {
                   {...emailForm.register('email')}
                   type="email"
                   placeholder="you@company.com"
-                  className="w-full px-4 py-2 border border-white/10 bg-white/5 text-white placeholder:text-slate-500 rounded-lg focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none transition-all"
+                  className="w-full px-4 py-2 border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 rounded-lg focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none transition-all"
                 />
                 {emailForm.formState.errors.email && (
                   <p className="text-red-400 text-sm mt-1">{emailForm.formState.errors.email.message}</p>
@@ -337,7 +351,7 @@ export default function LoginPage() {
                     {...emailForm.register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className="w-full px-4 py-2 border border-white/10 bg-white/5 text-white placeholder:text-slate-500 rounded-lg focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none transition-all"
+                    className="w-full px-4 py-2 border border-white/10 bg-[#0B1526] text-white placeholder:text-slate-500 rounded-lg focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none transition-all"
                   />
                   <button
                     type="button"
@@ -382,9 +396,9 @@ export default function LoginPage() {
               <button
                 onClick={handleGoogleLogin}
                 disabled={googleLoading}
-                className="w-full border border-white/10 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 h-11"
+                className="w-full border border-white/10 bg-[#0B1526] text-slate-100 font-medium py-2 rounded-lg hover:bg-white/5 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 h-11"
               >
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-slate-300" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -419,7 +433,7 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={openQrScanner}
-          className="w-full mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 bg-white/5 text-slate-200 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+          className="w-full mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 bg-[#0B1526] text-slate-200 text-sm font-medium rounded-lg hover:bg-white/5 transition-colors"
         >
           <QrCode className="w-4 h-4 text-[#00C2FF]" />
           Report a breakdown by QR — no sign-in needed
@@ -445,8 +459,10 @@ export default function LoginPage() {
       {showPinChangeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4">Change Your PIN</h3>
-            <p className="text-gray-600 text-sm mb-6">You must change your PIN before continuing.</p>
+            <div className="flex flex-col gap-1 mb-6">
+              <h3 className="text-lg font-semibold">Change Your PIN</h3>
+              <p className="text-gray-600 text-sm">You must change your PIN before continuing.</p>
+            </div>
 
             <div className="space-y-4">
               <div>
