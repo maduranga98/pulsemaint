@@ -152,6 +152,7 @@ import PublicBreakdownReportPage from '../pages/breakdowns/PublicBreakdownReport
 import BreakdownsPage from '../pages/breakdowns/BreakdownsPage';
 import ViewBreakdownPage from '../pages/breakdowns/ViewBreakdownPage';
 import EditBreakdownPage from '../pages/breakdowns/EditBreakdownPage';
+import AttendBreakdownsPage from '../pages/breakdowns/AttendBreakdownsPage';
 import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import MyWorkOrdersPage from '../pages/workorders/MyWorkOrdersPage';
@@ -356,6 +357,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'trainee', 'supervisor', 'plant_manager', 'admin']}>
               <EditBreakdownPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="breakdowns/attend"
+          element={
+            <ProtectedRoute requiredRoles={['technician', 'trainee', 'supervisor', 'plant_manager', 'admin']}>
+              <AttendBreakdownsPage />
             </ProtectedRoute>
           }
         />
