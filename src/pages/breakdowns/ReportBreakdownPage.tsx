@@ -7,7 +7,6 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
 import { notifyRoles } from '../../services/notifications.service';
-import type { BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 
 interface MachineOption {
   id: string;
@@ -16,22 +15,6 @@ interface MachineOption {
   location?: string;
   criticality?: 1 | 2 | 3 | 4 | 5;
 }
-
-const SEVERITIES: { value: BreakdownSeverity; label: string; color: string }[] = [
-  { value: 'critical', label: 'Critical — production halted', color: 'bg-red-600 text-white' },
-  { value: 'high', label: 'High — major impact', color: 'bg-orange-500 text-white' },
-  { value: 'medium', label: 'Medium — minor impact', color: 'bg-amber-500 text-white' },
-  { value: 'low', label: 'Low — cosmetic / observation', color: 'bg-slate-400 text-white' },
-];
-
-const TYPES: { value: BreakdownType; label: string }[] = [
-  { value: 'mechanical', label: 'Mechanical' },
-  { value: 'electrical', label: 'Electrical' },
-  { value: 'hydraulic', label: 'Hydraulic' },
-  { value: 'pneumatic', label: 'Pneumatic' },
-  { value: 'software', label: 'Software / Controls' },
-  { value: 'other', label: 'Other' },
-];
 
 export default function ReportBreakdownPage() {
   const navigate = useNavigate();
@@ -63,12 +46,9 @@ export default function ReportBreakdownPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const [severity, setSeverity] = useState<BreakdownSeverity>('medium');
-  const [breakdownType, setBreakdownType] = useState<BreakdownType>('mechanical');
   const [description, setDescription] = useState('');
   const [productionImpact, setProductionImpact] = useState('');
   const [currentProductionCount, setCurrentProductionCount] = useState('');
-  const [attemptedFixes, setAttemptedFixes] = useState('');
   const [machineStillRunning, setMachineStillRunning] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
@@ -155,25 +135,32 @@ export default function ReportBreakdownPage() {
         machineDepartment: machine.department || '',
         machineLocation: machine.location || '',
         machineCriticality: machine.criticality || 3,
-        severity,
-        type: breakdownType,
+        // Set by the attending technician once assessed, not by the reporter.
+        severity: null,
+        type: null,
         description: description.trim(),
         productionImpact: productionImpact.trim(),
         currentProductionCount: currentProductionCount !== '' ? Number(currentProductionCount) : null,
-        attemptedFixes: attemptedFixes.trim(),
+        attemptedFixes: '',
         machineStillRunning,
         photos: [],
         video: null,
         source: 'web_browser',
-        reportedBy: userProfile.id,
-        reporterName: userProfile.fullName,
-        reporterRole: userProfile.role,
+        // Not tracked on the record itself.
+        reportedBy: null,
+        reporterName: null,
+        reporterRole: null,
         reportedAt: serverTimestamp(),
         status: 'reported',
         statusHistory: [],
         assignedTechnicianIds: [],
         assignedTechnicianNames: [],
         assignedContractorId: null,
+        assignedBy: null,
+        assignedByName: null,
+        attendedBy: null,
+        attendedByName: null,
+        attendedAt: null,
         acknowledgedAt: null,
         acknowledgedBy: null,
         assignedAt: null,
@@ -185,12 +172,11 @@ export default function ReportBreakdownPage() {
       });
       void notifyRoles(userProfile.companyId, ['supervisor', 'plant_manager', 'admin'], {
         type: 'breakdown',
-        message: `${machine.name}: new ${severity} breakdown reported by ${userProfile.fullName}`,
-        oversightMessage: `reported a new ${severity} breakdown on ${machine.name}`,
+        message: `${machine.name}: new breakdown reported${machineStillRunning ? ' (still running, degraded)' : ''}`,
+        oversightMessage: `reported a new breakdown on ${machine.name}`,
         actorName: userProfile.fullName ?? '',
         actorRole: userProfile.role,
         actorUserId: userProfile.id,
-        severity,
         linkTo: '/app/breakdowns',
       });
       navigate('/app/breakdowns', { replace: true });
@@ -214,7 +200,7 @@ export default function ReportBreakdownPage() {
         </button>
         <h1 className="text-2xl font-bold text-slate-900">Report a Breakdown</h1>
         <p className="text-sm text-slate-500">
-          Fast-track a machine breakdown to your maintenance team.
+          Fast-track a machine breakdown to your maintenance team. A technician will assess severity and type once they attend.
         </p>
       </div>
 
@@ -250,43 +236,6 @@ export default function ReportBreakdownPage() {
                 <option key={m.id} value={m.id}>
                   {m.name} {m.department ? `— ${m.department}` : ''}
                 </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Severity *</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {SEVERITIES.map((s) => (
-                <button
-                  type="button"
-                  key={s.value}
-                  onClick={() => setSeverity(s.value)}
-                  className={`text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
-                    severity === s.value
-                      ? 'border-blue-600 ring-2 ring-blue-100 bg-white'
-                      : 'border-slate-200 bg-white hover:bg-slate-50'
-                  }`}
-                >
-                  <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold uppercase mr-2 ${s.color}`}>
-                    {s.value}
-                  </span>
-                  <span className="text-slate-700">{s.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Type *</label>
-            <select
-              value={breakdownType}
-              onChange={(e) => setBreakdownType(e.target.value as BreakdownType)}
-              disabled={submitting}
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              {TYPES.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
               ))}
             </select>
           </div>
@@ -329,18 +278,6 @@ export default function ReportBreakdownPage() {
               disabled={submitting}
               placeholder="0"
               className="w-48 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Attempted fixes</label>
-            <input
-              type="text"
-              value={attemptedFixes}
-              onChange={(e) => setAttemptedFixes(e.target.value)}
-              disabled={submitting}
-              placeholder="e.g., Restarted the controller, no change"
-              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 

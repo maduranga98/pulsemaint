@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, Timestamp, arrayUnion } from 'firebase/firestore';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
-import { db } from '../../lib/firebase';
+import { doc, onSnapshot, updateDoc, Timestamp, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { AlertCircle, ArrowLeft, Paperclip } from 'lucide-react';
+import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 
@@ -39,6 +40,8 @@ export default function EditBreakdownPage() {
   const [currentProductionCount, setCurrentProductionCount] = useState('');
   const [attemptedFixes, setAttemptedFixes] = useState('');
   const [machineStillRunning, setMachineStillRunning] = useState(false);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -48,8 +51,8 @@ export default function EditBreakdownPage() {
         if (snap.exists()) {
           const data = { ...snap.data(), id: snap.id } as Breakdown;
           setBreakdown(data);
-          setSeverity(data.severity);
-          setBreakdownType(data.type);
+          setSeverity(data.severity ?? 'medium');
+          setBreakdownType(data.type ?? 'mechanical');
           setDescription(data.description || '');
           setProductionImpact(data.productionImpact || '');
           setCurrentProductionCount(
@@ -73,7 +76,7 @@ export default function EditBreakdownPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!id || !userProfile) return;
+    if (!id || !userProfile || !breakdown) return;
     if (description.trim().length < 10) {
       setError('Description must be at least 10 characters.');
       return;
@@ -81,6 +84,29 @@ export default function EditBreakdownPage() {
     setSaving(true);
     setError(null);
     try {
+      let uploadedUrls: string[] = [];
+      if (mediaFiles.length > 0) {
+        setUploading(true);
+        const siteId = userProfile.siteIds?.[0] || userProfile.companyId;
+        uploadedUrls = await Promise.all(
+          mediaFiles.map(async (file) => {
+            const storagePath = `breakdowns/${siteId}/${id}/media/${Date.now()}_${file.name}`;
+            const storageRef = ref(storage, storagePath);
+            const task = uploadBytesResumable(storageRef, file);
+            await new Promise<void>((resolve, reject) => {
+              task.on('state_changed', undefined, reject, () => resolve());
+            });
+            return getDownloadURL(task.snapshot.ref);
+          }),
+        );
+        setUploading(false);
+      }
+
+      // The technician completing this form is the one attending — set it
+      // if a supervisor assignment or self-attend hasn't already.
+      const isFirstCompletion = breakdown.status === 'reported' || breakdown.status === 'assigned';
+      const nextStatus = isFirstCompletion ? 'repair_in_progress' : breakdown.status;
+
       await updateDoc(doc(db, 'breakdown_tickets', id), {
         severity,
         type: breakdownType,
@@ -89,13 +115,25 @@ export default function EditBreakdownPage() {
         currentProductionCount: currentProductionCount !== '' ? Number(currentProductionCount) : null,
         attemptedFixes: attemptedFixes.trim(),
         machineStillRunning,
+        status: nextStatus,
+        ...(uploadedUrls.length > 0 ? { photos: arrayUnion(...uploadedUrls) } : {}),
+        ...(!breakdown.attendedBy ? {
+          attendedBy: userProfile.id,
+          attendedByName: userProfile.fullName,
+          attendedAt: serverTimestamp(),
+        } : {}),
+        ...(!(breakdown.assignedTechnicianIds ?? []).includes(userProfile.id) ? {
+          assignedTechnicianIds: arrayUnion(userProfile.id),
+          assignedTechnicianNames: arrayUnion(userProfile.fullName),
+        } : {}),
         updatedAt: Timestamp.now(),
+        repairStartedAt: isFirstCompletion ? Timestamp.now() : (breakdown.repairStartedAt ?? null),
         statusHistory: arrayUnion({
-          status: breakdown?.status || 'reported',
+          status: nextStatus,
           changedBy: userProfile.id,
           changedByName: userProfile.fullName,
           changedAt: new Date().toISOString(),
-          note: 'Breakdown details updated',
+          note: 'Breakdown report completed by attending technician',
         }),
       });
       navigate(`/app/breakdowns/${id}`, { replace: true });
@@ -103,6 +141,7 @@ export default function EditBreakdownPage() {
       setError(err?.message || 'Failed to save.');
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   }
 
@@ -197,6 +236,24 @@ export default function EditBreakdownPage() {
             <input type="checkbox" checked={machineStillRunning} onChange={(e) => setMachineStillRunning(e.target.checked)} disabled={saving} className="rounded" />
             Machine is still running (degraded but operational)
           </label>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Attach media (photos/video)</label>
+            <div className="flex items-center gap-2">
+              <Paperclip className="w-4 h-4 text-slate-400" />
+              <input
+                type="file"
+                accept="image/*,video/*"
+                multiple
+                disabled={saving || uploading}
+                onChange={(e) => setMediaFiles(Array.from(e.target.files ?? []))}
+                className="text-sm text-slate-600 file:mr-3 file:px-3 file:py-1.5 file:rounded-lg file:border file:border-slate-200 file:bg-white file:text-sm file:font-medium hover:file:bg-slate-50"
+              />
+            </div>
+            {mediaFiles.length > 0 && (
+              <p className="text-xs text-slate-500 mt-1">{mediaFiles.length} file(s) selected{uploading ? ' — uploading…' : ''}</p>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-3">

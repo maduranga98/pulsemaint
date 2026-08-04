@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
-import { AlertCircle, ArrowLeft, X, CheckCircle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, X, CheckCircle, UserPlus, HardHat, Pencil, ClipboardPlus } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownStatus } from '../../types/breakdown';
 import { RCAModal } from '../../components/breakdowns/RCAModal';
+import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import { CancelReasonModal, type CancelReasonResult } from '../../components/ui/CancelReasonModal';
 import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
+import { notifyUsers } from '../../services/notifications.service';
+import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
+
+const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+const CAN_ATTEND_ROLES = ['technician', 'trainee'];
 
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
   reported: 'Reported',
@@ -57,10 +63,14 @@ export default function ViewBreakdownPage() {
   const [showRCAModal, setShowRCAModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'cancel' | 'close' | null>(null);
   const [rcaDoc, setRcaDoc] = useState<{ status: string; rootCause: string } | null>(null);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignBusy, setAssignBusy] = useState(false);
+  const [attendBusy, setAttendBusy] = useState(false);
+  const { createWO, loading: creatingWO } = useCreateWorkOrder();
 
-  const isSupervisorRole = [
-    'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin',
-  ].includes(userProfile?.role ?? '');
+  const role = userProfile?.role ?? '';
+  const isSupervisorRole = CAN_ASSIGN_ROLES.includes(role);
+  const canAttend = CAN_ATTEND_ROLES.includes(role);
 
   useEffect(() => {
     if (!id) return;
@@ -145,6 +155,108 @@ export default function ViewBreakdownPage() {
     } catch (err: any) {
       setError(err?.message || 'Failed to close breakdown.');
     }
+  }
+
+  async function handleAssign(candidate: { id: string; fullName: string; role: string }) {
+    if (!id || !userProfile) return;
+    setAssignBusy(true);
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', id), {
+        assignedTechnicianIds: [candidate.id],
+        assignedTechnicianNames: [candidate.fullName],
+        assignedBy: userProfile.id,
+        assignedByName: userProfile.fullName,
+        assignedAt: serverTimestamp(),
+        attendedBy: candidate.id,
+        attendedByName: candidate.fullName,
+        attendedAt: serverTimestamp(),
+        status: 'assigned',
+        statusHistory: arrayUnion({
+          status: 'assigned',
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: Timestamp.now(),
+          note: `Assigned to ${candidate.fullName} by ${userProfile.fullName}`,
+        }),
+      });
+      void notifyUsers(userProfile.companyId, [candidate.id], {
+        type: 'breakdown',
+        message: `You've been assigned to breakdown ${breakdown?.ticketNumber} on ${breakdown?.machineName}`,
+        oversightMessage: `assigned ${candidate.fullName} to breakdown ${breakdown?.ticketNumber}`,
+        actorName: userProfile.fullName ?? '',
+        actorRole: userProfile.role,
+        actorUserId: userProfile.id,
+        linkTo: `/app/breakdowns/${id}`,
+      });
+      setShowAssignModal(false);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to assign.');
+    } finally {
+      setAssignBusy(false);
+    }
+  }
+
+  async function handleSelfAttend() {
+    if (!id || !userProfile) return;
+    setAttendBusy(true);
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', id), {
+        assignedTechnicianIds: [userProfile.id],
+        assignedTechnicianNames: [userProfile.fullName],
+        attendedBy: userProfile.id,
+        attendedByName: userProfile.fullName,
+        attendedAt: serverTimestamp(),
+        status: 'assigned',
+        statusHistory: arrayUnion({
+          status: 'assigned',
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: Timestamp.now(),
+          note: `Self-attended by ${userProfile.fullName}`,
+        }),
+      });
+      navigate(`/app/breakdowns/${id}/edit`);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to attend.');
+    } finally {
+      setAttendBusy(false);
+    }
+  }
+
+  async function handleCreateWorkOrder() {
+    if (!breakdown || !userProfile) return;
+    const woId = await createWO({
+      woType: 'BREAKDOWN',
+      priority: breakdown.severity === 'critical' || breakdown.severity === 'high' ? 'high' : (breakdown.severity ?? 'medium'),
+      description: breakdown.description,
+      dueDate: new Date(),
+      scheduledStart: null,
+      estimatedDuration: 2,
+      estimatedDurationUnit: 'hours',
+      linkedBreakdownId: breakdown.id,
+      linkedBreakdownTicketNumber: breakdown.ticketNumber,
+      machineId: breakdown.machineId,
+      machineName: breakdown.machineName,
+      machineDepartment: breakdown.machineDepartment,
+      machineLocation: breakdown.machineLocation,
+      machineType: breakdown.type ?? 'other',
+      machineCriticality: breakdown.machineCriticality,
+      supervisorInChargeId: userProfile.id,
+      supervisorInChargeName: userProfile.fullName ?? '',
+      assignedTechnicianIds: breakdown.assignedTechnicianIds ?? [],
+      assignedTechnicianNames: breakdown.assignedTechnicianNames ?? [],
+      contractorCompanyId: null,
+      contractorCompanyName: null,
+      contractorContactPerson: null,
+      contractorContactNumber: null,
+      contractorTechnicianNames: [],
+      contractorTechnicianIds: [],
+      isManualContractor: false,
+      checklist: [],
+      documents: [],
+      partsRequests: [],
+    });
+    if (woId) navigate('/app/workorders');
   }
 
   function handleInitiateClose(action: 'cancel' | 'close') {
@@ -237,6 +349,47 @@ export default function ViewBreakdownPage() {
               <ArrowLeft className="w-4 h-4 inline mr-1" />
               Back
             </button>
+            {b.status === 'reported' && isSupervisorRole && (
+              <button
+                type="button"
+                onClick={() => setShowAssignModal(true)}
+                className="px-4 py-2 border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 text-sm"
+              >
+                <UserPlus className="w-4 h-4 inline mr-1" />
+                Assign Technician
+              </button>
+            )}
+            {b.status === 'reported' && canAttend && (
+              <button
+                type="button"
+                disabled={attendBusy}
+                onClick={handleSelfAttend}
+                className="px-4 py-2 border border-emerald-200 bg-emerald-50 text-emerald-700 font-medium rounded-lg hover:bg-emerald-100 text-sm disabled:opacity-50"
+              >
+                <HardHat className="w-4 h-4 inline mr-1" />
+                {attendBusy ? 'Attending…' : 'Attend'}
+              </button>
+            )}
+            {b.status !== 'reported' && (b.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '') && (
+              <Link
+                to={`/app/breakdowns/${b.id}/edit`}
+                className="px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 text-sm"
+              >
+                <Pencil className="w-4 h-4 inline mr-1" />
+                Fill Breakdown Report
+              </Link>
+            )}
+            {isSupervisorRole && b.status !== 'reported' && !b.linkedWOId && (
+              <button
+                type="button"
+                disabled={creatingWO}
+                onClick={handleCreateWorkOrder}
+                className="px-4 py-2 border border-purple-200 bg-purple-50 text-purple-700 font-medium rounded-lg hover:bg-purple-100 text-sm disabled:opacity-50"
+              >
+                <ClipboardPlus className="w-4 h-4 inline mr-1" />
+                {creatingWO ? 'Creating…' : 'Create Work Order'}
+              </button>
+            )}
             {b.status === 'resolved' && (
               <button
                 type="button"
@@ -264,13 +417,17 @@ export default function ViewBreakdownPage() {
       <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[b.severity]}`}>
-              {b.severity}
-            </span>
+            {b.severity ? (
+              <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[b.severity]}`}>
+                {b.severity}
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending assessment</span>
+            )}
             <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[b.status]}`}>
               {STATUS_LABEL[b.status]}
             </span>
-            <span className="text-xs text-slate-500 capitalize">{b.type}</span>
+            {b.type && <span className="text-xs text-slate-500 capitalize">{b.type}</span>}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -281,14 +438,25 @@ export default function ViewBreakdownPage() {
               {b.machineDepartment && <p className="text-slate-500 text-xs">{b.machineDepartment}</p>}
             </div>
             <div>
-              <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Reported By</p>
-              <p className="text-slate-900 font-medium">{b.reporterName || ''}</p>
-              <p className="text-slate-500 text-xs capitalize">{b.reporterRole?.replace(/_/g, ' ') || ''}</p>
+              <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Reported</p>
+              <p className="text-slate-900 font-medium capitalize">{b.source?.replace(/_/g, ' ') || 'Web'}</p>
               <p className="text-slate-500 text-xs">
                 {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : ''}
               </p>
             </div>
           </div>
+
+          {b.attendedByName && (
+            <div>
+              <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attended By</p>
+              <p className="text-slate-800 text-sm">
+                {b.attendedByName}
+                {b.attendedAt?.toDate && (
+                  <span className="text-slate-500 text-xs ml-2">{b.attendedAt.toDate().toLocaleString()}</span>
+                )}
+              </p>
+            </div>
+          )}
 
           <div>
             <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened</p>
@@ -365,6 +533,15 @@ export default function ViewBreakdownPage() {
         onClose={() => setShowCancelModal(false)}
         onConfirm={handleCancel}
       />
+
+      {showAssignModal && userProfile && (
+        <AssignTechnicianModal
+          companyId={userProfile.companyId}
+          assigning={assignBusy}
+          onClose={() => setShowAssignModal(false)}
+          onAssign={handleAssign}
+        />
+      )}
     </div>
   );
 }
