@@ -6,7 +6,7 @@ import { WO_COPY } from '../../constants/copy';
 import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
-import { WOCard } from './WOCard';
+import { WORow } from './WORow';
 import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
@@ -197,11 +197,11 @@ export function WOListView() {
               <p className="text-gray-500">{WO_COPY.noOpenWOs}</p>
             </div>
           ) : (
-            /* One column per WO type — each a self-contained board lane so a
-               reviewer can scan by type instead of one long mixed-type list. */
-            <div className="flex gap-4 overflow-x-auto pb-2">
+            /* Flat list grouped by WO type — a section header per type,
+               each work order rendered as a single row (not a card grid). */
+            <div className="space-y-6">
               {columns.filter((col) => col.items.length > 0).map((col) => (
-                <div key={col.type} className="w-72 shrink-0 flex flex-col">
+                <div key={col.type}>
                   <div className="flex items-center gap-2 px-1 pb-2">
                     <span style={{ color: col.config.color }}>{col.config.icon}</span>
                     <h2 className="text-sm font-semibold text-gray-700">{col.config.label}</h2>
@@ -209,9 +209,9 @@ export function WOListView() {
                       {col.items.length}
                     </span>
                   </div>
-                  <div className="space-y-3">
+                  <div className="bg-white rounded-lg shadow-sm divide-y divide-gray-100 overflow-hidden">
                     {col.items.map((wo) => (
-                      <WOCard key={wo.id} workOrder={wo} onClick={setSelectedWO} />
+                      <WORow key={wo.id} workOrder={wo} onClick={setSelectedWO} />
                     ))}
                   </div>
                 </div>
