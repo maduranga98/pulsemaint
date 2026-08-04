@@ -31,7 +31,7 @@ export default function TodaySafetyCasesWidget({ companyId }: { companyId: strin
       {todayCases.length === 0 ? (
         <EmptyState message="No safety cases reported today" />
       ) : (
-        <div className="space-y-1.5 max-h-[320px] overflow-y-auto">
+        <div className="space-y-1.5">
           {todayCases.map((c) => {
             const color = SEVERITY_COLOR[c.severity] ?? '#8BA3BF';
             return (

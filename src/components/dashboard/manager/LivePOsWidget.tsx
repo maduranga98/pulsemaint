@@ -18,7 +18,7 @@ export default function LivePOsWidget() {
       {orders.length === 0 ? (
         <EmptyState message="No purchase orders awaiting approval" />
       ) : (
-        <div className="space-y-1.5 max-h-[320px] overflow-y-auto">
+        <div className="space-y-1.5">
           {orders.map((po) => (
             <div
               key={po.id}

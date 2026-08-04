@@ -55,7 +55,7 @@ export default function TodayTrainingsWidget({ companyId }: { companyId: string 
       {todaySessions.length === 0 ? (
         <EmptyState message="No trainings scheduled today" />
       ) : (
-        <div className="space-y-1.5 max-h-[320px] overflow-y-auto">
+        <div className="space-y-1.5">
           {todaySessions.map((s, i) => (
             <div
               key={`${s.moduleId}-${i}`}
