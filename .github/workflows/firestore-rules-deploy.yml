@@ -1,4 +1,4 @@
-name: Deploy Firestore Rules on merge
+name: Deploy Firestore/Storage Rules on merge
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
     paths:
       - 'firestore.rules'
       - 'firestore.indexes.json'
+      - 'storage.rules'
   workflow_dispatch: {}
 
 jobs:
@@ -16,11 +17,11 @@ jobs:
       VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy Firestore rules and indexes
+      - name: Deploy Firestore/Storage rules and indexes
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PULSEMAINT }}
         run: |
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
-          npx firebase-tools@latest deploy --only firestore:rules,firestore:indexes --project "$VITE_FIREBASE_PROJECT_ID" --non-interactive
+          npx firebase-tools@latest deploy --only firestore:rules,firestore:indexes,storage:rules --project "$VITE_FIREBASE_PROJECT_ID" --non-interactive
           rm -f "$RUNNER_TEMP/firebase-sa.json"
