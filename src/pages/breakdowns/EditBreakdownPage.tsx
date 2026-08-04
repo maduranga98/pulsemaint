@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, Timestamp, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { AlertCircle, ArrowLeft, Paperclip } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Paperclip, Lock } from 'lucide-react';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
@@ -23,6 +23,22 @@ const TYPES: { value: BreakdownType; label: string }[] = [
   { value: 'other', label: 'Other' },
 ];
 
+// Read-only display of a field the reporter filled in — the attending
+// technician can see it but must not be able to change it.
+function ReporterField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <label className="flex items-center gap-1.5 text-sm font-medium text-slate-500 mb-2">
+        <Lock className="w-3.5 h-3.5" />
+        {label} <span className="text-xs font-normal text-slate-400">— reported, view only</span>
+      </label>
+      <p className="w-full px-4 py-2 border border-slate-200 bg-slate-50 text-slate-700 rounded-lg whitespace-pre-wrap">
+        {value || '—'}
+      </p>
+    </div>
+  );
+}
+
 export default function EditBreakdownPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -35,11 +51,7 @@ export default function EditBreakdownPage() {
 
   const [severity, setSeverity] = useState<BreakdownSeverity>('medium');
   const [breakdownType, setBreakdownType] = useState<BreakdownType>('mechanical');
-  const [description, setDescription] = useState('');
-  const [productionImpact, setProductionImpact] = useState('');
-  const [currentProductionCount, setCurrentProductionCount] = useState('');
   const [attemptedFixes, setAttemptedFixes] = useState('');
-  const [machineStillRunning, setMachineStillRunning] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -53,13 +65,7 @@ export default function EditBreakdownPage() {
           setBreakdown(data);
           setSeverity(data.severity ?? 'medium');
           setBreakdownType(data.type ?? 'mechanical');
-          setDescription(data.description || '');
-          setProductionImpact(data.productionImpact || '');
-          setCurrentProductionCount(
-            (data as any).currentProductionCount != null ? String((data as any).currentProductionCount) : '',
-          );
           setAttemptedFixes(data.attemptedFixes || '');
-          setMachineStillRunning(data.machineStillRunning);
         } else {
           setError('Breakdown not found.');
         }
@@ -77,10 +83,6 @@ export default function EditBreakdownPage() {
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!id || !userProfile || !breakdown) return;
-    if (description.trim().length < 10) {
-      setError('Description must be at least 10 characters.');
-      return;
-    }
     setSaving(true);
     setError(null);
     try {
@@ -102,20 +104,14 @@ export default function EditBreakdownPage() {
         setUploading(false);
       }
 
-      // The technician completing this form is the one attending — set it
-      // if a supervisor assignment or self-attend hasn't already.
-      const isFirstCompletion = breakdown.status === 'reported' || breakdown.status === 'assigned';
-      const nextStatus = isFirstCompletion ? 'repair_in_progress' : breakdown.status;
-
+      // Filling in this assessment does NOT advance the breakdown's status —
+      // it stays "assigned" (i.e. the Open bucket / progress bar) until an
+      // actual Work Order is created for it (see ViewBreakdownPage's Create
+      // Work Order action, which is what really starts the repair).
       await updateDoc(doc(db, 'breakdown_tickets', id), {
         severity,
         type: breakdownType,
-        description: description.trim(),
-        productionImpact: productionImpact.trim(),
-        currentProductionCount: currentProductionCount !== '' ? Number(currentProductionCount) : null,
         attemptedFixes: attemptedFixes.trim(),
-        machineStillRunning,
-        status: nextStatus,
         ...(uploadedUrls.length > 0 ? { photos: arrayUnion(...uploadedUrls) } : {}),
         ...(!breakdown.attendedBy ? {
           attendedBy: userProfile.id,
@@ -127,13 +123,12 @@ export default function EditBreakdownPage() {
           assignedTechnicianNames: arrayUnion(userProfile.fullName),
         } : {}),
         updatedAt: Timestamp.now(),
-        repairStartedAt: isFirstCompletion ? Timestamp.now() : (breakdown.repairStartedAt ?? null),
         statusHistory: arrayUnion({
-          status: nextStatus,
+          status: breakdown.status,
           changedBy: userProfile.id,
           changedByName: userProfile.fullName,
           changedAt: new Date().toISOString(),
-          note: 'Breakdown report completed by attending technician',
+          note: 'Assessed by attending technician — severity, type, and attempted fixes recorded.',
         }),
       });
       navigate(`/app/breakdowns/${id}`, { replace: true });
@@ -167,13 +162,30 @@ export default function EditBreakdownPage() {
     );
   }
 
+  // A breakdown that hasn't been assigned/attended yet belongs to nobody —
+  // it must not be editable until someone takes ownership of it.
+  if (breakdown && breakdown.status === 'reported') {
+    return (
+      <div className="min-h-full flex items-center justify-center">
+        <div className="text-center max-w-sm">
+          <Lock className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+          <p className="text-slate-700 font-medium">This breakdown hasn't been assigned yet.</p>
+          <p className="text-slate-500 text-sm mt-1">Assign or attend it from the Breakdowns list first — it becomes editable once someone is attending it.</p>
+          <button onClick={() => navigate(`/app/breakdowns/${id}`)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+            View Breakdown
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <button type="button" onClick={() => navigate(`/app/breakdowns/${id}`)} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
-        <h1 className="text-2xl font-bold text-slate-900">Edit Breakdown</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Attend Breakdown</h1>
         <p className="text-sm text-slate-500">{breakdown?.ticketNumber} — {breakdown?.machineName}</p>
       </div>
 
@@ -186,7 +198,27 @@ export default function EditBreakdownPage() {
         )}
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+          <ReporterField label="What happened?" value={breakdown?.description ?? ''} />
+          <ReporterField label="Production impact" value={breakdown?.productionImpact ?? ''} />
+          <ReporterField
+            label="Current production count when stopped"
+            value={
+              (breakdown as any)?.currentProductionCount != null
+                ? String((breakdown as any).currentProductionCount)
+                : ''
+            }
+          />
           <div>
+            <label className="flex items-center gap-1.5 text-sm font-medium text-slate-500 mb-2">
+              <Lock className="w-3.5 h-3.5" />
+              Status <span className="text-xs font-normal text-slate-400">— reported, view only</span>
+            </label>
+            <p className={`inline-block px-2 py-1 rounded text-xs font-medium ${breakdown?.machineStillRunning ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+              {breakdown?.machineStillRunning ? 'Machine still running (degraded)' : 'Machine stopped'}
+            </p>
+          </div>
+
+          <div className="border-t border-slate-100 pt-5">
             <label className="block text-sm font-medium text-slate-700 mb-2">Severity *</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {SEVERITIES.map((s) => (
@@ -213,29 +245,9 @@ export default function EditBreakdownPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">What happened? *</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} disabled={saving} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Production impact</label>
-            <input type="text" value={productionImpact} onChange={(e) => setProductionImpact(e.target.value)} disabled={saving} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Current production count when stopped</label>
-            <input type="number" min={0} value={currentProductionCount} onChange={(e) => setCurrentProductionCount(e.target.value)} disabled={saving} className="w-48 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
-
-          <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Attempted fixes</label>
             <input type="text" value={attemptedFixes} onChange={(e) => setAttemptedFixes(e.target.value)} disabled={saving} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
           </div>
-
-          <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" checked={machineStillRunning} onChange={(e) => setMachineStillRunning(e.target.checked)} disabled={saving} className="rounded" />
-            Machine is still running (degraded but operational)
-          </label>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Attach media (photos/video)</label>
@@ -261,7 +273,7 @@ export default function EditBreakdownPage() {
             Cancel
           </button>
           <button type="submit" disabled={saving} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50">
-            {saving ? 'Saving…' : 'Save Changes'}
+            {saving ? 'Saving…' : 'Save Assessment'}
           </button>
         </div>
       </form>

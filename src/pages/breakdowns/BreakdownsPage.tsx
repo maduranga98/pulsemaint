@@ -1,6 +1,6 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { AlertCircle, Eye, Pencil, Plus, QrCode, Search, UserPlus, HardHat, X } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { db } from '../../lib/firebase';
@@ -37,7 +37,8 @@ const STATUS_COLOR: Record<BreakdownStatus, string> = {
   cancelled: 'bg-slate-200 text-slate-700 ring-slate-300',
 };
 
-// Repair progress (%) per lifecycle stage — used for the at-a-glance progress bar.
+// Repair progress (%) per lifecycle stage — used for the at-a-glance progress bar
+// and to pick the "most advanced" ticket to represent a machine's grouped row.
 const STATUS_PROGRESS: Record<BreakdownStatus, number> = {
   reported: 5,
   acknowledged: 15,
@@ -49,9 +50,6 @@ const STATUS_PROGRESS: Record<BreakdownStatus, number> = {
   on_hold_approval: 60,
   resolved: 95,
   closed: 100,
-  // A cancelled breakdown was never repaired — it should not read as 100%
-  // "done". Show it at 0 with a neutral bar so its real (cancelled) status is
-  // obvious at a glance.
   cancelled: 0,
 };
 
@@ -69,11 +67,23 @@ const SEVERITY_COLOR: Record<BreakdownSeverity, string> = {
   low: 'bg-slate-400 text-white',
 };
 
-type Filter = 'all' | 'reported' | 'assigned' | 'open' | 'critical' | 'closed';
+const SEVERITY_RANK: Record<BreakdownSeverity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+
+// Only these four buckets are shown — a breakdown's lifecycle in this view
+// is: reported -> assigned (someone is visiting/filling it) -> open (a work
+// order has actually been started) -> closed (WO signed off).
+type Filter = 'reported' | 'assigned' | 'open' | 'closed';
 type SeverityFilter = 'all' | 'high' | 'medium' | 'normal';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
+
+interface MachineGroup {
+  machineId: string;
+  machineName: string;
+  machineLocation: string;
+  tickets: Breakdown[];
+}
 
 export default function BreakdownsPage() {
   const navigate = useNavigate();
@@ -86,15 +96,14 @@ export default function BreakdownsPage() {
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<Filter>('open');
+  const [filter, setFilter] = useState<Filter>('reported');
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
   const [search, setSearch] = useState('');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showQrScanner, setShowQrScanner] = useState(false);
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
-  const [assigningFor, setAssigningFor] = useState<Breakdown | null>(null);
+  const [assigningGroup, setAssigningGroup] = useState<MachineGroup | null>(null);
   const [assignBusy, setAssignBusy] = useState(false);
-  const [attendingId, setAttendingId] = useState<string | null>(null);
+  const [attendingMachineId, setAttendingMachineId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!siteId) {
@@ -122,12 +131,11 @@ export default function BreakdownsPage() {
   }, [siteId]);
 
   const filtered = useMemo(() => {
-    const closedSet = new Set<BreakdownStatus>(['resolved', 'closed', 'cancelled']);
+    const closedSet = new Set<BreakdownStatus>(['closed', 'cancelled']);
     let list = breakdowns;
     if (filter === 'reported') list = list.filter((b) => b.status === 'reported');
     if (filter === 'assigned') list = list.filter((b) => b.status === 'assigned');
-    if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status));
-    if (filter === 'critical') list = list.filter((b) => b.severity === 'critical');
+    if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status) && b.status !== 'reported' && b.status !== 'assigned');
     if (filter === 'closed') list = list.filter((b) => closedSet.has(b.status));
     if (severityFilter !== 'all') {
       const sevMatch = severityFilter === 'normal' ? 'low' : severityFilter;
@@ -144,6 +152,30 @@ export default function BreakdownsPage() {
     }
     return list;
   }, [breakdowns, filter, severityFilter, search]);
+
+  // Multiple open tickets on the same machine are shown as one row so a
+  // supervisor isn't assigning/attending the same machine ticket by ticket.
+  const groups = useMemo<MachineGroup[]>(() => {
+    const byMachine = new Map<string, MachineGroup>();
+    for (const b of filtered) {
+      const existing = byMachine.get(b.machineId);
+      if (existing) {
+        existing.tickets.push(b);
+      } else {
+        byMachine.set(b.machineId, {
+          machineId: b.machineId,
+          machineName: b.machineName,
+          machineLocation: b.machineLocation,
+          tickets: [b],
+        });
+      }
+    }
+    return Array.from(byMachine.values()).sort((a, b) => {
+      const aTime = a.tickets[0]?.reportedAt?.toDate?.().getTime() ?? 0;
+      const bTime = b.tickets[0]?.reportedAt?.toDate?.().getTime() ?? 0;
+      return bTime - aTime;
+    });
+  }, [filtered]);
 
   async function openQrScanner() {
     setShowQrScanner(true);
@@ -183,38 +215,49 @@ export default function BreakdownsPage() {
     setShowQrScanner(false);
   }
 
+  // Reported tickets for a machine that assign/attend should act on together.
+  function reportedTickets(group: MachineGroup): Breakdown[] {
+    return group.tickets.filter((t) => t.status === 'reported');
+  }
+
   async function handleAssign(candidate: { id: string; fullName: string; role: string }) {
-    if (!assigningFor || !userProfile) return;
+    if (!assigningGroup || !userProfile) return;
+    const tickets = reportedTickets(assigningGroup);
+    if (tickets.length === 0) return;
     setAssignBusy(true);
     try {
-      await updateDoc(doc(db, 'breakdown_tickets', assigningFor.id), {
-        assignedTechnicianIds: [candidate.id],
-        assignedTechnicianNames: [candidate.fullName],
-        assignedBy: userProfile.id,
-        assignedByName: userProfile.fullName,
-        assignedAt: serverTimestamp(),
-        attendedBy: candidate.id,
-        attendedByName: candidate.fullName,
-        attendedAt: serverTimestamp(),
-        status: 'assigned',
-        statusHistory: arrayUnion({
+      const batch = writeBatch(db);
+      for (const t of tickets) {
+        batch.update(doc(db, 'breakdown_tickets', t.id), {
+          assignedTechnicianIds: [candidate.id],
+          assignedTechnicianNames: [candidate.fullName],
+          assignedBy: userProfile.id,
+          assignedByName: userProfile.fullName,
+          assignedAt: serverTimestamp(),
+          attendedBy: candidate.id,
+          attendedByName: candidate.fullName,
+          attendedAt: serverTimestamp(),
           status: 'assigned',
-          changedBy: userProfile.id,
-          changedByName: userProfile.fullName,
-          changedAt: Timestamp.now(),
-          note: `Assigned to ${candidate.fullName} by ${userProfile.fullName}`,
-        }),
-      });
+          statusHistory: arrayUnion({
+            status: 'assigned',
+            changedBy: userProfile.id,
+            changedByName: userProfile.fullName,
+            changedAt: Timestamp.now(),
+            note: `Assigned to ${candidate.fullName} by ${userProfile.fullName}`,
+          }),
+        });
+      }
+      await batch.commit();
       void notifyUsers(userProfile.companyId, [candidate.id], {
         type: 'breakdown',
-        message: `You've been assigned to breakdown ${assigningFor.ticketNumber} on ${assigningFor.machineName}`,
-        oversightMessage: `assigned ${candidate.fullName} to breakdown ${assigningFor.ticketNumber}`,
+        message: `You've been assigned to ${tickets.length > 1 ? `${tickets.length} breakdowns` : 'a breakdown'} on ${assigningGroup.machineName}`,
+        oversightMessage: `assigned ${candidate.fullName} to ${tickets.length > 1 ? `${tickets.length} breakdowns` : 'a breakdown'} on ${assigningGroup.machineName}`,
         actorName: userProfile.fullName ?? '',
         actorRole: userProfile.role,
         actorUserId: userProfile.id,
-        linkTo: `/app/breakdowns/${assigningFor.id}`,
+        linkTo: `/app/breakdowns/${tickets[0].id}`,
       });
-      setAssigningFor(null);
+      setAssigningGroup(null);
     } catch (e: any) {
       setError(e?.message || 'Failed to assign.');
     } finally {
@@ -222,30 +265,38 @@ export default function BreakdownsPage() {
     }
   }
 
-  async function handleAttend(b: Breakdown) {
+  async function handleAttend(group: MachineGroup) {
     if (!userProfile) return;
-    setAttendingId(b.id);
+    const tickets = reportedTickets(group);
+    if (tickets.length === 0) return;
+    setAttendingMachineId(group.machineId);
     try {
-      await updateDoc(doc(db, 'breakdown_tickets', b.id), {
-        assignedTechnicianIds: [userProfile.id],
-        assignedTechnicianNames: [userProfile.fullName],
-        attendedBy: userProfile.id,
-        attendedByName: userProfile.fullName,
-        attendedAt: serverTimestamp(),
-        status: 'assigned',
-        statusHistory: arrayUnion({
+      const batch = writeBatch(db);
+      for (const t of tickets) {
+        batch.update(doc(db, 'breakdown_tickets', t.id), {
+          assignedTechnicianIds: [userProfile.id],
+          assignedTechnicianNames: [userProfile.fullName],
+          attendedBy: userProfile.id,
+          attendedByName: userProfile.fullName,
+          attendedAt: serverTimestamp(),
           status: 'assigned',
-          changedBy: userProfile.id,
-          changedByName: userProfile.fullName,
-          changedAt: Timestamp.now(),
-          note: `Self-attended by ${userProfile.fullName}`,
-        }),
-      });
-      navigate(`/app/breakdowns/${b.id}/edit`);
+          statusHistory: arrayUnion({
+            status: 'assigned',
+            changedBy: userProfile.id,
+            changedByName: userProfile.fullName,
+            changedAt: Timestamp.now(),
+            note: `Self-attended by ${userProfile.fullName}`,
+          }),
+        });
+      }
+      await batch.commit();
+      // Multiple tickets need their own assessment forms — land on the
+      // first one rather than guessing which the technician wants first.
+      navigate(`/app/breakdowns/${tickets[0].id}/edit`);
     } catch (e: any) {
       setError(e?.message || 'Failed to attend.');
     } finally {
-      setAttendingId(null);
+      setAttendingMachineId(null);
     }
   }
 
@@ -255,7 +306,7 @@ export default function BreakdownsPage() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Breakdowns</h1>
-            <p className="text-sm text-slate-500">{filtered.length} {filter === 'all' ? 'total' : filter}</p>
+            <p className="text-sm text-slate-500">{filtered.length} {filter} across {groups.length} machine{groups.length === 1 ? '' : 's'}</p>
           </div>
           <div className="flex gap-2">
             <button
@@ -280,7 +331,7 @@ export default function BreakdownsPage() {
       <div className="px-6 py-5 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-1">
-            {(['reported', 'assigned', 'open', 'critical', 'closed', 'all'] as Filter[]).map((f) => (
+            {(['reported', 'assigned', 'open', 'closed'] as Filter[]).map((f) => (
               <button
                 key={f}
                 type="button"
@@ -331,7 +382,7 @@ export default function BreakdownsPage() {
               <div key={i} className="h-16 bg-white rounded-lg animate-pulse" />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : groups.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-xl border border-slate-100">
             <p className="text-5xl mb-3">🛠️</p>
             <p className="text-slate-500">No breakdowns matching this filter.</p>
@@ -341,7 +392,7 @@ export default function BreakdownsPage() {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
                 <tr>
-                  <th className="px-4 py-3 text-left">Ticket</th>
+                  <th className="px-4 py-3 text-left">Ticket(s)</th>
                   <th className="px-4 py-3 text-left">Machine</th>
                   <th className="px-4 py-3 text-left">Severity</th>
                   <th className="px-4 py-3 text-left">Status</th>
@@ -352,129 +403,122 @@ export default function BreakdownsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filtered.map((b) => (
-                  <Fragment key={b.id}>
-                  <tr className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-blue-600">
-                      <button type="button" onClick={() => setExpandedId(expandedId === b.id ? null : b.id)} className="hover:underline">
-                        {b.ticketNumber || ''}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3">
-                      <p className="font-medium text-slate-900">{b.machineName}</p>
-                      <p className="text-slate-400 text-xs">{b.machineLocation}</p>
-                    </td>
-                    <td className="px-4 py-3">
-                      {b.severity ? (
-                        <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[b.severity]}`}>
-                          {b.severity}
+                {groups.map((g) => {
+                  const worstSeverity = g.tickets.reduce<BreakdownSeverity | null>((worst, t) => {
+                    if (!t.severity) return worst;
+                    if (!worst || SEVERITY_RANK[t.severity] > SEVERITY_RANK[worst]) return t.severity;
+                    return worst;
+                  }, null);
+                  const representative = g.tickets.reduce((best, t) =>
+                    (STATUS_PROGRESS[t.status] ?? 0) > (STATUS_PROGRESS[best.status] ?? 0) ? t : best
+                  , g.tickets[0]);
+                  const assignedNames = Array.from(new Set(g.tickets.flatMap((t) => t.assignedTechnicianNames ?? [])));
+                  const mostRecentReportedAt = g.tickets
+                    .map((t) => t.reportedAt)
+                    .filter(Boolean)
+                    .sort((a, b) => (b?.toDate?.().getTime() ?? 0) - (a?.toDate?.().getTime() ?? 0))[0];
+                  const hasReported = reportedTickets(g).length > 0;
+
+                  return (
+                    <tr key={g.machineId} className="hover:bg-slate-50 transition-colors align-top">
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-1">
+                          {g.tickets.map((t) => (
+                            <div key={t.id} className="flex items-center gap-1.5">
+                              <Link to={`/app/breakdowns/${t.id}`} className="font-medium text-blue-600 hover:underline">
+                                {t.ticketNumber}
+                              </Link>
+                              {t.status !== 'reported' && (
+                                <Link to={`/app/breakdowns/${t.id}/edit`} title="Edit" className="text-slate-400 hover:text-slate-600">
+                                  <Pencil className="w-3 h-3" />
+                                </Link>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-slate-900">{g.machineName}</p>
+                        <p className="text-slate-400 text-xs">{g.machineLocation}</p>
+                      </td>
+                      <td className="px-4 py-3">
+                        {worstSeverity ? (
+                          <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[worstSeverity]}`}>
+                            {worstSeverity}
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending</span>
+                        )}
+                        {g.tickets.length > 1 && (
+                          <span className="ml-1 text-xs text-slate-400">×{g.tickets.length}</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[representative.status]}`}>
+                          {STATUS_LABEL[representative.status]}
                         </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[b.status]}`}>
-                        {STATUS_LABEL[b.status]}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {b.status === 'cancelled' ? (
-                        <span className="text-xs font-medium text-slate-400">Cancelled</span>
-                      ) : (
+                      </td>
+                      <td className="px-4 py-3">
                         <div className="flex items-center gap-2 min-w-[120px]">
                           <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
                             <div
-                              className={`h-full rounded-full transition-all ${progressBarColor(b.status)}`}
-                              style={{ width: `${STATUS_PROGRESS[b.status] ?? 0}%` }}
+                              className={`h-full rounded-full transition-all ${progressBarColor(representative.status)}`}
+                              style={{ width: `${STATUS_PROGRESS[representative.status] ?? 0}%` }}
                             />
                           </div>
                           <span className="text-xs text-slate-500 tabular-nums w-9 text-right">
-                            {STATUS_PROGRESS[b.status] ?? 0}%
+                            {STATUS_PROGRESS[representative.status] ?? 0}%
                           </span>
                         </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs">
-                      {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : ''}
-                    </td>
-                    <td className="px-4 py-3 text-slate-700">
-                      {(b.assignedTechnicianNames ?? []).length > 0
-                        ? b.assignedTechnicianNames.join(', ')
-                        : <span className="text-slate-400 text-xs">Unassigned</span>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <Link
-                          to={`/app/breakdowns/${b.id}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                          title="View breakdown details"
-                        >
-                          <Eye className="w-3 h-3" />
-                          View
-                        </Link>
-                        {b.status === 'reported' && canAssign && (
-                          <button
-                            type="button"
-                            onClick={() => setAssigningFor(b)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
-                            title="Assign a technician or trainee"
-                          >
-                            <UserPlus className="w-3 h-3" />
-                            Assign
-                          </button>
-                        )}
-                        {b.status === 'reported' && canAttend && (
-                          <button
-                            type="button"
-                            disabled={attendingId === b.id}
-                            onClick={() => handleAttend(b)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
-                            title="Attend to this breakdown yourself"
-                          >
-                            <HardHat className="w-3 h-3" />
-                            {attendingId === b.id ? 'Attending…' : 'Attend'}
-                          </button>
-                        )}
-                        {b.status !== 'reported' && (
-                          <Link
-                            to={`/app/breakdowns/${b.id}/edit`}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
-                            title="Edit breakdown"
-                          >
-                            <Pencil className="w-3 h-3" />
-                            Edit
-                          </Link>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                  {expandedId === b.id && (
-                    <tr className="bg-slate-50">
-                      <td colSpan={8} className="px-6 py-4">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Progress timeline</p>
-                        {(b.statusHistory ?? []).length === 0 ? (
-                          <p className="text-sm text-slate-500">No status changes yet.</p>
-                        ) : (
-                          <ol className="space-y-1 text-sm">
-                            {(b.statusHistory ?? []).map((h: any, idx: number) => (
-                              <li key={idx} className="flex gap-3 items-center">
-                                <span className="px-2 py-0.5 rounded text-xs font-medium bg-white border border-slate-200">{STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}</span>
-                                <span className="text-slate-600">{h.changedByName}</span>
-                                <span className="text-slate-400 text-xs">{h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}</span>
-                                {h.note && <span className="text-slate-500 text-xs italic">— {h.note}</span>}
-                              </li>
-                            ))}
-                          </ol>
-                        )}
-                        {b.linkedWOId && (
-                          <p className="text-xs text-blue-600 mt-3">Linked WO: {b.linkedWOId}</p>
-                        )}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500 text-xs">
+                        {mostRecentReportedAt?.toDate ? mostRecentReportedAt.toDate().toLocaleString() : ''}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">
+                        {assignedNames.length > 0
+                          ? assignedNames.join(', ')
+                          : <span className="text-slate-400 text-xs">Unassigned</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {g.tickets.length === 1 && (
+                            <Link
+                              to={`/app/breakdowns/${g.tickets[0].id}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                              title="View breakdown details"
+                            >
+                              <Eye className="w-3 h-3" />
+                              View
+                            </Link>
+                          )}
+                          {hasReported && canAssign && (
+                            <button
+                              type="button"
+                              onClick={() => setAssigningGroup(g)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                              title="Assign a technician or trainee to every open breakdown on this machine"
+                            >
+                              <UserPlus className="w-3 h-3" />
+                              Assign
+                            </button>
+                          )}
+                          {hasReported && canAttend && (
+                            <button
+                              type="button"
+                              disabled={attendingMachineId === g.machineId}
+                              onClick={() => handleAttend(g)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                              title="Attend to every open breakdown on this machine yourself"
+                            >
+                              <HardHat className="w-3 h-3" />
+                              {attendingMachineId === g.machineId ? 'Attending…' : 'Attend'}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
-                  )}
-                  </Fragment>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -496,11 +540,11 @@ export default function BreakdownsPage() {
         </div>
       )}
 
-      {assigningFor && userProfile && (
+      {assigningGroup && userProfile && (
         <AssignTechnicianModal
           companyId={userProfile.companyId}
           assigning={assignBusy}
-          onClose={() => setAssigningFor(null)}
+          onClose={() => setAssigningGroup(null)}
           onAssign={handleAssign}
         />
       )}
