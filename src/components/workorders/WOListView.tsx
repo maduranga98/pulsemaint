@@ -88,12 +88,6 @@ export function WOListView() {
     ? nonExcludedWOs
     : nonExcludedWOs.filter((wo) => wo.woType === activeCategory);
 
-  const columns = COLUMN_TYPES.map((type) => ({
-    type,
-    config: WO_TYPE_CONFIG[type],
-    items: displayedWOs.filter((wo) => wo.woType === type),
-  }));
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Page header */}
@@ -195,25 +189,15 @@ export function WOListView() {
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">{WO_COPY.noOpenWOs}</p>
             </div>
-          ) : activeCategory === 'all' ? (
-            /* All categories — one table section per WO type. */
-            <div className="space-y-6">
-              {columns.filter((col) => col.items.length > 0).map((col) => (
-                <div key={col.type}>
-                  <div className="flex items-center gap-2 px-1 pb-2">
-                    <span style={{ color: col.config.color }}>{col.config.icon}</span>
-                    <h2 className="text-sm font-semibold text-gray-700">{col.config.label}</h2>
-                    <span className="ml-auto text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
-                      {col.items.length}
-                    </span>
-                  </div>
-                  <WOTable workOrders={col.items} onSelect={setSelectedWO} showTypeColumn={false} />
-                </div>
-              ))}
-            </div>
           ) : (
-            /* A single category selected — one table of its work orders. */
-            <WOTable workOrders={displayedWOs} onSelect={setSelectedWO} showTypeColumn={false} />
+            /* Single flat table — no per-type grouping. Type column shows
+               when "All" is selected, hidden when a single category filters
+               it down to one type already named by the active tab. */
+            <WOTable
+              workOrders={displayedWOs}
+              onSelect={setSelectedWO}
+              showTypeColumn={activeCategory === 'all'}
+            />
           )
         )}
       </div>
