@@ -259,7 +259,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                         </div>
                       )}
                       <div className="rounded-lg bg-white p-4">
-                        <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly />
+                        <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly dark />
                       </div>
                       <p className="mt-1.5 text-center text-[11px] text-[#8BA3BF]">
                         Start the work order to tick off tasks and record measurements.
@@ -382,7 +382,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                       </div>
                     )}
                     <div className="rounded-lg bg-white p-4">
-                      <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly={isOnHold} />
+                      <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly={isOnHold} dark />
                     </div>
                   </div>
 
