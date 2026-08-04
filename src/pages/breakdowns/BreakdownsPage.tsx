@@ -1,10 +1,12 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
-import { AlertCircle, Eye, Pencil, Plus, QrCode, Search, X } from 'lucide-react';
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { AlertCircle, Eye, Pencil, Plus, QrCode, Search, UserPlus, HardHat, X } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { notifyUsers } from '../../services/notifications.service';
+import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
@@ -67,13 +69,19 @@ const SEVERITY_COLOR: Record<BreakdownSeverity, string> = {
   low: 'bg-slate-400 text-white',
 };
 
-type Filter = 'all' | 'open' | 'critical' | 'closed';
+type Filter = 'all' | 'reported' | 'assigned' | 'open' | 'critical' | 'closed';
 type SeverityFilter = 'all' | 'high' | 'medium' | 'normal';
+
+const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+const CAN_ATTEND_ROLES = ['technician', 'trainee'];
 
 export default function BreakdownsPage() {
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
+  const role = userProfile?.role ?? '';
+  const canAssign = CAN_ASSIGN_ROLES.includes(role);
+  const canAttend = CAN_ATTEND_ROLES.includes(role);
 
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +92,9 @@ export default function BreakdownsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showQrScanner, setShowQrScanner] = useState(false);
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
+  const [assigningFor, setAssigningFor] = useState<Breakdown | null>(null);
+  const [assignBusy, setAssignBusy] = useState(false);
+  const [attendingId, setAttendingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!siteId) {
@@ -113,6 +124,8 @@ export default function BreakdownsPage() {
   const filtered = useMemo(() => {
     const closedSet = new Set<BreakdownStatus>(['resolved', 'closed', 'cancelled']);
     let list = breakdowns;
+    if (filter === 'reported') list = list.filter((b) => b.status === 'reported');
+    if (filter === 'assigned') list = list.filter((b) => b.status === 'assigned');
     if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status));
     if (filter === 'critical') list = list.filter((b) => b.severity === 'critical');
     if (filter === 'closed') list = list.filter((b) => closedSet.has(b.status));
@@ -170,6 +183,72 @@ export default function BreakdownsPage() {
     setShowQrScanner(false);
   }
 
+  async function handleAssign(candidate: { id: string; fullName: string; role: string }) {
+    if (!assigningFor || !userProfile) return;
+    setAssignBusy(true);
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', assigningFor.id), {
+        assignedTechnicianIds: [candidate.id],
+        assignedTechnicianNames: [candidate.fullName],
+        assignedBy: userProfile.id,
+        assignedByName: userProfile.fullName,
+        assignedAt: serverTimestamp(),
+        attendedBy: candidate.id,
+        attendedByName: candidate.fullName,
+        attendedAt: serverTimestamp(),
+        status: 'assigned',
+        statusHistory: arrayUnion({
+          status: 'assigned',
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: Timestamp.now(),
+          note: `Assigned to ${candidate.fullName} by ${userProfile.fullName}`,
+        }),
+      });
+      void notifyUsers(userProfile.companyId, [candidate.id], {
+        type: 'breakdown',
+        message: `You've been assigned to breakdown ${assigningFor.ticketNumber} on ${assigningFor.machineName}`,
+        oversightMessage: `assigned ${candidate.fullName} to breakdown ${assigningFor.ticketNumber}`,
+        actorName: userProfile.fullName ?? '',
+        actorRole: userProfile.role,
+        actorUserId: userProfile.id,
+        linkTo: `/app/breakdowns/${assigningFor.id}`,
+      });
+      setAssigningFor(null);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to assign.');
+    } finally {
+      setAssignBusy(false);
+    }
+  }
+
+  async function handleAttend(b: Breakdown) {
+    if (!userProfile) return;
+    setAttendingId(b.id);
+    try {
+      await updateDoc(doc(db, 'breakdown_tickets', b.id), {
+        assignedTechnicianIds: [userProfile.id],
+        assignedTechnicianNames: [userProfile.fullName],
+        attendedBy: userProfile.id,
+        attendedByName: userProfile.fullName,
+        attendedAt: serverTimestamp(),
+        status: 'assigned',
+        statusHistory: arrayUnion({
+          status: 'assigned',
+          changedBy: userProfile.id,
+          changedByName: userProfile.fullName,
+          changedAt: Timestamp.now(),
+          note: `Self-attended by ${userProfile.fullName}`,
+        }),
+      });
+      navigate(`/app/breakdowns/${b.id}/edit`);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to attend.');
+    } finally {
+      setAttendingId(null);
+    }
+  }
+
   return (
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
@@ -201,7 +280,7 @@ export default function BreakdownsPage() {
       <div className="px-6 py-5 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-1">
-            {(['open', 'critical', 'closed', 'all'] as Filter[]).map((f) => (
+            {(['reported', 'assigned', 'open', 'critical', 'closed', 'all'] as Filter[]).map((f) => (
               <button
                 key={f}
                 type="button"
@@ -267,8 +346,8 @@ export default function BreakdownsPage() {
                   <th className="px-4 py-3 text-left">Severity</th>
                   <th className="px-4 py-3 text-left">Status</th>
                   <th className="px-4 py-3 text-left">Progress</th>
-                  <th className="px-4 py-3 text-left">Reported By</th>
                   <th className="px-4 py-3 text-left">Reported</th>
+                  <th className="px-4 py-3 text-left">Assigned To</th>
                   <th className="px-4 py-3 text-left">Action</th>
                 </tr>
               </thead>
@@ -286,9 +365,13 @@ export default function BreakdownsPage() {
                       <p className="text-slate-400 text-xs">{b.machineLocation}</p>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[b.severity]}`}>
-                        {b.severity}
-                      </span>
+                      {b.severity ? (
+                        <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[b.severity]}`}>
+                          {b.severity}
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending</span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[b.status]}`}>
@@ -312,12 +395,16 @@ export default function BreakdownsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-slate-700">{b.reporterName || ''}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">
                       {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : ''}
                     </td>
+                    <td className="px-4 py-3 text-slate-700">
+                      {(b.assignedTechnicianNames ?? []).length > 0
+                        ? b.assignedTechnicianNames.join(', ')
+                        : <span className="text-slate-400 text-xs">Unassigned</span>}
+                    </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <Link
                           to={`/app/breakdowns/${b.id}`}
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
@@ -326,14 +413,39 @@ export default function BreakdownsPage() {
                           <Eye className="w-3 h-3" />
                           View
                         </Link>
-                        <Link
-                          to={`/app/breakdowns/${b.id}/edit`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
-                          title="Edit breakdown"
-                        >
-                          <Pencil className="w-3 h-3" />
-                          Edit
-                        </Link>
+                        {b.status === 'reported' && canAssign && (
+                          <button
+                            type="button"
+                            onClick={() => setAssigningFor(b)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                            title="Assign a technician or trainee"
+                          >
+                            <UserPlus className="w-3 h-3" />
+                            Assign
+                          </button>
+                        )}
+                        {b.status === 'reported' && canAttend && (
+                          <button
+                            type="button"
+                            disabled={attendingId === b.id}
+                            onClick={() => handleAttend(b)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                            title="Attend to this breakdown yourself"
+                          >
+                            <HardHat className="w-3 h-3" />
+                            {attendingId === b.id ? 'Attending…' : 'Attend'}
+                          </button>
+                        )}
+                        {b.status !== 'reported' && (
+                          <Link
+                            to={`/app/breakdowns/${b.id}/edit`}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors"
+                            title="Edit breakdown"
+                          >
+                            <Pencil className="w-3 h-3" />
+                            Edit
+                          </Link>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -382,6 +494,15 @@ export default function BreakdownsPage() {
             <p className="text-xs text-slate-500 mt-3 text-center">Point your camera at a machine QR code to auto-select the machine.</p>
           </div>
         </div>
+      )}
+
+      {assigningFor && userProfile && (
+        <AssignTechnicianModal
+          companyId={userProfile.companyId}
+          assigning={assignBusy}
+          onClose={() => setAssigningFor(null)}
+          onAssign={handleAssign}
+        />
       )}
     </div>
   );

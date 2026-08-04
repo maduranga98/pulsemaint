@@ -1,4 +1,5 @@
-export function isRCARequired(severity: 'critical' | 'high' | 'medium' | 'low'): boolean {
+export function isRCARequired(severity: 'critical' | 'high' | 'medium' | 'low' | null): boolean {
+  if (!severity) return false;
   return ['critical', 'high', 'medium'].includes(severity);
 }
 
@@ -11,7 +12,7 @@ export function isRCAComplete(
 }
 
 export function canCloseBreakdown(
-  severity: 'critical' | 'high' | 'medium' | 'low',
+  severity: 'critical' | 'high' | 'medium' | 'low' | null,
   rca: { status: string; rootCause: string } | null,
   isSupervisor: boolean,
 ): boolean {

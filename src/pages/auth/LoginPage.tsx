@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, QrCode, X, ShieldCheck, Gauge, Wrench, BarChart3 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Html5Qrcode } from 'html5-qrcode';
 import OTPInput from '../../components/auth/OTPInput';
 import {
   loginWithEmail,
@@ -68,6 +69,50 @@ export default function LoginPage() {
   const [confirmPin, setConfirmPin] = useState('');
   const [pinInput, setPinInput] = useState('');
   const recaptchaRef = useRef<HTMLDivElement>(null);
+  const [showQrScanner, setShowQrScanner] = useState(false);
+  const qrScannerRef = useRef<Html5Qrcode | null>(null);
+
+  async function openQrScanner() {
+    setShowQrScanner(true);
+    setTimeout(async () => {
+      try {
+        const scanner = new Html5Qrcode('login-qr-reader');
+        qrScannerRef.current = scanner;
+        await scanner.start(
+          { facingMode: 'environment' },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          async (decodedText) => {
+            await scanner.stop();
+            qrScannerRef.current = null;
+            setShowQrScanner(false);
+            try {
+              const url = new URL(decodedText);
+              const machineId = url.searchParams.get('machineId');
+              if (machineId) {
+                navigate(`/report-breakdown?machineId=${machineId}`);
+              } else {
+                setError('QR code did not contain a valid machine ID.');
+              }
+            } catch {
+              setError('Unrecognized QR code.');
+            }
+          },
+          () => {},
+        );
+      } catch (err: any) {
+        setError(err?.message || 'Failed to open camera.');
+        setShowQrScanner(false);
+      }
+    }, 100);
+  }
+
+  async function closeQrScanner() {
+    if (qrScannerRef.current) {
+      try { await qrScannerRef.current.stop(); } catch {}
+      qrScannerRef.current = null;
+    }
+    setShowQrScanner(false);
+  }
 
   // Surfaces the reason when useAuthInit force-signed the user out mid-session
   // (e.g. an admin just marked their account inactive) — the store's error is
@@ -181,9 +226,69 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A1628] to-[#0F1E3A] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#080F1F] flex">
+      {/* Marketing panel */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-[#0A1628] via-[#0C1B33] to-[#102544] flex-col justify-between p-12">
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{
+          backgroundImage: 'radial-gradient(circle at 20% 20%, #00C2FF 0, transparent 35%), radial-gradient(circle at 80% 70%, #1A56DB 0, transparent 40%)',
+        }} />
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-14">
+            <img src="/logo.svg" alt="FirmiCore" className="h-10 w-auto" />
+            <div className="text-2xl font-bold">
+              <span className="text-white">Firmi</span>
+              <span className="text-[#00C2FF]">Core</span>
+            </div>
+          </div>
+
+          <h1 className="text-4xl font-bold text-white leading-tight mb-4">
+            One platform for every machine, breakdown, and technician on your floor.
+          </h1>
+          <p className="text-slate-300 text-base max-w-md mb-10">
+            FirmiCore is the multi-tenant maintenance-management platform that keeps machine
+            registries, breakdowns, work orders, PM scheduling, inventory, and analytics in one
+            place — so nothing falls through the cracks.
+          </p>
+
+          <div className="space-y-5 max-w-md">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><Gauge className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div>
+                <p className="text-white font-medium text-sm">Real-time breakdown tracking</p>
+                <p className="text-slate-400 text-sm">From "reported" to "assigned" to "resolved" — everyone sees live status.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><Wrench className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div>
+                <p className="text-white font-medium text-sm">Work orders &amp; PM scheduling</p>
+                <p className="text-slate-400 text-sm">Assign technicians, track parts, and stay ahead of preventive maintenance.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><ShieldCheck className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div>
+                <p className="text-white font-medium text-sm">Role-based access &amp; audit trails</p>
+                <p className="text-slate-400 text-sm">Nine tailored roles, from floor operator to plant manager, each with the right view.</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 p-2 rounded-lg bg-white/10"><BarChart3 className="w-5 h-5 text-[#00C2FF]" /></div>
+              <div>
+                <p className="text-white font-medium text-sm">Analytics that matter</p>
+                <p className="text-slate-400 text-sm">Machine health, OEE, and reliability trends, computed automatically.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p className="relative text-slate-500 text-xs">© {new Date().getFullYear()} FirmiCore. All rights reserved.</p>
+      </div>
+
+      {/* Login form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8 flex flex-col items-center">
+        <div className="text-center mb-8 flex flex-col items-center lg:hidden">
           <img src="/logo.svg" alt="FirmiCore" className="h-16 w-auto mb-3" />
           <div className="text-3xl font-bold">
             <span className="text-white">Firmi</span>
@@ -191,9 +296,12 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-[#111C33] border border-white/10 rounded-lg shadow-lg p-6 mb-6">
+          <h2 className="text-white text-lg font-semibold mb-1">Welcome back</h2>
+          <p className="text-slate-400 text-sm mb-5">Sign in to your FirmiCore account</p>
+
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-3">
+            <div className="mb-6 bg-red-950/40 border border-red-500/30 text-red-300 rounded-lg p-3 flex gap-3">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <span className="text-sm">{error}</span>
             </div>
@@ -202,22 +310,22 @@ export default function LoginPage() {
           {activeTab === 'email' && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
                 <input
                   {...emailForm.register('email')}
                   type="email"
                   placeholder="you@company.com"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                  className="w-full px-4 py-2 border border-white/10 bg-white/5 text-white placeholder:text-slate-500 rounded-lg focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none transition-all"
                 />
                 {emailForm.formState.errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{emailForm.formState.errors.email.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{emailForm.formState.errors.email.message}</p>
                 )}
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <label className="block text-sm font-medium text-gray-700">Password</label>
-                  <a href="/forgot-password" className="text-sm text-[#1A56DB] hover:underline">
+                  <label className="block text-sm font-medium text-slate-300">Password</label>
+                  <a href="/forgot-password" className="text-sm text-[#00C2FF] hover:underline">
                     Forgot?
                   </a>
                 </div>
@@ -226,18 +334,18 @@ export default function LoginPage() {
                     {...emailForm.register('password')}
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none transition-all"
+                    className="w-full px-4 py-2 border border-white/10 bg-white/5 text-white placeholder:text-slate-500 rounded-lg focus:border-[#00C2FF] focus:ring-2 focus:ring-[#00C2FF]/20 outline-none transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-2.5 text-gray-500"
+                    className="absolute right-3 top-2.5 text-slate-400"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 {emailForm.formState.errors.password && (
-                  <p className="text-red-500 text-sm mt-1">{emailForm.formState.errors.password.message}</p>
+                  <p className="text-red-400 text-sm mt-1">{emailForm.formState.errors.password.message}</p>
                 )}
               </div>
 
@@ -248,7 +356,7 @@ export default function LoginPage() {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="rounded"
                 />
-                <span className="text-sm text-gray-600">Remember me</span>
+                <span className="text-sm text-slate-400">Remember me</span>
               </label>
 
               <button
@@ -261,17 +369,17 @@ export default function LoginPage() {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200"></div>
+                  <div className="w-full border-t border-white/10"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">— or continue with —</span>
+                  <span className="px-2 bg-[#111C33] text-slate-400">— or continue with —</span>
                 </div>
               </div>
 
               <button
                 onClick={handleGoogleLogin}
                 disabled={googleLoading}
-                className="w-full border border-gray-200 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 h-11"
+                className="w-full border border-white/10 bg-white text-gray-700 font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 h-11"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -298,13 +406,38 @@ export default function LoginPage() {
 
         </div>
 
-        <p className="text-center text-gray-600 text-sm">
+        <p className="text-center text-slate-400 text-sm">
           Don't have an account?{' '}
-          <a href="/register" className="text-[#1A56DB] hover:underline font-medium">
+          <a href="/register" className="text-[#00C2FF] hover:underline font-medium">
             Register your company
           </a>
         </p>
+
+        <button
+          type="button"
+          onClick={openQrScanner}
+          className="w-full mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 bg-white/5 text-slate-200 text-sm font-medium rounded-lg hover:bg-white/10 transition-colors"
+        >
+          <QrCode className="w-4 h-4 text-[#00C2FF]" />
+          Report a breakdown by QR — no sign-in needed
+        </button>
       </div>
+      </div>
+
+      {showQrScanner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-slate-900">Scan Machine QR Code</h3>
+              <button type="button" onClick={closeQrScanner} className="p-1 rounded-lg hover:bg-slate-100">
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+            <div id="login-qr-reader" className="w-full" />
+            <p className="text-xs text-slate-500 mt-3 text-center">Point your camera at a machine QR code to report a breakdown instantly.</p>
+          </div>
+        </div>
+      )}
 
       {showPinChangeModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

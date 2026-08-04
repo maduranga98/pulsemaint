@@ -90,7 +90,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isAuthenticated() && (
         request.auth.uid == userId ||
-        isAnyRole(['admin', 'maintenance_supervisor', 'plant_manager'])
+        isAnyRole(['admin', 'supervisor', 'maintenance_supervisor', 'plant_manager'])
       );
       allow write: if isAdmin() || request.auth.uid == userId
         // Supervisors keep the role-mapping doc in sync when editing company
@@ -287,18 +287,34 @@ service cloud.firestore {
     // Breakdowns (Module 1 — existing)
     // ---------------------------------------------------------------------------
 
+    // A visitor who scanned a machine's QR code and reported a breakdown
+    // without signing in — Firebase Anonymous Auth (see
+    // signInAnonymouslyForReport / PublicBreakdownReportPage). Tightly
+    // scoped: only a fresh, unassigned "reported" ticket sourced from a QR
+    // scan, with no reporter identity attached.
+    function isAnonymousBreakdownReport() {
+      return request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && request.resource.data.source == 'qr_scan'
+        && request.resource.data.status == 'reported'
+        && request.resource.data.reportedBy == null
+        && request.resource.data.assignedTechnicianIds.size() == 0;
+    }
+
     // breakdown_tickets — used by dashboard widgets and Module 1 list/report pages
     match /breakdown_tickets/{ticketId} {
       allow read: if isAuthenticated() && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin'
       ]);
-      allow create: if isAuthenticated() && isAnyRole([
+      allow create: if isAnonymousBreakdownReport() || (isAuthenticated() && isAnyRole([
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
         'plant_manager', 'trainee', 'admin'
-      ]);
+      ]));
+      // Attending/assigned technicians and trainees can fill in and update
+      // their own ticket (severity, type, attempted fixes, status, media).
       allow update: if isAuthenticated() && isAnyRole([
-        'technician', 'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
+        'technician', 'trainee', 'maintenance_supervisor', 'supervisor', 'plant_manager', 'admin'
       ]);
       allow delete: if isAdmin();
     }
@@ -329,6 +345,10 @@ service cloud.firestore {
         'safety_officer', 'floor_operator', 'technician', 'supervisor', 'maintenance_supervisor',
         'plant_manager', 'store_keeper', 'trainee', 'admin'
       ]);
+      // Public, no-login QR breakdown report: a single machine lookup by id
+      // (never a list query) under an anonymous session, so a scanned QR can
+      // show the machine name without requiring the visitor to sign in.
+      allow get: if request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous';
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
       allow write: if isAdmin() || isSupervisor() || isPlantManager();
       // Technicians may only stamp service metadata when completing a WO

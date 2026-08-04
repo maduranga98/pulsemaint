@@ -82,9 +82,11 @@ export interface Breakdown {
   machineDepartment: string;
   machineCriticality: 1 | 2 | 3 | 4 | 5;
 
-  // Report details
-  severity: BreakdownSeverity;
-  type: BreakdownType;
+  // Report details. severity/type are intentionally unset (null) at report
+  // time — the reporter no longer picks them; the attending technician sets
+  // them once they've assessed the machine (see EditBreakdownPage).
+  severity: BreakdownSeverity | null;
+  type: BreakdownType | null;
   description: string;
   photos: string[];
   video: string | null;
@@ -93,10 +95,11 @@ export interface Breakdown {
   attemptedFixes: string;
   source: BreakdownSource;
 
-  // Reporter
-  reportedBy: string;
-  reporterName: string;
-  reporterRole: UserRole;
+  // Reporter. Not tracked — the report form no longer auto-captures who
+  // filed it (and the public QR flow has no logged-in identity at all).
+  reportedBy: string | null;
+  reporterName: string | null;
+  reporterRole: UserRole | null;
   reportedAt: Timestamp;
 
   // Lifecycle
@@ -107,6 +110,14 @@ export interface Breakdown {
   assignedTechnicianIds: string[];
   assignedTechnicianNames: string[];
   assignedContractorId: string | null;
+  assignedBy: string | null;
+  assignedByName: string | null;
+
+  // Who is actually attending — set whether they were formally assigned by a
+  // supervisor or self-attended a reported ticket.
+  attendedBy: string | null;
+  attendedByName: string | null;
+  attendedAt: Timestamp | null;
 
   // State timestamps
   acknowledgedAt: Timestamp | null;

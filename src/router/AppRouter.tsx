@@ -148,6 +148,7 @@ import BillingPage from '../pages/billing/BillingPage';
 
 // Real pages (Module 1, 2, 4, 11)
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
+import PublicBreakdownReportPage from '../pages/breakdowns/PublicBreakdownReportPage';
 import BreakdownsPage from '../pages/breakdowns/BreakdownsPage';
 import ViewBreakdownPage from '../pages/breakdowns/ViewBreakdownPage';
 import EditBreakdownPage from '../pages/breakdowns/EditBreakdownPage';
@@ -188,6 +189,8 @@ export default function AppRouter() {
       <Route path="/verify-email" element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
       <Route path="/invite/:token" element={<InvitePage />} />
       <Route path="/scan" element={<ScanRedirectPage />} />
+      {/* Public, no-login breakdown reporting — reached by scanning a machine's QR code */}
+      <Route path="/report-breakdown" element={<PublicBreakdownReportPage />} />
 
       {/* Full-screen authed flows (no app shell) */}
       <Route
@@ -351,7 +354,7 @@ export default function AppRouter() {
         <Route
           path="breakdowns/:id/edit"
           element={
-            <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin']}>
+            <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'trainee', 'supervisor', 'plant_manager', 'admin']}>
               <EditBreakdownPage />
             </ProtectedRoute>
           }
