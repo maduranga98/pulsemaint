@@ -435,36 +435,23 @@ export default function BreakdownsPage() {
                   // filled/reported tickets are never directly editable from
                   // this list, only viewable via the ticket link.
                   const assignedTickets = g.tickets.filter((t) => t.status === 'assigned' && !t.severity);
+                  const filledTickets = g.tickets.filter((t) => t.status === 'assigned' && !!t.severity && !t.linkedWOId);
 
                   return (
                     <tr key={g.machineId} className="hover:bg-slate-50 transition-colors align-top">
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-1">
-                          {g.tickets.map((t) => {
-                            const isFilled = t.status === 'assigned' && !!t.severity && !t.linkedWOId;
-                            return (
-                              <div key={t.id} className="flex items-center gap-1.5">
-                                <Link to={`/app/breakdowns/${t.id}`} className="font-medium text-blue-600 hover:underline">
-                                  {t.ticketNumber}
-                                </Link>
-                                {isFilled && canAssign && (
-                                  <button
-                                    type="button"
-                                    onClick={() => goToCreateWorkOrder(t)}
-                                    className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded hover:bg-purple-100 transition-colors"
-                                    title="Create a Work Order for this breakdown"
-                                  >
-                                    <ClipboardPlus className="w-3 h-3" />
-                                    Create WO
-                                  </button>
-                                )}
-                              </div>
-                            );
-                          })}
+                          {g.tickets.map((t) => (
+                            <Link key={t.id} to={`/app/breakdowns/${t.id}`} className="font-medium text-blue-600 hover:underline">
+                              {t.ticketNumber}
+                            </Link>
+                          ))}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="font-medium text-slate-900">{g.machineName}</p>
+                        <Link to={`/app/breakdowns/${representative.id}`} className="font-medium text-slate-900 hover:text-blue-600 hover:underline">
+                          {g.machineName}
+                        </Link>
                         <p className="text-slate-400 text-xs">{g.machineLocation}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -541,6 +528,18 @@ export default function BreakdownsPage() {
                               Attend &amp; Fill{assignedTickets.length > 1 ? ` (${assignedTickets.length})` : ''}
                             </Link>
                           )}
+                          {filledTickets.length > 0 && canAssign && filledTickets.map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => goToCreateWorkOrder(t)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                              title={`Create a Work Order for ${t.ticketNumber}`}
+                            >
+                              <ClipboardPlus className="w-3 h-3" />
+                              Create WO{filledTickets.length > 1 ? ` (${t.ticketNumber})` : ''}
+                            </button>
+                          ))}
                         </div>
                       </td>
                     </tr>
