@@ -204,20 +204,32 @@ a {
 .app-main-dark .text-indigo-600,
 .app-main-dark .text-blue-700,
 .app-main-dark .text-blue-600 { color: #60A5FA !important; }
+.app-main-dark .border-indigo-200,
+.app-main-dark .border-blue-200 { border-color: rgba(26, 86, 219, 0.35) !important; }
 
 /* Subtle status tints. */
 .app-main-dark .bg-green-50 { background-color: rgba(16, 185, 129, 0.12) !important; }
 .app-main-dark .text-green-700, .app-main-dark .text-green-600 { color: #34D399 !important; }
 .app-main-dark .bg-red-50   { background-color: rgba(239, 68, 68, 0.12) !important; }
 .app-main-dark .text-red-700, .app-main-dark .text-red-600 { color: #F87171 !important; }
+.app-main-dark .border-red-200 { border-color: rgba(239, 68, 68, 0.35) !important; }
 .app-main-dark .bg-amber-50, .app-main-dark .bg-yellow-50 { background-color: rgba(245, 158, 11, 0.12) !important; }
 .app-main-dark .text-amber-700, .app-main-dark .text-yellow-700,
 .app-main-dark .text-amber-600, .app-main-dark .text-yellow-600 { color: #FBBF24 !important; }
+.app-main-dark .border-amber-200, .app-main-dark .border-yellow-200 { border-color: rgba(245, 158, 11, 0.35) !important; }
 .app-main-dark .bg-purple-50  { background-color: rgba(168, 85, 247, 0.12) !important; }
 .app-main-dark .bg-purple-100 { background-color: rgba(168, 85, 247, 0.18) !important; }
 .app-main-dark .text-purple-700, .app-main-dark .text-purple-800,
 .app-main-dark .text-purple-600 { color: #C084FC !important; }
 .app-main-dark .border-purple-200 { border-color: rgba(168, 85, 247, 0.35) !important; }
+
+/* Emerald accent (Attend / Sign-Off & Close actions, PASS badges, etc.) —
+   a distinct Tailwind palette from "green", so it needs its own rules. */
+.app-main-dark .bg-emerald-50  { background-color: rgba(16, 185, 129, 0.12) !important; }
+.app-main-dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.18) !important; }
+.app-main-dark .text-emerald-700, .app-main-dark .text-emerald-800,
+.app-main-dark .text-emerald-600 { color: #34D399 !important; }
+.app-main-dark .border-emerald-200 { border-color: rgba(16, 185, 129, 0.35) !important; }
 
 /* Skeletons / dashed empty-states. */
 .app-main-dark .border-dashed { border-color: #1E3A5F !important; }
