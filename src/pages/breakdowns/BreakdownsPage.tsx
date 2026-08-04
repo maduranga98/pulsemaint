@@ -290,9 +290,9 @@ export default function BreakdownsPage() {
         });
       }
       await batch.commit();
-      // Multiple tickets need their own assessment forms — land on the
-      // first one rather than guessing which the technician wants first.
-      navigate(`/app/breakdowns/${tickets[0].id}/edit`);
+      // One shared assessment form for every ticket just attended on this
+      // machine, instead of bouncing the technician between separate pages.
+      navigate(`/app/breakdowns/attend?ids=${tickets.map((t) => t.id).join(',')}`);
     } catch (e: any) {
       setError(e?.message || 'Failed to attend.');
     } finally {
@@ -418,6 +418,11 @@ export default function BreakdownsPage() {
                     .filter(Boolean)
                     .sort((a, b) => (b?.toDate?.().getTime() ?? 0) - (a?.toDate?.().getTime() ?? 0))[0];
                   const hasReported = reportedTickets(g).length > 0;
+                  // Assigned (or already-attended) tickets that still need
+                  // the technician's severity/type/attempted-fixes writeup —
+                  // funneled through the same shared form as self-attend, so
+                  // filling multiple tickets on this machine is one action.
+                  const needsAssessment = g.tickets.filter((t) => t.status !== 'reported' && !t.severity);
 
                   return (
                     <tr key={g.machineId} className="hover:bg-slate-50 transition-colors align-top">
@@ -428,8 +433,8 @@ export default function BreakdownsPage() {
                               <Link to={`/app/breakdowns/${t.id}`} className="font-medium text-blue-600 hover:underline">
                                 {t.ticketNumber}
                               </Link>
-                              {t.status !== 'reported' && (
-                                <Link to={`/app/breakdowns/${t.id}/edit`} title="Edit" className="text-slate-400 hover:text-slate-600">
+                              {t.status !== 'reported' && t.severity && (
+                                <Link to={`/app/breakdowns/${t.id}/edit`} title="Edit assessment" className="text-slate-400 hover:text-slate-600">
                                   <Pencil className="w-3 h-3" />
                                 </Link>
                               )}
@@ -513,6 +518,16 @@ export default function BreakdownsPage() {
                               <HardHat className="w-3 h-3" />
                               {attendingMachineId === g.machineId ? 'Attending…' : 'Attend'}
                             </button>
+                          )}
+                          {!hasReported && needsAssessment.length > 0 && canAttend && (
+                            <Link
+                              to={`/app/breakdowns/attend?ids=${needsAssessment.map((t) => t.id).join(',')}`}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                              title="Fill in the assessment for every ticket on this machine that still needs one"
+                            >
+                              <Pencil className="w-3 h-3" />
+                              Fill Report{needsAssessment.length > 1 ? ` (${needsAssessment.length})` : ''}
+                            </Link>
                           )}
                         </div>
                       </td>

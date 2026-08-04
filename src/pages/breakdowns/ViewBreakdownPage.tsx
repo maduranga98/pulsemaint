@@ -215,7 +215,7 @@ export default function ViewBreakdownPage() {
           note: `Self-attended by ${userProfile.fullName}`,
         }),
       });
-      navigate(`/app/breakdowns/${id}/edit`);
+      navigate(`/app/breakdowns/attend?ids=${id}`);
     } catch (err: any) {
       setError(err?.message || 'Failed to attend.');
     } finally {
@@ -372,11 +372,11 @@ export default function ViewBreakdownPage() {
             )}
             {b.status !== 'reported' && (b.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '') && (
               <Link
-                to={`/app/breakdowns/${b.id}/edit`}
+                to={b.severity ? `/app/breakdowns/${b.id}/edit` : `/app/breakdowns/attend?ids=${b.id}`}
                 className="px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 text-sm"
               >
                 <Pencil className="w-4 h-4 inline mr-1" />
-                Fill Breakdown Report
+                {b.severity ? 'Edit Assessment' : 'Fill Breakdown Report'}
               </Link>
             )}
             {isSupervisorRole && b.status !== 'reported' && !b.linkedWOId && (
