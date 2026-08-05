@@ -754,11 +754,12 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
   );
 
   // Assigning/attending a whole group of tickets at once (see handleAssign/
-  // handleAttend above) writes an identical status history entry to every
-  // ticket in the batch — merging tickets' histories together would then
-  // show the same status+actor+note+moment several times over. Collapse
-  // entries that share a status, actor, note, and timestamp (to the minute)
-  // down to one.
+  // handleAttend above) writes a near-identical status history entry to
+  // every ticket in the batch (same step, same actor, same moment, only the
+  // note's wording differs slightly per ticket) — merging tickets' histories
+  // together would show the same step repeated several times over. Collapse
+  // entries that share a status, actor, and timestamp (to the minute) down
+  // to one, ignoring the note entirely.
   const historyEntries = Array.from(
     new Map(
       tickets
@@ -766,7 +767,7 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
         .map((h: any) => {
           const ms = h.changedAt?.toDate ? h.changedAt.toDate().getTime() : new Date(h.changedAt ?? 0).getTime();
           const minuteKey = Math.floor(ms / 60000);
-          return [`${h.status}|${h.changedBy}|${h.note ?? ''}|${minuteKey}`, { ...h, _ms: ms }] as const;
+          return [`${h.status}|${h.changedBy}|${minuteKey}`, { ...h, _ms: ms }] as const;
         }),
     ).values(),
   ).sort((a, b) => a._ms - b._ms);
@@ -896,7 +897,6 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
                     <span className="text-slate-400 text-xs ml-2">
                       {h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}
                     </span>
-                    {h.note && <p className="text-slate-500 text-xs italic mt-0.5">{h.note}</p>}
                   </div>
                 </li>
               ))}
