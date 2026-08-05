@@ -36,5 +36,9 @@ jobs:
             --location=nam5 \
             --project "$VITE_FIREBASE_PROJECT_ID" \
             --non-interactive || true
-          npx firebase-tools@latest deploy --only functions --project "$VITE_FIREBASE_PROJECT_ID" --non-interactive
+          # --force: a function (pushToGoogleSheets) was removed from source
+          # in #298 but never deleted from the deployed project, and
+          # --non-interactive alone refuses to delete orphaned functions
+          # without confirmation — silently failing every deploy since then.
+          npx firebase-tools@latest deploy --only functions --project "$VITE_FIREBASE_PROJECT_ID" --non-interactive --force
           rm -f "$RUNNER_TEMP/firebase-sa.json"
