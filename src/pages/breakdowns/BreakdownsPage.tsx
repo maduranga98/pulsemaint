@@ -743,6 +743,13 @@ function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsP
       return at - bt;
     });
 
+  const worstSeverity = tickets.reduce<BreakdownSeverity | null>((worst, t) => {
+    if (!t.severity) return worst;
+    if (!worst || SEVERITY_RANK[t.severity] > SEVERITY_RANK[worst]) return t.severity;
+    return worst;
+  }, null);
+  const photos = tickets.flatMap((t) => t.photos ?? []);
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-5">
       <div className="flex items-center gap-2 flex-wrap">
@@ -751,6 +758,13 @@ function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsP
             {t.ticketNumber}
           </Link>
         ))}
+        {worstSeverity ? (
+          <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[worstSeverity]}`}>
+            {worstSeverity}
+          </span>
+        ) : (
+          <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending assessment</span>
+        )}
         <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[tickets[tickets.length - 1].status]}`}>
           {STATUS_LABEL[tickets[tickets.length - 1].status]}
         </span>
@@ -802,6 +816,37 @@ function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsP
             </p>
           )}
         </div>
+
+        {photos.length > 0 && (
+          <div className="sm:col-span-2">
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">Attached Media</p>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
+              {photos.map((url, i) => {
+                const isImage = /\.(jpe?g|png|gif|webp|heic|bmp)(\?|$)/i.test(url);
+                const isVideo = /\.(mp4|mov|avi|webm)(\?|$)/i.test(url);
+                return (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block border border-slate-200 rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-300 transition-shadow"
+                  >
+                    {isImage ? (
+                      <img src={url} alt={`Attachment ${i + 1}`} className="w-full h-20 object-cover" />
+                    ) : isVideo ? (
+                      <video src={url} className="w-full h-20 object-cover" muted />
+                    ) : (
+                      <div className="w-full h-20 flex items-center justify-center bg-slate-50 text-slate-400 text-xs">
+                        File {i + 1}
+                      </div>
+                    )}
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="pt-2 border-t border-slate-100">
@@ -816,7 +861,6 @@ function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsP
                   {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
                 </span>
                 <div>
-                  {tickets.length > 1 && <span className="text-slate-400 text-xs font-medium mr-1">{h.ticketNumber}</span>}
                   <span className="text-slate-700">
                     {nameWithRole(h.changedByName ?? '', h.changedBy, actorRoles)}
                   </span>
