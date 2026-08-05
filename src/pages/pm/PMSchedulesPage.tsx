@@ -8,6 +8,9 @@ import { usePMStore } from '../../store/pm.store';
 import { PMScheduleList } from '../../components/pm/PMScheduleList';
 import { PMScheduleCard } from '../../components/pm/PMScheduleCard';
 import { PMFilterBar } from '../../components/pm/PMFilterBar';
+import { PMCalendarView } from '../../components/pm/PMCalendarView';
+import { usePMCalendarEvents } from '../../hooks/pm/usePMCalendarEvents';
+import type { CalendarEvent } from '../../types/pm.types';
 import { useToast } from '../../hooks/useToast';
 import {
   PageHeader,
@@ -35,7 +38,27 @@ export default function PMSchedulesPage() {
   const woLookup = usePMWorkOrderLookup(userProfile?.siteIds?.[0] || company?.id || '');
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [viewMode, setViewMode] = useState<'table' | 'calendar'>('table');
+
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+  const { events: calendarEvents, loading: calendarLoading } = usePMCalendarEvents({
+    companyId: company?.id || '',
+    siteId: userProfile?.siteIds?.[0] || company?.id || '',
+    month: currentMonth,
+    year: currentYear,
+  });
+
+  const handleCalendarEventClick = (event: CalendarEvent) => {
+    // Prefer jumping straight to the servicing Work Order — that's where the
+    // real, live PM details (checklist, team, dates, completion) live. Only
+    // fall back to the schedule detail page when no WO is linked yet.
+    if (event.woId) {
+      navigate(`/app/work-orders?woId=${event.woId}`);
+    } else if (event.scheduleId) {
+      navigate(`/app/pm-schedules/${event.scheduleId}`);
+    }
+  };
 
   const technicianOptions = useMemo(() => {
     const techMap = new Map<string, string>();
@@ -76,13 +99,13 @@ export default function PMSchedulesPage() {
         description={`${schedules.length} schedule${schedules.length === 1 ? '' : 's'}`}
         actions={
           <>
-            <SegmentedControl<'table' | 'cards'>
+            <SegmentedControl<'table' | 'calendar'>
               value={viewMode}
               onChange={setViewMode}
               ariaLabel="View mode"
               options={[
                 { value: 'table', label: 'Table' },
-                { value: 'cards', label: 'Cards' },
+                { value: 'calendar', label: 'Calendar' },
               ]}
             />
             {isSupervisor && (
@@ -98,14 +121,16 @@ export default function PMSchedulesPage() {
       />
 
       <div className="space-y-4">
-        <PMFilterBar
-          filters={filters}
-          onChange={setFilters}
-          machines={machines.map((m) => ({ id: m.id, name: m.name }))}
-          technicians={technicianOptions}
-        />
+        {viewMode === 'table' && (
+          <PMFilterBar
+            filters={filters}
+            onChange={setFilters}
+            machines={machines.map((m) => ({ id: m.id, name: m.name }))}
+            technicians={technicianOptions}
+          />
+        )}
 
-        {selectedIds.length > 0 && (
+        {viewMode === 'table' && selectedIds.length > 0 && (
           <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-md px-3 py-2">
             <span className="text-[12px] font-medium text-indigo-800">
               {selectedIds.length} selected
@@ -119,7 +144,13 @@ export default function PMSchedulesPage() {
           </div>
         )}
 
-        {loading ? (
+        {viewMode === 'calendar' ? (
+          calendarLoading ? (
+            <div className="p-8 text-center text-gray-400">Loading calendar...</div>
+          ) : (
+            <PMCalendarView events={calendarEvents} onEventClick={handleCalendarEventClick} />
+          )
+        ) : loading ? (
           <SkeletonList rows={6} rowClassName="h-12" />
         ) : schedules.length === 0 ? (
           <EmptyState
@@ -136,7 +167,7 @@ export default function PMSchedulesPage() {
               )
             }
           />
-        ) : viewMode === 'table' ? (
+        ) : (
           <>
             <div className="hidden sm:block">
               <PMScheduleList
@@ -160,18 +191,6 @@ export default function PMSchedulesPage() {
               ))}
             </div>
           </>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {schedules.map((s) => (
-              <PMScheduleCard
-                key={s.id}
-                schedule={s}
-                selected={selectedIds.includes(s.id)}
-                onSelect={isAdmin ? handleSelect : undefined}
-                woLookup={woLookup}
-              />
-            ))}
-          </div>
         )}
       </div>
     </div>
