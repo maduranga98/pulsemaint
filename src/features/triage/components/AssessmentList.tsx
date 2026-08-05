@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import { CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, FileEdit, BarChart3, RotateCcw } from 'lucide-react';
+import { CheckCircle2, ClipboardCheck, FileEdit, RotateCcw } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
 import type { TriageAssessment, TriageAssessmentResult } from '../types';
 import { QuizModal } from './QuizModal';
-
-const MANAGER_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'];
 
 export function AssessmentList() {
   const user = useAuthStore((s) => s.user);
@@ -18,12 +16,10 @@ export function AssessmentList() {
   const profileId = userProfile?.id ?? '';
   const authUid = user?.uid ?? '';
   const uid = profileId || authUid;
-  const isManager = MANAGER_ROLES.includes(userProfile?.role ?? '');
 
   const [assessments, setAssessments] = useState<TriageAssessment[]>([]);
   const [allResults, setAllResults] = useState<TriageAssessmentResult[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<TriageAssessment | null>(null);
-  const [showTeamMarks, setShowTeamMarks] = useState(false);
 
   useEffect(() => {
     if (!companyId || !uid) return;
@@ -40,9 +36,6 @@ export function AssessmentList() {
         ),
     );
 
-    // Subscribe to the whole company's results: each member's own status is
-    // computed strictly from THEIR results below, and managers additionally
-    // see everyone's marks in the team table.
     const u2 = onSnapshot(
       query(
         collection(db, COL.results),
@@ -84,13 +77,6 @@ export function AssessmentList() {
     );
     return sorted[0];
   }
-
-  const assessmentTitle = (id: string) => assessments.find((a) => a.id === id)?.title ?? 'Assessment';
-  const teamResults = [...allResults].sort(
-    (a, b) =>
-      ((b.completedAt as unknown as { seconds: number })?.seconds ?? 0) -
-      ((a.completedAt as unknown as { seconds: number })?.seconds ?? 0),
-  );
 
   const STATUS_META = {
     certified: { label: 'Certified', icon: CheckCircle2, color: '#22c55e', btn: 'Review' },
@@ -178,87 +164,6 @@ export function AssessmentList() {
         })}
       </div>
 
-      {isManager && (
-        <div className="mt-8">
-          <button
-            type="button"
-            onClick={() => setShowTeamMarks((v) => !v)}
-            className="w-full flex items-center justify-between gap-3 rounded-xl p-4 mb-0 transition-colors"
-            style={{ background: '#111d2e', border: '1px solid #1a2840' }}
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center"
-                style={{ background: '#06b6d41e', color: '#06b6d4' }}
-              >
-                <BarChart3 className="w-5 h-5" />
-              </div>
-              <div className="text-left">
-                <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
-                  Team Assessment Marks
-                </h2>
-                <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-                  Every member&apos;s quick-assessment attempts and scores
-                </p>
-              </div>
-            </div>
-            {showTeamMarks ? (
-              <ChevronUp className="w-5 h-5 shrink-0" style={{ color: '#6b7fa3' }} />
-            ) : (
-              <ChevronDown className="w-5 h-5 shrink-0" style={{ color: '#6b7fa3' }} />
-            )}
-          </button>
-
-          {showTeamMarks && (
-            teamResults.length === 0 ? (
-              <div
-                className="rounded-xl p-6 mt-3 text-center text-sm"
-                style={{ background: '#111d2e', border: '1px solid #1a2840', color: '#3d5070' }}
-              >
-                No assessment attempts recorded yet.
-              </div>
-            ) : (
-              <div
-                className="rounded-xl overflow-x-auto mt-3"
-                style={{ background: '#111d2e', border: '1px solid #1a2840' }}
-              >
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr style={{ color: '#6b7fa3' }} className="text-left text-xs">
-                      <th className="px-4 py-3 font-semibold">Member</th>
-                      <th className="px-4 py-3 font-semibold">Role</th>
-                      <th className="px-4 py-3 font-semibold">Assessment</th>
-                      <th className="px-4 py-3 font-semibold">Marks</th>
-                      <th className="px-4 py-3 font-semibold">Result</th>
-                      <th className="px-4 py-3 font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {teamResults.slice(0, 50).map((r) => {
-                      const seconds = (r.completedAt as unknown as { seconds: number })?.seconds;
-                      const pct = r.total > 0 ? Math.round((r.score / r.total) * 100) : 0;
-                      return (
-                        <tr key={r.id} style={{ borderTop: '1px solid #1a2840', color: '#e2e8f0' }}>
-                          <td className="px-4 py-2.5">{r.userName || r.userId}</td>
-                          <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{(r.userRole ?? '').replace(/_/g, ' ') || '-'}</td>
-                          <td className="px-4 py-2.5">{assessmentTitle(r.assessmentId)}</td>
-                          <td className="px-4 py-2.5 font-semibold">{r.score}/{r.total} ({pct}%)</td>
-                          <td className="px-4 py-2.5" style={{ color: r.passed ? '#22c55e' : '#ef4444' }}>
-                            {r.passed ? 'Passed' : 'Failed'}
-                          </td>
-                          <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>
-                            {seconds ? new Date(seconds * 1000).toLocaleDateString() : '-'}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )
-          )}
-        </div>
-      )}
     </div>
   );
 }
