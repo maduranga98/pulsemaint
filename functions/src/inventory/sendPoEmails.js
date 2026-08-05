@@ -3,10 +3,8 @@
  * Firestore onCreate trigger on po_notifications/{id}.
  *
  * The PO create/edit/detail screens queue a po_notifications doc whenever a
- * PO changes status, but until now nothing consumed that collection — no
- * email ever went out, to approvers or the supplier. This dispatches:
- *   - an internal notice to the queued `recipients` (plant manager / admin)
- *     for every event,
+ * PO changes status. This dispatches supplier-facing emails only — nothing
+ * ever goes to the company's own plant_manager/admin inboxes:
  *   - the initial PO email to the supplier — rendered as a full PO document
  *     (company header, supplier/ship-to, item table), no pricing/total,
  *     since the supplier is the one who quotes/sends prices via their
@@ -30,18 +28,6 @@ const logger = require("firebase-functions/logger");
 const { brandedEmail, sendEmail } = require("../lib/mailer");
 
 const db = getFirestore("default");
-
-const EVENT_LABELS = {
-  pending_approval: "submitted for approval",
-  approved: "approved",
-  sent: "sent to supplier",
-  rejected: "rejected",
-  invoice_received: "invoice received",
-  invoice_priced: "priced after invoice review",
-  acknowledged: "acknowledged",
-  received: "received",
-  cancelled: "cancelled",
-};
 
 async function companyNameFor(companyId) {
   if (!companyId) return "";
@@ -271,55 +257,11 @@ function formatMoney(amount, currency) {
   return `${currency || ""} ${value}`.trim();
 }
 
-// Priced items table (matches the printable PO layout: #, Part, Qty, Unit
-// Cost, Line Total, plus a Subtotal/Total box) — used once prices are known
-// from the supplier's invoice.
-function itemsTableHtmlPriced(items, currency) {
-  if (!Array.isArray(items) || items.length === 0) return "";
-  const rows = items
-    .map(
-      (i, idx) => `
-    <tr>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${idx + 1}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${i.partNumber || ""} — ${i.partName || ""}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${i.quantityOrdered ?? ""}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${fmtDate(i.expectedDelivery)}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${formatMoney(i.unitCost, currency)}</td>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${formatMoney(i.totalCost, currency)}</td>
-    </tr>`,
-    )
-    .join("");
-  const total = items.reduce((sum, i) => sum + (Number(i.totalCost) || 0), 0);
-  return `
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;border:1px solid #eee;border-radius:8px;overflow:hidden;">
-    <tr style="background:#f8fafc;">
-      <td style="padding:8px 10px;font-size:12px;color:#888;width:32px;">#</td>
-      <td style="padding:8px 10px;font-size:12px;color:#888;">Part</td>
-      <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Qty</td>
-      <td style="padding:8px 10px;font-size:12px;color:#888;">Expected Delivery</td>
-      <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Unit Cost</td>
-      <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Line Total</td>
-    </tr>
-    ${rows}
-  </table>
-  <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
-    <tr>
-      <td></td>
-      <td style="width:220px;border:1px solid #111;padding:10px 14px;">
-        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;">
-          <span>Total</span><span>${formatMoney(total, currency)}</span>
-        </div>
-      </td>
-    </tr>
-  </table>`;
-}
-
 exports.sendPoEmails = onDocumentCreated(
     {database: "default", document: "po_notifications/{notificationId}"},
     async (event) => {
       const notification = event.data.data();
-      const {companyId, poId, poNumber, supplierName, supplierEmail, total, currency, recipients, event: poEvent, message, receivedItems, issueItems, notes: deliveryNotes} = notification;
-      const label = EVENT_LABELS[poEvent] || poEvent;
+      const {companyId, poId, poNumber, supplierName, supplierEmail, event: poEvent, message, receivedItems, issueItems, notes: deliveryNotes} = notification;
       const companyName = await companyNameFor(companyId);
 
       // Stock receipt — thank the supplier and confirm what arrived, and (if any
@@ -378,33 +320,9 @@ exports.sendPoEmails = onDocumentCreated(
       }
       const poItems = (poData && poData.items) || [];
 
-      // Internal approvers/admins — this internal notice can show prices,
-      // it never goes to the supplier. Exclude the supplier's own address
-      // (e.g. a plant manager who is also listed as the supplier contact)
-      // so that inbox never gets both this and the supplier-facing email
-      // below for the same event.
-      const supplierEmailLower = (supplierEmail || "").trim().toLowerCase();
-      const internalRecipients = (Array.isArray(recipients) ? recipients : []).filter(
-          (to) => (to || "").trim().toLowerCase() !== supplierEmailLower,
-      );
-      if (internalRecipients.length > 0) {
-        const bodyHtml = `
-          <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">Purchase Order ${label}</h2>
-          <p style="color:#555;font-size:14px;">PO <strong>${poNumber}</strong> to <strong>${supplierName}</strong> (${formatMoney(total, currency)}) was ${label}.</p>
-          ${itemsTableHtmlPriced(poItems, currency)}
-        `;
-        await Promise.all(
-            internalRecipients.map((to) =>
-              sendEmail({
-                companyId,
-                to,
-                subject: `PO ${poNumber} ${label}`,
-                html: brandedEmail(bodyHtml, companyName),
-                fromName: companyName,
-              }),
-            ),
-        );
-      }
+      // Internal approver/admin notices are intentionally not sent — PO
+      // emails go to the supplier only, never to the company's own
+      // plant_manager/admin inboxes.
 
       // Initial supplier-facing PO email — sent as a full PO document (company
       // header, supplier/ship-to, item table) with no pricing/total, since the
