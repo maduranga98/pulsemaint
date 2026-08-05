@@ -81,6 +81,7 @@ import EditPartPage from '../pages/inventory/EditPartPage';
 import PartsRequestsPage from '../pages/inventory/PartsRequestsPage';
 import RequestDetailPage from '../pages/inventory/RequestDetailPage';
 import PhysicalIssuePage from '../pages/inventory/PhysicalIssuePage';
+import ReceiveStockPage from '../pages/inventory/ReceiveStockPage';
 import StockMovementLogPage from '../pages/inventory/StockMovementLogPage';
 import PurchaseOrdersPage from '../pages/inventory/PurchaseOrdersPage';
 import CreatePurchaseOrderPage from '../pages/inventory/CreatePurchaseOrderPage';
@@ -438,6 +439,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
               <PhysicalIssuePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="inventory/receive"
+          element={
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
+              <ReceiveStockPage />
             </ProtectedRoute>
           }
         />

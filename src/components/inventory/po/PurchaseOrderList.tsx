@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Eye, Pencil, XCircle, CheckCircle2 } from 'lucide-react';
+import { Eye, Pencil, PackageCheck, XCircle, CheckCircle2 } from 'lucide-react';
 import type { PurchaseOrder, PurchaseOrderStatus } from '@/types/inventory';
 
 interface PurchaseOrderListProps {
   orders: PurchaseOrder[];
   onView: (id: string) => void;
   onEdit?: (id: string) => void;
+  onMarkReceived?: (id: string) => void;
   onCancel?: (id: string) => void;
   onApprove?: (id: string) => void;
   onReject?: (id: string) => void;
@@ -48,6 +49,7 @@ export function PurchaseOrderList({
   orders,
   onView,
   onEdit,
+  onMarkReceived,
   onCancel,
   onApprove,
   onReject,
@@ -163,6 +165,15 @@ export function PurchaseOrderList({
                           >
                             <XCircle className="w-3 h-3" />
                             Reject
+                          </button>
+                        )}
+                        {onMarkReceived && (order.status === 'sent' || order.status === 'invoice_received' || order.status === 'acknowledged' || order.status === 'partially_received') && (
+                          <button
+                            onClick={() => onMarkReceived(order.id)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+                          >
+                            <PackageCheck className="w-3 h-3" />
+                            Receive
                           </button>
                         )}
                         {onCancel && order.status !== 'received' && order.status !== 'cancelled' && (
