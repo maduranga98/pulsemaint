@@ -8,9 +8,15 @@ interface WOTableProps {
   workOrders: WorkOrder[];
   onSelect: (wo: WorkOrder) => void;
   showTypeColumn?: boolean;
+  // Sign Off is only offered once a WO is COMPLETED and awaiting closure, and
+  // only to callers who pass a handler — gating (supervisor/plant manager/
+  // admin) is the caller's responsibility, same as elsewhere in the WO module.
+  canSignOff?: boolean;
+  onSignOff?: (wo: WorkOrder) => void;
 }
 
-export function WOTable({ workOrders, onSelect, showTypeColumn = true }: WOTableProps) {
+export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOff = false, onSignOff }: WOTableProps) {
+  const showActionColumn = canSignOff && !!onSignOff;
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
@@ -26,6 +32,9 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true }: WOTable
               <th className="px-4 py-3 text-left font-medium text-gray-700">SLA</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Assigned</th>
               <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
+              {showActionColumn && (
+                <th className="px-4 py-3 text-left font-medium text-gray-700">Action</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -41,7 +50,16 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true }: WOTable
                     <div className="font-medium text-gray-900">{wo.woNumber || ''}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="text-gray-900">{wo.machineName}</div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelect(wo);
+                      }}
+                      className="text-left text-gray-900 hover:text-blue-600 hover:underline"
+                    >
+                      {wo.machineName}
+                    </button>
                     <div className="text-gray-400 text-xs">{wo.machineLocation}</div>
                   </td>
                   {showTypeColumn && (
@@ -65,6 +83,22 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true }: WOTable
                   <td className="px-4 py-3">
                     <WOStatusBadge status={wo.status} size="sm" />
                   </td>
+                  {showActionColumn && (
+                    <td className="px-4 py-3">
+                      {wo.status === 'COMPLETED' && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSignOff?.(wo);
+                          }}
+                          className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700"
+                        >
+                          Sign Off
+                        </button>
+                      )}
+                    </td>
+                  )}
                 </tr>
               );
             })}

@@ -114,7 +114,7 @@ export function useWOMedia(): UseWOMediaResult {
               storagePath,
               fileSize: file.size,
               uploadedBy: user.uid,
-              uploadedByName: user.displayName ?? '',
+              uploadedByName: useAuthStore.getState().userProfile?.fullName || user.displayName || '',
               uploadedAt: Timestamp.now(),
               isCompletionDocument: false,
             };

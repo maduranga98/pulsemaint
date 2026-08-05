@@ -42,7 +42,7 @@ export function useMyWorkCompletion(): UseMyWorkCompletionResult {
           statusHistory: arrayUnion({
             status: wo?.status ?? 'IN_PROGRESS',
             changedBy: user.uid,
-            changedByName: user.displayName ?? '',
+            changedByName: useAuthStore.getState().userProfile?.fullName || user.displayName || '',
             changedAt: Timestamp.now(),
             note: `${entry.technicianName} marked their own work complete`,
           }),

@@ -52,7 +52,10 @@ export function useSignOff(): UseSignOffResult {
 
       try {
         const profile = useAuthStore.getState().userProfile;
-        const actorName = user.displayName || profile?.fullName || '';
+        // Prefer the registered profile's fullName — Firebase Auth's
+        // displayName is often unset or falls back to the sign-in email,
+        // which is what was leaking into status history entries.
+        const actorName = profile?.fullName || user.displayName || '';
         const now = Timestamp.now();
         const notes = payload.notes.trim() || null;
         const reason = needsReason ? payload.outcomeReason!.trim() : null;

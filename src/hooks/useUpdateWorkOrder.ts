@@ -53,6 +53,10 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
       setLoading(true);
       setError(null);
 
+      // Prefer the registered profile's fullName — Firebase Auth's
+      // displayName is often unset or falls back to the sign-in email.
+      const actorName = useAuthStore.getState().userProfile?.fullName || user.displayName || '';
+
       // The LOTO/PTW safety precautions are now confirmed manually by the
       // technician on the start sheet (a single confirmation checkbox), so
       // there is no server-side isolation-point/zero-energy gate here anymore.
@@ -100,7 +104,7 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
       const historyEntry = {
         status,
         changedBy: user.uid,
-        changedByName: user.displayName ?? '',
+        changedByName: actorName,
         // serverTimestamp() is not allowed inside arrayUnion() — Firestore
         // rejects the whole write, which blocked technicians from starting WOs.
         changedAt: Timestamp.now(),
@@ -171,7 +175,7 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
                 statusHistory: arrayUnion({
                   status: bdStatus,
                   changedBy: user.uid,
-                  changedByName: user.displayName ?? '',
+                  changedByName: actorName,
                   changedAt: Timestamp.fromDate(new Date()),
                   note: `WO ${data.woNumber ?? id} status: ${status}`,
                 }),
