@@ -23,6 +23,15 @@ interface PartCatalogTableProps {
 type SortKey = 'partNumber' | 'name' | 'category' | 'criticality' | 'availableStock' | 'unitCost' | 'totalCost' | 'status';
 type SortDir = 'asc' | 'desc';
 
+// Unit Cost should track what was actually last paid for the part rather
+// than a manually-entered estimate — lastPurchasePrice is kept current
+// automatically whenever a PO's invoice is priced or stock is received
+// against it. Falls back to the manual unitCost for parts never purchased
+// through a PO yet (lastPurchasePrice stays 0 until then).
+function effectiveUnitCost(part: InventoryPart): number {
+  return part.lastPurchasePrice > 0 ? part.lastPurchasePrice : part.unitCost;
+}
+
 function stockColor(part: InventoryPart): string {
   const s = getStockStatus(part);
   if (s === 'out_of_stock') return 'text-red-600 font-semibold';
@@ -66,8 +75,8 @@ export function PartCatalogTable({
         av = order[a.part.criticality]; bv = order[b.part.criticality]; break;
       }
       case 'availableStock': av = a.available; bv = b.available; break;
-      case 'unitCost': av = a.part.unitCost; bv = b.part.unitCost; break;
-      case 'totalCost': av = a.available * a.part.unitCost; bv = b.available * b.part.unitCost; break;
+      case 'unitCost': av = effectiveUnitCost(a.part); bv = effectiveUnitCost(b.part); break;
+      case 'totalCost': av = a.available * effectiveUnitCost(a.part); bv = b.available * effectiveUnitCost(b.part); break;
       case 'status': av = a.part.status; bv = b.part.status; break;
     }
     if (av < bv) return sortDir === 'asc' ? -1 : 1;
@@ -167,10 +176,10 @@ export function PartCatalogTable({
               {!isTechnician && (
                 <>
                   <td className="px-4 py-3 text-right tabular-nums">
-                    <CostDisplay amount={part.unitCost} />
+                    <CostDisplay amount={effectiveUnitCost(part)} />
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums">
-                    <CostDisplay amount={available * part.unitCost} />
+                    <CostDisplay amount={available * effectiveUnitCost(part)} />
                   </td>
                 </>
               )}
