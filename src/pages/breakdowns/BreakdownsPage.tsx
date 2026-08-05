@@ -201,32 +201,44 @@ export default function BreakdownsPage() {
   }, [filtered]);
 
   const expandedGroup = groups.find((g) => g.machineId === expandedMachineId) ?? null;
+  // Closed tab shows every group's detail form at once (nothing to expand),
+  // so resolve roles across all of them instead of just one expanded group.
+  const groupsNeedingRoles = filter === 'closed' ? groups : expandedGroup ? [expandedGroup] : [];
 
-  // Resolve every actor's current role across the expanded machine's tickets
+  // Resolve every actor's current role across the relevant tickets
   // (attended-by, assigned technicians, status history) so names can be
-  // shown with their role — Firestore's `in` filter caps at 30 ids.
+  // shown with their role — Firestore's `in` filter caps at 30 ids per call.
   useEffect(() => {
-    if (!expandedGroup) return;
+    if (groupsNeedingRoles.length === 0) return;
     const uids = Array.from(
       new Set(
-        expandedGroup.tickets.flatMap((b) => [
-          b.attendedBy,
-          ...(b.assignedTechnicianIds ?? []),
-          ...(b.statusHistory ?? []).map((h: any) => h.changedBy),
-        ]),
+        groupsNeedingRoles.flatMap((g) =>
+          g.tickets.flatMap((b) => [
+            b.attendedBy,
+            ...(b.assignedTechnicianIds ?? []),
+            ...(b.statusHistory ?? []).map((h: any) => h.changedBy),
+          ]),
+        ),
       ),
-    ).filter((id): id is string => !!id).slice(0, 30);
+    ).filter((id): id is string => !!id);
     if (uids.length === 0) return;
-    getDocs(query(collection(db, 'users'), where(documentId(), 'in', uids)))
-      .then((snap) => {
+    const chunks: string[][] = [];
+    for (let i = 0; i < uids.length; i += 30) chunks.push(uids.slice(i, i + 30));
+    Promise.all(
+      chunks.map((chunk) => getDocs(query(collection(db, 'users'), where(documentId(), 'in', chunk)))),
+    )
+      .then((snaps) => {
         const roles: Record<string, string> = {};
-        snap.docs.forEach((d) => {
-          roles[d.id] = (d.data() as any).role ?? '';
+        snaps.forEach((snap) => {
+          snap.docs.forEach((d) => {
+            roles[d.id] = (d.data() as any).role ?? '';
+          });
         });
         setActorRoles((prev) => ({ ...prev, ...roles }));
       })
       .catch(() => {}); // silently ignore permission errors
-  }, [expandedGroup]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, groups]);
 
   async function openQrScanner() {
     setShowQrScanner(true);
@@ -500,18 +512,24 @@ export default function BreakdownsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <button
-                          type="button"
-                          onClick={() => setExpandedMachineId((cur) => (cur === g.machineId ? null : g.machineId))}
-                          className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-blue-600 hover:underline"
-                        >
-                          {g.machineName}
-                          {expandedMachineId === g.machineId ? (
-                            <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
-                          ) : (
-                            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                          )}
-                        </button>
+                        {/* Closed tab always shows the full detail form below every
+                            row — nothing to toggle. Other tabs expand on click. */}
+                        {filter === 'closed' ? (
+                          <p className="font-medium text-slate-900">{g.machineName}</p>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setExpandedMachineId((cur) => (cur === g.machineId ? null : g.machineId))}
+                            className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-blue-600 hover:underline"
+                          >
+                            {g.machineName}
+                            {expandedMachineId === g.machineId ? (
+                              <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+                            ) : (
+                              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                            )}
+                          </button>
+                        )}
                         <p className="text-slate-400 text-xs">{g.machineLocation}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -612,7 +630,7 @@ export default function BreakdownsPage() {
                         </div>
                       </td>
                     </tr>
-                    {expandedMachineId === g.machineId && (
+                    {(filter === 'closed' || expandedMachineId === g.machineId) && (
                       <tr>
                         <td colSpan={8} className="bg-slate-50 px-4 py-5 border-t border-b border-slate-200">
                           <MachineBreakdownDetails group={g} actorRoles={actorRoles} />
@@ -660,98 +678,130 @@ interface MachineBreakdownDetailsProps {
   actorRoles: Record<string, string>;
 }
 
+function sortTicketsByReportedAt(tickets: Breakdown[]): Breakdown[] {
+  return [...tickets].sort(
+    (a, b) => (a.reportedAt?.toDate?.().getTime() ?? 0) - (b.reportedAt?.toDate?.().getTime() ?? 0),
+  );
+}
+
+// A field that can differ ticket to ticket (what happened, attempted fixes,
+// production impact) — shown as one line per ticket that has a value, tagged
+// with its ticket number only when there's more than one ticket, so a
+// single-ticket machine reads as plain prose instead of a labelled list.
+function MergedField({ tickets, get }: { tickets: Breakdown[]; get: (t: Breakdown) => string | null | undefined }) {
+  const entries = tickets.map((t) => ({ ticketNumber: t.ticketNumber, value: get(t) })).filter((e) => e.value);
+  if (entries.length === 0) return <p className="text-slate-400 italic">—</p>;
+  if (entries.length === 1) return <p className="text-slate-800">{entries[0].value}</p>;
+  return (
+    <ul className="space-y-1">
+      {entries.map((e, i) => (
+        <li key={i} className="text-slate-800">
+          <span className="text-slate-400 text-xs font-medium mr-1">{e.ticketNumber}:</span>
+          {e.value}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 // One consolidated form for every breakdown ticket grouped on a machine's
-// row — shown inline under the row (no popup, no page navigation) so a
-// supervisor can just scroll down and see everything: what happened,
-// reported time, severity, status, type, production impact, machine state,
-// attended-by / assigned technician / trainee / supervisor, and the full
-// status history across every ticket, merged and sorted chronologically.
+// row — shown inline under the row (no popup, no page navigation, no
+// per-ticket repeated boxes) so a supervisor can just scroll down and see
+// everything as a single form: earliest report time first, what happened /
+// attempted fixes / production impact / attended-by / assigned technicians
+// merged across every ticket, then the full status history in chronological
+// order (oldest first) ending at the machine's current status.
 function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsProps) {
-  const historyEntries = group.tickets
+  const tickets = sortTicketsByReportedAt(group.tickets);
+  const firstReported = tickets[0]?.reportedAt;
+
+  const attendees = Array.from(
+    new Map(
+      tickets
+        .filter((t) => t.attendedByName)
+        .map((t) => [t.attendedBy ?? t.attendedByName, { name: t.attendedByName!, uid: t.attendedBy ?? undefined, at: t.attendedAt }]),
+    ).values(),
+  );
+  const technicians = Array.from(
+    new Map(
+      tickets.flatMap((t) =>
+        (t.assignedTechnicianNames ?? []).map((name, i) => {
+          const uid = t.assignedTechnicianIds?.[i];
+          return [uid ?? name, { name, uid }] as const;
+        }),
+      ),
+    ).values(),
+  );
+
+  const historyEntries = tickets
     .flatMap((t) =>
       (t.statusHistory ?? []).map((h: any) => ({ ticketNumber: t.ticketNumber, ...h })),
     )
     .sort((a, b) => {
       const at = a.changedAt?.toDate ? a.changedAt.toDate().getTime() : new Date(a.changedAt ?? 0).getTime();
       const bt = b.changedAt?.toDate ? b.changedAt.toDate().getTime() : new Date(b.changedAt ?? 0).getTime();
-      return bt - at;
+      return at - bt;
     });
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-6">
-      <div className="divide-y divide-slate-100">
-        {group.tickets.map((t) => (
-          <div key={t.id} className="py-4 first:pt-0 last:pb-0 space-y-3">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link to={`/app/breakdowns/${t.id}`} className="font-semibold text-blue-600 hover:underline text-sm">
-                {t.ticketNumber}
-              </Link>
-              {t.severity ? (
-                <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[t.severity]}`}>
-                  {t.severity}
-                </span>
-              ) : (
-                <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending assessment</span>
-              )}
-              <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[t.status]}`}>
-                {STATUS_LABEL[t.status]}
-              </span>
-              {t.type && <span className="text-xs text-slate-500 capitalize">{t.type}</span>}
-              <span
-                className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  t.machineStillRunning ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200'
-                }`}
-              >
-                {t.machineStillRunning ? 'Machine still running (degraded)' : 'Machine stopped'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Reported</p>
-                <p className="text-slate-800">
-                  {t.source?.replace(/_/g, ' ') || 'Web'}
-                  {t.reportedAt?.toDate && <span className="text-slate-400"> · {t.reportedAt.toDate().toLocaleString()}</span>}
-                </p>
-              </div>
-              {t.attendedByName && (
-                <div>
-                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Attended By</p>
-                  <p className="text-slate-800">
-                    {nameWithRole(t.attendedByName, t.attendedBy ?? undefined, actorRoles)}
-                    {t.attendedAt?.toDate && <span className="text-slate-400 text-xs"> · {t.attendedAt.toDate().toLocaleString()}</span>}
-                  </p>
-                </div>
-              )}
-              <div className="sm:col-span-2">
-                <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">What Happened</p>
-                <p className="text-slate-800">{t.description || ''}</p>
-              </div>
-              {t.productionImpact && (
-                <div className="sm:col-span-2">
-                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Production Impact</p>
-                  <p className="text-slate-800">{t.productionImpact}</p>
-                </div>
-              )}
-              {t.attemptedFixes && (
-                <div className="sm:col-span-2">
-                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Attempted Fixes</p>
-                  <p className="text-slate-800">{t.attemptedFixes}</p>
-                </div>
-              )}
-              {(t.assignedTechnicianNames ?? []).length > 0 && (
-                <div className="sm:col-span-2">
-                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Assigned Technicians</p>
-                  <p className="text-slate-800">
-                    {t.assignedTechnicianNames
-                      .map((name, i) => nameWithRole(name, t.assignedTechnicianIds?.[i], actorRoles))
-                      .join(', ')}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+    <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-5">
+      <div className="flex items-center gap-2 flex-wrap">
+        {tickets.map((t) => (
+          <Link key={t.id} to={`/app/breakdowns/${t.id}`} className="font-semibold text-blue-600 hover:underline text-sm">
+            {t.ticketNumber}
+          </Link>
         ))}
+        <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[tickets[tickets.length - 1].status]}`}>
+          {STATUS_LABEL[tickets[tickets.length - 1].status]}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Reported</p>
+          <p className="text-slate-800">
+            {tickets[0]?.source?.replace(/_/g, ' ') || 'Web'}
+            {firstReported?.toDate && <span className="text-slate-400"> · {firstReported.toDate().toLocaleString()}</span>}
+          </p>
+        </div>
+        <div>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attended By</p>
+          {attendees.length === 0 ? (
+            <p className="text-slate-400 italic">—</p>
+          ) : (
+            <p className="text-slate-800">
+              {attendees
+                .map((a) => `${nameWithRole(a.name, a.uid, actorRoles)}${a.at?.toDate ? ` (${a.at.toDate().toLocaleString()})` : ''}`)
+                .join(', ')}
+            </p>
+          )}
+        </div>
+
+        <div className="sm:col-span-2">
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened</p>
+          <MergedField tickets={tickets} get={(t) => t.description} />
+        </div>
+
+        <div className="sm:col-span-2">
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Production Impact</p>
+          <MergedField tickets={tickets} get={(t) => t.productionImpact} />
+        </div>
+
+        <div className="sm:col-span-2">
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attempted Fixes</p>
+          <MergedField tickets={tickets} get={(t) => t.attemptedFixes} />
+        </div>
+
+        <div className="sm:col-span-2">
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Assigned Technicians</p>
+          {technicians.length === 0 ? (
+            <p className="text-slate-400 italic">—</p>
+          ) : (
+            <p className="text-slate-800">
+              {technicians.map((t) => nameWithRole(t.name, t.uid, actorRoles)).join(', ')}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="pt-2 border-t border-slate-100">
@@ -766,7 +816,7 @@ function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsP
                   {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
                 </span>
                 <div>
-                  <span className="text-slate-400 text-xs font-medium mr-1">{h.ticketNumber}</span>
+                  {tickets.length > 1 && <span className="text-slate-400 text-xs font-medium mr-1">{h.ticketNumber}</span>}
                   <span className="text-slate-700">
                     {nameWithRole(h.changedByName ?? '', h.changedBy, actorRoles)}
                   </span>
