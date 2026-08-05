@@ -1,13 +1,16 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
+import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { MachineStatusBadge, MachineCriticalityBadge, MachineHealthScore } from '../../components/machines';
 import { formatDate } from '../../lib/dateUtils';
 import { exportMachineDetailsPdf, formatMachineTypeLabel } from '../../lib/machineExport';
 import { MachineHistoryTimeline } from '../../components/workorders/MachineHistoryTimeline';
 import { BreakdownHistoryList } from '../../components/machines/BreakdownHistoryList';
 import { DowntimeCostFields } from '../../components/machines/DowntimeCostFields';
+import type { WOType } from '../../types/workOrder';
 
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
@@ -406,11 +409,98 @@ function MaintenanceTab({ machine }: any) {
   );
 }
 
-function AnalyticsTab({ machine: _machine }: any) {
+const COMPLETED_STATUSES = new Set(['COMPLETED', 'SIGNED_OFF', 'CLOSED']);
+
+const WO_TYPE_LABELS: Record<WOType, string> = {
+  BREAKDOWN: 'Breakdown',
+  CORRECTIVE: 'Corrective',
+  PREVENTIVE: 'Preventive',
+  INSTALLATION: 'Installation',
+  MODIFICATION: 'Modification',
+  INSPECTION: 'Inspection',
+  CONTRACTOR: 'Contractor',
+  OTHER: 'Other',
+};
+
+function AnalyticsTab({ machine }: any) {
+  // All-time — no date range filter, matching "all time total" from the request.
+  const { workOrders, loading } = useWorkOrders({ machineId: machine.id });
+
+  const byType = useMemo(() => {
+    const counts: Record<string, { type: string; total: number; completed: number }> = {};
+    for (const wo of workOrders) {
+      const key = wo.woType ?? 'OTHER';
+      if (!counts[key]) counts[key] = { type: WO_TYPE_LABELS[key as WOType] ?? key, total: 0, completed: 0 };
+      counts[key].total += 1;
+      if (COMPLETED_STATUSES.has(wo.status)) counts[key].completed += 1;
+    }
+    return Object.values(counts).sort((a, b) => b.total - a.total);
+  }, [workOrders]);
+
+  const totalWOs = workOrders.length;
+  const totalCompleted = workOrders.filter((wo) => COMPLETED_STATUSES.has(wo.status)).length;
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <p className="text-gray-500 text-sm">Loading analytics…</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="font-semibold text-gray-900 mb-4">Analytics</h3>
-      <p className="text-gray-600 text-sm">Coming soon - Machine analytics and charts</p>
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 className="font-semibold text-gray-900 mb-1">All-Time Work Orders</h3>
+        <p className="text-gray-500 text-sm mb-4">
+          {totalWOs} total · {totalCompleted} completed
+        </p>
+
+        {totalWOs === 0 ? (
+          <p className="text-gray-600 text-sm">No work orders recorded for this machine yet.</p>
+        ) : (
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={byType} margin={{ left: 0, right: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                <XAxis dataKey="type" tick={{ fontSize: 12, fill: '#6B7280' }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
+                <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="total" name="Total" fill="#1A56DB" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="completed" name="Completed" fill="#10B981" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+
+      {byType.length > 0 && (
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">WO Type</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700">Total</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700">Completed</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700">Completion Rate</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {byType.map((row) => (
+                <tr key={row.type}>
+                  <td className="px-4 py-3 text-gray-900 font-medium">{row.type}</td>
+                  <td className="px-4 py-3 text-right text-gray-700">{row.total}</td>
+                  <td className="px-4 py-3 text-right text-green-700 font-medium">{row.completed}</td>
+                  <td className="px-4 py-3 text-right text-gray-700">
+                    {row.total > 0 ? Math.round((row.completed / row.total) * 100) : 0}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }
