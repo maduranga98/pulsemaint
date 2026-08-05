@@ -338,11 +338,13 @@ exports.sendPoEmails = onDocumentCreated(
             ${deliveryNotesHtml}
             <p style="color:#555;font-size:14px;">We appreciate your continued partnership.</p>
           `;
+          const companyMetaReceived = await companyMetaFor(companyId);
           await sendEmail({
             to: supplierEmail,
             subject: `Delivery received — PO ${poNumber}`,
             html: brandedEmail(thankYouHtml, companyName),
             fromName: companyName,
+            replyTo: companyMetaReceived.email || undefined,
           });
 
           const problems = Array.isArray(issueItems) ? issueItems : [];
@@ -358,6 +360,7 @@ exports.sendPoEmails = onDocumentCreated(
               subject: `Issue with delivery — PO ${poNumber}`,
               html: brandedEmail(issueHtml, companyName),
               fromName: companyName,
+              replyTo: companyMetaReceived.email || undefined,
             });
           }
         }
@@ -418,6 +421,7 @@ exports.sendPoEmails = onDocumentCreated(
           subject: `Purchase Order ${poNumber}`,
           html: plainEmailShell(bodyHtml, companyMeta.name),
           fromName: companyMeta.name,
+          replyTo: companyMeta.email || undefined,
         });
         if (sent && poId) {
           await db.collection("purchaseOrders").doc(poId).update({
@@ -443,6 +447,7 @@ exports.sendPoEmails = onDocumentCreated(
           subject: `Purchase Order ${poNumber} — suggested pricing per invoice`,
           html: plainEmailShell(bodyHtml, companyMeta.name),
           fromName: companyMeta.name,
+          replyTo: companyMeta.email || undefined,
         });
       }
 
@@ -472,6 +477,7 @@ exports.sendPoEmails = onDocumentCreated(
           subject: `Purchase Order ${poNumber} — cancelled`,
           html: plainEmailShell(bodyHtml, companyMeta.name),
           fromName: companyMeta.name,
+          replyTo: companyMeta.email || undefined,
         });
       }
     },

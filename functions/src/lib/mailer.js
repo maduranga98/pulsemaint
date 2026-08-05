@@ -65,14 +65,18 @@ function brandedEmail(bodyHtml, companyName) {
  * Send one email; failures are logged, not thrown, so one bad address
  * never blocks the rest of a batch.
  * @param {{to: string, subject: string, html: string, text?: string,
- *   fromName?: string,
+ *   fromName?: string, replyTo?: string,
  *   attachments?: Array<{filename: string, content: Buffer|string, contentType?: string}>}} options
  * @return {Promise<boolean>} true when sent
  */
-async function sendEmail({to, subject, html, text, attachments, fromName}) {
+async function sendEmail({to, subject, html, text, attachments, fromName, replyTo}) {
   try {
     await transporter.sendMail({
       from: `"${fromName || "FirmiCore"}" <hello@feedsolve.com>`,
+      // Every tenant shares one sending mailbox, so a reply from the supplier
+      // must be routed to the company's own registered email (set on their
+      // Company Profile) rather than disappearing into hello@feedsolve.com.
+      ...(replyTo ? {replyTo} : {}),
       to,
       subject,
       html,
