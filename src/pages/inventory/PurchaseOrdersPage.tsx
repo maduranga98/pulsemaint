@@ -5,7 +5,9 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { usePurchaseOrders } from '@/hooks/inventory/usePurchaseOrders';
+import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
 import { PurchaseOrderList } from '@/components/inventory/po/PurchaseOrderList';
+import { LowStockWidget } from '@/components/inventory/dashboard/LowStockWidget';
 import { logAuditEvent } from '@/utils/reports/auditLogger';
 
 // Kept in sync with PurchaseOrderDetail's canApprove — approval is not
@@ -15,6 +17,7 @@ const CAN_APPROVE_ROLES = ['plant_manager', 'admin', 'supervisor', 'maintenance_
 export function PurchaseOrdersPage() {
   const navigate = useNavigate();
   const { orders, loading, error } = usePurchaseOrders();
+  const { parts: lowStockParts } = useInventoryParts({ stockStatus: 'low_stock', pageSize: 10 });
   const userProfile = useAuthStore((s) => s.userProfile);
   const { error: toastError, success: toastSuccess } = useToast();
   const canApprove = !!userProfile && CAN_APPROVE_ROLES.includes(userProfile.role);
@@ -144,6 +147,10 @@ export function PurchaseOrdersPage() {
 
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">{error}</div>
+      )}
+
+      {lowStockParts.length > 0 && (
+        <LowStockWidget parts={lowStockParts.filter((p) => p.currentStock > 0)} />
       )}
 
       {loading ? (
