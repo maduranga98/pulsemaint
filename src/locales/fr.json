@@ -105,6 +105,44 @@
         "safety": "Sécurité",
         "general": "Général"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "Catalogue des pièces",
+        "summary": "{{total}} pièces · {{active}} actives · {{low}} en stock faible",
+        "importParts": "Importer des pièces (Excel/CSV)",
+        "addPart": "Ajouter une pièce",
+        "deleteSelected": "Supprimer la sélection",
+        "deleting": "Suppression…",
+        "clear": "Effacer",
+        "tableView": "Vue tableau",
+        "gridView": "Vue grille",
+        "noPartsFound": "Aucune pièce trouvée",
+        "noPartsHint": "Essayez d'ajuster vos filtres ou ajoutez une nouvelle pièce.",
+        "loadMore": "Charger plus",
+        "selectedCount": "{{count}} sélectionnées"
+      },
+      "requests": {
+        "title": "Demandes de pièces",
+        "subtitleManage": "Examinez et gérez les demandes de pièces des techniciens.",
+        "subtitleOwn": "Suivez les pièces que vous avez demandées et leur statut.",
+        "scanIssue": "Scanner et remettre",
+        "newRequest": "+ Nouvelle demande"
+      },
+      "po": {
+        "title": "Bons de commande",
+        "suppliers": "Fournisseurs",
+        "createPO": "Créer un bon de commande"
+      },
+      "filters": {
+        "searchPlaceholder": "Rechercher des pièces…",
+        "allCategories": "Toutes les catégories",
+        "allStatuses": "Tous les statuts",
+        "criticality": "Criticité",
+        "stockStatus": "État du stock",
+        "allSuppliers": "Tous les fournisseurs",
+        "clear": "Effacer"
+      }
     }
   }
 }

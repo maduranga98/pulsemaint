@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, FileSpreadsheet, LayoutList, Grid3X3, ChevronLeft, Trash2 } from 'lucide-react';
 import { writeBatch, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -13,6 +14,7 @@ import { PartCatalogCard } from '@/components/inventory/catalog/PartCatalogCard'
 import type { PartCategory, PartStatus, PartCriticality } from '@/types/inventory';
 
 export function PartCatalogPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { addToast } = useToast();
@@ -101,10 +103,10 @@ export function PartCatalogPage() {
             <ChevronLeft className="w-5 h-5" />
           </Link>
           <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Parts Catalog</h1>
+          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">{t('common.inventory.catalog.title')}</h1>
           {!loading && (
             <p className="text-gray-500 text-sm mt-0.5">
-              {totalCount} parts · {activeCount} active · {lowStockCount} low stock
+              {t('common.inventory.catalog.summary', { total: totalCount, active: activeCount, low: lowStockCount })}
             </p>
           )}
           </div>
@@ -116,14 +118,14 @@ export function PartCatalogPage() {
               className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-xl transition-colors"
             >
               <FileSpreadsheet className="w-4 h-4" />
-              Import Parts (Excel/CSV)
+              {t('common.inventory.catalog.importParts')}
             </Link>
             <Link
               to="/app/inventory/catalog/new"
               className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Add Part
+              {t('common.inventory.catalog.addPart')}
             </Link>
           </div>
         )}
@@ -140,20 +142,20 @@ export function PartCatalogPage() {
       <div className="flex items-center justify-between gap-2">
         {canDelete && selectedIds.length > 0 ? (
           <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-1.5">
-            <span className="text-xs font-medium text-red-800">{selectedIds.length} selected</span>
+            <span className="text-xs font-medium text-red-800">{t('common.inventory.catalog.selectedCount', { count: selectedIds.length })}</span>
             <button
               onClick={handleDeleteSelected}
               disabled={deleting}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-700 hover:text-red-900 disabled:opacity-50"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              {deleting ? 'Deleting…' : 'Delete selected'}
+              {deleting ? t('common.inventory.catalog.deleting') : t('common.inventory.catalog.deleteSelected')}
             </button>
             <button
               onClick={() => setSelectedIds([])}
               className="text-xs text-gray-500 hover:text-gray-700"
             >
-              Clear
+              {t('common.inventory.catalog.clear')}
             </button>
           </div>
         ) : (
@@ -163,14 +165,14 @@ export function PartCatalogPage() {
           <button
             onClick={() => setViewMode('table')}
             className={`p-2 rounded-lg transition-colors ${viewMode === 'table' ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:bg-gray-100'}`}
-            aria-label="Table view"
+            aria-label={t('common.inventory.catalog.tableView')}
           >
             <LayoutList className="w-4 h-4" />
           </button>
           <button
             onClick={() => setViewMode('grid')}
             className={`p-2 rounded-lg transition-colors ${viewMode === 'grid' ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:bg-gray-100'}`}
-            aria-label="Grid view"
+            aria-label={t('common.inventory.catalog.gridView')}
           >
             <Grid3X3 className="w-4 h-4" />
           </button>
@@ -238,8 +240,8 @@ export function PartCatalogPage() {
 
           {parts.length === 0 && !loading && (
             <div className="text-center py-16 text-gray-400">
-              <p className="text-lg font-medium">No parts found</p>
-              <p className="text-sm mt-1">Try adjusting your filters or add a new part.</p>
+              <p className="text-lg font-medium">{t('common.inventory.catalog.noPartsFound')}</p>
+              <p className="text-sm mt-1">{t('common.inventory.catalog.noPartsHint')}</p>
             </div>
           )}
 
@@ -249,7 +251,7 @@ export function PartCatalogPage() {
                 onClick={loadMore}
                 className="px-6 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl text-sm font-medium transition-colors"
               >
-                Load More
+                {t('common.inventory.catalog.loadMore')}
               </button>
             </div>
           )}

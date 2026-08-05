@@ -1,4 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus, Truck } from 'lucide-react';
 import { doc, serverTimestamp, updateDoc, addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -15,6 +16,7 @@ import { logAuditEvent } from '@/utils/reports/auditLogger';
 const CAN_APPROVE_ROLES = ['plant_manager', 'admin', 'supervisor', 'maintenance_supervisor'];
 
 export function PurchaseOrdersPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { orders, loading, error } = usePurchaseOrders();
   const { parts: lowStockParts } = useInventoryParts({ stockStatus: 'low_stock', pageSize: 10 });
@@ -126,21 +128,21 @@ export function PurchaseOrdersPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Purchase Orders</h1>
+        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">{t('common.inventory.po.title')}</h1>
         <div className="flex items-center gap-3">
           <Link
             to="/app/inventory/suppliers"
             className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-xl transition-colors"
           >
             <Truck className="w-4 h-4" />
-            Suppliers
+            {t('common.inventory.po.suppliers')}
           </Link>
           <Link
             to="/app/inventory/purchase-orders/new"
             className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Create PO
+            {t('common.inventory.po.createPO')}
           </Link>
         </div>
       </div>

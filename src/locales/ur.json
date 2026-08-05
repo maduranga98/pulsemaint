@@ -105,6 +105,44 @@
         "safety": "حفاظت",
         "general": "عام"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "پارٹس کیٹلاگ",
+        "summary": "{{total}} پارٹس · {{active}} فعال · {{low}} کم اسٹاک",
+        "importParts": "پارٹس درآمد کریں (Excel/CSV)",
+        "addPart": "پارٹ شامل کریں",
+        "deleteSelected": "منتخب حذف کریں",
+        "deleting": "حذف ہو رہا ہے…",
+        "clear": "صاف کریں",
+        "tableView": "ٹیبل ویو",
+        "gridView": "گرڈ ویو",
+        "noPartsFound": "کوئی پارٹس نہیں ملے",
+        "noPartsHint": "اپنے فلٹرز ایڈجسٹ کریں یا نیا پارٹ شامل کریں۔",
+        "loadMore": "مزید لوڈ کریں",
+        "selectedCount": "{{count}} منتخب"
+      },
+      "requests": {
+        "title": "پارٹس درخواستیں",
+        "subtitleManage": "تکنیکی ماہرین کی پارٹس درخواستوں کا جائزہ لیں اور ان کا نظم کریں۔",
+        "subtitleOwn": "اپنی درخواست کردہ پارٹس اور ان کی حالت ٹریک کریں۔",
+        "scanIssue": "اسکین اور جاری کریں",
+        "newRequest": "+ نئی درخواست"
+      },
+      "po": {
+        "title": "خریداری آرڈرز",
+        "suppliers": "سپلائرز",
+        "createPO": "PO بنائیں"
+      },
+      "filters": {
+        "searchPlaceholder": "پارٹس تلاش کریں…",
+        "allCategories": "تمام زمرے",
+        "allStatuses": "تمام حالتیں",
+        "criticality": "اہمیت",
+        "stockStatus": "اسٹاک کی حالت",
+        "allSuppliers": "تمام سپلائرز",
+        "clear": "صاف کریں"
+      }
     }
   }
 }
