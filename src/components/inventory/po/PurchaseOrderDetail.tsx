@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PackageCheck, XCircle, CheckCircle2, FileText, Send, Upload, Paperclip } from 'lucide-react';
+import { XCircle, CheckCircle2, FileText, Send, Upload, Paperclip } from 'lucide-react';
 import { updateDoc, doc, serverTimestamp, addDoc, collection, getDocs, query, where, arrayUnion, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
@@ -722,15 +722,6 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             </button>
           )}
 
-          {(order.status === 'sent' || order.status === 'invoice_received' || order.status === 'acknowledged' || order.status === 'partially_received') && (
-            <button
-              onClick={() => navigate(`/app/inventory/receive?poId=${order.id}`)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors text-sm"
-            >
-              <PackageCheck className="w-4 h-4" />
-              Mark as Received
-            </button>
-          )}
           {order.status !== 'received' && order.status !== 'cancelled' && (
             <button
               onClick={() => setCancelModal(true)}
