@@ -148,6 +148,7 @@ import BillingPage from '../pages/billing/BillingPage';
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
 import PublicBreakdownReportPage from '../pages/breakdowns/PublicBreakdownReportPage';
 import BreakdownsPage from '../pages/breakdowns/BreakdownsPage';
+import BreakdownGroupPage from '../pages/breakdowns/BreakdownGroupPage';
 import ViewBreakdownPage from '../pages/breakdowns/ViewBreakdownPage';
 import EditBreakdownPage from '../pages/breakdowns/EditBreakdownPage';
 import AttendBreakdownsPage from '../pages/breakdowns/AttendBreakdownsPage';
@@ -338,6 +339,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee']}>
               <ReportBreakdownPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="breakdowns/group"
+          element={
+            <ProtectedRoute requiredRoles={['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee']}>
+              <BreakdownGroupPage />
             </ProtectedRoute>
           }
         />
