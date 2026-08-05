@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ScanLine } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
 import { RequestsQueue } from '@/components/inventory/requests/RequestsQueue';
 import { CreatePartsRequestModal } from '@/components/inventory/requests/CreatePartsRequestModal';
+import { LowStockWidget } from '@/components/inventory/dashboard/LowStockWidget';
 
 const MANAGE_ROLES = ['store_keeper', 'supervisor', 'plant_manager', 'admin'];
 
@@ -11,6 +13,9 @@ export function PartsRequestsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const role = useAuthStore((s) => s.userProfile?.role);
   const canManage = MANAGE_ROLES.includes(role ?? '');
+  // Only the roles that can raise a PO from a low-stock alert need to see it
+  // here — technicians requesting parts don't act on stock levels.
+  const { parts: lowStockParts } = useInventoryParts({ stockStatus: 'low_stock', pageSize: 10 });
 
   return (
     <div className="space-y-5">
@@ -41,6 +46,9 @@ export function PartsRequestsPage() {
           </button>
         )}
       </div>
+      {canManage && lowStockParts.length > 0 && (
+        <LowStockWidget parts={lowStockParts.filter((p) => p.currentStock > 0)} />
+      )}
       <RequestsQueue />
     </div>
   );

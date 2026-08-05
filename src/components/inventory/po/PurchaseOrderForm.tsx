@@ -27,6 +27,7 @@ import { generatePONumber } from '@/lib/inventory/poNumberGenerator';
 import { useToast } from '@/hooks/useToast';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { PurchaseOrderItemRow, type POItemRowData } from './PurchaseOrderItemRow';
+import { SupplierLowStockSuggestions } from './SupplierLowStockSuggestions';
 
 interface PurchaseOrderFormProps {
   initialPO?: PurchaseOrder;
@@ -80,6 +81,10 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   const { suppliers } = useSuppliers();
   const [selectedSupplierId, setSelectedSupplierId] = useState('');
+  // Tracks whichever supplier is active on the form — picked from the
+  // dropdown, or resolved from the part a low-stock "Order Now" link
+  // prefilled — so the low-stock suggestion panel below knows who to query.
+  const [activeSupplierId, setActiveSupplierId] = useState('');
 
   const {
     register,
@@ -139,6 +144,9 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         });
         if (p.supplierName) {
           setValue('supplierName', p.supplierName as string, { shouldValidate: true });
+        }
+        if (p.supplierId) {
+          setActiveSupplierId(p.supplierId as string);
         }
       } catch (err) {
         console.error('Failed to prefill PO from partId', err);
@@ -333,6 +341,13 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
+  // Bundles the checked suggestions from SupplierLowStockSuggestions onto
+  // this PO — drops the still-empty placeholder row first so a fresh PO
+  // doesn't keep a blank line above the added parts.
+  function addSuggestedItems(newItems: POItemRowData[]) {
+    setItems((prev) => [...prev.filter((it) => it.partId), ...newItems]);
+  }
+
   return (
     <form
       onSubmit={handleSubmit((v) => save(v as PurchaseOrderFormValues, 'draft'))}
@@ -350,6 +365,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
               onChange={(e) => {
                 const supplierId = e.target.value;
                 setSelectedSupplierId(supplierId);
+                setActiveSupplierId(supplierId);
                 const supplier = suppliers.find((s) => s.id === supplierId);
                 if (supplier) {
                   setValue('supplierName', supplier.name, { shouldValidate: true });
@@ -467,6 +483,14 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           />
         </div>
       </div>
+
+      {/* Same-supplier low-stock suggestions — bundle other parts from this
+          supplier that are also low stock into the same shipment. */}
+      <SupplierLowStockSuggestions
+        supplierId={activeSupplierId}
+        excludePartIds={items.map((i) => i.partId)}
+        onAdd={addSuggestedItems}
+      />
 
       {/* Items */}
       <div className="space-y-3">
