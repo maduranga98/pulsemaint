@@ -1,7 +1,12 @@
 const nodemailer = require("nodemailer");
 const logger = require("firebase-functions/logger");
+const {getFirestore} = require("firebase-admin/firestore");
 
-// Shared SMTP transport (same account used by sendInvitationEmail).
+const db = getFirestore("default");
+
+// Shared SMTP transport (same account used by sendInvitationEmail) — the
+// platform default used for any company that hasn't configured their own
+// mailbox via Settings → Email Sending.
 const transporter = nodemailer.createTransport({
   host: "mail.spacemail.com",
   port: 465,
@@ -11,6 +16,42 @@ const transporter = nodemailer.createTransport({
     pass: "2_qY5u9z",
   },
 });
+
+const transporterCache = new Map();
+
+/**
+ * Looks up a company's own SMTP settings (set via setCompanySmtpSettings)
+ * and returns a ready-to-use transporter + from-address for it, or null if
+ * the company hasn't configured one — callers should fall back to the
+ * shared platform transporter/from-address in that case.
+ * @param {string} companyId
+ * @return {Promise<{transporter: import('nodemailer').Transporter, fromAddress: string} | null>}
+ */
+async function getCompanyTransport(companyId) {
+  if (!companyId) return null;
+  try {
+    const snap = await db.doc(`companies/${companyId}/private/smtp`).get();
+    if (!snap.exists) return null;
+    const cfg = snap.data();
+    if (!cfg.host || !cfg.port || !cfg.user || !cfg.pass) return null;
+
+    const cacheKey = `${companyId}:${cfg.host}:${cfg.port}:${cfg.user}`;
+    let t = transporterCache.get(cacheKey);
+    if (!t) {
+      t = nodemailer.createTransport({
+        host: cfg.host,
+        port: cfg.port,
+        secure: !!cfg.secure,
+        auth: {user: cfg.user, pass: cfg.pass},
+      });
+      transporterCache.set(cacheKey, t);
+    }
+    return {transporter: t, fromAddress: cfg.user};
+  } catch (err) {
+    logger.warn(`Could not load SMTP settings for company ${companyId}, falling back to platform mailbox`, err);
+    return null;
+  }
+}
 
 /**
  * Wrap body HTML in the branded email shell.
@@ -65,18 +106,25 @@ function brandedEmail(bodyHtml, companyName) {
  * Send one email; failures are logged, not thrown, so one bad address
  * never blocks the rest of a batch.
  * @param {{to: string, subject: string, html: string, text?: string,
- *   fromName?: string, replyTo?: string,
+ *   fromName?: string, replyTo?: string, companyId?: string,
  *   attachments?: Array<{filename: string, content: Buffer|string, contentType?: string}>}} options
+ *   `companyId`, when given, sends through that company's own configured
+ *   SMTP mailbox (Settings → Email Sending) instead of the shared platform
+ *   one — falling back to the platform mailbox if none is configured.
  * @return {Promise<boolean>} true when sent
  */
-async function sendEmail({to, subject, html, text, attachments, fromName, replyTo}) {
+async function sendEmail({to, subject, html, text, attachments, fromName, replyTo, companyId}) {
+  const custom = await getCompanyTransport(companyId);
+  const activeTransporter = custom ? custom.transporter : transporter;
+  const fromAddress = custom ? custom.fromAddress : "hello@feedsolve.com";
   try {
-    await transporter.sendMail({
-      from: `"${fromName || "FirmiCore"}" <hello@feedsolve.com>`,
-      // Every tenant shares one sending mailbox, so a reply from the supplier
-      // must be routed to the company's own registered email (set on their
-      // Company Profile) rather than disappearing into hello@feedsolve.com.
-      ...(replyTo ? {replyTo} : {}),
+    await activeTransporter.sendMail({
+      from: `"${fromName || "FirmiCore"}" <${fromAddress}>`,
+      // Only needed on the shared mailbox, where a reply must be routed
+      // back to the company's own registered email rather than
+      // disappearing into hello@feedsolve.com. Sending through the
+      // company's own mailbox already makes replies land there naturally.
+      ...(!custom && replyTo ? {replyTo} : {}),
       to,
       subject,
       html,
@@ -90,4 +138,4 @@ async function sendEmail({to, subject, html, text, attachments, fromName, replyT
   }
 }
 
-module.exports = {transporter, brandedEmail, sendEmail};
+module.exports = {transporter, brandedEmail, sendEmail, getCompanyTransport};

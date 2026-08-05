@@ -189,6 +189,18 @@ const { sendInvitationEmail } = require("./src/invitations/sendInvitationEmail")
 exports.sendInvitationEmail = sendInvitationEmail;
 
 // ---------------------------------------------------------------------------
+// Company Module — Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { setCompanySmtpSettings } = require("./src/company/setCompanySmtpSettings");
+const { getCompanySmtpStatus } = require("./src/company/getCompanySmtpStatus");
+const { removeCompanySmtpSettings } = require("./src/company/removeCompanySmtpSettings");
+
+exports.setCompanySmtpSettings = setCompanySmtpSettings;
+exports.getCompanySmtpStatus = getCompanySmtpStatus;
+exports.removeCompanySmtpSettings = removeCompanySmtpSettings;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 

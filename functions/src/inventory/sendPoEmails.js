@@ -340,6 +340,7 @@ exports.sendPoEmails = onDocumentCreated(
           `;
           const companyMetaReceived = await companyMetaFor(companyId);
           await sendEmail({
+            companyId,
             to: supplierEmail,
             subject: `Delivery received — PO ${poNumber}`,
             html: brandedEmail(thankYouHtml, companyName),
@@ -356,6 +357,7 @@ exports.sendPoEmails = onDocumentCreated(
               ${receivedItemsTableHtml(problems, {showCondition: true})}
             `;
             await sendEmail({
+              companyId,
               to: supplierEmail,
               subject: `Issue with delivery — PO ${poNumber}`,
               html: brandedEmail(issueHtml, companyName),
@@ -394,6 +396,7 @@ exports.sendPoEmails = onDocumentCreated(
         await Promise.all(
             internalRecipients.map((to) =>
               sendEmail({
+                companyId,
                 to,
                 subject: `PO ${poNumber} ${label}`,
                 html: brandedEmail(bodyHtml, companyName),
@@ -417,6 +420,7 @@ exports.sendPoEmails = onDocumentCreated(
         `;
         const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml});
         const sent = await sendEmail({
+          companyId,
           to: supplierEmail,
           subject: `Purchase Order ${poNumber}`,
           html: plainEmailShell(bodyHtml, companyMeta.name),
@@ -443,6 +447,7 @@ exports.sendPoEmails = onDocumentCreated(
         `;
         const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: true, introHtml});
         await sendEmail({
+          companyId,
           to: supplierEmail,
           subject: `Purchase Order ${poNumber} — suggested pricing per invoice`,
           html: plainEmailShell(bodyHtml, companyMeta.name),
@@ -473,6 +478,7 @@ exports.sendPoEmails = onDocumentCreated(
         `;
         const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml});
         await sendEmail({
+          companyId,
           to: supplierEmail,
           subject: `Purchase Order ${poNumber} — cancelled`,
           html: plainEmailShell(bodyHtml, companyMeta.name),
