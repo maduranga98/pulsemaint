@@ -105,6 +105,44 @@
         "safety": "सुरक्षा",
         "general": "सामान्य"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "पार्ट्स कैटलॉग",
+        "summary": "{{total}} पार्ट्स · {{active}} सक्रिय · {{low}} कम स्टॉक",
+        "importParts": "पार्ट्स आयात करें (Excel/CSV)",
+        "addPart": "पार्ट जोड़ें",
+        "deleteSelected": "चयनित हटाएं",
+        "deleting": "हटाया जा रहा है…",
+        "clear": "साफ़ करें",
+        "tableView": "तालिका दृश्य",
+        "gridView": "ग्रिड दृश्य",
+        "noPartsFound": "कोई पार्ट्स नहीं मिले",
+        "noPartsHint": "अपने फ़िल्टर समायोजित करें या नया पार्ट जोड़ें।",
+        "loadMore": "और लोड करें",
+        "selectedCount": "{{count}} चयनित"
+      },
+      "requests": {
+        "title": "पार्ट्स अनुरोध",
+        "subtitleManage": "तकनीशियनों के पार्ट्स अनुरोधों की समीक्षा और प्रबंधन करें।",
+        "subtitleOwn": "आपके अनुरोधित पार्ट्स और उनकी स्थिति ट्रैक करें।",
+        "scanIssue": "स्कैन और जारी करें",
+        "newRequest": "+ नया अनुरोध"
+      },
+      "po": {
+        "title": "क्रय आदेश",
+        "suppliers": "आपूर्तिकर्ता",
+        "createPO": "PO बनाएं"
+      },
+      "filters": {
+        "searchPlaceholder": "पार्ट्स खोजें…",
+        "allCategories": "सभी श्रेणियाँ",
+        "allStatuses": "सभी स्थितियाँ",
+        "criticality": "गंभीरता",
+        "stockStatus": "स्टॉक स्थिति",
+        "allSuppliers": "सभी आपूर्तिकर्ता",
+        "clear": "साफ़ करें"
+      }
     }
   }
 }

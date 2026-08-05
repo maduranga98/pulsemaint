@@ -210,6 +210,44 @@
         "safety": "Safety",
         "general": "General"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "Parts Catalog",
+        "summary": "{{total}} parts · {{active}} active · {{low}} low stock",
+        "importParts": "Import Parts (Excel/CSV)",
+        "addPart": "Add Part",
+        "deleteSelected": "Delete selected",
+        "deleting": "Deleting…",
+        "clear": "Clear",
+        "tableView": "Table view",
+        "gridView": "Grid view",
+        "noPartsFound": "No parts found",
+        "noPartsHint": "Try adjusting your filters or add a new part.",
+        "loadMore": "Load More",
+        "selectedCount": "{{count}} selected"
+      },
+      "requests": {
+        "title": "Parts Requests",
+        "subtitleManage": "Review and manage parts requests from technicians.",
+        "subtitleOwn": "Track the parts you've requested and their status.",
+        "scanIssue": "Scan & Issue",
+        "newRequest": "+ New Request"
+      },
+      "po": {
+        "title": "Purchase Orders",
+        "suppliers": "Suppliers",
+        "createPO": "Create PO"
+      },
+      "filters": {
+        "searchPlaceholder": "Search parts…",
+        "allCategories": "All Categories",
+        "allStatuses": "All Statuses",
+        "criticality": "Criticality",
+        "stockStatus": "Stock Status",
+        "allSuppliers": "All Suppliers",
+        "clear": "Clear"
+      }
     }
   }
 }

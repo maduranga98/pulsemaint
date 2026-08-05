@@ -105,6 +105,44 @@
         "safety": "安全",
         "general": "一般"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "部品カタログ",
+        "summary": "部品 {{total}} 件 · 有効 {{active}} 件 · 低在庫 {{low}} 件",
+        "importParts": "部品をインポート (Excel/CSV)",
+        "addPart": "部品を追加",
+        "deleteSelected": "選択項目を削除",
+        "deleting": "削除中…",
+        "clear": "クリア",
+        "tableView": "テーブル表示",
+        "gridView": "グリッド表示",
+        "noPartsFound": "部品が見つかりません",
+        "noPartsHint": "フィルターを調整するか、新しい部品を追加してください。",
+        "loadMore": "さらに読み込む",
+        "selectedCount": "{{count}} 件選択中"
+      },
+      "requests": {
+        "title": "部品リクエスト",
+        "subtitleManage": "技術者からの部品リクエストを確認・管理します。",
+        "subtitleOwn": "リクエストした部品とその状況を確認します。",
+        "scanIssue": "スキャンして払い出し",
+        "newRequest": "+ 新規リクエスト"
+      },
+      "po": {
+        "title": "発注書",
+        "suppliers": "サプライヤー",
+        "createPO": "発注書を作成"
+      },
+      "filters": {
+        "searchPlaceholder": "部品を検索…",
+        "allCategories": "すべてのカテゴリー",
+        "allStatuses": "すべてのステータス",
+        "criticality": "重要度",
+        "stockStatus": "在庫状況",
+        "allSuppliers": "すべてのサプライヤー",
+        "clear": "クリア"
+      }
     }
   }
 }

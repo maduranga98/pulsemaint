@@ -154,6 +154,44 @@
         "safety": "নিরাপত্তা",
         "general": "সাধারণ"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "পার্টস ক্যাটালগ",
+        "summary": "{{total}}টি পার্টস · {{active}}টি সক্রিয় · {{low}}টি কম স্টক",
+        "importParts": "পার্টস আমদানি করুন (Excel/CSV)",
+        "addPart": "পার্ট যোগ করুন",
+        "deleteSelected": "নির্বাচিতগুলি মুছুন",
+        "deleting": "মুছছে…",
+        "clear": "পরিষ্কার করুন",
+        "tableView": "টেবিল ভিউ",
+        "gridView": "গ্রিড ভিউ",
+        "noPartsFound": "কোনো পার্টস পাওয়া যায়নি",
+        "noPartsHint": "আপনার ফিল্টার সামঞ্জস্য করুন বা নতুন পার্ট যোগ করুন।",
+        "loadMore": "আরও লোড করুন",
+        "selectedCount": "{{count}}টি নির্বাচিত"
+      },
+      "requests": {
+        "title": "পার্টস অনুরোধ",
+        "subtitleManage": "টেকনিশিয়ানদের পার্টস অনুরোধ পর্যালোচনা ও পরিচালনা করুন।",
+        "subtitleOwn": "আপনার অনুরোধ করা পার্টস এবং তাদের অবস্থা ট্র্যাক করুন।",
+        "scanIssue": "স্ক্যান ও ইস্যু",
+        "newRequest": "+ নতুন অনুরোধ"
+      },
+      "po": {
+        "title": "ক্রয় আদেশ",
+        "suppliers": "সরবরাহকারী",
+        "createPO": "PO তৈরি করুন"
+      },
+      "filters": {
+        "searchPlaceholder": "পার্টস খুঁজুন…",
+        "allCategories": "সব বিভাগ",
+        "allStatuses": "সব অবস্থা",
+        "criticality": "গুরুত্ব",
+        "stockStatus": "স্টক অবস্থা",
+        "allSuppliers": "সব সরবরাহকারী",
+        "clear": "পরিষ্কার করুন"
+      }
     }
   }
 }

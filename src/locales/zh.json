@@ -105,6 +105,44 @@
         "safety": "安全",
         "general": "通用"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "零件目录",
+        "summary": "共 {{total}} 个零件 · {{active}} 个启用 · {{low}} 个低库存",
+        "importParts": "导入零件 (Excel/CSV)",
+        "addPart": "添加零件",
+        "deleteSelected": "删除所选",
+        "deleting": "正在删除…",
+        "clear": "清除",
+        "tableView": "表格视图",
+        "gridView": "网格视图",
+        "noPartsFound": "未找到零件",
+        "noPartsHint": "请调整筛选条件或添加新零件。",
+        "loadMore": "加载更多",
+        "selectedCount": "已选 {{count}} 项"
+      },
+      "requests": {
+        "title": "零件申请",
+        "subtitleManage": "查看并管理技术人员的零件申请。",
+        "subtitleOwn": "跟踪您申请的零件及其状态。",
+        "scanIssue": "扫描并发放",
+        "newRequest": "+ 新申请"
+      },
+      "po": {
+        "title": "采购单",
+        "suppliers": "供应商",
+        "createPO": "创建采购单"
+      },
+      "filters": {
+        "searchPlaceholder": "搜索零件…",
+        "allCategories": "所有类别",
+        "allStatuses": "所有状态",
+        "criticality": "重要程度",
+        "stockStatus": "库存状态",
+        "allSuppliers": "所有供应商",
+        "clear": "清除"
+      }
     }
   }
 }

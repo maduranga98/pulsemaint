@@ -105,6 +105,44 @@
         "safety": "سلامة",
         "general": "عام"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "كتالوج القطع",
+        "summary": "{{total}} قطعة · {{active}} نشطة · {{low}} منخفضة المخزون",
+        "importParts": "استيراد القطع (Excel/CSV)",
+        "addPart": "إضافة قطعة",
+        "deleteSelected": "حذف المحدد",
+        "deleting": "جارٍ الحذف…",
+        "clear": "مسح",
+        "tableView": "عرض الجدول",
+        "gridView": "عرض الشبكة",
+        "noPartsFound": "لا توجد قطع",
+        "noPartsHint": "حاول تعديل عوامل التصفية أو إضافة قطعة جديدة.",
+        "loadMore": "تحميل المزيد",
+        "selectedCount": "{{count}} محدد"
+      },
+      "requests": {
+        "title": "طلبات القطع",
+        "subtitleManage": "مراجعة وإدارة طلبات القطع من الفنيين.",
+        "subtitleOwn": "تتبع القطع التي طلبتها وحالتها.",
+        "scanIssue": "مسح وصرف",
+        "newRequest": "+ طلب جديد"
+      },
+      "po": {
+        "title": "أوامر الشراء",
+        "suppliers": "الموردون",
+        "createPO": "إنشاء أمر شراء"
+      },
+      "filters": {
+        "searchPlaceholder": "ابحث عن القطع…",
+        "allCategories": "جميع الفئات",
+        "allStatuses": "جميع الحالات",
+        "criticality": "الأهمية",
+        "stockStatus": "حالة المخزون",
+        "allSuppliers": "جميع الموردين",
+        "clear": "مسح"
+      }
     }
   }
 }

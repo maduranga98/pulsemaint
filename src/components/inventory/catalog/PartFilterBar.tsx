@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, X, ChevronDown } from 'lucide-react';
 import type { PartCategory, PartStatus, PartCriticality } from '@/types/inventory';
 import { VALID_CATEGORIES, CATEGORY_LABELS } from '@/lib/inventory/inventoryTypes';
@@ -73,6 +74,7 @@ function Select<T extends string>({
 }
 
 export function PartFilterBar({ filters, onChange, supplierOptions }: PartFilterBarProps) {
+  const { t } = useTranslation();
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -114,42 +116,42 @@ export function PartFilterBar({ filters, onChange, supplierOptions }: PartFilter
           type="text"
           value={localSearch}
           onChange={(e) => handleSearchChange(e.target.value)}
-          placeholder="Search parts…"
+          placeholder={t('common.inventory.filters.searchPlaceholder')}
           className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <Select
         value={filters.category}
-        placeholder="All Categories"
+        placeholder={t('common.inventory.filters.allCategories')}
         options={CATEGORIES}
         onChange={(v) => update({ category: v })}
       />
 
       <Select
         value={filters.status}
-        placeholder="All Statuses"
+        placeholder={t('common.inventory.filters.allStatuses')}
         options={STATUSES}
         onChange={(v) => update({ status: v })}
       />
 
       <Select
         value={filters.criticality}
-        placeholder="Criticality"
+        placeholder={t('common.inventory.filters.criticality')}
         options={CRITICALITIES}
         onChange={(v) => update({ criticality: v })}
       />
 
       <Select
         value={filters.stockStatus}
-        placeholder="Stock Status"
+        placeholder={t('common.inventory.filters.stockStatus')}
         options={STOCK_STATUSES}
         onChange={(v) => update({ stockStatus: v })}
       />
 
       <Select
         value={filters.supplierId}
-        placeholder="All Suppliers"
+        placeholder={t('common.inventory.filters.allSuppliers')}
         options={supplierOptions}
         onChange={(v) => update({ supplierId: v })}
       />
@@ -160,7 +162,7 @@ export function PartFilterBar({ filters, onChange, supplierOptions }: PartFilter
           className="inline-flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 hover:border-gray-300 rounded-lg transition-colors"
         >
           <X className="w-3.5 h-3.5" />
-          Clear
+          {t('common.inventory.filters.clear')}
         </button>
       )}
     </div>

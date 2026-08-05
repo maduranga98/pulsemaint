@@ -105,6 +105,44 @@
         "safety": "Sicherheit",
         "general": "Allgemein"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "Teilekatalog",
+        "summary": "{{total}} Teile · {{active}} aktiv · {{low}} niedriger Bestand",
+        "importParts": "Teile importieren (Excel/CSV)",
+        "addPart": "Teil hinzufügen",
+        "deleteSelected": "Auswahl löschen",
+        "deleting": "Wird gelöscht…",
+        "clear": "Zurücksetzen",
+        "tableView": "Tabellenansicht",
+        "gridView": "Rasteransicht",
+        "noPartsFound": "Keine Teile gefunden",
+        "noPartsHint": "Passen Sie Ihre Filter an oder fügen Sie ein neues Teil hinzu.",
+        "loadMore": "Mehr laden",
+        "selectedCount": "{{count}} ausgewählt"
+      },
+      "requests": {
+        "title": "Teileanfragen",
+        "subtitleManage": "Teileanfragen von Technikern prüfen und verwalten.",
+        "subtitleOwn": "Verfolgen Sie die von Ihnen angeforderten Teile und deren Status.",
+        "scanIssue": "Scannen & Ausgeben",
+        "newRequest": "+ Neue Anfrage"
+      },
+      "po": {
+        "title": "Bestellungen",
+        "suppliers": "Lieferanten",
+        "createPO": "Bestellung erstellen"
+      },
+      "filters": {
+        "searchPlaceholder": "Teile suchen…",
+        "allCategories": "Alle Kategorien",
+        "allStatuses": "Alle Status",
+        "criticality": "Kritikalität",
+        "stockStatus": "Bestandsstatus",
+        "allSuppliers": "Alle Lieferanten",
+        "clear": "Zurücksetzen"
+      }
     }
   }
 }

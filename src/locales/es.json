@@ -105,6 +105,44 @@
         "safety": "Seguridad",
         "general": "General"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "Catálogo de piezas",
+        "summary": "{{total}} piezas · {{active}} activas · {{low}} con poco stock",
+        "importParts": "Importar piezas (Excel/CSV)",
+        "addPart": "Añadir pieza",
+        "deleteSelected": "Eliminar seleccionadas",
+        "deleting": "Eliminando…",
+        "clear": "Limpiar",
+        "tableView": "Vista de tabla",
+        "gridView": "Vista de cuadrícula",
+        "noPartsFound": "No se encontraron piezas",
+        "noPartsHint": "Intente ajustar los filtros o añadir una nueva pieza.",
+        "loadMore": "Cargar más",
+        "selectedCount": "{{count}} seleccionadas"
+      },
+      "requests": {
+        "title": "Solicitudes de piezas",
+        "subtitleManage": "Revise y gestione las solicitudes de piezas de los técnicos.",
+        "subtitleOwn": "Siga las piezas que ha solicitado y su estado.",
+        "scanIssue": "Escanear y entregar",
+        "newRequest": "+ Nueva solicitud"
+      },
+      "po": {
+        "title": "Órdenes de compra",
+        "suppliers": "Proveedores",
+        "createPO": "Crear orden de compra"
+      },
+      "filters": {
+        "searchPlaceholder": "Buscar piezas…",
+        "allCategories": "Todas las categorías",
+        "allStatuses": "Todos los estados",
+        "criticality": "Criticidad",
+        "stockStatus": "Estado de stock",
+        "allSuppliers": "Todos los proveedores",
+        "clear": "Limpiar"
+      }
     }
   }
 }

@@ -154,6 +154,44 @@
         "safety": "ආරක්ෂාව",
         "general": "සාමාන්‍ය"
       }
+    },
+    "inventory": {
+      "catalog": {
+        "title": "අමතර කොටස් නාමාවලිය",
+        "summary": "කොටස් {{total}} · සක්‍රීය {{active}} · අඩු තොග {{low}}",
+        "importParts": "කොටස් ආයාත කරන්න (Excel/CSV)",
+        "addPart": "කොටසක් එකතු කරන්න",
+        "deleteSelected": "තෝරාගත් ඉවත් කරන්න",
+        "deleting": "ඉවත් කරමින්…",
+        "clear": "හිස් කරන්න",
+        "tableView": "වගු දසුන",
+        "gridView": "ජාල දසුන",
+        "noPartsFound": "කොටස් හමු නොවිනි",
+        "noPartsHint": "ඔබේ පෙරහන් සකසන්න හෝ නව කොටසක් එකතු කරන්න.",
+        "loadMore": "තවත් පූරණය කරන්න",
+        "selectedCount": "තෝරාගත් {{count}}"
+      },
+      "requests": {
+        "title": "කොටස් ඉල්ලීම්",
+        "subtitleManage": "තාක්ෂණික නිලධාරීන්ගේ කොටස් ඉල්ලීම් සමාලෝචනය කර කළමනාකරණය කරන්න.",
+        "subtitleOwn": "ඔබ ඉල්ලූ කොටස් සහ ඒවායේ තත්ත්වය නිරීක්ෂණය කරන්න.",
+        "scanIssue": "ස්කෑන් කර නිකුත් කරන්න",
+        "newRequest": "+ නව ඉල්ලීම"
+      },
+      "po": {
+        "title": "මිලදී ගැනීමේ ඇණවුම්",
+        "suppliers": "සැපයුම්කරුවන්",
+        "createPO": "ඇණවුම සාදන්න"
+      },
+      "filters": {
+        "searchPlaceholder": "කොටස් සොයන්න…",
+        "allCategories": "සියලු කාණ්ඩ",
+        "allStatuses": "සියලු තත්ත්ව",
+        "criticality": "තීව්‍රතාව",
+        "stockStatus": "තොග තත්ත්වය",
+        "allSuppliers": "සියලු සැපයුම්කරුවන්",
+        "clear": "හිස් කරන්න"
+      }
     }
   }
 }
