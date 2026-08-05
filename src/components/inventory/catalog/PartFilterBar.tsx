@@ -9,11 +9,13 @@ export interface PartFilters {
   status: PartStatus | '';
   criticality: PartCriticality | '';
   stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock' | '';
+  supplierId: string;
 }
 
 interface PartFilterBarProps {
   filters: PartFilters;
   onChange: (filters: PartFilters) => void;
+  supplierOptions: { value: string; label: string }[];
 }
 
 const CATEGORIES: { value: PartCategory; label: string }[] = VALID_CATEGORIES.map((c) => ({
@@ -70,7 +72,7 @@ function Select<T extends string>({
   );
 }
 
-export function PartFilterBar({ filters, onChange }: PartFilterBarProps) {
+export function PartFilterBar({ filters, onChange, supplierOptions }: PartFilterBarProps) {
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -95,11 +97,12 @@ export function PartFilterBar({ filters, onChange }: PartFilterBarProps) {
     filters.category !== '' ||
     filters.status !== '' ||
     filters.criticality !== '' ||
-    filters.stockStatus !== '';
+    filters.stockStatus !== '' ||
+    filters.supplierId !== '';
 
   function clearAll() {
     setLocalSearch('');
-    onChange({ search: '', category: '', status: '', criticality: '', stockStatus: '' });
+    onChange({ search: '', category: '', status: '', criticality: '', stockStatus: '', supplierId: '' });
   }
 
   return (
@@ -142,6 +145,13 @@ export function PartFilterBar({ filters, onChange }: PartFilterBarProps) {
         placeholder="Stock Status"
         options={STOCK_STATUSES}
         onChange={(v) => update({ stockStatus: v })}
+      />
+
+      <Select
+        value={filters.supplierId}
+        placeholder="All Suppliers"
+        options={supplierOptions}
+        onChange={(v) => update({ supplierId: v })}
       />
 
       {isFiltered && (

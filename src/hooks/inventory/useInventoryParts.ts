@@ -21,6 +21,7 @@ export interface UseInventoryPartsOptions {
   status?: PartStatus;
   stockStatus?: 'in_stock' | 'low_stock' | 'out_of_stock';
   criticality?: PartCriticality;
+  supplierId?: string;
   searchQuery?: string;
   pageSize?: number;
 }
@@ -35,7 +36,7 @@ interface UseInventoryPartsResult {
 }
 
 export function useInventoryParts(options: UseInventoryPartsOptions = {}): UseInventoryPartsResult {
-  const { category, status, stockStatus, criticality, searchQuery, pageSize = 50 } = options;
+  const { category, status, stockStatus, criticality, supplierId, searchQuery, pageSize = 50 } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
 
   const [allParts, setAllParts] = useState<InventoryPart[]>([]);
@@ -85,6 +86,12 @@ export function useInventoryParts(options: UseInventoryPartsOptions = {}): UseIn
           parts = parts.filter((p) => getStockStatus(p) === stockStatus);
         }
 
+        // Client-side supplier filter — avoids requiring a new composite
+        // index for every combination with the other equality filters above.
+        if (supplierId) {
+          parts = parts.filter((p) => p.supplierId === supplierId);
+        }
+
         // Client-side search
         if (searchQuery && searchQuery.trim() !== '') {
           const q = searchQuery.trim().toLowerCase();
@@ -107,12 +114,12 @@ export function useInventoryParts(options: UseInventoryPartsOptions = {}): UseIn
     );
 
     return () => unsubscribe();
-  }, [companyId, category, status, criticality, stockStatus, searchQuery]);
+  }, [companyId, category, status, criticality, stockStatus, supplierId, searchQuery]);
 
   // Reset display count when filters change
   useEffect(() => {
     setDisplayCount(pageSize);
-  }, [category, status, criticality, stockStatus, searchQuery, pageSize]);
+  }, [category, status, criticality, stockStatus, supplierId, searchQuery, pageSize]);
 
   const parts = allParts.slice(0, displayCount);
   const hasMore = displayCount < allParts.length;

@@ -6,6 +6,7 @@ import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { useInventoryParts } from '@/hooks/inventory/useInventoryParts';
+import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { PartFilterBar, type PartFilters } from '@/components/inventory/catalog/PartFilterBar';
 import { PartCatalogTable } from '@/components/inventory/catalog/PartCatalogTable';
 import { PartCatalogCard } from '@/components/inventory/catalog/PartCatalogCard';
@@ -33,7 +34,11 @@ export function PartCatalogPage() {
     stockStatus: (searchParams.get('stockStatus') ?? '') as 'in_stock' | 'low_stock' | 'out_of_stock' | '',
     criticality: (searchParams.get('criticality') ?? '') as PartCriticality | '',
     search: searchParams.get('search') ?? '',
+    supplierId: searchParams.get('supplierId') ?? '',
   });
+
+  const { suppliers } = useSuppliers();
+  const supplierOptions = suppliers.map((s) => ({ value: s.id, label: s.name }));
 
   const PAGE_SIZE = 25;
 
@@ -42,6 +47,7 @@ export function PartCatalogPage() {
     status: filters.status || undefined,
     stockStatus: filters.stockStatus || undefined,
     criticality: filters.criticality || undefined,
+    supplierId: filters.supplierId || undefined,
     searchQuery: filters.search || undefined,
     pageSize: PAGE_SIZE,
   });
@@ -127,6 +133,7 @@ export function PartCatalogPage() {
       <PartFilterBar
         filters={filters}
         onChange={setFilters}
+        supplierOptions={supplierOptions}
       />
 
       {/* View toggle + bulk actions */}
