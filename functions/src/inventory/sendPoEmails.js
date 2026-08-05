@@ -269,26 +269,29 @@ exports.sendPoEmails = onDocumentCreated(
       if (poEvent === "received") {
         if (supplierEmail) {
           const goodItems = Array.isArray(receivedItems) ? receivedItems : [];
-          const deliveryNotesHtml = deliveryNotes
-            ? `<p style="color:#555;font-size:14px;"><strong>Delivery notes:</strong> ${String(deliveryNotes).replace(/\n/g, "<br/>")}</p>`
-            : "";
-          const thankYouHtml = `
-            <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">Delivery received — thank you</h2>
-            <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
-            <p style="color:#555;font-size:14px;">Thank you for your delivery against purchase order <strong>${poNumber}</strong>. We have received the following items:</p>
-            ${receivedItemsTableHtml(goodItems)}
-            ${deliveryNotesHtml}
-            <p style="color:#555;font-size:14px;">We appreciate your continued partnership.</p>
-          `;
           const companyMetaReceived = await companyMetaFor(companyId);
-          await sendEmail({
-            companyId,
-            to: supplierEmail,
-            subject: `Delivery received — PO ${poNumber}`,
-            html: brandedEmail(thankYouHtml, companyName),
-            fromName: companyName,
-            replyTo: companyMetaReceived.email || undefined,
-          });
+
+          if (goodItems.length > 0) {
+            const deliveryNotesHtml = deliveryNotes
+              ? `<p style="color:#555;font-size:14px;"><strong>Delivery notes:</strong> ${String(deliveryNotes).replace(/\n/g, "<br/>")}</p>`
+              : "";
+            const thankYouHtml = `
+              <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">Delivery received — thank you</h2>
+              <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
+              <p style="color:#555;font-size:14px;">Thank you for your delivery against purchase order <strong>${poNumber}</strong>. We have received the following items:</p>
+              ${receivedItemsTableHtml(goodItems)}
+              ${deliveryNotesHtml}
+              <p style="color:#555;font-size:14px;">We appreciate your continued partnership.</p>
+            `;
+            await sendEmail({
+              companyId,
+              to: supplierEmail,
+              subject: `Delivery received — PO ${poNumber}`,
+              html: brandedEmail(thankYouHtml, companyName),
+              fromName: companyName,
+              replyTo: companyMetaReceived.email || undefined,
+            });
+          }
 
           const problems = Array.isArray(issueItems) ? issueItems : [];
           if (problems.length > 0) {
