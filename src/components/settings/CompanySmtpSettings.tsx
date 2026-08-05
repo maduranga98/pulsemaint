@@ -8,6 +8,7 @@ import {
   removeCompanySmtpSettings,
   type CompanySmtpStatus,
 } from '@/lib/companySmtp';
+import { detectSmtpPreset } from '@/lib/smtpProviderPresets';
 
 // Lets an admin/plant manager configure the company's own SMTP mailbox so
 // supplier emails (PO sent/priced/cancelled, delivery receipt) send from
@@ -17,6 +18,7 @@ import {
 // the credentials doc already enforces server-side.
 export function CompanySmtpSettings() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const companyEmail = useAuthStore((s) => s.company?.email) ?? '';
   const { addToast } = useToast();
 
   const [status, setStatus] = useState<CompanySmtpStatus | null>(null);
@@ -48,10 +50,23 @@ export function CompanySmtpSettings() {
   }, [companyId]);
 
   function startEdit() {
-    setHost(status?.host ?? '');
-    setPort(String(status?.port ?? 465));
-    setSecure(status?.secure ?? true);
-    setUser(status?.user ?? '');
+    // First-time setup — prefill from the company's registered email and,
+    // for well-known providers (Gmail, Outlook, Yahoo, iCloud, Zoho), the
+    // matching SMTP host/port/SSL, so the admin only has to paste a
+    // password. Editing an already-configured mailbox keeps its own saved
+    // values instead of re-guessing from the preset.
+    if (!status?.configured) {
+      const preset = detectSmtpPreset(companyEmail);
+      setHost(preset?.host ?? '');
+      setPort(String(preset?.port ?? 465));
+      setSecure(preset?.secure ?? true);
+      setUser(companyEmail);
+    } else {
+      setHost(status.host ?? '');
+      setPort(String(status.port ?? 465));
+      setSecure(status.secure ?? true);
+      setUser(status.user ?? '');
+    }
     setPass('');
     setEditing(true);
   }
@@ -106,7 +121,9 @@ export function CompanySmtpSettings() {
       </div>
       <p className="text-sm text-slate-500 mb-4">
         Configure your own mailbox so supplier emails (purchase orders, delivery receipts) send from
-        your company's own address instead of the shared FirmiCore mailbox.
+        your company's own address instead of the shared FirmiCore mailbox. Host/port are pre-filled
+        automatically for common providers (Gmail, Outlook, Yahoo, iCloud, Zoho) based on your
+        registered company email — you'll just need to add the password.
       </p>
 
       {loadingStatus ? (
@@ -157,6 +174,20 @@ export function CompanySmtpSettings() {
               placeholder={status?.configured ? 'Re-enter to change' : ''}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {host === 'smtp.gmail.com' && (
+              <p className="text-xs text-slate-500 mt-1">
+                Gmail blocks your regular password here — generate an{' '}
+                <a
+                  href="https://myaccount.google.com/apppasswords"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
+                  App Password
+                </a>{' '}
+                instead (requires 2-Step Verification to be turned on).
+              </p>
+            )}
           </div>
           <div className="flex gap-2 pt-1">
             <button
