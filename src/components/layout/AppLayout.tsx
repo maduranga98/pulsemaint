@@ -168,6 +168,17 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
       {
+        label: 'Shifts',
+        to: '/app/settings/shifts',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+          </svg>
+        ),
+        // Same roles the Shifts settings tile was visible to.
+        roles: ['admin', 'plant_manager', 'hr_officer'],
+      },
+      {
         label: 'My Shift',
         to: '/app/shift/my',
         icon: (
@@ -249,9 +260,9 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'admin',
     label: 'Admin',
     items: [
-      // Users and Shifts moved inside Settings — same access as before (Users'
-      // union of roles), just reached via the Settings tiles instead of their
-      // own top-level nav entries.
+      // Users moved inside Settings — same access as before (Users' union of
+      // roles), just reached via the Settings tile instead of its own
+      // top-level nav entry. Shifts moved to the Workforce group above.
       { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'plant_manager', 'hr_officer'] },
       {
         label: 'Billing & Plan',
