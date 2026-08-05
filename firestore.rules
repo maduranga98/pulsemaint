@@ -709,6 +709,15 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // /companies/{companyId}/private/{document} — SMTP credentials for
+    // sending supplier emails from the company's own mailbox. Never
+    // readable or writable by clients — only Cloud Functions (via the
+    // Admin SDK, which bypasses these rules) read/write it, through the
+    // setCompanySmtpSettings / getCompanySmtpStatus callables.
+    match /companies/{companyId}/private/{document} {
+      allow read, write: if false;
+    }
+
     // /companies/{companyId}/users/{userId} — per-company user profile
     match /companies/{companyId}/users/{userId} {
       allow read: if isAuthenticated()
