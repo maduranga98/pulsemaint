@@ -8,8 +8,13 @@ import type { POItemRowData } from './PurchaseOrderItemRow';
 
 interface Props {
   supplierId: string;
+  supplierName: string;
   excludePartIds: string[];
   onAdd: (items: POItemRowData[]) => void;
+}
+
+function normalize(name: string) {
+  return name.trim().toLowerCase();
 }
 
 // Shown once a supplier is picked (or prefilled from a low-stock "Order Now"
@@ -17,33 +22,45 @@ interface Props {
 // they can be bundled into the same shipment instead of raising separate POs.
 // Nothing here is auto-selected; a part only joins the PO if the user checks
 // it and confirms a quantity.
-export function SupplierLowStockSuggestions({ supplierId, excludePartIds, onAdd }: Props) {
+//
+// Most POs are raised with a supplier typed in free-text rather than picked
+// from a saved Supplier record, so `supplierId` is very often empty even
+// though `supplierName` is always set — matching on name too (instead of
+// requiring supplierId) is what makes the suggestions actually show up for
+// that common case.
+export function SupplierLowStockSuggestions({ supplierId, supplierName, excludePartIds, onAdd }: Props) {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const [candidates, setCandidates] = useState<InventoryPart[]>([]);
+  const [allParts, setAllParts] = useState<InventoryPart[]>([]);
   const [selected, setSelected] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    setSelected({});
-    if (!companyId || !supplierId) {
-      setCandidates([]);
+    if (!companyId) {
+      setAllParts([]);
       return;
     }
-    const q = query(
-      collection(db, 'inventoryParts'),
-      where('companyId', '==', companyId),
-      where('supplierId', '==', supplierId),
-    );
+    const q = query(collection(db, 'inventoryParts'), where('companyId', '==', companyId));
     const unsubscribe = onSnapshot(q, (snap) => {
-      const parts = snap.docs.map((d) => ({ id: d.id, ...d.data() } as InventoryPart));
-      setCandidates(parts.filter((p) => p.isLowStock));
+      setAllParts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as InventoryPart)));
     });
     return () => unsubscribe();
-  }, [companyId, supplierId]);
+  }, [companyId]);
+
+  useEffect(() => {
+    setSelected({});
+  }, [supplierId, supplierName]);
+
+  const normalizedName = normalize(supplierName || '');
+  const candidates = allParts.filter((p) => {
+    if (!p.isLowStock) return false;
+    if (supplierId && p.supplierId === supplierId) return true;
+    if (normalizedName && normalize(p.supplierName || '') === normalizedName) return true;
+    return false;
+  });
 
   const excluded = new Set(excludePartIds.filter(Boolean));
   const suggestions = candidates.filter((p) => !excluded.has(p.id));
 
-  if (!supplierId || suggestions.length === 0) return null;
+  if ((!supplierId && !normalizedName) || suggestions.length === 0) return null;
 
   function toggle(part: InventoryPart, checked: boolean) {
     setSelected((prev) => {

@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, Truck } from 'lucide-react';
 import { doc, serverTimestamp, updateDoc, addDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -124,13 +124,22 @@ export function PurchaseOrdersPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Purchase Orders</h1>
-        <Link
-          to="/app/inventory/purchase-orders/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Create PO
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/app/inventory/suppliers"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-xl transition-colors"
+          >
+            <Truck className="w-4 h-4" />
+            Suppliers
+          </Link>
+          <Link
+            to="/app/inventory/purchase-orders/new"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Create PO
+          </Link>
+        </div>
       </div>
 
       {error && (
