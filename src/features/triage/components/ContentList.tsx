@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { ChevronDown, Trash2 } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { deleteContentItem, COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
@@ -152,26 +153,23 @@ export function ContentList({ category, showDelete = false }: Props) {
                     </div>
                   </div>
                   {!isAction && (
-                    <span
-                      className="text-xs shrink-0 transition-transform duration-200"
+                    <ChevronDown
+                      className="w-4 h-4 shrink-0 transition-transform duration-200"
                       style={{
                         color: '#3d5070',
-                        display: 'inline-block',
                         transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
                       }}
-                    >
-                      ▼
-                    </span>
+                    />
                   )}
                 </button>
 
                 {showDelete && (
                   <button
                     onClick={() => deleteContentItem(item.id)}
-                    className="px-3 py-3 text-lg transition-opacity opacity-50 hover:opacity-100"
+                    className="px-3 py-3 transition-opacity opacity-50 hover:opacity-100"
                     title="Delete item"
                   >
-                    🗑
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 )}
               </div>

@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { Trash2 } from 'lucide-react';
 import { db } from '../../../../lib/firebase';
 import { addAssessment, deleteAssessment, COL } from '../../api';
 import { useAuthStore } from '../../../../store/authStore';
@@ -307,10 +308,10 @@ export function AssessmentBuilder() {
               {canDelete && (
                 <button
                   onClick={() => deleteAssessment(a.id)}
-                  className="text-lg opacity-50 hover:opacity-100 transition-opacity shrink-0"
+                  className="opacity-50 hover:opacity-100 transition-opacity shrink-0"
                   title="Delete assessment"
                 >
-                  🗑
+                  <Trash2 className="w-4 h-4" />
                 </button>
               )}
             </div>

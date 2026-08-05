@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import {
   getModuleSessions,
@@ -35,6 +36,7 @@ function formatDate(date: string): string {
  * time each assignment was made.
  */
 export default function SafetyTrainingsPage() {
+  const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const { modules, moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useCompanySafetyAssignments(companyId, moduleIds);
@@ -85,9 +87,27 @@ export default function SafetyTrainingsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
-      <div className="mb-6 flex items-center gap-2">
-        <ShieldAlert className="h-6 w-6 text-amber-600" />
-        <h1 className="text-xl font-bold text-slate-900">Safety Trainings</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <ShieldAlert className="h-6 w-6 text-amber-600" />
+          <h1 className="text-xl font-bold text-slate-900">Safety Trainings</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => navigate('/app/safety/calendar')}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <CalendarDays className="h-4 w-4" /> View Training Schedules
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/app/training/manage/modules/new')}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+          >
+            <Plus className="h-4 w-4" /> Create Safety Training Module
+          </button>
+        </div>
       </div>
 
       <div className="mb-6 grid grid-cols-3 gap-3">
@@ -107,7 +127,7 @@ export default function SafetyTrainingsPage() {
 
       {moduleRows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-          No safety trainings yet. Create a module with Training Type “Safety Training” and assign it.
+          No safety trainings yet. Use "Create Safety Training Module" above, then assign it.
         </div>
       ) : (
         <div className="space-y-5">

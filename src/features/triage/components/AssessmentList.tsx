@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, FileEdit, BarChart3, RotateCcw } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
@@ -22,6 +23,7 @@ export function AssessmentList() {
   const [assessments, setAssessments] = useState<TriageAssessment[]>([]);
   const [allResults, setAllResults] = useState<TriageAssessmentResult[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<TriageAssessment | null>(null);
+  const [showTeamMarks, setShowTeamMarks] = useState(false);
 
   useEffect(() => {
     if (!companyId || !uid) return;
@@ -91,9 +93,9 @@ export function AssessmentList() {
   );
 
   const STATUS_META = {
-    certified: { label: 'Certified ✅', color: '#22c55e', btn: 'Review' },
-    retry: { label: 'Retry 🔁', color: '#f97316', btn: 'Retry Quiz' },
-    start: { label: 'Start 📝', color: '#3b82f6', btn: 'Take Quiz' },
+    certified: { label: 'Certified', icon: CheckCircle2, color: '#22c55e', btn: 'Review' },
+    retry: { label: 'Retry', icon: RotateCcw, color: '#f97316', btn: 'Retry Quiz' },
+    start: { label: 'Start', icon: FileEdit, color: '#3b82f6', btn: 'Take Quiz' },
   };
 
   return (
@@ -103,7 +105,12 @@ export function AssessmentList() {
       )}
 
       <div className="flex items-center gap-3 mb-5">
-        <span className="text-2xl">🟡</span>
+        <div
+          className="w-9 h-9 rounded-lg flex items-center justify-center"
+          style={{ background: '#fbbf241e', color: '#fbbf24' }}
+        >
+          <ClipboardCheck className="w-5 h-5" />
+        </div>
         <div>
           <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
             Quick Assessments
@@ -150,7 +157,8 @@ export function AssessmentList() {
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-sm font-medium hidden sm:block" style={{ color: meta.color }}>
+                <span className="hidden sm:flex items-center gap-1.5 text-sm font-medium" style={{ color: meta.color }}>
+                  <meta.icon className="w-4 h-4" />
                   {meta.label}
                 </span>
                 <button
@@ -172,62 +180,82 @@ export function AssessmentList() {
 
       {isManager && (
         <div className="mt-8">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-2xl">📊</span>
-            <div>
-              <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
-                Team Assessment Marks
-              </h2>
-              <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-                Every member&apos;s quick-assessment attempts and scores
-              </p>
+          <button
+            type="button"
+            onClick={() => setShowTeamMarks((v) => !v)}
+            className="w-full flex items-center justify-between gap-3 rounded-xl p-4 mb-0 transition-colors"
+            style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{ background: '#06b6d41e', color: '#06b6d4' }}
+              >
+                <BarChart3 className="w-5 h-5" />
+              </div>
+              <div className="text-left">
+                <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
+                  Team Assessment Marks
+                </h2>
+                <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+                  Every member&apos;s quick-assessment attempts and scores
+                </p>
+              </div>
             </div>
-          </div>
-          {teamResults.length === 0 ? (
-            <div
-              className="rounded-xl p-6 text-center text-sm"
-              style={{ background: '#111d2e', border: '1px solid #1a2840', color: '#3d5070' }}
-            >
-              No assessment attempts recorded yet.
-            </div>
-          ) : (
-            <div
-              className="rounded-xl overflow-x-auto"
-              style={{ background: '#111d2e', border: '1px solid #1a2840' }}
-            >
-              <table className="min-w-full text-sm">
-                <thead>
-                  <tr style={{ color: '#6b7fa3' }} className="text-left text-xs">
-                    <th className="px-4 py-3 font-semibold">Member</th>
-                    <th className="px-4 py-3 font-semibold">Role</th>
-                    <th className="px-4 py-3 font-semibold">Assessment</th>
-                    <th className="px-4 py-3 font-semibold">Marks</th>
-                    <th className="px-4 py-3 font-semibold">Result</th>
-                    <th className="px-4 py-3 font-semibold">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {teamResults.slice(0, 50).map((r) => {
-                    const seconds = (r.completedAt as unknown as { seconds: number })?.seconds;
-                    const pct = r.total > 0 ? Math.round((r.score / r.total) * 100) : 0;
-                    return (
-                      <tr key={r.id} style={{ borderTop: '1px solid #1a2840', color: '#e2e8f0' }}>
-                        <td className="px-4 py-2.5">{r.userName || r.userId}</td>
-                        <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{(r.userRole ?? '').replace(/_/g, ' ') || '-'}</td>
-                        <td className="px-4 py-2.5">{assessmentTitle(r.assessmentId)}</td>
-                        <td className="px-4 py-2.5 font-semibold">{r.score}/{r.total} ({pct}%)</td>
-                        <td className="px-4 py-2.5" style={{ color: r.passed ? '#22c55e' : '#ef4444' }}>
-                          {r.passed ? 'Passed' : 'Failed'}
-                        </td>
-                        <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>
-                          {seconds ? new Date(seconds * 1000).toLocaleDateString() : '-'}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            {showTeamMarks ? (
+              <ChevronUp className="w-5 h-5 shrink-0" style={{ color: '#6b7fa3' }} />
+            ) : (
+              <ChevronDown className="w-5 h-5 shrink-0" style={{ color: '#6b7fa3' }} />
+            )}
+          </button>
+
+          {showTeamMarks && (
+            teamResults.length === 0 ? (
+              <div
+                className="rounded-xl p-6 mt-3 text-center text-sm"
+                style={{ background: '#111d2e', border: '1px solid #1a2840', color: '#3d5070' }}
+              >
+                No assessment attempts recorded yet.
+              </div>
+            ) : (
+              <div
+                className="rounded-xl overflow-x-auto mt-3"
+                style={{ background: '#111d2e', border: '1px solid #1a2840' }}
+              >
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr style={{ color: '#6b7fa3' }} className="text-left text-xs">
+                      <th className="px-4 py-3 font-semibold">Member</th>
+                      <th className="px-4 py-3 font-semibold">Role</th>
+                      <th className="px-4 py-3 font-semibold">Assessment</th>
+                      <th className="px-4 py-3 font-semibold">Marks</th>
+                      <th className="px-4 py-3 font-semibold">Result</th>
+                      <th className="px-4 py-3 font-semibold">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {teamResults.slice(0, 50).map((r) => {
+                      const seconds = (r.completedAt as unknown as { seconds: number })?.seconds;
+                      const pct = r.total > 0 ? Math.round((r.score / r.total) * 100) : 0;
+                      return (
+                        <tr key={r.id} style={{ borderTop: '1px solid #1a2840', color: '#e2e8f0' }}>
+                          <td className="px-4 py-2.5">{r.userName || r.userId}</td>
+                          <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{(r.userRole ?? '').replace(/_/g, ' ') || '-'}</td>
+                          <td className="px-4 py-2.5">{assessmentTitle(r.assessmentId)}</td>
+                          <td className="px-4 py-2.5 font-semibold">{r.score}/{r.total} ({pct}%)</td>
+                          <td className="px-4 py-2.5" style={{ color: r.passed ? '#22c55e' : '#ef4444' }}>
+                            {r.passed ? 'Passed' : 'Failed'}
+                          </td>
+                          <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>
+                            {seconds ? new Date(seconds * 1000).toLocaleDateString() : '-'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
         </div>
       )}
