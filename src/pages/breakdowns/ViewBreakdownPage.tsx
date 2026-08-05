@@ -24,6 +24,14 @@ function roleLabel(role: string | undefined): string {
   return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
 }
 
+// Some older records have a role already baked into the stored name itself
+// (e.g. "Julia (Trainee)") from before role display was resolved live here —
+// strip any trailing "(...)" before appending the freshly-resolved role so
+// it never doubles up as "Julia (Trainee) (Trainee)".
+function stripRoleSuffix(name: string): string {
+  return name.replace(/\s*\([^)]*\)\s*$/, '').trim();
+}
+
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
   reported: 'Reported',
   acknowledged: 'Acknowledged',
@@ -407,7 +415,7 @@ export default function ViewBreakdownPage() {
             <div>
               <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attended By</p>
               <p className="text-slate-800 text-sm">
-                {b.attendedByName}
+                {stripRoleSuffix(b.attendedByName)}
                 {b.attendedBy && actorRoles[b.attendedBy] && (
                   <span className="text-slate-500"> ({roleLabel(actorRoles[b.attendedBy])})</span>
                 )}
@@ -449,9 +457,10 @@ export default function ViewBreakdownPage() {
               <p className="text-slate-800 text-sm">
                 {b.assignedTechnicianNames
                   .map((name, i) => {
+                    const base = stripRoleSuffix(name);
                     const id = b.assignedTechnicianIds?.[i];
                     const role = id ? actorRoles[id] : undefined;
-                    return role ? `${name} (${roleLabel(role)})` : name;
+                    return role ? `${base} (${roleLabel(role)})` : base;
                   })
                   .join(', ')}
               </p>
@@ -503,7 +512,7 @@ export default function ViewBreakdownPage() {
                   </span>
                   <div>
                     <span className="text-slate-700">
-                      {h.changedByName}
+                      {stripRoleSuffix(h.changedByName ?? '')}
                       {h.changedBy && actorRoles[h.changedBy] && (
                         <span className="text-slate-500"> ({roleLabel(actorRoles[h.changedBy])})</span>
                       )}
