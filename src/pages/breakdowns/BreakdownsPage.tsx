@@ -7,6 +7,7 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { notifyUsers } from '../../services/notifications.service';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
+import { CreateWODrawer } from '../../components/workorders/CreateWODrawer';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 
 const ROLE_LABELS: Record<string, string> = {
@@ -127,6 +128,9 @@ export default function BreakdownsPage() {
   // right under the row, instead of navigating to a separate page.
   const [expandedMachineId, setExpandedMachineId] = useState<string | null>(null);
   const [actorRoles, setActorRoles] = useState<Record<string, string>>({});
+  // Opened inline so creating a WO from a breakdown group stays on this page
+  // instead of jumping to the Work Orders tab.
+  const [createWOTickets, setCreateWOTickets] = useState<Breakdown[] | null>(null);
 
   useEffect(() => {
     if (!siteId) {
@@ -363,13 +367,13 @@ export default function BreakdownsPage() {
     }
   }
 
-  // Hands off to the exact same Create Work Order drawer used from the WOs
-  // tab, prefilled with every filled-in ticket on this machine — one WO
-  // covers the whole group instead of raising a separate WO per ticket.
+  // Opens the exact same Create Work Order drawer used from the WOs tab,
+  // right here — prefilled with every filled-in ticket on this machine so
+  // one WO covers the whole group — instead of navigating to the Work
+  // Orders tab and losing this page's filters/scroll position.
   function goToCreateWorkOrder(tickets: Breakdown[]) {
     if (tickets.length === 0) return;
-    const ids = tickets.map((t) => t.id).join(',');
-    navigate(`/app/work-orders?create=1&breakdownIds=${ids}&machineId=${tickets[0].machineId}&woType=BREAKDOWN`);
+    setCreateWOTickets(tickets);
   }
 
   return (
@@ -633,7 +637,7 @@ export default function BreakdownsPage() {
                     {(filter === 'closed' || expandedMachineId === g.machineId) && (
                       <tr>
                         <td colSpan={8} className="bg-slate-50 px-4 py-5 border-t border-b border-slate-200">
-                          <MachineBreakdownDetails group={g} actorRoles={actorRoles} />
+                          <MachineBreakdownDetails group={g} actorRoles={actorRoles} showHistory={filter === 'closed'} />
                         </td>
                       </tr>
                     )}
@@ -669,6 +673,18 @@ export default function BreakdownsPage() {
           onAssign={handleAssign}
         />
       )}
+
+      {createWOTickets && createWOTickets.length > 0 && (
+        <CreateWODrawer
+          open
+          onClose={() => setCreateWOTickets(null)}
+          onCreated={() => setCreateWOTickets(null)}
+          linkedBreakdownId={createWOTickets[0].id}
+          linkedBreakdownIds={createWOTickets.map((t) => t.id)}
+          prefilledMachineId={createWOTickets[0].machineId}
+          defaultWoType="BREAKDOWN"
+        />
+      )}
     </div>
   );
 }
@@ -676,6 +692,10 @@ export default function BreakdownsPage() {
 interface MachineBreakdownDetailsProps {
   group: MachineGroup;
   actorRoles: Record<string, string>;
+  // Status history is only useful once a breakdown is closed and someone is
+  // reviewing the whole chain — everywhere else it's noise on top of the
+  // live status badge already shown.
+  showHistory: boolean;
 }
 
 function sortTicketsByReportedAt(tickets: Breakdown[]): Breakdown[] {
@@ -711,7 +731,7 @@ function MergedField({ tickets, get }: { tickets: Breakdown[]; get: (t: Breakdow
 // attempted fixes / production impact / attended-by / assigned technicians
 // merged across every ticket, then the full status history in chronological
 // order (oldest first) ending at the machine's current status.
-function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsProps) {
+function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBreakdownDetailsProps) {
   const tickets = sortTicketsByReportedAt(group.tickets);
   const firstReported = tickets[0]?.reportedAt;
 
@@ -733,15 +753,23 @@ function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsP
     ).values(),
   );
 
-  const historyEntries = tickets
-    .flatMap((t) =>
-      (t.statusHistory ?? []).map((h: any) => ({ ticketNumber: t.ticketNumber, ...h })),
-    )
-    .sort((a, b) => {
-      const at = a.changedAt?.toDate ? a.changedAt.toDate().getTime() : new Date(a.changedAt ?? 0).getTime();
-      const bt = b.changedAt?.toDate ? b.changedAt.toDate().getTime() : new Date(b.changedAt ?? 0).getTime();
-      return at - bt;
-    });
+  // Assigning/attending a whole group of tickets at once (see handleAssign/
+  // handleAttend above) writes an identical status history entry to every
+  // ticket in the batch — merging tickets' histories together would then
+  // show the same status+actor+note+moment several times over. Collapse
+  // entries that share a status, actor, note, and timestamp (to the minute)
+  // down to one.
+  const historyEntries = Array.from(
+    new Map(
+      tickets
+        .flatMap((t) => t.statusHistory ?? [])
+        .map((h: any) => {
+          const ms = h.changedAt?.toDate ? h.changedAt.toDate().getTime() : new Date(h.changedAt ?? 0).getTime();
+          const minuteKey = Math.floor(ms / 60000);
+          return [`${h.status}|${h.changedBy}|${h.note ?? ''}|${minuteKey}`, { ...h, _ms: ms }] as const;
+        }),
+    ).values(),
+  ).sort((a, b) => a._ms - b._ms);
 
   const worstSeverity = tickets.reduce<BreakdownSeverity | null>((worst, t) => {
     if (!t.severity) return worst;
@@ -849,31 +877,33 @@ function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsP
         )}
       </div>
 
-      <div className="pt-2 border-t border-slate-100">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Status History</p>
-        {historyEntries.length === 0 ? (
-          <p className="text-sm text-slate-500">No status changes yet.</p>
-        ) : (
-          <ol className="space-y-2 text-sm">
-            {historyEntries.map((h, idx) => (
-              <li key={idx} className="flex gap-3 items-start">
-                <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-50 border border-slate-200 whitespace-nowrap">
-                  {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
-                </span>
-                <div>
-                  <span className="text-slate-700">
-                    {nameWithRole(h.changedByName ?? '', h.changedBy, actorRoles)}
+      {showHistory && (
+        <div className="pt-2 border-t border-slate-100">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Status History</p>
+          {historyEntries.length === 0 ? (
+            <p className="text-sm text-slate-500">No status changes yet.</p>
+          ) : (
+            <ol className="space-y-2 text-sm">
+              {historyEntries.map((h, idx) => (
+                <li key={idx} className="flex gap-3 items-start">
+                  <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-50 border border-slate-200 whitespace-nowrap">
+                    {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
                   </span>
-                  <span className="text-slate-400 text-xs ml-2">
-                    {h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}
-                  </span>
-                  {h.note && <p className="text-slate-500 text-xs italic mt-0.5">{h.note}</p>}
-                </div>
-              </li>
-            ))}
-          </ol>
-        )}
-      </div>
+                  <div>
+                    <span className="text-slate-700">
+                      {nameWithRole(h.changedByName ?? '', h.changedBy, actorRoles)}
+                    </span>
+                    <span className="text-slate-400 text-xs ml-2">
+                      {h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}
+                    </span>
+                    {h.note && <p className="text-slate-500 text-xs italic mt-0.5">{h.note}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      )}
     </div>
   );
 }
