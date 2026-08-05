@@ -47,5 +47,58 @@
     "add_step": "ধাপ যোগ করুন",
     "active": "সক্রিয়",
     "inactive": "নিষ্ক্রিয়"
+  },
+  "common": {
+    "signOut": "সাইন আউট",
+    "language": "ভাষা",
+    "trial": {
+      "expired": "আপনার ট্রায়াল মেয়াদ শেষ হয়ে গেছে। বৈশিষ্ট্যগুলি লক করা আছে।",
+      "endsIn": "ট্রায়াল {{days}} দিনে শেষ হবে।",
+      "upgradeNow": "এখনই আপগ্রেড করুন"
+    },
+    "nav": {
+      "dashboard": "ড্যাশবোর্ড",
+      "groups": {
+        "maintenance": "রক্ষণাবেক্ষণ",
+        "safety": "নিরাপত্তা",
+        "inventory": "ইনভেন্টরি ব্যবস্থাপনা",
+        "triageTraining": "ট্রায়াজ ও প্রশিক্ষণ",
+        "workforce": "কর্মীবাহিনী",
+        "insights": "ইনসাইটস",
+        "admin": "অ্যাডমিন"
+      },
+      "items": {
+        "machines": "যন্ত্রপাতি",
+        "breakdowns": "ব্রেকডাউন",
+        "workOrders": "ওয়ার্ক অর্ডার",
+        "myWorkOrders": "আমার ওয়ার্ক অর্ডার",
+        "pmSchedules": "PM সময়সূচী",
+        "workPermits": "কাজের পারমিট",
+        "safetyCases": "নিরাপত্তা মামলা",
+        "safetyTraining": "নিরাপত্তা প্রশিক্ষণ",
+        "safetyTrainings": "নিরাপত্তা প্রশিক্ষণসমূহ",
+        "safetyTrainingSchedules": "নিরাপত্তা প্রশিক্ষণ সময়সূচী",
+        "analytics": "অ্যানালিটিক্স",
+        "inventory": "ইনভেন্টরি",
+        "po": "PO",
+        "requests": "অনুরোধ",
+        "triage": "ট্রায়াজ",
+        "training": "প্রশিক্ষণ",
+        "traineeManagement": "প্রশিক্ষণার্থী ব্যবস্থাপনা",
+        "contractors": "ঠিকাদার",
+        "shifts": "শিফট",
+        "myShift": "আমার শিফট",
+        "shiftHandovers": "শিফট হ্যান্ডওভার",
+        "myTraining": "আমার প্রশিক্ষণ",
+        "myCertificates": "আমার সার্টিফিকেট",
+        "myProgram": "আমার প্রোগ্রাম",
+        "moe": "MOE",
+        "reports": "রিপোর্ট",
+        "audit": "অডিট",
+        "evaluations": "মূল্যায়ন",
+        "settings": "সেটিংস",
+        "billing": "বিলিং ও প্ল্যান"
+      }
+    }
   }
 }

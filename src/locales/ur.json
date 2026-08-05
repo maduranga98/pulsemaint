@@ -1,0 +1,55 @@
+{
+  "common": {
+    "signOut": "سائن آؤٹ",
+    "language": "زبان",
+    "trial": {
+      "expired": "آپ کی ٹرائل مدت ختم ہو گئی ہے۔ خصوصیات مقفل ہیں۔",
+      "endsIn": "ٹرائل {{days}} دن میں ختم ہو گا۔",
+      "upgradeNow": "ابھی اپ گریڈ کریں"
+    },
+    "nav": {
+      "dashboard": "ڈیش بورڈ",
+      "groups": {
+        "maintenance": "دیکھ بھال",
+        "safety": "حفاظت",
+        "inventory": "انوینٹری کا انتظام",
+        "triageTraining": "ٹریاج اور تربیت",
+        "workforce": "افرادی قوت",
+        "insights": "بصیرت",
+        "admin": "انتظامیہ"
+      },
+      "items": {
+        "machines": "مشینیں",
+        "breakdowns": "خرابیاں",
+        "workOrders": "ورک آرڈرز",
+        "myWorkOrders": "میرے ورک آرڈرز",
+        "pmSchedules": "PM شیڈول",
+        "workPermits": "کام کے پرمٹ",
+        "safetyCases": "حفاظتی کیسز",
+        "safetyTraining": "حفاظتی تربیت",
+        "safetyTrainings": "حفاظتی تربیتیں",
+        "safetyTrainingSchedules": "حفاظتی تربیت کے شیڈول",
+        "analytics": "تجزیات",
+        "inventory": "انوینٹری",
+        "po": "PO",
+        "requests": "درخواستیں",
+        "triage": "ٹریاج",
+        "training": "تربیت",
+        "traineeManagement": "تربیت یافتہ کا انتظام",
+        "contractors": "ٹھیکیدار",
+        "shifts": "شفٹیں",
+        "myShift": "میری شفٹ",
+        "shiftHandovers": "شفٹ ہینڈ اوور",
+        "myTraining": "میری تربیت",
+        "myCertificates": "میرے سرٹیفکیٹس",
+        "myProgram": "میرا پروگرام",
+        "moe": "MOE",
+        "reports": "رپورٹس",
+        "audit": "آڈٹ",
+        "evaluations": "تشخیص",
+        "settings": "ترتیبات",
+        "billing": "بلنگ اور پلان"
+      }
+    }
+  }
+}
