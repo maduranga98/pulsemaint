@@ -5,7 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
-import { ClipboardCheck, UserCog, type LucideIcon } from 'lucide-react';
+import { ClipboardCheck, Pin, UserCog, type LucideIcon } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { COL } from '../api';
 import { useAuthStore } from '../../../store/authStore';
@@ -98,11 +98,7 @@ export function CategoryRail({ selected, onSelect }: Props) {
               >
                 <TriageCategoryIcon icon={cat.icon} className="w-4 h-4 shrink-0" />
                 <span className="flex-1 font-medium truncate">{cat.title}</span>
-                {cat.pinned && (
-                  <span className="text-[10px] shrink-0" style={{ color: '#3d5070' }}>
-                    📌
-                  </span>
-                )}
+                {cat.pinned && <Pin className="w-3 h-3 shrink-0" style={{ color: '#3d5070' }} />}
               </button>
             );
           })}

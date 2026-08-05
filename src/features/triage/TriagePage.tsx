@@ -1,23 +1,26 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { Plus } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { COL } from './api';
 import { useAuthStore } from '../../store/authStore';
 import type { TriageCategory } from './types';
 import { ensureTriageSeed } from './seed';
-import { DashboardMetrics } from './components/DashboardMetrics';
 import { CategoryRail, type PanelId } from './components/CategoryRail';
 import { ContentList } from './components/ContentList';
 import { ContactList } from './components/ContactList';
 import { AssessmentList } from './components/AssessmentList';
+import TriageBuilderPage, { BUILDER_ROLES } from './TriageBuilderPage';
 
 export default function TriagePage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const uid = userProfile?.id ?? '';
+  const canBuild = !!userProfile?.role && (BUILDER_ROLES as readonly string[]).includes(userProfile.role);
 
   const [selected, setSelected] = useState<PanelId>('contacts');
   const [cats, setCats] = useState<TriageCategory[]>([]);
+  const [showBuilder, setShowBuilder] = useState(false);
 
   // Seed sample categories, content, contacts and assessments on first load
   // so a fresh company never sees empty Triage screens. Idempotent + guarded.
@@ -69,16 +72,26 @@ export default function TriagePage() {
 
   return (
     <div>
-      <div className="mb-5">
-        <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
-          Triage
-        </h1>
-        <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-          Procedures, guides, contacts, and quick assessments
-        </p>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
+            Triage
+          </h1>
+          <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
+            Procedures, guides, contacts, and quick assessments
+          </p>
+        </div>
+        {canBuild && (
+          <button
+            type="button"
+            onClick={() => setShowBuilder(true)}
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors"
+            style={{ background: '#1d4ed8' }}
+          >
+            <Plus className="w-4 h-4" /> Create
+          </button>
+        )}
       </div>
-
-      <DashboardMetrics />
 
       <div className="flex flex-col sm:flex-row gap-5" style={{ minHeight: 600 }}>
         <CategoryRail selected={selected} onSelect={setSelected} />
@@ -92,6 +105,17 @@ export default function TriagePage() {
           </div>
         </div>
       </div>
+
+      {showBuilder && canBuild && (
+        <div
+          className="fixed inset-0 z-50 overflow-y-auto"
+          style={{ background: '#0a0f1c' }}
+        >
+          <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+            <TriageBuilderPage onBack={() => setShowBuilder(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

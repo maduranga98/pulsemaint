@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Award, BookX } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { writeAssessmentResult } from '../api';
 import type { TriageAssessment } from '../types';
@@ -197,7 +198,7 @@ export function QuizModal({ assessment, onClose }: Props) {
                   className="flex flex-col items-center gap-2 p-4 rounded-xl mb-5"
                   style={{ background: '#22c55e14', border: '1px solid #22c55e40' }}
                 >
-                  <span className="text-3xl">🏆</span>
+                  <Award className="w-8 h-8" style={{ color: '#22c55e' }} />
                   <div className="font-semibold" style={{ color: '#22c55e' }}>
                     Certificate Issued!
                   </div>
@@ -210,7 +211,7 @@ export function QuizModal({ assessment, onClose }: Props) {
                   className="flex flex-col items-center gap-2 p-4 rounded-xl mb-5"
                   style={{ background: '#ef444414', border: '1px solid #ef444440' }}
                 >
-                  <span className="text-3xl">📚</span>
+                  <BookX className="w-8 h-8" style={{ color: '#ef4444' }} />
                   <div className="font-semibold" style={{ color: '#ef4444' }}>
                     Not Passed
                   </div>

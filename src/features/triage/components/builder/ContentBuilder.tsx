@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { db } from '../../../../lib/firebase';
 import {
   addCategory,
@@ -20,6 +21,7 @@ import { ContentList } from '../ContentList';
 import { TRIAGE_ICON_OPTIONS, TriageCategoryIcon } from '../../triageIcons';
 
 const COLOR_PRESETS = ['#ef4444', '#f97316', '#fbbf24', '#22c55e', '#3b82f6', '#a78bfa'];
+const NEW_CATEGORY_VALUE = '__new__';
 
 // Suggested category titles surfaced as quick-fill chips.
 const TITLE_SUGGESTIONS = [
@@ -95,6 +97,7 @@ export function ContentBuilder() {
 
   const [cats, setCats] = useState<TriageCategory[]>([]);
   const [previewCatId, setPreviewCatId] = useState<string>('');
+  const [manageCategoriesOpen, setManageCategoriesOpen] = useState(false);
 
   // Category form
   const [catIcon, setCatIcon] = useState('🔧');
@@ -129,8 +132,7 @@ export function ContentBuilder() {
     );
   }, [companyId]);
 
-  async function handleAddCategory(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleAddCategory() {
     if (!catTitle.trim()) return;
     setCatSaving(true);
     try {
@@ -142,9 +144,8 @@ export function ContentBuilder() {
         pinned: false,
         order: cats.length,
       });
-      // Pre-select the just-created category in the Add Content Item form —
-      // otherwise it only appears in the dropdown's option list and the user
-      // has to notice and reselect it themselves.
+      // Drop straight back into the Category * select, now pointed at the
+      // category that was just created — no separate section to visit.
       setForm((f) => ({ ...f, categoryId: ref.id }));
       setPreviewCatId(ref.id);
       setCatTitle('');
@@ -157,7 +158,7 @@ export function ContentBuilder() {
 
   async function handleAddContent(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.categoryId || !form.title.trim()) return;
+    if (!form.categoryId || form.categoryId === NEW_CATEGORY_VALUE || !form.title.trim()) return;
     setItemSaving(true);
     try {
       const base = {
@@ -224,110 +225,6 @@ export function ContentBuilder() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* ── LEFT: forms ─────────────────────────────────────────────────── */}
       <div className="space-y-5">
-        {/* Category form */}
-        <div
-          className="rounded-xl p-4"
-          style={{ background: '#111d2e', border: '1px solid #1a2840' }}
-        >
-          <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
-            New Category
-          </div>
-          <form onSubmit={handleAddCategory} className="space-y-3">
-            <div>
-              <label className="text-xs block mb-1.5" style={{ color: '#6b7fa3' }}>
-                Icon
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {TRIAGE_ICON_OPTIONS.map(({ emoji, Icon }) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setCatIcon(emoji)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-                    style={{
-                      color: '#e2e8f0',
-                      background: catIcon === emoji ? '#1d4ed8' : '#0e1628',
-                      border: `1px solid ${catIcon === emoji ? '#3b82f6' : '#1a2840'}`,
-                    }}
-                    title={emoji}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                Title *
-              </label>
-              <input
-                value={catTitle}
-                onChange={(e) => setCatTitle(e.target.value)}
-                className={input}
-                style={inputStyle}
-                placeholder="e.g. Safety & Emergency"
-                required
-              />
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {TITLE_SUGGESTIONS.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setCatTitle(s)}
-                    className="px-2 py-0.5 rounded-full text-[11px] transition-colors"
-                    style={{
-                      background: catTitle === s ? '#1d4ed81e' : '#0e1628',
-                      color: catTitle === s ? '#3b82f6' : '#6b7fa3',
-                      border: `1px solid ${catTitle === s ? '#3b82f666' : '#1a2840'}`,
-                    }}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                Description
-              </label>
-              <input
-                value={catDesc}
-                onChange={(e) => setCatDesc(e.target.value)}
-                className={input}
-                style={inputStyle}
-                placeholder="Short description"
-              />
-            </div>
-            <div>
-              <label className="text-xs block mb-2" style={{ color: '#6b7fa3' }}>
-                Colour
-              </label>
-              <div className="flex gap-2">
-                {COLOR_PRESETS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => setCatColor(c)}
-                    className="w-7 h-7 rounded-full transition-all"
-                    style={{
-                      background: c,
-                      boxShadow: catColor === c ? `0 0 0 2px #0e1628, 0 0 0 4px ${c}` : 'none',
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={catSaving || !catTitle.trim()}
-              className="w-full py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
-              style={{ background: '#1d4ed8', color: 'white' }}
-            >
-              {catSaving ? 'Adding...' : '+ Add Category'}
-            </button>
-          </form>
-        </div>
-
         {/* Content item form */}
         <div
           className="rounded-xl p-4"
@@ -354,7 +251,108 @@ export function ContentBuilder() {
                     {c.icon} {c.title}
                   </option>
                 ))}
+                <option value={NEW_CATEGORY_VALUE}>+ Create new category…</option>
               </select>
+
+              {form.categoryId === NEW_CATEGORY_VALUE && (
+                <div
+                  className="mt-3 space-y-3 rounded-lg p-3"
+                  style={{ background: '#0e1628', border: '1px solid #1a2840' }}
+                >
+                  <div>
+                    <label className="text-xs block mb-1.5" style={{ color: '#6b7fa3' }}>
+                      Icon
+                    </label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {TRIAGE_ICON_OPTIONS.map(({ emoji, Icon }) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => setCatIcon(emoji)}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+                          style={{
+                            color: '#e2e8f0',
+                            background: catIcon === emoji ? '#1d4ed8' : '#0e1628',
+                            border: `1px solid ${catIcon === emoji ? '#3b82f6' : '#1a2840'}`,
+                          }}
+                          title={emoji}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+                      Title *
+                    </label>
+                    <input
+                      value={catTitle}
+                      onChange={(e) => setCatTitle(e.target.value)}
+                      className={input}
+                      style={inputStyle}
+                      placeholder="e.g. Safety & Emergency"
+                    />
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {TITLE_SUGGESTIONS.map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onClick={() => setCatTitle(s)}
+                          className="px-2 py-0.5 rounded-full text-[11px] transition-colors"
+                          style={{
+                            background: catTitle === s ? '#1d4ed81e' : '#0e1628',
+                            color: catTitle === s ? '#3b82f6' : '#6b7fa3',
+                            border: `1px solid ${catTitle === s ? '#3b82f666' : '#1a2840'}`,
+                          }}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
+                      Description
+                    </label>
+                    <input
+                      value={catDesc}
+                      onChange={(e) => setCatDesc(e.target.value)}
+                      className={input}
+                      style={inputStyle}
+                      placeholder="Short description"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs block mb-2" style={{ color: '#6b7fa3' }}>
+                      Colour
+                    </label>
+                    <div className="flex gap-2">
+                      {COLOR_PRESETS.map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setCatColor(c)}
+                          className="w-7 h-7 rounded-full transition-all"
+                          style={{
+                            background: c,
+                            boxShadow: catColor === c ? `0 0 0 2px #0e1628, 0 0 0 4px ${c}` : 'none',
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddCategory}
+                    disabled={catSaving || !catTitle.trim()}
+                    className="w-full py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
+                    style={{ background: '#1d4ed8', color: 'white' }}
+                  >
+                    {catSaving ? 'Creating…' : 'Create Category'}
+                  </button>
+                </div>
+              )}
             </div>
 
             <div>
@@ -536,6 +534,7 @@ export function ContentBuilder() {
               disabled={
                 itemSaving ||
                 !form.categoryId ||
+                form.categoryId === NEW_CATEGORY_VALUE ||
                 !form.title.trim() ||
                 ((form.type === 'image' || form.type === 'media') &&
                   !mediaFile &&
@@ -549,53 +548,61 @@ export function ContentBuilder() {
           </form>
         </div>
 
-        {/* Category table — same tabular layout used by other admin lists
-            in the app (icon/title/status/actions columns), rather than a
-            bare card list. */}
+        {/* Category management collapses out of the way by default — the
+            Category * field above covers everyday create/select, this is
+            only for renaming/deleting an existing category. */}
         {cats.length > 0 && (
           <div
             className="rounded-xl overflow-hidden"
             style={{ background: '#111d2e', border: '1px solid #1a2840' }}
           >
-            <div className="text-sm font-semibold px-4 pt-4 pb-3" style={{ color: '#e2e8f0' }}>
-              Existing Categories
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ borderTop: '1px solid #1a2840', borderBottom: '1px solid #1a2840' }}>
-                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Icon</th>
-                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Title</th>
-                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Color</th>
-                    <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Pinned</th>
-                    <th className="px-4 py-2 text-right font-medium" style={{ color: '#6b7fa3' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cats.map((c) => (
-                    <tr key={c.id} style={{ borderBottom: '1px solid #1a2840' }}>
-                      <td className="px-4 py-2.5"><TriageCategoryIcon icon={c.icon} className="w-4 h-4" /></td>
-                      <td className="px-4 py-2.5" style={{ color: '#e2e8f0' }}>{c.title}</td>
-                      <td className="px-4 py-2.5">
-                        <div className="w-3 h-3 rounded-full" style={{ background: c.color }} />
-                      </td>
-                      <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{c.pinned ? 'Yes' : ''}</td>
-                      <td className="px-4 py-2.5 text-right">
-                        {canDelete && (
-                          <button
-                            onClick={() => deleteCategory(c.id)}
-                            className="text-base opacity-50 hover:opacity-100 transition-opacity"
-                            title="Delete category"
-                          >
-                            🗑
-                          </button>
-                        )}
-                      </td>
+            <button
+              type="button"
+              onClick={() => setManageCategoriesOpen((v) => !v)}
+              className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold"
+              style={{ color: '#e2e8f0' }}
+            >
+              Manage Categories ({cats.length})
+              {manageCategoriesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+            {manageCategoriesOpen && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr style={{ borderTop: '1px solid #1a2840', borderBottom: '1px solid #1a2840' }}>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Icon</th>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Title</th>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Color</th>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Pinned</th>
+                      <th className="px-4 py-2 text-right font-medium" style={{ color: '#6b7fa3' }}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {cats.map((c) => (
+                      <tr key={c.id} style={{ borderBottom: '1px solid #1a2840' }}>
+                        <td className="px-4 py-2.5"><TriageCategoryIcon icon={c.icon} className="w-4 h-4" /></td>
+                        <td className="px-4 py-2.5" style={{ color: '#e2e8f0' }}>{c.title}</td>
+                        <td className="px-4 py-2.5">
+                          <div className="w-3 h-3 rounded-full" style={{ background: c.color }} />
+                        </td>
+                        <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{c.pinned ? 'Yes' : ''}</td>
+                        <td className="px-4 py-2.5 text-right">
+                          {canDelete && (
+                            <button
+                              onClick={() => deleteCategory(c.id)}
+                              className="inline-flex opacity-50 hover:opacity-100 transition-opacity"
+                              title="Delete category"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>

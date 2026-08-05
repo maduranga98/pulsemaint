@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { BookOpen, ClipboardList, Lock, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, BookOpen, ClipboardList, Lock, Users } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { ContentBuilder } from './components/builder/ContentBuilder';
 import { ContactBuilder } from './components/builder/ContactBuilder';
@@ -13,11 +14,21 @@ const TABS: { id: Tab; label: string; icon: typeof BookOpen }[] = [
   { id: 'assessments', label: 'Assessments', icon: ClipboardList },
 ];
 
-const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer'] as const;
+export const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer'] as const;
 
-export default function TriageBuilderPage() {
+interface Props {
+  /** Provided when rendered inline inside the Triage page's "Create" overlay
+   *  — shows a "Back to Triage" button that closes the overlay instead of
+   *  navigating. Omitted when reached directly via the /app/triage-builder
+   *  route, which falls back to navigating to /app/triage. */
+  onBack?: () => void;
+}
+
+export default function TriageBuilderPage({ onBack }: Props) {
+  const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const [activeTab, setActiveTab] = useState<Tab>('content');
+  const handleBack = onBack ?? (() => navigate('/app/triage'));
 
   if (!userProfile?.role || !(BUILDER_ROLES as readonly string[]).includes(userProfile.role)) {
     return (
@@ -37,6 +48,15 @@ export default function TriageBuilderPage() {
 
   return (
     <div>
+      <button
+        type="button"
+        onClick={handleBack}
+        className="inline-flex items-center gap-1.5 text-sm font-medium mb-4 transition-colors"
+        style={{ color: '#6b7fa3' }}
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to Triage
+      </button>
+
       <div className="mb-5">
         <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
           Triage Builder

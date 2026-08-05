@@ -108,7 +108,11 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['technician', 'floor_operator', 'store_keeper', 'trainee'] },
       { label: 'Safety Training', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
       { label: 'Safety Trainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin'] },
-      { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
+      // Admin/plant manager reach the calendar via the "View Training
+      // Schedules" button on the Safety Trainings page instead of a
+      // dedicated nav entry; every other role still needs one since they
+      // don't have access to that page.
+      { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
       // Safety Analytics for admins/plant managers now lives inline on the manager
       // dashboard instead of a dedicated tab.
       { label: 'Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
@@ -148,16 +152,9 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
       },
-      {
-        label: 'Triage Builder',
-        to: '/app/triage-builder',
-        icon: (
-          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
-          </svg>
-        ),
-        roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin', 'hr_officer'],
-      },
+      // Triage Builder is now reached via the "Create" button on the Triage
+      // page itself (opens inline, with its own back button) instead of a
+      // separate nav entry — the route still exists for direct links.
       { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
       { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
     ],
