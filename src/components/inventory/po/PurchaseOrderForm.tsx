@@ -85,12 +85,14 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   // dropdown, or resolved from the part a low-stock "Order Now" link
   // prefilled — so the low-stock suggestion panel below knows who to query.
   const [activeSupplierId, setActiveSupplierId] = useState('');
+  const activeSupplierName = watch('supplierName');
 
   const {
     register,
     handleSubmit,
     control,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<PurchaseOrderFormValues>({
     resolver: zodResolver(purchaseOrderSchema) as any,
@@ -488,6 +490,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           supplier that are also low stock into the same shipment. */}
       <SupplierLowStockSuggestions
         supplierId={activeSupplierId}
+        supplierName={activeSupplierName}
         excludePartIds={items.map((i) => i.partId)}
         onAdd={addSuggestedItems}
       />
