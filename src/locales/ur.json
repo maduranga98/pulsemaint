@@ -50,6 +50,61 @@
         "settings": "ترتیبات",
         "billing": "بلنگ اور پلان"
       }
+    },
+    "dashboard": {
+      "adminTitle": "ایڈمن ڈیش بورڈ",
+      "managerTitle": "مینیجر ڈیش بورڈ",
+      "greeting": {
+        "morning": "صبح بخیر",
+        "afternoon": "دوپہر بخیر",
+        "evening": "شام بخیر",
+        "text": "{{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "کل دیکھ بھال",
+        "totalBreakdowns": "کل خرابیاں ({{range}})",
+        "todayBreakdowns": "آج کی خرابیاں",
+        "todayWorkOrders": "آج کے ورک آرڈرز",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM تعمیل"
+      },
+      "floorMap": {
+        "title": "فیکٹری فلور نقشہ",
+        "needAttention": "{{count}} کو توجہ درکار ہے",
+        "empty": "خرابی یا کھلے ورک آرڈر والی کوئی مشین نہیں",
+        "statusBreakdown": "خرابی",
+        "statusMaintenance": "کھلا ورک آرڈر",
+        "noLocation": "مقام مقرر نہیں",
+        "status": "حالت",
+        "openBreakdowns": "کھلی خرابیاں",
+        "woAwaitingSignoff": "دستخط کے منتظر ورک آرڈرز",
+        "noOpenWo": "کوئی کھلا ورک آرڈر نہیں۔"
+      },
+      "liveBreakdowns": {
+        "title": "لائیو خرابیاں",
+        "active": "{{count}} فعال",
+        "empty": "کوئی فعال خرابی نہیں",
+        "count_one": "{{count}} خرابی",
+        "count_other": "{{count}} خرابیاں",
+        "pending": "زیر التوا"
+      },
+      "livePOs": {
+        "title": "لائیو PO درخواستیں",
+        "pending": "{{count}} زیر التوا",
+        "empty": "منظوری کے منتظر کوئی خریداری آرڈر نہیں"
+      },
+      "safetyCases": {
+        "title": "آج کے حفاظتی کیسز",
+        "today": "آج {{count}}",
+        "empty": "آج کوئی حفاظتی کیس رپورٹ نہیں ہوا"
+      },
+      "trainings": {
+        "title": "آج کی تربیت",
+        "today": "آج {{count}}",
+        "empty": "آج کوئی تربیت طے شدہ نہیں",
+        "safety": "حفاظت",
+        "general": "عام"
+      }
     }
   }
 }

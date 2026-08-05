@@ -1,7 +1,8 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import en from '../locales/en.json';
+import enUS from '../locales/en-US.json';
+import enGB from '../locales/en-GB.json';
 import si from '../locales/si.json';
 import ta from '../locales/ta.json';
 import bn from '../locales/bn.json';
@@ -10,23 +11,38 @@ import hi from '../locales/hi.json';
 import ur from '../locales/ur.json';
 import zh from '../locales/zh.json';
 import ja from '../locales/ja.json';
+import es from '../locales/es.json';
+import fr from '../locales/fr.json';
+import de from '../locales/de.json';
 
-// Languages with no dedicated app-shell translation yet fall back to en via
-// fallbackLng below rather than shipping an empty/duplicate file.
+// Languages with no dedicated app-shell translation yet fall back to
+// en-US via fallbackLng below rather than shipping an empty/duplicate file.
+// Labels are deliberately plain English names (not each language's native
+// script) per product decision — easier to scan in a dropdown for users who
+// may not read every script listed. US/UK English are offered as separate
+// picks per the target-market requirement, even though today's copy is
+// identical between the two.
 export const SUPPORTED_LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'si', label: 'සිංහල' },
-  { code: 'ta', label: 'தமிழ்' },
-  { code: 'bn', label: 'বাংলা' },
-  { code: 'ar', label: 'العربية' },
-  { code: 'hi', label: 'हिन्दी' },
-  { code: 'ur', label: 'اردو' },
-  { code: 'zh', label: '中文' },
-  { code: 'ja', label: '日本語' },
+  { code: 'en-US', label: 'English (US)' },
+  { code: 'en-GB', label: 'English (UK)' },
+  { code: 'es', label: 'Spanish' },
+  { code: 'fr', label: 'French' },
+  { code: 'de', label: 'German' },
+  { code: 'ar', label: 'Arabic' },
+  { code: 'hi', label: 'Hindi' },
+  { code: 'ur', label: 'Urdu' },
+  { code: 'zh', label: 'Chinese' },
+  { code: 'ja', label: 'Japanese' },
+  { code: 'si', label: 'Sinhala' },
+  { code: 'ta', label: 'Tamil' },
+  { code: 'bn', label: 'Bengali' },
 ] as const;
 
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]['code'];
-export const RTL_LANGUAGES: AppLanguage[] = ['ar', 'ur'];
+// The app's layout (fixed-side sidebar, flex directions) isn't built for RTL
+// mirroring — flipping dir="rtl" breaks the sidebar/header layout instead of
+// properly mirroring it. Keep the document LTR for every language; Arabic/
+// Urdu text itself still renders correctly right-to-left within LTR blocks.
 
 const STORAGE_KEY = 'firmicore-language';
 
@@ -37,12 +53,13 @@ function initialLanguage(): AppLanguage {
   } catch {
     // localStorage unavailable (private mode, SSR, etc.) — fall through to default.
   }
-  return 'en';
+  return 'en-US';
 }
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { translation: en },
+    'en-US': { translation: enUS },
+    'en-GB': { translation: enGB },
     si: { translation: si },
     ta: { translation: ta },
     bn: { translation: bn },
@@ -51,9 +68,12 @@ i18n.use(initReactI18next).init({
     ur: { translation: ur },
     zh: { translation: zh },
     ja: { translation: ja },
+    es: { translation: es },
+    fr: { translation: fr },
+    de: { translation: de },
   },
   lng: initialLanguage(),
-  fallbackLng: 'en',
+  fallbackLng: 'en-US',
   interpolation: {
     escapeValue: false,
   },
@@ -66,11 +86,10 @@ export function setAppLanguage(lang: AppLanguage) {
   } catch {
     // ignore — persistence is a convenience, not a requirement.
   }
-  document.documentElement.dir = RTL_LANGUAGES.includes(lang) ? 'rtl' : 'ltr';
   document.documentElement.lang = lang;
 }
 
-// Apply direction/lang attributes for whatever language loaded initially.
+// Apply the lang attribute for whatever language loaded initially.
 setAppLanguage(i18n.language as AppLanguage);
 
 export default i18n;

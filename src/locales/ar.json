@@ -50,6 +50,61 @@
         "settings": "الإعدادات",
         "billing": "الفوترة والخطة"
       }
+    },
+    "dashboard": {
+      "adminTitle": "لوحة تحكم المسؤول",
+      "managerTitle": "لوحة تحكم المدير",
+      "greeting": {
+        "morning": "صباح الخير",
+        "afternoon": "مساء الخير",
+        "evening": "مساء الخير",
+        "text": "{{time}}، {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "إجمالي الصيانات",
+        "totalBreakdowns": "إجمالي الأعطال ({{range}})",
+        "todayBreakdowns": "أعطال اليوم",
+        "todayWorkOrders": "أوامر عمل اليوم",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "الالتزام بالصيانة الوقائية"
+      },
+      "floorMap": {
+        "title": "خريطة أرضية المصنع",
+        "needAttention": "{{count}} بحاجة إلى اهتمام",
+        "empty": "لا توجد آلات معطلة أو بها أوامر عمل مفتوحة",
+        "statusBreakdown": "عطل",
+        "statusMaintenance": "أمر عمل مفتوح",
+        "noLocation": "لم يتم تحديد الموقع",
+        "status": "الحالة",
+        "openBreakdowns": "الأعطال المفتوحة",
+        "woAwaitingSignoff": "أوامر عمل بانتظار الاعتماد",
+        "noOpenWo": "لا توجد أوامر عمل مفتوحة."
+      },
+      "liveBreakdowns": {
+        "title": "الأعطال المباشرة",
+        "active": "{{count}} نشط",
+        "empty": "لا توجد أعطال نشطة",
+        "count_one": "عطل {{count}}",
+        "count_other": "{{count}} أعطال",
+        "pending": "قيد الانتظار"
+      },
+      "livePOs": {
+        "title": "طلبات الشراء المباشرة",
+        "pending": "{{count}} قيد الانتظار",
+        "empty": "لا توجد أوامر شراء بانتظار الموافقة"
+      },
+      "safetyCases": {
+        "title": "حالات السلامة اليوم",
+        "today": "{{count}} اليوم",
+        "empty": "لم يتم الإبلاغ عن أي حالات سلامة اليوم"
+      },
+      "trainings": {
+        "title": "تدريبات اليوم",
+        "today": "{{count}} اليوم",
+        "empty": "لا توجد تدريبات مجدولة اليوم",
+        "safety": "سلامة",
+        "general": "عام"
+      }
     }
   }
 }

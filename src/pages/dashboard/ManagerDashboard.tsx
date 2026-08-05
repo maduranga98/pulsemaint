@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
 import { useActiveBreakdowns } from '../../hooks/dashboard/useActiveBreakdowns';
@@ -28,6 +29,7 @@ import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 const RANGE = 'mtd' as const;
 
 export default function ManagerDashboard() {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   // Admin and plant manager are both plant-wide roles, so both resolve to the
@@ -35,7 +37,7 @@ export default function ManagerDashboard() {
   const siteId = resolveAnalyticsScopeId(userProfile);
   const role = userProfile?.role;
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Manager';
-  const dashboardTitle = role === 'admin' ? 'Admin Dashboard' : 'Manager Dashboard';
+  const dashboardTitle = role === 'admin' ? t('common.dashboard.adminTitle') : t('common.dashboard.managerTitle');
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
 
   const { count: todayBreakdowns } = useActiveBreakdowns(siteId);
@@ -62,33 +64,33 @@ export default function ManagerDashboard() {
 
   const kpis = [
     {
-      label: 'Total Maintenances',
+      label: t('common.dashboard.kpi.totalMaintenances'),
       value: totalMaintenances,
       color: 'cyan' as const,
     },
     {
-      label: `Total Breakdowns (${DASHBOARD_RANGE_LABELS[RANGE]})`,
+      label: t('common.dashboard.kpi.totalBreakdowns', { range: DASHBOARD_RANGE_LABELS[RANGE] }),
       value: monthly?.totalBreakdowns ?? 0,
       color: 'blue' as const,
     },
     {
-      label: 'Today Breakdowns',
+      label: t('common.dashboard.kpi.todayBreakdowns'),
       value: todayBreakdowns,
       color: activeBreakdownColor(todayBreakdowns),
     },
     {
-      label: 'Today Work Orders',
+      label: t('common.dashboard.kpi.todayWorkOrders'),
       value: todayWorkOrders,
       color: openWoColor(todayWorkOrders),
     },
     {
-      label: `MTTR (${DASHBOARD_RANGE_LABELS[RANGE]})`,
+      label: t('common.dashboard.kpi.mttr', { range: DASHBOARD_RANGE_LABELS[RANGE] }),
       value: (monthly?.avgMttrHours ?? 0).toFixed(1),
       unit: 'hrs',
       color: complianceColor(monthly?.avgMttrHours ? 100 - monthly.avgMttrHours * 10 : 100),
     },
     {
-      label: 'PM Compliance',
+      label: t('common.dashboard.kpi.pmCompliance'),
       value: Math.round(monthly?.pmComplianceRate ?? 0),
       unit: '%',
       color: complianceColor(monthly?.pmComplianceRate ?? 0),
@@ -101,7 +103,7 @@ export default function ManagerDashboard() {
         <div>
           <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{dashboardTitle}</h1>
           <p className="text-sm text-[#8BA3BF] mt-0.5">
-            Good {getGreeting()}, {firstName}
+            {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
           </p>
         </div>
       </div>

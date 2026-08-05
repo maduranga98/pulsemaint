@@ -99,6 +99,61 @@
         "settings": "সেটিংস",
         "billing": "বিলিং ও প্ল্যান"
       }
+    },
+    "dashboard": {
+      "adminTitle": "অ্যাডমিন ড্যাশবোর্ড",
+      "managerTitle": "ম্যানেজার ড্যাশবোর্ড",
+      "greeting": {
+        "morning": "সকাল",
+        "afternoon": "দুপুর",
+        "evening": "সন্ধ্যা",
+        "text": "শুভ {{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "মোট রক্ষণাবেক্ষণ",
+        "totalBreakdowns": "মোট ব্রেকডাউন ({{range}})",
+        "todayBreakdowns": "আজকের ব্রেকডাউন",
+        "todayWorkOrders": "আজকের ওয়ার্ক অর্ডার",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM সম্মতি"
+      },
+      "floorMap": {
+        "title": "ফ্যাক্টরি ফ্লোর ম্যাপ",
+        "needAttention": "{{count}}টি মনোযোগ প্রয়োজন",
+        "empty": "ব্রেকডাউন বা খোলা ওয়ার্ক অর্ডার সহ কোনো যন্ত্র নেই",
+        "statusBreakdown": "ব্রেকডাউন",
+        "statusMaintenance": "খোলা ওয়ার্ক অর্ডার",
+        "noLocation": "অবস্থান নির্ধারণ করা হয়নি",
+        "status": "অবস্থা",
+        "openBreakdowns": "খোলা ব্রেকডাউন",
+        "woAwaitingSignoff": "স্বাক্ষরের অপেক্ষায় থাকা ওয়ার্ক অর্ডার",
+        "noOpenWo": "কোনো খোলা ওয়ার্ক অর্ডার নেই।"
+      },
+      "liveBreakdowns": {
+        "title": "লাইভ ব্রেকডাউন",
+        "active": "{{count}}টি সক্রিয়",
+        "empty": "কোনো সক্রিয় ব্রেকডাউন নেই",
+        "count_one": "{{count}}টি ব্রেকডাউন",
+        "count_other": "{{count}}টি ব্রেকডাউন",
+        "pending": "অপেক্ষমাণ"
+      },
+      "livePOs": {
+        "title": "লাইভ PO অনুরোধ",
+        "pending": "{{count}}টি অপেক্ষমাণ",
+        "empty": "অনুমোদনের অপেক্ষায় কোনো ক্রয় আদেশ নেই"
+      },
+      "safetyCases": {
+        "title": "আজকের নিরাপত্তা মামলা",
+        "today": "আজ {{count}}টি",
+        "empty": "আজ কোনো নিরাপত্তা মামলা রিপোর্ট করা হয়নি"
+      },
+      "trainings": {
+        "title": "আজকের প্রশিক্ষণ",
+        "today": "আজ {{count}}টি",
+        "empty": "আজ কোনো প্রশিক্ষণ নির্ধারিত নেই",
+        "safety": "নিরাপত্তা",
+        "general": "সাধারণ"
+      }
     }
   }
 }

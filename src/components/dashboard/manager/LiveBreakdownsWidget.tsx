@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useActiveBreakdowns } from '../../../hooks/dashboard/useActiveBreakdowns';
@@ -16,6 +17,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 const SEVERITY_RANK: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
 
 export default function LiveBreakdownsWidget({ siteId }: LiveBreakdownsWidgetProps) {
+  const { t } = useTranslation();
   const { breakdowns, loading, error } = useActiveBreakdowns(siteId);
 
   // One row per machine — every active breakdown ticket on it rolls up into
@@ -39,14 +41,14 @@ export default function LiveBreakdownsWidget({ siteId }: LiveBreakdownsWidgetPro
 
   return (
     <DashboardWidget
-      title="Live Breakdowns"
+      title={t('common.dashboard.liveBreakdowns.title')}
       loading={loading}
       error={error}
       live
-      action={<span className="text-xs text-[#8BA3BF]">{breakdowns.length} active</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.liveBreakdowns.active', { count: breakdowns.length })}</span>}
     >
       {byMachine.length === 0 ? (
-        <EmptyState message="No active breakdowns" />
+        <EmptyState message={t('common.dashboard.liveBreakdowns.empty')} />
       ) : (
         <div className="space-y-1.5">
           {byMachine.map((m) => {
@@ -60,10 +62,10 @@ export default function LiveBreakdownsWidget({ siteId }: LiveBreakdownsWidgetPro
                 <p className="truncate text-sm font-semibold text-[#F0F4F8]">{m.machineName}</p>
                 <div className="flex items-center gap-2 shrink-0">
                   <span className="rounded-full bg-[#0A1628] px-2 py-0.5 text-[10px] font-semibold text-[#F0F4F8]">
-                    {m.count} {m.count === 1 ? 'breakdown' : 'breakdowns'}
+                    {t('common.dashboard.liveBreakdowns.count', { count: m.count })}
                   </span>
                   <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase" style={{ color, backgroundColor: `${color}20` }}>
-                    {m.worstSeverity ?? 'pending'}
+                    {m.worstSeverity ?? t('common.dashboard.liveBreakdowns.pending')}
                   </span>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '../../../lib/firebase';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
@@ -36,6 +37,7 @@ function useAllTrainingModules(companyId: string) {
 }
 
 export default function TodayTrainingsWidget({ companyId }: { companyId: string }) {
+  const { t } = useTranslation();
   const { modules, loading } = useAllTrainingModules(companyId);
   const todayStr = new Date().toISOString().slice(0, 10);
 
@@ -47,13 +49,13 @@ export default function TodayTrainingsWidget({ companyId }: { companyId: string 
 
   return (
     <DashboardWidget
-      title="Today's Trainings"
+      title={t('common.dashboard.trainings.title')}
       loading={loading}
       live
-      action={<span className="text-xs text-[#8BA3BF]">{todaySessions.length} today</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.trainings.today', { count: todaySessions.length })}</span>}
     >
       {todaySessions.length === 0 ? (
-        <EmptyState message="No trainings scheduled today" />
+        <EmptyState message={t('common.dashboard.trainings.empty')} />
       ) : (
         <div className="space-y-1.5">
           {todaySessions.map((s, i) => (
@@ -70,7 +72,7 @@ export default function TodayTrainingsWidget({ companyId }: { companyId: string 
                   s.safety ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'bg-[#1A56DB]/20 text-[#5B8DEF]'
                 }`}
               >
-                {s.safety ? 'Safety' : 'General'}
+                {s.safety ? t('common.dashboard.trainings.safety') : t('common.dashboard.trainings.general')}
               </span>
             </div>
           ))}

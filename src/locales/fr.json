@@ -1,0 +1,110 @@
+{
+  "common": {
+    "signOut": "Se déconnecter",
+    "language": "Langue",
+    "trial": {
+      "expired": "Votre période d'essai a expiré. Les fonctionnalités sont verrouillées.",
+      "endsIn": "L'essai se termine dans {{days}} jour{{plural}}.",
+      "upgradeNow": "Mettre à niveau maintenant"
+    },
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "groups": {
+        "maintenance": "Maintenance",
+        "safety": "Sécurité",
+        "inventory": "Gestion des stocks",
+        "triageTraining": "Triage et formation",
+        "workforce": "Personnel",
+        "insights": "Analyses",
+        "admin": "Administration"
+      },
+      "items": {
+        "machines": "Machines",
+        "breakdowns": "Pannes",
+        "workOrders": "Ordres de travail",
+        "myWorkOrders": "Mes ordres de travail",
+        "pmSchedules": "Calendriers de maintenance préventive",
+        "workPermits": "Permis de travail",
+        "safetyCases": "Cas de sécurité",
+        "safetyTraining": "Formation à la sécurité",
+        "safetyTrainings": "Formations à la sécurité",
+        "safetyTrainingSchedules": "Calendriers de formation à la sécurité",
+        "analytics": "Analyses",
+        "inventory": "Stock",
+        "po": "Bon de commande",
+        "requests": "Demandes",
+        "triage": "Triage",
+        "training": "Formation",
+        "traineeManagement": "Gestion des stagiaires",
+        "contractors": "Sous-traitants",
+        "shifts": "Équipes",
+        "myShift": "Mon équipe",
+        "shiftHandovers": "Transmissions d'équipe",
+        "myTraining": "Ma formation",
+        "myCertificates": "Mes certificats",
+        "myProgram": "Mon programme",
+        "moe": "MOE",
+        "reports": "Rapports",
+        "audit": "Audit",
+        "evaluations": "Évaluations",
+        "settings": "Paramètres",
+        "billing": "Facturation et forfait"
+      }
+    },
+    "dashboard": {
+      "adminTitle": "Tableau de bord de l'administrateur",
+      "managerTitle": "Tableau de bord du responsable",
+      "greeting": {
+        "morning": "matin",
+        "afternoon": "après-midi",
+        "evening": "soir",
+        "text": "Bon {{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "Total des maintenances",
+        "totalBreakdowns": "Total des pannes ({{range}})",
+        "todayBreakdowns": "Pannes du jour",
+        "todayWorkOrders": "Ordres de travail du jour",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "Conformité de maintenance préventive"
+      },
+      "floorMap": {
+        "title": "Plan de l'usine",
+        "needAttention": "{{count}} nécessitent une attention",
+        "empty": "Aucune machine en panne ou avec un ordre de travail ouvert",
+        "statusBreakdown": "Panne",
+        "statusMaintenance": "Ordre de travail ouvert",
+        "noLocation": "Emplacement non défini",
+        "status": "Statut",
+        "openBreakdowns": "Pannes ouvertes",
+        "woAwaitingSignoff": "Ordres de travail en attente d'approbation",
+        "noOpenWo": "Aucun ordre de travail ouvert."
+      },
+      "liveBreakdowns": {
+        "title": "Pannes en direct",
+        "active": "{{count}} actives",
+        "empty": "Aucune panne active",
+        "count_one": "{{count}} panne",
+        "count_other": "{{count}} pannes",
+        "pending": "en attente"
+      },
+      "livePOs": {
+        "title": "Demandes d'achat en direct",
+        "pending": "{{count}} en attente",
+        "empty": "Aucun bon de commande en attente d'approbation"
+      },
+      "safetyCases": {
+        "title": "Cas de sécurité du jour",
+        "today": "{{count}} aujourd'hui",
+        "empty": "Aucun cas de sécurité signalé aujourd'hui"
+      },
+      "trainings": {
+        "title": "Formations du jour",
+        "today": "{{count}} aujourd'hui",
+        "empty": "Aucune formation prévue aujourd'hui",
+        "safety": "Sécurité",
+        "general": "Général"
+      }
+    }
+  }
+}

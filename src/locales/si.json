@@ -99,6 +99,61 @@
         "settings": "සැකසුම්",
         "billing": "බිල්පත් සහ සැලසුම"
       }
+    },
+    "dashboard": {
+      "adminTitle": "පරිපාලක උපකරණ පුවරුව",
+      "managerTitle": "කළමනාකරු උපකරණ පුවරුව",
+      "greeting": {
+        "morning": "උදෑසන",
+        "afternoon": "දහවල",
+        "evening": "සන්ධ්‍යාව",
+        "text": "සුභ {{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "මුළු නඩත්තු",
+        "totalBreakdowns": "මුළු බිඳවැටීම් ({{range}})",
+        "todayBreakdowns": "අද බිඳවැටීම්",
+        "todayWorkOrders": "අද කාර්ය නියෝග",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM අනුකූලතාව"
+      },
+      "floorMap": {
+        "title": "කම්හල් බිම් සිතියම",
+        "needAttention": "{{count}} අවධානය අවශ්‍යයි",
+        "empty": "බිඳවැටීම් හෝ විවෘත කාර්ය නියෝග සහිත යන්ත්‍ර නොමැත",
+        "statusBreakdown": "බිඳවැටීම",
+        "statusMaintenance": "විවෘත කාර්ය නියෝගය",
+        "noLocation": "ස්ථානය සකසා නැත",
+        "status": "තත්ත්වය",
+        "openBreakdowns": "විවෘත බිඳවැටීම්",
+        "woAwaitingSignoff": "අත්සන් කිරීමට රැඳී ඇති කාර්ය නියෝග",
+        "noOpenWo": "විවෘත කාර්ය නියෝග නොමැත."
+      },
+      "liveBreakdowns": {
+        "title": "සජීවී බිඳවැටීම්",
+        "active": "{{count}} සක්‍රීය",
+        "empty": "සක්‍රීය බිඳවැටීම් නොමැත",
+        "count_one": "බිඳවැටීම් {{count}}",
+        "count_other": "බිඳවැටීම් {{count}}",
+        "pending": "පොරොත්තුවෙන්"
+      },
+      "livePOs": {
+        "title": "සජීවී ඇණවුම් ඉල්ලීම්",
+        "pending": "පොරොත්තුවෙන් {{count}}",
+        "empty": "අනුමැතිය අපේක්ෂාවෙන් ඇණවුම් නොමැත"
+      },
+      "safetyCases": {
+        "title": "අද ආරක්ෂක සිද්ධි",
+        "today": "අද {{count}}",
+        "empty": "අද ආරක්ෂක සිද්ධි වාර්තා වී නැත"
+      },
+      "trainings": {
+        "title": "අද පුහුණු",
+        "today": "අද {{count}}",
+        "empty": "අද පුහුණු කිසිවක් නියමිත නැත",
+        "safety": "ආරක්ෂාව",
+        "general": "සාමාන්‍ය"
+      }
     }
   }
 }

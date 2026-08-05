@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { usePurchaseOrders } from '../../../hooks/inventory/usePurchaseOrders';
@@ -5,18 +6,19 @@ import { usePurchaseOrders } from '../../../hooks/inventory/usePurchaseOrders';
 /** Purchase orders currently awaiting approval — live so a new request
  * appears here the moment a store keeper raises one. */
 export default function LivePOsWidget() {
+  const { t } = useTranslation();
   const { orders, loading, error } = usePurchaseOrders('pending_approval');
 
   return (
     <DashboardWidget
-      title="Live PO Requests"
+      title={t('common.dashboard.livePOs.title')}
       loading={loading}
       error={error}
       live
-      action={<span className="text-xs text-[#8BA3BF]">{orders.length} pending</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.livePOs.pending', { count: orders.length })}</span>}
     >
       {orders.length === 0 ? (
-        <EmptyState message="No purchase orders awaiting approval" />
+        <EmptyState message={t('common.dashboard.livePOs.empty')} />
       ) : (
         <div className="space-y-1.5">
           {orders.map((po) => (
