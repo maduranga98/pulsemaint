@@ -81,9 +81,14 @@ export function ReceiveAgainstPo() {
   // quantities, condition, and notes — so a correction made after the
   // receipt was already confirmed (or before submitting at all) can be
   // sent without re-running the stock-affecting transaction. Shared by
-  // both Confirm Receipt (always sends once) and the standalone Resend
-  // Email button (sends again with the form's current/changed details).
-  async function sendReceiptEmail() {
+  // both Confirm Receipt and the standalone Resend Email button.
+  //
+  // `onlyThankYou` keeps Confirm Receipt to a single email: it never sends
+  // the damage/fault notice in the same action, even if a row was marked
+  // not-good — that notice only ever goes out via the explicit Resend
+  // Email action, so the supplier never gets two emails (thank-you +
+  // fault) back to back for one receipt.
+  async function sendReceiptEmail(options?: { onlyThankYou?: boolean }) {
     if (!selectedPo || !companyId) return false;
     const lines = selectedPo.items
       .map((item) => {
@@ -98,7 +103,7 @@ export function ReceiveAgainstPo() {
       })
       .filter((l) => l.quantity > 0);
     const receivedItems = lines.filter((l) => l.condition === 'good');
-    const issueItems = lines.filter((l) => l.condition !== 'good');
+    const issueItems = options?.onlyThankYou ? [] : lines.filter((l) => l.condition !== 'good');
 
     if (!selectedPo.supplierEmail || (receivedItems.length === 0 && issueItems.length === 0)) return false;
 
@@ -300,12 +305,14 @@ export function ReceiveAgainstPo() {
         console.error('Failed to export final PO', exportErr);
       }
 
-      // Send the delivery-received confirmation (thank-you, plus a fault
-      // notice for anything marked not-good) as soon as Confirm Receipt
-      // completes — not before, and not as a separate manual step. Best
-      // effort: a failed email never undoes the stock update above.
+      // Send only the delivery-received thank-you as soon as Confirm Receipt
+      // completes — not before, and not bundled with a fault/issue notice
+      // even if a row was marked damaged in this same submission. Report a
+      // fault via Resend Email afterward instead, so the supplier never
+      // gets two emails at once for one receipt. Best effort: a failed
+      // email never undoes the stock update above.
       try {
-        await sendReceiptEmail();
+        await sendReceiptEmail({ onlyThankYou: true });
       } catch (emailErr) {
         console.error('Failed to queue receipt confirmation email', emailErr);
       }
