@@ -35,6 +35,7 @@ const STATUS_STYLE: Record<WorkPermitStatus, string> = {
 const field = 'w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] outline-none focus:border-[#1A56DB]';
 
 type Filter = 'all' | WorkPermitCategory;
+type LifecycleTab = 'current' | 'closed';
 
 export default function WorkPermitsPage() {
   const profile = useAuthStore((s) => s.userProfile);
@@ -43,15 +44,17 @@ export default function WorkPermitsPage() {
   const { permits, loading } = useWorkPermits(companyId);
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
+  const [lifecycleTab, setLifecycleTab] = useState<LifecycleTab>('current');
   const [signingOff, setSigningOff] = useState<WorkPermit | null>(null);
   const [extending, setExtending] = useState<WorkPermit | null>(null);
   const [extendValue, setExtendValue] = useState('');
   const [extendSaving, setExtendSaving] = useState(false);
 
-  const filtered = useMemo(
-    () => (filter === 'all' ? permits : permits.filter((p) => p.category === filter)),
-    [permits, filter],
-  );
+  const filtered = useMemo(() => {
+    let list = permits.filter((p) => (lifecycleTab === 'closed' ? p.status === 'closed' : p.status !== 'closed'));
+    if (filter !== 'all') list = list.filter((p) => p.category === filter);
+    return list;
+  }, [permits, filter, lifecycleTab]);
 
   // Notify the permit's creator once, when it runs past its validity window.
   const notified = useRef<Set<string>>(new Set());
@@ -117,18 +120,39 @@ export default function WorkPermitsPage() {
       </div>
 
       <div className="px-4 pb-10 sm:px-6 lg:px-8">
+        {/* Current / Closed lifecycle tabs */}
+        <div className="mb-4 flex gap-1 border-b border-[#1E3A5F]">
+          {(['current', 'closed'] as LifecycleTab[]).map((tab) => {
+            const count = permits.filter((p) => (tab === 'closed' ? p.status === 'closed' : p.status !== 'closed')).length;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setLifecycleTab(tab)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                  lifecycleTab === tab
+                    ? 'border-[#1A56DB] text-[#5B8DEF]'
+                    : 'border-transparent text-[#8BA3BF] hover:text-white'
+                }`}
+              >
+                {tab === 'current' ? 'Current' : 'Closed'} <span className="text-xs text-[#8BA3BF]">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Category filter */}
         <div className="mb-4 flex flex-wrap gap-2">
-          {(['all', ...WORK_PERMIT_CATEGORIES.map((c) => c.value)] as Filter[]).map((f) => (
+          {WORK_PERMIT_CATEGORIES.map((c) => (
             <button
-              key={f}
+              key={c.value}
               type="button"
-              onClick={() => setFilter(f)}
+              onClick={() => setFilter((f) => (f === c.value ? 'all' : c.value))}
               className={`rounded-full px-3 py-1.5 text-xs font-medium ${
-                filter === f ? 'bg-[#1A56DB] text-white' : 'bg-[#0F1E35] text-[#8BA3BF] hover:text-white'
+                filter === c.value ? 'bg-[#1A56DB] text-white' : 'bg-[#0F1E35] text-[#8BA3BF] hover:text-white'
               }`}
             >
-              {f === 'all' ? 'All' : CAT_LABEL[f]}
+              {c.label}
             </button>
           ))}
         </div>
@@ -137,7 +161,7 @@ export default function WorkPermitsPage() {
           <div className="h-40 animate-pulse rounded-xl border border-[#1E3A5F] bg-[#0F1E35]" />
         ) : filtered.length === 0 ? (
           <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-6">
-            <EmptyState message="No permits in this category" />
+            <EmptyState message={lifecycleTab === 'closed' ? 'No closed permits' : 'No current permits in this category'} />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
