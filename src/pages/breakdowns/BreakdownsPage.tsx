@@ -1,13 +1,32 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { AlertCircle, CheckCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X } from 'lucide-react';
+import { collection, query, where, orderBy, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp, documentId, getDocs } from 'firebase/firestore';
+import { AlertCircle, CheckCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { notifyUsers } from '../../services/notifications.service';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
+
+const ROLE_LABELS: Record<string, string> = {
+  technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
+  maintenance_supervisor: 'Supervisor', plant_manager: 'Plant Manager',
+  store_keeper: 'Store Keeper', floor_operator: 'Floor Operator',
+  hr_officer: 'HR Officer', safety_officer: 'Safety Officer', admin: 'Admin',
+};
+function roleLabel(role: string | undefined): string {
+  if (!role) return '';
+  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+}
+function stripRoleSuffix(name: string): string {
+  return name.replace(/\s*\([^)]*\)\s*$/, '').trim();
+}
+function nameWithRole(name: string, uid: string | undefined, roles: Record<string, string>): string {
+  const base = stripRoleSuffix(name);
+  const role = uid ? roles[uid] : undefined;
+  return role ? `${base} (${roleLabel(role)})` : base;
+}
 
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
   reported: 'Reported',
@@ -104,6 +123,10 @@ export default function BreakdownsPage() {
   const [assigningGroup, setAssigningGroup] = useState<MachineGroup | null>(null);
   const [assignBusy, setAssignBusy] = useState(false);
   const [attendingMachineId, setAttendingMachineId] = useState<string | null>(null);
+  // Expanding a machine's row (clicking its name) reveals full details inline,
+  // right under the row, instead of navigating to a separate page.
+  const [expandedMachineId, setExpandedMachineId] = useState<string | null>(null);
+  const [actorRoles, setActorRoles] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!siteId) {
@@ -176,6 +199,34 @@ export default function BreakdownsPage() {
       return bTime - aTime;
     });
   }, [filtered]);
+
+  const expandedGroup = groups.find((g) => g.machineId === expandedMachineId) ?? null;
+
+  // Resolve every actor's current role across the expanded machine's tickets
+  // (attended-by, assigned technicians, status history) so names can be
+  // shown with their role — Firestore's `in` filter caps at 30 ids.
+  useEffect(() => {
+    if (!expandedGroup) return;
+    const uids = Array.from(
+      new Set(
+        expandedGroup.tickets.flatMap((b) => [
+          b.attendedBy,
+          ...(b.assignedTechnicianIds ?? []),
+          ...(b.statusHistory ?? []).map((h: any) => h.changedBy),
+        ]),
+      ),
+    ).filter((id): id is string => !!id).slice(0, 30);
+    if (uids.length === 0) return;
+    getDocs(query(collection(db, 'users'), where(documentId(), 'in', uids)))
+      .then((snap) => {
+        const roles: Record<string, string> = {};
+        snap.docs.forEach((d) => {
+          roles[d.id] = (d.data() as any).role ?? '';
+        });
+        setActorRoles((prev) => ({ ...prev, ...roles }));
+      })
+      .catch(() => {}); // silently ignore permission errors
+  }, [expandedGroup]);
 
   async function openQrScanner() {
     setShowQrScanner(true);
@@ -437,7 +488,8 @@ export default function BreakdownsPage() {
                   const filledTickets = g.tickets.filter((t) => t.status === 'assigned' && !!t.severity && !t.linkedWOId);
 
                   return (
-                    <tr key={g.machineId} className="hover:bg-slate-50 transition-colors align-top">
+                    <Fragment key={g.machineId}>
+                    <tr className="hover:bg-slate-50 transition-colors align-top">
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-1">
                           {g.tickets.map((t) => (
@@ -448,12 +500,18 @@ export default function BreakdownsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <Link
-                          to={`/app/breakdowns/group?ids=${g.tickets.map((t) => t.id).join(',')}`}
-                          className="font-medium text-slate-900 hover:text-blue-600 hover:underline"
+                        <button
+                          type="button"
+                          onClick={() => setExpandedMachineId((cur) => (cur === g.machineId ? null : g.machineId))}
+                          className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-blue-600 hover:underline"
                         >
                           {g.machineName}
-                        </Link>
+                          {expandedMachineId === g.machineId ? (
+                            <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </button>
                         <p className="text-slate-400 text-xs">{g.machineLocation}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -554,6 +612,14 @@ export default function BreakdownsPage() {
                         </div>
                       </td>
                     </tr>
+                    {expandedMachineId === g.machineId && (
+                      <tr>
+                        <td colSpan={8} className="bg-slate-50 px-4 py-5 border-t border-b border-slate-200">
+                          <MachineBreakdownDetails group={g} actorRoles={actorRoles} />
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   );
                 })}
               </tbody>
@@ -585,6 +651,135 @@ export default function BreakdownsPage() {
           onAssign={handleAssign}
         />
       )}
+    </div>
+  );
+}
+
+interface MachineBreakdownDetailsProps {
+  group: MachineGroup;
+  actorRoles: Record<string, string>;
+}
+
+// One consolidated form for every breakdown ticket grouped on a machine's
+// row — shown inline under the row (no popup, no page navigation) so a
+// supervisor can just scroll down and see everything: what happened,
+// reported time, severity, status, type, production impact, machine state,
+// attended-by / assigned technician / trainee / supervisor, and the full
+// status history across every ticket, merged and sorted chronologically.
+function MachineBreakdownDetails({ group, actorRoles }: MachineBreakdownDetailsProps) {
+  const historyEntries = group.tickets
+    .flatMap((t) =>
+      (t.statusHistory ?? []).map((h: any) => ({ ticketNumber: t.ticketNumber, ...h })),
+    )
+    .sort((a, b) => {
+      const at = a.changedAt?.toDate ? a.changedAt.toDate().getTime() : new Date(a.changedAt ?? 0).getTime();
+      const bt = b.changedAt?.toDate ? b.changedAt.toDate().getTime() : new Date(b.changedAt ?? 0).getTime();
+      return bt - at;
+    });
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-6">
+      <div className="divide-y divide-slate-100">
+        {group.tickets.map((t) => (
+          <div key={t.id} className="py-4 first:pt-0 last:pb-0 space-y-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link to={`/app/breakdowns/${t.id}`} className="font-semibold text-blue-600 hover:underline text-sm">
+                {t.ticketNumber}
+              </Link>
+              {t.severity ? (
+                <span className={`px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[t.severity]}`}>
+                  {t.severity}
+                </span>
+              ) : (
+                <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending assessment</span>
+              )}
+              <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[t.status]}`}>
+                {STATUS_LABEL[t.status]}
+              </span>
+              {t.type && <span className="text-xs text-slate-500 capitalize">{t.type}</span>}
+              <span
+                className={`px-2 py-0.5 rounded text-xs font-medium ${
+                  t.machineStillRunning ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200'
+                }`}
+              >
+                {t.machineStillRunning ? 'Machine still running (degraded)' : 'Machine stopped'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Reported</p>
+                <p className="text-slate-800">
+                  {t.source?.replace(/_/g, ' ') || 'Web'}
+                  {t.reportedAt?.toDate && <span className="text-slate-400"> · {t.reportedAt.toDate().toLocaleString()}</span>}
+                </p>
+              </div>
+              {t.attendedByName && (
+                <div>
+                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Attended By</p>
+                  <p className="text-slate-800">
+                    {nameWithRole(t.attendedByName, t.attendedBy ?? undefined, actorRoles)}
+                    {t.attendedAt?.toDate && <span className="text-slate-400 text-xs"> · {t.attendedAt.toDate().toLocaleString()}</span>}
+                  </p>
+                </div>
+              )}
+              <div className="sm:col-span-2">
+                <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">What Happened</p>
+                <p className="text-slate-800">{t.description || ''}</p>
+              </div>
+              {t.productionImpact && (
+                <div className="sm:col-span-2">
+                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Production Impact</p>
+                  <p className="text-slate-800">{t.productionImpact}</p>
+                </div>
+              )}
+              {t.attemptedFixes && (
+                <div className="sm:col-span-2">
+                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Attempted Fixes</p>
+                  <p className="text-slate-800">{t.attemptedFixes}</p>
+                </div>
+              )}
+              {(t.assignedTechnicianNames ?? []).length > 0 && (
+                <div className="sm:col-span-2">
+                  <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Assigned Technicians</p>
+                  <p className="text-slate-800">
+                    {t.assignedTechnicianNames
+                      .map((name, i) => nameWithRole(name, t.assignedTechnicianIds?.[i], actorRoles))
+                      .join(', ')}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="pt-2 border-t border-slate-100">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Status History</p>
+        {historyEntries.length === 0 ? (
+          <p className="text-sm text-slate-500">No status changes yet.</p>
+        ) : (
+          <ol className="space-y-2 text-sm">
+            {historyEntries.map((h, idx) => (
+              <li key={idx} className="flex gap-3 items-start">
+                <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-50 border border-slate-200 whitespace-nowrap">
+                  {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
+                </span>
+                <div>
+                  <span className="text-slate-400 text-xs font-medium mr-1">{h.ticketNumber}</span>
+                  <span className="text-slate-700">
+                    {nameWithRole(h.changedByName ?? '', h.changedBy, actorRoles)}
+                  </span>
+                  <span className="text-slate-400 text-xs ml-2">
+                    {h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}
+                  </span>
+                  {h.note && <p className="text-slate-500 text-xs italic mt-0.5">{h.note}</p>}
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }
