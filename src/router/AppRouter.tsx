@@ -16,6 +16,7 @@ import KnowledgeWriteupPage from '../pages/training/KnowledgeWriteupPage';
 import TrainingDashboardPage from '../pages/training/manage/TrainingDashboardPage';
 import ModuleLibraryPage from '../pages/training/manage/ModuleLibraryPage';
 import CreateModulePage from '../pages/training/manage/CreateModulePage';
+import CreateSafetyTrainingModulePage from '../pages/training/manage/CreateSafetyTrainingModulePage';
 import EditModulePage from '../pages/training/manage/EditModulePage';
 import CreateTraineeModulePage from '../pages/training/manage/CreateTraineeModulePage';
 import EditTraineeModulePage from '../pages/training/manage/EditTraineeModulePage';
@@ -763,6 +764,14 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin', 'plant_manager']}>
               <SafetyTrainingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="training/manage/safety-trainings/new"
+          element={
+            <ProtectedRoute requiredRoles={['admin', 'plant_manager']}>
+              <CreateSafetyTrainingModulePage />
             </ProtectedRoute>
           }
         />

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, CalendarDays, GraduationCap, UserPlus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, ChevronLeft, ChevronRight, CalendarDays, UserPlus } from 'lucide-react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -158,6 +159,7 @@ function useSafetyTrainingSchedule(companyId: string, userId: string, role: stri
 }
 
 export default function SafetyCalendarPage() {
+  const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const role = useAuthStore((s) => s.userProfile?.role);
@@ -165,6 +167,7 @@ export default function SafetyCalendarPage() {
   const { lessons, modulesById } = useSafetyTrainingSchedule(companyId, userId, role);
   const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
   const [cursor, setCursor] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const monthLabel = cursor.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
   const today = ymd(new Date());
@@ -175,11 +178,7 @@ export default function SafetyCalendarPage() {
     return m;
   }, [lessons]);
 
-  // Upcoming safety trainings (today onward), soonest first.
-  const upcoming = useMemo(
-    () => [...lessons].filter((l) => l.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 8),
-    [lessons, today],
-  );
+  const selectedLessons = selectedDate ? lessonsByDay.get(selectedDate) ?? [] : [];
 
   const cells = useMemo(() => {
     const year = cursor.getFullYear();
@@ -194,6 +193,14 @@ export default function SafetyCalendarPage() {
 
   return (
     <div className="min-h-full bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
+      <button
+        type="button"
+        onClick={() => navigate('/app/training/manage/safety-trainings')}
+        className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-[#8BA3BF] hover:text-white"
+      >
+        <ArrowLeft className="h-4 w-4" /> Back to Safety Trainings
+      </button>
+
       <div className="mb-4 flex items-center justify-between">
         <h1 className="flex items-center gap-2 font-[Sora] text-xl font-bold">
           <CalendarDays className="h-5 w-5 text-[#5B8DEF]" /> Safety Training Schedules
@@ -209,80 +216,85 @@ export default function SafetyCalendarPage() {
         <span className="h-2 w-2 rounded-full bg-[#5B8DEF]" /> Assigned safety training sessions (Training Type “Safety Training”)
       </p>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-8">
-          <div className="grid grid-cols-7 gap-1.5">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
-              <div key={d} className="pb-1 text-center text-xs font-semibold text-[#8BA3BF]">{d}</div>
-            ))}
-            {cells.map((date, i) => {
-              if (!date) return <div key={i} />;
-              const dayLessons = lessonsByDay.get(date) ?? [];
-              const isToday = date === today;
-              return (
-                <div key={i} className={`min-h-[84px] rounded-lg border p-1.5 ${isToday ? 'border-[#1A56DB] bg-[#1A56DB]/10' : 'border-[#1E3A5F] bg-[#0F1E35]'}`}>
-                  <div className="text-xs font-semibold text-[#8BA3BF]">{Number(date.slice(8, 10))}</div>
-                  <div className="mt-1 space-y-1">
-                    {dayLessons.slice(0, 3).map((l, idx) => {
-                      const detail = l.lessonTitle || (l.assignees?.length ? `Assigned to ${l.assignees.join(', ')}` : '');
-                      return (
-                        <div key={idx} className="truncate rounded bg-[#5B8DEF]/15 px-1 py-0.5 text-[10px] text-[#5B8DEF]" title={`${l.moduleTitle}${detail ? ': ' + detail : ''}`}>
-                          {l.moduleTitle}
-                        </div>
-                      );
-                    })}
-                    {dayLessons.length > 3 && <div className="text-[10px] text-[#8BA3BF]">+{dayLessons.length - 3} more</div>}
+      <div className="grid grid-cols-7 gap-1.5">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+          <div key={d} className="pb-1 text-center text-xs font-semibold text-[#8BA3BF]">{d}</div>
+        ))}
+        {cells.map((date, i) => {
+          if (!date) return <div key={i} />;
+          const dayLessons = lessonsByDay.get(date) ?? [];
+          const isToday = date === today;
+          const isSelected = date === selectedDate;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setSelectedDate(date)}
+              className={`min-h-[84px] rounded-lg border p-1.5 text-left transition-colors ${
+                isSelected
+                  ? 'border-[#5B8DEF] bg-[#5B8DEF]/20 ring-2 ring-inset ring-[#5B8DEF]'
+                  : isToday
+                  ? 'border-[#1A56DB] bg-[#1A56DB]/10 hover:bg-[#1A56DB]/20'
+                  : 'border-[#1E3A5F] bg-[#0F1E35] hover:bg-[#15233c]'
+              }`}
+            >
+              <div className="text-xs font-semibold text-[#8BA3BF]">{Number(date.slice(8, 10))}</div>
+              <div className="mt-1 space-y-1">
+                {dayLessons.slice(0, 3).map((l, idx) => (
+                  <div key={idx} className="truncate rounded bg-[#5B8DEF]/15 px-1 py-0.5 text-[10px] text-[#5B8DEF]">
+                    {l.moduleTitle}
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+                ))}
+                {dayLessons.length > 3 && <div className="text-[10px] text-[#8BA3BF]">+{dayLessons.length - 3} more</div>}
+              </div>
+            </button>
+          );
+        })}
+      </div>
 
-        {/* Upcoming assigned safety trainings, by module name */}
-        <div className="lg:col-span-4">
-          <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#F0F4F8]">
-              <GraduationCap className="h-4 w-4 text-[#5B8DEF]" /> Upcoming Safety Trainings
-            </h2>
-            {upcoming.length === 0 ? (
-              <p className="text-sm text-[#8BA3BF]">No safety trainings scheduled. Create a module with Training Type “Safety Training” and schedule its lessons.</p>
-            ) : (
-              <div className="space-y-2">
-                {upcoming.map((l, idx) => {
-                  const module = l.moduleId ? modulesById.get(l.moduleId) : undefined;
-                  return (
-                    <div key={idx} className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-medium text-[#F0F4F8]">{l.moduleTitle}</p>
-                        {canAssign && module && (
-                          <button
-                            type="button"
-                            onClick={() => setAssigningModule(module)}
-                            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#1E3A5F] px-2 py-1 text-[11px] font-medium text-[#5B8DEF] hover:bg-[#5B8DEF]/10"
-                          >
-                            <UserPlus className="h-3 w-3" /> Assign
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-xs text-[#8BA3BF]">
-                        {new Date(l.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                        {l.time ? ` · ${l.time}` : ''}
-                        {l.lessonTitle ? ` · ${l.lessonTitle}` : ''}
-                      </p>
-                      {l.assignees && l.assignees.length > 0 && (
-                        <p className="mt-1 text-xs text-[#5B8DEF]">
-                          Assigned to {l.assignees.join(', ')}
-                        </p>
+      {/* Selected day's sessions — click a day above to view it here. */}
+      {selectedDate && (
+        <div className="mt-5 rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4">
+          <h2 className="mb-3 text-sm font-semibold text-[#F0F4F8]">
+            {new Date(selectedDate).toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })}
+          </h2>
+          {selectedLessons.length === 0 ? (
+            <p className="text-sm text-[#8BA3BF]">No safety trainings scheduled this day.</p>
+          ) : (
+            <div className="space-y-2">
+              {selectedLessons.map((l, idx) => {
+                const module = l.moduleId ? modulesById.get(l.moduleId) : undefined;
+                return (
+                  <div key={idx} className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-[#F0F4F8]">{l.moduleTitle}</p>
+                      {canAssign && module && (
+                        <button
+                          type="button"
+                          onClick={() => setAssigningModule(module)}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[#1E3A5F] px-2 py-1 text-[11px] font-medium text-[#5B8DEF] hover:bg-[#5B8DEF]/10"
+                        >
+                          <UserPlus className="h-3 w-3" /> Assign
+                        </button>
                       )}
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                    <p className="text-xs text-[#8BA3BF]">
+                      {l.time || l.lessonTitle
+                        ? [l.time, l.lessonTitle].filter(Boolean).join(' · ')
+                        : 'No time set'}
+                    </p>
+                    {l.assignees && l.assignees.length > 0 && (
+                      <p className="mt-1 text-xs text-[#5B8DEF]">
+                        Assigned to {l.assignees.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
       {assigningModule && (
         <ModuleAssignForm

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays } from 'lucide-react';
+import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import {
   getModuleSessions,
@@ -41,6 +41,7 @@ export default function SafetyTrainingsPage() {
   const { modules, moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useCompanySafetyAssignments(companyId, moduleIds);
   const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
+  const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
 
   const assignmentsByModule = useMemo(() => {
     const m = new Map<string, TrainingAssignment[]>();
@@ -102,7 +103,7 @@ export default function SafetyTrainingsPage() {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/app/training/manage/modules/new')}
+            onClick={() => navigate('/app/training/manage/safety-trainings/new')}
             className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700"
           >
             <Plus className="h-4 w-4" /> Create Safety Training Module
@@ -133,10 +134,18 @@ export default function SafetyTrainingsPage() {
         <div className="space-y-5">
           {moduleRows.map((row) => {
             const rowAssignments = assignmentsByModule.get(row.id) ?? [];
+            const isExpanded = expandedModuleId === row.id;
             return (
               <div key={row.id} className="rounded-xl border border-slate-200 bg-white p-5">
-                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                  <h2 className="font-semibold text-slate-900">{row.title}</h2>
+                <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedModuleId((cur) => (cur === row.id ? null : row.id))}
+                    className="inline-flex items-center gap-1.5 font-semibold text-slate-900 hover:text-amber-700"
+                  >
+                    {row.title}
+                    {isExpanded ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                  </button>
                   <div className="flex items-center gap-3">
                     <span className="inline-flex items-center gap-1 text-xs text-slate-500">
                       <Users className="h-3.5 w-3.5" /> {rowAssignments.length} assigned
@@ -153,53 +162,62 @@ export default function SafetyTrainingsPage() {
                   </div>
                 </div>
 
-                {row.sessions.length > 0 && (
-                  <div className="mb-3 flex flex-wrap gap-2">
-                    {row.sessions.map((s, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs text-amber-700"
-                      >
-                        <CalendarClock className="h-3.5 w-3.5" />
-                        {formatDate(s.date)}
-                        {s.time ? ` · ${s.time}` : ''}
-                        {s.lessonTitle ? ` · ${s.lessonTitle}` : ''}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {rowAssignments.length === 0 ? (
-                  <p className="text-sm text-slate-500">Not assigned to anyone yet.</p>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[520px] text-sm">
-                      <thead>
-                        <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
-                          <th className="py-2 pr-3 font-medium">Assigned to</th>
-                          <th className="py-2 pr-3 font-medium">Assigned by</th>
-                          <th className="py-2 pr-3 font-medium">Assigned at</th>
-                          <th className="py-2 pr-3 font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rowAssignments.map((a) => (
-                          <tr key={a.id} className="border-b border-slate-50 last:border-0">
-                            <td className="py-2 pr-3">
-                              <span className="font-medium text-slate-800">{a.traineeName}</span>
-                              {a.department ? (
-                                <span className="block text-xs text-slate-400">{a.department}</span>
-                              ) : null}
-                            </td>
-                            <td className="py-2 pr-3 text-slate-600">{a.assignedByName || '—'}</td>
-                            <td className="py-2 pr-3 text-slate-600">{formatTimestamp(a.assignedAt)}</td>
-                            <td className="py-2 pr-3">
-                              <TrainingStatusBadge status={a.status} />
-                            </td>
-                          </tr>
+                {isExpanded && (
+                  <div className="mt-3 pt-3 border-t border-slate-100">
+                    {row.sessions.length > 0 && (
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        {row.sessions.map((s, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-xs text-amber-700"
+                          >
+                            <CalendarClock className="h-3.5 w-3.5" />
+                            {formatDate(s.date)}
+                            {s.time ? ` · ${s.time}` : ''}
+                            {s.lessonTitle ? ` · ${s.lessonTitle}` : ''}
+                          </span>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
+                    )}
+
+                    {rowAssignments.length === 0 ? (
+                      <p className="text-sm text-slate-500">Not assigned to anyone yet.</p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[520px] text-sm">
+                          <thead>
+                            <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
+                              <th className="py-2 pr-3 font-medium">Attendee</th>
+                              <th className="py-2 pr-3 font-medium">Assigned by</th>
+                              <th className="py-2 pr-3 font-medium">Assigned at</th>
+                              <th className="py-2 pr-3 font-medium">Completion status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {rowAssignments.map((a) => (
+                              <tr key={a.id} className="border-b border-slate-50 last:border-0">
+                                <td className="py-2 pr-3">
+                                  <span className="font-medium text-slate-800">{a.traineeName}</span>
+                                  {a.department ? (
+                                    <span className="block text-xs text-slate-400">{a.department}</span>
+                                  ) : null}
+                                </td>
+                                <td className="py-2 pr-3 text-slate-600">{a.assignedByName || '—'}</td>
+                                <td className="py-2 pr-3 text-slate-600">{formatTimestamp(a.assignedAt)}</td>
+                                <td className="py-2 pr-3">
+                                  <TrainingStatusBadge status={a.status} />
+                                  {a.completedAt && (
+                                    <span className="block text-xs text-slate-400 mt-0.5">
+                                      Completed {formatTimestamp(a.completedAt)}
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
