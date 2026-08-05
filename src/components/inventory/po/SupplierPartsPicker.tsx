@@ -18,17 +18,19 @@ function normalize(name: string) {
 }
 
 // Shown once a supplier is picked (or prefilled from a low-stock "Order Now"
-// link) on the PO form — surfaces that supplier's other low-stock parts so
-// they can be bundled into the same shipment instead of raising separate POs.
+// link) on the PO form — lists every part previously bought from that
+// supplier so they can all be picked into the same PO/shipment instead of
+// raising separate orders. Low-stock parts are flagged and sorted first, but
+// every part from the supplier is selectable, not just the low-stock ones.
 // Nothing here is auto-selected; a part only joins the PO if the user checks
 // it and confirms a quantity.
 //
 // Most POs are raised with a supplier typed in free-text rather than picked
 // from a saved Supplier record, so `supplierId` is very often empty even
 // though `supplierName` is always set — matching on name too (instead of
-// requiring supplierId) is what makes the suggestions actually show up for
-// that common case.
-export function SupplierLowStockSuggestions({ supplierId, supplierName, excludePartIds, onAdd }: Props) {
+// requiring supplierId) is what makes parts actually show up for that common
+// case.
+export function SupplierPartsPicker({ supplierId, supplierName, excludePartIds, onAdd }: Props) {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [allParts, setAllParts] = useState<InventoryPart[]>([]);
   const [selected, setSelected] = useState<Record<string, number>>({});
@@ -51,22 +53,25 @@ export function SupplierLowStockSuggestions({ supplierId, supplierName, excludeP
 
   const normalizedName = normalize(supplierName || '');
   const candidates = allParts.filter((p) => {
-    if (!p.isLowStock) return false;
     if (supplierId && p.supplierId === supplierId) return true;
     if (normalizedName && normalize(p.supplierName || '') === normalizedName) return true;
     return false;
   });
 
   const excluded = new Set(excludePartIds.filter(Boolean));
-  const suggestions = candidates.filter((p) => !excluded.has(p.id));
+  const parts = candidates
+    .filter((p) => !excluded.has(p.id))
+    .sort((a, b) => Number(b.isLowStock) - Number(a.isLowStock) || a.name.localeCompare(b.name));
 
-  if ((!supplierId && !normalizedName) || suggestions.length === 0) return null;
+  if ((!supplierId && !normalizedName) || parts.length === 0) return null;
 
   function toggle(part: InventoryPart, checked: boolean) {
     setSelected((prev) => {
       const next = { ...prev };
       if (checked) {
-        next[part.id] = Math.max(1, (Number(part.maxStockLevel) || Number(part.minStockLevel) || 0) - (Number(part.currentStock) || 0));
+        next[part.id] = part.isLowStock
+          ? Math.max(1, (Number(part.maxStockLevel) || Number(part.minStockLevel) || 0) - (Number(part.currentStock) || 0))
+          : 1;
       } else {
         delete next[part.id];
       }
@@ -79,7 +84,7 @@ export function SupplierLowStockSuggestions({ supplierId, supplierName, excludeP
   }
 
   function addSelected() {
-    const items: POItemRowData[] = suggestions
+    const items: POItemRowData[] = parts
       .filter((p) => selected[p.id] != null)
       .map((p) => ({
         partId: p.id,
@@ -103,11 +108,11 @@ export function SupplierLowStockSuggestions({ supplierId, supplierName, excludeP
       <div className="flex items-center gap-2">
         <PackagePlus className="w-4 h-4 text-amber-700" />
         <h3 className="font-semibold text-amber-900 text-sm">
-          This supplier has other low-stock parts — add them to ship together?
+          Parts previously bought from this supplier — add any to ship together?
         </h3>
       </div>
-      <div className="space-y-2">
-        {suggestions.map((p) => {
+      <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+        {parts.map((p) => {
           const checked = selected[p.id] != null;
           return (
             <div
@@ -121,7 +126,14 @@ export function SupplierLowStockSuggestions({ supplierId, supplierName, excludeP
                 className="w-4 h-4"
               />
               <div className="flex-1 min-w-[160px]">
-                <p className="text-sm font-medium text-gray-900">{p.name}</p>
+                <p className="text-sm font-medium text-gray-900 flex items-center gap-1.5">
+                  {p.name}
+                  {p.isLowStock && (
+                    <span className="shrink-0 rounded-full bg-red-100 text-red-700 px-1.5 py-0.5 text-[10px] font-semibold uppercase">
+                      Low stock
+                    </span>
+                  )}
+                </p>
                 <p className="font-mono text-xs text-gray-500">{p.partNumber}</p>
               </div>
               <div className="text-xs text-gray-600 flex gap-3">
