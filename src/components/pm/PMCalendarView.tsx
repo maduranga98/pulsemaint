@@ -1,9 +1,11 @@
 import { useState, useMemo } from 'react';
 import type { CalendarEvent } from '../../types/pm.types';
-import { PM_PRIORITY_CONFIG, PM_OPERATIONAL_STATUS_CONFIG } from '../../constants/pmConfig';
+import { PM_PRIORITY_CONFIG, PM_OPERATIONAL_STATUS_CONFIG, PM_TYPE_CONFIG } from '../../constants/pmConfig';
 
 interface PMCalendarViewProps {
   events: CalendarEvent[];
+  /** Only used from the day-detail panel's "Open Work Order" link — clicking
+   *  a day or an event chip itself never navigates away or opens a popup. */
   onEventClick?: (event: CalendarEvent) => void;
 }
 
@@ -16,6 +18,9 @@ function formatDueTime(date: Date): string {
 export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'week' | 'month'>('month');
+  // Clicking a day selects it and shows its schedules in the panel below —
+  // never a popup, never a page jump.
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -115,12 +120,21 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
             {calendarDays.map((day, idx) => {
               const dayEvents = day ? getEventsForDay(day) : [];
               const isToday = day === new Date().getDate() && month === new Date().getMonth() && year === new Date().getFullYear();
+              const isSelected =
+                !!day &&
+                !!selectedDate &&
+                selectedDate.getDate() === day &&
+                selectedDate.getMonth() === month &&
+                selectedDate.getFullYear() === year;
 
               return (
-                <div
+                <button
                   key={idx}
-                  className={`min-h-[80px] sm:min-h-[100px] border-b border-r border-gray-100 p-1 ${
-                    isToday ? 'bg-blue-50' : ''
+                  type="button"
+                  disabled={!day}
+                  onClick={() => day && setSelectedDate(new Date(year, month, day))}
+                  className={`min-h-[80px] sm:min-h-[100px] border-b border-r border-gray-100 p-1 text-left ${
+                    isSelected ? 'bg-blue-100 ring-2 ring-inset ring-blue-400' : isToday ? 'bg-blue-50' : 'hover:bg-gray-50'
                   }`}
                 >
                   {day && (
@@ -130,10 +144,9 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                       </div>
                       <div className="space-y-0.5">
                         {dayEvents.slice(0, 3).map((event) => (
-                          <button
+                          <div
                             key={event.id}
-                            onClick={() => onEventClick?.(event)}
-                            className="w-full text-left text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium block"
+                            className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded font-medium block"
                             style={{
                               backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
                               color: PM_PRIORITY_CONFIG[event.priority].textClass.replace('text-', '').replace('700', '800'),
@@ -145,15 +158,15 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                               {event.operationalStatus && (
                                 <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].dotClass}`} />
                               )}
-                              <span className="truncate">
-                                {formatDueTime(event.date)}
-                                {event.woNumber && ` · ${event.woNumber}`}
-                              </span>
+                              <span className="truncate">{formatDueTime(event.date)}</span>
                             </span>
                             <span className="block font-semibold whitespace-normal break-words leading-tight">
-                              {event.title}
+                              {PM_TYPE_CONFIG[event.pmType]?.label ?? event.title}
                             </span>
-                          </button>
+                            {event.woNumber && (
+                              <span className="block truncate opacity-75">{event.woNumber}</span>
+                            )}
+                          </div>
                         ))}
                         {dayEvents.length > 3 && (
                           <div className="text-[10px] text-gray-400 pl-1">+{dayEvents.length - 3} more</div>
@@ -161,7 +174,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                       </div>
                     </>
                   )}
-                </div>
+                </button>
               );
             })}
           </div>
@@ -182,10 +195,9 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                 </div>
                 <div className="space-y-1">
                   {dayEvents.map((event) => (
-                    <button
+                    <div
                       key={event.id}
-                      onClick={() => onEventClick?.(event)}
-                      className="w-full text-left text-sm px-3 py-2 rounded-lg font-medium"
+                      className="text-sm px-3 py-2 rounded-lg font-medium"
                       style={{
                         backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
                         color: PM_PRIORITY_CONFIG[event.priority].textClass.replace('text-', '').replace('700', '800'),
@@ -199,13 +211,13 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           )}
                           <span className="opacity-75">{formatDueTime(event.date)} · </span>
                           {event.woNumber && <span className="font-semibold">{event.woNumber} · </span>}
-                          {event.title}
+                          {PM_TYPE_CONFIG[event.pmType]?.label ?? event.title}
                         </span>
                         <span className="text-xs opacity-75">
                           {event.operationalStatus ? PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label : event.machineName}
                         </span>
                       </div>
-                    </button>
+                    </div>
                   ))}
                   {dayEvents.length === 0 && (
                     <p className="text-xs text-gray-300 py-1">No PMs scheduled</p>
@@ -214,6 +226,51 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {selectedDate && (
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <p className="text-sm font-semibold text-gray-900 mb-3">
+            {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+          </p>
+          {getEventsForDate(selectedDate).length === 0 ? (
+            <p className="text-sm text-gray-400">No PMs scheduled.</p>
+          ) : (
+            <div className="space-y-2">
+              {getEventsForDate(selectedDate).map((event) => (
+                <div
+                  key={event.id}
+                  className="flex items-center justify-between gap-3 rounded-lg px-3 py-2"
+                  style={{
+                    backgroundColor: PM_PRIORITY_CONFIG[event.priority].bgClass.replace('bg-', '').replace('100', '50'),
+                    borderLeft: `3px solid ${PM_PRIORITY_CONFIG[event.priority].color}`,
+                  }}
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {formatDueTime(event.date)} · {PM_TYPE_CONFIG[event.pmType]?.label ?? event.title}
+                      {event.woNumber && ` · ${event.woNumber}`}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {event.machineName}
+                      {event.operationalStatus && ` · ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label}`}
+                      {event.technicianNames.length > 0 && ` · ${event.technicianNames.join(', ')}`}
+                    </p>
+                  </div>
+                  {onEventClick && (
+                    <button
+                      type="button"
+                      onClick={() => onEventClick(event)}
+                      className="flex-shrink-0 text-xs font-medium text-blue-600 hover:underline"
+                    >
+                      {event.woId ? 'Open Work Order' : 'Open Schedule'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
