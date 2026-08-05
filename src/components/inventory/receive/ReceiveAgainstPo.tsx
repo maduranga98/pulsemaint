@@ -83,12 +83,12 @@ export function ReceiveAgainstPo() {
   // sent without re-running the stock-affecting transaction. Shared by
   // both Confirm Receipt and the standalone Resend Email button.
   //
-  // `onlyThankYou` keeps Confirm Receipt to a single email: it never sends
-  // the damage/fault notice in the same action, even if a row was marked
-  // not-good — that notice only ever goes out via the explicit Resend
-  // Email action, so the supplier never gets two emails (thank-you +
-  // fault) back to back for one receipt.
-  async function sendReceiptEmail(options?: { onlyThankYou?: boolean }) {
+  // `onlyIfAllGood` is what Confirm Receipt uses: if even one row in this
+  // submission is marked not-good, no email goes out at all — not the
+  // thank-you, not a fault notice, nothing — until the discrepancy is
+  // resolved and reported via the explicit Resend Email action instead.
+  // The thank-you only ever fires on a receipt with zero issues.
+  async function sendReceiptEmail(options?: { onlyIfAllGood?: boolean }) {
     if (!selectedPo || !companyId) return false;
     const lines = selectedPo.items
       .map((item) => {
@@ -103,9 +103,12 @@ export function ReceiveAgainstPo() {
       })
       .filter((l) => l.quantity > 0);
     const receivedItems = lines.filter((l) => l.condition === 'good');
-    const issueItems = options?.onlyThankYou ? [] : lines.filter((l) => l.condition !== 'good');
+    const issueItems = lines.filter((l) => l.condition !== 'good');
 
-    if (!selectedPo.supplierEmail || (receivedItems.length === 0 && issueItems.length === 0)) return false;
+    if (options?.onlyIfAllGood && issueItems.length > 0) return false;
+    const outgoingIssueItems = options?.onlyIfAllGood ? [] : issueItems;
+
+    if (!selectedPo.supplierEmail || (receivedItems.length === 0 && outgoingIssueItems.length === 0)) return false;
 
     await addDoc(collection(db, 'po_notifications'), {
       companyId,
@@ -118,7 +121,7 @@ export function ReceiveAgainstPo() {
       recipients: [],
       event: 'received',
       receivedItems,
-      issueItems,
+      issueItems: outgoingIssueItems,
       deliveryRef,
       receiveDate,
       notes,
@@ -305,14 +308,14 @@ export function ReceiveAgainstPo() {
         console.error('Failed to export final PO', exportErr);
       }
 
-      // Send only the delivery-received thank-you as soon as Confirm Receipt
-      // completes — not before, and not bundled with a fault/issue notice
-      // even if a row was marked damaged in this same submission. Report a
-      // fault via Resend Email afterward instead, so the supplier never
-      // gets two emails at once for one receipt. Best effort: a failed
-      // email never undoes the stock update above.
+      // Send the delivery-received thank-you as soon as Confirm Receipt
+      // completes, but only when every item in this submission was marked
+      // good — if even one is faulty, no email goes out here at all (not
+      // the thank-you, not a fault notice). Report the fault afterward via
+      // Resend Email instead, once ready. Best effort: a failed email
+      // never undoes the stock update above.
       try {
-        await sendReceiptEmail({ onlyThankYou: true });
+        await sendReceiptEmail({ onlyIfAllGood: true });
       } catch (emailErr) {
         console.error('Failed to queue receipt confirmation email', emailErr);
       }
