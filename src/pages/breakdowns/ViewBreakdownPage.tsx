@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs, documentId } from 'firebase/firestore';
 import { AlertCircle, ArrowLeft, CheckCircle, UserPlus, HardHat, Pencil, ClipboardPlus } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -12,6 +12,17 @@ import { notifyUsers } from '../../services/notifications.service';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
+
+const ROLE_LABELS: Record<string, string> = {
+  technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
+  maintenance_supervisor: 'Supervisor', plant_manager: 'Plant Manager',
+  store_keeper: 'Store Keeper', floor_operator: 'Floor Operator',
+  hr_officer: 'HR Officer', safety_officer: 'Safety Officer', admin: 'Admin',
+};
+function roleLabel(role: string | undefined): string {
+  if (!role) return '';
+  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+}
 
 const STATUS_LABEL: Record<BreakdownStatus, string> = {
   reported: 'Reported',
@@ -62,6 +73,7 @@ export default function ViewBreakdownPage() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [assignBusy, setAssignBusy] = useState(false);
   const [attendBusy, setAttendBusy] = useState(false);
+  const [actorRoles, setActorRoles] = useState<Record<string, string>>({});
 
   const role = userProfile?.role ?? '';
   const isSupervisorRole = CAN_ASSIGN_ROLES.includes(role);
@@ -86,6 +98,32 @@ export default function ViewBreakdownPage() {
     );
     return () => unsub();
   }, [id]);
+
+  // Resolve every actor's current role (attended-by, assigned technicians,
+  // and everyone in the status history) so names can be shown with their
+  // role, e.g. "Asitha (Technician)" — Firestore's `in` filter caps at 30 ids.
+  useEffect(() => {
+    if (!breakdown) return;
+    const ids = Array.from(
+      new Set(
+        [
+          breakdown.attendedBy,
+          ...(breakdown.assignedTechnicianIds ?? []),
+          ...(breakdown.statusHistory ?? []).map((h: any) => h.changedBy),
+        ].filter((id): id is string => !!id),
+      ),
+    ).slice(0, 30);
+    if (ids.length === 0) return;
+    getDocs(query(collection(db, 'users'), where(documentId(), 'in', ids)))
+      .then((snap) => {
+        const roles: Record<string, string> = {};
+        snap.docs.forEach((d) => {
+          roles[d.id] = (d.data() as any).role ?? '';
+        });
+        setActorRoles(roles);
+      })
+      .catch(() => {}); // silently ignore permission errors
+  }, [breakdown?.id, breakdown?.attendedBy, breakdown?.assignedTechnicianIds, breakdown?.statusHistory]);
 
   // Load RCA doc for this breakdown
   useEffect(() => {
@@ -370,6 +408,9 @@ export default function ViewBreakdownPage() {
               <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attended By</p>
               <p className="text-slate-800 text-sm">
                 {b.attendedByName}
+                {b.attendedBy && actorRoles[b.attendedBy] && (
+                  <span className="text-slate-500"> ({roleLabel(actorRoles[b.attendedBy])})</span>
+                )}
                 {b.attendedAt?.toDate && (
                   <span className="text-slate-500 text-xs ml-2">{b.attendedAt.toDate().toLocaleString()}</span>
                 )}
@@ -405,7 +446,15 @@ export default function ViewBreakdownPage() {
           {(b.assignedTechnicianNames ?? []).length > 0 && (
             <div>
               <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Assigned Technicians</p>
-              <p className="text-slate-800 text-sm">{b.assignedTechnicianNames.join(', ')}</p>
+              <p className="text-slate-800 text-sm">
+                {b.assignedTechnicianNames
+                  .map((name, i) => {
+                    const id = b.assignedTechnicianIds?.[i];
+                    const role = id ? actorRoles[id] : undefined;
+                    return role ? `${name} (${roleLabel(role)})` : name;
+                  })
+                  .join(', ')}
+              </p>
             </div>
           )}
 
@@ -453,7 +502,12 @@ export default function ViewBreakdownPage() {
                     {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
                   </span>
                   <div>
-                    <span className="text-slate-700">{h.changedByName}</span>
+                    <span className="text-slate-700">
+                      {h.changedByName}
+                      {h.changedBy && actorRoles[h.changedBy] && (
+                        <span className="text-slate-500"> ({roleLabel(actorRoles[h.changedBy])})</span>
+                      )}
+                    </span>
                     <span className="text-slate-400 text-xs ml-2">
                       {h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}
                     </span>

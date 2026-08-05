@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Clock, Users, Boxes, ChevronRight, Pencil } from 'lucide-react';
+import { Building2, Users, ChevronRight, Pencil } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import type { UserRole } from '../../types/auth';
 import { CompanyProfileEditModal } from '../../components/settings/CompanyProfileEditModal';
@@ -27,24 +27,6 @@ export default function SettingsPage() {
       icon: <Users className="w-5 h-5" />,
       // Matches the roles the old top-level "Users" nav item was visible to.
       roles: ['admin', 'supervisor', 'plant_manager', 'hr_officer'],
-    },
-    {
-      title: 'Shifts',
-      description: 'Configure shift schedules and handover rules.',
-      to: '/app/settings/shifts',
-      icon: <Clock className="w-5 h-5" />,
-      // Plant managers and HR officers get the same Shifts tab as admins —
-      // the route guard (`settings/shifts`) and firestore.rules allow all
-      // three to create and edit shift configs; the tile just has to be
-      // visible so the page isn't reachable by URL only.
-      roles: ['admin', 'plant_manager', 'hr_officer'],
-    },
-    {
-      title: 'Inventory Settings',
-      description: 'Reorder thresholds, units, and stock policies.',
-      to: '/app/inventory/settings',
-      icon: <Boxes className="w-5 h-5" />,
-      roles: ['admin', 'supervisor', 'plant_manager'],
     },
   ];
   const tiles = allTiles.filter((t) => !t.roles || (role && t.roles.includes(role)));
