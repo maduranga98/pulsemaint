@@ -1,14 +1,16 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useAuthActions } from '../../hooks/useAuthActions';
 import type { UserRole } from '../../types/auth';
 import EndShiftButton from '../handover/EndShiftButton';
 import NotificationBell from './NotificationBell';
+import LanguageSwitcher from './LanguageSwitcher';
 import ErrorBoundary from '../ErrorBoundary';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   to: string;
   roles: UserRole[];
   icon: ReactNode;
@@ -16,7 +18,7 @@ interface NavItem {
 
 interface NavGroup {
   id: string;
-  label: string;
+  labelKey: string;
   items: NavItem[];
 }
 
@@ -64,7 +66,7 @@ const Icon = {
 // Dashboard is the landing page — kept outside every group so it's always
 // one click away instead of buried inside a collapsed section.
 const DASHBOARD_ITEM: NavItem = {
-  label: 'Dashboard',
+  labelKey: 'nav.dashboard',
   to: '/app/dashboard',
   icon: Icon.dashboard,
   roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'],
@@ -76,14 +78,14 @@ const DASHBOARD_ITEM: NavItem = {
 const NAV_GROUPS: NavGroup[] = [
   {
     id: 'maintenance',
-    label: 'Maintenance',
+    labelKey: 'nav.groups.maintenance',
     items: [
-      { label: 'Machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
-      { label: 'Breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
-      { label: 'Work Orders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
-      { label: 'My Work Orders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
+      { labelKey: 'nav.items.machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
+      { labelKey: 'nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'nav.items.workOrders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
+      { labelKey: 'nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
       {
-        label: 'PM Schedules',
+        labelKey: 'nav.items.pmSchedules',
         to: '/app/pm-schedules',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -96,37 +98,37 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     id: 'safety',
-    label: 'Safety',
+    labelKey: 'nav.groups.safety',
     items: [
-      { label: 'Work Permits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
-      { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer'] },
+      { labelKey: 'nav.items.workPermits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
+      { labelKey: 'nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer'] },
       // Safety module surfaced for oversight roles too — admins, plant managers, and
       // supervisors see cases the safety team escalates to them, plus analytics.
-      { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
+      { labelKey: 'nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
       // Frontline roles a safety case can be assigned down to for action — they
       // land on the same page's "Reported to Me" filtered view.
-      { label: 'Safety Cases', to: '/app/safety/cases', icon: Icon.report, roles: ['technician', 'floor_operator', 'store_keeper', 'trainee'] },
-      { label: 'Safety Training', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
-      { label: 'Safety Trainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin'] },
+      { labelKey: 'nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['technician', 'floor_operator', 'store_keeper', 'trainee'] },
+      { labelKey: 'nav.items.safetyTraining', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
+      { labelKey: 'nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin'] },
       // Admin/plant manager reach the calendar via the "View Training
       // Schedules" button on the Safety Trainings page instead of a
       // dedicated nav entry; every other role still needs one since they
       // don't have access to that page.
-      { label: 'Safety Training Schedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
+      { labelKey: 'nav.items.safetyTrainingSchedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
       // Safety Analytics for admins/plant managers now lives inline on the manager
       // dashboard instead of a dedicated tab.
-      { label: 'Analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
+      { labelKey: 'nav.items.analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
     ],
   },
   {
     id: 'inventory',
-    label: 'Inventory Management',
+    labelKey: 'nav.groups.inventory',
     items: [
       // Parts catalog + low stock alerts + Add Item only — PO and requests
       // now live in their own tabs instead of one page mixing everything.
-      { label: 'Inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'nav.items.inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
       {
-        label: 'PO',
+        labelKey: 'nav.items.po',
         to: '/app/inventory/purchase-orders',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -135,15 +137,15 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin'],
       },
-      { label: 'Requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'nav.items.requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
     ],
   },
   {
     id: 'triage-training',
-    label: 'Triage & Training',
+    labelKey: 'nav.groups.triageTraining',
     items: [
       {
-        label: 'Triage',
+        labelKey: 'nav.items.triage',
         to: '/app/triage',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -155,17 +157,17 @@ const NAV_GROUPS: NavGroup[] = [
       // Triage Builder is now reached via the "Create" button on the Triage
       // page itself (opens inline, with its own back button) instead of a
       // separate nav entry — the route still exists for direct links.
-      { label: 'Training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
-      { label: 'Trainee Management', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+      { labelKey: 'nav.items.training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+      { labelKey: 'nav.items.traineeManagement', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
     ],
   },
   {
     id: 'workforce',
-    label: 'Workforce',
+    labelKey: 'nav.groups.workforce',
     items: [
-      { label: 'Contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
+      { labelKey: 'nav.items.contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
       {
-        label: 'Shifts',
+        labelKey: 'nav.items.shifts',
         to: '/app/settings/shifts',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -176,7 +178,7 @@ const NAV_GROUPS: NavGroup[] = [
         roles: ['admin', 'plant_manager', 'hr_officer'],
       },
       {
-        label: 'My Shift',
+        labelKey: 'nav.items.myShift',
         to: '/app/shift/my',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -186,7 +188,7 @@ const NAV_GROUPS: NavGroup[] = [
         roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'hr_officer', 'store_keeper', 'trainee'],
       },
       {
-        label: 'Shift Handovers',
+        labelKey: 'nav.items.shiftHandovers',
         to: '/app/shift/handover/history',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -198,17 +200,17 @@ const NAV_GROUPS: NavGroup[] = [
       // Training can be assigned to any role, so everyone gets a "My Training"
       // entry (the route allows any authenticated user). The admin-facing
       // "Training" / "Trainee Management" tabs live under Triage & Training.
-      { label: 'My Training', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
-      { label: 'My Certificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
-      { label: 'My Program', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
+      { labelKey: 'nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
+      { labelKey: 'nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
+      { labelKey: 'nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
     ],
   },
   {
     id: 'insights',
-    label: 'Insights',
+    labelKey: 'nav.groups.insights',
     items: [
       {
-        label: 'Analytics',
+        labelKey: 'nav.items.analytics',
         to: '/app/analytics',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -218,7 +220,7 @@ const NAV_GROUPS: NavGroup[] = [
         roles: ['plant_manager', 'admin', 'supervisor'],
       },
       {
-        label: 'MOE',
+        labelKey: 'nav.items.moe',
         to: '/app/moe',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -227,9 +229,9 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['supervisor', 'plant_manager', 'admin'],
       },
-      { label: 'Reports', to: '/app/reports', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper'] },
+      { labelKey: 'nav.items.reports', to: '/app/reports', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'hr_officer', 'admin', 'store_keeper'] },
       {
-        label: 'Audit',
+        labelKey: 'nav.items.audit',
         to: '/app/audit',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -239,7 +241,7 @@ const NAV_GROUPS: NavGroup[] = [
         roles: ['safety_officer', 'plant_manager', 'admin', 'hr_officer'],
       },
       {
-        label: 'Evaluations',
+        labelKey: 'nav.items.evaluations',
         to: '/app/evaluations',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -255,14 +257,14 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     id: 'admin',
-    label: 'Admin',
+    labelKey: 'nav.groups.admin',
     items: [
       // Users moved inside Settings — same access as before (Users' union of
       // roles), just reached via the Settings tile instead of its own
       // top-level nav entry. Shifts moved to the Workforce group above.
-      { label: 'Settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'plant_manager', 'hr_officer'] },
+      { labelKey: 'nav.items.settings', to: '/app/settings', icon: Icon.settings, roles: ['admin', 'plant_manager', 'hr_officer'] },
       {
-        label: 'Billing & Plan',
+        labelKey: 'nav.items.billing',
         to: '/app/billing',
         icon: (
           <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -276,6 +278,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 function TrialExpiryBanner() {
+  const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
   if (!company || company.status !== 'trial') return null;
 
@@ -296,8 +299,8 @@ function TrialExpiryBanner() {
     >
       <span>
         {expired
-          ? 'Your trial has expired. Features are locked.'
-          : `Trial ends in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}.`}
+          ? t('common.trial.expired')
+          : t('common.trial.endsIn', { days: daysLeft, plural: daysLeft !== 1 ? 's' : '' })}
       </span>
       <Link
         to="/app/billing"
@@ -305,7 +308,7 @@ function TrialExpiryBanner() {
           expired ? 'text-red-200' : 'text-amber-200'
         }`}
       >
-        Upgrade now
+        {t('common.trial.upgradeNow')}
       </Link>
     </div>
   );
@@ -326,6 +329,7 @@ function initials(name?: string | null) {
 }
 
 export default function AppLayout() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { logout } = useAuthActions();
@@ -400,7 +404,7 @@ export default function AppLayout() {
               }
             >
               {visibleDashboard.icon}
-              <span>{visibleDashboard.label}</span>
+              <span>{t(visibleDashboard.labelKey)}</span>
             </NavLink>
           )}
 
@@ -419,7 +423,7 @@ export default function AppLayout() {
                     groupHasActive ? 'text-[#60A5FA]' : 'text-[#6C87A6] hover:text-[#D5DEEA]'
                   }`}
                 >
-                  <span>{group.label}</span>
+                  <span>{t(group.labelKey)}</span>
                   <span className={isOpen ? 'rotate-90' : ''}>{Icon.chevron}</span>
                 </button>
                 {isOpen && (
@@ -438,7 +442,7 @@ export default function AppLayout() {
                         }
                       >
                         {item.icon}
-                        <span>{item.label}</span>
+                        <span>{t(item.labelKey)}</span>
                       </NavLink>
                     ))}
                   </div>
@@ -474,6 +478,7 @@ export default function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <NotificationBell />
             <EndShiftButton />
             <div className="text-right hidden sm:block leading-tight">
@@ -490,7 +495,7 @@ export default function AppLayout() {
               onClick={handleLogout}
               className="px-3 py-1.5 text-[12px] font-medium text-[#D5DEEA] bg-[#142849] border border-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-[#F0F4F8] rounded-md transition-colors"
             >
-              Sign out
+              {t('common.signOut')}
             </button>
           </div>
         </header>

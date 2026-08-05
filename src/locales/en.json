@@ -103,5 +103,58 @@
     "settings_tab": "Settings",
     "steps_tab": "Steps",
     "preview_tab": "Preview"
+  },
+  "common": {
+    "signOut": "Sign out",
+    "language": "Language",
+    "trial": {
+      "expired": "Your trial has expired. Features are locked.",
+      "endsIn": "Trial ends in {{days}} day{{plural}}.",
+      "upgradeNow": "Upgrade now"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "groups": {
+        "maintenance": "Maintenance",
+        "safety": "Safety",
+        "inventory": "Inventory Management",
+        "triageTraining": "Triage & Training",
+        "workforce": "Workforce",
+        "insights": "Insights",
+        "admin": "Admin"
+      },
+      "items": {
+        "machines": "Machines",
+        "breakdowns": "Breakdowns",
+        "workOrders": "Work Orders",
+        "myWorkOrders": "My Work Orders",
+        "pmSchedules": "PM Schedules",
+        "workPermits": "Work Permits",
+        "safetyCases": "Safety Cases",
+        "safetyTraining": "Safety Training",
+        "safetyTrainings": "Safety Trainings",
+        "safetyTrainingSchedules": "Safety Training Schedules",
+        "analytics": "Analytics",
+        "inventory": "Inventory",
+        "po": "PO",
+        "requests": "Requests",
+        "triage": "Triage",
+        "training": "Training",
+        "traineeManagement": "Trainee Management",
+        "contractors": "Contractors",
+        "shifts": "Shifts",
+        "myShift": "My Shift",
+        "shiftHandovers": "Shift Handovers",
+        "myTraining": "My Training",
+        "myCertificates": "My Certificates",
+        "myProgram": "My Program",
+        "moe": "MOE",
+        "reports": "Reports",
+        "audit": "Audit",
+        "evaluations": "Evaluations",
+        "settings": "Settings",
+        "billing": "Billing & Plan"
+      }
+    }
   }
 }

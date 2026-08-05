@@ -1,0 +1,55 @@
+{
+  "common": {
+    "signOut": "साइन आउट करें",
+    "language": "भाषा",
+    "trial": {
+      "expired": "आपकी ट्रायल अवधि समाप्त हो गई है। सुविधाएँ लॉक हैं।",
+      "endsIn": "ट्रायल {{days}} दिन में समाप्त होगा।",
+      "upgradeNow": "अभी अपग्रेड करें"
+    },
+    "nav": {
+      "dashboard": "डैशबोर्ड",
+      "groups": {
+        "maintenance": "रखरखाव",
+        "safety": "सुरक्षा",
+        "inventory": "इन्वेंटरी प्रबंधन",
+        "triageTraining": "ट्राइएज और प्रशिक्षण",
+        "workforce": "कार्यबल",
+        "insights": "इनसाइट्स",
+        "admin": "व्यवस्थापक"
+      },
+      "items": {
+        "machines": "मशीनें",
+        "breakdowns": "ब्रेकडाउन",
+        "workOrders": "वर्क ऑर्डर",
+        "myWorkOrders": "मेरे वर्क ऑर्डर",
+        "pmSchedules": "PM शेड्यूल",
+        "workPermits": "कार्य परमिट",
+        "safetyCases": "सुरक्षा मामले",
+        "safetyTraining": "सुरक्षा प्रशिक्षण",
+        "safetyTrainings": "सुरक्षा प्रशिक्षण",
+        "safetyTrainingSchedules": "सुरक्षा प्रशिक्षण शेड्यूल",
+        "analytics": "एनालिटिक्स",
+        "inventory": "इन्वेंटरी",
+        "po": "PO",
+        "requests": "अनुरोध",
+        "triage": "ट्राइएज",
+        "training": "प्रशिक्षण",
+        "traineeManagement": "प्रशिक्षु प्रबंधन",
+        "contractors": "ठेकेदार",
+        "shifts": "शिफ्ट",
+        "myShift": "मेरी शिफ्ट",
+        "shiftHandovers": "शिफ्ट हैंडओवर",
+        "myTraining": "मेरा प्रशिक्षण",
+        "myCertificates": "मेरे प्रमाणपत्र",
+        "myProgram": "मेरा कार्यक्रम",
+        "moe": "MOE",
+        "reports": "रिपोर्ट",
+        "audit": "ऑडिट",
+        "evaluations": "मूल्यांकन",
+        "settings": "सेटिंग्स",
+        "billing": "बिलिंग और प्लान"
+      }
+    }
+  }
+}

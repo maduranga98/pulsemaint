@@ -47,5 +47,58 @@
     "add_step": "පියවර එකතු කරන්න",
     "active": "සක්‍රීය",
     "inactive": "අක්‍රීය"
+  },
+  "common": {
+    "signOut": "ඉවත් වන්න",
+    "language": "භාෂාව",
+    "trial": {
+      "expired": "ඔබේ අත්හදා බැලීමේ කාලය අවසන් වී ඇත. විශේෂාංග අගුළු දමා ඇත.",
+      "endsIn": "අත්හදා බැලීම දින {{days}}කින් අවසන් වේ.",
+      "upgradeNow": "දැන් උත්ශ්‍රේණි කරන්න"
+    },
+    "nav": {
+      "dashboard": "උපකරණ පුවරුව",
+      "groups": {
+        "maintenance": "නඩත්තුව",
+        "safety": "ආරක්ෂාව",
+        "inventory": "තොග කළමනාකරණය",
+        "triageTraining": "ත්‍රීේජ් සහ පුහුණුව",
+        "workforce": "සේවා කණ්ඩායම",
+        "insights": "විශ්ලේෂණ",
+        "admin": "පරිපාලන"
+      },
+      "items": {
+        "machines": "යන්ත්‍ර",
+        "breakdowns": "බිඳවැටීම්",
+        "workOrders": "කාර්ය නියෝග",
+        "myWorkOrders": "මගේ කාර්ය නියෝග",
+        "pmSchedules": "PM කාලසටහන්",
+        "workPermits": "කාර්ය අවසර පත්",
+        "safetyCases": "ආරක්ෂක සිද්ධි",
+        "safetyTraining": "ආරක්ෂක පුහුණුව",
+        "safetyTrainings": "ආරක්ෂක පුහුණු",
+        "safetyTrainingSchedules": "ආරක්ෂක පුහුණු කාලසටහන්",
+        "analytics": "විශ්ලේෂණ",
+        "inventory": "තොගය",
+        "po": "ඇණවුම්",
+        "requests": "ඉල්ලීම්",
+        "triage": "ත්‍රීේජ්",
+        "training": "පුහුණුව",
+        "traineeManagement": "පුහුණුකරු කළමනාකරණය",
+        "contractors": "කොන්ත්‍රාත්කරුවන්",
+        "shifts": "මුරය",
+        "myShift": "මගේ මුරය",
+        "shiftHandovers": "මුර භාරදීම්",
+        "myTraining": "මගේ පුහුණුව",
+        "myCertificates": "මගේ සහතික",
+        "myProgram": "මගේ වැඩසටහන",
+        "moe": "MOE",
+        "reports": "වාර්තා",
+        "audit": "විගණනය",
+        "evaluations": "ඇගයීම්",
+        "settings": "සැකසුම්",
+        "billing": "බිල්පත් සහ සැලසුම"
+      }
+    }
   }
 }

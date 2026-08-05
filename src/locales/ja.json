@@ -1,0 +1,55 @@
+{
+  "common": {
+    "signOut": "サインアウト",
+    "language": "言語",
+    "trial": {
+      "expired": "トライアル期間が終了しました。機能はロックされています。",
+      "endsIn": "トライアルはあと{{days}}日で終了します。",
+      "upgradeNow": "今すぐアップグレード"
+    },
+    "nav": {
+      "dashboard": "ダッシュボード",
+      "groups": {
+        "maintenance": "メンテナンス",
+        "safety": "安全",
+        "inventory": "在庫管理",
+        "triageTraining": "トリアージ・トレーニング",
+        "workforce": "労働力",
+        "insights": "インサイト",
+        "admin": "管理"
+      },
+      "items": {
+        "machines": "設備",
+        "breakdowns": "故障",
+        "workOrders": "作業指示書",
+        "myWorkOrders": "自分の作業指示書",
+        "pmSchedules": "PMスケジュール",
+        "workPermits": "作業許可証",
+        "safetyCases": "安全事例",
+        "safetyTraining": "安全トレーニング",
+        "safetyTrainings": "安全トレーニング一覧",
+        "safetyTrainingSchedules": "安全トレーニングスケジュール",
+        "analytics": "分析",
+        "inventory": "在庫",
+        "po": "発注書",
+        "requests": "申請",
+        "triage": "トリアージ",
+        "training": "トレーニング",
+        "traineeManagement": "研修生管理",
+        "contractors": "請負業者",
+        "shifts": "シフト",
+        "myShift": "自分のシフト",
+        "shiftHandovers": "シフト引き継ぎ",
+        "myTraining": "自分のトレーニング",
+        "myCertificates": "自分の証明書",
+        "myProgram": "自分のプログラム",
+        "moe": "MOE",
+        "reports": "レポート",
+        "audit": "監査",
+        "evaluations": "評価",
+        "settings": "設定",
+        "billing": "請求とプラン"
+      }
+    }
+  }
+}

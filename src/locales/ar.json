@@ -1,0 +1,55 @@
+{
+  "common": {
+    "signOut": "تسجيل الخروج",
+    "language": "اللغة",
+    "trial": {
+      "expired": "انتهت فترتك التجريبية. الميزات مقفلة.",
+      "endsIn": "تنتهي التجربة خلال {{days}} يوم.",
+      "upgradeNow": "الترقية الآن"
+    },
+    "nav": {
+      "dashboard": "لوحة التحكم",
+      "groups": {
+        "maintenance": "الصيانة",
+        "safety": "السلامة",
+        "inventory": "إدارة المخزون",
+        "triageTraining": "الفرز والتدريب",
+        "workforce": "القوى العاملة",
+        "insights": "التحليلات",
+        "admin": "الإدارة"
+      },
+      "items": {
+        "machines": "الآلات",
+        "breakdowns": "الأعطال",
+        "workOrders": "أوامر العمل",
+        "myWorkOrders": "أوامر عملي",
+        "pmSchedules": "جداول الصيانة الوقائية",
+        "workPermits": "تصاريح العمل",
+        "safetyCases": "حالات السلامة",
+        "safetyTraining": "تدريب السلامة",
+        "safetyTrainings": "تدريبات السلامة",
+        "safetyTrainingSchedules": "جداول تدريب السلامة",
+        "analytics": "التحليلات",
+        "inventory": "المخزون",
+        "po": "أمر الشراء",
+        "requests": "الطلبات",
+        "triage": "الفرز",
+        "training": "التدريب",
+        "traineeManagement": "إدارة المتدربين",
+        "contractors": "المقاولون",
+        "shifts": "الورديات",
+        "myShift": "ورديتي",
+        "shiftHandovers": "تسليم الورديات",
+        "myTraining": "تدريبي",
+        "myCertificates": "شهاداتي",
+        "myProgram": "برنامجي",
+        "moe": "MOE",
+        "reports": "التقارير",
+        "audit": "التدقيق",
+        "evaluations": "التقييمات",
+        "settings": "الإعدادات",
+        "billing": "الفوترة والخطة"
+      }
+    }
+  }
+}

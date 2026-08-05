@@ -47,5 +47,58 @@
     "add_step": "படி சேர்க்கவும்",
     "active": "செயலில்",
     "inactive": "செயலற்று"
+  },
+  "common": {
+    "signOut": "வெளியேறு",
+    "language": "மொழி",
+    "trial": {
+      "expired": "உங்கள் சோதனை காலம் முடிந்துவிட்டது. அம்சங்கள் பூட்டப்பட்டுள்ளன.",
+      "endsIn": "சோதனை {{days}} நாட்களில் முடிவடையும்.",
+      "upgradeNow": "இப்போது மேம்படுத்தவும்"
+    },
+    "nav": {
+      "dashboard": "டாஷ்போர்டு",
+      "groups": {
+        "maintenance": "பராமரிப்பு",
+        "safety": "பாதுகாப்பு",
+        "inventory": "சரக்கு மேலாண்மை",
+        "triageTraining": "ட்ரையேஜ் & பயிற்சி",
+        "workforce": "பணியாளர்கள்",
+        "insights": "பகுப்பாய்வு",
+        "admin": "நிர்வாகம்"
+      },
+      "items": {
+        "machines": "இயந்திரங்கள்",
+        "breakdowns": "பழுதுகள்",
+        "workOrders": "பணி உத்தரவுகள்",
+        "myWorkOrders": "எனது பணி உத்தரவுகள்",
+        "pmSchedules": "PM அட்டவணைகள்",
+        "workPermits": "பணி அனுமதிகள்",
+        "safetyCases": "பாதுகாப்பு வழக்குகள்",
+        "safetyTraining": "பாதுகாப்பு பயிற்சி",
+        "safetyTrainings": "பாதுகாப்பு பயிற்சிகள்",
+        "safetyTrainingSchedules": "பாதுகாப்பு பயிற்சி அட்டவணைகள்",
+        "analytics": "பகுப்பாய்வு",
+        "inventory": "சரக்கு",
+        "po": "PO",
+        "requests": "கோரிக்கைகள்",
+        "triage": "ட்ரையேஜ்",
+        "training": "பயிற்சி",
+        "traineeManagement": "பயிற்சியாளர் மேலாண்மை",
+        "contractors": "ஒப்பந்ததாரர்கள்",
+        "shifts": "ஷிப்ட்கள்",
+        "myShift": "எனது ஷிப்ட்",
+        "shiftHandovers": "ஷிப்ட் ஒப்படைப்புகள்",
+        "myTraining": "எனது பயிற்சி",
+        "myCertificates": "எனது சான்றிதழ்கள்",
+        "myProgram": "எனது திட்டம்",
+        "moe": "MOE",
+        "reports": "அறிக்கைகள்",
+        "audit": "தணிக்கை",
+        "evaluations": "மதிப்பீடுகள்",
+        "settings": "அமைப்புகள்",
+        "billing": "பில்லிங் & திட்டம்"
+      }
+    }
   }
 }

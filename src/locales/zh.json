@@ -1,0 +1,55 @@
+{
+  "common": {
+    "signOut": "退出登录",
+    "language": "语言",
+    "trial": {
+      "expired": "您的试用期已结束,功能已锁定。",
+      "endsIn": "试用期将在 {{days}} 天后结束。",
+      "upgradeNow": "立即升级"
+    },
+    "nav": {
+      "dashboard": "仪表盘",
+      "groups": {
+        "maintenance": "维护",
+        "safety": "安全",
+        "inventory": "库存管理",
+        "triageTraining": "故障分诊与培训",
+        "workforce": "人力资源",
+        "insights": "数据洞察",
+        "admin": "管理"
+      },
+      "items": {
+        "machines": "设备",
+        "breakdowns": "故障",
+        "workOrders": "工单",
+        "myWorkOrders": "我的工单",
+        "pmSchedules": "预防性维护计划",
+        "workPermits": "工作许可",
+        "safetyCases": "安全案例",
+        "safetyTraining": "安全培训",
+        "safetyTrainings": "安全培训",
+        "safetyTrainingSchedules": "安全培训计划",
+        "analytics": "分析",
+        "inventory": "库存",
+        "po": "采购单",
+        "requests": "申请",
+        "triage": "故障分诊",
+        "training": "培训",
+        "traineeManagement": "受训人员管理",
+        "contractors": "承包商",
+        "shifts": "班次",
+        "myShift": "我的班次",
+        "shiftHandovers": "交接班",
+        "myTraining": "我的培训",
+        "myCertificates": "我的证书",
+        "myProgram": "我的项目",
+        "moe": "MOE",
+        "reports": "报告",
+        "audit": "审计",
+        "evaluations": "评估",
+        "settings": "设置",
+        "billing": "账单与套餐"
+      }
+    }
+  }
+}
