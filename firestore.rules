@@ -189,7 +189,10 @@ service cloud.firestore {
           'assigneeCompletions',
           // Per-assignee independent start/hold/resume state (see useMyWOState) —
           // each assignee's own progress on a shared WO.
-          'assigneeStates'
+          'assigneeStates',
+          // Applied when a plant manager approves a due-date extension
+          // request (see useReviewWOExtension).
+          'dueDate', 'slaDeadline', 'slaBreached'
         ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
@@ -255,6 +258,54 @@ service cloud.firestore {
 
         allow delete: if isAdmin();
       }
+    }
+
+    // ---------------------------------------------------------------------------
+    // WO Extension Requests — due-date push-out requests on overdue,
+    // unfinished work orders (see useWOExtension.ts). Kept as a top-level
+    // collection so pending requests can be queried directly for the
+    // supervisor/plant manager/admin dashboard approvals widget.
+    // ---------------------------------------------------------------------------
+
+    match /wo_extension_requests/{requestId} {
+      function isAssignedToRequestWO() {
+        return request.auth.uid in
+          get(/databases/$(database)/documents/workOrders/$(request.resource.data.woId)).data.assignedTechnicianIds;
+      }
+
+      function isAssignedToExistingWO() {
+        return request.auth.uid in
+          get(/databases/$(database)/documents/workOrders/$(resource.data.woId)).data.assignedTechnicianIds;
+      }
+
+      // Admin: full access.
+      allow read, write: if isAdmin();
+
+      // Requester (assigned technician/trainee, or the supervisor/plant
+      // manager/admin working the job) raises a pending request for their
+      // own company, stamped with their own uid.
+      allow create: if isAuthenticated()
+        && request.resource.data.companyId == getUserCompanyId()
+        && request.resource.data.requestedBy == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && ((isTechnician() || isRole('trainee')) && isAssignedToRequestWO()
+          || isSupervisor() || isPlantManager());
+
+      // Read: the requester themselves, or any oversight role in the same
+      // company (supervisor/plant manager review the approvals queue).
+      allow read: if isAuthenticated()
+        && (resource.data.requestedBy == request.auth.uid
+          || ((isTechnician() || isRole('trainee')) && isAssignedToExistingWO())
+          || ((isSupervisor() || isPlantManager()) && belongsToCompany(resource.data.companyId)));
+
+      // Review (approve/reject): supervisor or plant manager in the same
+      // company, touching only the review outcome fields.
+      allow update: if (isSupervisor() || isPlantManager())
+        && belongsToCompany(resource.data.companyId)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'reviewedBy', 'reviewedByName', 'reviewedAt', 'reviewNote',
+          'approvedDueDate', 'approvedSlaDeadline'
+        ]);
     }
 
     // ---------------------------------------------------------------------------

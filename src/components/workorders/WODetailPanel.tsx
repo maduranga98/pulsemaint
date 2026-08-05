@@ -19,6 +19,9 @@ import { useWorkOrderPermit } from '../../hooks/safety/useSafety';
 import { useMyWorkCompletion, allAssigneesCompleted } from '../../hooks/useMyWorkCompletion';
 import { buildTechnicianWorkLogs } from '../../lib/workorders/technicianWorkLogs';
 import { useAuthStore } from '../../store/authStore';
+import { useWOExtensionHistory } from '../../hooks/useWOExtension';
+import { WOExtensionRequestModal } from './WOExtensionRequestModal';
+import { WOExtensionReviewCard } from './WOExtensionReviewCard';
 
 type TabKey = 'overview' | 'checklist' | 'documents' | 'parts' | 'history';
 
@@ -46,6 +49,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
   const [linkedBreakdowns, setLinkedBreakdowns] = useState<Breakdown[]>([]);
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
+  const { requests: extensionRequests } = useWOExtensionHistory(workOrder.id);
 
   const { updateWO, updateStatus, loading: statusLoading } = useUpdateWorkOrder();
   const user = useAuthStore((s) => s.user);
@@ -168,6 +173,15 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
     };
   }, [workOrder.linkedBreakdownId, workOrder.linkedBreakdownIds]);
 
+  const TERMINAL_STATUSES = ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'];
+  const isOverdue =
+    !!workOrder.dueDate?.toDate &&
+    workOrder.dueDate.toDate().getTime() < Date.now() &&
+    !TERMINAL_STATUSES.includes(workOrder.status);
+  const pendingExtensionRequest = extensionRequests.find((r) => r.status === 'pending') ?? null;
+  const canRequestExtension = isOverdue && !pendingExtensionRequest && (isSupervisor || (isTechnician && isAssigned));
+  const canReviewExtension = isSupervisor && !!pendingExtensionRequest;
+
   const safetyGateVisible =
     ['OPEN', 'ASSIGNED'].includes(workOrder.status) &&
     (isSupervisor || (isTechnician && isAssigned)) &&
@@ -276,6 +290,38 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   <p className="text-xs text-gray-400">No checklist steps defined.</p>
                 )}
               </section>
+
+              {/* Overdue-but-unfinished: offer to request a due-date extension. */}
+              {isOverdue && !pendingExtensionRequest && !canReviewExtension && (
+                <section className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between gap-3">
+                  <p className="text-sm text-red-700">
+                    This work order is overdue and not yet finished.
+                  </p>
+                  {canRequestExtension && (
+                    <button
+                      type="button"
+                      onClick={() => setShowExtensionModal(true)}
+                      className="flex-shrink-0 px-3 py-1.5 bg-red-600 text-white text-xs font-semibold rounded-lg hover:bg-red-700"
+                    >
+                      Request Extension
+                    </button>
+                  )}
+                </section>
+              )}
+
+              {/* Pending extension request awaiting a supervisor/plant manager/admin decision. */}
+              {pendingExtensionRequest && (
+                canReviewExtension ? (
+                  <WOExtensionReviewCard request={pendingExtensionRequest} compact />
+                ) : (
+                  <section className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                    <p className="text-sm text-amber-700">
+                      Extension request pending review — requested new due date{' '}
+                      {pendingExtensionRequest.requestedDueDate?.toDate?.().toLocaleString?.() ?? ''}.
+                    </p>
+                  </section>
+                )
+              )}
 
               {/* Safety gate (LOTO/PTW) — must pass before check-in */}
               {safetyGateVisible && (
@@ -1082,6 +1128,13 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
         </div>
 
       </div>
+
+      {showExtensionModal && (
+        <WOExtensionRequestModal
+          workOrder={workOrder}
+          onClose={() => setShowExtensionModal(false)}
+        />
+      )}
     </div>
   );
 }

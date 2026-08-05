@@ -12,10 +12,13 @@ import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 
-type CategoryId = 'all' | WOType;
-type LifecycleTab = 'open' | 'closed';
+// The "All" pill was removed — the list simply starts unfiltered (`all`,
+// every active type combined) and a dedicated "Signed Off" tab replaces it
+// for work orders needing sign-off (COMPLETED) or already signed off/closed,
+// since a WO type filter stops being useful once a WO reaches that stage.
+type CategoryId = 'all' | 'signedOff' | WOType;
 
-const CLOSED_STATUSES: WorkOrder['status'][] = ['CLOSED', 'CANCELLED', 'SIGNED_OFF'];
+const SIGNED_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'];
 
 // Breakdown Repair and Preventive Maintenance work orders already have their
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
@@ -25,7 +28,6 @@ const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.in
 
 export function WOListView() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>('all');
-  const [activeTab, setActiveTab] = useState<LifecycleTab>('open');
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,13 +94,12 @@ export function WOListView() {
   // (Breakdowns, PM Schedules) — never shown here.
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
-  const tabFilteredWOs = nonExcludedWOs.filter((wo) =>
-    activeTab === 'closed' ? CLOSED_STATUSES.includes(wo.status) : !CLOSED_STATUSES.includes(wo.status),
-  );
-
-  const displayedWOs = activeCategory === 'all'
-    ? tabFilteredWOs
-    : tabFilteredWOs.filter((wo) => wo.woType === activeCategory);
+  const displayedWOs =
+    activeCategory === 'signedOff'
+      ? nonExcludedWOs.filter((wo) => SIGNED_OFF_STATUSES.includes(wo.status))
+      : nonExcludedWOs
+          .filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status))
+          .filter((wo) => activeCategory === 'all' || wo.woType === activeCategory);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -127,46 +128,15 @@ export function WOListView() {
         {/* Stats */}
         <WOStatsBar />
 
-        {/* Open / Closed lifecycle tabs */}
-        <div className="flex gap-1 border-b border-gray-200">
-          {(['open', 'closed'] as LifecycleTab[]).map((tab) => {
-            const count = nonExcludedWOs.filter((wo) =>
-              tab === 'closed' ? CLOSED_STATUSES.includes(wo.status) : !CLOSED_STATUSES.includes(wo.status),
-            ).length;
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                  activeTab === tab
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                {tab === 'open' ? 'Open' : 'Closed'} <span className="text-xs text-gray-400">({count})</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Category tabs + Search */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-1 overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => setActiveCategory('all')}
-              className={`px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                activeCategory === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-500 hover:bg-gray-100'
-              }`}
-            >
-              {WO_COPY.tabAll}
-            </button>
+        {/* Category tabs + Search — wraps to a second line instead of
+            scrolling horizontally so every tab stays visible at once. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-wrap gap-1">
             {COLUMN_TYPES.map((type) => {
               const config = WO_TYPE_CONFIG[type];
-              const count = nonExcludedWOs.filter((wo) => wo.woType === type).length;
+              const count = nonExcludedWOs.filter(
+                (wo) => wo.woType === type && !SIGNED_OFF_STATUSES.includes(wo.status),
+              ).length;
               return (
                 <button
                   key={type}
@@ -192,6 +162,24 @@ export function WOListView() {
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => setActiveCategory('signedOff')}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                activeCategory === 'signedOff'
+                  ? 'bg-emerald-600 text-white'
+                  : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+              }`}
+            >
+              Signed Off
+              <span
+                className={`text-xs font-medium rounded-full px-1.5 ${
+                  activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
+                }`}
+              >
+                {nonExcludedWOs.filter((wo) => SIGNED_OFF_STATUSES.includes(wo.status)).length}
+              </span>
+            </button>
           </div>
 
           <input
@@ -223,18 +211,19 @@ export function WOListView() {
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">
-                {activeTab === 'closed' ? 'No closed work orders yet.' : WO_COPY.noOpenWOs}
+                {activeCategory === 'signedOff' ? 'No work orders signed off or closed yet.' : WO_COPY.noOpenWOs}
               </p>
             </div>
           ) : (
             /* Single flat table — no per-type grouping. Type column shows
-               when "All" is selected, hidden when a single category filters
-               it down to one type already named by the active tab. */
+               when every type is combined ("all" or the Signed Off tab),
+               hidden when a single category filters it down to one type
+               already named by the active tab. */
             <WOTable
               workOrders={displayedWOs}
               onSelect={setSelectedWO}
-              showTypeColumn={activeCategory === 'all'}
-              canSignOff={activeTab === 'open' && canSignOff}
+              showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff'}
+              canSignOff={canSignOff}
               onSignOff={setSelectedWO}
             />
           )

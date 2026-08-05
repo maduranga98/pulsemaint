@@ -207,6 +207,49 @@ export interface WOStatusHistoryEntry {
 }
 
 // ---------------------------------------------------------------------------
+// Due-date extension requests
+// ---------------------------------------------------------------------------
+
+export type WOExtensionRequestStatus = 'pending' | 'approved' | 'rejected';
+
+/**
+ * A request to push out a WO's due date/SLA deadline, raised by whoever is
+ * working the job (assignee or its supervisor-in-charge) when it's overdue
+ * but not yet finished. Stored in its own top-level `wo_extension_requests`
+ * collection (not embedded on the WorkOrder) so it can be queried directly
+ * for a live "pending approvals" dashboard widget without scanning every WO.
+ */
+export interface WOExtensionRequest {
+  id: string;
+  woId: string;
+  woNumber: string;
+  siteId: string;
+  companyId: string;
+  machineName: string;
+
+  requestedBy: string;
+  requestedByName: string;
+  requestedAt: Timestamp;
+  reason: string;
+  /** The due date/time the requester is asking to move to. */
+  requestedDueDate: Timestamp;
+  requestedSlaDeadline: Timestamp | null;
+  /** The WO's due date/SLA deadline at the moment the request was raised. */
+  previousDueDate: Timestamp;
+  previousSlaDeadline: Timestamp | null;
+
+  status: WOExtensionRequestStatus;
+  reviewedBy: string | null;
+  reviewedByName: string | null;
+  reviewedAt: Timestamp | null;
+  reviewNote: string | null;
+  /** The date/time actually applied to the WO on approval — the reviewer may
+   *  edit it rather than accept the requested value verbatim. */
+  approvedDueDate: Timestamp | null;
+  approvedSlaDeadline: Timestamp | null;
+}
+
+// ---------------------------------------------------------------------------
 // Main WorkOrder Interface
 // ---------------------------------------------------------------------------
 

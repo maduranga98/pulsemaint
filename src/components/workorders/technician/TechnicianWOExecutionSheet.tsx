@@ -18,6 +18,8 @@ import { SLACountdownTimer } from '../SLACountdownTimer';
 import { ChecklistExecutor } from '../ChecklistExecutor';
 import { WOCompletionForm } from '../WOCompletionForm';
 import { MediaCaptureBar } from './MediaCaptureBar';
+import { useWOExtensionHistory } from '../../../hooks/useWOExtension';
+import { WOExtensionRequestModal } from '../WOExtensionRequestModal';
 
 interface Props {
   workOrder: WorkOrder;
@@ -46,8 +48,16 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   // so the gate no longer depends on isolation points being defined on the
   // machine profile.
   const [safetyConfirmed, setSafetyConfirmed] = useState(false);
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
+
+  const { requests: extensionRequests } = useWOExtensionHistory(wo.id);
+  const pendingExtensionRequest = extensionRequests.find((r) => r.status === 'pending') ?? null;
+  const isOverdue =
+    !!wo.dueDate?.toDate &&
+    wo.dueDate.toDate().getTime() < Date.now() &&
+    !['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'].includes(wo.status);
 
   // Work Permits (Permit-to-Work) linked to this WO — attached at creation or
   // raised later from the Work Permits tab. Loaded for every WO so all linked
@@ -176,6 +186,21 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
             <span className="text-xs text-[#8BA3BF]">Supervisor: {wo.supervisorInChargeName}</span>
           </div>
           {wo.description && <p className="mt-2 text-xs text-[#8BA3BF]">{wo.description}</p>}
+          {isOverdue && (
+            <div className="mt-3 flex items-center justify-between gap-2 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2">
+              <p className="text-xs text-red-300">Overdue — not yet finished.</p>
+              {pendingExtensionRequest ? (
+                <span className="text-xs text-amber-300">Extension request pending</span>
+              ) : (
+                <button
+                  onClick={() => setShowExtensionModal(true)}
+                  className="flex-shrink-0 rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700"
+                >
+                  Request Extension
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Body */}
@@ -539,6 +564,10 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
               contractorCompany: wo.contractorCompanyName ?? null,
             }}
           />
+        )}
+
+        {showExtensionModal && (
+          <WOExtensionRequestModal workOrder={wo} onClose={() => setShowExtensionModal(false)} />
         )}
       </div>
     </div>
