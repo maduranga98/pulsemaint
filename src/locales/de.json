@@ -1,0 +1,110 @@
+{
+  "common": {
+    "signOut": "Abmelden",
+    "language": "Sprache",
+    "trial": {
+      "expired": "Ihre Testphase ist abgelaufen. Funktionen sind gesperrt.",
+      "endsIn": "Testphase endet in {{days}} Tag{{plural}}.",
+      "upgradeNow": "Jetzt upgraden"
+    },
+    "nav": {
+      "dashboard": "Übersicht",
+      "groups": {
+        "maintenance": "Wartung",
+        "safety": "Sicherheit",
+        "inventory": "Bestandsverwaltung",
+        "triageTraining": "Triage & Schulung",
+        "workforce": "Belegschaft",
+        "insights": "Einblicke",
+        "admin": "Verwaltung"
+      },
+      "items": {
+        "machines": "Maschinen",
+        "breakdowns": "Störungen",
+        "workOrders": "Arbeitsaufträge",
+        "myWorkOrders": "Meine Arbeitsaufträge",
+        "pmSchedules": "Wartungspläne",
+        "workPermits": "Arbeitserlaubnisse",
+        "safetyCases": "Sicherheitsfälle",
+        "safetyTraining": "Sicherheitsschulung",
+        "safetyTrainings": "Sicherheitsschulungen",
+        "safetyTrainingSchedules": "Sicherheitsschulungspläne",
+        "analytics": "Analysen",
+        "inventory": "Bestand",
+        "po": "Bestellung",
+        "requests": "Anfragen",
+        "triage": "Triage",
+        "training": "Schulung",
+        "traineeManagement": "Auszubildendenverwaltung",
+        "contractors": "Auftragnehmer",
+        "shifts": "Schichten",
+        "myShift": "Meine Schicht",
+        "shiftHandovers": "Schichtübergaben",
+        "myTraining": "Meine Schulung",
+        "myCertificates": "Meine Zertifikate",
+        "myProgram": "Mein Programm",
+        "moe": "MOE",
+        "reports": "Berichte",
+        "audit": "Prüfung",
+        "evaluations": "Bewertungen",
+        "settings": "Einstellungen",
+        "billing": "Abrechnung & Tarif"
+      }
+    },
+    "dashboard": {
+      "adminTitle": "Admin-Übersicht",
+      "managerTitle": "Manager-Übersicht",
+      "greeting": {
+        "morning": "Morgen",
+        "afternoon": "Tag",
+        "evening": "Abend",
+        "text": "Guten {{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "Wartungen gesamt",
+        "totalBreakdowns": "Störungen gesamt ({{range}})",
+        "todayBreakdowns": "Heutige Störungen",
+        "todayWorkOrders": "Heutige Arbeitsaufträge",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM-Konformität"
+      },
+      "floorMap": {
+        "title": "Werkshallenplan",
+        "needAttention": "{{count}} benötigen Aufmerksamkeit",
+        "empty": "Keine Maschinen mit Störung oder offenen Arbeitsaufträgen",
+        "statusBreakdown": "Störung",
+        "statusMaintenance": "Offener Arbeitsauftrag",
+        "noLocation": "Kein Standort festgelegt",
+        "status": "Status",
+        "openBreakdowns": "Offene Störungen",
+        "woAwaitingSignoff": "Arbeitsaufträge zur Freigabe",
+        "noOpenWo": "Keine offenen Arbeitsaufträge."
+      },
+      "liveBreakdowns": {
+        "title": "Live-Störungen",
+        "active": "{{count}} aktiv",
+        "empty": "Keine aktiven Störungen",
+        "count_one": "{{count}} Störung",
+        "count_other": "{{count}} Störungen",
+        "pending": "ausstehend"
+      },
+      "livePOs": {
+        "title": "Live-Bestellanfragen",
+        "pending": "{{count}} ausstehend",
+        "empty": "Keine Bestellungen zur Genehmigung ausstehend"
+      },
+      "safetyCases": {
+        "title": "Heutige Sicherheitsfälle",
+        "today": "{{count}} heute",
+        "empty": "Heute keine Sicherheitsfälle gemeldet"
+      },
+      "trainings": {
+        "title": "Heutige Schulungen",
+        "today": "{{count}} heute",
+        "empty": "Heute keine Schulungen geplant",
+        "safety": "Sicherheit",
+        "general": "Allgemein"
+      }
+    }
+  }
+}

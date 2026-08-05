@@ -1,0 +1,110 @@
+{
+  "common": {
+    "signOut": "Cerrar sesión",
+    "language": "Idioma",
+    "trial": {
+      "expired": "Su período de prueba ha expirado. Las funciones están bloqueadas.",
+      "endsIn": "La prueba termina en {{days}} día{{plural}}.",
+      "upgradeNow": "Actualizar ahora"
+    },
+    "nav": {
+      "dashboard": "Panel",
+      "groups": {
+        "maintenance": "Mantenimiento",
+        "safety": "Seguridad",
+        "inventory": "Gestión de inventario",
+        "triageTraining": "Triaje y capacitación",
+        "workforce": "Personal",
+        "insights": "Análisis",
+        "admin": "Administración"
+      },
+      "items": {
+        "machines": "Máquinas",
+        "breakdowns": "Averías",
+        "workOrders": "Órdenes de trabajo",
+        "myWorkOrders": "Mis órdenes de trabajo",
+        "pmSchedules": "Programas de mantenimiento preventivo",
+        "workPermits": "Permisos de trabajo",
+        "safetyCases": "Casos de seguridad",
+        "safetyTraining": "Capacitación en seguridad",
+        "safetyTrainings": "Capacitaciones de seguridad",
+        "safetyTrainingSchedules": "Horarios de capacitación en seguridad",
+        "analytics": "Análisis",
+        "inventory": "Inventario",
+        "po": "Orden de compra",
+        "requests": "Solicitudes",
+        "triage": "Triaje",
+        "training": "Capacitación",
+        "traineeManagement": "Gestión de aprendices",
+        "contractors": "Contratistas",
+        "shifts": "Turnos",
+        "myShift": "Mi turno",
+        "shiftHandovers": "Traspasos de turno",
+        "myTraining": "Mi capacitación",
+        "myCertificates": "Mis certificados",
+        "myProgram": "Mi programa",
+        "moe": "MOE",
+        "reports": "Informes",
+        "audit": "Auditoría",
+        "evaluations": "Evaluaciones",
+        "settings": "Configuración",
+        "billing": "Facturación y plan"
+      }
+    },
+    "dashboard": {
+      "adminTitle": "Panel de administrador",
+      "managerTitle": "Panel del gerente",
+      "greeting": {
+        "morning": "días",
+        "afternoon": "tardes",
+        "evening": "noches",
+        "text": "Buenos/as {{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "Total de mantenimientos",
+        "totalBreakdowns": "Total de averías ({{range}})",
+        "todayBreakdowns": "Averías de hoy",
+        "todayWorkOrders": "Órdenes de trabajo de hoy",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "Cumplimiento de mantenimiento preventivo"
+      },
+      "floorMap": {
+        "title": "Mapa de planta",
+        "needAttention": "{{count}} necesitan atención",
+        "empty": "No hay máquinas averiadas ni con órdenes de trabajo abiertas",
+        "statusBreakdown": "Avería",
+        "statusMaintenance": "Orden de trabajo abierta",
+        "noLocation": "Ubicación no establecida",
+        "status": "Estado",
+        "openBreakdowns": "Averías abiertas",
+        "woAwaitingSignoff": "Órdenes de trabajo pendientes de aprobación",
+        "noOpenWo": "No hay órdenes de trabajo abiertas."
+      },
+      "liveBreakdowns": {
+        "title": "Averías en vivo",
+        "active": "{{count}} activas",
+        "empty": "No hay averías activas",
+        "count_one": "{{count}} avería",
+        "count_other": "{{count}} averías",
+        "pending": "pendiente"
+      },
+      "livePOs": {
+        "title": "Solicitudes de compra en vivo",
+        "pending": "{{count}} pendientes",
+        "empty": "No hay órdenes de compra pendientes de aprobación"
+      },
+      "safetyCases": {
+        "title": "Casos de seguridad de hoy",
+        "today": "{{count}} hoy",
+        "empty": "No se reportaron casos de seguridad hoy"
+      },
+      "trainings": {
+        "title": "Capacitaciones de hoy",
+        "today": "{{count}} hoy",
+        "empty": "No hay capacitaciones programadas para hoy",
+        "safety": "Seguridad",
+        "general": "General"
+      }
+    }
+  }
+}

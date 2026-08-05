@@ -18,6 +18,10 @@ interface ShiftSummaryModalProps {
  * card this used to be sat wrong against the app's dark theme (and needed
  * per-element black text overrides just to stay readable).
  */
+function formatDateTime(d: Date): string {
+  return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+
 export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToHandover }: ShiftSummaryModalProps) {
   if (!session) return null;
   const totalMinutes = session.totalMinutes ?? 0;
@@ -49,8 +53,8 @@ export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToH
 
         <dl className="mt-3 grid gap-2 rounded-lg border border-slate-700 bg-slate-800 p-4 text-sm">
           <div className="flex justify-between gap-3"><dt className="text-slate-300">Scheduled</dt><dd className="text-slate-100">{formatTimeRange(session.scheduledStart, session.scheduledEnd)} ({formatDuration(session.scheduledMinutes * 60000)})</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">Started</dt><dd className="text-slate-100">{session.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">Ended</dt><dd className="text-slate-100">{session.actualEnd ? session.actualEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-'}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-slate-300">Started</dt><dd className="text-slate-100">{formatDateTime(session.actualStart)}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-slate-300">Ended</dt><dd className="text-slate-100">{session.actualEnd ? formatDateTime(session.actualEnd) : '-'}</dd></div>
         </dl>
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">

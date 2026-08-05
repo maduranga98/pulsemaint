@@ -50,6 +50,61 @@
         "settings": "设置",
         "billing": "账单与套餐"
       }
+    },
+    "dashboard": {
+      "adminTitle": "管理员仪表盘",
+      "managerTitle": "经理仪表盘",
+      "greeting": {
+        "morning": "早上好",
+        "afternoon": "下午好",
+        "evening": "晚上好",
+        "text": "{{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "维护总数",
+        "totalBreakdowns": "故障总数 ({{range}})",
+        "todayBreakdowns": "今日故障",
+        "todayWorkOrders": "今日工单",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "预防性维护合规率"
+      },
+      "floorMap": {
+        "title": "工厂平面图",
+        "needAttention": "{{count}} 项需要关注",
+        "empty": "没有故障或有未结工单的设备",
+        "statusBreakdown": "故障",
+        "statusMaintenance": "未结工单",
+        "noLocation": "未设置位置",
+        "status": "状态",
+        "openBreakdowns": "未结故障",
+        "woAwaitingSignoff": "待签署的工单",
+        "noOpenWo": "没有未结工单。"
+      },
+      "liveBreakdowns": {
+        "title": "实时故障",
+        "active": "{{count}} 个进行中",
+        "empty": "没有进行中的故障",
+        "count_one": "{{count}} 个故障",
+        "count_other": "{{count}} 个故障",
+        "pending": "待处理"
+      },
+      "livePOs": {
+        "title": "实时采购申请",
+        "pending": "{{count}} 待处理",
+        "empty": "没有待批准的采购单"
+      },
+      "safetyCases": {
+        "title": "今日安全案例",
+        "today": "今日 {{count}}",
+        "empty": "今日未报告安全案例"
+      },
+      "trainings": {
+        "title": "今日培训",
+        "today": "今日 {{count}}",
+        "empty": "今日没有安排培训",
+        "safety": "安全",
+        "general": "通用"
+      }
     }
   }
 }

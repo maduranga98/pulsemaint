@@ -50,6 +50,61 @@
         "settings": "設定",
         "billing": "請求とプラン"
       }
+    },
+    "dashboard": {
+      "adminTitle": "管理者ダッシュボード",
+      "managerTitle": "マネージャーダッシュボード",
+      "greeting": {
+        "morning": "おはようございます",
+        "afternoon": "こんにちは",
+        "evening": "こんばんは",
+        "text": "{{time}}、{{name}}さん"
+      },
+      "kpi": {
+        "totalMaintenances": "メンテナンス総数",
+        "totalBreakdowns": "故障総数 ({{range}})",
+        "todayBreakdowns": "本日の故障",
+        "todayWorkOrders": "本日の作業指示書",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM遵守率"
+      },
+      "floorMap": {
+        "title": "工場フロアマップ",
+        "needAttention": "{{count}}件が要対応",
+        "empty": "故障中または未処理の作業指示書がある設備はありません",
+        "statusBreakdown": "故障",
+        "statusMaintenance": "未処理の作業指示書",
+        "noLocation": "場所が設定されていません",
+        "status": "ステータス",
+        "openBreakdowns": "未処理の故障",
+        "woAwaitingSignoff": "承認待ちの作業指示書",
+        "noOpenWo": "未処理の作業指示書はありません。"
+      },
+      "liveBreakdowns": {
+        "title": "リアルタイム故障",
+        "active": "{{count}}件が進行中",
+        "empty": "進行中の故障はありません",
+        "count_one": "{{count}}件の故障",
+        "count_other": "{{count}}件の故障",
+        "pending": "保留中"
+      },
+      "livePOs": {
+        "title": "リアルタイム発注申請",
+        "pending": "{{count}}件保留中",
+        "empty": "承認待ちの発注書はありません"
+      },
+      "safetyCases": {
+        "title": "本日の安全事例",
+        "today": "本日{{count}}件",
+        "empty": "本日報告された安全事例はありません"
+      },
+      "trainings": {
+        "title": "本日のトレーニング",
+        "today": "本日{{count}}件",
+        "empty": "本日予定されたトレーニングはありません",
+        "safety": "安全",
+        "general": "一般"
+      }
     }
   }
 }

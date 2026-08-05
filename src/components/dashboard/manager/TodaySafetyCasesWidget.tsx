@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useSafetyCases } from '../../../hooks/safety/useSafety';
@@ -18,18 +19,19 @@ function isToday(ts: { seconds: number } | null | undefined): boolean {
 }
 
 export default function TodaySafetyCasesWidget({ companyId }: { companyId: string }) {
+  const { t } = useTranslation();
   const { cases, loading } = useSafetyCases(companyId);
   const todayCases = useMemo(() => cases.filter((c) => isToday(c.reportedAt)), [cases]);
 
   return (
     <DashboardWidget
-      title="Today's Safety Cases"
+      title={t('common.dashboard.safetyCases.title')}
       loading={loading}
       live
-      action={<span className="text-xs text-[#8BA3BF]">{todayCases.length} today</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.safetyCases.today', { count: todayCases.length })}</span>}
     >
       {todayCases.length === 0 ? (
-        <EmptyState message="No safety cases reported today" />
+        <EmptyState message={t('common.dashboard.safetyCases.empty')} />
       ) : (
         <div className="space-y-1.5">
           {todayCases.map((c) => {

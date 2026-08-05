@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useFactoryFloorAttention, type FloorMachine } from '../../../hooks/dashboard/useFactoryFloorAttention';
@@ -8,12 +9,12 @@ interface FactoryFloorMapProps {
   companyId: string;
 }
 
-const STATUS_META: Record<string, { label: string; color: string }> = {
-  breakdown: { label: 'Breakdown', color: '#EF4444' },
-  maintenance: { label: 'Open Work Order', color: '#F59E0B' },
-};
-
 export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
+  const { t } = useTranslation();
+  const STATUS_META: Record<string, { label: string; color: string }> = {
+    breakdown: { label: t('common.dashboard.floorMap.statusBreakdown'), color: '#EF4444' },
+    maintenance: { label: t('common.dashboard.floorMap.statusMaintenance'), color: '#F59E0B' },
+  };
   // Live from work orders + breakdown tickets, so a machine drops off the moment
   // its last work order is signed off and its breakdowns are resolved.
   const { machines: attention, loading, error } = useFactoryFloorAttention(companyId);
@@ -21,13 +22,13 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
 
   return (
     <DashboardWidget
-      title="Factory Floor Map"
+      title={t('common.dashboard.floorMap.title')}
       loading={loading}
       error={error}
-      action={<span className="text-xs text-[#8BA3BF]">{attention.length} need attention</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.floorMap.needAttention', { count: attention.length })}</span>}
     >
       {attention.length === 0 ? (
-        <EmptyState message="No machines in breakdown or with open work orders" />
+        <EmptyState message={t('common.dashboard.floorMap.empty')} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[320px] overflow-y-auto p-0.5">
           {attention.map((m) => {
@@ -63,7 +64,7 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
               <div>
                 <h3 className="font-[Sora] text-lg font-bold text-[#F0F4F8]">{selected.machineName}</h3>
                 <p className="mt-0.5 flex items-center gap-1 text-xs text-[#8BA3BF]">
-                  <MapPin className="h-3 w-3" /> {selected.location || 'No location set'}
+                  <MapPin className="h-3 w-3" /> {selected.location || t('common.dashboard.floorMap.noLocation')}
                 </p>
               </div>
               <button type="button" onClick={() => setSelected(null)} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
@@ -72,7 +73,7 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
             </div>
 
             <div className="mt-3 flex items-center justify-between rounded-lg bg-[#0A1628] px-3 py-2 text-sm">
-              <span className="text-[#8BA3BF]">Status</span>
+              <span className="text-[#8BA3BF]">{t('common.dashboard.floorMap.status')}</span>
               <span style={{ color: (STATUS_META[selected.currentStatus]?.color) ?? '#8BA3BF' }} className="font-semibold capitalize">
                 {(STATUS_META[selected.currentStatus]?.label) ?? selected.currentStatus}
               </span>
@@ -80,17 +81,17 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
 
             {selected.openBreakdownCount > 0 && (
               <div className="mt-3 flex items-center justify-between rounded-lg bg-[#0A1628] px-3 py-2 text-sm">
-                <span className="text-[#8BA3BF]">Open breakdowns</span>
+                <span className="text-[#8BA3BF]">{t('common.dashboard.floorMap.openBreakdowns')}</span>
                 <span className="font-semibold text-[#EF4444]">{selected.openBreakdownCount}</span>
               </div>
             )}
 
             <div className="mt-3">
               <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">
-                Work Orders awaiting sign-off
+                {t('common.dashboard.floorMap.woAwaitingSignoff')}
               </p>
               {selected.wos.length === 0 ? (
-                <p className="text-sm text-[#8BA3BF]">No open work orders.</p>
+                <p className="text-sm text-[#8BA3BF]">{t('common.dashboard.floorMap.noOpenWo')}</p>
               ) : (
                 <div className="space-y-1.5">
                   {selected.wos.map((w) => (

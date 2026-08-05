@@ -99,6 +99,61 @@
         "settings": "அமைப்புகள்",
         "billing": "பில்லிங் & திட்டம்"
       }
+    },
+    "dashboard": {
+      "adminTitle": "நிர்வாக டாஷ்போர்டு",
+      "managerTitle": "மேலாளர் டாஷ்போர்டு",
+      "greeting": {
+        "morning": "காலை வணக்கம்",
+        "afternoon": "மதிய வணக்கம்",
+        "evening": "மாலை வணக்கம்",
+        "text": "{{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "மொத்த பராமரிப்புகள்",
+        "totalBreakdowns": "மொத்த பழுதுகள் ({{range}})",
+        "todayBreakdowns": "இன்றைய பழுதுகள்",
+        "todayWorkOrders": "இன்றைய பணி உத்தரவுகள்",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM இணக்கம்"
+      },
+      "floorMap": {
+        "title": "தொழிற்சாலை தள வரைபடம்",
+        "needAttention": "{{count}} கவனம் தேவை",
+        "empty": "பழுது அல்லது திறந்த பணி உத்தரவுகள் கொண்ட இயந்திரங்கள் இல்லை",
+        "statusBreakdown": "பழுது",
+        "statusMaintenance": "திறந்த பணி உத்தரவு",
+        "noLocation": "இடம் அமைக்கப்படவில்லை",
+        "status": "நிலை",
+        "openBreakdowns": "திறந்த பழுதுகள்",
+        "woAwaitingSignoff": "கையொப்பத்திற்காக காத்திருக்கும் பணி உத்தரவுகள்",
+        "noOpenWo": "திறந்த பணி உத்தரவுகள் இல்லை."
+      },
+      "liveBreakdowns": {
+        "title": "நேரடி பழுதுகள்",
+        "active": "{{count}} செயலில்",
+        "empty": "செயலில் உள்ள பழுதுகள் இல்லை",
+        "count_one": "{{count}} பழுது",
+        "count_other": "{{count}} பழுதுகள்",
+        "pending": "நிலுவையில்"
+      },
+      "livePOs": {
+        "title": "நேரடி PO கோரிக்கைகள்",
+        "pending": "{{count}} நிலுவையில்",
+        "empty": "ஒப்புதலுக்காக காத்திருக்கும் கொள்முதல் ஆணைகள் இல்லை"
+      },
+      "safetyCases": {
+        "title": "இன்றைய பாதுகாப்பு வழக்குகள்",
+        "today": "இன்று {{count}}",
+        "empty": "இன்று பாதுகாப்பு வழக்குகள் எதுவும் அறிவிக்கப்படவில்லை"
+      },
+      "trainings": {
+        "title": "இன்றைய பயிற்சிகள்",
+        "today": "இன்று {{count}}",
+        "empty": "இன்று பயிற்சிகள் எதுவும் திட்டமிடப்படவில்லை",
+        "safety": "பாதுகாப்பு",
+        "general": "பொது"
+      }
     }
   }
 }

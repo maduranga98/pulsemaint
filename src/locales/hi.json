@@ -50,6 +50,61 @@
         "settings": "सेटिंग्स",
         "billing": "बिलिंग और प्लान"
       }
+    },
+    "dashboard": {
+      "adminTitle": "एडमिन डैशबोर्ड",
+      "managerTitle": "मैनेजर डैशबोर्ड",
+      "greeting": {
+        "morning": "सुप्रभात",
+        "afternoon": "शुभ दोपहर",
+        "evening": "शुभ संध्या",
+        "text": "{{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "कुल रखरखाव",
+        "totalBreakdowns": "कुल ब्रेकडाउन ({{range}})",
+        "todayBreakdowns": "आज के ब्रेकडाउन",
+        "todayWorkOrders": "आज के वर्क ऑर्डर",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM अनुपालन"
+      },
+      "floorMap": {
+        "title": "फैक्ट्री फ्लोर मैप",
+        "needAttention": "{{count}} पर ध्यान चाहिए",
+        "empty": "ब्रेकडाउन या खुले वर्क ऑर्डर वाली कोई मशीन नहीं",
+        "statusBreakdown": "ब्रेकडाउन",
+        "statusMaintenance": "खुला वर्क ऑर्डर",
+        "noLocation": "स्थान सेट नहीं है",
+        "status": "स्थिति",
+        "openBreakdowns": "खुले ब्रेकडाउन",
+        "woAwaitingSignoff": "साइन-ऑफ की प्रतीक्षा में वर्क ऑर्डर",
+        "noOpenWo": "कोई खुला वर्क ऑर्डर नहीं है।"
+      },
+      "liveBreakdowns": {
+        "title": "लाइव ब्रेकडाउन",
+        "active": "{{count}} सक्रिय",
+        "empty": "कोई सक्रिय ब्रेकडाउन नहीं",
+        "count_one": "{{count}} ब्रेकडाउन",
+        "count_other": "{{count}} ब्रेकडाउन",
+        "pending": "लंबित"
+      },
+      "livePOs": {
+        "title": "लाइव PO अनुरोध",
+        "pending": "{{count}} लंबित",
+        "empty": "अनुमोदन की प्रतीक्षा में कोई क्रय आदेश नहीं"
+      },
+      "safetyCases": {
+        "title": "आज के सुरक्षा मामले",
+        "today": "आज {{count}}",
+        "empty": "आज कोई सुरक्षा मामला दर्ज नहीं हुआ"
+      },
+      "trainings": {
+        "title": "आज के प्रशिक्षण",
+        "today": "आज {{count}}",
+        "empty": "आज कोई प्रशिक्षण निर्धारित नहीं है",
+        "safety": "सुरक्षा",
+        "general": "सामान्य"
+      }
     }
   }
 }

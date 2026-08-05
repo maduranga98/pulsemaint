@@ -155,6 +155,61 @@
         "settings": "Settings",
         "billing": "Billing & Plan"
       }
+    },
+    "dashboard": {
+      "adminTitle": "Admin Dashboard",
+      "managerTitle": "Manager Dashboard",
+      "greeting": {
+        "morning": "morning",
+        "afternoon": "afternoon",
+        "evening": "evening",
+        "text": "Good {{time}}, {{name}}"
+      },
+      "kpi": {
+        "totalMaintenances": "Total Maintenances",
+        "totalBreakdowns": "Total Breakdowns ({{range}})",
+        "todayBreakdowns": "Today Breakdowns",
+        "todayWorkOrders": "Today Work Orders",
+        "mttr": "MTTR ({{range}})",
+        "pmCompliance": "PM Compliance"
+      },
+      "floorMap": {
+        "title": "Factory Floor Map",
+        "needAttention": "{{count}} need attention",
+        "empty": "No machines in breakdown or with open work orders",
+        "statusBreakdown": "Breakdown",
+        "statusMaintenance": "Open Work Order",
+        "noLocation": "No location set",
+        "status": "Status",
+        "openBreakdowns": "Open breakdowns",
+        "woAwaitingSignoff": "Work Orders awaiting sign-off",
+        "noOpenWo": "No open work orders."
+      },
+      "liveBreakdowns": {
+        "title": "Live Breakdowns",
+        "active": "{{count}} active",
+        "empty": "No active breakdowns",
+        "count_one": "{{count}} breakdown",
+        "count_other": "{{count}} breakdowns",
+        "pending": "pending"
+      },
+      "livePOs": {
+        "title": "Live PO Requests",
+        "pending": "{{count}} pending",
+        "empty": "No purchase orders awaiting approval"
+      },
+      "safetyCases": {
+        "title": "Today's Safety Cases",
+        "today": "{{count}} today",
+        "empty": "No safety cases reported today"
+      },
+      "trainings": {
+        "title": "Today's Trainings",
+        "today": "{{count}} today",
+        "empty": "No trainings scheduled today",
+        "safety": "Safety",
+        "general": "General"
+      }
     }
   }
 }
