@@ -85,7 +85,6 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
   // dropdown, or resolved from the part a low-stock "Order Now" link
   // prefilled — so the low-stock suggestion panel below knows who to query.
   const [activeSupplierId, setActiveSupplierId] = useState('');
-  const activeSupplierName = watch('supplierName');
 
   const {
     register,
@@ -110,6 +109,8 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       notes: initialPO?.notes ?? '',
     },
   });
+
+  const activeSupplierName = watch('supplierName');
 
   // "Order Now" on a Low Stock Alert deep-links here with ?partId=… — prefill
   // the first line with that part so the storekeeper doesn't have to search for
