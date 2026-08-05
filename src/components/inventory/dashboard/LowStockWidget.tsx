@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { InventoryPart } from '@/types/inventory';
 
@@ -7,10 +8,20 @@ interface Props {
 
 export function LowStockWidget({ parts }: Props) {
   const navigate = useNavigate();
+  const [selected, setSelected] = useState<string[]>([]);
+
+  function toggle(id: string, checked: boolean) {
+    setSelected((prev) => (checked ? [...prev, id] : prev.filter((pid) => pid !== id)));
+  }
+
+  function createPoForSelected() {
+    if (selected.length === 0) return;
+    navigate(`/app/inventory/purchase-orders/new?partIds=${selected.join(',')}`);
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
         <h2 className="font-semibold text-gray-900">
           Low Stock Alerts
           {parts.length > 0 && (
@@ -19,6 +30,14 @@ export function LowStockWidget({ parts }: Props) {
             </span>
           )}
         </h2>
+        {selected.length > 0 && (
+          <button
+            onClick={createPoForSelected}
+            className="shrink-0 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors"
+          >
+            Create PO for {selected.length} selected
+          </button>
+        )}
       </div>
 
       {parts.length === 0 ? (
@@ -31,6 +50,7 @@ export function LowStockWidget({ parts }: Props) {
         <div className="divide-y divide-gray-100">
           {parts.map((part) => {
             const isOut = part.currentStock === 0;
+            const checked = selected.includes(part.id);
             return (
               <div
                 key={part.id}
@@ -38,6 +58,13 @@ export function LowStockWidget({ parts }: Props) {
                   isOut ? 'bg-red-50' : 'bg-amber-50'
                 }`}
               >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => toggle(part.id, e.target.checked)}
+                  className="w-4 h-4 shrink-0"
+                  aria-label={`Select ${part.name}`}
+                />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">{part.name}</p>
                   <p className="text-xs text-gray-500 mt-0.5">

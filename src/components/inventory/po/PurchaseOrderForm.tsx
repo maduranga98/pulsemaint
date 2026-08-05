@@ -112,47 +112,62 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   const activeSupplierName = watch('supplierName');
 
-  // "Order Now" on a Low Stock Alert deep-links here with ?partId=… — prefill
-  // the first line with that part so the storekeeper doesn't have to search for
-  // it again. Suggest a reorder quantity that brings stock back above minimum.
+  // "Order Now" on a single Low Stock Alert deep-links here with ?partId=…,
+  // and selecting several alerts and hitting "Create PO for N selected"
+  // deep-links with ?partIds=id1,id2,... — prefill a line for each part so
+  // the storekeeper doesn't have to search for them again. Suggest a reorder
+  // quantity that brings stock back above minimum for each. Supplier fields
+  // are filled from the first part that has one — bundling only makes sense
+  // when the alerted parts share (or mostly share) a supplier, but nothing
+  // stops adding a part from a different supplier too if needed.
   useEffect(() => {
     const partId = searchParams.get('partId');
-    if (initialPO || !partId) return;
+    const partIdsParam = searchParams.get('partIds');
+    const partIds = partIdsParam ? partIdsParam.split(',').filter(Boolean) : partId ? [partId] : [];
+    if (initialPO || partIds.length === 0) return;
     let cancelled = false;
     (async () => {
       try {
-        const snap = await getDoc(doc(db, 'inventoryParts', partId));
-        if (cancelled || !snap.exists()) return;
-        const p = snap.data() as any;
-        const suggestedQty = Math.max(
-          1,
-          (Number(p.maxStockLevel) || Number(p.minStockLevel) || 0) - (Number(p.currentStock) || 0),
-        );
+        const snaps = await Promise.all(partIds.map((id) => getDoc(doc(db, 'inventoryParts', id))));
+        if (cancelled) return;
+        const newItems: POItemRowData[] = [];
+        let supplierName: string | undefined;
+        let supplierId: string | undefined;
+        for (const snap of snaps) {
+          if (!snap.exists()) continue;
+          const p = snap.data() as any;
+          const suggestedQty = Math.max(
+            1,
+            (Number(p.maxStockLevel) || Number(p.minStockLevel) || 0) - (Number(p.currentStock) || 0),
+          );
+          newItems.push({
+            partId: snap.id,
+            partNumber: p.partNumber ?? '',
+            partName: p.name ?? '',
+            quantityOrdered: suggestedQty,
+            unit: p.unit ?? '',
+            unitCost: 0,
+            leadTimeDays: 0,
+            expectedDelivery: null,
+          });
+          if (!supplierName && p.supplierName) supplierName = p.supplierName;
+          if (!supplierId && p.supplierId) supplierId = p.supplierId;
+        }
+        if (newItems.length === 0) return;
         setItems((prev) => {
           // Only prefill when the form is still empty (untouched first row).
           const first = prev[0];
           if (prev.length > 1 || (first && first.partId)) return prev;
-          return [
-            {
-              partId: snap.id,
-              partNumber: p.partNumber ?? '',
-              partName: p.name ?? '',
-              quantityOrdered: suggestedQty,
-              unit: p.unit ?? '',
-              unitCost: 0,
-              leadTimeDays: 0,
-              expectedDelivery: null,
-            },
-          ];
+          return newItems;
         });
-        if (p.supplierName) {
-          setValue('supplierName', p.supplierName as string, { shouldValidate: true });
+        if (supplierName) {
+          setValue('supplierName', supplierName, { shouldValidate: true });
         }
-        if (p.supplierId) {
-          setActiveSupplierId(p.supplierId as string);
+        if (supplierId) {
+          setActiveSupplierId(supplierId);
         }
       } catch (err) {
-        console.error('Failed to prefill PO from partId', err);
+        console.error('Failed to prefill PO from partId(s)', err);
       }
     })();
     return () => { cancelled = true; };
