@@ -13,12 +13,15 @@ import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 
 // The "All" pill was removed — the list simply starts unfiltered (`all`,
-// every active type combined) and a dedicated "Signed Off" tab replaces it
-// for work orders needing sign-off (COMPLETED) or already signed off/closed,
-// since a WO type filter stops being useful once a WO reaches that stage.
-type CategoryId = 'all' | 'signedOff' | WOType;
+// every active type combined). Once a WO reaches COMPLETED it moves into
+// "Need Sign-Off" (still awaiting a supervisor's decision) and, once
+// actually signed off, into the separate terminal "Signed Off" tab — a WO
+// type filter stops being useful at either of those stages.
+type CategoryId = 'all' | 'needSignOff' | 'signedOff' | WOType;
 
-const SIGNED_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED', 'SIGNED_OFF', 'CLOSED', 'CANCELLED'];
+const NEED_SIGN_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED'];
+const TERMINAL_STATUSES: WorkOrder['status'][] = ['SIGNED_OFF', 'CLOSED', 'CANCELLED'];
+const SIGNED_OFF_STATUSES: WorkOrder['status'][] = [...NEED_SIGN_OFF_STATUSES, ...TERMINAL_STATUSES];
 
 // Breakdown Repair and Preventive Maintenance work orders already have their
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
@@ -95,8 +98,10 @@ export function WOListView() {
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
   const displayedWOs =
-    activeCategory === 'signedOff'
-      ? nonExcludedWOs.filter((wo) => SIGNED_OFF_STATUSES.includes(wo.status))
+    activeCategory === 'needSignOff'
+      ? nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status))
+      : activeCategory === 'signedOff'
+      ? nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status))
       : nonExcludedWOs
           .filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status))
           .filter((wo) => activeCategory === 'all' || wo.woType === activeCategory);
@@ -164,6 +169,24 @@ export function WOListView() {
             })}
             <button
               type="button"
+              onClick={() => setActiveCategory('needSignOff')}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                activeCategory === 'needSignOff'
+                  ? 'bg-amber-600 text-white'
+                  : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
+              }`}
+            >
+              Need Sign-Off
+              <span
+                className={`text-xs font-medium rounded-full px-1.5 ${
+                  activeCategory === 'needSignOff' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-600'
+                }`}
+              >
+                {nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status)).length}
+              </span>
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveCategory('signedOff')}
               className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
                 activeCategory === 'signedOff'
@@ -177,7 +200,7 @@ export function WOListView() {
                   activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
                 }`}
               >
-                {nonExcludedWOs.filter((wo) => SIGNED_OFF_STATUSES.includes(wo.status)).length}
+                {nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status)).length}
               </span>
             </button>
           </div>
@@ -211,18 +234,22 @@ export function WOListView() {
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">
-                {activeCategory === 'signedOff' ? 'No work orders signed off or closed yet.' : WO_COPY.noOpenWOs}
+                {activeCategory === 'needSignOff'
+                  ? 'No work orders awaiting sign-off.'
+                  : activeCategory === 'signedOff'
+                  ? 'No work orders signed off or closed yet.'
+                  : WO_COPY.noOpenWOs}
               </p>
             </div>
           ) : (
             /* Single flat table — no per-type grouping. Type column shows
-               when every type is combined ("all" or the Signed Off tab),
+               when every type is combined ("all" or either sign-off tab),
                hidden when a single category filters it down to one type
                already named by the active tab. */
             <WOTable
               workOrders={displayedWOs}
               onSelect={setSelectedWO}
-              showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff'}
+              showTypeColumn={activeCategory === 'all' || activeCategory === 'needSignOff' || activeCategory === 'signedOff'}
               canSignOff={canSignOff}
               onSignOff={setSelectedWO}
             />
