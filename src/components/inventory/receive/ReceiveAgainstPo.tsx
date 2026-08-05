@@ -55,6 +55,12 @@ export function ReceiveAgainstPo() {
   const [rowData, setRowData] = useState<Record<string, ItemRowData>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResendingEmail, setIsResendingEmail] = useState(false);
+  // Confirm Receipt only records the stock/receipt — no email goes out yet.
+  // Once it succeeds, this holds the PO the receipt was just recorded
+  // against so a separate, explicit step can send (or skip) the supplier
+  // confirmation email, instead of it firing automatically on submit.
+  const [awaitingEmailConfirm, setAwaitingEmailConfirm] = useState(false);
+  const [isSendingConfirmEmail, setIsSendingConfirmEmail] = useState(false);
 
   const selectedPo = pendingOrders.find((o) => o.id === selectedPoId);
 
@@ -266,16 +272,6 @@ export function ReceiveAgainstPo() {
         });
       });
 
-      // Queue a supplier email: a thank-you/confirmation listing the items
-      // received, plus a faults section for anything marked damaged / wrong.
-      // The sendPoEmails Cloud Function consumes po_notifications and dispatches
-      // it. Best-effort — never block the receipt on the email.
-      try {
-        await sendReceiptEmail();
-      } catch (emailErr) {
-        console.error('Failed to queue receipt email', emailErr);
-      }
-
       // Export the final PO — with the just-confirmed final costs and a
       // generated timestamp — so the store keeper has a record of exactly
       // what was received and at what price, right at the Received stage.
@@ -311,13 +307,11 @@ export function ReceiveAgainstPo() {
       }
 
       toast.success('Stock received successfully');
-      setSelectedPoId('');
-      setRowData({});
-      setDeliveryRef('');
-      setNotes('');
-      // Close the receive form and land on the catalog, where the live
-      // inventory list already reflects the new stock quantities.
-      navigate('/app/inventory/catalog');
+      // Don't reset/navigate yet — the receipt is recorded but no email has
+      // gone out. Hold everything in place so Send/Skip below can still
+      // read selectedPo/rowData to send (or deliberately not send) the
+      // supplier confirmation email as its own explicit step.
+      setAwaitingEmailConfirm(true);
     } catch (err) {
       console.error(err);
       const detail = err instanceof Error ? err.message : String(err);
@@ -325,6 +319,67 @@ export function ReceiveAgainstPo() {
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function finishAndLeave() {
+    setAwaitingEmailConfirm(false);
+    setSelectedPoId('');
+    setRowData({});
+    setDeliveryRef('');
+    setNotes('');
+    // Close the receive form and land on the catalog, where the live
+    // inventory list already reflects the new stock quantities.
+    navigate('/app/inventory/catalog');
+  }
+
+  // The explicit "did the customer confirm this is correct" step — only
+  // once the store keeper actively chooses to send does the thank-you (and
+  // any damage/fault notice) actually go out to the supplier.
+  async function handleSendConfirmationEmail() {
+    setIsSendingConfirmEmail(true);
+    try {
+      const sent = await sendReceiptEmail();
+      toast.success(
+        sent
+          ? 'Confirmation email sent to the supplier.'
+          : 'Nothing to email — check the supplier has an email on file.',
+      );
+    } catch (err) {
+      console.error('Failed to send receipt confirmation email', err);
+      toast.error('Failed to send confirmation email.');
+    } finally {
+      setIsSendingConfirmEmail(false);
+      finishAndLeave();
+    }
+  }
+
+  if (awaitingEmailConfirm && selectedPo) {
+    return (
+      <div className="max-w-lg mx-auto py-10 text-center space-y-4">
+        <h2 className="text-lg font-semibold text-gray-900">Receipt recorded for {selectedPo.poNumber}</h2>
+        <p className="text-sm text-gray-600">
+          Stock has been updated. Send a confirmation email to <strong>{selectedPo.supplierName}</strong> now,
+          or skip it if you still need to check the parts for damage first — you can send it later from the
+          PO's Review Invoice step.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+          <button
+            onClick={handleSendConfirmationEmail}
+            disabled={isSendingConfirmEmail}
+            className="px-5 py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:bg-green-700 disabled:opacity-50 transition-colors"
+          >
+            {isSendingConfirmEmail ? 'Sending…' : 'Confirm — Send Email to Supplier'}
+          </button>
+          <button
+            onClick={finishAndLeave}
+            disabled={isSendingConfirmEmail}
+            className="px-5 py-3 rounded-xl bg-white border border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            Skip for now
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
