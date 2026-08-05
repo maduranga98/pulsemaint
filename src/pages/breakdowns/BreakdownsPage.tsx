@@ -448,7 +448,10 @@ export default function BreakdownsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <Link to={`/app/breakdowns/${representative.id}`} className="font-medium text-slate-900 hover:text-blue-600 hover:underline">
+                        <Link
+                          to={`/app/breakdowns/group?ids=${g.tickets.map((t) => t.id).join(',')}`}
+                          className="font-medium text-slate-900 hover:text-blue-600 hover:underline"
+                        >
                           {g.machineName}
                         </Link>
                         <p className="text-slate-400 text-xs">{g.machineLocation}</p>
