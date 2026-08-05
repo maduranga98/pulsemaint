@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Timestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { WorkOrder } from '../../types/workOrder';
+import type { Breakdown } from '../../types/breakdown';
 import type { IsolationPoint } from '../../types/machine';
 import { WO_COPY } from '../../constants/copy';
 import { WOTypeBadge } from './WOTypeBadge';
@@ -44,6 +45,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [isolationPoints, setIsolationPoints] = useState<IsolationPoint[] | null>(null);
+  const [linkedBreakdowns, setLinkedBreakdowns] = useState<Breakdown[]>([]);
 
   const { updateWO, updateStatus, loading: statusLoading } = useUpdateWorkOrder();
   const user = useAuthStore((s) => s.user);
@@ -139,6 +141,33 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
     };
   }, [workOrder.machineId]);
 
+  // Full history of every breakdown ticket this WO was raised for — lets a
+  // supervisor review the whole chain (reported → attended → repaired) on
+  // this machine before signing off, not just the WO's own status history.
+  useEffect(() => {
+    const ids = Array.from(
+      new Set([workOrder.linkedBreakdownId, ...(workOrder.linkedBreakdownIds ?? [])].filter(Boolean) as string[]),
+    );
+    if (ids.length === 0) {
+      setLinkedBreakdowns([]);
+      return;
+    }
+    let cancelled = false;
+    Promise.all(ids.map((id) => getDoc(doc(db, 'breakdown_tickets', id))))
+      .then((snaps) => {
+        if (cancelled) return;
+        setLinkedBreakdowns(
+          snaps.filter((s) => s.exists()).map((s) => ({ ...s.data(), id: s.id } as Breakdown)),
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setLinkedBreakdowns([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [workOrder.linkedBreakdownId, workOrder.linkedBreakdownIds]);
+
   const safetyGateVisible =
     ['OPEN', 'ASSIGNED'].includes(workOrder.status) &&
     (isSupervisor || (isTechnician && isAssigned)) &&
@@ -152,7 +181,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
     await updateWO(workOrder.id, {
       checkedInAt: Timestamp.now(),
       checkedInBy: user?.uid ?? null,
-      checkedInByName: userProfile?.fullName ?? user?.displayName ?? '',
+      checkedInByName: userProfile?.fullName || user?.displayName || '',
     });
     await updateStatus(workOrder.id, 'IN_PROGRESS', 'Checked in / started manually');
   }
@@ -779,7 +808,45 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
           {/* ── History ── */}
           {activeTab === 'history' && (
-            <div className="space-y-0">
+            <div className="space-y-6">
+              {linkedBreakdowns.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Breakdown History ({linkedBreakdowns.length})
+                  </h3>
+                  {linkedBreakdowns.map((bd) => (
+                    <div key={bd.id} className="border border-gray-200 rounded-lg p-3">
+                      <p className="text-sm font-semibold text-gray-800">{bd.ticketNumber}</p>
+                      {bd.description && (
+                        <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-line">{bd.description}</p>
+                      )}
+                      <ol className="relative border-l-2 border-gray-200 ml-3 mt-3 space-y-4">
+                        {(bd.statusHistory ?? []).map((entry: any, i: number) => (
+                          <li key={i} className="ml-4">
+                            <div className="absolute -left-2 h-4 w-4 rounded-full bg-slate-400 ring-2 ring-white" />
+                            <p className="text-xs font-medium text-gray-700 capitalize">
+                              {String(entry.status).replace(/_/g, ' ')}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {entry.changedByName} ·{' '}
+                              {entry.changedAt?.toDate
+                                ? entry.changedAt.toDate().toLocaleString()
+                                : typeof entry.changedAt === 'string'
+                                ? new Date(entry.changedAt).toLocaleString()
+                                : ''}
+                            </p>
+                            {entry.note && (
+                              <p className="text-xs text-gray-600 mt-0.5 italic">"{entry.note}"</p>
+                            )}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Work Order History</h3>
               {workOrder.statusHistory.length === 0 ? (
                 <p className="text-sm text-gray-400 py-6 text-center">No status history.</p>
               ) : (

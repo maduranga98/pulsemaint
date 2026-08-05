@@ -65,6 +65,12 @@ export function useWOCompletion(): UseWOCompletionResult {
       setLoading(true);
       setError(null);
 
+      // The registered user's profile name (users/{uid}.fullName) is the
+      // source of truth for "who did this" — Firebase Auth's displayName is
+      // often unset or defaults to the sign-in email, which is what was
+      // showing up in status history instead of a real name.
+      const actorName = useAuthStore.getState().userProfile?.fullName || user.displayName || '';
+
       const progressMap: Record<string, number> = {};
       const allFiles = [
         ...payload.finalPhotos.map((f) => ({ file: f, folder: 'completion/photos' })),
@@ -98,7 +104,7 @@ export function useWOCompletion(): UseWOCompletionResult {
         const historyEntry = {
           status: 'COMPLETED',
           changedBy: user.uid,
-          changedByName: user.displayName ?? '',
+          changedByName: actorName,
           // serverTimestamp() is rejected inside arrayUnion() — use a client
           // timestamp so the completion write succeeds.
           changedAt: Timestamp.now(),
@@ -115,7 +121,7 @@ export function useWOCompletion(): UseWOCompletionResult {
             storagePath: url,
             fileSize: payload.updatedCADFiles[i].size,
             uploadedBy: user.uid,
-            uploadedByName: user.displayName ?? '',
+            uploadedByName: actorName,
             uploadedAt: Timestamp.now(),
             isCompletionDocument: true,
           })),
@@ -128,7 +134,7 @@ export function useWOCompletion(): UseWOCompletionResult {
             storagePath: url,
             fileSize: payload.warrantyDocuments[i].size,
             uploadedBy: user.uid,
-            uploadedByName: user.displayName ?? '',
+            uploadedByName: actorName,
             uploadedAt: Timestamp.now(),
             isCompletionDocument: true,
           })),
@@ -343,7 +349,7 @@ export function useWOCompletion(): UseWOCompletionResult {
               statusHistory: arrayUnion({
                 status: 'resolved',
                 changedBy: user.uid,
-                changedByName: user.displayName ?? '',
+                changedByName: actorName,
                 changedAt: Timestamp.fromDate(new Date()),
                 note: `WO ${woData.woNumber ?? woId} completed`,
               }),
@@ -360,9 +366,9 @@ export function useWOCompletion(): UseWOCompletionResult {
         if (profile?.companyId) {
           void notifyRoles(profile.companyId, ['supervisor'], {
             type: 'work_order',
-            message: `${user.displayName || profile.fullName || 'A technician'} submitted work order ${woNumberForNotice} for sign-off`,
+            message: `${actorName || 'A technician'} submitted work order ${woNumberForNotice} for sign-off`,
             oversightMessage: `submitted work order ${woNumberForNotice} for sign-off`,
-            actorName: user.displayName || profile.fullName || '',
+            actorName,
             actorRole: profile.role,
             actorUserId: profile.id,
             linkTo: '/app/work-orders',

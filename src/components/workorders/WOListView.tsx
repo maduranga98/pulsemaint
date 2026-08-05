@@ -13,6 +13,9 @@ import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 
 type CategoryId = 'all' | WOType;
+type LifecycleTab = 'open' | 'closed';
+
+const CLOSED_STATUSES: WorkOrder['status'][] = ['CLOSED', 'CANCELLED', 'SIGNED_OFF'];
 
 // Breakdown Repair and Preventive Maintenance work orders already have their
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
@@ -22,6 +25,7 @@ const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.in
 
 export function WOListView() {
   const [activeCategory, setActiveCategory] = useState<CategoryId>('all');
+  const [activeTab, setActiveTab] = useState<LifecycleTab>('open');
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,6 +56,10 @@ export function WOListView() {
   // firestore.rules grants them the matching create permission.
   const canCreateWorkOrder =
     role === 'supervisor' || role === 'admin' || role === 'plant_manager';
+  // Same roles that gate the sign-off action inside WODetailPanel/
+  // WOReviewSignOffPanel — supervisor and above.
+  const canSignOff =
+    role === 'supervisor' || role === 'maintenance_supervisor' || role === 'admin' || role === 'plant_manager';
 
   const filters: WOFilters = {};
   if (searchQuery) filters.searchQuery = searchQuery;
@@ -84,9 +92,13 @@ export function WOListView() {
   // (Breakdowns, PM Schedules) — never shown here.
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
+  const tabFilteredWOs = nonExcludedWOs.filter((wo) =>
+    activeTab === 'closed' ? CLOSED_STATUSES.includes(wo.status) : !CLOSED_STATUSES.includes(wo.status),
+  );
+
   const displayedWOs = activeCategory === 'all'
-    ? nonExcludedWOs
-    : nonExcludedWOs.filter((wo) => wo.woType === activeCategory);
+    ? tabFilteredWOs
+    : tabFilteredWOs.filter((wo) => wo.woType === activeCategory);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -114,6 +126,29 @@ export function WOListView() {
       <div className="px-4 sm:px-6 py-5 space-y-5">
         {/* Stats */}
         <WOStatsBar />
+
+        {/* Open / Closed lifecycle tabs */}
+        <div className="flex gap-1 border-b border-gray-200">
+          {(['open', 'closed'] as LifecycleTab[]).map((tab) => {
+            const count = nonExcludedWOs.filter((wo) =>
+              tab === 'closed' ? CLOSED_STATUSES.includes(wo.status) : !CLOSED_STATUSES.includes(wo.status),
+            ).length;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                  activeTab === tab
+                    ? 'border-blue-600 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab === 'open' ? 'Open' : 'Closed'} <span className="text-xs text-gray-400">({count})</span>
+              </button>
+            );
+          })}
+        </div>
 
         {/* Category tabs + Search */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -187,7 +222,9 @@ export function WOListView() {
           displayedWOs.length === 0 ? (
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p className="text-gray-500">{WO_COPY.noOpenWOs}</p>
+              <p className="text-gray-500">
+                {activeTab === 'closed' ? 'No closed work orders yet.' : WO_COPY.noOpenWOs}
+              </p>
             </div>
           ) : (
             /* Single flat table — no per-type grouping. Type column shows
@@ -197,6 +234,8 @@ export function WOListView() {
               workOrders={displayedWOs}
               onSelect={setSelectedWO}
               showTypeColumn={activeCategory === 'all'}
+              canSignOff={activeTab === 'open' && canSignOff}
+              onSignOff={setSelectedWO}
             />
           )
         )}

@@ -78,7 +78,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
   const [rcaSaving, setRcaSaving] = useState(false);
 
   const uid = user?.uid ?? '';
-  const userName = user?.displayName ?? userProfile?.fullName ?? '';
+  const userName = userProfile?.fullName || user?.displayName || '';
 
   const checklistDone = useMemo(() => (wo.checklist ?? []).filter((c) => c.isCompleted).length, [wo.checklist]);
   const evidence = useMemo(() => {
