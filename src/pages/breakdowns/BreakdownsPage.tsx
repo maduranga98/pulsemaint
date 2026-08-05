@@ -182,14 +182,20 @@ export default function BreakdownsPage() {
 
   // Multiple open tickets on the same machine are shown as one row so a
   // supervisor isn't assigning/attending the same machine ticket by ticket.
+  // On the Closed tab, though, a machine can carry many separate historical
+  // incidents (different work orders, weeks apart) — grouping those purely
+  // by machine merged unrelated repair histories into one noisy form, so
+  // closed tickets are grouped by their work order instead (falling back to
+  // the ticket itself when none is linked), one row per actual incident.
   const groups = useMemo<MachineGroup[]>(() => {
-    const byMachine = new Map<string, MachineGroup>();
+    const byGroup = new Map<string, MachineGroup>();
     for (const b of filtered) {
-      const existing = byMachine.get(b.machineId);
+      const key = filter === 'closed' ? `${b.machineId}::${b.linkedWOId ?? b.id}` : b.machineId;
+      const existing = byGroup.get(key);
       if (existing) {
         existing.tickets.push(b);
       } else {
-        byMachine.set(b.machineId, {
+        byGroup.set(key, {
           machineId: b.machineId,
           machineName: b.machineName,
           machineLocation: b.machineLocation,
@@ -197,7 +203,7 @@ export default function BreakdownsPage() {
         });
       }
     }
-    return Array.from(byMachine.values()).sort((a, b) => {
+    return Array.from(byGroup.values()).sort((a, b) => {
       const aTime = a.tickets[0]?.reportedAt?.toDate?.().getTime() ?? 0;
       const bTime = b.tickets[0]?.reportedAt?.toDate?.().getTime() ?? 0;
       return bTime - aTime;
@@ -504,7 +510,7 @@ export default function BreakdownsPage() {
                   const filledTickets = g.tickets.filter((t) => t.status === 'assigned' && !!t.severity && !t.linkedWOId);
 
                   return (
-                    <Fragment key={g.machineId}>
+                    <Fragment key={`${g.machineId}::${g.tickets[0]?.id}`}>
                     <tr className="hover:bg-slate-50 transition-colors align-top">
                       <td className="px-4 py-3">
                         <div className="flex flex-col gap-1">
