@@ -11,6 +11,7 @@ import { isOffboardModule } from '@/lib/training/offboardTraining';
 import {
   TRAINEE_TRAINING_TYPE_LABELS,
   TRAINING_DELIVERY_MODE_LABELS,
+  SAFETY_TRAINING_TYPE,
 } from '@/lib/training/trainingTypes';
 import type {
   TraineeTrainingType,
@@ -29,7 +30,10 @@ const STATUS_FILTERS: { label: string; value: 'all' | TrainingModuleStatus }[] =
   { label: 'Active', value: 'active' },
   { label: 'Archived', value: 'archived' },
 ];
-const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [TraineeTrainingType, string][];
+// Safety Training modules live exclusively on the Safety Trainings page —
+// excluded here so they aren't creatable/visible from the general library.
+const TRAINING_TYPE_OPTIONS = (Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [TraineeTrainingType, string][])
+  .filter(([value]) => value !== SAFETY_TRAINING_TYPE);
 
 /**
  * The Training tab's module library — machine/competency oriented.
@@ -60,6 +64,8 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
   const filtered = useMemo(
     () =>
       modules.filter((m) => {
+        // Safety Training modules belong only on the Safety Trainings page.
+        if (m.trainingType === SAFETY_TRAINING_TYPE) return false;
         const term = search.trim().toLowerCase();
         const matchesSearch = term === '' || (m.title ?? '').toLowerCase().includes(term);
         const matchesStatus = statusFilter === 'all' || m.status === statusFilter;

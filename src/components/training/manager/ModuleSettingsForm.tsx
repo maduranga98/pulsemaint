@@ -11,6 +11,7 @@ import type {
 import {
   TRAINEE_TRAINING_TYPE_LABELS,
   TRAINING_DELIVERY_MODE_LABELS,
+  SAFETY_TRAINING_TYPE,
 } from '@/lib/training/trainingTypes';
 import { getModuleCategory, computeDurationDays } from '@/lib/training/offboardTraining';
 import OffboardTrainingFields, {
@@ -23,6 +24,12 @@ interface ModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
   onSubmit: (data: Partial<TrainingModule>) => Promise<void>;
   isLoading?: boolean;
+  /** When set, this form becomes a template for exactly one training type —
+   *  the Category (Internal/Offboard) and Training Type pickers are hidden
+   *  and every module saved from it is locked to this type. Used by the
+   *  Safety Training creation flow so it can't accidentally produce a module
+   *  of some other type that would then leak into the general Training tab. */
+  lockTrainingType?: TraineeTrainingType;
 }
 
 interface FormValues {
@@ -53,10 +60,11 @@ export default function ModuleSettingsForm({
   defaultValues,
   onSubmit,
   isLoading = false,
+  lockTrainingType,
 }: ModuleSettingsFormProps) {
   const [quizOpen, setQuizOpen] = useState(false);
   const [category, setCategory] = useState<TrainingModuleCategory>(
-    getModuleCategory(defaultValues as TrainingModule | undefined)
+    lockTrainingType ? 'machine' : getModuleCategory(defaultValues as TrainingModule | undefined)
   );
   const [offboard, setOffboard] = useState<OffboardFormValues>(
     offboardDetailsToFormValues(defaultValues?.offboardDetails)
@@ -75,7 +83,7 @@ export default function ModuleSettingsForm({
       // choice in the picker below.
       status: defaultValues?.status ?? 'active',
       tags: (defaultValues?.tags ?? []).join(', '),
-      trainingType: defaultValues?.trainingType ?? '',
+      trainingType: lockTrainingType ?? defaultValues?.trainingType ?? '',
       trainingMode: defaultValues?.trainingMode ?? '',
       quizSettings: {
         practicalSignOffRequired: true,
@@ -170,51 +178,61 @@ export default function ModuleSettingsForm({
         />
       </div>
 
-      <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Category</label>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setCategory('machine')}
-              className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
-                category === 'machine'
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-              }`}
+      {!lockTrainingType && (
+        <>
+          <div className="flex flex-col gap-1">
+              <label className="text-sm font-medium text-gray-700">Category</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCategory('machine')}
+                  className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+                    category === 'machine'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  Internal Training
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCategory('offboard')}
+                  className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
+                    category === 'offboard'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  Offboard / External
+                </button>
+              </div>
+            </div>
+
+          {category === 'offboard' && <OffboardTrainingFields value={offboard} onChange={setOffboard} />}
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
+              Training Type <span className="text-red-500">*</span>
+            </label>
+            <select
+              {...register('trainingType', { required: 'Training type is required' })}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             >
-              Internal Training
-            </button>
-            <button
-              type="button"
-              onClick={() => setCategory('offboard')}
-              className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
-                category === 'offboard'
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              Offboard / External
-            </button>
+              <option value="">Select training type…</option>
+              {Object.entries(TRAINEE_TRAINING_TYPE_LABELS)
+                .filter(([value]) => value !== SAFETY_TRAINING_TYPE)
+                .map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+            </select>
+            {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
           </div>
-        </div>
+        </>
+      )}
 
-      {category === 'offboard' && <OffboardTrainingFields value={offboard} onChange={setOffboard} />}
-
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">
-          Training Type <span className="text-red-500">*</span>
-        </label>
-        <select
-          {...register('trainingType', { required: 'Training type is required' })}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-        >
-          <option value="">Select training type…</option>
-          {Object.entries(TRAINEE_TRAINING_TYPE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-        {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
-      </div>
+      {lockTrainingType && (
+        <input type="hidden" value={lockTrainingType} {...register('trainingType')} />
+      )}
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">
