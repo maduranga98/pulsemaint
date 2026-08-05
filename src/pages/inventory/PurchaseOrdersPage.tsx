@@ -166,6 +166,7 @@ export function PurchaseOrdersPage() {
           orders={orders}
           onView={(id) => navigate(`/app/inventory/purchase-orders/${id}`)}
           onEdit={(id) => navigate(`/app/inventory/purchase-orders/${id}/edit`)}
+          onMarkReceived={(id) => navigate(`/app/inventory/receive?poId=${id}`)}
           onCancel={handleCancel}
           onApprove={canApprove ? handleApprove : undefined}
           onReject={canApprove ? handleReject : undefined}
