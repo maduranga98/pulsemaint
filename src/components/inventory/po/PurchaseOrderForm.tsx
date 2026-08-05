@@ -27,7 +27,7 @@ import { generatePONumber } from '@/lib/inventory/poNumberGenerator';
 import { useToast } from '@/hooks/useToast';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { PurchaseOrderItemRow, type POItemRowData } from './PurchaseOrderItemRow';
-import { SupplierLowStockSuggestions } from './SupplierLowStockSuggestions';
+import { SupplierPartsPicker } from './SupplierPartsPicker';
 
 interface PurchaseOrderFormProps {
   initialPO?: PurchaseOrder;
@@ -344,7 +344,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
     setItems((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  // Bundles the checked suggestions from SupplierLowStockSuggestions onto
+  // Bundles the checked suggestions from SupplierPartsPicker onto
   // this PO — drops the still-empty placeholder row first so a fresh PO
   // doesn't keep a blank line above the added parts.
   function addSuggestedItems(newItems: POItemRowData[]) {
@@ -489,7 +489,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
       {/* Same-supplier low-stock suggestions — bundle other parts from this
           supplier that are also low stock into the same shipment. */}
-      <SupplierLowStockSuggestions
+      <SupplierPartsPicker
         supplierId={activeSupplierId}
         supplierName={activeSupplierName}
         excludePartIds={items.map((i) => i.partId)}
