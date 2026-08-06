@@ -8,6 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  LabelList,
 } from 'recharts';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTopProblemMachines } from '../../../hooks/dashboard/useTopProblemMachines';
@@ -24,6 +25,12 @@ const SEVERITY_COLORS: Record<'critical' | 'high' | 'medium' | 'low', string> = 
   low: '#10B981',
 };
 
+const MODE_CONFIG: Record<MetricMode, { label: string; unit: string; format: (v: number) => string }> = {
+  breakdowns: { label: 'Count', unit: 'WOs', format: (v) => `${Math.round(v)}` },
+  downtime: { label: 'Hours', unit: 'h', format: (v) => `${v.toFixed(1)}h` },
+  cost: { label: 'Cost', unit: 'LKR', format: (v) => `LKR ${Math.round(v).toLocaleString()}` },
+};
+
 interface TopProblemMachinesChartProps {
   companyId: string;
   month: string | string[];
@@ -34,6 +41,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
   const { data, loading, error, refetch } = useTopProblemMachines(companyId, month);
 
   const machines = data?.topProblemMachines?.slice(0, 10) ?? [];
+  const { format } = MODE_CONFIG[mode];
 
   const chartData = machines.map((m) => ({
     name: m.machineName,
@@ -43,7 +51,10 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
     severity: m.severity,
   }));
 
-  // dataKey for tooltip reference
+  // Each row needs ~38px to keep 10 long machine names legible without
+  // crowding — a fixed height clipped/overlapped labels once more than a
+  // handful of machines were returned.
+  const chartHeight = Math.max(280, chartData.length * 38 + 40);
 
   return (
     <DashboardWidget
@@ -52,20 +63,16 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
       error={error}
       onRetry={refetch}
       action={
-        <div className="flex bg-[#0A1628] rounded-md border border-[#1E3A5F]">
-          {([
-            { key: 'breakdowns', label: 'Count' },
-            { key: 'downtime', label: 'Hours' },
-            { key: 'cost', label: 'Cost' },
-          ] as { key: MetricMode; label: string }[]).map((m) => (
+        <div className="flex bg-[#0A1628] rounded-md border border-[#1E3A5F] p-0.5">
+          {(Object.keys(MODE_CONFIG) as MetricMode[]).map((key) => (
             <button
-              key={m.key}
-              onClick={() => setMode(m.key)}
-              className={`px-2 py-0.5 text-[10px] font-medium rounded-sm ${
-                mode === m.key ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF]'
+              key={key}
+              onClick={() => setMode(key)}
+              className={`px-2.5 py-1 text-xs font-medium rounded-sm transition-colors ${
+                mode === key ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
               }`}
             >
-              {m.label}
+              {MODE_CONFIG[key].label}
             </button>
           ))}
         </div>
@@ -74,26 +81,33 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
       {chartData.length === 0 ? (
         <EmptyState message="No problem machine data" />
       ) : (
-        <div className="h-96">
+        <div style={{ height: chartHeight }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>
-              <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} />
-              <XAxis {...CHART_DEFAULTS.xAxis} type="number" />
+            <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 56, bottom: 4, left: 8 }} barCategoryGap="28%">
+              <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} horizontal={false} />
+              <XAxis {...CHART_DEFAULTS.xAxis} type="number" tickFormatter={format} />
               <YAxis
                 {...CHART_DEFAULTS.yAxis}
                 dataKey="name"
                 type="category"
-                width={140}
-                tick={{ fontSize: 11 }}
+                width={168}
+                interval={0}
+                tick={{ fill: '#F0F4F8', fontSize: 12 }}
               />
-              <Tooltip {...CHART_DEFAULTS.tooltip} />
-              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              <Tooltip {...CHART_DEFAULTS.tooltip} formatter={(value: number) => [format(value), MODE_CONFIG[mode].label]} />
+              <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22}>
                 {chartData.map((entry, idx) => (
                   <Cell
                     key={idx}
                     fill={SEVERITY_COLORS[entry.severity] ?? SEVERITY_COLORS.low}
                   />
                 ))}
+                <LabelList
+                  dataKey="value"
+                  position="right"
+                  formatter={(value: number) => format(value)}
+                  style={{ fill: '#F0F4F8', fontSize: 11, fontWeight: 600 }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>

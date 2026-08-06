@@ -166,17 +166,10 @@ const NAV_GROUPS: NavGroup[] = [
     labelKey: 'common.nav.groups.workforce',
     items: [
       { labelKey: 'common.nav.items.contractors', to: '/app/contractors', icon: Icon.users, roles: ['supervisor', 'plant_manager', 'admin', 'hr_officer'] },
-      {
-        labelKey: 'common.nav.items.shifts',
-        to: '/app/settings/shifts',
-        icon: (
-          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
-          </svg>
-        ),
-        // Same roles the Shifts settings tile was visible to.
-        roles: ['admin', 'plant_manager', 'hr_officer'],
-      },
+      // Shift Configuration is no longer a standalone nav entry — it's
+      // reached via the "Shift Configuration" button on the Shift Handovers
+      // page instead (same admin/plant_manager/hr_officer audience as the
+      // shiftHandovers nav item below), so it isn't duplicated in the sidebar.
       {
         labelKey: 'common.nav.items.myShift',
         to: '/app/shift/my',

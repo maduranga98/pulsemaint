@@ -2,23 +2,19 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
+import { useSafetyKpis } from '@/hooks/safety/useSafety';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
-import BreakdownHeatmap from '../../components/dashboard/manager/BreakdownHeatmap';
-import BreakdownTrendChart from '../../components/dashboard/manager/BreakdownTrendChart';
 import TopProblemMachinesChart from '../../components/dashboard/manager/TopProblemMachinesChart';
 import MaintenanceCostChart from '../../components/dashboard/manager/MaintenanceCostChart';
-import MtbfTable from '../../components/dashboard/manager/MtbfTable';
 import TechnicianPerformanceTable from '../../components/dashboard/manager/TechnicianPerformanceTable';
 import PmComplianceWidget from '../../components/dashboard/manager/PmComplianceWidget';
 import PmTrendChart from '../../components/dashboard/manager/PmTrendChart';
 import WoTypeDistributionChart from '../../components/dashboard/manager/WoTypeDistributionChart';
-import MachineAnalyticsTable from '../../components/dashboard/manager/MachineAnalyticsTable';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
-import SlaGaugeWidget from '../../components/dashboard/manager/SlaGaugeWidget';
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
-import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
+import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import SafetySnapshotWidget from '../../components/dashboard/manager/SafetySnapshotWidget';
 import { complianceColor } from '../../utils/analytics.utils';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
@@ -49,6 +45,7 @@ export default function AnalyticsPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = resolveAnalyticsScopeId(userProfile);
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
+  const { kpis: safetyKpis } = useSafetyKpis(companyId);
   const [range, setRange] = useState<Range>('mtd');
 
   // The months covered by the selected range drive every range-aware section.
@@ -107,6 +104,11 @@ export default function AnalyticsPage() {
       unit: '%',
       color: complianceColor(monthly?.overallSlaCompliance ?? 0),
     },
+    {
+      label: 'Safety Cases',
+      value: safetyKpis.totalCases,
+      color: (safetyKpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green',
+    },
   ];
 
   return (
@@ -136,7 +138,7 @@ export default function AnalyticsPage() {
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
         {/* KPI Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
           ))}
@@ -145,23 +147,14 @@ export default function AnalyticsPage() {
         <ProductionDowntimeStrip companyId={companyId} />
 
         {/* ── Breakdowns ─────────────────────────────────────────────────── */}
-        <SectionHeader title="Breakdowns" description="Trends, types & failure patterns" />
+        <SectionHeader title="Breakdowns" description="MTTR trend & failure-type mix" />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <BreakdownTrendChart companyId={companyId} />
-          </div>
-          <div className="lg:col-span-4">
-            <BreakdownByTypeChart companyId={companyId} />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7">
             <MttrTrendChart companyId={companyId} />
           </div>
-          <div className="lg:col-span-6">
-            <BreakdownHeatmap companyId={companyId} />
+          <div className="lg:col-span-5">
+            <BreakdownByTypeChart companyId={companyId} />
           </div>
         </div>
 
@@ -189,38 +182,21 @@ export default function AnalyticsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <SlaGaugeWidget companyId={companyId} />
-          </div>
-          <div className="lg:col-span-4">
-            <ContractorScoreboard companyId={companyId} month={currentMonth} />
-          </div>
-        </div>
+        <ContractorScoreboard companyId={companyId} month={currentMonth} />
 
         {/* ── Performance by Work Orders ─────────────────────────────────── */}
         <SectionHeader title="Performance by Work Orders" description="Per-technician work-order completion & repair metrics" />
 
         <TechnicianPerformanceTable companyId={companyId} month={months} />
 
-        {/* ── Machine Analytics ──────────────────────────────────────────── */}
-        <SectionHeader title="Machine Analytics" description="Per-machine breakdown count, MTTR, MTBF & health" />
+        {/* ── Problem Machines ───────────────────────────────────────────── */}
+        <SectionHeader title="Problem Machines" description="Highest-impact machines by breakdown count, downtime & cost" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <MachineAnalyticsTable companyId={companyId} />
-          </div>
-          <div className="lg:col-span-4">
-            <MtbfTable companyId={companyId} />
-          </div>
-        </div>
-
-        {/* Full width — a 10-row horizontal bar chart needs the room. */}
         <TopProblemMachinesChart companyId={companyId} month={months} />
 
         {/* ── Team & Safety ──────────────────────────────────────────────── */}
-        <SectionHeader title="Team Performance" description="From Evaluations" />
-        <TeamPerformanceAnalyticsWidget companyId={companyId} />
+        <SectionHeader title="Top Performers" description="Ranked by evaluation & audit scores" />
+        <TopPerformersWidget companyId={companyId} />
 
         <SectionHeader title="Safety Analytics" />
         <SafetySnapshotWidget companyId={companyId} />

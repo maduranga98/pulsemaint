@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Settings2 } from 'lucide-react';
 import HandoverFilterBar from '@/components/handover/HandoverFilterBar';
 import HandoverHistoryCard from '@/components/handover/HandoverHistoryCard';
 import HandoverHistoryTable, { type ShiftTableRow } from '@/components/handover/HandoverHistoryTable';
@@ -122,9 +124,18 @@ export function HandoverHistoryPage() {
 
   return (
     <div className="space-y-5 p-4 lg:p-6">
-      <div>
-        <h1 className="font-[Sora] text-2xl font-bold text-slate-950">Shift Handovers</h1>
-        <p className="mt-1 text-sm text-slate-500">Timestamped archive of supervisor accountability transfers across every shift and user.</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="font-[Sora] text-2xl font-bold text-slate-950">Shift Handovers</h1>
+          <p className="mt-1 text-sm text-slate-500">Timestamped archive of supervisor accountability transfers across every shift and user.</p>
+        </div>
+        <Link
+          to="/app/settings/shifts"
+          className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+        >
+          <Settings2 className="h-4 w-4" />
+          Shift Configuration
+        </Link>
       </div>
       <ShiftStatusPanel />
       <HandoverFilterBar

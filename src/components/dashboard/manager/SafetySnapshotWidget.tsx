@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line,
+  PieChart, Pie, Cell,
 } from 'recharts';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
@@ -11,10 +11,6 @@ import { SAFETY_CASE_TYPES } from '@/types/safety';
 
 const SEV_COLORS: Record<string, string> = { low: '#10B981', medium: '#EAB308', high: '#F59E0B', critical: '#EF4444' };
 const AXIS = { stroke: '#8BA3BF', fontSize: 11 };
-
-function millis(ts: { seconds: number } | null | undefined): number {
-  return ts?.seconds ? ts.seconds * 1000 : 0;
-}
 
 /**
  * Safety analytics snapshot — incident KPIs plus trend/type/severity charts.
@@ -39,17 +35,6 @@ export default function SafetySnapshotWidget({ companyId }: { companyId: string 
       .filter((r) => r.value > 0);
   }, [cases]);
 
-  const byMonth = useMemo(() => {
-    const m = new Map<string, number>();
-    cases.forEach((c) => {
-      const t = millis(c.reportedAt);
-      if (!t) return;
-      const key = new Date(t).toISOString().slice(0, 7);
-      m.set(key, (m.get(key) ?? 0) + 1);
-    });
-    return Array.from(m.entries()).sort(([a], [b]) => a.localeCompare(b)).slice(-12).map(([month, count]) => ({ month, count }));
-  }, [cases]);
-
   const cards = [
     { label: 'Total Safety Cases', value: kpis.totalCases, color: 'blue' as const },
     { label: 'Open Cases', value: kpis.openCases, color: (kpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green' },
@@ -64,25 +49,7 @@ export default function SafetySnapshotWidget({ companyId }: { companyId: string 
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="lg:col-span-8">
-          <DashboardWidget title="Safety Cases by Month" loading={loading}>
-            {byMonth.length === 0 ? <EmptyState message="No case history yet" /> : (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={byMonth}>
-                    <CartesianGrid stroke="#1E3A5F" strokeDasharray="3 3" />
-                    <XAxis dataKey="month" {...AXIS} />
-                    <YAxis allowDecimals={false} {...AXIS} />
-                    <Tooltip contentStyle={{ background: '#0F1E35', border: '1px solid #1E3A5F', color: '#F0F4F8' }} />
-                    <Line type="monotone" dataKey="count" stroke="#5B8DEF" strokeWidth={2} dot={{ r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </DashboardWidget>
-        </div>
-
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-5">
           <DashboardWidget title="By Severity" loading={loading}>
             {bySeverity.length === 0 ? <EmptyState message="No data" /> : (
               <div className="h-64">
@@ -99,7 +66,7 @@ export default function SafetySnapshotWidget({ companyId }: { companyId: string 
           </DashboardWidget>
         </div>
 
-        <div className="lg:col-span-12">
+        <div className="lg:col-span-7">
           <DashboardWidget title="By Case Type" loading={loading}>
             {byType.length === 0 ? <EmptyState message="No data" /> : (
               <div className="h-64">
