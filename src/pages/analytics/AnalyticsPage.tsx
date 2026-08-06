@@ -99,12 +99,6 @@ export default function AnalyticsPage() {
       color: 'red' as const,
     },
     {
-      label: 'SLA Compliance',
-      value: Math.round(monthly?.overallSlaCompliance ?? 0),
-      unit: '%',
-      color: complianceColor(monthly?.overallSlaCompliance ?? 0),
-    },
-    {
       label: 'Safety Cases',
       value: safetyKpis.totalCases,
       color: (safetyKpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green',
@@ -138,7 +132,7 @@ export default function AnalyticsPage() {
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
         {/* KPI Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
           ))}
