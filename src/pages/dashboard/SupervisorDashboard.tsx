@@ -10,7 +10,6 @@ import WorkOrdersWidget from '../../components/dashboard/supervisor/WorkOrdersWi
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
-import ExtensionRequestsWidget from '../../components/dashboard/shared/ExtensionRequestsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -94,9 +93,6 @@ export default function SupervisorDashboard() {
           <FactoryFloorMap companyId={companyId} />
           <TechnicianStatusList companyId={companyId} />
         </div>
-
-        {/* Row 3b: WO due-date extension requests awaiting approval */}
-        <ExtensionRequestsWidget companyId={companyId} />
 
         {/* Row 4: Assigned WOs / Audits / Evaluations / Trainings (today's shift) */}
         <AssignedTasksWidget />
