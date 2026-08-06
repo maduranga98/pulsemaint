@@ -359,6 +359,8 @@ export interface PartReturn {
 
   storeKeeperConfirmedBy: string | null;
   storeKeeperConfirmedByName: string | null;
+  /** The confirming/rejecting user's role at the time — store keeper, admin, or plant manager can all act on a return. */
+  storeKeeperConfirmedByRole?: string | null;
   storeKeeperConfirmedAt: Timestamp | null;
 
   notes: string;
