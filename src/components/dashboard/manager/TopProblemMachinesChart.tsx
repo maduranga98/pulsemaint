@@ -94,7 +94,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
                 interval={0}
                 tick={{ fill: '#F0F4F8', fontSize: 12 }}
               />
-              <Tooltip {...CHART_DEFAULTS.tooltip} formatter={(value: number) => [format(value), MODE_CONFIG[mode].label]} />
+              <Tooltip {...CHART_DEFAULTS.tooltip} formatter={(value) => [format(Number(value ?? 0)), MODE_CONFIG[mode].label]} />
               <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22}>
                 {chartData.map((entry, idx) => (
                   <Cell
@@ -105,7 +105,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
                 <LabelList
                   dataKey="value"
                   position="right"
-                  formatter={(value: number) => format(value)}
+                  formatter={(value) => format(Number(value ?? 0))}
                   style={{ fill: '#F0F4F8', fontSize: 11, fontWeight: 600 }}
                 />
               </Bar>

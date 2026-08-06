@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuthStore } from '../../store/authStore';
 import {
@@ -117,7 +117,9 @@ export function MachineForm({
     handleSubmit,
     formState: { errors, isSubmitting: formIsSubmitting },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    // create/update use different Zod schemas depending on `mode`, so their
+    // inferred resolver types don't unify cleanly with the FormData union.
+    resolver: zodResolver(schema as never) as Resolver<FormData>,
     defaultValues,
   });
 

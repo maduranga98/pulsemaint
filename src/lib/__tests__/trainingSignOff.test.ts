@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { canSignOffTraining } from '../training/trainingSignOff';
 
-const assignment = { assignedBy: 'pm-1' };
+const assignment = { assignedBy: 'pm-1', traineeId: 'trainee-1' };
 
 describe('canSignOffTraining', () => {
   it('lets a supervisor sign off', () => {
@@ -9,7 +9,7 @@ describe('canSignOffTraining', () => {
   });
 
   it('lets an admin sign off, even one they assigned themselves', () => {
-    expect(canSignOffTraining({ assignedBy: 'admin-1' }, 'admin', 'admin-1').allowed).toBe(true);
+    expect(canSignOffTraining({ assignedBy: 'admin-1', traineeId: 'trainee-1' }, 'admin', 'admin-1').allowed).toBe(true);
   });
 
   it('lets a plant manager sign off training someone else assigned', () => {
@@ -23,7 +23,7 @@ describe('canSignOffTraining', () => {
   });
 
   it('blocks a supervisor from signing off training they assigned', () => {
-    const result = canSignOffTraining({ assignedBy: 'sup-9' }, 'supervisor', 'sup-9');
+    const result = canSignOffTraining({ assignedBy: 'sup-9', traineeId: 'trainee-1' }, 'supervisor', 'sup-9');
     expect(result.allowed).toBe(false);
     expect(result.reason).toMatch(/assigned this training/i);
   });

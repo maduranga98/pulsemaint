@@ -361,7 +361,6 @@ function ScorecardTab() {
 
 export function FiveSPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
-  const company = useAuthStore((s) => s.company);
   const role = userProfile?.role;
 
   const ALLOWED_ROLES = ['admin', 'plant_manager', 'supervisor', 'technician'];

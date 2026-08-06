@@ -5,20 +5,13 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Html5Qrcode } from 'html5-qrcode';
-import OTPInput from '../../components/auth/OTPInput';
 import {
   loginWithEmail,
   loginWithGoogle,
-  loginWithPhone,
-  confirmOTP,
-  loginWithPin,
-  changePin,
   authErrorMessages,
   getDashboardRoute,
 } from '../../lib/auth';
-import { useAuthStore } from '../../store/authStore';
 import { consumePostLoginRedirect } from '../../lib/scanTarget';
-import type { ConfirmationResult } from 'firebase/auth';
 
 const emailLoginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -26,19 +19,6 @@ const emailLoginSchema = z.object({
 });
 
 type EmailLoginForm = z.infer<typeof emailLoginSchema>;
-
-const phoneNumberSchema = z.object({
-  countryCode: z.string().min(1, 'Country code is required.'),
-  phoneNumber: z.string().min(6, 'Please enter a valid phone number.'),
-});
-
-type PhoneNumberForm = z.infer<typeof phoneNumberSchema>;
-
-const employeePinSchema = z.object({
-  companyId: z.string().min(1, 'Company ID is required.'),
-});
-
-type EmployeePinForm = z.infer<typeof employeePinSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -52,23 +32,12 @@ export default function LoginPage() {
       (location.state as { from?: string } | null)?.from ?? consumePostLoginRedirect();
     return returnTo ?? getDashboardRoute(role as any);
   };
-  const [activeTab, setActiveTab] = useState<'email' | 'phone'>('email');
-  const [phoneStep, setPhoneStep] = useState<'phone' | 'otp' | 'pin'>('phone');
+  const activeTab = 'email' as const;
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [showPinChangeModal, setShowPinChangeModal] = useState(false);
-  const [pinChangeLoading, setPinChangeLoading] = useState(false);
-  const [currentCompanyId, setCurrentCompanyId] = useState('');
-  const [currentUserId, setCurrentUserId] = useState('');
-  const [, setOtpCountdown] = useState(0);
-  const [newPin, setNewPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
-  const [pinInput, setPinInput] = useState('');
-  const recaptchaRef = useRef<HTMLDivElement>(null);
   const [showQrScanner, setShowQrScanner] = useState(false);
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
 
@@ -130,15 +99,6 @@ export default function LoginPage() {
     resolver: zodResolver(emailLoginSchema),
   });
 
-  const phoneForm = useForm<PhoneNumberForm>({
-    resolver: zodResolver(phoneNumberSchema),
-    defaultValues: { countryCode: '+94' },
-  });
-
-  const pinForm = useForm<EmployeePinForm>({
-    resolver: zodResolver(employeePinSchema),
-  });
-
   const handleEmailLogin = async (data: EmailLoginForm) => {
     try {
       setError(null);
@@ -166,62 +126,6 @@ export default function LoginPage() {
       setError(errorMessage);
     } finally {
       setGoogleLoading(false);
-    }
-  };
-
-  const handlePhoneSubmit = async (data: PhoneNumberForm) => {
-    try {
-      setError(null);
-      setLoading(true);
-      const fullPhoneNumber = `${data.countryCode}${data.phoneNumber.replace(/^\+?\d+/, '').replace(/\D/g, '')}`;
-      const result = await loginWithPhone(fullPhoneNumber);
-      setConfirmationResult(result);
-      setPhoneStep('otp');
-      setOtpCountdown(60);
-    } catch (err: any) {
-      const errorCode = err.code || err.message;
-      const errorMessage = authErrorMessages[errorCode] || 'Failed to send OTP.';
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOTPComplete = async (otp: string) => {
-    if (!confirmationResult) return;
-    try {
-      setError(null);
-      setLoading(true);
-      const profile = await confirmOTP(confirmationResult, otp);
-      navigate(postLoginRoute(profile.role), { replace: true });
-    } catch (err: any) {
-      const errorCode = err.code || err.message;
-      const errorMessage = authErrorMessages[errorCode] || 'OTP verification failed.';
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePinLogin = async (companyId: string) => {
-    if (pinInput.length !== 6) return;
-    try {
-      setError(null);
-      setLoading(true);
-      const profile = await loginWithPin(companyId, pinInput);
-      navigate(postLoginRoute(profile.role), { replace: true });
-    } catch (err: any) {
-      const errorCode = err.code || err.message;
-      if (errorCode === 'PIN_CHANGE_REQUIRED') {
-        setCurrentCompanyId(companyId);
-        setCurrentUserId(useAuthStore.getState().user?.uid || '');
-        setShowPinChangeModal(true);
-      } else {
-        const errorMessage = authErrorMessages[errorCode] || 'PIN login failed.';
-        setError(errorMessage);
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -450,55 +354,6 @@ export default function LoginPage() {
         </div>
       )}
 
-      {showPinChangeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
-            <div className="flex flex-col gap-1 mb-6">
-              <h3 className="text-lg font-semibold">Change Your PIN</h3>
-              <p className="text-gray-600 text-sm">You must change your PIN before continuing.</p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">New PIN</label>
-                <OTPInput length={6} masked onComplete={(value) => setNewPin(value)} />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Confirm PIN</label>
-                <OTPInput length={6} masked onComplete={(value) => setConfirmPin(value)} />
-              </div>
-
-              {newPin && confirmPin && newPin !== confirmPin && (
-                <p className="text-red-500 text-sm">PINs do not match.</p>
-              )}
-
-              <button
-                onClick={async () => {
-                  try {
-                    setError(null);
-                    setPinChangeLoading(true);
-                    await changePin(currentUserId, currentCompanyId, newPin);
-                    setShowPinChangeModal(false);
-                    setNewPin('');
-                    setConfirmPin('');
-                    const userRole = useAuthStore.getState().userProfile?.role;
-                    if (userRole) navigate(postLoginRoute(userRole));
-                  } catch (err: any) {
-                    setError(err.message || 'Failed to change PIN.');
-                  } finally {
-                    setPinChangeLoading(false);
-                  }
-                }}
-                disabled={!newPin || !confirmPin || newPin !== confirmPin || pinChangeLoading}
-                className="w-full bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50 h-10"
-              >
-                {pinChangeLoading ? 'Updating...' : 'Update PIN'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

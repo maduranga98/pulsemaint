@@ -111,6 +111,13 @@ export function useMachineCreate({
         qrCode: generateMachineQrUrl(newId, payload.siteId),
         moeData: null,
         iotSensorId: null,
+        // Not yet collected on the creation form — editable later from the
+        // machine detail page.
+        isolationPoints: [],
+        costPerHourDown: null,
+        unitsPerHour: null,
+        unitValue: null,
+        costCurrency: 'LKR',
         createdAt: serverTimestamp(),
         createdBy: userId,
         updatedAt: serverTimestamp(),

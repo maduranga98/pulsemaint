@@ -55,7 +55,7 @@ export default function WoTypeDistributionChart({ companyId }: WoTypeDistributio
                 />
                 <Tooltip
                   {...CHART_DEFAULTS.tooltip}
-                  formatter={(value: number, _name: string, props: any) => [
+                  formatter={(value, _name, props: any) => [
                     `${value} (${props.payload.pct}%)`,
                     'WOs',
                   ]}
