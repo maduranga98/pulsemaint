@@ -85,21 +85,21 @@ export default function TechnicianDashboard() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TodaysPmList technicianId={technicianId} siteId={siteId} />
-          <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <UnassignedBreakdownsWidget siteId={siteId} />
           <AssignedBreakdownsWidget technicianId={technicianId} siteId={siteId} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MySafetyTrainingsWidget />
-          <MySafetyCasesWidget />
+          <TodaysPmList technicianId={technicianId} siteId={siteId} />
+          <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />
         </div>
 
-        <MyTrainingsWidget />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <MySafetyTrainingsWidget />
+          <MyTrainingsWidget />
+        </div>
+
+        <MySafetyCasesWidget />
       </div>
 
       {selectedWO && (
