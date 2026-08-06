@@ -55,7 +55,7 @@ export default function TrainingAssignmentsProgress() {
     .filter((a) => moduleIds.has(a.moduleId))
     .sort((a, b) => ((b.assignedAt as any)?.toMillis?.() ?? 0) - ((a.assignedAt as any)?.toMillis?.() ?? 0));
 
-  const completedCount = rows.filter((a) => a.status === 'completed').length;
+  const completedCount = rows.filter((a) => a.status === 'certified').length;
   const inProgressCount = rows.filter((a) => a.status === 'in_progress').length;
 
   if (loading) {
