@@ -4,7 +4,6 @@ import { ChevronDown, Loader2 } from 'lucide-react';
 import type {
   TrainingModule,
   TrainingModuleStatus,
-  TrainingModuleCategory,
   TraineeTrainingType,
   TrainingDeliveryMode,
 } from '@/lib/training/trainingTypes';
@@ -13,29 +12,22 @@ import {
   TRAINING_DELIVERY_MODE_LABELS,
   SAFETY_TRAINING_TYPE,
 } from '@/lib/training/trainingTypes';
-import { getModuleCategory, computeDurationDays } from '@/lib/training/offboardTraining';
-import OffboardTrainingFields, {
-  offboardDetailsToFormValues,
-  defaultOffboardFormValues,
-  type OffboardFormValues,
-} from './OffboardTrainingFields';
 
 interface ModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
   onSubmit: (data: Partial<TrainingModule>) => Promise<void>;
   isLoading?: boolean;
   /** When set, this form becomes a template for exactly one training type —
-   *  the Category (Internal/Offboard) and Training Type pickers are hidden
-   *  and every module saved from it is locked to this type. Used by the
-   *  Safety Training creation flow so it can't accidentally produce a module
-   *  of some other type that would then leak into the general Training tab. */
+   *  the Training Type picker is hidden and every module saved from it is
+   *  locked to this type. Used by the Safety Training creation flow so it
+   *  can't accidentally produce a module of some other type that would then
+   *  leak into the general Training tab. */
   lockTrainingType?: TraineeTrainingType;
 }
 
 interface FormValues {
   title: string;
   description: string;
-  estimatedMinutes: number;
   passingScore: number;
   status: TrainingModuleStatus;
   tags: string;
@@ -52,8 +44,10 @@ interface FormValues {
 
 /**
  * Settings form for the Training tab's module library only — machine /
- * competency modules, including the Internal vs Offboard-External category
- * picker. Trainee Management has its own form
+ * competency modules. Deliberately minimal: title, description, training
+ * type, mode, passing score, status, and tags. Existing Internal/Offboard
+ * category data on a module (if any) is left untouched by this form — it's
+ * not editable here. Trainee Management has its own form
  * (`TraineeModuleSettingsForm`); neither branches on which library it is in.
  */
 export default function ModuleSettingsForm({
@@ -63,19 +57,11 @@ export default function ModuleSettingsForm({
   lockTrainingType,
 }: ModuleSettingsFormProps) {
   const [quizOpen, setQuizOpen] = useState(false);
-  const [category, setCategory] = useState<TrainingModuleCategory>(
-    lockTrainingType ? 'machine' : getModuleCategory(defaultValues as TrainingModule | undefined)
-  );
-  const [offboard, setOffboard] = useState<OffboardFormValues>(
-    offboardDetailsToFormValues(defaultValues?.offboardDetails)
-      ?? defaultOffboardFormValues()
-  );
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
-      estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
       passingScore: defaultValues?.passingScore ?? 70,
       // New modules default to Active so they can be assigned as soon as
       // they're created — a draft has no Assign action, which left authors
@@ -114,34 +100,15 @@ export default function ModuleSettingsForm({
       // existing language (the picker was removed — everything is authored in
       // the company's own language).
       machineName: '',
-      estimatedMinutes: Number(values.estimatedMinutes),
+      estimatedMinutes: defaultValues?.estimatedMinutes ?? 0,
       language: defaultValues?.language ?? 'en',
       passingScore: Number(values.passingScore),
       status: values.status,
       tags,
-      category,
       trainingType: values.trainingType as TraineeTrainingType,
       trainingMode: values.trainingMode as TrainingDeliveryMode,
       libraryScope: 'training',
     };
-
-    if (category === 'offboard') {
-      data.offboardDetails = {
-        country: offboard.country,
-        thirdPartyCompany: offboard.thirdPartyCompany,
-        thirdPartyContactName: offboard.thirdPartyContactName,
-        thirdPartyContactInfo: offboard.thirdPartyContactInfo,
-        mode: offboard.mode,
-        startDate: offboard.startDate ? (new Date(offboard.startDate) as any) : null,
-        endDate: offboard.endDate ? (new Date(offboard.endDate) as any) : null,
-        durationDays: computeDurationDays(offboard.startDate || null, offboard.endDate || null),
-        topic: offboard.topic,
-        linkedMachineId: offboard.linkedMachineId || null,
-        assessmentQuestions: offboard.assessmentQuestions,
-      };
-    } else {
-      data.offboardDetails = null;
-    }
 
     await onSubmit(data);
   }
@@ -179,55 +146,23 @@ export default function ModuleSettingsForm({
       </div>
 
       {!lockTrainingType && (
-        <>
-          <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Category</label>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCategory('machine')}
-                  className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
-                    category === 'machine'
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  Internal Training
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCategory('offboard')}
-                  className={`flex-1 text-sm font-medium rounded-lg px-3 py-2 border transition-colors ${
-                    category === 'offboard'
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
-                  }`}
-                >
-                  Offboard / External
-                </button>
-              </div>
-            </div>
-
-          {category === 'offboard' && <OffboardTrainingFields value={offboard} onChange={setOffboard} />}
-
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Training Type <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register('trainingType', { required: 'Training type is required' })}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="">Select training type…</option>
-              {Object.entries(TRAINEE_TRAINING_TYPE_LABELS)
-                .filter(([value]) => value !== SAFETY_TRAINING_TYPE)
-                .map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-            </select>
-            {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
-          </div>
-        </>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">
+            Training Type <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...register('trainingType', { required: 'Training type is required' })}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option value="">Select training type…</option>
+            {Object.entries(TRAINEE_TRAINING_TYPE_LABELS)
+              .filter(([value]) => value !== SAFETY_TRAINING_TYPE)
+              .map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+          </select>
+          {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
+        </div>
       )}
 
       {lockTrainingType && (
@@ -250,32 +185,17 @@ export default function ModuleSettingsForm({
         {errors.trainingMode && <p className="text-xs text-red-500">{errors.trainingMode.message}</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Duration</label>
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              {...register('estimatedMinutes', { min: 1 })}
-              min={1}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-            />
-            <span className="text-sm text-gray-500 whitespace-nowrap">min</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Passing Score</label>
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              {...register('passingScore', { min: 50, max: 100 })}
-              min={50}
-              max={100}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-            />
-            <span className="text-sm text-gray-500">%</span>
-          </div>
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">Passing Score</label>
+        <div className="flex items-center gap-2 w-40">
+          <input
+            type="number"
+            {...register('passingScore', { min: 50, max: 100 })}
+            min={50}
+            max={100}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+          />
+          <span className="text-sm text-gray-500">%</span>
         </div>
       </div>
 
