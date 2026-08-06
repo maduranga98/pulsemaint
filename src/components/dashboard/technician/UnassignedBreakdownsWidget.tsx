@@ -44,7 +44,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
   }, [siteId]);
 
   return (
-    <DashboardWidget title="Unassigned Breakdowns" loading={loading}>
+    <DashboardWidget title="Breakdowns" loading={loading}>
       {breakdowns.length === 0 ? (
         <EmptyState message="No unassigned breakdowns" />
       ) : (

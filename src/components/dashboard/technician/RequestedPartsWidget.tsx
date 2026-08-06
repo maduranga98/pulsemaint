@@ -20,7 +20,7 @@ export default function RequestedPartsWidget() {
   const pending = requests.filter((r) => !FULFILLED_OR_CLOSED.includes(r.status));
 
   return (
-    <DashboardWidget title="Requested Parts — Not Fulfilled" loading={loading} error={error}>
+    <DashboardWidget title="Requested Parts" loading={loading} error={error}>
       {pending.length === 0 ? (
         <EmptyState message="No outstanding parts requests" />
       ) : (
