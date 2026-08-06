@@ -211,9 +211,21 @@ export default function BreakdownsPage() {
   }, [filtered]);
 
   const expandedGroup = groups.find((g) => g.machineId === expandedMachineId) ?? null;
-  // Closed tab shows every group's detail form at once (nothing to expand),
-  // so resolve roles across all of them instead of just one expanded group.
-  const groupsNeedingRoles = filter === 'closed' ? groups : expandedGroup ? [expandedGroup] : [];
+  const groupsNeedingRoles = expandedGroup ? [expandedGroup] : [];
+  const expandedRowRef = useRef<HTMLTableRowElement | null>(null);
+
+  // Clicking a machine name toggles its detail row open/closed; when opening,
+  // scroll it into view since the table can be long and the row appears
+  // below the fold.
+  function toggleExpanded(machineId: string) {
+    setExpandedMachineId((cur) => (cur === machineId ? null : machineId));
+  }
+
+  useEffect(() => {
+    if (expandedMachineId && expandedRowRef.current) {
+      expandedRowRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [expandedMachineId]);
 
   // Resolve every actor's current role across the relevant tickets
   // (attended-by, assigned technicians, status history) so names can be
@@ -522,24 +534,18 @@ export default function BreakdownsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        {/* Closed tab always shows the full detail form below every
-                            row — nothing to toggle. Other tabs expand on click. */}
-                        {filter === 'closed' ? (
-                          <p className="font-medium text-slate-900">{g.machineName}</p>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => setExpandedMachineId((cur) => (cur === g.machineId ? null : g.machineId))}
-                            className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-blue-600 hover:underline"
-                          >
-                            {g.machineName}
-                            {expandedMachineId === g.machineId ? (
-                              <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
-                            ) : (
-                              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-                            )}
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => toggleExpanded(g.machineId)}
+                          className="inline-flex items-center gap-1 font-medium text-slate-900 hover:text-blue-600 hover:underline"
+                        >
+                          {g.machineName}
+                          {expandedMachineId === g.machineId ? (
+                            <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                          )}
+                        </button>
                         <p className="text-slate-400 text-xs">{g.machineLocation}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -640,8 +646,8 @@ export default function BreakdownsPage() {
                         </div>
                       </td>
                     </tr>
-                    {(filter === 'closed' || expandedMachineId === g.machineId) && (
-                      <tr>
+                    {expandedMachineId === g.machineId && (
+                      <tr ref={expandedMachineId === g.machineId ? expandedRowRef : undefined}>
                         <td colSpan={8} className="bg-slate-50 px-4 py-5 border-t border-b border-slate-200">
                           <MachineBreakdownDetails group={g} actorRoles={actorRoles} showHistory={filter === 'closed'} />
                         </td>
