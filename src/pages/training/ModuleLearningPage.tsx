@@ -9,13 +9,12 @@ export default function ModuleLearningPage() {
   const navigate = useNavigate();
   const { assignment, module, loading, error } = useAssignment(assignmentId ?? '');
 
-  // A programme (Trainee Management library) module belongs to the "My
-  // Programme" tab — completing it should return there, not jump the trainee
-  // over to the separate "My Training" tab.
-  const modulesHome =
-    module?.libraryScope === 'trainee_management'
-      ? '/app/training/my-program'
-      : '/app/training/my-modules';
+  // The back arrow returns to wherever the learner actually came from (the
+  // dashboard, the module library, a deep link, …) rather than always
+  // landing on the "My Training" list — that list isn't even reachable from
+  // some roles' nav (e.g. technician), so hardcoding it as the destination
+  // stranded them on a page with no way back except this same button.
+  const goBack = () => navigate(-1);
 
   if (loading) {
     return (
@@ -29,11 +28,8 @@ export default function ModuleLearningPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
         <p className="text-lg font-medium">Module not found.</p>
-        <button
-          onClick={() => navigate('/app/training/my-modules')}
-          className="text-blue-600 hover:underline text-sm"
-        >
-          Back to My Training
+        <button onClick={goBack} className="text-blue-600 hover:underline text-sm">
+          Go Back
         </button>
       </div>
     );
@@ -45,7 +41,7 @@ export default function ModuleLearningPage() {
         <OffboardTrainingCompletionForm
           assignment={assignment}
           module={module}
-          onBack={() => navigate(modulesHome)}
+          onBack={goBack}
         />
       </div>
     );
@@ -55,7 +51,7 @@ export default function ModuleLearningPage() {
     <ModuleLearningScreen
       assignment={assignment}
       module={module}
-      onBack={() => navigate(modulesHome)}
+      onBack={goBack}
       onStartQuiz={() => navigate(`/app/training/my-modules/${assignmentId}/quiz`)}
     />
   );
