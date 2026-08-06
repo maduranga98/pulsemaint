@@ -19,6 +19,7 @@ import {
   DEPARTMENT_CRITERIA,
 } from '../types/evaluation.types';
 import { uploadEvaluationAttachment, fetchEvaluationTemplates } from '../services/evaluation.service';
+import { downloadEvaluationPdf } from '../utils/evaluationPdf';
 import { useDepartments } from '@/hooks/useDepartments';
 import { useAuthStore } from '@/store/authStore';
 
@@ -119,6 +120,8 @@ function AttachmentIcon({ type }: { type: EvaluationAttachment['type'] }) {
 
 export default function EvaluationForm({
   companyId,
+  evaluatorId,
+  evaluatorName,
   targetType = 'individual',
   initialRole,
   initialDepartment,
@@ -291,6 +294,35 @@ export default function EvaluationForm({
       templateId: selectedTemplate?.id ?? null,
       templateName: selectedTemplate?.name ?? null,
     };
+  }
+
+  function handleExportPdf() {
+    const data = buildFormData();
+    downloadEvaluationPdf({
+      id: existing?.id ?? 'draft',
+      companyId,
+      targetType: data.targetType,
+      evaluateeId: data.evaluateeId,
+      evaluateeName: data.evaluateeName,
+      evaluateeRole: data.evaluateeRole,
+      evaluateeJobTitle: data.evaluateeJobTitle,
+      evaluateeEmployeeId: data.evaluateeEmployeeId || null,
+      evaluateeCustomRole: data.evaluateeCustomRole || null,
+      evaluatorId,
+      evaluatorName,
+      criteria: data.criteria,
+      overallScore: data.overallScore,
+      overallComments: data.overallComments,
+      developmentPlan: data.developmentPlan,
+      attachments: data.attachments,
+      templateId: data.templateId,
+      templateName: data.templateName,
+      actionLog: [],
+      status: existing?.status ?? 'draft',
+      evaluationDate: data.evaluationDate,
+      createdAt: existing?.createdAt ?? null,
+      submittedAt: existing?.submittedAt ?? null,
+    });
   }
 
   async function handleSubmit() {
@@ -726,6 +758,13 @@ export default function EvaluationForm({
                   {savingDraft ? 'Saving…' : 'Save as Draft (Ongoing)'}
                 </button>
               )}
+              <button
+                type="button"
+                onClick={handleExportPdf}
+                className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Export PDF
+              </button>
               <button
                 type="button"
                 onClick={() => void handleSubmit()}

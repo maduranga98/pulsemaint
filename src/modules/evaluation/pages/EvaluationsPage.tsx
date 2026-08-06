@@ -9,13 +9,13 @@ import { useDepartments } from '@/hooks/useDepartments';
 import EvaluationForm, { type FormData } from '../components/EvaluationForm';
 import EvaluationTemplateBuilder from '../components/EvaluationTemplateBuilder';
 import { fetchEvaluations, subscribeEvaluations, submitEvaluation, saveDraftEvaluation } from '../services/evaluation.service';
-import { downloadEvaluationsSummaryPdf } from '../utils/evaluationPdf';
+import { downloadEvaluationsSummaryPdf, downloadEvaluationPdf } from '../utils/evaluationPdf';
 import type { EvaluationSession, EvaluationRole, EvaluationTargetType } from '../types/evaluation.types';
 import { EVALUATION_ROLE_LABELS } from '../types/evaluation.types';
 
 const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 
-type ViewMode = 'role' | 'department';
+type ViewMode = 'role' | 'department' | 'completed';
 
 const ROLE_ORDER: EvaluationRole[] = ['operator', 'technician', 'supervisor', 'plant_manager', 'hr_officer', 'safety_officer', 'trainee', 'other'];
 const ROLE_ICON: Record<EvaluationRole, typeof HardHat> = {
@@ -40,7 +40,7 @@ export default function EvaluationsPage() {
   const { departments } = useDepartments(companyId);
 
   const [sessions, setSessions] = useState<EvaluationSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [newEvalTarget, setNewEvalTarget] = useState<EvaluationTargetType>('individual');
   const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
@@ -112,15 +112,9 @@ export default function EvaluationsPage() {
     void load();
   }
 
-  function matchesView(s: EvaluationSession): boolean {
-    const isDept = (s.targetType ?? 'individual') === 'department';
-    if (viewMode === 'department') return isDept && (!deptFilter || s.evaluateeName === deptFilter);
-    return !isDept && (!roleFilter || s.evaluateeRole === roleFilter);
-  }
-
-  // Completed evaluations within the current role/department view — what
-  // "Export PDF" produces, so the export matches what's on screen.
-  const exportSessions = sessions.filter((s) => s.status === 'submitted' && matchesView(s));
+  const completedSessions = sessions
+    .filter((s) => s.status === 'submitted')
+    .sort((a, b) => (b.submittedAt?.toMillis?.() ?? 0) - (a.submittedAt?.toMillis?.() ?? 0));
 
   const [formKey, setFormKey] = useState(0);
 
@@ -177,6 +171,7 @@ export default function EvaluationsPage() {
         {([
           { id: 'role' as const, label: 'By Role' },
           { id: 'department' as const, label: 'By Department' },
+          { id: 'completed' as const, label: 'Completed' },
         ]).map((tab) => (
           <button
             key={tab.id}
@@ -192,7 +187,44 @@ export default function EvaluationsPage() {
       </div>
 
       {/* Categories */}
-      {viewMode === 'role' ? (
+      {viewMode === 'completed' ? (
+        <div className="mb-6 space-y-3">
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => downloadEvaluationsSummaryPdf(completedSessions)}
+              disabled={completedSessions.length === 0}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Download className="h-4 w-4" />
+              Export PDF
+            </button>
+          </div>
+          {completedSessions.length === 0 ? (
+            <p className="py-8 text-center text-sm text-gray-500">No completed evaluations yet.</p>
+          ) : (
+            <div className="rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden bg-white">
+              {completedSessions.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => downloadEvaluationPdf(s)}
+                  className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{s.evaluateeName}</p>
+                    <p className="text-xs text-gray-500">
+                      {(s.targetType ?? 'individual') === 'department' ? 'Department' : EVALUATION_ROLE_LABELS[s.evaluateeRole]}
+                      {' · '}{s.evaluationDate}
+                    </p>
+                  </div>
+                  <span className="text-sm font-semibold text-blue-700">{s.overallScore}%</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : viewMode === 'role' ? (
         <div key="role-grid" className="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <button
             type="button"
@@ -296,20 +328,6 @@ export default function EvaluationsPage() {
 
       {showTemplateBuilder && (
         <EvaluationTemplateBuilder onClose={() => setShowTemplateBuilder(false)} />
-      )}
-
-      {!loading && (
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={() => downloadEvaluationsSummaryPdf(exportSessions)}
-            disabled={exportSessions.length === 0}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Download className="h-4 w-4" />
-            Export PDF
-          </button>
-        </div>
       )}
     </div>
   );

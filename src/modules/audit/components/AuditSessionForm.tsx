@@ -26,6 +26,7 @@ import {
   type WorkOrderRef,
   type ContractorJobRating,
   type AuditSession,
+  type AuditDraft,
 } from '../types/audit.types';
 import { useAuditMachines, useAuditUsers } from '../hooks/useAudit';
 import { submitAudit, clearDraft, saveDraft } from '../services/audit.service';
@@ -132,6 +133,8 @@ interface Props {
   template: AuditTemplate;
   onConfigure: () => void;
   onDone: () => void;
+  /** Resumes a previously saved in-progress draft for this category. */
+  initialDraft?: AuditDraft;
 }
 
 function isFailed(value: string, answerType: string): boolean {
@@ -144,26 +147,30 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h3 className="text-sm font-bold text-white font-sora mb-3">{children}</h3>
 );
 
-export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone }: Props) {
+export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, initialDraft }: Props) {
   const template = useMemo(() => normalizeTemplate(rawTemplate), [rawTemplate]);
   const profile = useAuthStore((s) => s.userProfile);
   const plantId = profile?.companyId ?? '';
   const { machines } = useAuditMachines();
   const { users } = useAuditUsers();
 
-  const [selectedMachines, setSelectedMachines] = useState<MachineRef[]>([]);
-  const [selectedContractors, setSelectedContractors] = useState<ContractorRef[]>([]);
-  const [selectedInventoryItems, setSelectedInventoryItems] = useState<InventoryItemRef[]>([]);
-  const [selectedWorkOrders, setSelectedWorkOrders] = useState<WorkOrderRef[]>([]);
+  const [selectedMachines, setSelectedMachines] = useState<MachineRef[]>(initialDraft?.machines ?? []);
+  const [selectedContractors, setSelectedContractors] = useState<ContractorRef[]>(initialDraft?.contractors ?? []);
+  const [selectedInventoryItems, setSelectedInventoryItems] = useState<InventoryItemRef[]>(
+    initialDraft?.inventoryItems ?? []
+  );
+  const [selectedWorkOrders, setSelectedWorkOrders] = useState<WorkOrderRef[]>(initialDraft?.workOrders ?? []);
   const scope = template.scope;
   const isContractorAudit = scope === 'contractors';
-  const [department, setDepartment] = useState('');
-  const [location, setLocation] = useState('');
+  const [department, setDepartment] = useState(initialDraft?.department ?? '');
+  const [location, setLocation] = useState(initialDraft?.location ?? '');
   const [locationAutoFilled, setLocationAutoFilled] = useState(false);
-  const [contractorJobRatings, setContractorJobRatings] = useState<Record<string, ContractorJobRating>>({});
-  const [participants, setParticipants] = useState<AuditParticipant[]>([]);
-  const [answers, setAnswers] = useState<Record<string, AuditAnswer>>({});
-  const [findings, setFindings] = useState<AuditFinding[]>([]);
+  const [contractorJobRatings, setContractorJobRatings] = useState<Record<string, ContractorJobRating>>(
+    () => Object.fromEntries((initialDraft?.contractorJobRatings ?? []).map((r) => [r.jobId, r]))
+  );
+  const [participants, setParticipants] = useState<AuditParticipant[]>(initialDraft?.participants ?? []);
+  const [answers, setAnswers] = useState<Record<string, AuditAnswer>>(initialDraft?.answers ?? {});
+  const [findings, setFindings] = useState<AuditFinding[]>(initialDraft?.findings ?? []);
   const [attachments, setAttachments] = useState<AuditAttachment[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
