@@ -9,6 +9,8 @@ import {
   Plus,
   Loader2,
   ClipboardList,
+  History,
+  PlayCircle,
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import type { UserRole } from '../../../types/auth';
@@ -16,10 +18,14 @@ import {
   getCategoryLabel,
   type AuditCategory,
   type AuditTemplate,
+  type AuditSession,
+  type AuditDraft,
 } from '../types/audit.types';
-import { useAuditTemplates } from '../hooks/useAudit';
+import { useAuditTemplates, useAuditSessions } from '../hooks/useAudit';
+import { loadDraft } from '../services/audit.service';
 import { AuditSessionForm } from '../components/AuditSessionForm';
 import { AuditTaskConfigurator } from '../components/AuditTaskConfigurator';
+import { AuditDetail } from '../components/AuditDetail';
 
 // Keep in sync with the /app/audit route guard in AppRouter — the Audit
 // module is not available to technician, trainee, floor_operator, or
@@ -36,9 +42,12 @@ const DEFAULT_CATEGORY_META = { icon: ClipboardList, color: 'text-slate-400', de
 
 type View =
   | { kind: 'home' }
-  | { kind: 'audit'; template: AuditTemplate }
+  | { kind: 'audit'; template: AuditTemplate; draft?: AuditDraft }
   | { kind: 'configure'; template: AuditTemplate }
-  | { kind: 'create' };
+  | { kind: 'create' }
+  | { kind: 'detail'; session: AuditSession };
+
+type Tab = 'inProgress' | 'library' | 'completed';
 
 function AccessDenied() {
   return (
@@ -60,9 +69,15 @@ export function AuditPage() {
   const role = useAuthStore((s) => s.userProfile?.role);
   const plantId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { templates, loading } = useAuditTemplates();
+  const { sessions, loading: sessionsLoading } = useAuditSessions();
   const [view, setView] = useState<View>({ kind: 'home' });
+  const [tab, setTab] = useState<Tab>('library');
 
   const isAdmin = role === 'admin';
+  const completedSessions = useMemo(
+    () => sessions.filter((s) => s.status === 'submitted').sort((a, b) => (b.submittedAt?.toMillis?.() ?? 0) - (a.submittedAt?.toMillis?.() ?? 0)),
+    [sessions]
+  );
 
   // Data-driven category list: one card per distinct category present in
   // Firestore (built-ins ship pre-seeded by ensureDefaultTemplates; admins
@@ -85,6 +100,10 @@ export function AuditPage() {
     return map;
   }, [templates]);
 
+  // In-progress drafts are per-browser (localStorage), so this is only the
+  // current user's own unsent audits on this device — not a shared queue.
+  const inProgressCategories = categoryOrder.filter((cat) => !!loadDraft(plantId, cat));
+
   if (role && !ALLOWED_ROLES.includes(role)) return <AccessDenied />;
 
   // ── Sub-views ───────────────────────────────────────────────────────────────
@@ -93,9 +112,18 @@ export function AuditPage() {
       <div className="p-4 md:p-6">
         <AuditSessionForm
           template={view.template}
+          initialDraft={view.draft}
           onConfigure={() => setView({ kind: 'configure', template: view.template })}
           onDone={() => setView({ kind: 'home' })}
         />
+      </div>
+    );
+  }
+
+  if (view.kind === 'detail') {
+    return (
+      <div className="p-4 md:p-6">
+        <AuditDetail session={view.session} onBack={() => setView({ kind: 'home' })} />
       </div>
     );
   }
@@ -140,64 +168,170 @@ export function AuditPage() {
 
   // ── Home ─────────────────────────────────────────────────────────────────────
   return (
-    <div className="p-4 md:p-6 space-y-8">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl bg-blue-900/30 border border-blue-700/40 flex items-center justify-center">
-            <ClipboardCheck className="h-5 w-5 text-blue-400" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white font-sora">Audits</h1>
-            <p className="text-sm text-slate-400">TPM · 5S · MOE · Contractor audits with AI root-cause analysis</p>
-          </div>
+    <div className="p-4 md:p-6 space-y-6">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-blue-900/30 border border-blue-700/40 flex items-center justify-center">
+          <ClipboardCheck className="h-5 w-5 text-blue-400" />
         </div>
-        {isAdmin && (
-          <button
-            onClick={() => setView({ kind: 'create' })}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg shrink-0"
-          >
-            <Plus className="h-4 w-4" /> New Audit Category
-          </button>
-        )}
+        <div>
+          <h1 className="text-xl font-bold text-white font-sora">Audits</h1>
+          <p className="text-sm text-slate-400">TPM · 5S · MOE · Contractor audits with AI root-cause analysis</p>
+        </div>
       </div>
 
-      {/* Category cards */}
-      {loading ? (
-        <div className="flex items-center gap-2 text-slate-400 text-sm">
-          <Loader2 className="h-4 w-4 animate-spin" /> Loading audit templates…
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {categoryOrder.map((cat) => {
-            const meta = CATEGORY_META[cat] ?? DEFAULT_CATEGORY_META;
-            const Icon = meta.icon;
-            const tmpl = templatesByCategory[cat];
-            return (
-              <div
-                key={cat}
-                className="bg-slate-800/40 border border-slate-700 rounded-2xl p-5 flex flex-col gap-3 hover:border-slate-600 transition-colors"
+      <div className="flex gap-1 border-b border-slate-700">
+        {(
+          [
+            { value: 'inProgress', label: 'In Progress' },
+            { value: 'library', label: 'Audit Library' },
+            { value: 'completed', label: 'Completed' },
+          ] as { value: Tab; label: string }[]
+        ).map((t) => (
+          <button
+            key={t.value}
+            onClick={() => setTab(t.value)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              tab === t.value
+                ? 'border-blue-500 text-white'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'inProgress' && (
+        loading ? (
+          <div className="flex items-center gap-2 text-slate-400 text-sm">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+          </div>
+        ) : inProgressCategories.length === 0 ? (
+          <div className="flex flex-col items-center py-12 text-slate-500 gap-2">
+            <PlayCircle className="h-8 w-8" />
+            <p className="text-sm">No audits in progress on this device.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {inProgressCategories.map((cat) => {
+              const meta = CATEGORY_META[cat] ?? DEFAULT_CATEGORY_META;
+              const Icon = meta.icon;
+              const tmpl = templatesByCategory[cat];
+              const draft = loadDraft(plantId, cat);
+              if (!tmpl || !draft) return null;
+              return (
+                <div
+                  key={cat}
+                  className="bg-slate-800/40 border border-amber-700/40 rounded-2xl p-5 flex flex-col gap-3"
+                >
+                  <Icon className={`h-7 w-7 ${meta.color}`} />
+                  <div>
+                    <h3 className="text-base font-bold text-white font-sora">
+                      {getCategoryLabel(cat, tmpl.name)}
+                    </h3>
+                    <p className="text-[11px] text-amber-400 mt-1">
+                      Last saved {new Date(draft.lastSaved).toLocaleString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setView({ kind: 'audit', template: tmpl, draft })}
+                    className="mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg"
+                  >
+                    <PlayCircle className="h-4 w-4" /> Resume Audit
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )
+      )}
+
+      {tab === 'library' && (
+        <div className="space-y-4">
+          {isAdmin && (
+            <div className="flex justify-end">
+              <button
+                onClick={() => setView({ kind: 'create' })}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg shrink-0"
               >
-                <Icon className={`h-7 w-7 ${meta.color}`} />
+                <Plus className="h-4 w-4" /> New Audit Category
+              </button>
+            </div>
+          )}
+
+          {loading ? (
+            <div className="flex items-center gap-2 text-slate-400 text-sm">
+              <Loader2 className="h-4 w-4 animate-spin" /> Loading audit templates…
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {categoryOrder.map((cat) => {
+                const meta = CATEGORY_META[cat] ?? DEFAULT_CATEGORY_META;
+                const Icon = meta.icon;
+                const tmpl = templatesByCategory[cat];
+                return (
+                  <div
+                    key={cat}
+                    className="bg-slate-800/40 border border-slate-700 rounded-2xl p-5 flex flex-col gap-3 hover:border-slate-600 transition-colors"
+                  >
+                    <Icon className={`h-7 w-7 ${meta.color}`} />
+                    <div>
+                      <h3 className="text-base font-bold text-white font-sora">
+                        {getCategoryLabel(cat, tmpl?.name)}
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">{meta.desc}</p>
+                      <p className="text-[11px] text-slate-500 mt-1">
+                        {tmpl ? `${tmpl.tasks.length} tasks` : ''}
+                      </p>
+                    </div>
+                    <button
+                      disabled={!tmpl}
+                      onClick={() => tmpl && setView({ kind: 'audit', template: tmpl })}
+                      className="mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-50"
+                    >
+                      <Plus className="h-4 w-4" /> Start Audit
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === 'completed' && (
+        sessionsLoading ? (
+          <div className="flex items-center gap-2 text-slate-400 text-sm">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
+          </div>
+        ) : completedSessions.length === 0 ? (
+          <div className="flex flex-col items-center py-12 text-slate-500 gap-2">
+            <History className="h-8 w-8" />
+            <p className="text-sm">No completed audits yet.</p>
+          </div>
+        ) : (
+          <div className="bg-slate-800/40 border border-slate-700 rounded-2xl divide-y divide-slate-700 overflow-hidden">
+            {completedSessions.map((session) => (
+              <button
+                key={session.id}
+                onClick={() => setView({ kind: 'detail', session })}
+                className="w-full flex items-center justify-between gap-3 px-5 py-3 text-left hover:bg-slate-800/70 transition-colors"
+              >
                 <div>
-                  <h3 className="text-base font-bold text-white font-sora">
-                    {getCategoryLabel(cat, tmpl?.name)}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1">{meta.desc}</p>
-                  <p className="text-[11px] text-slate-500 mt-1">
-                    {tmpl ? `${tmpl.tasks.length} tasks` : ''}
+                  <p className="text-sm font-semibold text-white">
+                    {getCategoryLabel(session.category, session.templateName)}
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {session.auditDate} · {session.auditorName}
                   </p>
                 </div>
-                <button
-                  disabled={!tmpl}
-                  onClick={() => tmpl && setView({ kind: 'audit', template: tmpl })}
-                  className="mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-50"
-                >
-                  <Plus className="h-4 w-4" /> Start Audit
-                </button>
-              </div>
-            );
-          })}
-        </div>
+                <span className="text-sm font-semibold text-emerald-400">
+                  {session.score}% · {session.passedTasks}/{session.totalTasks}
+                </span>
+              </button>
+            ))}
+          </div>
+        )
       )}
     </div>
   );
