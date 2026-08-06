@@ -1,40 +1,130 @@
+import { useState } from 'react';
 import type { Timestamp } from 'firebase/firestore';
-import type { PartsRequest, PartReturnStatus, RequestStatus } from '@/types/inventory';
+import { CheckCircle, XCircle } from 'lucide-react';
+import type { PartsRequest, PartReturn, PartReturnStatus, RequestStatus } from '@/types/inventory';
+import { usePartReturnActions } from '@/hooks/inventory/usePartReturnActions';
 import { RequestPriorityBadge } from './RequestPriorityBadge';
 import { CostDisplay } from '@/components/inventory/shared/CostDisplay';
+
+const ROLE_LABELS: Record<string, string> = {
+  store_keeper: 'Store Keeper',
+  supervisor: 'Supervisor',
+  plant_manager: 'Plant Manager',
+  admin: 'Admin',
+};
 
 export interface ReturnInfo {
   status: PartReturnStatus;
   at: Timestamp | null;
   byName: string | null;
+  byRole?: string | null;
+  /** The full return record — only set when status is 'pending', so a
+   *  manager/store keeper can act on it directly from this column. */
+  pendingReturn?: PartReturn | null;
 }
 
 interface Props {
   request: PartsRequest;
   returnInfo?: ReturnInfo | null;
   onReview: () => void;
+  /** Whether this viewer is allowed to confirm/reject a pending return
+   *  (store keeper, supervisor, plant manager, admin). */
+  canManageReturns?: boolean;
+  /** False on the Pending Return tab, where every row is already Completed
+   *  and the Status column would just repeat that. */
+  showStatus?: boolean;
 }
 
 const RETURN_BADGE: Record<PartReturnStatus, { label: string; className: string }> = {
   pending: { label: 'Return Pending', className: 'bg-purple-100 text-purple-700' },
-  returned: { label: 'Returned', className: 'bg-green-100 text-green-700' },
+  returned: { label: 'Return Confirmed', className: 'bg-green-100 text-green-700' },
   rejected: { label: 'Return Rejected', className: 'bg-red-100 text-red-700' },
   cancelled: { label: 'Return Cancelled', className: 'bg-gray-100 text-gray-500' },
 };
 
-export function ReturnCell({ returnInfo, hasPendingReturn }: { returnInfo?: ReturnInfo | null; hasPendingReturn: boolean }) {
+function actorLabel(byName: string | null | undefined, byRole: string | null | undefined): string {
+  if (!byName) return '';
+  const role = byRole ? ROLE_LABELS[byRole] ?? byRole : null;
+  return role ? `${byName} (${role})` : byName;
+}
+
+export function ReturnCell({
+  returnInfo,
+  hasPendingReturn,
+  canManageReturns = false,
+}: {
+  returnInfo?: ReturnInfo | null;
+  hasPendingReturn: boolean;
+  canManageReturns?: boolean;
+}) {
+  const { confirmReturn, rejectReturn } = usePartReturnActions();
+  const [busy, setBusy] = useState<'confirm' | 'reject' | null>(null);
+
   if (!returnInfo) {
     if (!hasPendingReturn) return <span className="text-gray-300">—</span>;
     return <span className="text-xs text-gray-400">Not yet requested</span>;
   }
+
   const cfg = RETURN_BADGE[returnInfo.status];
+
+  // A manager/store keeper acting directly from this list — the same
+  // confirm/reject action the dedicated Parts Returns queue offers,
+  // reached without leaving this page. The action taken (who, decision) is
+  // what's shown here once resolved — not the requester who returned it.
+  if (returnInfo.status === 'pending' && canManageReturns && returnInfo.pendingReturn) {
+    const partReturn = returnInfo.pendingReturn;
+    return (
+      <div className="flex items-center gap-1.5">
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cfg.className}`}>
+          {cfg.label}
+        </span>
+        <button
+          type="button"
+          disabled={!!busy}
+          onClick={async () => {
+            setBusy('confirm');
+            try {
+              await confirmReturn(partReturn, 'good', '');
+            } finally {
+              setBusy(null);
+            }
+          }}
+          title="Confirm received in good condition"
+          className="p-1 rounded text-green-600 hover:bg-green-50 disabled:opacity-50"
+        >
+          <CheckCircle className="w-4 h-4" />
+        </button>
+        <button
+          type="button"
+          disabled={!!busy}
+          onClick={async () => {
+            const reason = window.prompt('Reason for rejecting this return?');
+            if (!reason?.trim()) return;
+            setBusy('reject');
+            try {
+              await rejectReturn(partReturn, reason.trim());
+            } finally {
+              setBusy(null);
+            }
+          }}
+          title="Reject this return"
+          className="p-1 rounded text-red-600 hover:bg-red-50 disabled:opacity-50"
+        >
+          <XCircle className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${cfg.className}`}>
         {cfg.label}
       </span>
       <p className="text-xs text-gray-400 mt-0.5">
-        {returnInfo.byName && <>{returnInfo.byName} · </>}
+        {returnInfo.status === 'pending'
+          ? returnInfo.byName && <>Requested by {returnInfo.byName} · </>
+          : returnInfo.byName && <>{actorLabel(returnInfo.byName, returnInfo.byRole)} · </>}
         {returnInfo.at?.toDate?.().toLocaleString?.() ?? ''}
       </p>
     </div>
@@ -63,7 +153,7 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
   cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
 };
 
-export function RequestQueueRow({ request, returnInfo, onReview }: Props) {
+export function RequestQueueRow({ request, returnInfo, onReview, canManageReturns = false, showStatus = true }: Props) {
   const age = formatAge(request.requestedAt);
   const statusCfg = STATUS_BADGE[request.status] ?? { label: request.status, className: 'bg-gray-100 text-gray-600' };
   const firstPart = request.items[0]?.partName ?? '';
@@ -97,15 +187,17 @@ export function RequestQueueRow({ request, returnInfo, onReview }: Props) {
       <td className="px-4 py-3 whitespace-nowrap">
         <RequestPriorityBadge priority={request.priorityLevel} isUrgent={request.isUrgent} />
       </td>
+      {showStatus && (
+        <td className="px-4 py-3 whitespace-nowrap">
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${statusCfg.className}`}
+          >
+            {statusCfg.label}
+          </span>
+        </td>
+      )}
       <td className="px-4 py-3 whitespace-nowrap">
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${statusCfg.className}`}
-        >
-          {statusCfg.label}
-        </span>
-      </td>
-      <td className="px-4 py-3 whitespace-nowrap">
-        <ReturnCell returnInfo={returnInfo} hasPendingReturn={hasPendingReturn} />
+        <ReturnCell returnInfo={returnInfo} hasPendingReturn={hasPendingReturn} canManageReturns={canManageReturns} />
       </td>
       <td className={`px-4 py-3 text-sm whitespace-nowrap ${age.isOld ? 'text-red-600 font-semibold' : 'text-gray-500'}`}>
         {age.label}

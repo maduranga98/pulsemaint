@@ -90,12 +90,18 @@ export function RequestsQueue() {
         map.set(r.partsRequestId, {
           status: r.status,
           at: r.status === 'pending' ? r.requestedAt : r.storeKeeperConfirmedAt,
-          byName: r.status === 'pending' ? null : r.storeKeeperConfirmedByName,
+          byName: r.status === 'pending' ? r.requestedByName : r.storeKeeperConfirmedByName,
+          byRole: r.status === 'pending' ? null : r.storeKeeperConfirmedByRole,
+          pendingReturn: r.status === 'pending' ? r : null,
         });
       }
     }
     return map;
   }, [returns]);
+
+  // Only store keepers/supervisors/plant managers/admins can act on a
+  // pending return directly from this list — requesters just see its status.
+  const canManageReturns = !ownOnly;
 
   const hasPendingReturn = (r: (typeof requests)[number]) =>
     r.items.some((i) => i.isReturnable && !i.isReturned);
@@ -184,16 +190,21 @@ export function RequestsQueue() {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {['Request #', 'WO # / Type', 'Requested By', 'Parts', 'Total Cost', 'Priority', 'Status', 'Return', 'Age', ''].map(
-                (h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
-                  >
-                    {h}
-                  </th>
-                )
-              )}
+              {(
+                // On Pending Return every visible request is already Completed —
+                // the Status column is redundant there, so it's dropped in
+                // favor of the Return column showing the actual action taken.
+                activeTab === 'pending_return'
+                  ? ['Request #', 'WO # / Type', 'Requested By', 'Parts', 'Total Cost', 'Priority', 'Return', 'Age', '']
+                  : ['Request #', 'WO # / Type', 'Requested By', 'Parts', 'Total Cost', 'Priority', 'Status', 'Return', 'Age', '']
+              ).map((h) => (
+                <th
+                  key={h}
+                  className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -217,6 +228,8 @@ export function RequestsQueue() {
                   request={r}
                   returnInfo={returnByRequestId.get(r.id) ?? null}
                   onReview={() => handleReview(r.id)}
+                  canManageReturns={canManageReturns}
+                  showStatus={activeTab !== 'pending_return'}
                 />
               ))
             )}
@@ -242,6 +255,8 @@ export function RequestsQueue() {
               request={r}
               returnInfo={returnByRequestId.get(r.id) ?? null}
               onReview={() => handleReview(r.id)}
+              canManageReturns={canManageReturns}
+              showStatus={activeTab !== 'pending_return'}
             />
           ))
         )}

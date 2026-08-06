@@ -6,6 +6,8 @@ interface Props {
   request: PartsRequest;
   returnInfo?: ReturnInfo | null;
   onReview: () => void;
+  canManageReturns?: boolean;
+  showStatus?: boolean;
 }
 
 function formatAge(ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } {
@@ -30,7 +32,7 @@ const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> 
   cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
 };
 
-export function RequestQueueCard({ request, returnInfo, onReview }: Props) {
+export function RequestQueueCard({ request, returnInfo, onReview, canManageReturns = false, showStatus = true }: Props) {
   const age = formatAge(request.requestedAt);
   const statusCfg = STATUS_BADGE[request.status] ?? {
     label: request.status,
@@ -51,15 +53,17 @@ export function RequestQueueCard({ request, returnInfo, onReview }: Props) {
           </span>
           <RequestPriorityBadge priority={request.priorityLevel} isUrgent={request.isUrgent} />
         </div>
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${statusCfg.className}`}
-        >
-          {statusCfg.label}
-        </span>
+        {showStatus && (
+          <span
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${statusCfg.className}`}
+          >
+            {statusCfg.label}
+          </span>
+        )}
       </div>
 
       {(returnInfo || hasPendingReturn) && (
-        <ReturnCell returnInfo={returnInfo} hasPendingReturn={hasPendingReturn} />
+        <ReturnCell returnInfo={returnInfo} hasPendingReturn={hasPendingReturn} canManageReturns={canManageReturns} />
       )}
 
       {/* WO + Machine */}
