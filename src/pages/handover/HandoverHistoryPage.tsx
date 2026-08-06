@@ -4,7 +4,6 @@ import { Settings2 } from 'lucide-react';
 import HandoverFilterBar from '@/components/handover/HandoverFilterBar';
 import HandoverHistoryCard from '@/components/handover/HandoverHistoryCard';
 import HandoverHistoryTable, { type ShiftTableRow } from '@/components/handover/HandoverHistoryTable';
-import ShiftStatusPanel from '@/components/handover/ShiftStatusPanel';
 import { useHandoverHistory } from '@/hooks/useHandoverHistory';
 import { useAuthStore } from '@/store/authStore';
 import { subscribeCompletedShiftSessions, subscribeShiftConfigs } from '@/services/handover.service';
@@ -137,7 +136,6 @@ export function HandoverHistoryPage() {
           Shift Configuration
         </Link>
       </div>
-      <ShiftStatusPanel />
       <HandoverFilterBar
         filters={filters}
         onChange={setFilters}
