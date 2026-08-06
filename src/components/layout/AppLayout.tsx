@@ -159,6 +159,7 @@ const NAV_GROUPS: NavGroup[] = [
       // separate nav entry — the route still exists for direct links.
       { labelKey: 'common.nav.items.training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.traineeManagement', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+      { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
     ],
   },
   {
@@ -195,7 +196,6 @@ const NAV_GROUPS: NavGroup[] = [
       // "Training" / "Trainee Management" tabs live under Triage & Training.
       { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
-      { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
     ],
   },
   {
@@ -416,7 +416,7 @@ export default function AppLayout() {
                     groupHasActive ? 'text-[#60A5FA]' : 'text-[#6C87A6] hover:text-[#D5DEEA]'
                   }`}
                 >
-                  <span>{group.id === 'triage-training' && role === 'technician' ? 'Triage' : t(group.labelKey)}</span>
+                  <span>{group.id === 'triage-training' && (role === 'technician' || role === 'safety_officer' || role === 'trainee') ? 'Triage' : t(group.labelKey)}</span>
                   <span className={isOpen ? 'rotate-90' : ''}>{Icon.chevron}</span>
                 </button>
                 {isOpen && (
