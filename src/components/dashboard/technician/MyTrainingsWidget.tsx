@@ -4,6 +4,7 @@ import EmptyState from '../shared/EmptyState';
 import { useAuthStore } from '../../../store/authStore';
 import { useMyAssignments } from '../../../hooks/training/useMyAssignments';
 import { useSafetyTrainingModules, isSafetyAssignment } from '../../../hooks/training/useSafetyTrainings';
+import { useCompanyModuleIds } from '../../../hooks/training/useModuleIds';
 
 const STATUS_LABEL: Record<string, string> = {
   not_started: 'Not Started',
@@ -21,13 +22,20 @@ const STATUS_LABEL: Record<string, string> = {
 export default function MyTrainingsWidget() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const { moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
+  const { moduleIds: safetyModuleIds, loading: safetyModulesLoading } = useSafetyTrainingModules(companyId);
+  const { moduleIds: allModuleIds, loading: allModulesLoading } = useCompanyModuleIds(companyId);
   const { assignments, loading: assignmentsLoading } = useMyAssignments();
 
+  // Excludes assignments whose module has since been deleted — those can
+  // never actually open (they dead-end on "Module not found"), so they're
+  // left off the dashboard rather than shown as a clickable item that fails.
   const pending = assignments.filter(
-    (a) => a.status !== 'certified' && !isSafetyAssignment(a, moduleIds, a.moduleId),
+    (a) =>
+      a.status !== 'certified' &&
+      !isSafetyAssignment(a, safetyModuleIds, a.moduleId) &&
+      allModuleIds.has(a.moduleId),
   );
-  const loading = modulesLoading || assignmentsLoading;
+  const loading = safetyModulesLoading || allModulesLoading || assignmentsLoading;
 
   return (
     <DashboardWidget title="My Trainings" loading={loading}>

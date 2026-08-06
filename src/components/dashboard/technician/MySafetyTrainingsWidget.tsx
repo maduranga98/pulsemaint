@@ -23,8 +23,11 @@ export default function MySafetyTrainingsWidget() {
   const { moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useMyAssignments();
 
+  // Excludes assignments whose module has since been deleted — those can
+  // never actually open (they dead-end on "Module not found"), so they're
+  // left off the dashboard rather than shown as a clickable item that fails.
   const pending = assignments.filter(
-    (a) => a.status !== 'certified' && isSafetyAssignment(a, moduleIds, a.moduleId),
+    (a) => a.status !== 'certified' && moduleIds.has(a.moduleId) && isSafetyAssignment(a, moduleIds, a.moduleId),
   );
   const loading = modulesLoading || assignmentsLoading;
 
