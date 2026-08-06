@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { useMyJobQueue } from '../../hooks/dashboard/useMyJobQueue';
-import ActiveJobCard from '../../components/dashboard/technician/ActiveJobCard';
 import JobQueueList from '../../components/dashboard/technician/JobQueueList';
 import TodaysPmList from '../../components/dashboard/technician/TodaysPmList';
-import PersonalKpiCards from '../../components/dashboard/technician/PersonalKpiCards';
-import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
+import RequestedPartsWidget from '../../components/dashboard/technician/RequestedPartsWidget';
+import UnassignedBreakdownsWidget from '../../components/dashboard/technician/UnassignedBreakdownsWidget';
+import AssignedBreakdownsWidget from '../../components/dashboard/technician/AssignedBreakdownsWidget';
+import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
+import MySafetyCasesWidget from '../../components/dashboard/technician/MySafetyCasesWidget';
+import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import { CreatePartsRequestModal } from '../../components/inventory/requests/CreatePartsRequestModal';
 import { TechnicianWOExecutionSheet } from '../../components/workorders/technician/TechnicianWOExecutionSheet';
 import type { WorkOrder } from '../../types/workOrder';
@@ -26,9 +29,6 @@ export default function TechnicianDashboard() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const { workOrders, loading } = useMyJobQueue(technicianId, siteId);
-
-  // Find active job (IN_PROGRESS)
-  const activeJob = workOrders.find((wo) => wo.status === 'IN_PROGRESS') ?? null;
 
   // Re-derive selected WO from the live list so the execution sheet updates
   // in realtime and auto-closes when the WO leaves the active queue.
@@ -78,7 +78,7 @@ export default function TechnicianDashboard() {
           </p>
         </div>
         <button
-          onClick={() => openPartsRequest(activeJob)}
+          onClick={() => openPartsRequest(null)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium shrink-0"
         >
           + Request Parts
@@ -86,34 +86,33 @@ export default function TechnicianDashboard() {
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        {/* Active Job — only shown when a job is actually in progress */}
-        {activeJob && (
-          <ActiveJobCard
-            workOrder={activeJob}
-            onOpen={(wo) => setSelectedId(wo.id)}
-            onRequestParts={(wo) => openPartsRequest(wo)}
-          />
-        )}
-
-        {/* Job Queue */}
         <JobQueueList
           technicianId={technicianId}
           siteId={siteId}
           onSelect={(wo) => setSelectedId(wo.id)}
         />
 
-        {/* Bottom row: PM + KPIs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <TodaysPmList technicianId={technicianId} siteId={siteId} />
-          <PersonalKpiCards technicianId={technicianId} siteId={siteId} />
+          <RequestedPartsWidget />
         </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <UnassignedBreakdownsWidget siteId={siteId} />
+          <AssignedBreakdownsWidget technicianId={technicianId} siteId={siteId} />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <MySafetyTrainingsWidget />
+          <MySafetyCasesWidget />
+        </div>
+
+        <MyTrainingsWidget />
       </div>
 
       {selectedWO && (
         <TechnicianWOExecutionSheet workOrder={selectedWO} onClose={() => setSelectedId(null)} />
       )}
-
-      <DashboardSidePanel />
     </div>
   );
 }
