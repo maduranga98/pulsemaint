@@ -9,6 +9,19 @@ export default function AssignedTasksWidget() {
 
   const total = trainings.length + evaluations.length + audits.length + workOrders.length;
 
+  // Breakdown-repair and Preventive WOs live on their own dedicated pages,
+  // not the general Work Orders list — route to whichever tab actually
+  // shows this WO. Everything else deep-links straight to it via ?woId=.
+  function openWorkOrder(w: { id: string; woType: string }) {
+    if (w.woType === 'BREAKDOWN') {
+      navigate('/app/breakdowns');
+    } else if (w.woType === 'PREVENTIVE') {
+      navigate('/app/pm-schedules');
+    } else {
+      navigate(`/app/work-orders?woId=${w.id}`);
+    }
+  }
+
   return (
     <DashboardWidget
       title="Assigned to Me"
@@ -29,7 +42,7 @@ export default function AssignedTasksWidget() {
                 {workOrders.slice(0, 5).map((w) => (
                   <button
                     key={w.id}
-                    onClick={() => navigate('/app/work-orders')}
+                    onClick={() => openWorkOrder(w)}
                     className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
                   >
                     {w.woNumber} · {w.machineName}{w.woType ? ` · ${w.woType.replace(/_/g, ' ')}` : ''}

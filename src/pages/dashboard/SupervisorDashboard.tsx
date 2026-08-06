@@ -5,8 +5,6 @@ import { useOpenWorkOrders } from '../../hooks/dashboard/useOpenWorkOrders';
 import { useMttrToday } from '../../hooks/dashboard/useMttrToday';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import KpiStrip from '../../components/dashboard/shared/KpiStrip';
-import BreakdownKanbanBoard from '../../components/dashboard/supervisor/BreakdownKanbanBoard';
-import WorkOrdersWidget from '../../components/dashboard/supervisor/WorkOrdersWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
@@ -77,16 +75,6 @@ export default function SupervisorDashboard() {
             <KpiCard key={idx} data={kpi as any} />
           ))}
         </KpiStrip>
-
-        {/* Row 2: Kanban + Work Orders */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <BreakdownKanbanBoard companyId={companyId} />
-          </div>
-          <div className="lg:col-span-4">
-            <WorkOrdersWidget siteId={siteId} />
-          </div>
-        </div>
 
         {/* Row 3: Floor Map + Tech Status */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
