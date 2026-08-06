@@ -121,7 +121,7 @@ export default function SettingsPage() {
           <CompanyProfileEditModal company={company} onClose={() => setEditOpen(false)} />
         )}
 
-        {(role === 'admin' || role === 'plant_manager') && <CompanySmtpSettings />}
+        {role === 'admin' && <CompanySmtpSettings />}
 
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {tiles.map((t) => (

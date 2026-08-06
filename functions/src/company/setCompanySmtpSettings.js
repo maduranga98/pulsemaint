@@ -18,7 +18,7 @@ const logger = require("firebase-functions/logger");
 
 const db = getFirestore("default");
 
-const MANAGE_ROLES = ["admin", "plant_manager"];
+const MANAGE_ROLES = ["admin"];
 
 exports.setCompanySmtpSettings = onCall({maxInstances: 5}, async (request) => {
   if (!request.auth) {
@@ -33,7 +33,7 @@ exports.setCompanySmtpSettings = onCall({maxInstances: 5}, async (request) => {
   const userSnap = await db.doc(`companies/${companyId}/users/${request.auth.uid}`).get();
   const role = userSnap.exists ? userSnap.data().role : null;
   if (!role || !MANAGE_ROLES.includes(role)) {
-    throw new HttpsError("permission-denied", "Only an admin or plant manager can configure email sending.");
+    throw new HttpsError("permission-denied", "Only an admin can configure email sending.");
   }
 
   const portNum = Number(port);
