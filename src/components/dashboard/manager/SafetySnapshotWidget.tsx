@@ -17,7 +17,14 @@ const AXIS = { stroke: '#8BA3BF', fontSize: 11 };
  * Rendered inline on the manager (admin / plant_manager) dashboard so those
  * plant-wide roles see safety metrics without a separate Safety Analytics tab.
  */
-export default function SafetySnapshotWidget({ companyId }: { companyId: string }) {
+interface SafetySnapshotWidgetProps {
+  companyId: string;
+  /** Hides the Total/Open/Near-Miss/Days-Since KPI cards, showing just the
+   *  charts — used where those KPIs are already shown elsewhere on the page. */
+  hideKpiCards?: boolean;
+}
+
+export default function SafetySnapshotWidget({ companyId, hideKpiCards = false }: SafetySnapshotWidgetProps) {
   const { cases, loading } = useSafetyCases(companyId);
   const { kpis } = useSafetyKpis(companyId);
 
@@ -44,9 +51,11 @@ export default function SafetySnapshotWidget({ companyId }: { companyId: string 
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {cards.map((c, i) => <KpiCard key={i} data={c} />)}
-      </div>
+      {!hideKpiCards && (
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          {cards.map((c, i) => <KpiCard key={i} data={c} />)}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="lg:col-span-5">

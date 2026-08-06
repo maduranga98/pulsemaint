@@ -52,8 +52,16 @@ export default function MaintenanceCostChart({ companyId, month }: MaintenanceCo
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} />
-                <XAxis {...CHART_DEFAULTS.xAxis} dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" height={50} />
-                <YAxis {...CHART_DEFAULTS.yAxis} />
+                <XAxis
+                  {...CHART_DEFAULTS.xAxis}
+                  dataKey="name"
+                  tick={{ ...CHART_DEFAULTS.xAxis.tick, fontSize: 11 }}
+                  interval={0}
+                  angle={-15}
+                  textAnchor="end"
+                  height={50}
+                />
+                <YAxis {...CHART_DEFAULTS.yAxis} tick={{ ...CHART_DEFAULTS.yAxis.tick, fontSize: 11 }} />
                 <Tooltip
                   {...CHART_DEFAULTS.tooltip}
                   formatter={(val) => [`LKR ${Number(val ?? 0).toLocaleString()}`, 'Cost']}
