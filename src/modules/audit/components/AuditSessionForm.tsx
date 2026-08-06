@@ -29,7 +29,7 @@ import {
   type AuditDraft,
 } from '../types/audit.types';
 import { useAuditMachines, useAuditUsers } from '../hooks/useAudit';
-import { submitAudit, clearDraft, saveDraft } from '../services/audit.service';
+import { submitAudit, clearDraft, saveDraft, buildAuditDraftId } from '../services/audit.service';
 import { analyzeAudit } from '../utils/aiRootCause';
 import { downloadAuditPdf } from '../utils/auditPdf';
 import { MachineMultiSelect } from './MachineMultiSelect';
@@ -179,6 +179,9 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
 
   // Stable key so attachments for this in-progress audit share a storage folder.
   const [sessionKey] = useState(() => nanoid());
+  // Preserved across resumes so "In Progress" can show how long an audit has
+  // actually been running, not just when it was last saved.
+  const [startedAt] = useState(() => initialDraft?.startedAt ?? new Date().toISOString());
 
   // Auto-fill Location (and Department, if blank) from the primary (first)
   // selected machine's registry record, mirroring WatchFlagAddModal's
@@ -298,12 +301,19 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
     return { totalTasks: scorable.length, passedTasks: passed, score };
   }, [answerList]);
 
-  // Persist a lightweight draft as the auditor works.
+  // Persist a lightweight draft as the auditor works — this is what makes
+  // the audit show up as "In Progress" on the Audits home page the moment
+  // work starts, and keeps it there (last-saved time updating live) until
+  // submit clears it.
   useEffect(() => {
-    if (!plantId || result) return;
-    saveDraft(plantId, {
+    if (!plantId || !profile?.id || result) return;
+    void saveDraft(plantId, {
+      id: buildAuditDraftId(profile.id, template.category),
+      userId: profile.id,
+      userName: profile.fullName ?? 'Unknown',
       category: template.category,
       templateId: template.id,
+      templateName: template.name,
       machines: selectedMachines,
       contractors: selectedContractors,
       inventoryItems: selectedInventoryItems,
@@ -314,10 +324,13 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
       participants,
       answers,
       findings,
+      startedAt,
       lastSaved: new Date().toISOString(),
-    });
+    }).catch((e) => console.error('Failed to save audit draft', e));
   }, [
     plantId,
+    profile?.id,
+    profile?.fullName,
     template,
     selectedMachines,
     selectedContractors,
@@ -330,6 +343,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
     participants,
     answers,
     findings,
+    startedAt,
     result,
   ]);
 
@@ -367,7 +381,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
         plantId,
         auditDate: new Date().toISOString().split('T')[0],
       });
-      clearDraft(plantId, template.category);
+      if (profile?.id) await clearDraft(plantId, profile.id, template.category);
       setResult(session);
     } catch (e) {
       setError((e as Error).message);

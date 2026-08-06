@@ -1185,6 +1185,22 @@ service cloud.firestore {
         && getUserData().role == 'admin';
     }
 
+    // In-progress (unsubmitted) audits — one doc per (user, category), so
+    // "In Progress" on the Audits page reflects everyone's live status, not
+    // just a per-browser cache. Writes are restricted to the requester's own
+    // draft so nobody can edit or fabricate another auditor's in-progress
+    // status; deletes (abandoning/clearing a draft) are also allowed for
+    // admins as a cleanup path.
+    match /audit_drafts/{plantId}/drafts/{draftId} {
+      allow read: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer', 'safety_officer'];
+      allow create, update: if isAuthenticated() && belongsToCompany(plantId)
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer', 'safety_officer']
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAuthenticated() && belongsToCompany(plantId)
+        && (resource.data.userId == request.auth.uid || getUserData().role == 'admin');
+    }
+
     // ---------------------------------------------------------------------------
     // MOE Module (Machine Overall Effectiveness) — replaces the old OEE module.
     // moeSnapshots are Cloud-Function-only writes (scheduled daily calc +

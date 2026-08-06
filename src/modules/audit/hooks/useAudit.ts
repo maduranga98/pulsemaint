@@ -14,10 +14,12 @@ import type {
   AuditCategory,
   AuditTemplate,
   AuditSession,
+  AuditDraft,
 } from '../types/audit.types';
 import {
   subscribeTemplates,
   subscribeSessions,
+  subscribeInProgressDrafts,
   ensureDefaultTemplates,
   deleteTemplate,
 } from '../services/audit.service';
@@ -116,6 +118,35 @@ export function useAuditSessions(filters: {
   }, [plantId, filters.category, filters.department, filters.machineId]);
 
   return { sessions, loading, error };
+}
+
+// ─── In-progress drafts ─────────────────────────────────────────────────────
+
+/** Every company member's currently in-progress (unsubmitted) audits, live. */
+export function useInProgressDrafts(): { drafts: AuditDraft[]; loading: boolean; error: string | null } {
+  const plantId = usePlantId();
+  const [drafts, setDrafts] = useState<AuditDraft[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!plantId) return;
+    setLoading(true);
+    const unsub = subscribeInProgressDrafts(
+      plantId,
+      (data) => {
+        setDrafts(data);
+        setLoading(false);
+      },
+      (e) => {
+        setError(e.message);
+        setLoading(false);
+      },
+    );
+    return unsub;
+  }, [plantId]);
+
+  return { drafts, loading, error };
 }
 
 // ─── Machines (for selection field) ───────────────────────────────────────────
