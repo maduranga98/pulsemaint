@@ -90,7 +90,7 @@ export default function TechnicianDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TodaysPmList technicianId={technicianId} siteId={siteId} />
+          <TodaysPmList technicianId={technicianId} siteId={siteId} onSelect={(woId) => setSelectedId(woId)} />
           <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />
         </div>
 
