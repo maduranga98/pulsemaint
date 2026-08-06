@@ -11,13 +11,14 @@ import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
+import { ApprovalRequestsPanel } from './ApprovalRequestsPanel';
 
 // The "All" pill was removed — the list simply starts unfiltered (`all`,
 // every active type combined). Once a WO reaches COMPLETED it moves into
 // "Need Sign-Off" (still awaiting a supervisor's decision) and, once
 // actually signed off, into the separate terminal "Signed Off" tab — a WO
 // type filter stops being useful at either of those stages.
-type CategoryId = 'all' | 'needSignOff' | 'signedOff' | WOType;
+type CategoryId = 'all' | 'needSignOff' | 'signedOff' | 'approvalRequests' | WOType;
 
 const NEED_SIGN_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED'];
 const TERMINAL_STATUSES: WorkOrder['status'][] = ['SIGNED_OFF', 'CLOSED', 'CANCELLED'];
@@ -102,9 +103,16 @@ export function WOListView() {
       ? nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status))
       : activeCategory === 'signedOff'
       ? nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status))
+      : activeCategory === 'approvalRequests'
+      ? []
       : nonExcludedWOs
           .filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status))
           .filter((wo) => activeCategory === 'all' || wo.woType === activeCategory);
+
+  // Approval-request holds can happen on any WO type, including breakdown
+  // repair and PM ones excluded from the type columns above — a supervisor
+  // still needs to see and resolve those.
+  const pendingApprovalWOs = workOrders.filter((wo) => (wo.approvalRequests ?? []).some((r) => r.status === 'pending'));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -203,6 +211,26 @@ export function WOListView() {
                 {nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status)).length}
               </span>
             </button>
+            {canSignOff && (
+              <button
+                type="button"
+                onClick={() => setActiveCategory('approvalRequests')}
+                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                  activeCategory === 'approvalRequests'
+                    ? 'bg-orange-600 text-white'
+                    : 'text-orange-700 bg-orange-50 hover:bg-orange-100'
+                }`}
+              >
+                Approval Requests
+                <span
+                  className={`text-xs font-medium rounded-full px-1.5 ${
+                    activeCategory === 'approvalRequests' ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-600'
+                  }`}
+                >
+                  {pendingApprovalWOs.length}
+                </span>
+              </button>
+            )}
           </div>
 
           <input
@@ -229,7 +257,11 @@ export function WOListView() {
           </div>
         )}
 
-        {!loading && !error && (
+        {!loading && !error && activeCategory === 'approvalRequests' && (
+          <ApprovalRequestsPanel workOrders={pendingApprovalWOs} />
+        )}
+
+        {!loading && !error && activeCategory !== 'approvalRequests' && (
           displayedWOs.length === 0 ? (
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
