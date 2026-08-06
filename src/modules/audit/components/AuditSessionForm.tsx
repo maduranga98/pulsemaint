@@ -102,7 +102,7 @@ function ContractorJobHistoryPanel({
       <div className="space-y-3">
         <div>
           <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-wide mb-1.5">
-            Currently Running
+            Not Completed
           </p>
           {loadingActive ? (
             <p className="text-xs text-slate-500">Loading…</p>
