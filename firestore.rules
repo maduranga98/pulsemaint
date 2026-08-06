@@ -1330,6 +1330,31 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Trainee Management's flat programs — a list of module configs + a
+    // total duration, entirely separate from trainingModules/trainingAssignments.
+    match /trainingPrograms/{programId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
+      allow delete: if isAdmin();
+    }
+
+    // One trainee assigned to one trainingProgram — ties together the
+    // underlying per-module trainingAssignments and the sign-off/certificate.
+    match /programAssignments/{programAssignmentId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && (resource.data.traineeId == request.auth.uid
+          || isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']));
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'admin']);
+    }
+
     match /trainingContentLibrary/{contentId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
       // hr_officer can reach the content library page per the router/FEATURES.md.

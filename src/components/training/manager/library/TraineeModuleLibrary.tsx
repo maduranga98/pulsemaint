@@ -1,15 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Sparkles, Edit2, Archive, Trash2, BookOpen, CalendarRange, MapPin } from 'lucide-react';
+import { Plus, Sparkles, Edit2, Archive, Trash2, BookOpen } from 'lucide-react';
 import { collection, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
 import { sampleTraineeProgrammeModules } from '@/lib/training/sampleModules';
-import {
-  TRAINEE_TRAINING_TYPE_LABELS,
-  TRAINING_DELIVERY_MODE_LABELS,
-} from '@/lib/training/trainingTypes';
+import { TRAINEE_TRAINING_TYPE_LABELS } from '@/lib/training/trainingTypes';
 import type { TraineeTrainingType, TrainingModuleStatus } from '@/lib/training/trainingTypes';
 import ModuleStatusBadge from './shared/ModuleStatusBadge';
 import { LibraryEmpty, LibraryLoading } from './shared/LibraryStates';
@@ -105,8 +102,6 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
   };
 
   const typeLabel = (t?: TraineeTrainingType) => (t ? TRAINEE_TRAINING_TYPE_LABELS[t] ?? t : '—');
-  const modeLabel = (m?: 'online' | 'onsite') => (m ? TRAINING_DELIVERY_MODE_LABELS[m] ?? m : '—');
-  const periodLabel = (months?: number) => (months ? `${months} months` : '—');
 
   return (
     <div className="space-y-4">
@@ -180,9 +175,8 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Title</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Training Type</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Mode</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Default Period</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Lessons</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">Has Quiz</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Status</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
               </tr>
@@ -194,11 +188,14 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
                     <span className="font-medium text-gray-900">{module.title}</span>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{typeLabel(module.trainingType)}</td>
-                  <td className="px-4 py-3 text-gray-600">{modeLabel(module.trainingMode)}</td>
-                  <td className="px-4 py-3 text-center text-gray-600">
-                    {periodLabel(module.defaultTrainingPeriodMonths)}
-                  </td>
                   <td className="px-4 py-3 text-center text-gray-600">{module.lessons?.length ?? 0}</td>
+                  <td className="px-4 py-3 text-center">
+                    {module.quiz ? (
+                      <span className="text-green-600 font-medium">Yes</span>
+                    ) : (
+                      <span className="text-gray-400">No</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-center">
                     <ModuleStatusBadge status={module.status} />
                   </td>
@@ -258,17 +255,10 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {modeLabel(module.trainingMode)}
-                </span>
-                <span className="flex items-center gap-1">
-                  <CalendarRange className="w-3.5 h-3.5" />
-                  {periodLabel(module.defaultTrainingPeriodMonths)}
-                </span>
-                <span className="flex items-center gap-1">
                   <BookOpen className="w-3.5 h-3.5" />
                   {module.lessons?.length ?? 0} lessons
                 </span>
+                {module.quiz && <span>Has quiz</span>}
               </div>
               <div className="flex gap-2">
                 {canAuthor && (

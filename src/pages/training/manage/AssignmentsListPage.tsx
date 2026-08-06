@@ -1,86 +1,49 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-} from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { useAuthStore } from '@/store/authStore';
-import { useTraineeList } from '@/hooks/training/useTraineeList';
-import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
-import { useTraineeWorkOrderCounts } from '@/hooks/training/useTraineeWorkOrderCounts';
-import type { TrainingAssignment } from '@/lib/training/trainingTypes';
-import TraineeManagementList from '@/components/training/manager/TraineeManagementList';
+import { useState } from 'react';
 import TraineeModuleLibrary from '@/components/training/manager/library/TraineeModuleLibrary';
-import OffboardTrainingReportViewer from '@/components/training/manager/OffboardTrainingReportViewer';
+import AssignedProgramsTab from '@/components/training/manager/programs/AssignedProgramsTab';
+import ProgramsTab from '@/components/training/manager/programs/ProgramsTab';
 
+type Tab = 'assigned' | 'programs' | 'modules';
+
+/**
+ * Trainee Management landing page: Assigned | Programs | Modules.
+ * Entirely separate from the Training tab — its own module library
+ * (libraryScope 'trainee_management') and its own flat Program model
+ * (a list of modules, each with its own due duration, plus one overall
+ * program duration — no monthly/weekend-summary structure).
+ */
 export default function AssignmentsListPage() {
-  const navigate = useNavigate();
-  const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const [allAssignments, setAllAssignments] = useState<TrainingAssignment[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [reportAssignment, setReportAssignment] = useState<TrainingAssignment | null>(null);
-
-  const { trainees, loading: traineesLoading } = useTraineeList();
-  const { counts: woCounts } = useTraineeWorkOrderCounts();
-  // Trainee Management only reports on its own library's modules — an
-  // assignment made from the Training tab's library never appears here,
-  // even when it happens to target a trainee.
-  const { modules: traineeModules, loading: modulesLoading } = useTraineeLibraryModules();
-
-  useEffect(() => {
-    if (!companyId) return;
-
-    setLoading(true);
-    const q = query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId));
-
-    const unsub = onSnapshot(q, (snap) => {
-      setAllAssignments(snap.docs.map((d) => ({ id: d.id, ...d.data() } as TrainingAssignment)));
-      setLoading(false);
-    });
-
-    return () => unsub();
-  }, [companyId]);
-
-  const assignments = useMemo(() => {
-    const traineeModuleIds = new Set(traineeModules.map((m) => m.id));
-    // Trainee Management tracks trainee-role assignments made from its own
-    // module library. Legacy assignments made before traineeRole was
-    // recorded, and anything assigned out of the Training tab, are excluded.
-    return allAssignments.filter((a) => a.traineeRole === 'trainee' && traineeModuleIds.has(a.moduleId));
-  }, [allAssignments, traineeModules]);
+  const [tab, setTab] = useState<Tab>('assigned');
 
   return (
-    <div className="p-4 sm:p-6 max-w-5xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900">Trainee Management</h1>
-        <button
-          onClick={() => navigate('/app/training/manage/assign')}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          <Plus size={16} /> Assign Training
-        </button>
+    <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
+      <h1 className="text-xl font-bold text-slate-900">Trainee Management</h1>
+
+      <div className="flex gap-1 border-b border-gray-200">
+        {(
+          [
+            { value: 'assigned', label: 'Assigned' },
+            { value: 'programs', label: 'Programs' },
+            { value: 'modules', label: 'Modules' },
+          ] as { value: Tab; label: string }[]
+        ).map((t) => (
+          <button
+            key={t.value}
+            onClick={() => setTab(t.value)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+              tab === t.value
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      <TraineeManagementList
-        trainees={trainees}
-        assignments={assignments}
-        woCounts={woCounts}
-        loading={loading || traineesLoading || modulesLoading}
-        onViewOffboardReport={(assignment) => setReportAssignment(assignment)}
-      />
-
-      <TraineeModuleLibrary />
-
-      {reportAssignment && (
-        <OffboardTrainingReportViewer
-          assignment={reportAssignment}
-          onClose={() => setReportAssignment(null)}
-        />
-      )}
+      {tab === 'assigned' && <AssignedProgramsTab />}
+      {tab === 'programs' && <ProgramsTab />}
+      {tab === 'modules' && <TraineeModuleLibrary />}
     </div>
   );
 }
