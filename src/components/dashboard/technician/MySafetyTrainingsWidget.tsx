@@ -31,7 +31,7 @@ export default function MySafetyTrainingsWidget() {
       {pending.length === 0 ? (
         <EmptyState message="No safety trainings assigned" />
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2">
           {pending.map((a) => (
             <div
               key={a.id}

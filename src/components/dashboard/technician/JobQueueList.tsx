@@ -28,7 +28,7 @@ export default function JobQueueList({ technicianId, siteId, onSelect }: JobQueu
       {notCompletedByMe.length === 0 ? (
         <EmptyState message="No jobs in queue" />
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2">
           {notCompletedByMe.map((wo) => (
             <JobQueueItem key={wo.id} wo={wo} onClick={onSelect ? () => onSelect(wo) : undefined} />
           ))}

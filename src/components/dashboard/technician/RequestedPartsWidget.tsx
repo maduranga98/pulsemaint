@@ -15,16 +15,33 @@ const STATUS_LABEL: Partial<Record<RequestStatus, { label: string; className: st
   parts_reserved: { label: 'Need to Collect', className: 'bg-indigo-500/15 text-indigo-300' },
 };
 
-export default function RequestedPartsWidget() {
+interface RequestedPartsWidgetProps {
+  onRequestParts: () => void;
+}
+
+export default function RequestedPartsWidget({ onRequestParts }: RequestedPartsWidgetProps) {
   const { requests, loading, error } = usePartsRequests({ ownOnly: true });
   const pending = requests.filter((r) => !FULFILLED_OR_CLOSED.includes(r.status));
 
   return (
-    <DashboardWidget title="Requested Parts" loading={loading} error={error}>
+    <DashboardWidget
+      title="Requested Parts"
+      loading={loading}
+      error={error}
+      action={
+        <button
+          type="button"
+          onClick={onRequestParts}
+          className="px-2.5 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs font-medium"
+        >
+          + Request Parts
+        </button>
+      }
+    >
       {pending.length === 0 ? (
         <EmptyState message="No outstanding parts requests" />
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2">
           {pending.map((r) => {
             const badge = STATUS_LABEL[r.status] ?? { label: r.status, className: 'bg-[#1E3A5F] text-[#8BA3BF]' };
             const itemsLabel = r.items.map((i) => `${i.partName} ×${i.quantityRequested}`).join(', ');

@@ -48,7 +48,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
       {breakdowns.length === 0 ? (
         <EmptyState message="No unassigned breakdowns" />
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2">
           {breakdowns.map((b) => (
             <div
               key={b.id}

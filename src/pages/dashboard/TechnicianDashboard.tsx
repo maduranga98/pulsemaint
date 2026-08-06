@@ -70,19 +70,11 @@ export default function TechnicianDashboard() {
         />
       )}
 
-      <div className="px-4 py-4 sm:px-6 lg:px-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">Technician Dashboard</h1>
-          <p className="text-sm text-[#8BA3BF] mt-0.5">
-            Good {getGreeting()}, {firstName}
-          </p>
-        </div>
-        <button
-          onClick={() => openPartsRequest(null)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium shrink-0"
-        >
-          + Request Parts
-        </button>
+      <div className="px-4 py-4 sm:px-6 lg:px-8">
+        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">Technician Dashboard</h1>
+        <p className="text-sm text-[#8BA3BF] mt-0.5">
+          Good {getGreeting()}, {firstName}
+        </p>
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
@@ -94,7 +86,7 @@ export default function TechnicianDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <TodaysPmList technicianId={technicianId} siteId={siteId} />
-          <RequestedPartsWidget />
+          <RequestedPartsWidget onRequestParts={() => openPartsRequest(null)} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

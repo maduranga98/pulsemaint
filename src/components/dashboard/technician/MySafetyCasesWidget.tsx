@@ -24,7 +24,7 @@ export default function MySafetyCasesWidget() {
       {mine.length === 0 ? (
         <EmptyState message="No safety cases assigned to you" />
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2">
           {mine.map((c) => (
             <div
               key={c.id}

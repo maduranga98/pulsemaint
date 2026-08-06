@@ -56,7 +56,7 @@ export default function AssignedBreakdownsWidget({ technicianId, siteId }: Assig
       {breakdowns.length === 0 ? (
         <EmptyState message="No breakdowns assigned to you" />
       ) : (
-        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+        <div className="space-y-2">
           {breakdowns.map((b) => {
             // Assigned but not yet assessed — clicking opens the same
             // start/attend assessment form (severity, description, attempted
