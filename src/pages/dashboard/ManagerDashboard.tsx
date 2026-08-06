@@ -16,7 +16,6 @@ import LiveBreakdownsWidget from '../../components/dashboard/manager/LiveBreakdo
 import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
 import TodaySafetyCasesWidget from '../../components/dashboard/manager/TodaySafetyCasesWidget';
 import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
-import ExtensionRequestsWidget from '../../components/dashboard/shared/ExtensionRequestsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
@@ -130,9 +129,6 @@ export default function ManagerDashboard() {
           <TodaySafetyCasesWidget companyId={companyId} />
           <TodayTrainingsWidget companyId={companyId} />
         </div>
-
-        {/* WO due-date extension requests awaiting approval */}
-        <ExtensionRequestsWidget companyId={companyId} />
 
         {/* Who's actually on shift right now. Trend charts, heatmaps,
             per-machine/contractor breakdowns, SLA, and Safety/Team
