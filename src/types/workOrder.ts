@@ -292,6 +292,13 @@ export interface WorkOrder {
   // machine group — includes linkedBreakdownId. Empty/absent for a WO
   // linked to a single ticket (or none).
   linkedBreakdownIds?: string[];
+  // Set when this WO was raised as a follow-up to another WO that was
+  // signed off "not complete"/"failed" — points back to the origin WO.
+  followUpOfWoId?: string | null;
+  followUpOfWoNumber?: string | null;
+  // Set on the origin WO once a follow-up has been raised from it.
+  followUpWoId?: string | null;
+  followUpWoNumber?: string | null;
 
   // Assignment
   supervisorInChargeId: string;
@@ -443,6 +450,13 @@ export interface CreateWOPayload {
   // group), every id here — including linkedBreakdownId — gets synced to
   // this WO instead of raising a separate WO per ticket.
   linkedBreakdownIds?: string[];
+  // Set when raising a follow-up WO from another WO's sign-off.
+  followUpOfWoId?: string | null;
+  followUpOfWoNumber?: string | null;
+  // Existing (already-uploaded) documents to carry over from the origin WO —
+  // distinct from `documents` (new File uploads), since these already have a
+  // storage URL and don't need re-uploading.
+  copyExistingDocuments?: WODocument[];
 
   machineId: string;
   machineName: string;

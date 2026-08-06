@@ -126,6 +126,10 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         linkedBreakdownId: payload.linkedBreakdownId ?? null,
         linkedBreakdownTicketNumber: payload.linkedBreakdownTicketNumber ?? null,
         linkedBreakdownIds: payload.linkedBreakdownIds ?? [],
+        followUpOfWoId: payload.followUpOfWoId ?? null,
+        followUpOfWoNumber: payload.followUpOfWoNumber ?? null,
+        followUpWoId: null,
+        followUpWoNumber: null,
 
         // Machine
         machineId: payload.machineId,
@@ -225,6 +229,27 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
 
       const docRef = await addDoc(collection(db, 'workOrders'), woData);
       const woId = docRef.id;
+
+      // If this WO is a follow-up raised from another WO's sign-off, copy
+      // over the origin's already-uploaded attachments (they have real
+      // storage URLs already, so no re-upload is needed) and back-link the
+      // origin WO so it shows the follow-up it spawned.
+      if (payload.followUpOfWoId) {
+        try {
+          const { doc: docFn, updateDoc: updateDocFn, arrayUnion: arrayUnionFn } = await import('firebase/firestore');
+          if (payload.copyExistingDocuments && payload.copyExistingDocuments.length > 0) {
+            await updateDocFn(docRef, {
+              documents: arrayUnionFn(...payload.copyExistingDocuments),
+            });
+          }
+          await updateDocFn(docFn(db, 'workOrders', payload.followUpOfWoId), {
+            followUpWoId: woId,
+            updatedAt: serverTimestamp(),
+          });
+        } catch (linkErr) {
+          console.error('Failed to link follow-up work order', linkErr);
+        }
+      }
 
       // Safety Work Permit raised alongside the WO. It lands in the same
       // `work_permits` collection the Safety Officer's Work Permits tab reads,

@@ -142,7 +142,7 @@ export default function AnalyticsPage() {
         {tab === 'breakdowns' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-7">
-              <MttrTrendChart companyId={companyId} />
+              <MttrTrendChart companyId={companyId} range={range} />
             </div>
             <div className="lg:col-span-5">
               <BreakdownByTypeChart companyId={companyId} />

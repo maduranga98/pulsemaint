@@ -14,10 +14,17 @@ import ChartDateRangeSelector from '../shared/ChartDateRangeSelector';
 import { useMttrTrend } from '../../../hooks/dashboard/useMttrTrend';
 import { CHART_DEFAULTS } from '../../../constants/chartTheme';
 import type { ChartDateRange } from '../../../types/analytics.types';
+import type { DashboardRange } from '../../../utils/analytics/dashboardRange';
 import EmptyState from '../shared/EmptyState';
 
 interface MttrTrendChartProps {
   companyId: string;
+  /**
+   * When provided, the chart follows this shared MTD/3M/6M/12M range (e.g.
+   * the Analytics page's top-level filter) instead of showing its own
+   * independent date-range selector.
+   */
+  range?: DashboardRange;
 }
 
 const SLA_TARGET_STORAGE_KEY = 'firmicore.mttrSlaTargetHours';
@@ -28,8 +35,16 @@ function loadStoredSlaTarget(): number {
   return Number.isFinite(stored) && stored > 0 ? stored : 4;
 }
 
-export default function MttrTrendChart({ companyId }: MttrTrendChartProps) {
-  const [range, setRange] = useState<ChartDateRange>('30D');
+const DASHBOARD_TO_CHART_RANGE: Record<DashboardRange, ChartDateRange> = {
+  mtd: '30D',
+  '3m': '3M',
+  '6m': '6M',
+  '12m': '12M',
+};
+
+export default function MttrTrendChart({ companyId, range: sharedRange }: MttrTrendChartProps) {
+  const [ownRange, setOwnRange] = useState<ChartDateRange>('30D');
+  const range = sharedRange ? DASHBOARD_TO_CHART_RANGE[sharedRange] : ownRange;
   const { data, loading, error, refetch } = useMttrTrend(companyId, range);
   const [slaTarget, setSlaTarget] = useState<number>(loadStoredSlaTarget);
   const [slaInput, setSlaInput] = useState<string>(() => String(loadStoredSlaTarget()));
@@ -69,7 +84,7 @@ export default function MttrTrendChart({ companyId }: MttrTrendChartProps) {
             />
             h
           </label>
-          <ChartDateRangeSelector value={range} onChange={setRange} />
+          {!sharedRange && <ChartDateRangeSelector value={ownRange} onChange={setOwnRange} />}
         </div>
       }
     >
