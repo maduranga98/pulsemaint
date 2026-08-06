@@ -81,9 +81,9 @@ const NAV_GROUPS: NavGroup[] = [
     labelKey: 'common.nav.groups.maintenance',
     items: [
       { labelKey: 'common.nav.items.machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
-      { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
-      { labelKey: 'common.nav.items.workOrders', to: '/app/work-orders', icon: Icon.wrench, roles: ['technician', 'supervisor', 'plant_manager', 'admin'] },
-      { labelKey: 'common.nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['technician', 'trainee', 'supervisor', 'plant_manager'] },
+      { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.workOrders', to: '/app/work-orders', icon: Icon.wrench, roles: ['supervisor', 'plant_manager', 'admin'] },
+      { labelKey: 'common.nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['trainee', 'supervisor', 'plant_manager'] },
       {
         labelKey: 'common.nav.items.pmSchedules',
         to: '/app/pm-schedules',
@@ -92,7 +92,7 @@ const NAV_GROUPS: NavGroup[] = [
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
         ),
-        roles: ['supervisor', 'plant_manager', 'admin', 'technician'],
+        roles: ['supervisor', 'plant_manager', 'admin'],
       },
     ],
   },
@@ -107,14 +107,14 @@ const NAV_GROUPS: NavGroup[] = [
       { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
       // Frontline roles a safety case can be assigned down to for action — they
       // land on the same page's "Reported to Me" filtered view.
-      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['technician', 'floor_operator', 'store_keeper', 'trainee'] },
+      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['floor_operator', 'store_keeper', 'trainee'] },
       { labelKey: 'common.nav.items.safetyTraining', to: '/app/training/manage/modules', icon: Icon.graduation, roles: ['safety_officer'] },
       { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin'] },
       // Admin/plant manager reach the calendar via the "View Training
       // Schedules" button on the Safety Trainings page instead of a
       // dedicated nav entry; every other role still needs one since they
       // don't have access to that page.
-      { labelKey: 'common.nav.items.safetyTrainingSchedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
+      { labelKey: 'common.nav.items.safetyTrainingSchedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'supervisor', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
       // Safety Analytics for admins/plant managers now lives inline on the manager
       // dashboard instead of a dedicated tab.
       { labelKey: 'common.nav.items.analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
@@ -126,7 +126,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       // Parts catalog + low stock alerts + Add Item only — PO and requests
       // now live in their own tabs instead of one page mixing everything.
-      { labelKey: 'common.nav.items.inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
       {
         labelKey: 'common.nav.items.po',
         to: '/app/inventory/purchase-orders',
@@ -137,7 +137,7 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin'],
       },
-      { labelKey: 'common.nav.items.requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
     ],
   },
   {
@@ -193,7 +193,7 @@ const NAV_GROUPS: NavGroup[] = [
       // Training can be assigned to any role, so everyone gets a "My Training"
       // entry (the route allows any authenticated user). The admin-facing
       // "Training" / "Trainee Management" tabs live under Triage & Training.
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
     ],
@@ -416,7 +416,7 @@ export default function AppLayout() {
                     groupHasActive ? 'text-[#60A5FA]' : 'text-[#6C87A6] hover:text-[#D5DEEA]'
                   }`}
                 >
-                  <span>{t(group.labelKey)}</span>
+                  <span>{group.id === 'triage-training' && role === 'technician' ? 'Triage' : t(group.labelKey)}</span>
                   <span className={isOpen ? 'rotate-90' : ''}>{Icon.chevron}</span>
                 </button>
                 {isOpen && (

@@ -27,17 +27,14 @@ export default function TodaysPmList({ technicianId, siteId }: TodaysPmListProps
       setLoading(false);
       return;
     }
-    // Query pm_schedules for today's tasks, live — so completions/reassignments
-    // made elsewhere are reflected on the dashboard without a manual reload.
+    // Query pm_schedules assigned to this technician, live — so
+    // completions/reassignments made elsewhere are reflected on the
+    // dashboard without a manual reload.
     const q = query(
       collection(db, 'pm_schedules'),
       where('siteId', '==', siteId),
       where('assignedTechnicianIds', 'array-contains', technicianId),
     );
-    // End of today — a PM belongs on "today's" list if it is due today or is
-    // already overdue. Archived/paused schedules are left out.
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
 
     const unsubscribe = onSnapshot(
       q,
@@ -65,7 +62,7 @@ export default function TodaysPmList({ technicianId, siteId }: TodaysPmListProps
               due,
             };
           })
-          .filter((t) => t.scheduleStatus === 'active' && t.due != null && t.due <= endOfToday)
+          .filter((t) => t.scheduleStatus === 'active' && t.due != null)
           .sort((a, b) => (a.due?.getTime() ?? 0) - (b.due?.getTime() ?? 0))
           .map(({ id, machineName, pmType, scheduledTime, status }) => ({
             id,
@@ -83,9 +80,9 @@ export default function TodaysPmList({ technicianId, siteId }: TodaysPmListProps
   }, [technicianId, siteId]);
 
   return (
-    <DashboardWidget title="Today's PM Schedule" loading={loading}>
+    <DashboardWidget title="Assigned PM Schedules" loading={loading}>
       {tasks.length === 0 ? (
-        <EmptyState message="No PMs scheduled today" />
+        <EmptyState message="No PM schedules assigned" />
       ) : (
         <div className="space-y-2">
           {tasks.map((task) => (
