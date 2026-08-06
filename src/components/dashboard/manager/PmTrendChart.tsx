@@ -1,98 +1,75 @@
-import { useState } from 'react';
-import {
-  ComposedChart,
-  Bar,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts';
 import DashboardWidget from '../shared/DashboardWidget';
-import ChartDateRangeSelector from '../shared/ChartDateRangeSelector';
-import { usePmComplianceTrend } from '../../../hooks/dashboard/usePmComplianceTrend';
+import { usePmTypeDistribution } from '../../../hooks/dashboard/usePmTypeDistribution';
+import { PM_TYPE_CONFIG } from '../../../constants/pmConfig';
 import { CHART_DEFAULTS } from '../../../constants/chartTheme';
-import type { ChartDateRange } from '../../../types/analytics.types';
 import EmptyState from '../shared/EmptyState';
 
 interface PmTrendChartProps {
   companyId: string;
 }
 
+// Graphical view of PM types vs. how many Preventive work orders exist for
+// each — replaces the earlier day-by-day completion trend line.
 export default function PmTrendChart({ companyId }: PmTrendChartProps) {
-  const [range, setRange] = useState<ChartDateRange>('30D');
-  const { data, loading, error, refetch } = usePmComplianceTrend(companyId, range);
+  const { data, loading, error, refetch } = usePmTypeDistribution(companyId);
 
-  const chartData = data.map((d) => ({
-    date: d.date.slice(5),
-    completed: d.pmsCompleted,
-    missed: d.pmsMissed,
-    compliance: Math.round(d.pmComplianceRate),
-  }));
+  const total = data.reduce((s, d) => s + d.count, 0);
 
-  const totalCompleted = chartData.reduce((s, d) => s + d.completed, 0);
-  const totalMissed = chartData.reduce((s, d) => s + d.missed, 0);
-  const overdueCount = totalMissed;
+  const chartData = data.map((d) => {
+    const config = PM_TYPE_CONFIG[d.pmType];
+    return {
+      name: config.label,
+      count: d.count,
+      pct: total > 0 ? Math.round((d.count / total) * 100) : 0,
+      color: config.color,
+    };
+  });
 
   return (
-    <DashboardWidget
-      title="PM Completion Trend"
-      loading={loading}
-      error={error}
-      onRetry={refetch}
-      action={<ChartDateRangeSelector value={range} onChange={setRange} />}
-    >
-      <div className="flex gap-6 mb-3 text-xs">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-          <span className="text-[#8BA3BF]">Completed</span>
-          <span className="text-[#10B981] font-semibold ml-1">{totalCompleted}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]" />
-          <span className="text-[#8BA3BF]">Overdue / Missed</span>
-          <span className="text-[#EF4444] font-semibold ml-1">{overdueCount}</span>
-        </div>
-      </div>
-
+    <DashboardWidget title="PM Work Orders by Type" loading={loading} error={error} onRetry={refetch}>
       {chartData.length === 0 ? (
-        <EmptyState message="No PM data" />
+        <EmptyState message="No preventive work order data" />
       ) : (
-        <div className="h-56">
-          <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData}>
-              <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} />
-              <XAxis {...CHART_DEFAULTS.xAxis} dataKey="date" />
-              <YAxis
-                {...CHART_DEFAULTS.yAxis}
-                yAxisId="count"
-                allowDecimals={false}
-              />
-              <YAxis
-                {...CHART_DEFAULTS.yAxis}
-                yAxisId="pct"
-                orientation="right"
-                unit="%"
-                domain={[0, 100]}
-              />
-              <Tooltip {...CHART_DEFAULTS.tooltip} />
-              <Legend {...CHART_DEFAULTS.legend} />
-              <Bar yAxisId="count" dataKey="completed" name="Completed" fill="#10B981" radius={[3, 3, 0, 0]} />
-              <Bar yAxisId="count" dataKey="missed" name="Missed" fill="#EF4444" radius={[3, 3, 0, 0]} />
-              <Line
-                yAxisId="pct"
-                type="monotone"
-                dataKey="compliance"
-                name="Compliance %"
-                stroke="#F59E0B"
-                strokeWidth={2}
-                dot={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
-        </div>
+        <>
+          <div style={{ height: Math.max(220, chartData.length * 34 + 40) }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} layout="vertical" margin={{ left: 8, right: 32 }}>
+                <CartesianGrid {...CHART_DEFAULTS.cartesianGrid} horizontal={false} />
+                <XAxis {...CHART_DEFAULTS.xAxis} type="number" allowDecimals={false} />
+                <YAxis
+                  {...CHART_DEFAULTS.yAxis}
+                  type="category"
+                  dataKey="name"
+                  width={130}
+                  interval={0}
+                  tick={{ ...CHART_DEFAULTS.yAxis.tick, fontSize: 11 }}
+                />
+                <Tooltip
+                  {...CHART_DEFAULTS.tooltip}
+                  formatter={(value, _name, props: any) => [`${value} (${props.payload.pct}%)`, 'WOs']}
+                />
+                <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                  {chartData.map((d) => (
+                    <Cell key={d.name} fill={d.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-[#1E3A5F]/50 grid grid-cols-2 gap-1 text-xs">
+            {chartData.map((d) => (
+              <div key={d.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: d.color }} />
+                  <span className="text-[#8BA3BF] truncate">{d.name}</span>
+                </div>
+                <span className="text-[#F0F4F8] font-medium ml-2">{d.count}</span>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </DashboardWidget>
   );
