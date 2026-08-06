@@ -16,7 +16,6 @@ import ContractorScoreboard from '../../components/dashboard/manager/ContractorS
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import SafetySnapshotWidget from '../../components/dashboard/manager/SafetySnapshotWidget';
-import { complianceColor } from '../../utils/analytics.utils';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 import {
   DASHBOARD_RANGE_LABELS,
@@ -24,17 +23,16 @@ import {
   type DashboardRange as Range,
 } from '../../utils/analytics/dashboardRange';
 
-function SectionHeader({ title, description }: { title: string; description?: string }) {
-  return (
-    <div className="flex items-baseline gap-3 pt-2">
-      <h2 className="text-base font-semibold text-[#F0F4F8] font-[Sora] whitespace-nowrap">{title}</h2>
-      <div className="flex-1 h-px bg-[#1E3A5F]" />
-      {description && (
-        <p className="text-xs text-[#8BA3BF] whitespace-nowrap">{description}</p>
-      )}
-    </div>
-  );
-}
+type Tab = 'breakdowns' | 'pm' | 'workorders' | 'machines' | 'safety' | 'team';
+
+const TABS: { value: Tab; label: string }[] = [
+  { value: 'breakdowns', label: 'Breakdowns' },
+  { value: 'pm', label: 'Preventive Maintenance' },
+  { value: 'workorders', label: 'Work Orders' },
+  { value: 'machines', label: 'Machines' },
+  { value: 'safety', label: 'Safety' },
+  { value: 'team', label: 'Team Performance' },
+];
 
 export default function AnalyticsPage() {
   // workOrders (and the charts fed from it — Work Order distribution,
@@ -47,6 +45,7 @@ export default function AnalyticsPage() {
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   const { kpis: safetyKpis } = useSafetyKpis(companyId);
   const [range, setRange] = useState<Range>('mtd');
+  const [tab, setTab] = useState<Tab>('breakdowns');
 
   // The months covered by the selected range drive every range-aware section.
   const months = useMemo(() => monthsForDashboardRange(range), [range]);
@@ -68,24 +67,6 @@ export default function AnalyticsPage() {
       label: 'Total Breakdowns',
       value: monthly?.totalBreakdowns ?? 0,
       color: 'blue' as const,
-    },
-    {
-      label: 'MTTR',
-      value: (monthly?.avgMttrHours ?? 0).toFixed(1),
-      unit: 'hrs',
-      color: complianceColor(monthly?.avgMttrHours ? 100 - monthly.avgMttrHours * 10 : 100),
-    },
-    {
-      label: 'MTBF',
-      value: (monthly?.avgMtbfDays ?? 0).toFixed(0),
-      unit: 'days',
-      color: 'green' as const,
-    },
-    {
-      label: 'PM Compliance',
-      value: Math.round(monthly?.pmComplianceRate ?? 0),
-      unit: '%',
-      color: complianceColor(monthly?.pmComplianceRate ?? 0),
     },
     {
       label: 'Maintenance Cost',
@@ -132,7 +113,7 @@ export default function AnalyticsPage() {
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
         {/* KPI Summary */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {kpis.map((kpi, idx) => (
             <KpiCard key={idx} data={kpi as any} />
           ))}
@@ -140,60 +121,70 @@ export default function AnalyticsPage() {
 
         <ProductionDowntimeStrip companyId={companyId} />
 
-        {/* ── Breakdowns ─────────────────────────────────────────────────── */}
-        <SectionHeader title="Breakdowns" description="MTTR trend & failure-type mix" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7">
-            <MttrTrendChart companyId={companyId} />
-          </div>
-          <div className="lg:col-span-5">
-            <BreakdownByTypeChart companyId={companyId} />
-          </div>
+        {/* Section tabs */}
+        <div className="flex flex-wrap gap-1 border-b border-[#1E3A5F]">
+          {TABS.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => setTab(t.value)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                tab === t.value
+                  ? 'border-[#1A56DB] text-[#F0F4F8]'
+                  : 'border-transparent text-[#8BA3BF] hover:text-[#F0F4F8]'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        {/* ── Preventive Maintenance ─────────────────────────────────────── */}
-        <SectionHeader title="Preventive Maintenance" description="Completion trends & compliance" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <PmTrendChart companyId={companyId} />
+        {tab === 'breakdowns' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7">
+              <MttrTrendChart companyId={companyId} />
+            </div>
+            <div className="lg:col-span-5">
+              <BreakdownByTypeChart companyId={companyId} />
+            </div>
           </div>
-          <div className="lg:col-span-4">
-            <PmComplianceWidget companyId={companyId} />
+        )}
+
+        {tab === 'pm' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8">
+              <PmTrendChart companyId={companyId} />
+            </div>
+            <div className="lg:col-span-4">
+              <PmComplianceWidget companyId={companyId} />
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* ── Work Orders ────────────────────────────────────────────────── */}
-        <SectionHeader title="Work Orders" description="Distribution by type & cost" />
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6">
-            <WoTypeDistributionChart companyId={companyId} />
+        {tab === 'workorders' && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-6">
+                <WoTypeDistributionChart companyId={companyId} />
+              </div>
+              <div className="lg:col-span-6">
+                <MaintenanceCostChart companyId={companyId} month={months} />
+              </div>
+            </div>
+            <ContractorScoreboard companyId={companyId} month={currentMonth} />
           </div>
-          <div className="lg:col-span-6">
-            <MaintenanceCostChart companyId={companyId} month={months} />
+        )}
+
+        {tab === 'machines' && <TopProblemMachinesChart companyId={companyId} month={months} />}
+
+        {tab === 'safety' && <SafetySnapshotWidget companyId={companyId} hideKpiCards />}
+
+        {tab === 'team' && (
+          <div className="space-y-6">
+            <TechnicianPerformanceTable companyId={companyId} month={months} />
+            <TopPerformersWidget companyId={companyId} />
           </div>
-        </div>
-
-        <ContractorScoreboard companyId={companyId} month={currentMonth} />
-
-        {/* ── Performance by Work Orders ─────────────────────────────────── */}
-        <SectionHeader title="Performance by Work Orders" description="Per-technician work-order completion & repair metrics" />
-
-        <TechnicianPerformanceTable companyId={companyId} month={months} />
-
-        {/* ── Problem Machines ───────────────────────────────────────────── */}
-        <SectionHeader title="Problem Machines" description="Highest-impact machines by breakdown count, downtime & cost" />
-
-        <TopProblemMachinesChart companyId={companyId} month={months} />
-
-        {/* ── Team & Safety ──────────────────────────────────────────────── */}
-        <SectionHeader title="Top Performers" description="Ranked by evaluation & audit scores" />
-        <TopPerformersWidget companyId={companyId} />
-
-        <SectionHeader title="Safety Analytics" />
-        <SafetySnapshotWidget companyId={companyId} />
+        )}
       </div>
     </div>
   );
