@@ -10,7 +10,7 @@ import {
   monthsForDashboardRange,
 } from '../../utils/analytics/dashboardRange';
 
-import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
+import LiveShiftStatusWidget from '../../components/dashboard/manager/LiveShiftStatusWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import LiveBreakdownsWidget from '../../components/dashboard/manager/LiveBreakdownsWidget';
 import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
@@ -134,10 +134,11 @@ export default function ManagerDashboard() {
         {/* WO due-date extension requests awaiting approval */}
         <ExtensionRequestsWidget companyId={companyId} />
 
-        {/* Today's Shifts by Department. Trend charts, heatmaps, per-machine/
-            contractor breakdowns, SLA, and Safety/Team Performance analytics
-            live exclusively on the Analytics tab — see AnalyticsPage. */}
-        <TodayShiftsByDepartment companyId={companyId} />
+        {/* Who's actually on shift right now. Trend charts, heatmaps,
+            per-machine/contractor breakdowns, SLA, and Safety/Team
+            Performance analytics live exclusively on the Analytics tab —
+            see AnalyticsPage. */}
+        <LiveShiftStatusWidget companyId={companyId} />
       </div>
 
       <DashboardSidePanel />
