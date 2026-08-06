@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Sparkles, Edit2, Archive, Trash2, BookOpen, HelpCircle, Globe2, UserPlus } from 'lucide-react';
-import { collection, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { Plus, Sparkles, Edit2, Trash2, BookOpen, HelpCircle, Globe2, UserPlus } from 'lucide-react';
+import { collection, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryModules';
@@ -17,23 +17,22 @@ import type {
   TraineeTrainingType,
   TrainingDeliveryMode,
   TrainingLibraryModule,
-  TrainingModuleStatus,
+  TrainingModuleCategory,
 } from '@/lib/training/trainingTypes';
 import ModuleAssignForm from '../ModuleAssignForm';
 import ModuleStatusBadge from './shared/ModuleStatusBadge';
 import { LibraryEmpty, LibraryLoading } from './shared/LibraryStates';
 
 const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor', 'safety_officer'];
-const STATUS_FILTERS: { label: string; value: 'all' | TrainingModuleStatus }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Draft', value: 'draft' },
-  { label: 'Active', value: 'active' },
-  { label: 'Archived', value: 'archived' },
-];
 // Safety Training modules live exclusively on the Safety Trainings page —
 // excluded here so they aren't creatable/visible from the general library.
 const TRAINING_TYPE_OPTIONS = (Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [TraineeTrainingType, string][])
   .filter(([value]) => value !== SAFETY_TRAINING_TYPE);
+const MODE_OPTIONS = Object.entries(TRAINING_DELIVERY_MODE_LABELS) as [TrainingDeliveryMode, string][];
+const CATEGORY_OPTIONS: [TrainingModuleCategory, string][] = [
+  ['machine', 'Machine'],
+  ['offboard', 'External'],
+];
 
 /**
  * The Training tab's module library — machine/competency oriented.
@@ -64,8 +63,9 @@ export default function TrainingModuleLibrary({
   const canDelete = role === 'admin';
 
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | TrainingModuleStatus>('all');
   const [typeFilter, setTypeFilter] = useState<TraineeTrainingType | ''>('');
+  const [modeFilter, setModeFilter] = useState<TrainingDeliveryMode | ''>('');
+  const [categoryFilter, setCategoryFilter] = useState<TrainingModuleCategory | ''>('');
   const [seeding, setSeeding] = useState(false);
   const [assigningModule, setAssigningModule] = useState<TrainingLibraryModule | null>(null);
 
@@ -79,17 +79,13 @@ export default function TrainingModuleLibrary({
         if (m.trainingType === SAFETY_TRAINING_TYPE) return false;
         const term = search.trim().toLowerCase();
         const matchesSearch = term === '' || (m.title ?? '').toLowerCase().includes(term);
-        const matchesStatus = statusFilter === 'all' || m.status === statusFilter;
         const matchesType = typeFilter === '' || m.trainingType === typeFilter;
-        return matchesSearch && matchesStatus && matchesType;
+        const matchesMode = modeFilter === '' || m.trainingMode === modeFilter;
+        const matchesCategory = categoryFilter === '' || getModuleCategory(m) === categoryFilter;
+        return matchesSearch && matchesType && matchesMode && matchesCategory;
       }),
-    [modules, search, statusFilter, typeFilter]
+    [modules, search, typeFilter, modeFilter, categoryFilter]
   );
-
-  const handleArchive = async (id: string) => {
-    if (!confirm('Archive this module? It will no longer be visible to learners.')) return;
-    await updateDoc(doc(db, 'trainingModules', id), { status: 'archived', updatedAt: serverTimestamp() });
-  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this module permanently? This cannot be undone.')) return;
@@ -157,8 +153,7 @@ export default function TrainingModuleLibrary({
         </div>
       )}
 
-      {/* Filter bar — status and training type, matching the fields the
-          module editor now authors. */}
+      {/* Filter bar — search plus Mode / Type / Category filters. */}
       <div className="flex flex-col lg:flex-row gap-3">
         <input
           type="text"
@@ -167,6 +162,18 @@ export default function TrainingModuleLibrary({
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        <select
+          value={modeFilter}
+          onChange={(e) => setModeFilter(e.target.value as TrainingDeliveryMode | '')}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 lg:w-40"
+        >
+          <option value="">All modes</option>
+          {MODE_OPTIONS.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value as TraineeTrainingType | '')}
@@ -179,19 +186,18 @@ export default function TrainingModuleLibrary({
             </option>
           ))}
         </select>
-        <div className="flex gap-1">
-          {STATUS_FILTERS.map((btn) => (
-            <button
-              key={btn.value}
-              onClick={() => setStatusFilter(btn.value)}
-              className={`px-3 py-2 text-sm rounded-lg font-medium transition-colors ${
-                statusFilter === btn.value ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {btn.label}
-            </button>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value as TrainingModuleCategory | '')}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 lg:w-40"
+        >
+          <option value="">All categories</option>
+          {CATEGORY_OPTIONS.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
           ))}
-        </div>
+        </select>
       </div>
 
       {/* Desktop table */}
@@ -269,15 +275,6 @@ export default function TrainingModuleLibrary({
                         >
                           <Edit2 className="w-3 h-3" />
                           Edit
-                        </button>
-                      )}
-                      {canAuthor && module.status !== 'archived' && (
-                        <button
-                          onClick={() => void handleArchive(module.id)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 rounded hover:bg-gray-200 transition-colors"
-                        >
-                          <Archive className="w-3 h-3" />
-                          Archive
                         </button>
                       )}
                       {canDelete && (
