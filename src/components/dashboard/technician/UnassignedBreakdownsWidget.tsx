@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { collection, query, where, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { db } from '../../../lib/firebase';
@@ -23,9 +23,10 @@ const SEVERITY_COLOR: Record<string, string> = {
 const SEVERITY_RANK: Record<BreakdownSeverity, number> = { critical: 4, high: 3, medium: 2, low: 1 };
 
 // Breakdowns nobody has attended or been assigned to yet, grouped by machine
-// the same way the Breakdowns page's Reported tab does — every technician
-// needs visibility into these so one doesn't sit unnoticed, and can attend
-// straight from the dashboard without opening that page first.
+// the same way the Breakdowns page's Reported tab does — every ticket on
+// that machine is still listed individually (not collapsed into a count),
+// and Attend is the exact same action the page uses: self-assign every
+// reported ticket on that machine, then go straight to the assessment form.
 export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdownsWidgetProps) {
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -95,7 +96,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
       {groups.length === 0 ? (
         <EmptyState message="No unassigned breakdowns" />
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {groups.map((g) => {
             const worstSeverity = g.tickets.reduce<BreakdownSeverity | null>((worst, t) => {
               if (!t.severity) return worst;
@@ -103,31 +104,40 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
               return worst;
             }, null);
             return (
-              <div
-                key={g.machineId}
-                className="flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F]"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm text-[#F0F4F8] truncate">
-                    {g.machineName}
-                    {g.tickets.length > 1 && <span className="text-[#8BA3BF]"> ×{g.tickets.length}</span>}
-                  </p>
-                  <p className="text-[11px] text-[#8BA3BF]">{g.tickets.map((t) => t.ticketNumber).join(', ')}</p>
+              <div key={g.machineId} className="bg-[#0A1628] rounded-lg border border-[#1E3A5F] overflow-hidden">
+                <div className="flex items-center justify-between gap-3 px-3 py-2 border-b border-[#1E3A5F]">
+                  <p className="text-sm font-medium text-[#F0F4F8] truncate">{g.machineName}</p>
+                  <div className="shrink-0 flex items-center gap-2">
+                    {worstSeverity && (
+                      <span className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${SEVERITY_COLOR[worstSeverity]}`}>
+                        {worstSeverity}
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      disabled={attendingMachineId === g.machineId}
+                      onClick={() => handleAttend(g.tickets, g.machineId)}
+                      className="px-2.5 py-1 text-[11px] font-medium bg-[#1A56DB] text-white rounded-md hover:bg-[#1442ad] disabled:opacity-50"
+                    >
+                      {attendingMachineId === g.machineId ? 'Attending…' : 'Attend'}
+                    </button>
+                  </div>
                 </div>
-                <div className="shrink-0 flex items-center gap-2">
-                  {worstSeverity && (
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${SEVERITY_COLOR[worstSeverity]}`}>
-                      {worstSeverity}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    disabled={attendingMachineId === g.machineId}
-                    onClick={() => handleAttend(g.tickets, g.machineId)}
-                    className="px-2.5 py-1 text-[11px] font-medium bg-[#1A56DB] text-white rounded-md hover:bg-[#1442ad] disabled:opacity-50"
-                  >
-                    {attendingMachineId === g.machineId ? 'Attending…' : 'Attend'}
-                  </button>
+                <div className="divide-y divide-[#1E3A5F]">
+                  {g.tickets.map((t) => (
+                    <Link
+                      key={t.id}
+                      to={`/app/breakdowns/${t.id}`}
+                      className="flex items-center justify-between gap-3 px-3 py-2 hover:bg-[#0F1E35] transition-colors"
+                    >
+                      <span className="text-xs text-[#60A5FA]">{t.ticketNumber}</span>
+                      {t.severity && (
+                        <span className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${SEVERITY_COLOR[t.severity]}`}>
+                          {t.severity}
+                        </span>
+                      )}
+                    </Link>
+                  ))}
                 </div>
               </div>
             );
