@@ -55,70 +55,90 @@ export default function TrainingAssignmentsProgress() {
     .filter((a) => moduleIds.has(a.moduleId))
     .sort((a, b) => ((b.assignedAt as any)?.toMillis?.() ?? 0) - ((a.assignedAt as any)?.toMillis?.() ?? 0));
 
+  const completedCount = rows.filter((a) => a.status === 'completed').length;
+  const inProgressCount = rows.filter((a) => a.status === 'in_progress').length;
+
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-8 flex justify-center">
+      <div className="rounded-xl border border-slate-200 bg-white p-8 flex justify-center">
         <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <h2 className="text-base font-semibold text-gray-800">Assignment Progress</h2>
-        <span className="text-xs text-gray-400">{rows.length} assignment{rows.length !== 1 ? 's' : ''}</span>
+    <div>
+      <div className="mb-4 flex items-center gap-2">
+        <ClipboardList className="h-6 w-6 text-blue-600" />
+        <h2 className="text-xl font-bold text-slate-900">Training Progress</h2>
       </div>
 
-      {rows.length === 0 ? (
-        <div className="flex flex-col items-center py-12 text-gray-400">
-          <ClipboardList className="w-8 h-8 mb-2" />
-          <p className="text-sm">No modules assigned yet.</p>
+      <div className="mb-5 grid grid-cols-3 gap-3">
+        <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
+          <div className="text-2xl font-bold text-slate-900">{rows.length}</div>
+          <div className="text-xs text-slate-500">Assignments</div>
         </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-500">
-              <tr>
-                <th className="px-4 py-3 text-left">Module</th>
-                <th className="px-4 py-3 text-left">Assigned To</th>
-                <th className="px-4 py-3 text-left">Assigned By</th>
-                <th className="px-4 py-3 text-left">Assigned</th>
-                <th className="px-4 py-3 text-left">Completed</th>
-                <th className="px-4 py-3 text-left">Progress</th>
-                <th className="px-4 py-3 text-left">Marks</th>
-                <th className="px-4 py-3 text-left">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {rows.map((a) => (
-                <tr key={a.id}>
-                  <td className="px-4 py-3 font-medium text-gray-900">{a.moduleName}</td>
-                  <td className="px-4 py-3 text-gray-700">{a.traineeName}</td>
-                  <td className="px-4 py-3 text-gray-500">{a.assignedByName}</td>
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{formatDate(a.assignedAt)}</td>
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
-                    {formatDate(a.completedAt ?? a.certifiedAt)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-16 bg-gray-200 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-blue-500 rounded-full"
-                          style={{ width: `${Math.min(100, Math.max(0, a.overallProgress ?? 0))}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-gray-500">{a.overallProgress ?? 0}%</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-700">{marks(a)}</td>
-                  <td className="px-4 py-3"><TrainingStatusBadge status={a.status} /></td>
+        <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
+          <div className="text-2xl font-bold text-slate-900">{inProgressCount}</div>
+          <div className="text-xs text-slate-500">In progress</div>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
+          <div className="text-2xl font-bold text-slate-900">{completedCount}</div>
+          <div className="text-xs text-slate-500">Completed</div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+        {rows.length === 0 ? (
+          <div className="flex flex-col items-center py-12 text-slate-400">
+            <ClipboardList className="w-8 h-8 mb-2" />
+            <p className="text-sm">No modules assigned yet.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
+                  <th className="px-4 py-3 font-medium">Module</th>
+                  <th className="px-4 py-3 font-medium">Assigned To</th>
+                  <th className="px-4 py-3 font-medium">Assigned By</th>
+                  <th className="px-4 py-3 font-medium">Assigned</th>
+                  <th className="px-4 py-3 font-medium">Completed</th>
+                  <th className="px-4 py-3 font-medium">Progress</th>
+                  <th className="px-4 py-3 font-medium">Marks</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {rows.map((a) => (
+                  <tr key={a.id} className="border-b border-slate-50 last:border-0">
+                    <td className="px-4 py-3 font-medium text-slate-900">{a.moduleName}</td>
+                    <td className="px-4 py-3 text-slate-700">{a.traineeName}</td>
+                    <td className="px-4 py-3 text-slate-500">{a.assignedByName}</td>
+                    <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{formatDate(a.assignedAt)}</td>
+                    <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
+                      {formatDate(a.completedAt ?? a.certifiedAt)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-16 bg-slate-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 rounded-full"
+                            style={{ width: `${Math.min(100, Math.max(0, a.overallProgress ?? 0))}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-slate-500">{a.overallProgress ?? 0}%</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-700">{marks(a)}</td>
+                    <td className="px-4 py-3"><TrainingStatusBadge status={a.status} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
