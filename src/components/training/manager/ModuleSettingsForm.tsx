@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { ChevronDown, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import type {
   TrainingModule,
   TrainingModuleStatus,
@@ -33,13 +32,6 @@ interface FormValues {
   tags: string;
   trainingType: TraineeTrainingType | '';
   trainingMode: TrainingDeliveryMode | '';
-  quizSettings: {
-    practicalSignOffRequired: boolean;
-    maxAttempts: number;
-    timeLimit: number;
-    shuffleQuestions: boolean;
-    shuffleOptions: boolean;
-  };
 }
 
 /**
@@ -56,9 +48,7 @@ export default function ModuleSettingsForm({
   isLoading = false,
   lockTrainingType,
 }: ModuleSettingsFormProps) {
-  const [quizOpen, setQuizOpen] = useState(false);
-
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
@@ -71,20 +61,8 @@ export default function ModuleSettingsForm({
       tags: (defaultValues?.tags ?? []).join(', '),
       trainingType: lockTrainingType ?? defaultValues?.trainingType ?? '',
       trainingMode: defaultValues?.trainingMode ?? '',
-      quizSettings: {
-        practicalSignOffRequired: true,
-        maxAttempts: defaultValues?.quiz?.maxAttempts ?? 3,
-        timeLimit: defaultValues?.quiz?.timeLimit ?? 0,
-        shuffleQuestions: defaultValues?.quiz?.shuffleQuestions ?? false,
-        shuffleOptions: defaultValues?.quiz?.shuffleOptions ?? false,
-      },
     },
   });
-
-  const watchedValues = watch(['quizSettings.practicalSignOffRequired', 'quizSettings.shuffleQuestions', 'quizSettings.shuffleOptions']);
-  const practicalRequired = watchedValues[0];
-  const shuffleQuestions = watchedValues[1];
-  const shuffleOptions = watchedValues[2];
 
   async function handleFormSubmit(values: FormValues) {
     const tags = values.tags
@@ -222,70 +200,10 @@ export default function ModuleSettingsForm({
         <p className="text-xs text-gray-400">Separate tags with commas</p>
       </div>
 
-      {/* Quiz Settings Collapsible */}
-      <div className="border border-gray-200 rounded-xl overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setQuizOpen((o) => !o)}
-          className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
-        >
-          <span className="text-sm font-semibold text-gray-700">Quiz Settings</span>
-          <ChevronDown
-            size={16}
-            className={`text-gray-400 transition-transform ${quizOpen ? 'rotate-180' : ''}`}
-          />
-        </button>
-
-        {quizOpen && (
-          <div className="p-4 flex flex-col gap-4 bg-white">
-            <ToggleRow
-              label="Practical sign-off required"
-              description="Learner must be signed off by a supervisor"
-              checked={!!practicalRequired}
-              onChange={(v) => setValue('quizSettings.practicalSignOffRequired', v)}
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">Max attempts</label>
-                <input
-                  type="number"
-                  {...register('quizSettings.maxAttempts', { min: 0 })}
-                  min={0}
-                  className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-400">0 = unlimited</p>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">Time limit</label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    {...register('quizSettings.timeLimit', { min: 0 })}
-                    min={0}
-                    className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-                  />
-                  <span className="text-sm text-gray-500 whitespace-nowrap">min</span>
-                </div>
-                <p className="text-xs text-gray-400">0 = no limit</p>
-              </div>
-            </div>
-
-            <ToggleRow
-              label="Shuffle questions"
-              checked={!!shuffleQuestions}
-              onChange={(v) => setValue('quizSettings.shuffleQuestions', v)}
-            />
-
-            <ToggleRow
-              label="Shuffle options"
-              checked={!!shuffleOptions}
-              onChange={(v) => setValue('quizSettings.shuffleOptions', v)}
-            />
-          </div>
-        )}
-      </div>
+      {/* Real quiz settings (pass score, attempts, time limit, shuffle)
+          live on the Quiz Builder page for this module, not here — this
+          form no longer duplicates a settings panel whose values were
+          never saved. */}
 
       <button
         type="submit"
@@ -296,38 +214,5 @@ export default function ModuleSettingsForm({
         Save Module
       </button>
     </form>
-  );
-}
-
-interface ToggleRowProps {
-  label: string;
-  description?: string;
-  checked: boolean;
-  onChange: (value: boolean) => void;
-}
-
-function ToggleRow({ label, description, checked, onChange }: ToggleRowProps) {
-  return (
-    <div className="flex items-center justify-between gap-3">
-      <div className="flex flex-col">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        {description && <span className="text-xs text-gray-400">{description}</span>}
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
-          checked ? 'bg-blue-600' : 'bg-gray-200'
-        }`}
-      >
-        <span
-          className={`inline-block h-5 w-5 mt-0.5 rounded-full bg-white shadow transform transition-transform ${
-            checked ? 'translate-x-5' : 'translate-x-0.5'
-          }`}
-        />
-      </button>
-    </div>
   );
 }

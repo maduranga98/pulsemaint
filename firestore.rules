@@ -1338,7 +1338,13 @@ service cloud.firestore {
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
-      allow delete: if isAdmin();
+      // Delete replaced the old archive-only action in the UI, so it needs
+      // the same role set that could already modify/archive a program —
+      // not just admins, or the Delete button would fail for the
+      // supervisor/plant_manager/hr_officer/safety_officer roles that reach
+      // this page.
+      allow delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin', 'safety_officer']);
     }
 
     // One trainee assigned to one trainingProgram — ties together the

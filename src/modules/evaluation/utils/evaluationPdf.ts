@@ -141,3 +141,47 @@ export function downloadEvaluationPdf(session: EvaluationSession): void {
   const doc = buildEvaluationPdf(session);
   doc.save(`evaluation-${session.evaluateeName.replace(/\s+/g, '_')}-${session.evaluationDate}.pdf`);
 }
+
+/**
+ * One-row-per-evaluation summary PDF, for exporting a batch of completed
+ * evaluations at once rather than one at a time (see downloadEvaluationPdf).
+ */
+export function buildEvaluationsSummaryPdf(sessions: EvaluationSession[]): jsPDF {
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+  const marginX = 40;
+  let y = 48;
+
+  doc.setFontSize(18);
+  doc.setTextColor(15, 23, 42);
+  doc.text('Performance Evaluations Summary', marginX, y);
+
+  y += 16;
+  doc.setFontSize(10);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Generated ${new Date().toLocaleDateString()} · ${sessions.length} evaluation${sessions.length === 1 ? '' : 's'}`, marginX, y);
+  y += 14;
+
+  autoTable(doc, {
+    startY: y,
+    head: [['Name', 'Category', 'Date', 'Evaluator', 'Score']],
+    body: sessions.map((s) => {
+      const isDepartment = (s.targetType ?? 'individual') === 'department';
+      const category = isDepartment
+        ? 'Department'
+        : s.evaluateeRole === 'other' && s.evaluateeCustomRole
+          ? s.evaluateeCustomRole
+          : EVALUATION_ROLE_LABELS[s.evaluateeRole];
+      return [s.evaluateeName, category, s.evaluationDate, s.evaluatorName || '', `${s.overallScore}%`];
+    }),
+    styles: { fontSize: 9, cellPadding: 4, valign: 'top' },
+    headStyles: { fillColor: [37, 99, 235] },
+    columnStyles: { 4: { cellWidth: 50, halign: 'right' } },
+  });
+
+  return doc;
+}
+
+export function downloadEvaluationsSummaryPdf(sessions: EvaluationSession[]): void {
+  const doc = buildEvaluationsSummaryPdf(sessions);
+  doc.save(`evaluations-summary-${new Date().toISOString().slice(0, 10)}.pdf`);
+}

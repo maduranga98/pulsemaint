@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   serverTimestamp,
@@ -43,11 +44,14 @@ export async function createTrainingProgram(
   return ref.id;
 }
 
-export async function archiveTrainingProgram(programId: string): Promise<void> {
-  await updateDoc(doc(db, 'trainingPrograms', programId), {
-    status: 'archived',
-    updatedAt: serverTimestamp(),
-  });
+/**
+ * Permanently removes a program template. Existing programAssignments /
+ * trainingAssignments already issued from it keep their own denormalized
+ * programName/moduleName, so a trainee's in-progress or completed work is
+ * unaffected — this only removes the template from the catalog.
+ */
+export async function deleteTrainingProgram(programId: string): Promise<void> {
+  await deleteDoc(doc(db, 'trainingPrograms', programId));
 }
 
 export interface TraineeTarget {
