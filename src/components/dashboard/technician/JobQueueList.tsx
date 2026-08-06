@@ -19,8 +19,12 @@ interface JobQueueListProps {
 // filtered out here too.
 export default function JobQueueList({ technicianId, siteId, onSelect }: JobQueueListProps) {
   const { workOrders, loading, error } = useMyJobQueue(technicianId, siteId);
+  // Preventive WOs get their own "Assigned PM Schedules" widget — showing
+  // them here too would list the same job twice.
   const notCompletedByMe = workOrders.filter(
-    (wo) => !(wo.assigneeCompletions ?? []).some((c) => c.technicianId === technicianId),
+    (wo) =>
+      wo.woType !== 'PREVENTIVE' &&
+      !(wo.assigneeCompletions ?? []).some((c) => c.technicianId === technicianId),
   );
 
   return (
