@@ -78,11 +78,14 @@ export default function TechnicianDashboard() {
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        <JobQueueList
-          technicianId={technicianId}
-          siteId={siteId}
-          onSelect={(wo) => setSelectedId(wo.id)}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <JobQueueList
+            technicianId={technicianId}
+            siteId={siteId}
+            onSelect={(wo) => setSelectedId(wo.id)}
+          />
+          <MySafetyCasesWidget />
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <UnassignedBreakdownsWidget siteId={siteId} />
@@ -98,8 +101,6 @@ export default function TechnicianDashboard() {
           <MySafetyTrainingsWidget />
           <MyTrainingsWidget />
         </div>
-
-        <MySafetyCasesWidget />
       </div>
 
       {selectedWO && (
