@@ -3,7 +3,7 @@ import { doc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { nanoid } from 'nanoid';
 import { db, storage } from '../lib/firebase';
-import type { WorkOrder, WODocument, DocumentFileType } from '../types/workOrder';
+import type { WODocument, DocumentFileType } from '../types/workOrder';
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 

@@ -64,7 +64,7 @@ export function WOListView() {
   // Same roles that gate the sign-off action inside WODetailPanel/
   // WOReviewSignOffPanel — supervisor and above.
   const canSignOff =
-    role === 'supervisor' || role === 'maintenance_supervisor' || role === 'admin' || role === 'plant_manager';
+    role === 'supervisor' || role === 'admin' || role === 'plant_manager';
 
   const filters: WOFilters = {};
   if (searchQuery) filters.searchQuery = searchQuery;

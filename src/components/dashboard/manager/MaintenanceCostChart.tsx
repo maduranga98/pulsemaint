@@ -56,7 +56,7 @@ export default function MaintenanceCostChart({ companyId, month }: MaintenanceCo
                 <YAxis {...CHART_DEFAULTS.yAxis} />
                 <Tooltip
                   {...CHART_DEFAULTS.tooltip}
-                  formatter={(val: number) => [`LKR ${val.toLocaleString()}`, 'Cost']}
+                  formatter={(val) => [`LKR ${Number(val ?? 0).toLocaleString()}`, 'Cost']}
                 />
                 <Bar dataKey="cost" radius={[4, 4, 0, 0]}>
                   {chartData.map((entry, idx) => (

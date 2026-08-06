@@ -119,8 +119,6 @@ function AttachmentIcon({ type }: { type: EvaluationAttachment['type'] }) {
 
 export default function EvaluationForm({
   companyId,
-  evaluatorId,
-  evaluatorName,
   targetType = 'individual',
   initialRole,
   initialDepartment,

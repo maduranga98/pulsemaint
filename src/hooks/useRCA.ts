@@ -113,7 +113,6 @@ export function useRCA({ breakdownId, machineId, siteId }: UseRCAParams) {
     uid: string,
     userName: string,
   ): Promise<string> {
-    const now = Timestamp.now();
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 7);
     const dueDateTs = Timestamp.fromDate(dueDate);

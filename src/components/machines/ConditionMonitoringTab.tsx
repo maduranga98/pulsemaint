@@ -255,7 +255,7 @@ export function ConditionMonitoringTab({ machine }: ConditionMonitoringTabProps)
                   />
                   <Tooltip
                     contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #e5e7eb' }}
-                    formatter={(value: number) => [`${value} ${unit}`, parameter]}
+                    formatter={(value) => [`${value} ${unit}`, parameter]}
                   />
 
                   {/* Reference area for acceptable band */}
