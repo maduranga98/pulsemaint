@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  ClipboardList, Download, Settings2,
+  ClipboardList, Settings2,
   HardHat, Wrench, ShieldCheck, Building2, GraduationCap as CapIcon, Users, Layers,
   UserCog, ShieldAlert,
 } from 'lucide-react';
@@ -9,7 +9,7 @@ import { useDepartments } from '@/hooks/useDepartments';
 import EvaluationForm, { type FormData } from '../components/EvaluationForm';
 import EvaluationTemplateBuilder from '../components/EvaluationTemplateBuilder';
 import { fetchEvaluations, subscribeEvaluations, submitEvaluation, saveDraftEvaluation } from '../services/evaluation.service';
-import { downloadEvaluationsSummaryPdf, downloadEvaluationPdf } from '../utils/evaluationPdf';
+import { downloadEvaluationPdf } from '../utils/evaluationPdf';
 import type { EvaluationSession, EvaluationRole, EvaluationTargetType } from '../types/evaluation.types';
 import { EVALUATION_ROLE_LABELS } from '../types/evaluation.types';
 
@@ -47,6 +47,7 @@ export default function EvaluationsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('role');
   const [roleFilter, setRoleFilter] = useState<EvaluationRole | null>(null);
   const [deptFilter, setDeptFilter] = useState<string | null>(null);
+  const [viewingSession, setViewingSession] = useState<EvaluationSession | null>(null);
 
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -176,7 +177,7 @@ export default function EvaluationsPage() {
           <button
             key={tab.id}
             type="button"
-            onClick={() => { setViewMode(tab.id); closeForm(); }}
+            onClick={() => { setViewMode(tab.id); setViewingSession(null); closeForm(); }}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
               viewMode === tab.id ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
@@ -189,17 +190,6 @@ export default function EvaluationsPage() {
       {/* Categories */}
       {viewMode === 'completed' ? (
         <div className="mb-6 space-y-3">
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => downloadEvaluationsSummaryPdf(completedSessions)}
-              disabled={completedSessions.length === 0}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Download className="h-4 w-4" />
-              Export PDF
-            </button>
-          </div>
           {completedSessions.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-500">No completed evaluations yet.</p>
           ) : (
@@ -208,8 +198,10 @@ export default function EvaluationsPage() {
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => downloadEvaluationPdf(s)}
-                  className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50"
+                  onClick={() => setViewingSession(s)}
+                  className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-left hover:bg-gray-50 ${
+                    viewingSession?.id === s.id ? 'bg-blue-50' : ''
+                  }`}
                 >
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{s.evaluateeName}</p>
@@ -221,6 +213,83 @@ export default function EvaluationsPage() {
                   <span className="text-sm font-semibold text-blue-700">{s.overallScore}%</span>
                 </button>
               ))}
+            </div>
+          )}
+
+          {viewingSession && (
+            <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-bold text-gray-900">{viewingSession.evaluateeName}</h2>
+                  <p className="text-xs text-gray-500">
+                    {(viewingSession.targetType ?? 'individual') === 'department'
+                      ? 'Department'
+                      : EVALUATION_ROLE_LABELS[viewingSession.evaluateeRole]}
+                    {' · '}{viewingSession.evaluationDate}
+                    {' · '}Evaluated by {viewingSession.evaluatorName}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewingSession(null)}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="rounded-lg bg-gray-50 p-4 text-center">
+                <p className="text-xs font-medium text-gray-500">Overall Score</p>
+                <p className="text-3xl font-bold text-blue-700">{viewingSession.overallScore}%</p>
+              </div>
+
+              <div className="space-y-2">
+                {viewingSession.criteria.map((c) => (
+                  <div key={c.criterionId} className="flex items-center justify-between text-sm">
+                    <span className="text-gray-700">{c.label}</span>
+                    <span className="font-semibold text-gray-900">{c.score ?? '—'}/5</span>
+                  </div>
+                ))}
+              </div>
+
+              {viewingSession.overallComments && (
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Overall Comments</h3>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{viewingSession.overallComments}</p>
+                </div>
+              )}
+
+              {viewingSession.developmentPlan && (
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Development Plan</h3>
+                  <p className="text-sm text-gray-700 whitespace-pre-wrap">{viewingSession.developmentPlan}</p>
+                </div>
+              )}
+
+              {viewingSession.attachments.length > 0 && (
+                <div>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Attachments</h3>
+                  <ul className="space-y-1">
+                    {viewingSession.attachments.map((a) => (
+                      <li key={a.id}>
+                        <a href={a.url} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline">
+                          {a.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="flex justify-end pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => downloadEvaluationPdf(viewingSession)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Export PDF
+                </button>
+              </div>
             </div>
           )}
         </div>
