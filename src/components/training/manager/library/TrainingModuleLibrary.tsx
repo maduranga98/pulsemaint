@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryModules';
 import { useModuleAssignmentCounts } from '@/hooks/training/useModuleAssignmentCounts';
 import { sampleTrainingLibraryModules } from '@/lib/training/sampleModules';
-import { isOffboardModule } from '@/lib/training/offboardTraining';
+import { getModuleCategory, isOffboardModule } from '@/lib/training/offboardTraining';
 import {
   TRAINEE_TRAINING_TYPE_LABELS,
   TRAINING_DELIVERY_MODE_LABELS,
@@ -43,7 +43,18 @@ const TRAINING_TYPE_OPTIONS = (Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [
  * own table, its own editor routes (`training/manage/modules/*`), and its
  * own sample seeder. Nothing here branches on "which library am I".
  */
-export default function TrainingModuleLibrary({ title = 'Module Library' }: { title?: string }) {
+const CATEGORY_LABELS: Record<'machine' | 'offboard', string> = {
+  machine: 'Machine',
+  offboard: 'External',
+};
+
+export default function TrainingModuleLibrary({
+  title = 'Module Library',
+  hideHeaderActions = false,
+}: {
+  title?: string;
+  hideHeaderActions?: boolean;
+}) {
   const navigate = useNavigate();
   const role = useAuthStore((s) => s.userProfile?.role);
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
@@ -123,26 +134,28 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{title}</h2>
-        {canAuthor && (
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => void handleLoadSamples()}
-              disabled={seeding}
-              className="flex items-center gap-2 border border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-60 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-            >
-              <Sparkles size={16} /> {seeding ? 'Loading…' : 'Load Sample Modules'}
-            </button>
-            <button
-              onClick={() => navigate('/app/training/manage/modules/new')}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-            >
-              <Plus size={16} /> Create Training Module
-            </button>
-          </div>
-        )}
-      </div>
+      {!hideHeaderActions && (
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{title}</h2>
+          {canAuthor && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => void handleLoadSamples()}
+                disabled={seeding}
+                className="flex items-center gap-2 border border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-60 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              >
+                <Sparkles size={16} /> {seeding ? 'Loading…' : 'Load Sample Modules'}
+              </button>
+              <button
+                onClick={() => navigate('/app/training/manage/modules/new')}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              >
+                <Plus size={16} /> Create Training Module
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Filter bar — status and training type, matching the fields the
           module editor now authors. */}
@@ -194,6 +207,7 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Title</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Training Type</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Mode</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Category</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Lessons</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Has Quiz</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Assigned</th>
@@ -217,6 +231,7 @@ export default function TrainingModuleLibrary({ title = 'Module Library' }: { ti
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-600">{modeLabel(module.trainingMode)}</td>
+                  <td className="px-4 py-3 text-gray-600">{CATEGORY_LABELS[getModuleCategory(module)]}</td>
                   <td className="px-4 py-3 text-center text-gray-600">{module.lessons?.length ?? 0}</td>
                   <td className="px-4 py-3 text-center">
                     {module.quiz ? (
