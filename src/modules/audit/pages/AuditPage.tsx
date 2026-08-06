@@ -11,6 +11,7 @@ import {
   ClipboardList,
   History,
   PlayCircle,
+  User,
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import type { UserRole } from '../../../types/auth';
@@ -21,8 +22,7 @@ import {
   type AuditSession,
   type AuditDraft,
 } from '../types/audit.types';
-import { useAuditTemplates, useAuditSessions } from '../hooks/useAudit';
-import { loadDraft } from '../services/audit.service';
+import { useAuditTemplates, useAuditSessions, useInProgressDrafts } from '../hooks/useAudit';
 import { AuditSessionForm } from '../components/AuditSessionForm';
 import { AuditTaskConfigurator } from '../components/AuditTaskConfigurator';
 import { AuditDetail } from '../components/AuditDetail';
@@ -67,9 +67,11 @@ function AccessDenied() {
 
 export function AuditPage() {
   const role = useAuthStore((s) => s.userProfile?.role);
+  const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const plantId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { templates, loading } = useAuditTemplates();
   const { sessions, loading: sessionsLoading } = useAuditSessions();
+  const { drafts, loading: draftsLoading } = useInProgressDrafts();
   const [view, setView] = useState<View>({ kind: 'home' });
   const [tab, setTab] = useState<Tab>('library');
 
@@ -100,9 +102,10 @@ export function AuditPage() {
     return map;
   }, [templates]);
 
-  // In-progress drafts are per-browser (localStorage), so this is only the
-  // current user's own unsent audits on this device — not a shared queue.
-  const inProgressCategories = categoryOrder.filter((cat) => !!loadDraft(plantId, cat));
+  const inProgressDrafts = useMemo(
+    () => [...drafts].sort((a, b) => (b.lastSaved || '').localeCompare(a.lastSaved || '')),
+    [drafts],
+  );
 
   if (role && !ALLOWED_ROLES.includes(role)) return <AccessDenied />;
 
@@ -182,63 +185,79 @@ export function AuditPage() {
       <div className="flex gap-1 border-b border-slate-700">
         {(
           [
-            { value: 'inProgress', label: 'In Progress' },
-            { value: 'library', label: 'Audit Library' },
-            { value: 'completed', label: 'Completed' },
-          ] as { value: Tab; label: string }[]
+            { value: 'inProgress', label: 'In Progress', count: inProgressDrafts.length },
+            { value: 'library', label: 'Audit Library', count: 0 },
+            { value: 'completed', label: 'Completed', count: 0 },
+          ] as { value: Tab; label: string; count: number }[]
         ).map((t) => (
           <button
             key={t.value}
             onClick={() => setTab(t.value)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+            className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
               tab === t.value
                 ? 'border-blue-500 text-white'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
             {t.label}
+            {t.value === 'inProgress' && t.count > 0 && (
+              <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-amber-500 text-[10px] font-bold text-slate-950">
+                {t.count}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {tab === 'inProgress' && (
-        loading ? (
+        draftsLoading || loading ? (
           <div className="flex items-center gap-2 text-slate-400 text-sm">
             <Loader2 className="h-4 w-4 animate-spin" /> Loading…
           </div>
-        ) : inProgressCategories.length === 0 ? (
+        ) : inProgressDrafts.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-slate-500 gap-2">
             <PlayCircle className="h-8 w-8" />
-            <p className="text-sm">No audits in progress on this device.</p>
+            <p className="text-sm">No audits in progress.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {inProgressCategories.map((cat) => {
-              const meta = CATEGORY_META[cat] ?? DEFAULT_CATEGORY_META;
+            {inProgressDrafts.map((draft) => {
+              const meta = CATEGORY_META[draft.category] ?? DEFAULT_CATEGORY_META;
               const Icon = meta.icon;
-              const tmpl = templatesByCategory[cat];
-              const draft = loadDraft(plantId, cat);
-              if (!tmpl || !draft) return null;
+              const tmpl = templatesByCategory[draft.category];
+              const isOwner = draft.userId === userId;
               return (
                 <div
-                  key={cat}
+                  key={draft.id}
                   className="bg-slate-800/40 border border-amber-700/40 rounded-2xl p-5 flex flex-col gap-3"
                 >
                   <Icon className={`h-7 w-7 ${meta.color}`} />
                   <div>
                     <h3 className="text-base font-bold text-white font-sora">
-                      {getCategoryLabel(cat, tmpl.name)}
+                      {getCategoryLabel(draft.category, draft.templateName)}
                     </h3>
+                    {!isOwner && (
+                      <p className="flex items-center gap-1 text-[11px] text-slate-400 mt-1">
+                        <User className="h-3 w-3" /> {draft.userName}
+                      </p>
+                    )}
                     <p className="text-[11px] text-amber-400 mt-1">
                       Last saved {new Date(draft.lastSaved).toLocaleString()}
                     </p>
                   </div>
-                  <button
-                    onClick={() => setView({ kind: 'audit', template: tmpl, draft })}
-                    className="mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg"
-                  >
-                    <PlayCircle className="h-4 w-4" /> Resume Audit
-                  </button>
+                  {isOwner ? (
+                    <button
+                      disabled={!tmpl}
+                      onClick={() => tmpl && setView({ kind: 'audit', template: tmpl, draft })}
+                      className="mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg disabled:opacity-50"
+                    >
+                      <PlayCircle className="h-4 w-4" /> Resume Audit
+                    </button>
+                  ) : (
+                    <span className="mt-auto inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-amber-400 border border-amber-700/40 rounded-lg">
+                      In progress by {draft.userName}
+                    </span>
+                  )}
                 </div>
               );
             })}

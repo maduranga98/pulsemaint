@@ -252,8 +252,13 @@ export interface AuditSession {
 
 /** Draft persisted to localStorage while an audit is in progress. */
 export interface AuditDraft {
+  /** userId_category — deterministic, so one in-progress audit per person per category. */
+  id: string;
+  userId: string;
+  userName: string;
   category: AuditCategory;
   templateId: string;
+  templateName: string;
   machines: MachineRef[];
   contractors: ContractorRef[];
   inventoryItems: InventoryItemRef[];
@@ -264,5 +269,6 @@ export interface AuditDraft {
   participants: AuditParticipant[];
   answers: Record<string, AuditAnswer>;
   findings: AuditFinding[];
+  startedAt: string;
   lastSaved: string;
 }

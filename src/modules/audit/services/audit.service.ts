@@ -39,8 +39,10 @@ import { auditPdfBlob } from '../utils/auditPdf';
 // Firestore layout:
 //   audit_templates/{plantId}/templates/{templateId}
 //   audit_sessions/{plantId}/sessions/{sessionId}
+//   audit_drafts/{plantId}/drafts/{userId_category}
 const templatesCol = (plantId: string) => collection(db, 'audit_templates', plantId, 'templates');
 const sessionsCol = (plantId: string) => collection(db, 'audit_sessions', plantId, 'sessions');
+const draftsCol = (plantId: string) => collection(db, 'audit_drafts', plantId, 'drafts');
 
 // ─── Templates ──────────────────────────────────────────────────────────────
 
@@ -252,24 +254,33 @@ export async function submitAudit(
   return session;
 }
 
-// ─── Draft (localStorage) ─────────────────────────────────────────────────────
+// ─── Draft (Firestore — shared "in progress" status, not per-browser) ────────
+//
+// One draft slot per (user, category): starting an audit for a category the
+// same user already has in progress just resumes/overwrites that slot. Kept
+// in Firestore rather than localStorage so "In Progress" reflects reality
+// for the whole team regardless of device, and survives a cleared browser.
 
-const DRAFT_KEY = (plantId: string, category: AuditCategory) => `audit_draft_${plantId}_${category}`;
+const draftId = (userId: string, category: AuditCategory) => `${userId}_${category}`;
 
-export function saveDraft(plantId: string, draft: AuditDraft): void {
-  localStorage.setItem(DRAFT_KEY(plantId, draft.category), JSON.stringify(draft));
+export async function saveDraft(plantId: string, draft: AuditDraft): Promise<void> {
+  await setDoc(doc(draftsCol(plantId), draft.id), draft, { merge: true });
 }
 
-export function loadDraft(plantId: string, category: AuditCategory): AuditDraft | null {
-  const raw = localStorage.getItem(DRAFT_KEY(plantId, category));
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as AuditDraft;
-  } catch {
-    return null;
-  }
+export async function clearDraft(plantId: string, userId: string, category: AuditCategory): Promise<void> {
+  await deleteDoc(doc(draftsCol(plantId), draftId(userId, category)));
 }
 
-export function clearDraft(plantId: string, category: AuditCategory): void {
-  localStorage.removeItem(DRAFT_KEY(plantId, category));
+export function subscribeInProgressDrafts(
+  plantId: string,
+  onData: (drafts: AuditDraft[]) => void,
+  onError: (e: Error) => void,
+): Unsubscribe {
+  return onSnapshot(
+    draftsCol(plantId),
+    (snap) => onData(snap.docs.map((d) => d.data() as AuditDraft)),
+    onError,
+  );
 }
+
+export { draftId as buildAuditDraftId };
