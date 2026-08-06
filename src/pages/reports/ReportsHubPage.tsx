@@ -17,8 +17,9 @@ export default function ReportsHubPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<ReportCategoryTab>('all');
 
-  // SLA Compliance and PM Compliance reports have been retired from the hub.
-  const HIDDEN_REPORTS = new Set(['sla_compliance', 'pm_compliance']);
+  // SLA Compliance, PM Compliance, Low Stock Alert, and Machine Health Score
+  // reports have been retired from the hub.
+  const HIDDEN_REPORTS = new Set(['sla_compliance', 'pm_compliance', 'low_stock_alert', 'machine_health_score']);
   const reports = useMemo(() => {
     const allowedTypes = new Set(
       filterReportTypesForRole(REPORT_LIST.map((r) => r.type), role)

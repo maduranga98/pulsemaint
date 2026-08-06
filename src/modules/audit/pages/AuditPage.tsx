@@ -6,10 +6,8 @@ import {
   Gauge,
   HardHat,
   ShieldOff,
-  ChevronRight,
   Plus,
   Loader2,
-  FileCheck,
   ClipboardList,
 } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
@@ -18,12 +16,10 @@ import {
   getCategoryLabel,
   type AuditCategory,
   type AuditTemplate,
-  type AuditSession,
 } from '../types/audit.types';
-import { useAuditTemplates, useAuditSessions } from '../hooks/useAudit';
+import { useAuditTemplates } from '../hooks/useAudit';
 import { AuditSessionForm } from '../components/AuditSessionForm';
 import { AuditTaskConfigurator } from '../components/AuditTaskConfigurator';
-import { AuditDetail } from '../components/AuditDetail';
 
 // Keep in sync with the /app/audit route guard in AppRouter — the Audit
 // module is not available to technician, trainee, floor_operator, or
@@ -42,8 +38,7 @@ type View =
   | { kind: 'home' }
   | { kind: 'audit'; template: AuditTemplate }
   | { kind: 'configure'; template: AuditTemplate }
-  | { kind: 'create' }
-  | { kind: 'detail'; session: AuditSession };
+  | { kind: 'create' };
 
 function AccessDenied() {
   return (
@@ -66,11 +61,6 @@ export function AuditPage() {
   const plantId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { templates, loading } = useAuditTemplates();
   const [view, setView] = useState<View>({ kind: 'home' });
-  const [historyCategory, setHistoryCategory] = useState<AuditCategory | ''>('');
-
-  const { sessions, loading: sessionsLoading } = useAuditSessions(
-    historyCategory ? { category: historyCategory } : {},
-  );
 
   const isAdmin = role === 'admin';
 
@@ -148,14 +138,6 @@ export function AuditPage() {
     );
   }
 
-  if (view.kind === 'detail') {
-    return (
-      <div className="p-4 md:p-6">
-        <AuditDetail session={view.session} onBack={() => setView({ kind: 'home' })} />
-      </div>
-    );
-  }
-
   // ── Home ─────────────────────────────────────────────────────────────────────
   return (
     <div className="p-4 md:p-6 space-y-8">
@@ -217,60 +199,6 @@ export function AuditPage() {
           })}
         </div>
       )}
-
-      {/* History */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-base font-bold text-white font-sora">Recent Audits</h2>
-          <select
-            value={historyCategory}
-            onChange={(e) => setHistoryCategory(e.target.value as AuditCategory | '')}
-            className="px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">All categories</option>
-            {categoryOrder.map((c) => (
-              <option key={c} value={c}>{getCategoryLabel(c, templatesByCategory[c]?.name)}</option>
-            ))}
-          </select>
-        </div>
-
-        {sessionsLoading ? (
-          <div className="flex items-center gap-2 text-slate-400 text-sm">
-            <Loader2 className="h-4 w-4 animate-spin" /> Loading…
-          </div>
-        ) : sessions.length === 0 ? (
-          <p className="text-sm text-slate-500 py-6 text-center border border-dashed border-slate-700 rounded-xl">
-            No audits submitted yet.
-          </p>
-        ) : (
-          <div className="space-y-2">
-            {sessions.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setView({ kind: 'detail', session: s })}
-                className="w-full flex items-center justify-between gap-3 p-3 bg-slate-800/40 border border-slate-700 rounded-xl hover:border-slate-600 text-left"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-white truncate">
-                    {getCategoryLabel(s.category, s.templateName)}
-                    <span className="text-slate-500 font-normal"> · {s.auditDate}</span>
-                  </p>
-                  <p className="text-xs text-slate-400 truncate">
-                    {s.auditorName} · {s.department || 'No dept'} · {s.machines.length} machine(s)
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  {s.reportUrl && <FileCheck className="h-4 w-4 text-blue-400" />}
-                  <span className={`text-sm font-bold ${s.score >= 80 ? 'text-emerald-400' : s.score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
-                    {s.score}%
-                  </span>
-                  <ChevronRight className="h-4 w-4 text-slate-500" />
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   );
 }
