@@ -8,35 +8,6 @@ interface QuizSettingsBarProps {
   isSaving?: boolean;
 }
 
-interface TogglePillProps {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}
-
-function TogglePill({ label, checked, onChange }: TogglePillProps) {
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-5 w-9 flex-shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 ${
-          checked ? 'bg-blue-600' : 'bg-gray-200'
-        }`}
-      >
-        <span
-          className={`inline-block h-4 w-4 mt-0.5 rounded-full bg-white shadow transform transition-transform ${
-            checked ? 'translate-x-4' : 'translate-x-0.5'
-          }`}
-        />
-      </button>
-      <span className="text-xs font-medium text-gray-600 whitespace-nowrap">{label}</span>
-    </div>
-  );
-}
-
 export default function QuizSettingsBar({
   quiz,
   onChange,
@@ -99,40 +70,6 @@ export default function QuizSettingsBar({
               className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-500">Date</label>
-            <input
-              type="date"
-              value={quiz.scheduledDate ?? ''}
-              onChange={(e) => onChange({ scheduledDate: e.target.value || undefined })}
-              className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-500">Time</label>
-            <input
-              type="time"
-              value={quiz.scheduledTime ?? ''}
-              onChange={(e) => onChange({ scheduledTime: e.target.value || undefined })}
-              className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </div>
-
-        {/* Toggles */}
-        <div className="flex flex-wrap items-center gap-4">
-          <TogglePill
-            label="Shuffle questions"
-            checked={quiz.shuffleQuestions ?? false}
-            onChange={(v) => onChange({ shuffleQuestions: v })}
-          />
-          <TogglePill
-            label="Shuffle options"
-            checked={quiz.shuffleOptions ?? false}
-            onChange={(v) => onChange({ shuffleOptions: v })}
-          />
         </div>
 
         {/* Save button */}

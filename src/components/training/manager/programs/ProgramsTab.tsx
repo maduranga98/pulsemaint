@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Plus, UserPlus, Archive, GraduationCap } from 'lucide-react';
+import { Plus, UserPlus, Trash2, GraduationCap } from 'lucide-react';
 import { useTrainingPrograms } from '@/hooks/training/useTrainingPrograms';
-import { archiveTrainingProgram } from '@/services/trainingProgram.service';
+import { deleteTrainingProgram } from '@/services/trainingProgram.service';
 import type { TrainingProgram } from '@/types/trainingProgram';
 import CreateProgramModal from './CreateProgramModal';
 import AssignProgramModal from './AssignProgramModal';
@@ -12,9 +12,9 @@ export default function ProgramsTab() {
   const [assigningProgram, setAssigningProgram] = useState<TrainingProgram | null>(null);
   const [justAssigned, setJustAssigned] = useState(false);
 
-  const handleArchive = async (id: string) => {
-    if (!confirm('Archive this program? It will no longer be assignable.')) return;
-    await archiveTrainingProgram(id);
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete this program? This permanently removes it from the catalog and cannot be undone. Trainees already assigned to it keep their progress.')) return;
+    await deleteTrainingProgram(id);
   };
 
   return (
@@ -90,10 +90,10 @@ export default function ProgramsTab() {
                         )}
                         {p.status === 'active' && (
                           <button
-                            onClick={() => void handleArchive(p.id)}
-                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 rounded hover:bg-gray-200 transition-colors"
+                            onClick={() => void handleDelete(p.id)}
+                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
                           >
-                            <Archive className="w-3 h-3" /> Archive
+                            <Trash2 className="w-3 h-3" /> Delete
                           </button>
                         )}
                       </div>
