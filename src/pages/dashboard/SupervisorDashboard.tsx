@@ -8,6 +8,7 @@ import KpiStrip from '../../components/dashboard/shared/KpiStrip';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
+import PartsRequestsAwaitingSupervisorWidget from '../../components/dashboard/supervisor/PartsRequestsAwaitingSupervisorWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -84,6 +85,9 @@ export default function SupervisorDashboard() {
 
         {/* Row 4: Assigned WOs / Audits / Evaluations / Trainings (today's shift) */}
         <AssignedTasksWidget />
+
+        {/* Row 5: Parts requests awaiting this supervisor's approval */}
+        <PartsRequestsAwaitingSupervisorWidget />
       </div>
 
       <DashboardSidePanel />

@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { Clock } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
 import ReportCard from '../../components/reports/ReportCard';
 import ReportCategoryTabs, { type ReportCategoryTab } from '../../components/reports/ReportCategoryTabs';
 import ReportConfigPanel from '../../components/reports/ReportConfigPanel';
@@ -17,9 +16,17 @@ export default function ReportsHubPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<ReportCategoryTab>('all');
 
-  // SLA Compliance, PM Compliance, Low Stock Alert, and Machine Health Score
-  // reports have been retired from the hub.
-  const HIDDEN_REPORTS = new Set(['sla_compliance', 'pm_compliance', 'low_stock_alert', 'machine_health_score']);
+  // SLA Compliance, PM Compliance, Low Stock Alert, Machine Health Score,
+  // Safety Incidents, and Executive Monthly reports have been retired from
+  // the hub.
+  const HIDDEN_REPORTS = new Set([
+    'sla_compliance',
+    'pm_compliance',
+    'low_stock_alert',
+    'machine_health_score',
+    'safety_incidents',
+    'executive_monthly',
+  ]);
   const reports = useMemo(() => {
     const allowedTypes = new Set(
       filterReportTypesForRole(REPORT_LIST.map((r) => r.type), role)
@@ -38,15 +45,9 @@ export default function ReportsHubPage() {
   return (
     <div className="min-h-screen bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <h1 className="font-[Sora] text-[28px] font-bold text-[#F0F4F8]">Reports</h1>
-            <p className="mt-1 text-sm text-[#8BA3BF]">Generate, export, and schedule operational reports</p>
-          </div>
-          <Link to="/app/reports/history" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 text-sm font-semibold text-[#F0F4F8] hover:border-[#2E5A8F]">
-            <Clock className="h-4 w-4" />
-            Report History
-          </Link>
+        <header>
+          <h1 className="font-[Sora] text-[28px] font-bold text-[#F0F4F8]">Reports</h1>
+          <p className="mt-1 text-sm text-[#8BA3BF]">Generate, export, and schedule operational reports</p>
         </header>
 
         <div className="grid gap-3 lg:grid-cols-[1fr_auto]">

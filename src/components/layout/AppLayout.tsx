@@ -83,7 +83,7 @@ const NAV_GROUPS: NavGroup[] = [
       { labelKey: 'common.nav.items.machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
       { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
       { labelKey: 'common.nav.items.workOrders', to: '/app/work-orders', icon: Icon.wrench, roles: ['supervisor', 'plant_manager', 'admin'] },
-      { labelKey: 'common.nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['trainee', 'supervisor', 'plant_manager'] },
+      { labelKey: 'common.nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['trainee', 'plant_manager'] },
       {
         labelKey: 'common.nav.items.pmSchedules',
         to: '/app/pm-schedules',
@@ -126,7 +126,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       // Parts catalog + low stock alerts + Add Item only — PO and requests
       // now live in their own tabs instead of one page mixing everything.
-      { labelKey: 'common.nav.items.inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'plant_manager', 'admin', 'trainee'] },
       {
         labelKey: 'common.nav.items.po',
         to: '/app/inventory/purchase-orders',
@@ -135,9 +135,9 @@ const NAV_GROUPS: NavGroup[] = [
             <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
           </svg>
         ),
-        roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin'],
+        roles: ['store_keeper', 'plant_manager', 'admin'],
       },
-      { labelKey: 'common.nav.items.requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'plant_manager', 'admin', 'trainee'] },
     ],
   },
   {
@@ -159,6 +159,9 @@ const NAV_GROUPS: NavGroup[] = [
       // separate nav entry — the route still exists for direct links.
       { labelKey: 'common.nav.items.training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.traineeManagement', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
+      // Training can be assigned to any role, so everyone gets a "My Training"
+      // entry (the route allows any authenticated user).
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
     ],
   },
   {
@@ -190,10 +193,6 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['plant_manager', 'admin', 'hr_officer'],
       },
-      // Training can be assigned to any role, so everyone gets a "My Training"
-      // entry (the route allows any authenticated user). The admin-facing
-      // "Training" / "Trainee Management" tabs live under Triage & Training.
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['safety_officer', 'trainee', 'floor_operator', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
     ],
