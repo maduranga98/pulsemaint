@@ -5,12 +5,8 @@ import type {
   TrainingModule,
   TrainingModuleStatus,
   TraineeTrainingType,
-  TrainingDeliveryMode,
 } from '@/lib/training/trainingTypes';
-import {
-  TRAINEE_TRAINING_TYPE_LABELS,
-  TRAINING_DELIVERY_MODE_LABELS,
-} from '@/lib/training/trainingTypes';
+import { TRAINEE_TRAINING_TYPE_LABELS } from '@/lib/training/trainingTypes';
 
 interface TraineeModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
@@ -21,13 +17,10 @@ interface TraineeModuleSettingsFormProps {
 interface FormValues {
   title: string;
   description: string;
-  estimatedMinutes: number;
   passingScore: number;
   status: TrainingModuleStatus;
   tags: string;
   trainingType: TraineeTrainingType | '';
-  trainingMode: TrainingDeliveryMode | '';
-  defaultTrainingPeriodMonths: number;
   quizSettings: {
     practicalSignOffRequired: boolean;
     maxAttempts: number;
@@ -40,9 +33,10 @@ interface FormValues {
 /**
  * Settings form for Trainee Management's module library only.
  *
- * Programme-shaped: training type, delivery mode, and default training
- * period are required, because the trainee assignment flow defaults from
- * them. It deliberately has no Internal/Offboard category picker and no
+ * Deliberately minimal: only training type, passing score, tags, and
+ * description — lessons/quiz are authored separately in the editor. No due
+ * dates or time periods belong on a module; those live on the Program that
+ * assigns it. It also has no Internal/Offboard category picker and no
  * machine field — those are Training-tab concepts and live in
  * `ModuleSettingsForm`. Neither form branches on which library it is in.
  */
@@ -63,15 +57,12 @@ export default function TraineeModuleSettingsForm({
       defaultValues: {
         title: defaultValues?.title ?? '',
         description: defaultValues?.description ?? '',
-        estimatedMinutes: defaultValues?.estimatedMinutes ?? 30,
         passingScore: defaultValues?.passingScore ?? 70,
         // New modules default to Active so the assign wizard (which only
         // offers active modules) can see them immediately.
         status: defaultValues?.status ?? 'active',
         tags: (defaultValues?.tags ?? []).join(', '),
         trainingType: defaultValues?.trainingType ?? '',
-        trainingMode: defaultValues?.trainingMode ?? '',
-        defaultTrainingPeriodMonths: defaultValues?.defaultTrainingPeriodMonths ?? 6,
         quizSettings: {
           practicalSignOffRequired: true,
           maxAttempts: defaultValues?.quiz?.maxAttempts ?? 3,
@@ -101,7 +92,7 @@ export default function TraineeModuleSettingsForm({
         title: values.title,
         description: values.description,
         machineName: '',
-        estimatedMinutes: Number(values.estimatedMinutes),
+        estimatedMinutes: defaultValues?.estimatedMinutes ?? 0,
         // The language picker was removed — preserve whatever the module
         // already had rather than resetting it.
         language: defaultValues?.language ?? 'en',
@@ -109,8 +100,9 @@ export default function TraineeModuleSettingsForm({
         status: values.status,
         tags,
         trainingType: values.trainingType as TraineeTrainingType,
-        trainingMode: values.trainingMode as TrainingDeliveryMode,
-        defaultTrainingPeriodMonths: Number(values.defaultTrainingPeriodMonths),
+        // Delivery mode and due durations aren't module-level concerns here
+        // — a Program sets its own per-module due duration when assigned.
+        trainingMode: defaultValues?.trainingMode ?? 'online',
         // A trainee module is never an offboard/external one — that category
         // only exists in the Training tab's library.
         category: 'machine',
@@ -168,76 +160,17 @@ export default function TraineeModuleSettingsForm({
           {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Mode <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register('trainingMode', { required: 'Mode is required' })}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-            >
-              <option value="">Select mode…</option>
-              {Object.entries(TRAINING_DELIVERY_MODE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            {errors.trainingMode && <p className="text-xs text-red-500">{errors.trainingMode.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Default Period <span className="text-red-500">*</span>
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                {...register('defaultTrainingPeriodMonths', {
-                  required: 'Default period is required',
-                  min: { value: 1, message: 'Must be at least 1 month' },
-                  max: { value: 60, message: 'Must be 60 months or fewer' },
-                  valueAsNumber: true,
-                })}
-                min={1}
-                max={60}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-              />
-              <span className="text-sm text-gray-500 whitespace-nowrap">months</span>
-            </div>
-            {errors.defaultTrainingPeriodMonths && (
-              <p className="text-xs text-red-500">{errors.defaultTrainingPeriodMonths.message}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Duration</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                {...register('estimatedMinutes', { min: 1 })}
-                min={1}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-              />
-              <span className="text-sm text-gray-500 whitespace-nowrap">min</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Passing Score</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                {...register('passingScore', { min: 50, max: 100 })}
-                min={50}
-                max={100}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
-              />
-              <span className="text-sm text-gray-500">%</span>
-            </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700">Passing Score</label>
+          <div className="flex items-center gap-2 w-40">
+            <input
+              type="number"
+              {...register('passingScore', { min: 50, max: 100 })}
+              min={50}
+              max={100}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full"
+            />
+            <span className="text-sm text-gray-500">%</span>
           </div>
         </div>
 
