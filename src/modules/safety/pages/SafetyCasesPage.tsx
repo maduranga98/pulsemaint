@@ -15,6 +15,7 @@ import {
   type SafetyCase,
   type SafetyCaseStatus,
 } from '@/types/safety';
+import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
 
 const TYPE_LABEL = Object.fromEntries(SAFETY_CASE_TYPES.map((t) => [t.value, t.label]));
 const SUBJECT_LABEL = Object.fromEntries(SAFETY_CASE_SUBJECT_TYPES.map((s) => [s.value, s.label]));
@@ -58,6 +59,7 @@ export default function SafetyCasesPage() {
   const role = profile?.role ?? '';
   const isSafetyOfficer = role === 'safety_officer';
   const { cases, loading } = useSafetyCases(companyId);
+  const [reportingCase, setReportingCase] = useState(false);
 
   // Safety officers own the whole board; managers see only cases reported to them.
   const visible = useMemo(() => {
@@ -75,12 +77,23 @@ export default function SafetyCasesPage() {
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
-      <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="flex items-center gap-2 font-[Sora] text-xl font-bold text-[#F0F4F8]">
-          <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {heading}
-        </h1>
-        <p className="mt-0.5 text-sm text-[#8BA3BF]">{subtitle}</p>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+        <div>
+          <h1 className="flex items-center gap-2 font-[Sora] text-xl font-bold text-[#F0F4F8]">
+            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {heading}
+          </h1>
+          <p className="mt-0.5 text-sm text-[#8BA3BF]">{subtitle}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setReportingCase(true)}
+          className="inline-flex items-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-bold text-white"
+        >
+          <Plus className="h-4 w-4" /> Report Safety Case
+        </button>
       </div>
+
+      {reportingCase && <ReportSafetyCaseModal onClose={() => setReportingCase(false)} />}
 
       <div className="px-4 pb-10 sm:px-6 lg:px-8">
         <DashboardWidget title={`Cases (${visible.length})`}>
