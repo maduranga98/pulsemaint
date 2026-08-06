@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useAuthStore } from '../../../store/authStore';
@@ -18,6 +19,7 @@ const STATUS_LABEL: Record<string, string> = {
 // certified on (safety trainings get their own widget, see
 // MySafetyTrainingsWidget).
 export default function MyTrainingsWidget() {
+  const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const { moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useMyAssignments();
@@ -34,15 +36,17 @@ export default function MyTrainingsWidget() {
       ) : (
         <div className="space-y-2">
           {pending.map((a) => (
-            <div
+            <button
               key={a.id}
-              className="flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F]"
+              type="button"
+              onClick={() => navigate(`/app/training/my-modules/${a.id}`)}
+              className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F] text-left hover:border-[#1A56DB] transition-colors"
             >
               <p className="text-sm text-[#F0F4F8] truncate">{a.moduleName}</p>
               <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-medium bg-[#1E3A5F] text-[#8BA3BF]">
-                {STATUS_LABEL[a.status] ?? a.status}
+                {a.status === 'not_started' ? 'Start' : a.status === 'in_progress' ? 'Resume' : STATUS_LABEL[a.status] ?? a.status}
               </span>
-            </div>
+            </button>
           ))}
         </div>
       )}
