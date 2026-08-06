@@ -190,7 +190,10 @@ service cloud.firestore {
           // Per-assignee independent start/hold/resume state (see useMyWOState) —
           // each assignee's own progress on a shared WO.
           'assigneeStates',
-          'dueDate', 'slaDeadline', 'slaBreached'
+          'dueDate', 'slaDeadline', 'slaBreached',
+          // "Hold · Approval" request log (see useApprovalRequest) — plant
+          // managers can also resolve these.
+          'approvalRequests'
         ]);
 
       // Store Keeper: read-only for their site (or all sites if unrestricted)
@@ -232,7 +235,10 @@ service cloud.firestore {
           // records their own work here before the WO can be finalised.
           'assigneeCompletions',
           // Per-assignee independent start/hold/resume state (see useMyWOState).
-          'assigneeStates'
+          'assigneeStates',
+          // "Hold · Approval" request log (see useApprovalRequest) — a
+          // technician can raise a request on their own assigned WO.
+          'approvalRequests'
         ]);
 
       // Parts requests sub-collection

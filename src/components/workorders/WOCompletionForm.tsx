@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
 import { WO_COPY } from '../../constants/copy';
 import { useWOCompletion } from '../../hooks/useWOCompletion';
@@ -44,6 +46,56 @@ const STEPS = [
 export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOCompletionFormProps) {
   const [step, setStep] = useState(0);
   const [partsUsed, setPartsUsed] = useState<PartUsed[]>(workOrder.partsUsed ?? []);
+
+  // Parts the technician requested and the store keeper actually issued
+  // (collected) during this WO weren't showing up here — the completion
+  // form only ever seeded from `partsUsed`, never from `partsRequests`, so a
+  // collected part had to be re-entered by hand. Auto-add any issued request
+  // not already represented, looking up its catalog unit cost the same way
+  // manually-picked parts get theirs (see PartSearchInput's onSelect above).
+  useEffect(() => {
+    const issued = (workOrder.partsRequests ?? []).filter((r) => r.status === 'issued' && r.partId);
+    if (issued.length === 0) return;
+    setPartsUsed((prev) => {
+      const haveIds = new Set(prev.map((p) => p.partId).filter(Boolean));
+      const missing = issued.filter((r) => !haveIds.has(r.partId));
+      if (missing.length === 0) return prev;
+      return [
+        ...prev,
+        ...missing.map((r) => ({
+          partId: r.partId,
+          partName: r.partName,
+          quantity: r.quantity,
+          unit: r.unit,
+          source: 'stock' as const,
+          unitCost: 0,
+          totalCost: 0,
+          warrantyMonths: null,
+        })),
+      ];
+    });
+    // Fill in catalog unit cost for the parts just added, without blocking
+    // the initial render on the network round trip.
+    (async () => {
+      for (const r of issued) {
+        try {
+          const snap = await getDoc(doc(db, 'inventoryParts', r.partId));
+          if (!snap.exists()) continue;
+          const unitCost = (snap.data() as { unitCost?: number }).unitCost ?? 0;
+          setPartsUsed((prev) =>
+            prev.map((p) =>
+              p.partId === r.partId && p.unitCost === 0
+                ? { ...p, unitCost, totalCost: unitCost * p.quantity }
+                : p,
+            ),
+          );
+        } catch {
+          // best-effort — leave unit cost at 0 if the lookup fails
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workOrder.id]);
   // Each assignee's own "work done" text — kept separate per person so a team
   // work order records who did what instead of one description for everyone.
   // Seeded from each person's own self-completion (assigneeCompletions) so the

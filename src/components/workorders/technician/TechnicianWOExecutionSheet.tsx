@@ -6,6 +6,7 @@ import { useUpdateWorkOrder } from '../../../hooks/useUpdateWorkOrder';
 import { useWorkOrderPermit } from '../../../hooks/safety/useSafety';
 import { useMyWorkCompletion, allAssigneesCompleted } from '../../../hooks/useMyWorkCompletion';
 import { useMyWOState } from '../../../hooks/useMyWOState';
+import { useApprovalRequest } from '../../../hooks/useApprovalRequest';
 import { resolveMyWorkStatus, isWorkOrderClosed } from '../../../lib/workorders/assigneeState';
 import { buildTechnicianWorkLogs } from '../../../lib/workorders/technicianWorkLogs';
 import { WorkPermitDetails } from '../WorkPermitDetails';
@@ -37,8 +38,11 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const wo = workOrder;
   const { updateWO, loading } = useUpdateWorkOrder();
   const { setMyState, loading: stateLoading } = useMyWOState();
+  const { requestApproval, loading: approvalRequestLoading } = useApprovalRequest();
   const [showCompletion, setShowCompletion] = useState(false);
   const [showPartsRequest, setShowPartsRequest] = useState(false);
+  const [showApprovalRequest, setShowApprovalRequest] = useState(false);
+  const [approvalNote, setApprovalNote] = useState('');
   const [safetyPreview, setSafetyPreview] = useState(false);
   const [now, setNow] = useState(Date.now());
   // Manual confirmation that the technician has completed the safety
@@ -152,6 +156,23 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   function handleStartWOClick() {
     setSafetyPreview(true);
   }
+
+  async function handleSubmitApprovalRequest() {
+    if (!approvalNote.trim()) return;
+    const ok = await requestApproval(wo.id, userProfile?.companyId ?? '', myId, myName, approvalNote.trim());
+    if (ok) {
+      await setMyState(wo.id, 'ON_HOLD_APPROVAL', { technicianName: myName, holdReason: approvalNote.trim() });
+      setShowApprovalRequest(false);
+      setApprovalNote('');
+    }
+  }
+
+  const myPendingApprovalRequest = (wo.approvalRequests ?? [])
+    .filter((r) => r.technicianId === myId && r.status === 'pending')
+    .slice(-1)[0];
+  const myResolvedApprovalRequests = (wo.approvalRequests ?? [])
+    .filter((r) => r.technicianId === myId && r.status !== 'pending')
+    .sort((a, b) => (b.resolvedAt?.toMillis?.() ?? 0) - (a.resolvedAt?.toMillis?.() ?? 0));
 
   const elapsed = myStartTime ? now - myStartTime.toDate().getTime() : 0;
 
@@ -419,13 +440,76 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                           <PackageX className="h-4 w-4 text-orange-400" /> Hold · Parts
                         </button>
                         <button
-                          onClick={() => setMyState(wo.id, 'ON_HOLD_APPROVAL', { technicianName: myName, holdReason: 'Waiting for approval' })}
+                          onClick={() => setShowApprovalRequest(true)}
                           disabled={stateLoading}
                           className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-red-500 disabled:opacity-50"
                         >
-                          <Pause className="h-4 w-4 text-red-400" /> Hold · Approval
+                          <Pause className="h-4 w-4 text-red-400" /> Request Approval
                         </button>
                       </div>
+
+                      {showApprovalRequest && (
+                        <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 space-y-2">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-red-300">Request Approval</p>
+                          <p className="text-xs text-[#8BA3BF]">
+                            Describe what you need your supervisor to approve. Your work will be put on hold until they respond.
+                          </p>
+                          <textarea
+                            value={approvalNote}
+                            onChange={(e) => setApprovalNote(e.target.value)}
+                            rows={3}
+                            placeholder="What do you need approved?"
+                            className="w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] placeholder:text-[#5B7A99] focus:border-red-500 focus:outline-none"
+                          />
+                          <div className="flex gap-2">
+                            <button
+                              onClick={handleSubmitApprovalRequest}
+                              disabled={approvalRequestLoading || stateLoading || !approvalNote.trim()}
+                              className="flex-1 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+                            >
+                              Submit Request
+                            </button>
+                            <button
+                              onClick={() => { setShowApprovalRequest(false); setApprovalNote(''); }}
+                              className="rounded-lg border border-[#1E3A5F] px-3 py-2 text-sm font-medium text-[#8BA3BF] hover:text-[#F0F4F8]"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {myPendingApprovalRequest && (
+                        <div className="rounded-lg border border-orange-500/40 bg-orange-500/10 p-3 space-y-1">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-orange-300">Approval Requested — Pending</p>
+                          <p className="text-sm text-[#F0F4F8]">{myPendingApprovalRequest.note}</p>
+                          <p className="text-xs text-[#8BA3BF]">
+                            Requested {myPendingApprovalRequest.requestedAt?.toDate ? myPendingApprovalRequest.requestedAt.toDate().toLocaleString() : ''}
+                          </p>
+                        </div>
+                      )}
+
+                      {myResolvedApprovalRequests.length > 0 && (
+                        <div className="space-y-2">
+                          {myResolvedApprovalRequests.map((r) => (
+                            <div
+                              key={r.id}
+                              className={`rounded-lg border p-3 space-y-1 ${
+                                r.status === 'approved' ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-red-500/40 bg-red-500/10'
+                              }`}
+                            >
+                              <p className={`text-xs font-semibold uppercase tracking-wide ${r.status === 'approved' ? 'text-emerald-300' : 'text-red-300'}`}>
+                                Request {r.status === 'approved' ? 'Approved' : 'Rejected'} by {r.resolvedByName}
+                              </p>
+                              <p className="text-sm text-[#F0F4F8]">{r.note}</p>
+                              {r.resolutionNote && <p className="text-xs text-[#8BA3BF]">Note: {r.resolutionNote}</p>}
+                              <p className="text-xs text-[#8BA3BF]">
+                                {r.resolvedAt?.toDate ? r.resolvedAt.toDate().toLocaleString() : ''}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                       {/* Team progress — each assignee's own completion state
                           plus the supervisor's sign-off status. No teammate's

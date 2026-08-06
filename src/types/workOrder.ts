@@ -124,6 +124,25 @@ export interface PartsRequest {
   note: string | null;
 }
 
+export type WOApprovalRequestStatus = 'pending' | 'approved' | 'rejected';
+
+// A technician's "Hold · Approval" request — raised when they pause work
+// pending a supervisor decision (e.g. a call to make outside their own
+// authority). Kept as a running log on the WO (not just the latest one) so
+// the WO's history always shows every request made and how it was resolved.
+export interface WOApprovalRequest {
+  id: string;
+  technicianId: string;
+  technicianName: string;
+  note: string;
+  requestedAt: Timestamp;
+  status: WOApprovalRequestStatus;
+  resolvedBy: string | null;
+  resolvedByName: string | null;
+  resolvedAt: Timestamp | null;
+  resolutionNote: string | null;
+}
+
 export interface PartUsed {
   partId: string | null;
   partName: string;
@@ -302,6 +321,8 @@ export interface WorkOrder {
   assigneeCompletions?: AssigneeCompletion[];
   /** Per-assignee start/hold/resume state on a team WO (see AssigneeWorkState). */
   assigneeStates?: AssigneeWorkState[];
+  /** Running log of "Hold · Approval" requests raised on this WO (see WOApprovalRequest). */
+  approvalRequests?: WOApprovalRequest[];
   contractorHoursLog: ContractorHoursLog | null;
   // Contractor sign-off figures: parts used cost is recomputed from
   // partsUsed, projectCost is the contractor's own cost, and the total is
