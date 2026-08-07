@@ -95,8 +95,18 @@ export function WOListView() {
     : null;
 
   // Breakdown Repair and Preventive Maintenance WOs live on their own pages
-  // (Breakdowns, PM Schedules) — never shown here.
-  const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
+  // (Breakdowns, PM Schedules) — never shown here. A supervisor only sees
+  // WOs they created or are the supervisor-in-charge of, not every WO
+  // company/site-wide (that broader oversight view belongs to plant
+  // manager/admin) — the Approval Requests queue below stays company-wide
+  // regardless, since a supervisor may need to resolve a request on any WO.
+  const nonExcludedWOs = workOrders
+    .filter((wo) => !EXCLUDED_TYPES.includes(wo.woType))
+    .filter((wo) =>
+      role === 'supervisor'
+        ? wo.createdBy === user?.uid || wo.supervisorInChargeId === user?.uid
+        : true,
+    );
 
   const displayedWOs =
     activeCategory === 'needSignOff'

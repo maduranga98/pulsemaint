@@ -5,11 +5,12 @@ import { useOpenWorkOrders } from '../../hooks/dashboard/useOpenWorkOrders';
 import { useMttrToday } from '../../hooks/dashboard/useMttrToday';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import KpiStrip from '../../components/dashboard/shared/KpiStrip';
-import BreakdownKanbanBoard from '../../components/dashboard/supervisor/BreakdownKanbanBoard';
-import WorkOrdersWidget from '../../components/dashboard/supervisor/WorkOrdersWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
+import PartsRequestsAwaitingSupervisorWidget from '../../components/dashboard/supervisor/PartsRequestsAwaitingSupervisorWidget';
+import UnactionedSafetyCasesWidget from '../../components/dashboard/supervisor/UnactionedSafetyCasesWidget';
+import SafetyTrainingSchedulesWidget from '../../components/dashboard/supervisor/SafetyTrainingSchedulesWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -78,16 +79,6 @@ export default function SupervisorDashboard() {
           ))}
         </KpiStrip>
 
-        {/* Row 2: Kanban + Work Orders */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <BreakdownKanbanBoard companyId={companyId} />
-          </div>
-          <div className="lg:col-span-4">
-            <WorkOrdersWidget siteId={siteId} />
-          </div>
-        </div>
-
         {/* Row 3: Floor Map + Tech Status */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FactoryFloorMap companyId={companyId} />
@@ -96,6 +87,16 @@ export default function SupervisorDashboard() {
 
         {/* Row 4: Assigned WOs / Audits / Evaluations / Trainings (today's shift) */}
         <AssignedTasksWidget />
+
+        {/* Row 5: Parts requests awaiting this supervisor's approval */}
+        <PartsRequestsAwaitingSupervisorWidget />
+
+        {/* Row 6: Safety cases reported to this supervisor + upcoming safety
+            training schedule — replaces the standalone nav tabs. */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <UnactionedSafetyCasesWidget />
+          <SafetyTrainingSchedulesWidget />
+        </div>
       </div>
 
       <DashboardSidePanel />

@@ -23,6 +23,10 @@ function SkeletonCard() {
   );
 }
 
+// A flat list of the assignments this learner still has to act on — no
+// filter tabs, and completed ones (including those awaiting a manager's
+// practical sign-off) are left off entirely rather than tucked behind a
+// "Completed" tab nobody needs to check.
 export default function MyModulesList({ assignments, loading }: MyModulesListProps) {
   const navigate = useNavigate();
 
