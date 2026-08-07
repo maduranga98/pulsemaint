@@ -126,7 +126,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       // Parts catalog + low stock alerts + Add Item only — PO and requests
       // now live in their own tabs instead of one page mixing everything.
-      { labelKey: 'common.nav.items.inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.inventory', to: '/app/inventory/catalog', icon: Icon.box, roles: ['store_keeper', 'plant_manager', 'admin', 'trainee'] },
       {
         labelKey: 'common.nav.items.po',
         to: '/app/inventory/purchase-orders',
@@ -135,9 +135,9 @@ const NAV_GROUPS: NavGroup[] = [
             <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
           </svg>
         ),
-        roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin'],
+        roles: ['store_keeper', 'plant_manager', 'admin'],
       },
-      { labelKey: 'common.nav.items.requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.requests', to: '/app/inventory/requests', icon: Icon.report, roles: ['store_keeper', 'plant_manager', 'admin', 'trainee'] },
     ],
   },
   {
