@@ -81,7 +81,7 @@ const NAV_GROUPS: NavGroup[] = [
     labelKey: 'common.nav.groups.maintenance',
     items: [
       { labelKey: 'common.nav.items.machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
-      { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
+      { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['floor_operator', 'supervisor', 'plant_manager', 'admin', 'trainee'] },
       { labelKey: 'common.nav.items.workOrders', to: '/app/work-orders', icon: Icon.wrench, roles: ['supervisor', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['trainee', 'supervisor', 'plant_manager'] },
       {
@@ -115,9 +115,6 @@ const NAV_GROUPS: NavGroup[] = [
       // dedicated nav entry; every other role still needs one since they
       // don't have access to that page.
       { labelKey: 'common.nav.items.safetyTrainingSchedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['safety_officer', 'supervisor', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'] },
-      // Safety Analytics for admins/plant managers now lives inline on the manager
-      // dashboard instead of a dedicated tab.
-      { labelKey: 'common.nav.items.analytics', to: '/app/safety/analytics', icon: Icon.dashboard, roles: ['safety_officer'] },
     ],
   },
   {
@@ -416,7 +413,7 @@ export default function AppLayout() {
                     groupHasActive ? 'text-[#60A5FA]' : 'text-[#6C87A6] hover:text-[#D5DEEA]'
                   }`}
                 >
-                  <span>{group.id === 'triage-training' && role === 'technician' ? 'Triage' : t(group.labelKey)}</span>
+                  <span>{group.id === 'triage-training' && (role === 'technician' || role === 'safety_officer') ? 'Triage' : t(group.labelKey)}</span>
                   <span className={isOpen ? 'rotate-90' : ''}>{Icon.chevron}</span>
                 </button>
                 {isOpen && (
