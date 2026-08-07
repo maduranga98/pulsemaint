@@ -2,12 +2,13 @@ import { TrendingUp, TrendingDown, Minus, Award } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useContractorScoreboard } from '../../../hooks/dashboard/useContractorScoreboard';
 import EmptyState from '../shared/EmptyState';
+import type { MonthArg } from '../../../services/analyticsAggregation';
 
 const RANK_COLORS = ['text-[#F59E0B]', 'text-[#94A3B8]', 'text-[#B45309]'];
 
 interface ContractorScoreboardProps {
   companyId: string;
-  month: string;
+  month: MonthArg;
 }
 
 export default function ContractorScoreboard({ companyId, month }: ContractorScoreboardProps) {

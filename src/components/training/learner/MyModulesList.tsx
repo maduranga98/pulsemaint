@@ -29,10 +29,14 @@ function SkeletonCard() {
 // "Completed" tab nobody needs to check.
 export default function MyModulesList({ assignments, loading }: MyModulesListProps) {
   const navigate = useNavigate();
+
+  // Not-completed only — modules still awaiting the learner's action (or
+  // practical sign-off) belong here; finished ones don't need to be shown.
   const filtered = assignments.filter((a) => !isLearnerCompletedStatus(a.status));
 
   return (
     <div className="space-y-4">
+      {/* Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
