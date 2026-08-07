@@ -9,6 +9,8 @@ import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorM
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
 import PartsRequestsAwaitingSupervisorWidget from '../../components/dashboard/supervisor/PartsRequestsAwaitingSupervisorWidget';
+import UnactionedSafetyCasesWidget from '../../components/dashboard/supervisor/UnactionedSafetyCasesWidget';
+import SafetyTrainingSchedulesWidget from '../../components/dashboard/supervisor/SafetyTrainingSchedulesWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -88,6 +90,13 @@ export default function SupervisorDashboard() {
 
         {/* Row 5: Parts requests awaiting this supervisor's approval */}
         <PartsRequestsAwaitingSupervisorWidget />
+
+        {/* Row 6: Safety cases reported to this supervisor + upcoming safety
+            training schedule — replaces the standalone nav tabs. */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <UnactionedSafetyCasesWidget />
+          <SafetyTrainingSchedulesWidget />
+        </div>
       </div>
 
       <DashboardSidePanel />
