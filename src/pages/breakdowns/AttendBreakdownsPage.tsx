@@ -150,7 +150,10 @@ export default function AttendBreakdownsPage() {
       toast.success(list.length > 1 ? `Assessment saved for ${list.length} tickets` : 'Assessment saved');
       // Stays in the Assigned bucket (status is untouched here) — a Work
       // Order is what actually advances it into Open.
-      navigate('/app/breakdowns', { replace: true });
+      // Back in history rather than a hardcoded /app/breakdowns — a
+      // technician reaching this form from the dashboard doesn't even have
+      // nav access to that list page, so landing there was a dead end.
+      navigate(-1);
     } catch (err: any) {
       const msg = err?.message || 'Failed to save.';
       setError(msg);
@@ -175,7 +178,7 @@ export default function AttendBreakdownsPage() {
         <div className="text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700">{error}</p>
-          <button onClick={() => navigate('/app/breakdowns')} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+          <button onClick={() => navigate(-1)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
             Back to Breakdowns
           </button>
         </div>
@@ -190,7 +193,7 @@ export default function AttendBreakdownsPage() {
           <Lock className="w-10 h-10 text-slate-400 mx-auto mb-3" />
           <p className="text-slate-700 font-medium">These breakdowns haven't been assigned yet.</p>
           <p className="text-slate-500 text-sm mt-1">Assign or attend them from the Breakdowns list first.</p>
-          <button onClick={() => navigate('/app/breakdowns')} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+          <button onClick={() => navigate(-1)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
             Back to Breakdowns
           </button>
         </div>
@@ -201,7 +204,7 @@ export default function AttendBreakdownsPage() {
   return (
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
-        <button type="button" onClick={() => navigate('/app/breakdowns')} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1">
+        <button type="button" onClick={() => navigate(-1)} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <h1 className="text-2xl font-bold text-slate-900">Attend Breakdown{list.length > 1 ? 's' : ''}</h1>
@@ -295,7 +298,7 @@ export default function AttendBreakdownsPage() {
         </div>
 
         <div className="flex gap-3">
-          <button type="button" onClick={() => navigate('/app/breakdowns')} disabled={saving} className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50">
+          <button type="button" onClick={() => navigate(-1)} disabled={saving} className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50">
             Cancel
           </button>
           <button type="submit" disabled={saving} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50">
