@@ -1,46 +1,12 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { isLearnerCompletedStatus } from '@/lib/training/assignmentStatus';
 import ModuleCard from './ModuleCard';
 import TrainingEmptyState from '../shared/TrainingEmptyState';
 
-type FilterTab = 'all' | 'in_progress' | 'not_started' | 'completed' | 'retraining';
-
 interface MyModulesListProps {
   assignments: TrainingAssignment[];
   loading: boolean;
-}
-
-const TABS: { key: FilterTab; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'in_progress', label: 'In Progress' },
-  { key: 'not_started', label: 'Not Started' },
-  { key: 'completed', label: 'Completed' },
-  { key: 'retraining', label: 'Retraining' },
-];
-
-function filterAssignments(
-  assignments: TrainingAssignment[],
-  tab: FilterTab
-): TrainingAssignment[] {
-  switch (tab) {
-    case 'in_progress':
-      return assignments.filter((a) => a.status === 'in_progress');
-    case 'not_started':
-      return assignments.filter((a) => a.status === 'not_started');
-    case 'completed':
-      // Includes modules waiting on a manager's practical sign-off — the
-      // learner has finished their part, so it shows here (badged "Awaiting
-      // Sign-Off") rather than in no tab at all.
-      return assignments.filter((a) => isLearnerCompletedStatus(a.status));
-    case 'retraining':
-      return assignments.filter(
-        (a) => a.isRetraining || a.status === 'retraining_required'
-      );
-    default:
-      return assignments;
-  }
 }
 
 function SkeletonCard() {
@@ -58,33 +24,14 @@ function SkeletonCard() {
 }
 
 export default function MyModulesList({ assignments, loading }: MyModulesListProps) {
-  const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const navigate = useNavigate();
 
-  const filtered = filterAssignments(assignments, activeTab);
+  // Not-completed only — modules still awaiting the learner's action (or
+  // practical sign-off) belong here; finished ones don't need to be shown.
+  const filtered = assignments.filter((a) => !isLearnerCompletedStatus(a.status));
 
   return (
     <div className="space-y-4">
-      {/* Filter tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide" role="tablist" aria-label="Filter training modules">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            role="tab"
-            aria-selected={activeTab === tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={[
-              'shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
-              activeTab === tab.key
-                ? 'bg-blue-600 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
-            ].join(' ')}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
       {/* Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
