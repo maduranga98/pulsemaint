@@ -7,12 +7,13 @@ import EmptyState from '../shared/EmptyState';
 
 interface PmTrendChartProps {
   companyId: string;
+  months?: string[];
 }
 
 // Graphical view of PM types vs. how many Preventive work orders exist for
 // each — replaces the earlier day-by-day completion trend line.
-export default function PmTrendChart({ companyId }: PmTrendChartProps) {
-  const { data, loading, error, refetch } = usePmTypeDistribution(companyId);
+export default function PmTrendChart({ companyId, months }: PmTrendChartProps) {
+  const { data, loading, error, refetch } = usePmTypeDistribution(companyId, months);
 
   const total = data.reduce((s, d) => s + d.count, 0);
 

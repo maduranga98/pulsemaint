@@ -50,8 +50,6 @@ export default function AnalyticsPage() {
   // The months covered by the selected range drive every range-aware section.
   const months = useMemo(() => monthsForDashboardRange(range), [range]);
   const monthsKey = months.join(',');
-  // For the few widgets that still take a single month, use the latest one.
-  const currentMonth = months[months.length - 1];
 
   useEffect(() => {
     if (!companyId) return;
@@ -153,7 +151,7 @@ export default function AnalyticsPage() {
         {tab === 'pm' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             <div className="lg:col-span-8">
-              <PmTrendChart companyId={companyId} />
+              <PmTrendChart companyId={companyId} months={months} />
             </div>
             <div className="lg:col-span-4">
               <PmComplianceWidget companyId={companyId} />
@@ -165,13 +163,13 @@ export default function AnalyticsPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               <div className="lg:col-span-6">
-                <WoTypeDistributionChart companyId={companyId} />
+                <WoTypeDistributionChart companyId={companyId} months={months} />
               </div>
               <div className="lg:col-span-6">
                 <MaintenanceCostChart companyId={companyId} month={months} />
               </div>
             </div>
-            <ContractorScoreboard companyId={companyId} month={currentMonth} />
+            <ContractorScoreboard companyId={companyId} month={months} />
           </div>
         )}
 

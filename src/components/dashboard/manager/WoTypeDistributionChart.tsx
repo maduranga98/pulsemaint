@@ -17,10 +17,11 @@ const WO_TYPE_LABELS: Record<string, string> = {
 
 interface WoTypeDistributionChartProps {
   companyId: string;
+  months?: string[];
 }
 
-export default function WoTypeDistributionChart({ companyId }: WoTypeDistributionChartProps) {
-  const { data, loading, error, refetch } = useWoTypeDistribution(companyId);
+export default function WoTypeDistributionChart({ companyId, months }: WoTypeDistributionChartProps) {
+  const { data, loading, error, refetch } = useWoTypeDistribution(companyId, months);
 
   const total = data.reduce((s, d) => s + d.count, 0);
 

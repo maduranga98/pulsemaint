@@ -255,4 +255,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   },
 };
 
-export const REPORT_LIST = Object.values(REPORT_DEFINITIONS);
+// Executive Monthly Report is removed from the Reports hub UI while staying
+// in REPORT_DEFINITIONS (and the backend generator) for any code that still
+// references the type directly.
+export const REPORT_LIST = Object.values(REPORT_DEFINITIONS).filter(
+  (r) => r.type !== 'executive_monthly',
+);
