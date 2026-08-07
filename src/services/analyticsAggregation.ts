@@ -27,7 +27,7 @@ type Row = Record<string, any>;
 
 const FETCH_LIMIT = 3000;
 
-function toDate(value: unknown): Date | null {
+export function toDate(value: unknown): Date | null {
   if (!value) return null;
   if (typeof value === 'object' && value !== null && 'seconds' in (value as Record<string, unknown>)) {
     return new Date(Number((value as { seconds: number }).seconds) * 1000);
@@ -38,7 +38,7 @@ function toDate(value: unknown): Date | null {
 }
 
 const dateKey = (d: Date) => d.toISOString().slice(0, 10);
-const monthKey = (d: Date) => d.toISOString().slice(0, 7);
+export const monthKey = (d: Date) => d.toISOString().slice(0, 7);
 
 /**
  * A month selector for the analytics computations: a single 'YYYY-MM', a list
