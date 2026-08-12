@@ -10,6 +10,7 @@ import WorkOrdersWidget from '../../components/dashboard/supervisor/WorkOrdersWi
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
+import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -94,8 +95,11 @@ export default function SupervisorDashboard() {
           <TechnicianStatusList companyId={companyId} />
         </div>
 
-        {/* Row 4: Assigned WOs / Audits / Evaluations / Trainings (today's shift) */}
-        <AssignedTasksWidget />
+        {/* Row 4: Pending Approvals + Assigned WOs / Audits / Evaluations / Trainings (today's shift) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <PendingApprovalsWidget />
+          <AssignedTasksWidget />
+        </div>
       </div>
 
       <DashboardSidePanel />

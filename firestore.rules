@@ -243,17 +243,17 @@ service cloud.firestore {
 
       // Parts requests sub-collection
       match /partsRequests/{requestId} {
-        // Technician (own WO), Supervisor, Plant Manager, Store Keeper, Admin can read
+        // Technician/trainee (own WO), Supervisor, Plant Manager, Store Keeper, Admin can read
         allow read: if isAdmin()
           || isSupervisor()
           || isPlantManager()
           || isStoreKeeper()
-          || (isTechnician() && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
+          || ((isTechnician() || isRole('trainee')) && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
 
-        // Technician (own WO), Supervisor, Admin can create
+        // Technician/trainee (own WO), Supervisor, Admin can create
         allow create: if isAdmin()
           || isSupervisor()
-          || (isTechnician() && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
+          || ((isTechnician() || isRole('trainee')) && request.auth.uid in get(/databases/$(database)/documents/workOrders/$(woId)).data.assignedTechnicianIds);
 
         // Store Keeper can update status (approve/reject/issue)
         allow update: if isAdmin()
@@ -618,7 +618,7 @@ service cloud.firestore {
 
     match /triageSessions/{sessionId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-                   && isAnyRole(['supervisor', 'plant_manager', 'admin', 'technician']);
+                   && isAnyRole(['supervisor', 'plant_manager', 'admin', 'technician', 'trainee']);
       allow write: if isAuthenticated() && isAnyRole(['supervisor', 'admin'])
                    && request.resource.data.companyId == getUserCompanyId();
     }
@@ -797,7 +797,7 @@ service cloud.firestore {
       allow create: if isAuthenticated() && getUserData().companyId == request.resource.data.companyId;
       allow update: if isAuthenticated() && getUserData().companyId == resource.data.companyId
         && (getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']
-          || (getUserData().role == 'technician' && resource.data.requestedBy == request.auth.uid
+          || (getUserData().role in ['technician', 'trainee'] && resource.data.requestedBy == request.auth.uid
               && request.resource.data.status == 'cancelled'));
       allow delete: if false;
 
@@ -905,10 +905,10 @@ service cloud.firestore {
       // Create: any authenticated user in the company
       allow create: if isAuthenticated() && getUserData().companyId == companyId;
       // Update: store_keeper, supervisor, plant_manager, admin can review/approve
-      // Technician can only cancel their own requests
+      // Technician/trainee can only cancel their own requests
       allow update: if isAuthenticated() && getUserData().companyId == companyId
         && (getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin']
-          || (getUserData().role == 'technician' && resource.data.requestedBy == request.auth.uid
+          || (getUserData().role in ['technician', 'trainee'] && resource.data.requestedBy == request.auth.uid
               && request.resource.data.status == 'cancelled'));
       allow delete: if false;
     }
@@ -1074,7 +1074,7 @@ service cloud.firestore {
 
     match /pm_schedules/{scheduleId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'];
       allow create: if isAuthenticated()
         && getUserData().role in ['supervisor', 'plant_manager', 'admin'];
       // Supervisors/plant managers can archive (update) PM schedules but not delete them.
@@ -1088,13 +1088,13 @@ service cloud.firestore {
     // pm_history — PM execution history
     match /pm_history/{historyId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'];
       allow create: if isAuthenticated(); // System-generated
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
-      // Technicians stamp completion tracking when they finish a PM work order.
+      // Technicians/trainees stamp completion tracking when they finish a PM work order.
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role == 'technician'
+        && getUserData().role in ['technician', 'trainee']
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'status', 'completedDate', 'duration', 'daysOverdue',
           'technicianIds', 'technicianNames', 'woNumber'
@@ -1589,7 +1589,7 @@ service cloud.firestore {
     match /kaizen_cards/{plantId}/cards/{cardId} {
       allow read: if isAuthenticated() && belongsToCompany(plantId);
       allow create, update: if isAuthenticated() && belongsToCompany(plantId)
-        && getUserData().role in ['technician', 'store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'];
+        && getUserData().role in ['technician', 'trainee', 'store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin'];
       allow delete: if isAuthenticated() && belongsToCompany(plantId)
         && getUserData().role == 'admin';
     }

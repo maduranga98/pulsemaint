@@ -369,7 +369,7 @@ export default function AppRouter() {
         <Route
           path="work-orders"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'technician', 'supervisor', 'plant_manager', 'admin']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'technician', 'trainee', 'supervisor', 'plant_manager', 'admin']}>
               <WorkOrdersPage />
             </ProtectedRoute>
           }
@@ -813,7 +813,7 @@ export default function AppRouter() {
         <Route
           path="pm-schedules"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician', 'trainee']}>
               <PMSchedulesPage />
             </ProtectedRoute>
           }
@@ -821,7 +821,7 @@ export default function AppRouter() {
         <Route
           path="pm-schedules/:id"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician', 'trainee']}>
               <PMScheduleDetailPage />
             </ProtectedRoute>
           }
@@ -837,7 +837,7 @@ export default function AppRouter() {
         <Route
           path="pm-calendar"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician']}>
+            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin', 'technician', 'trainee']}>
               <PMCalendarPage />
             </ProtectedRoute>
           }
@@ -874,7 +874,7 @@ export default function AppRouter() {
         <Route
           path="kaizen"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'technician', 'store_keeper', 'supervisor', 'plant_manager', 'hr_officer', 'admin']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'technician', 'trainee', 'store_keeper', 'supervisor', 'plant_manager', 'hr_officer', 'admin']}>
               <KaizenPage />
             </ProtectedRoute>
           }
@@ -923,7 +923,7 @@ export default function AppRouter() {
         <Route
           path="triage/history/:sessionId"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'supervisor', 'plant_manager', 'admin', 'technician', 'trainee', 'hr_officer']}>
               <TriageSessionDetailPage />
             </ProtectedRoute>
           }

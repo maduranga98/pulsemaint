@@ -31,11 +31,12 @@ const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
 const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.includes(t));
 
 export function WOListView() {
-  const [activeCategory, setActiveCategory] = useState<CategoryId>('all');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const prefilledTab = searchParams.get('tab') as CategoryId | null;
+  const [activeCategory, setActiveCategory] = useState<CategoryId>(prefilledTab ?? 'all');
   const [selectedWO, setSelectedWO] = useState<WorkOrder | null>(null);
   const [showCreateDrawer, setShowCreateDrawer] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchParams, setSearchParams] = useSearchParams();
   const prefilledMachineId = searchParams.get('machineId');
   const prefilledBreakdownId = searchParams.get('breakdownId');
   const prefilledBreakdownTicket = searchParams.get('breakdownTicket');
@@ -53,7 +54,13 @@ export function WOListView() {
       next.delete('woType');
       setSearchParams(next, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+    if (searchParams.get('tab')) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('tab');
+      setSearchParams(next, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -69,9 +76,9 @@ export function WOListView() {
 
   const filters: WOFilters = {};
   if (searchQuery) filters.searchQuery = searchQuery;
-  // Firestore rules only let technicians read WOs they are assigned to, so
-  // the query must always be constrained to their own WOs or it is rejected.
-  if (role === 'technician') filters.technicianId = user?.uid;
+  // Firestore rules only let technicians/trainees read WOs they are assigned
+  // to, so the query must always be constrained to their own WOs or it is rejected.
+  if (role === 'technician' || role === 'trainee') filters.technicianId = user?.uid;
 
   const { workOrders, loading, error } = useWorkOrders(filters);
 
@@ -293,7 +300,7 @@ export function WOListView() {
           sheet (start, safety gate, checklist, holds, completion) instead of
           the read-only detail panel. */}
       {liveSelectedWO && (
-        role === 'technician' &&
+        (role === 'technician' || role === 'trainee') &&
         liveSelectedWO.assignedTechnicianIds?.some((id) => [user?.uid, userProfile?.id].includes(id)) &&
         ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(liveSelectedWO.status) ? (
           <TechnicianWOExecutionSheet
