@@ -3,7 +3,8 @@ import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from '
 import { toast } from 'sonner';
 import { db } from '../lib/firebase';
 import { notifyUsers } from '../services/notifications.service';
-import type { WOApprovalRequest, WOApprovalRequestStatus, WorkOrder } from '../types/workOrder';
+import { aggregateWoStatus } from '../lib/workorders/assigneeState';
+import type { AssigneeWorkState, WOApprovalRequest, WOApprovalRequestStatus, WorkOrder } from '../types/workOrder';
 
 interface UseApprovalRequestResult {
   requestApproval: (
@@ -127,16 +128,46 @@ export function useApprovalRequest(): UseApprovalRequestResult {
             : r,
         );
 
+        // On approval, resume the requesting technician's own work — their
+        // ON_HOLD_APPROVAL state flips back to IN_PROGRESS, and the shared WO
+        // status is re-derived so the ticket doesn't sit stuck on hold once
+        // the thing blocking it has been signed off.
+        const existingStates = wo.assigneeStates ?? [];
+        const priorState = existingStates.find((s) => s.technicianId === target.technicianId);
+        let nextStates: AssigneeWorkState[] = existingStates;
+        let nextStatus = wo.status;
+        let resumed = false;
+
+        if (decision === 'approved') {
+          if (priorState && priorState.status === 'ON_HOLD_APPROVAL') {
+            nextStates = existingStates.map((s) =>
+              s.technicianId === target.technicianId
+                ? { ...s, status: 'IN_PROGRESS', holdReason: '', updatedAt: now }
+                : s,
+            );
+            const completedIds = new Set((wo.assigneeCompletions ?? []).map((c) => c.technicianId));
+            nextStatus = aggregateWoStatus(nextStates, completedIds, wo.status);
+            resumed = true;
+          } else if (!priorState && wo.status === 'ON_HOLD_APPROVAL') {
+            // Legacy/single-assignee WO with no per-assignee record — the
+            // whole WO was held for this approval.
+            nextStatus = 'IN_PROGRESS';
+            resumed = true;
+          }
+        }
+
         await updateDoc(ref, {
           approvalRequests: nextRequests,
+          ...(nextStates !== existingStates ? { assigneeStates: nextStates } : {}),
+          status: nextStatus,
           statusHistory: arrayUnion({
-            status: wo.status,
+            status: nextStatus,
             changedBy: resolverId,
             changedByName: resolverName,
             changedAt: now,
             note: `${decision === 'approved' ? 'Approved' : 'Rejected'} approval request from ${target.technicianName}${
               resolutionNote.trim() ? `: ${resolutionNote.trim()}` : ''
-            }`,
+            }${resumed ? ' — work resumed' : ''}`,
           }),
           updatedAt: serverTimestamp(),
         });
@@ -145,7 +176,7 @@ export function useApprovalRequest(): UseApprovalRequestResult {
           type: 'work_order',
           message: `Your approval request on ${wo.woNumber || 'a work order'} was ${decision}${
             resolutionNote.trim() ? `: ${resolutionNote.trim()}` : ''
-          }`,
+          }${resumed ? ' — your work has resumed' : ''}`,
           oversightMessage: `${decision} ${target.technicianName}'s approval request on ${wo.woNumber || 'a work order'}`,
           actorName: resolverName,
           actorUserId: resolverId,
