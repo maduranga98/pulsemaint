@@ -8,6 +8,7 @@ import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleCha
 import HrActivityByRoleChart from '../../components/dashboard/training/HrActivityByRoleChart';
 import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
+import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 
 export default function TrainingDashboard() {
@@ -41,6 +42,9 @@ export default function TrainingDashboard() {
 
         {/* Tables */}
         <OperatorTrainingTable companyId={companyId} />
+
+        {/* Trainees ready for their programme completion sign-off */}
+        <ProgrammeSignOffQueueWidget companyId={companyId} />
 
         {/* Graphical HR metrics: Team Performance, Trainings, Evaluations, Audit, Triage (HR-002) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
