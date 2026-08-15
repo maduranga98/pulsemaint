@@ -762,7 +762,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/safety-trainings"
           element={
-            <ProtectedRoute requiredRoles={['admin', 'plant_manager']}>
+            <ProtectedRoute requiredRoles={['admin', 'plant_manager', 'supervisor']}>
               <SafetyTrainingsPage />
             </ProtectedRoute>
           }
@@ -770,7 +770,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/safety-trainings/new"
           element={
-            <ProtectedRoute requiredRoles={['admin', 'plant_manager']}>
+            <ProtectedRoute requiredRoles={['admin', 'plant_manager', 'supervisor']}>
               <CreateSafetyTrainingModulePage />
             </ProtectedRoute>
           }
@@ -845,7 +845,7 @@ export default function AppRouter() {
         <Route
           path="analytics"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'supervisor', 'store_keeper']}>
               <AnalyticsPage />
             </ProtectedRoute>
           }

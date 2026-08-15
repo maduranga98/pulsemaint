@@ -20,18 +20,27 @@ export default function ReportsHubPage() {
   // SLA Compliance, PM Compliance, Low Stock Alert, and Machine Health Score
   // reports have been retired from the hub.
   const HIDDEN_REPORTS = new Set(['sla_compliance', 'pm_compliance', 'low_stock_alert', 'machine_health_score']);
-  const reports = useMemo(() => {
+  const allowedReports = useMemo(() => {
     const allowedTypes = new Set(
       filterReportTypesForRole(REPORT_LIST.map((r) => r.type), role)
     );
-    return REPORT_LIST.filter((report) => {
-      if (HIDDEN_REPORTS.has(report.type)) return false;
-      if (!allowedTypes.has(report.type)) return false;
+    return REPORT_LIST.filter((report) => allowedTypes.has(report.type) && !HIDDEN_REPORTS.has(report.type));
+  }, [role]);
+
+  // Only the categories the role actually has reports in — a store keeper
+  // only ever sees "Inventory", not every category tab in the hub.
+  const availableCategories = useMemo(
+    () => Array.from(new Set(allowedReports.map((r) => r.category))),
+    [allowedReports],
+  );
+
+  const reports = useMemo(() => {
+    return allowedReports.filter((report) => {
       const matchesSearch = report.name.toLowerCase().includes(search.toLowerCase());
       const matchesCategory = category === 'all' || report.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [category, search, role]);
+  }, [allowedReports, category, search]);
 
   if (!canAccess) return <Navigate to="/app/dashboard" replace />;
 
@@ -43,16 +52,18 @@ export default function ReportsHubPage() {
             <h1 className="font-[Sora] text-[28px] font-bold text-[#F0F4F8]">Reports</h1>
             <p className="mt-1 text-sm text-[#8BA3BF]">Generate, export, and schedule operational reports</p>
           </div>
-          <Link to="/app/reports/history" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 text-sm font-semibold text-[#F0F4F8] hover:border-[#2E5A8F]">
-            <Clock className="h-4 w-4" />
-            Report History
-          </Link>
+          {role !== 'store_keeper' && (
+            <Link to="/app/reports/history" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 text-sm font-semibold text-[#F0F4F8] hover:border-[#2E5A8F]">
+              <Clock className="h-4 w-4" />
+              Report History
+            </Link>
+          )}
         </header>
 
         <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
           <ReportSearchBar value={search} onChange={setSearch} />
         </div>
-        <ReportCategoryTabs active={category} onChange={setCategory} />
+        <ReportCategoryTabs active={category} onChange={setCategory} availableCategories={availableCategories} />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {reports.map((report) => (

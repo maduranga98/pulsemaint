@@ -165,6 +165,10 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'quantityAfter', label: 'Qty After', format: 'number' },
     { key: 'totalCostImpact', label: 'Cost Impact', format: 'currency' },
     { key: 'workOrderNumber', label: 'Linked WO' },
+    // Whether this issue was handed out as a returnable loan, and — for
+    // returnable issues — whether it's actually come back yet.
+    { key: 'isReturnable', label: 'Returnable', format: 'bool' },
+    { key: 'returnStatus', label: 'Return Status' },
     { key: 'performedByName', label: 'By' },
     { key: 'performedAt', label: 'Date', format: 'date' },
   ],

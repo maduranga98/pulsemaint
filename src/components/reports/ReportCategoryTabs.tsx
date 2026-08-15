@@ -29,13 +29,21 @@ const tabs: { value: ReportCategoryTab; label: string; icon: LucideIcon }[] = [
 export default function ReportCategoryTabs({
   active,
   onChange,
+  availableCategories,
 }: {
   active: ReportCategoryTab;
   onChange: (value: ReportCategoryTab) => void;
+  /** Restrict the tab bar to 'all' plus these categories — the ones the
+   *  current role actually has reports in — instead of every category that
+   *  exists in the hub overall. Omit to show the full fixed list. */
+  availableCategories?: ReportCategory[];
 }) {
+  const visibleTabs = availableCategories
+    ? tabs.filter((t) => t.value === 'all' || availableCategories.includes(t.value as ReportCategory))
+    : tabs;
   return (
     <div className="flex gap-1.5 overflow-x-auto pb-1">
-      {tabs.map((tab) => {
+      {visibleTabs.map((tab) => {
         const Icon = tab.icon;
         const isActive = active === tab.value;
         return (

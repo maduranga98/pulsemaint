@@ -2,9 +2,9 @@ import { useAuthStore } from '../../store/authStore';
 import InventoryHealthStrip from '../../components/dashboard/inventory/InventoryHealthStrip';
 import LowStockAlertTable from '../../components/dashboard/inventory/LowStockAlertTable';
 import PendingRequestsTable from '../../components/dashboard/inventory/PendingRequestsTable';
-import PartsUsageTrendChart from '../../components/dashboard/inventory/PartsUsageTrendChart';
-import TopUsedPartsChart from '../../components/dashboard/inventory/TopUsedPartsChart';
-import MostMovedPartsChart from '../../components/dashboard/inventory/MostMovedPartsChart';
+import PendingReturnsWidget from '../../components/dashboard/inventory/PendingReturnsWidget';
+import PendingReceiptPOsWidget from '../../components/dashboard/inventory/PendingReceiptPOsWidget';
+import SafetyForYouWidget from '../../components/dashboard/inventory/SafetyForYouWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 
 export default function InventoryDashboard() {
@@ -28,12 +28,14 @@ export default function InventoryDashboard() {
         <LowStockAlertTable companyId={companyId} />
         <PendingRequestsTable companyId={companyId} />
 
-        {/* Charts */}
+        {/* Returns awaiting store keeper action + POs sent but not yet received */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <PartsUsageTrendChart companyId={companyId} />
-          <TopUsedPartsChart companyId={companyId} />
-          <MostMovedPartsChart companyId={companyId} />
+          <PendingReturnsWidget companyId={companyId} />
+          <PendingReceiptPOsWidget companyId={companyId} />
         </div>
+
+        {/* Safety — trainings assigned to this user and cases reported to them */}
+        <SafetyForYouWidget />
       </div>
 
       <DashboardSidePanel />

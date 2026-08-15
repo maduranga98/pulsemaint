@@ -36,7 +36,7 @@ interface Props {
 }
 
 const RETURN_BADGE: Record<PartReturnStatus, { label: string; className: string }> = {
-  pending: { label: 'Return Pending', className: 'bg-purple-100 text-purple-700' },
+  pending: { label: 'Returning', className: 'bg-purple-100 text-purple-700' },
   returned: { label: 'Return Confirmed', className: 'bg-green-100 text-green-700' },
   rejected: { label: 'Return Rejected', className: 'bg-red-100 text-red-700' },
   cancelled: { label: 'Return Cancelled', className: 'bg-gray-100 text-gray-500' },
@@ -89,10 +89,11 @@ export function ReturnCell({
               setBusy(null);
             }
           }}
-          title="Confirm received in good condition"
-          className="p-1 rounded text-green-600 hover:bg-green-50 disabled:opacity-50"
+          title="Confirm received in good condition — updates stock automatically"
+          className="flex items-center gap-1 px-2 py-1 rounded text-green-700 bg-green-50 hover:bg-green-100 text-xs font-semibold disabled:opacity-50"
         >
-          <CheckCircle className="w-4 h-4" />
+          <CheckCircle className="w-3.5 h-3.5" />
+          {busy === 'confirm' ? 'Confirming…' : 'Returned'}
         </button>
         <button
           type="button"

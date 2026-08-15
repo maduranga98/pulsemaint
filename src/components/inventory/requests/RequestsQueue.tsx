@@ -26,6 +26,11 @@ const TABS: TabDef[] = [
   { id: 'rejected', label: 'Rejected' },
 ];
 
+// Store keeper's queue drops "Completed" — their Pending Return tab already
+// covers everything with an open returnable/returning item, and completed
+// requests with nothing outstanding aren't actionable for them.
+const STORE_KEEPER_TABS: TabDef[] = TABS.filter((t) => t.id !== 'completed');
+
 // Requester (technician/trainee/etc.) view — the review-stage tabs don't
 // apply since they can't act on those; keep it focused on their own request
 // lifecycle plus the return flow this component adds.
@@ -63,7 +68,7 @@ export function RequestsQueue() {
   // A requester (technician/trainee/etc.) only sees their own requests; the
   // review-queue tabs (To Review / Awaiting Supervisor) don't apply to them.
   const ownOnly = !MANAGE_ROLES.includes(role ?? '');
-  const tabs = ownOnly ? OWN_TABS : TABS;
+  const tabs = ownOnly ? OWN_TABS : role === 'store_keeper' ? STORE_KEEPER_TABS : TABS;
 
   const [activeTab, setActiveTab] = useState<TabId>(ownOnly ? 'all' : 'pending_storekeeper');
   const [search, setSearch] = useState('');
