@@ -246,7 +246,18 @@ export default function AppRouter() {
         <Route
           path="dashboard/manager"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin']}>
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin']}>
+              <ManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        {/* Safety officer lands here instead of /dashboard/manager — same
+            component/content (it already surfaces safety cases inline), but
+            a URL that actually reflects their role. */}
+        <Route
+          path="dashboard/safety"
+          element={
+            <ProtectedRoute requiredRoles={['safety_officer', 'admin']}>
               <ManagerDashboard />
             </ProtectedRoute>
           }
@@ -541,8 +552,8 @@ export default function AppRouter() {
         {/* Safety (EHS) — safety officer workspace, with manager oversight */}
         <Route path="safety" element={<Navigate to="/app/safety/dashboard" replace />} />
         <Route path="safety/dashboard" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyDashboard /></ProtectedRoute>} />
-        <Route path="safety/cases" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor', 'technician', 'floor_operator', 'store_keeper', 'trainee']}><SafetyCasesPage /></ProtectedRoute>} />
-        <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor']}><WorkPermitsPage /></ProtectedRoute>} />
+        <Route path="safety/cases" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer', 'technician', 'floor_operator', 'store_keeper', 'trainee']}><SafetyCasesPage /></ProtectedRoute>} />
+        <Route path="safety/permits" element={<ProtectedRoute requiredRoles={['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer']}><WorkPermitsPage /></ProtectedRoute>} />
         {/* Safety Training Schedules — the company-wide safety-training
             calendar, available to every signed-in role. */}
         <Route path="safety/calendar" element={<ProtectedRoute><SafetyCalendarPage /></ProtectedRoute>} />
@@ -766,7 +777,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/safety-trainings"
           element={
-            <ProtectedRoute requiredRoles={['admin', 'plant_manager', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['admin', 'plant_manager', 'supervisor', 'hr_officer']}>
               <SafetyTrainingsPage />
             </ProtectedRoute>
           }
@@ -774,7 +785,7 @@ export default function AppRouter() {
         <Route
           path="training/manage/safety-trainings/new"
           element={
-            <ProtectedRoute requiredRoles={['admin', 'plant_manager', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['admin', 'plant_manager', 'supervisor', 'hr_officer']}>
               <CreateSafetyTrainingModulePage />
             </ProtectedRoute>
           }
@@ -849,7 +860,7 @@ export default function AppRouter() {
         <Route
           path="analytics"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'supervisor', 'store_keeper']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'supervisor', 'store_keeper', 'hr_officer']}>
               <AnalyticsPage />
             </ProtectedRoute>
           }

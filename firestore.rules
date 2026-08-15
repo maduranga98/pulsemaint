@@ -393,7 +393,7 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     function canManageSafety() {
-      return isAnyRole(['safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+      return isAnyRole(['safety_officer', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer']);
     }
 
     match /safety_cases/{caseId} {

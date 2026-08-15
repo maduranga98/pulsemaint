@@ -4,6 +4,7 @@ import { useDashboardStore } from '../../store/dashboard.store';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { useSafetyKpis } from '@/hooks/safety/useSafety';
 import InventoryAnalyticsPage from './InventoryAnalyticsPage';
+import HrAnalyticsPage from './HrAnalyticsPage';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
@@ -42,10 +43,11 @@ export default function AnalyticsPage() {
   // of the app does. Admin and plant manager both resolve to the company
   // scope, so the two roles see identical analytics for the same plant.
   const userProfile = useAuthStore((s) => s.userProfile);
-  // Store keeper gets a dedicated light-themed inventory analytics view
-  // instead of the manager-oriented dark dashboard below — bail out before
-  // any of this component's other hooks run.
+  // Store keeper / HR officer get dedicated analytics views instead of the
+  // manager-oriented dashboard below — bail out before any of this
+  // component's other hooks run.
   if (userProfile?.role === 'store_keeper') return <InventoryAnalyticsPage />;
+  if (userProfile?.role === 'hr_officer') return <HrAnalyticsPage />;
 
   const companyId = resolveAnalyticsScopeId(userProfile);
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);

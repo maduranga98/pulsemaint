@@ -1,12 +1,8 @@
 import { useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import HrKpiStrip from '../../components/dashboard/training/HrKpiStrip';
-import OperatorTrainingTable from '../../components/dashboard/training/OperatorTrainingTable';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
-import TrainingActivityChart from '../../components/dashboard/training/TrainingActivityChart';
-import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
 import HrActivityByRoleChart from '../../components/dashboard/training/HrActivityByRoleChart';
-import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
@@ -34,23 +30,15 @@ export default function TrainingDashboard() {
             training/evaluations, headcount) */}
         <HrKpiStrip companyId={companyId} />
 
-        {/* Staff headcount by role (HR-001) */}
-        <StaffByRoleChart companyId={companyId} />
-
         {/* Today's shifts grouped by department (replaces Compliance by Machine) */}
         <TodayShiftsByDepartment companyId={companyId} />
-
-        {/* Tables */}
-        <OperatorTrainingTable companyId={companyId} />
 
         {/* Trainees ready for their programme completion sign-off */}
         <ProgrammeSignOffQueueWidget companyId={companyId} />
 
-        {/* Graphical HR metrics: Team Performance, Trainings, Evaluations, Audit, Triage (HR-002) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TeamPerformanceAnalyticsWidget companyId={companyId} />
-          <TrainingActivityChart companyId={companyId} />
-        </div>
+        {/* Team Performance, Training Activity, Training Status, and Staff
+            Headcount by Role now live on the Analytics tab (Insights >
+            Analytics) instead of here — see HrAnalyticsPage. */}
         <HrActivityByRoleChart companyId={companyId} />
 
         {/* Contractor Scoreboard / suppliers / top performers (HR-003) */}

@@ -100,26 +100,26 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'safety',
     labelKey: 'common.nav.groups.safety',
     items: [
-      { labelKey: 'common.nav.items.workPermits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
-      // Safety officer now uses the same "Safety Cases" tab as the oversight
-      // roles (same route — SafetyCasesPage itself still gives the safety
-      // officer the full case board, everyone else the "Reported to Me"
-      // filtered view, based on their role, not the nav entry).
-      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
+      { labelKey: 'common.nav.items.workPermits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer'] },
+      // Safety officer and HR officer now use the same "Safety Cases" tab as
+      // the oversight roles (same route — SafetyCasesPage itself still gives
+      // the safety officer the full case board, everyone else the
+      // "Reported to Me" filtered view, based on their role, not the nav entry).
+      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer'] },
       // Frontline roles a safety case can be assigned down to for action — they
       // land on the same page's "Reported to Me" filtered view. Store keeper
       // has no standalone Safety tab — their safety cases/trainings surface
       // on their dashboard instead (see InventoryDashboard's SafetyForYouWidget).
       { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['floor_operator', 'trainee'] },
-      // Safety officer now uses admin's "Safety Trainings" tab (scheduling
-      // safety training sessions) instead of their own separate entry into
-      // the general module library.
-      { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin', 'supervisor', 'safety_officer'] },
-      // Admin/plant manager/supervisor/safety officer reach the calendar via
-      // the "View Training Schedules" button on the Safety Trainings page
-      // instead of a dedicated nav entry; every other role still needs one
-      // since they don't have access to that page.
-      { labelKey: 'common.nav.items.safetyTrainingSchedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['hr_officer', 'trainee', 'floor_operator'] },
+      // Safety officer and HR officer now use admin's "Safety Trainings" tab
+      // (scheduling safety training sessions) instead of their own separate
+      // entries (a general module library link, and a standalone calendar tab).
+      { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin', 'supervisor', 'safety_officer', 'hr_officer'] },
+      // Admin/plant manager/supervisor/safety officer/HR officer reach the
+      // calendar via the "View Training Schedules" button on the Safety
+      // Trainings page instead of a dedicated nav entry; every other role
+      // still needs one since they don't have access to that page.
+      { labelKey: 'common.nav.items.safetyTrainingSchedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['trainee', 'floor_operator'] },
     ],
   },
   {
@@ -218,7 +218,7 @@ const NAV_GROUPS: NavGroup[] = [
             <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>
           </svg>
         ),
-        roles: ['plant_manager', 'admin', 'supervisor', 'store_keeper', 'safety_officer'],
+        roles: ['plant_manager', 'admin', 'supervisor', 'store_keeper', 'safety_officer', 'hr_officer'],
       },
       {
         labelKey: 'common.nav.items.moe',
