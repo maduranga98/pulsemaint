@@ -845,7 +845,7 @@ export default function AppRouter() {
         <Route
           path="analytics"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'supervisor']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'plant_manager', 'admin', 'supervisor', 'store_keeper']}>
               <AnalyticsPage />
             </ProtectedRoute>
           }

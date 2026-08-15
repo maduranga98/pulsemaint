@@ -218,7 +218,7 @@ const NAV_GROUPS: NavGroup[] = [
             <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/>
           </svg>
         ),
-        roles: ['plant_manager', 'admin', 'supervisor'],
+        roles: ['plant_manager', 'admin', 'supervisor', 'store_keeper'],
       },
       {
         labelKey: 'common.nav.items.moe',
