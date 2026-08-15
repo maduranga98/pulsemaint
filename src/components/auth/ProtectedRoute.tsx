@@ -3,11 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import AuthLoading from './AuthLoading';
 import { getDashboardRoute } from '../../lib/auth';
-import {
-  consumePostLoginRedirect,
-  peekPostLoginRedirect,
-  savePostLoginRedirect,
-} from '../../lib/scanTarget';
+import { consumePostLoginRedirect, peekPostLoginRedirect } from '../../lib/scanTarget';
 import type { UserRole } from '../../types/auth';
 
 interface ProtectedRouteProps {
@@ -31,11 +27,20 @@ export default function ProtectedRoute({
   }
 
   if (!isAuthenticated) {
-    // Remember where the user was headed (e.g. a scanned machine QR deep
-    // link) so login can return them there. Persisted in sessionStorage too,
-    // because router state does not survive page reloads during login.
+    // Remember where the user was headed, via router state only — this
+    // covers same-session redirects (e.g. a session that expired mid-visit).
+    // We deliberately do NOT persist this to sessionStorage here: this
+    // branch fires for every role-gated route a signed-out visitor hits
+    // (a stale tab, an old bookmark, a shared device), and there is no way
+    // to know yet whether the account that eventually logs in even has
+    // access to that route. Blindly honoring it bounced technician/trainee/
+    // store_keeper straight to "Access Denied" after a perfectly valid
+    // login, whenever their browser had a leftover URL for a page their
+    // role can't reach. The sessionStorage-backed redirect (surviving a
+    // full page reload) is reserved for the one flow that legitimately
+    // needs it — the QR scan deep link, saved explicitly by
+    // ScanRedirectPage — so that one still works after this change.
     const from = `${location.pathname}${location.search}`;
-    savePostLoginRedirect(from);
     return <Navigate to={redirectTo} replace state={{ from }} />;
   }
 
