@@ -14,13 +14,14 @@ import { CHART_COLORS_LIGHT, CHART_DEFAULTS_LIGHT } from '../../../constants/cha
 
 interface MostMovedPartsChartLightProps {
   companyId: string;
+  days?: number;
 }
 
-export default function MostMovedPartsChartLight({ companyId }: MostMovedPartsChartLightProps) {
-  const { parts, loading, error } = useTopMovedParts(companyId);
+export default function MostMovedPartsChartLight({ companyId, days = 30 }: MostMovedPartsChartLightProps) {
+  const { parts, loading, error } = useTopMovedParts(companyId, days);
 
   return (
-    <LightAnalyticsWidget title="Most Moved Parts (Last 30 Days)" loading={loading} error={error}>
+    <LightAnalyticsWidget title={`Most Moved Parts (Last ${days} Days)`} loading={loading} error={error}>
       {parts.length === 0 ? (
         <LightEmptyState message="No usage data" />
       ) : (

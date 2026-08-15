@@ -15,6 +15,7 @@ import { CHART_COLORS_LIGHT, CHART_DEFAULTS_LIGHT } from '../../../constants/cha
 
 interface TopUsedPartsChartLightProps {
   companyId: string;
+  days?: number;
 }
 
 const REASON_COLORS: Record<string, string> = {
@@ -23,12 +24,12 @@ const REASON_COLORS: Record<string, string> = {
   Other: CHART_COLORS_LIGHT.secondary,
 };
 
-export default function TopUsedPartsChartLight({ companyId }: TopUsedPartsChartLightProps) {
-  const { data, loading, error } = usePartsRequestReasons(companyId);
+export default function TopUsedPartsChartLight({ companyId, days = 30 }: TopUsedPartsChartLightProps) {
+  const { data, loading, error } = usePartsRequestReasons(companyId, days);
   const hasData = data.some((d) => d.count > 0);
 
   return (
-    <LightAnalyticsWidget title="Parts Requested By Reason" loading={loading} error={error}>
+    <LightAnalyticsWidget title={`Parts Requested By Reason (Last ${days} Days)`} loading={loading} error={error}>
       {!hasData ? (
         <LightEmptyState message="No request data" />
       ) : (

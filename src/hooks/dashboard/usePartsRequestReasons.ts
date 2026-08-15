@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
 export type RequestReason = 'PM' | 'Breakdown' | 'Other';
@@ -21,7 +21,8 @@ function toReason(workOrderType: string | null): RequestReason {
   }
 }
 
-export function usePartsRequestReasons(companyId: string) {
+// windowDays — omit (or 0) for all-time, otherwise scoped to the trailing N days.
+export function usePartsRequestReasons(companyId: string, windowDays: number = 0) {
   const [data, setData] = useState<RequestReasonCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +35,12 @@ export function usePartsRequestReasons(companyId: string) {
     setLoading(true);
     setError(null);
     try {
-      const snap = await getDocs(
-        query(collection(db, 'partsRequests'), where('companyId', '==', companyId)),
-      );
+      const constraints = [where('companyId', '==', companyId)];
+      if (windowDays > 0) {
+        const since = Timestamp.fromMillis(Date.now() - windowDays * 24 * 60 * 60 * 1000);
+        constraints.push(where('requestedAt', '>=', since));
+      }
+      const snap = await getDocs(query(collection(db, 'partsRequests'), ...constraints));
       const counts: Record<RequestReason, number> = { PM: 0, Breakdown: 0, Other: 0 };
       snap.docs.forEach((d) => {
         const reason = toReason((d.data().workOrderType as string) ?? null);
@@ -52,7 +56,7 @@ export function usePartsRequestReasons(companyId: string) {
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, windowDays]);
 
   useEffect(() => {
     fetch();
