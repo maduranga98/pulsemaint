@@ -636,10 +636,14 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        {/* Trainee-facing entry point removed — the knowledge write-up flow
+            is no longer part of a trainee's programme (see MyProgramPage).
+            Route kept reachable for admin in case historical submissions
+            need reviewing. */}
         <Route
           path="training/knowledge-writeup"
           element={
-            <ProtectedRoute requiredRoles={['trainee', 'admin']}>
+            <ProtectedRoute requiredRoles={['admin']}>
               <KnowledgeWriteupPage />
             </ProtectedRoute>
           }
