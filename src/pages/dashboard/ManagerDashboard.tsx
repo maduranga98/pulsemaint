@@ -37,7 +37,12 @@ export default function ManagerDashboard() {
   const siteId = resolveAnalyticsScopeId(userProfile);
   const role = userProfile?.role;
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Manager';
-  const dashboardTitle = role === 'admin' ? t('common.dashboard.adminTitle') : t('common.dashboard.managerTitle');
+  // Safety officer shares this dashboard with admin/plant manager, but the
+  // header should still read as theirs — same page, correct role identity.
+  const dashboardTitle =
+    role === 'admin' ? t('common.dashboard.adminTitle')
+    : role === 'safety_officer' ? 'Safety Dashboard'
+    : t('common.dashboard.managerTitle');
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
 
   const { count: todayBreakdowns } = useActiveBreakdowns(siteId);

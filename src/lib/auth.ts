@@ -524,10 +524,10 @@ export function getDashboardRoute(role: UserRole): string {
     hr_officer: '/app/dashboard/training',
     trainee: '/app/dashboard/trainee',
     floor_operator: '/app/training/my-modules',
-    // Safety officers now land on the same manager dashboard admin/plant
-    // manager use (it already surfaces safety cases inline) instead of
-    // their own separate Safety dashboard.
-    safety_officer: '/app/dashboard/manager',
+    // Safety officers land on the same dashboard content admin/plant manager
+    // use (it already surfaces safety cases inline), but under their own
+    // URL/title instead of admin's — see /app/dashboard/safety in AppRouter.
+    safety_officer: '/app/dashboard/safety',
   };
 
   return routes[role];

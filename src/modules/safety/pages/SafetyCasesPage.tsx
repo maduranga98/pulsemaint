@@ -39,7 +39,7 @@ const field = 'w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 
  * recipients, so a case can actually be assigned to any of them.
  */
 const REPORTED_TO_ROLES = [
-  'admin', 'plant_manager', 'supervisor',
+  'admin', 'plant_manager', 'supervisor', 'hr_officer',
   'technician', 'floor_operator', 'store_keeper', 'trainee',
 ];
 
