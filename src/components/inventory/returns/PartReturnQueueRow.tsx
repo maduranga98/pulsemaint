@@ -12,6 +12,7 @@ interface Props {
 }
 
 const STATUS_BADGE: Record<string, { label: string; className: string }> = {
+  pending: { label: 'Returning', className: 'bg-purple-100 text-purple-700' },
   returned: { label: 'Returned', className: 'bg-green-100 text-green-700' },
   rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700' },
   cancelled: { label: 'Cancelled', className: 'bg-gray-100 text-gray-500' },
@@ -73,6 +74,9 @@ export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
         </div>
         {partReturn.status === 'pending' && onConfirm && onReject ? (
           <div className="flex flex-col gap-2 items-end shrink-0 w-full sm:w-auto">
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${STATUS_BADGE.pending.className}`}>
+              {STATUS_BADGE.pending.label}
+            </span>
             <div className="flex gap-2">
               <button
                 disabled={!!busy}
@@ -80,7 +84,7 @@ export function PartReturnQueueRow({ partReturn, onConfirm, onReject }: Props) {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-600 text-white text-xs font-semibold hover:bg-green-700 disabled:opacity-50"
               >
                 <CheckCircle className="w-3.5 h-3.5" />
-                Receive Return
+                Returned
               </button>
               <button
                 disabled={!!busy}

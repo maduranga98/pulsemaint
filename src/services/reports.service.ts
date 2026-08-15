@@ -860,6 +860,30 @@ export async function fetchReportRows(
     rows.forEach(({ row }) => {
       row.category = categoryByPartId.get(String(row.partId ?? '')) ?? '';
     });
+
+    // Return Status: for an 'issue' movement flagged isReturnable, look up
+    // whether a partReturns doc against the same request+part has been
+    // confirmed back into stock yet.
+    const returnableRows = rows.filter(({ row }) => row.movementType === 'issue' && row.isReturnable);
+    if (returnableRows.length > 0) {
+      const returnsSnap = await getDocs(
+        query(collection(db, 'partReturns'), where('companyId', '==', companyId), limit(2000)),
+      );
+      const returnStatusByKey = new Map<string, string>();
+      returnsSnap.docs.forEach((item) => {
+        const data = item.data();
+        const key = `${data.partsRequestId ?? ''}::${data.partId ?? ''}`;
+        const status = String(data.status ?? '');
+        // 'returned' wins over any other status recorded for the same loan.
+        if (status === 'returned' || !returnStatusByKey.has(key)) {
+          returnStatusByKey.set(key, status === 'returned' ? 'Returned' : status === 'pending' ? 'Returning' : prettifyEnum(status));
+        }
+      });
+      returnableRows.forEach(({ row }) => {
+        const key = `${row.partsRequestId ?? ''}::${row.partId ?? ''}`;
+        row.returnStatus = returnStatusByKey.get(key) ?? 'Not Yet Returned';
+      });
+    }
   }
 
   // Surface the failure instead of silently rendering "0 records" when every
