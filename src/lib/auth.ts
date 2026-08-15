@@ -524,8 +524,10 @@ export function getDashboardRoute(role: UserRole): string {
     hr_officer: '/app/dashboard/training',
     trainee: '/app/dashboard/trainee',
     floor_operator: '/app/training/my-modules',
-    // Safety officers land on their dedicated Safety dashboard.
-    safety_officer: '/app/safety/dashboard',
+    // Safety officers now land on the same manager dashboard admin/plant
+    // manager use (it already surfaces safety cases inline) instead of
+    // their own separate Safety dashboard.
+    safety_officer: '/app/dashboard/manager',
   };
 
   return routes[role];

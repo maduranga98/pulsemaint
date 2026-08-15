@@ -11,7 +11,9 @@ const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
   hr_officer: '/app/dashboard/training',
   trainee: '/app/dashboard/trainee',
   floor_operator: '/app/dashboard', // No access
-  safety_officer: '/app/safety/dashboard',
+  // Safety officers use the same manager dashboard as admin/plant manager
+  // instead of their own separate Safety dashboard.
+  safety_officer: '/app/dashboard/manager',
 };
 
 export default function DashboardPage() {
