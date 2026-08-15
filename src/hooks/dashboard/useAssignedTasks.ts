@@ -24,6 +24,13 @@ interface AuditRow {
   plantId: string;
 }
 
+export interface AssignedSafetyCaseRow {
+  id: string;
+  title: string;
+  severity: string;
+  status: string;
+}
+
 export interface AssignedWoRow {
   id: string;
   woNumber: string;
@@ -44,6 +51,7 @@ export function useAssignedTasks() {
   const [evaluations, setEvaluations] = useState<EvaluationRow[]>([]);
   const [audits, setAudits] = useState<AuditRow[]>([]);
   const [workOrders, setWorkOrders] = useState<AssignedWoRow[]>([]);
+  const [safetyCases, setSafetyCases] = useState<AssignedSafetyCaseRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,8 +64,9 @@ export function useAssignedTasks() {
     let evaluationsLoaded = false;
     let auditsLoaded = false;
     let wosLoaded = false;
+    let safetyCasesLoaded = false;
     const markLoaded = () => {
-      if (trainingsLoaded && evaluationsLoaded && auditsLoaded && wosLoaded) setLoading(false);
+      if (trainingsLoaded && evaluationsLoaded && auditsLoaded && wosLoaded && safetyCasesLoaded) setLoading(false);
     };
 
     // Work orders assigned to this user (as technician-in-charge or the WO's
@@ -154,14 +163,39 @@ export function useAssignedTasks() {
       },
     );
 
+    // Safety cases escalated ("reported to") this user specifically — never
+    // the whole company's cases, only the ones that regard them.
+    const safetyCasesQuery = query(
+      collection(db, 'safety_cases'),
+      where('companyId', '==', companyId),
+      where('reportedToUserId', '==', userId),
+      where('status', '!=', 'closed'),
+    );
+    const unsubSafetyCases = onSnapshot(
+      safetyCasesQuery,
+      (snap) => {
+        setSafetyCases(snap.docs.map((d) => {
+          const data = d.data();
+          return { id: d.id, title: String(data.title ?? ''), severity: String(data.severity ?? ''), status: String(data.status ?? '') };
+        }));
+        safetyCasesLoaded = true;
+        markLoaded();
+      },
+      () => {
+        safetyCasesLoaded = true;
+        markLoaded();
+      },
+    );
+
     return () => {
       unsubTrainings();
       unsubEvaluations();
       unsubAudits();
       unsubWoAssigned();
       unsubWoSup();
+      unsubSafetyCases();
     };
   }, [companyId, userId]);
 
-  return { trainings, evaluations, audits, workOrders, loading };
+  return { trainings, evaluations, audits, workOrders, safetyCases, loading };
 }

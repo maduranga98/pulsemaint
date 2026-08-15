@@ -4,10 +4,10 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 
 export default function AssignedTasksWidget() {
-  const { trainings, evaluations, audits, workOrders, loading } = useAssignedTasks();
+  const { trainings, evaluations, audits, workOrders, safetyCases, loading } = useAssignedTasks();
   const navigate = useNavigate();
 
-  const total = trainings.length + evaluations.length + audits.length + workOrders.length;
+  const total = trainings.length + evaluations.length + audits.length + workOrders.length + safetyCases.length;
 
   return (
     <DashboardWidget
@@ -71,6 +71,25 @@ export default function AssignedTasksWidget() {
                     className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
                   >
                     {e.evaluateeName} · {e.evaluationDate}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {safetyCases.length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8BA3BF] mb-1.5">
+                Safety Cases ({safetyCases.length})
+              </p>
+              <div className="space-y-1">
+                {safetyCases.slice(0, 4).map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => navigate('/app/safety/cases')}
+                    className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
+                  >
+                    {c.title} · {c.severity}
                   </button>
                 ))}
               </div>
