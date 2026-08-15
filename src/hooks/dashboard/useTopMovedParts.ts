@@ -8,11 +8,11 @@ export interface TopMovedPart {
   count: number;
 }
 
-const WINDOW_DAYS = 30;
+const DEFAULT_WINDOW_DAYS = 30;
 const HISTORY_LIMIT = 500;
 const TOP_N = 10;
 
-export function useTopMovedParts(companyId: string) {
+export function useTopMovedParts(companyId: string, windowDays: number = DEFAULT_WINDOW_DAYS) {
   const [parts, setParts] = useState<TopMovedPart[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,7 @@ export function useTopMovedParts(companyId: string) {
       return;
     }
 
-    const since = Timestamp.fromMillis(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
+    const since = Timestamp.fromMillis(Date.now() - windowDays * 24 * 60 * 60 * 1000);
     const q = query(
       collection(db, 'stockMovements'),
       where('companyId', '==', companyId),
@@ -67,7 +67,7 @@ export function useTopMovedParts(companyId: string) {
     );
 
     return () => unsubscribe();
-  }, [companyId]);
+  }, [companyId, windowDays]);
 
   return { parts, loading, error };
 }

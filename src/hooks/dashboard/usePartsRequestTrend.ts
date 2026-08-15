@@ -7,13 +7,13 @@ export interface RequestTrendPoint {
   count: number;
 }
 
-const WINDOW_DAYS = 30;
+const DEFAULT_WINDOW_DAYS = 30;
 
 function dayKey(ts: Timestamp): string {
   return ts.toDate().toISOString().slice(0, 10);
 }
 
-export function usePartsRequestTrend(companyId: string) {
+export function usePartsRequestTrend(companyId: string, windowDays: number = DEFAULT_WINDOW_DAYS) {
   const [data, setData] = useState<RequestTrendPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +24,7 @@ export function usePartsRequestTrend(companyId: string) {
       return;
     }
 
-    const since = Timestamp.fromMillis(Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000);
+    const since = Timestamp.fromMillis(Date.now() - windowDays * 24 * 60 * 60 * 1000);
     const q = query(
       collection(db, 'partsRequests'),
       where('companyId', '==', companyId),
@@ -36,7 +36,7 @@ export function usePartsRequestTrend(companyId: string) {
       q,
       (snapshot) => {
         const counts = new Map<string, number>();
-        for (let i = WINDOW_DAYS - 1; i >= 0; i--) {
+        for (let i = windowDays - 1; i >= 0; i--) {
           const key = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
           counts.set(key, 0);
         }
@@ -58,7 +58,7 @@ export function usePartsRequestTrend(companyId: string) {
     );
 
     return () => unsubscribe();
-  }, [companyId]);
+  }, [companyId, windowDays]);
 
   return { data, loading, error };
 }

@@ -14,14 +14,16 @@ import { CHART_COLORS_LIGHT, CHART_DEFAULTS_LIGHT } from '../../../constants/cha
 
 interface PartsUsageTrendChartLightProps {
   companyId: string;
+  days?: number;
 }
 
-export default function PartsUsageTrendChartLight({ companyId }: PartsUsageTrendChartLightProps) {
-  const { data, loading, error } = usePartsRequestTrend(companyId);
+export default function PartsUsageTrendChartLight({ companyId, days = 30 }: PartsUsageTrendChartLightProps) {
+  const { data, loading, error } = usePartsRequestTrend(companyId, days);
   const hasData = data.some((d) => d.count > 0);
+  const tickInterval = Math.max(0, Math.ceil(days / 7) - 1);
 
   return (
-    <LightAnalyticsWidget title="Parts Request Trends (Last 30 Days)" loading={loading} error={error}>
+    <LightAnalyticsWidget title={`Parts Request Trends (Last ${days} Days)`} loading={loading} error={error}>
       {!hasData ? (
         <LightEmptyState message="No request activity" />
       ) : (
@@ -32,7 +34,7 @@ export default function PartsUsageTrendChartLight({ companyId }: PartsUsageTrend
               <XAxis
                 {...CHART_DEFAULTS_LIGHT.xAxis}
                 dataKey="date"
-                interval={4}
+                interval={tickInterval}
                 tickFormatter={(d: string) => d.slice(5)}
               />
               <YAxis {...CHART_DEFAULTS_LIGHT.yAxis} allowDecimals={false} />

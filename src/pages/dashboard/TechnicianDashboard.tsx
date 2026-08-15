@@ -4,6 +4,7 @@ import { useMyJobQueue } from '../../hooks/dashboard/useMyJobQueue';
 import JobQueueList from '../../components/dashboard/technician/JobQueueList';
 import TodaysPmList from '../../components/dashboard/technician/TodaysPmList';
 import RequestedPartsWidget from '../../components/dashboard/technician/RequestedPartsWidget';
+import MyReturnablePartsWidget from '../../components/dashboard/technician/MyReturnablePartsWidget';
 import UnassignedBreakdownsWidget from '../../components/dashboard/technician/UnassignedBreakdownsWidget';
 import AssignedBreakdownsWidget from '../../components/dashboard/technician/AssignedBreakdownsWidget';
 import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
@@ -95,9 +96,11 @@ export default function TechnicianDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MySafetyTrainingsWidget />
+          <MyReturnablePartsWidget />
           <MyTrainingsWidget />
         </div>
+
+        <MySafetyTrainingsWidget />
 
         <MySafetyCasesWidget />
       </div>
