@@ -12,12 +12,25 @@ const DURATION_OPTIONS = [
   { label: '90 Days', days: 90 },
 ] as const;
 
+type TabId = 'low_stock' | 'reasons' | 'most_moved' | 'suppliers' | 'receipt_quality';
+
+const TABS: { id: TabId; label: string }[] = [
+  { id: 'low_stock', label: 'Low Stock Parts' },
+  { id: 'reasons', label: 'Parts Requested By Reason' },
+  { id: 'most_moved', label: 'Most Moved Parts' },
+  { id: 'suppliers', label: 'Purchase Orders By Supplier' },
+  { id: 'receipt_quality', label: 'Parts Received: Good vs Rejected/Damaged' },
+];
+
 // Store keeper's Analytics tab — the parts-usage charts that used to live on
 // their dashboard, kept on a light background with larger/higher-contrast
 // text instead of the app's default dark analytics theme, for readability.
+// Shown one at a time behind a tab bar (rather than stacked) so each chart
+// gets the full card width to lay out its labels/axes without crowding.
 export default function InventoryAnalyticsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [days, setDays] = useState<number>(30);
+  const [activeTab, setActiveTab] = useState<TabId>('low_stock');
 
   return (
     <div className="min-h-full bg-gray-50">
@@ -44,16 +57,31 @@ export default function InventoryAnalyticsPage() {
         </div>
       </div>
 
-      <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        <LowStockPartsChartLight companyId={companyId} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          <TopUsedPartsChartLight companyId={companyId} days={days} />
-          <MostMovedPartsChartLight companyId={companyId} days={days} />
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap gap-1 border-b border-gray-200">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'border-blue-600 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-800'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          <SupplierPoCountsChartLight companyId={companyId} days={days} />
-          <PoReceiptQualityChartLight companyId={companyId} days={days} />
-        </div>
+      </div>
+
+      <div className="px-4 py-6 sm:px-6 lg:px-8">
+        {activeTab === 'low_stock' && <LowStockPartsChartLight companyId={companyId} />}
+        {activeTab === 'reasons' && <TopUsedPartsChartLight companyId={companyId} days={days} />}
+        {activeTab === 'most_moved' && <MostMovedPartsChartLight companyId={companyId} days={days} />}
+        {activeTab === 'suppliers' && <SupplierPoCountsChartLight companyId={companyId} days={days} />}
+        {activeTab === 'receipt_quality' && <PoReceiptQualityChartLight companyId={companyId} days={days} />}
       </div>
     </div>
   );

@@ -25,16 +25,16 @@ export default function MostMovedPartsChartLight({ companyId, days = 30 }: MostM
       {parts.length === 0 ? (
         <LightEmptyState message="No usage data" />
       ) : (
-        <div style={{ height: Math.max(256, parts.length * 32) }}>
+        <div style={{ height: Math.max(320, parts.length * 52) }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={parts} layout="vertical" margin={{ left: 0, right: 24 }} barCategoryGap="30%">
+            <BarChart data={parts} layout="vertical" margin={{ left: 0, right: 24 }} barCategoryGap="35%">
               <CartesianGrid {...CHART_DEFAULTS_LIGHT.cartesianGrid} />
               <XAxis {...CHART_DEFAULTS_LIGHT.xAxis} type="number" allowDecimals={false} />
               <YAxis
                 {...CHART_DEFAULTS_LIGHT.yAxis}
                 dataKey="name"
                 type="category"
-                width={100}
+                width={190}
               />
               <Tooltip {...CHART_DEFAULTS_LIGHT.tooltip} />
               <Bar dataKey="count" name="Units issued" fill={CHART_COLORS_LIGHT.secondary} radius={[0, 4, 4, 0]} />
