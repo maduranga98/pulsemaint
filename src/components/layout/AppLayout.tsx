@@ -100,12 +100,15 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'safety',
     labelKey: 'common.nav.groups.safety',
     items: [
-      { labelKey: 'common.nav.items.workPermits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer'] },
+      { labelKey: 'common.nav.items.workPermits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
       // Safety officer and HR officer now use the same "Safety Cases" tab as
       // the oversight roles (same route — SafetyCasesPage itself still gives
       // the safety officer the full case board, everyone else the
       // "Reported to Me" filtered view, based on their role, not the nav entry).
-      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor', 'hr_officer'] },
+      // HR officer no longer has a Safety tab at all — it was removed from
+      // their nav entirely (they still have route-level access to the pages
+      // if linked to directly, they just aren't surfaced in the sidebar).
+      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
       // Frontline roles a safety case can be assigned down to for action — they
       // land on the same page's "Reported to Me" filtered view. Store keeper
       // has no standalone Safety tab — their safety cases/trainings surface
@@ -114,7 +117,7 @@ const NAV_GROUPS: NavGroup[] = [
       // Safety officer and HR officer now use admin's "Safety Trainings" tab
       // (scheduling safety training sessions) instead of their own separate
       // entries (a general module library link, and a standalone calendar tab).
-      { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin', 'supervisor', 'safety_officer', 'hr_officer'] },
+      { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin', 'supervisor', 'safety_officer'] },
       // Admin/plant manager/supervisor/safety officer/HR officer reach the
       // calendar via the "View Training Schedules" button on the Safety
       // Trainings page instead of a dedicated nav entry; every other role
@@ -164,7 +167,7 @@ const NAV_GROUPS: NavGroup[] = [
       // Trainee's own training tabs live alongside Triage in this same
       // "Triage & Training" group instead of under Workforce, so a trainee's
       // whole day-to-day (troubleshooting + their own program) is one section.
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'supervisor', 'store_keeper', 'safety_officer'] },
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'supervisor', 'store_keeper', 'safety_officer', 'hr_officer'] },
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['store_keeper'] },
     ],
@@ -201,9 +204,9 @@ const NAV_GROUPS: NavGroup[] = [
       // Training can be assigned to any role, so everyone gets a "My Training"
       // entry (the route allows any authenticated user). The admin-facing
       // "Training" / "Trainee Management" tabs live under Triage & Training —
-      // as does trainee's and safety_officer's own "My Training" / "My
-      // Program" (see that group).
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['floor_operator', 'plant_manager', 'hr_officer'] },
+      // as does trainee's, safety_officer's, and hr_officer's own
+      // "My Training" / "My Program" (see that group).
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['floor_operator', 'plant_manager'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician'] },
     ],
   },
