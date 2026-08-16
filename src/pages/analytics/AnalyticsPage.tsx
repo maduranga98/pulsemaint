@@ -43,15 +43,13 @@ export default function AnalyticsPage() {
   // of the app does. Admin and plant manager both resolve to the company
   // scope, so the two roles see identical analytics for the same plant.
   const userProfile = useAuthStore((s) => s.userProfile);
-  // Store keeper / HR officer get dedicated analytics views instead of the
-  // manager-oriented dashboard below — bail out before any of this
-  // component's other hooks run.
-  if (userProfile?.role === 'store_keeper') return <InventoryAnalyticsPage />;
-  if (userProfile?.role === 'hr_officer') return <HrAnalyticsPage />;
-
   const companyId = resolveAnalyticsScopeId(userProfile);
+  const isDedicatedAnalyticsRole =
+    userProfile?.role === 'store_keeper' || userProfile?.role === 'hr_officer';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
-  const { kpis: safetyKpis } = useSafetyKpis(companyId);
+  // Store keeper / HR officer render a dedicated analytics page below and
+  // never see this data — pass '' so the underlying hooks skip subscribing.
+  const { kpis: safetyKpis } = useSafetyKpis(isDedicatedAnalyticsRole ? '' : companyId);
   const [range, setRange] = useState<Range>('mtd');
   const [tab, setTab] = useState<Tab>('breakdowns');
 
@@ -60,13 +58,13 @@ export default function AnalyticsPage() {
   const monthsKey = months.join(',');
 
   useEffect(() => {
-    if (!companyId) return;
+    if (!companyId || isDedicatedAnalyticsRole) return;
     const unsub = subscribeMonthlyAnalytics(companyId, months, (data) => {
       useDashboardStore.getState().setMonthlyAnalytics(data);
     });
     return () => unsub();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, monthsKey]);
+  }, [companyId, monthsKey, isDedicatedAnalyticsRole]);
 
   const kpis = [
     {
@@ -91,6 +89,12 @@ export default function AnalyticsPage() {
       color: (safetyKpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green',
     },
   ];
+
+  // Store keeper / HR officer get dedicated analytics views instead of the
+  // manager-oriented dashboard below. This branch must come after every hook
+  // above so hook order stays identical across renders regardless of role.
+  if (userProfile?.role === 'store_keeper') return <InventoryAnalyticsPage />;
+  if (userProfile?.role === 'hr_officer') return <HrAnalyticsPage />;
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
