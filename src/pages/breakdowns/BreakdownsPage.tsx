@@ -6,6 +6,7 @@ import { Html5Qrcode } from 'html5-qrcode';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { notifyUsers } from '../../services/notifications.service';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import { CreateWODrawer } from '../../components/workorders/CreateWODrawer';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
@@ -112,6 +113,7 @@ export default function BreakdownsPage() {
   const role = userProfile?.role ?? '';
   const canAssign = CAN_ASSIGN_ROLES.includes(role);
   const canAttend = CAN_ATTEND_ROLES.includes(role);
+  const { department: scopedDepartment } = useDepartmentScope();
 
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -160,6 +162,10 @@ export default function BreakdownsPage() {
   const filtered = useMemo(() => {
     const closedSet = new Set<BreakdownStatus>(['closed', 'cancelled']);
     let list = breakdowns;
+    // Technician/trainee/supervisor/floor_operator only ever see breakdowns
+    // for their own registered department — everyone else keeps full
+    // site-wide visibility.
+    if (scopedDepartment) list = list.filter((b) => b.machineDepartment === scopedDepartment);
     if (filter === 'reported') list = list.filter((b) => b.status === 'reported');
     if (filter === 'assigned') list = list.filter((b) => b.status === 'assigned');
     if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status) && b.status !== 'reported' && b.status !== 'assigned');
@@ -178,7 +184,7 @@ export default function BreakdownsPage() {
       );
     }
     return list;
-  }, [breakdowns, filter, severityFilter, search]);
+  }, [breakdowns, filter, severityFilter, search, scopedDepartment]);
 
   // Multiple open tickets on the same machine are shown as one row so a
   // supervisor isn't assigning/attending the same machine ticket by ticket.

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { usePMWorkOrderLookup } from '../../hooks/pm/usePMWorkOrderLookup';
 import { useMachines } from '../../hooks/useMachines';
 import { useAuthStore } from '../../store/authStore';
@@ -32,8 +33,14 @@ export default function PMSchedulesPage() {
   const filters = usePMStore((s) => s.filters);
   const setFilters = usePMStore((s) => s.setFilters);
 
-  const { schedules, loading, bulkDelete } =
+  const { department: scopedDepartment } = useDepartmentScope();
+  const { schedules: fetchedSchedules, loading, bulkDelete } =
     usePMSchedules({ companyId: company?.id || '', filters });
+  // Supervisor (the only department-scoped role that reaches this page)
+  // only ever sees PM schedules for their own registered department.
+  const schedules = scopedDepartment
+    ? fetchedSchedules.filter((s) => s.department === scopedDepartment)
+    : fetchedSchedules;
   const { machines } = useMachines({ siteId: company?.id || '', pageSize: 500 });
   const woLookup = usePMWorkOrderLookup(userProfile?.siteIds?.[0] || company?.id || '');
 

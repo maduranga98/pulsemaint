@@ -6,6 +6,7 @@ import { WO_COPY } from '../../constants/copy';
 import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { WOTable } from './WOTable';
 import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
@@ -80,7 +81,13 @@ export function WOListView() {
   // to, so the query must always be constrained to their own WOs or it is rejected.
   if (role === 'technician' || role === 'trainee') filters.technicianId = user?.uid;
 
-  const { workOrders, loading, error } = useWorkOrders(filters);
+  const { department: scopedDepartment } = useDepartmentScope();
+  const { workOrders: fetchedWorkOrders, loading, error } = useWorkOrders(filters);
+  // Technician/trainee/supervisor/floor_operator only ever see work orders
+  // for their own registered department — everyone else keeps full visibility.
+  const workOrders = scopedDepartment
+    ? fetchedWorkOrders.filter((wo) => wo.machineDepartment === scopedDepartment)
+    : fetchedWorkOrders;
 
   // Deep-link straight to a specific WO's detail view (e.g. from the PM
   // Schedules table or PM Calendar), once it has loaded.
