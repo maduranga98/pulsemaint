@@ -251,14 +251,14 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
-        {/* Safety officer lands here instead of /dashboard/manager — same
-            component/content (it already surfaces safety cases inline), but
-            a URL that actually reflects their role. */}
+        {/* Safety officer lands here instead of /dashboard/manager — a
+            dedicated dashboard scoped to safety data (cases, permits,
+            trainings) instead of the full plant-wide manager view. */}
         <Route
           path="dashboard/safety"
           element={
             <ProtectedRoute requiredRoles={['safety_officer', 'admin']}>
-              <ManagerDashboard />
+              <SafetyDashboard />
             </ProtectedRoute>
           }
         />
