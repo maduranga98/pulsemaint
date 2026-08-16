@@ -682,7 +682,9 @@ service cloud.firestore {
           request.auth.uid == userId
           || (exists(/databases/$(database)/documents/users/$(request.auth.uid))
               && getUserData().companyId == companyId
-              && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor', 'safety_officer'])
+              // store_keeper needs the roster to pick who parts are being
+              // issued to (Scan & Issue Parts' "Issuing To" picker).
+              && getUserData().role in ['admin', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'supervisor', 'safety_officer', 'store_keeper'])
         );
 
       // Self-create during signup; admins create anyone; supervisors/plant
