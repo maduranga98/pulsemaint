@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "Tableau de bord de l'administrateur",
       "managerTitle": "Tableau de bord du responsable",
+      "inventoryTitle": "Tableau de bord Inventaire",
+      "supervisorTitle": "Tableau de bord Superviseur",
+      "technicianTitle": "Tableau de bord Technicien",
+      "traineeTitle": "Tableau de bord Stagiaire",
+      "hrTitle": "Tableau de bord RH",
+      "safetyOfficerTitle": "Tableau de bord Sécurité",
       "greeting": {
         "morning": "matin",
         "afternoon": "après-midi",
@@ -94,9 +100,9 @@
         "empty": "Aucun bon de commande en attente d'approbation"
       },
       "safetyCases": {
-        "title": "Cas de sécurité du jour",
-        "today": "{{count}} aujourd'hui",
-        "empty": "Aucun cas de sécurité signalé aujourd'hui"
+        "title": "Cas de sécurité ouverts",
+        "today": "{{count}} ouverts",
+        "empty": "Aucun cas de sécurité ouvert"
       },
       "trainings": {
         "title": "Formations du jour",
@@ -104,6 +110,12 @@
         "empty": "Aucune formation prévue aujourd'hui",
         "safety": "Sécurité",
         "general": "Général"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "Pannes actives",
+        "mttrToday": "MTTR du jour",
+        "openWorkOrders": "Ordres de travail ouverts",
+        "shiftHoursElapsed": "Heures de poste écoulées"
       }
     },
     "inventory": {

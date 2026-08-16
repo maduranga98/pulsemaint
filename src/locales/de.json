@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "Admin-Übersicht",
       "managerTitle": "Manager-Übersicht",
+      "inventoryTitle": "Lager-Dashboard",
+      "supervisorTitle": "Supervisor-Dashboard",
+      "technicianTitle": "Techniker-Dashboard",
+      "traineeTitle": "Auszubildenden-Dashboard",
+      "hrTitle": "HR-Dashboard",
+      "safetyOfficerTitle": "Sicherheits-Dashboard",
       "greeting": {
         "morning": "Morgen",
         "afternoon": "Tag",
@@ -94,9 +100,9 @@
         "empty": "Keine Bestellungen zur Genehmigung ausstehend"
       },
       "safetyCases": {
-        "title": "Heutige Sicherheitsfälle",
-        "today": "{{count}} heute",
-        "empty": "Heute keine Sicherheitsfälle gemeldet"
+        "title": "Offene Sicherheitsfälle",
+        "today": "{{count}} offen",
+        "empty": "Keine offenen Sicherheitsfälle"
       },
       "trainings": {
         "title": "Heutige Schulungen",
@@ -104,6 +110,12 @@
         "empty": "Heute keine Schulungen geplant",
         "safety": "Sicherheit",
         "general": "Allgemein"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "Aktive Störungen",
+        "mttrToday": "MTTR heute",
+        "openWorkOrders": "Offene Arbeitsaufträge",
+        "shiftHoursElapsed": "Verstrichene Schichtstunden"
       }
     },
     "inventory": {

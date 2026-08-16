@@ -103,6 +103,12 @@
     "dashboard": {
       "adminTitle": "অ্যাডমিন ড্যাশবোর্ড",
       "managerTitle": "ম্যানেজার ড্যাশবোর্ড",
+      "inventoryTitle": "ইনভেন্টরি ড্যাশবোর্ড",
+      "supervisorTitle": "সুপারভাইজার ড্যাশবোর্ড",
+      "technicianTitle": "টেকনিশিয়ান ড্যাশবোর্ড",
+      "traineeTitle": "প্রশিক্ষণার্থী ড্যাশবোর্ড",
+      "hrTitle": "এইচআর ড্যাশবোর্ড",
+      "safetyOfficerTitle": "নিরাপত্তা ড্যাশবোর্ড",
       "greeting": {
         "morning": "সকাল",
         "afternoon": "দুপুর",
@@ -143,9 +149,9 @@
         "empty": "অনুমোদনের অপেক্ষায় কোনো ক্রয় আদেশ নেই"
       },
       "safetyCases": {
-        "title": "আজকের নিরাপত্তা মামলা",
-        "today": "আজ {{count}}টি",
-        "empty": "আজ কোনো নিরাপত্তা মামলা রিপোর্ট করা হয়নি"
+        "title": "খোলা নিরাপত্তা মামলা",
+        "today": "{{count}}টি খোলা",
+        "empty": "কোনো খোলা নিরাপত্তা মামলা নেই"
       },
       "trainings": {
         "title": "আজকের প্রশিক্ষণ",
@@ -153,6 +159,12 @@
         "empty": "আজ কোনো প্রশিক্ষণ নির্ধারিত নেই",
         "safety": "নিরাপত্তা",
         "general": "সাধারণ"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "সক্রিয় বিকল ঘটনা",
+        "mttrToday": "আজকের MTTR",
+        "openWorkOrders": "খোলা কার্য আদেশ",
+        "shiftHoursElapsed": "অতিবাহিত শিফট ঘণ্টা"
       }
     },
     "inventory": {

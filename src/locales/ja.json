@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "管理者ダッシュボード",
       "managerTitle": "マネージャーダッシュボード",
+      "inventoryTitle": "在庫ダッシュボード",
+      "supervisorTitle": "監督者ダッシュボード",
+      "technicianTitle": "技術者ダッシュボード",
+      "traineeTitle": "研修生ダッシュボード",
+      "hrTitle": "人事ダッシュボード",
+      "safetyOfficerTitle": "安全ダッシュボード",
       "greeting": {
         "morning": "おはようございます",
         "afternoon": "こんにちは",
@@ -94,9 +100,9 @@
         "empty": "承認待ちの発注書はありません"
       },
       "safetyCases": {
-        "title": "本日の安全事例",
-        "today": "本日{{count}}件",
-        "empty": "本日報告された安全事例はありません"
+        "title": "未解決の安全事例",
+        "today": "未解決{{count}}件",
+        "empty": "未解決の安全事例はありません"
       },
       "trainings": {
         "title": "本日のトレーニング",
@@ -104,6 +110,12 @@
         "empty": "本日予定されたトレーニングはありません",
         "safety": "安全",
         "general": "一般"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "対応中の故障",
+        "mttrToday": "本日のMTTR",
+        "openWorkOrders": "未完了の作業指示",
+        "shiftHoursElapsed": "経過シフト時間"
       }
     },
     "inventory": {

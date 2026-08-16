@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "एडमिन डैशबोर्ड",
       "managerTitle": "मैनेजर डैशबोर्ड",
+      "inventoryTitle": "इन्वेंटरी डैशबोर्ड",
+      "supervisorTitle": "सुपरवाइज़र डैशबोर्ड",
+      "technicianTitle": "तकनीशियन डैशबोर्ड",
+      "traineeTitle": "प्रशिक्षु डैशबोर्ड",
+      "hrTitle": "एचआर डैशबोर्ड",
+      "safetyOfficerTitle": "सुरक्षा डैशबोर्ड",
       "greeting": {
         "morning": "सुप्रभात",
         "afternoon": "शुभ दोपहर",
@@ -94,9 +100,9 @@
         "empty": "अनुमोदन की प्रतीक्षा में कोई क्रय आदेश नहीं"
       },
       "safetyCases": {
-        "title": "आज के सुरक्षा मामले",
-        "today": "आज {{count}}",
-        "empty": "आज कोई सुरक्षा मामला दर्ज नहीं हुआ"
+        "title": "खुले सुरक्षा मामले",
+        "today": "{{count}} खुले",
+        "empty": "कोई खुला सुरक्षा मामला नहीं"
       },
       "trainings": {
         "title": "आज के प्रशिक्षण",
@@ -104,6 +110,12 @@
         "empty": "आज कोई प्रशिक्षण निर्धारित नहीं है",
         "safety": "सुरक्षा",
         "general": "सामान्य"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "सक्रिय ब्रेकडाउन",
+        "mttrToday": "आज का MTTR",
+        "openWorkOrders": "खुले वर्क ऑर्डर",
+        "shiftHoursElapsed": "बीती शिफ्ट के घंटे"
       }
     },
     "inventory": {

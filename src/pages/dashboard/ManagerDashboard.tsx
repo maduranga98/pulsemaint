@@ -42,7 +42,7 @@ export default function ManagerDashboard() {
   // header should still read as theirs — same page, correct role identity.
   const dashboardTitle =
     role === 'admin' ? t('common.dashboard.adminTitle')
-    : role === 'safety_officer' ? 'Safety Dashboard'
+    : role === 'safety_officer' ? t('common.dashboard.safetyOfficerTitle')
     : t('common.dashboard.managerTitle');
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
 

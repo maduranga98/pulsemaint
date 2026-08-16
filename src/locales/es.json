@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "Panel de administrador",
       "managerTitle": "Panel del gerente",
+      "inventoryTitle": "Panel de Inventario",
+      "supervisorTitle": "Panel de Supervisor",
+      "technicianTitle": "Panel de Técnico",
+      "traineeTitle": "Panel de Aprendiz",
+      "hrTitle": "Panel de RR.HH.",
+      "safetyOfficerTitle": "Panel de Seguridad",
       "greeting": {
         "morning": "días",
         "afternoon": "tardes",
@@ -94,9 +100,9 @@
         "empty": "No hay órdenes de compra pendientes de aprobación"
       },
       "safetyCases": {
-        "title": "Casos de seguridad de hoy",
-        "today": "{{count}} hoy",
-        "empty": "No se reportaron casos de seguridad hoy"
+        "title": "Casos de seguridad abiertos",
+        "today": "{{count}} abiertos",
+        "empty": "No hay casos de seguridad abiertos"
       },
       "trainings": {
         "title": "Capacitaciones de hoy",
@@ -104,6 +110,12 @@
         "empty": "No hay capacitaciones programadas para hoy",
         "safety": "Seguridad",
         "general": "General"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "Averías activas",
+        "mttrToday": "MTTR de hoy",
+        "openWorkOrders": "Órdenes de trabajo abiertas",
+        "shiftHoursElapsed": "Horas de turno transcurridas"
       }
     },
     "inventory": {

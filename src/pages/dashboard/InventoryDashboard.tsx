@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import InventoryHealthStrip from '../../components/dashboard/inventory/InventoryHealthStrip';
 import LowStockAlertTable from '../../components/dashboard/inventory/LowStockAlertTable';
@@ -9,15 +10,16 @@ import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainings
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 
 export default function InventoryDashboard() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Store Keeper';
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">Inventory Dashboard</h1>
+        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{t('common.dashboard.inventoryTitle')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Good {getGreeting()}, {firstName}
+          {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
         </p>
       </div>
 
