@@ -3,12 +3,12 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { db, storage } from '../firebase';
 import { USER_ROLE_LABELS } from '../../constants/copy';
 import { buildProgrammeCertificatePdf } from './programmeCertificatePdf';
-import type { UserProfile } from '../../types/auth';
+import type { CompanyProfile, UserProfile } from '../../types/auth';
 import type { ProgrammeDuration, ProgrammeDurationPreset, ProgrammeModuleResult } from '../../types/traineeProgram';
 
 interface IssueProgrammeCertificateInput {
   companyId: string;
-  companyName: string;
+  company: CompanyProfile;
   programmeId: string;
   trainee: { id: string; fullName: string; employeeId: string | null };
   durationMonths: ProgrammeDuration;
@@ -18,8 +18,27 @@ interface IssueProgrammeCertificateInput {
   finalMark: number;
   recommendation: string;
   recommender: UserProfile;
-  /** PNG data URL of the authorizer's hand-drawn signature, if captured. */
+  /** PNG data URL of the authorizer's digital signature, if captured. */
   signatureImageDataUrl?: string | null;
+}
+
+// Prefer the data URL captured at upload time — fetching the Storage
+// download URL cross-origin can fail silently if the bucket has no CORS
+// rule for this origin (same fallback used by service letters).
+async function fetchImageAsDataUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    console.error('Failed to load company logo for programme certificate', err);
+    return null;
+  }
 }
 
 /**
@@ -38,10 +57,17 @@ export async function issueProgrammeCertificate(input: IssueProgrammeCertificate
 
   const completedDate = new Date();
   const recommendedByRole = USER_ROLE_LABELS[input.recommender.role] ?? input.recommender.role;
+  const { company } = input;
+  const companyLogoDataUrl = company.logoDataUrl || (company.logoUrl ? await fetchImageAsDataUrl(company.logoUrl) : null);
 
   const pdf = buildProgrammeCertificatePdf({
     certificateNumber,
-    companyName: input.companyName,
+    companyName: company.name,
+    companyDescription: company.description,
+    companyAddress: company.address,
+    companyPhone: company.phone,
+    companyEmail: company.email,
+    companyLogoDataUrl,
     traineeName: input.trainee.fullName,
     traineeEmployeeId: input.trainee.employeeId,
     durationMonths: input.durationMonths,
@@ -67,7 +93,7 @@ export async function issueProgrammeCertificate(input: IssueProgrammeCertificate
     id: certRef.id,
     certificateNumber,
     companyId: input.companyId,
-    companyName: input.companyName,
+    companyName: company.name,
     programmeId: input.programmeId,
     traineeId: input.trainee.id,
     traineeName: input.trainee.fullName,

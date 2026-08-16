@@ -226,7 +226,7 @@ export default function TraineeProgrammePage() {
   const allCertified = allModuleIds.length > 0 && allModuleIds.every(isModuleDone);
 
   async function handleIssueCertificate() {
-    if (!programme || !trainee || !userProfile || !recommendation.trim()) return;
+    if (!programme || !trainee || !userProfile || !company || !recommendation.trim()) return;
     if (!signatureDataUrl) {
       toast.error('Please add your signature to authorize the certificate.');
       return;
@@ -245,7 +245,7 @@ export default function TraineeProgrammePage() {
 
       const certificateId = await issueProgrammeCertificate({
         companyId,
-        companyName: company?.name ?? '',
+        company,
         programmeId: programme.id,
         trainee,
         durationMonths: programme.durationMonths,
