@@ -29,7 +29,7 @@ export default function TopUsedPartsChartLight({ companyId, days = 30 }: TopUsed
   const hasData = data.some((d) => d.count > 0);
 
   return (
-    <LightAnalyticsWidget title={`Parts Requested By Reason (Last ${days} Days)`} loading={loading} error={error}>
+    <LightAnalyticsWidget title="Parts Requested By Reason" loading={loading} error={error}>
       {!hasData ? (
         <LightEmptyState message="No request data" />
       ) : (

@@ -10,7 +10,7 @@ export interface TopMovedPart {
 
 const DEFAULT_WINDOW_DAYS = 30;
 const HISTORY_LIMIT = 500;
-const TOP_N = 10;
+const TOP_N = 5;
 
 export function useTopMovedParts(companyId: string, windowDays: number = DEFAULT_WINDOW_DAYS) {
   const [parts, setParts] = useState<TopMovedPart[]>([]);
