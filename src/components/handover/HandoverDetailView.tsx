@@ -1,10 +1,10 @@
 import type { ShiftHandover } from '@/types/handover.types';
 import { formatDuration } from '@/utils/handover.utils';
 import BreakdownSnapshotRow from './BreakdownSnapshotRow';
+import HandoverSafetyCasesSection from './HandoverSafetyCasesSection';
 import HandoverStatusBadge from './HandoverStatusBadge';
 import HandoverTimeline from './HandoverTimeline';
 import PendingWORow from './PendingWORow';
-import ShiftStatsGrid from './ShiftStatsGrid';
 import WatchFlagCard from './WatchFlagCard';
 
 interface HandoverDetailViewProps {
@@ -33,12 +33,33 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
         </div>
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <div>
+            <dt className="font-semibold text-slate-500">Assigned shift</dt>
+            <dd className="text-slate-900">
+              {handover.shiftName} ({handover.shiftDate})
+              {handover.scheduledStart && handover.scheduledEnd && (
+                <span className="ml-1 text-xs text-slate-500">
+                  scheduled {handover.scheduledStart}–{handover.scheduledEnd}
+                </span>
+              )}
+            </dd>
+          </div>
+          <div>
             <dt className="font-semibold text-slate-500">Shift taken from</dt>
-            <dd className="text-slate-900">{handover.outgoingSupervisorName || ''}</dd>
+            <dd className="text-slate-900">
+              {handover.outgoingSupervisorName || ''}
+              {handover.outgoingSupervisorDesignation && (
+                <span className="ml-1 text-xs text-slate-500">({handover.outgoingSupervisorDesignation})</span>
+              )}
+            </dd>
           </div>
           <div>
             <dt className="font-semibold text-slate-500">Shift handed over to</dt>
-            <dd className="text-slate-900">{handover.incomingSupervisorName ?? 'Pending acceptance'}</dd>
+            <dd className="text-slate-900">
+              {handover.incomingSupervisorName ?? 'Pending acceptance'}
+              {handover.incomingSupervisorDesignation && (
+                <span className="ml-1 text-xs text-slate-500">({handover.incomingSupervisorDesignation})</span>
+              )}
+            </dd>
           </div>
           <div>
             <dt className="font-semibold text-slate-500">Shift start time</dt>
@@ -47,18 +68,6 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
           <div>
             <dt className="font-semibold text-slate-500">Shift end time</dt>
             <dd className="text-slate-900">{formatDateTime(handover.shiftActualEnd)}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-slate-500">Handover submitted at</dt>
-            <dd className="text-slate-900">{formatDateTime(handover.handoverSubmittedAt)}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-slate-500">Handover accepted at</dt>
-            <dd className="text-slate-900">{formatDateTime(handover.handoverAcceptedAt)}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-slate-500">Overlap (minutes)</dt>
-            <dd className="text-slate-900">{handover.overlapMinutes ?? ''}</dd>
           </div>
           {/* SUP-020: OT = actual worked minutes beyond the scheduled shift length. */}
           <div>
@@ -75,7 +84,6 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
         </dl>
       </header>
 
-      <ShiftStatsGrid stats={handover.stats} />
       <HandoverTimeline handover={handover} />
 
       <section className="space-y-3">
@@ -105,31 +113,11 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
         )}
       </section>
 
+      <HandoverSafetyCasesSection />
+
       <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-[Sora] font-bold text-slate-950">Parts, Safety &amp; Notes</h2>
+        <h2 className="font-[Sora] font-bold text-slate-950">General Notes &amp; Safety Considerations</h2>
         <dl className="mt-3 grid gap-3 text-sm">
-          <div>
-            <dt className="font-semibold text-slate-500">Parts notes</dt>
-            <dd className="whitespace-pre-wrap text-slate-800">{handover.partsNotes || ''}</dd>
-          </div>
-          {handover.lowStockAlerts && handover.lowStockAlerts.length > 0 && (
-            <div>
-              <dt className="font-semibold text-slate-500">Low stock alerts</dt>
-              <dd className="text-slate-800">
-                <ul className="list-disc pl-5">
-                  {handover.lowStockAlerts.map((alert, i) => (
-                    <li key={i}>
-                      {(alert as { partName?: string; currentStock?: number; minStockLevel?: number }).partName ?? 'Part'}
-                      {' — '}
-                      {(alert as { currentStock?: number }).currentStock ?? '?'} on hand
-                      {' / min '}
-                      {(alert as { minStockLevel?: number }).minStockLevel ?? '?'}
-                    </li>
-                  ))}
-                </ul>
-              </dd>
-            </div>
-          )}
           <div>
             <dt className="font-semibold text-slate-500">Safety incident</dt>
             <dd className="whitespace-pre-wrap text-slate-800">

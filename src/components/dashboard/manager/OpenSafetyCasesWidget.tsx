@@ -11,30 +11,23 @@ const SEVERITY_COLOR: Record<string, string> = {
   low: '#10B981',
 };
 
-function isToday(ts: { seconds: number } | null | undefined): boolean {
-  if (!ts?.seconds) return false;
-  const d = new Date(ts.seconds * 1000);
-  const now = new Date();
-  return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
-}
-
-export default function TodaySafetyCasesWidget({ companyId }: { companyId: string }) {
+export default function OpenSafetyCasesWidget({ companyId }: { companyId: string }) {
   const { t } = useTranslation();
   const { cases, loading } = useSafetyCases(companyId);
-  const todayCases = useMemo(() => cases.filter((c) => isToday(c.reportedAt)), [cases]);
+  const openCases = useMemo(() => cases.filter((c) => c.status !== 'closed'), [cases]);
 
   return (
     <DashboardWidget
       title={t('common.dashboard.safetyCases.title')}
       loading={loading}
       live
-      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.safetyCases.today', { count: todayCases.length })}</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.safetyCases.today', { count: openCases.length })}</span>}
     >
-      {todayCases.length === 0 ? (
+      {openCases.length === 0 ? (
         <EmptyState message={t('common.dashboard.safetyCases.empty')} />
       ) : (
         <div className="space-y-1.5">
-          {todayCases.map((c) => {
+          {openCases.map((c) => {
             const color = SEVERITY_COLOR[c.severity] ?? '#8BA3BF';
             return (
               <div
