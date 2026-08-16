@@ -101,14 +101,13 @@ const NAV_GROUPS: NavGroup[] = [
     labelKey: 'common.nav.groups.safety',
     items: [
       { labelKey: 'common.nav.items.workPermits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
-      // Safety officer and HR officer now use the same "Safety Cases" tab as
-      // the oversight roles (same route — SafetyCasesPage itself still gives
-      // the safety officer the full case board, everyone else the
-      // "Reported to Me" filtered view, based on their role, not the nav entry).
-      // HR officer no longer has a Safety tab at all — it was removed from
-      // their nav entirely (they still have route-level access to the pages
-      // if linked to directly, they just aren't surfaced in the sidebar).
-      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
+      // HR officer and safety officer no longer have a "Safety Cases" nav
+      // entry at all — HR officer's Safety tab was removed entirely, and
+      // safety officer now works their case board from the "Open Safety
+      // Cases" widget on their dashboard instead (see OpenSafetyCasesWidget
+      // on ManagerDashboard, which safety_officer shares); both still have
+      // route-level access to the page if linked to directly.
+      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
       // Frontline roles a safety case can be assigned down to for action — they
       // land on the same page's "Reported to Me" filtered view. Store keeper
       // has no standalone Safety tab — their safety cases/trainings surface
@@ -167,12 +166,14 @@ const NAV_GROUPS: NavGroup[] = [
       // Trainee's own training tabs live alongside Triage in this same
       // "Triage & Training" group instead of under Workforce, so a trainee's
       // whole day-to-day (troubleshooting + their own program) is one section.
-      // hr_officer's "My Training" also lives here now (moved from Workforce).
       // Other roles get their outstanding trainings via a dashboard widget
-      // instead (see MyTrainingsWidget / TodayMyTrainingsWidget).
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'supervisor', 'store_keeper'] },
+      // instead (see MyTrainingsWidget / TodayMyTrainingsWidget). Trainee's
+      // own "My Training" also moved to a dashboard widget — see TraineeDashboard.
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['supervisor', 'store_keeper'] },
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
-      { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['store_keeper'] },
+      // My Certificates lives here for every role that has one, instead of
+      // being split across this group and Workforce.
+      { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician', 'store_keeper'] },
     ],
   },
   {
@@ -205,10 +206,9 @@ const NAV_GROUPS: NavGroup[] = [
         roles: ['plant_manager', 'admin', 'hr_officer'],
       },
       // "My Training" nav entries for other roles were dropped in favor of
-      // dashboard widgets (see MyTrainingsWidget); trainee's, safety_officer's,
-      // and hr_officer's own "My Training" / "My Program" still live under
-      // Triage & Training (see that group).
-      { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician'] },
+      // dashboard widgets (see MyTrainingsWidget); trainee's own "My Training"
+      // / "My Program", and "My Certificates" for every role that has one,
+      // live under Triage & Training instead (see that group).
     ],
   },
   {
