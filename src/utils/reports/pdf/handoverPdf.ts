@@ -59,10 +59,10 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
   // Header — same layout as genericReportPdf: 16pt title, gray 10pt metadata lines.
   const titleY = headerRuleY + 24;
   doc.setFontSize(16);
-  doc.text(`${handover.shiftName} Shift Handover`, 40, titleY);
+  doc.text('Supervisor Shift Handover', 40, titleY);
   doc.setFontSize(10);
   doc.setTextColor(120);
-  doc.text(`Shift date: ${handover.shiftDate}`, 40, titleY + 18);
+  doc.text(`${handover.shiftName}   ·   Shift date: ${handover.shiftDate}`, 40, titleY + 18);
   doc.text(
     `Shift started: ${fmt(handover.shiftActualStart)}   ·   Shift ended: ${fmt(handover.shiftActualEnd)}`,
     40,

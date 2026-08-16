@@ -1,5 +1,6 @@
 import { collection, query, where, getDocs, type QuerySnapshot, type DocumentData } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { TRAINEE_TRAINING_TYPE_LABELS, type TraineeTrainingType } from '../lib/training/trainingTypes';
 
 // Per-person Team Performance row — shared by the Team Performance report
 // (technician_performance) and the Analytics "Team Performance" dashboard
@@ -411,11 +412,6 @@ export interface CategoryStatusRow {
   completed: number;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  machine: 'Machine Training',
-  offboard: 'Offboard / External',
-};
-
 const bumpStatus = (
   counts: Record<string, { ongoing: number; completed: number }>,
   category: string,
@@ -429,7 +425,14 @@ const bumpStatus = (
 const toStatusRows = (counts: Record<string, { ongoing: number; completed: number }>): CategoryStatusRow[] =>
   Object.entries(counts).map(([category, v]) => ({ category, ...v }));
 
-/** trainingAssignments joined through their trainingModules doc for `category` ('machine' | 'offboard'; missing = 'machine'). */
+/**
+ * Trainings by type (Electrical/Mechanical/HR/Civil/Technician/Operator/
+ * Safety Training/Other — see TraineeTrainingType), the same "named
+ * category" shape as Audits (tpm/fives/safety/contractor) and Evaluations
+ * (by template). Reads the assignment's own `trainingType` first (copied
+ * from the module at assignment time) and falls back to the module's, since
+ * older assignments predate that field being copied down.
+ */
 export async function fetchTrainingCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
@@ -444,8 +447,8 @@ export async function fetchTrainingCategoryStatus(
     )),
   ]);
 
-  const moduleCategory = new Map<string, string>();
-  modules.forEach((m) => moduleCategory.set(String(m.id), String(m.category ?? 'machine')));
+  const moduleTrainingType = new Map<string, string>();
+  modules.forEach((m) => moduleTrainingType.set(String(m.id), String(m.trainingType ?? 'other_trainee')));
 
   const counts: Record<string, { ongoing: number; completed: number }> = {};
   assignments.forEach((row) => {
@@ -454,8 +457,9 @@ export async function fetchTrainingCategoryStatus(
       ? asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt)
       : asMillis(row.startedAt ?? row.assignedAt);
     if (!inRange(at, dateRange)) return;
-    const rawCategory = moduleCategory.get(String(row.moduleId)) ?? 'machine';
-    bumpStatus(counts, CATEGORY_LABELS[rawCategory] ?? rawCategory, isCompleted);
+    const rawType = String(row.trainingType ?? moduleTrainingType.get(String(row.moduleId)) ?? 'other_trainee');
+    const label = TRAINEE_TRAINING_TYPE_LABELS[rawType as TraineeTrainingType] ?? rawType;
+    bumpStatus(counts, label, isCompleted);
   });
 
   return toStatusRows(counts);
