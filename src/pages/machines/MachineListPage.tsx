@@ -4,6 +4,7 @@ import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/fi
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { useMachines } from '../../hooks/useMachines';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import {
   MachineFilterBar,
   MachineCard,
@@ -373,6 +374,7 @@ export function MachineListPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
+  const { department: scopedDepartment } = useDepartmentScope();
 
   const { machines, loading, error, hasMore, loadMore, totalCount } = useMachines({
     siteId,
@@ -381,6 +383,13 @@ export function MachineListPage() {
 
   const filteredMachines = useMemo(() => {
     let result = machines;
+
+    // Technician/trainee/supervisor/floor_operator only ever see machines in
+    // their own registered department — everyone else (admin, plant_manager,
+    // hr_officer, safety_officer, store_keeper) keeps full site visibility.
+    if (scopedDepartment) {
+      result = result.filter((m) => m.department === scopedDepartment);
+    }
 
     if (filters.search) {
       const search = filters.search.toLowerCase();

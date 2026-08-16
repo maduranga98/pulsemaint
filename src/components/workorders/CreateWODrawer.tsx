@@ -9,6 +9,7 @@ import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } 
 import { PM_TYPES_ORDERED, PM_TYPE_CONFIG } from '../../constants/pmConfig';
 import { WO_COPY } from '../../constants/copy';
 import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { useContractors } from '../../hooks/contractors/useContractors';
 import { TeamAssignmentPanel } from './TeamAssignmentPanel';
 import { ChecklistBuilder } from './ChecklistBuilder';
@@ -111,6 +112,10 @@ export function CreateWODrawer({
 
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds);
+  // A supervisor (or any other department-scoped role that can reach this
+  // drawer) can only raise a work order against a machine in their own
+  // registered department.
+  const { department: scopedDepartment } = useDepartmentScope();
 
   // Registered contractor companies (for CONTRACTOR work orders).
   const { contractors: registeredContractors } = useContractors();
@@ -125,18 +130,21 @@ export function CreateWODrawer({
           query(collection(db, 'machines'), where('siteId', 'in', siteIdList.slice(0, 10))),
         );
         if (cancelled) return;
+        const machineOptions = machineSnap.docs.map((d) => {
+          const data = d.data() as Record<string, unknown>;
+          return {
+            id: d.id,
+            name: (data.name as string) ?? d.id,
+            type: data.type as string | undefined,
+            department: data.department as string | undefined,
+            location: data.location as string | undefined,
+            criticality: data.criticality as number | undefined,
+          };
+        });
         setMachines(
-          machineSnap.docs.map((d) => {
-            const data = d.data() as Record<string, unknown>;
-            return {
-              id: d.id,
-              name: (data.name as string) ?? d.id,
-              type: data.type as string | undefined,
-              department: data.department as string | undefined,
-              location: data.location as string | undefined,
-              criticality: data.criticality as number | undefined,
-            };
-          }),
+          scopedDepartment
+            ? machineOptions.filter((m) => m.department === scopedDepartment)
+            : machineOptions,
         );
 
         const userSnap = await getDocs(collection(db, `companies/${companyId}/users`));
@@ -182,7 +190,8 @@ export function CreateWODrawer({
                     description: data.description as string | undefined,
                   };
                 })
-                .filter((b) => !TERMINAL.has(b.status)),
+                .filter((b) => !TERMINAL.has(b.status))
+                .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment),
             );
           }
         } catch (bdErr) {
@@ -209,7 +218,7 @@ export function CreateWODrawer({
     return () => {
       cancelled = true;
     };
-  }, [open, companyId, siteIds]);
+  }, [open, companyId, siteIds, scopedDepartment]);
 
   useEffect(() => {
     if (!open || !linkedBreakdownId) {

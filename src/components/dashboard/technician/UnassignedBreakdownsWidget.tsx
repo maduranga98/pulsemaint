@@ -4,6 +4,7 @@ import { collection, query, where, onSnapshot, doc, writeBatch, arrayUnion, serv
 import { toast } from 'sonner';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownSeverity } from '../../../types/breakdown';
@@ -30,6 +31,7 @@ const SEVERITY_RANK: Record<BreakdownSeverity, number> = { critical: 4, high: 3,
 export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdownsWidgetProps) {
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
+  const { department: scopedDepartment } = useDepartmentScope();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [attendingMachineId, setAttendingMachineId] = useState<string | null>(null);
@@ -55,7 +57,12 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
     return () => unsub();
   }, [siteId]);
 
-  const groups = groupBreakdownsByMachine(breakdowns);
+  // Technician/trainee/floor_operator only ever see unassigned breakdowns in
+  // their own registered department.
+  const scopedBreakdowns = scopedDepartment
+    ? breakdowns.filter((b) => b.machineDepartment === scopedDepartment)
+    : breakdowns;
+  const groups = groupBreakdownsByMachine(scopedBreakdowns);
 
   async function handleAttend(tickets: Breakdown[], machineId: string) {
     if (!userProfile || tickets.length === 0) return;
