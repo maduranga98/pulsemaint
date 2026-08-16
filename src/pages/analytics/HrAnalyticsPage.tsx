@@ -22,11 +22,13 @@ const TABS: { id: TabId; label: string }[] = [
 ];
 
 // HR officer's Analytics tab — restructured into on-demand tabs so only the
-// selected report is fetched/rendered at a time. A single date-range filter
-// sits above the tabs and applies to whichever report is active.
+// selected report is fetched/rendered at a time. The date-range filter is a
+// common control above the tabs (not part of any one tab) and applies to
+// whichever report is currently showing; the first tab loads by default so
+// there's always a report on screen.
 export default function HrAnalyticsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const [activeTab, setActiveTab] = useState<TabId | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>(TABS[0].id);
   const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
 
   return (
@@ -34,16 +36,18 @@ export default function HrAnalyticsPage() {
       <div className="px-4 py-4 sm:px-6 lg:px-8">
         <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">HR Analytics</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Select a report below to view it.
+          Team performance, training activity, and staff progress.
         </p>
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
+        <DateRangeFilter value={dateRange} onChange={setDateRange} />
+
         <div className="flex flex-wrap gap-2 border-b border-[#1E3A5F] pb-3">
           {TABS.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab((current) => (current === tab.id ? null : tab.id))}
+              onClick={() => setActiveTab(tab.id)}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'bg-[#1A56DB] text-white'
@@ -54,12 +58,6 @@ export default function HrAnalyticsPage() {
             </button>
           ))}
         </div>
-
-        {activeTab !== null && <DateRangeFilter value={dateRange} onChange={setDateRange} />}
-
-        {activeTab === null && (
-          <p className="text-sm text-[#8BA3BF]">Click a tab above to load that report.</p>
-        )}
 
         {activeTab === 'top-performers' && <TopPerformersWidget companyId={companyId} dateRange={dateRange} />}
 
