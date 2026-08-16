@@ -5,6 +5,7 @@ import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { useSafetyKpis } from '@/hooks/safety/useSafety';
 import InventoryAnalyticsPage from './InventoryAnalyticsPage';
 import HrAnalyticsPage from './HrAnalyticsPage';
+import SafetyAnalyticsPage from '../../modules/safety/pages/SafetyAnalyticsPage';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import MttrTrendChart from '../../components/dashboard/manager/MttrTrendChart';
 import BreakdownByTypeChart from '../../components/dashboard/manager/BreakdownByTypeChart';
@@ -45,7 +46,7 @@ export default function AnalyticsPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = resolveAnalyticsScopeId(userProfile);
   const isDedicatedAnalyticsRole =
-    userProfile?.role === 'store_keeper' || userProfile?.role === 'hr_officer';
+    userProfile?.role === 'store_keeper' || userProfile?.role === 'hr_officer' || userProfile?.role === 'safety_officer';
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   // Store keeper / HR officer render a dedicated analytics page below and
   // never see this data — pass '' so the underlying hooks skip subscribing.
@@ -90,11 +91,13 @@ export default function AnalyticsPage() {
     },
   ];
 
-  // Store keeper / HR officer get dedicated analytics views instead of the
-  // manager-oriented dashboard below. This branch must come after every hook
-  // above so hook order stays identical across renders regardless of role.
+  // Store keeper / HR officer / Safety officer get dedicated analytics views
+  // instead of the manager-oriented dashboard below. This branch must come
+  // after every hook above so hook order stays identical across renders
+  // regardless of role.
   if (userProfile?.role === 'store_keeper') return <InventoryAnalyticsPage />;
   if (userProfile?.role === 'hr_officer') return <HrAnalyticsPage />;
+  if (userProfile?.role === 'safety_officer') return <SafetyAnalyticsPage />;
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
