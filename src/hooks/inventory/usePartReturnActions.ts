@@ -124,8 +124,18 @@ export function usePartReturnActions() {
       });
       addToast('Return confirmed — stock updated.', 'success');
     } catch (err) {
+      // Firestore's client-side "Missing or insufficient permissions." never
+      // names the collection/doc that was denied — log the return/part/
+      // request ids alongside it so a permission-rule gap can actually be
+      // traced instead of re-derived from scratch every time it recurs.
+      console.error('confirmReturn failed', {
+        code: (err as { code?: string })?.code,
+        returnId: partReturn.id,
+        partId: partReturn.partId,
+        partsRequestId: partReturn.partsRequestId,
+        err,
+      });
       addToast(err instanceof Error ? err.message : 'Failed to confirm return.', 'error');
-      console.error(err);
     }
   }
 
@@ -158,8 +168,14 @@ export function usePartReturnActions() {
       });
       addToast('Return rejected.', 'success');
     } catch (err) {
+      console.error('rejectReturn failed', {
+        code: (err as { code?: string })?.code,
+        returnId: partReturn.id,
+        partId: partReturn.partId,
+        partsRequestId: partReturn.partsRequestId,
+        err,
+      });
       addToast(err instanceof Error ? err.message : 'Failed to reject return.', 'error');
-      console.error(err);
     }
   }
 

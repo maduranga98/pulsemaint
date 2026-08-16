@@ -33,6 +33,10 @@ export const CHART_DEFAULTS_LIGHT = {
     tickMargin: 10,
   },
   tooltip: {
+    // Recharts' default hover cursor is an opaque gray rect spanning the
+    // full bar row, which reads as a stray UI glitch on a white card —
+    // disable it everywhere; the bar's own hover state is feedback enough.
+    cursor: false,
     contentStyle: {
       backgroundColor: '#FFFFFF',
       border: '1px solid #E2E8F0',
