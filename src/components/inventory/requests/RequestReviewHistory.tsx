@@ -78,6 +78,24 @@ export function RequestReviewHistory({ request }: Props) {
     });
   }
 
+  if (request.collectedAt) {
+    events.push({
+      key: 'collected',
+      label: `Collected${request.collectedByName ? ` by ${request.collectedByName}` : ''}`,
+      timestamp: request.collectedAt,
+      dotColor: 'bg-teal-500',
+    });
+  }
+
+  if (request.returnedAt) {
+    events.push({
+      key: 'returned',
+      label: `Returned${request.confirmedByName ? ` — confirmed by ${request.confirmedByName}` : ''}`,
+      timestamp: request.returnedAt,
+      dotColor: 'bg-indigo-500',
+    });
+  }
+
   if (request.completedAt) {
     events.push({
       key: 'completed',

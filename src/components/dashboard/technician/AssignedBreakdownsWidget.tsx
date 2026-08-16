@@ -6,6 +6,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownSeverity } from '../../../types/breakdown';
 import { groupBreakdownsByMachine } from '../../../lib/breakdowns/groupByMachine';
+import { formatDate } from '../../../lib/dateUtils';
 
 interface AssignedBreakdownsWidgetProps {
   technicianId: string;
@@ -70,12 +71,22 @@ export default function AssignedBreakdownsWidget({ technicianId, siteId }: Assig
               if (!worst || SEVERITY_RANK[t.severity] > SEVERITY_RANK[worst]) return t.severity;
               return worst;
             }, null);
+            const assignedAt = g.tickets.reduce<Date | null>((earliest, t) => {
+              const at = (t.assignedAt ?? t.reportedAt)?.toDate?.() ?? null;
+              if (!at) return earliest;
+              return !earliest || at < earliest ? at : earliest;
+            }, null);
             return (
               <div
                 key={g.machineId}
                 className="flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F]"
               >
-                <p className="text-sm text-[#F0F4F8] truncate">{g.machineName}</p>
+                <div className="min-w-0">
+                  <p className="text-sm text-[#F0F4F8] truncate">{g.machineName}</p>
+                  {assignedAt && (
+                    <p className="text-[10px] text-[#8BA3BF] mt-0.5">Assigned {formatDate(assignedAt)}</p>
+                  )}
+                </div>
                 <div className="shrink-0 flex items-center gap-2">
                   {worstSeverity && (
                     <span className={`px-2 py-0.5 rounded text-[11px] font-semibold uppercase ${SEVERITY_COLOR[worstSeverity]}`}>
