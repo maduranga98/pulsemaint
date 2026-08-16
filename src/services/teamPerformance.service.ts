@@ -18,6 +18,10 @@ export interface UserPerformanceSummary {
   hasAudit: boolean;
   trainingsCompleted: number;
   quizzesPassed: number;
+  // Sum of severity points from safety cases reported "about" this person
+  // (subjectType technician/operator/contractor, subjectId === userId) —
+  // subtracted from their composite performance score.
+  safetyPenaltyPoints: number;
 }
 
 export interface RolePerformanceSummary {
@@ -178,7 +182,7 @@ export async function fetchTeamPerformanceByRole(companyId: string): Promise<Rol
  * Analytics "Team Performance" dashboard widget (TeamPerformanceAnalyticsWidget).
  */
 export async function fetchTeamPerformanceByUser(companyId: string): Promise<UserPerformanceSummary[]> {
-  const [evals, audits, users, assignments, quizResults] = await Promise.all([
+  const [evals, audits, users, assignments, quizResults, safetyCases] = await Promise.all([
     safeDocs(getDocs(
       query(
         collection(db, 'evaluations'),
@@ -200,6 +204,12 @@ export async function fetchTeamPerformanceByUser(companyId: string): Promise<Use
     safeDocs(getDocs(
       query(
         collection(db, 'triage_assessment_results'),
+        where('companyId', '==', companyId),
+      ),
+    )),
+    safeDocs(getDocs(
+      query(
+        collection(db, 'safety_cases'),
         where('companyId', '==', companyId),
       ),
     )),
@@ -258,6 +268,19 @@ export async function fetchTeamPerformanceByUser(companyId: string): Promise<Use
     userQuizPassed.set(userId, (userQuizPassed.get(userId) ?? 0) + 1);
   });
 
+  // Safety-case severity points against a person — a case's "Incident is
+  // about" subject (technician/operator/contractor) accrues its points as
+  // a performance deduction. Cases about a work order or "other" don't
+  // name an individual, so they carry no penalty here.
+  const PENALIZED_SUBJECT_TYPES = new Set(['technician', 'operator', 'contractor']);
+  const userSafetyPenalty = new Map<string, number>();
+  safetyCases.forEach((row) => {
+    if (!PENALIZED_SUBJECT_TYPES.has(String(row.subjectType ?? ''))) return;
+    const userId = String(row.subjectId ?? '');
+    if (!userId) return;
+    userSafetyPenalty.set(userId, (userSafetyPenalty.get(userId) ?? 0) + Number(row.points ?? 0));
+  });
+
   return users
     .map((u) => {
       const userId = String(u.uid ?? u.id ?? '');
@@ -270,6 +293,7 @@ export async function fetchTeamPerformanceByUser(companyId: string): Promise<Use
         evaluationScore: evalEntry?.score ?? 0,
         hasEvaluation: Boolean(evalEntry),
         auditScore: auditEntry?.score ?? 0,
+        safetyPenaltyPoints: userSafetyPenalty.get(userId) ?? 0,
         hasAudit: Boolean(auditEntry),
         trainingsCompleted: userTrainingCount.get(userId) ?? 0,
         quizzesPassed: userQuizPassed.get(userId) ?? 0,

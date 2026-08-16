@@ -11,6 +11,7 @@ import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorM
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
 import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
+import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -100,6 +101,9 @@ export default function SupervisorDashboard() {
           <PendingApprovalsWidget />
           <AssignedTasksWidget />
         </div>
+
+        {/* Row 5: My Trainings — not-completed, replaces the old nav tab */}
+        <MyTrainingsWidget />
       </div>
 
       <DashboardSidePanel />

@@ -161,10 +161,10 @@ const NAV_GROUPS: NavGroup[] = [
       // separate nav entry — the route still exists for direct links.
       { labelKey: 'common.nav.items.training', to: '/app/training', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.traineeManagement', to: '/app/training/manage/assignments', icon: Icon.graduation, roles: ['hr_officer', 'plant_manager', 'admin'] },
-      // Trainee's own training tabs live alongside Triage in this same
-      // "Triage & Training" group instead of under Workforce, so a trainee's
-      // whole day-to-day (troubleshooting + their own program) is one section.
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'supervisor', 'store_keeper', 'safety_officer'] },
+      // "My Training" is no longer a nav tab for any role — each role's own
+      // dashboard now shows their outstanding (not-completed) trainings as a
+      // widget instead (see MyTrainingsWidget / TodayMyTrainingsWidget on
+      // the relevant dashboards).
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['store_keeper'] },
     ],
@@ -198,12 +198,6 @@ const NAV_GROUPS: NavGroup[] = [
         ),
         roles: ['plant_manager', 'admin', 'hr_officer'],
       },
-      // Training can be assigned to any role, so everyone gets a "My Training"
-      // entry (the route allows any authenticated user). The admin-facing
-      // "Training" / "Trainee Management" tabs live under Triage & Training —
-      // as does trainee's and safety_officer's own "My Training" / "My
-      // Program" (see that group).
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['floor_operator', 'plant_manager', 'hr_officer'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['trainee', 'floor_operator', 'technician'] },
     ],
   },

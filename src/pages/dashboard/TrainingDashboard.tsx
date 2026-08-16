@@ -5,6 +5,7 @@ import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShi
 import HrActivityByRoleChart from '../../components/dashboard/training/HrActivityByRoleChart';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
+import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 
 export default function TrainingDashboard() {
@@ -43,6 +44,9 @@ export default function TrainingDashboard() {
 
         {/* Contractor Scoreboard / suppliers / top performers (HR-003) */}
         <ContractorScoreboard companyId={companyId} month={currentMonth} />
+
+        {/* HR officer's own outstanding trainings — replaces the old nav tab */}
+        <MyTrainingsWidget />
       </div>
 
       <DashboardSidePanel />

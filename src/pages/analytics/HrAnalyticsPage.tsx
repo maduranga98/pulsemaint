@@ -1,5 +1,6 @@
 import { useAuthStore } from '../../store/authStore';
 import TeamPerformanceAnalyticsWidget from '../../components/dashboard/manager/TeamPerformanceAnalyticsWidget';
+import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import TrainingActivityChart from '../../components/dashboard/training/TrainingActivityChart';
 import OperatorTrainingTable from '../../components/dashboard/training/OperatorTrainingTable';
 import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
@@ -23,6 +24,8 @@ export default function HrAnalyticsPage() {
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
         <OngoingTrainingsWidget companyId={companyId} />
+
+        <TopPerformersWidget companyId={companyId} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <TeamPerformanceAnalyticsWidget companyId={companyId} />

@@ -1,22 +1,17 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ShieldAlert, Plus } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import KpiCard from '@/components/dashboard/shared/KpiCard';
-import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
-import EmptyState from '@/components/dashboard/shared/EmptyState';
-import { useSafetyKpis, useWorkPermits } from '@/hooks/safety/useSafety';
-import { WORK_PERMIT_CATEGORIES, formatPermitDateTime } from '@/types/safety';
+import TodayTrainingsWidget from '@/components/dashboard/manager/TodayTrainingsWidget';
+import TodayMyTrainingsWidget from '@/components/dashboard/manager/TodayMyTrainingsWidget';
+import { useSafetyKpis } from '@/hooks/safety/useSafety';
 import ReportSafetyCaseModal from '../components/ReportSafetyCaseModal';
-
-const CAT_LABEL = Object.fromEntries(WORK_PERMIT_CATEGORIES.map((c) => [c.value, c.label]));
 
 export default function SafetyDashboard() {
   const profile = useAuthStore((s) => s.userProfile);
   const companyId = profile?.companyId ?? '';
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Safety Officer';
   const { kpis, loading } = useSafetyKpis(companyId);
-  const { permits, loading: permitsLoading } = useWorkPermits(companyId);
   const [reporting, setReporting] = useState(false);
 
   const cards = [
@@ -27,8 +22,6 @@ export default function SafetyDashboard() {
     { label: 'Active Work Permits', value: kpis.activePermits, color: 'blue' as const },
     { label: 'Days Since Last Incident', value: kpis.daysSinceLastIncident ?? '—', color: 'green' as const },
   ];
-
-  const activePermits = permits.filter((p) => p.status === 'active');
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
@@ -62,28 +55,12 @@ export default function SafetyDashboard() {
           </div>
         )}
 
-        {/* Active work permits — bottom of the page, live list */}
-        <DashboardWidget title="Active Work Permits" loading={permitsLoading}>
-          {activePermits.length === 0 ? (
-            <EmptyState message="No active permits" />
-          ) : (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {activePermits.map((p) => (
-                <Link
-                  key={p.id}
-                  to="/app/safety/permits"
-                  className="block rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 hover:border-[#2E5A8F]"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium text-[#F0F4F8]">{p.title}</span>
-                    <span className="font-mono text-[10px] text-[#8BA3BF]">{p.permitNumber}</span>
-                  </div>
-                  <div className="text-xs text-[#8BA3BF]">{CAT_LABEL[p.category] ?? p.category} · until {formatPermitDateTime(p.validTo)}</div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </DashboardWidget>
+        {/* Today's trainings — safety sessions company-wide, and this
+            viewer's own not-yet-completed assignments due today. */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <TodayTrainingsWidget companyId={companyId} safetyOnly />
+          <TodayMyTrainingsWidget />
+        </div>
       </div>
 
       {reporting && <ReportSafetyCaseModal onClose={() => setReporting(false)} />}
