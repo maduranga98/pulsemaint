@@ -37,12 +37,6 @@ async function fetchImageAsDataUrl(url: string): Promise<string | null> {
   }
 }
 
-function timestampToDate(ts: unknown): Date | null {
-  const t = ts as { toDate?: () => Date; seconds?: number } | null | undefined;
-  if (!t) return null;
-  return t.toDate ? t.toDate() : t.seconds ? new Date(t.seconds * 1000) : null;
-}
-
 /**
  * Builds a Service Letter PDF for the given employee, using the company's
  * profile (logo + description) as the letterhead, and triggers a browser
@@ -69,14 +63,6 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
     companyDescription: company.description,
     companyLogoDataUrl: logoDataUrl,
     signatureImageDataUrl: signatureImageDataUrl ?? null,
-
-    employeeName: employee.fullName,
-    employeeId: employee.employeeId,
-    jobTitle: employee.jobTitle,
-    department: employee.department,
-    role: roleLabel,
-    joinedDate: timestampToDate(employee.createdAt),
-    address: employee.address,
 
     letterDate: new Date(),
     subject: form.subject,

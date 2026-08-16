@@ -127,15 +127,17 @@ export async function fetchTeamPerformanceByRole(
   ]);
 
   // Count members per role + build a userId → role lookup so records
-  // that only carry a user id can be attributed to a role.
-  // Headcount reflects staff who joined within the date range (undated
-  // legacy profiles are always kept — see inRange).
+  // that only carry a user id can be attributed to a role. Headcount
+  // counts only 'active' profiles (excludes inactive/pending — see
+  // UserProfile.status), and reflects staff who joined within the date
+  // range (undated legacy profiles are always kept — see inRange).
   const roleMemberCount: Record<string, number> = {};
   const userRole = new Map<string, string>();
   users.forEach((u) => {
     const role = (u.role as string) ?? 'other';
     if (u.uid) userRole.set(String(u.uid), role);
     if (u.id) userRole.set(String(u.id), role);
+    if (u.status && u.status !== 'active') return;
     if (!inRange(asMillis(u.createdAt), dateRange)) return;
     roleMemberCount[role] = (roleMemberCount[role] ?? 0) + 1;
   });
@@ -399,14 +401,14 @@ export async function fetchOngoingEvaluationsAndAudits(
 // fetch needed here.
 
 // ---------------------------------------------------------------------------
-// Training programme categories vs. completed counts — joins completed
-// trainingAssignments through their trainingModules doc for `category`
-// ('machine' | 'offboard'; missing = 'machine').
+// Trainings / Audits / Evaluations by category, split into Ongoing vs.
+// Completed counts, for HR Analytics' graphical per-category breakdowns.
 // ---------------------------------------------------------------------------
 
-export interface CategoryCountRow {
+export interface CategoryStatusRow {
   category: string;
-  count: number;
+  ongoing: number;
+  completed: number;
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -414,10 +416,24 @@ const CATEGORY_LABELS: Record<string, string> = {
   offboard: 'Offboard / External',
 };
 
-export async function fetchTrainingCategoryCompletion(
+const bumpStatus = (
+  counts: Record<string, { ongoing: number; completed: number }>,
+  category: string,
+  isCompleted: boolean,
+) => {
+  if (!counts[category]) counts[category] = { ongoing: 0, completed: 0 };
+  if (isCompleted) counts[category].completed += 1;
+  else counts[category].ongoing += 1;
+};
+
+const toStatusRows = (counts: Record<string, { ongoing: number; completed: number }>): CategoryStatusRow[] =>
+  Object.entries(counts).map(([category, v]) => ({ category, ...v }));
+
+/** trainingAssignments joined through their trainingModules doc for `category` ('machine' | 'offboard'; missing = 'machine'). */
+export async function fetchTrainingCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
-): Promise<CategoryCountRow[]> {
+): Promise<CategoryStatusRow[]> {
   const completedStatuses = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
   const [assignments, modules] = await Promise.all([
     safeDocs(getDocs(
@@ -431,57 +447,65 @@ export async function fetchTrainingCategoryCompletion(
   const moduleCategory = new Map<string, string>();
   modules.forEach((m) => moduleCategory.set(String(m.id), String(m.category ?? 'machine')));
 
-  const counts: Record<string, number> = {};
+  const counts: Record<string, { ongoing: number; completed: number }> = {};
   assignments.forEach((row) => {
-    if (!completedStatuses.has(String(row.status))) return;
-    if (!inRange(asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt), dateRange)) return;
-    const category = moduleCategory.get(String(row.moduleId)) ?? 'machine';
-    counts[category] = (counts[category] ?? 0) + 1;
+    const isCompleted = completedStatuses.has(String(row.status));
+    const at = isCompleted
+      ? asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt)
+      : asMillis(row.startedAt ?? row.assignedAt);
+    if (!inRange(at, dateRange)) return;
+    const rawCategory = moduleCategory.get(String(row.moduleId)) ?? 'machine';
+    bumpStatus(counts, CATEGORY_LABELS[rawCategory] ?? rawCategory, isCompleted);
   });
 
-  return Object.entries(counts).map(([category, count]) => ({
-    category: CATEGORY_LABELS[category] ?? category,
-    count,
-  }));
+  return toStatusRows(counts);
 }
 
-// ---------------------------------------------------------------------------
-// Audits / Evaluations by category (template) — submitted sessions/records
-// grouped by their `category`/`templateName`, for HR Analytics.
-// ---------------------------------------------------------------------------
-
-export async function fetchAuditsByCategory(
+/** Audits by category — in-progress drafts (audit_drafts) vs. submitted sessions (audit_sessions). */
+export async function fetchAuditsByCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
-): Promise<CategoryCountRow[]> {
-  const audits = await safeDocs(getDocs(
-    query(collection(db, 'audit_sessions', companyId, 'sessions'), where('status', '==', 'submitted')),
-  ));
-  const counts: Record<string, number> = {};
-  audits.forEach((row) => {
+): Promise<CategoryStatusRow[]> {
+  const [drafts, submitted] = await Promise.all([
+    safeDocs(getDocs(collection(db, 'audit_drafts', companyId, 'drafts'))),
+    safeDocs(getDocs(
+      query(collection(db, 'audit_sessions', companyId, 'sessions'), where('status', '==', 'submitted')),
+    )),
+  ]);
+
+  const counts: Record<string, { ongoing: number; completed: number }> = {};
+  drafts.forEach((row) => {
+    if (!inRange(asMillis(row.startedAt ?? row.lastSaved), dateRange)) return;
+    const category = String(row.category ?? row.templateName ?? 'Other');
+    bumpStatus(counts, category, false);
+  });
+  submitted.forEach((row) => {
     if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const category = String(row.category ?? row.templateName ?? 'Other');
-    counts[category] = (counts[category] ?? 0) + 1;
+    bumpStatus(counts, category, true);
   });
-  return Object.entries(counts).map(([category, count]) => ({ category, count }));
+
+  return toStatusRows(counts);
 }
 
-export async function fetchEvaluationsByCategory(
+/** Evaluations by category (template/evaluatee role) — drafts vs. submitted. */
+export async function fetchEvaluationsByCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
-): Promise<CategoryCountRow[]> {
+): Promise<CategoryStatusRow[]> {
   const evals = await safeDocs(getDocs(
-    query(
-      collection(db, 'evaluations'),
-      where('companyId', '==', companyId),
-      where('status', '==', 'submitted'),
-    ),
+    query(collection(db, 'evaluations'), where('companyId', '==', companyId)),
   ));
-  const counts: Record<string, number> = {};
+
+  const counts: Record<string, { ongoing: number; completed: number }> = {};
   evals.forEach((row) => {
-    if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
+    const isCompleted = row.status === 'submitted';
+    if (!isCompleted && row.status !== 'draft') return;
+    const at = asMillis(row.submittedAt ?? row.createdAt);
+    if (!inRange(at, dateRange)) return;
     const category = String(row.templateName ?? row.evaluateeRole ?? 'Other');
-    counts[category] = (counts[category] ?? 0) + 1;
+    bumpStatus(counts, category, isCompleted);
   });
-  return Object.entries(counts).map(([category, count]) => ({ category, count }));
+
+  return toStatusRows(counts);
 }

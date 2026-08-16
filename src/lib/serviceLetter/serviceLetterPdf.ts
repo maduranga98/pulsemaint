@@ -11,14 +11,6 @@ export interface ServiceLetterInput {
 
   signatureImageDataUrl?: string | null;
 
-  employeeName: string;
-  employeeId: string | null;
-  jobTitle: string | null;
-  department: string | null;
-  role: string;
-  joinedDate: Date | null;
-  address: string | null;
-
   letterDate: Date;
   subject: string;
   addressedTo: string;
@@ -35,8 +27,10 @@ const NAVY = { r: 30, g: 58, b: 95 };
 
 /**
  * Builds a professional Service Letter as a letterhead document: company
- * logo + description in the header, employee details, a customizable body
- * paragraph, and a signature block for the issuing officer.
+ * logo + description in the header, a customizable body paragraph, and a
+ * signature block for the issuing officer. Deliberately carries no employee
+ * details block — the body paragraph is expected to carry whatever facts
+ * (name, role, join date) the letter needs.
  */
 export interface ServiceLetterPdfResult {
   doc: jsPDF;
@@ -109,34 +103,6 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterP
   const bodyLines = doc.splitTextToSize(input.body, pageWidth - marginX * 2);
   doc.text(bodyLines, marginX, y, { lineHeightFactor: 1.5 });
   y += bodyLines.length * 15 + 16;
-
-  // Employee details block
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(INK.r, INK.g, INK.b);
-  doc.text('Employee Details', marginX, y);
-  y += 6;
-  doc.setDrawColor(220, 220, 220);
-  doc.setLineWidth(0.5);
-  doc.line(marginX, y, pageWidth - marginX, y);
-  y += 16;
-
-  const details: [string, string][] = [
-    ['Name', input.employeeName],
-    ['Employee ID', input.employeeId || '—'],
-    ['Designation', input.jobTitle || input.role],
-    ['Department', input.department || '—'],
-    ['Date Joined', input.joinedDate ? input.joinedDate.toLocaleDateString('en-GB') : '—'],
-  ];
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  details.forEach(([label, value]) => {
-    doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
-    doc.text(`${label}:`, marginX, y);
-    doc.setTextColor(INK.r, INK.g, INK.b);
-    doc.text(value, marginX + 110, y);
-    y += 16;
-  });
 
   if (input.remarks.trim()) {
     y += 10;
