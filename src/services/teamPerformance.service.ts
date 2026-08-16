@@ -319,6 +319,10 @@ const asMillisValue = (value: unknown): number => {
   if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
     return (value as { toDate: () => Date }).toDate().getTime();
   }
+  if (typeof value === 'string') {
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
   return 0;
 };
 
@@ -333,9 +337,10 @@ export async function fetchOngoingEvaluationsAndAudits(
         where('status', '==', 'draft'),
       ),
     )),
-    safeDocs(getDocs(
-      query(collection(db, 'audit_sessions', companyId, 'sessions'), where('status', '==', 'draft')),
-    )),
+    // In-progress audits autosave to audit_drafts/{plantId}/drafts (one doc
+    // per auditor per category) — audit_sessions only ever gets 'submitted'
+    // docs written to it (see src/modules/audit/services/audit.service.ts).
+    safeDocs(getDocs(collection(db, 'audit_drafts', companyId, 'drafts'))),
   ]);
 
   return {
@@ -350,9 +355,9 @@ export async function fetchOngoingEvaluationsAndAudits(
     audits: draftAudits
       .map((row) => ({
         id: String(row.id),
-        name: String(row.auditorName ?? row.templateName ?? 'Audit'),
-        role: String(row.auditorRole ?? 'other'),
-        startedAt: asMillisValue(row.createdAt),
+        name: String(row.userName ?? row.templateName ?? 'Audit'),
+        role: String(row.category ?? 'other'),
+        startedAt: asMillisValue(row.startedAt ?? row.lastSaved),
       }))
       .sort((a, b) => b.startedAt - a.startedAt),
   };
