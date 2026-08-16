@@ -429,7 +429,7 @@ export default function AppLayout() {
                     groupHasActive ? 'text-[#60A5FA]' : 'text-[#6C87A6] hover:text-[#D5DEEA]'
                   }`}
                 >
-                  <span>{group.id === 'triage-training' && role === 'technician' ? 'Triage' : t(group.labelKey)}</span>
+                  <span>{group.id === 'triage-training' && role === 'technician' ? t('common.nav.items.triage') : t(group.labelKey)}</span>
                   <span className={isOpen ? 'rotate-90' : ''}>{Icon.chevron}</span>
                 </button>
                 {isOpen && (
