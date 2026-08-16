@@ -25,12 +25,12 @@ export default function LowStockPartsChartLight({ companyId }: LowStockPartsChar
       {parts.length === 0 ? (
         <LightEmptyState message="All stock levels healthy" />
       ) : (
-        <div style={{ height: Math.max(256, parts.length * 32) }}>
+        <div style={{ height: Math.max(320, parts.length * 52) }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={parts} layout="vertical" margin={{ left: 0, right: 24 }} barCategoryGap="30%">
+            <BarChart data={parts} layout="vertical" margin={{ left: 0, right: 24 }} barCategoryGap="35%">
               <CartesianGrid {...CHART_DEFAULTS_LIGHT.cartesianGrid} />
               <XAxis {...CHART_DEFAULTS_LIGHT.xAxis} type="number" allowDecimals={false} />
-              <YAxis {...CHART_DEFAULTS_LIGHT.yAxis} dataKey="name" type="category" width={100} />
+              <YAxis {...CHART_DEFAULTS_LIGHT.yAxis} dataKey="name" type="category" width={190} />
               <Tooltip
                 {...CHART_DEFAULTS_LIGHT.tooltip}
                 formatter={(value: number, _name, item) => [
