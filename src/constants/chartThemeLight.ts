@@ -11,7 +11,7 @@ export const CHART_COLORS_LIGHT = {
   warning: '#D97706', // Amber 600
   danger: '#DC2626', // Red 600
   muted: '#E2E8F0', // Slate 200 — grid lines
-  text: '#64748B', // Slate 500 — axis labels, light but still legible
+  text: '#94A3B8', // Slate 400 — axis labels, lighter while staying legible
   tooltip: '#FFFFFF',
 } as const;
 
@@ -21,14 +21,16 @@ export const CHART_DEFAULTS_LIGHT = {
     stroke: '#E2E8F0',
   },
   xAxis: {
-    tick: { fill: '#64748B', fontSize: 12, fontFamily: 'DM Sans' },
+    tick: { fill: '#94A3B8', fontSize: 12, fontFamily: 'DM Sans' },
     axisLine: { stroke: '#E2E8F0' },
     tickLine: false,
+    tickMargin: 10,
   },
   yAxis: {
-    tick: { fill: '#64748B', fontSize: 12, fontFamily: 'DM Sans' },
+    tick: { fill: '#94A3B8', fontSize: 12, fontFamily: 'DM Sans' },
     axisLine: false,
     tickLine: false,
+    tickMargin: 10,
   },
   tooltip: {
     contentStyle: {
