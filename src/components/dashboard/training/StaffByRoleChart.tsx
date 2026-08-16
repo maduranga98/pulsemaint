@@ -14,7 +14,8 @@ import EmptyState from '../shared/EmptyState';
 import { useTeamPerformanceByRole } from '../../../hooks/dashboard/useTeamPerformanceByRole';
 import type { DateRange } from '../../../services/teamPerformance.service';
 
-// The roles the HR Officer dashboard headcount strip must show (HR-001).
+// Every role counts toward the company's total active-employee figure, not
+// just the frontline/ops roles the old "headcount strip" (HR-001) tracked.
 const ROLE_ORDER: Array<{ role: string; label: string }> = [
   { role: 'technician', label: 'Technicians' },
   { role: 'supervisor', label: 'Supervisors' },
@@ -22,6 +23,9 @@ const ROLE_ORDER: Array<{ role: string; label: string }> = [
   { role: 'floor_operator', label: 'Operators' },
   { role: 'trainee', label: 'Trainees' },
   { role: 'store_keeper', label: 'Store Keepers' },
+  { role: 'hr_officer', label: 'HR Officers' },
+  { role: 'safety_officer', label: 'Safety Officers' },
+  { role: 'admin', label: 'Admins' },
 ];
 
 const BAR_COLORS = [
@@ -47,9 +51,16 @@ export default function StaffByRoleChart({ companyId, dateRange }: StaffByRoleCh
     count: memberCountByRole.get(role) ?? 0,
   }));
   const hasData = chartData.some((d) => d.count > 0);
+  const totalActive = data.reduce((sum, row) => sum + row.memberCount, 0);
 
   return (
-    <DashboardWidget title="Staff Headcount by Role" loading={loading} error={error} onRetry={refetch}>
+    <DashboardWidget
+      title="Employees by Role"
+      loading={loading}
+      error={error}
+      onRetry={refetch}
+      action={<span className="text-xs text-[#8BA3BF]">{totalActive} active employees</span>}
+    >
       {!hasData ? (
         <EmptyState message="No staff data" />
       ) : (

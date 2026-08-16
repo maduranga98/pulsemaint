@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { Clock } from 'lucide-react';
+import { Navigate } from 'react-router-dom';
 import ReportCard from '../../components/reports/ReportCard';
 import ReportCategoryTabs, { type ReportCategoryTab } from '../../components/reports/ReportCategoryTabs';
 import ReportConfigPanel from '../../components/reports/ReportConfigPanel';
@@ -52,12 +51,6 @@ export default function ReportsHubPage() {
             <h1 className="font-[Sora] text-[28px] font-bold text-[#F0F4F8]">Reports</h1>
             <p className="mt-1 text-sm text-[#8BA3BF]">Generate, export, and schedule operational reports</p>
           </div>
-          {role !== 'store_keeper' && (
-            <Link to="/app/reports/history" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 text-sm font-semibold text-[#F0F4F8] hover:border-[#2E5A8F]">
-              <Clock className="h-4 w-4" />
-              Report History
-            </Link>
-          )}
         </header>
 
         <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
