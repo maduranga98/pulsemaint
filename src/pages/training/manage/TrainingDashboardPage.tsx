@@ -4,14 +4,11 @@ import {
   query,
   where,
   onSnapshot,
-  doc,
-  setDoc,
-  serverTimestamp,
 } from 'firebase/firestore';
-import { nanoid } from 'nanoid';
 import { UserPlus, X } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { createInvitation } from '@/lib/invitations';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import type { QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 import TrainingDashboard from '@/components/training/manager/TrainingDashboard';
@@ -27,8 +24,9 @@ interface DashboardStats {
 }
 
 export default function TrainingDashboardPage() {
-  const companyId = useAuthStore((s) => s.userProfile?.companyId);
-  const userId = useAuthStore((s) => s.userProfile?.id);
+  const userProfile = useAuthStore((s) => s.userProfile);
+  const company = useAuthStore((s) => s.company);
+  const companyId = userProfile?.companyId;
 
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [certDocs, setCertDocs] = useState<QueryDocumentSnapshot[]>([]);
@@ -108,44 +106,46 @@ export default function TrainingDashboardPage() {
     };
   }, [assignments, certDocs, moduleCount, userDocs]);
 
+  // Goes through the same invitation flow as Users > Invite User instead of
+  // writing a `companies/{id}/users/{randomId}` doc directly. Writing one
+  // directly used to hand the profile a nanoid()-generated document id that
+  // had no relationship to the trainee's eventual Firebase Auth uid — so
+  // once they actually signed in, `useMyProgramme`/`useMyAssignments`
+  // (which query by `request.auth.uid`) could never find anything an HR
+  // officer/admin/plant manager had assigned to that placeholder id. The
+  // invitation flow only creates the real profile doc, keyed by uid, once
+  // the trainee accepts and their Auth account exists.
   async function handleAddTrainee() {
-    if (!companyId) return;
+    if (!companyId || !userProfile) return;
     if (!addForm.fullName.trim()) {
       setAddError('Full name is required.');
+      return;
+    }
+    if (!addForm.email.trim()) {
+      setAddError('Email is required to send the invitation.');
       return;
     }
     setAddSaving(true);
     setAddError(null);
     try {
-      const id = nanoid();
-      await setDoc(doc(db, `companies/${companyId}/users/${id}`), {
-        id,
+      await createInvitation({
         companyId,
-        siteIds: [],
+        companyName: company?.name ?? '',
+        email: addForm.email.trim(),
         role: 'trainee',
         fullName: addForm.fullName.trim(),
-        email: addForm.email.trim() || null,
-        phone: addForm.phone.trim() || null,
-        employeeId: addForm.employeeId.trim() || null,
         department: addForm.department.trim() || null,
         jobTitle: 'Trainee',
-        status: 'pending',
-        loginMethod: 'email',
-        hasPin: false,
-        mustChangePinOnLogin: false,
-        profilePhoto: null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        lastLoginAt: null,
-        invitedBy: userId ?? null,
+        employeeId: addForm.employeeId.trim() || null,
+        phone: addForm.phone.trim() || null,
+        invitedBy: userProfile.id,
+        invitedByName: userProfile.fullName,
       });
       setAddForm({ fullName: '', email: '', phone: '', department: '', employeeId: '' });
       setAddOpen(false);
-      // No manual refetch needed — the users listener above will pick up
-      // the new trainee automatically.
     } catch (err) {
-      console.error('Add trainee failed', err);
-      setAddError(err instanceof Error ? err.message : 'Failed to add trainee.');
+      console.error('Invite trainee failed', err);
+      setAddError(err instanceof Error ? err.message : 'Failed to invite trainee.');
     } finally {
       setAddSaving(false);
     }
@@ -169,7 +169,7 @@ export default function TrainingDashboardPage() {
           className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
           <UserPlus className="h-4 w-4" />
-          Add Trainee
+          Invite Trainee
         </button>
       </div>
       <TrainingDashboard stats={stats} allAssignments={assignments} />
@@ -182,7 +182,7 @@ export default function TrainingDashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4">
           <div className="w-full max-w-md rounded-lg bg-white p-5 shadow-xl">
             <div className="flex items-start justify-between">
-              <h2 className="text-lg font-bold text-slate-950">Add Trainee</h2>
+              <h2 className="text-lg font-bold text-slate-950">Invite Trainee</h2>
               <button
                 type="button"
                 onClick={() => setAddOpen(false)}
@@ -202,7 +202,7 @@ export default function TrainingDashboardPage() {
               <input
                 value={addForm.email}
                 onChange={(e) => setAddForm((f) => ({ ...f, email: e.target.value }))}
-                placeholder="Email"
+                placeholder="Email *"
                 type="email"
                 className="min-h-11 rounded-md border border-slate-200 px-3 text-sm"
               />
@@ -242,7 +242,7 @@ export default function TrainingDashboardPage() {
                 disabled={addSaving}
                 className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
               >
-                {addSaving ? 'Saving…' : 'Add Trainee'}
+                {addSaving ? 'Sending…' : 'Send Invitation'}
               </button>
             </div>
           </div>
