@@ -44,7 +44,7 @@ export default function InventoryAnalyticsPage() {
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
         <PartsUsageTrendChartLight companyId={companyId} days={days} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           <TopUsedPartsChartLight companyId={companyId} days={days} />
           <MostMovedPartsChartLight companyId={companyId} days={days} />
         </div>

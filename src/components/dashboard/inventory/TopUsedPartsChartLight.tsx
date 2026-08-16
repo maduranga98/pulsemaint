@@ -35,7 +35,7 @@ export default function TopUsedPartsChartLight({ companyId, days = 30 }: TopUsed
       ) : (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} layout="vertical" margin={{ left: 90 }}>
+            <BarChart data={data} layout="vertical" margin={{ left: 90 }} barCategoryGap="30%">
               <CartesianGrid {...CHART_DEFAULTS_LIGHT.cartesianGrid} />
               <XAxis {...CHART_DEFAULTS_LIGHT.xAxis} type="number" allowDecimals={false} />
               <YAxis
