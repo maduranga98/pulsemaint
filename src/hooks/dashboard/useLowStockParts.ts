@@ -10,7 +10,7 @@ export interface LowStockPart {
   deficit: number;
 }
 
-const TOP_N = 8;
+const TOP_N = 10;
 
 // Parts currently at or below their reorder threshold, worst deficit first —
 // there's no historical low-stock snapshot to trend over time, so this is a
