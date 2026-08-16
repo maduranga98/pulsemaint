@@ -2,6 +2,7 @@ import { Award, ClipboardCheck, BookOpen, CheckSquare, ShieldAlert } from 'lucid
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTeamPerformanceAnalytics } from '../../../hooks/dashboard/useTeamPerformanceAnalytics';
 import EmptyState from '../shared/EmptyState';
+import type { DateRange } from '../../../services/teamPerformance.service';
 
 const ROLE_LABELS: Record<string, string> = {
   plant_manager: 'Plant Manager',
@@ -26,6 +27,7 @@ function scoreColor(score: number) {
 
 interface TopPerformersWidgetProps {
   companyId: string;
+  dateRange?: DateRange | null;
 }
 
 // Leaderboard version of the "Team Performance" table: ranks everyone who
@@ -35,8 +37,8 @@ interface TopPerformersWidgetProps {
 // technician/operator/contractor), breaks ties by training/quiz activity,
 // and shows only the top 10 — so the widget reads as "who's performing
 // best" instead of a flat, unordered, unbounded roster.
-export default function TopPerformersWidget({ companyId }: TopPerformersWidgetProps) {
-  const { data, loading, error, refetch } = useTeamPerformanceAnalytics(companyId);
+export default function TopPerformersWidget({ companyId, dateRange }: TopPerformersWidgetProps) {
+  const { data, loading, error, refetch } = useTeamPerformanceAnalytics(companyId, dateRange);
 
   const ranked = data
     .filter((row) => row.hasEvaluation || row.hasAudit)

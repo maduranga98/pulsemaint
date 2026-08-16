@@ -49,12 +49,46 @@ const safeDocs = async (
   }
 };
 
+// Shared date-range filter for HR Analytics — plain 'YYYY-MM-DD' bounds
+// (inclusive) applied client-side, since these reports already fetch every
+// doc for the aggregation and adding server-side range queries on top of
+// the existing `where`s would need new composite indexes per report.
+export interface DateRange {
+  from: string | null;
+  to: string | null;
+}
+
+const asMillis = (value: unknown): number => {
+  if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
+    return (value as { toDate: () => Date }).toDate().getTime();
+  }
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === 'string') {
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
+
+// Records with no usable date are kept — a date filter should narrow what
+// it can measure, not silently hide undated legacy rows.
+const inRange = (millis: number, range?: DateRange | null): boolean => {
+  if (!range || (!range.from && !range.to)) return true;
+  if (!millis) return true;
+  if (range.from && millis < new Date(`${range.from}T00:00:00`).getTime()) return false;
+  if (range.to && millis > new Date(`${range.to}T23:59:59.999`).getTime()) return false;
+  return true;
+};
+
 /**
  * Team Performance, aggregated by role from Evaluations, Audits, Training
  * completions, and Quick Assessment (Triage) results — one row per role.
  * Shared by the dashboard widget and the "Team Performance" report.
  */
-export async function fetchTeamPerformanceByRole(companyId: string): Promise<RolePerformanceSummary[]> {
+export async function fetchTeamPerformanceByRole(
+  companyId: string,
+  dateRange?: DateRange | null,
+): Promise<RolePerformanceSummary[]> {
   const [evals, audits, users, assignments, quizResults] = await Promise.all([
     // The Evaluations module writes to the 'evaluations' collection
     // (see src/modules/evaluation/services/evaluation.service.ts).
@@ -94,19 +128,23 @@ export async function fetchTeamPerformanceByRole(companyId: string): Promise<Rol
 
   // Count members per role + build a userId → role lookup so records
   // that only carry a user id can be attributed to a role.
+  // Headcount reflects staff who joined within the date range (undated
+  // legacy profiles are always kept — see inRange).
   const roleMemberCount: Record<string, number> = {};
   const userRole = new Map<string, string>();
   users.forEach((u) => {
     const role = (u.role as string) ?? 'other';
-    roleMemberCount[role] = (roleMemberCount[role] ?? 0) + 1;
     if (u.uid) userRole.set(String(u.uid), role);
     if (u.id) userRole.set(String(u.id), role);
+    if (!inRange(asMillis(u.createdAt), dateRange)) return;
+    roleMemberCount[role] = (roleMemberCount[role] ?? 0) + 1;
   });
   const roleOf = (id: unknown) => userRole.get(String(id ?? '')) ?? 'other';
 
-  // Evaluation scores per role
+  // Evaluation scores per role, within the date range
   const roleEvalScores: Record<string, { total: number; count: number }> = {};
   evals.forEach((row) => {
+    if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const role = (row.evaluateeRole as string) ?? 'other';
     const score = Number(row.overallScore ?? 0);
     if (!roleEvalScores[role]) roleEvalScores[role] = { total: 0, count: 0 };
@@ -114,27 +152,30 @@ export async function fetchTeamPerformanceByRole(companyId: string): Promise<Rol
     roleEvalScores[role].count += 1;
   });
 
-  // Audit count per role (by auditor role; submitted sessions only)
+  // Audit count per role (by auditor role; submitted sessions only), within the date range
   const roleAuditCount: Record<string, number> = {};
   audits.forEach((row) => {
     if (row.status && row.status !== 'submitted') return;
+    if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const role = (row.auditorRole as string) || roleOf(row.auditorId);
     roleAuditCount[role] = (roleAuditCount[role] ?? 0) + 1;
   });
 
-  // Training completions per role (certified / quiz-passed assignments)
+  // Training completions per role (certified / quiz-passed assignments), within the date range
   const completedTraining = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
   const roleTrainingCount: Record<string, number> = {};
   assignments.forEach((row) => {
     if (!completedTraining.has(String(row.status))) return;
+    if (!inRange(asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt), dateRange)) return;
     const role = roleOf(row.traineeId ?? row.userId);
     roleTrainingCount[role] = (roleTrainingCount[role] ?? 0) + 1;
   });
 
-  // Quick Assessment marks + pass counts per role
+  // Quick Assessment marks + pass counts per role, within the date range
   const roleQuizCount: Record<string, number> = {};
   const roleQuizMarks: Record<string, { total: number; count: number }> = {};
   quizResults.forEach((row) => {
+    if (!inRange(asMillis(row.createdAt ?? row.attemptedAt), dateRange)) return;
     const role = roleOf(row.userId);
     if (row.passed) roleQuizCount[role] = (roleQuizCount[role] ?? 0) + 1;
     const total = Number(row.total ?? 0);
@@ -181,7 +222,10 @@ export async function fetchTeamPerformanceByRole(companyId: string): Promise<Rol
  * Shared by the "Team Performance" report (technician_performance) and the
  * Analytics "Team Performance" dashboard widget (TeamPerformanceAnalyticsWidget).
  */
-export async function fetchTeamPerformanceByUser(companyId: string): Promise<UserPerformanceSummary[]> {
+export async function fetchTeamPerformanceByUser(
+  companyId: string,
+  dateRange?: DateRange | null,
+): Promise<UserPerformanceSummary[]> {
   const [evals, audits, users, assignments, quizResults, safetyCases] = await Promise.all([
     safeDocs(getDocs(
       query(
@@ -215,56 +259,52 @@ export async function fetchTeamPerformanceByUser(companyId: string): Promise<Use
     )),
   ]);
 
-  const asMillis = (value: unknown): number => {
-    if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
-      return (value as { toDate: () => Date }).toDate().getTime();
-    }
-    if (value instanceof Date) return value.getTime();
-    const parsed = new Date(String(value ?? ''));
-    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
-  };
-
-  // Most-recent submitted Evaluation per evaluatee.
+  // Most-recent submitted Evaluation per evaluatee, within the date range.
   const latestEval = new Map<string, { score: number; at: number }>();
   evals.forEach((row) => {
     const userId = String(row.evaluateeId ?? '');
     if (!userId) return;
     const at = asMillis(row.submittedAt ?? row.updatedAt ?? row.createdAt);
+    if (!inRange(at, dateRange)) return;
     const existing = latestEval.get(userId);
     if (!existing || at >= existing.at) {
       latestEval.set(userId, { score: Number(row.overallScore ?? 0), at });
     }
   });
 
-  // Most-recent submitted Audit per auditor.
+  // Most-recent submitted Audit per auditor, within the date range.
   const latestAudit = new Map<string, { score: number; at: number }>();
   audits.forEach((row) => {
     if (row.status && row.status !== 'submitted') return;
     const userId = String(row.auditorId ?? '');
     if (!userId) return;
     const at = asMillis(row.submittedAt ?? row.createdAt);
+    if (!inRange(at, dateRange)) return;
     const existing = latestAudit.get(userId);
     if (!existing || at >= existing.at) {
       latestAudit.set(userId, { score: Number(row.score ?? 0), at });
     }
   });
 
-  // Training completions per user.
+  // Training completions per user, within the date range.
   const completedTraining = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
   const userTrainingCount = new Map<string, number>();
   assignments.forEach((row) => {
     if (!completedTraining.has(String(row.status))) return;
     const userId = String(row.traineeId ?? row.userId ?? '');
     if (!userId) return;
+    const at = asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt);
+    if (!inRange(at, dateRange)) return;
     userTrainingCount.set(userId, (userTrainingCount.get(userId) ?? 0) + 1);
   });
 
-  // Quizzes passed per user.
+  // Quizzes passed per user, within the date range.
   const userQuizPassed = new Map<string, number>();
   quizResults.forEach((row) => {
     if (!row.passed) return;
     const userId = String(row.userId ?? '');
     if (!userId) return;
+    if (!inRange(asMillis(row.createdAt ?? row.attemptedAt), dateRange)) return;
     userQuizPassed.set(userId, (userQuizPassed.get(userId) ?? 0) + 1);
   });
 
@@ -278,6 +318,7 @@ export async function fetchTeamPerformanceByUser(companyId: string): Promise<Use
     if (!PENALIZED_SUBJECT_TYPES.has(String(row.subjectType ?? ''))) return;
     const userId = String(row.subjectId ?? '');
     if (!userId) return;
+    if (!inRange(asMillis(row.reportedAt), dateRange)) return;
     userSafetyPenalty.set(userId, (userSafetyPenalty.get(userId) ?? 0) + Number(row.points ?? 0));
   });
 
@@ -315,17 +356,6 @@ export interface OngoingActivityRow {
   startedAt: number;
 }
 
-const asMillisValue = (value: unknown): number => {
-  if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
-    return (value as { toDate: () => Date }).toDate().getTime();
-  }
-  if (typeof value === 'string') {
-    const parsed = new Date(value).getTime();
-    return Number.isNaN(parsed) ? 0 : parsed;
-  }
-  return 0;
-};
-
 export async function fetchOngoingEvaluationsAndAudits(
   companyId: string,
 ): Promise<{ evaluations: OngoingActivityRow[]; audits: OngoingActivityRow[] }> {
@@ -349,7 +379,7 @@ export async function fetchOngoingEvaluationsAndAudits(
         id: String(row.id),
         name: String(row.evaluateeName ?? row.templateName ?? 'Evaluation'),
         role: String(row.evaluateeRole ?? 'other'),
-        startedAt: asMillisValue(row.createdAt),
+        startedAt: asMillis(row.createdAt),
       }))
       .sort((a, b) => b.startedAt - a.startedAt),
     audits: draftAudits
@@ -357,7 +387,7 @@ export async function fetchOngoingEvaluationsAndAudits(
         id: String(row.id),
         name: String(row.userName ?? row.templateName ?? 'Audit'),
         role: String(row.category ?? 'other'),
-        startedAt: asMillisValue(row.startedAt ?? row.lastSaved),
+        startedAt: asMillis(row.startedAt ?? row.lastSaved),
       }))
       .sort((a, b) => b.startedAt - a.startedAt),
   };
@@ -384,7 +414,10 @@ const CATEGORY_LABELS: Record<string, string> = {
   offboard: 'Offboard / External',
 };
 
-export async function fetchTrainingCategoryCompletion(companyId: string): Promise<CategoryCountRow[]> {
+export async function fetchTrainingCategoryCompletion(
+  companyId: string,
+  dateRange?: DateRange | null,
+): Promise<CategoryCountRow[]> {
   const completedStatuses = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
   const [assignments, modules] = await Promise.all([
     safeDocs(getDocs(
@@ -401,6 +434,7 @@ export async function fetchTrainingCategoryCompletion(companyId: string): Promis
   const counts: Record<string, number> = {};
   assignments.forEach((row) => {
     if (!completedStatuses.has(String(row.status))) return;
+    if (!inRange(asMillis(row.certifiedAt ?? row.completedAt ?? row.quizPassedAt), dateRange)) return;
     const category = moduleCategory.get(String(row.moduleId)) ?? 'machine';
     counts[category] = (counts[category] ?? 0) + 1;
   });
@@ -416,19 +450,26 @@ export async function fetchTrainingCategoryCompletion(companyId: string): Promis
 // grouped by their `category`/`templateName`, for HR Analytics.
 // ---------------------------------------------------------------------------
 
-export async function fetchAuditsByCategory(companyId: string): Promise<CategoryCountRow[]> {
+export async function fetchAuditsByCategory(
+  companyId: string,
+  dateRange?: DateRange | null,
+): Promise<CategoryCountRow[]> {
   const audits = await safeDocs(getDocs(
     query(collection(db, 'audit_sessions', companyId, 'sessions'), where('status', '==', 'submitted')),
   ));
   const counts: Record<string, number> = {};
   audits.forEach((row) => {
+    if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const category = String(row.category ?? row.templateName ?? 'Other');
     counts[category] = (counts[category] ?? 0) + 1;
   });
   return Object.entries(counts).map(([category, count]) => ({ category, count }));
 }
 
-export async function fetchEvaluationsByCategory(companyId: string): Promise<CategoryCountRow[]> {
+export async function fetchEvaluationsByCategory(
+  companyId: string,
+  dateRange?: DateRange | null,
+): Promise<CategoryCountRow[]> {
   const evals = await safeDocs(getDocs(
     query(
       collection(db, 'evaluations'),
@@ -438,6 +479,7 @@ export async function fetchEvaluationsByCategory(companyId: string): Promise<Cat
   ));
   const counts: Record<string, number> = {};
   evals.forEach((row) => {
+    if (!inRange(asMillis(row.submittedAt ?? row.createdAt), dateRange)) return;
     const category = String(row.templateName ?? row.evaluateeRole ?? 'Other');
     counts[category] = (counts[category] ?? 0) + 1;
   });

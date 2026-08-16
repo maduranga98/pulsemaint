@@ -3,10 +3,12 @@ import { useAuthStore } from '../../store/authStore';
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
 import CategoryCountChart from '../../components/dashboard/training/CategoryCountChart';
+import DateRangeFilter from '../../components/dashboard/training/DateRangeFilter';
 import {
   fetchTrainingCategoryCompletion,
   fetchAuditsByCategory,
   fetchEvaluationsByCategory,
+  type DateRange,
 } from '../../services/teamPerformance.service';
 
 type TabId = 'top-performers' | 'staff-headcount' | 'training-categories' | 'audits' | 'evaluations';
@@ -20,10 +22,12 @@ const TABS: { id: TabId; label: string }[] = [
 ];
 
 // HR officer's Analytics tab — restructured into on-demand tabs so only the
-// selected report is fetched/rendered at a time.
+// selected report is fetched/rendered at a time. A single date-range filter
+// sits above the tabs and applies to whichever report is active.
 export default function HrAnalyticsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [activeTab, setActiveTab] = useState<TabId | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
@@ -51,13 +55,15 @@ export default function HrAnalyticsPage() {
           ))}
         </div>
 
+        {activeTab !== null && <DateRangeFilter value={dateRange} onChange={setDateRange} />}
+
         {activeTab === null && (
           <p className="text-sm text-[#8BA3BF]">Click a tab above to load that report.</p>
         )}
 
-        {activeTab === 'top-performers' && <TopPerformersWidget companyId={companyId} />}
+        {activeTab === 'top-performers' && <TopPerformersWidget companyId={companyId} dateRange={dateRange} />}
 
-        {activeTab === 'staff-headcount' && <StaffByRoleChart companyId={companyId} />}
+        {activeTab === 'staff-headcount' && <StaffByRoleChart companyId={companyId} dateRange={dateRange} />}
 
         {activeTab === 'training-categories' && (
           <CategoryCountChart
@@ -66,6 +72,7 @@ export default function HrAnalyticsPage() {
             emptyMessage="No completed training data"
             barName="Completed"
             fetcher={fetchTrainingCategoryCompletion}
+            dateRange={dateRange}
           />
         )}
 
@@ -76,6 +83,7 @@ export default function HrAnalyticsPage() {
             emptyMessage="No submitted audits yet"
             barName="Audits"
             fetcher={fetchAuditsByCategory}
+            dateRange={dateRange}
           />
         )}
 
@@ -86,6 +94,7 @@ export default function HrAnalyticsPage() {
             emptyMessage="No submitted evaluations yet"
             barName="Evaluations"
             fetcher={fetchEvaluationsByCategory}
+            dateRange={dateRange}
           />
         )}
       </div>
