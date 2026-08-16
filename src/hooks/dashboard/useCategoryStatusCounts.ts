@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { CategoryCountRow, DateRange } from '../../services/teamPerformance.service';
+import type { CategoryStatusRow, DateRange } from '../../services/teamPerformance.service';
 
-export type { CategoryCountRow };
+export type { CategoryStatusRow };
 
-export function useCategoryCounts(
+export function useCategoryStatusCounts(
   companyId: string,
-  fetcher: (companyId: string, dateRange?: DateRange | null) => Promise<CategoryCountRow[]>,
+  fetcher: (companyId: string, dateRange?: DateRange | null) => Promise<CategoryStatusRow[]>,
   dateRange?: DateRange | null,
 ) {
-  const [data, setData] = useState<CategoryCountRow[]>([]);
+  const [data, setData] = useState<CategoryStatusRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
-import CategoryCountChart from '../../components/dashboard/training/CategoryCountChart';
+import CategoryStatusChart from '../../components/dashboard/training/CategoryStatusChart';
 import DateRangeFilter from '../../components/dashboard/training/DateRangeFilter';
 import {
-  fetchTrainingCategoryCompletion,
-  fetchAuditsByCategory,
-  fetchEvaluationsByCategory,
+  fetchTrainingCategoryStatus,
+  fetchAuditsByCategoryStatus,
+  fetchEvaluationsByCategoryStatus,
   type DateRange,
 } from '../../services/teamPerformance.service';
 
@@ -15,18 +15,20 @@ type TabId = 'top-performers' | 'staff-headcount' | 'training-categories' | 'aud
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'top-performers', label: 'Top 10 Performers' },
-  { id: 'staff-headcount', label: 'Staff Headcount by Role' },
-  { id: 'training-categories', label: 'Training Categories' },
-  { id: 'audits', label: 'Audits by Category' },
-  { id: 'evaluations', label: 'Evaluations by Category' },
+  { id: 'staff-headcount', label: 'Employees by Role' },
+  { id: 'training-categories', label: 'Trainings' },
+  { id: 'audits', label: 'Audits' },
+  { id: 'evaluations', label: 'Evaluations' },
 ];
 
 // HR officer's Analytics tab — restructured into on-demand tabs so only the
-// selected report is fetched/rendered at a time. A single date-range filter
-// sits above the tabs and applies to whichever report is active.
+// selected report is fetched/rendered at a time. The date-range filter is a
+// common control above the tabs (not part of any one tab) and applies to
+// whichever report is currently showing; the first tab loads by default so
+// there's always a report on screen.
 export default function HrAnalyticsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const [activeTab, setActiveTab] = useState<TabId | null>(null);
+  const [activeTab, setActiveTab] = useState<TabId>(TABS[0].id);
   const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
 
   return (
@@ -34,16 +36,18 @@ export default function HrAnalyticsPage() {
       <div className="px-4 py-4 sm:px-6 lg:px-8">
         <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">HR Analytics</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Select a report below to view it.
+          Team performance, training activity, and staff progress.
         </p>
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
+        <DateRangeFilter value={dateRange} onChange={setDateRange} />
+
         <div className="flex flex-wrap gap-2 border-b border-[#1E3A5F] pb-3">
           {TABS.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab((current) => (current === tab.id ? null : tab.id))}
+              onClick={() => setActiveTab(tab.id)}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'bg-[#1A56DB] text-white'
@@ -55,45 +59,36 @@ export default function HrAnalyticsPage() {
           ))}
         </div>
 
-        {activeTab !== null && <DateRangeFilter value={dateRange} onChange={setDateRange} />}
-
-        {activeTab === null && (
-          <p className="text-sm text-[#8BA3BF]">Click a tab above to load that report.</p>
-        )}
-
         {activeTab === 'top-performers' && <TopPerformersWidget companyId={companyId} dateRange={dateRange} />}
 
         {activeTab === 'staff-headcount' && <StaffByRoleChart companyId={companyId} dateRange={dateRange} />}
 
         {activeTab === 'training-categories' && (
-          <CategoryCountChart
+          <CategoryStatusChart
             companyId={companyId}
-            title="Training Programme Categories vs. Completed"
-            emptyMessage="No completed training data"
-            barName="Completed"
-            fetcher={fetchTrainingCategoryCompletion}
+            title="Trainings"
+            emptyMessage="No training activity yet"
+            fetcher={fetchTrainingCategoryStatus}
             dateRange={dateRange}
           />
         )}
 
         {activeTab === 'audits' && (
-          <CategoryCountChart
+          <CategoryStatusChart
             companyId={companyId}
-            title="Audits by Category"
-            emptyMessage="No submitted audits yet"
-            barName="Audits"
-            fetcher={fetchAuditsByCategory}
+            title="Audits"
+            emptyMessage="No audit activity yet"
+            fetcher={fetchAuditsByCategoryStatus}
             dateRange={dateRange}
           />
         )}
 
         {activeTab === 'evaluations' && (
-          <CategoryCountChart
+          <CategoryStatusChart
             companyId={companyId}
-            title="Evaluations by Category"
-            emptyMessage="No submitted evaluations yet"
-            barName="Evaluations"
-            fetcher={fetchEvaluationsByCategory}
+            title="Evaluations"
+            emptyMessage="No evaluation activity yet"
+            fetcher={fetchEvaluationsByCategoryStatus}
             dateRange={dateRange}
           />
         )}
