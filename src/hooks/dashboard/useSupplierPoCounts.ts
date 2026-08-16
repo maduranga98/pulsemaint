@@ -7,7 +7,7 @@ export interface SupplierPoCount {
   count: number;
 }
 
-const TOP_N = 8;
+const TOP_N = 10;
 
 export function useSupplierPoCounts(companyId: string, windowDays: number = 30) {
   const [suppliers, setSuppliers] = useState<SupplierPoCount[]>([]);

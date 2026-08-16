@@ -25,9 +25,9 @@ export default function SupplierPoCountsChartLight({ companyId, days = 30 }: Sup
       {suppliers.length === 0 ? (
         <LightEmptyState message="No purchase orders in this period" />
       ) : (
-        <div className="h-64">
+        <div style={{ height: Math.max(256, suppliers.length * 32) }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={suppliers} layout="vertical" margin={{ left: 90 }} barCategoryGap="30%">
+            <BarChart data={suppliers} layout="vertical" margin={{ left: 0, right: 24 }} barCategoryGap="30%">
               <CartesianGrid {...CHART_DEFAULTS_LIGHT.cartesianGrid} />
               <XAxis {...CHART_DEFAULTS_LIGHT.xAxis} type="number" allowDecimals={false} />
               <YAxis {...CHART_DEFAULTS_LIGHT.yAxis} dataKey="supplierName" type="category" width={100} />
