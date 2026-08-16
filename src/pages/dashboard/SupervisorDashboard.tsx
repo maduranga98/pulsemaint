@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useActiveBreakdowns } from '../../hooks/dashboard/useActiveBreakdowns';
 import { useOpenWorkOrders } from '../../hooks/dashboard/useOpenWorkOrders';
@@ -16,6 +17,7 @@ import DashboardSidePanel from '../../components/dashboard/shared/DashboardSideP
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
 export default function SupervisorDashboard() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const siteId = useAuthStore((s) => s.userProfile?.siteIds?.[0]) ?? companyId;
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'Supervisor';
@@ -37,23 +39,23 @@ export default function SupervisorDashboard() {
 
   const kpiCards = [
     {
-      label: 'Active Breakdowns',
+      label: t('common.dashboard.supervisorKpi.activeBreakdowns'),
       value: activeBreakdowns,
       color: activeBreakdownColor(activeBreakdowns),
     },
     {
-      label: 'MTTR Today',
+      label: t('common.dashboard.supervisorKpi.mttrToday'),
       value: formatDurationHours(mttrHours),
       unit: 'hrs',
       color: mttrColor(mttrHours, 4),
     },
     {
-      label: 'Open Work Orders',
+      label: t('common.dashboard.supervisorKpi.openWorkOrders'),
       value: openWos,
       color: openWoColor(openWos),
     },
     {
-      label: 'Shift Hours Elapsed',
+      label: t('common.dashboard.supervisorKpi.shiftHoursElapsed'),
       value: Math.floor(shiftElapsedHours),
       unit: 'h',
       color: 'cyan' as const,
@@ -65,10 +67,10 @@ export default function SupervisorDashboard() {
       {/* Header */}
       <div className="px-4 py-4 sm:px-6 lg:px-8">
         <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">
-          Supervisor Dashboard
+          {t('common.dashboard.supervisorTitle')}
         </h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Good {getGreeting()}, {firstName}
+          {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
         </p>
       </div>
 

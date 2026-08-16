@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -65,6 +66,7 @@ function useMyRecentEvaluations(userId: string, limitCount = 3) {
 // Evaluations" section below is trainee-specific, kept from the previous
 // read-only dashboard.
 export default function TraineeDashboard() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   // Match the security rule, which authorizes assigned-WO reads on
@@ -120,9 +122,9 @@ export default function TraineeDashboard() {
       )}
 
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">Trainee Dashboard</h1>
+        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{t('common.dashboard.traineeTitle')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Good {getGreeting()}, {firstName}
+          {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
         </p>
       </div>
 

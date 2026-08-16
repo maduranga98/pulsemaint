@@ -103,6 +103,12 @@
     "dashboard": {
       "adminTitle": "පරිපාලක උපකරණ පුවරුව",
       "managerTitle": "කළමනාකරු උපකරණ පුවරුව",
+      "inventoryTitle": "තොග උපකරණ පුවරුව",
+      "supervisorTitle": "අධීක්ෂක උපකරණ පුවරුව",
+      "technicianTitle": "තාක්ෂණික උපකරණ පුවරුව",
+      "traineeTitle": "පුහුණුකරු උපකරණ පුවරුව",
+      "hrTitle": "මානව සම්පත් උපකරණ පුවරුව",
+      "safetyOfficerTitle": "ආරක්ෂක උපකරණ පුවරුව",
       "greeting": {
         "morning": "උදෑසන",
         "afternoon": "දහවල",
@@ -143,9 +149,9 @@
         "empty": "අනුමැතිය අපේක්ෂාවෙන් ඇණවුම් නොමැත"
       },
       "safetyCases": {
-        "title": "අද ආරක්ෂක සිද්ධි",
-        "today": "අද {{count}}",
-        "empty": "අද ආරක්ෂක සිද්ධි වාර්තා වී නැත"
+        "title": "විවෘත ආරක්ෂක සිද්ධි",
+        "today": "විවෘත {{count}}",
+        "empty": "විවෘත ආරක්ෂක සිද්ධි නොමැත"
       },
       "trainings": {
         "title": "අද පුහුණු",
@@ -153,6 +159,12 @@
         "empty": "අද පුහුණු කිසිවක් නියමිත නැත",
         "safety": "ආරක්ෂාව",
         "general": "සාමාන්‍ය"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "සක්‍රීය බිඳවැටීම්",
+        "mttrToday": "අද MTTR",
+        "openWorkOrders": "විවෘත කාර්ය නියෝග",
+        "shiftHoursElapsed": "ගත වූ මුරයේ පැය"
       }
     },
     "inventory": {

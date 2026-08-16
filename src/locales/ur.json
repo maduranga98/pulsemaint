@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "ایڈمن ڈیش بورڈ",
       "managerTitle": "مینیجر ڈیش بورڈ",
+      "inventoryTitle": "انوینٹری ڈیش بورڈ",
+      "supervisorTitle": "سپروائزر ڈیش بورڈ",
+      "technicianTitle": "ٹیکنیشن ڈیش بورڈ",
+      "traineeTitle": "ٹرینی ڈیش بورڈ",
+      "hrTitle": "ایچ آر ڈیش بورڈ",
+      "safetyOfficerTitle": "حفاظتی ڈیش بورڈ",
       "greeting": {
         "morning": "صبح بخیر",
         "afternoon": "دوپہر بخیر",
@@ -94,9 +100,9 @@
         "empty": "منظوری کے منتظر کوئی خریداری آرڈر نہیں"
       },
       "safetyCases": {
-        "title": "آج کے حفاظتی کیسز",
-        "today": "آج {{count}}",
-        "empty": "آج کوئی حفاظتی کیس رپورٹ نہیں ہوا"
+        "title": "کھلے حفاظتی کیسز",
+        "today": "{{count}} کھلے",
+        "empty": "کوئی کھلا حفاظتی کیس نہیں"
       },
       "trainings": {
         "title": "آج کی تربیت",
@@ -104,6 +110,12 @@
         "empty": "آج کوئی تربیت طے شدہ نہیں",
         "safety": "حفاظت",
         "general": "عام"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "فعال خرابیاں",
+        "mttrToday": "آج کا MTTR",
+        "openWorkOrders": "کھلے ورک آرڈرز",
+        "shiftHoursElapsed": "گزری ہوئی شفٹ گھنٹے"
       }
     },
     "inventory": {

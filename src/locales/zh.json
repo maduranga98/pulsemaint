@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "管理员仪表盘",
       "managerTitle": "经理仪表盘",
+      "inventoryTitle": "库存仪表板",
+      "supervisorTitle": "主管仪表板",
+      "technicianTitle": "技术员仪表板",
+      "traineeTitle": "学员仪表板",
+      "hrTitle": "人力资源仪表板",
+      "safetyOfficerTitle": "安全仪表板",
       "greeting": {
         "morning": "早上好",
         "afternoon": "下午好",
@@ -94,9 +100,9 @@
         "empty": "没有待批准的采购单"
       },
       "safetyCases": {
-        "title": "今日安全案例",
-        "today": "今日 {{count}}",
-        "empty": "今日未报告安全案例"
+        "title": "未结安全案例",
+        "today": "未结 {{count}} 件",
+        "empty": "没有未结安全案例"
       },
       "trainings": {
         "title": "今日培训",
@@ -104,6 +110,12 @@
         "empty": "今日没有安排培训",
         "safety": "安全",
         "general": "通用"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "当前故障",
+        "mttrToday": "今日 MTTR",
+        "openWorkOrders": "未完成工单",
+        "shiftHoursElapsed": "已过班次时长"
       }
     },
     "inventory": {

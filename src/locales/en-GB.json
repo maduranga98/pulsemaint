@@ -159,6 +159,12 @@
     "dashboard": {
       "adminTitle": "Admin Dashboard",
       "managerTitle": "Manager Dashboard",
+      "inventoryTitle": "Inventory Dashboard",
+      "supervisorTitle": "Supervisor Dashboard",
+      "technicianTitle": "Technician Dashboard",
+      "traineeTitle": "Trainee Dashboard",
+      "hrTitle": "HR Dashboard",
+      "safetyOfficerTitle": "Safety Dashboard",
       "greeting": {
         "morning": "morning",
         "afternoon": "afternoon",
@@ -209,6 +215,12 @@
         "empty": "No trainings scheduled today",
         "safety": "Safety",
         "general": "General"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "Active Breakdowns",
+        "mttrToday": "MTTR Today",
+        "openWorkOrders": "Open Work Orders",
+        "shiftHoursElapsed": "Shift Hours Elapsed"
       }
     },
     "inventory": {

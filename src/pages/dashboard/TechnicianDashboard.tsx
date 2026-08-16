@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useMyJobQueue } from '../../hooks/dashboard/useMyJobQueue';
 import JobQueueList from '../../components/dashboard/technician/JobQueueList';
@@ -15,6 +16,7 @@ import { TechnicianWOExecutionSheet } from '../../components/workorders/technici
 import type { WorkOrder } from '../../types/workOrder';
 
 export default function TechnicianDashboard() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   // Match the security rule, which authorizes assigned-WO reads on
@@ -72,9 +74,9 @@ export default function TechnicianDashboard() {
       )}
 
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">Technician Dashboard</h1>
+        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{t('common.dashboard.technicianTitle')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Good {getGreeting()}, {firstName}
+          {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
         </p>
       </div>
 

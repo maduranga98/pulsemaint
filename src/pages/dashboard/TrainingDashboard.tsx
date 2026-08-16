@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import HrKpiStrip from '../../components/dashboard/training/HrKpiStrip';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
@@ -9,6 +10,7 @@ import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainings
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 
 export default function TrainingDashboard() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const firstName = useAuthStore((s) => s.userProfile?.fullName?.split(' ')[0]) ?? 'HR Officer';
 
@@ -20,9 +22,9 @@ export default function TrainingDashboard() {
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">HR Dashboard</h1>
+        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{t('common.dashboard.hrTitle')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Good {getGreeting()}, {firstName}
+          {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
         </p>
       </div>
 

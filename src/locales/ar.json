@@ -54,6 +54,12 @@
     "dashboard": {
       "adminTitle": "لوحة تحكم المسؤول",
       "managerTitle": "لوحة تحكم المدير",
+      "inventoryTitle": "لوحة المخزون",
+      "supervisorTitle": "لوحة المشرف",
+      "technicianTitle": "لوحة الفني",
+      "traineeTitle": "لوحة المتدرب",
+      "hrTitle": "لوحة الموارد البشرية",
+      "safetyOfficerTitle": "لوحة السلامة",
       "greeting": {
         "morning": "صباح الخير",
         "afternoon": "مساء الخير",
@@ -94,9 +100,9 @@
         "empty": "لا توجد أوامر شراء بانتظار الموافقة"
       },
       "safetyCases": {
-        "title": "حالات السلامة اليوم",
-        "today": "{{count}} اليوم",
-        "empty": "لم يتم الإبلاغ عن أي حالات سلامة اليوم"
+        "title": "حالات السلامة المفتوحة",
+        "today": "{{count}} مفتوحة",
+        "empty": "لا توجد حالات سلامة مفتوحة"
       },
       "trainings": {
         "title": "تدريبات اليوم",
@@ -104,6 +110,12 @@
         "empty": "لا توجد تدريبات مجدولة اليوم",
         "safety": "سلامة",
         "general": "عام"
+      },
+      "supervisorKpi": {
+        "activeBreakdowns": "الأعطال النشطة",
+        "mttrToday": "متوسط وقت الإصلاح اليوم",
+        "openWorkOrders": "أوامر العمل المفتوحة",
+        "shiftHoursElapsed": "ساعات الوردية المنقضية"
       }
     },
     "inventory": {
