@@ -1,5 +1,6 @@
 import { Clock, AlertTriangle } from 'lucide-react';
 import type { WorkOrder } from '../../../types';
+import { formatDate } from '../../../lib/dateUtils';
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: 'border-l-[#EF4444]',
@@ -40,6 +41,7 @@ export default function JobQueueItem({ wo, onClick }: JobQueueItemProps) {
           {isOverdue ? <AlertTriangle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
           <span>{isOverdue ? `${Math.abs(daysUntil)}d overdue` : daysUntil === 0 ? 'Today' : `${daysUntil}d`}</span>
         </div>
+        <p className="text-[10px] text-[#8BA3BF] mt-0.5">Due {formatDate(dueDate)}</p>
         <p className="text-[10px] text-[#8BA3BF] mt-0.5">{wo.status.replace('_', ' ')}</p>
       </div>
     </Wrapper>

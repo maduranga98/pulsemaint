@@ -4,6 +4,7 @@ import EmptyState from '../shared/EmptyState';
 import { useAuthStore } from '../../../store/authStore';
 import { useMyAssignments } from '../../../hooks/training/useMyAssignments';
 import { useSafetyTrainingModules, isSafetyAssignment } from '../../../hooks/training/useSafetyTrainings';
+import { formatDate } from '../../../lib/dateUtils';
 
 const STATUS_LABEL: Record<string, string> = {
   not_started: 'Not Started',
@@ -44,7 +45,14 @@ export default function MySafetyTrainingsWidget() {
               onClick={() => navigate(`/app/training/my-modules/${a.id}`)}
               className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F] text-left hover:border-[#1A56DB] transition-colors"
             >
-              <p className="text-sm text-[#F0F4F8] truncate">{a.moduleName}</p>
+              <div className="min-w-0">
+                <p className="text-sm text-[#F0F4F8] truncate">{a.moduleName}</p>
+                {a.dueDate && (
+                  <p className={`text-[10px] mt-0.5 ${a.dueDate.toMillis() < Date.now() ? 'text-[#EF4444]' : 'text-[#8BA3BF]'}`}>
+                    Due {formatDate(a.dueDate.toDate())}
+                  </p>
+                )}
+              </div>
               <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-medium bg-[#1E3A5F] text-[#8BA3BF]">
                 {a.status === 'not_started' ? 'Start' : a.status === 'in_progress' ? 'Resume' : STATUS_LABEL[a.status] ?? a.status}
               </span>
