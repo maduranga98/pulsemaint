@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import PartsUsageTrendChartLight from '../../components/dashboard/inventory/PartsUsageTrendChartLight';
+import LowStockPartsChartLight from '../../components/dashboard/inventory/LowStockPartsChartLight';
 import TopUsedPartsChartLight from '../../components/dashboard/inventory/TopUsedPartsChartLight';
 import MostMovedPartsChartLight from '../../components/dashboard/inventory/MostMovedPartsChartLight';
+import SupplierPoCountsChartLight from '../../components/dashboard/inventory/SupplierPoCountsChartLight';
+import PoReceiptQualityChartLight from '../../components/dashboard/inventory/PoReceiptQualityChartLight';
 
 const DURATION_OPTIONS = [
   { label: '7 Days', days: 7 },
@@ -23,7 +25,7 @@ export default function InventoryAnalyticsPage() {
         <div>
           <h1 className="text-xl font-bold text-gray-900 font-[Sora]">Inventory Analytics</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Parts request trends, reasons, and movement over the selected period.
+            Stock health, parts request reasons, movement, and supplier/PO activity over the selected period.
           </p>
         </div>
         <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1 text-sm shadow-sm">
@@ -43,10 +45,14 @@ export default function InventoryAnalyticsPage() {
       </div>
 
       <div className="px-4 pb-8 sm:px-6 lg:px-8 space-y-6">
-        <PartsUsageTrendChartLight companyId={companyId} days={days} />
+        <LowStockPartsChartLight companyId={companyId} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           <TopUsedPartsChartLight companyId={companyId} days={days} />
           <MostMovedPartsChartLight companyId={companyId} days={days} />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <SupplierPoCountsChartLight companyId={companyId} days={days} />
+          <PoReceiptQualityChartLight companyId={companyId} days={days} />
         </div>
       </div>
     </div>

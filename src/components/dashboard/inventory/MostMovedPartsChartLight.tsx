@@ -21,7 +21,7 @@ export default function MostMovedPartsChartLight({ companyId, days = 30 }: MostM
   const { parts, loading, error } = useTopMovedParts(companyId, days);
 
   return (
-    <LightAnalyticsWidget title={`Most Moved Parts (Last ${days} Days)`} loading={loading} error={error}>
+    <LightAnalyticsWidget title="Most Moved Parts" loading={loading} error={error}>
       {parts.length === 0 ? (
         <LightEmptyState message="No usage data" />
       ) : (
