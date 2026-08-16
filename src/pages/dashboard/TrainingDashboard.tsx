@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import HrKpiStrip from '../../components/dashboard/training/HrKpiStrip';
 import TodayShiftsByDepartment from '../../components/dashboard/manager/TodayShiftsByDepartment';
-import HrActivityByRoleChart from '../../components/dashboard/training/HrActivityByRoleChart';
+import OngoingEvaluationsAuditsWidget from '../../components/dashboard/training/OngoingEvaluationsAuditsWidget';
 import ContractorScoreboard from '../../components/dashboard/manager/ContractorScoreboard';
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
@@ -40,7 +40,7 @@ export default function TrainingDashboard() {
         {/* Team Performance, Training Activity, Training Status, and Staff
             Headcount by Role now live on the Analytics tab (Insights >
             Analytics) instead of here — see HrAnalyticsPage. */}
-        <HrActivityByRoleChart companyId={companyId} />
+        <OngoingEvaluationsAuditsWidget companyId={companyId} />
 
         {/* Contractor Scoreboard / suppliers / top performers (HR-003) */}
         <ContractorScoreboard companyId={companyId} month={currentMonth} />

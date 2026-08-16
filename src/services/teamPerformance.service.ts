@@ -301,3 +301,145 @@ export async function fetchTeamPerformanceByUser(companyId: string): Promise<Use
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 }
+
+// ---------------------------------------------------------------------------
+// Ongoing (not yet completed) Evaluations & Audits — for the HR dashboard,
+// which now shows what's currently in flight instead of a lifetime
+// activity-by-role count.
+// ---------------------------------------------------------------------------
+
+export interface OngoingActivityRow {
+  id: string;
+  name: string;
+  role: string;
+  startedAt: number;
+}
+
+const asMillisValue = (value: unknown): number => {
+  if (value && typeof (value as { toDate?: () => Date }).toDate === 'function') {
+    return (value as { toDate: () => Date }).toDate().getTime();
+  }
+  if (typeof value === 'string') {
+    const parsed = new Date(value).getTime();
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
+
+export async function fetchOngoingEvaluationsAndAudits(
+  companyId: string,
+): Promise<{ evaluations: OngoingActivityRow[]; audits: OngoingActivityRow[] }> {
+  const [draftEvals, draftAudits] = await Promise.all([
+    safeDocs(getDocs(
+      query(
+        collection(db, 'evaluations'),
+        where('companyId', '==', companyId),
+        where('status', '==', 'draft'),
+      ),
+    )),
+    // In-progress audits autosave to audit_drafts/{plantId}/drafts (one doc
+    // per auditor per category) — audit_sessions only ever gets 'submitted'
+    // docs written to it (see src/modules/audit/services/audit.service.ts).
+    safeDocs(getDocs(collection(db, 'audit_drafts', companyId, 'drafts'))),
+  ]);
+
+  return {
+    evaluations: draftEvals
+      .map((row) => ({
+        id: String(row.id),
+        name: String(row.evaluateeName ?? row.templateName ?? 'Evaluation'),
+        role: String(row.evaluateeRole ?? 'other'),
+        startedAt: asMillisValue(row.createdAt),
+      }))
+      .sort((a, b) => b.startedAt - a.startedAt),
+    audits: draftAudits
+      .map((row) => ({
+        id: String(row.id),
+        name: String(row.userName ?? row.templateName ?? 'Audit'),
+        role: String(row.category ?? 'other'),
+        startedAt: asMillisValue(row.startedAt ?? row.lastSaved),
+      }))
+      .sort((a, b) => b.startedAt - a.startedAt),
+  };
+}
+
+// Top-10 leaderboard (marks + safety-case penalty points) is computed by
+// src/components/dashboard/manager/TopPerformersWidget.tsx directly from
+// fetchTeamPerformanceByUser's safetyPenaltyPoints field — no separate
+// fetch needed here.
+
+// ---------------------------------------------------------------------------
+// Training programme categories vs. completed counts — joins completed
+// trainingAssignments through their trainingModules doc for `category`
+// ('machine' | 'offboard'; missing = 'machine').
+// ---------------------------------------------------------------------------
+
+export interface CategoryCountRow {
+  category: string;
+  count: number;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  machine: 'Machine Training',
+  offboard: 'Offboard / External',
+};
+
+export async function fetchTrainingCategoryCompletion(companyId: string): Promise<CategoryCountRow[]> {
+  const completedStatuses = new Set(['certified', 'quiz_passed', 'awaiting_practical']);
+  const [assignments, modules] = await Promise.all([
+    safeDocs(getDocs(
+      query(collection(db, 'trainingAssignments'), where('companyId', '==', companyId)),
+    )),
+    safeDocs(getDocs(
+      query(collection(db, 'trainingModules'), where('companyId', '==', companyId)),
+    )),
+  ]);
+
+  const moduleCategory = new Map<string, string>();
+  modules.forEach((m) => moduleCategory.set(String(m.id), String(m.category ?? 'machine')));
+
+  const counts: Record<string, number> = {};
+  assignments.forEach((row) => {
+    if (!completedStatuses.has(String(row.status))) return;
+    const category = moduleCategory.get(String(row.moduleId)) ?? 'machine';
+    counts[category] = (counts[category] ?? 0) + 1;
+  });
+
+  return Object.entries(counts).map(([category, count]) => ({
+    category: CATEGORY_LABELS[category] ?? category,
+    count,
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Audits / Evaluations by category (template) — submitted sessions/records
+// grouped by their `category`/`templateName`, for HR Analytics.
+// ---------------------------------------------------------------------------
+
+export async function fetchAuditsByCategory(companyId: string): Promise<CategoryCountRow[]> {
+  const audits = await safeDocs(getDocs(
+    query(collection(db, 'audit_sessions', companyId, 'sessions'), where('status', '==', 'submitted')),
+  ));
+  const counts: Record<string, number> = {};
+  audits.forEach((row) => {
+    const category = String(row.category ?? row.templateName ?? 'Other');
+    counts[category] = (counts[category] ?? 0) + 1;
+  });
+  return Object.entries(counts).map(([category, count]) => ({ category, count }));
+}
+
+export async function fetchEvaluationsByCategory(companyId: string): Promise<CategoryCountRow[]> {
+  const evals = await safeDocs(getDocs(
+    query(
+      collection(db, 'evaluations'),
+      where('companyId', '==', companyId),
+      where('status', '==', 'submitted'),
+    ),
+  ));
+  const counts: Record<string, number> = {};
+  evals.forEach((row) => {
+    const category = String(row.templateName ?? row.evaluateeRole ?? 'Other');
+    counts[category] = (counts[category] ?? 0) + 1;
+  });
+  return Object.entries(counts).map(([category, count]) => ({ category, count }));
+}
