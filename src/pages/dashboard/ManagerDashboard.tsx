@@ -140,10 +140,11 @@ export default function ManagerDashboard() {
         {/* Trainees ready for their programme completion sign-off */}
         <ProgrammeSignOffQueueWidget companyId={companyId} />
 
-        {/* Plant manager's own outstanding trainings — admin doesn't get
-            personal training assignments, so this is plant_manager-only,
-            matching the old nav tab's scoping. */}
-        {role === 'plant_manager' && <MyTrainingsWidget />}
+        {/* Plant manager's and safety officer's own outstanding trainings —
+            admin doesn't get personal training assignments, so this is
+            scoped to those two roles, replacing their old "My Training"
+            nav tab. */}
+        {(role === 'plant_manager' || role === 'safety_officer') && <MyTrainingsWidget />}
 
         {/* Who's actually on shift right now. Trend charts, heatmaps,
             per-machine/contractor breakdowns, SLA, and Safety/Team
