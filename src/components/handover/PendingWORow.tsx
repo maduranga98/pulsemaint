@@ -15,7 +15,7 @@ export function PendingWORow({ wo, onChange, readOnly = false }: PendingWORowPro
           <p className="text-sm text-slate-600">{wo.machineName} - {wo.woType}</p>
           <p className="text-xs text-slate-500">{wo.priority} - {wo.currentStatus} - {wo.assignedTechnician}</p>
         </div>
-        <span className="text-xs font-semibold text-amber-700">{wo.dueDate && !Number.isNaN(wo.dueDate.getTime()) ? wo.dueDate.toLocaleDateString() : 'No due date'}</span>
+        <span className="text-xs font-semibold text-amber-700">{wo.dueDate && !Number.isNaN(wo.dueDate.getTime()) ? wo.dueDate.toLocaleString() : 'No due date'}</span>
       </div>
       {readOnly ? (
         <p className="mt-3 text-sm text-slate-600">{wo.supervisorNote || 'No note'} - {wo.carryForwardStatus}</p>

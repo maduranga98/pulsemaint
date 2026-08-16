@@ -170,7 +170,7 @@ const NAV_GROUPS: NavGroup[] = [
       // hr_officer's "My Training" also lives here now (moved from Workforce).
       // Other roles get their outstanding trainings via a dashboard widget
       // instead (see MyTrainingsWidget / TodayMyTrainingsWidget).
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'supervisor', 'store_keeper', 'safety_officer', 'hr_officer'] },
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['trainee', 'supervisor', 'store_keeper', 'hr_officer'] },
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
       { labelKey: 'common.nav.items.myCertificates', to: '/app/training/my-certificates', icon: Icon.report, roles: ['store_keeper'] },
     ],

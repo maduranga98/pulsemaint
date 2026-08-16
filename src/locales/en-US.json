@@ -199,9 +199,9 @@
         "empty": "No purchase orders awaiting approval"
       },
       "safetyCases": {
-        "title": "Today's Safety Cases",
-        "today": "{{count}} today",
-        "empty": "No safety cases reported today"
+        "title": "Open Safety Cases",
+        "today": "{{count}} open",
+        "empty": "No open safety cases"
       },
       "trainings": {
         "title": "Today's Trainings",

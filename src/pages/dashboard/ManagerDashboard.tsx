@@ -14,7 +14,7 @@ import LiveShiftStatusWidget from '../../components/dashboard/manager/LiveShiftS
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import LiveBreakdownsWidget from '../../components/dashboard/manager/LiveBreakdownsWidget';
 import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
-import TodaySafetyCasesWidget from '../../components/dashboard/manager/TodaySafetyCasesWidget';
+import OpenSafetyCasesWidget from '../../components/dashboard/manager/OpenSafetyCasesWidget';
 import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
@@ -131,9 +131,9 @@ export default function ManagerDashboard() {
           <LivePOsWidget />
         </div>
 
-        {/* Today's Safety Cases + Today's Trainings (safety and general) */}
+        {/* Open (not-closed) Safety Cases + Today's Trainings (safety and general) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TodaySafetyCasesWidget companyId={companyId} />
+          <OpenSafetyCasesWidget companyId={companyId} />
           <TodayTrainingsWidget companyId={companyId} />
         </div>
 
