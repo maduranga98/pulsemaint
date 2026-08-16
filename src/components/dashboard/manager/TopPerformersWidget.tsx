@@ -1,4 +1,4 @@
-import { Award, ClipboardCheck, BookOpen, CheckSquare } from 'lucide-react';
+import { Award, ClipboardCheck, BookOpen, CheckSquare, ShieldAlert } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTeamPerformanceAnalytics } from '../../../hooks/dashboard/useTeamPerformanceAnalytics';
 import EmptyState from '../shared/EmptyState';
@@ -30,9 +30,11 @@ interface TopPerformersWidgetProps {
 
 // Leaderboard version of the "Team Performance" table: ranks everyone who
 // has at least one Evaluation or Audit score by a composite of the two
-// (averaging whichever are available), breaks ties by training/quiz
-// activity, and shows only the top 10 — so the widget reads as "who's
-// performing best" instead of a flat, unordered, unbounded roster.
+// (averaging whichever are available), less any safety-case penalty points
+// (see safetyPenaltyPoints — cases reported "about" this person as a
+// technician/operator/contractor), breaks ties by training/quiz activity,
+// and shows only the top 10 — so the widget reads as "who's performing
+// best" instead of a flat, unordered, unbounded roster.
 export default function TopPerformersWidget({ companyId }: TopPerformersWidgetProps) {
   const { data, loading, error, refetch } = useTeamPerformanceAnalytics(companyId);
 
@@ -41,7 +43,8 @@ export default function TopPerformersWidget({ companyId }: TopPerformersWidgetPr
     .map((row) => {
       const scores = [row.hasEvaluation ? row.evaluationScore : null, row.hasAudit ? row.auditScore : null]
         .filter((s): s is number => s !== null);
-      const compositeScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const rawScore = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const compositeScore = Math.max(0, rawScore - row.safetyPenaltyPoints);
       return { ...row, compositeScore };
     })
     .sort((a, b) => {
@@ -80,6 +83,11 @@ export default function TopPerformersWidget({ companyId }: TopPerformersWidgetPr
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
                   <span className="flex items-center justify-center gap-1">
                     <CheckSquare className="w-3 h-3" /> Quizzes
+                  </span>
+                </th>
+                <th className="pb-2 font-medium text-center hidden md:table-cell">
+                  <span className="flex items-center justify-center gap-1">
+                    <ShieldAlert className="w-3 h-3" /> Safety
                   </span>
                 </th>
               </tr>
@@ -121,6 +129,13 @@ export default function TopPerformersWidget({ companyId }: TopPerformersWidgetPr
                   </td>
                   <td className="py-2.5 text-center text-[#8BA3BF] hidden md:table-cell">
                     {row.quizzesPassed || ''}
+                  </td>
+                  <td className="py-2.5 text-center hidden md:table-cell">
+                    {row.safetyPenaltyPoints > 0 ? (
+                      <span className="font-medium text-[#EF4444]">-{row.safetyPenaltyPoints}</span>
+                    ) : (
+                      <span className="text-[#8BA3BF]">—</span>
+                    )}
                   </td>
                 </tr>
               ))}

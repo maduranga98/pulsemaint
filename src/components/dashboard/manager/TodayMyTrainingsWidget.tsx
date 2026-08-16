@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
-import { useTranslation } from 'react-i18next';
 import { db } from '../../../lib/firebase';
+import { useAuthStore } from '../../../store/authStore';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
+import { useMyAssignments } from '../../../hooks/training/useMyAssignments';
 import { getModuleSessions, isSafetyModule } from '../../../hooks/training/useSafetyTrainings';
 import type { TrainingModule } from '../../../lib/training/trainingTypes';
 
-/** Every training module for the company — safety and general alike, since
- * getModuleSessions/isSafetyModule work on any module regardless of scope. */
-function useAllTrainingModules(companyId: string) {
+function useCompanyTrainingModules(companyId: string) {
   const [modules, setModules] = useState<TrainingModule[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +17,6 @@ function useAllTrainingModules(companyId: string) {
       setLoading(false);
       return;
     }
-    setLoading(true);
     const unsub = onSnapshot(
       query(collection(db, 'trainingModules'), where('companyId', '==', companyId)),
       (snap) => {
@@ -36,34 +34,32 @@ function useAllTrainingModules(companyId: string) {
   return { modules, loading };
 }
 
-interface TodayTrainingsWidgetProps {
-  companyId: string;
-  /** Only show sessions from Safety Training modules — used on the Safety
-   *  Dashboard, where "today's trainings" should mean safety trainings only. */
-  safetyOnly?: boolean;
-}
-
-export default function TodayTrainingsWidget({ companyId, safetyOnly = false }: TodayTrainingsWidgetProps) {
-  const { t } = useTranslation();
-  const { modules, loading } = useAllTrainingModules(companyId);
+// Today's sessions from this viewer's own (not-yet-certified) training
+// assignments — a personal subset of TodayTrainingsWidget's company-wide list.
+export default function TodayMyTrainingsWidget() {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+  const { modules, loading: modulesLoading } = useCompanyTrainingModules(companyId);
+  const { assignments, loading: assignmentsLoading } = useMyAssignments();
   const todayStr = new Date().toISOString().slice(0, 10);
+
+  const myAssignedModuleIds = useMemo(
+    () => new Set(assignments.filter((a) => a.status !== 'certified').map((a) => a.moduleId)),
+    [assignments],
+  );
 
   const todaySessions = useMemo(() => {
     return modules
+      .filter((m) => myAssignedModuleIds.has(m.id))
       .flatMap((m) => getModuleSessions(m).map((s) => ({ ...s, safety: isSafetyModule(m) })))
-      .filter((s) => s.date === todayStr)
-      .filter((s) => !safetyOnly || s.safety);
-  }, [modules, todayStr, safetyOnly]);
+      .filter((s) => s.date === todayStr);
+  }, [modules, myAssignedModuleIds, todayStr]);
+
+  const loading = modulesLoading || assignmentsLoading;
 
   return (
-    <DashboardWidget
-      title={safetyOnly ? "Today's Safety Trainings" : t('common.dashboard.trainings.title')}
-      loading={loading}
-      live
-      action={<span className="text-xs text-[#8BA3BF]">{t('common.dashboard.trainings.today', { count: todaySessions.length })}</span>}
-    >
+    <DashboardWidget title="Today's My Trainings" loading={loading}>
       {todaySessions.length === 0 ? (
-        <EmptyState message={t('common.dashboard.trainings.empty')} />
+        <EmptyState message="No trainings of yours scheduled today" />
       ) : (
         <div className="space-y-1.5">
           {todaySessions.map((s, i) => (
@@ -80,7 +76,7 @@ export default function TodayTrainingsWidget({ companyId, safetyOnly = false }: 
                   s.safety ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'bg-[#1A56DB]/20 text-[#5B8DEF]'
                 }`}
               >
-                {s.safety ? t('common.dashboard.trainings.safety') : t('common.dashboard.trainings.general')}
+                {s.safety ? 'Safety' : 'General'}
               </span>
             </div>
           ))}
