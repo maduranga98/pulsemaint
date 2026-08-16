@@ -12,6 +12,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
 import { useTeamPerformanceByRole } from '../../../hooks/dashboard/useTeamPerformanceByRole';
+import type { DateRange } from '../../../services/teamPerformance.service';
 
 // The roles the HR Officer dashboard headcount strip must show (HR-001).
 const ROLE_ORDER: Array<{ role: string; label: string }> = [
@@ -34,10 +35,11 @@ const BAR_COLORS = [
 
 interface StaffByRoleChartProps {
   companyId: string;
+  dateRange?: DateRange | null;
 }
 
-export default function StaffByRoleChart({ companyId }: StaffByRoleChartProps) {
-  const { data, loading, error, refetch } = useTeamPerformanceByRole(companyId);
+export default function StaffByRoleChart({ companyId, dateRange }: StaffByRoleChartProps) {
+  const { data, loading, error, refetch } = useTeamPerformanceByRole(companyId, dateRange);
 
   const memberCountByRole = new Map(data.map((row) => [row.role, row.memberCount]));
   const chartData = ROLE_ORDER.map(({ role, label }) => ({

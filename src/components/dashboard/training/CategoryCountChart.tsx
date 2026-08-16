@@ -3,7 +3,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
 import { useCategoryCounts } from '../../../hooks/dashboard/useCategoryCounts';
-import type { CategoryCountRow } from '../../../services/teamPerformance.service';
+import type { CategoryCountRow, DateRange } from '../../../services/teamPerformance.service';
 
 const BAR_COLORS = [
   CHART_COLORS.primary,
@@ -19,11 +19,12 @@ interface CategoryCountChartProps {
   title: string;
   emptyMessage: string;
   barName: string;
-  fetcher: (companyId: string) => Promise<CategoryCountRow[]>;
+  fetcher: (companyId: string, dateRange?: DateRange | null) => Promise<CategoryCountRow[]>;
+  dateRange?: DateRange | null;
 }
 
-export default function CategoryCountChart({ companyId, title, emptyMessage, barName, fetcher }: CategoryCountChartProps) {
-  const { data, loading, error, refetch } = useCategoryCounts(companyId, fetcher);
+export default function CategoryCountChart({ companyId, title, emptyMessage, barName, fetcher, dateRange }: CategoryCountChartProps) {
+  const { data, loading, error, refetch } = useCategoryCounts(companyId, fetcher, dateRange);
 
   return (
     <DashboardWidget title={title} loading={loading} error={error} onRetry={refetch}>

@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchTeamPerformanceByRole, type RolePerformanceSummary } from '../../services/teamPerformance.service';
+import {
+  fetchTeamPerformanceByRole,
+  type RolePerformanceSummary,
+  type DateRange,
+} from '../../services/teamPerformance.service';
 
 export type { RolePerformanceSummary };
 
@@ -7,7 +11,7 @@ export type { RolePerformanceSummary };
 // and evaluation/audit/triage-activity-by-role charts, which need per-role
 // counts, not the per-person rows the Analytics "Team Performance" widget
 // and the Team Performance report use (see useTeamPerformanceAnalytics.ts).
-export function useTeamPerformanceByRole(companyId: string) {
+export function useTeamPerformanceByRole(companyId: string, dateRange?: DateRange | null) {
   const [data, setData] = useState<RolePerformanceSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,13 +24,13 @@ export function useTeamPerformanceByRole(companyId: string) {
     setLoading(true);
     setError(null);
     try {
-      setData(await fetchTeamPerformanceByRole(companyId));
+      setData(await fetchTeamPerformanceByRole(companyId, dateRange));
     } catch (err) {
       setError((err as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [companyId]);
+  }, [companyId, dateRange?.from, dateRange?.to]);
 
   useEffect(() => {
     fetch();
