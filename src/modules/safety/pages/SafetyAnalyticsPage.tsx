@@ -7,6 +7,7 @@ import { ShieldAlert } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
 import EmptyState from '@/components/dashboard/shared/EmptyState';
+import KpiCard from '@/components/dashboard/shared/KpiCard';
 import { useSafetyCases } from '@/hooks/safety/useSafety';
 import { SAFETY_CASE_TYPES } from '@/types/safety';
 
@@ -23,10 +24,32 @@ const TABS: { id: TabId; label: string }[] = [
   { id: 'machines', label: 'Top 5 Machines' },
 ];
 
+const DURATION_OPTIONS = [
+  { label: '7 Days', days: 7 },
+  { label: '30 Days', days: 30 },
+  { label: '90 Days', days: 90 },
+] as const;
+
 export default function SafetyAnalyticsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const { cases, loading } = useSafetyCases(companyId);
+  const { cases: allCases, loading } = useSafetyCases(companyId);
   const [activeTab, setActiveTab] = useState<TabId>('severity');
+  const [days, setDays] = useState<number>(30);
+
+  const cases = useMemo(() => {
+    const since = Date.now() - days * 24 * 60 * 60 * 1000;
+    return allCases.filter((c) => {
+      const reportedAt = c.reportedAt?.toDate?.();
+      return reportedAt ? reportedAt.getTime() >= since : false;
+    });
+  }, [allCases, days]);
+
+  const openCases = useMemo(() => cases.filter((c) => c.status !== 'closed'), [cases]);
+  const openByStatus = useMemo(() => {
+    const m = new Map<string, number>();
+    openCases.forEach((c) => m.set(c.status, (m.get(c.status) ?? 0) + 1));
+    return m;
+  }, [openCases]);
 
   const byType = useMemo(() => {
     const m = new Map<string, number>();
@@ -74,10 +97,35 @@ export default function SafetyAnalyticsPage() {
 
   return (
     <div className="min-h-full bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
-      <h1 className="mb-1 flex items-center gap-2 font-[Sora] text-xl font-bold">
-        <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Analytics
-      </h1>
-      <p className="mb-5 text-sm text-[#8BA3BF]">Incident trends, types, severity, and involvement across the factory.</p>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="mb-1 flex items-center gap-2 font-[Sora] text-xl font-bold">
+            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Analytics
+          </h1>
+          <p className="text-sm text-[#8BA3BF]">Incident trends, types, severity, and involvement across the factory.</p>
+        </div>
+        <div className="inline-flex rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-1 text-xs">
+          {DURATION_OPTIONS.map((opt) => (
+            <button
+              key={opt.days}
+              type="button"
+              onClick={() => setDays(opt.days)}
+              className={`px-3 py-1.5 rounded-md font-medium transition ${
+                days === opt.days ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Not-closed cases, with current status breakdown — a live count, not a tab. */}
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <KpiCard data={{ label: 'Not Closed', value: openCases.length, color: (openCases.length > 0 ? 'amber' : 'green') }} />
+        <KpiCard data={{ label: 'Open', value: openByStatus.get('open') ?? 0, color: 'amber' }} />
+        <KpiCard data={{ label: 'Investigating', value: openByStatus.get('investigating') ?? 0, color: 'blue' }} />
+      </div>
 
       <div className="mb-6 flex flex-wrap gap-1 border-b border-[#1E3A5F]">
         {TABS.map((tab) => (

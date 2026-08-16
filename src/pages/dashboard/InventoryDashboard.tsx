@@ -5,6 +5,7 @@ import PendingRequestsTable from '../../components/dashboard/inventory/PendingRe
 import PendingReturnsWidget from '../../components/dashboard/inventory/PendingReturnsWidget';
 import PendingReceiptPOsWidget from '../../components/dashboard/inventory/PendingReceiptPOsWidget';
 import SafetyForYouWidget from '../../components/dashboard/inventory/SafetyForYouWidget';
+import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 
 export default function InventoryDashboard() {
@@ -36,6 +37,9 @@ export default function InventoryDashboard() {
 
         {/* Safety — trainings assigned to this user and cases reported to them */}
         <SafetyForYouWidget />
+
+        {/* My Trainings — not-completed, replaces the old nav tab */}
+        <MyTrainingsWidget />
       </div>
 
       <DashboardSidePanel />

@@ -17,6 +17,7 @@ import LivePOsWidget from '../../components/dashboard/manager/LivePOsWidget';
 import TodaySafetyCasesWidget from '../../components/dashboard/manager/TodaySafetyCasesWidget';
 import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
+import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
@@ -138,6 +139,11 @@ export default function ManagerDashboard() {
 
         {/* Trainees ready for their programme completion sign-off */}
         <ProgrammeSignOffQueueWidget companyId={companyId} />
+
+        {/* Plant manager's own outstanding trainings — admin doesn't get
+            personal training assignments, so this is plant_manager-only,
+            matching the old nav tab's scoping. */}
+        {role === 'plant_manager' && <MyTrainingsWidget />}
 
         {/* Who's actually on shift right now. Trend charts, heatmaps,
             per-machine/contractor breakdowns, SLA, and Safety/Team

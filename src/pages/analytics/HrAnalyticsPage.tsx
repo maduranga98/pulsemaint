@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
-import TopPerformersWidget from '../../components/dashboard/training/TopPerformersWidget';
+import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
 import CategoryCountChart from '../../components/dashboard/training/CategoryCountChart';
 import {
