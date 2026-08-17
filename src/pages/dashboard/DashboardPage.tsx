@@ -3,7 +3,7 @@ import { useAuthStore } from '../../store/authStore';
 import type { UserRole } from '../../types/auth';
 
 const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
-  admin: '/app/dashboard/manager',
+  admin: '/app/dashboard/admin',
   plant_manager: '/app/dashboard/manager',
   supervisor: '/app/dashboard/supervisor',
   technician: '/app/dashboard/technician',

@@ -516,7 +516,7 @@ export async function getCompanyIdFromUser(uid: string): Promise<string | null> 
 
 export function getDashboardRoute(role: UserRole): string {
   const routes: Record<UserRole, string> = {
-    admin: '/app/dashboard/manager',
+    admin: '/app/dashboard/admin',
     plant_manager: '/app/dashboard/manager',
     supervisor: '/app/dashboard/supervisor',
     technician: '/app/dashboard/technician',

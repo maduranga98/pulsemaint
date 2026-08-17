@@ -251,6 +251,18 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         />
+        {/* Admin's own URL for the same dashboard content plant_manager sees
+            at /dashboard/manager — ManagerDashboard already renders the
+            correct "Admin Dashboard" title/greeting from the signed-in
+            role, same pattern as safety_officer's /dashboard/safety alias. */}
+        <Route
+          path="dashboard/admin"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <ManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
         {/* Safety officer lands here instead of /dashboard/manager — a
             dedicated dashboard scoped to safety data (cases, permits,
             trainings) instead of the full plant-wide manager view. */}
