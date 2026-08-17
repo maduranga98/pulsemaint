@@ -5,14 +5,15 @@ import DashboardWidget from '../shared/DashboardWidget';
 import NotificationFeedItem from './NotificationFeedItem';
 import EmptyState from '../shared/EmptyState';
 import type { DashboardNotificationType } from '../../../types/analytics.types';
+import { useTranslation } from 'react-i18next';
 
-const FILTERS: { label: string; value: DashboardNotificationType | 'all' }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Breakdowns', value: 'breakdown' },
-  { label: 'Work Orders', value: 'work_order' },
-  { label: 'Parts', value: 'parts' },
-  { label: 'PM', value: 'pm' },
-  { label: 'Alerts', value: 'alert' },
+const FILTERS: { labelKey: string; value: DashboardNotificationType | 'all' }[] = [
+  { labelKey: 'all', value: 'all' },
+  { labelKey: 'breakdowns', value: 'breakdown' },
+  { labelKey: 'workOrders', value: 'work_order' },
+  { labelKey: 'parts', value: 'parts' },
+  { labelKey: 'pm', value: 'pm' },
+  { labelKey: 'alerts', value: 'alert' },
 ];
 
 interface NotificationFeedProps {
@@ -20,6 +21,7 @@ interface NotificationFeedProps {
 }
 
 export default function NotificationFeed({ companyId }: NotificationFeedProps) {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState<DashboardNotificationType | 'all'>('all');
   const { notifications, loading, error } = useNotifications(companyId);
 
@@ -28,7 +30,7 @@ export default function NotificationFeed({ companyId }: NotificationFeedProps) {
 
   return (
     <DashboardWidget
-      title="Notifications"
+      title={t('common.widgets.notificationFeed.title')}
       live
       loading={loading}
       error={error}
@@ -51,7 +53,7 @@ export default function NotificationFeed({ companyId }: NotificationFeedProps) {
                 : 'bg-[#0A1628] text-[#8BA3BF] hover:text-[#F0F4F8]'
             }`}
           >
-            {f.label}
+            {t(`common.widgets.notificationFeed.filters.${f.labelKey}`)}
           </button>
         ))}
       </div>
@@ -59,7 +61,7 @@ export default function NotificationFeed({ companyId }: NotificationFeedProps) {
       {/* Feed */}
       <div className="max-h-[420px] overflow-y-auto -mx-5">
         {filtered.length === 0 ? (
-          <EmptyState message="No notifications" subMessage="All caught up!" />
+          <EmptyState message={t('common.widgets.notificationFeed.empty')} subMessage={t('common.widgets.notificationFeed.emptySub')} />
         ) : (
           <div className="divide-y divide-[#1E3A5F]/50">
             {filtered.map((n) => (

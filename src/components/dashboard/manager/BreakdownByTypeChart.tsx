@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useDashboardStore } from '../../../store/dashboard.store';
@@ -12,6 +13,7 @@ interface BreakdownByTypeChartProps {
 }
 
 export default function BreakdownByTypeChart({}: BreakdownByTypeChartProps) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<ToggleMode>('type');
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   const loading = useDashboardStore((s) => s.analyticsLoading);
@@ -27,7 +29,7 @@ export default function BreakdownByTypeChart({}: BreakdownByTypeChartProps) {
 
   return (
     <DashboardWidget
-      title="Breakdown Distribution"
+      title={t('common.widgets.breakdownByTypeChart.title')}
       loading={loading}
       action={
         <div className="flex bg-[#0A1628] rounded-md border border-[#1E3A5F]">
@@ -39,14 +41,14 @@ export default function BreakdownByTypeChart({}: BreakdownByTypeChartProps) {
                 mode === m ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF]'
               }`}
             >
-              {m}
+              {t(`common.widgets.breakdownByTypeChart.modes.${m}`)}
             </button>
           ))}
         </div>
       }
     >
       {data.length === 0 ? (
-        <EmptyState message="No breakdown data" />
+        <EmptyState message={t('common.widgets.breakdownByTypeChart.empty')} />
       ) : (
         <div className="flex flex-col items-center">
           <div className="w-full h-48">

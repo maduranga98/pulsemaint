@@ -155,6 +155,527 @@
         "allSuppliers": "جميع الموردين",
         "clear": "مسح"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "إضافة صورة",
+        "checklistProgress": "تقدم قائمة التحقق",
+        "currentJob": "المهمة الحالية",
+        "noActiveJob": "لا توجد مهمة نشطة",
+        "of": "{{completed}} من {{total}}",
+        "requestParts": "طلب قطع غيار",
+        "scanToCheckIn": "امسح رمز QR للآلة لتسجيل الدخول",
+        "timeOnJob": "الوقت في المهمة",
+        "updateStatus": "تحديث الحالة"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "تم التعيين في {{date}}",
+        "attendFill": "معالجة وتعبئة",
+        "attendFillCount": "معالجة وتعبئة ({{count}})",
+        "empty": "لا توجد أعطال مسندة إليك",
+        "title": "الأعطال المسندة إليّ"
+      },
+      "assignedTasksWidget": {
+        "audit": "تدقيق",
+        "audits": "عمليات التدقيق ({{count}})",
+        "empty": "لا توجد مهام مسندة",
+        "emptySub": "ستظهر هنا أوامر العمل والتدقيقات والتقييمات والتدريبات.",
+        "evaluations": "التقييمات ({{count}})",
+        "pending": "{{count}} معلّقة",
+        "safetyCases": "حالات السلامة ({{count}})",
+        "title": "المسند إليّ",
+        "trainingModule": "وحدة تدريبية",
+        "trainings": "التدريبات ({{count}})",
+        "workOrders": "أوامر العمل ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "لا توجد بيانات أعطال",
+        "modes": {
+          "type": "النوع",
+          "severity": "الخطورة",
+          "department": "القسم"
+        },
+        "title": "توزيع الأعطال"
+      },
+      "breakdownHeatmap": {
+        "empty": "لا توجد بيانات خريطة حرارية",
+        "ranges": {
+          "thisMonth": "هذا الشهر",
+          "last3m": "آخر 3 أشهر",
+          "last6m": "آخر 6 أشهر"
+        },
+        "title": "خريطة حرارية لتكرار الأعطال",
+        "tooltipCount": "{{day}} {{hour}} — {{count}} عطل",
+        "tooltipNone": "{{day}} {{hour}} — لا أعطال"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "مُبلَّغ عنها حديثًا",
+          "signOff": "اعتماد وإغلاق"
+        },
+        "title": "لوحة الأعطال المباشرة"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "لا توجد عناصر"
+      },
+      "breakdownTrendChart": {
+        "closed": "مغلقة",
+        "critical": "حرجة",
+        "empty": "لا توجد بيانات أعطال",
+        "opened": "مفتوحة",
+        "title": "اتجاه الأعطال"
+      },
+      "categoryStatusChart": {
+        "completed": "مكتمل",
+        "ongoing": "جارٍ"
+      },
+      "common": {
+        "active": "نشط",
+        "due": "الاستحقاق {{date}}",
+        "failedToLoad": "فشل تحميل البيانات",
+        "general": "عام",
+        "noData": "لا توجد بيانات",
+        "noDataAvailable": "لا تتوفر بيانات",
+        "resume": "استئناف",
+        "retry": "إعادة المحاولة",
+        "safety": "السلامة",
+        "start": "بدء",
+        "today": "اليوم",
+        "view": "عرض",
+        "viewAll": "عرض الكل",
+        "trainingStatus": {
+          "notStarted": "لم يبدأ",
+          "inProgress": "قيد التنفيذ",
+          "quizPassed": "اجتاز الاختبار",
+          "quizFailed": "رسب في الاختبار",
+          "awaitingPractical": "بانتظار التدريب العملي",
+          "expired": "منتهي الصلاحية",
+          "retrainingRequired": "يتطلب إعادة تدريب"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "لا توجد بيانات مقاولين",
+        "firstFix": "الإصلاح من أول مرة {{value}}%",
+        "jobs": "{{count}} مهمة",
+        "sla": "اتفاقية مستوى الخدمة {{value}}%",
+        "title": "لوحة تصنيف المقاولين"
+      },
+      "dateRangeFilter": {
+        "from": "من",
+        "presets": {
+          "allTime": "كل الفترات",
+          "last30Days": "آخر 30 يومًا",
+          "thisMonth": "هذا الشهر",
+          "lastMonth": "الشهر الماضي",
+          "thisYear": "هذا العام"
+        },
+        "to": "إلى"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "الموظفون النشطون",
+        "evaluationsInProgress": "تقييمات قيد التنفيذ",
+        "presentToday": "الحاضرون اليوم",
+        "trainingsInProgress": "تدريبات قيد التنفيذ"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "مخزون منخفض",
+        "outOfStock": "نفد المخزون",
+        "pendingRequests": "طلبات معلّقة",
+        "totalParts": "إجمالي القطع"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}} يوم",
+        "daysOverdue": "متأخر {{count}} يوم",
+        "due": "الاستحقاق {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "لا توجد مهام في قائمة الانتظار",
+        "title": "قائمة مهامي"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "لا يوجد أحد في الوردية حاليًا",
+        "footer": "{{shifts}} وردية نشطة · {{people}} أشخاص يعملون",
+        "sinceDayTime": "منذ {{day}} {{time}}",
+        "sinceTime": "منذ {{time}}",
+        "title": "حالة الوردية المباشرة",
+        "workingNow": "{{count}} يعملون الآن",
+        "yesterday": "أمس"
+      },
+      "lowStockAlertTable": {
+        "category": "الفئة",
+        "deficit": "العجز",
+        "empty": "جميع مستويات المخزون سليمة",
+        "min": "الحد الأدنى",
+        "part": "القطعة",
+        "raisePo": "إنشاء أمر شراء",
+        "stock": "المخزون",
+        "title": "تنبيهات انخفاض المخزون"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "{{value}} أقل من الحد الأدنى ({{current}}/{{min}})",
+        "empty": "جميع مستويات المخزون سليمة",
+        "title": "قطع منخفضة المخزون"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "أعطال الشهر الحالي",
+        "empty": "لا توجد بيانات آلات",
+        "health": "الحالة",
+        "machine": "الآلة",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "الحالة",
+        "title": "تحليل مستوى الآلة"
+      },
+      "maintenanceCostChart": {
+        "cost": "التكلفة",
+        "empty": "لا توجد بيانات تكلفة",
+        "title": "نظرة عامة على تكاليف الصيانة",
+        "totalThisMonth": "الإجمالي هذا الشهر:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "لا توجد بيانات استخدام",
+        "title": "القطع الأكثر استخدامًا (آخر 30 يومًا)",
+        "unitsIssued": "الوحدات المصروفة"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "لا توجد بيانات استخدام",
+        "title": "القطع الأكثر استخدامًا"
+      },
+      "mtbfTable": {
+        "dept": "القسم",
+        "empty": "لا توجد بيانات حالة الآلة",
+        "machine": "الآلة",
+        "mtbf": "MTBF",
+        "title": "MTBF لكل آلة"
+      },
+      "mttrTrendChart": {
+        "empty": "لا توجد بيانات MTTR",
+        "slaTarget": "هدف اتفاقية مستوى الخدمة",
+        "slaTargetLabel": "هدف SLA ({{target}} س)",
+        "title": "اتجاه MTTR"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "إلغاء",
+        "cancelFailed": "فشل إلغاء الإرجاع.",
+        "cancelling": "جارٍ الإلغاء…",
+        "empty": "لا يوجد ما يُعاد",
+        "emptySub": "ستظهر القطع القابلة للإرجاع التي استلمتها هنا حتى تتم إعادتها.",
+        "requesting": "جارٍ الطلب…",
+        "return": "إرجاع",
+        "returnCancelled": "تم إلغاء الإرجاع.",
+        "returnFailed": "فشل طلب الإرجاع.",
+        "returnRequested": "تم طلب الإرجاع — سيؤكده أمين المخزن.",
+        "returning": "جارٍ الإرجاع",
+        "title": "قطعي القابلة للإرجاع"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "الإجراءات المتخذة",
+        "actionsTakenCount": "الإجراءات المتخذة ({{count}})",
+        "description": "الوصف",
+        "empty": "لا توجد حالات سلامة مسندة إليك",
+        "location": "الموقع",
+        "movedTo": "تم النقل إلى {{status}}",
+        "noActionsYet": "لم يتم تسجيل أي إجراءات بعد.",
+        "title": "حالات السلامة",
+        "whatYouNeedToDo": "ما يجب عليك فعله"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "لا توجد تدريبات سلامة مسندة",
+        "title": "تدريبات السلامة المسندة إليّ"
+      },
+      "myTrainingsWidget": {
+        "empty": "لا توجد تدريبات قيد التنفيذ",
+        "title": "تدريباتي"
+      },
+      "notificationFeed": {
+        "empty": "لا توجد إشعارات",
+        "emptySub": "كل شيء محدَّث!",
+        "filters": {
+          "all": "الكل",
+          "breakdowns": "الأعطال",
+          "workOrders": "أوامر العمل",
+          "parts": "القطع",
+          "pm": "الصيانة الوقائية",
+          "alerts": "التنبيهات"
+        },
+        "title": "الإشعارات"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "عمليات التدقيق ({{count}})",
+        "empty": "لا توجد تقييمات أو عمليات تدقيق جارية حاليًا",
+        "evaluations": "التقييمات ({{count}})",
+        "noneInProgress": "لا شيء قيد التنفيذ",
+        "running": "{{count}} جارٍ",
+        "title": "التقييمات وعمليات التدقيق الجارية"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "لا توجد تدريبات جارية حاليًا",
+        "inProgress": "{{count}} قيد التنفيذ",
+        "module": "الوحدة",
+        "name": "الاسم",
+        "progress": "التقدم",
+        "role": "الدور",
+        "title": "التدريبات الجارية"
+      },
+      "operatorTrainingTable": {
+        "certified": "معتمد",
+        "empty": "لا توجد بيانات مشغلين",
+        "expiring": "قارب الانتهاء",
+        "operator": "المشغل",
+        "role": "الدور",
+        "status": "الحالة",
+        "title": "حالة التدريب"
+      },
+      "partsUsageTrendChart": {
+        "empty": "لا يوجد نشاط طلبات",
+        "title": "اتجاهات طلبات القطع (آخر 30 يومًا)",
+        "woPartRequests": "طلبات قطع أوامر العمل"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "موافقة",
+        "empty": "لا توجد طلبات موافقة معلّقة",
+        "emptySub": "ستظهر هنا الطلبات المقدمة من الفنيين والمتدربين.",
+        "notePlaceholder": "ملاحظة (اختياري)",
+        "pending": "{{count}} معلّقة",
+        "pendingBadge": "معلّق",
+        "reject": "رفض",
+        "requested": "طلب",
+        "title": "الموافقات المعلّقة",
+        "viewMore": "عرض {{count}} أخرى…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "لا توجد أوامر شراء بانتظار الاستلام",
+        "items": "العناصر",
+        "poNumber": "رقم أمر الشراء",
+        "statusHeader": "الحالة",
+        "status": {
+          "sent": "مُرسل",
+          "invoiceReceived": "تم استلام الفاتورة",
+          "acknowledged": "مُؤكَّد",
+          "partiallyReceived": "مستلم جزئيًا"
+        },
+        "supplier": "المورّد",
+        "title": "استلامات أوامر الشراء المعلّقة",
+        "value": "القيمة"
+      },
+      "pendingRequestsTable": {
+        "empty": "لا توجد طلبات معلّقة",
+        "estValue": "القيمة التقديرية",
+        "more": "+{{count}} أخرى",
+        "parts": "القطع",
+        "requestedBy": "طلب بواسطة",
+        "review": "مراجعة",
+        "title": "طلبات القطع المعلّقة",
+        "unknownPart": "قطعة غير معروفة"
+      },
+      "pendingReturnsWidget": {
+        "empty": "لا توجد قطع بانتظار الإرجاع",
+        "takenBy": "أُخذت بواسطة",
+        "title": "إرجاعات القطع المعلّقة"
+      },
+      "personalKpiCards": {
+        "avgRepair": "متوسط الإصلاح",
+        "avgResponse": "متوسط الاستجابة",
+        "jobsCompleted": "المهام المكتملة",
+        "slaCompliance": "الالتزام باتفاقية مستوى الخدمة"
+      },
+      "pmComplianceWidget": {
+        "empty": "لا توجد بيانات صيانة وقائية",
+        "missed": "فائتة",
+        "onTime": "في الموعد",
+        "thisMonth": "هذا الشهر",
+        "title": "معدل الالتزام بالصيانة الوقائية"
+      },
+      "pmTrendChart": {
+        "empty": "لا توجد بيانات أوامر صيانة وقائية",
+        "title": "أوامر الصيانة الوقائية حسب النوع",
+        "wos": "أوامر عمل"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "لا توجد استلامات مسجلة في هذه الفترة",
+        "title": "استلام القطع: جيدة مقابل مرفوضة/تالفة",
+        "unitsReceived": "الوحدات المستلمة"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "تكلفة التوقف",
+        "hoursLost": "ساعات الإنتاج الضائعة هذا الشهر",
+        "thisWeek": "هذا الأسبوع",
+        "title": "توقف الإنتاج",
+        "today": "اليوم"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "لا توجد برامج جاهزة للاعتماد",
+        "emptySub": "سيظهر هنا المتدربون الذين أنهوا كل وحدة في برنامجهم.",
+        "ready": "{{count}} جاهزة",
+        "readyToSignOff": "جاهز للاعتماد",
+        "summary": "برنامج {{months}} شهرًا · اكتملت {{count}} وحدة · بدأ في {{date}}",
+        "title": "اعتماد برنامج المتدربين"
+      },
+      "requestedPartsWidget": {
+        "empty": "لا توجد طلبات قطع معلّقة",
+        "generalRequest": "طلب عام",
+        "requestParts": "طلب قطع غيار",
+        "status": {
+          "requested": "مطلوب",
+          "inApprovalOfSupervisor": "بانتظار موافقة المشرف",
+          "needToCollect": "بحاجة للاستلام"
+        },
+        "title": "القطع المطلوبة"
+      },
+      "safetyForYouWidget": {
+        "empty": "لا توجد أمور تتعلق بالسلامة معلّقة",
+        "emptySub": "ستظهر هنا التدريبات المسندة والحالات المُبلَّغ عنها لك.",
+        "open": "{{count}} مفتوحة",
+        "safetyTrainings": "تدريبات السلامة ({{count}})",
+        "title": "السلامة"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "حسب نوع الحالة",
+        "bySeverity": "حسب الخطورة",
+        "daysSinceLastIncident": "الأيام منذ آخر حادث",
+        "nearMiss30d": "حوادث وشيكة (30 يومًا)",
+        "openCases": "الحالات المفتوحة",
+        "totalSafetyCases": "إجمالي حالات السلامة"
+      },
+      "slaGaugeWidget": {
+        "breached": "مخالَف",
+        "empty": "لا توجد بيانات SLA",
+        "title": "الالتزام باتفاقية مستوى الخدمة",
+        "withinSla": "ضمن اتفاقية مستوى الخدمة"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "جميع الأعطال ضمن اتفاقية مستوى الخدمة",
+        "atRisk": "معرّض للخطر",
+        "breached": "مخالَف",
+        "left": "متبقٍ {{time}}",
+        "overdue": "متأخر {{time}}",
+        "title": "حالة اتفاقية مستوى الخدمة",
+        "withinSla": "ضمن اتفاقية مستوى الخدمة"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "{{count}} موظف نشط",
+        "empty": "لا توجد بيانات موظفين",
+        "roles": {
+          "technicians": "الفنيون",
+          "supervisors": "المشرفون",
+          "managers": "المديرون",
+          "operators": "المشغّلون",
+          "trainees": "المتدربون",
+          "storeKeepers": "أمناء المخازن",
+          "hrOfficers": "موظفو الموارد البشرية",
+          "safetyOfficers": "مسؤولو السلامة",
+          "admins": "المسؤولون"
+        },
+        "staff": "الموظفون",
+        "title": "الموظفون حسب الدور"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "لا توجد أوامر شراء في هذه الفترة",
+        "purchaseOrders": "أوامر الشراء",
+        "title": "أوامر الشراء حسب المورّد"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "نتيجة التدقيق",
+        "empty": "لا توجد بيانات أداء الفريق",
+        "evaluationScore": "نتيجة التقييم",
+        "name": "الاسم",
+        "quizzesPassed": "الاختبارات المجتازة",
+        "role": "الدور",
+        "title": "أداء الفريق",
+        "trainings": "التدريبات"
+      },
+      "technicianPerformanceTable": {
+        "empty": "لا توجد بيانات أداء",
+        "jobs": "المهام",
+        "repair": "الإصلاح",
+        "resp": "الاستجابة",
+        "sla": "SLA",
+        "tech": "الفني",
+        "title": "الأداء حسب أوامر العمل"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} نشط",
+        "empty": "لا يوجد فنيون في الوردية",
+        "title": "حالة الفنيين"
+      },
+      "technicianStatusRow": {
+        "doneToday": "أُنجز اليوم",
+        "on": "في {{wo}}",
+        "status": {
+          "available": "متاح",
+          "onJob": "في مهمة",
+          "onBreak": "في استراحة",
+          "offShift": "خارج الوردية"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "لا توجد تدريبات مجدولة لك اليوم",
+        "title": "تدريباتي اليوم"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "لا توجد ورديات نشطة حاليًا",
+        "started": "{{count}} بدأت",
+        "title": "ورديات اليوم حسب القسم"
+      },
+      "todaysPmList": {
+        "empty": "لا توجد جداول صيانة وقائية مسندة",
+        "title": "جداول الصيانة الوقائية المسندة"
+      },
+      "topPerformersWidget": {
+        "audit": "تدقيق",
+        "empty": "لا توجد بيانات أداء بعد",
+        "emptySub": "تظهر التصنيفات بمجرد تقديم التقييمات أو عمليات التدقيق.",
+        "eval": "تقييم",
+        "name": "الاسم",
+        "quizzes": "الاختبارات",
+        "role": "الدور",
+        "safety": "السلامة",
+        "score": "النتيجة",
+        "title": "أفضل 10 أعضاء أداءً في الفريق",
+        "trainings": "التدريبات"
+      },
+      "topProblemMachinesChart": {
+        "empty": "لا توجد بيانات آلات ذات مشاكل",
+        "modes": {
+          "count": "العدد",
+          "hours": "الساعات",
+          "cost": "التكلفة"
+        },
+        "title": "أفضل 10 آلات ذات مشاكل"
+      },
+      "topUsedPartsChart": {
+        "empty": "لا توجد بيانات طلبات",
+        "title": "القطع المطلوبة حسب السبب"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "تقييماتي",
+        "noEvaluations": "لا توجد تقييمات مسجلة بعد"
+      },
+      "trainingActivityChart": {
+        "empty": "لا توجد بيانات تدريب",
+        "newCertifications": "شهادات جديدة",
+        "renewals": "التجديدات",
+        "title": "نشاط التدريب"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "معالجة",
+        "attendFailed": "فشلت المعالجة.",
+        "attending": "جارٍ المعالجة…",
+        "empty": "لا توجد أعطال غير مسندة",
+        "title": "الأعطال"
+      },
+      "woTypeDistributionChart": {
+        "empty": "لا توجد بيانات أوامر عمل",
+        "title": "توزيع أوامر العمل حسب النوع",
+        "wos": "أوامر عمل"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "لا توجد أوامر عمل قيد التنفيذ",
+        "emptyToday": "لا توجد أوامر عمل مستحقة اليوم",
+        "running": "قيد التنفيذ ({{count}})",
+        "title": "أوامر العمل",
+        "today": "اليوم ({{count}})"
+      }
     }
   }
 }

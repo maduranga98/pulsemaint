@@ -1,18 +1,20 @@
 import KpiCard from '../shared/KpiCard';
 import { useInventoryHealth } from '../../../hooks/dashboard/useInventoryHealth';
+import { useTranslation } from 'react-i18next';
 
 interface InventoryHealthStripProps {
   companyId: string;
 }
 
 export default function InventoryHealthStrip({ companyId }: InventoryHealthStripProps) {
+  const { t } = useTranslation();
   const { stats, loading } = useInventoryHealth(companyId);
 
   const cards = [
-    { label: 'Total Parts', value: stats.totalParts, color: 'blue' as const },
-    { label: 'Low Stock', value: stats.lowStockItems, color: (stats.lowStockItems > 0 ? 'amber' : 'green') as 'amber' | 'green' },
-    { label: 'Out of Stock', value: stats.outOfStockItems, color: (stats.outOfStockItems > 0 ? 'red' : 'green') as 'red' | 'green' },
-    { label: 'Pending Requests', value: stats.pendingPartsRequests, color: (stats.pendingPartsRequests > 0 ? 'amber' : 'green') as 'amber' | 'green' },
+    { label: t('common.widgets.inventoryHealthStrip.totalParts'), value: stats.totalParts, color: 'blue' as const },
+    { label: t('common.widgets.inventoryHealthStrip.lowStock'), value: stats.lowStockItems, color: (stats.lowStockItems > 0 ? 'amber' : 'green') as 'amber' | 'green' },
+    { label: t('common.widgets.inventoryHealthStrip.outOfStock'), value: stats.outOfStockItems, color: (stats.outOfStockItems > 0 ? 'red' : 'green') as 'red' | 'green' },
+    { label: t('common.widgets.inventoryHealthStrip.pendingRequests'), value: stats.pendingPartsRequests, color: (stats.pendingPartsRequests > 0 ? 'amber' : 'green') as 'amber' | 'green' },
   ];
 
   if (loading) {

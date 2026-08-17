@@ -1,6 +1,7 @@
 import { Clock, AlertTriangle } from 'lucide-react';
 import type { WorkOrder } from '../../../types';
 import { formatDate } from '../../../lib/dateUtils';
+import { useTranslation } from 'react-i18next';
 
 const PRIORITY_COLORS: Record<string, string> = {
   critical: 'border-l-[#EF4444]',
@@ -15,6 +16,7 @@ interface JobQueueItemProps {
 }
 
 export default function JobQueueItem({ wo, onClick }: JobQueueItemProps) {
+  const { t } = useTranslation();
   const dueDate = wo.dueDate?.toDate ? wo.dueDate.toDate() : new Date(wo.dueDate as any);
   const isOverdue = dueDate.getTime() < Date.now();
   const daysUntil = Math.ceil((dueDate.getTime() - Date.now()) / 86400000);
@@ -39,9 +41,9 @@ export default function JobQueueItem({ wo, onClick }: JobQueueItemProps) {
       <div className="text-right shrink-0">
         <div className={`flex items-center gap-1 text-xs ${isOverdue ? 'text-[#EF4444]' : daysUntil <= 2 ? 'text-[#F59E0B]' : 'text-[#8BA3BF]'}`}>
           {isOverdue ? <AlertTriangle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-          <span>{isOverdue ? `${Math.abs(daysUntil)}d overdue` : daysUntil === 0 ? 'Today' : `${daysUntil}d`}</span>
+          <span>{isOverdue ? t('common.widgets.jobQueueItem.daysOverdue', { count: Math.abs(daysUntil) }) : daysUntil === 0 ? t('common.widgets.common.today') : t('common.widgets.jobQueueItem.daysCount', { count: daysUntil })}</span>
         </div>
-        <p className="text-[10px] text-[#8BA3BF] mt-0.5">Due {formatDate(dueDate)}</p>
+        <p className="text-[10px] text-[#8BA3BF] mt-0.5">{t('common.widgets.jobQueueItem.due', { date: formatDate(dueDate) })}</p>
         <p className="text-[10px] text-[#8BA3BF] mt-0.5">{wo.status.replace('_', ' ')}</p>
       </div>
     </Wrapper>

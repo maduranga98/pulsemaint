@@ -15,12 +15,14 @@ import { useBreakdownTrend } from '../../../hooks/dashboard/useBreakdownTrend';
 import { CHART_DEFAULTS } from '../../../constants/chartTheme';
 import type { ChartDateRange } from '../../../types/analytics.types';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface BreakdownTrendChartProps {
   companyId: string;
 }
 
 export default function BreakdownTrendChart({ companyId }: BreakdownTrendChartProps) {
+  const { t } = useTranslation();
   const [range, setRange] = useState<ChartDateRange>('30D');
   const { data, loading, error, refetch } = useBreakdownTrend(companyId, range);
 
@@ -33,14 +35,14 @@ export default function BreakdownTrendChart({ companyId }: BreakdownTrendChartPr
 
   return (
     <DashboardWidget
-      title="Breakdown Trend"
+      title={t('common.widgets.breakdownTrendChart.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
       action={<ChartDateRangeSelector value={range} onChange={setRange} />}
     >
       {chartData.length === 0 ? (
-        <EmptyState message="No breakdown data" />
+        <EmptyState message={t('common.widgets.breakdownTrendChart.empty')} />
       ) : (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -63,7 +65,7 @@ export default function BreakdownTrendChart({ companyId }: BreakdownTrendChartPr
               <Area
                 type="monotone"
                 dataKey="opened"
-                name="Opened"
+                name={t('common.widgets.breakdownTrendChart.opened')}
                 stroke="#1A56DB"
                 fill="url(#bdOpened)"
                 strokeWidth={2}
@@ -71,7 +73,7 @@ export default function BreakdownTrendChart({ companyId }: BreakdownTrendChartPr
               <Area
                 type="monotone"
                 dataKey="closed"
-                name="Closed"
+                name={t('common.widgets.breakdownTrendChart.closed')}
                 stroke="#10B981"
                 fill="url(#bdClosed)"
                 strokeWidth={2}
@@ -79,7 +81,7 @@ export default function BreakdownTrendChart({ companyId }: BreakdownTrendChartPr
               <Area
                 type="monotone"
                 dataKey="critical"
-                name="Critical"
+                name={t('common.widgets.breakdownTrendChart.critical')}
                 stroke="#EF4444"
                 fill="none"
                 strokeWidth={1.5}

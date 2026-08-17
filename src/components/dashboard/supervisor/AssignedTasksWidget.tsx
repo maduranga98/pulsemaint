@@ -2,8 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import { useAssignedTasks } from '../../../hooks/dashboard/useAssignedTasks';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 export default function AssignedTasksWidget() {
+  const { t } = useTranslation();
   const { trainings, evaluations, audits, workOrders, safetyCases, loading } = useAssignedTasks();
   const navigate = useNavigate();
 
@@ -11,19 +13,19 @@ export default function AssignedTasksWidget() {
 
   return (
     <DashboardWidget
-      title="Assigned to Me"
+      title={t('common.widgets.assignedTasksWidget.title')}
       live
       loading={loading}
-      action={<span className="text-xs text-[#8BA3BF]">{total} pending</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.widgets.assignedTasksWidget.pending', { count: total })}</span>}
     >
       {total === 0 ? (
-        <EmptyState message="Nothing assigned" subMessage="Work orders, audits, evaluations, and trainings will appear here." />
+        <EmptyState message={t('common.widgets.assignedTasksWidget.empty')} subMessage={t('common.widgets.assignedTasksWidget.emptySub')} />
       ) : (
         <div className="space-y-4">
           {workOrders.length > 0 && (
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8BA3BF] mb-1.5">
-                Work Orders ({workOrders.length})
+                {t('common.widgets.assignedTasksWidget.workOrders', { count: workOrders.length })}
               </p>
               <div className="space-y-1">
                 {workOrders.slice(0, 5).map((w) => (
@@ -42,7 +44,7 @@ export default function AssignedTasksWidget() {
           {audits.length > 0 && (
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8BA3BF] mb-1.5">
-                Audits ({audits.length})
+                {t('common.widgets.assignedTasksWidget.audits', { count: audits.length })}
               </p>
               <div className="space-y-1">
                 {audits.slice(0, 4).map((a) => (
@@ -51,7 +53,7 @@ export default function AssignedTasksWidget() {
                     onClick={() => navigate('/app/audit')}
                     className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
                   >
-                    {a.templateName || 'Audit'} · {a.auditDate}
+                    {a.templateName || t('common.widgets.assignedTasksWidget.audit')} · {a.auditDate}
                   </button>
                 ))}
               </div>
@@ -61,7 +63,7 @@ export default function AssignedTasksWidget() {
           {evaluations.length > 0 && (
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8BA3BF] mb-1.5">
-                Evaluations ({evaluations.length})
+                {t('common.widgets.assignedTasksWidget.evaluations', { count: evaluations.length })}
               </p>
               <div className="space-y-1">
                 {evaluations.slice(0, 4).map((e) => (
@@ -80,7 +82,7 @@ export default function AssignedTasksWidget() {
           {safetyCases.length > 0 && (
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8BA3BF] mb-1.5">
-                Safety Cases ({safetyCases.length})
+                {t('common.widgets.assignedTasksWidget.safetyCases', { count: safetyCases.length })}
               </p>
               <div className="space-y-1">
                 {safetyCases.slice(0, 4).map((c) => (
@@ -99,16 +101,16 @@ export default function AssignedTasksWidget() {
           {trainings.length > 0 && (
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wider text-[#8BA3BF] mb-1.5">
-                Trainings ({trainings.length})
+                {t('common.widgets.assignedTasksWidget.trainings', { count: trainings.length })}
               </p>
               <div className="space-y-1">
-                {trainings.slice(0, 4).map((t) => (
+                {trainings.slice(0, 4).map((tr) => (
                   <button
-                    key={t.id}
+                    key={tr.id}
                     onClick={() => navigate('/app/training/my-modules')}
                     className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
                   >
-                    {t.moduleName ?? 'Training module'}
+                    {tr.moduleName ?? t('common.widgets.assignedTasksWidget.trainingModule')}
                   </button>
                 ))}
               </div>

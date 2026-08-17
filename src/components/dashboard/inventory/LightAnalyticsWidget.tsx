@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface LightAnalyticsWidgetProps {
   title: string;
@@ -22,6 +23,7 @@ export default function LightAnalyticsWidget({
   onRetry,
   className = '',
 }: LightAnalyticsWidgetProps) {
+  const { t } = useTranslation();
   return (
     <div className={`bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-full ${className}`}>
       <div className="px-5 py-4 border-b border-gray-100 min-h-[4.5rem] flex items-center">
@@ -34,7 +36,7 @@ export default function LightAnalyticsWidget({
         {!loading && error && (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <AlertTriangle className="w-8 h-8 text-red-500 mb-2" />
-            <p className="text-sm font-medium text-gray-900">Failed to load data</p>
+            <p className="text-sm font-medium text-gray-900">{t('common.widgets.common.failedToLoad')}</p>
             <p className="text-sm text-gray-500 mt-1">{error}</p>
             {onRetry && (
               <button
@@ -42,7 +44,7 @@ export default function LightAnalyticsWidget({
                 className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                Retry
+                {t('common.widgets.common.retry')}
               </button>
             )}
           </div>

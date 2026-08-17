@@ -11,6 +11,7 @@ import LightAnalyticsWidget from './LightAnalyticsWidget';
 import LightEmptyState from './LightEmptyState';
 import { useSupplierPoCounts } from '../../../hooks/dashboard/useSupplierPoCounts';
 import { CHART_COLORS_LIGHT, CHART_DEFAULTS_LIGHT } from '../../../constants/chartThemeLight';
+import { useTranslation } from 'react-i18next';
 
 interface SupplierPoCountsChartLightProps {
   companyId: string;
@@ -18,12 +19,13 @@ interface SupplierPoCountsChartLightProps {
 }
 
 export default function SupplierPoCountsChartLight({ companyId, days = 30 }: SupplierPoCountsChartLightProps) {
+  const { t } = useTranslation();
   const { suppliers, loading, error } = useSupplierPoCounts(companyId, days);
 
   return (
-    <LightAnalyticsWidget title="Purchase Orders By Supplier" loading={loading} error={error}>
+    <LightAnalyticsWidget title={t('common.widgets.supplierPoCountsChartLight.title')} loading={loading} error={error}>
       {suppliers.length === 0 ? (
-        <LightEmptyState message="No purchase orders in this period" />
+        <LightEmptyState message={t('common.widgets.supplierPoCountsChartLight.empty')} />
       ) : (
         <div style={{ height: Math.max(320, suppliers.length * 52) }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -32,7 +34,7 @@ export default function SupplierPoCountsChartLight({ companyId, days = 30 }: Sup
               <XAxis {...CHART_DEFAULTS_LIGHT.xAxis} type="number" allowDecimals={false} />
               <YAxis {...CHART_DEFAULTS_LIGHT.yAxis} dataKey="supplierName" type="category" width={190} />
               <Tooltip {...CHART_DEFAULTS_LIGHT.tooltip} />
-              <Bar dataKey="count" name="Purchase orders" fill={CHART_COLORS_LIGHT.primary} radius={[0, 4, 4, 0]} />
+              <Bar dataKey="count" name={t('common.widgets.supplierPoCountsChartLight.purchaseOrders')} fill={CHART_COLORS_LIGHT.primary} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

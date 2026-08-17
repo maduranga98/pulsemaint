@@ -2,32 +2,34 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import TrainingProgressBar from '../../training/shared/TrainingProgressBar';
 import { useOngoingTrainings } from '../../../hooks/dashboard/useOngoingTrainings';
+import { useTranslation } from 'react-i18next';
 
 interface OngoingTrainingsWidgetProps {
   companyId: string;
 }
 
 export default function OngoingTrainingsWidget({ companyId }: OngoingTrainingsWidgetProps) {
+  const { t } = useTranslation();
   const { trainings, loading, error } = useOngoingTrainings(companyId);
 
   return (
     <DashboardWidget
-      title="Ongoing Trainings"
+      title={t('common.widgets.ongoingTrainingsWidget.title')}
       loading={loading}
       error={error}
-      action={<span className="text-xs text-[#8BA3BF]">{trainings.length} in progress</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.widgets.ongoingTrainingsWidget.inProgress', { count: trainings.length })}</span>}
     >
       {trainings.length === 0 ? (
-        <EmptyState message="No trainings currently in progress" />
+        <EmptyState message={t('common.widgets.ongoingTrainingsWidget.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
-                <th className="pb-2 font-medium">Name</th>
-                <th className="pb-2 font-medium">Role</th>
-                <th className="pb-2 font-medium">Module</th>
-                <th className="pb-2 font-medium w-40">Progress</th>
+                <th className="pb-2 font-medium">{t('common.widgets.ongoingTrainingsWidget.name')}</th>
+                <th className="pb-2 font-medium">{t('common.widgets.ongoingTrainingsWidget.role')}</th>
+                <th className="pb-2 font-medium">{t('common.widgets.ongoingTrainingsWidget.module')}</th>
+                <th className="pb-2 font-medium w-40">{t('common.widgets.ongoingTrainingsWidget.progress')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]/50">

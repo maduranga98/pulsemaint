@@ -3,6 +3,7 @@ import { useMyJobQueue } from '../../../hooks/dashboard/useMyJobQueue';
 import JobQueueItem from './JobQueueItem';
 import EmptyState from '../shared/EmptyState';
 import type { WorkOrder } from '../../../types';
+import { useTranslation } from 'react-i18next';
 
 interface JobQueueListProps {
   technicianId: string;
@@ -18,6 +19,7 @@ interface JobQueueListProps {
 // assigneeCompletions) — those are done from their point of view and are
 // filtered out here too.
 export default function JobQueueList({ technicianId, siteId, onSelect }: JobQueueListProps) {
+  const { t } = useTranslation();
   const { workOrders, loading, error } = useMyJobQueue(technicianId, siteId);
   // Preventive WOs get their own "Assigned PM Schedules" widget — showing
   // them here too would list the same job twice.
@@ -28,9 +30,9 @@ export default function JobQueueList({ technicianId, siteId, onSelect }: JobQueu
   );
 
   return (
-    <DashboardWidget title="My Job Queue" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.jobQueueList.title')} loading={loading} error={error}>
       {notCompletedByMe.length === 0 ? (
-        <EmptyState message="No jobs in queue" />
+        <EmptyState message={t('common.widgets.jobQueueList.empty')} />
       ) : (
         <div className="space-y-2">
           {notCompletedByMe.map((wo) => (

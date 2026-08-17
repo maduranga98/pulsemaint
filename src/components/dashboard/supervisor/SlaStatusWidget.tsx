@@ -4,22 +4,24 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useSlaStatus } from '../../../hooks/dashboard/useSlaStatus';
 import { CHART_COLORS } from '../../../constants/chartTheme';
 import { formatDurationMinutes } from '../../../utils/analytics.utils';
+import { useTranslation } from 'react-i18next';
 
 interface SlaStatusWidgetProps {
   siteId: string;
 }
 
 export default function SlaStatusWidget({ siteId }: SlaStatusWidgetProps) {
+  const { t } = useTranslation();
   const { summary, loading, error } = useSlaStatus(siteId);
 
   const chartData = [
-    { name: 'Within SLA', value: summary.withinSlaCount, color: CHART_COLORS.success },
-    { name: 'At Risk', value: summary.atRiskCount, color: CHART_COLORS.warning },
-    { name: 'Breached', value: summary.breachedCount, color: CHART_COLORS.danger },
+    { name: t('common.widgets.slaStatusWidget.withinSla'), value: summary.withinSlaCount, color: CHART_COLORS.success },
+    { name: t('common.widgets.slaStatusWidget.atRisk'), value: summary.atRiskCount, color: CHART_COLORS.warning },
+    { name: t('common.widgets.slaStatusWidget.breached'), value: summary.breachedCount, color: CHART_COLORS.danger },
   ];
 
   return (
-    <DashboardWidget title="SLA Status" live loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.slaStatusWidget.title')} live loading={loading} error={error}>
       <div className="flex items-center gap-6">
         {/* Donut chart */}
         <div className="w-28 h-28 shrink-0">
@@ -60,13 +62,13 @@ export default function SlaStatusWidget({ siteId }: SlaStatusWidgetProps) {
         <div className="mt-4 pt-3 border-t border-[#1E3A5F]/50">
           <div className="flex items-center gap-1.5 mb-2">
             <AlertTriangle className="w-3.5 h-3.5 text-[#F59E0B]" />
-            <span className="text-xs font-medium text-[#F59E0B]">At Risk</span>
+            <span className="text-xs font-medium text-[#F59E0B]">{t('common.widgets.slaStatusWidget.atRisk')}</span>
           </div>
           <div className="space-y-1.5">
             {summary.atRiskItems.map((item) => (
               <div key={item.breakdownId} className="flex items-center justify-between text-[11px]">
                 <span className="text-[#F0F4F8] truncate">{item.machineName}</span>
-                <span className="text-[#F59E0B] shrink-0">{formatDurationMinutes(item.minutesRemaining)} left</span>
+                <span className="text-[#F59E0B] shrink-0">{t('common.widgets.slaStatusWidget.left', { time: formatDurationMinutes(item.minutesRemaining) })}</span>
               </div>
             ))}
           </div>
@@ -78,14 +80,14 @@ export default function SlaStatusWidget({ siteId }: SlaStatusWidgetProps) {
         <div className="mt-4 pt-3 border-t border-[#1E3A5F]/50">
           <div className="flex items-center gap-1.5 mb-2">
             <XCircle className="w-3.5 h-3.5 text-[#EF4444]" />
-            <span className="text-xs font-medium text-[#EF4444]">Breached</span>
+            <span className="text-xs font-medium text-[#EF4444]">{t('common.widgets.slaStatusWidget.breached')}</span>
           </div>
           <div className="space-y-1.5">
             {summary.breachedItems.map((item) => (
               <div key={item.breakdownId} className="flex items-center justify-between text-[11px]">
                 <span className="text-[#F0F4F8] truncate">{item.machineName}</span>
                 <span className="text-[#EF4444] shrink-0">
-                  {formatDurationMinutes(item.minutesOverdue)} overdue
+                  {t('common.widgets.slaStatusWidget.overdue', { time: formatDurationMinutes(item.minutesOverdue) })}
                 </span>
               </div>
             ))}
@@ -96,7 +98,7 @@ export default function SlaStatusWidget({ siteId }: SlaStatusWidgetProps) {
       {summary.withinSlaCount > 0 && summary.atRiskCount === 0 && summary.breachedCount === 0 && (
         <div className="mt-4 flex items-center gap-2 text-[#10B981]">
           <CheckCircle className="w-5 h-5" />
-          <span className="text-sm font-medium">All breakdowns within SLA</span>
+          <span className="text-sm font-medium">{t('common.widgets.slaStatusWidget.allWithinSla')}</span>
         </div>
       )}
     </DashboardWidget>

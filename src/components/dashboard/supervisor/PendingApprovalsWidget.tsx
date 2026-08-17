@@ -6,6 +6,7 @@ import { useApprovalRequest } from '../../../hooks/useApprovalRequest';
 import { useAuthStore } from '../../../store/authStore';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Supervisor-facing queue of "Hold · Approval" requests raised by
@@ -15,6 +16,7 @@ import EmptyState from '../shared/EmptyState';
  * Requests" tab shows — approving resumes the requester's own work.
  */
 export default function PendingApprovalsWidget() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { workOrders, loading, error, refetch } = useWorkOrders();
   const { resolveApprovalRequest, loading: resolving } = useApprovalRequest();
@@ -50,7 +52,7 @@ export default function PendingApprovalsWidget() {
 
   return (
     <DashboardWidget
-      title="Pending Approvals"
+      title={t('common.widgets.pendingApprovalsWidget.title')}
       live
       loading={loading}
       error={error}
@@ -58,7 +60,7 @@ export default function PendingApprovalsWidget() {
       action={
         rows.length > 0 ? (
           <span className="px-2 py-0.5 rounded text-xs font-semibold bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/30">
-            {rows.length} pending
+            {t('common.widgets.pendingApprovalsWidget.pending', { count: rows.length })}
           </span>
         ) : (
           <button
@@ -66,13 +68,13 @@ export default function PendingApprovalsWidget() {
             onClick={() => navigate('/app/work-orders?tab=approvalRequests')}
             className="text-xs text-[#8BA3BF] hover:text-[#F0F4F8]"
           >
-            View all
+            {t('common.widgets.common.viewAll')}
           </button>
         )
       }
     >
       {rows.length === 0 ? (
-        <EmptyState message="No pending approval requests" subMessage="Requests raised by technicians and trainees will appear here." />
+        <EmptyState message={t('common.widgets.pendingApprovalsWidget.empty')} subMessage={t('common.widgets.pendingApprovalsWidget.emptySub')} />
       ) : (
         <div className="space-y-3">
           {rows.slice(0, 4).map(({ wo, request }) => {
@@ -86,17 +88,17 @@ export default function PendingApprovalsWidget() {
                     <p className="text-xs text-[#8BA3BF] truncate">{wo.machineName}</p>
                   </div>
                   <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-orange-500/10 text-orange-400 ring-1 ring-orange-500/30 whitespace-nowrap">
-                    Pending
+                    {t('common.widgets.pendingApprovalsWidget.pendingBadge')}
                   </span>
                 </div>
                 <p className="text-xs text-[#8BA3BF]">
-                  <span className="font-medium text-[#F0F4F8]">{request.technicianName}</span> requested: {request.note}
+                  <span className="font-medium text-[#F0F4F8]">{request.technicianName}</span> {t('common.widgets.pendingApprovalsWidget.requested')}: {request.note}
                 </p>
                 <textarea
                   value={notes[key] ?? ''}
                   onChange={(e) => setNotes((n) => ({ ...n, [key]: e.target.value }))}
                   rows={1}
-                  placeholder="Note (optional)"
+                  placeholder={t('common.widgets.pendingApprovalsWidget.notePlaceholder')}
                   className="w-full rounded-md border border-[#1E3A5F] bg-[#0F1E35] px-2.5 py-1.5 text-xs text-[#F0F4F8] placeholder:text-[#5B7186] focus:ring-1 focus:ring-[#1A56DB] outline-none"
                 />
                 <div className="flex gap-2">
@@ -106,7 +108,7 @@ export default function PendingApprovalsWidget() {
                     onClick={() => handleResolve(wo.id, request.id, 'approved')}
                     className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50"
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Approve
+                    <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.widgets.pendingApprovalsWidget.approve')}
                   </button>
                   <button
                     type="button"
@@ -114,7 +116,7 @@ export default function PendingApprovalsWidget() {
                     onClick={() => handleResolve(wo.id, request.id, 'rejected')}
                     className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/30 rounded-md hover:bg-red-500/20 disabled:opacity-50"
                   >
-                    <XCircle className="w-3.5 h-3.5" /> Reject
+                    <XCircle className="w-3.5 h-3.5" /> {t('common.widgets.pendingApprovalsWidget.reject')}
                   </button>
                 </div>
               </div>
@@ -126,7 +128,7 @@ export default function PendingApprovalsWidget() {
               onClick={() => navigate('/app/work-orders?tab=approvalRequests')}
               className="w-full text-center text-xs text-[#8BA3BF] hover:text-[#F0F4F8] py-1"
             >
-              View {rows.length - 4} more…
+              {t('common.widgets.pendingApprovalsWidget.viewMore', { count: rows.length - 4 })}
             </button>
           )}
         </div>

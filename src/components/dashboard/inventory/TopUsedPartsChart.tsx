@@ -12,6 +12,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { usePartsRequestReasons } from '../../../hooks/dashboard/usePartsRequestReasons';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface TopUsedPartsChartProps {
   companyId: string;
@@ -24,13 +25,14 @@ const REASON_COLORS: Record<string, string> = {
 };
 
 export default function TopUsedPartsChart({ companyId }: TopUsedPartsChartProps) {
+  const { t } = useTranslation();
   const { data, loading, error } = usePartsRequestReasons(companyId);
   const hasData = data.some((d) => d.count > 0);
 
   return (
-    <DashboardWidget title="Parts Requested By Reason" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.topUsedPartsChart.title')} loading={loading} error={error}>
       {!hasData ? (
-        <EmptyState message="No request data" />
+        <EmptyState message={t('common.widgets.topUsedPartsChart.empty')} />
       ) : (
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">

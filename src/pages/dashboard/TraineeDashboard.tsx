@@ -155,9 +155,9 @@ export default function TraineeDashboard() {
         <MySafetyCasesWidget />
 
         {/* My Evaluations — trainee-specific */}
-        <DashboardWidget title="My Evaluations" loading={evalLoading}>
+        <DashboardWidget title={t('common.widgets.traineeDashboard.myEvaluations')} loading={evalLoading}>
           {evaluations.length === 0 ? (
-            <EmptyState message="No evaluations recorded yet" />
+            <EmptyState message={t('common.widgets.traineeDashboard.noEvaluations')} />
           ) : (
             <div className="space-y-2">
               {evaluations.map((ev) => (

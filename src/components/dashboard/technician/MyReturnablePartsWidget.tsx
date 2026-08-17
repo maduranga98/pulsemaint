@@ -8,6 +8,7 @@ import { usePartReturns } from '../../../hooks/inventory/usePartReturns';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { PartsRequest, RequestItem } from '../../../types/inventory';
+import { useTranslation } from 'react-i18next';
 
 interface ReturnableRow {
   request: PartsRequest;
@@ -20,6 +21,7 @@ interface ReturnableRow {
 // confirmation ("Returning"). Lets them mark an item as returned or cancel
 // a return they started by mistake, without leaving the dashboard.
 export default function MyReturnablePartsWidget() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
@@ -71,9 +73,9 @@ export default function MyReturnablePartsWidget() {
         machineName: row.request.machineName,
         issuedAt: row.request.issuedAt,
       });
-      addToast('Return requested — a store keeper will confirm it.', 'success');
+      addToast(t('common.widgets.myReturnablePartsWidget.returnRequested'), 'success');
     } catch (err) {
-      addToast('Failed to request return.', 'error');
+      addToast(t('common.widgets.myReturnablePartsWidget.returnFailed'), 'error');
       console.error(err);
     } finally {
       setBusyKey(null);
@@ -86,9 +88,9 @@ export default function MyReturnablePartsWidget() {
     setBusyKey(key);
     try {
       await updateDoc(doc(db, 'partReturns', row.pendingReturnId), { status: 'cancelled' });
-      addToast('Return cancelled.', 'success');
+      addToast(t('common.widgets.myReturnablePartsWidget.returnCancelled'), 'success');
     } catch (err) {
-      addToast('Failed to cancel return.', 'error');
+      addToast(t('common.widgets.myReturnablePartsWidget.cancelFailed'), 'error');
       console.error(err);
     } finally {
       setBusyKey(null);
@@ -96,9 +98,9 @@ export default function MyReturnablePartsWidget() {
   }
 
   return (
-    <DashboardWidget title="My Returnable Parts" loading={requestsLoading || returnsLoading} error={error}>
+    <DashboardWidget title={t('common.widgets.myReturnablePartsWidget.title')} loading={requestsLoading || returnsLoading} error={error}>
       {rows.length === 0 ? (
-        <EmptyState message="Nothing to return" subMessage="Returnable parts you've collected will appear here until they're handed back." />
+        <EmptyState message={t('common.widgets.myReturnablePartsWidget.empty')} subMessage={t('common.widgets.myReturnablePartsWidget.emptySub')} />
       ) : (
         <div className="space-y-2">
           {rows.map((row) => {
@@ -116,7 +118,7 @@ export default function MyReturnablePartsWidget() {
                 {row.pendingReturnId ? (
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-purple-500/15 text-purple-300">
-                      Returning
+                      {t('common.widgets.myReturnablePartsWidget.returning')}
                     </span>
                     <button
                       type="button"
@@ -124,7 +126,7 @@ export default function MyReturnablePartsWidget() {
                       onClick={() => handleCancel(row)}
                       className="px-2.5 py-1 rounded-md border border-[#1E3A5F] text-[#8BA3BF] hover:text-[#F0F4F8] hover:border-[#2E5A8F] text-xs font-medium disabled:opacity-50"
                     >
-                      {busy ? 'Cancelling…' : 'Cancel'}
+                      {busy ? t('common.widgets.myReturnablePartsWidget.cancelling') : t('common.widgets.myReturnablePartsWidget.cancel')}
                     </button>
                   </div>
                 ) : (
@@ -134,7 +136,7 @@ export default function MyReturnablePartsWidget() {
                     onClick={() => handleReturn(row)}
                     className="shrink-0 px-2.5 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs font-medium disabled:opacity-50"
                   >
-                    {busy ? 'Requesting…' : 'Return'}
+                    {busy ? t('common.widgets.myReturnablePartsWidget.requesting') : t('common.widgets.myReturnablePartsWidget.return')}
                   </button>
                 )}
               </div>

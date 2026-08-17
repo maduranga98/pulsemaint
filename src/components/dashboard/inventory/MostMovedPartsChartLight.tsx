@@ -11,6 +11,7 @@ import LightAnalyticsWidget from './LightAnalyticsWidget';
 import LightEmptyState from './LightEmptyState';
 import { useTopMovedParts } from '../../../hooks/dashboard/useTopMovedParts';
 import { CHART_COLORS_LIGHT, CHART_DEFAULTS_LIGHT } from '../../../constants/chartThemeLight';
+import { useTranslation } from 'react-i18next';
 
 interface MostMovedPartsChartLightProps {
   companyId: string;
@@ -18,12 +19,13 @@ interface MostMovedPartsChartLightProps {
 }
 
 export default function MostMovedPartsChartLight({ companyId, days = 30 }: MostMovedPartsChartLightProps) {
+  const { t } = useTranslation();
   const { parts, loading, error } = useTopMovedParts(companyId, days);
 
   return (
-    <LightAnalyticsWidget title="Most Moved Parts" loading={loading} error={error}>
+    <LightAnalyticsWidget title={t('common.widgets.mostMovedPartsChartLight.title')} loading={loading} error={error}>
       {parts.length === 0 ? (
-        <LightEmptyState message="No usage data" />
+        <LightEmptyState message={t('common.widgets.mostMovedPartsChartLight.empty')} />
       ) : (
         <div style={{ height: Math.max(320, parts.length * 52) }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -37,7 +39,7 @@ export default function MostMovedPartsChartLight({ companyId, days = 30 }: MostM
                 width={190}
               />
               <Tooltip {...CHART_DEFAULTS_LIGHT.tooltip} />
-              <Bar dataKey="count" name="Units issued" fill={CHART_COLORS_LIGHT.secondary} radius={[0, 4, 4, 0]} />
+              <Bar dataKey="count" name={t('common.widgets.mostMovedPartsChart.unitsIssued')} fill={CHART_COLORS_LIGHT.secondary} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

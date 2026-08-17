@@ -3,6 +3,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useTeamPerformanceAnalytics } from '../../../hooks/dashboard/useTeamPerformanceAnalytics';
 import EmptyState from '../shared/EmptyState';
 import type { DateRange } from '../../../services/teamPerformance.service';
+import { useTranslation } from 'react-i18next';
 
 const ROLE_LABELS: Record<string, string> = {
   plant_manager: 'Plant Manager',
@@ -38,6 +39,7 @@ interface TopPerformersWidgetProps {
 // and shows only the top 10 — so the widget reads as "who's performing
 // best" instead of a flat, unordered, unbounded roster.
 export default function TopPerformersWidget({ companyId, dateRange }: TopPerformersWidgetProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useTeamPerformanceAnalytics(companyId, dateRange);
 
   const ranked = data
@@ -59,37 +61,37 @@ export default function TopPerformersWidget({ companyId, dateRange }: TopPerform
     .slice(0, 10);
 
   return (
-    <DashboardWidget title="Top 10 Performing Team Members" loading={loading} error={error} onRetry={refetch}>
+    <DashboardWidget title={t('common.widgets.topPerformersWidget.title')} loading={loading} error={error} onRetry={refetch}>
       {ranked.length === 0 ? (
-        <EmptyState message="No performance data yet" subMessage="Rankings appear once evaluations or audits are submitted." />
+        <EmptyState message={t('common.widgets.topPerformersWidget.empty')} subMessage={t('common.widgets.topPerformersWidget.emptySub')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
                 <th className="pb-2 font-medium w-8">#</th>
-                <th className="pb-2 font-medium">Name</th>
-                <th className="pb-2 font-medium hidden sm:table-cell">Role</th>
-                <th className="pb-2 font-medium text-center">Score</th>
-                <th className="pb-2 font-medium text-center hidden sm:table-cell">Eval</th>
+                <th className="pb-2 font-medium">{t('common.widgets.topPerformersWidget.name')}</th>
+                <th className="pb-2 font-medium hidden sm:table-cell">{t('common.widgets.topPerformersWidget.role')}</th>
+                <th className="pb-2 font-medium text-center">{t('common.widgets.topPerformersWidget.score')}</th>
+                <th className="pb-2 font-medium text-center hidden sm:table-cell">{t('common.widgets.topPerformersWidget.eval')}</th>
                 <th className="pb-2 font-medium text-center hidden sm:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <ClipboardCheck className="w-3 h-3" /> Audit
+                    <ClipboardCheck className="w-3 h-3" /> {t('common.widgets.topPerformersWidget.audit')}
                   </span>
                 </th>
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <BookOpen className="w-3 h-3" /> Trainings
+                    <BookOpen className="w-3 h-3" /> {t('common.widgets.topPerformersWidget.trainings')}
                   </span>
                 </th>
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <CheckSquare className="w-3 h-3" /> Quizzes
+                    <CheckSquare className="w-3 h-3" /> {t('common.widgets.topPerformersWidget.quizzes')}
                   </span>
                 </th>
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <ShieldAlert className="w-3 h-3" /> Safety
+                    <ShieldAlert className="w-3 h-3" /> {t('common.widgets.topPerformersWidget.safety')}
                   </span>
                 </th>
               </tr>

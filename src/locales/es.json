@@ -155,6 +155,531 @@
         "allSuppliers": "Todos los proveedores",
         "clear": "Limpiar"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "Añadir foto",
+        "checklistProgress": "Progreso de la lista de verificación",
+        "currentJob": "Trabajo actual",
+        "noActiveJob": "Sin trabajo activo",
+        "of": "{{completed}} de {{total}}",
+        "requestParts": "Solicitar repuestos",
+        "scanToCheckIn": "Escanee el QR de la máquina para registrarse",
+        "timeOnJob": "Tiempo en el trabajo",
+        "updateStatus": "Actualizar estado"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "Asignado el {{date}}",
+        "attendFill": "Atender y completar",
+        "attendFillCount": "Atender y completar ({{count}})",
+        "empty": "No tiene averías asignadas",
+        "title": "Mis averías asignadas"
+      },
+      "assignedTasksWidget": {
+        "audit": "Auditoría",
+        "audits": "Auditorías ({{count}})",
+        "empty": "Nada asignado",
+        "emptySub": "Las órdenes de trabajo, auditorías, evaluaciones y capacitaciones aparecerán aquí.",
+        "evaluations": "Evaluaciones ({{count}})",
+        "pending": "{{count}} pendientes",
+        "safetyCases": "Casos de seguridad ({{count}})",
+        "title": "Asignado a mí",
+        "trainingModule": "Módulo de capacitación",
+        "trainings": "Capacitaciones ({{count}})",
+        "workOrders": "Órdenes de trabajo ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "Sin datos de averías",
+        "modes": {
+          "type": "tipo",
+          "severity": "gravedad",
+          "department": "departamento"
+        },
+        "title": "Distribución de averías"
+      },
+      "breakdownHeatmap": {
+        "empty": "Sin datos de mapa de calor",
+        "ranges": {
+          "thisMonth": "Este mes",
+          "last3m": "Últimos 3M",
+          "last6m": "Últimos 6M"
+        },
+        "title": "Mapa de calor de frecuencia de averías",
+        "tooltipCount": "{{day}} {{hour}} — {{count}} avería",
+        "tooltipCount_one": "{{day}} {{hour}} — {{count}} avería",
+        "tooltipCount_other": "{{day}} {{hour}} — {{count}} averías",
+        "tooltipNone": "{{day}} {{hour}} — sin averías"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "RECIÉN REPORTADAS",
+          "signOff": "APROBACIÓN Y CIERRE"
+        },
+        "title": "Tablero de averías en vivo"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "Sin elementos"
+      },
+      "breakdownTrendChart": {
+        "closed": "Cerradas",
+        "critical": "Críticas",
+        "empty": "Sin datos de averías",
+        "opened": "Abiertas",
+        "title": "Tendencia de averías"
+      },
+      "categoryStatusChart": {
+        "completed": "Completado",
+        "ongoing": "En curso"
+      },
+      "common": {
+        "active": "Activo",
+        "due": "Vence el {{date}}",
+        "failedToLoad": "No se pudieron cargar los datos",
+        "general": "General",
+        "noData": "Sin datos",
+        "noDataAvailable": "No hay datos disponibles",
+        "resume": "Reanudar",
+        "retry": "Reintentar",
+        "safety": "Seguridad",
+        "start": "Iniciar",
+        "today": "Hoy",
+        "view": "Ver",
+        "viewAll": "Ver todo",
+        "trainingStatus": {
+          "notStarted": "No iniciado",
+          "inProgress": "En progreso",
+          "quizPassed": "Cuestionario aprobado",
+          "quizFailed": "Cuestionario reprobado",
+          "awaitingPractical": "Esperando práctica",
+          "expired": "Vencido",
+          "retrainingRequired": "Requiere reentrenamiento"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "Sin datos de contratistas",
+        "firstFix": "Reparación al primer intento {{value}}%",
+        "jobs": "{{count}} trabajos",
+        "sla": "SLA {{value}}%",
+        "title": "Clasificación de contratistas"
+      },
+      "dateRangeFilter": {
+        "from": "Desde",
+        "presets": {
+          "allTime": "Todo el tiempo",
+          "last30Days": "Últimos 30 días",
+          "thisMonth": "Este mes",
+          "lastMonth": "El mes pasado",
+          "thisYear": "Este año"
+        },
+        "to": "Hasta"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "Personal activo",
+        "evaluationsInProgress": "Evaluaciones en curso",
+        "presentToday": "Presentes hoy",
+        "trainingsInProgress": "Capacitaciones en curso"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "Bajo stock",
+        "outOfStock": "Sin stock",
+        "pendingRequests": "Solicitudes pendientes",
+        "totalParts": "Total de repuestos"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}}d",
+        "daysOverdue": "{{count}}d de retraso",
+        "due": "Vence el {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "Sin trabajos en la cola",
+        "title": "Mi cola de trabajos"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "Nadie está actualmente en turno",
+        "footer": "{{shifts}} turno activo · {{people}} personas trabajando",
+        "footer_one": "{{shifts}} turno activo · {{people}} personas trabajando",
+        "footer_other": "{{shifts}} turnos activos · {{people}} personas trabajando",
+        "sinceDayTime": "desde {{day}} {{time}}",
+        "sinceTime": "desde {{time}}",
+        "title": "Estado de turno en vivo",
+        "workingNow": "{{count}} trabajando ahora",
+        "yesterday": "ayer"
+      },
+      "lowStockAlertTable": {
+        "category": "Categoría",
+        "deficit": "Déficit",
+        "empty": "Todos los niveles de stock están saludables",
+        "min": "Mín",
+        "part": "Repuesto",
+        "raisePo": "Generar OC",
+        "stock": "Stock",
+        "title": "Alertas de bajo stock"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "{{value}} por debajo del mínimo ({{current}}/{{min}})",
+        "empty": "Todos los niveles de stock están saludables",
+        "title": "Repuestos con bajo stock"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "Averías MTD",
+        "empty": "Sin datos de máquinas",
+        "health": "Estado",
+        "machine": "Máquina",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "Estado",
+        "title": "Análisis a nivel de máquina"
+      },
+      "maintenanceCostChart": {
+        "cost": "Costo",
+        "empty": "Sin datos de costos",
+        "title": "Resumen de costos de mantenimiento",
+        "totalThisMonth": "Total este mes:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "Sin datos de uso",
+        "title": "Repuestos más utilizados (últimos 30 días)",
+        "unitsIssued": "Unidades emitidas"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "Sin datos de uso",
+        "title": "Repuestos más utilizados"
+      },
+      "mtbfTable": {
+        "dept": "Depto",
+        "empty": "Sin datos de estado de máquinas",
+        "machine": "Máquina",
+        "mtbf": "MTBF",
+        "title": "MTBF por máquina"
+      },
+      "mttrTrendChart": {
+        "empty": "Sin datos de MTTR",
+        "slaTarget": "Meta de SLA",
+        "slaTargetLabel": "Meta de SLA ({{target}}h)",
+        "title": "Tendencia de MTTR"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "Cancelar",
+        "cancelFailed": "No se pudo cancelar la devolución.",
+        "cancelling": "Cancelando…",
+        "empty": "Nada para devolver",
+        "emptySub": "Los repuestos retornables que haya recogido aparecerán aquí hasta que se devuelvan.",
+        "requesting": "Solicitando…",
+        "return": "Devolver",
+        "returnCancelled": "Devolución cancelada.",
+        "returnFailed": "No se pudo solicitar la devolución.",
+        "returnRequested": "Devolución solicitada — un almacenista la confirmará.",
+        "returning": "Devolviendo",
+        "title": "Mis repuestos retornables"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "Acciones tomadas",
+        "actionsTakenCount": "Acciones tomadas ({{count}})",
+        "description": "Descripción",
+        "empty": "Sin casos de seguridad asignados",
+        "location": "Ubicación",
+        "movedTo": "movido a {{status}}",
+        "noActionsYet": "Aún no se han registrado acciones.",
+        "title": "Casos de seguridad",
+        "whatYouNeedToDo": "Lo que debe hacer"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "Sin capacitaciones de seguridad asignadas",
+        "title": "Capacitaciones de seguridad asignadas a mí"
+      },
+      "myTrainingsWidget": {
+        "empty": "Sin capacitaciones en curso",
+        "title": "Mis capacitaciones"
+      },
+      "notificationFeed": {
+        "empty": "Sin notificaciones",
+        "emptySub": "¡Todo al día!",
+        "filters": {
+          "all": "Todas",
+          "breakdowns": "Averías",
+          "workOrders": "Órdenes de trabajo",
+          "parts": "Repuestos",
+          "pm": "PM",
+          "alerts": "Alertas"
+        },
+        "title": "Notificaciones"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "Auditorías ({{count}})",
+        "empty": "No hay evaluaciones ni auditorías en curso",
+        "evaluations": "Evaluaciones ({{count}})",
+        "noneInProgress": "Ninguna en curso",
+        "running": "{{count}} en curso",
+        "title": "Evaluaciones y auditorías en curso"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "No hay capacitaciones en curso actualmente",
+        "inProgress": "{{count}} en curso",
+        "module": "Módulo",
+        "name": "Nombre",
+        "progress": "Progreso",
+        "role": "Rol",
+        "title": "Capacitaciones en curso"
+      },
+      "operatorTrainingTable": {
+        "certified": "Certificado",
+        "empty": "Sin datos de operadores",
+        "expiring": "Por vencer",
+        "operator": "Operador",
+        "role": "Rol",
+        "status": "Estado",
+        "title": "Estado de capacitación"
+      },
+      "partsUsageTrendChart": {
+        "empty": "Sin actividad de solicitudes",
+        "title": "Tendencias de solicitudes de repuestos (últimos 30 días)",
+        "woPartRequests": "Solicitudes de repuestos por OT"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "Aprobar",
+        "empty": "Sin solicitudes de aprobación pendientes",
+        "emptySub": "Las solicitudes de técnicos y aprendices aparecerán aquí.",
+        "notePlaceholder": "Nota (opcional)",
+        "pending": "{{count}} pendientes",
+        "pendingBadge": "Pendiente",
+        "reject": "Rechazar",
+        "requested": "solicitó",
+        "title": "Aprobaciones pendientes",
+        "viewMore": "Ver {{count}} más…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "No hay OC pendientes de recepción",
+        "items": "Ítems",
+        "poNumber": "N.º OC",
+        "statusHeader": "Estado",
+        "status": {
+          "sent": "Enviada",
+          "invoiceReceived": "Factura recibida",
+          "acknowledged": "Confirmada",
+          "partiallyReceived": "Recibida parcialmente"
+        },
+        "supplier": "Proveedor",
+        "title": "Recepciones de OC pendientes",
+        "value": "Valor"
+      },
+      "pendingRequestsTable": {
+        "empty": "Sin solicitudes pendientes",
+        "estValue": "Valor est.",
+        "more": "+{{count}} más",
+        "parts": "Repuestos",
+        "requestedBy": "Solicitado por",
+        "review": "Revisar",
+        "title": "Solicitudes de repuestos pendientes",
+        "unknownPart": "Repuesto desconocido"
+      },
+      "pendingReturnsWidget": {
+        "empty": "Sin repuestos pendientes de devolución",
+        "takenBy": "Retirado por",
+        "title": "Devoluciones de repuestos pendientes"
+      },
+      "personalKpiCards": {
+        "avgRepair": "Reparación promedio",
+        "avgResponse": "Respuesta promedio",
+        "jobsCompleted": "Trabajos completados",
+        "slaCompliance": "Cumplimiento de SLA"
+      },
+      "pmComplianceWidget": {
+        "empty": "Sin datos de PM",
+        "missed": "Incumplidas",
+        "onTime": "A tiempo",
+        "thisMonth": "Este mes",
+        "title": "Tasa de cumplimiento de PM"
+      },
+      "pmTrendChart": {
+        "empty": "Sin datos de órdenes de mantenimiento preventivo",
+        "title": "Órdenes de PM por tipo",
+        "wos": "OTs"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "No hay recepciones registradas en este período",
+        "title": "Recepción de repuestos: bueno vs. rechazado/dañado",
+        "unitsReceived": "Unidades recibidas"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "Costo de inactividad",
+        "hoursLost": "Horas de producción perdidas este mes",
+        "thisWeek": "Esta semana",
+        "title": "Inactividad de producción",
+        "today": "Hoy"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "No hay programas listos para aprobación",
+        "emptySub": "Los aprendices que terminen cada módulo de su programa aparecerán aquí.",
+        "ready": "{{count}} listos",
+        "readyToSignOff": "Listo para aprobar",
+        "summary": "Programa de {{months}} meses · {{count}} módulos completados · iniciado el {{date}}",
+        "title": "Aprobación de programa de aprendices"
+      },
+      "requestedPartsWidget": {
+        "empty": "Sin solicitudes de repuestos pendientes",
+        "generalRequest": "Solicitud general",
+        "requestParts": "Solicitar repuestos",
+        "status": {
+          "requested": "Solicitado",
+          "inApprovalOfSupervisor": "En aprobación del supervisor",
+          "needToCollect": "Por recoger"
+        },
+        "title": "Repuestos solicitados"
+      },
+      "safetyForYouWidget": {
+        "empty": "Nada relacionado con seguridad pendiente",
+        "emptySub": "Las capacitaciones asignadas y los casos reportados a usted aparecerán aquí.",
+        "open": "{{count}} abiertos",
+        "safetyTrainings": "Capacitaciones de seguridad ({{count}})",
+        "title": "Seguridad"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "Por tipo de caso",
+        "bySeverity": "Por gravedad",
+        "daysSinceLastIncident": "Días desde el último incidente",
+        "nearMiss30d": "Casi accidentes (30 d)",
+        "openCases": "Casos abiertos",
+        "totalSafetyCases": "Total de casos de seguridad"
+      },
+      "slaGaugeWidget": {
+        "breached": "Incumplido",
+        "empty": "Sin datos de SLA",
+        "title": "Cumplimiento de SLA",
+        "withinSla": "Dentro del SLA"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "Todas las averías dentro del SLA",
+        "atRisk": "En riesgo",
+        "breached": "Incumplido",
+        "left": "{{time}} restante",
+        "overdue": "{{time}} de retraso",
+        "title": "Estado de SLA",
+        "withinSla": "Dentro del SLA"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "{{count}} empleados activos",
+        "empty": "Sin datos de personal",
+        "roles": {
+          "technicians": "Técnicos",
+          "supervisors": "Supervisores",
+          "managers": "Gerentes",
+          "operators": "Operadores",
+          "trainees": "Aprendices",
+          "storeKeepers": "Almacenistas",
+          "hrOfficers": "Personal de RR.HH.",
+          "safetyOfficers": "Oficiales de seguridad",
+          "admins": "Administradores"
+        },
+        "staff": "Personal",
+        "title": "Empleados por rol"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "No hay órdenes de compra en este período",
+        "purchaseOrders": "Órdenes de compra",
+        "title": "Órdenes de compra por proveedor"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "Puntaje de auditoría",
+        "empty": "Sin datos de desempeño del equipo",
+        "evaluationScore": "Puntaje de evaluación",
+        "name": "Nombre",
+        "quizzesPassed": "Cuestionarios aprobados",
+        "role": "Rol",
+        "title": "Desempeño del equipo",
+        "trainings": "Capacitaciones"
+      },
+      "technicianPerformanceTable": {
+        "empty": "Sin datos de desempeño",
+        "jobs": "Trabajos",
+        "repair": "Reparación",
+        "resp": "Resp.",
+        "sla": "SLA",
+        "tech": "Técnico",
+        "title": "Desempeño por órdenes de trabajo"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} activos",
+        "empty": "No hay técnicos en turno",
+        "title": "Estado de técnicos"
+      },
+      "technicianStatusRow": {
+        "doneToday": "Completados hoy",
+        "on": "En {{wo}}",
+        "status": {
+          "available": "Disponible",
+          "onJob": "En trabajo",
+          "onBreak": "En descanso",
+          "offShift": "Fuera de turno"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "No hay capacitaciones suyas programadas hoy",
+        "title": "Mis capacitaciones de hoy"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "No hay turnos activos en este momento",
+        "started": "{{count}} iniciados",
+        "title": "Turnos de hoy por departamento"
+      },
+      "todaysPmList": {
+        "empty": "Sin planes de PM asignados",
+        "title": "Planes de PM asignados"
+      },
+      "topPerformersWidget": {
+        "audit": "Auditoría",
+        "empty": "Aún no hay datos de desempeño",
+        "emptySub": "Las clasificaciones aparecen una vez que se envían evaluaciones o auditorías.",
+        "eval": "Eval.",
+        "name": "Nombre",
+        "quizzes": "Cuestionarios",
+        "role": "Rol",
+        "safety": "Seguridad",
+        "score": "Puntaje",
+        "title": "Los 10 mejores del equipo",
+        "trainings": "Capacitaciones"
+      },
+      "topProblemMachinesChart": {
+        "empty": "Sin datos de máquinas problemáticas",
+        "modes": {
+          "count": "Cantidad",
+          "hours": "Horas",
+          "cost": "Costo"
+        },
+        "title": "Las 10 máquinas más problemáticas"
+      },
+      "topUsedPartsChart": {
+        "empty": "Sin datos de solicitudes",
+        "title": "Repuestos solicitados por motivo"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "Mis evaluaciones",
+        "noEvaluations": "Aún no hay evaluaciones registradas"
+      },
+      "trainingActivityChart": {
+        "empty": "Sin datos de capacitación",
+        "newCertifications": "Nuevas certificaciones",
+        "renewals": "Renovaciones",
+        "title": "Actividad de capacitación"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "Atender",
+        "attendFailed": "No se pudo atender.",
+        "attending": "Atendiendo…",
+        "empty": "No hay averías sin asignar",
+        "title": "Averías"
+      },
+      "woTypeDistributionChart": {
+        "empty": "Sin datos de órdenes de trabajo",
+        "title": "Distribución de órdenes de trabajo por tipo",
+        "wos": "OTs"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "No hay órdenes de trabajo en curso",
+        "emptyToday": "No hay órdenes de trabajo pendientes hoy",
+        "running": "En curso ({{count}})",
+        "title": "Órdenes de trabajo",
+        "today": "Hoy ({{count}})"
+      }
     }
   }
 }

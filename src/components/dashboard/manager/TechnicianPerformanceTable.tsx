@@ -3,6 +3,7 @@ import { ArrowUp, ArrowDown, ArrowUpDown, Star } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTechnicianPerformance } from '../../../hooks/dashboard/useTechnicianPerformance';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 type SortKey = 'jobs' | 'response' | 'repair' | 'sla' | 'name';
 
@@ -12,6 +13,7 @@ interface TechnicianPerformanceTableProps {
 }
 
 export default function TechnicianPerformanceTable({ companyId, month }: TechnicianPerformanceTableProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useTechnicianPerformance(companyId, month);
   const [sortKey, setSortKey] = useState<SortKey>('jobs');
   const [sortAsc, setSortAsc] = useState(false);
@@ -45,28 +47,28 @@ export default function TechnicianPerformanceTable({ companyId, month }: Technic
   const minSla = Math.min(100, ...records.map((r) => r.slaCompliance));
 
   return (
-    <DashboardWidget title="Performance By WOs" loading={loading} error={error} onRetry={refetch}>
+    <DashboardWidget title={t('common.widgets.technicianPerformanceTable.title')} loading={loading} error={error} onRetry={refetch}>
       {sorted.length === 0 ? (
-        <EmptyState message="No performance data" />
+        <EmptyState message={t('common.widgets.technicianPerformanceTable.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
                 <th className="pb-2 font-medium">
-                  <button onClick={() => handleSort('name')} className="flex items-center gap-1">Tech <SortIcon k="name" /></button>
+                  <button onClick={() => handleSort('name')} className="flex items-center gap-1">{t('common.widgets.technicianPerformanceTable.tech')} <SortIcon k="name" /></button>
                 </th>
                 <th className="pb-2 font-medium text-right">
-                  <button onClick={() => handleSort('jobs')} className="flex items-center gap-1 ml-auto">Jobs <SortIcon k="jobs" /></button>
+                  <button onClick={() => handleSort('jobs')} className="flex items-center gap-1 ml-auto">{t('common.widgets.technicianPerformanceTable.jobs')} <SortIcon k="jobs" /></button>
                 </th>
                 <th className="pb-2 font-medium text-right hidden sm:table-cell">
-                  <button onClick={() => handleSort('response')} className="flex items-center gap-1 ml-auto">Resp <SortIcon k="response" /></button>
+                  <button onClick={() => handleSort('response')} className="flex items-center gap-1 ml-auto">{t('common.widgets.technicianPerformanceTable.resp')} <SortIcon k="response" /></button>
                 </th>
                 <th className="pb-2 font-medium text-right hidden sm:table-cell">
-                  <button onClick={() => handleSort('repair')} className="flex items-center gap-1 ml-auto">Repair <SortIcon k="repair" /></button>
+                  <button onClick={() => handleSort('repair')} className="flex items-center gap-1 ml-auto">{t('common.widgets.technicianPerformanceTable.repair')} <SortIcon k="repair" /></button>
                 </th>
                 <th className="pb-2 font-medium text-right">
-                  <button onClick={() => handleSort('sla')} className="flex items-center gap-1 ml-auto">SLA <SortIcon k="sla" /></button>
+                  <button onClick={() => handleSort('sla')} className="flex items-center gap-1 ml-auto">{t('common.widgets.technicianPerformanceTable.sla')} <SortIcon k="sla" /></button>
                 </th>
               </tr>
             </thead>

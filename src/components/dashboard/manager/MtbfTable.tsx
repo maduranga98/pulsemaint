@@ -3,6 +3,7 @@ import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useMtbfPerMachine } from '../../../hooks/dashboard/useMtbfPerMachine';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 type SortKey = 'mtbf' | 'name' | 'type';
 
@@ -11,6 +12,7 @@ interface MtbfTableProps {
 }
 
 export default function MtbfTable({ companyId }: MtbfTableProps) {
+  const { t } = useTranslation();
   const { machines, loading, error } = useMtbfPerMachine(companyId);
   const [sortKey, setSortKey] = useState<SortKey>('mtbf');
   const [sortAsc, setSortAsc] = useState(false);
@@ -41,9 +43,9 @@ export default function MtbfTable({ companyId }: MtbfTableProps) {
   };
 
   return (
-    <DashboardWidget title="MTBF Per Machine" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.mtbfTable.title')} loading={loading} error={error}>
       {sorted.length === 0 ? (
-        <EmptyState message="No machine health data" />
+        <EmptyState message={t('common.widgets.mtbfTable.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -51,17 +53,17 @@ export default function MtbfTable({ companyId }: MtbfTableProps) {
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
                 <th className="pb-2 font-medium">
                   <button onClick={() => handleSort('name')} className="flex items-center gap-1">
-                    Machine <SortIcon k="name" />
+                    {t('common.widgets.mtbfTable.machine')} <SortIcon k="name" />
                   </button>
                 </th>
                 <th className="pb-2 font-medium">
                   <button onClick={() => handleSort('type')} className="flex items-center gap-1">
-                    Dept <SortIcon k="type" />
+                    {t('common.widgets.mtbfTable.dept')} <SortIcon k="type" />
                   </button>
                 </th>
                 <th className="pb-2 font-medium text-right">
                   <button onClick={() => handleSort('mtbf')} className="flex items-center gap-1 ml-auto">
-                    MTBF <SortIcon k="mtbf" />
+                    {t('common.widgets.mtbfTable.mtbf')} <SortIcon k="mtbf" />
                   </button>
                 </th>
               </tr>

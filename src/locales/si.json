@@ -204,6 +204,527 @@
         "allSuppliers": "සියලු සැපයුම්කරුවන්",
         "clear": "හිස් කරන්න"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "ඡායාරූපයක් එක් කරන්න",
+        "checklistProgress": "පිරික්සුම් ලැයිස්තු ප්‍රගතිය",
+        "currentJob": "වර්තමාන කාර්යය",
+        "noActiveJob": "ක්‍රියාකාරී කාර්යයක් නැත",
+        "of": "{{total}} න් {{completed}}",
+        "requestParts": "අමතර කොටස් ඉල්ලන්න",
+        "scanToCheckIn": "check-in සඳහා යන්ත්‍රයේ QR එක scan කරන්න",
+        "timeOnJob": "කාර්යයේ ගත වූ කාලය",
+        "updateStatus": "තත්ත්වය යාවත්කාලීන කරන්න"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "{{date}} හි පවරන ලදී",
+        "attendFill": "සහභාගී වී පුරවන්න",
+        "attendFillCount": "සහභාගී වී පුරවන්න ({{count}})",
+        "empty": "ඔබට හානි පවරා නැත",
+        "title": "මට පවරන ලද හානි"
+      },
+      "assignedTasksWidget": {
+        "audit": "විගණනය",
+        "audits": "විගණන ({{count}})",
+        "empty": "කිසිවක් පවරා නැත",
+        "emptySub": "වැඩ නියෝග, විගණන, ඇගයීම් සහ පුහුණු මෙහි දිස්වනු ඇත.",
+        "evaluations": "ඇගයීම් ({{count}})",
+        "pending": "{{count}} පොරොත්තුවෙන්",
+        "safetyCases": "ආරක්ෂක නඩු ({{count}})",
+        "title": "මට පවරන ලද",
+        "trainingModule": "පුහුණු මොඩියුලය",
+        "trainings": "පුහුණු ({{count}})",
+        "workOrders": "වැඩ නියෝග ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "හානි දත්ත නැත",
+        "modes": {
+          "type": "වර්ගය",
+          "severity": "බරපතලකම",
+          "department": "දෙපාර්තමේන්තුව"
+        },
+        "title": "හානි බෙදාහැරීම"
+      },
+      "breakdownHeatmap": {
+        "empty": "heatmap දත්ත නැත",
+        "ranges": {
+          "thisMonth": "මෙම මාසයේ",
+          "last3m": "පසුගිය මාස 3",
+          "last6m": "පසුගිය මාස 6"
+        },
+        "title": "හානි සංඛ්‍යාත heatmap එක",
+        "tooltipCount": "{{day}} {{hour}} — හානි {{count}}ක්",
+        "tooltipNone": "{{day}} {{hour}} — හානි නැත"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "අලුතින් වාර්තා කළ",
+          "signOff": "අනුමත කර වසන්න"
+        },
+        "title": "සජීවී හානි පුවරුව"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "අයිතම නැත"
+      },
+      "breakdownTrendChart": {
+        "closed": "වසා ඇත",
+        "critical": "අතිශය",
+        "empty": "හානි දත්ත නැත",
+        "opened": "විවෘත",
+        "title": "හානි ප්‍රවණතාව"
+      },
+      "categoryStatusChart": {
+        "completed": "සම්පූර්ණයි",
+        "ongoing": "සිදුවෙමින්"
+      },
+      "common": {
+        "active": "ක්‍රියාකාරී",
+        "due": "නියමිත දිනය {{date}}",
+        "failedToLoad": "දත්ත පූරණය අසාර්ථකයි",
+        "general": "සාමාන්‍ය",
+        "noData": "දත්ත නැත",
+        "noDataAvailable": "දත්ත නොමැත",
+        "resume": "නැවත ආරම්භ කරන්න",
+        "retry": "නැවත උත්සාහ කරන්න",
+        "safety": "ආරක්ෂාව",
+        "start": "ආරම්භ කරන්න",
+        "today": "අද",
+        "view": "බලන්න",
+        "viewAll": "සියල්ල බලන්න",
+        "trainingStatus": {
+          "notStarted": "ආරම්භ කර නැත",
+          "inProgress": "සිදුවෙමින්",
+          "quizPassed": "ප්‍රශ්නාවලිය සමත්",
+          "quizFailed": "ප්‍රශ්නාවලිය අසමත්",
+          "awaitingPractical": "ප්‍රායෝගික පිළිබඳ බලාපොරොත්තුවෙන්",
+          "expired": "කල් ඉකුත් වී ඇත",
+          "retrainingRequired": "නැවත පුහුණුව අවශ්‍යයි"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "කොන්ත්‍රාත්කරු දත්ත නැත",
+        "firstFix": "පළමු වර සකස් කිරීම {{value}}%",
+        "jobs": "කාර්යයන් {{count}}",
+        "sla": "SLA {{value}}%",
+        "title": "කොන්ත්‍රාත්කරු ලකුණු පුවරුව"
+      },
+      "dateRangeFilter": {
+        "from": "සිට",
+        "presets": {
+          "allTime": "සියලුම කාලය",
+          "last30Days": "පසුගිය දින 30",
+          "thisMonth": "මෙම මාසයේ",
+          "lastMonth": "පසුගිය මාසයේ",
+          "thisYear": "මෙම වසරේ"
+        },
+        "to": "දක්වා"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "ක්‍රියාකාරී කාර්ය මණ්ඩලය",
+        "evaluationsInProgress": "සිදුවෙමින් පවතින ඇගයීම්",
+        "presentToday": "අද පැමිණ ඇත",
+        "trainingsInProgress": "සිදුවෙමින් පවතින පුහුණු"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "අඩු තොගය",
+        "outOfStock": "තොගය අවසන්",
+        "pendingRequests": "පොරොත්තු ඉල්ලීම්",
+        "totalParts": "මුළු කොටස්"
+      },
+      "jobQueueItem": {
+        "daysCount": "දින {{count}}",
+        "daysOverdue": "දින {{count}}ක් ප්‍රමාද",
+        "due": "නියමිත දිනය {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "පෝලිමේ කාර්යයන් නැත",
+        "title": "මගේ කාර්ය පෝලිම"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "දැනට කිසිවෙකු මුරයේ නැත",
+        "footer": "සක්‍රීය මුර {{shifts}} · වැඩ කරන පුද්ගලයන් {{people}}",
+        "sinceDayTime": "{{day}} {{time}} සිට",
+        "sinceTime": "{{time}} සිට",
+        "title": "සජීවී මුර තත්ත්වය",
+        "workingNow": "{{count}} දැන් වැඩ කරයි",
+        "yesterday": "ඊයේ"
+      },
+      "lowStockAlertTable": {
+        "category": "ප්‍රවර්ගය",
+        "deficit": "හිඟය",
+        "empty": "සියලුම තොග මට්ටම් හොඳයි",
+        "min": "අවම",
+        "part": "කොටස",
+        "raisePo": "PO සාදන්න",
+        "stock": "තොගය",
+        "title": "අඩු තොග අනතුරු ඇඟවීම්"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "අවමයට වඩා {{value}} අඩුයි ({{current}}/{{min}})",
+        "empty": "සියලුම තොග මට්ටම් හොඳයි",
+        "title": "අඩු තොග කොටස්"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "මෙම මාසයේ හානි",
+        "empty": "යන්ත්‍ර දත්ත නැත",
+        "health": "සෞඛ්‍යය",
+        "machine": "යන්ත්‍රය",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "තත්ත්වය",
+        "title": "යන්ත්‍ර මට්ටමේ විශ්ලේෂණය"
+      },
+      "maintenanceCostChart": {
+        "cost": "පිරිවැය",
+        "empty": "පිරිවැය දත්ත නැත",
+        "title": "නඩත්තු පිරිවැය දළ විශ්ලේෂණය",
+        "totalThisMonth": "මෙම මාසයේ මුළු එකතුව:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "භාවිත දත්ත නැත",
+        "title": "වැඩිපුරම භාවිත කළ කොටස් (පසුගිය දින 30)",
+        "unitsIssued": "නිකුත් කළ ඒකක"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "භාවිත දත්ත නැත",
+        "title": "වැඩිපුරම භාවිත කළ කොටස්"
+      },
+      "mtbfTable": {
+        "dept": "දෙපාර්තමේන්තුව",
+        "empty": "යන්ත්‍ර සෞඛ්‍ය දත්ත නැත",
+        "machine": "යන්ත්‍රය",
+        "mtbf": "MTBF",
+        "title": "යන්ත්‍රයක් අනුව MTBF"
+      },
+      "mttrTrendChart": {
+        "empty": "MTTR දත්ත නැත",
+        "slaTarget": "SLA ඉලක්කය",
+        "slaTargetLabel": "SLA ඉලක්කය ({{target}}ට)",
+        "title": "MTTR ප්‍රවණතාව"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "අවලංගු කරන්න",
+        "cancelFailed": "ආපසු දීම අවලංගු කිරීම අසාර්ථකයි.",
+        "cancelling": "අවලංගු කරමින්…",
+        "empty": "ආපසු දිය යුතු දෙයක් නැත",
+        "emptySub": "ඔබ ලබාගත් ආපසු දිය හැකි කොටස් ආපසු දෙන තෙක් මෙහි දිස්වේ.",
+        "requesting": "ඉල්ලමින්…",
+        "return": "ආපසු දෙන්න",
+        "returnCancelled": "ආපසු දීම අවලංගු කරන ලදී.",
+        "returnFailed": "ආපසු දීමේ ඉල්ලීම අසාර්ථකයි.",
+        "returnRequested": "ආපසු දීමට ඉල්ලා ඇත — ගබඩාකරු එය තහවුරු කරනු ඇත.",
+        "returning": "ආපසු දෙමින්",
+        "title": "මගේ ආපසු දිය හැකි කොටස්"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "ගත් ක්‍රියාමාර්ග",
+        "actionsTakenCount": "ගත් ක්‍රියාමාර්ග ({{count}})",
+        "description": "විස්තරය",
+        "empty": "ඔබට ආරක්ෂක නඩුවක් පවරා නැත",
+        "location": "ස්ථානය",
+        "movedTo": "{{status}} වෙත මාරු කරන ලදී",
+        "noActionsYet": "තවම ක්‍රියාමාර්ග වාර්තා වී නැත.",
+        "title": "ආරක්ෂක නඩු",
+        "whatYouNeedToDo": "ඔබ කළ යුතු දේ"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "ආරක්ෂක පුහුණු පවරා නැත",
+        "title": "මට පවරන ලද ආරක්ෂක පුහුණු"
+      },
+      "myTrainingsWidget": {
+        "empty": "සිදුවෙමින් පවතින පුහුණු නැත",
+        "title": "මගේ පුහුණු"
+      },
+      "notificationFeed": {
+        "empty": "දැනුම්දීම් නැත",
+        "emptySub": "සියල්ල යාවත්කාලීනයි!",
+        "filters": {
+          "all": "සියල්ල",
+          "breakdowns": "හානි",
+          "workOrders": "වැඩ නියෝග",
+          "parts": "කොටස්",
+          "pm": "PM",
+          "alerts": "අනතුරු ඇඟවීම්"
+        },
+        "title": "දැනුම්දීම්"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "විගණන ({{count}})",
+        "empty": "දැනට ඇගයීම් හෝ විගණන සිදුවෙමින් නැත",
+        "evaluations": "ඇගයීම් ({{count}})",
+        "noneInProgress": "සිදුවෙමින් කිසිවක් නැත",
+        "running": "{{count}} සිදුවෙමින්",
+        "title": "සිදුවෙමින් පවතින ඇගයීම් සහ විගණන"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "දැනට පුහුණු සිදුවෙමින් නැත",
+        "inProgress": "{{count}} සිදුවෙමින්",
+        "module": "මොඩියුලය",
+        "name": "නම",
+        "progress": "ප්‍රගතිය",
+        "role": "භූමිකාව",
+        "title": "සිදුවෙමින් පවතින පුහුණු"
+      },
+      "operatorTrainingTable": {
+        "certified": "සහතික කළ",
+        "empty": "ක්‍රියාකරු දත්ත නැත",
+        "expiring": "කල් ඉකුත් වෙමින්",
+        "operator": "ක්‍රියාකරු",
+        "role": "භූමිකාව",
+        "status": "තත්ත්වය",
+        "title": "පුහුණු තත්ත්වය"
+      },
+      "partsUsageTrendChart": {
+        "empty": "ඉල්ලීම් ක්‍රියාකාරකම් නැත",
+        "title": "කොටස් ඉල්ලීම් ප්‍රවණතා (පසුගිය දින 30)",
+        "woPartRequests": "WO කොටස් ඉල්ලීම්"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "අනුමත කරන්න",
+        "empty": "පොරොත්තු අනුමැති ඉල්ලීම් නැත",
+        "emptySub": "තාක්ෂණවේදීන් සහ පුහුණුකරුවන් ඉදිරිපත් කළ ඉල්ලීම් මෙහි දිස්වේ.",
+        "notePlaceholder": "සටහන (විකල්ප)",
+        "pending": "{{count}} පොරොත්තුවෙන්",
+        "pendingBadge": "පොරොත්තුවෙන්",
+        "reject": "ප්‍රතික්ෂේප කරන්න",
+        "requested": "ඉල්ලා ඇත",
+        "title": "පොරොත්තු අනුමැති",
+        "viewMore": "තවත් {{count}} බලන්න…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "රිසිට්පත් සඳහා පොරොත්තු PO නැත",
+        "items": "අයිතම",
+        "poNumber": "PO #",
+        "statusHeader": "තත්ත්වය",
+        "status": {
+          "sent": "යවන ලදී",
+          "invoiceReceived": "ඉන්වොයිසිය ලැබී ඇත",
+          "acknowledged": "පිළිගන්නා ලදී",
+          "partiallyReceived": "අර්ධ වශයෙන් ලැබී ඇත"
+        },
+        "supplier": "සැපයුම්කරු",
+        "title": "පොරොත්තු PO රිසිට්පත්",
+        "value": "වටිනාකම"
+      },
+      "pendingRequestsTable": {
+        "empty": "පොරොත්තු ඉල්ලීම් නැත",
+        "estValue": "ඇස්තමේන්තුගත වටිනාකම",
+        "more": "තවත් {{count}}",
+        "parts": "කොටස්",
+        "requestedBy": "ඉල්ලූ අය",
+        "review": "සමාලෝචනය කරන්න",
+        "title": "පොරොත්තු කොටස් ඉල්ලීම්",
+        "unknownPart": "නොදන්නා කොටස"
+      },
+      "pendingReturnsWidget": {
+        "empty": "ආපසු දීමට පොරොත්තු කොටස් නැත",
+        "takenBy": "ලබාගත් අය",
+        "title": "පොරොත්තු කොටස් ආපසු දීම්"
+      },
+      "personalKpiCards": {
+        "avgRepair": "සාමාන්‍ය අලුත්වැඩියාව",
+        "avgResponse": "සාමාන්‍ය ප්‍රතිචාරය",
+        "jobsCompleted": "සම්පූර්ණ කළ කාර්යයන්",
+        "slaCompliance": "SLA අනුකූලතාව"
+      },
+      "pmComplianceWidget": {
+        "empty": "PM දත්ත නැත",
+        "missed": "මඟහැරුණි",
+        "onTime": "වේලාවට",
+        "thisMonth": "මෙම මාසයේ",
+        "title": "PM අනුකූලතා අනුපාතය"
+      },
+      "pmTrendChart": {
+        "empty": "වැළැක්වීමේ වැඩ නියෝග දත්ත නැත",
+        "title": "වර්ගය අනුව PM වැඩ නියෝග",
+        "wos": "WOs"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "මෙම කාලය තුළ රිසිට්පත් වාර්තා වී නැත",
+        "title": "කොටස් ලැබීම: හොඳ එදිරිව ප්‍රතික්ෂේප/හානි",
+        "unitsReceived": "ලැබුණු ඒකක"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "නොක්‍රියාකාරී කාල පිරිවැය",
+        "hoursLost": "මෙම මාසයේ අහිමි වූ නිෂ්පාදන පැය",
+        "thisWeek": "මෙම සතියේ",
+        "title": "නිෂ්පාදන නොක්‍රියාකාරී කාලය",
+        "today": "අද"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "අත්සන් කිරීමට වැඩසටහන් සූදානම් නැත",
+        "emptySub": "තම වැඩසටහනේ සෑම මොඩියුලයක්ම නිම කරන පුහුණුකරුවන් මෙහි දිස්වේ.",
+        "ready": "{{count}} සූදානම්",
+        "readyToSignOff": "අත්සන් කිරීමට සූදානම්",
+        "summary": "මාස {{months}} වැඩසටහන · මොඩියුල {{count}} නිම කර ඇත · {{date}} ආරම්භ විය",
+        "title": "පුහුණුකරු වැඩසටහන් අත්සන් කිරීම"
+      },
+      "requestedPartsWidget": {
+        "empty": "පොරොත්තු කොටස් ඉල්ලීම් නැත",
+        "generalRequest": "සාමාන්‍ය ඉල්ලීම",
+        "requestParts": "අමතර කොටස් ඉල්ලන්න",
+        "status": {
+          "requested": "ඉල්ලා ඇත",
+          "inApprovalOfSupervisor": "අධීක්ෂකගේ අනුමැතියෙන්",
+          "needToCollect": "එකතු කළ යුතුයි"
+        },
+        "title": "ඉල්ලූ කොටස්"
+      },
+      "safetyForYouWidget": {
+        "empty": "ආරක්ෂාව සම්බන්ධ පොරොත්තු කිසිවක් නැත",
+        "emptySub": "පවරන ලද පුහුණු සහ ඔබට වාර්තා කළ නඩු මෙහි දිස්වේ.",
+        "open": "{{count}} විවෘත",
+        "safetyTrainings": "ආරක්ෂක පුහුණු ({{count}})",
+        "title": "ආරක්ෂාව"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "නඩු වර්ගය අනුව",
+        "bySeverity": "බරපතලකම අනුව",
+        "daysSinceLastIncident": "අවසන් සිද්ධියේ සිට දින",
+        "nearMiss30d": "අහම්බෙන් වළක්වා ගත් සිදුවීම් (දින 30)",
+        "openCases": "විවෘත නඩු",
+        "totalSafetyCases": "මුළු ආරක්ෂක නඩු"
+      },
+      "slaGaugeWidget": {
+        "breached": "උල්ලංඝනය",
+        "empty": "SLA දත්ත නැත",
+        "title": "SLA අනුකූලතාව",
+        "withinSla": "SLA තුළ"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "සියලුම හානි SLA තුළ",
+        "atRisk": "අවදානමේ",
+        "breached": "උල්ලංඝනය",
+        "left": "{{time}} ඉතිරියි",
+        "overdue": "{{time}} ප්‍රමාද",
+        "title": "SLA තත්ත්වය",
+        "withinSla": "SLA තුළ"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "ක්‍රියාකාරී සේවකයන් {{count}}",
+        "empty": "කාර්ය මණ්ඩල දත්ත නැත",
+        "roles": {
+          "technicians": "තාක්ෂණවේදීන්",
+          "supervisors": "අධීක්ෂකවරු",
+          "managers": "කළමනාකරුවන්",
+          "operators": "ක්‍රියාකරුවන්",
+          "trainees": "පුහුණුකරුවන්",
+          "storeKeepers": "ගබඩාකරුවන්",
+          "hrOfficers": "HR නිලධාරීන්",
+          "safetyOfficers": "ආරක්ෂක නිලධාරීන්",
+          "admins": "පරිපාලකයන්"
+        },
+        "staff": "කාර්ය මණ්ඩලය",
+        "title": "භූමිකාව අනුව සේවකයන්"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "මෙම කාලය තුළ මිලදී ගැනීමේ නියෝග නැත",
+        "purchaseOrders": "මිලදී ගැනීමේ නියෝග",
+        "title": "සැපයුම්කරු අනුව මිලදී ගැනීමේ නියෝග"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "විගණන ලකුණු",
+        "empty": "කණ්ඩායම් කාර්ය සාධන දත්ත නැත",
+        "evaluationScore": "ඇගයීම් ලකුණු",
+        "name": "නම",
+        "quizzesPassed": "සමත් ප්‍රශ්නාවලි",
+        "role": "භූමිකාව",
+        "title": "කණ්ඩායම් කාර්ය සාධනය",
+        "trainings": "පුහුණු"
+      },
+      "technicianPerformanceTable": {
+        "empty": "කාර්ය සාධන දත්ත නැත",
+        "jobs": "කාර්යයන්",
+        "repair": "අලුත්වැඩියාව",
+        "resp": "ප්‍රතිචාරය",
+        "sla": "SLA",
+        "tech": "තාක්ෂණවේදියා",
+        "title": "වැඩ නියෝග අනුව කාර්ය සාධනය"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} ක්‍රියාකාරී",
+        "empty": "මුරයේ තාක්ෂණවේදීන් නැත",
+        "title": "තාක්ෂණවේදී තත්ත්වය"
+      },
+      "technicianStatusRow": {
+        "doneToday": "අද නිම කළ",
+        "on": "{{wo}} මත",
+        "status": {
+          "available": "ලබා ගත හැක",
+          "onJob": "කාර්යයේ",
+          "onBreak": "විවේකයේ",
+          "offShift": "මුරයෙන් පිටත"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "අද ඔබේ පුහුණුවක් නියමිත නැත",
+        "title": "අද මගේ පුහුණු"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "දැනට ක්‍රියාකාරී මුර නැත",
+        "started": "{{count}} ආරම්භ විය",
+        "title": "දෙපාර්තමේන්තුව අනුව අද මුර"
+      },
+      "todaysPmList": {
+        "empty": "PM කාලසටහන් පවරා නැත",
+        "title": "පවරන ලද PM කාලසටහන්"
+      },
+      "topPerformersWidget": {
+        "audit": "විගණනය",
+        "empty": "තවම කාර්ය සාධන දත්ත නැත",
+        "emptySub": "ඇගයීම් හෝ විගණන ඉදිරිපත් කිරීමෙන් පසු ශ්‍රේණිගත කිරීම් දිස්වේ.",
+        "eval": "ඇගයීම",
+        "name": "නම",
+        "quizzes": "ප්‍රශ්නාවලි",
+        "role": "භූමිකාව",
+        "safety": "ආරක්ෂාව",
+        "score": "ලකුණු",
+        "title": "ඉහළම කාර්ය සාධන කණ්ඩායම් සාමාජිකයන් 10",
+        "trainings": "පුහුණු"
+      },
+      "topProblemMachinesChart": {
+        "empty": "ගැටළුකාරී යන්ත්‍ර දත්ත නැත",
+        "modes": {
+          "count": "ගණන",
+          "hours": "පැය",
+          "cost": "පිරිවැය"
+        },
+        "title": "ඉහළම ගැටළුකාරී යන්ත්‍ර 10"
+      },
+      "topUsedPartsChart": {
+        "empty": "ඉල්ලීම් දත්ත නැත",
+        "title": "හේතුව අනුව ඉල්ලූ කොටස්"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "මගේ ඇගයීම්",
+        "noEvaluations": "තවම ඇගයීම් වාර්තා වී නැත"
+      },
+      "trainingActivityChart": {
+        "empty": "පුහුණු දත්ත නැත",
+        "newCertifications": "නව සහතික",
+        "renewals": "අලුත් කිරීම්",
+        "title": "පුහුණු ක්‍රියාකාරකම"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "සහභාගී වන්න",
+        "attendFailed": "සහභාගී වීම අසාර්ථකයි.",
+        "attending": "සහභාගී වෙමින්…",
+        "empty": "නොපවරන ලද හානි නැත",
+        "title": "හානි"
+      },
+      "woTypeDistributionChart": {
+        "empty": "වැඩ නියෝග දත්ත නැත",
+        "title": "වර්ගය අනුව වැඩ නියෝග බෙදාහැරීම",
+        "wos": "WOs"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "සිදුවෙමින් වැඩ නියෝග නැත",
+        "emptyToday": "අද නියමිත වැඩ නියෝග නැත",
+        "running": "සිදුවෙමින් ({{count}})",
+        "title": "වැඩ නියෝග",
+        "today": "අද ({{count}})"
+      }
     }
   }
 }

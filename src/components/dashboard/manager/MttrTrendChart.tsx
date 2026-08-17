@@ -16,6 +16,7 @@ import { CHART_DEFAULTS } from '../../../constants/chartTheme';
 import type { ChartDateRange } from '../../../types/analytics.types';
 import type { DashboardRange } from '../../../utils/analytics/dashboardRange';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface MttrTrendChartProps {
   companyId: string;
@@ -43,6 +44,7 @@ const DASHBOARD_TO_CHART_RANGE: Record<DashboardRange, ChartDateRange> = {
 };
 
 export default function MttrTrendChart({ companyId, range: sharedRange }: MttrTrendChartProps) {
+  const { t } = useTranslation();
   const [ownRange, setOwnRange] = useState<ChartDateRange>('30D');
   const range = sharedRange ? DASHBOARD_TO_CHART_RANGE[sharedRange] : ownRange;
   const { data, loading, error, refetch } = useMttrTrend(companyId, range);
@@ -64,14 +66,14 @@ export default function MttrTrendChart({ companyId, range: sharedRange }: MttrTr
 
   return (
     <DashboardWidget
-      title="MTTR Trend"
+      title={t('common.widgets.mttrTrendChart.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
       action={
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex items-center gap-1.5 text-xs text-[#8BA3BF]">
-            SLA target
+            {t('common.widgets.mttrTrendChart.slaTarget')}
             <input
               type="number"
               min={0.5}
@@ -89,7 +91,7 @@ export default function MttrTrendChart({ companyId, range: sharedRange }: MttrTr
       }
     >
       {chartData.length === 0 ? (
-        <EmptyState message="No MTTR data" />
+        <EmptyState message={t('common.widgets.mttrTrendChart.empty')} />
       ) : (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -102,7 +104,7 @@ export default function MttrTrendChart({ companyId, range: sharedRange }: MttrTr
                 y={slaTarget}
                 stroke="#F59E0B"
                 strokeDasharray="4 4"
-                label={{ value: `SLA Target (${slaTarget}h)`, fill: '#F59E0B', fontSize: 11 }}
+                label={{ value: t('common.widgets.mttrTrendChart.slaTargetLabel', { target: slaTarget }), fill: '#F59E0B', fontSize: 11 }}
               />
               <Line
                 type="monotone"

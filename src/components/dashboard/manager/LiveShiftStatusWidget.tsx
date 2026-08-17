@@ -3,21 +3,25 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useLiveShiftStatus } from '../../../hooks/useLiveShiftStatus';
 import { formatTimeRange } from '../../../utils/handover.utils';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   companyId: string;
 }
 
-function formatSince(date: Date | null): string {
+function formatSince(date: Date | null, t: (key: string, opts?: Record<string, unknown>) => string): string {
   if (!date) return '';
   const today = new Date();
   const isToday = date.toDateString() === today.toDateString();
   const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (isToday) return `since ${time}`;
+  if (isToday) return t('common.widgets.liveShiftStatusWidget.sinceTime', { time });
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  const dayLabel = date.toDateString() === yesterday.toDateString() ? 'yesterday' : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  return `since ${dayLabel} ${time}`;
+  const dayLabel =
+    date.toDateString() === yesterday.toDateString()
+      ? t('common.widgets.liveShiftStatusWidget.yesterday')
+      : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  return t('common.widgets.liveShiftStatusWidget.sinceDayTime', { day: dayLabel, time });
 }
 
 // Manager-dashboard companion to the full ShiftStatusPanel on the Shift
@@ -26,6 +30,7 @@ function formatSince(date: Date | null): string {
 // same "only active" convention TodayShiftsByDepartment used, but driven by
 // live shift_sessions status instead of a today-only date scope).
 export default function LiveShiftStatusWidget({ companyId }: Props) {
+  const { t } = useTranslation();
   const { rows, loading } = useLiveShiftStatus(companyId);
 
   const activeRows = rows.filter((r) => r.status === 'working');
@@ -33,13 +38,13 @@ export default function LiveShiftStatusWidget({ companyId }: Props) {
 
   return (
     <DashboardWidget
-      title="Live Shift Status"
+      title={t('common.widgets.liveShiftStatusWidget.title')}
       loading={loading}
       live
-      action={<span className="text-xs text-[#8BA3BF]">{totalWorking} working now</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.widgets.liveShiftStatusWidget.workingNow', { count: totalWorking })}</span>}
     >
       {activeRows.length === 0 ? (
-        <EmptyState message="No one is currently on shift" />
+        <EmptyState message={t('common.widgets.liveShiftStatusWidget.empty')} />
       ) : (
         <div className="space-y-4">
           {activeRows.map((row) => (
@@ -69,7 +74,7 @@ export default function LiveShiftStatusWidget({ companyId }: Props) {
                         </span>
                       )}
                     </span>
-                    <span className="shrink-0 text-[11px] font-medium text-[#10B981]">{formatSince(m.workingSince)}</span>
+                    <span className="shrink-0 text-[11px] font-medium text-[#10B981]">{formatSince(m.workingSince, t)}</span>
                   </div>
                 ))}
               </div>
@@ -77,7 +82,7 @@ export default function LiveShiftStatusWidget({ companyId }: Props) {
           ))}
           <div className="flex items-center gap-1.5 border-t border-[#1E3A5F] pt-3 text-[11px] text-[#8BA3BF]">
             <Users className="h-3 w-3" />
-            {activeRows.length} {activeRows.length === 1 ? 'shift' : 'shifts'} live · {totalWorking} {totalWorking === 1 ? 'person' : 'people'} working
+            {t('common.widgets.liveShiftStatusWidget.footer', { shifts: activeRows.length, people: totalWorking })}
           </div>
         </div>
       )}

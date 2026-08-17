@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Wrench, Timer, Clock, Shield } from 'lucide-react';
 import { useMyCompletedWorkOrders } from '../../../hooks/dashboard/useMyCompletedWorkOrders';
 import { formatDurationMinutes } from '../../../utils/analytics.utils';
+import { useTranslation } from 'react-i18next';
 
 interface PersonalKpiCardsProps {
   technicianId: string;
@@ -9,6 +10,7 @@ interface PersonalKpiCardsProps {
 }
 
 export default function PersonalKpiCards({ technicianId }: PersonalKpiCardsProps) {
+  const { t } = useTranslation();
   // Completed work is excluded from the active job queue, so the KPIs read from
   // a dedicated live query of the technician's finished work orders.
   const { workOrders: completed } = useMyCompletedWorkOrders(technicianId);
@@ -39,10 +41,10 @@ export default function PersonalKpiCards({ technicianId }: PersonalKpiCardsProps
   }, [completed]);
 
   const cards = [
-    { label: 'Jobs Completed', value: stats.jobsCompleted, icon: <Wrench className="w-5 h-5" />, color: 'text-[#1A56DB]' },
-    { label: 'Avg Response', value: formatDurationMinutes(stats.avgResponseMins), icon: <Timer className="w-5 h-5" />, color: 'text-[#00C2FF]' },
-    { label: 'Avg Repair', value: formatDurationMinutes(stats.avgRepairMins), icon: <Clock className="w-5 h-5" />, color: 'text-[#F59E0B]' },
-    { label: 'SLA Compliance', value: `${stats.slaCompliance}%`, icon: <Shield className="w-5 h-5" />, color: 'text-[#10B981]' },
+    { label: t('common.widgets.personalKpiCards.jobsCompleted'), value: stats.jobsCompleted, icon: <Wrench className="w-5 h-5" />, color: 'text-[#1A56DB]' },
+    { label: t('common.widgets.personalKpiCards.avgResponse'), value: formatDurationMinutes(stats.avgResponseMins), icon: <Timer className="w-5 h-5" />, color: 'text-[#00C2FF]' },
+    { label: t('common.widgets.personalKpiCards.avgRepair'), value: formatDurationMinutes(stats.avgRepairMins), icon: <Clock className="w-5 h-5" />, color: 'text-[#F59E0B]' },
+    { label: t('common.widgets.personalKpiCards.slaCompliance'), value: `${stats.slaCompliance}%`, icon: <Shield className="w-5 h-5" />, color: 'text-[#10B981]' },
   ];
 
   return (

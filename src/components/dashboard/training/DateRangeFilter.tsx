@@ -1,4 +1,5 @@
 import type { DateRange } from '../../../services/teamPerformance.service';
+import { useTranslation } from 'react-i18next';
 
 interface DateRangeFilterProps {
   value: DateRange;
@@ -9,10 +10,10 @@ function toDateInputValue(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-const PRESETS: { label: string; range: () => DateRange }[] = [
-  { label: 'All Time', range: () => ({ from: null, to: null }) },
+const PRESETS: { labelKey: string; range: () => DateRange }[] = [
+  { labelKey: 'allTime', range: () => ({ from: null, to: null }) },
   {
-    label: 'Last 30 Days',
+    labelKey: 'last30Days',
     range: () => {
       const to = new Date();
       const from = new Date();
@@ -21,7 +22,7 @@ const PRESETS: { label: string; range: () => DateRange }[] = [
     },
   },
   {
-    label: 'This Month',
+    labelKey: 'thisMonth',
     range: () => {
       const now = new Date();
       const from = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -29,7 +30,7 @@ const PRESETS: { label: string; range: () => DateRange }[] = [
     },
   },
   {
-    label: 'Last Month',
+    labelKey: 'lastMonth',
     range: () => {
       const now = new Date();
       const from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -38,7 +39,7 @@ const PRESETS: { label: string; range: () => DateRange }[] = [
     },
   },
   {
-    label: 'This Year',
+    labelKey: 'thisYear',
     range: () => {
       const now = new Date();
       const from = new Date(now.getFullYear(), 0, 1);
@@ -51,6 +52,7 @@ const PRESETS: { label: string; range: () => DateRange }[] = [
 // plus custom From/To inputs, all driving the same DateRange passed down
 // into whichever report is currently active.
 export default function DateRangeFilter({ value, onChange }: DateRangeFilterProps) {
+  const { t } = useTranslation();
   const isPresetActive = (range: DateRange) => value.from === range.from && value.to === range.to;
 
   return (
@@ -60,7 +62,7 @@ export default function DateRangeFilter({ value, onChange }: DateRangeFilterProp
           const range = preset.range();
           return (
             <button
-              key={preset.label}
+              key={preset.labelKey}
               onClick={() => onChange(range)}
               className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
                 isPresetActive(range)
@@ -68,14 +70,14 @@ export default function DateRangeFilter({ value, onChange }: DateRangeFilterProp
                   : 'bg-transparent text-[#8BA3BF] border border-[#1E3A5F] hover:text-[#F0F4F8] hover:border-[#2E5A8F]'
               }`}
             >
-              {preset.label}
+              {t(`common.widgets.dateRangeFilter.presets.${preset.labelKey}`)}
             </button>
           );
         })}
       </div>
       <div className="flex items-center gap-2 ml-auto">
         <label className="flex items-center gap-1.5 text-xs text-[#8BA3BF]">
-          From
+          {t('common.widgets.dateRangeFilter.from')}
           <input
             type="date"
             value={value.from ?? ''}
@@ -85,7 +87,7 @@ export default function DateRangeFilter({ value, onChange }: DateRangeFilterProp
           />
         </label>
         <label className="flex items-center gap-1.5 text-xs text-[#8BA3BF]">
-          To
+          {t('common.widgets.dateRangeFilter.to')}
           <input
             type="date"
             value={value.to ?? ''}

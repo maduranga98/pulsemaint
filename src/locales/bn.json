@@ -204,6 +204,527 @@
         "allSuppliers": "সব সরবরাহকারী",
         "clear": "পরিষ্কার করুন"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "ছবি যোগ করুন",
+        "checklistProgress": "চেকলিস্ট অগ্রগতি",
+        "currentJob": "বর্তমান কাজ",
+        "noActiveJob": "কোনো সক্রিয় কাজ নেই",
+        "of": "{{total}}-এর মধ্যে {{completed}}",
+        "requestParts": "যন্ত্রাংশের অনুরোধ করুন",
+        "scanToCheckIn": "চেক-ইন করতে মেশিনের QR স্ক্যান করুন",
+        "timeOnJob": "কাজের সময়",
+        "updateStatus": "স্ট্যাটাস আপডেট করুন"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "{{date}} তারিখে নির্ধারিত",
+        "attendFill": "সমাধান করুন ও পূরণ করুন",
+        "attendFillCount": "সমাধান করুন ও পূরণ করুন ({{count}})",
+        "empty": "আপনাকে কোনো ব্রেকডাউন বরাদ্দ করা হয়নি",
+        "title": "আমার নির্ধারিত ব্রেকডাউন"
+      },
+      "assignedTasksWidget": {
+        "audit": "অডিট",
+        "audits": "অডিট ({{count}})",
+        "empty": "কিছুই বরাদ্দ করা হয়নি",
+        "emptySub": "ওয়ার্ক অর্ডার, অডিট, মূল্যায়ন এবং প্রশিক্ষণ এখানে দেখাবে।",
+        "evaluations": "মূল্যায়ন ({{count}})",
+        "pending": "{{count}}টি মুলতুবি",
+        "safetyCases": "নিরাপত্তা কেস ({{count}})",
+        "title": "আমাকে বরাদ্দ",
+        "trainingModule": "প্রশিক্ষণ মডিউল",
+        "trainings": "প্রশিক্ষণ ({{count}})",
+        "workOrders": "ওয়ার্ক অর্ডার ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "কোনো ব্রেকডাউন ডেটা নেই",
+        "modes": {
+          "type": "ধরন",
+          "severity": "তীব্রতা",
+          "department": "বিভাগ"
+        },
+        "title": "ব্রেকডাউন বিতরণ"
+      },
+      "breakdownHeatmap": {
+        "empty": "কোনো হিটম্যাপ ডেটা নেই",
+        "ranges": {
+          "thisMonth": "এই মাসে",
+          "last3m": "গত ৩ মাস",
+          "last6m": "গত ৬ মাস"
+        },
+        "title": "ব্রেকডাউন ফ্রিকোয়েন্সি হিটম্যাপ",
+        "tooltipCount": "{{day}} {{hour}} — {{count}}টি ব্রেকডাউন",
+        "tooltipNone": "{{day}} {{hour}} — কোনো ব্রেকডাউন নেই"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "নতুন রিপোর্ট করা হয়েছে",
+          "signOff": "অনুমোদন ও সমাপ্তি"
+        },
+        "title": "লাইভ ব্রেকডাউন বোর্ড"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "কোনো আইটেম নেই"
+      },
+      "breakdownTrendChart": {
+        "closed": "বন্ধ",
+        "critical": "সংকটজনক",
+        "empty": "কোনো ব্রেকডাউন ডেটা নেই",
+        "opened": "খোলা",
+        "title": "ব্রেকডাউন প্রবণতা"
+      },
+      "categoryStatusChart": {
+        "completed": "সম্পন্ন",
+        "ongoing": "চলমান"
+      },
+      "common": {
+        "active": "সক্রিয়",
+        "due": "নির্ধারিত তারিখ {{date}}",
+        "failedToLoad": "ডেটা লোড করতে ব্যর্থ",
+        "general": "সাধারণ",
+        "noData": "কোনো ডেটা নেই",
+        "noDataAvailable": "কোনো ডেটা উপলব্ধ নেই",
+        "resume": "পুনরায় শুরু করুন",
+        "retry": "আবার চেষ্টা করুন",
+        "safety": "নিরাপত্তা",
+        "start": "শুরু করুন",
+        "today": "আজ",
+        "view": "দেখুন",
+        "viewAll": "সব দেখুন",
+        "trainingStatus": {
+          "notStarted": "শুরু হয়নি",
+          "inProgress": "চলমান",
+          "quizPassed": "কুইজ পাস",
+          "quizFailed": "কুইজ ফেল",
+          "awaitingPractical": "ব্যবহারিকের অপেক্ষায়",
+          "expired": "মেয়াদোত্তীর্ণ",
+          "retrainingRequired": "পুনঃপ্রশিক্ষণ প্রয়োজন"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "ঠিকাদারের কোনো ডেটা নেই",
+        "firstFix": "প্রথম দফায় সমাধান {{value}}%",
+        "jobs": "{{count}}টি কাজ",
+        "sla": "SLA {{value}}%",
+        "title": "ঠিকাদার স্কোরবোর্ড"
+      },
+      "dateRangeFilter": {
+        "from": "থেকে",
+        "presets": {
+          "allTime": "সমস্ত সময়",
+          "last30Days": "গত ৩০ দিন",
+          "thisMonth": "এই মাসে",
+          "lastMonth": "গত মাসে",
+          "thisYear": "এই বছর"
+        },
+        "to": "পর্যন্ত"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "সক্রিয় কর্মী",
+        "evaluationsInProgress": "চলমান মূল্যায়ন",
+        "presentToday": "আজ উপস্থিত",
+        "trainingsInProgress": "চলমান প্রশিক্ষণ"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "কম মজুদ",
+        "outOfStock": "স্টক শেষ",
+        "pendingRequests": "মুলতুবি অনুরোধ",
+        "totalParts": "মোট যন্ত্রাংশ"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}} দিন",
+        "daysOverdue": "{{count}} দিন বিলম্বিত",
+        "due": "নির্ধারিত তারিখ {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "সারিতে কোনো কাজ নেই",
+        "title": "আমার কাজের সারি"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "বর্তমানে কেউ শিফটে নেই",
+        "footer": "{{shifts}}টি শিফট সক্রিয় · {{people}} জন কর্মরত",
+        "sinceDayTime": "{{day}} {{time}} থেকে",
+        "sinceTime": "{{time}} থেকে",
+        "title": "লাইভ শিফট অবস্থা",
+        "workingNow": "{{count}} জন এখন কর্মরত",
+        "yesterday": "গতকাল"
+      },
+      "lowStockAlertTable": {
+        "category": "বিভাগ",
+        "deficit": "ঘাটতি",
+        "empty": "সব স্টক লেভেল স্বাভাবিক",
+        "min": "সর্বনিম্ন",
+        "part": "যন্ত্রাংশ",
+        "raisePo": "PO তৈরি করুন",
+        "stock": "স্টক",
+        "title": "কম স্টক সতর্কতা"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "সর্বনিম্নের চেয়ে {{value}} কম ({{current}}/{{min}})",
+        "empty": "সব স্টক লেভেল স্বাভাবিক",
+        "title": "কম স্টকের যন্ত্রাংশ"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "এই মাসের ব্রেকডাউন",
+        "empty": "মেশিনের কোনো ডেটা নেই",
+        "health": "স্বাস্থ্য",
+        "machine": "মেশিন",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "স্ট্যাটাস",
+        "title": "মেশিন-স্তরের বিশ্লেষণ"
+      },
+      "maintenanceCostChart": {
+        "cost": "খরচ",
+        "empty": "খরচের কোনো ডেটা নেই",
+        "title": "রক্ষণাবেক্ষণ খরচের সারসংক্ষেপ",
+        "totalThisMonth": "এই মাসে মোট:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "ব্যবহারের কোনো ডেটা নেই",
+        "title": "সর্বাধিক ব্যবহৃত যন্ত্রাংশ (গত ৩০ দিন)",
+        "unitsIssued": "ইস্যুকৃত ইউনিট"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "ব্যবহারের কোনো ডেটা নেই",
+        "title": "সর্বাধিক ব্যবহৃত যন্ত্রাংশ"
+      },
+      "mtbfTable": {
+        "dept": "বিভাগ",
+        "empty": "মেশিনের স্বাস্থ্য ডেটা নেই",
+        "machine": "মেশিন",
+        "mtbf": "MTBF",
+        "title": "প্রতি মেশিনে MTBF"
+      },
+      "mttrTrendChart": {
+        "empty": "MTTR ডেটা নেই",
+        "slaTarget": "SLA লক্ষ্যমাত্রা",
+        "slaTargetLabel": "SLA লক্ষ্যমাত্রা ({{target}} ঘণ্টা)",
+        "title": "MTTR প্রবণতা"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "বাতিল করুন",
+        "cancelFailed": "ফেরত বাতিল করতে ব্যর্থ।",
+        "cancelling": "বাতিল হচ্ছে…",
+        "empty": "ফেরত দেওয়ার কিছু নেই",
+        "emptySub": "আপনার সংগ্রহ করা ফেরতযোগ্য যন্ত্রাংশ ফেরত না দেওয়া পর্যন্ত এখানে দেখাবে।",
+        "requesting": "অনুরোধ করা হচ্ছে…",
+        "return": "ফেরত দিন",
+        "returnCancelled": "ফেরত বাতিল করা হয়েছে।",
+        "returnFailed": "ফেরতের অনুরোধ ব্যর্থ হয়েছে।",
+        "returnRequested": "ফেরতের অনুরোধ করা হয়েছে — একজন স্টোরকিপার এটি নিশ্চিত করবেন।",
+        "returning": "ফেরত দেওয়া হচ্ছে",
+        "title": "আমার ফেরতযোগ্য যন্ত্রাংশ"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "গৃহীত পদক্ষেপ",
+        "actionsTakenCount": "গৃহীত পদক্ষেপ ({{count}})",
+        "description": "বিবরণ",
+        "empty": "আপনাকে কোনো নিরাপত্তা কেস বরাদ্দ করা হয়নি",
+        "location": "অবস্থান",
+        "movedTo": "{{status}}-এ স্থানান্তরিত",
+        "noActionsYet": "এখনো কোনো পদক্ষেপ রেকর্ড করা হয়নি।",
+        "title": "নিরাপত্তা কেস",
+        "whatYouNeedToDo": "আপনার যা করতে হবে"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "কোনো নিরাপত্তা প্রশিক্ষণ বরাদ্দ নেই",
+        "title": "আমাকে বরাদ্দকৃত নিরাপত্তা প্রশিক্ষণ"
+      },
+      "myTrainingsWidget": {
+        "empty": "কোনো প্রশিক্ষণ চলমান নেই",
+        "title": "আমার প্রশিক্ষণ"
+      },
+      "notificationFeed": {
+        "empty": "কোনো বিজ্ঞপ্তি নেই",
+        "emptySub": "সব আপডেট!",
+        "filters": {
+          "all": "সব",
+          "breakdowns": "ব্রেকডাউন",
+          "workOrders": "ওয়ার্ক অর্ডার",
+          "parts": "যন্ত্রাংশ",
+          "pm": "PM",
+          "alerts": "সতর্কতা"
+        },
+        "title": "বিজ্ঞপ্তি"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "অডিট ({{count}})",
+        "empty": "বর্তমানে কোনো মূল্যায়ন বা অডিট চলমান নেই",
+        "evaluations": "মূল্যায়ন ({{count}})",
+        "noneInProgress": "কোনোটি চলমান নয়",
+        "running": "{{count}}টি চলমান",
+        "title": "চলমান মূল্যায়ন ও অডিট"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "বর্তমানে কোনো প্রশিক্ষণ চলমান নেই",
+        "inProgress": "{{count}}টি চলমান",
+        "module": "মডিউল",
+        "name": "নাম",
+        "progress": "অগ্রগতি",
+        "role": "ভূমিকা",
+        "title": "চলমান প্রশিক্ষণ"
+      },
+      "operatorTrainingTable": {
+        "certified": "সার্টিফাইড",
+        "empty": "অপারেটরের কোনো ডেটা নেই",
+        "expiring": "মেয়াদ শেষ হচ্ছে",
+        "operator": "অপারেটর",
+        "role": "ভূমিকা",
+        "status": "স্ট্যাটাস",
+        "title": "প্রশিক্ষণ অবস্থা"
+      },
+      "partsUsageTrendChart": {
+        "empty": "কোনো অনুরোধ কার্যকলাপ নেই",
+        "title": "যন্ত্রাংশ অনুরোধের প্রবণতা (গত ৩০ দিন)",
+        "woPartRequests": "WO যন্ত্রাংশ অনুরোধ"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "অনুমোদন করুন",
+        "empty": "কোনো মুলতুবি অনুমোদনের অনুরোধ নেই",
+        "emptySub": "টেকনিশিয়ান ও ট্রেইনিদের অনুরোধ এখানে দেখাবে।",
+        "notePlaceholder": "নোট (ঐচ্ছিক)",
+        "pending": "{{count}}টি মুলতুবি",
+        "pendingBadge": "মুলতুবি",
+        "reject": "প্রত্যাখ্যান করুন",
+        "requested": "অনুরোধ করেছেন",
+        "title": "মুলতুবি অনুমোদন",
+        "viewMore": "আরও {{count}}টি দেখুন…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "গ্রহণের অপেক্ষায় কোনো PO নেই",
+        "items": "আইটেম",
+        "poNumber": "PO #",
+        "statusHeader": "স্ট্যাটাস",
+        "status": {
+          "sent": "পাঠানো হয়েছে",
+          "invoiceReceived": "চালান পাওয়া গেছে",
+          "acknowledged": "স্বীকৃত",
+          "partiallyReceived": "আংশিকভাবে গৃহীত"
+        },
+        "supplier": "সরবরাহকারী",
+        "title": "মুলতুবি PO রসিদ",
+        "value": "মূল্য"
+      },
+      "pendingRequestsTable": {
+        "empty": "কোনো মুলতুবি অনুরোধ নেই",
+        "estValue": "আনুমানিক মূল্য",
+        "more": "+{{count}} আরও",
+        "parts": "যন্ত্রাংশ",
+        "requestedBy": "অনুরোধকারী",
+        "review": "পর্যালোচনা করুন",
+        "title": "মুলতুবি যন্ত্রাংশ অনুরোধ",
+        "unknownPart": "অজানা যন্ত্রাংশ"
+      },
+      "pendingReturnsWidget": {
+        "empty": "ফেরতের অপেক্ষায় কোনো যন্ত্রাংশ নেই",
+        "takenBy": "গ্রহণকারী",
+        "title": "মুলতুবি যন্ত্রাংশ ফেরত"
+      },
+      "personalKpiCards": {
+        "avgRepair": "গড় মেরামত",
+        "avgResponse": "গড় প্রতিক্রিয়া",
+        "jobsCompleted": "সম্পন্ন কাজ",
+        "slaCompliance": "SLA প্রতিপালন"
+      },
+      "pmComplianceWidget": {
+        "empty": "PM-এর কোনো ডেটা নেই",
+        "missed": "মিস হয়েছে",
+        "onTime": "সময়মতো",
+        "thisMonth": "এই মাসে",
+        "title": "PM প্রতিপালনের হার"
+      },
+      "pmTrendChart": {
+        "empty": "প্রতিরোধমূলক ওয়ার্ক অর্ডারের ডেটা নেই",
+        "title": "ধরন অনুসারে PM ওয়ার্ক অর্ডার",
+        "wos": "WOs"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "এই সময়কালে কোনো রসিদ রেকর্ড করা হয়নি",
+        "title": "যন্ত্রাংশ প্রাপ্তি: ভালো বনাম প্রত্যাখ্যাত/ক্ষতিগ্রস্ত",
+        "unitsReceived": "গৃহীত ইউনিট"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "ডাউনটাইম খরচ",
+        "hoursLost": "এই মাসে হারানো উৎপাদন ঘণ্টা",
+        "thisWeek": "এই সপ্তাহে",
+        "title": "উৎপাদন ডাউনটাইম",
+        "today": "আজ"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "স্বাক্ষরের জন্য কোনো প্রোগ্রাম প্রস্তুত নেই",
+        "emptySub": "যেসব ট্রেইনি তাদের প্রোগ্রামের প্রতিটি মডিউল শেষ করে, তারা এখানে দেখাবে।",
+        "ready": "{{count}}টি প্রস্তুত",
+        "readyToSignOff": "স্বাক্ষরের জন্য প্রস্তুত",
+        "summary": "{{months}}-মাসের প্রোগ্রাম · {{count}}টি মডিউল সম্পন্ন · শুরু হয়েছে {{date}}",
+        "title": "ট্রেইনি প্রোগ্রাম স্বাক্ষর"
+      },
+      "requestedPartsWidget": {
+        "empty": "কোনো মুলতুবি যন্ত্রাংশ অনুরোধ নেই",
+        "generalRequest": "সাধারণ অনুরোধ",
+        "requestParts": "যন্ত্রাংশের অনুরোধ করুন",
+        "status": {
+          "requested": "অনুরোধ করা হয়েছে",
+          "inApprovalOfSupervisor": "সুপারভাইজারের অনুমোদনে",
+          "needToCollect": "সংগ্রহ করতে হবে"
+        },
+        "title": "অনুরোধকৃত যন্ত্রাংশ"
+      },
+      "safetyForYouWidget": {
+        "empty": "নিরাপত্তা সংক্রান্ত কিছু মুলতুবি নেই",
+        "emptySub": "বরাদ্দকৃত প্রশিক্ষণ এবং আপনাকে রিপোর্ট করা কেস এখানে দেখাবে।",
+        "open": "{{count}}টি খোলা",
+        "safetyTrainings": "নিরাপত্তা প্রশিক্ষণ ({{count}})",
+        "title": "নিরাপত্তা"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "কেসের ধরন অনুসারে",
+        "bySeverity": "তীব্রতা অনুসারে",
+        "daysSinceLastIncident": "শেষ ঘটনার পর দিন",
+        "nearMiss30d": "নিয়ার-মিস (৩০ দিন)",
+        "openCases": "খোলা কেস",
+        "totalSafetyCases": "মোট নিরাপত্তা কেস"
+      },
+      "slaGaugeWidget": {
+        "breached": "লঙ্ঘিত",
+        "empty": "SLA-এর কোনো ডেটা নেই",
+        "title": "SLA প্রতিপালন",
+        "withinSla": "SLA-এর মধ্যে"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "সব ব্রেকডাউন SLA-এর মধ্যে",
+        "atRisk": "ঝুঁকিতে",
+        "breached": "লঙ্ঘিত",
+        "left": "{{time}} বাকি",
+        "overdue": "{{time}} বিলম্বিত",
+        "title": "SLA অবস্থা",
+        "withinSla": "SLA-এর মধ্যে"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "{{count}} জন সক্রিয় কর্মচারী",
+        "empty": "কর্মীর কোনো ডেটা নেই",
+        "roles": {
+          "technicians": "টেকনিশিয়ান",
+          "supervisors": "সুপারভাইজার",
+          "managers": "ম্যানেজার",
+          "operators": "অপারেটর",
+          "trainees": "ট্রেইনি",
+          "storeKeepers": "স্টোরকিপার",
+          "hrOfficers": "HR কর্মকর্তা",
+          "safetyOfficers": "নিরাপত্তা কর্মকর্তা",
+          "admins": "অ্যাডমিন"
+        },
+        "staff": "কর্মী",
+        "title": "ভূমিকা অনুসারে কর্মচারী"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "এই সময়কালে কোনো ক্রয়াদেশ নেই",
+        "purchaseOrders": "ক্রয়াদেশ",
+        "title": "সরবরাহকারী অনুসারে ক্রয়াদেশ"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "অডিট স্কোর",
+        "empty": "টিম পারফরম্যান্সের কোনো ডেটা নেই",
+        "evaluationScore": "মূল্যায়ন স্কোর",
+        "name": "নাম",
+        "quizzesPassed": "পাস করা কুইজ",
+        "role": "ভূমিকা",
+        "title": "টিম পারফরম্যান্স",
+        "trainings": "প্রশিক্ষণ"
+      },
+      "technicianPerformanceTable": {
+        "empty": "পারফরম্যান্সের কোনো ডেটা নেই",
+        "jobs": "কাজ",
+        "repair": "মেরামত",
+        "resp": "প্রতিক্রিয়া",
+        "sla": "SLA",
+        "tech": "টেকনিশিয়ান",
+        "title": "ওয়ার্ক অর্ডার অনুসারে পারফরম্যান্স"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} জন সক্রিয়",
+        "empty": "শিফটে কোনো টেকনিশিয়ান নেই",
+        "title": "টেকনিশিয়ান অবস্থা"
+      },
+      "technicianStatusRow": {
+        "doneToday": "আজ সম্পন্ন",
+        "on": "{{wo}}-তে",
+        "status": {
+          "available": "উপলব্ধ",
+          "onJob": "কাজে ব্যস্ত",
+          "onBreak": "বিরতিতে",
+          "offShift": "শিফটের বাইরে"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "আজ আপনার কোনো প্রশিক্ষণ নির্ধারিত নেই",
+        "title": "আজকের আমার প্রশিক্ষণ"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "বর্তমানে কোনো সক্রিয় শিফট নেই",
+        "started": "{{count}}টি শুরু হয়েছে",
+        "title": "বিভাগ অনুসারে আজকের শিফট"
+      },
+      "todaysPmList": {
+        "empty": "কোনো PM সময়সূচী বরাদ্দ নেই",
+        "title": "বরাদ্দকৃত PM সময়সূচী"
+      },
+      "topPerformersWidget": {
+        "audit": "অডিট",
+        "empty": "এখনো পারফরম্যান্সের ডেটা নেই",
+        "emptySub": "মূল্যায়ন বা অডিট জমা দিলে র‍্যাঙ্কিং দেখা যাবে।",
+        "eval": "মূল্যায়ন",
+        "name": "নাম",
+        "quizzes": "কুইজ",
+        "role": "ভূমিকা",
+        "safety": "নিরাপত্তা",
+        "score": "স্কোর",
+        "title": "সেরা ১০ পারফর্মিং টিম সদস্য",
+        "trainings": "প্রশিক্ষণ"
+      },
+      "topProblemMachinesChart": {
+        "empty": "সমস্যাযুক্ত মেশিনের কোনো ডেটা নেই",
+        "modes": {
+          "count": "সংখ্যা",
+          "hours": "ঘণ্টা",
+          "cost": "খরচ"
+        },
+        "title": "শীর্ষ ১০ সমস্যাযুক্ত মেশিন"
+      },
+      "topUsedPartsChart": {
+        "empty": "অনুরোধের কোনো ডেটা নেই",
+        "title": "কারণ অনুসারে অনুরোধকৃত যন্ত্রাংশ"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "আমার মূল্যায়ন",
+        "noEvaluations": "এখনো কোনো মূল্যায়ন রেকর্ড করা হয়নি"
+      },
+      "trainingActivityChart": {
+        "empty": "প্রশিক্ষণের কোনো ডেটা নেই",
+        "newCertifications": "নতুন সার্টিফিকেশন",
+        "renewals": "নবায়ন",
+        "title": "প্রশিক্ষণ কার্যকলাপ"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "সমাধান করুন",
+        "attendFailed": "সমাধান করতে ব্যর্থ হয়েছে।",
+        "attending": "সমাধান করা হচ্ছে…",
+        "empty": "কোনো অবরাদ্দকৃত ব্রেকডাউন নেই",
+        "title": "ব্রেকডাউন"
+      },
+      "woTypeDistributionChart": {
+        "empty": "ওয়ার্ক অর্ডারের কোনো ডেটা নেই",
+        "title": "ধরন অনুসারে ওয়ার্ক অর্ডার বিতরণ",
+        "wos": "WOs"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "কোনো ওয়ার্ক অর্ডার চলমান নেই",
+        "emptyToday": "আজ কোনো ওয়ার্ক অর্ডার বকেয়া নেই",
+        "running": "চলমান ({{count}})",
+        "title": "ওয়ার্ক অর্ডার",
+        "today": "আজ ({{count}})"
+      }
     }
   }
 }

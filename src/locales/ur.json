@@ -155,6 +155,527 @@
         "allSuppliers": "تمام سپلائرز",
         "clear": "صاف کریں"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "تصویر شامل کریں",
+        "checklistProgress": "چیک لسٹ کی پیش رفت",
+        "currentJob": "موجودہ کام",
+        "noActiveJob": "کوئی فعال کام نہیں",
+        "of": "{{total}} میں سے {{completed}}",
+        "requestParts": "پرزوں کی درخواست دیں",
+        "scanToCheckIn": "چیک ان کے لیے مشین کا QR اسکین کریں",
+        "timeOnJob": "کام پر وقت",
+        "updateStatus": "حالت اپ ڈیٹ کریں"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "{{date}} کو تفویض کیا گیا",
+        "attendFill": "حاضر ہوں اور پُر کریں",
+        "attendFillCount": "حاضر ہوں اور پُر کریں ({{count}})",
+        "empty": "آپ کو کوئی خرابی تفویض نہیں کی گئی",
+        "title": "مجھے تفویض شدہ خرابیاں"
+      },
+      "assignedTasksWidget": {
+        "audit": "آڈٹ",
+        "audits": "آڈٹس ({{count}})",
+        "empty": "کچھ بھی تفویض نہیں",
+        "emptySub": "ورک آرڈرز، آڈٹس، تشخیص اور تربیت یہاں نظر آئیں گے۔",
+        "evaluations": "تشخیصات ({{count}})",
+        "pending": "{{count}} زیر التوا",
+        "safetyCases": "حفاظتی کیسز ({{count}})",
+        "title": "مجھے تفویض شدہ",
+        "trainingModule": "تربیتی ماڈیول",
+        "trainings": "تربیتیں ({{count}})",
+        "workOrders": "ورک آرڈرز ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "خرابی کا کوئی ڈیٹا نہیں",
+        "modes": {
+          "type": "قسم",
+          "severity": "شدت",
+          "department": "شعبہ"
+        },
+        "title": "خرابی کی تقسیم"
+      },
+      "breakdownHeatmap": {
+        "empty": "ہیٹ میپ کا کوئی ڈیٹا نہیں",
+        "ranges": {
+          "thisMonth": "اس مہینے",
+          "last3m": "پچھلے 3 ماہ",
+          "last6m": "پچھلے 6 ماہ"
+        },
+        "title": "خرابی کی تعدد ہیٹ میپ",
+        "tooltipCount": "{{day}} {{hour}} — {{count}} خرابی",
+        "tooltipNone": "{{day}} {{hour}} — کوئی خرابی نہیں"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "نئی رپورٹ شدہ",
+          "signOff": "منظوری اور بندش"
+        },
+        "title": "لائیو خرابی بورڈ"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "کوئی آئٹم نہیں"
+      },
+      "breakdownTrendChart": {
+        "closed": "بند",
+        "critical": "نازک",
+        "empty": "خرابی کا کوئی ڈیٹا نہیں",
+        "opened": "کھلی",
+        "title": "خرابی کا رجحان"
+      },
+      "categoryStatusChart": {
+        "completed": "مکمل",
+        "ongoing": "جاری"
+      },
+      "common": {
+        "active": "فعال",
+        "due": "آخری تاریخ {{date}}",
+        "failedToLoad": "ڈیٹا لوڈ کرنے میں ناکامی",
+        "general": "عمومی",
+        "noData": "کوئی ڈیٹا نہیں",
+        "noDataAvailable": "کوئی ڈیٹا دستیاب نہیں",
+        "resume": "دوبارہ شروع کریں",
+        "retry": "دوبارہ کوشش کریں",
+        "safety": "حفاظت",
+        "start": "شروع کریں",
+        "today": "آج",
+        "view": "دیکھیں",
+        "viewAll": "سب دیکھیں",
+        "trainingStatus": {
+          "notStarted": "شروع نہیں ہوا",
+          "inProgress": "جاری ہے",
+          "quizPassed": "کوئز پاس",
+          "quizFailed": "کوئز فیل",
+          "awaitingPractical": "عملی انتظار میں",
+          "expired": "میعاد ختم",
+          "retrainingRequired": "دوبارہ تربیت درکار"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "ٹھیکیدار کا کوئی ڈیٹا نہیں",
+        "firstFix": "پہلی بار مرمت {{value}}%",
+        "jobs": "{{count}} کام",
+        "sla": "SLA {{value}}%",
+        "title": "ٹھیکیدار اسکور بورڈ"
+      },
+      "dateRangeFilter": {
+        "from": "سے",
+        "presets": {
+          "allTime": "تمام وقت",
+          "last30Days": "پچھلے 30 دن",
+          "thisMonth": "اس مہینے",
+          "lastMonth": "پچھلے مہینے",
+          "thisYear": "اس سال"
+        },
+        "to": "تک"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "فعال عملہ",
+        "evaluationsInProgress": "جاری تشخیصات",
+        "presentToday": "آج حاضر",
+        "trainingsInProgress": "جاری تربیتیں"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "کم اسٹاک",
+        "outOfStock": "اسٹاک ختم",
+        "pendingRequests": "زیر التوا درخواستیں",
+        "totalParts": "کل پرزے"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}} دن",
+        "daysOverdue": "{{count}} دن تاخیر",
+        "due": "آخری تاریخ {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "قطار میں کوئی کام نہیں",
+        "title": "میری کام کی قطار"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "فی الحال کوئی شفٹ پر نہیں ہے",
+        "footer": "{{shifts}} شفٹ فعال · {{people}} لوگ کام کر رہے ہیں",
+        "sinceDayTime": "{{day}} {{time}} سے",
+        "sinceTime": "{{time}} سے",
+        "title": "لائیو شفٹ کی حالت",
+        "workingNow": "{{count}} ابھی کام کر رہے ہیں",
+        "yesterday": "کل"
+      },
+      "lowStockAlertTable": {
+        "category": "قسم",
+        "deficit": "کمی",
+        "empty": "تمام اسٹاک کی سطحیں درست ہیں",
+        "min": "کم از کم",
+        "part": "پرزہ",
+        "raisePo": "PO بنائیں",
+        "stock": "اسٹاک",
+        "title": "کم اسٹاک الرٹس"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "کم از کم سے {{value}} کم ({{current}}/{{min}})",
+        "empty": "تمام اسٹاک کی سطحیں درست ہیں",
+        "title": "کم اسٹاک پرزے"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "اس ماہ خرابیاں",
+        "empty": "مشین کا کوئی ڈیٹا نہیں",
+        "health": "حالت",
+        "machine": "مشین",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "حیثیت",
+        "title": "مشین سطح کا تجزیہ"
+      },
+      "maintenanceCostChart": {
+        "cost": "لاگت",
+        "empty": "لاگت کا کوئی ڈیٹا نہیں",
+        "title": "دیکھ بھال کی لاگت کا جائزہ",
+        "totalThisMonth": "اس مہینے کل:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "استعمال کا کوئی ڈیٹا نہیں",
+        "title": "سب سے زیادہ استعمال ہونے والے پرزے (پچھلے 30 دن)",
+        "unitsIssued": "جاری کردہ یونٹس"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "استعمال کا کوئی ڈیٹا نہیں",
+        "title": "سب سے زیادہ استعمال ہونے والے پرزے"
+      },
+      "mtbfTable": {
+        "dept": "شعبہ",
+        "empty": "مشین کی حالت کا کوئی ڈیٹا نہیں",
+        "machine": "مشین",
+        "mtbf": "MTBF",
+        "title": "فی مشین MTBF"
+      },
+      "mttrTrendChart": {
+        "empty": "MTTR کا کوئی ڈیٹا نہیں",
+        "slaTarget": "SLA ہدف",
+        "slaTargetLabel": "SLA ہدف ({{target}} گھنٹے)",
+        "title": "MTTR رجحان"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "منسوخ کریں",
+        "cancelFailed": "واپسی منسوخ کرنے میں ناکامی۔",
+        "cancelling": "منسوخ ہو رہا ہے…",
+        "empty": "واپس کرنے کے لیے کچھ نہیں",
+        "emptySub": "آپ کے حاصل کردہ قابلِ واپسی پرزے یہاں تب تک نظر آئیں گے جب تک واپس نہ کیے جائیں۔",
+        "requesting": "درخواست دی جا رہی ہے…",
+        "return": "واپس کریں",
+        "returnCancelled": "واپسی منسوخ کر دی گئی۔",
+        "returnFailed": "واپسی کی درخواست ناکام ہو گئی۔",
+        "returnRequested": "واپسی کی درخواست دی گئی — اسٹور کیپر تصدیق کرے گا۔",
+        "returning": "واپس کیا جا رہا ہے",
+        "title": "میرے قابلِ واپسی پرزے"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "کی گئی کارروائیاں",
+        "actionsTakenCount": "کی گئی کارروائیاں ({{count}})",
+        "description": "تفصیل",
+        "empty": "آپ کو کوئی حفاظتی کیس تفویض نہیں کیا گیا",
+        "location": "مقام",
+        "movedTo": "{{status}} میں منتقل",
+        "noActionsYet": "ابھی تک کوئی کارروائی درج نہیں ہوئی۔",
+        "title": "حفاظتی کیسز",
+        "whatYouNeedToDo": "آپ کو کیا کرنا ہے"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "کوئی حفاظتی تربیت تفویض نہیں",
+        "title": "مجھے تفویض شدہ حفاظتی تربیتیں"
+      },
+      "myTrainingsWidget": {
+        "empty": "کوئی تربیت جاری نہیں",
+        "title": "میری تربیتیں"
+      },
+      "notificationFeed": {
+        "empty": "کوئی اطلاع نہیں",
+        "emptySub": "سب کچھ اپ ڈیٹ ہے!",
+        "filters": {
+          "all": "تمام",
+          "breakdowns": "خرابیاں",
+          "workOrders": "ورک آرڈرز",
+          "parts": "پرزے",
+          "pm": "PM",
+          "alerts": "الرٹس"
+        },
+        "title": "اطلاعات"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "آڈٹس ({{count}})",
+        "empty": "فی الحال کوئی تشخیص یا آڈٹ جاری نہیں",
+        "evaluations": "تشخیصات ({{count}})",
+        "noneInProgress": "کوئی جاری نہیں",
+        "running": "{{count}} جاری",
+        "title": "جاری تشخیصات اور آڈٹس"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "فی الحال کوئی تربیت جاری نہیں",
+        "inProgress": "{{count}} جاری",
+        "module": "ماڈیول",
+        "name": "نام",
+        "progress": "پیش رفت",
+        "role": "کردار",
+        "title": "جاری تربیتیں"
+      },
+      "operatorTrainingTable": {
+        "certified": "تصدیق شدہ",
+        "empty": "آپریٹر کا کوئی ڈیٹا نہیں",
+        "expiring": "میعاد قریب",
+        "operator": "آپریٹر",
+        "role": "کردار",
+        "status": "حیثیت",
+        "title": "تربیت کی حیثیت"
+      },
+      "partsUsageTrendChart": {
+        "empty": "درخواست کی کوئی سرگرمی نہیں",
+        "title": "پرزوں کی درخواست کے رجحانات (پچھلے 30 دن)",
+        "woPartRequests": "WO پرزوں کی درخواستیں"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "منظور کریں",
+        "empty": "کوئی منظوری کی درخواست زیر التوا نہیں",
+        "emptySub": "ٹیکنیشنز اور ٹرینیز کی درخواستیں یہاں نظر آئیں گی۔",
+        "notePlaceholder": "نوٹ (اختیاری)",
+        "pending": "{{count}} زیر التوا",
+        "pendingBadge": "زیر التوا",
+        "reject": "مسترد کریں",
+        "requested": "درخواست کی",
+        "title": "زیر التوا منظوریاں",
+        "viewMore": "مزید {{count}} دیکھیں…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "وصولی کے منتظر کوئی PO نہیں",
+        "items": "اشیاء",
+        "poNumber": "PO نمبر",
+        "statusHeader": "حیثیت",
+        "status": {
+          "sent": "بھیج دیا گیا",
+          "invoiceReceived": "انوائس موصول",
+          "acknowledged": "تصدیق شدہ",
+          "partiallyReceived": "جزوی طور پر موصول"
+        },
+        "supplier": "سپلائر",
+        "title": "زیر التوا PO وصولیاں",
+        "value": "قیمت"
+      },
+      "pendingRequestsTable": {
+        "empty": "کوئی درخواست زیر التوا نہیں",
+        "estValue": "تخمینی قیمت",
+        "more": "+{{count}} مزید",
+        "parts": "پرزے",
+        "requestedBy": "درخواست دہندہ",
+        "review": "جائزہ لیں",
+        "title": "زیر التوا پرزہ درخواستیں",
+        "unknownPart": "نامعلوم پرزہ"
+      },
+      "pendingReturnsWidget": {
+        "empty": "واپسی کے منتظر کوئی پرزے نہیں",
+        "takenBy": "لینے والا",
+        "title": "زیر التوا پرزہ واپسیاں"
+      },
+      "personalKpiCards": {
+        "avgRepair": "اوسط مرمت",
+        "avgResponse": "اوسط ردعمل",
+        "jobsCompleted": "مکمل شدہ کام",
+        "slaCompliance": "SLA تعمیل"
+      },
+      "pmComplianceWidget": {
+        "empty": "PM کا کوئی ڈیٹا نہیں",
+        "missed": "چھوٹ گئی",
+        "onTime": "بروقت",
+        "thisMonth": "اس مہینے",
+        "title": "PM تعمیل کی شرح"
+      },
+      "pmTrendChart": {
+        "empty": "احتیاطی ورک آرڈرز کا کوئی ڈیٹا نہیں",
+        "title": "قسم کے لحاظ سے PM ورک آرڈرز",
+        "wos": "WOs"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "اس مدت میں کوئی وصولی درج نہیں",
+        "title": "پرزوں کی وصولی: اچھی بمقابلہ مسترد/خراب",
+        "unitsReceived": "موصول یونٹس"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "بندش کی لاگت",
+        "hoursLost": "اس مہینے ضائع شدہ پیداواری اوقات",
+        "thisWeek": "اس ہفتے",
+        "title": "پیداوار کی بندش",
+        "today": "آج"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "منظوری کے لیے کوئی پروگرام تیار نہیں",
+        "emptySub": "اپنے پروگرام کا ہر ماڈیول مکمل کرنے والے ٹرینیز یہاں نظر آئیں گے۔",
+        "ready": "{{count}} تیار",
+        "readyToSignOff": "منظوری کے لیے تیار",
+        "summary": "{{months}} ماہ کا پروگرام · {{count}} ماڈیولز مکمل · شروع ہوا {{date}}",
+        "title": "ٹرینی پروگرام کی منظوری"
+      },
+      "requestedPartsWidget": {
+        "empty": "کوئی زیر التوا پرزہ درخواست نہیں",
+        "generalRequest": "عمومی درخواست",
+        "requestParts": "پرزوں کی درخواست دیں",
+        "status": {
+          "requested": "درخواست کی گئی",
+          "inApprovalOfSupervisor": "سپروائزر کی منظوری میں",
+          "needToCollect": "لینا باقی ہے"
+        },
+        "title": "درخواست شدہ پرزے"
+      },
+      "safetyForYouWidget": {
+        "empty": "کوئی حفاظتی معاملہ زیر التوا نہیں",
+        "emptySub": "تفویض شدہ تربیتیں اور آپ کو رپورٹ شدہ کیسز یہاں نظر آئیں گے۔",
+        "open": "{{count}} کھلے",
+        "safetyTrainings": "حفاظتی تربیتیں ({{count}})",
+        "title": "حفاظت"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "کیس کی قسم کے مطابق",
+        "bySeverity": "شدت کے مطابق",
+        "daysSinceLastIncident": "آخری واقعے سے دن",
+        "nearMiss30d": "قریب المس (30 دن)",
+        "openCases": "کھلے کیسز",
+        "totalSafetyCases": "کل حفاظتی کیسز"
+      },
+      "slaGaugeWidget": {
+        "breached": "خلاف ورزی",
+        "empty": "SLA کا کوئی ڈیٹا نہیں",
+        "title": "SLA تعمیل",
+        "withinSla": "SLA کے اندر"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "تمام خرابیاں SLA کے اندر",
+        "atRisk": "خطرے میں",
+        "breached": "خلاف ورزی",
+        "left": "{{time}} باقی",
+        "overdue": "{{time}} تاخیر",
+        "title": "SLA حیثیت",
+        "withinSla": "SLA کے اندر"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "{{count}} فعال ملازمین",
+        "empty": "عملے کا کوئی ڈیٹا نہیں",
+        "roles": {
+          "technicians": "ٹیکنیشنز",
+          "supervisors": "سپروائزرز",
+          "managers": "منیجرز",
+          "operators": "آپریٹرز",
+          "trainees": "ٹرینیز",
+          "storeKeepers": "اسٹور کیپرز",
+          "hrOfficers": "HR افسران",
+          "safetyOfficers": "حفاظتی افسران",
+          "admins": "ایڈمنز"
+        },
+        "staff": "عملہ",
+        "title": "کردار کے لحاظ سے ملازمین"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "اس مدت میں کوئی PO نہیں",
+        "purchaseOrders": "خریداری آرڈرز",
+        "title": "سپلائر کے لحاظ سے خریداری آرڈرز"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "آڈٹ اسکور",
+        "empty": "ٹیم کارکردگی کا کوئی ڈیٹا نہیں",
+        "evaluationScore": "تشخیصی اسکور",
+        "name": "نام",
+        "quizzesPassed": "پاس شدہ کوئز",
+        "role": "کردار",
+        "title": "ٹیم کی کارکردگی",
+        "trainings": "تربیتیں"
+      },
+      "technicianPerformanceTable": {
+        "empty": "کارکردگی کا کوئی ڈیٹا نہیں",
+        "jobs": "کام",
+        "repair": "مرمت",
+        "resp": "ردعمل",
+        "sla": "SLA",
+        "tech": "ٹیکنیشن",
+        "title": "ورک آرڈرز کے لحاظ سے کارکردگی"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} فعال",
+        "empty": "شفٹ پر کوئی ٹیکنیشن نہیں",
+        "title": "ٹیکنیشن کی حیثیت"
+      },
+      "technicianStatusRow": {
+        "doneToday": "آج مکمل ہوئے",
+        "on": "{{wo}} پر",
+        "status": {
+          "available": "دستیاب",
+          "onJob": "کام پر",
+          "onBreak": "وقفے پر",
+          "offShift": "شفٹ سے باہر"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "آج آپ کی کوئی تربیت شیڈول نہیں",
+        "title": "آج میری تربیتیں"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "فی الحال کوئی فعال شفٹ نہیں",
+        "started": "{{count}} شروع ہو گئیں",
+        "title": "شعبے کے لحاظ سے آج کی شفٹیں"
+      },
+      "todaysPmList": {
+        "empty": "کوئی PM شیڈول تفویض نہیں",
+        "title": "تفویض شدہ PM شیڈولز"
+      },
+      "topPerformersWidget": {
+        "audit": "آڈٹ",
+        "empty": "ابھی تک کارکردگی کا ڈیٹا نہیں",
+        "emptySub": "تشخیص یا آڈٹ جمع کرانے پر درجہ بندی ظاہر ہوگی۔",
+        "eval": "تشخیص",
+        "name": "نام",
+        "quizzes": "کوئز",
+        "role": "کردار",
+        "safety": "حفاظت",
+        "score": "اسکور",
+        "title": "ٹیم کے 10 بہترین اراکین",
+        "trainings": "تربیتیں"
+      },
+      "topProblemMachinesChart": {
+        "empty": "مسئلہ والی مشینوں کا ڈیٹا نہیں",
+        "modes": {
+          "count": "تعداد",
+          "hours": "گھنٹے",
+          "cost": "لاگت"
+        },
+        "title": "10 سب سے زیادہ مسئلہ والی مشینیں"
+      },
+      "topUsedPartsChart": {
+        "empty": "درخواست کا کوئی ڈیٹا نہیں",
+        "title": "وجہ کے لحاظ سے درخواست شدہ پرزے"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "میری تشخیصات",
+        "noEvaluations": "ابھی تک کوئی تشخیص درج نہیں"
+      },
+      "trainingActivityChart": {
+        "empty": "تربیت کا کوئی ڈیٹا نہیں",
+        "newCertifications": "نئی سرٹیفیکیشنز",
+        "renewals": "تجدیدات",
+        "title": "تربیتی سرگرمی"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "حاضر ہوں",
+        "attendFailed": "حاضری ناکام ہوگئی۔",
+        "attending": "حاضر ہو رہا ہے…",
+        "empty": "کوئی غیر تفویض شدہ خرابی نہیں",
+        "title": "خرابیاں"
+      },
+      "woTypeDistributionChart": {
+        "empty": "ورک آرڈر کا کوئی ڈیٹا نہیں",
+        "title": "قسم کے لحاظ سے ورک آرڈر کی تقسیم",
+        "wos": "WOs"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "کوئی ورک آرڈر جاری نہیں",
+        "emptyToday": "آج کوئی ورک آرڈر واجب الادا نہیں",
+        "running": "جاری ({{count}})",
+        "title": "ورک آرڈرز",
+        "today": "آج ({{count}})"
+      }
     }
   }
 }

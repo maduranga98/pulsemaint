@@ -2,6 +2,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import type { BreakdownKanbanCard as CardType } from '../../../types/analytics.types';
 import BreakdownKanbanCard from './BreakdownKanbanCard';
+import { useTranslation } from 'react-i18next';
 
 interface BreakdownKanbanLaneProps {
   id: string;
@@ -11,6 +12,7 @@ interface BreakdownKanbanLaneProps {
 }
 
 export default function BreakdownKanbanLane({ id, title, cards, borderColor }: BreakdownKanbanLaneProps) {
+  const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -40,7 +42,7 @@ export default function BreakdownKanbanLane({ id, title, cards, borderColor }: B
         </SortableContext>
         {cards.length === 0 && (
           <div className="h-24 flex items-center justify-center text-[11px] text-[#8BA3BF]">
-            No items
+            {t('common.widgets.breakdownKanbanLane.noItems')}
           </div>
         )}
       </div>

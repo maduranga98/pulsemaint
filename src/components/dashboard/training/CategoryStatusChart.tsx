@@ -4,6 +4,7 @@ import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
 import { useCategoryStatusCounts } from '../../../hooks/dashboard/useCategoryStatusCounts';
 import type { CategoryStatusRow, DateRange } from '../../../services/teamPerformance.service';
+import { useTranslation } from 'react-i18next';
 
 interface CategoryStatusChartProps {
   companyId: string;
@@ -17,6 +18,7 @@ interface CategoryStatusChartProps {
 // Audits / Evaluations tabs — replaces the old single-series "count by
 // category" chart with a status breakdown for each category.
 export default function CategoryStatusChart({ companyId, title, emptyMessage, fetcher, dateRange }: CategoryStatusChartProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useCategoryStatusCounts(companyId, fetcher, dateRange);
   const hasData = data.some((d) => d.ongoing > 0 || d.completed > 0);
 
@@ -33,8 +35,8 @@ export default function CategoryStatusChart({ companyId, title, emptyMessage, fe
               <YAxis {...CHART_DEFAULTS.yAxis} type="category" dataKey="category" width={140} />
               <Tooltip {...CHART_DEFAULTS.tooltip} />
               <Legend {...CHART_DEFAULTS.legend} />
-              <Bar dataKey="ongoing" name="Ongoing" fill={CHART_COLORS.warning} radius={[0, 4, 4, 0]} />
-              <Bar dataKey="completed" name="Completed" fill={CHART_COLORS.success} radius={[0, 4, 4, 0]} />
+              <Bar dataKey="ongoing" name={t('common.widgets.categoryStatusChart.ongoing')} fill={CHART_COLORS.warning} radius={[0, 4, 4, 0]} />
+              <Bar dataKey="completed" name={t('common.widgets.categoryStatusChart.completed')} fill={CHART_COLORS.success} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

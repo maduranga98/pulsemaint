@@ -15,6 +15,7 @@ import type { BreakdownKanbanCard as CardType } from '../../../types/analytics.t
 import BreakdownKanbanLane from './BreakdownKanbanLane';
 import BreakdownKanbanCard from './BreakdownKanbanCard';
 import DashboardWidget from '../shared/DashboardWidget';
+import { useTranslation } from 'react-i18next';
 
 interface LaneDef {
   id: string;
@@ -27,9 +28,9 @@ interface LaneDef {
 // today's breakdowns: the ones just reported and the ones a technician has
 // resolved but still need a supervisor to sign off and close. Breakdowns that
 // are mid-repair, on hold, or already closed are intentionally excluded.
-const LANES: LaneDef[] = [
-  { id: 'newly_reported', title: 'NEWLY REPORTED', states: ['reported', 'acknowledged', 'triage_in_progress'], borderColor: '#F59E0B' },
-  { id: 'sign_off', title: 'SIGN OFF & CLOSE', states: ['resolved'], borderColor: '#10B981' },
+const LANES: (Omit<LaneDef, 'title'> & { titleKey: string })[] = [
+  { id: 'newly_reported', titleKey: 'newlyReported', states: ['reported', 'acknowledged', 'triage_in_progress'], borderColor: '#F59E0B' },
+  { id: 'sign_off', titleKey: 'signOff', states: ['resolved'], borderColor: '#10B981' },
 ];
 
 const VISIBLE_STATES = new Set(LANES.flatMap((l) => l.states));
@@ -75,6 +76,7 @@ interface BreakdownKanbanBoardProps {
 }
 
 export default function BreakdownKanbanBoard({ companyId }: BreakdownKanbanBoardProps) {
+  const { t } = useTranslation();
   const { breakdowns, loading, error } = useActiveBreakdowns(companyId, (status) =>
     VISIBLE_STATES.has(status),
   );
@@ -148,7 +150,7 @@ export default function BreakdownKanbanBoard({ companyId }: BreakdownKanbanBoard
   const activeCard = activeId ? cards.find((c) => c.id === activeId) : null;
 
   return (
-    <DashboardWidget title="Live Breakdown Board" live loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.breakdownKanbanBoard.title')} live loading={loading} error={error}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -161,7 +163,7 @@ export default function BreakdownKanbanBoard({ companyId }: BreakdownKanbanBoard
             <BreakdownKanbanLane
               key={lane.id}
               id={lane.id}
-              title={lane.title}
+              title={t(`common.widgets.breakdownKanbanBoard.lanes.${lane.titleKey}`)}
               borderColor={lane.borderColor}
               cards={laneCards[lane.id] ?? []}
             />

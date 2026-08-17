@@ -7,6 +7,7 @@ import EmptyState from '../shared/EmptyState';
 import { useMyAssignments } from '../../../hooks/training/useMyAssignments';
 import { getModuleSessions, isSafetyModule } from '../../../hooks/training/useSafetyTrainings';
 import type { TrainingModule } from '../../../lib/training/trainingTypes';
+import { useTranslation } from 'react-i18next';
 
 function useCompanyTrainingModules(companyId: string) {
   const [modules, setModules] = useState<TrainingModule[]>([]);
@@ -37,6 +38,7 @@ function useCompanyTrainingModules(companyId: string) {
 // Today's sessions from this viewer's own (not-yet-certified) training
 // assignments — a personal subset of TodayTrainingsWidget's company-wide list.
 export default function TodayMyTrainingsWidget() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { modules, loading: modulesLoading } = useCompanyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useMyAssignments();
@@ -57,9 +59,9 @@ export default function TodayMyTrainingsWidget() {
   const loading = modulesLoading || assignmentsLoading;
 
   return (
-    <DashboardWidget title="Today's My Trainings" loading={loading}>
+    <DashboardWidget title={t('common.widgets.todayMyTrainingsWidget.title')} loading={loading}>
       {todaySessions.length === 0 ? (
-        <EmptyState message="No trainings of yours scheduled today" />
+        <EmptyState message={t('common.widgets.todayMyTrainingsWidget.empty')} />
       ) : (
         <div className="space-y-1.5">
           {todaySessions.map((s, i) => (
@@ -76,7 +78,7 @@ export default function TodayMyTrainingsWidget() {
                   s.safety ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 'bg-[#1A56DB]/20 text-[#5B8DEF]'
                 }`}
               >
-                {s.safety ? 'Safety' : 'General'}
+                {s.safety ? t('common.widgets.common.safety') : t('common.widgets.common.general')}
               </span>
             </div>
           ))}

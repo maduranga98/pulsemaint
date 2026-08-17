@@ -2,28 +2,30 @@ import { useNavigate } from 'react-router-dom';
 import DashboardWidget from '../shared/DashboardWidget';
 import { usePendingPartsRequests } from '../../../hooks/dashboard/usePendingPartsRequests';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface PendingRequestsTableProps {
   companyId: string;
 }
 
 export default function PendingRequestsTable({ companyId }: PendingRequestsTableProps) {
+  const { t } = useTranslation();
   const { requests, loading, error } = usePendingPartsRequests(companyId);
   const navigate = useNavigate();
 
   return (
-    <DashboardWidget title="Pending Parts Requests" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.pendingRequestsTable.title')} loading={loading} error={error}>
       {requests.length === 0 ? (
-        <EmptyState message="No pending requests" />
+        <EmptyState message={t('common.widgets.pendingRequestsTable.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
-                <th className="pb-2 font-medium">Parts</th>
-                <th className="pb-2 font-medium">Requested By</th>
-                <th className="pb-2 font-medium text-right">Items</th>
-                <th className="pb-2 font-medium text-right">Est. Value</th>
+                <th className="pb-2 font-medium">{t('common.widgets.pendingRequestsTable.parts')}</th>
+                <th className="pb-2 font-medium">{t('common.widgets.pendingRequestsTable.requestedBy')}</th>
+                <th className="pb-2 font-medium text-right">{t('common.widgets.pendingReceiptPOsWidget.items')}</th>
+                <th className="pb-2 font-medium text-right">{t('common.widgets.pendingRequestsTable.estValue')}</th>
                 <th className="pb-2 font-medium"></th>
               </tr>
             </thead>
@@ -32,8 +34,8 @@ export default function PendingRequestsTable({ companyId }: PendingRequestsTable
                 <tr key={req.id} className="hover:bg-[#1E3A5F]/20">
                   <td className="py-2.5">
                     <p className="text-[#F0F4F8] font-medium">
-                      {req.items[0]?.partName ?? 'Unknown part'}
-                      {req.items.length > 1 ? ` +${req.items.length - 1} more` : ''}
+                      {req.items[0]?.partName ?? t('common.widgets.pendingRequestsTable.unknownPart')}
+                      {req.items.length > 1 ? ` ${t('common.widgets.pendingRequestsTable.more', { count: req.items.length - 1 })}` : ''}
                     </p>
                     <p className="text-[10px] text-[#8BA3BF]">{req.requestNumber}</p>
                   </td>
@@ -47,7 +49,7 @@ export default function PendingRequestsTable({ companyId }: PendingRequestsTable
                       onClick={() => navigate(`/app/inventory/requests/${req.id}`)}
                       className="px-2 py-1 bg-[#1A56DB] text-white text-[10px] font-medium rounded hover:bg-[#1A56DB]/90 transition-colors"
                     >
-                      Review
+                      {t('common.widgets.pendingRequestsTable.review')}
                     </button>
                   </td>
                 </tr>
