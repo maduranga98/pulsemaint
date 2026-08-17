@@ -202,8 +202,8 @@ export function buildProgramCertificateNumber(issuedAt: Date = new Date()): stri
   return `PCERT-${issuedAt.getFullYear()}-${suffix}`;
 }
 
-export function programCertificateFileName(traineeName: string, certificateNumber: string): string {
-  const safeName = traineeName.replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'certificate';
-  const safeNumber = certificateNumber.replace(/[^a-z0-9-]+/gi, '') || 'cert';
+export function programCertificateFileName(traineeName: string, certificateNumber: string | null | undefined): string {
+  const safeName = (traineeName || '').replace(/[^a-z0-9]+/gi, '_').replace(/^_+|_+$/g, '') || 'certificate';
+  const safeNumber = (certificateNumber || '').replace(/[^a-z0-9-]+/gi, '') || 'cert';
   return `${safeName}_${safeNumber}.pdf`;
 }
