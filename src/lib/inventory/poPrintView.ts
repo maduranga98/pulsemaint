@@ -39,17 +39,23 @@ export function buildPOPrintHTML(
   const { approver, generatedAt } = options;
   const total = po.items.reduce((s, it) => s + it.totalCost, 0);
   const rows = po.items
-    .map(
-      (it, idx) => `
+    .map((it, idx) => {
+      // Once an item has been received, the "expected" date is moot — show
+      // when it was actually confirmed received instead (PO-level receivedAt,
+      // since receipts aren't tracked per line item).
+      const deliveryCell = it.quantityReceived > 0
+        ? `Received: ${fmtDate(po.receivedAt) || '—'}`
+        : fmtDate(it.expectedDelivery) || '—';
+      return `
       <tr>
         <td>${idx + 1}</td>
         <td><div class="mono">${it.partNumber || ''}</div><div>${it.partName || ''}</div></td>
         <td class="right">${it.quantityOrdered}</td>
-        <td>${fmtDate(it.expectedDelivery) || '—'}</td>
+        <td>${deliveryCell}</td>
         <td class="right">${money(it.unitCost, po.currency)}</td>
         <td class="right">${money(it.totalCost, po.currency)}</td>
-      </tr>`,
-    )
+      </tr>`;
+    })
     .join('');
 
   return `<!doctype html>
