@@ -316,9 +316,11 @@ service cloud.firestore {
 
     // breakdown_tickets — used by dashboard widgets and Module 1 list/report pages
     match /breakdown_tickets/{ticketId} {
+      // hr_officer/store_keeper reach /analytics too and need this for the
+      // Breakdowns tab's charts (analyticsAggregation.ts).
       allow read: if isAuthenticated() && isAnyRole([
         'safety_officer', 'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
-        'plant_manager', 'trainee', 'admin'
+        'plant_manager', 'trainee', 'admin', 'hr_officer', 'store_keeper'
       ]);
       allow create: if isAnonymousBreakdownReport() || (isAuthenticated() && isAnyRole([
         'floor_operator', 'technician', 'maintenance_supervisor', 'supervisor',
@@ -1089,8 +1091,10 @@ service cloud.firestore {
 
     // pm_history — PM execution history
     match /pm_history/{historyId} {
+      // hr_officer/safety_officer/store_keeper reach /analytics too — they
+      // need this for the PM tab's charts (analyticsAggregation.ts).
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'];
+        && getUserData().role in ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee', 'hr_officer', 'safety_officer', 'store_keeper'];
       allow create: if isAuthenticated(); // System-generated
       allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId)
         && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
@@ -1221,20 +1225,22 @@ service cloud.firestore {
     // ---------------------------------------------------------------------------
 
     match /analytics_monthly/{docId} {
+      // hr_officer/safety_officer/store_keeper reach /analytics too — they
+      // need this for dashboard widgets that read pre-aggregated analytics.
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer', 'store_keeper']);
       allow write: if false;
     }
 
     match /analytics_daily/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer', 'store_keeper']);
       allow write: if false;
     }
 
     match /machine_health/{docId} {
       allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
-        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician']);
+        && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin', 'technician', 'hr_officer', 'safety_officer', 'store_keeper']);
       allow write: if false;
     }
 
