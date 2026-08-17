@@ -37,6 +37,7 @@ function toCsv(rows: ServiceLetterHistoryEntry[]): string {
 export function ServiceLetterHistoryTab({ companyId }: { companyId: string }) {
   const [entries, setEntries] = useState<ServiceLetterHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!companyId) return;
@@ -49,9 +50,14 @@ export function ServiceLetterHistoryTab({ companyId }: { companyId: string }) {
       q,
       (snap) => {
         setEntries(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ServiceLetterHistoryEntry));
+        setError(null);
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('Failed to load service letter history', err);
+        setError(err.message);
+        setLoading(false);
+      }
     );
     return () => unsub();
   }, [companyId]);
@@ -73,6 +79,16 @@ export function ServiceLetterHistoryTab({ companyId }: { companyId: string }) {
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-14 bg-white rounded-lg animate-pulse" />
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-16 bg-white rounded-xl border border-red-100">
+        <FileText className="w-8 h-8 text-red-300 mx-auto mb-2" />
+        <p className="text-sm text-red-500">Couldn't load service letter history.</p>
+        <p className="text-xs text-slate-400 mt-1">{error}</p>
       </div>
     );
   }
