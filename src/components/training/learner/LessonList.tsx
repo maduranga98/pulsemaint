@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { LessonItem, LessonProgress } from '@/lib/training/trainingTypes';
 import LessonListItem from './LessonListItem';
 import QuizUnlockBanner from './QuizUnlockBanner';
@@ -23,6 +24,7 @@ export default function LessonList({
   onLessonClick,
   onStartQuiz,
 }: LessonListProps) {
+  const { t } = useTranslation();
   const sorted = [...lessons].sort((a, b) => a.order - b.order);
 
   // Trainees must complete lessons in order: a lesson is locked until every
@@ -60,7 +62,7 @@ export default function LessonList({
         {quizStatus === 'locked' && (
           <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-4 text-center">
             <p className="text-slate-500 text-sm">
-              Complete all required lessons to unlock the quiz.
+              {t('common.training.lessonList.completeToUnlock')}
             </p>
           </div>
         )}
@@ -72,8 +74,8 @@ export default function LessonList({
             <div className="flex items-center gap-2 text-green-700 font-medium">
               <span className="text-lg">✓</span>
               <span>
-                Quiz passed
-                {quizScore !== undefined ? ` with ${quizScore}%` : ''}
+                {t('common.training.lessonList.quizPassed')}
+                {quizScore !== undefined ? ` ${t('common.training.lessonList.quizPassedWithScore', { score: quizScore })}` : ''}
               </span>
             </div>
           </div>

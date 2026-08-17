@@ -794,11 +794,11 @@
           "decommissioned": "বাতিল"
         },
         "criticalityOptions": {
-          "5": "৫ - অতি গুরুত্বপূর্ণ",
-          "4": "৪ - উচ্চ",
-          "3": "৩ - মাঝারি",
+          "1": "১ - ন্যূনতম",
           "2": "২ - নিম্ন",
-          "1": "১ - ন্যূনতম"
+          "3": "৩ - মাঝারি",
+          "4": "৪ - উচ্চ",
+          "5": "৫ - অতি গুরুত্বপূর্ণ"
         },
         "healthOptions": {
           "good": "ভালো (70-100)",
@@ -1797,6 +1797,285 @@
         "creating": "তৈরি হচ্ছে…",
         "createButton": "কার্যাদেশ তৈরি করুন",
         "fixErrors": "অনুগ্রহ করে নিম্নলিখিত সংশোধন করুন:"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "আমার মডিউলগুলিতে ফিরে যান",
+        "lessonsCount": "{{total}}টির মধ্যে {{completed}}টি",
+        "trainingCompleted": "প্রশিক্ষণ সম্পন্ন হয়েছে",
+        "saving": "সংরক্ষণ করা হচ্ছে…",
+        "markCompleteAcknowledge": "সম্পন্ন হিসেবে চিহ্নিত করুন এবং নিশ্চিত করুন"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "সংযুক্তি আপলোড ব্যর্থ হয়েছে",
+        "submitErrorDefault": "রিপোর্ট জমা দিতে ব্যর্থ হয়েছে",
+        "doneTitle": "জ্ঞান প্রতিবেদন জমা দেওয়া হয়েছে",
+        "doneDescription": "ধন্যবাদ — আপনার প্রশিক্ষণ প্রতিবেদন পর্যালোচনার জন্য পাঠানো হয়েছে। সার্টিফিকেট বা আরও পদক্ষেপ প্রয়োজন হলে HR যোগাযোগ করবে।",
+        "backToTraining": "আমার প্রশিক্ষণে ফিরে যান",
+        "providerLabel": "প্রদানকারী",
+        "countryLabel": "দেশ",
+        "modeLabel": "মোড",
+        "durationLabel": "সময়কাল",
+        "startLabel": "শুরু",
+        "endLabel": "শেষ",
+        "topicLabel": "বিষয়",
+        "day_one": "{{count}} দিন",
+        "day_other": "{{count}} দিন",
+        "knowledgeGainedLabel": "অর্জিত জ্ঞান",
+        "knowledgeGainedPlaceholder": "আপনি কী শিখেছেন এবং এটি কীভাবে প্রয়োগ করবেন তা সংক্ষেপে লিখুন...",
+        "assessmentQuestionsTitle": "মূল্যায়ন প্রশ্ন",
+        "attachmentsTitle": "সংযুক্তি",
+        "uploadLabel": "নথি / ম্যানুয়াল আপলোড করুন",
+        "uploading": "আপলোড হচ্ছে…",
+        "submitButton": "জ্ঞান প্রতিবেদন জমা দিন"
+      },
+      "lessonCompleteOverlay": {
+        "title": "পাঠ সম্পন্ন হয়েছে!",
+        "remaining_one": "{{count}}টি পাঠ বাকি",
+        "remaining_other": "{{count}}টি পাঠ বাকি",
+        "allComplete": "সব পাঠ সম্পন্ন হয়েছে!",
+        "nextLesson": "পরবর্তী পাঠ",
+        "close": "বন্ধ করুন"
+      },
+      "lessonListItem": {
+        "reading": "পঠন",
+        "page_one": "{{count}} পৃষ্ঠা",
+        "page_other": "{{count}} পৃষ্ঠা",
+        "slide_one": "{{count}} স্লাইড",
+        "slide_other": "{{count}} স্লাইড",
+        "gallery": "গ্যালারি",
+        "ariaLockedPrefix": "লক করা: ",
+        "ariaCompletedPrefix": "সম্পন্ন: ",
+        "ariaCurrentPrefix": "বর্তমান পাঠ: "
+      },
+      "lessonViewer": {
+        "ariaClose": "পাঠ বন্ধ করুন",
+        "pageCount_one": "{{count}} পৃষ্ঠা",
+        "pageCount_other": "{{count}} পৃষ্ঠা"
+      },
+      "lessonList": {
+        "completeToUnlock": "কুইজ আনলক করতে সব আবশ্যিক পাঠ সম্পন্ন করুন।",
+        "quizPassed": "কুইজ উত্তীর্ণ",
+        "quizPassedWithScore": "{{score}}% সহ"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "সব পাঠ সম্পন্ন হয়েছে! এখন আপনি কুইজ দিতে পারেন।",
+        "passMark": "পাস নম্বর: {{score}}%",
+        "attemptsRemaining_one": "{{count}}টি চেষ্টা বাকি",
+        "attemptsRemaining_other": "{{count}}টি চেষ্টা বাকি",
+        "noAttemptsRemaining": "আর কোনো চেষ্টা বাকি নেই",
+        "startQuiz": "কুইজ শুরু করুন",
+        "ariaStartQuiz": "কুইজ শুরু করুন"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}} পৃষ্ঠা",
+        "pageCount_other": "{{count}} পৃষ্ঠা",
+        "download": "ডাউনলোড করুন",
+        "ariaDownload": "নথি ডাউনলোড করুন",
+        "markedRead": "আপনি এটি পঠিত হিসেবে চিহ্নিত করেছেন",
+        "markAsRead": "পঠিত হিসেবে চিহ্নিত করুন",
+        "ariaMarkRead": "নথিটি পঠিত হিসেবে চিহ্নিত করুন"
+      },
+      "moduleCard": {
+        "dueDate": "নির্ধারিত তারিখ {{date}}",
+        "ariaOpenModule": "প্রশিক্ষণ মডিউল খুলুন: {{name}}",
+        "day_one": "{{count}} দিন",
+        "day_other": "{{count}} দিন",
+        "lessonsCount": "{{total}}টি পাঠের মধ্যে {{completed}}টি",
+        "marksLabel": "নম্বর: {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "বাফারিং হচ্ছে",
+        "ariaPlayVideo": "ভিডিও চালান",
+        "ariaPauseVideo": "ভিডিও থামান",
+        "ariaPlay": "চালান",
+        "ariaPause": "থামান",
+        "ariaSeek": "ভিডিওতে সিক করুন",
+        "ariaEnableSubtitles": "সাবটাইটেল চালু করুন",
+        "ariaDisableSubtitles": "সাবটাইটেল বন্ধ করুন",
+        "ariaMute": "মিউট করুন",
+        "ariaUnmute": "আনমিউট করুন",
+        "ariaPlaybackSpeed": "প্লেব্যাক গতি",
+        "ariaEnterFullscreen": "ফুলস্ক্রিনে যান",
+        "ariaExitFullscreen": "ফুলস্ক্রিন থেকে বের হন",
+        "lessonComplete": "পাঠ সম্পন্ন",
+        "markComplete": "সম্পন্ন হিসেবে চিহ্নিত করুন",
+        "watchToComplete": "সম্পন্ন করতে {{percent}}% দেখুন",
+        "ariaMarkComplete": "ভিডিও পাঠ সম্পন্ন হিসেবে চিহ্নিত করুন"
+      },
+      "textLesson": {
+        "markedRead": "আপনি এটি পঠিত হিসেবে চিহ্নিত করেছেন",
+        "markAsRead": "পঠিত হিসেবে চিহ্নিত করুন",
+        "scrollToComplete": "সম্পন্ন করতে নিচে স্ক্রল করুন",
+        "noContent": "এই পাঠের জন্য কোনো বিষয়বস্তু উপলব্ধ নেই।",
+        "ariaMarkRead": "পাঠটি পঠিত হিসেবে চিহ্নিত করুন"
+      },
+      "imageGalleryLesson": {
+        "noImages": "এই পাঠে কোনো ছবি যোগ করা হয়নি।",
+        "completed": "সম্পন্ন",
+        "markComplete": "সম্পন্ন হিসেবে চিহ্নিত করুন",
+        "ariaPrevImage": "পূর্ববর্তী ছবি",
+        "ariaNextImage": "পরবর্তী ছবি",
+        "counter": "{{total}}টির মধ্যে {{current}}",
+        "ariaGoToImage": "ছবি {{n}}-এ যান",
+        "viewAllToComplete": "এই পাঠ সম্পন্ন করতে সব ছবি দেখুন"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "প্রোগ্রাম সমাপ্তি সার্টিফিকেট",
+        "certificateNoLabel": "সার্টিফিকেট নং",
+        "programmeLabel": "প্রোগ্রাম",
+        "programmeDuration": "{{months}}-মাসের প্রশিক্ষণার্থী প্রোগ্রাম",
+        "modulesCompletedLabel": "সম্পন্ন মডিউল",
+        "modulesCompletedValue_one": "{{months}} মাসে {{count}}টি মডিউল",
+        "modulesCompletedValue_other": "{{months}} মাসে {{count}}টি মডিউল",
+        "issued": "ইস্যু করা হয়েছে {{date}}",
+        "signedOffBy": "{{name}} ({{role}}) দ্বারা অনুমোদিত",
+        "finalMark": "চূড়ান্ত নম্বর: {{mark}}%",
+        "ariaDownload": "প্রোগ্রাম সার্টিফিকেট PDF ডাউনলোড করুন",
+        "downloadPdf": "PDF ডাউনলোড করুন"
+      },
+      "certificateCard": {
+        "headerTitle": "প্রশিক্ষণ সার্টিফিকেট",
+        "certificateNoLabel": "সার্টিফিকেট নং",
+        "providerLabel": "প্রদানকারী",
+        "machineLabel": "মেশিন",
+        "moduleLabel": "মডিউল",
+        "issued": "ইস্যু করা হয়েছে {{date}}",
+        "expired": "মেয়াদ শেষ {{date}}",
+        "expires": "মেয়াদ শেষ হবে {{date}}",
+        "scoreLabel": "স্কোর: {{score}}%",
+        "ariaDownload": "সার্টিফিকেট A4 PDF হিসেবে ডাউনলোড করুন",
+        "downloadA4": "A4 PDF ডাউনলোড করুন",
+        "revoked": "বাতিল করা হয়েছে",
+        "toastGenerateError": "সার্টিফিকেট PDF তৈরি করা যায়নি।",
+        "external": "বাহ্যিক"
+      },
+      "quizAnswerReview": {
+        "title": "উত্তর পর্যালোচনা",
+        "questionLabel": "প্র{{number}}: {{result}}",
+        "correct": "সঠিক",
+        "incorrect": "ভুল",
+        "pointsFraction": "+{{earned}}/{{total}}পয়েন্ট",
+        "yourAnswer": "আপনার উত্তর:",
+        "noAnswerSelected": "কোনো উত্তর নির্বাচিত হয়নি",
+        "correctAnswer": "সঠিক উত্তর:"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ অভিনন্দন! আপনি উত্তীর্ণ হয়েছেন।",
+        "notPassedMessage": "✗ আপনি উত্তীর্ণ হননি। প্রয়োজনীয় স্কোর: {{score}}%।",
+        "correctLabel": "সঠিক",
+        "scoreLabel": "স্কোর",
+        "timeLabel": "সময়",
+        "supervisorNote": "আপনার সুপারভাইজার আপনার ব্যবহারিক দক্ষতা পর্যবেক্ষণ করে অনুমোদন করবেন।",
+        "continue": "চালিয়ে যান",
+        "retryAvailableIn": "পুনরায় চেষ্টা করা যাবে",
+        "retryQuiz": "কুইজ পুনরায় চেষ্টা করুন",
+        "noAttemptsLeft": "আপনি সব কুইজ চেষ্টা ব্যবহার করে ফেলেছেন। আপনার সুপারভাইজারের সাথে যোগাযোগ করুন।",
+        "unlimitedAttempts": "সীমাহীন চেষ্টা",
+        "attemptsRemaining_one": "{{count}}টি চেষ্টা বাকি",
+        "attemptsRemaining_other": "{{count}}টি চেষ্টা বাকি",
+        "backToModule": "মডিউলে ফিরে যান"
+      },
+      "quizReviewScreen": {
+        "title": "আপনার উত্তর পর্যালোচনা করুন",
+        "answeredCount": "{{total}}টি প্রশ্নের মধ্যে {{answered}}টির উত্তর দেওয়া হয়েছে",
+        "unanswered_one": "{{count}}টি প্রশ্নের উত্তর দেওয়া হয়নি।",
+        "unanswered_other": "{{count}}টি প্রশ্নের উত্তর দেওয়া হয়নি।",
+        "questionLine": "প্র{{number}}: {{text}}",
+        "answered": "উত্তর দেওয়া হয়েছে",
+        "skipped": "এড়িয়ে যাওয়া হয়েছে",
+        "back": "পিছনে",
+        "submitQuiz": "কুইজ জমা দিন",
+        "confirmTitle": "কুইজ জমা দেবেন?",
+        "confirmDescription": "জমা দেওয়ার পর আপনি উত্তর পরিবর্তন করতে পারবেন না।",
+        "cancel": "বাতিল করুন",
+        "submitting": "জমা দেওয়া হচ্ছে…",
+        "submit": "জমা দিন"
+      },
+      "quizTimer": {
+        "ariaRemaining": "বাকি সময়: {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "প্র {{current}} / {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "পূর্ববর্তী প্রশ্ন",
+        "previous": "পূর্ববর্তী",
+        "reviewAndSubmit": "পর্যালোচনা করে জমা দিন",
+        "next": "পরবর্তী",
+        "ariaNextQuestion": "পরবর্তী প্রশ্ন"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}}টি প্রশ্ন",
+        "question_other": "{{count}}টি প্রশ্ন",
+        "noTimeLimit": "কোনো সময়সীমা নেই",
+        "minute_one": "{{count}} মিনিট",
+        "minute_other": "{{count}} মিনিট",
+        "passMark": "পাস নম্বর: {{score}}%",
+        "unlimitedAttempts": "সীমাহীন চেষ্টা",
+        "noAttemptsRemaining": "আর কোনো চেষ্টা বাকি নেই",
+        "attemptsRemaining_one": "{{count}}টি চেষ্টা বাকি",
+        "attemptsRemaining_other": "{{count}}টি চেষ্টা বাকি",
+        "instructionsTitle": "নির্দেশাবলী",
+        "startQuiz": "কুইজ শুরু করুন",
+        "noAttemptsRemainingButton": "আর কোনো চেষ্টা বাকি নেই",
+        "ariaStartQuiz": "কুইজ শুরু করুন"
+      },
+      "quizQuestion": {
+        "questionLabel": "প্রশ্ন {{number}}",
+        "ariaQuestionIllustration": "প্রশ্নের চিত্র",
+        "ariaQuestion": "প্রশ্ন",
+        "explanationLabel": "ব্যাখ্যা:",
+        "invalidTrueFalse": "অবৈধ সত্য/মিথ্যা প্রশ্ন।"
+      },
+      "certificatePreview": {
+        "headerTitle": "প্রশিক্ষণ সার্টিফিকেট",
+        "awardedTo": "প্রদান করা হয়েছে",
+        "providerLine": "প্রদানকারী: {{name}}",
+        "machineLine": "মেশিন: {{name}}",
+        "issued": "ইস্যু: {{date}}",
+        "expires": "মেয়াদ শেষ: {{date}}",
+        "expiredSuffix": " (মেয়াদ শেষ)",
+        "issuedBy": "ইস্যুকারী: {{name}}",
+        "downloadPdf": "PDF ডাউনলোড করুন",
+        "ariaDownload": "সার্টিফিকেট PDF ডাউনলোড করুন",
+        "external": "বাহ্যিক"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "বাহ্যিক প্রশিক্ষণ",
+        "ariaOffboard": "বাহ্যিক প্রশিক্ষণ",
+        "ariaMachine": "মেশিন: {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "কুইজ স্কোর: {{score}}% — {{status}}",
+        "passed": "উত্তীর্ণ",
+        "failed": "অনুত্তীর্ণ"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "এখনো কোনো প্রশিক্ষণ নির্ধারিত হয়নি",
+        "noModulesDescription": "আপনার সুপারভাইজার এখানে মডিউল নির্ধারণ করবেন।",
+        "noCertificatesTitle": "এখনো কোনো সার্টিফিকেট নেই",
+        "noCertificatesDescription": "আপনার নির্ধারিত প্রশিক্ষণ মডিউলগুলি সম্পন্ন করুন।",
+        "noAssignmentsTitle": "কোনো নিয়োগ নেই",
+        "noAssignmentsDescription": "আপনার দলকে প্রশিক্ষণ মডিউল নির্ধারণ করুন।"
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "অগ্রগতি: {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "পুনঃপ্রশিক্ষণ প্রয়োজন"
+      },
+      "trainingStatusBadge": {
+        "not_started": "শুরু হয়নি",
+        "in_progress": "চলমান",
+        "quiz_passed": "কুইজ উত্তীর্ণ",
+        "quiz_failed": "অনুত্তীর্ণ — পুনরায় চেষ্টা করুন",
+        "awaiting_practical": "অনুমোদনের অপেক্ষায়",
+        "certified": "প্রত্যায়িত ✓",
+        "expired": "মেয়াদোত্তীর্ণ",
+        "retraining_required": "পুনঃপ্রশিক্ষণ প্রয়োজন",
+        "ariaStatus": "অবস্থা: {{label}}"
       }
     }
   }

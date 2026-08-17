@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Cpu, Globe2 } from 'lucide-react';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { isOffboardAssignment } from '@/lib/training/offboardTraining';
@@ -11,7 +12,10 @@ interface ModuleCardProps {
   onClick?: () => void;
 }
 
-function formatDueDate(dueDate: { seconds: number } | null): {
+function formatDueDate(
+  dueDate: { seconds: number } | null,
+  t: (key: string, opts?: Record<string, unknown>) => string
+): {
   label: string;
   overdue: boolean;
 } | null {
@@ -19,12 +23,15 @@ function formatDueDate(dueDate: { seconds: number } | null): {
   const date = new Date(dueDate.seconds * 1000);
   const now = new Date();
   const overdue = date < now;
-  const label = `Due ${date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`;
+  const label = t('common.training.moduleCard.dueDate', {
+    date: date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+  });
   return { label, overdue };
 }
 
 export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
-  const dueInfo = formatDueDate(assignment.dueDate as unknown as { seconds: number } | null);
+  const { t } = useTranslation();
+  const dueInfo = formatDueDate(assignment.dueDate as unknown as { seconds: number } | null, t);
   const isOffboard = isOffboardAssignment(assignment);
   const offboard = assignment.offboardDetails;
 
@@ -37,7 +44,7 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
       }}
       role="button"
       tabIndex={0}
-      aria-label={`Open training module: ${assignment.moduleName}`}
+      aria-label={t('common.training.moduleCard.ariaOpenModule', { name: assignment.moduleName })}
     >
       {/* Cover image area (16:9) */}
       <div className="relative w-full aspect-video bg-gradient-to-br from-blue-600 to-blue-800 overflow-hidden">
@@ -73,13 +80,13 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
 
         {isOffboard ? (
           <p className="text-xs text-slate-500">
-            {offboard?.mode ? `${offboard.mode} · ` : ''}{offboard?.durationDays ?? 0} day{(offboard?.durationDays ?? 0) !== 1 ? 's' : ''}
+            {offboard?.mode ? `${offboard.mode} · ` : ''}{t('common.training.moduleCard.day', { count: offboard?.durationDays ?? 0 })}
           </p>
         ) : (
           <div className="space-y-1.5">
             <TrainingProgressBar progress={assignment.overallProgress} showLabel />
             <p className="text-xs text-slate-500">
-              {assignment.lessonsCompleted} of {assignment.totalLessons} lessons
+              {t('common.training.moduleCard.lessonsCount', { completed: assignment.lessonsCompleted, total: assignment.totalLessons })}
             </p>
           </div>
         )}
@@ -90,7 +97,7 @@ export default function ModuleCard({ assignment, onClick }: ModuleCardProps) {
             <span
               className={`text-xs font-semibold ${assignment.quizPassed ? 'text-emerald-600' : 'text-amber-600'}`}
             >
-              Marks: {assignment.bestScore ?? 0}%
+              {t('common.training.moduleCard.marksLabel', { score: assignment.bestScore ?? 0 })}
             </span>
           )}
           {dueInfo && (

@@ -745,11 +745,11 @@
           "decommissioned": "已报废"
         },
         "criticalityOptions": {
-          "5": "5 - 关键",
-          "4": "4 - 高",
-          "3": "3 - 中",
+          "1": "1 - 最低",
           "2": "2 - 低",
-          "1": "1 - 最低"
+          "3": "3 - 中",
+          "4": "4 - 高",
+          "5": "5 - 关键"
         },
         "healthOptions": {
           "good": "良好 (70-100)",
@@ -1748,6 +1748,285 @@
         "creating": "创建中…",
         "createButton": "创建工单",
         "fixErrors": "请修正以下问题："
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "返回我的模块",
+        "lessonsCount": "{{completed}} / {{total}}",
+        "trainingCompleted": "培训已完成",
+        "saving": "保存中…",
+        "markCompleteAcknowledge": "标记完成并确认"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "附件上传失败",
+        "submitErrorDefault": "报告提交失败",
+        "doneTitle": "知识报告已提交",
+        "doneDescription": "谢谢——你的培训报告已提交审核。如需颁发证书或采取进一步行动，人力资源部门会与你联系。",
+        "backToTraining": "返回我的培训",
+        "providerLabel": "提供方",
+        "countryLabel": "国家",
+        "modeLabel": "方式",
+        "durationLabel": "时长",
+        "startLabel": "开始",
+        "endLabel": "结束",
+        "topicLabel": "主题",
+        "day_one": "{{count}} 天",
+        "day_other": "{{count}} 天",
+        "knowledgeGainedLabel": "获得的知识",
+        "knowledgeGainedPlaceholder": "总结你学到的内容以及将如何应用...",
+        "assessmentQuestionsTitle": "评估问题",
+        "attachmentsTitle": "附件",
+        "uploadLabel": "上传文档/手册",
+        "uploading": "上传中…",
+        "submitButton": "提交知识报告"
+      },
+      "lessonCompleteOverlay": {
+        "title": "课程完成！",
+        "remaining_one": "还剩 {{count}} 节课程",
+        "remaining_other": "还剩 {{count}} 节课程",
+        "allComplete": "所有课程均已完成！",
+        "nextLesson": "下一节课程",
+        "close": "关闭"
+      },
+      "lessonListItem": {
+        "reading": "阅读",
+        "page_one": "{{count}} 页",
+        "page_other": "{{count}} 页",
+        "slide_one": "{{count}} 张",
+        "slide_other": "{{count}} 张",
+        "gallery": "图库",
+        "ariaLockedPrefix": "已锁定：",
+        "ariaCompletedPrefix": "已完成：",
+        "ariaCurrentPrefix": "当前课程："
+      },
+      "lessonViewer": {
+        "ariaClose": "关闭课程",
+        "pageCount_one": "{{count}} 页",
+        "pageCount_other": "{{count}} 页"
+      },
+      "lessonList": {
+        "completeToUnlock": "完成所有必修课程即可解锁测验。",
+        "quizPassed": "测验已通过",
+        "quizPassedWithScore": "得分 {{score}}%"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "所有课程均已完成！现在可以参加测验了。",
+        "passMark": "及格线：{{score}}%",
+        "attemptsRemaining_one": "还剩 {{count}} 次机会",
+        "attemptsRemaining_other": "还剩 {{count}} 次机会",
+        "noAttemptsRemaining": "没有剩余机会",
+        "startQuiz": "开始测验",
+        "ariaStartQuiz": "开始测验"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}} 页",
+        "pageCount_other": "{{count}} 页",
+        "download": "下载",
+        "ariaDownload": "下载文档",
+        "markedRead": "你已将其标记为已读",
+        "markAsRead": "标记为已读",
+        "ariaMarkRead": "将文档标记为已读"
+      },
+      "moduleCard": {
+        "dueDate": "截止日期 {{date}}",
+        "ariaOpenModule": "打开培训模块：{{name}}",
+        "day_one": "{{count}} 天",
+        "day_other": "{{count}} 天",
+        "lessonsCount": "{{completed}} / {{total}} 节课程",
+        "marksLabel": "成绩：{{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "缓冲中",
+        "ariaPlayVideo": "播放视频",
+        "ariaPauseVideo": "暂停视频",
+        "ariaPlay": "播放",
+        "ariaPause": "暂停",
+        "ariaSeek": "拖动视频进度",
+        "ariaEnableSubtitles": "开启字幕",
+        "ariaDisableSubtitles": "关闭字幕",
+        "ariaMute": "静音",
+        "ariaUnmute": "取消静音",
+        "ariaPlaybackSpeed": "播放速度",
+        "ariaEnterFullscreen": "进入全屏",
+        "ariaExitFullscreen": "退出全屏",
+        "lessonComplete": "课程已完成",
+        "markComplete": "标记为已完成",
+        "watchToComplete": "观看 {{percent}}% 即可完成",
+        "ariaMarkComplete": "将视频课程标记为已完成"
+      },
+      "textLesson": {
+        "markedRead": "你已将其标记为已读",
+        "markAsRead": "标记为已读",
+        "scrollToComplete": "滚动到底部即可完成",
+        "noContent": "此课程暂无可用内容。",
+        "ariaMarkRead": "将课程标记为已读"
+      },
+      "imageGalleryLesson": {
+        "noImages": "此课程尚未添加图片。",
+        "completed": "已完成",
+        "markComplete": "标记为已完成",
+        "ariaPrevImage": "上一张图片",
+        "ariaNextImage": "下一张图片",
+        "counter": "{{current}} / {{total}}",
+        "ariaGoToImage": "转到第 {{n}} 张图片",
+        "viewAllToComplete": "查看所有图片即可完成此课程"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "项目结业证书",
+        "certificateNoLabel": "证书编号",
+        "programmeLabel": "项目",
+        "programmeDuration": "{{months}} 个月学员计划",
+        "modulesCompletedLabel": "已完成模块",
+        "modulesCompletedValue_one": "{{months}} 个月内完成 {{count}} 个模块",
+        "modulesCompletedValue_other": "{{months}} 个月内完成 {{count}} 个模块",
+        "issued": "颁发日期 {{date}}",
+        "signedOffBy": "签核人：{{name}}（{{role}}）",
+        "finalMark": "最终成绩：{{mark}}%",
+        "ariaDownload": "下载项目证书 PDF",
+        "downloadPdf": "下载 PDF"
+      },
+      "certificateCard": {
+        "headerTitle": "培训证书",
+        "certificateNoLabel": "证书编号",
+        "providerLabel": "提供方",
+        "machineLabel": "设备",
+        "moduleLabel": "模块",
+        "issued": "颁发日期 {{date}}",
+        "expired": "已于 {{date}} 过期",
+        "expires": "将于 {{date}} 过期",
+        "scoreLabel": "得分：{{score}}%",
+        "ariaDownload": "下载 A4 格式证书 PDF",
+        "downloadA4": "下载 A4 版 PDF",
+        "revoked": "已作废",
+        "toastGenerateError": "无法生成证书 PDF。",
+        "external": "外部"
+      },
+      "quizAnswerReview": {
+        "title": "答案回顾",
+        "questionLabel": "第 {{number}} 题：{{result}}",
+        "correct": "正确",
+        "incorrect": "错误",
+        "pointsFraction": "+{{earned}}/{{total}} 分",
+        "yourAnswer": "你的答案：",
+        "noAnswerSelected": "未选择答案",
+        "correctAnswer": "正确答案："
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ 恭喜！你已通过。",
+        "notPassedMessage": "✗ 未通过。所需分数：{{score}}%。",
+        "correctLabel": "正确数",
+        "scoreLabel": "得分",
+        "timeLabel": "用时",
+        "supervisorNote": "你的主管将观察并确认你的实操技能。",
+        "continue": "继续",
+        "retryAvailableIn": "可重新尝试的时间：",
+        "retryQuiz": "重新测验",
+        "noAttemptsLeft": "你已用完所有测验机会，请联系你的主管。",
+        "unlimitedAttempts": "机会不限",
+        "attemptsRemaining_one": "还剩 {{count}} 次机会",
+        "attemptsRemaining_other": "还剩 {{count}} 次机会",
+        "backToModule": "返回模块"
+      },
+      "quizReviewScreen": {
+        "title": "检查你的答案",
+        "answeredCount": "已回答 {{answered}} / {{total}} 题",
+        "unanswered_one": "{{count}} 题未作答。",
+        "unanswered_other": "{{count}} 题未作答。",
+        "questionLine": "第 {{number}} 题：{{text}}",
+        "answered": "已作答",
+        "skipped": "已跳过",
+        "back": "返回",
+        "submitQuiz": "提交测验",
+        "confirmTitle": "提交测验？",
+        "confirmDescription": "提交后将无法更改答案。",
+        "cancel": "取消",
+        "submitting": "提交中…",
+        "submit": "提交"
+      },
+      "quizTimer": {
+        "ariaRemaining": "剩余时间：{{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "第 {{current}} / {{total}} 题"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "上一题",
+        "previous": "上一题",
+        "reviewAndSubmit": "检查并提交",
+        "next": "下一题",
+        "ariaNextQuestion": "下一题"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}} 题",
+        "question_other": "{{count}} 题",
+        "noTimeLimit": "无时间限制",
+        "minute_one": "{{count}} 分钟",
+        "minute_other": "{{count}} 分钟",
+        "passMark": "及格线：{{score}}%",
+        "unlimitedAttempts": "机会不限",
+        "noAttemptsRemaining": "没有剩余机会",
+        "attemptsRemaining_one": "还剩 {{count}} 次机会",
+        "attemptsRemaining_other": "还剩 {{count}} 次机会",
+        "instructionsTitle": "说明",
+        "startQuiz": "开始测验",
+        "noAttemptsRemainingButton": "没有剩余机会",
+        "ariaStartQuiz": "开始测验"
+      },
+      "quizQuestion": {
+        "questionLabel": "第 {{number}} 题",
+        "ariaQuestionIllustration": "题目插图",
+        "ariaQuestion": "题目",
+        "explanationLabel": "解析：",
+        "invalidTrueFalse": "判断题无效。"
+      },
+      "certificatePreview": {
+        "headerTitle": "培训证书",
+        "awardedTo": "颁发给",
+        "providerLine": "提供方：{{name}}",
+        "machineLine": "设备：{{name}}",
+        "issued": "颁发日期：{{date}}",
+        "expires": "过期日期：{{date}}",
+        "expiredSuffix": "（已过期）",
+        "issuedBy": "颁发人：{{name}}",
+        "downloadPdf": "下载 PDF",
+        "ariaDownload": "下载证书 PDF",
+        "external": "外部"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "外部培训",
+        "ariaOffboard": "外部培训",
+        "ariaMachine": "设备：{{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "测验得分：{{score}}% — {{status}}",
+        "passed": "已通过",
+        "failed": "未通过"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "尚未分配培训",
+        "noModulesDescription": "你的主管会在此处分配模块。",
+        "noCertificatesTitle": "暂无证书",
+        "noCertificatesDescription": "完成已分配的培训模块。",
+        "noAssignmentsTitle": "暂无分配",
+        "noAssignmentsDescription": "为你的团队分配培训模块。"
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "进度：{{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "需要重新培训"
+      },
+      "trainingStatusBadge": {
+        "not_started": "未开始",
+        "in_progress": "进行中",
+        "quiz_passed": "测验已通过",
+        "quiz_failed": "未通过 — 重试",
+        "awaiting_practical": "等待签核",
+        "certified": "已认证 ✓",
+        "expired": "已过期",
+        "retraining_required": "需要重新培训",
+        "ariaStatus": "状态：{{label}}"
       }
     }
   }

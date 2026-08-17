@@ -854,11 +854,11 @@
           "decommissioned": "Decommissioned"
         },
         "criticalityOptions": {
-          "5": "5 - Mission Critical",
-          "4": "4 - High",
-          "3": "3 - Medium",
+          "1": "1 - Minimal",
           "2": "2 - Low",
-          "1": "1 - Minimal"
+          "3": "3 - Medium",
+          "4": "4 - High",
+          "5": "5 - Mission Critical"
         },
         "healthOptions": {
           "good": "Good (70-100)",
@@ -1857,6 +1857,285 @@
         "creating": "Creating…",
         "createButton": "Create Work Order",
         "fixErrors": "Please fix the following:"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "Back to my modules",
+        "lessonsCount": "{{completed}} of {{total}}",
+        "trainingCompleted": "Training completed",
+        "saving": "Saving…",
+        "markCompleteAcknowledge": "Mark Complete & Acknowledge"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "Failed to upload attachment",
+        "submitErrorDefault": "Failed to submit report",
+        "doneTitle": "Knowledge Report Submitted",
+        "doneDescription": "Thanks — your training report has been sent for review. HR will follow up if a certificate or further action is required.",
+        "backToTraining": "Back to My Training",
+        "providerLabel": "Provider",
+        "countryLabel": "Country",
+        "modeLabel": "Mode",
+        "durationLabel": "Duration",
+        "startLabel": "Start",
+        "endLabel": "End",
+        "topicLabel": "Topic",
+        "day_one": "{{count}} day",
+        "day_other": "{{count}} days",
+        "knowledgeGainedLabel": "Knowledge Gained",
+        "knowledgeGainedPlaceholder": "Summarize what you learned and how you'll apply it...",
+        "assessmentQuestionsTitle": "Assessment Questions",
+        "attachmentsTitle": "Attachments",
+        "uploadLabel": "Upload documentation / manuals",
+        "uploading": "Uploading…",
+        "submitButton": "Submit Knowledge Report"
+      },
+      "lessonCompleteOverlay": {
+        "title": "Lesson complete!",
+        "remaining_one": "{{count}} lesson remaining",
+        "remaining_other": "{{count}} lessons remaining",
+        "allComplete": "All lessons complete!",
+        "nextLesson": "Next Lesson",
+        "close": "Close"
+      },
+      "lessonListItem": {
+        "reading": "Reading",
+        "page_one": "{{count}} page",
+        "page_other": "{{count}} pages",
+        "slide_one": "{{count}} slide",
+        "slide_other": "{{count}} slides",
+        "gallery": "Gallery",
+        "ariaLockedPrefix": "Locked: ",
+        "ariaCompletedPrefix": "Completed: ",
+        "ariaCurrentPrefix": "Current lesson: "
+      },
+      "lessonViewer": {
+        "ariaClose": "Close lesson",
+        "pageCount_one": "{{count}} page",
+        "pageCount_other": "{{count}} pages"
+      },
+      "lessonList": {
+        "completeToUnlock": "Complete all required lessons to unlock the quiz.",
+        "quizPassed": "Quiz passed",
+        "quizPassedWithScore": "with {{score}}%"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "All lessons complete! You can now take the quiz.",
+        "passMark": "Pass mark: {{score}}%",
+        "attemptsRemaining_one": "{{count}} attempt remaining",
+        "attemptsRemaining_other": "{{count}} attempts remaining",
+        "noAttemptsRemaining": "No attempts remaining",
+        "startQuiz": "Start Quiz",
+        "ariaStartQuiz": "Start quiz"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}} page",
+        "pageCount_other": "{{count}} pages",
+        "download": "Download",
+        "ariaDownload": "Download document",
+        "markedRead": "You have marked this as read",
+        "markAsRead": "Mark as Read",
+        "ariaMarkRead": "Mark document as read"
+      },
+      "moduleCard": {
+        "dueDate": "Due {{date}}",
+        "ariaOpenModule": "Open training module: {{name}}",
+        "day_one": "{{count}} day",
+        "day_other": "{{count}} days",
+        "lessonsCount": "{{completed}} of {{total}} lessons",
+        "marksLabel": "Marks: {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "Buffering",
+        "ariaPlayVideo": "Play video",
+        "ariaPauseVideo": "Pause video",
+        "ariaPlay": "Play",
+        "ariaPause": "Pause",
+        "ariaSeek": "Seek video",
+        "ariaEnableSubtitles": "Enable subtitles",
+        "ariaDisableSubtitles": "Disable subtitles",
+        "ariaMute": "Mute",
+        "ariaUnmute": "Unmute",
+        "ariaPlaybackSpeed": "Playback speed",
+        "ariaEnterFullscreen": "Enter fullscreen",
+        "ariaExitFullscreen": "Exit fullscreen",
+        "lessonComplete": "Lesson complete",
+        "markComplete": "Mark as Complete",
+        "watchToComplete": "Watch {{percent}}% to complete",
+        "ariaMarkComplete": "Mark video lesson as complete"
+      },
+      "textLesson": {
+        "markedRead": "You've marked this as read",
+        "markAsRead": "Mark as Read",
+        "scrollToComplete": "Scroll to bottom to complete",
+        "noContent": "No content available for this lesson.",
+        "ariaMarkRead": "Mark lesson as read"
+      },
+      "imageGalleryLesson": {
+        "noImages": "No images have been added to this lesson.",
+        "completed": "Completed",
+        "markComplete": "Mark as Complete",
+        "ariaPrevImage": "Previous image",
+        "ariaNextImage": "Next image",
+        "counter": "{{current}} of {{total}}",
+        "ariaGoToImage": "Go to image {{n}}",
+        "viewAllToComplete": "View all images to complete this lesson"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "Programme Completion Certificate",
+        "certificateNoLabel": "Certificate No.",
+        "programmeLabel": "Programme",
+        "programmeDuration": "{{months}}-Month Trainee Programme",
+        "modulesCompletedLabel": "Modules Completed",
+        "modulesCompletedValue_one": "{{count}} module across {{months}} months",
+        "modulesCompletedValue_other": "{{count}} modules across {{months}} months",
+        "issued": "Issued {{date}}",
+        "signedOffBy": "Signed off by {{name}} ({{role}})",
+        "finalMark": "Final Mark: {{mark}}%",
+        "ariaDownload": "Download programme certificate PDF",
+        "downloadPdf": "Download PDF"
+      },
+      "certificateCard": {
+        "headerTitle": "Training Certificate",
+        "certificateNoLabel": "Certificate No.",
+        "providerLabel": "Provider",
+        "machineLabel": "Machine",
+        "moduleLabel": "Module",
+        "issued": "Issued {{date}}",
+        "expired": "Expired {{date}}",
+        "expires": "Expires {{date}}",
+        "scoreLabel": "Score: {{score}}%",
+        "ariaDownload": "Download certificate as an A4 PDF",
+        "downloadA4": "Download A4 PDF",
+        "revoked": "REVOKED",
+        "toastGenerateError": "Could not generate the certificate PDF.",
+        "external": "External"
+      },
+      "quizAnswerReview": {
+        "title": "Answer Review",
+        "questionLabel": "Q{{number}}: {{result}}",
+        "correct": "Correct",
+        "incorrect": "Incorrect",
+        "pointsFraction": "+{{earned}}/{{total}}pts",
+        "yourAnswer": "Your answer:",
+        "noAnswerSelected": "No answer selected",
+        "correctAnswer": "Correct answer:"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ Congratulations! You passed.",
+        "notPassedMessage": "✗ You did not pass. Score needed: {{score}}%.",
+        "correctLabel": "Correct",
+        "scoreLabel": "Score",
+        "timeLabel": "Time",
+        "supervisorNote": "Your supervisor will observe and sign off your practical skills.",
+        "continue": "Continue",
+        "retryAvailableIn": "Retry available in",
+        "retryQuiz": "Retry Quiz",
+        "noAttemptsLeft": "You have used all quiz attempts. Contact your supervisor.",
+        "unlimitedAttempts": "Unlimited attempts",
+        "attemptsRemaining_one": "{{count}} attempt remaining",
+        "attemptsRemaining_other": "{{count}} attempts remaining",
+        "backToModule": "Back to Module"
+      },
+      "quizReviewScreen": {
+        "title": "Review Your Answers",
+        "answeredCount": "{{answered}} of {{total}} questions answered",
+        "unanswered_one": "{{count}} question not answered.",
+        "unanswered_other": "{{count}} questions not answered.",
+        "questionLine": "Q{{number}}: {{text}}",
+        "answered": "Answered",
+        "skipped": "Skipped",
+        "back": "Back",
+        "submitQuiz": "Submit Quiz",
+        "confirmTitle": "Submit quiz?",
+        "confirmDescription": "You cannot change your answers after submission.",
+        "cancel": "Cancel",
+        "submitting": "Submitting…",
+        "submit": "Submit"
+      },
+      "quizTimer": {
+        "ariaRemaining": "Time remaining: {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "Q {{current}} of {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "Previous question",
+        "previous": "Previous",
+        "reviewAndSubmit": "Review & Submit",
+        "next": "Next",
+        "ariaNextQuestion": "Next question"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}} question",
+        "question_other": "{{count}} questions",
+        "noTimeLimit": "No time limit",
+        "minute_one": "{{count}} minute",
+        "minute_other": "{{count}} minutes",
+        "passMark": "Pass mark: {{score}}%",
+        "unlimitedAttempts": "Unlimited attempts",
+        "noAttemptsRemaining": "No attempts remaining",
+        "attemptsRemaining_one": "{{count}} attempt remaining",
+        "attemptsRemaining_other": "{{count}} attempts remaining",
+        "instructionsTitle": "Instructions",
+        "startQuiz": "Start Quiz",
+        "noAttemptsRemainingButton": "No Attempts Remaining",
+        "ariaStartQuiz": "Start quiz"
+      },
+      "quizQuestion": {
+        "questionLabel": "Question {{number}}",
+        "ariaQuestionIllustration": "Question illustration",
+        "ariaQuestion": "Question",
+        "explanationLabel": "Explanation:",
+        "invalidTrueFalse": "Invalid true/false question."
+      },
+      "certificatePreview": {
+        "headerTitle": "Training Certificate",
+        "awardedTo": "Awarded to",
+        "providerLine": "Provider: {{name}}",
+        "machineLine": "Machine: {{name}}",
+        "issued": "Issued: {{date}}",
+        "expires": "Expires: {{date}}",
+        "expiredSuffix": " (Expired)",
+        "issuedBy": "Issued by: {{name}}",
+        "downloadPdf": "Download PDF",
+        "ariaDownload": "Download certificate PDF",
+        "external": "External"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "Offboard / External",
+        "ariaOffboard": "Offboard / External training",
+        "ariaMachine": "Machine: {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "Quiz score: {{score}}% — {{status}}",
+        "passed": "Passed",
+        "failed": "Failed"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "No training assigned yet",
+        "noModulesDescription": "Your supervisor will assign modules here.",
+        "noCertificatesTitle": "No certificates yet",
+        "noCertificatesDescription": "Complete your assigned training modules.",
+        "noAssignmentsTitle": "No assignments",
+        "noAssignmentsDescription": "Assign training modules to your team."
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "Progress: {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "Retraining Required"
+      },
+      "trainingStatusBadge": {
+        "not_started": "Not Started",
+        "in_progress": "In Progress",
+        "quiz_passed": "Quiz Passed",
+        "quiz_failed": "Failed — Retry",
+        "awaiting_practical": "Awaiting Sign-Off",
+        "certified": "Certified ✓",
+        "expired": "Expired",
+        "retraining_required": "Retraining Required",
+        "ariaStatus": "Status: {{label}}"
       }
     }
   }

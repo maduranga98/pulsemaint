@@ -745,11 +745,11 @@
           "decommissioned": "सेवा से हटाई गई"
         },
         "criticalityOptions": {
-          "5": "5 - अत्यंत महत्वपूर्ण",
-          "4": "4 - उच्च",
-          "3": "3 - मध्यम",
+          "1": "1 - न्यूनतम",
           "2": "2 - कम",
-          "1": "1 - न्यूनतम"
+          "3": "3 - मध्यम",
+          "4": "4 - उच्च",
+          "5": "5 - अत्यंत महत्वपूर्ण"
         },
         "healthOptions": {
           "good": "अच्छा (70-100)",
@@ -1748,6 +1748,285 @@
         "creating": "बनाया जा रहा है…",
         "createButton": "वर्क ऑर्डर बनाएं",
         "fixErrors": "कृपया निम्नलिखित ठीक करें:"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "मेरे मॉड्यूल पर वापस जाएं",
+        "lessonsCount": "{{total}} में से {{completed}}",
+        "trainingCompleted": "प्रशिक्षण पूर्ण",
+        "saving": "सहेजा जा रहा है…",
+        "markCompleteAcknowledge": "पूर्ण के रूप में चिह्नित करें और स्वीकार करें"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "अटैचमेंट अपलोड करने में विफल",
+        "submitErrorDefault": "रिपोर्ट सबमिट करने में विफल",
+        "doneTitle": "ज्ञान रिपोर्ट सबमिट की गई",
+        "doneDescription": "धन्यवाद — आपकी प्रशिक्षण रिपोर्ट समीक्षा के लिए भेज दी गई है। यदि प्रमाणपत्र या आगे की कार्रवाई आवश्यक हुई तो HR संपर्क करेगा।",
+        "backToTraining": "मेरे प्रशिक्षण पर वापस जाएं",
+        "providerLabel": "प्रदाता",
+        "countryLabel": "देश",
+        "modeLabel": "मोड",
+        "durationLabel": "अवधि",
+        "startLabel": "शुरुआत",
+        "endLabel": "समाप्ति",
+        "topicLabel": "विषय",
+        "day_one": "{{count}} दिन",
+        "day_other": "{{count}} दिन",
+        "knowledgeGainedLabel": "प्राप्त ज्ञान",
+        "knowledgeGainedPlaceholder": "आपने क्या सीखा और इसे कैसे लागू करेंगे, संक्षेप में बताएं...",
+        "assessmentQuestionsTitle": "मूल्यांकन प्रश्न",
+        "attachmentsTitle": "अटैचमेंट",
+        "uploadLabel": "दस्तावेज़ / मैनुअल अपलोड करें",
+        "uploading": "अपलोड हो रहा है…",
+        "submitButton": "ज्ञान रिपोर्ट सबमिट करें"
+      },
+      "lessonCompleteOverlay": {
+        "title": "पाठ पूर्ण!",
+        "remaining_one": "{{count}} पाठ शेष",
+        "remaining_other": "{{count}} पाठ शेष",
+        "allComplete": "सभी पाठ पूर्ण!",
+        "nextLesson": "अगला पाठ",
+        "close": "बंद करें"
+      },
+      "lessonListItem": {
+        "reading": "पठन",
+        "page_one": "{{count}} पृष्ठ",
+        "page_other": "{{count}} पृष्ठ",
+        "slide_one": "{{count}} स्लाइड",
+        "slide_other": "{{count}} स्लाइड",
+        "gallery": "गैलरी",
+        "ariaLockedPrefix": "लॉक: ",
+        "ariaCompletedPrefix": "पूर्ण: ",
+        "ariaCurrentPrefix": "वर्तमान पाठ: "
+      },
+      "lessonViewer": {
+        "ariaClose": "पाठ बंद करें",
+        "pageCount_one": "{{count}} पृष्ठ",
+        "pageCount_other": "{{count}} पृष्ठ"
+      },
+      "lessonList": {
+        "completeToUnlock": "क्विज़ अनलॉक करने के लिए सभी आवश्यक पाठ पूर्ण करें।",
+        "quizPassed": "क्विज़ उत्तीर्ण",
+        "quizPassedWithScore": "{{score}}% के साथ"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "सभी पाठ पूर्ण! अब आप क्विज़ दे सकते हैं।",
+        "passMark": "उत्तीर्णांक: {{score}}%",
+        "attemptsRemaining_one": "{{count}} प्रयास शेष",
+        "attemptsRemaining_other": "{{count}} प्रयास शेष",
+        "noAttemptsRemaining": "कोई प्रयास शेष नहीं",
+        "startQuiz": "क्विज़ शुरू करें",
+        "ariaStartQuiz": "क्विज़ शुरू करें"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}} पृष्ठ",
+        "pageCount_other": "{{count}} पृष्ठ",
+        "download": "डाउनलोड करें",
+        "ariaDownload": "दस्तावेज़ डाउनलोड करें",
+        "markedRead": "आपने इसे पढ़ा हुआ चिह्नित किया है",
+        "markAsRead": "पढ़ा हुआ चिह्नित करें",
+        "ariaMarkRead": "दस्तावेज़ को पढ़ा हुआ चिह्नित करें"
+      },
+      "moduleCard": {
+        "dueDate": "देय तिथि {{date}}",
+        "ariaOpenModule": "प्रशिक्षण मॉड्यूल खोलें: {{name}}",
+        "day_one": "{{count}} दिन",
+        "day_other": "{{count}} दिन",
+        "lessonsCount": "{{total}} पाठों में से {{completed}}",
+        "marksLabel": "अंक: {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "बफ़रिंग हो रही है",
+        "ariaPlayVideo": "वीडियो चलाएं",
+        "ariaPauseVideo": "वीडियो रोकें",
+        "ariaPlay": "चलाएं",
+        "ariaPause": "रोकें",
+        "ariaSeek": "वीडियो में सीक करें",
+        "ariaEnableSubtitles": "सबटाइटल चालू करें",
+        "ariaDisableSubtitles": "सबटाइटल बंद करें",
+        "ariaMute": "म्यूट करें",
+        "ariaUnmute": "अनम्यूट करें",
+        "ariaPlaybackSpeed": "प्लेबैक गति",
+        "ariaEnterFullscreen": "फुलस्क्रीन में जाएं",
+        "ariaExitFullscreen": "फुलस्क्रीन से बाहर निकलें",
+        "lessonComplete": "पाठ पूर्ण",
+        "markComplete": "पूर्ण के रूप में चिह्नित करें",
+        "watchToComplete": "पूर्ण करने के लिए {{percent}}% देखें",
+        "ariaMarkComplete": "वीडियो पाठ को पूर्ण चिह्नित करें"
+      },
+      "textLesson": {
+        "markedRead": "आपने इसे पढ़ा हुआ चिह्नित किया है",
+        "markAsRead": "पढ़ा हुआ चिह्नित करें",
+        "scrollToComplete": "पूर्ण करने के लिए नीचे स्क्रॉल करें",
+        "noContent": "इस पाठ के लिए कोई सामग्री उपलब्ध नहीं है।",
+        "ariaMarkRead": "पाठ को पढ़ा हुआ चिह्नित करें"
+      },
+      "imageGalleryLesson": {
+        "noImages": "इस पाठ में कोई चित्र नहीं जोड़े गए हैं।",
+        "completed": "पूर्ण",
+        "markComplete": "पूर्ण के रूप में चिह्नित करें",
+        "ariaPrevImage": "पिछला चित्र",
+        "ariaNextImage": "अगला चित्र",
+        "counter": "{{total}} में से {{current}}",
+        "ariaGoToImage": "चित्र {{n}} पर जाएं",
+        "viewAllToComplete": "इस पाठ को पूर्ण करने के लिए सभी चित्र देखें"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "कार्यक्रम पूर्णता प्रमाणपत्र",
+        "certificateNoLabel": "प्रमाणपत्र क्र.",
+        "programmeLabel": "कार्यक्रम",
+        "programmeDuration": "{{months}}-माह प्रशिक्षु कार्यक्रम",
+        "modulesCompletedLabel": "पूर्ण किए गए मॉड्यूल",
+        "modulesCompletedValue_one": "{{months}} महीनों में {{count}} मॉड्यूल",
+        "modulesCompletedValue_other": "{{months}} महीनों में {{count}} मॉड्यूल",
+        "issued": "जारी {{date}}",
+        "signedOffBy": "{{name}} ({{role}}) द्वारा अनुमोदित",
+        "finalMark": "अंतिम अंक: {{mark}}%",
+        "ariaDownload": "कार्यक्रम प्रमाणपत्र PDF डाउनलोड करें",
+        "downloadPdf": "PDF डाउनलोड करें"
+      },
+      "certificateCard": {
+        "headerTitle": "प्रशिक्षण प्रमाणपत्र",
+        "certificateNoLabel": "प्रमाणपत्र क्र.",
+        "providerLabel": "प्रदाता",
+        "machineLabel": "मशीन",
+        "moduleLabel": "मॉड्यूल",
+        "issued": "जारी {{date}}",
+        "expired": "समाप्त {{date}}",
+        "expires": "समाप्ति {{date}}",
+        "scoreLabel": "स्कोर: {{score}}%",
+        "ariaDownload": "प्रमाणपत्र को A4 PDF के रूप में डाउनलोड करें",
+        "downloadA4": "A4 PDF डाउनलोड करें",
+        "revoked": "निरस्त",
+        "toastGenerateError": "प्रमाणपत्र PDF उत्पन्न नहीं किया जा सका।",
+        "external": "बाहरी"
+      },
+      "quizAnswerReview": {
+        "title": "उत्तर समीक्षा",
+        "questionLabel": "प्र{{number}}: {{result}}",
+        "correct": "सही",
+        "incorrect": "गलत",
+        "pointsFraction": "+{{earned}}/{{total}}अंक",
+        "yourAnswer": "आपका उत्तर:",
+        "noAnswerSelected": "कोई उत्तर चयनित नहीं",
+        "correctAnswer": "सही उत्तर:"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ बधाई हो! आप उत्तीर्ण हुए।",
+        "notPassedMessage": "✗ आप उत्तीर्ण नहीं हुए। आवश्यक स्कोर: {{score}}%।",
+        "correctLabel": "सही",
+        "scoreLabel": "स्कोर",
+        "timeLabel": "समय",
+        "supervisorNote": "आपका सुपरवाइज़र आपके व्यावहारिक कौशल का अवलोकन कर उसे स्वीकृत करेगा।",
+        "continue": "जारी रखें",
+        "retryAvailableIn": "पुनः प्रयास उपलब्ध होगा",
+        "retryQuiz": "क्विज़ पुनः दें",
+        "noAttemptsLeft": "आपने सभी क्विज़ प्रयास उपयोग कर लिए हैं। अपने सुपरवाइज़र से संपर्क करें।",
+        "unlimitedAttempts": "असीमित प्रयास",
+        "attemptsRemaining_one": "{{count}} प्रयास शेष",
+        "attemptsRemaining_other": "{{count}} प्रयास शेष",
+        "backToModule": "मॉड्यूल पर वापस जाएं"
+      },
+      "quizReviewScreen": {
+        "title": "अपने उत्तरों की समीक्षा करें",
+        "answeredCount": "{{total}} में से {{answered}} प्रश्नों के उत्तर दिए गए",
+        "unanswered_one": "{{count}} प्रश्न अनुत्तरित है।",
+        "unanswered_other": "{{count}} प्रश्न अनुत्तरित हैं।",
+        "questionLine": "प्र{{number}}: {{text}}",
+        "answered": "उत्तर दिया",
+        "skipped": "छोड़ा गया",
+        "back": "वापस",
+        "submitQuiz": "क्विज़ सबमिट करें",
+        "confirmTitle": "क्विज़ सबमिट करें?",
+        "confirmDescription": "सबमिट करने के बाद आप अपने उत्तर बदल नहीं सकते।",
+        "cancel": "रद्द करें",
+        "submitting": "सबमिट हो रहा है…",
+        "submit": "सबमिट करें"
+      },
+      "quizTimer": {
+        "ariaRemaining": "शेष समय: {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "प्र {{current}} / {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "पिछला प्रश्न",
+        "previous": "पिछला",
+        "reviewAndSubmit": "समीक्षा करें और सबमिट करें",
+        "next": "अगला",
+        "ariaNextQuestion": "अगला प्रश्न"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}} प्रश्न",
+        "question_other": "{{count}} प्रश्न",
+        "noTimeLimit": "कोई समय सीमा नहीं",
+        "minute_one": "{{count}} मिनट",
+        "minute_other": "{{count}} मिनट",
+        "passMark": "उत्तीर्णांक: {{score}}%",
+        "unlimitedAttempts": "असीमित प्रयास",
+        "noAttemptsRemaining": "कोई प्रयास शेष नहीं",
+        "attemptsRemaining_one": "{{count}} प्रयास शेष",
+        "attemptsRemaining_other": "{{count}} प्रयास शेष",
+        "instructionsTitle": "निर्देश",
+        "startQuiz": "क्विज़ शुरू करें",
+        "noAttemptsRemainingButton": "कोई प्रयास शेष नहीं",
+        "ariaStartQuiz": "क्विज़ शुरू करें"
+      },
+      "quizQuestion": {
+        "questionLabel": "प्रश्न {{number}}",
+        "ariaQuestionIllustration": "प्रश्न चित्रण",
+        "ariaQuestion": "प्रश्न",
+        "explanationLabel": "स्पष्टीकरण:",
+        "invalidTrueFalse": "अमान्य सही/गलत प्रश्न।"
+      },
+      "certificatePreview": {
+        "headerTitle": "प्रशिक्षण प्रमाणपत्र",
+        "awardedTo": "प्रदान किया गया",
+        "providerLine": "प्रदाता: {{name}}",
+        "machineLine": "मशीन: {{name}}",
+        "issued": "जारी: {{date}}",
+        "expires": "समाप्ति: {{date}}",
+        "expiredSuffix": " (समाप्त)",
+        "issuedBy": "जारीकर्ता: {{name}}",
+        "downloadPdf": "PDF डाउनलोड करें",
+        "ariaDownload": "प्रमाणपत्र PDF डाउनलोड करें",
+        "external": "बाहरी"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "बाहरी प्रशिक्षण",
+        "ariaOffboard": "बाहरी प्रशिक्षण",
+        "ariaMachine": "मशीन: {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "क्विज़ स्कोर: {{score}}% — {{status}}",
+        "passed": "उत्तीर्ण",
+        "failed": "अनुत्तीर्ण"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "अभी तक कोई प्रशिक्षण असाइन नहीं किया गया",
+        "noModulesDescription": "आपका सुपरवाइज़र यहां मॉड्यूल असाइन करेगा।",
+        "noCertificatesTitle": "अभी तक कोई प्रमाणपत्र नहीं",
+        "noCertificatesDescription": "अपने असाइन किए गए प्रशिक्षण मॉड्यूल पूर्ण करें।",
+        "noAssignmentsTitle": "कोई असाइनमेंट नहीं",
+        "noAssignmentsDescription": "अपनी टीम को प्रशिक्षण मॉड्यूल असाइन करें।"
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "प्रगति: {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "पुनर्प्रशिक्षण आवश्यक"
+      },
+      "trainingStatusBadge": {
+        "not_started": "शुरू नहीं हुआ",
+        "in_progress": "प्रगति पर",
+        "quiz_passed": "क्विज़ उत्तीर्ण",
+        "quiz_failed": "अनुत्तीर्ण — पुनः प्रयास करें",
+        "awaiting_practical": "अनुमोदन लंबित",
+        "certified": "प्रमाणित ✓",
+        "expired": "समाप्त",
+        "retraining_required": "पुनर्प्रशिक्षण आवश्यक",
+        "ariaStatus": "स्थिति: {{label}}"
       }
     }
   }

@@ -745,11 +745,11 @@
           "decommissioned": "廃止"
         },
         "criticalityOptions": {
-          "5": "5 - 最重要",
-          "4": "4 - 高",
-          "3": "3 - 中",
+          "1": "1 - 最低",
           "2": "2 - 低",
-          "1": "1 - 最低"
+          "3": "3 - 中",
+          "4": "4 - 高",
+          "5": "5 - 最重要"
         },
         "healthOptions": {
           "good": "良好 (70-100)",
@@ -1748,6 +1748,285 @@
         "creating": "作成中…",
         "createButton": "作業指示を作成",
         "fixErrors": "以下を修正してください:"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "マイモジュールに戻る",
+        "lessonsCount": "{{total}}件中{{completed}}件",
+        "trainingCompleted": "トレーニング完了",
+        "saving": "保存中…",
+        "markCompleteAcknowledge": "完了として記録して確認する"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "添付ファイルのアップロードに失敗しました",
+        "submitErrorDefault": "レポートの送信に失敗しました",
+        "doneTitle": "知識レポートを送信しました",
+        "doneDescription": "ありがとうございます。トレーニングレポートはレビューのために送信されました。証明書や追加対応が必要な場合、人事担当者よりご連絡します。",
+        "backToTraining": "マイトレーニングに戻る",
+        "providerLabel": "提供元",
+        "countryLabel": "国",
+        "modeLabel": "モード",
+        "durationLabel": "期間",
+        "startLabel": "開始日",
+        "endLabel": "終了日",
+        "topicLabel": "トピック",
+        "day_one": "{{count}}日",
+        "day_other": "{{count}}日",
+        "knowledgeGainedLabel": "習得した知識",
+        "knowledgeGainedPlaceholder": "学んだ内容とその活用方法をまとめてください...",
+        "assessmentQuestionsTitle": "評価質問",
+        "attachmentsTitle": "添付ファイル",
+        "uploadLabel": "資料・マニュアルをアップロード",
+        "uploading": "アップロード中…",
+        "submitButton": "知識レポートを送信"
+      },
+      "lessonCompleteOverlay": {
+        "title": "レッスン完了！",
+        "remaining_one": "残り{{count}}レッスン",
+        "remaining_other": "残り{{count}}レッスン",
+        "allComplete": "すべてのレッスンが完了しました！",
+        "nextLesson": "次のレッスン",
+        "close": "閉じる"
+      },
+      "lessonListItem": {
+        "reading": "読み物",
+        "page_one": "{{count}}ページ",
+        "page_other": "{{count}}ページ",
+        "slide_one": "{{count}}枚",
+        "slide_other": "{{count}}枚",
+        "gallery": "ギャラリー",
+        "ariaLockedPrefix": "ロック中: ",
+        "ariaCompletedPrefix": "完了: ",
+        "ariaCurrentPrefix": "現在のレッスン: "
+      },
+      "lessonViewer": {
+        "ariaClose": "レッスンを閉じる",
+        "pageCount_one": "{{count}}ページ",
+        "pageCount_other": "{{count}}ページ"
+      },
+      "lessonList": {
+        "completeToUnlock": "クイズを解除するには必須レッスンをすべて完了してください。",
+        "quizPassed": "クイズ合格",
+        "quizPassedWithScore": "スコア{{score}}%"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "すべてのレッスンが完了しました！クイズを受験できます。",
+        "passMark": "合格ライン: {{score}}%",
+        "attemptsRemaining_one": "残り{{count}}回",
+        "attemptsRemaining_other": "残り{{count}}回",
+        "noAttemptsRemaining": "受験回数が残っていません",
+        "startQuiz": "クイズを開始",
+        "ariaStartQuiz": "クイズを開始"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}}ページ",
+        "pageCount_other": "{{count}}ページ",
+        "download": "ダウンロード",
+        "ariaDownload": "資料をダウンロード",
+        "markedRead": "既読としてマークしました",
+        "markAsRead": "既読にする",
+        "ariaMarkRead": "資料を既読にする"
+      },
+      "moduleCard": {
+        "dueDate": "期限: {{date}}",
+        "ariaOpenModule": "トレーニングモジュールを開く: {{name}}",
+        "day_one": "{{count}}日",
+        "day_other": "{{count}}日",
+        "lessonsCount": "{{total}}レッスン中{{completed}}",
+        "marksLabel": "点数: {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "バッファリング中",
+        "ariaPlayVideo": "動画を再生",
+        "ariaPauseVideo": "動画を一時停止",
+        "ariaPlay": "再生",
+        "ariaPause": "一時停止",
+        "ariaSeek": "動画をシーク",
+        "ariaEnableSubtitles": "字幕をオンにする",
+        "ariaDisableSubtitles": "字幕をオフにする",
+        "ariaMute": "ミュート",
+        "ariaUnmute": "ミュート解除",
+        "ariaPlaybackSpeed": "再生速度",
+        "ariaEnterFullscreen": "全画面表示にする",
+        "ariaExitFullscreen": "全画面表示を終了",
+        "lessonComplete": "レッスン完了",
+        "markComplete": "完了にする",
+        "watchToComplete": "{{percent}}%視聴すると完了できます",
+        "ariaMarkComplete": "動画レッスンを完了にする"
+      },
+      "textLesson": {
+        "markedRead": "既読としてマークしました",
+        "markAsRead": "既読にする",
+        "scrollToComplete": "最後までスクロールすると完了できます",
+        "noContent": "このレッスンには利用可能なコンテンツがありません。",
+        "ariaMarkRead": "レッスンを既読にする"
+      },
+      "imageGalleryLesson": {
+        "noImages": "このレッスンには画像が追加されていません。",
+        "completed": "完了",
+        "markComplete": "完了にする",
+        "ariaPrevImage": "前の画像",
+        "ariaNextImage": "次の画像",
+        "counter": "{{total}}枚中{{current}}枚目",
+        "ariaGoToImage": "画像{{n}}へ移動",
+        "viewAllToComplete": "すべての画像を見るとこのレッスンが完了します"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "プログラム修了証明書",
+        "certificateNoLabel": "証明書番号",
+        "programmeLabel": "プログラム",
+        "programmeDuration": "{{months}}ヶ月間の研修プログラム",
+        "modulesCompletedLabel": "完了したモジュール",
+        "modulesCompletedValue_one": "{{months}}ヶ月間で{{count}}モジュール",
+        "modulesCompletedValue_other": "{{months}}ヶ月間で{{count}}モジュール",
+        "issued": "発行日: {{date}}",
+        "signedOffBy": "承認者: {{name}}（{{role}}）",
+        "finalMark": "最終点数: {{mark}}%",
+        "ariaDownload": "プログラム証明書のPDFをダウンロード",
+        "downloadPdf": "PDFをダウンロード"
+      },
+      "certificateCard": {
+        "headerTitle": "トレーニング証明書",
+        "certificateNoLabel": "証明書番号",
+        "providerLabel": "提供元",
+        "machineLabel": "機械",
+        "moduleLabel": "モジュール",
+        "issued": "発行日: {{date}}",
+        "expired": "有効期限切れ: {{date}}",
+        "expires": "有効期限: {{date}}",
+        "scoreLabel": "スコア: {{score}}%",
+        "ariaDownload": "証明書をA4のPDFでダウンロード",
+        "downloadA4": "A4のPDFをダウンロード",
+        "revoked": "失効",
+        "toastGenerateError": "証明書のPDFを生成できませんでした。",
+        "external": "外部"
+      },
+      "quizAnswerReview": {
+        "title": "回答の確認",
+        "questionLabel": "問{{number}}: {{result}}",
+        "correct": "正解",
+        "incorrect": "不正解",
+        "pointsFraction": "+{{earned}}/{{total}}点",
+        "yourAnswer": "あなたの回答:",
+        "noAnswerSelected": "回答が選択されていません",
+        "correctAnswer": "正解:"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ おめでとうございます！合格です。",
+        "notPassedMessage": "✗ 不合格でした。必要なスコア: {{score}}%。",
+        "correctLabel": "正解数",
+        "scoreLabel": "スコア",
+        "timeLabel": "時間",
+        "supervisorNote": "監督者が実技スキルを確認し、承認します。",
+        "continue": "続ける",
+        "retryAvailableIn": "再挑戦できるまで",
+        "retryQuiz": "クイズを再挑戦",
+        "noAttemptsLeft": "クイズの受験回数をすべて使い切りました。監督者にお問い合わせください。",
+        "unlimitedAttempts": "受験回数無制限",
+        "attemptsRemaining_one": "残り{{count}}回",
+        "attemptsRemaining_other": "残り{{count}}回",
+        "backToModule": "モジュールに戻る"
+      },
+      "quizReviewScreen": {
+        "title": "回答を確認",
+        "answeredCount": "{{total}}問中{{answered}}問回答済み",
+        "unanswered_one": "{{count}}問が未回答です。",
+        "unanswered_other": "{{count}}問が未回答です。",
+        "questionLine": "問{{number}}: {{text}}",
+        "answered": "回答済み",
+        "skipped": "未回答",
+        "back": "戻る",
+        "submitQuiz": "クイズを送信",
+        "confirmTitle": "クイズを送信しますか？",
+        "confirmDescription": "送信後は回答を変更できません。",
+        "cancel": "キャンセル",
+        "submitting": "送信中…",
+        "submit": "送信"
+      },
+      "quizTimer": {
+        "ariaRemaining": "残り時間: {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "問 {{current}} / {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "前の問題",
+        "previous": "前へ",
+        "reviewAndSubmit": "確認して送信",
+        "next": "次へ",
+        "ariaNextQuestion": "次の問題"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}}問",
+        "question_other": "{{count}}問",
+        "noTimeLimit": "制限時間なし",
+        "minute_one": "{{count}}分",
+        "minute_other": "{{count}}分",
+        "passMark": "合格ライン: {{score}}%",
+        "unlimitedAttempts": "受験回数無制限",
+        "noAttemptsRemaining": "受験回数が残っていません",
+        "attemptsRemaining_one": "残り{{count}}回",
+        "attemptsRemaining_other": "残り{{count}}回",
+        "instructionsTitle": "説明",
+        "startQuiz": "クイズを開始",
+        "noAttemptsRemainingButton": "受験回数が残っていません",
+        "ariaStartQuiz": "クイズを開始"
+      },
+      "quizQuestion": {
+        "questionLabel": "問{{number}}",
+        "ariaQuestionIllustration": "設問の画像",
+        "ariaQuestion": "設問",
+        "explanationLabel": "解説:",
+        "invalidTrueFalse": "無効な正誤問題です。"
+      },
+      "certificatePreview": {
+        "headerTitle": "トレーニング証明書",
+        "awardedTo": "授与対象",
+        "providerLine": "提供元: {{name}}",
+        "machineLine": "機械: {{name}}",
+        "issued": "発行日: {{date}}",
+        "expires": "有効期限: {{date}}",
+        "expiredSuffix": "（期限切れ）",
+        "issuedBy": "発行者: {{name}}",
+        "downloadPdf": "PDFをダウンロード",
+        "ariaDownload": "証明書のPDFをダウンロード",
+        "external": "外部"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "外部研修",
+        "ariaOffboard": "外部研修",
+        "ariaMachine": "機械: {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "クイズスコア: {{score}}% — {{status}}",
+        "passed": "合格",
+        "failed": "不合格"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "まだトレーニングが割り当てられていません",
+        "noModulesDescription": "監督者がここにモジュールを割り当てます。",
+        "noCertificatesTitle": "まだ証明書がありません",
+        "noCertificatesDescription": "割り当てられたトレーニングモジュールを完了してください。",
+        "noAssignmentsTitle": "割り当てなし",
+        "noAssignmentsDescription": "チームにトレーニングモジュールを割り当ててください。"
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "進捗: {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "再トレーニングが必要"
+      },
+      "trainingStatusBadge": {
+        "not_started": "未開始",
+        "in_progress": "進行中",
+        "quiz_passed": "クイズ合格",
+        "quiz_failed": "不合格 — 再挑戦",
+        "awaiting_practical": "承認待ち",
+        "certified": "認定済み ✓",
+        "expired": "期限切れ",
+        "retraining_required": "再トレーニングが必要",
+        "ariaStatus": "ステータス: {{label}}"
       }
     }
   }

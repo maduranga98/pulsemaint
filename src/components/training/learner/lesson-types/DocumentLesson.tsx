@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Download, CheckCircle } from 'lucide-react';
 import type { LessonItem, LessonProgress } from '@/lib/training/trainingTypes';
 
@@ -8,6 +9,7 @@ interface DocumentLessonProps {
 }
 
 export default function DocumentLesson({ lesson, progress, onComplete }: DocumentLessonProps) {
+  const { t } = useTranslation();
   const isCompleted = progress?.completed ?? false;
 
   const handleMarkRead = () => {
@@ -20,7 +22,7 @@ export default function DocumentLesson({ lesson, progress, onComplete }: Documen
       <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-200">
         {lesson.pageCount > 0 && (
           <span className="text-sm text-slate-500">
-            {lesson.pageCount} page{lesson.pageCount !== 1 ? 's' : ''}
+            {t('common.training.documentLesson.pageCount', { count: lesson.pageCount })}
           </span>
         )}
         <a
@@ -29,10 +31,10 @@ export default function DocumentLesson({ lesson, progress, onComplete }: Documen
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 font-medium"
-          aria-label="Download document"
+          aria-label={t('common.training.documentLesson.ariaDownload')}
         >
           <Download size={15} aria-hidden="true" />
-          Download
+          {t('common.training.documentLesson.download')}
         </a>
       </div>
 
@@ -52,16 +54,16 @@ export default function DocumentLesson({ lesson, progress, onComplete }: Documen
         {isCompleted ? (
           <div className="flex items-center gap-2 text-green-600 font-medium">
             <CheckCircle size={18} aria-hidden="true" />
-            <span>You have marked this as read</span>
+            <span>{t('common.training.documentLesson.markedRead')}</span>
           </div>
         ) : (
           <button
             type="button"
             onClick={handleMarkRead}
             className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-lg font-medium text-base hover:bg-blue-700 transition-colors"
-            aria-label="Mark document as read"
+            aria-label={t('common.training.documentLesson.ariaMarkRead')}
           >
-            Mark as Read
+            {t('common.training.documentLesson.markAsRead')}
           </button>
         )}
       </div>

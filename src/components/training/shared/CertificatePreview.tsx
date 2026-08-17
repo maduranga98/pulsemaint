@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Award, Download, Calendar } from 'lucide-react';
 import type { TrainingCertificate } from '@/lib/training/trainingTypes';
 
@@ -15,6 +16,7 @@ function formatDate(timestamp: { seconds: number } | null): string {
 }
 
 export default function CertificatePreview({ certificate }: CertificatePreviewProps) {
+  const { t } = useTranslation();
   return (
     <div className="border-2 border-amber-300 rounded-2xl overflow-hidden shadow-md max-w-md w-full">
       {/* Header gradient */}
@@ -22,7 +24,7 @@ export default function CertificatePreview({ certificate }: CertificatePreviewPr
         <Award className="text-white shrink-0" size={28} aria-hidden="true" />
         <div>
           <p className="text-xs font-bold tracking-widest text-white/80 uppercase">
-            Training Certificate
+            {t('common.training.certificatePreview.headerTitle')}
           </p>
           <p className="text-xs text-white/70">{certificate.certificateNumber}</p>
         </div>
@@ -32,7 +34,7 @@ export default function CertificatePreview({ certificate }: CertificatePreviewPr
       <div className="bg-white px-6 py-5 space-y-4">
         {/* Trainee name */}
         <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">Awarded to</p>
+          <p className="text-xs text-slate-500 uppercase tracking-wider mb-0.5">{t('common.training.certificatePreview.awardedTo')}</p>
           <p className="text-2xl font-bold text-slate-900 font-sans">{certificate.traineeName}</p>
         </div>
 
@@ -41,8 +43,8 @@ export default function CertificatePreview({ certificate }: CertificatePreviewPr
           <p className="text-sm font-medium text-slate-700">{certificate.moduleName}</p>
           <p className="text-sm text-slate-500">
             {certificate.moduleCategory === 'offboard_external'
-              ? `Provider: ${certificate.providerName || 'External'}`
-              : `Machine: ${certificate.machineName}`}
+              ? t('common.training.certificatePreview.providerLine', { name: certificate.providerName || t('common.training.certificatePreview.external') })
+              : t('common.training.certificatePreview.machineLine', { name: certificate.machineName })}
           </p>
         </div>
 
@@ -50,7 +52,7 @@ export default function CertificatePreview({ certificate }: CertificatePreviewPr
         <div className="flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-1.5 text-slate-600">
             <Calendar size={14} aria-hidden="true" />
-            <span>Issued: {formatDate(certificate.issuedAt as unknown as { seconds: number })}</span>
+            <span>{t('common.training.certificatePreview.issued', { date: formatDate(certificate.issuedAt as unknown as { seconds: number }) })}</span>
           </div>
           {certificate.expiryDate && (
             <div
@@ -60,16 +62,15 @@ export default function CertificatePreview({ certificate }: CertificatePreviewPr
             >
               <Calendar size={14} aria-hidden="true" />
               <span>
-                Expires:{' '}
-                {formatDate(certificate.expiryDate as unknown as { seconds: number })}
-                {certificate.isExpired && ' (Expired)'}
+                {t('common.training.certificatePreview.expires', { date: formatDate(certificate.expiryDate as unknown as { seconds: number }) })}
+                {certificate.isExpired && t('common.training.certificatePreview.expiredSuffix')}
               </span>
             </div>
           )}
         </div>
 
         {/* Issued by */}
-        <p className="text-xs text-slate-500">Issued by: {certificate.issuedByName}</p>
+        <p className="text-xs text-slate-500">{t('common.training.certificatePreview.issuedBy', { name: certificate.issuedByName })}</p>
 
         {/* Download button */}
         {certificate.pdfUrl && (
@@ -78,10 +79,10 @@ export default function CertificatePreview({ certificate }: CertificatePreviewPr
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
-            aria-label="Download certificate PDF"
+            aria-label={t('common.training.certificatePreview.ariaDownload')}
           >
             <Download size={14} aria-hidden="true" />
-            Download PDF
+            {t('common.training.certificatePreview.downloadPdf')}
           </a>
         )}
       </div>

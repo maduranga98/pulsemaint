@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle, XCircle, ArrowRight, RotateCcw, User } from 'lucide-react';
 import type { QuizAttemptResult } from '@/lib/training/trainingTypes';
 
@@ -29,6 +30,7 @@ export default function QuizResultsScreen({
   onContinue,
   moduleName,
 }: QuizResultsScreenProps) {
+  const { t } = useTranslation();
   const [countdown, setCountdown] = useState(cooldownSeconds);
   const passed = result.passed;
 
@@ -62,7 +64,7 @@ export default function QuizResultsScreen({
           {result.score}%
         </p>
         <p className={`text-lg font-semibold ${passed ? 'text-green-800' : 'text-red-800'}`}>
-          {passed ? '✓ Congratulations! You passed.' : `✗ You did not pass. Score needed: ${passingScore}%.`}
+          {passed ? t('common.training.quizResultsScreen.passedMessage') : t('common.training.quizResultsScreen.notPassedMessage', { score: passingScore })}
         </p>
         <p className="text-sm text-slate-600">{moduleName}</p>
       </div>
@@ -70,9 +72,9 @@ export default function QuizResultsScreen({
       {/* Score breakdown */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Correct', value: `${result.correctAnswers}/${result.totalQuestions}` },
-          { label: 'Score', value: `${result.score}%` },
-          { label: 'Time', value: formatTime(result.timeTakenSeconds) },
+          { label: t('common.training.quizResultsScreen.correctLabel'), value: `${result.correctAnswers}/${result.totalQuestions}` },
+          { label: t('common.training.quizResultsScreen.scoreLabel'), value: `${result.score}%` },
+          { label: t('common.training.quizResultsScreen.timeLabel'), value: formatTime(result.timeTakenSeconds) },
         ].map((item) => (
           <div key={item.label} className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
             <p className="text-lg font-bold text-slate-900">{item.value}</p>
@@ -86,13 +88,13 @@ export default function QuizResultsScreen({
         <div className="space-y-3">
           <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 flex items-center gap-2 text-sm text-blue-800">
             <User size={16} />
-            Your supervisor will observe and sign off your practical skills.
+            {t('common.training.quizResultsScreen.supervisorNote')}
           </div>
           <button
             onClick={onContinue}
             className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition-colors"
           >
-            Continue <ArrowRight size={18} />
+            {t('common.training.quizResultsScreen.continue')} <ArrowRight size={18} />
           </button>
         </div>
       ) : (
@@ -100,7 +102,7 @@ export default function QuizResultsScreen({
           {attemptsRemaining > 0 || maxAttempts === 0 ? (
             countdown > 0 ? (
               <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-center text-sm text-amber-800">
-                Retry available in{' '}
+                {t('common.training.quizResultsScreen.retryAvailableIn')}{' '}
                 <span className="font-mono font-semibold">{formatTime(countdown)}</span>
               </div>
             ) : (
@@ -108,26 +110,26 @@ export default function QuizResultsScreen({
                 onClick={onRetry}
                 className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl transition-colors"
               >
-                <RotateCcw size={18} /> Retry Quiz
+                <RotateCcw size={18} /> {t('common.training.quizResultsScreen.retryQuiz')}
               </button>
             )
           ) : (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-800 text-center">
-              You have used all quiz attempts. Contact your supervisor.
+              {t('common.training.quizResultsScreen.noAttemptsLeft')}
             </div>
           )}
           {(attemptsRemaining > 0 || maxAttempts === 0) && (
             <p className="text-sm text-slate-500 text-center">
               {maxAttempts === 0
-                ? 'Unlimited attempts'
-                : `${attemptsRemaining} attempt${attemptsRemaining > 1 ? 's' : ''} remaining`}
+                ? t('common.training.quizResultsScreen.unlimitedAttempts')
+                : t('common.training.quizResultsScreen.attemptsRemaining', { count: attemptsRemaining })}
             </p>
           )}
           <button
             onClick={onContinue}
             className="w-full py-3 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 text-sm transition-colors"
           >
-            Back to Module
+            {t('common.training.quizResultsScreen.backToModule')}
           </button>
         </div>
       )}

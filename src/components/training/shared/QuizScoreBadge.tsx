@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface QuizScoreBadgeProps {
   score: number;
   passingScore: number;
@@ -9,6 +11,7 @@ export default function QuizScoreBadge({
   passingScore,
   className = '',
 }: QuizScoreBadgeProps) {
+  const { t } = useTranslation();
   const passed = score >= passingScore;
 
   return (
@@ -20,7 +23,10 @@ export default function QuizScoreBadge({
       ]
         .filter(Boolean)
         .join(' ')}
-      aria-label={`Quiz score: ${score}% — ${passed ? 'Passed' : 'Failed'}`}
+      aria-label={t('common.training.quizScoreBadge.ariaLabel', {
+        score,
+        status: passed ? t('common.training.quizScoreBadge.passed') : t('common.training.quizScoreBadge.failed'),
+      })}
     >
       {score}%
     </span>

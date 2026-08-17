@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import type { LessonItem, LessonProgress } from '@/lib/training/trainingTypes';
 
@@ -16,6 +17,7 @@ function sanitizeHtml(html: string): string {
 }
 
 export default function TextLesson({ lesson, progress, onComplete }: TextLessonProps) {
+  const { t } = useTranslation();
   const [canComplete, setCanComplete] = useState(progress?.completed ?? false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -58,7 +60,7 @@ export default function TextLesson({ lesson, progress, onComplete }: TextLessonP
           dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
         />
         {!content && (
-          <p className="text-slate-400 italic">No content available for this lesson.</p>
+          <p className="text-slate-400 italic">{t('common.training.textLesson.noContent')}</p>
         )}
         {/* Extra padding so user can scroll to bottom */}
         <div className="h-8" />
@@ -69,7 +71,7 @@ export default function TextLesson({ lesson, progress, onComplete }: TextLessonP
         {progress?.completed ? (
           <div className="flex items-center justify-center gap-2 text-green-600 font-medium py-2">
             <CheckCircle size={18} />
-            You've marked this as read
+            {t('common.training.textLesson.markedRead')}
           </div>
         ) : (
           <button
@@ -80,10 +82,10 @@ export default function TextLesson({ lesson, progress, onComplete }: TextLessonP
                 ? 'bg-green-600 hover:bg-green-700 text-white'
                 : 'bg-slate-100 text-slate-400 cursor-not-allowed'
             }`}
-            aria-label="Mark lesson as read"
+            aria-label={t('common.training.textLesson.ariaMarkRead')}
           >
             <CheckCircle size={18} />
-            {canComplete ? 'Mark as Read' : 'Scroll to bottom to complete'}
+            {canComplete ? t('common.training.textLesson.markAsRead') : t('common.training.textLesson.scrollToComplete')}
           </button>
         )}
       </div>

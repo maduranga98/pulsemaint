@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clock } from 'lucide-react';
 
 interface QuizTimerProps {
@@ -14,6 +15,7 @@ function formatTime(s: number): string {
 }
 
 export default function QuizTimer({ totalSeconds, onExpire, className = '' }: QuizTimerProps) {
+  const { t } = useTranslation();
   const [remaining, setRemaining] = useState(totalSeconds);
   const expire = useCallback(onExpire, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -45,7 +47,7 @@ export default function QuizTimer({ totalSeconds, onExpire, className = '' }: Qu
   return (
     <div
       className={`inline-flex items-center gap-1 font-mono font-semibold text-sm ${colorClass} ${className}`}
-      aria-label={`Time remaining: ${formatTime(remaining)}`}
+      aria-label={t('common.training.quizTimer.ariaRemaining', { time: formatTime(remaining) })}
       role="timer"
     >
       <Clock size={14} />

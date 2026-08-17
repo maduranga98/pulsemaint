@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface TrainingProgressBarProps {
   progress: number;
   className?: string;
@@ -9,6 +11,7 @@ export default function TrainingProgressBar({
   className = '',
   showLabel = false,
 }: TrainingProgressBarProps) {
+  const { t } = useTranslation();
   const clamped = Math.min(100, Math.max(0, progress));
   const isComplete = clamped === 100;
   const fillColor = isComplete ? 'bg-green-500' : 'bg-blue-600';
@@ -21,7 +24,7 @@ export default function TrainingProgressBar({
         aria-valuenow={clamped}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`Progress: ${clamped}%`}
+        aria-label={t('common.training.trainingProgressBar.ariaLabel', { percent: clamped })}
       >
         <div
           className={`h-full rounded-full transition-all duration-300 ${fillColor}`}

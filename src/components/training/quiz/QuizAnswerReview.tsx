@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CheckCircle, XCircle } from 'lucide-react';
 import type { QuizQuestion, QuizAnswer } from '@/lib/training/trainingTypes';
 
@@ -7,9 +8,10 @@ interface QuizAnswerReviewProps {
 }
 
 export default function QuizAnswerReview({ questions, answers }: QuizAnswerReviewProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
-      <h3 className="font-bold text-slate-900 text-lg">Answer Review</h3>
+      <h3 className="font-bold text-slate-900 text-lg">{t('common.training.quizAnswerReview.title')}</h3>
       {questions.map((q, i) => {
         const answer = answers.find((a) => a.questionId === q.id);
         const isCorrect = answer?.isCorrect ?? false;
@@ -30,10 +32,13 @@ export default function QuizAnswerReview({ questions, answers }: QuizAnswerRevie
                 <XCircle size={18} className="text-red-500 shrink-0" />
               )}
               <span className="text-sm font-semibold text-slate-700">
-                Q{i + 1}: {isCorrect ? 'Correct' : 'Incorrect'}
+                {t('common.training.quizAnswerReview.questionLabel', {
+                  number: i + 1,
+                  result: isCorrect ? t('common.training.quizAnswerReview.correct') : t('common.training.quizAnswerReview.incorrect'),
+                })}
               </span>
               <span className="ml-auto text-xs text-slate-500 font-mono">
-                +{answer?.pointsEarned ?? 0}/{q.points}pts
+                {t('common.training.quizAnswerReview.pointsFraction', { earned: answer?.pointsEarned ?? 0, total: q.points })}
               </span>
             </div>
 
@@ -42,9 +47,9 @@ export default function QuizAnswerReview({ questions, answers }: QuizAnswerRevie
 
               {/* User's answer */}
               <div>
-                <p className="text-xs text-slate-500 mb-1">Your answer:</p>
+                <p className="text-xs text-slate-500 mb-1">{t('common.training.quizAnswerReview.yourAnswer')}</p>
                 {selectedIds.length === 0 ? (
-                  <span className="text-xs text-slate-400 italic">No answer selected</span>
+                  <span className="text-xs text-slate-400 italic">{t('common.training.quizAnswerReview.noAnswerSelected')}</span>
                 ) : (
                   selectedIds.map((id) => {
                     const opt = q.options.find((o) => o.id === id);
@@ -65,7 +70,7 @@ export default function QuizAnswerReview({ questions, answers }: QuizAnswerRevie
               {/* Correct answer */}
               {!isCorrect && (
                 <div>
-                  <p className="text-xs text-slate-500 mb-1">Correct answer:</p>
+                  <p className="text-xs text-slate-500 mb-1">{t('common.training.quizAnswerReview.correctAnswer')}</p>
                   {correctOptions.map((opt) => (
                     <span
                       key={opt.id}

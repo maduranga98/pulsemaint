@@ -794,11 +794,11 @@
           "decommissioned": "සේවයෙන් ඉවත් කළ"
         },
         "criticalityOptions": {
-          "5": "5 - අතිශය වැදගත්",
-          "4": "4 - ඉහළ",
-          "3": "3 - මධ්‍යම",
+          "1": "1 - අවම",
           "2": "2 - අඩු",
-          "1": "1 - අවම"
+          "3": "3 - මධ්‍යම",
+          "4": "4 - ඉහළ",
+          "5": "5 - අතිශය වැදගත්"
         },
         "healthOptions": {
           "good": "හොඳයි (70-100)",
@@ -1797,6 +1797,285 @@
         "creating": "සාදමින්…",
         "createButton": "වැඩ නියෝගය සාදන්න",
         "fixErrors": "කරුණාකර පහත සියල්ල නිවැරදි කරන්න:"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "මගේ මොඩියුල වෙත ආපසු යන්න",
+        "lessonsCount": "{{total}}න් {{completed}}",
+        "trainingCompleted": "පුහුණුව සම්පූර්ණයි",
+        "saving": "සුරකිමින්…",
+        "markCompleteAcknowledge": "සම්පූර්ණයි ලෙස සලකුණු කර තහවුරු කරන්න"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "ඇමුණුම උඩුගත කිරීම අසාර්ථක විය",
+        "submitErrorDefault": "වාර්තාව ඉදිරිපත් කිරීම අසාර්ථක විය",
+        "doneTitle": "දැනුම් වාර්තාව ඉදිරිපත් කරන ලදී",
+        "doneDescription": "ස්තූතියි — ඔබේ පුහුණු වාර්තාව සමාලෝචනය සඳහා යවා ඇත. සහතිකයක් හෝ තවදුරටත් ක්‍රියාමාර්ග අවශ්‍ය නම් HR විසින් ඔබ හා සම්බන්ධ වනු ඇත.",
+        "backToTraining": "මගේ පුහුණුව වෙත ආපසු යන්න",
+        "providerLabel": "සැපයුම්කරු",
+        "countryLabel": "රට",
+        "modeLabel": "ක්‍රමය",
+        "durationLabel": "කාලසීමාව",
+        "startLabel": "ආරම්භය",
+        "endLabel": "අවසානය",
+        "topicLabel": "මාතෘකාව",
+        "day_one": "දින {{count}}",
+        "day_other": "දින {{count}}",
+        "knowledgeGainedLabel": "ලබාගත් දැනුම",
+        "knowledgeGainedPlaceholder": "ඔබ ඉගෙනගත් දේ සහ එය භාවිතා කරන ආකාරය සාරාංශ කරන්න...",
+        "assessmentQuestionsTitle": "තක්සේරු ප්‍රශ්න",
+        "attachmentsTitle": "ඇමුණුම්",
+        "uploadLabel": "ලේඛන / අත්පොත් උඩුගත කරන්න",
+        "uploading": "උඩුගත කරමින්…",
+        "submitButton": "දැනුම් වාර්තාව ඉදිරිපත් කරන්න"
+      },
+      "lessonCompleteOverlay": {
+        "title": "පාඩම සම්පූර්ණයි!",
+        "remaining_one": "පාඩම් {{count}}ක් ඉතිරිය",
+        "remaining_other": "පාඩම් {{count}}ක් ඉතිරිය",
+        "allComplete": "සියලුම පාඩම් සම්පූර්ණයි!",
+        "nextLesson": "ඊළඟ පාඩම",
+        "close": "වසන්න"
+      },
+      "lessonListItem": {
+        "reading": "කියවීම",
+        "page_one": "පිටු {{count}}",
+        "page_other": "පිටු {{count}}",
+        "slide_one": "පිටපත් {{count}}",
+        "slide_other": "පිටපත් {{count}}",
+        "gallery": "ගැලරිය",
+        "ariaLockedPrefix": "අගුළු දමා ඇත: ",
+        "ariaCompletedPrefix": "සම්පූර්ණයි: ",
+        "ariaCurrentPrefix": "වර්තමාන පාඩම: "
+      },
+      "lessonViewer": {
+        "ariaClose": "පාඩම වසන්න",
+        "pageCount_one": "පිටු {{count}}",
+        "pageCount_other": "පිටු {{count}}"
+      },
+      "lessonList": {
+        "completeToUnlock": "ප්‍රශ්නාවලිය අගුළු හැරීමට අවශ්‍ය සියලුම පාඩම් සම්පූර්ණ කරන්න.",
+        "quizPassed": "ප්‍රශ්නාවලිය සමත් විය",
+        "quizPassedWithScore": "ලකුණු {{score}}% සමඟ"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "සියලුම පාඩම් සම්පූර්ණයි! දැන් ඔබට ප්‍රශ්නාවලිය ලබා ගත හැක.",
+        "passMark": "සමත් ලකුණු: {{score}}%",
+        "attemptsRemaining_one": "උත්සාහ {{count}}ක් ඉතිරිය",
+        "attemptsRemaining_other": "උත්සාහ {{count}}ක් ඉතිරිය",
+        "noAttemptsRemaining": "උත්සාහයන් ඉතිරි නැත",
+        "startQuiz": "ප්‍රශ්නාවලිය ආරම්භ කරන්න",
+        "ariaStartQuiz": "ප්‍රශ්නාවලිය ආරම්භ කරන්න"
+      },
+      "documentLesson": {
+        "pageCount_one": "පිටු {{count}}",
+        "pageCount_other": "පිටු {{count}}",
+        "download": "බාගන්න",
+        "ariaDownload": "ලේඛනය බාගන්න",
+        "markedRead": "ඔබ මෙය කියවූ ලෙස සලකුණු කර ඇත",
+        "markAsRead": "කියවූ ලෙස සලකුණු කරන්න",
+        "ariaMarkRead": "ලේඛනය කියවූ ලෙස සලකුණු කරන්න"
+      },
+      "moduleCard": {
+        "dueDate": "නියමිත දිනය {{date}}",
+        "ariaOpenModule": "පුහුණු මොඩියුලය විවෘත කරන්න: {{name}}",
+        "day_one": "දින {{count}}",
+        "day_other": "දින {{count}}",
+        "lessonsCount": "පාඩම් {{total}}න් {{completed}}",
+        "marksLabel": "ලකුණු: {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "බෆර් කරමින්",
+        "ariaPlayVideo": "වීඩියෝව වාදනය කරන්න",
+        "ariaPauseVideo": "වීඩියෝව නවත්වන්න",
+        "ariaPlay": "වාදනය",
+        "ariaPause": "විරාමය",
+        "ariaSeek": "වීඩියෝවේ සොයන්න",
+        "ariaEnableSubtitles": "උපසිරැසි සක්‍රීය කරන්න",
+        "ariaDisableSubtitles": "උපසිරැසි අක්‍රීය කරන්න",
+        "ariaMute": "නිශ්ශබ්ද කරන්න",
+        "ariaUnmute": "නිශ්ශබ්දතාව ඉවත් කරන්න",
+        "ariaPlaybackSpeed": "වාදන වේගය",
+        "ariaEnterFullscreen": "සම්පූර්ණ තිරයට යන්න",
+        "ariaExitFullscreen": "සම්පූර්ණ තිරයෙන් ඉවත් වන්න",
+        "lessonComplete": "පාඩම සම්පූර්ණයි",
+        "markComplete": "සම්පූර්ණයි ලෙස සලකුණු කරන්න",
+        "watchToComplete": "සම්පූර්ණ කිරීමට {{percent}}% නරඹන්න",
+        "ariaMarkComplete": "වීඩියෝ පාඩම සම්පූර්ණයි ලෙස සලකුණු කරන්න"
+      },
+      "textLesson": {
+        "markedRead": "ඔබ මෙය කියවූ ලෙස සලකුණු කර ඇත",
+        "markAsRead": "කියවූ ලෙස සලකුණු කරන්න",
+        "scrollToComplete": "සම්පූර්ණ කිරීමට පහළට අනුචලනය කරන්න",
+        "noContent": "මෙම පාඩම සඳහා අන්තර්ගතයක් නොමැත.",
+        "ariaMarkRead": "පාඩම කියවූ ලෙස සලකුණු කරන්න"
+      },
+      "imageGalleryLesson": {
+        "noImages": "මෙම පාඩමට රූප එකතු කර නොමැත.",
+        "completed": "සම්පූර්ණයි",
+        "markComplete": "සම්පූර්ණයි ලෙස සලකුණු කරන්න",
+        "ariaPrevImage": "පෙර රූපය",
+        "ariaNextImage": "ඊළඟ රූපය",
+        "counter": "{{total}}න් {{current}}",
+        "ariaGoToImage": "රූපය {{n}} වෙත යන්න",
+        "viewAllToComplete": "මෙම පාඩම සම්පූර්ණ කිරීමට සියලුම රූප බලන්න"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "වැඩසටහන් සම්පූර්ණ කිරීමේ සහතිකය",
+        "certificateNoLabel": "සහතික අංකය",
+        "programmeLabel": "වැඩසටහන",
+        "programmeDuration": "මාස {{months}}ක පුහුණු වැඩසටහන",
+        "modulesCompletedLabel": "සම්පූර්ණ කළ මොඩියුල",
+        "modulesCompletedValue_one": "මාස {{months}}තුළ මොඩියුල {{count}}",
+        "modulesCompletedValue_other": "මාස {{months}}තුළ මොඩියුල {{count}}",
+        "issued": "නිකුත් කළේ {{date}}",
+        "signedOffBy": "අනුමත කළේ {{name}} ({{role}})",
+        "finalMark": "අවසන් ලකුණු: {{mark}}%",
+        "ariaDownload": "වැඩසටහන් සහතික PDF බාගන්න",
+        "downloadPdf": "PDF බාගන්න"
+      },
+      "certificateCard": {
+        "headerTitle": "පුහුණු සහතිකය",
+        "certificateNoLabel": "සහතික අංකය",
+        "providerLabel": "සැපයුම්කරු",
+        "machineLabel": "යන්ත්‍රය",
+        "moduleLabel": "මොඩියුලය",
+        "issued": "නිකුත් කළේ {{date}}",
+        "expired": "කල් ඉකුත් වූයේ {{date}}",
+        "expires": "කල් ඉකුත් වන්නේ {{date}}",
+        "scoreLabel": "ලකුණු: {{score}}%",
+        "ariaDownload": "සහතිකය A4 PDF ලෙස බාගන්න",
+        "downloadA4": "A4 PDF බාගන්න",
+        "revoked": "අවලංගු කර ඇත",
+        "toastGenerateError": "සහතික PDF එක සෑදිය නොහැකි විය.",
+        "external": "බාහිර"
+      },
+      "quizAnswerReview": {
+        "title": "පිළිතුරු සමාලෝචනය",
+        "questionLabel": "ප්‍ර{{number}}: {{result}}",
+        "correct": "නිවැරදියි",
+        "incorrect": "වැරදියි",
+        "pointsFraction": "+{{earned}}/{{total}}ලකුණු",
+        "yourAnswer": "ඔබේ පිළිතුර:",
+        "noAnswerSelected": "පිළිතුරක් තෝරාගෙන නොමැත",
+        "correctAnswer": "නිවැරදි පිළිතුර:"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ සුබපැතුම්! ඔබ සමත් විය.",
+        "notPassedMessage": "✗ ඔබ සමත් නොවීය. අවශ්‍ය ලකුණු: {{score}}%.",
+        "correctLabel": "නිවැරදි",
+        "scoreLabel": "ලකුණු",
+        "timeLabel": "කාලය",
+        "supervisorNote": "ඔබේ අධීක්ෂකයා ඔබේ ප්‍රායෝගික කුසලතා නිරීක්ෂණය කර අනුමත කරනු ඇත.",
+        "continue": "ඉදිරියට",
+        "retryAvailableIn": "නැවත උත්සාහ කළ හැක්කේ",
+        "retryQuiz": "ප්‍රශ්නාවලිය නැවත උත්සාහ කරන්න",
+        "noAttemptsLeft": "ඔබ සියලුම ප්‍රශ්නාවලි උත්සාහයන් භාවිතා කර ඇත. ඔබේ අධීක්ෂකයා අමතන්න.",
+        "unlimitedAttempts": "අසීමිත උත්සාහයන්",
+        "attemptsRemaining_one": "උත්සාහ {{count}}ක් ඉතිරිය",
+        "attemptsRemaining_other": "උත්සාහ {{count}}ක් ඉතිරිය",
+        "backToModule": "මොඩියුලය වෙත ආපසු යන්න"
+      },
+      "quizReviewScreen": {
+        "title": "ඔබේ පිළිතුරු සමාලෝචනය කරන්න",
+        "answeredCount": "ප්‍රශ්න {{total}}න් {{answered}}ට පිළිතුරු දී ඇත",
+        "unanswered_one": "ප්‍රශ්න {{count}}කට පිළිතුරු දී නොමැත.",
+        "unanswered_other": "ප්‍රශ්න {{count}}කට පිළිතුරු දී නොමැත.",
+        "questionLine": "ප්‍ර{{number}}: {{text}}",
+        "answered": "පිළිතුරු දී ඇත",
+        "skipped": "මඟහැරිණි",
+        "back": "ආපසු",
+        "submitQuiz": "ප්‍රශ්නාවලිය ඉදිරිපත් කරන්න",
+        "confirmTitle": "ප්‍රශ්නාවලිය ඉදිරිපත් කරන්නද?",
+        "confirmDescription": "ඉදිරිපත් කිරීමෙන් පසු ඔබට ඔබේ පිළිතුරු වෙනස් කළ නොහැක.",
+        "cancel": "අවලංගු කරන්න",
+        "submitting": "ඉදිරිපත් කරමින්…",
+        "submit": "ඉදිරිපත් කරන්න"
+      },
+      "quizTimer": {
+        "ariaRemaining": "ඉතිරි කාලය: {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "ප්‍ර {{current}} / {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "පෙර ප්‍රශ්නය",
+        "previous": "පෙර",
+        "reviewAndSubmit": "සමාලෝචනය කර ඉදිරිපත් කරන්න",
+        "next": "ඊළඟ",
+        "ariaNextQuestion": "ඊළඟ ප්‍රශ්නය"
+      },
+      "quizPreScreen": {
+        "question_one": "ප්‍රශ්න {{count}}",
+        "question_other": "ප්‍රශ්න {{count}}",
+        "noTimeLimit": "කාල සීමාවක් නැත",
+        "minute_one": "මිනිත්තු {{count}}",
+        "minute_other": "මිනිත්තු {{count}}",
+        "passMark": "සමත් ලකුණු: {{score}}%",
+        "unlimitedAttempts": "අසීමිත උත්සාහයන්",
+        "noAttemptsRemaining": "උත්සාහයන් ඉතිරි නැත",
+        "attemptsRemaining_one": "උත්සාහ {{count}}ක් ඉතිරිය",
+        "attemptsRemaining_other": "උත්සාහ {{count}}ක් ඉතිරිය",
+        "instructionsTitle": "උපදෙස්",
+        "startQuiz": "ප්‍රශ්නාවලිය ආරම්භ කරන්න",
+        "noAttemptsRemainingButton": "උත්සාහයන් ඉතිරි නැත",
+        "ariaStartQuiz": "ප්‍රශ්නාවලිය ආරම්භ කරන්න"
+      },
+      "quizQuestion": {
+        "questionLabel": "ප්‍රශ්නය {{number}}",
+        "ariaQuestionIllustration": "ප්‍රශ්න නිදර්ශනය",
+        "ariaQuestion": "ප්‍රශ්නය",
+        "explanationLabel": "පැහැදිලි කිරීම:",
+        "invalidTrueFalse": "වලංගු නොවන සත්‍ය/අසත්‍ය ප්‍රශ්නයකි."
+      },
+      "certificatePreview": {
+        "headerTitle": "පුහුණු සහතිකය",
+        "awardedTo": "පිරිනමන ලද්දේ",
+        "providerLine": "සැපයුම්කරු: {{name}}",
+        "machineLine": "යන්ත්‍රය: {{name}}",
+        "issued": "නිකුත් කළේ: {{date}}",
+        "expires": "කල් ඉකුත් වන්නේ: {{date}}",
+        "expiredSuffix": " (කල් ඉකුත් වී ඇත)",
+        "issuedBy": "නිකුත් කළේ: {{name}}",
+        "downloadPdf": "PDF බාගන්න",
+        "ariaDownload": "සහතික PDF බාගන්න",
+        "external": "බාහිර"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "බාහිර පුහුණුව",
+        "ariaOffboard": "බාහිර පුහුණුව",
+        "ariaMachine": "යන්ත්‍රය: {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "ප්‍රශ්නාවලි ලකුණු: {{score}}% — {{status}}",
+        "passed": "සමත්",
+        "failed": "අසමත්"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "තවම පුහුණුවක් පවරා නොමැත",
+        "noModulesDescription": "ඔබේ අධීක්ෂකයා මෙහි මොඩියුල පවරනු ඇත.",
+        "noCertificatesTitle": "තවම සහතික නොමැත",
+        "noCertificatesDescription": "ඔබට පවරා ඇති පුහුණු මොඩියුල සම්පූර්ණ කරන්න.",
+        "noAssignmentsTitle": "පැවරුම් නොමැත",
+        "noAssignmentsDescription": "ඔබේ කණ්ඩායමට පුහුණු මොඩියුල පවරන්න."
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "ප්‍රගතිය: {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "නැවත පුහුණුව අවශ්‍යයි"
+      },
+      "trainingStatusBadge": {
+        "not_started": "ආරම්භ කර නොමැත",
+        "in_progress": "ක්‍රියාත්මකයි",
+        "quiz_passed": "ප්‍රශ්නාවලිය සමත්",
+        "quiz_failed": "අසමත් — නැවත උත්සාහ කරන්න",
+        "awaiting_practical": "අනුමැතිය බලාපොරොත්තුවෙන්",
+        "certified": "සහතික කර ඇත ✓",
+        "expired": "කල් ඉකුත් වී ඇත",
+        "retraining_required": "නැවත පුහුණුව අවශ්‍යයි",
+        "ariaStatus": "තත්ත්වය: {{label}}"
       }
     }
   }

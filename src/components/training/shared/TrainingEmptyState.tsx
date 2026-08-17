@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { GraduationCap, Award, ClipboardList, type LucideIcon } from 'lucide-react';
 
 type EmptyStateVariant = 'no_modules' | 'no_certificates' | 'no_assignments';
@@ -12,24 +13,24 @@ const VARIANT_CONFIG: Record<
   EmptyStateVariant,
   {
     Icon: LucideIcon;
-    defaultTitle: string;
-    defaultDescription: string;
+    defaultTitleKey: string;
+    defaultDescriptionKey: string;
   }
 > = {
   no_modules: {
     Icon: GraduationCap,
-    defaultTitle: 'No training assigned yet',
-    defaultDescription: 'Your supervisor will assign modules here.',
+    defaultTitleKey: 'common.training.trainingEmptyState.noModulesTitle',
+    defaultDescriptionKey: 'common.training.trainingEmptyState.noModulesDescription',
   },
   no_certificates: {
     Icon: Award,
-    defaultTitle: 'No certificates yet',
-    defaultDescription: 'Complete your assigned training modules.',
+    defaultTitleKey: 'common.training.trainingEmptyState.noCertificatesTitle',
+    defaultDescriptionKey: 'common.training.trainingEmptyState.noCertificatesDescription',
   },
   no_assignments: {
     Icon: ClipboardList,
-    defaultTitle: 'No assignments',
-    defaultDescription: 'Assign training modules to your team.',
+    defaultTitleKey: 'common.training.trainingEmptyState.noAssignmentsTitle',
+    defaultDescriptionKey: 'common.training.trainingEmptyState.noAssignmentsDescription',
   },
 };
 
@@ -38,10 +39,11 @@ export default function TrainingEmptyState({
   title,
   description,
 }: TrainingEmptyStateProps) {
+  const { t } = useTranslation();
   const config = VARIANT_CONFIG[variant];
   const { Icon } = config;
-  const displayTitle = title ?? config.defaultTitle;
-  const displayDescription = description ?? config.defaultDescription;
+  const displayTitle = title ?? t(config.defaultTitleKey);
+  const displayDescription = description ?? t(config.defaultDescriptionKey);
 
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">

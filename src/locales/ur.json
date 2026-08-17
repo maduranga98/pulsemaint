@@ -745,11 +745,11 @@
           "decommissioned": "ختم شدہ"
         },
         "criticalityOptions": {
-          "5": "5 - انتہائی اہم",
-          "4": "4 - زیادہ",
-          "3": "3 - درمیانی",
+          "1": "1 - کم ترین",
           "2": "2 - کم",
-          "1": "1 - کم ترین"
+          "3": "3 - درمیانی",
+          "4": "4 - زیادہ",
+          "5": "5 - انتہائی اہم"
         },
         "healthOptions": {
           "good": "اچھا (70-100)",
@@ -1748,6 +1748,285 @@
         "creating": "بنایا جا رہا ہے…",
         "createButton": "ورک آرڈر بنائیں",
         "fixErrors": "براہ کرم درج ذیل درست کریں:"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "میرے ماڈیولز پر واپس جائیں",
+        "lessonsCount": "{{total}} میں سے {{completed}}",
+        "trainingCompleted": "تربیت مکمل ہو گئی",
+        "saving": "محفوظ ہو رہا ہے…",
+        "markCompleteAcknowledge": "مکمل کے طور پر نشان زد کریں اور تصدیق کریں"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "منسلکہ اپ لوڈ کرنے میں ناکامی",
+        "submitErrorDefault": "رپورٹ جمع کرانے میں ناکامی",
+        "doneTitle": "علمی رپورٹ جمع کرا دی گئی",
+        "doneDescription": "شکریہ — آپ کی تربیتی رپورٹ جائزے کے لیے بھیج دی گئی ہے۔ اگر سرٹیفکیٹ یا مزید کارروائی درکار ہوئی تو HR رابطہ کرے گا۔",
+        "backToTraining": "میری تربیت پر واپس جائیں",
+        "providerLabel": "فراہم کنندہ",
+        "countryLabel": "ملک",
+        "modeLabel": "موڈ",
+        "durationLabel": "دورانیہ",
+        "startLabel": "آغاز",
+        "endLabel": "اختتام",
+        "topicLabel": "موضوع",
+        "day_one": "{{count}} دن",
+        "day_other": "{{count}} دن",
+        "knowledgeGainedLabel": "حاصل کردہ علم",
+        "knowledgeGainedPlaceholder": "خلاصہ کریں کہ آپ نے کیا سیکھا اور اسے کیسے استعمال کریں گے...",
+        "assessmentQuestionsTitle": "تشخیصی سوالات",
+        "attachmentsTitle": "منسلکات",
+        "uploadLabel": "دستاویزات / مینوئل اپ لوڈ کریں",
+        "uploading": "اپ لوڈ ہو رہا ہے…",
+        "submitButton": "علمی رپورٹ جمع کرائیں"
+      },
+      "lessonCompleteOverlay": {
+        "title": "سبق مکمل ہوا!",
+        "remaining_one": "{{count}} سبق باقی",
+        "remaining_other": "{{count}} اسباق باقی",
+        "allComplete": "تمام اسباق مکمل ہو گئے!",
+        "nextLesson": "اگلا سبق",
+        "close": "بند کریں"
+      },
+      "lessonListItem": {
+        "reading": "مطالعہ",
+        "page_one": "{{count}} صفحہ",
+        "page_other": "{{count}} صفحات",
+        "slide_one": "{{count}} سلائیڈ",
+        "slide_other": "{{count}} سلائیڈز",
+        "gallery": "گیلری",
+        "ariaLockedPrefix": "مقفل: ",
+        "ariaCompletedPrefix": "مکمل: ",
+        "ariaCurrentPrefix": "موجودہ سبق: "
+      },
+      "lessonViewer": {
+        "ariaClose": "سبق بند کریں",
+        "pageCount_one": "{{count}} صفحہ",
+        "pageCount_other": "{{count}} صفحات"
+      },
+      "lessonList": {
+        "completeToUnlock": "کوئز کھولنے کے لیے تمام لازمی اسباق مکمل کریں۔",
+        "quizPassed": "کوئز پاس ہو گیا",
+        "quizPassedWithScore": "{{score}}% کے ساتھ"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "تمام اسباق مکمل ہو گئے! اب آپ کوئز دے سکتے ہیں۔",
+        "passMark": "پاسنگ نمبر: {{score}}%",
+        "attemptsRemaining_one": "{{count}} کوشش باقی",
+        "attemptsRemaining_other": "{{count}} کوششیں باقی",
+        "noAttemptsRemaining": "کوئی کوشش باقی نہیں",
+        "startQuiz": "کوئز شروع کریں",
+        "ariaStartQuiz": "کوئز شروع کریں"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}} صفحہ",
+        "pageCount_other": "{{count}} صفحات",
+        "download": "ڈاؤن لوڈ کریں",
+        "ariaDownload": "دستاویز ڈاؤن لوڈ کریں",
+        "markedRead": "آپ نے اسے پڑھا ہوا نشان زد کر دیا ہے",
+        "markAsRead": "پڑھا ہوا نشان زد کریں",
+        "ariaMarkRead": "دستاویز کو پڑھا ہوا نشان زد کریں"
+      },
+      "moduleCard": {
+        "dueDate": "آخری تاریخ {{date}}",
+        "ariaOpenModule": "تربیتی ماڈیول کھولیں: {{name}}",
+        "day_one": "{{count}} دن",
+        "day_other": "{{count}} دن",
+        "lessonsCount": "{{total}} اسباق میں سے {{completed}}",
+        "marksLabel": "نمبرات: {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "بفرنگ ہو رہی ہے",
+        "ariaPlayVideo": "ویڈیو چلائیں",
+        "ariaPauseVideo": "ویڈیو روکیں",
+        "ariaPlay": "چلائیں",
+        "ariaPause": "روکیں",
+        "ariaSeek": "ویڈیو میں تلاش کریں",
+        "ariaEnableSubtitles": "سب ٹائٹلز آن کریں",
+        "ariaDisableSubtitles": "سب ٹائٹلز آف کریں",
+        "ariaMute": "خاموش کریں",
+        "ariaUnmute": "آواز بحال کریں",
+        "ariaPlaybackSpeed": "پلے بیک کی رفتار",
+        "ariaEnterFullscreen": "فل اسکرین میں جائیں",
+        "ariaExitFullscreen": "فل اسکرین سے نکلیں",
+        "lessonComplete": "سبق مکمل",
+        "markComplete": "مکمل کے طور پر نشان زد کریں",
+        "watchToComplete": "مکمل کرنے کے لیے {{percent}}% دیکھیں",
+        "ariaMarkComplete": "ویڈیو سبق کو مکمل نشان زد کریں"
+      },
+      "textLesson": {
+        "markedRead": "آپ نے اسے پڑھا ہوا نشان زد کر دیا ہے",
+        "markAsRead": "پڑھا ہوا نشان زد کریں",
+        "scrollToComplete": "مکمل کرنے کے لیے نیچے سکرول کریں",
+        "noContent": "اس سبق کے لیے کوئی مواد دستیاب نہیں ہے۔",
+        "ariaMarkRead": "سبق کو پڑھا ہوا نشان زد کریں"
+      },
+      "imageGalleryLesson": {
+        "noImages": "اس سبق میں کوئی تصاویر شامل نہیں کی گئیں۔",
+        "completed": "مکمل",
+        "markComplete": "مکمل کے طور پر نشان زد کریں",
+        "ariaPrevImage": "پچھلی تصویر",
+        "ariaNextImage": "اگلی تصویر",
+        "counter": "{{total}} میں سے {{current}}",
+        "ariaGoToImage": "تصویر {{n}} پر جائیں",
+        "viewAllToComplete": "اس سبق کو مکمل کرنے کے لیے تمام تصاویر دیکھیں"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "پروگرام تکمیل سرٹیفکیٹ",
+        "certificateNoLabel": "سرٹیفکیٹ نمبر",
+        "programmeLabel": "پروگرام",
+        "programmeDuration": "{{months}} ماہ کا تربیتی پروگرام",
+        "modulesCompletedLabel": "مکمل شدہ ماڈیولز",
+        "modulesCompletedValue_one": "{{months}} ماہ میں {{count}} ماڈیول",
+        "modulesCompletedValue_other": "{{months}} ماہ میں {{count}} ماڈیولز",
+        "issued": "اجراء {{date}}",
+        "signedOffBy": "{{name}} ({{role}}) کی طرف سے منظور شدہ",
+        "finalMark": "حتمی نمبر: {{mark}}%",
+        "ariaDownload": "پروگرام سرٹیفکیٹ PDF ڈاؤن لوڈ کریں",
+        "downloadPdf": "PDF ڈاؤن لوڈ کریں"
+      },
+      "certificateCard": {
+        "headerTitle": "تربیتی سرٹیفکیٹ",
+        "certificateNoLabel": "سرٹیفکیٹ نمبر",
+        "providerLabel": "فراہم کنندہ",
+        "machineLabel": "مشین",
+        "moduleLabel": "ماڈیول",
+        "issued": "اجراء {{date}}",
+        "expired": "میعاد ختم {{date}}",
+        "expires": "میعاد ختم ہوگی {{date}}",
+        "scoreLabel": "اسکور: {{score}}%",
+        "ariaDownload": "سرٹیفکیٹ کو A4 PDF کے طور پر ڈاؤن لوڈ کریں",
+        "downloadA4": "A4 PDF ڈاؤن لوڈ کریں",
+        "revoked": "منسوخ شدہ",
+        "toastGenerateError": "سرٹیفکیٹ PDF بنایا نہیں جا سکا۔",
+        "external": "بیرونی"
+      },
+      "quizAnswerReview": {
+        "title": "جوابات کا جائزہ",
+        "questionLabel": "س{{number}}: {{result}}",
+        "correct": "درست",
+        "incorrect": "غلط",
+        "pointsFraction": "+{{earned}}/{{total}}پوائنٹس",
+        "yourAnswer": "آپ کا جواب:",
+        "noAnswerSelected": "کوئی جواب منتخب نہیں کیا گیا",
+        "correctAnswer": "درست جواب:"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ مبارک ہو! آپ پاس ہو گئے۔",
+        "notPassedMessage": "✗ آپ پاس نہیں ہوئے۔ درکار اسکور: {{score}}%۔",
+        "correctLabel": "درست",
+        "scoreLabel": "اسکور",
+        "timeLabel": "وقت",
+        "supervisorNote": "آپ کا سپروائزر آپ کی عملی مہارتوں کا مشاہدہ کرکے انہیں منظور کرے گا۔",
+        "continue": "جاری رکھیں",
+        "retryAvailableIn": "دوبارہ کوشش دستیاب ہوگی",
+        "retryQuiz": "کوئز دوبارہ دیں",
+        "noAttemptsLeft": "آپ نے کوئز کی تمام کوششیں استعمال کر لی ہیں۔ اپنے سپروائزر سے رابطہ کریں۔",
+        "unlimitedAttempts": "لامحدود کوششیں",
+        "attemptsRemaining_one": "{{count}} کوشش باقی",
+        "attemptsRemaining_other": "{{count}} کوششیں باقی",
+        "backToModule": "ماڈیول پر واپس جائیں"
+      },
+      "quizReviewScreen": {
+        "title": "اپنے جوابات کا جائزہ لیں",
+        "answeredCount": "{{total}} سوالات میں سے {{answered}} کے جواب دیے گئے",
+        "unanswered_one": "{{count}} سوال کا جواب نہیں دیا گیا۔",
+        "unanswered_other": "{{count}} سوالات کے جوابات نہیں دیے گئے۔",
+        "questionLine": "س{{number}}: {{text}}",
+        "answered": "جواب دیا گیا",
+        "skipped": "چھوڑ دیا گیا",
+        "back": "واپس",
+        "submitQuiz": "کوئز جمع کرائیں",
+        "confirmTitle": "کوئز جمع کرائیں؟",
+        "confirmDescription": "جمع کرانے کے بعد آپ اپنے جوابات تبدیل نہیں کر سکتے۔",
+        "cancel": "منسوخ کریں",
+        "submitting": "جمع کرایا جا رہا ہے…",
+        "submit": "جمع کرائیں"
+      },
+      "quizTimer": {
+        "ariaRemaining": "باقی وقت: {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "س {{current}} / {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "پچھلا سوال",
+        "previous": "پچھلا",
+        "reviewAndSubmit": "جائزہ لیں اور جمع کرائیں",
+        "next": "اگلا",
+        "ariaNextQuestion": "اگلا سوال"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}} سوال",
+        "question_other": "{{count}} سوالات",
+        "noTimeLimit": "کوئی وقت کی حد نہیں",
+        "minute_one": "{{count}} منٹ",
+        "minute_other": "{{count}} منٹ",
+        "passMark": "پاسنگ نمبر: {{score}}%",
+        "unlimitedAttempts": "لامحدود کوششیں",
+        "noAttemptsRemaining": "کوئی کوشش باقی نہیں",
+        "attemptsRemaining_one": "{{count}} کوشش باقی",
+        "attemptsRemaining_other": "{{count}} کوششیں باقی",
+        "instructionsTitle": "ہدایات",
+        "startQuiz": "کوئز شروع کریں",
+        "noAttemptsRemainingButton": "کوئی کوشش باقی نہیں",
+        "ariaStartQuiz": "کوئز شروع کریں"
+      },
+      "quizQuestion": {
+        "questionLabel": "سوال {{number}}",
+        "ariaQuestionIllustration": "سوال کی تصویر",
+        "ariaQuestion": "سوال",
+        "explanationLabel": "وضاحت:",
+        "invalidTrueFalse": "غلط صحیح/غلط سوال۔"
+      },
+      "certificatePreview": {
+        "headerTitle": "تربیتی سرٹیفکیٹ",
+        "awardedTo": "عطا کیا گیا",
+        "providerLine": "فراہم کنندہ: {{name}}",
+        "machineLine": "مشین: {{name}}",
+        "issued": "اجراء: {{date}}",
+        "expires": "میعاد ختم: {{date}}",
+        "expiredSuffix": " (میعاد ختم)",
+        "issuedBy": "جاری کنندہ: {{name}}",
+        "downloadPdf": "PDF ڈاؤن لوڈ کریں",
+        "ariaDownload": "سرٹیفکیٹ PDF ڈاؤن لوڈ کریں",
+        "external": "بیرونی"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "بیرونی تربیت",
+        "ariaOffboard": "بیرونی تربیت",
+        "ariaMachine": "مشین: {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "کوئز اسکور: {{score}}% — {{status}}",
+        "passed": "پاس",
+        "failed": "فیل"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "ابھی تک کوئی تربیت تفویض نہیں کی گئی",
+        "noModulesDescription": "آپ کا سپروائزر یہاں ماڈیولز تفویض کرے گا۔",
+        "noCertificatesTitle": "ابھی تک کوئی سرٹیفکیٹ نہیں",
+        "noCertificatesDescription": "اپنے تفویض کردہ تربیتی ماڈیولز مکمل کریں۔",
+        "noAssignmentsTitle": "کوئی تفویض نہیں",
+        "noAssignmentsDescription": "اپنی ٹیم کو تربیتی ماڈیولز تفویض کریں۔"
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "پیشرفت: {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "دوبارہ تربیت درکار ہے"
+      },
+      "trainingStatusBadge": {
+        "not_started": "شروع نہیں ہوا",
+        "in_progress": "جاری ہے",
+        "quiz_passed": "کوئز پاس",
+        "quiz_failed": "فیل — دوبارہ کوشش کریں",
+        "awaiting_practical": "منظوری کا منتظر",
+        "certified": "تصدیق شدہ ✓",
+        "expired": "میعاد ختم",
+        "retraining_required": "دوبارہ تربیت درکار ہے",
+        "ariaStatus": "حیثیت: {{label}}"
       }
     }
   }

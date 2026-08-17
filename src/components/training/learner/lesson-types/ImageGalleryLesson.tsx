@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, CheckCircle } from 'lucide-react';
 import type { LessonItem, LessonProgress } from '@/lib/training/trainingTypes';
 
@@ -31,6 +32,7 @@ export default function ImageGalleryLesson({
   progress,
   onComplete,
 }: ImageGalleryLessonProps) {
+  const { t } = useTranslation();
   const images = parseImages(lesson);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [viewedAll, setViewedAll] = useState(progress?.completed ?? false);
@@ -67,11 +69,11 @@ export default function ImageGalleryLesson({
   if (images.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 h-64 px-4 text-center">
-        <p className="text-slate-400 text-sm">No images have been added to this lesson.</p>
+        <p className="text-slate-400 text-sm">{t('common.training.imageGalleryLesson.noImages')}</p>
         {progress?.completed ? (
           <div className="flex items-center gap-2 text-green-600 font-medium">
             <CheckCircle size={18} />
-            Completed
+            {t('common.training.imageGalleryLesson.completed')}
           </div>
         ) : (
           <button
@@ -79,7 +81,7 @@ export default function ImageGalleryLesson({
             className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
           >
             <CheckCircle size={18} />
-            Mark as Complete
+            {t('common.training.imageGalleryLesson.markComplete')}
           </button>
         )}
       </div>
@@ -108,7 +110,7 @@ export default function ImageGalleryLesson({
           <button
             onClick={prev}
             className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-            aria-label="Previous image"
+            aria-label={t('common.training.imageGalleryLesson.ariaPrevImage')}
           >
             <ChevronLeft size={20} />
           </button>
@@ -117,7 +119,7 @@ export default function ImageGalleryLesson({
           <button
             onClick={next}
             className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
-            aria-label="Next image"
+            aria-label={t('common.training.imageGalleryLesson.ariaNextImage')}
           >
             <ChevronRight size={20} />
           </button>
@@ -125,7 +127,7 @@ export default function ImageGalleryLesson({
 
         {/* Counter */}
         <div className="absolute top-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-          {currentIndex + 1} of {images.length}
+          {t('common.training.imageGalleryLesson.counter', { current: currentIndex + 1, total: images.length })}
         </div>
       </div>
 
@@ -142,7 +144,7 @@ export default function ImageGalleryLesson({
               key={i}
               onClick={() => setCurrentIndex(i)}
               className={`w-2 h-2 rounded-full transition-colors ${i === currentIndex ? 'bg-blue-600' : 'bg-slate-300'}`}
-              aria-label={`Go to image ${i + 1}`}
+              aria-label={t('common.training.imageGalleryLesson.ariaGoToImage', { n: i + 1 })}
             />
           ))}
         </div>
@@ -154,18 +156,18 @@ export default function ImageGalleryLesson({
             className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-colors"
           >
             <CheckCircle size={18} />
-            Mark as Complete
+            {t('common.training.imageGalleryLesson.markComplete')}
           </button>
         )}
         {progress?.completed && (
           <div className="flex items-center justify-center gap-2 text-green-600 font-medium py-2">
             <CheckCircle size={18} />
-            Completed
+            {t('common.training.imageGalleryLesson.completed')}
           </div>
         )}
         {!viewedAll && (
           <p className="text-xs text-slate-400 text-center">
-            View all images to complete this lesson
+            {t('common.training.imageGalleryLesson.viewAllToComplete')}
           </p>
         )}
       </div>

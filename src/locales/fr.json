@@ -749,11 +749,11 @@
           "decommissioned": "Mise hors service"
         },
         "criticalityOptions": {
-          "5": "5 - Critique",
-          "4": "4 - Élevée",
-          "3": "3 - Moyenne",
+          "1": "1 - Minimale",
           "2": "2 - Faible",
-          "1": "1 - Minimale"
+          "3": "3 - Moyenne",
+          "4": "4 - Élevée",
+          "5": "5 - Critique"
         },
         "healthOptions": {
           "good": "Bon (70-100)",
@@ -1752,6 +1752,285 @@
         "creating": "Création…",
         "createButton": "Créer l'ordre de travail",
         "fixErrors": "Veuillez corriger les points suivants :"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "Retour à mes modules",
+        "lessonsCount": "{{completed}} sur {{total}}",
+        "trainingCompleted": "Formation terminée",
+        "saving": "Enregistrement…",
+        "markCompleteAcknowledge": "Marquer comme terminé et confirmer"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "Échec du téléversement de la pièce jointe",
+        "submitErrorDefault": "Échec de l'envoi du rapport",
+        "doneTitle": "Rapport de connaissances envoyé",
+        "doneDescription": "Merci — votre rapport de formation a été envoyé pour examen. Les RH vous recontacteront si un certificat ou une autre action est requis.",
+        "backToTraining": "Retour à Ma Formation",
+        "providerLabel": "Prestataire",
+        "countryLabel": "Pays",
+        "modeLabel": "Mode",
+        "durationLabel": "Durée",
+        "startLabel": "Début",
+        "endLabel": "Fin",
+        "topicLabel": "Sujet",
+        "day_one": "{{count}} jour",
+        "day_other": "{{count}} jours",
+        "knowledgeGainedLabel": "Connaissances acquises",
+        "knowledgeGainedPlaceholder": "Résumez ce que vous avez appris et comment vous l'appliquerez...",
+        "assessmentQuestionsTitle": "Questions d'évaluation",
+        "attachmentsTitle": "Pièces jointes",
+        "uploadLabel": "Téléverser la documentation / les manuels",
+        "uploading": "Téléversement…",
+        "submitButton": "Envoyer le rapport de connaissances"
+      },
+      "lessonCompleteOverlay": {
+        "title": "Leçon terminée !",
+        "remaining_one": "{{count}} leçon restante",
+        "remaining_other": "{{count}} leçons restantes",
+        "allComplete": "Toutes les leçons sont terminées !",
+        "nextLesson": "Leçon suivante",
+        "close": "Fermer"
+      },
+      "lessonListItem": {
+        "reading": "Lecture",
+        "page_one": "{{count}} page",
+        "page_other": "{{count}} pages",
+        "slide_one": "{{count}} diapositive",
+        "slide_other": "{{count}} diapositives",
+        "gallery": "Galerie",
+        "ariaLockedPrefix": "Verrouillé : ",
+        "ariaCompletedPrefix": "Terminé : ",
+        "ariaCurrentPrefix": "Leçon en cours : "
+      },
+      "lessonViewer": {
+        "ariaClose": "Fermer la leçon",
+        "pageCount_one": "{{count}} page",
+        "pageCount_other": "{{count}} pages"
+      },
+      "lessonList": {
+        "completeToUnlock": "Terminez toutes les leçons obligatoires pour débloquer le quiz.",
+        "quizPassed": "Quiz réussi",
+        "quizPassedWithScore": "avec {{score}}%"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "Toutes les leçons sont terminées ! Vous pouvez maintenant passer le quiz.",
+        "passMark": "Note de passage : {{score}}%",
+        "attemptsRemaining_one": "{{count}} tentative restante",
+        "attemptsRemaining_other": "{{count}} tentatives restantes",
+        "noAttemptsRemaining": "Aucune tentative restante",
+        "startQuiz": "Démarrer le quiz",
+        "ariaStartQuiz": "Démarrer le quiz"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}} page",
+        "pageCount_other": "{{count}} pages",
+        "download": "Télécharger",
+        "ariaDownload": "Télécharger le document",
+        "markedRead": "Vous avez marqué ceci comme lu",
+        "markAsRead": "Marquer comme lu",
+        "ariaMarkRead": "Marquer le document comme lu"
+      },
+      "moduleCard": {
+        "dueDate": "Échéance : {{date}}",
+        "ariaOpenModule": "Ouvrir le module de formation : {{name}}",
+        "day_one": "{{count}} jour",
+        "day_other": "{{count}} jours",
+        "lessonsCount": "{{completed}} sur {{total}} leçons",
+        "marksLabel": "Note : {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "Mise en mémoire tampon",
+        "ariaPlayVideo": "Lire la vidéo",
+        "ariaPauseVideo": "Mettre la vidéo en pause",
+        "ariaPlay": "Lecture",
+        "ariaPause": "Pause",
+        "ariaSeek": "Rechercher dans la vidéo",
+        "ariaEnableSubtitles": "Activer les sous-titres",
+        "ariaDisableSubtitles": "Désactiver les sous-titres",
+        "ariaMute": "Couper le son",
+        "ariaUnmute": "Réactiver le son",
+        "ariaPlaybackSpeed": "Vitesse de lecture",
+        "ariaEnterFullscreen": "Passer en plein écran",
+        "ariaExitFullscreen": "Quitter le plein écran",
+        "lessonComplete": "Leçon terminée",
+        "markComplete": "Marquer comme terminée",
+        "watchToComplete": "Regardez {{percent}}% pour terminer",
+        "ariaMarkComplete": "Marquer la leçon vidéo comme terminée"
+      },
+      "textLesson": {
+        "markedRead": "Vous avez marqué ceci comme lu",
+        "markAsRead": "Marquer comme lu",
+        "scrollToComplete": "Faites défiler jusqu'en bas pour terminer",
+        "noContent": "Aucun contenu disponible pour cette leçon.",
+        "ariaMarkRead": "Marquer la leçon comme lue"
+      },
+      "imageGalleryLesson": {
+        "noImages": "Aucune image n'a été ajoutée à cette leçon.",
+        "completed": "Terminé",
+        "markComplete": "Marquer comme terminée",
+        "ariaPrevImage": "Image précédente",
+        "ariaNextImage": "Image suivante",
+        "counter": "{{current}} sur {{total}}",
+        "ariaGoToImage": "Aller à l'image {{n}}",
+        "viewAllToComplete": "Consultez toutes les images pour terminer cette leçon"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "Certificat de fin de programme",
+        "certificateNoLabel": "N° de certificat",
+        "programmeLabel": "Programme",
+        "programmeDuration": "Programme de stagiaire de {{months}} mois",
+        "modulesCompletedLabel": "Modules terminés",
+        "modulesCompletedValue_one": "{{count}} module sur {{months}} mois",
+        "modulesCompletedValue_other": "{{count}} modules sur {{months}} mois",
+        "issued": "Délivré le {{date}}",
+        "signedOffBy": "Validé par {{name}} ({{role}})",
+        "finalMark": "Note finale : {{mark}}%",
+        "ariaDownload": "Télécharger le certificat du programme en PDF",
+        "downloadPdf": "Télécharger le PDF"
+      },
+      "certificateCard": {
+        "headerTitle": "Certificat de formation",
+        "certificateNoLabel": "N° de certificat",
+        "providerLabel": "Prestataire",
+        "machineLabel": "Machine",
+        "moduleLabel": "Module",
+        "issued": "Délivré le {{date}}",
+        "expired": "Expiré le {{date}}",
+        "expires": "Expire le {{date}}",
+        "scoreLabel": "Note : {{score}}%",
+        "ariaDownload": "Télécharger le certificat en PDF A4",
+        "downloadA4": "Télécharger le PDF A4",
+        "revoked": "RÉVOQUÉ",
+        "toastGenerateError": "Impossible de générer le PDF du certificat.",
+        "external": "Externe"
+      },
+      "quizAnswerReview": {
+        "title": "Revue des réponses",
+        "questionLabel": "Q{{number}} : {{result}}",
+        "correct": "Correcte",
+        "incorrect": "Incorrecte",
+        "pointsFraction": "+{{earned}}/{{total}}pts",
+        "yourAnswer": "Votre réponse :",
+        "noAnswerSelected": "Aucune réponse sélectionnée",
+        "correctAnswer": "Bonne réponse :"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ Félicitations ! Vous avez réussi.",
+        "notPassedMessage": "✗ Vous n'avez pas réussi. Note requise : {{score}}%.",
+        "correctLabel": "Correctes",
+        "scoreLabel": "Note",
+        "timeLabel": "Temps",
+        "supervisorNote": "Votre superviseur observera et validera vos compétences pratiques.",
+        "continue": "Continuer",
+        "retryAvailableIn": "Nouvelle tentative disponible dans",
+        "retryQuiz": "Retenter le quiz",
+        "noAttemptsLeft": "Vous avez utilisé toutes vos tentatives de quiz. Contactez votre superviseur.",
+        "unlimitedAttempts": "Tentatives illimitées",
+        "attemptsRemaining_one": "{{count}} tentative restante",
+        "attemptsRemaining_other": "{{count}} tentatives restantes",
+        "backToModule": "Retour au module"
+      },
+      "quizReviewScreen": {
+        "title": "Vérifiez vos réponses",
+        "answeredCount": "{{answered}} sur {{total}} questions répondues",
+        "unanswered_one": "{{count}} question sans réponse.",
+        "unanswered_other": "{{count}} questions sans réponse.",
+        "questionLine": "Q{{number}} : {{text}}",
+        "answered": "Répondu",
+        "skipped": "Ignoré",
+        "back": "Retour",
+        "submitQuiz": "Envoyer le quiz",
+        "confirmTitle": "Envoyer le quiz ?",
+        "confirmDescription": "Vous ne pourrez pas modifier vos réponses après l'envoi.",
+        "cancel": "Annuler",
+        "submitting": "Envoi…",
+        "submit": "Envoyer"
+      },
+      "quizTimer": {
+        "ariaRemaining": "Temps restant : {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "Q {{current}} sur {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "Question précédente",
+        "previous": "Précédent",
+        "reviewAndSubmit": "Vérifier et envoyer",
+        "next": "Suivant",
+        "ariaNextQuestion": "Question suivante"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}} question",
+        "question_other": "{{count}} questions",
+        "noTimeLimit": "Aucune limite de temps",
+        "minute_one": "{{count}} minute",
+        "minute_other": "{{count}} minutes",
+        "passMark": "Note de passage : {{score}}%",
+        "unlimitedAttempts": "Tentatives illimitées",
+        "noAttemptsRemaining": "Aucune tentative restante",
+        "attemptsRemaining_one": "{{count}} tentative restante",
+        "attemptsRemaining_other": "{{count}} tentatives restantes",
+        "instructionsTitle": "Instructions",
+        "startQuiz": "Démarrer le quiz",
+        "noAttemptsRemainingButton": "Aucune tentative restante",
+        "ariaStartQuiz": "Démarrer le quiz"
+      },
+      "quizQuestion": {
+        "questionLabel": "Question {{number}}",
+        "ariaQuestionIllustration": "Illustration de la question",
+        "ariaQuestion": "Question",
+        "explanationLabel": "Explication :",
+        "invalidTrueFalse": "Question vrai/faux non valide."
+      },
+      "certificatePreview": {
+        "headerTitle": "Certificat de formation",
+        "awardedTo": "Décerné à",
+        "providerLine": "Prestataire : {{name}}",
+        "machineLine": "Machine : {{name}}",
+        "issued": "Délivré : {{date}}",
+        "expires": "Expire : {{date}}",
+        "expiredSuffix": " (Expiré)",
+        "issuedBy": "Délivré par : {{name}}",
+        "downloadPdf": "Télécharger le PDF",
+        "ariaDownload": "Télécharger le certificat en PDF",
+        "external": "Externe"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "Externe",
+        "ariaOffboard": "Formation externe",
+        "ariaMachine": "Machine : {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "Note du quiz : {{score}}% — {{status}}",
+        "passed": "Réussi",
+        "failed": "Échoué"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "Aucune formation assignée pour le moment",
+        "noModulesDescription": "Votre superviseur assignera des modules ici.",
+        "noCertificatesTitle": "Aucun certificat pour le moment",
+        "noCertificatesDescription": "Terminez vos modules de formation assignés.",
+        "noAssignmentsTitle": "Aucune assignation",
+        "noAssignmentsDescription": "Assignez des modules de formation à votre équipe."
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "Progression : {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "Recyclage requis"
+      },
+      "trainingStatusBadge": {
+        "not_started": "Non commencé",
+        "in_progress": "En cours",
+        "quiz_passed": "Quiz réussi",
+        "quiz_failed": "Échoué — Réessayer",
+        "awaiting_practical": "En attente de validation",
+        "certified": "Certifié ✓",
+        "expired": "Expiré",
+        "retraining_required": "Recyclage requis",
+        "ariaStatus": "Statut : {{label}}"
       }
     }
   }

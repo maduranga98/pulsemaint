@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { CheckCircle, PlayCircle, Circle, Lock, Video, FileText, Images, AlignLeft, type LucideIcon } from 'lucide-react';
 import type { LessonItem, LessonProgress, LessonType } from '@/lib/training/trainingTypes';
 
@@ -16,20 +17,22 @@ const TYPE_ICONS: Record<LessonType, LucideIcon> = {
   text: AlignLeft,
 };
 
-function formatDuration(lesson: LessonItem): string {
+function formatDuration(lesson: LessonItem, t: (key: string, opts?: Record<string, unknown>) => string): string {
   if (lesson.type === 'video' && lesson.durationSeconds > 0) {
     const mins = Math.floor(lesson.durationSeconds / 60);
     const secs = lesson.durationSeconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }
   if (lesson.type === 'document' && lesson.pageCount > 0) {
-    return `${lesson.pageCount} pages`;
+    return t('common.training.lessonListItem.page', { count: lesson.pageCount });
   }
   if (lesson.type === 'text') {
-    return 'Reading';
+    return t('common.training.lessonListItem.reading');
   }
   if (lesson.type === 'image_gallery') {
-    return lesson.pageCount > 0 ? `${lesson.pageCount} slides` : 'Gallery';
+    return lesson.pageCount > 0
+      ? t('common.training.lessonListItem.slide', { count: lesson.pageCount })
+      : t('common.training.lessonListItem.gallery');
   }
   return '';
 }
@@ -41,9 +44,10 @@ export default function LessonListItem({
   isLocked = false,
   onClick,
 }: LessonListItemProps) {
+  const { t } = useTranslation();
   const isCompleted = progress?.completed ?? false;
   const TypeIcon = TYPE_ICONS[lesson.type];
-  const durationLabel = formatDuration(lesson);
+  const durationLabel = formatDuration(lesson, t);
 
   const handleActivate = () => {
     if (isLocked) return;
@@ -65,7 +69,15 @@ export default function LessonListItem({
       role="button"
       tabIndex={isLocked ? -1 : 0}
       aria-disabled={isLocked}
-      aria-label={`${isLocked ? 'Locked: ' : isCompleted ? 'Completed: ' : isCurrent ? 'Current lesson: ' : ''}${lesson.title}`}
+      aria-label={`${
+        isLocked
+          ? t('common.training.lessonListItem.ariaLockedPrefix')
+          : isCompleted
+          ? t('common.training.lessonListItem.ariaCompletedPrefix')
+          : isCurrent
+          ? t('common.training.lessonListItem.ariaCurrentPrefix')
+          : ''
+      }${lesson.title}`}
       aria-current={isCurrent ? 'step' : undefined}
     >
       {/* Status icon */}

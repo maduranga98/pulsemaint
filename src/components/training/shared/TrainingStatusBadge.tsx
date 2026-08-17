@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { AssignmentStatus } from '@/lib/training/trainingTypes';
 
 interface TrainingStatusBadgeProps {
@@ -7,38 +8,38 @@ interface TrainingStatusBadgeProps {
 
 const STATUS_CONFIG: Record<
   AssignmentStatus,
-  { label: string; className: string; pulse?: boolean }
+  { labelKey: string; className: string; pulse?: boolean }
 > = {
   not_started: {
-    label: 'Not Started',
+    labelKey: 'common.training.trainingStatusBadge.not_started',
     className: 'bg-gray-100 text-gray-600',
   },
   in_progress: {
-    label: 'In Progress',
+    labelKey: 'common.training.trainingStatusBadge.in_progress',
     className: 'bg-blue-100 text-blue-700',
   },
   quiz_passed: {
-    label: 'Quiz Passed',
+    labelKey: 'common.training.trainingStatusBadge.quiz_passed',
     className: 'bg-amber-100 text-amber-700',
   },
   quiz_failed: {
-    label: 'Failed — Retry',
+    labelKey: 'common.training.trainingStatusBadge.quiz_failed',
     className: 'bg-red-100 text-red-700',
   },
   awaiting_practical: {
-    label: 'Awaiting Sign-Off',
+    labelKey: 'common.training.trainingStatusBadge.awaiting_practical',
     className: 'bg-amber-100 text-amber-700',
   },
   certified: {
-    label: 'Certified ✓',
+    labelKey: 'common.training.trainingStatusBadge.certified',
     className: 'bg-green-100 text-green-700',
   },
   expired: {
-    label: 'Expired',
+    labelKey: 'common.training.trainingStatusBadge.expired',
     className: 'bg-red-100 text-red-700',
   },
   retraining_required: {
-    label: 'Retraining Required',
+    labelKey: 'common.training.trainingStatusBadge.retraining_required',
     className: 'bg-red-100 text-red-700',
     pulse: true,
   },
@@ -48,7 +49,9 @@ export default function TrainingStatusBadge({
   status,
   className = '',
 }: TrainingStatusBadgeProps) {
+  const { t } = useTranslation();
   const config = STATUS_CONFIG[status];
+  const label = t(config.labelKey);
 
   return (
     <span
@@ -60,9 +63,9 @@ export default function TrainingStatusBadge({
       ]
         .filter(Boolean)
         .join(' ')}
-      aria-label={`Status: ${config.label}`}
+      aria-label={t('common.training.trainingStatusBadge.ariaStatus', { label })}
     >
-      {config.label}
+      {label}
     </span>
   );
 }

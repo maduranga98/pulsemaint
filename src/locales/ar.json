@@ -745,11 +745,11 @@
           "decommissioned": "خارج الخدمة"
         },
         "criticalityOptions": {
-          "5": "5 - حرجة",
-          "4": "4 - عالية",
-          "3": "3 - متوسطة",
+          "1": "1 - ضئيلة",
           "2": "2 - منخفضة",
-          "1": "1 - ضئيلة"
+          "3": "3 - متوسطة",
+          "4": "4 - عالية",
+          "5": "5 - حرجة"
         },
         "healthOptions": {
           "good": "جيدة (70-100)",
@@ -1748,6 +1748,285 @@
         "creating": "جارٍ الإنشاء…",
         "createButton": "إنشاء أمر عمل",
         "fixErrors": "يرجى تصحيح ما يلي:"
+      }
+    },
+    "training": {
+      "moduleLearningScreen": {
+        "ariaBack": "العودة إلى وحداتي",
+        "lessonsCount": "{{completed}} من {{total}}",
+        "trainingCompleted": "اكتمل التدريب",
+        "saving": "جارٍ الحفظ…",
+        "markCompleteAcknowledge": "وضع علامة مكتمل والإقرار"
+      },
+      "offboardTrainingCompletionForm": {
+        "uploadErrorDefault": "فشل رفع المرفق",
+        "submitErrorDefault": "فشل إرسال التقرير",
+        "doneTitle": "تم إرسال تقرير المعرفة",
+        "doneDescription": "شكرًا لك — تم إرسال تقرير التدريب الخاص بك للمراجعة. سيتواصل معك قسم الموارد البشرية إذا لزم إصدار شهادة أو اتخاذ إجراء إضافي.",
+        "backToTraining": "العودة إلى تدريبي",
+        "providerLabel": "المزوّد",
+        "countryLabel": "الدولة",
+        "modeLabel": "النمط",
+        "durationLabel": "المدة",
+        "startLabel": "البداية",
+        "endLabel": "النهاية",
+        "topicLabel": "الموضوع",
+        "day_one": "{{count}} يوم",
+        "day_other": "{{count}} أيام",
+        "knowledgeGainedLabel": "المعرفة المكتسبة",
+        "knowledgeGainedPlaceholder": "لخّص ما تعلمته وكيف ستطبقه...",
+        "assessmentQuestionsTitle": "أسئلة التقييم",
+        "attachmentsTitle": "المرفقات",
+        "uploadLabel": "رفع الوثائق / الأدلة",
+        "uploading": "جارٍ الرفع…",
+        "submitButton": "إرسال تقرير المعرفة"
+      },
+      "lessonCompleteOverlay": {
+        "title": "اكتمل الدرس!",
+        "remaining_one": "بقي {{count}} درس",
+        "remaining_other": "بقي {{count}} دروس",
+        "allComplete": "اكتملت جميع الدروس!",
+        "nextLesson": "الدرس التالي",
+        "close": "إغلاق"
+      },
+      "lessonListItem": {
+        "reading": "قراءة",
+        "page_one": "{{count}} صفحة",
+        "page_other": "{{count}} صفحات",
+        "slide_one": "{{count}} شريحة",
+        "slide_other": "{{count}} شرائح",
+        "gallery": "معرض",
+        "ariaLockedPrefix": "مقفل: ",
+        "ariaCompletedPrefix": "مكتمل: ",
+        "ariaCurrentPrefix": "الدرس الحالي: "
+      },
+      "lessonViewer": {
+        "ariaClose": "إغلاق الدرس",
+        "pageCount_one": "{{count}} صفحة",
+        "pageCount_other": "{{count}} صفحات"
+      },
+      "lessonList": {
+        "completeToUnlock": "أكمل جميع الدروس الإلزامية لفتح الاختبار.",
+        "quizPassed": "تم اجتياز الاختبار",
+        "quizPassedWithScore": "بنسبة {{score}}%"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "اكتملت جميع الدروس! يمكنك الآن إجراء الاختبار.",
+        "passMark": "درجة النجاح: {{score}}%",
+        "attemptsRemaining_one": "بقيت {{count}} محاولة",
+        "attemptsRemaining_other": "بقيت {{count}} محاولات",
+        "noAttemptsRemaining": "لم تتبقَّ أي محاولات",
+        "startQuiz": "بدء الاختبار",
+        "ariaStartQuiz": "بدء الاختبار"
+      },
+      "documentLesson": {
+        "pageCount_one": "{{count}} صفحة",
+        "pageCount_other": "{{count}} صفحات",
+        "download": "تنزيل",
+        "ariaDownload": "تنزيل المستند",
+        "markedRead": "لقد وضعت علامة على أنك قرأت هذا",
+        "markAsRead": "وضع علامة كمقروء",
+        "ariaMarkRead": "وضع علامة على المستند كمقروء"
+      },
+      "moduleCard": {
+        "dueDate": "الاستحقاق {{date}}",
+        "ariaOpenModule": "فتح وحدة التدريب: {{name}}",
+        "day_one": "{{count}} يوم",
+        "day_other": "{{count}} أيام",
+        "lessonsCount": "{{completed}} من {{total}} درساً",
+        "marksLabel": "الدرجات: {{score}}%"
+      },
+      "videoLesson": {
+        "ariaBuffering": "جارٍ التخزين المؤقت",
+        "ariaPlayVideo": "تشغيل الفيديو",
+        "ariaPauseVideo": "إيقاف الفيديو مؤقتًا",
+        "ariaPlay": "تشغيل",
+        "ariaPause": "إيقاف مؤقت",
+        "ariaSeek": "البحث في الفيديو",
+        "ariaEnableSubtitles": "تفعيل الترجمة",
+        "ariaDisableSubtitles": "تعطيل الترجمة",
+        "ariaMute": "كتم الصوت",
+        "ariaUnmute": "إلغاء كتم الصوت",
+        "ariaPlaybackSpeed": "سرعة التشغيل",
+        "ariaEnterFullscreen": "ملء الشاشة",
+        "ariaExitFullscreen": "الخروج من ملء الشاشة",
+        "lessonComplete": "اكتمل الدرس",
+        "markComplete": "وضع علامة مكتمل",
+        "watchToComplete": "شاهد {{percent}}% للإكمال",
+        "ariaMarkComplete": "وضع علامة على درس الفيديو كمكتمل"
+      },
+      "textLesson": {
+        "markedRead": "لقد وضعت علامة على أنك قرأت هذا",
+        "markAsRead": "وضع علامة كمقروء",
+        "scrollToComplete": "مرر إلى الأسفل للإكمال",
+        "noContent": "لا يوجد محتوى متاح لهذا الدرس.",
+        "ariaMarkRead": "وضع علامة على الدرس كمقروء"
+      },
+      "imageGalleryLesson": {
+        "noImages": "لم تتم إضافة صور إلى هذا الدرس.",
+        "completed": "مكتمل",
+        "markComplete": "وضع علامة مكتمل",
+        "ariaPrevImage": "الصورة السابقة",
+        "ariaNextImage": "الصورة التالية",
+        "counter": "{{current}} من {{total}}",
+        "ariaGoToImage": "الانتقال إلى الصورة {{n}}",
+        "viewAllToComplete": "شاهد جميع الصور لإكمال هذا الدرس"
+      },
+      "programmeCertificateCard": {
+        "headerTitle": "شهادة إتمام البرنامج",
+        "certificateNoLabel": "رقم الشهادة",
+        "programmeLabel": "البرنامج",
+        "programmeDuration": "برنامج تدريب لمدة {{months}} أشهر",
+        "modulesCompletedLabel": "الوحدات المكتملة",
+        "modulesCompletedValue_one": "{{count}} وحدة خلال {{months}} أشهر",
+        "modulesCompletedValue_other": "{{count}} وحدات خلال {{months}} أشهر",
+        "issued": "صدرت في {{date}}",
+        "signedOffBy": "اعتمدها {{name}} ({{role}})",
+        "finalMark": "الدرجة النهائية: {{mark}}%",
+        "ariaDownload": "تنزيل شهادة البرنامج بصيغة PDF",
+        "downloadPdf": "تنزيل PDF"
+      },
+      "certificateCard": {
+        "headerTitle": "شهادة التدريب",
+        "certificateNoLabel": "رقم الشهادة",
+        "providerLabel": "المزوّد",
+        "machineLabel": "الآلة",
+        "moduleLabel": "الوحدة",
+        "issued": "صدرت في {{date}}",
+        "expired": "انتهت في {{date}}",
+        "expires": "تنتهي في {{date}}",
+        "scoreLabel": "الدرجة: {{score}}%",
+        "ariaDownload": "تنزيل الشهادة بصيغة PDF مقاس A4",
+        "downloadA4": "تنزيل PDF مقاس A4",
+        "revoked": "ملغاة",
+        "toastGenerateError": "تعذر إنشاء ملف PDF للشهادة.",
+        "external": "خارجي"
+      },
+      "quizAnswerReview": {
+        "title": "مراجعة الإجابات",
+        "questionLabel": "س{{number}}: {{result}}",
+        "correct": "صحيحة",
+        "incorrect": "غير صحيحة",
+        "pointsFraction": "+{{earned}}/{{total}}نقطة",
+        "yourAnswer": "إجابتك:",
+        "noAnswerSelected": "لم يتم اختيار إجابة",
+        "correctAnswer": "الإجابة الصحيحة:"
+      },
+      "quizResultsScreen": {
+        "passedMessage": "✓ تهانينا! لقد نجحت.",
+        "notPassedMessage": "✗ لم تنجح. الدرجة المطلوبة: {{score}}%.",
+        "correctLabel": "صحيحة",
+        "scoreLabel": "الدرجة",
+        "timeLabel": "الوقت",
+        "supervisorNote": "سيقوم مشرفك بمراقبة مهاراتك العملية واعتمادها.",
+        "continue": "متابعة",
+        "retryAvailableIn": "يمكن إعادة المحاولة خلال",
+        "retryQuiz": "إعادة الاختبار",
+        "noAttemptsLeft": "لقد استنفدت جميع محاولات الاختبار. تواصل مع مشرفك.",
+        "unlimitedAttempts": "محاولات غير محدودة",
+        "attemptsRemaining_one": "بقيت {{count}} محاولة",
+        "attemptsRemaining_other": "بقيت {{count}} محاولات",
+        "backToModule": "العودة إلى الوحدة"
+      },
+      "quizReviewScreen": {
+        "title": "راجع إجاباتك",
+        "answeredCount": "تمت الإجابة عن {{answered}} من {{total}} أسئلة",
+        "unanswered_one": "لم تتم الإجابة عن {{count}} سؤال.",
+        "unanswered_other": "لم تتم الإجابة عن {{count}} أسئلة.",
+        "questionLine": "س{{number}}: {{text}}",
+        "answered": "تمت الإجابة",
+        "skipped": "تم التخطي",
+        "back": "رجوع",
+        "submitQuiz": "إرسال الاختبار",
+        "confirmTitle": "إرسال الاختبار؟",
+        "confirmDescription": "لا يمكنك تغيير إجاباتك بعد الإرسال.",
+        "cancel": "إلغاء",
+        "submitting": "جارٍ الإرسال…",
+        "submit": "إرسال"
+      },
+      "quizTimer": {
+        "ariaRemaining": "الوقت المتبقي: {{time}}"
+      },
+      "quizProgressBar": {
+        "questionOfTotal": "س {{current}} من {{total}}"
+      },
+      "quizRunner": {
+        "ariaPreviousQuestion": "السؤال السابق",
+        "previous": "السابق",
+        "reviewAndSubmit": "مراجعة وإرسال",
+        "next": "التالي",
+        "ariaNextQuestion": "السؤال التالي"
+      },
+      "quizPreScreen": {
+        "question_one": "{{count}} سؤال",
+        "question_other": "{{count}} أسئلة",
+        "noTimeLimit": "لا يوجد حد زمني",
+        "minute_one": "{{count}} دقيقة",
+        "minute_other": "{{count}} دقائق",
+        "passMark": "درجة النجاح: {{score}}%",
+        "unlimitedAttempts": "محاولات غير محدودة",
+        "noAttemptsRemaining": "لم تتبقَّ أي محاولات",
+        "attemptsRemaining_one": "بقيت {{count}} محاولة",
+        "attemptsRemaining_other": "بقيت {{count}} محاولات",
+        "instructionsTitle": "التعليمات",
+        "startQuiz": "بدء الاختبار",
+        "noAttemptsRemainingButton": "لم تتبقَّ أي محاولات",
+        "ariaStartQuiz": "بدء الاختبار"
+      },
+      "quizQuestion": {
+        "questionLabel": "السؤال {{number}}",
+        "ariaQuestionIllustration": "رسم توضيحي للسؤال",
+        "ariaQuestion": "سؤال",
+        "explanationLabel": "الشرح:",
+        "invalidTrueFalse": "سؤال صح/خطأ غير صالح."
+      },
+      "certificatePreview": {
+        "headerTitle": "شهادة التدريب",
+        "awardedTo": "مُنحت إلى",
+        "providerLine": "المزوّد: {{name}}",
+        "machineLine": "الآلة: {{name}}",
+        "issued": "صدرت: {{date}}",
+        "expires": "تنتهي: {{date}}",
+        "expiredSuffix": " (منتهية)",
+        "issuedBy": "أصدرها: {{name}}",
+        "downloadPdf": "تنزيل PDF",
+        "ariaDownload": "تنزيل الشهادة بصيغة PDF",
+        "external": "خارجي"
+      },
+      "moduleTypeBadge": {
+        "offboardLabel": "تدريب خارجي",
+        "ariaOffboard": "تدريب خارجي",
+        "ariaMachine": "الآلة: {{name}}"
+      },
+      "quizScoreBadge": {
+        "ariaLabel": "درجة الاختبار: {{score}}% — {{status}}",
+        "passed": "ناجح",
+        "failed": "راسب"
+      },
+      "trainingEmptyState": {
+        "noModulesTitle": "لم يتم تعيين أي تدريب بعد",
+        "noModulesDescription": "سيقوم مشرفك بتعيين الوحدات هنا.",
+        "noCertificatesTitle": "لا توجد شهادات بعد",
+        "noCertificatesDescription": "أكمل وحدات التدريب المعينة لك.",
+        "noAssignmentsTitle": "لا توجد تعيينات",
+        "noAssignmentsDescription": "عيّن وحدات تدريبية لفريقك."
+      },
+      "trainingProgressBar": {
+        "ariaLabel": "التقدم: {{percent}}%"
+      },
+      "retrainingBadge": {
+        "label": "إعادة التدريب مطلوبة"
+      },
+      "trainingStatusBadge": {
+        "not_started": "لم يبدأ",
+        "in_progress": "قيد التنفيذ",
+        "quiz_passed": "تم اجتياز الاختبار",
+        "quiz_failed": "راسب — أعد المحاولة",
+        "awaiting_practical": "بانتظار الاعتماد",
+        "certified": "معتمد ✓",
+        "expired": "منتهي",
+        "retraining_required": "إعادة التدريب مطلوبة",
+        "ariaStatus": "الحالة: {{label}}"
       }
     }
   }

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface QuizProgressBarProps {
   current: number;
   total: number;
@@ -5,10 +7,11 @@ interface QuizProgressBarProps {
 }
 
 export default function QuizProgressBar({ current, total, answeredCount }: QuizProgressBarProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-3">
       <span className="text-sm font-medium text-slate-700 shrink-0">
-        Q {current} of {total}
+        {t('common.training.quizProgressBar.questionOfTotal', { current, total })}
       </span>
       <div className="flex-1 bg-slate-200 rounded-full h-1.5 overflow-hidden">
         <div

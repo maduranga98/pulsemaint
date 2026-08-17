@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { QuizSessionState, QuestionType } from '@/lib/training/trainingTypes';
 import QuizQuestion from './QuizQuestion';
@@ -19,6 +20,7 @@ export default function QuizRunner({
   onShowReview,
   onTimerExpire,
 }: QuizRunnerProps) {
+  const { t } = useTranslation();
   const { questions, currentIndex, answers, timeRemaining } = session;
   const answeredCount = Object.values(answers).filter((a) => a.length > 0).length;
   const isLast = currentIndex === questions.length - 1;
@@ -70,7 +72,7 @@ export default function QuizRunner({
             onClick={onShowReview}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl text-lg transition-colors"
           >
-            Review & Submit
+            {t('common.training.quizRunner.reviewAndSubmit')}
           </button>
         </div>
       </div>
@@ -81,24 +83,24 @@ export default function QuizRunner({
           onClick={() => onNavigate(currentIndex - 1)}
           disabled={currentIndex === 0}
           className="flex items-center gap-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-700 disabled:opacity-40 font-medium flex-1 justify-center"
-          aria-label="Previous question"
+          aria-label={t('common.training.quizRunner.ariaPreviousQuestion')}
         >
-          <ChevronLeft size={18} /> Previous
+          <ChevronLeft size={18} /> {t('common.training.quizRunner.previous')}
         </button>
         {isLast ? (
           <button
             onClick={onShowReview}
             className="flex items-center gap-1 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium flex-1 justify-center"
           >
-            Review & Submit <ChevronRight size={18} />
+            {t('common.training.quizRunner.reviewAndSubmit')} <ChevronRight size={18} />
           </button>
         ) : (
           <button
             onClick={() => onNavigate(currentIndex + 1)}
             className="flex items-center gap-1 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium flex-1 justify-center"
-            aria-label="Next question"
+            aria-label={t('common.training.quizRunner.ariaNextQuestion')}
           >
-            Next <ChevronRight size={18} />
+            {t('common.training.quizRunner.next')} <ChevronRight size={18} />
           </button>
         )}
       </div>
