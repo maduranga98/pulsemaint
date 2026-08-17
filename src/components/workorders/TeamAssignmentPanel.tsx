@@ -25,6 +25,26 @@ interface ContractorOption {
 interface SupervisorOption {
   id: string;
   name: string;
+  role?: string;
+  department?: string;
+}
+
+const SUPERVISOR_ROLE_LABELS: Record<string, string> = {
+  supervisor: 'Supervisor',
+  maintenance_supervisor: 'Supervisor',
+  plant_manager: 'Plant Manager',
+  admin: 'Admin',
+};
+
+function supervisorRoleLabel(role?: string): string {
+  if (!role) return '';
+  return SUPERVISOR_ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+}
+
+function supervisorOptionLabel(s: SupervisorOption): string {
+  const roleLabel = supervisorRoleLabel(s.role);
+  const parts = [s.name, roleLabel, s.department].filter(Boolean);
+  return parts.join(' — ');
 }
 
 interface TeamAssignmentPanelProps {
@@ -132,7 +152,7 @@ export function TeamAssignmentPanel({
             <option value="">{WO_COPY.supervisorPlaceholder}</option>
             {supervisors.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name}
+                {supervisorOptionLabel(s)}
               </option>
             ))}
           </select>
