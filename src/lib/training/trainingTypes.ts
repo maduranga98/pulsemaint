@@ -371,6 +371,8 @@ export interface TrainingCertificate {
   quizScore: number;
   practicalObservations: string;
   pdfUrl: string;
+  /** The signing-off manager's captured signature, drawn onto the certificate PDF. */
+  signatureImageDataUrl?: string | null;
   assignmentId: string;
   isRevoked: boolean;
   revokedAt: Timestamp | null;

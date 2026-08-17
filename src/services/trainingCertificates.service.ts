@@ -10,6 +10,7 @@ interface IssueCertificateInput {
   issuedBy: string;
   issuedByName: string;
   practicalObservations: string;
+  signatureImageDataUrl: string;
 }
 
 /**
@@ -32,6 +33,7 @@ export async function issueTrainingCertificate({
   issuedBy,
   issuedByName,
   practicalObservations,
+  signatureImageDataUrl,
 }: IssueCertificateInput): Promise<string | null> {
   try {
     const existing = await getDocs(
@@ -66,6 +68,7 @@ export async function issueTrainingCertificate({
       isExpired: false,
       quizScore: assignment.bestScore ?? 0,
       practicalObservations,
+      signatureImageDataUrl,
       // Rendered on demand from the company's own letterhead
       // (lib/training/certificatePdf) rather than stored as a file.
       pdfUrl: '',

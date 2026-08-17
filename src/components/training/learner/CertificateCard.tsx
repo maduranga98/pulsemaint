@@ -48,6 +48,7 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
         expiryDate: expiry ? new Date(expiry.seconds * 1000) : null,
         issuedByName: certificate.issuedByName || '',
         practicalObservations: certificate.practicalObservations || null,
+        signatureImageDataUrl: certificate.signatureImageDataUrl || null,
         companyName: company?.name || certificate.companyName || '',
         companyDescription: company?.description ?? null,
         companyAddress: company?.address ?? null,

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { CheckCircle, XCircle, Loader2, ClipboardCheck } from 'lucide-react';
+import { SignaturePad } from '@/components/settings/SignaturePad';
 
 interface PracticalSignOffCardProps {
   assignment: TrainingAssignment;
-  onSignOff: (data: { passed: boolean; observations: string }) => Promise<void>;
+  onSignOff: (data: { passed: boolean; observations: string; signatureDataUrl: string | null }) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -15,6 +16,7 @@ export default function PracticalSignOffCard({
 }: PracticalSignOffCardProps) {
   const [observations, setObservations] = useState('');
   const [passed, setPassed] = useState<boolean | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -29,10 +31,14 @@ export default function PracticalSignOffCard({
       setError('Please select Pass or Fail.');
       return;
     }
+    if (passed && !signatureDataUrl) {
+      setError('Please add your signature to authorize the certificate.');
+      return;
+    }
 
     setSubmitting(true);
     try {
-      await onSignOff({ passed, observations: observations.trim() });
+      await onSignOff({ passed, observations: observations.trim(), signatureDataUrl });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign-off failed.');
     } finally {
@@ -113,6 +119,16 @@ export default function PracticalSignOffCard({
         </div>
       </div>
 
+      {/* Digital signature — required to authorize the certificate on a Pass */}
+      {passed === true && (
+        <div>
+          <p className="text-sm font-medium text-gray-700 mb-2">
+            Authorizing signature <span className="text-red-500">*</span>
+          </p>
+          <SignaturePad onChange={setSignatureDataUrl} />
+        </div>
+      )}
+
       {/* Error */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-sm text-red-700">
@@ -123,7 +139,7 @@ export default function PracticalSignOffCard({
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={submitting || isLoading}
+        disabled={submitting || isLoading || (passed === true && !signatureDataUrl)}
         className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {(submitting || isLoading) && (
