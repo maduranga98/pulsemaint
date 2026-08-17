@@ -189,42 +189,46 @@ export function WOListView() {
                 </button>
               );
             })}
-            <button
-              type="button"
-              onClick={() => setActiveCategory('needSignOff')}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                activeCategory === 'needSignOff'
-                  ? 'bg-amber-600 text-white'
-                  : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
-              }`}
-            >
-              Need Sign-Off
-              <span
-                className={`text-xs font-medium rounded-full px-1.5 ${
-                  activeCategory === 'needSignOff' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-600'
+            {canSignOff && (
+              <button
+                type="button"
+                onClick={() => setActiveCategory('needSignOff')}
+                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                  activeCategory === 'needSignOff'
+                    ? 'bg-amber-600 text-white'
+                    : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
                 }`}
               >
-                {nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status)).length}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveCategory('signedOff')}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                activeCategory === 'signedOff'
-                  ? 'bg-emerald-600 text-white'
-                  : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
-              }`}
-            >
-              Signed Off
-              <span
-                className={`text-xs font-medium rounded-full px-1.5 ${
-                  activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
+                Need Sign-Off
+                <span
+                  className={`text-xs font-medium rounded-full px-1.5 ${
+                    activeCategory === 'needSignOff' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-600'
+                  }`}
+                >
+                  {nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status)).length}
+                </span>
+              </button>
+            )}
+            {canSignOff && (
+              <button
+                type="button"
+                onClick={() => setActiveCategory('signedOff')}
+                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                  activeCategory === 'signedOff'
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
                 }`}
               >
-                {nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status)).length}
-              </span>
-            </button>
+                Signed Off
+                <span
+                  className={`text-xs font-medium rounded-full px-1.5 ${
+                    activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
+                  }`}
+                >
+                  {nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status)).length}
+                </span>
+              </button>
+            )}
             {canSignOff && (
               <button
                 type="button"
