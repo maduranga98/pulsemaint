@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
 import { buildTrainingCertificatePdf, certificateFileName } from '@/lib/training/certificatePdf';
 import type { TrainingCertificate } from '@/lib/training/trainingTypes';
+import { resolveCompanyLogoDataUrl } from '@/lib/pdf/logoUtils';
 
 interface CertificateCardProps {
   certificate: TrainingCertificate;
@@ -32,8 +33,9 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
 
   // Rendered on demand from the company's letterhead rather than fetched —
   // there is no stored PDF for a certificate issued in-app.
-  function handleDownload() {
+  async function handleDownload() {
     try {
+      const companyLogoDataUrl = await resolveCompanyLogoDataUrl(company);
       const doc = buildTrainingCertificatePdf({
         certificateNumber: certificate.certificateNumber,
         traineeName: certificate.traineeName,
@@ -51,7 +53,7 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
         companyAddress: company?.address ?? null,
         companyPhone: company?.phone ?? null,
         companyEmail: company?.email ?? null,
-        companyLogoDataUrl: company?.logoDataUrl ?? null,
+        companyLogoDataUrl,
       });
       doc.save(certificateFileName(certificate.traineeName, certificate.certificateNumber));
     } catch (err) {
