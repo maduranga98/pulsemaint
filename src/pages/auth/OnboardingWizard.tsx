@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, updateDoc, setDoc, addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, updateDoc, addDoc, collection, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { nanoid } from 'nanoid';
 import { AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { getDashboardRoute } from '../../lib/auth';
+import { createInvitation } from '../../lib/invitations';
 
 type StepError = { message: string } | null;
 
@@ -35,7 +35,7 @@ export default function OnboardingWizard() {
 
   // Step 3
   const [memberName, setMemberName] = useState('');
-  const [memberRole, setMemberRole] = useState<'technician' | 'maintenance_supervisor' | 'plant_manager' | 'store_keeper' | 'hr_officer' | 'safety_officer'>('technician');
+  const [memberRole, setMemberRole] = useState<'technician' | 'supervisor' | 'plant_manager' | 'store_keeper' | 'hr_officer' | 'safety_officer'>('technician');
   const [memberEmail, setMemberEmail] = useState('');
   const [memberPhone, setMemberPhone] = useState('');
 
@@ -107,21 +107,18 @@ export default function OnboardingWizard() {
   };
 
   const saveInvite = async () => {
-    if (!memberName || (!memberEmail && !memberPhone)) return;
-    const token = nanoid(24);
-    const inviteRef = doc(db, `companies/${company.id}/pendingInvites/${token}`);
-    await setDoc(inviteRef, {
-      token,
+    if (!memberName || !memberEmail) return;
+    await createInvitation({
       companyId: company.id,
       companyName: company.name,
-      fullName: memberName,
+      email: memberEmail,
       role: memberRole,
-      email: memberEmail || null,
+      fullName: memberName,
+      department: null,
+      jobTitle: null,
       phone: memberPhone || null,
       invitedBy: userProfile.id,
-      status: 'pending',
-      createdAt: serverTimestamp(),
-      expiresAt: Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+      invitedByName: userProfile.fullName,
     });
   };
 
@@ -376,7 +373,7 @@ export default function OnboardingWizard() {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
                 >
                   <option value="technician">Technician</option>
-                  <option value="maintenance_supervisor">Supervisor</option>
+                  <option value="supervisor">Supervisor</option>
                   <option value="plant_manager">Plant Manager</option>
                   <option value="store_keeper">Store Keeper</option>
                   <option value="hr_officer">HR Officer</option>
