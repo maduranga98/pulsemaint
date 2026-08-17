@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { Machine } from '../../types/machine';
 import { MachineStatusBadge } from './MachineStatusBadge';
 import { MachineCriticalityBadge } from './MachineCriticalityBadge';
@@ -13,10 +14,11 @@ interface MachineListTableProps {
 }
 
 export function MachineListTable({ machines, isLoading = false, onEdit }: MachineListTableProps) {
+  const { t } = useTranslation();
   if (machines.length === 0 && !isLoading) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">No machines found</p>
+        <p className="text-gray-500">{t('common.machines.listTable.noMachines')}</p>
       </div>
     );
   }
@@ -26,16 +28,16 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-200 bg-gray-50">
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Machine</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Serial</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Location</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Type</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Criticality</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Health</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Last Service</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Next PM</th>
-            <th className="px-4 py-3 text-left font-medium text-gray-700">Actions</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.machine')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.serial')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.location')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.type')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.criticality')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.status')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.health')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.lastService')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.nextPm')}</th>
+            <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.machines.listTable.columns.actions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -63,8 +65,8 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                   <div className="text-xs">
                     <p className="text-gray-900">{machine.department}</p>
                     <p className="text-gray-500">
-                      {machine.floor && `Floor ${machine.floor}`}
-                      {machine.bay && ` · Bay ${machine.bay}`}
+                      {machine.floor && t('common.machines.listTable.floor', { floor: machine.floor })}
+                      {machine.bay && ` · ${t('common.machines.listTable.bay', { bay: machine.bay })}`}
                     </p>
                   </div>
                 </td>
@@ -81,7 +83,7 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                   <MachineHealthScore score={machine.healthScore} variant="compact" showLabel={false} />
                 </td>
                 <td className="px-4 py-3 text-xs text-gray-600">
-                  {lastServiceDate ? formatDistanceToNow(lastServiceDate) : 'Never'}
+                  {lastServiceDate ? formatDistanceToNow(lastServiceDate) : t('common.machines.listTable.never')}
                 </td>
                 <td className="px-4 py-3">
                   {nextPmDate ? (
@@ -90,22 +92,22 @@ export function MachineListTable({ machines, isLoading = false, onEdit }: Machin
                       {isOverduepm && <span className="ml-1 font-bold">!</span>}
                     </span>
                   ) : (
-                    <span className="text-xs text-gray-400">Not scheduled</span>
+                    <span className="text-xs text-gray-400">{t('common.machines.listTable.notScheduled')}</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2">
                     <Link to={`/app/machines/${machine.id}`} className="text-blue-600 hover:text-blue-800 text-xs font-medium">
-                      View
+                      {t('common.machines.listTable.view')}
                     </Link>
                     <button
                       onClick={() => onEdit?.(machine)}
                       className="text-gray-600 hover:text-gray-800 text-xs font-medium"
                     >
-                      Edit
+                      {t('common.machines.listTable.edit')}
                     </button>
                     <Link to={`/app/machines/${machine.id}/qr`} className="text-gray-600 hover:text-gray-800 text-xs font-medium">
-                      QR
+                      {t('common.machines.listTable.qr')}
                     </Link>
                   </div>
                 </td>

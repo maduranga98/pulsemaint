@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Edit2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,6 +15,7 @@ type CostMode = 'direct' | 'units';
 type Currency = 'LKR' | 'USD' | 'AED' | 'SAR';
 
 export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -62,10 +64,10 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
       }
 
       await updateDoc(doc(db, 'machines', machine.id), updates);
-      toast.success('Downtime cost rates updated.');
+      toast.success(t('common.machines.downtimeCost.saved'));
       setEditing(false);
     } catch (err: any) {
-      toast.error(err?.message || 'Failed to save.');
+      toast.error(err?.message || t('common.machines.downtimeCost.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -83,14 +85,14 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-gray-900">Downtime Cost</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.machines.downtimeCost.title')}</h3>
         {canEdit && !editing && (
           <button
             type="button"
             onClick={() => setEditing(true)}
             className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
           >
-            <Edit2 className="w-4 h-4" /> Edit
+            <Edit2 className="w-4 h-4" /> {t('common.machines.downtimeCost.edit')}
           </button>
         )}
       </div>
@@ -100,27 +102,30 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
           {effectiveRate !== null ? (
             <div className="space-y-1">
               <p className="text-gray-900 font-medium">
-                {machine.costCurrency ?? 'LKR'} {effectiveRate.toLocaleString()}/hr
+                {t('common.machines.downtimeCost.perHour', { currency: machine.costCurrency ?? 'LKR', rate: effectiveRate.toLocaleString() })}
               </p>
               {machine.costPerHourDown != null ? (
-                <p className="text-gray-500 text-xs">Direct hourly rate</p>
+                <p className="text-gray-500 text-xs">{t('common.machines.downtimeCost.directRateNote')}</p>
               ) : (
                 <p className="text-gray-500 text-xs">
-                  {machine.unitsPerHour} units/hr × {machine.costCurrency ?? 'LKR'}{' '}
-                  {machine.unitValue?.toLocaleString()}/unit
+                  {t('common.machines.downtimeCost.unitsValueNote', {
+                    units: machine.unitsPerHour,
+                    currency: machine.costCurrency ?? 'LKR',
+                    value: machine.unitValue?.toLocaleString(),
+                  })}
                 </p>
               )}
             </div>
           ) : (
             <p className="text-gray-500">
-              No downtime cost configured.{' '}
+              {t('common.machines.downtimeCost.noConfig')}{' '}
               {canEdit && (
                 <button
                   type="button"
                   onClick={() => setEditing(true)}
                   className="text-blue-600 hover:underline"
                 >
-                  Configure now
+                  {t('common.machines.downtimeCost.configureNow')}
                 </button>
               )}
             </p>
@@ -137,7 +142,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
                 onChange={() => setMode('direct')}
                 className="text-blue-600"
               />
-              Direct hourly rate
+              {t('common.machines.downtimeCost.directRateLabel')}
             </label>
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input
@@ -146,13 +151,13 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
                 onChange={() => setMode('units')}
                 className="text-blue-600"
               />
-              Units × value
+              {t('common.machines.downtimeCost.unitsValueLabel')}
             </label>
           </div>
 
           {/* Currency */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Currency</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.machines.downtimeCost.currency')}</label>
             <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value as Currency)}
@@ -168,13 +173,13 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
           {mode === 'direct' ? (
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
-                Cost per hour down ({currency})
+                {t('common.machines.downtimeCost.costPerHour', { currency })}
               </label>
               <input
                 type="number"
                 value={directRate}
                 onChange={(e) => setDirectRate(e.target.value)}
-                placeholder="e.g. 50000"
+                placeholder={t('common.machines.downtimeCost.costPerHourPlaceholder')}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
@@ -182,25 +187,25 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Units produced per hour
+                  {t('common.machines.downtimeCost.unitsPerHour')}
                 </label>
                 <input
                   type="number"
                   value={unitsPerHour}
                   onChange={(e) => setUnitsPerHour(e.target.value)}
-                  placeholder="e.g. 100"
+                  placeholder={t('common.machines.downtimeCost.unitsPerHourPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Value per unit ({currency})
+                  {t('common.machines.downtimeCost.valuePerUnit', { currency })}
                 </label>
                 <input
                   type="number"
                   value={unitValue}
                   onChange={(e) => setUnitValue(e.target.value)}
-                  placeholder="e.g. 500"
+                  placeholder={t('common.machines.downtimeCost.valuePerUnitPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
@@ -218,7 +223,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
                 : null;
             return previewRate !== null ? (
               <div className="bg-blue-50 rounded-lg px-3 py-2 text-sm text-blue-700">
-                Effective rate: {currency} {previewRate.toLocaleString()}/hr
+                {t('common.machines.downtimeCost.effectiveRate', { currency, rate: previewRate.toLocaleString() })}
               </div>
             ) : null;
           })()}
@@ -230,7 +235,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
               disabled={saving}
               className="flex items-center gap-1 px-3 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
             >
-              <X className="w-4 h-4" /> Cancel
+              <X className="w-4 h-4" /> {t('common.machines.downtimeCost.cancel')}
             </button>
             <button
               type="button"
@@ -238,7 +243,7 @@ export function DowntimeCostFields({ machine, canEdit }: DowntimeCostFieldsProps
               disabled={saving}
               className="flex items-center gap-1 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
             >
-              <Save className="w-4 h-4" /> {saving ? 'Saving…' : 'Save'}
+              <Save className="w-4 h-4" /> {saving ? t('common.machines.downtimeCost.saving') : t('common.machines.downtimeCost.save')}
             </button>
           </div>
         </div>

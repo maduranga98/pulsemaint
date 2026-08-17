@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 export interface FormStep {
   id: string;
   label: string;
@@ -17,6 +19,7 @@ export function MachineFormStepper({
   onStepChange,
   isDesktop = false,
 }: MachineFormStepperProps) {
+  const { t } = useTranslation();
   if (isDesktop) {
     // Desktop: vertical stepper on the left
     return (
@@ -61,7 +64,7 @@ export function MachineFormStepper({
     <div className="space-y-2">
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium text-gray-700">
-          Step {currentStep + 1} of {steps.length}
+          {t('common.machines.formStepper.stepOf', { current: currentStep + 1, total: steps.length })}
         </span>
         <span className="text-sm text-gray-600">{steps[currentStep].label}</span>
       </div>

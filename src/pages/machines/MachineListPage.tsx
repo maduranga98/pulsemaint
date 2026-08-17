@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -181,6 +182,7 @@ interface ImportModalProps {
 }
 
 function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
+  const { t } = useTranslation();
   const fileRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<CsvRow[]>([]);
   const [importing, setImporting] = useState(false);
@@ -246,7 +248,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
         updatedBy: userId,
       });
       count++;
-      setProgress(`Importing... ${count}/${validRows.length}`);
+      setProgress(t('common.machines.listPage.importModal.importing', { count, total: validRows.length }));
     }
     setImporting(false);
     setDone(true);
@@ -257,7 +259,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Import Machines from CSV</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.listPage.importModal.title')}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-xl font-bold">×</button>
         </div>
 
@@ -265,13 +267,13 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
           {done ? (
             <div className="text-center py-8">
               <p className="text-green-600 font-medium text-lg">
-                Successfully imported {validRows.length} machine{validRows.length !== 1 ? 's' : ''}!
+                {t('common.machines.listPage.importModal.success', { count: validRows.length })}
               </p>
               <button
                 onClick={onClose}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Close
+                {t('common.machines.listPage.importModal.close')}
               </button>
             </div>
           ) : (
@@ -281,18 +283,18 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
                   onClick={downloadCsvTemplate}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
                 >
-                  Download CSV Template
+                  {t('common.machines.listPage.importModal.downloadTemplate')}
                 </button>
-                <span className="text-sm text-gray-500">then fill it out and upload below</span>
+                <span className="text-sm text-gray-500">{t('common.machines.listPage.importModal.downloadTemplateHint')}</span>
               </div>
 
               <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 space-y-1">
-                <p><strong>Suggested types:</strong> {SUGGESTED_TYPES.join(', ')} — any other value is accepted as a custom type</p>
-                <p><strong>Valid statuses:</strong> {VALID_STATUSES.join(', ')}</p>
-                <p><strong>Criticality:</strong> 1–5 (1=Low, 5=Mission Critical)</p>
-                <p><strong>Dates</strong> (purchase_date, installation_date, next_pm_date): YYYY-MM-DD</p>
-                <p><strong>Warranty items:</strong> "Part Name:Expiry Date:Supplier Ref" — separate multiple items with ";"</p>
-                <p><strong>Spare parts:</strong> separate multiple parts with ";"</p>
+                <p><strong>{t('common.machines.listPage.importModal.suggestedTypes')}</strong> {SUGGESTED_TYPES.join(', ')} {t('common.machines.listPage.importModal.suggestedTypesHint')}</p>
+                <p><strong>{t('common.machines.listPage.importModal.validStatuses')}</strong> {VALID_STATUSES.join(', ')}</p>
+                <p><strong>{t('common.machines.listPage.importModal.criticalityHint')}</strong> {t('common.machines.listPage.importModal.criticalityRange')}</p>
+                <p><strong>{t('common.machines.listPage.importModal.datesLabel')}</strong> {t('common.machines.listPage.importModal.datesFields')}</p>
+                <p><strong>{t('common.machines.listPage.importModal.warrantyItemsLabel')}</strong> {t('common.machines.listPage.importModal.warrantyItemsHint')}</p>
+                <p><strong>{t('common.machines.listPage.importModal.sparePartsLabel')}</strong> {t('common.machines.listPage.importModal.sparePartsHint')}</p>
               </div>
 
               <div>
@@ -301,21 +303,30 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
                   onClick={() => fileRef.current?.click()}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
                 >
-                  Choose CSV File
+                  {t('common.machines.listPage.importModal.chooseFile')}
                 </button>
               </div>
 
               {rows.length > 0 && (
                 <div>
                   <p className="text-sm font-medium text-gray-700 mb-2">
-                    Preview — {rows.length} row{rows.length !== 1 ? 's' : ''} ({validRows.length} valid,{' '}
-                    {rows.length - validRows.length} with errors)
+                    {t('common.machines.listPage.importModal.previewCount', { rows: rows.length, valid: validRows.length, errors: rows.length - validRows.length })}
                   </p>
                   <div className="overflow-x-auto border border-gray-200 rounded-lg max-h-64 overflow-y-auto">
                     <table className="w-full text-xs">
                       <thead className="bg-gray-50 sticky top-0">
                         <tr>
-                          {['Name','Type','Manufacturer','Model','Serial','Department','Status','Crit.','Error'].map((h) => (
+                          {[
+                            t('common.machines.listPage.importModal.columns.name'),
+                            t('common.machines.listPage.importModal.columns.type'),
+                            t('common.machines.listPage.importModal.columns.manufacturer'),
+                            t('common.machines.listPage.importModal.columns.model'),
+                            t('common.machines.listPage.importModal.columns.serial'),
+                            t('common.machines.listPage.importModal.columns.department'),
+                            t('common.machines.listPage.importModal.columns.status'),
+                            t('common.machines.listPage.importModal.columns.criticality'),
+                            t('common.machines.listPage.importModal.columns.error'),
+                          ].map((h) => (
                             <th key={h} className="px-2 py-2 text-left font-medium text-gray-600">{h}</th>
                           ))}
                         </tr>
@@ -350,14 +361,14 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
         {!done && (
           <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
             <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium">
-              Cancel
+              {t('common.machines.listPage.importModal.cancel')}
             </button>
             <button
               onClick={handleImport}
               disabled={validRows.length === 0 || importing}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
             >
-              {importing ? 'Importing...' : `Import ${validRows.length} Machine${validRows.length !== 1 ? 's' : ''}`}
+              {importing ? t('common.machines.listPage.importModal.importingButton') : t('common.machines.listPage.importModal.importButton', { count: validRows.length })}
             </button>
           </div>
         )}
@@ -367,6 +378,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
 }
 
 export function MachineListPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
   const [filters, setFilters] = useState<Partial<MachineFilters>>({});
@@ -430,7 +442,7 @@ export function MachineListPage() {
   if (!userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-gray-600">{t('common.machines.listPage.loading')}</p>
       </div>
     );
   }
@@ -460,9 +472,9 @@ export function MachineListPage() {
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Machine Registry</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{t('common.machines.listPage.title')}</h1>
               <p className="text-gray-600 text-sm mt-1">
-                {totalCount || machines.length} machines · {activeMachines} active · {maintenanceMachines} in maintenance
+                {t('common.machines.listPage.summary', { total: totalCount || machines.length, active: activeMachines, maintenance: maintenanceMachines })}
               </p>
             </div>
 
@@ -471,17 +483,17 @@ export function MachineListPage() {
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white"
-                aria-label="Sort machines"
+                aria-label={t('common.machines.listPage.sortLabel')}
               >
-                <option value="asc">Sort: A → Z</option>
-                <option value="desc">Sort: Z → A</option>
+                <option value="asc">{t('common.machines.listPage.sortAsc')}</option>
+                <option value="desc">{t('common.machines.listPage.sortDesc')}</option>
               </select>
               {canCreateMachine && (
                 <Link
                   to="/app/machines/new"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
                 >
-                  + Add Machine
+                  {t('common.machines.listPage.addMachine')}
                 </Link>
               )}
               {canCreateMachine && (
@@ -489,7 +501,7 @@ export function MachineListPage() {
                   onClick={() => setShowImport(true)}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm"
                 >
-                  Import
+                  {t('common.machines.listPage.import')}
                 </button>
               )}
               <button
@@ -497,7 +509,7 @@ export function MachineListPage() {
                 disabled={filteredMachines.length === 0}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
-                Export CSV
+                {t('common.machines.listPage.exportCsv')}
               </button>
             </div>
           </div>
@@ -533,14 +545,14 @@ export function MachineListPage() {
         {!loading && filteredMachines.length === 0 && !error && (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <p className="text-gray-600 mb-4">
-              {machines.length === 0 ? 'No machines registered yet' : 'No machines match your filters'}
+              {machines.length === 0 ? t('common.machines.listPage.noMachinesYet') : t('common.machines.listPage.noMachinesMatch')}
             </p>
             {canCreateMachine && machines.length === 0 && (
               <Link
                 to="/app/machines/new"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Add First Machine
+                {t('common.machines.listPage.addFirstMachine')}
               </Link>
             )}
             {machines.length > 0 && filteredMachines.length === 0 && (
@@ -548,7 +560,7 @@ export function MachineListPage() {
                 onClick={() => setFilters({})}
                 className="text-blue-600 hover:text-blue-800 font-medium text-sm"
               >
-                Clear Filters
+                {t('common.machines.listPage.clearFilters')}
               </button>
             )}
           </div>
@@ -577,7 +589,7 @@ export function MachineListPage() {
               onClick={loadMore}
               className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
             >
-              Load More
+              {t('common.machines.listPage.loadMore')}
             </button>
           </div>
         )}

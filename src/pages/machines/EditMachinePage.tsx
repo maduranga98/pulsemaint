@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
 import { useMachineUpdate } from '../../hooks/useMachineUpdate';
@@ -8,6 +9,7 @@ import type { UpdateMachineFormData } from '../../schemas/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
 
 export function EditMachinePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const userProfile = useAuthStore((state) => state.userProfile);
@@ -20,7 +22,7 @@ export function EditMachinePage() {
   if (!userProfile || !id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-gray-600">{t('common.machines.editPage.loading')}</p>
       </div>
     );
   }
@@ -28,7 +30,7 @@ export function EditMachinePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading machine...</p>
+        <p className="text-gray-600">{t('common.machines.editPage.loadingMachine')}</p>
       </div>
     );
   }
@@ -37,7 +39,7 @@ export function EditMachinePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Machine Not Found</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">{t('common.machines.editPage.notFound')}</h2>
           <p className="text-gray-600">{error}</p>
         </div>
       </div>
@@ -81,10 +83,10 @@ export function EditMachinePage() {
       };
 
       await updateMachine(payload);
-      success('Machine updated successfully!');
+      success(t('common.machines.editPage.updateSuccess'));
       navigate(`/app/machines/${id}`);
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to update machine';
+      const errorMsg = err instanceof Error ? err.message : t('common.machines.editPage.updateFailed');
       showError(errorMsg);
       throw err;
     }

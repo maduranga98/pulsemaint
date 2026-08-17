@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useMachineCreate } from '../../hooks/useMachineCreate';
 import { useToast } from '../../hooks/useToast';
@@ -7,6 +8,7 @@ import type { CreateMachinePayload, MachineCriticality } from '../../types/machi
 import { MachineForm } from '../../components/machines/MachineForm';
 
 export function AddMachinePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
   const { createMachine, creating } = useMachineCreate();
@@ -15,7 +17,7 @@ export function AddMachinePage() {
   if (!userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-gray-600">{t('common.machines.addPage.loading')}</p>
       </div>
     );
   }
@@ -54,10 +56,10 @@ export function AddMachinePage() {
       };
 
       await createMachine(payload);
-      success(`Machine "${formData.name}" created successfully!`);
+      success(t('common.machines.addPage.createSuccess', { name: formData.name }));
       navigate('/app/machines');
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to create machine';
+      const errorMsg = err instanceof Error ? err.message : t('common.machines.addPage.createFailed');
       showError(errorMsg);
       throw err;
     }

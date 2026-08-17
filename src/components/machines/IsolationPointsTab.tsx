@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
 import { db } from '../../lib/firebase';
@@ -11,12 +12,12 @@ interface IsolationPointsTabProps {
   canEdit: boolean;
 }
 
-const TYPE_OPTIONS: { value: IsolationPointType; label: string }[] = [
-  { value: 'electrical', label: 'Electrical' },
-  { value: 'hydraulic', label: 'Hydraulic' },
-  { value: 'pneumatic', label: 'Pneumatic' },
-  { value: 'mechanical', label: 'Mechanical' },
-  { value: 'thermal', label: 'Thermal' },
+const TYPE_OPTIONS: { value: IsolationPointType; labelKey: string }[] = [
+  { value: 'electrical', labelKey: 'common.machines.isolationPoints.typeOptions.electrical' },
+  { value: 'hydraulic', labelKey: 'common.machines.isolationPoints.typeOptions.hydraulic' },
+  { value: 'pneumatic', labelKey: 'common.machines.isolationPoints.typeOptions.pneumatic' },
+  { value: 'mechanical', labelKey: 'common.machines.isolationPoints.typeOptions.mechanical' },
+  { value: 'thermal', labelKey: 'common.machines.isolationPoints.typeOptions.thermal' },
 ];
 
 const TYPE_COLORS: Record<IsolationPointType, string> = {
@@ -47,6 +48,7 @@ interface IpFormState {
 const emptyForm = (): IpFormState => ({ type: 'electrical', label: '', location: '' });
 
 export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps) {
+  const { t } = useTranslation();
   const points: IsolationPoint[] = machine.isolationPoints ?? [];
   const [showAddForm, setShowAddForm] = useState(false);
   const [addForm, setAddForm] = useState<IpFormState>(emptyForm());
@@ -61,9 +63,9 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
         isolationPoints: updated,
         updatedAt: serverTimestamp(),
       });
-      toast.success('Isolation points updated');
+      toast.success(t('common.machines.isolationPoints.updated'));
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Save failed';
+      const msg = err instanceof Error ? err.message : t('common.machines.isolationPoints.saveFailed');
       toast.error(msg);
     } finally {
       setSaving(false);
@@ -72,7 +74,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
 
   async function handleAdd() {
     if (!addForm.label.trim()) {
-      toast.error('Label is required');
+      toast.error(t('common.machines.isolationPoints.labelRequired'));
       return;
     }
     const newPoint: IsolationPoint = {
@@ -93,7 +95,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
 
   async function handleEditSave() {
     if (!editForm.label.trim()) {
-      toast.error('Label is required');
+      toast.error(t('common.machines.isolationPoints.labelRequired'));
       return;
     }
     const updated = points.map((p) =>
@@ -106,14 +108,14 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm('Delete this isolation point?')) return;
+    if (!window.confirm(t('common.machines.isolationPoints.deleteConfirm'))) return;
     await savePoints(points.filter((p) => p.id !== id));
   }
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-gray-900">Isolation Points</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.machines.isolationPoints.title')}</h3>
         {canEdit && !showAddForm && (
           <button
             type="button"
@@ -121,14 +123,14 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
             className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
-            Add Isolation Point
+            {t('common.machines.isolationPoints.addButton')}
           </button>
         )}
       </div>
 
       {points.length === 0 && !showAddForm && (
         <p className="text-sm text-gray-500 py-4 text-center">
-          No isolation points defined for this machine.
+          {t('common.machines.isolationPoints.empty')}
         </p>
       )}
 
@@ -145,21 +147,21 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
                     className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
                   >
                     {TYPE_OPTIONS.map((o) => (
-                      <option key={o.value} value={o.value}>{o.label}</option>
+                      <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
                     ))}
                   </select>
                   <input
                     type="text"
                     value={editForm.label}
                     onChange={(e) => setEditForm({ ...editForm, label: e.target.value })}
-                    placeholder="Label"
+                    placeholder={t('common.machines.isolationPoints.labelPlaceholder')}
                     className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
                   />
                   <input
                     type="text"
                     value={editForm.location}
                     onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                    placeholder="Location"
+                    placeholder={t('common.machines.isolationPoints.locationPlaceholder')}
                     className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
                   />
                 </div>
@@ -191,7 +193,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
             >
               <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${TYPE_COLORS[point.type]}`}>
                 <TypeIcon type={point.type} />
-                {point.type}
+                {t(`common.machines.isolationPoints.typeOptions.${point.type}`)}
               </span>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900">{point.label}</p>
@@ -203,7 +205,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
                     type="button"
                     onClick={() => startEdit(point)}
                     className="p-1.5 text-gray-400 hover:text-blue-600 rounded"
-                    aria-label="Edit"
+                    aria-label={t('common.machines.isolationPoints.editAction')}
                   >
                     <Pencil className="h-4 w-4" />
                   </button>
@@ -212,7 +214,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
                     onClick={() => handleDelete(point.id)}
                     disabled={saving}
                     className="p-1.5 text-gray-400 hover:text-red-600 rounded disabled:opacity-50"
-                    aria-label="Delete"
+                    aria-label={t('common.machines.isolationPoints.deleteAction')}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -226,7 +228,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
       {/* Add form */}
       {showAddForm && (
         <div className="border border-blue-300 rounded-xl p-3 bg-blue-50 space-y-2">
-          <p className="text-sm font-medium text-gray-700">New Isolation Point</p>
+          <p className="text-sm font-medium text-gray-700">{t('common.machines.isolationPoints.newTitle')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <select
               value={addForm.type}
@@ -234,21 +236,21 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
               className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
             >
               {TYPE_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
               ))}
             </select>
             <input
               type="text"
               value={addForm.label}
               onChange={(e) => setAddForm({ ...addForm, label: e.target.value })}
-              placeholder="Label (e.g. Main Power Breaker)"
+              placeholder={t('common.machines.isolationPoints.newLabelPlaceholder')}
               className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
             />
             <input
               type="text"
               value={addForm.location}
               onChange={(e) => setAddForm({ ...addForm, location: e.target.value })}
-              placeholder="Location (e.g. Panel B, Row 3)"
+              placeholder={t('common.machines.isolationPoints.newLocationPlaceholder')}
               className="text-sm rounded-lg border border-gray-300 px-3 py-1.5"
             />
           </div>
@@ -258,7 +260,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
               onClick={() => { setShowAddForm(false); setAddForm(emptyForm()); }}
               className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900"
             >
-              Cancel
+              {t('common.machines.isolationPoints.cancel')}
             </button>
             <button
               type="button"
@@ -266,7 +268,7 @@ export function IsolationPointsTab({ machine, canEdit }: IsolationPointsTabProps
               disabled={saving}
               className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {saving ? 'Saving...' : 'Add Point'}
+              {saving ? t('common.machines.isolationPoints.saving') : t('common.machines.isolationPoints.add')}
             </button>
           </div>
         </div>

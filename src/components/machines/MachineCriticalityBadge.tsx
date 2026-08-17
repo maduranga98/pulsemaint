@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { MachineCriticality } from '../../types/machine';
 
 interface MachineCriticalityBadgeProps {
@@ -6,12 +7,12 @@ interface MachineCriticalityBadgeProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const criticalityConfig: Record<MachineCriticality, { label: string; color: string; bg: string }> = {
-  1: { label: 'Low', color: 'text-blue-600', bg: 'bg-blue-50' },
-  2: { label: 'Below Average', color: 'text-green-600', bg: 'bg-green-50' },
-  3: { label: 'Medium', color: 'text-cyan-600', bg: 'bg-cyan-50' },
-  4: { label: 'High', color: 'text-amber-600', bg: 'bg-amber-50' },
-  5: { label: 'Mission Critical', color: 'text-red-600', bg: 'bg-red-50' },
+const criticalityConfig: Record<MachineCriticality, { labelKey: string; color: string; bg: string }> = {
+  1: { labelKey: 'common.machines.criticalityBadge.low', color: 'text-blue-600', bg: 'bg-blue-50' },
+  2: { labelKey: 'common.machines.criticalityBadge.belowAverage', color: 'text-green-600', bg: 'bg-green-50' },
+  3: { labelKey: 'common.machines.criticalityBadge.medium', color: 'text-cyan-600', bg: 'bg-cyan-50' },
+  4: { labelKey: 'common.machines.criticalityBadge.high', color: 'text-amber-600', bg: 'bg-amber-50' },
+  5: { labelKey: 'common.machines.criticalityBadge.missionCritical', color: 'text-red-600', bg: 'bg-red-50' },
 };
 
 const sizeClasses = {
@@ -25,6 +26,7 @@ export function MachineCriticalityBadge({
   showLabel = true,
   size = 'md',
 }: MachineCriticalityBadgeProps) {
+  const { t } = useTranslation();
   const config = criticalityConfig[criticality];
 
   if (!showLabel) {
@@ -45,7 +47,7 @@ export function MachineCriticalityBadge({
     <div
       className={`inline-flex items-center rounded-full font-medium ${config.bg} ${config.color} ${sizeClasses[size]}`}
     >
-      {config.label}
+      {t(config.labelKey)}
     </div>
   );
 }

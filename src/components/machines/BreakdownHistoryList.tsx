@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMachineBreakdowns, type BreakdownHistoryItem } from '../../hooks/useMachineBreakdowns';
 
 interface Props {
@@ -31,6 +32,7 @@ function formatTimestamp(ts: any): string {
 }
 
 function BreakdownEntry({ entry }: { entry: BreakdownHistoryItem }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -60,17 +62,18 @@ function BreakdownEntry({ entry }: { entry: BreakdownHistoryItem }) {
           <p className="text-gray-700">{entry.description}</p>
           {entry.attemptedFixes && (
             <p className="text-gray-500">
-              Attempted fixes: <span className="font-medium text-gray-700">{entry.attemptedFixes}</span>
+              {t('common.machines.breakdownHistory.attemptedFixesLabel')}{' '}
+              <span className="font-medium text-gray-700">{entry.attemptedFixes}</span>
             </p>
           )}
           {entry.assignedTechnicianNames.length > 0 && (
             <p className="text-gray-500">
-              Assigned: {entry.assignedTechnicianNames.join(', ')}
+              {t('common.machines.breakdownHistory.assigned', { names: entry.assignedTechnicianNames.join(', ') })}
             </p>
           )}
           {entry.resolvedAt && (
             <p className="text-gray-500">
-              Resolved: {formatTimestamp(entry.resolvedAt)}
+              {t('common.machines.breakdownHistory.resolved', { date: formatTimestamp(entry.resolvedAt) })}
             </p>
           )}
         </div>
@@ -80,12 +83,13 @@ function BreakdownEntry({ entry }: { entry: BreakdownHistoryItem }) {
 }
 
 export function BreakdownHistoryList({ machineId, machineName }: Props) {
+  const { t } = useTranslation();
   const { entries, loading, error, hasMore, loadMore } = useMachineBreakdowns(machineId);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-gray-900">Breakdown History</h2>
+        <h2 className="font-semibold text-gray-900">{t('common.machines.breakdownHistory.title')}</h2>
         {machineName && <p className="text-sm text-gray-500">{machineName}</p>}
       </div>
 
@@ -102,7 +106,7 @@ export function BreakdownHistoryList({ machineId, machineName }: Props) {
       {!loading && entries.length === 0 && !error && (
         <div className="text-center py-12">
           <p className="text-3xl mb-3">⚡</p>
-          <p className="text-gray-400 text-sm">No breakdown history for this machine yet.</p>
+          <p className="text-gray-400 text-sm">{t('common.machines.breakdownHistory.empty')}</p>
         </div>
       )}
 
@@ -121,7 +125,7 @@ export function BreakdownHistoryList({ machineId, machineName }: Props) {
           disabled={loading}
           className="w-full py-2.5 text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50"
         >
-          {loading ? 'Loading…' : 'Load more'}
+          {loading ? t('common.machines.breakdownHistory.loading') : t('common.machines.breakdownHistory.loadMore')}
         </button>
       )}
     </div>

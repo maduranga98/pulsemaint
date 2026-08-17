@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useForm, Controller, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import {
   createMachineSchema,
@@ -31,14 +32,7 @@ const MACHINE_TYPES: MachineType[] = [
   'other',
 ];
 
-const FORM_STEPS = [
-  { id: 'basic', label: 'Basic Information', description: 'Machine name, type, manufacturer' },
-  { id: 'location', label: 'Location', description: 'Department, floor, bay, station' },
-  { id: 'status', label: 'Status & Criticality', description: 'Status, criticality and health score' },
-  { id: 'documents', label: 'Documents & Photos', description: 'Upload files and images' },
-  { id: 'spareparts', label: 'Spare Parts', description: 'Compatible/critical spare parts' },
-  { id: 'notes', label: 'Notes & Warranty', description: 'Warranty, modifications, and extra notes' },
-];
+const FORM_STEP_IDS = ['basic', 'location', 'status', 'documents', 'spareparts', 'notes'] as const;
 
 type FormData = CreateMachineFormData | UpdateMachineFormData;
 
@@ -59,6 +53,12 @@ export function MachineForm({
   error: externalError,
   siteId,
 }: MachineFormProps) {
+  const { t } = useTranslation();
+  const FORM_STEPS = FORM_STEP_IDS.map((id) => ({
+    id,
+    label: t(`common.machines.form.steps.${id}.label`),
+    description: t(`common.machines.form.steps.${id}.description`),
+  }));
   const [currentStep, setCurrentStep] = useState(0);
   const [localError, setLocalError] = useState<string | null>(null);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
@@ -161,7 +161,7 @@ export function MachineForm({
       setLocalError(null);
       await onSubmit(formData, { photos: photoFiles, documents: documentData });
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to save machine';
+      const errorMsg = err instanceof Error ? err.message : t('common.machines.form.saveFailed');
       setLocalError(errorMsg);
     }
   };
@@ -180,10 +180,12 @@ export function MachineForm({
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            {mode === 'create' ? 'Add New Machine' : 'Edit Machine'}
+            {mode === 'create' ? t('common.machines.form.addTitle') : t('common.machines.form.editTitle')}
           </h1>
           <p className="text-gray-600 text-sm mt-1">
-            {mode === 'create' ? 'Register a new machine in your facility' : `Editing ${initialData?.name}`}
+            {mode === 'create'
+              ? t('common.machines.form.addSubtitle')
+              : t('common.machines.form.editSubtitle', { name: initialData?.name })}
           </p>
         </div>
       </div>
@@ -222,7 +224,8 @@ export function MachineForm({
                   removeDocument,
                   photoInputRef,
                   docInputRef,
-                  mode
+                  mode,
+                  t
                 )}
 
                 {/* Form Footer */}
@@ -232,7 +235,7 @@ export function MachineForm({
                     disabled={isSubmitting || formIsSubmitting}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
-                    {isSubmitting || formIsSubmitting ? 'Saving...' : `${mode === 'create' ? 'Create' : 'Update'} Machine`}
+                    {isSubmitting || formIsSubmitting ? t('common.machines.form.saving') : (mode === 'create' ? t('common.machines.form.createMachine') : t('common.machines.form.updateMachine'))}
                   </button>
                 </div>
               </form>
@@ -263,7 +266,8 @@ export function MachineForm({
                 removeDocument,
                 photoInputRef,
                 docInputRef,
-                mode
+                mode,
+                t
               )}
 
               {/* Mobile Navigation */}
@@ -274,7 +278,7 @@ export function MachineForm({
                     onClick={() => setCurrentStep(currentStep - 1)}
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
                   >
-                    Back
+                    {t('common.machines.form.back')}
                   </button>
                 )}
                 {currentStep < FORM_STEPS.length - 1 ? (
@@ -283,7 +287,7 @@ export function MachineForm({
                     onClick={() => setCurrentStep(currentStep + 1)}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                   >
-                    Next
+                    {t('common.machines.form.next')}
                   </button>
                 ) : (
                   <button
@@ -291,7 +295,7 @@ export function MachineForm({
                     disabled={isSubmitting || formIsSubmitting}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                   >
-                    {isSubmitting || formIsSubmitting ? 'Saving...' : `${mode === 'create' ? 'Create' : 'Update'} Machine`}
+                    {isSubmitting || formIsSubmitting ? t('common.machines.form.saving') : (mode === 'create' ? t('common.machines.form.createMachine') : t('common.machines.form.updateMachine'))}
                   </button>
                 )}
               </div>
@@ -304,11 +308,12 @@ export function MachineForm({
 }
 
 function MachineTypeField({ control, errors }: { control: any; errors: any }) {
+  const { t } = useTranslation();
   const [customSelected, setCustomSelected] = useState(false);
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">Machine Type *</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.machineTypeLabel')}</label>
       <Controller
         name="type"
         control={control}
@@ -331,13 +336,13 @@ function MachineTypeField({ control, errors }: { control: any; errors: any }) {
                 onBlur={field.onBlur}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select a type...</option>
+                <option value="">{t('common.machines.form.selectType')}</option>
                 {MACHINE_TYPES.map((type) => (
                   <option key={type} value={type}>
                     {type.replace(/_/g, ' ').toUpperCase()}
                   </option>
                 ))}
-                <option value={CUSTOM_TYPE_OPTION}>OTHER — ENTER CUSTOM TYPE…</option>
+                <option value={CUSTOM_TYPE_OPTION}>{t('common.machines.form.customTypeOption')}</option>
               </select>
               {isCustom && (
                 <input
@@ -345,7 +350,7 @@ function MachineTypeField({ control, errors }: { control: any; errors: any }) {
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value)}
                   onBlur={field.onBlur}
-                  placeholder="e.g. Injection Molder, Packaging Line…"
+                  placeholder={t('common.machines.form.customTypePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -370,16 +375,17 @@ function renderFormSection(
   onRemoveDocument: (index: number) => void,
   photoInputRef: React.RefObject<HTMLInputElement>,
   docInputRef: React.RefObject<HTMLInputElement>,
-  mode: 'create' | 'edit'
+  mode: 'create' | 'edit',
+  t: (key: string, opts?: any) => string
 ): React.ReactNode {
   switch (stepIndex) {
     case 0: // Basic Information
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Basic Information</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.form.basicInfoTitle')}</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Machine Name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.nameLabel')}</label>
             <Controller
               name="name"
               control={control}
@@ -387,7 +393,7 @@ function renderFormSection(
                 <input
                   {...field}
                   type="text"
-                  placeholder="e.g. CNC Lathe Machine 01"
+                  placeholder={t('common.machines.form.namePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -399,7 +405,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Manufacturer *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.manufacturerLabel')}</label>
               <Controller
                 name="manufacturer"
                 control={control}
@@ -407,7 +413,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. Mazak Corporation"
+                    placeholder={t('common.machines.form.manufacturerPlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -418,7 +424,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.modelLabel')}</label>
               <Controller
                 name="model"
                 control={control}
@@ -426,7 +432,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. QUICK TURN 200"
+                    placeholder={t('common.machines.form.modelPlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -436,7 +442,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.serialNumberLabel')}</label>
               <Controller
                 name="serialNumber"
                 control={control}
@@ -444,7 +450,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="Unique serial number"
+                    placeholder={t('common.machines.form.serialNumberPlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -452,7 +458,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Expected Lifespan (years)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.lifespanLabel')}</label>
               <Controller
                 name="expectedLifespanYears"
                 control={control}
@@ -461,7 +467,7 @@ function renderFormSection(
                     type="number"
                     min="1"
                     max="100"
-                    placeholder="10"
+                    placeholder={t('common.machines.form.lifespanPlaceholder')}
                     value={field.value ?? ''}
                     onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value, 10) : null)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -473,7 +479,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.purchaseDateLabel')}</label>
               <Controller
                 name="purchaseDate"
                 control={control}
@@ -489,7 +495,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Installation Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.installationDateLabel')}</label>
               <Controller
                 name="installationDate"
                 control={control}
@@ -510,10 +516,10 @@ function renderFormSection(
     case 1: // Location
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Location</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.form.locationTitle')}</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.departmentLabel')}</label>
             <Controller
               name="department"
               control={control}
@@ -529,7 +535,7 @@ function renderFormSection(
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Floor</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.floorLabel')}</label>
               <Controller
                 name="floor"
                 control={control}
@@ -537,7 +543,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. Ground, 1st, 2nd"
+                    placeholder={t('common.machines.form.floorPlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -545,7 +551,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bay</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.bayLabel')}</label>
               <Controller
                 name="bay"
                 control={control}
@@ -553,7 +559,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. A1, B2"
+                    placeholder={t('common.machines.form.bayPlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -561,7 +567,7 @@ function renderFormSection(
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Station</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.stationLabel')}</label>
               <Controller
                 name="station"
                 control={control}
@@ -569,7 +575,7 @@ function renderFormSection(
                   <input
                     {...field}
                     type="text"
-                    placeholder="e.g. 01, 02"
+                    placeholder={t('common.machines.form.stationPlaceholder')}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 )}
@@ -577,17 +583,17 @@ function renderFormSection(
             </div>
           </div>
 
-          <p className="text-xs text-gray-500">This location data will auto-fill Work Orders linked to this machine</p>
+          <p className="text-xs text-gray-500">{t('common.machines.form.locationHint')}</p>
         </div>
       );
 
     case 2: // Status & Criticality
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Status & Criticality</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.form.statusCriticalityTitle')}</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">Status *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-3">{t('common.machines.form.statusLabel')}</label>
             <Controller
               name="status"
               control={control}
@@ -605,7 +611,7 @@ function renderFormSection(
                         checked={field.value === status}
                         className="w-4 h-4 text-blue-600"
                       />
-                      <span className="ml-3 text-gray-700">{status.replace(/_/g, ' ').toUpperCase()}</span>
+                      <span className="ml-3 text-gray-700">{t(`common.machines.statusBadge.${status === 'under_maintenance' ? 'underMaintenance' : status}`)}</span>
                     </label>
                   ))}
                 </div>
@@ -615,7 +621,7 @@ function renderFormSection(
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Criticality * (1 = Low, 5 = Mission Critical)
+              {t('common.machines.form.criticalityLabel')}
             </label>
             <Controller
               name="criticality"
@@ -631,9 +637,9 @@ function renderFormSection(
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>Low</span>
-                    <span>Medium ({field.value})</span>
-                    <span>Mission Critical</span>
+                    <span>{t('common.machines.form.criticalityLow')}</span>
+                    <span>{t('common.machines.form.criticalityMedium', { value: field.value })}</span>
+                    <span>{t('common.machines.form.criticalityMissionCritical')}</span>
                   </div>
                 </>
               )}
@@ -642,7 +648,7 @@ function renderFormSection(
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              {mode === 'create' ? 'Initial Health Score' : 'Health Score'} (0 = Critical, 100 = Perfect)
+              {mode === 'create' ? t('common.machines.form.initialHealthScoreLabel') : t('common.machines.form.healthScoreLabel')} {t('common.machines.form.healthScoreSuffix')}
             </label>
             <Controller
               name="healthScore"
@@ -658,11 +664,11 @@ function renderFormSection(
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                   />
                   <div className="flex justify-between text-xs text-gray-600 mt-2">
-                    <span>Critical (0)</span>
+                    <span>{t('common.machines.form.healthScoreCritical')}</span>
                     <span className={`font-medium ${(field.value ?? 100) >= 70 ? 'text-green-600' : (field.value ?? 100) >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
                       {field.value ?? 100}%
                     </span>
-                    <span>Perfect (100)</span>
+                    <span>{t('common.machines.form.healthScorePerfect')}</span>
                   </div>
                 </>
               )}
@@ -673,7 +679,7 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Next PM Date</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.nextPmDateLabel')}</label>
             <Controller
               name="nextPmDue"
               control={control}
@@ -687,7 +693,7 @@ function renderFormSection(
               )}
             />
             <p className="text-xs text-gray-500 mt-1">
-              Date the next preventive maintenance is due. Auto-updated when a PM work order is completed.
+              {t('common.machines.form.nextPmDateHint')}
             </p>
           </div>
         </div>
@@ -696,15 +702,15 @@ function renderFormSection(
     case 3: // Documents & Photos
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Documents & Photos</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.form.documentsTitle')}</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Photos</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.machines.form.photosLabel')}</label>
             <div
               className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition"
               onClick={() => photoInputRef.current?.click()}
             >
-              <p className="text-gray-600 text-sm mb-2">Click or drag photos here</p>
+              <p className="text-gray-600 text-sm mb-2">{t('common.machines.form.photosDropHint')}</p>
               <input
                 ref={photoInputRef}
                 type="file"
@@ -713,7 +719,7 @@ function renderFormSection(
                 onChange={onPhotoChange}
                 className="hidden"
               />
-              <p className="text-xs text-gray-500 mt-2">JPG, PNG, WEBP, HEIC up to 50MB each</p>
+              <p className="text-xs text-gray-500 mt-2">{t('common.machines.form.photosFormatHint')}</p>
             </div>
             {photoFiles.length > 0 && (
               <div className="mt-3 space-y-2">
@@ -721,7 +727,7 @@ function renderFormSection(
                   <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                     <span className="text-sm text-gray-700">{file.name}</span>
                     <button type="button" onClick={() => onRemovePhoto(idx)} className="text-xs text-red-600 hover:text-red-800">
-                      Remove
+                      {t('common.machines.form.remove')}
                     </button>
                   </div>
                 ))}
@@ -730,12 +736,12 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Documents</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.machines.form.documentsLabel')}</label>
             <div
               className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition"
               onClick={() => docInputRef.current?.click()}
             >
-              <p className="text-gray-600 text-sm mb-2">Click or drag documents here</p>
+              <p className="text-gray-600 text-sm mb-2">{t('common.machines.form.documentsDropHint')}</p>
               <input
                 ref={docInputRef}
                 type="file"
@@ -743,7 +749,7 @@ function renderFormSection(
                 onChange={onDocumentChange}
                 className="hidden"
               />
-              <p className="text-xs text-gray-500 mt-2">PDF, DOCX, CAD files up to 100MB each</p>
+              <p className="text-xs text-gray-500 mt-2">{t('common.machines.form.documentsFormatHint')}</p>
             </div>
             {documentData.length > 0 && (
               <div className="mt-3 space-y-2">
@@ -758,7 +764,7 @@ function renderFormSection(
                       onClick={() => onRemoveDocument(idx)}
                       className="ml-2 text-xs text-red-600 hover:text-red-800"
                     >
-                      Remove
+                      {t('common.machines.form.remove')}
                     </button>
                   </div>
                 ))}
@@ -771,9 +777,9 @@ function renderFormSection(
     case 4: // Spare Parts
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Spare Parts</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.form.sparePartsTitle')}</h2>
           <p className="text-sm text-gray-600">
-            List compatible part IDs/numbers (one per line). These will be linked to the machine for fast lookup during work orders.
+            {t('common.machines.form.sparePartsHint')}
           </p>
           <Controller
             name="compatiblePartIds"
@@ -790,7 +796,7 @@ function renderFormSection(
                       .filter(Boolean)
                   )
                 }
-                placeholder="PN-12345&#10;BRG-6204&#10;BELT-A48"
+                placeholder={t('common.machines.form.sparePartsPlaceholder')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
               />
             )}
@@ -801,11 +807,11 @@ function renderFormSection(
     case 5: // Additional Notes & Warranty
       return (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Additional Notes</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.form.additionalNotesTitle')}</h2>
 
           {/* Warranty Items */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Warranty Information</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.machines.form.warrantyInfoLabel')}</label>
             <Controller
               name="warrantyItems"
               control={control}
@@ -827,7 +833,7 @@ function renderFormSection(
                             type="text"
                             value={item.partName}
                             onChange={(e) => updateItem(idx, 'partName', e.target.value)}
-                            placeholder="Part / component name"
+                            placeholder={t('common.machines.form.warrantyPartPlaceholder')}
                             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                           />
                           <button
@@ -835,12 +841,12 @@ function renderFormSection(
                             onClick={() => removeItem(idx)}
                             className="text-xs text-red-600 hover:text-red-800 px-2"
                           >
-                            Remove
+                            {t('common.machines.form.remove')}
                           </button>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Warranty Expiry Date</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('common.machines.form.warrantyExpiryLabel')}</label>
                             <input
                               type="date"
                               value={item.expiryDate instanceof Date ? item.expiryDate.toISOString().split('T')[0] : ''}
@@ -849,12 +855,12 @@ function renderFormSection(
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Supplier / Reference</label>
+                            <label className="block text-xs text-gray-500 mb-1">{t('common.machines.form.warrantySupplierLabel')}</label>
                             <input
                               type="text"
                               value={item.supplierWarrantyRef}
                               onChange={(e) => updateItem(idx, 'supplierWarrantyRef', e.target.value)}
-                              placeholder="e.g. WR-2025-001"
+                              placeholder={t('common.machines.form.warrantySupplierPlaceholder')}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             />
                           </div>
@@ -866,7 +872,7 @@ function renderFormSection(
                       onClick={addItem}
                       className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                     >
-                      + Add Warranty Item
+                      {t('common.machines.form.addWarrantyItem')}
                     </button>
                   </div>
                 );
@@ -875,7 +881,7 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Modification Notes</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.modificationNotesLabel')}</label>
             <Controller
               name="modificationNotes"
               control={control}
@@ -884,7 +890,7 @@ function renderFormSection(
                   rows={4}
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value || null)}
-                  placeholder="Document any modifications made to this machine..."
+                  placeholder={t('common.machines.form.modificationNotesPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -895,7 +901,7 @@ function renderFormSection(
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.machines.form.additionalNotesLabel')}</label>
             <Controller
               name="additionalNotes"
               control={control}
@@ -904,7 +910,7 @@ function renderFormSection(
                   rows={4}
                   value={field.value ?? ''}
                   onChange={(e) => field.onChange(e.target.value || null)}
-                  placeholder="Any other relevant information..."
+                  placeholder={t('common.machines.form.additionalNotesPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               )}
@@ -927,6 +933,7 @@ interface DepartmentComboBoxProps {
 }
 
 function DepartmentComboBox({ value, onChange }: DepartmentComboBoxProps) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { departments, loading, addDepartment } = useDepartments(companyId);
   const [adding, setAdding] = useState(false);
@@ -957,11 +964,11 @@ function DepartmentComboBox({ value, onChange }: DepartmentComboBoxProps) {
             autoComplete="off"
             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select a department...</option>
+            <option value="">{t('common.machines.form.selectDepartment')}</option>
             {departments.map((d) => (
               <option key={d} value={d}>{d}</option>
             ))}
-            <option value="__add__">+ Add new department...</option>
+            <option value="__add__">{t('common.machines.form.addNewDepartment')}</option>
           </select>
         </div>
       ) : (
@@ -971,7 +978,7 @@ function DepartmentComboBox({ value, onChange }: DepartmentComboBoxProps) {
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAdd(); } }}
-            placeholder="New department name"
+            placeholder={t('common.machines.form.newDepartmentPlaceholder')}
             autoFocus
             className="flex-1 px-3 py-2 border border-blue-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -980,18 +987,18 @@ function DepartmentComboBox({ value, onChange }: DepartmentComboBoxProps) {
             onClick={handleAdd}
             className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            Add
+            {t('common.machines.form.add')}
           </button>
           <button
             type="button"
             onClick={() => { setAdding(false); setNewName(''); }}
             className="px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm"
           >
-            Cancel
+            {t('common.machines.form.cancel')}
           </button>
         </div>
       )}
-      {loading && <p className="text-xs text-gray-400">Loading departments...</p>}
+      {loading && <p className="text-xs text-gray-400">{t('common.machines.form.loadingDepartments')}</p>}
     </div>
   );
 }

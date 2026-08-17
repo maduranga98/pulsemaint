@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { MachineFilters, MachineStatus, MachineCriticality } from '../../types/machine';
 
 interface MachineFilterBarProps {
@@ -7,24 +8,24 @@ interface MachineFilterBarProps {
   isLoading?: boolean;
 }
 
-const statusOptions: { value: MachineStatus; label: string }[] = [
-  { value: 'active', label: 'Active' },
-  { value: 'under_maintenance', label: 'Under Maintenance' },
-  { value: 'decommissioned', label: 'Decommissioned' },
+const statusOptions: { value: MachineStatus; labelKey: string }[] = [
+  { value: 'active', labelKey: 'common.machines.filterBar.statusOptions.active' },
+  { value: 'under_maintenance', labelKey: 'common.machines.filterBar.statusOptions.under_maintenance' },
+  { value: 'decommissioned', labelKey: 'common.machines.filterBar.statusOptions.decommissioned' },
 ];
 
-const criticalityOptions: { value: MachineCriticality; label: string }[] = [
-  { value: 5, label: '5 - Mission Critical' },
-  { value: 4, label: '4 - High' },
-  { value: 3, label: '3 - Medium' },
-  { value: 2, label: '2 - Low' },
-  { value: 1, label: '1 - Minimal' },
+const criticalityOptions: { value: MachineCriticality; labelKey: string }[] = [
+  { value: 5, labelKey: 'common.machines.filterBar.criticalityOptions.5' },
+  { value: 4, labelKey: 'common.machines.filterBar.criticalityOptions.4' },
+  { value: 3, labelKey: 'common.machines.filterBar.criticalityOptions.3' },
+  { value: 2, labelKey: 'common.machines.filterBar.criticalityOptions.2' },
+  { value: 1, labelKey: 'common.machines.filterBar.criticalityOptions.1' },
 ];
 
 const healthScoreOptions = [
-  { min: 70, max: 100, label: 'Good (70-100)', key: 'good' as const },
-  { min: 40, max: 69, label: 'Warning (40-69)', key: 'warning' as const },
-  { min: 0, max: 39, label: 'Critical (0-39)', key: 'critical' as const },
+  { min: 70, max: 100, labelKey: 'common.machines.filterBar.healthOptions.good', key: 'good' as const },
+  { min: 40, max: 69, labelKey: 'common.machines.filterBar.healthOptions.warning', key: 'warning' as const },
+  { min: 0, max: 39, labelKey: 'common.machines.filterBar.healthOptions.critical', key: 'critical' as const },
 ];
 
 export function MachineFilterBar({
@@ -32,6 +33,7 @@ export function MachineFilterBar({
   departments = [],
   isLoading = false,
 }: MachineFilterBarProps) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [selectedStatuses, setSelectedStatuses] = useState<MachineStatus[]>([]);
   const [selectedCriticalities, setSelectedCriticalities] = useState<MachineCriticality[]>([]);
@@ -122,7 +124,7 @@ export function MachineFilterBar({
         <div className="flex-1">
           <input
             type="text"
-            placeholder="Search by name, model, or serial number..."
+            placeholder={t('common.machines.filterBar.searchPlaceholder')}
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             disabled={isLoading}
@@ -135,14 +137,14 @@ export function MachineFilterBar({
             disabled={isLoading}
             className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 disabled:opacity-50"
           >
-            Clear Filters
+            {t('common.machines.filterBar.clearFilters')}
           </button>
         )}
       </div>
 
       {/* Status */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Status</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.machines.filterBar.status')}</label>
         <div className="flex flex-wrap gap-2">
           {statusOptions.map((option) => (
             <button
@@ -155,7 +157,7 @@ export function MachineFilterBar({
                   : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
               }`}
             >
-              {option.label}
+              {t(option.labelKey)}
             </button>
           ))}
         </div>
@@ -163,7 +165,7 @@ export function MachineFilterBar({
 
       {/* Criticality */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Criticality</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.machines.filterBar.criticality')}</label>
         <div className="flex flex-wrap gap-2">
           {criticalityOptions.map((option) => (
             <button
@@ -176,7 +178,7 @@ export function MachineFilterBar({
                   : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
               }`}
             >
-              {option.label}
+              {t(option.labelKey)}
             </button>
           ))}
         </div>
@@ -185,7 +187,7 @@ export function MachineFilterBar({
       {/* Department */}
       {departments.length > 0 && (
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Department</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.machines.filterBar.department')}</label>
           <div className="flex flex-wrap gap-2">
             {departments.map((dept) => (
               <button
@@ -207,7 +209,7 @@ export function MachineFilterBar({
 
       {/* Health Score */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-gray-700">Health Score</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.machines.filterBar.healthScore')}</label>
         <div className="flex flex-wrap gap-2">
           {healthScoreOptions.map((option) => (
             <button
@@ -220,7 +222,7 @@ export function MachineFilterBar({
                   : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
               }`}
             >
-              {option.label}
+              {t(option.labelKey)}
             </button>
           ))}
         </div>

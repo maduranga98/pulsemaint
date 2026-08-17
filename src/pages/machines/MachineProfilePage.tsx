@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
@@ -15,6 +16,7 @@ import type { WOType } from '../../types/workOrder';
 type TabName = 'overview' | 'documents' | 'history' | 'maintenance' | 'analytics';
 
 export function MachineProfilePage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
@@ -38,7 +40,7 @@ export function MachineProfilePage() {
   if (!userProfile || !id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-gray-600">{t('common.machines.profilePage.loading')}</p>
       </div>
     );
   }
@@ -46,7 +48,7 @@ export function MachineProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading machine details...</p>
+        <p className="text-gray-600">{t('common.machines.profilePage.loadingDetails')}</p>
       </div>
     );
   }
@@ -55,13 +57,13 @@ export function MachineProfilePage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">Machine Not Found</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">{t('common.machines.profilePage.notFound')}</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => navigate('/app/machines')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Back to Registry
+            {t('common.machines.profilePage.backToRegistry')}
           </button>
         </div>
       </div>
@@ -72,11 +74,11 @@ export function MachineProfilePage() {
     userProfile.role === 'supervisor' || userProfile.role === 'plant_manager' || userProfile.role === 'admin';
 
   const tabs: { name: TabName; label: string }[] = [
-    { name: 'overview', label: 'Overview' },
-    { name: 'documents', label: 'Documents & Photos' },
-    { name: 'history', label: 'Breakdown History' },
-    { name: 'maintenance', label: 'Maintenance History' },
-    { name: 'analytics', label: 'Analytics' },
+    { name: 'overview', label: t('common.machines.profilePage.tabs.overview') },
+    { name: 'documents', label: t('common.machines.profilePage.tabs.documents') },
+    { name: 'history', label: t('common.machines.profilePage.tabs.history') },
+    { name: 'maintenance', label: t('common.machines.profilePage.tabs.maintenance') },
+    { name: 'analytics', label: t('common.machines.profilePage.tabs.analytics') },
   ];
 
   const analyticsTabDisabled = userProfile.role !== 'plant_manager' && userProfile.role !== 'admin';
@@ -90,7 +92,7 @@ export function MachineProfilePage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{machine.name}</h1>
               <p className="text-gray-600 text-sm mt-1">
-                {machine.model} • SN: {machine.serialNumber}
+                {t('common.machines.profilePage.modelSerial', { model: machine.model, serial: machine.serialNumber })}
               </p>
               <p className="text-gray-600 text-sm">
                 {machine.department}
@@ -117,29 +119,29 @@ export function MachineProfilePage() {
             </div>
             <div className="text-sm">
               <p className="text-gray-600 mb-2">
-                <span className="font-medium">Last Service:</span> {
+                <span className="font-medium">{t('common.machines.profilePage.lastService')}</span> {
                   machine.lastServiceDate
                     ? formatDate(machine.lastServiceDate.toDate?.() || new Date((machine.lastServiceDate as any).seconds * 1000))
-                    : 'Never'
+                    : t('common.machines.profilePage.never')
                 }
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">Last Service Type:</span> {machine.lastServiceType || 'N/A'}
+                <span className="font-medium">{t('common.machines.profilePage.lastServiceType')}</span> {machine.lastServiceType || t('common.machines.profilePage.notAvailable')}
               </p>
             </div>
             <div className="text-sm">
               {machine.nextPmDue ? (
                 <>
                   <p className="text-gray-600 mb-2">
-                    <span className="font-medium">Next PM Due:</span> {formatDate(machine.nextPmDue.toDate?.() || new Date((machine.nextPmDue as any).seconds * 1000))}
+                    <span className="font-medium">{t('common.machines.profilePage.nextPmDue')}</span> {formatDate(machine.nextPmDue.toDate?.() || new Date((machine.nextPmDue as any).seconds * 1000))}
                   </p>
                   <p className="text-gray-600">
-                    <span className="font-medium">Days Remaining:</span> Check date logic
+                    <span className="font-medium">{t('common.machines.profilePage.daysRemaining')}</span> {t('common.machines.profilePage.daysRemainingPlaceholder')}
                   </p>
                 </>
               ) : (
                 <p className="text-gray-600">
-                  <span className="font-medium">Next PM:</span> Not scheduled
+                  <span className="font-medium">{t('common.machines.profilePage.nextPm')}</span> {t('common.machines.profilePage.notScheduled')}
                 </p>
               )}
             </div>
@@ -151,20 +153,20 @@ export function MachineProfilePage() {
                 onClick={() => navigate(`/app/machines/${machine.id}/edit`)}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
               >
-                Edit Machine
+                {t('common.machines.profilePage.editMachine')}
               </button>
               <button
                 onClick={() => navigate(`/app/machines/${machine.id}/qr`)}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
               >
-                View QR Code
+                {t('common.machines.profilePage.viewQrCode')}
               </button>
               <div className="relative" ref={moreMenuRef}>
                 <button
                   onClick={() => setShowMoreMenu((v) => !v)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
                 >
-                  More ▾
+                  {t('common.machines.profilePage.more')}
                 </button>
                 {showMoreMenu && (
                   <div className="absolute right-0 mt-1 w-52 bg-white rounded-lg shadow-lg border border-gray-200 z-10 py-1">
@@ -172,26 +174,26 @@ export function MachineProfilePage() {
                       onClick={() => { navigate(`/app/work-orders?create=1&machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      Create Work Order
+                      {t('common.machines.profilePage.createWorkOrder')}
                     </button>
                     <button
                       onClick={() => { navigate(`/app/breakdowns/report?machineId=${machine.id}`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      Report Issue
+                      {t('common.machines.profilePage.reportIssue')}
                     </button>
                     <button
                       onClick={() => { exportMachineDetailsPdf(machine); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                     >
-                      Export Details (PDF)
+                      {t('common.machines.profilePage.exportDetailsPdf')}
                     </button>
                     <hr className="my-1 border-gray-100" />
                     <button
                       onClick={() => { navigate(`/app/machines/${machine.id}/edit?action=decommission`); setShowMoreMenu(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     >
-                      Decommission Machine
+                      {t('common.machines.profilePage.decommissionMachine')}
                     </button>
                   </div>
                 )}
@@ -239,42 +241,43 @@ export function MachineProfilePage() {
 
 // Tab Components
 function OverviewTab({ machine, canEdit }: any) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Machine Details */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Machine Details</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('common.machines.profilePage.overview.detailsTitle')}</h3>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <dt className="text-gray-600">Name:</dt>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.name')}</dt>
             <dd className="font-medium text-gray-900">{machine.name}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Type:</dt>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.type')}</dt>
             <dd className="font-medium text-gray-900">{formatMachineTypeLabel(machine.type)}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Manufacturer:</dt>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.manufacturer')}</dt>
             <dd className="font-medium text-gray-900">{machine.manufacturer}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Model:</dt>
-            <dd className="font-medium text-gray-900">{machine.model || 'N/A'}</dd>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.model')}</dt>
+            <dd className="font-medium text-gray-900">{machine.model || t('common.machines.profilePage.notAvailable')}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Serial Number:</dt>
-            <dd className="font-medium text-gray-900">{machine.serialNumber || 'N/A'}</dd>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.serialNumber')}</dt>
+            <dd className="font-medium text-gray-900">{machine.serialNumber || t('common.machines.profilePage.notAvailable')}</dd>
           </div>
           <div className="flex justify-between border-t border-gray-100 pt-3">
-            <dt className="text-gray-600">Purchase Date:</dt>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.purchaseDate')}</dt>
             <dd className="font-medium text-gray-900">
-              {machine.purchaseDate ? formatDate(machine.purchaseDate.toDate?.() || new Date((machine.purchaseDate as any).seconds * 1000)) : 'N/A'}
+              {machine.purchaseDate ? formatDate(machine.purchaseDate.toDate?.() || new Date((machine.purchaseDate as any).seconds * 1000)) : t('common.machines.profilePage.notAvailable')}
             </dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Installation Date:</dt>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.installationDate')}</dt>
             <dd className="font-medium text-gray-900">
-              {machine.installationDate ? formatDate(machine.installationDate.toDate?.() || new Date((machine.installationDate as any).seconds * 1000)) : 'N/A'}
+              {machine.installationDate ? formatDate(machine.installationDate.toDate?.() || new Date((machine.installationDate as any).seconds * 1000)) : t('common.machines.profilePage.notAvailable')}
             </dd>
           </div>
         </dl>
@@ -282,41 +285,41 @@ function OverviewTab({ machine, canEdit }: any) {
 
       {/* Location */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Location</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('common.machines.profilePage.overview.locationTitle')}</h3>
         <dl className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <dt className="text-gray-600">Department:</dt>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.department')}</dt>
             <dd className="font-medium text-gray-900">{machine.department}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Floor:</dt>
-            <dd className="font-medium text-gray-900">{machine.floor || 'N/A'}</dd>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.floor')}</dt>
+            <dd className="font-medium text-gray-900">{machine.floor || t('common.machines.profilePage.notAvailable')}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Bay:</dt>
-            <dd className="font-medium text-gray-900">{machine.bay || 'N/A'}</dd>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.bay')}</dt>
+            <dd className="font-medium text-gray-900">{machine.bay || t('common.machines.profilePage.notAvailable')}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-gray-600">Station:</dt>
-            <dd className="font-medium text-gray-900">{machine.station || 'N/A'}</dd>
+            <dt className="text-gray-600">{t('common.machines.profilePage.overview.station')}</dt>
+            <dd className="font-medium text-gray-900">{machine.station || t('common.machines.profilePage.notAvailable')}</dd>
           </div>
         </dl>
       </div>
 
       {/* Status & Health */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Status & Health</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('common.machines.profilePage.overview.statusHealthTitle')}</h3>
         <div className="space-y-4">
           <div>
-            <p className="text-gray-600 text-sm mb-2">Status:</p>
+            <p className="text-gray-600 text-sm mb-2">{t('common.machines.profilePage.overview.status')}</p>
             <MachineStatusBadge status={machine.status} size="md" />
           </div>
           <div>
-            <p className="text-gray-600 text-sm mb-2">Criticality:</p>
+            <p className="text-gray-600 text-sm mb-2">{t('common.machines.profilePage.overview.criticality')}</p>
             <MachineCriticalityBadge criticality={machine.criticality} size="md" />
           </div>
           <div>
-            <p className="text-gray-600 text-sm mb-2">Health Score:</p>
+            <p className="text-gray-600 text-sm mb-2">{t('common.machines.profilePage.overview.healthScore')}</p>
             <MachineHealthScore score={machine.healthScore} variant="bar" />
           </div>
         </div>
@@ -324,18 +327,18 @@ function OverviewTab({ machine, canEdit }: any) {
 
       {/* Warranty */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Warranty</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('common.machines.profilePage.overview.warrantyTitle')}</h3>
         {machine.warrantyItems && machine.warrantyItems.length > 0 ? (
           <ul className="space-y-2">
             {machine.warrantyItems.map((item: any, idx: number) => (
               <li key={idx} className="text-sm">
                 <p className="font-medium text-gray-900">{item.partName}</p>
-                <p className="text-gray-600">Expires: {formatDate(item.expiryDate.toDate?.() || new Date((item.expiryDate as any).seconds * 1000))}</p>
+                <p className="text-gray-600">{t('common.machines.profilePage.overview.warrantyExpires', { date: formatDate(item.expiryDate.toDate?.() || new Date((item.expiryDate as any).seconds * 1000)) })}</p>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-600 text-sm">No warranty items</p>
+          <p className="text-gray-600 text-sm">{t('common.machines.profilePage.overview.warrantyEmpty')}</p>
         )}
       </div>
 
@@ -346,31 +349,32 @@ function OverviewTab({ machine, canEdit }: any) {
 }
 
 function DocumentsTab({ machine }: any) {
+  const { t } = useTranslation();
   const photos: string[] = machine.photos ?? [];
   const documents: any[] = machine.documents ?? [];
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Photos</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('common.machines.profilePage.documentsTab.photosTitle')}</h3>
         {photos.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {photos.map((url, idx) => (
               <a key={idx} href={url} target="_blank" rel="noreferrer" className="block group">
                 <img
                   src={url}
-                  alt={`Machine photo ${idx + 1}`}
+                  alt={t('common.machines.profilePage.documentsTab.photoAlt', { index: idx + 1 })}
                   className="aspect-square rounded-lg object-cover w-full border border-gray-200 group-hover:opacity-90 transition"
                 />
               </a>
             ))}
           </div>
         ) : (
-          <p className="text-gray-600 text-sm">No photos uploaded</p>
+          <p className="text-gray-600 text-sm">{t('common.machines.profilePage.documentsTab.photosEmpty')}</p>
         )}
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-4">Documents</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">{t('common.machines.profilePage.documentsTab.documentsTitle')}</h3>
         {documents.length > 0 ? (
           <div className="space-y-2">
             {documents.map((doc: any, idx: number) => (
@@ -380,13 +384,13 @@ function DocumentsTab({ machine }: any) {
                   <p className="text-xs text-gray-600">{doc.type}</p>
                 </div>
                 <a href={doc.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  Download
+                  {t('common.machines.profilePage.documentsTab.download')}
                 </a>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-600 text-sm">No documents uploaded</p>
+          <p className="text-gray-600 text-sm">{t('common.machines.profilePage.documentsTab.documentsEmpty')}</p>
         )}
       </div>
     </div>
@@ -411,18 +415,18 @@ function MaintenanceTab({ machine }: any) {
 
 const COMPLETED_STATUSES = new Set(['COMPLETED', 'SIGNED_OFF', 'CLOSED']);
 
-const WO_TYPE_LABELS: Record<WOType, string> = {
-  BREAKDOWN: 'Breakdown',
-  CORRECTIVE: 'Corrective',
-  PREVENTIVE: 'Preventive',
-  INSTALLATION: 'Installation',
-  MODIFICATION: 'Modification',
-  INSPECTION: 'Inspection',
-  CONTRACTOR: 'Contractor',
-  OTHER: 'Other',
-};
-
 function AnalyticsTab({ machine }: any) {
+  const { t } = useTranslation();
+  const WO_TYPE_LABELS: Record<WOType, string> = {
+    BREAKDOWN: t('common.machines.profilePage.analytics.woTypeLabels.BREAKDOWN'),
+    CORRECTIVE: t('common.machines.profilePage.analytics.woTypeLabels.CORRECTIVE'),
+    PREVENTIVE: t('common.machines.profilePage.analytics.woTypeLabels.PREVENTIVE'),
+    INSTALLATION: t('common.machines.profilePage.analytics.woTypeLabels.INSTALLATION'),
+    MODIFICATION: t('common.machines.profilePage.analytics.woTypeLabels.MODIFICATION'),
+    INSPECTION: t('common.machines.profilePage.analytics.woTypeLabels.INSPECTION'),
+    CONTRACTOR: t('common.machines.profilePage.analytics.woTypeLabels.CONTRACTOR'),
+    OTHER: t('common.machines.profilePage.analytics.woTypeLabels.OTHER'),
+  };
   // All-time — no date range filter, matching "all time total" from the request.
   const { workOrders, loading } = useWorkOrders({ machineId: machine.id });
 
@@ -435,6 +439,7 @@ function AnalyticsTab({ machine }: any) {
       if (COMPLETED_STATUSES.has(wo.status)) counts[key].completed += 1;
     }
     return Object.values(counts).sort((a, b) => b.total - a.total);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workOrders]);
 
   const totalWOs = workOrders.length;
@@ -443,7 +448,7 @@ function AnalyticsTab({ machine }: any) {
   if (loading) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <p className="text-gray-500 text-sm">Loading analytics…</p>
+        <p className="text-gray-500 text-sm">{t('common.machines.profilePage.analytics.loading')}</p>
       </div>
     );
   }
@@ -451,13 +456,13 @@ function AnalyticsTab({ machine }: any) {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="font-semibold text-gray-900 mb-1">All-Time Work Orders</h3>
+        <h3 className="font-semibold text-gray-900 mb-1">{t('common.machines.profilePage.analytics.allTimeTitle')}</h3>
         <p className="text-gray-500 text-sm mb-4">
-          {totalWOs} total · {totalCompleted} completed
+          {t('common.machines.profilePage.analytics.summary', { total: totalWOs, completed: totalCompleted })}
         </p>
 
         {totalWOs === 0 ? (
-          <p className="text-gray-600 text-sm">No work orders recorded for this machine yet.</p>
+          <p className="text-gray-600 text-sm">{t('common.machines.profilePage.analytics.empty')}</p>
         ) : (
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
@@ -480,10 +485,10 @@ function AnalyticsTab({ machine }: any) {
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700">WO Type</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-700">Total</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-700">Completed</th>
-                <th className="px-4 py-3 text-right font-semibold text-gray-700">Completion Rate</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700">{t('common.machines.profilePage.analytics.woType')}</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700">{t('common.machines.profilePage.analytics.total')}</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700">{t('common.machines.profilePage.analytics.completed')}</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-700">{t('common.machines.profilePage.analytics.completionRate')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
