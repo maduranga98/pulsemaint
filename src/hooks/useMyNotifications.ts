@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { collection, doc, onSnapshot, orderBy, query, updateDoc, where, arrayUnion, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
-import { isNotificationUnreadBy, isNotificationVisibleTo } from '@/lib/notifications/recipients';
+import { isNotificationUnreadBy, isNotificationVisibleTo, notificationDisplayMessage } from '@/lib/notifications/recipients';
+import { playNotificationSound, showDeviceNotification } from '@/lib/notifications/deviceNotify';
 import type { DashboardNotification } from '@/types/analytics.types';
 
 /**
@@ -58,6 +59,34 @@ export function useMyNotifications() {
 
   // Everything still listed is unread — reading removes it from the list.
   const unreadCount = notifications.length;
+
+  // Fire a device notification + sound for anything that shows up in this
+  // user's bar after the first load — covers every role/module that goes
+  // through createNotification(), generically, without a per-feature hook.
+  const seenIdsRef = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (!userProfile) return;
+    const ids = new Set(notifications.map((n) => n.id));
+    if (seenIdsRef.current === null) {
+      // First render for this session/user — don't replay the existing backlog.
+      seenIdsRef.current = ids;
+      return;
+    }
+    const previouslySeen = seenIdsRef.current;
+    const freshOnes = notifications.filter((n) => !previouslySeen.has(n.id));
+    seenIdsRef.current = ids;
+    if (freshOnes.length === 0) return;
+    playNotificationSound();
+    for (const n of freshOnes.slice(0, 5)) {
+      showDeviceNotification('FirmiCore', {
+        body: notificationDisplayMessage(n, userProfile.role, userProfile.id),
+        tag: n.id,
+        onClick: () => {
+          if (n.linkTo) window.location.assign(n.linkTo);
+        },
+      });
+    }
+  }, [notifications, userProfile]);
 
   async function markAsRead(notificationId: string) {
     if (!userProfile) return;

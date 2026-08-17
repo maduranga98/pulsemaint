@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, AlertTriangle, Wrench, Package, Calendar, GraduationCap, ClipboardCheck, FileText, CheckCheck } from 'lucide-react';
+import { Bell, AlertTriangle, Wrench, Package, Calendar, GraduationCap, ClipboardCheck, FileText, CheckCheck, BellRing, Volume2, VolumeX } from 'lucide-react';
 import { useMyNotifications } from '@/hooks/useMyNotifications';
 import { useDerivedAlerts } from '@/hooks/useDerivedAlerts';
 import { relativeTime } from '@/utils/analytics.utils';
 import type { DashboardNotification, DashboardNotificationType } from '@/types/analytics.types';
 import { useAuthStore } from '@/store/authStore';
 import { notificationDisplayMessage } from '@/lib/notifications/recipients';
+import {
+  getNotificationPermission,
+  isDeviceNotificationSupported,
+  isNotificationSoundEnabled,
+  requestDeviceNotificationPermission,
+  setNotificationSoundEnabled,
+} from '@/lib/notifications/deviceNotify';
 
 const ICON_MAP: Record<DashboardNotificationType, typeof Bell> = {
   breakdown: AlertTriangle,
@@ -38,8 +45,21 @@ export default function NotificationBell() {
   const alerts = derivedAlerts.filter((a) => !dismissed.has(a.id));
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const [devicePermission, setDevicePermission] = useState(getNotificationPermission());
+  const [soundOn, setSoundOn] = useState(isNotificationSoundEnabled());
 
   const totalCount = unreadCount + alerts.length;
+
+  async function handleEnableDeviceNotifications() {
+    const result = await requestDeviceNotificationPermission();
+    if (result !== 'unsupported') setDevicePermission(result);
+  }
+
+  function toggleSound() {
+    const next = !soundOn;
+    setSoundOn(next);
+    setNotificationSoundEnabled(next);
+  }
 
   // Clear everything currently in the bell: mark all persisted notifications
   // read and dismiss all state-derived alerts for this session.
@@ -90,17 +110,40 @@ export default function NotificationBell() {
         <div className="absolute right-0 mt-2 w-80 max-h-[28rem] overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50">
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-900">Notifications</p>
-            {totalCount > 0 && (
-              <button
-                type="button"
-                onClick={handleReadAll}
-                className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
-              >
-                <CheckCheck className="w-3.5 h-3.5" />
-                Mark all as read
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {isDeviceNotificationSupported() && (
+                <button
+                  type="button"
+                  onClick={toggleSound}
+                  className="p-1 rounded text-slate-400 hover:text-slate-600"
+                  aria-label={soundOn ? 'Mute notification sound' : 'Unmute notification sound'}
+                  title={soundOn ? 'Notification sound on' : 'Notification sound off'}
+                >
+                  {soundOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+                </button>
+              )}
+              {totalCount > 0 && (
+                <button
+                  type="button"
+                  onClick={handleReadAll}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                >
+                  <CheckCheck className="w-3.5 h-3.5" />
+                  Mark all as read
+                </button>
+              )}
+            </div>
           </div>
+          {isDeviceNotificationSupported() && devicePermission === 'default' && (
+            <button
+              type="button"
+              onClick={handleEnableDeviceNotifications}
+              className="w-full flex items-center gap-2 px-4 py-2.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border-b border-blue-100 transition-colors"
+            >
+              <BellRing className="w-3.5 h-3.5 shrink-0" />
+              Turn on device notifications with sound for new alerts
+            </button>
+          )}
           {/* State-derived alerts: expiring/due items and stock/PO alerts,
               shown to the roles that own them. They clear automatically once
               the underlying condition is resolved. */}
