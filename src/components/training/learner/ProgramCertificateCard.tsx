@@ -1,7 +1,7 @@
 import { Award, Download, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/authStore';
-import { buildProgramCertificatePdf, programCertificateFileName } from '@/lib/training/programCertificatePdf';
+import { buildProgramCertificatePdf, buildProgramCertificateNumber, programCertificateFileName } from '@/lib/training/programCertificatePdf';
 import { resolveCompanyLogoDataUrl } from '@/lib/pdf/logoUtils';
 import type { ProgramAssignment } from '@/types/trainingProgram';
 
@@ -32,9 +32,13 @@ export default function ProgramCertificateCard({ programAssignment: pa }: Progra
   async function handleDownload() {
     if (!cert) return;
     try {
+      // Certificates signed off before this field existed have no stored
+      // number — mint one for this download rather than crash or print
+      // "undefined" on the certificate.
+      const certificateNumber = cert.certificateNumber || buildProgramCertificateNumber();
       const companyLogoDataUrl = await resolveCompanyLogoDataUrl(company);
       const doc = buildProgramCertificatePdf({
-        certificateNumber: cert.certificateNumber,
+        certificateNumber,
         companyName: company?.name || '',
         companyDescription: company?.description ?? null,
         companyAddress: company?.address ?? null,
@@ -50,7 +54,7 @@ export default function ProgramCertificateCard({ programAssignment: pa }: Progra
         signedOffByRole: pa.signOff?.signedOffByRole || '',
         signatureImageDataUrl: cert.signatureImageDataUrl ?? null,
       });
-      doc.save(programCertificateFileName(pa.traineeName, cert.certificateNumber));
+      doc.save(programCertificateFileName(pa.traineeName, certificateNumber));
     } catch (err) {
       console.error('Failed to build program certificate PDF', err);
       toast.error('Could not generate the certificate PDF.');
@@ -71,7 +75,7 @@ export default function ProgramCertificateCard({ programAssignment: pa }: Progra
       <div className="p-4 space-y-3">
         <div>
           <p className="text-xs text-slate-500 uppercase tracking-wide">Certificate No.</p>
-          <p className="font-mono text-sm font-semibold text-slate-700">{cert.certificateNumber}</p>
+          <p className="font-mono text-sm font-semibold text-slate-700">{cert.certificateNumber || '—'}</p>
         </div>
 
         <div>
