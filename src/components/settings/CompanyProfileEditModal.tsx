@@ -5,6 +5,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
+import { backfillCompanyLogoDataUrl } from '@/lib/companyLogo';
 import type { CompanyProfile } from '@/types/auth';
 
 interface CompanyProfileEditModalProps {
@@ -49,29 +50,14 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
   // Logos uploaded before logoDataUrl existed (or that failed to convert at
   // upload time) never got the data URL that generated documents need —
   // best-effort backfill it in the background so the logo starts showing up
-  // on service letters etc. without requiring a re-upload. Silently no-ops
-  // if the fetch fails (e.g. no CORS rule on the bucket for this origin).
+  // on service letters etc. without requiring a re-upload. Also runs
+  // globally on login (useAuthInit); kept here too so opening this modal
+  // catches it immediately even if the login-time attempt failed.
   useEffect(() => {
-    if (!company.logoUrl || company.logoDataUrl) return;
     let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(company.logoUrl!);
-        const blob = await res.blob();
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(blob);
-        });
-        if (cancelled) return;
-        await updateDoc(doc(db, 'companies', company.id), { logoDataUrl: dataUrl });
-        setCompany({ ...company, logoDataUrl: dataUrl });
-      } catch {
-        // Best-effort only — the "Upload Logo" flow above always works
-        // since it reads the local file directly, no network fetch involved.
-      }
-    })();
+    backfillCompanyLogoDataUrl(company).then((dataUrl) => {
+      if (!cancelled && dataUrl) setCompany({ ...company, logoDataUrl: dataUrl });
+    });
     return () => {
       cancelled = true;
     };

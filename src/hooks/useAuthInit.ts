@@ -4,6 +4,7 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { getCompanyIdFromUser } from '../lib/auth';
+import { backfillCompanyLogoDataUrl } from '../lib/companyLogo';
 import type { CompanyProfile, UserProfile } from '../types/auth';
 
 export function useAuthInit() {
@@ -113,7 +114,13 @@ export function useAuthInit() {
                   const companyRef = doc(db, `companies/${companyId}`);
                   getDoc(companyRef).then((companySnap) => {
                     if (companySnap.exists()) {
-                      setCompany(companySnap.data() as CompanyProfile);
+                      const companyProfile = companySnap.data() as CompanyProfile;
+                      setCompany(companyProfile);
+                      backfillCompanyLogoDataUrl(companyProfile).then((logoDataUrl) => {
+                        if (logoDataUrl) {
+                          setCompany({ ...companyProfile, logoDataUrl });
+                        }
+                      });
                     }
                   }).catch(() => {});
                   // If company doc isn't readable yet, keep whatever the caller hydrated.
