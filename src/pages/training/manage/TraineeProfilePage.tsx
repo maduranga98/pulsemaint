@@ -69,7 +69,7 @@ export default function TraineeProfilePage() {
     return () => unsub();
   }, [userId, companyId]);
 
-  const handleSignOff = async (assignmentId: string, data: { passed: boolean; observations: string }) => {
+  const handleSignOff = async (assignmentId: string, data: { passed: boolean; observations: string; signatureDataUrl: string | null }) => {
     if (!currentUserId) return;
     setSignOffLoading(assignmentId);
     try {
@@ -91,13 +91,14 @@ export default function TraineeProfilePage() {
       // Same certificate the Sign-Off Queue issues — see
       // services/trainingCertificates.service.
       const assignment = assignments.find((a) => a.id === assignmentId);
-      if (data.passed && assignment) {
+      if (data.passed && assignment && data.signatureDataUrl) {
         await issueTrainingCertificate({
           assignment,
           company,
           issuedBy: currentUserId,
           issuedByName: currentUserFullName ?? '',
           practicalObservations: data.observations,
+          signatureImageDataUrl: data.signatureDataUrl,
         });
       }
     } finally {

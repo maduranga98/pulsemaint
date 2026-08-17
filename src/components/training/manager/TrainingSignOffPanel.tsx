@@ -27,7 +27,7 @@ export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSi
 
   const permission = canSignOffTraining(assignment, userProfile?.role, userProfile?.id);
 
-  async function handleSignOff(data: { passed: boolean; observations: string }) {
+  async function handleSignOff(data: { passed: boolean; observations: string; signatureDataUrl: string | null }) {
     if (!userProfile) return;
     setSaving(true);
     try {
@@ -45,14 +45,16 @@ export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSi
         updatedAt: serverTimestamp(),
       });
 
-      // A pass issues the certificate the trainee sees under My Certificates.
-      if (data.passed) {
+      // A pass issues the certificate the trainee sees under My Certificates,
+      // with the signing-off manager's captured signature drawn onto it.
+      if (data.passed && data.signatureDataUrl) {
         await issueTrainingCertificate({
           assignment,
           company,
           issuedBy: userProfile.id,
           issuedByName: userProfile.fullName ?? '',
           practicalObservations: data.observations,
+          signatureImageDataUrl: data.signatureDataUrl,
         });
       }
 

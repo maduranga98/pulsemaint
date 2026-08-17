@@ -14,6 +14,8 @@ export interface TrainingCertificatePdfInput {
   expiryDate?: Date | null;
   issuedByName: string;
   practicalObservations?: string | null;
+  /** The signing-off manager's captured signature. Falls back to a script-font name if absent. */
+  signatureImageDataUrl?: string | null;
 
   companyName: string;
   companyDescription?: string | null;
@@ -180,6 +182,15 @@ export function buildTrainingCertificatePdf(input: TrainingCertificatePdfInput):
   }
 
   const signX = pageWidth - 70;
+  if (input.signatureImageDataUrl) {
+    // The authorizer's actual digital signature, captured at sign-off time.
+    try {
+      doc.addImage(input.signatureImageDataUrl, 'PNG', signX - 150, footerY - 30, 110, 34);
+    } catch {
+      // A malformed data URL shouldn't block certificate generation — fall
+      // back to the printed name below the signature line instead.
+    }
+  }
   doc.setDrawColor(INK.r, INK.g, INK.b);
   doc.setLineWidth(0.75);
   doc.line(signX - 170, footerY + 12, signX, footerY + 12);
