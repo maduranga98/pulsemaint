@@ -334,7 +334,7 @@ export default function LoginPage() {
           className="w-full mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-white/10 bg-[#0B1526] text-slate-200 text-sm font-medium rounded-xl hover:bg-white/5 transition-colors"
         >
           <QrCode className="w-4 h-4 text-[#00C2FF]" />
-          Report a breakdown by QR — no sign-in needed
+          Report a breakdown by QR
         </button>
       </div>
       </div>
