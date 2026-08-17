@@ -442,8 +442,15 @@ export function MachineListPage() {
     userProfile.role === 'plant_manager' ||
     userProfile.role === 'admin';
 
-  const activeMachines = machines.filter((m) => m.status === 'active').length;
-  const maintenanceMachines = machines.filter((m) => m.status === 'under_maintenance').length;
+  // Department-scoped roles (technician/trainee/supervisor/floor_operator)
+  // must see the header count, active/maintenance breakdown, and department
+  // filter options for their own department only — not the site-wide totals
+  // the unscoped `machines` list still carries.
+  const scopedMachines = scopedDepartment
+    ? machines.filter((m) => m.department === scopedDepartment)
+    : machines;
+  const activeMachines = scopedMachines.filter((m) => m.status === 'active').length;
+  const maintenanceMachines = scopedMachines.filter((m) => m.status === 'under_maintenance').length;
 
   return (
     <div className="min-h-full">
@@ -462,7 +469,7 @@ export function MachineListPage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Machine Registry</h1>
               <p className="text-gray-600 text-sm mt-1">
-                {totalCount || machines.length} machines · {activeMachines} active · {maintenanceMachines} in maintenance
+                {scopedDepartment ? scopedMachines.length : totalCount || machines.length} machines · {activeMachines} active · {maintenanceMachines} in maintenance
               </p>
             </div>
 
@@ -508,7 +515,7 @@ export function MachineListPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
         <MachineFilterBar
           onFiltersChange={setFilters}
-          departments={[...new Set(machines.map((m) => m.department).filter(Boolean))]}
+          departments={[...new Set(scopedMachines.map((m) => m.department).filter(Boolean))]}
           isLoading={loading}
         />
 
