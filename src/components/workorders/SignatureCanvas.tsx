@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SignatureCanvasProps {
   onSave: (dataUrl: string) => void;
@@ -7,6 +8,7 @@ interface SignatureCanvasProps {
 }
 
 export function SignatureCanvas({ onSave, width = 480, height = 200 }: SignatureCanvasProps) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const [isEmpty, setIsEmpty] = useState(true);
@@ -102,7 +104,7 @@ export function SignatureCanvas({ onSave, width = 480, height = 200 }: Signature
           onClick={clear}
           className="text-sm text-gray-500 hover:text-red-500 transition-colors"
         >
-          Clear
+          {t('common.workorders.signature.clear')}
         </button>
         <button
           type="button"
@@ -110,7 +112,7 @@ export function SignatureCanvas({ onSave, width = 480, height = 200 }: Signature
           disabled={isEmpty}
           className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          Use Signature
+          {t('common.workorders.signature.useSignature')}
         </button>
       </div>
     </div>

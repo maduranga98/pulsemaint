@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { WorkOrder } from '../../types/workOrder';
 import { WOTypeBadge } from './WOTypeBadge';
 import { WOStatusBadge } from './WOStatusBadge';
@@ -15,7 +16,15 @@ interface WOTableProps {
   onSignOff?: (wo: WorkOrder) => void;
 }
 
+const PRIORITY_LABEL_KEYS: Record<string, string> = {
+  critical: 'common.workorders.priorityBadge.critical',
+  high: 'common.workorders.priorityBadge.high',
+  medium: 'common.workorders.priorityBadge.medium',
+  low: 'common.workorders.priorityBadge.low',
+};
+
 export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOff = false, onSignOff }: WOTableProps) {
+  const { t } = useTranslation();
   const showActionColumn = canSignOff && !!onSignOff;
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -23,17 +32,17 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Work Order</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Machine</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colWorkOrder')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colMachine')}</th>
               {showTypeColumn && (
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Type</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colType')}</th>
               )}
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Priority</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">SLA</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Assigned</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colPriority')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colSLA')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colAssigned')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colStatus')}</th>
               {showActionColumn && (
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Action</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workorders.table.colAction')}</th>
               )}
             </tr>
           </thead>
@@ -71,7 +80,7 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${priorityConfig.bgClass} ${priorityConfig.textClass}`}
                     >
-                      {priorityConfig.label}
+                      {t(PRIORITY_LABEL_KEYS[wo.priority])}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -94,7 +103,7 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
                           }}
                           className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700"
                         >
-                          Sign Off
+                          {t('common.workorders.table.signOff')}
                         </button>
                       )}
                     </td>
@@ -107,7 +116,7 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
       </div>
 
       {workOrders.length === 0 && (
-        <div className="p-8 text-center text-gray-400 text-sm">No work orders found.</div>
+        <div className="p-8 text-center text-gray-400 text-sm">{t('common.workorders.table.empty')}</div>
       )}
     </div>
   );

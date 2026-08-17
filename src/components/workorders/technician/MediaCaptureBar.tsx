@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { Camera, Video, Paperclip, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { WorkOrder } from '../../../types/workOrder';
 import { useWOMedia } from '../../../hooks/useWOMedia';
 
@@ -17,6 +18,7 @@ const FORMAT_ICON: Record<string, string> = {
 };
 
 export function MediaCaptureBar({ workOrder, siteId, enabled = true }: MediaCaptureBarProps) {
+  const { t } = useTranslation();
   const photoRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -53,7 +55,7 @@ export function MediaCaptureBar({ workOrder, siteId, enabled = true }: MediaCapt
           className="flex flex-col items-center gap-1 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-2 py-3 text-xs font-medium text-[#F0F4F8] hover:border-[#00C2FF] disabled:opacity-50"
         >
           <Camera className="h-5 w-5 text-[#00C2FF]" />
-          Take Photo
+          {t('common.workorders.mediaCapture.takePhoto')}
         </button>
         <button
           type="button"
@@ -62,7 +64,7 @@ export function MediaCaptureBar({ workOrder, siteId, enabled = true }: MediaCapt
           className="flex flex-col items-center gap-1 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-2 py-3 text-xs font-medium text-[#F0F4F8] hover:border-[#00C2FF] disabled:opacity-50"
         >
           <Video className="h-5 w-5 text-[#00C2FF]" />
-          Record Video
+          {t('common.workorders.mediaCapture.recordVideo')}
         </button>
         <button
           type="button"
@@ -71,7 +73,7 @@ export function MediaCaptureBar({ workOrder, siteId, enabled = true }: MediaCapt
           className="flex flex-col items-center gap-1 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-2 py-3 text-xs font-medium text-[#F0F4F8] hover:border-[#00C2FF] disabled:opacity-50"
         >
           <Paperclip className="h-5 w-5 text-[#00C2FF]" />
-          Attach File
+          {t('common.workorders.mediaCapture.attachFile')}
         </button>
       </div>
 
@@ -109,7 +111,7 @@ export function MediaCaptureBar({ workOrder, siteId, enabled = true }: MediaCapt
                 type="button"
                 onClick={() => removeMedia(workOrder.id, workOrder.documents ?? [], d.id)}
                 className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                aria-label="Remove"
+                aria-label={t('common.workorders.mediaCapture.remove')}
               >
                 <X className="h-3.5 w-3.5" />
               </button>

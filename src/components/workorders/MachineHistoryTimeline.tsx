@@ -1,7 +1,18 @@
+import { useTranslation } from 'react-i18next';
 import { useMachineHistory } from '../../hooks/useMachineHistory';
-import { WO_COPY } from '../../constants/copy';
 import { WO_TYPE_CONFIG } from '../../constants/woConfig';
 import type { MachineHistoryEntry } from '../../types/workOrder';
+
+const TYPE_LABEL_KEYS: Record<string, string> = {
+  BREAKDOWN: 'common.workorders.typeBadge.BREAKDOWN',
+  CORRECTIVE: 'common.workorders.typeBadge.CORRECTIVE',
+  PREVENTIVE: 'common.workorders.typeBadge.PREVENTIVE',
+  INSTALLATION: 'common.workorders.typeBadge.INSTALLATION',
+  MODIFICATION: 'common.workorders.typeBadge.MODIFICATION',
+  INSPECTION: 'common.workorders.typeBadge.INSPECTION',
+  CONTRACTOR: 'common.workorders.typeBadge.CONTRACTOR',
+  OTHER: 'common.workorders.typeBadge.OTHER',
+};
 
 interface MachineHistoryTimelineProps {
   machineId: string;
@@ -16,8 +27,10 @@ function formatDuration(minutes: number): string {
 }
 
 function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
   const typeConfig = WO_TYPE_CONFIG[entry.woType] ?? { icon: '🔧', label: entry.woType ?? 'Work', bgClass: 'bg-gray-100', textClass: 'text-gray-700' };
+  const typeLabel = entry.woType && TYPE_LABEL_KEYS[entry.woType] ? t(TYPE_LABEL_KEYS[entry.woType]) : typeConfig.label;
   const totalCost = entry.totalPartsCost ?? 0;
   const internalTeamNames = entry.internalTeamNames ?? [];
   const partsUsed = entry.partsUsed ?? [];
@@ -39,7 +52,7 @@ function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
               <span className="font-semibold text-sm text-gray-900">{entry.woNumber}</span>
               <span className="text-lg">{typeConfig.icon}</span>
               <span className={`text-xs px-2 py-0.5 rounded-full ${typeConfig.bgClass} ${typeConfig.textClass}`}>
-                {typeConfig.label}
+                {typeLabel}
               </span>
             </div>
             <p className="text-xs text-gray-500 mt-0.5">
@@ -70,26 +83,26 @@ function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
 
           {entry.rootCause && (
             <p className="text-gray-500">
-              Root cause: <span className="font-medium text-gray-700">{entry.rootCause.replace(/_/g, ' ')}</span>
+              {t('common.workorders.machineHistory.rootCause')}: <span className="font-medium text-gray-700">{entry.rootCause.replace(/_/g, ' ')}</span>
             </p>
           )}
 
           {internalTeamNames.length > 0 && (
             <p className="text-gray-500">
-              Team: {internalTeamNames.join(', ')}
+              {t('common.workorders.machineHistory.team')}: {internalTeamNames.join(', ')}
             </p>
           )}
 
           {entry.contractorName && (
             <p className="text-gray-500">
-              Contractor: <span className="font-medium">{entry.contractorName}</span>
+              {t('common.workorders.machineHistory.contractor')}: <span className="font-medium">{entry.contractorName}</span>
               {contractorTechnicianNames.length > 0 && ` (${contractorTechnicianNames.join(', ')})`}
             </p>
           )}
 
           {partsUsed.length > 0 && (
             <div>
-              <p className="text-gray-400 text-xs mb-1">Parts used:</p>
+              <p className="text-gray-400 text-xs mb-1">{t('common.workorders.machineHistory.partsUsed')}:</p>
               <div className="space-y-1">
                 {partsUsed.map((p, i) => (
                   <div key={i} className="flex justify-between text-xs">
@@ -105,7 +118,7 @@ function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
             <div className="grid grid-cols-4 gap-1">
               {finalPhotoUrls.map((url, i) => (
                 <a key={i} href={url} target="_blank" rel="noreferrer">
-                  <img src={url} alt={`Photo ${i + 1}`} className="aspect-square rounded object-cover w-full" />
+                  <img src={url} alt={t('common.workorders.machineHistory.photoAlt', { index: i + 1 })} className="aspect-square rounded object-cover w-full" />
                 </a>
               ))}
             </div>
@@ -119,12 +132,13 @@ function HistoryEntry({ entry }: { entry: MachineHistoryEntry }) {
 import { useState } from 'react';
 
 export function MachineHistoryTimeline({ machineId, machineName }: MachineHistoryTimelineProps) {
+  const { t } = useTranslation();
   const { entries, loading, error, hasMore, loadMore } = useMachineHistory(machineId);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-gray-900">{WO_COPY.machineHistoryTitle}</h2>
+        <h2 className="font-semibold text-gray-900">{t('common.workorders.machineHistory.title')}</h2>
         {machineName && <p className="text-sm text-gray-500">{machineName}</p>}
       </div>
 
@@ -143,7 +157,7 @@ export function MachineHistoryTimeline({ machineId, machineName }: MachineHistor
       {!loading && entries.length === 0 && !error && (
         <div className="text-center py-12">
           <p className="text-3xl mb-3">🔧</p>
-          <p className="text-gray-400 text-sm">{WO_COPY.noHistoryEntries}</p>
+          <p className="text-gray-400 text-sm">{t('common.workorders.machineHistory.empty')}</p>
         </div>
       )}
 
@@ -162,7 +176,7 @@ export function MachineHistoryTimeline({ machineId, machineName }: MachineHistor
           disabled={loading}
           className="w-full py-2.5 text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50"
         >
-          {loading ? 'Loading…' : 'Load more'}
+          {loading ? t('common.workorders.machineHistory.loading') : t('common.workorders.machineHistory.loadMore')}
         </button>
       )}
     </div>

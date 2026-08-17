@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
-import { WO_COPY } from '../../constants/copy';
 import { useWOCompletion } from '../../hooks/useWOCompletion';
 import { useAuthStore } from '../../store/authStore';
 import { useCompanyUsers } from '../../hooks/useCompanyUsers';
@@ -17,33 +17,30 @@ interface WOCompletionFormProps {
   onCancel: () => void;
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  technician: 'Technician',
-  trainee: 'Trainee',
-  supervisor: 'Supervisor',
-  plant_manager: 'Plant Manager',
-  store_keeper: 'Store Keeper',
-  floor_operator: 'Floor Operator',
-  hr_officer: 'HR Officer',
-  safety_officer: 'Safety Officer',
-  admin: 'Admin',
+const ROLE_LABEL_KEYS: Record<string, string> = {
+  technician: 'common.workorders.completionForm.roleLabels.technician',
+  trainee: 'common.workorders.completionForm.roleLabels.trainee',
+  supervisor: 'common.workorders.completionForm.roleLabels.supervisor',
+  plant_manager: 'common.workorders.completionForm.roleLabels.plant_manager',
+  store_keeper: 'common.workorders.completionForm.roleLabels.store_keeper',
+  floor_operator: 'common.workorders.completionForm.roleLabels.floor_operator',
+  hr_officer: 'common.workorders.completionForm.roleLabels.hr_officer',
+  safety_officer: 'common.workorders.completionForm.roleLabels.safety_officer',
+  admin: 'common.workorders.completionForm.roleLabels.admin',
 };
 
-function roleLabel(role: string): string {
-  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
-}
-
-const STEPS = [
-  WO_COPY.completionStep1,
-  WO_COPY.completionStep2,
-  WO_COPY.completionStep3,
-  WO_COPY.completionStep4,
-  WO_COPY.completionStep5,
-  WO_COPY.completionStep6,
-  WO_COPY.completionStep7,
-];
-
 export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOCompletionFormProps) {
+  const { t } = useTranslation();
+  const roleLabel = (role: string): string => (ROLE_LABEL_KEYS[role] ? t(ROLE_LABEL_KEYS[role]) : role.replace(/_/g, ' '));
+  const STEPS = [
+    t('common.workorders.completionForm.steps.step1'),
+    t('common.workorders.completionForm.steps.step2'),
+    t('common.workorders.completionForm.steps.step3'),
+    t('common.workorders.completionForm.steps.step4'),
+    t('common.workorders.completionForm.steps.step5'),
+    t('common.workorders.completionForm.steps.step6'),
+    t('common.workorders.completionForm.steps.step7'),
+  ];
   const [step, setStep] = useState(0);
   const [partsUsed, setPartsUsed] = useState<PartUsed[]>(workOrder.partsUsed ?? []);
 
@@ -257,9 +254,9 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
       {/* Step header */}
       <div className="px-6 py-4 border-b border-gray-100">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-900">{WO_COPY.completionTitle}</h3>
+          <h3 className="font-semibold text-gray-900">{t('common.workorders.completionForm.title')}</h3>
           <button type="button" onClick={onCancel} className="text-sm text-gray-400 hover:text-gray-600">
-            Cancel
+            {t('common.workorders.completionForm.cancel')}
           </button>
         </div>
         <div className="flex gap-1">
@@ -273,7 +270,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
           ))}
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          {step + 1}/{STEPS.length} — <span className="font-medium">{STEPS[step]}</span>
+          {t('common.workorders.completionForm.stepIndicator', { step: step + 1, total: STEPS.length, label: STEPS[step] })}
         </p>
       </div>
 
@@ -283,31 +280,31 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.actualStartLabel}</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.workorders.completionForm.actualStart')}</label>
                 <p className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
                   {actualStartTime.toLocaleString()}
                 </p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.actualEndLabel}</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.workorders.completionForm.actualEnd')}</label>
                 <p className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500">
-                  Recorded automatically on submit
+                  {t('common.workorders.completionForm.recordedAutomatically')}
                 </p>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.workDoneLabel} *</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.workorders.completionForm.workDone')} *</label>
               <textarea
                 {...register('workDoneDescription')}
                 rows={4}
-                placeholder={WO_COPY.workDonePlaceholder}
+                placeholder={t('common.workorders.completionForm.workDonePlaceholder')}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.rootCauseLabel} *</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.workorders.completionForm.rootCause')} *</label>
               <select
                 {...register('rootCause')}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
@@ -320,11 +317,11 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
 
             {rootCause !== 'unknown' && (
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">{WO_COPY.rootCauseDescLabel} *</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.workorders.completionForm.rootCauseDescription')} *</label>
                 <textarea
                   {...register('rootCauseDescription')}
                   rows={3}
-                  placeholder={WO_COPY.rootCauseDescPlaceholder}
+                  placeholder={t('common.workorders.completionForm.rootCauseDescriptionPlaceholder')}
                   className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
                 />
               </div>
@@ -335,11 +332,11 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         {/* Step 1: Parts Used */}
         {step === 1 && (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-700">{WO_COPY.partsUsedLabel}</p>
+            <p className="text-sm font-medium text-gray-700">{t('common.workorders.completionForm.partsUsed')}</p>
 
             {/* Pick from the inventory catalog — prefills name/unit/cost. */}
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Add from store stock</label>
+              <label className="block text-xs text-gray-500 mb-1">{t('common.workorders.completionForm.addFromStock')}</label>
               <PartSearchInput
                 onSelect={(part) =>
                   setPartsUsed((p) => [...p, {
@@ -371,7 +368,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       type="text"
                       value={part.partName}
                       onChange={(e) => update({ partName: e.target.value })}
-                      placeholder="Part name"
+                      placeholder={t('common.workorders.completionForm.partNamePlaceholder')}
                       readOnly={part.partId !== null}
                       className={`flex-1 rounded-lg border border-gray-300 px-3 py-1.5 text-sm ${part.partId ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'}`}
                     />
@@ -379,12 +376,12 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       type="button"
                       onClick={() => setPartsUsed((p) => p.filter((_, idx) => idx !== i))}
                       className="text-red-400 hover:text-red-600 text-lg leading-none px-1"
-                      aria-label="Remove part"
+                      aria-label={t('common.workorders.completionForm.removePart')}
                     >×</button>
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-[11px] text-gray-500 mb-0.5">Qty</label>
+                      <label className="block text-[11px] text-gray-500 mb-0.5">{t('common.workorders.completionForm.qty')}</label>
                       <input
                         type="number"
                         min={0}
@@ -395,7 +392,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] text-gray-500 mb-0.5">Unit</label>
+                      <label className="block text-[11px] text-gray-500 mb-0.5">{t('common.workorders.completionForm.unit')}</label>
                       <input
                         type="text"
                         value={part.unit}
@@ -404,7 +401,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] text-gray-500 mb-0.5">Unit cost (LKR)</label>
+                      <label className="block text-[11px] text-gray-500 mb-0.5">{t('common.workorders.completionForm.unitCost')}</label>
                       <input
                         type="number"
                         min={0}
@@ -415,7 +412,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         // only manually-entered external/purchased parts (no
                         // partId) can have their unit cost typed in.
                         readOnly={part.partId !== null}
-                        title={part.partId !== null ? 'Catalog price — not editable' : undefined}
+                        title={part.partId !== null ? t('common.workorders.completionForm.catalogPriceNotEditable') : undefined}
                         className={`w-full rounded-lg border border-gray-300 px-2 py-1.5 text-sm ${
                           part.partId !== null ? 'bg-gray-100 text-gray-600' : 'bg-white text-gray-900'
                         }`}
@@ -423,7 +420,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                     </div>
                   </div>
                   <p className="text-right text-xs text-gray-500">
-                    Total: <span className="font-semibold text-gray-800">LKR {part.totalCost.toLocaleString()}</span>
+                    {t('common.workorders.completionForm.total')} <span className="font-semibold text-gray-800">LKR {part.totalCost.toLocaleString()}</span>
                   </p>
                 </div>
               );
@@ -443,12 +440,12 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
               }])}
               className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-colors"
             >
-              + Add external / purchased part
+              {t('common.workorders.completionForm.addExternalPart')}
             </button>
 
             {partsUsed.length > 0 && (
               <p className="text-right text-sm text-gray-600">
-                Total parts cost:&nbsp;
+                {t('common.workorders.completionForm.totalPartsCost')}&nbsp;
                 <span className="font-semibold text-gray-900">
                   LKR {partsUsed.reduce((s, p) => s + (p.totalCost || 0), 0).toLocaleString()}
                 </span>
@@ -457,7 +454,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
 
             {workOrder.partsRequests.length > 0 && (
               <p className="text-xs text-gray-400">
-                Pre-requested parts: {workOrder.partsRequests.map((p) => p.partName).join(', ')}
+                {t('common.workorders.completionForm.preRequestedParts', { parts: workOrder.partsRequests.map((p) => p.partName).join(', ') })}
               </p>
             )}
           </div>
@@ -467,14 +464,12 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
             what that person did (not one shared description for the team). */}
         {step === 2 && (
           <div className="space-y-4">
-            <p className="text-sm font-medium text-gray-700">{WO_COPY.techLogsLabel}</p>
+            <p className="text-sm font-medium text-gray-700">{t('common.workorders.completionForm.techLogs')}</p>
             <p className="text-xs text-gray-400">
-              Record what each assigned person did. Their completed checklist steps (with notes and
-              measurements) are compiled automatically; add anything else they did in their own box.
-              Hours come from the WO's actual start and end times.
+              {t('common.workorders.completionForm.techLogsHint')}
             </p>
             {assignees.length === 0 && (
-              <p className="text-sm text-gray-400">No technicians are assigned to this work order.</p>
+              <p className="text-sm text-gray-400">{t('common.workorders.completionForm.noTechniciansAssigned')}</p>
             )}
             {assignees.map((a, i) => {
               const steps = completedStepsFor(a.technicianId);
@@ -485,23 +480,23 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                     {a.technicianRole && <span className="ml-1 text-xs font-normal text-gray-500">({roleLabel(a.technicianRole)})</span>}
                   </p>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">{WO_COPY.hoursWorkedLabel}</label>
+                    <label className="block text-xs text-gray-500 mb-1">{t('common.workorders.completionForm.hoursWorked')}</label>
                     <p className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
                       {previewHoursWorked.toFixed(2)} hrs
                     </p>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Completed checklist steps</label>
+                    <label className="block text-xs text-gray-500 mb-1">{t('common.workorders.completionForm.completedChecklistSteps')}</label>
                     {steps ? (
                       <p className="w-full whitespace-pre-wrap rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">{steps}</p>
                     ) : (
                       <p className="w-full rounded-lg border border-dashed border-gray-200 bg-white px-3 py-2 text-sm text-gray-400">
-                        No checklist steps completed by this person yet.
+                        {t('common.workorders.completionForm.noStepsCompletedByPerson')}
                       </p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Work done by {a.technicianName}</label>
+                    <label className="block text-xs text-gray-500 mb-1">{t('common.workorders.completionForm.workDoneBy', { name: a.technicianName })}</label>
                     {submittedWorkDone[a.technicianId] != null ? (
                       // The person recorded their own work — shown read-only so
                       // the finaliser can review it but not rewrite it.
@@ -513,7 +508,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         rows={2}
                         value={perTechWorkDone[a.technicianId] ?? ''}
                         onChange={(e) => setPerTechWorkDone((prev) => ({ ...prev, [a.technicianId]: e.target.value }))}
-                        placeholder={`What did ${a.technicianName} do on this job?`}
+                        placeholder={t('common.workorders.completionForm.workDoneByPlaceholder', { name: a.technicianName })}
                         className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
                       />
                     )}
@@ -527,9 +522,9 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         {/* Step 3: Post-Repair Checklist */}
         {step === 3 && (
           <div className="space-y-3">
-            <p className="text-sm font-medium text-gray-700">{WO_COPY.postRepairChecklistLabel}</p>
+            <p className="text-sm font-medium text-gray-700">{t('common.workorders.completionForm.postRepairChecklist')}</p>
             {postRepairChecklist.length === 0 ? (
-              <p className="text-sm text-gray-400">No checklist steps were defined for this WO.</p>
+              <p className="text-sm text-gray-400">{t('common.workorders.completionForm.noChecklistSteps')}</p>
             ) : (
               <ol className="space-y-2">
                 {postRepairChecklist.map((item, i) => (
@@ -547,14 +542,14 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       {item.stepDescription}
                     </span>
                     {item.isCompleted && (
-                      <span className="text-xs text-emerald-600 font-medium">Pass</span>
+                      <span className="text-xs text-emerald-600 font-medium">{t('common.workorders.completionForm.pass')}</span>
                     )}
                   </li>
                 ))}
               </ol>
             )}
             {!allPostRepairDone && postRepairChecklist.length > 0 && (
-              <p className="text-xs text-amber-600">{WO_COPY.allStepsMustPass}</p>
+              <p className="text-xs text-amber-600">{t('common.workorders.completionForm.allStepsMustPass')}</p>
             )}
           </div>
         )}
@@ -562,7 +557,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         {/* Step 4: Test Run */}
         {step === 4 && (
           <div className="space-y-4">
-            <p className="text-sm font-medium text-gray-700">{WO_COPY.testRunLabel}</p>
+            <p className="text-sm font-medium text-gray-700">{t('common.workorders.completionForm.testRun')}</p>
             <div className="flex gap-3">
               {(['pass', 'fail', 'partial'] as const).map((result) => (
                 <button
@@ -579,14 +574,14 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                       : 'border-gray-100 text-gray-500 hover:border-gray-300'
                   }`}
                 >
-                  {result}
+                  {result === 'pass' ? t('common.workorders.reviewSignOff.testResult.pass') : result === 'fail' ? t('common.workorders.reviewSignOff.testResult.fail') : t('common.workorders.reviewSignOff.testResult.partial')}
                 </button>
               ))}
             </div>
             {(testRunResult === 'fail' || testRunResult === 'partial') && (
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  {WO_COPY.testRunNotesLabel} * <span className="text-gray-400">{WO_COPY.testRunNotesRequired}</span>
+                  {t('common.workorders.completionForm.testRunNotes')} * <span className="text-gray-400">{t('common.workorders.completionForm.testRunNotesRequired')}</span>
                 </label>
                 <textarea
                   {...register('testRunNotes')}
@@ -601,10 +596,10 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         {/* Step 5: Final Photos */}
         {step === 5 && (
           <div className="space-y-4">
-            <p className="text-sm font-medium text-gray-700">{WO_COPY.finalPhotosLabel}</p>
+            <p className="text-sm font-medium text-gray-700">{t('common.workorders.completionForm.finalPhotos')}</p>
             <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 cursor-pointer hover:border-blue-400">
               <span className="text-4xl mb-2">📷</span>
-              <span className="text-sm text-gray-600">{WO_COPY.addPhotoButton}</span>
+              <span className="text-sm text-gray-600">{t('common.workorders.completionForm.addPhoto')}</span>
               <input
                 type="file"
                 accept=".jpg,.jpeg,.png,.webp,.heic"
@@ -637,7 +632,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
               </div>
             )}
             {finalPhotos.length === 0 && (
-              <p className="text-xs text-gray-400">Photos are optional but recommended as evidence of the completed work.</p>
+              <p className="text-xs text-gray-400">{t('common.workorders.completionForm.photosOptionalHint')}</p>
             )}
           </div>
         )}
@@ -646,7 +641,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
         {step === 6 && (
           <div className="space-y-5">
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">{WO_COPY.machineStatusLabel}</p>
+              <p className="text-sm font-medium text-gray-700 mb-2">{t('common.workorders.completionForm.machineStatus')}</p>
               <div className="space-y-2">
                 {(['operational', 'partially_operational', 'still_down'] as const).map((s) => (
                   <button
@@ -663,9 +658,9 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                         : 'border-gray-100 text-gray-600 hover:border-gray-300'
                     }`}
                   >
-                    {s === 'operational' && '✅ Operational'}
-                    {s === 'partially_operational' && '⚠️ Partially Operational'}
-                    {s === 'still_down' && '🔴 Still Down'}
+                    {s === 'operational' && t('common.workorders.completionForm.statusOperational')}
+                    {s === 'partially_operational' && t('common.workorders.completionForm.statusPartiallyOperational')}
+                    {s === 'still_down' && t('common.workorders.completionForm.statusStillDown')}
                   </button>
                 ))}
               </div>
@@ -673,9 +668,9 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
 
             {workOrder.woType === 'MODIFICATION' && (
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">{WO_COPY.updatedCADLabel}</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">{t('common.workorders.completionForm.updatedCAD')}</p>
                 <label className="block border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:border-blue-400 text-sm text-gray-500 text-center">
-                  Upload updated CAD files
+                  {t('common.workorders.completionForm.uploadUpdatedCAD')}
                   <input
                     type="file"
                     multiple
@@ -685,16 +680,16 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
                   />
                 </label>
                 {updatedCAD.length > 0 && (
-                  <p className="text-xs text-emerald-600 mt-1">{updatedCAD.length} file(s) selected</p>
+                  <p className="text-xs text-emerald-600 mt-1">{t('common.workorders.completionForm.filesSelected', { count: updatedCAD.length })}</p>
                 )}
               </div>
             )}
 
             {partsUsed.some((p) => p.warrantyMonths) && (
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">{WO_COPY.warrantyDocsLabel}</p>
+                <p className="text-sm font-medium text-gray-700 mb-2">{t('common.workorders.completionForm.warrantyDocs')}</p>
                 <label className="block border-2 border-dashed border-gray-300 rounded-xl p-4 cursor-pointer hover:border-blue-400 text-sm text-gray-500 text-center">
-                  Upload warranty documents
+                  {t('common.workorders.completionForm.uploadWarrantyDocs')}
                   <input
                     type="file"
                     multiple
@@ -716,7 +711,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
           onClick={step === 0 ? onCancel : () => setStep((s) => s - 1)}
           className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900"
         >
-          {step === 0 ? 'Cancel' : '← Back'}
+          {step === 0 ? t('common.workorders.completionForm.cancel') : t('common.workorders.completionForm.back')}
         </button>
 
         {step < STEPS.length - 1 ? (
@@ -726,7 +721,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
             disabled={step === 3 && !allPostRepairDone && postRepairChecklist.length > 0}
             className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
-            Next →
+            {t('common.workorders.completionForm.next')}
           </button>
         ) : (
           <button
@@ -735,7 +730,7 @@ export function WOCompletionForm({ workOrder, onCompleted, onCancel }: WOComplet
             disabled={loading}
             className="px-6 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
           >
-            {loading ? 'Submitting…' : WO_COPY.submitCompletionButton}
+            {loading ? t('common.workorders.completionForm.submitting') : t('common.workorders.completionForm.submitCompletion')}
           </button>
         )}
       </div>

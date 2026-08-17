@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { UseFormReturn } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { WO_COPY } from '../../constants/copy';
 import { useContractorTechnicians } from '../../hooks/contractors/useContractorTechnicians';
 
@@ -43,6 +44,7 @@ export function TeamAssignmentPanel({
   contractors,
   supervisors = [],
 }: TeamAssignmentPanelProps) {
+  const { t } = useTranslation();
   const { register, watch, setValue, formState: { errors } } = form;
   const [contractorSearch, setContractorSearch] = useState('');
   const [techSearch, setTechSearch] = useState('');
@@ -193,7 +195,7 @@ export function TeamAssignmentPanel({
           />
           <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100">
             {filteredTechs.length === 0 ? (
-              <p className="text-xs text-gray-400 px-3 py-2">No technicians found</p>
+              <p className="text-xs text-gray-400 px-3 py-2">{t('common.workorders.teamAssignment.noTechniciansFound')}</p>
             ) : (
               filteredTechs.map((tech) => {
                 const isSelected = selectedTechIds.includes(tech.id);
@@ -224,7 +226,7 @@ export function TeamAssignmentPanel({
             )}
           </div>
           {selectedTechIds.length > 0 && (
-            <p className="mt-1 text-xs text-blue-600">{selectedTechIds.length} technician(s) selected</p>
+            <p className="mt-1 text-xs text-blue-600">{t('common.workorders.teamAssignment.techniciansSelected', { count: selectedTechIds.length })}</p>
           )}
         </div>
       ) : (
@@ -272,7 +274,7 @@ export function TeamAssignmentPanel({
                       ))}
                     </div>
                     {c.lastJobDate && (
-                      <p className="text-xs text-gray-400 mt-0.5">Last job: {c.lastJobDate}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{t('common.workorders.teamAssignment.lastJob', { date: c.lastJobDate })}</p>
                     )}
                   </button>
                 ))}
@@ -314,7 +316,7 @@ export function TeamAssignmentPanel({
               // members' jobs/last-visit counters update when the WO is signed off.
               contractorTeam.length === 0 ? (
                 <p className="text-xs text-gray-400 px-1 py-2">
-                  No team members registered for this contractor yet. Add them on the contractor's Team Members tab.
+                  {t('common.workorders.teamAssignment.noContractorTeamMembers')}
                 </p>
               ) : (
                 <div className="space-y-1 max-h-56 overflow-y-auto rounded-lg border border-gray-100">
@@ -366,7 +368,7 @@ export function TeamAssignmentPanel({
               security rules treat them as assigned responsible persons. */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Assign internal technicians <span className="text-gray-400 font-normal">(optional)</span>
+              {t('common.workorders.teamAssignment.assignInternalTechnicians')} <span className="text-gray-400 font-normal">{t('common.workorders.teamAssignment.optional')}</span>
             </label>
             <input
               type="text"
@@ -377,7 +379,7 @@ export function TeamAssignmentPanel({
             />
             <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100">
               {filteredTechs.length === 0 ? (
-                <p className="text-xs text-gray-400 px-3 py-2">No technicians found</p>
+                <p className="text-xs text-gray-400 px-3 py-2">{t('common.workorders.teamAssignment.noTechniciansFound')}</p>
               ) : (
                 filteredTechs.map((tech) => {
                   const isSelected = selectedTechIds.includes(tech.id);
@@ -404,7 +406,7 @@ export function TeamAssignmentPanel({
               )}
             </div>
             {selectedTechIds.length > 0 && (
-              <p className="mt-1 text-xs text-blue-600">{selectedTechIds.length} technician(s) selected</p>
+              <p className="mt-1 text-xs text-blue-600">{t('common.workorders.teamAssignment.techniciansSelected', { count: selectedTechIds.length })}</p>
             )}
           </div>
         </div>

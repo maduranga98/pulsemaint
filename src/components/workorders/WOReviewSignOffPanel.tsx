@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { X, Check, ChevronDown, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { WorkOrder, WORootCause } from '../../types/workOrder';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
 import { useWORCA, FIVE_WHY_QUESTIONS } from '../../hooks/useWORCA';
@@ -17,35 +18,38 @@ interface Props {
 
 type Step = 'review' | 'signoff';
 
-const ROLE_LABELS: Record<string, string> = {
-  technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
-  plant_manager: 'Plant Manager', store_keeper: 'Store Keeper',
-  floor_operator: 'Floor Operator', hr_officer: 'HR Officer',
-  safety_officer: 'Safety Officer', admin: 'Admin',
-};
-function signOffRoleLabel(role: string): string {
-  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
-}
-
-const STEPS: { key: Step; label: string }[] = [
-  { key: 'review', label: 'Review' },
-  { key: 'signoff', label: 'Sign-off' },
-];
-
-const TEST_RESULT_LABEL: Record<string, string> = {
-  pass: 'Pass',
-  fail: 'Fail',
-  partial: 'Partial',
+const ROLE_LABEL_KEYS: Record<string, string> = {
+  technician: 'common.workorders.reviewSignOff.roleLabels.technician',
+  trainee: 'common.workorders.reviewSignOff.roleLabels.trainee',
+  supervisor: 'common.workorders.reviewSignOff.roleLabels.supervisor',
+  plant_manager: 'common.workorders.reviewSignOff.roleLabels.plant_manager',
+  store_keeper: 'common.workorders.reviewSignOff.roleLabels.store_keeper',
+  floor_operator: 'common.workorders.reviewSignOff.roleLabels.floor_operator',
+  hr_officer: 'common.workorders.reviewSignOff.roleLabels.hr_officer',
+  safety_officer: 'common.workorders.reviewSignOff.roleLabels.safety_officer',
+  admin: 'common.workorders.reviewSignOff.roleLabels.admin',
 };
 
-const MACHINE_STATUS_LABEL: Record<string, string> = {
-  operational: 'Operational',
-  partially_operational: 'Partially operational',
-  still_down: 'Still down',
+const TEST_RESULT_LABEL_KEYS: Record<string, string> = {
+  pass: 'common.workorders.reviewSignOff.testResult.pass',
+  fail: 'common.workorders.reviewSignOff.testResult.fail',
+  partial: 'common.workorders.reviewSignOff.testResult.partial',
+};
+
+const MACHINE_STATUS_LABEL_KEYS: Record<string, string> = {
+  operational: 'common.workorders.reviewSignOff.machineStatus.operational',
+  partially_operational: 'common.workorders.reviewSignOff.machineStatus.partially_operational',
+  still_down: 'common.workorders.reviewSignOff.machineStatus.still_down',
 };
 
 export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
+  const { t } = useTranslation();
   const wo = workOrder;
+  const signOffRoleLabel = (role: string): string => (ROLE_LABEL_KEYS[role] ? t(ROLE_LABEL_KEYS[role]) : role.replace(/_/g, ' '));
+  const STEPS: { key: Step; label: string }[] = [
+    { key: 'review', label: t('common.workorders.reviewSignOff.stepReview') },
+    { key: 'signoff', label: t('common.workorders.reviewSignOff.stepSignoff') },
+  ];
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const { saveWORCA, createCorrectiveWO } = useWORCA(wo);
@@ -90,7 +94,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
   async function handleSaveRCA() {
     if (!rootCauseText.trim()) {
-      toast.error('Root cause description is required to save the analysis.');
+      toast.error(t('common.workorders.reviewSignOff.rootCauseDescriptionRequired'));
       return;
     }
     setRcaSaving(true);
@@ -102,11 +106,11 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
       );
       if (makeCorrectiveWO && correctiveAction.trim()) {
         await createCorrectiveWO(correctiveAction.trim(), uid, userName);
-        toast.success('Corrective work order created.');
+        toast.success(t('common.workorders.reviewSignOff.correctiveWOCreated'));
       }
-      toast.success('Root cause analysis saved.');
+      toast.success(t('common.workorders.reviewSignOff.rcaSaved'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to save RCA');
+      toast.error(err instanceof Error ? err.message : t('common.workorders.reviewSignOff.rcaSaveFailed'));
     } finally {
       setRcaSaving(false);
     }
@@ -159,20 +163,20 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
         <div className="flex-1 overflow-y-auto p-4">
           {step === 'review' && (
             <div className="space-y-4">
-              <Field label="Work done">{wo.workDoneDescription || ''}</Field>
+              <Field label={t('common.workorders.reviewSignOff.fieldWorkDone')}>{wo.workDoneDescription || ''}</Field>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Machine status after">{wo.machineStatusAfterRepair ? MACHINE_STATUS_LABEL[wo.machineStatusAfterRepair] : ''}</Field>
-                <Field label="Test run">{wo.testRunResult ? TEST_RESULT_LABEL[wo.testRunResult] : ''}</Field>
-                <Field label="Checklist">{checklistDone}/{wo.checklist?.length ?? 0} complete</Field>
-                <Field label="Parts used">{wo.partsUsed?.length ?? 0}</Field>
+                <Field label={t('common.workorders.reviewSignOff.fieldMachineStatusAfter')}>{wo.machineStatusAfterRepair ? t(MACHINE_STATUS_LABEL_KEYS[wo.machineStatusAfterRepair]) : ''}</Field>
+                <Field label={t('common.workorders.reviewSignOff.fieldTestRun')}>{wo.testRunResult ? t(TEST_RESULT_LABEL_KEYS[wo.testRunResult]) : ''}</Field>
+                <Field label={t('common.workorders.reviewSignOff.fieldChecklist')}>{t('common.workorders.reviewSignOff.checklistComplete', { done: checklistDone, total: wo.checklist?.length ?? 0 })}</Field>
+                <Field label={t('common.workorders.reviewSignOff.fieldPartsUsed')}>{wo.partsUsed?.length ?? 0}</Field>
               </div>
-              {wo.testRunNotes && <Field label="Test notes">{wo.testRunNotes}</Field>}
+              {wo.testRunNotes && <Field label={t('common.workorders.reviewSignOff.fieldTestNotes')}>{wo.testRunNotes}</Field>}
 
               {/* Work done by each assigned person, with their role — so the
                   supervisor signing off sees exactly who did what. */}
               {(wo.technicianWorkLogs ?? []).length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Work done by team</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.workorders.reviewSignOff.workDoneByTeam')}</p>
                   <div className="space-y-2">
                     {(wo.technicianWorkLogs ?? []).map((log, i) => (
                       <div key={log.technicianId || i} className="rounded-lg border border-blue-800 bg-blue-950 px-4 py-3">
@@ -181,12 +185,12 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                             {log.technicianName}
                             {log.technicianRole && <span className="ml-1 text-xs font-normal text-blue-200">({signOffRoleLabel(log.technicianRole)})</span>}
                           </p>
-                          <span className="whitespace-nowrap text-xs text-blue-200">{log.hoursWorked.toFixed(2)} hrs</span>
+                          <span className="whitespace-nowrap text-xs text-blue-200">{t('common.workorders.reviewSignOff.hoursWorked', { hours: log.hoursWorked.toFixed(2) })}</span>
                         </div>
                         {log.tasksDescription ? (
                           <p className="mt-1 whitespace-pre-wrap text-xs text-blue-100">{log.tasksDescription}</p>
                         ) : (
-                          <p className="mt-1 text-xs text-blue-300/70">No individual tasks recorded.</p>
+                          <p className="mt-1 text-xs text-blue-300/70">{t('common.workorders.reviewSignOff.noIndividualTasks')}</p>
                         )}
                       </div>
                     ))}
@@ -196,7 +200,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
               {(wo.partsUsed ?? []).length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Parts used</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.workorders.reviewSignOff.partsUsedTitle')}</p>
                   <div className="space-y-2">
                     {/* Dark blue card with explicit light text: the previous
                         light emerald card inherited the app's dark-theme text
@@ -206,7 +210,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium text-white">{part.partName}</p>
                           <p className="text-xs text-blue-200">
-                            {part.quantity} {part.unit} · {part.source === 'stock' ? 'From store stock' : 'External purchase'}
+                            {part.quantity} {part.unit} · {part.source === 'stock' ? t('common.workorders.reviewSignOff.fromStock') : t('common.workorders.reviewSignOff.externalPurchase')}
                           </p>
                         </div>
                         <span className="whitespace-nowrap text-sm font-semibold text-blue-50">
@@ -215,7 +219,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                       </div>
                     ))}
                     <div className="flex justify-end rounded-lg bg-blue-950 px-4 py-2 text-sm text-blue-200">
-                      Total parts cost:&nbsp;
+                      {t('common.workorders.reviewSignOff.totalPartsCost')}&nbsp;
                       <span className="font-semibold text-white">
                         LKR {(wo.partsUsed ?? []).reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
                       </span>
@@ -226,7 +230,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
 
               {evidence.length > 0 && (
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Evidence</p>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.workorders.reviewSignOff.evidence')}</p>
                   <div className="grid grid-cols-3 gap-2">
                     {evidence.map((e) => (
                       <a
@@ -259,13 +263,13 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                     onClick={() => setShowRCA((v) => !v)}
                     className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium text-gray-700"
                   >
-                    <span>Root cause analysis (optional)</span>
+                    <span>{t('common.workorders.reviewSignOff.rcaSectionTitle')}</span>
                     {showRCA ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                   </button>
                   {showRCA && (
                     <div className="space-y-3 border-t border-gray-100 p-3">
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause category</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.workorders.reviewSignOff.rootCauseCategory')}</label>
                         <select
                           value={rootCauseEnum}
                           onChange={(e) => setRootCauseEnum(e.target.value as WORootCause)}
@@ -277,12 +281,12 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                         </select>
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Root cause description</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.workorders.reviewSignOff.rootCauseDescriptionLabel')}</label>
                         <textarea
                           value={rootCauseText}
                           onChange={(e) => setRootCauseText(e.target.value)}
                           rows={3}
-                          placeholder="Describe the underlying root cause…"
+                          placeholder={t('common.workorders.reviewSignOff.rootCauseDescriptionPlaceholder')}
                           className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
                         />
                       </div>
@@ -292,7 +296,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                           className="flex items-center gap-1 text-sm font-medium text-blue-600"
                         >
                           {showWhys ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                          5-Whys analysis
+                          {t('common.workorders.reviewSignOff.fiveWhys')}
                         </button>
                         {showWhys && (
                           <div className="mt-2 space-y-2">
@@ -310,7 +314,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                         )}
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">Corrective action</label>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">{t('common.workorders.reviewSignOff.correctiveAction')}</label>
                         <textarea
                           value={correctiveAction}
                           onChange={(e) => setCorrectiveAction(e.target.value)}
@@ -324,7 +328,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                             onChange={(e) => setMakeCorrectiveWO(e.target.checked)}
                             className="h-4 w-4 rounded border-gray-300"
                           />
-                          Create a corrective work order from this action
+                          {t('common.workorders.reviewSignOff.createCorrectiveWO')}
                         </label>
                       </div>
                       <button
@@ -332,7 +336,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                         disabled={rcaSaving}
                         className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
                       >
-                        {rcaSaving ? 'Saving…' : 'Save root cause analysis'}
+                        {rcaSaving ? t('common.workorders.reviewSignOff.saving') : t('common.workorders.reviewSignOff.saveRCA')}
                       </button>
                     </div>
                   )}
@@ -342,8 +346,8 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
               {!canSignOff ? (
                 <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-500">
                   {(userProfile?.role === 'plant_manager' || userProfile?.role === 'supervisor') && isOwnWorkOrder
-                    ? "You created this work order and aren't its supervisor-in-charge, so you can't sign it off yourself — ask its assigned supervisor, another manager, or an admin."
-                    : 'You have view-only access — only a supervisor, plant manager, or admin can sign off this work order.'}
+                    ? t('common.workorders.reviewSignOff.notSupervisorOwnWO')
+                    : t('common.workorders.reviewSignOff.viewOnly')}
                 </p>
               ) : (
                 <div className="border-t border-gray-200 pt-4">
@@ -351,7 +355,7 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                     onClick={() => setStep('signoff')}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 font-semibold text-white hover:bg-blue-700"
                   >
-                    <Check className="h-4 w-4" /> Continue to sign-off
+                    <Check className="h-4 w-4" /> {t('common.workorders.reviewSignOff.continueToSignOff')}
                   </button>
                 </div>
               )}

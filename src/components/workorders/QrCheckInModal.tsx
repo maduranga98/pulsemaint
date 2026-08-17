@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { QrCode, X } from 'lucide-react';
+import { Trans, useTranslation } from 'react-i18next';
 import type { WorkOrder } from '../../types/workOrder';
 
 interface QrCheckInModalProps {
@@ -15,6 +16,7 @@ interface QrCheckInModalProps {
  * machine matches the work order's machine, proving arrival at the machine.
  */
 export function QrCheckInModal({ workOrder, onVerified, onClose }: QrCheckInModalProps) {
+  const { t } = useTranslation();
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const handledRef = useRef(false);
@@ -46,7 +48,7 @@ export function QrCheckInModal({ workOrder, onVerified, onClose }: QrCheckInModa
             onVerified();
           } else {
             setError(
-              `Scanned QR belongs to a different machine. Expected ${workOrder.machineName}.`,
+              t('common.workorders.qrCheckIn.wrongMachine', { machineName: workOrder.machineName }),
             );
           }
         },
@@ -54,7 +56,7 @@ export function QrCheckInModal({ workOrder, onVerified, onClose }: QrCheckInModa
       )
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to open camera.');
+          setError(err instanceof Error ? err.message : t('common.workorders.qrCheckIn.cameraError'));
         }
       });
 
@@ -73,20 +75,23 @@ export function QrCheckInModal({ workOrder, onVerified, onClose }: QrCheckInModa
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <QrCode className="h-5 w-5 text-blue-600" />
-            <h3 className="font-semibold text-gray-900">Check In at Machine</h3>
+            <h3 className="font-semibold text-gray-900">{t('common.workorders.qrCheckIn.title')}</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg p-1 text-gray-400 hover:text-gray-700"
-            aria-label="Close"
+            aria-label={t('common.workorders.qrCheckIn.close')}
           >
             <X className="h-5 w-5" />
           </button>
         </div>
         <p className="text-sm text-gray-600">
-          Scan the QR sticker on <strong>{workOrder.machineName}</strong> to record your arrival
-          and start the work order.
+          <Trans
+            i18nKey="common.workorders.qrCheckIn.instructions"
+            values={{ machineName: workOrder.machineName }}
+            components={{ 1: <strong /> }}
+          />
         </p>
         <div id="wo-checkin-qr-reader" className="overflow-hidden rounded-xl bg-black min-h-[250px]" />
         {error && (
@@ -99,7 +104,7 @@ export function QrCheckInModal({ workOrder, onVerified, onClose }: QrCheckInModa
           onClick={onClose}
           className="w-full py-2 text-sm text-gray-600 hover:text-gray-900"
         >
-          Cancel
+          {t('common.workorders.qrCheckIn.cancel')}
         </button>
       </div>
     </div>

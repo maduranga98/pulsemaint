@@ -1,5 +1,5 @@
+import { useTranslation } from 'react-i18next';
 import { useWOStats } from '../../hooks/useWOStats';
-import { WO_COPY } from '../../constants/copy';
 
 function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes}m`;
@@ -9,26 +9,27 @@ function formatDuration(minutes: number): string {
 }
 
 export function WOStatsBar() {
+  const { t } = useTranslation();
   const { stats, loading } = useWOStats();
 
   const statItems = [
     {
-      label: WO_COPY.openWOs,
+      label: t('common.workorders.statsBar.openWOs'),
       value: stats?.openCount ?? '',
       color: 'text-blue-600',
     },
     {
-      label: WO_COPY.overdueWOs,
+      label: t('common.workorders.statsBar.overdueWOs'),
       value: stats?.overdueCount ?? '',
       color: 'text-red-600',
     },
     {
-      label: WO_COPY.avgCompletionTime,
+      label: t('common.workorders.statsBar.avgCompletionTime'),
       value: stats ? formatDuration(stats.avgCompletionTimeMinutes) : '',
       color: 'text-gray-700',
     },
     {
-      label: WO_COPY.completedThisWeek,
+      label: t('common.workorders.statsBar.completedThisWeek'),
       value: stats?.completedThisWeek ?? '',
       color: 'text-emerald-600',
     },

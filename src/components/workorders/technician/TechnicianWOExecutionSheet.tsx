@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Timestamp } from 'firebase/firestore';
 import { X, Play, Pause, PackageX, PackagePlus, ClipboardCheck, CheckCircle2, ShieldCheck, MapPin, FileText } from 'lucide-react';
 import type { WorkOrder, ChecklistItem } from '../../../types/workOrder';
@@ -35,6 +36,7 @@ function formatElapsed(ms: number): string {
 }
 
 export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
+  const { t } = useTranslation();
   const wo = workOrder;
   const { updateWO, loading } = useUpdateWorkOrder();
   const { setMyState, loading: stateLoading } = useMyWOState();
@@ -199,12 +201,12 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
           <p className="text-xs text-[#8BA3BF]">{wo.machineLocation}</p>
           <div className="mt-2 flex items-center justify-between">
             <SLACountdownTimer slaDeadline={wo.slaDeadline} status={wo.status} />
-            <span className="text-xs text-[#8BA3BF]">Supervisor: {wo.supervisorInChargeName}</span>
+            <span className="text-xs text-[#8BA3BF]">{t('common.workorders.executionSheet.supervisorLabel', { name: wo.supervisorInChargeName })}</span>
           </div>
           {wo.description && <p className="mt-2 text-xs text-[#8BA3BF]">{wo.description}</p>}
           {isOverdue && (
             <div className="mt-3 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2">
-              <p className="text-xs text-red-300">Overdue — not yet finished.</p>
+              <p className="text-xs text-red-300">{t('common.workorders.executionSheet.overdueNotice')}</p>
             </div>
           )}
         </div>
@@ -237,7 +239,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                       ) : (
                         <div className="flex items-center gap-2">
                           <ShieldCheck className="h-4 w-4 text-orange-300" />
-                          <p className="text-xs text-orange-300">No work permit found. A Work Permit must be created before this job can start.</p>
+                          <p className="text-xs text-orange-300">{t('common.workorders.executionSheet.noWorkPermitFound')}</p>
                         </div>
                       )}
                     </div>
@@ -247,12 +249,12 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                     disabled={loading || !workPermitActive}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
-                    <Play className="h-5 w-5" /> Start WO
+                    <Play className="h-5 w-5" /> {t('common.workorders.executionSheet.startWO')}
                   </button>
                   <p className="text-center text-[11px] text-[#8BA3BF]">
                     {!workPermitActive
-                      ? 'This job needs an active Work Permit before it can start.'
-                      : 'You will confirm the safety precautions before work begins.'}
+                      ? t('common.workorders.executionSheet.startHintNoPermit')
+                      : t('common.workorders.executionSheet.startHintConfirm')}
                   </p>
 
                   {/* Assignment briefing — the details the assigner entered, so
@@ -261,7 +263,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                       view of the checklist steps assigned to them. */}
                   {assignerDocuments.length > 0 && (
                     <div>
-                      <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Documents from assigner</h3>
+                      <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">{t('common.workorders.executionSheet.documentsFromAssigner')}</h3>
                       <div className="space-y-2">
                         {assignerDocuments.map((d) => (
                           <a
@@ -282,10 +284,10 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
                   {wo.checklist.length > 0 && (
                     <div>
-                      <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Your tasks</h3>
+                      <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">{t('common.workorders.executionSheet.yourTasks')}</h3>
                       {wo.specialToolsRequired && (
                         <div className="mb-3 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">Special Tools Required</p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">{t('common.workorders.executionSheet.specialToolsRequired')}</p>
                           <p className="mt-0.5 text-sm text-[#F0F4F8]">{wo.specialToolsRequired}</p>
                         </div>
                       )}
@@ -293,7 +295,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                         <ChecklistExecutor workOrder={wo} onUpdate={handleChecklistUpdate} readOnly dark />
                       </div>
                       <p className="mt-1.5 text-center text-[11px] text-[#8BA3BF]">
-                        Start the work order to tick off tasks and record measurements.
+                        {t('common.workorders.executionSheet.startToTickOff')}
                       </p>
                     </div>
                   )}
@@ -305,15 +307,14 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   <div className="rounded-lg bg-white p-4">
                     <div className="mb-3 flex items-center gap-2">
                       <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                      <h3 className="text-sm font-semibold text-gray-900">Safety Precautions (LOTO / PTW)</h3>
+                      <h3 className="text-sm font-semibold text-gray-900">{t('common.workorders.executionSheet.safetyPrecautionsTitle')}</h3>
                     </div>
                     <p className="mb-3 text-sm text-gray-600">
-                      Make sure all required Lock-Out/Tag-Out and Permit-to-Work safety precautions
-                      have been completed for this job, then confirm below to start work.
+                      {t('common.workorders.executionSheet.safetyPrecautionsInstructions')}
                     </p>
                     {wo.ptwCategory && (
                       <p className="mb-3 text-xs text-gray-500">
-                        Permit category: <span className="font-medium text-gray-700">{wo.ptwCategory}</span>
+                        {t('common.workorders.executionSheet.permitCategory')} <span className="font-medium text-gray-700">{wo.ptwCategory}</span>
                       </p>
                     )}
                     <label className="flex cursor-pointer items-start gap-2">
@@ -324,7 +325,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                         className="mt-0.5 rounded border-gray-300 text-emerald-600"
                       />
                       <span className="text-sm font-medium text-gray-800">
-                        I confirm all safety precautions (LOTO / PTW) have been completed.
+                        {t('common.workorders.executionSheet.safetyConfirmLabel')}
                       </span>
                     </label>
                   </div>
@@ -333,7 +334,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                     disabled={loading || stateLoading || !safetyConfirmed}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
-                    <MapPin className="h-5 w-5" /> Confirm Safety Checks &amp; Start Work
+                    <MapPin className="h-5 w-5" /> {t('common.workorders.executionSheet.confirmAndStart')}
                   </button>
                   <button
                     onClick={() => {
@@ -343,11 +344,11 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                     disabled={loading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-[#1A56DB] disabled:opacity-50"
                   >
-                    Back
+                    {t('common.workorders.executionSheet.back')}
                   </button>
                   {!safetyConfirmed && (
                     <p className="text-center text-[11px] text-[#8BA3BF]">
-                      Select the confirmation above before starting work.
+                      {t('common.workorders.executionSheet.selectConfirmationFirst')}
                     </p>
                   )}
                 </div>
@@ -357,7 +358,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                 <div className="space-y-3">
                   <div className="rounded-lg border border-orange-500/40 bg-orange-500/10 p-3">
                     <p className="text-sm font-semibold text-orange-300">
-                      Paused — {myHoldStatus === 'ON_HOLD_PARTS' ? 'waiting for parts' : 'waiting for approval'}
+                      {myHoldStatus === 'ON_HOLD_PARTS' ? t('common.workorders.executionSheet.pausedWaitingForParts') : t('common.workorders.executionSheet.pausedWaitingForApproval')}
                     </p>
                   </div>
                   <button
@@ -365,7 +366,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                     disabled={stateLoading}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8] disabled:opacity-50"
                   >
-                    <Play className="h-5 w-5" /> Resume
+                    <Play className="h-5 w-5" /> {t('common.workorders.executionSheet.resume')}
                   </button>
                 </div>
               )}
@@ -376,7 +377,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   gate has been cleared. */}
               {(isInProgress || isOnHold) && assignerDocuments.length > 0 && (
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Documents</h3>
+                  <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">{t('common.workorders.executionSheet.documents')}</h3>
                   <div className="space-y-2">
                     {assignerDocuments.map((d) => (
                       <a
@@ -399,16 +400,16 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                 <>
                   {isInProgress && (
                     <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3 text-center">
-                      <p className="text-xs uppercase tracking-wide text-[#8BA3BF]">Time on job</p>
+                      <p className="text-xs uppercase tracking-wide text-[#8BA3BF]">{t('common.workorders.executionSheet.timeOnJob')}</p>
                       <p className="font-mono text-2xl font-bold text-[#00C2FF]">{formatElapsed(elapsed)}</p>
                     </div>
                   )}
 
                   <div>
-                    <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Checklist</h3>
+                    <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">{t('common.workorders.executionSheet.checklist')}</h3>
                     {wo.specialToolsRequired && (
                       <div className="mb-3 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">Special Tools Required</p>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">{t('common.workorders.executionSheet.specialToolsRequired')}</p>
                         <p className="mt-0.5 text-sm text-[#F0F4F8]">{wo.specialToolsRequired}</p>
                       </div>
                     )}
@@ -420,7 +421,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                   {isInProgress && (
                     <>
                       <div>
-                        <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">Field Media</h3>
+                        <h3 className="mb-2 text-sm font-semibold text-[#F0F4F8]">{t('common.workorders.executionSheet.fieldMedia')}</h3>
                         <MediaCaptureBar workOrder={wo} siteId={wo.siteId} />
                       </div>
 
@@ -428,7 +429,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                         onClick={() => setShowPartsRequest(true)}
                         className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-4 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-[#00C2FF]"
                       >
-                        <PackagePlus className="h-4 w-4 text-[#00C2FF]" /> Request Inventory Items
+                        <PackagePlus className="h-4 w-4 text-[#00C2FF]" /> {t('common.workorders.executionSheet.requestInventoryItems')}
                       </button>
 
                       <div className="grid grid-cols-2 gap-2">
@@ -437,28 +438,28 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                           disabled={stateLoading}
                           className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-orange-500 disabled:opacity-50"
                         >
-                          <PackageX className="h-4 w-4 text-orange-400" /> Hold · Parts
+                          <PackageX className="h-4 w-4 text-orange-400" /> {t('common.workorders.executionSheet.holdParts')}
                         </button>
                         <button
                           onClick={() => setShowApprovalRequest(true)}
                           disabled={stateLoading}
                           className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1E3A5F] bg-[#0F1E35] px-3 py-2.5 text-sm font-medium text-[#F0F4F8] hover:border-red-500 disabled:opacity-50"
                         >
-                          <Pause className="h-4 w-4 text-red-400" /> Request Approval
+                          <Pause className="h-4 w-4 text-red-400" /> {t('common.workorders.executionSheet.requestApproval')}
                         </button>
                       </div>
 
                       {showApprovalRequest && (
                         <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 space-y-2">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-red-300">Request Approval</p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-red-300">{t('common.workorders.executionSheet.requestApprovalTitle')}</p>
                           <p className="text-xs text-[#8BA3BF]">
-                            Describe what you need your supervisor to approve. Your work will be put on hold until they respond.
+                            {t('common.workorders.executionSheet.requestApprovalInstructions')}
                           </p>
                           <textarea
                             value={approvalNote}
                             onChange={(e) => setApprovalNote(e.target.value)}
                             rows={3}
-                            placeholder="What do you need approved?"
+                            placeholder={t('common.workorders.executionSheet.requestApprovalPlaceholder')}
                             className="w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] placeholder:text-[#5B7A99] focus:border-red-500 focus:outline-none"
                           />
                           <div className="flex gap-2">
@@ -467,13 +468,13 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                               disabled={approvalRequestLoading || stateLoading || !approvalNote.trim()}
                               className="flex-1 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
                             >
-                              Submit Request
+                              {t('common.workorders.executionSheet.submitRequest')}
                             </button>
                             <button
                               onClick={() => { setShowApprovalRequest(false); setApprovalNote(''); }}
                               className="rounded-lg border border-[#1E3A5F] px-3 py-2 text-sm font-medium text-[#8BA3BF] hover:text-[#F0F4F8]"
                             >
-                              Cancel
+                              {t('common.workorders.executionSheet.cancel')}
                             </button>
                           </div>
                         </div>
@@ -481,10 +482,10 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
                       {myPendingApprovalRequest && (
                         <div className="rounded-lg border border-orange-500/40 bg-orange-500/10 p-3 space-y-1">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-orange-300">Approval Requested — Pending</p>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-orange-300">{t('common.workorders.executionSheet.approvalRequestedPending')}</p>
                           <p className="text-sm text-[#F0F4F8]">{myPendingApprovalRequest.note}</p>
                           <p className="text-xs text-[#8BA3BF]">
-                            Requested {myPendingApprovalRequest.requestedAt?.toDate ? myPendingApprovalRequest.requestedAt.toDate().toLocaleString() : ''}
+                            {t('common.workorders.executionSheet.requestedAt', { date: myPendingApprovalRequest.requestedAt?.toDate ? myPendingApprovalRequest.requestedAt.toDate().toLocaleString() : '' })}
                           </p>
                         </div>
                       )}
@@ -499,10 +500,10 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                               }`}
                             >
                               <p className={`text-xs font-semibold uppercase tracking-wide ${r.status === 'approved' ? 'text-emerald-300' : 'text-red-300'}`}>
-                                Request {r.status === 'approved' ? 'Approved' : 'Rejected'} by {r.resolvedByName}
+                                {r.status === 'approved' ? t('common.workorders.executionSheet.requestApproved', { name: r.resolvedByName }) : t('common.workorders.executionSheet.requestRejected', { name: r.resolvedByName })}
                               </p>
                               <p className="text-sm text-[#F0F4F8]">{r.note}</p>
-                              {r.resolutionNote && <p className="text-xs text-[#8BA3BF]">Note: {r.resolutionNote}</p>}
+                              {r.resolutionNote && <p className="text-xs text-[#8BA3BF]">{t('common.workorders.executionSheet.resolutionNote', { note: r.resolutionNote })}</p>}
                               <p className="text-xs text-[#8BA3BF]">
                                 {r.resolvedAt?.toDate ? r.resolvedAt.toDate().toLocaleString() : ''}
                               </p>
@@ -517,23 +518,23 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                       {assigneeRows.length > 1 && (
                         <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3">
                           <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#8BA3BF]">
-                            Team progress · {completedCount}/{assigneeRows.length} completed
+                            {t('common.workorders.executionSheet.teamProgress', { done: completedCount, total: assigneeRows.length })}
                           </p>
                           <div className="space-y-1.5">
                             {assigneeRows.map((a) => (
                               <div key={a.id} className="flex items-center justify-between text-sm">
                                 <span className={a.id === myId ? 'font-semibold text-[#F0F4F8]' : 'text-[#F0F4F8]'}>
-                                  {a.name}{a.id === myId ? ' (you)' : ''}
+                                  {a.name}{a.id === myId ? t('common.workorders.executionSheet.you') : ''}
                                 </span>
                                 <span className={`text-xs ${a.done ? 'text-emerald-400' : 'text-[#8BA3BF]'}`}>
-                                  {a.done ? '✓ Completed' : 'In progress'}
+                                  {a.done ? `✓ ${t('common.workorders.executionSheet.completedStatus').replace('✓ ', '')}` : t('common.workorders.executionSheet.inProgressStatus')}
                                 </span>
                               </div>
                             ))}
                             <div className="flex items-center justify-between border-t border-[#1E3A5F] pt-1.5 text-sm">
-                              <span className="text-[#8BA3BF]">Supervisor sign-off</span>
+                              <span className="text-[#8BA3BF]">{t('common.workorders.executionSheet.supervisorSignOff')}</span>
                               <span className={`text-xs ${wo.supervisorSignOffAt ? 'text-emerald-400' : 'text-[#8BA3BF]'}`}>
-                                {wo.supervisorSignOffAt ? '✓ Signed off' : 'Pending'}
+                                {wo.supervisorSignOffAt ? t('common.workorders.executionSheet.signedOffStatus') : t('common.workorders.executionSheet.pendingStatus')}
                               </span>
                             </div>
                           </div>
@@ -545,7 +546,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                         myCompletion ? (
                           <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3">
                             <p className="flex items-center gap-2 text-sm font-semibold text-emerald-300">
-                              <CheckCircle2 className="h-4 w-4" /> You’ve completed your work
+                              <CheckCircle2 className="h-4 w-4" /> {t('common.workorders.executionSheet.youCompletedWork')}
                             </p>
                             {myCompletion.workDoneDescription && (
                               <p className="mt-1 text-xs text-[#8BA3BF] whitespace-pre-line">{myCompletion.workDoneDescription}</p>
@@ -553,7 +554,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                           </div>
                         ) : showMyWorkForm ? (
                           <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3 space-y-2">
-                            <p className="text-sm font-semibold text-[#F0F4F8]">Complete my work</p>
+                            <p className="text-sm font-semibold text-[#F0F4F8]">{t('common.workorders.executionSheet.completeMyWorkTitle')}</p>
                             {myCompletedSteps && (
                               <p className="whitespace-pre-line rounded-md bg-[#0A1628] px-3 py-2 text-xs text-[#8BA3BF]">{myCompletedSteps}</p>
                             )}
@@ -561,7 +562,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                               rows={3}
                               value={myWorkDone}
                               onChange={(e) => setMyWorkDone(e.target.value)}
-                              placeholder="Describe the work you did on this job"
+                              placeholder={t('common.workorders.executionSheet.workDonePlaceholder')}
                               className="w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] placeholder-[#8BA3BF]"
                             />
                             <div className="flex gap-2">
@@ -570,13 +571,13 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                                 disabled={myWorkLoading || !myWorkDone.trim()}
                                 className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
                               >
-                                <CheckCircle2 className="h-4 w-4" /> Submit my work
+                                <CheckCircle2 className="h-4 w-4" /> {t('common.workorders.executionSheet.submitMyWork')}
                               </button>
                               <button
                                 onClick={() => setShowMyWorkForm(false)}
                                 className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-4 py-2.5 text-sm text-[#F0F4F8]"
                               >
-                                Cancel
+                                {t('common.workorders.executionSheet.cancel')}
                               </button>
                             </div>
                           </div>
@@ -585,7 +586,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                             onClick={() => setShowMyWorkForm(true)}
                             className="flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700"
                           >
-                            <CheckCircle2 className="h-5 w-5" /> Complete My Work
+                            <CheckCircle2 className="h-5 w-5" /> {t('common.workorders.executionSheet.completeMyWork')}
                           </button>
                         )
                       )}
@@ -597,12 +598,11 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                           onClick={() => setShowCompletion(true)}
                           className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-3 font-semibold text-white hover:bg-[#1648b8]"
                         >
-                          <CheckCircle2 className="h-5 w-5" /> Complete &amp; Submit Work Order
+                          <CheckCircle2 className="h-5 w-5" /> {t('common.workorders.executionSheet.completeAndSubmit')}
                         </button>
                       ) : (
                         <p className="text-center text-[11px] text-[#8BA3BF]">
-                          The work order can be submitted for sign-off once all assigned team members
-                          have completed their own work ({completedCount}/{assigneeRows.length}).
+                          {t('common.workorders.executionSheet.waitingForTeam', { done: completedCount, total: assigneeRows.length })}
                         </p>
                       )}
                     </>
@@ -613,7 +613,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
               {!canStart && !isInProgress && !isOnHold && (
                 <div className="flex flex-col items-center gap-2 py-10 text-center text-[#8BA3BF]">
                   <ClipboardCheck className="h-8 w-8" />
-                  <p className="text-sm">This work order is {wo.status.replace(/_/g, ' ').toLowerCase()}.</p>
+                  <p className="text-sm">{t('common.workorders.executionSheet.statusMessage', { status: wo.status.replace(/_/g, ' ').toLowerCase() })}</p>
                 </div>
               )}
             </div>

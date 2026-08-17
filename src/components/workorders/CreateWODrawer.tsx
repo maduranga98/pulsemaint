@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
@@ -7,7 +8,6 @@ import { useAuthStore } from '../../store/authStore';
 import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder';
 import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } from '../../constants/woConfig';
 import { PM_TYPES_ORDERED, PM_TYPE_CONFIG } from '../../constants/pmConfig';
-import { WO_COPY } from '../../constants/copy';
 import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { useContractors } from '../../hooks/contractors/useContractors';
@@ -49,19 +49,30 @@ interface CreateWODrawerProps {
   defaultWoType?: WOType;
 }
 
-const STEPS = [
-  WO_COPY.step1Title,
-  WO_COPY.step2Title,
-  WO_COPY.step3Title,
-  WO_COPY.step4Title,
-  WO_COPY.step5Title,
-  WO_COPY.step6Title,
-];
+
 
 type PendingFile = {
   file: File;
   fileType: import('../../types/workOrder').WODocument['fileType'];
   error?: string;
+};
+
+const TYPE_LABEL_KEYS_CREATE: Record<WOType, string> = {
+  BREAKDOWN: 'common.workorders.typeBadge.BREAKDOWN',
+  CORRECTIVE: 'common.workorders.typeBadge.CORRECTIVE',
+  PREVENTIVE: 'common.workorders.typeBadge.PREVENTIVE',
+  INSTALLATION: 'common.workorders.typeBadge.INSTALLATION',
+  MODIFICATION: 'common.workorders.typeBadge.MODIFICATION',
+  INSPECTION: 'common.workorders.typeBadge.INSPECTION',
+  CONTRACTOR: 'common.workorders.typeBadge.CONTRACTOR',
+  OTHER: 'common.workorders.typeBadge.OTHER',
+};
+
+const PRIORITY_LABEL_KEYS_CREATE: Record<string, string> = {
+  critical: 'common.workorders.priorityBadge.critical',
+  high: 'common.workorders.priorityBadge.high',
+  medium: 'common.workorders.priorityBadge.medium',
+  low: 'common.workorders.priorityBadge.low',
 };
 
 export function CreateWODrawer({
@@ -74,6 +85,15 @@ export function CreateWODrawer({
   prefilledMachineId,
   defaultWoType,
 }: CreateWODrawerProps) {
+  const { t } = useTranslation();
+  const STEPS = [
+    t('common.workorders.createDrawer.steps.step1'),
+    t('common.workorders.createDrawer.steps.step2'),
+    t('common.workorders.createDrawer.steps.step3'),
+    t('common.workorders.createDrawer.steps.step4'),
+    t('common.workorders.createDrawer.steps.step5'),
+    t('common.workorders.createDrawer.steps.step6'),
+  ];
   const [step, setStep] = useState(0);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [machines, setMachines] = useState<MachineOption[]>([]);
@@ -414,12 +434,12 @@ export function CreateWODrawer({
       <div className="fixed right-0 top-0 bottom-0 w-full sm:max-w-xl bg-white z-50 flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-lg text-gray-900">{WO_COPY.createTitle}</h2>
+          <h2 className="font-semibold text-lg text-gray-900">{t('common.workorders.createDrawer.title')}</h2>
           <button
             type="button"
             onClick={onClose}
             className="text-gray-400 hover:text-gray-700 p-1"
-            aria-label="Close"
+            aria-label={t('common.workorders.createDrawer.close')}
           >
             ✕
           </button>
@@ -442,7 +462,7 @@ export function CreateWODrawer({
             ))}
           </div>
           <p className="text-xs text-gray-500 mt-2">
-            Step {step + 1} of {STEPS.length} — <span className="font-medium">{STEPS[step]}</span>
+            {t('common.workorders.createDrawer.stepIndicator', { step: step + 1, total: STEPS.length, label: STEPS[step] })}
           </p>
         </div>
 
@@ -455,7 +475,7 @@ export function CreateWODrawer({
               <span className="text-red-600 text-lg">⚠️</span>
               <div className="flex-1 text-sm">
                 <p className="font-semibold text-red-800">
-                  One Work Order for {linkedBreakdownGroup.length} breakdown{linkedBreakdownGroup.length > 1 ? 's' : ''}
+                  {t('common.workorders.createDrawer.linkedGroupTitle', { count: linkedBreakdownGroup.length, plural: linkedBreakdownGroup.length > 1 ? 's' : '' })}
                 </p>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {linkedBreakdownGroup.map((t) => (
@@ -472,7 +492,7 @@ export function CreateWODrawer({
               <span className="text-red-600 text-lg">⚠️</span>
               <div className="flex-1 text-sm">
                 <p className="font-semibold text-red-800">
-                  Linked Breakdown: {linkedBreakdown.ticketNumber}
+                  {t('common.workorders.createDrawer.linkedBreakdownTitle', { ticket: linkedBreakdown.ticketNumber })}
                   {linkedBreakdown.severity && (
                     <span className="ml-2 px-1.5 py-0.5 rounded text-xs uppercase bg-red-600 text-white">
                       {linkedBreakdown.severity}
@@ -480,7 +500,7 @@ export function CreateWODrawer({
                   )}
                 </p>
                 {linkedBreakdown.machineName && (
-                  <p className="text-red-700 text-xs">Machine: {linkedBreakdown.machineName}</p>
+                  <p className="text-red-700 text-xs">{t('common.workorders.createDrawer.machineLabel', { name: linkedBreakdown.machineName })}</p>
                 )}
                 {linkedBreakdown.description && (
                   <p className="text-red-700 text-xs mt-1 line-clamp-2">{linkedBreakdown.description}</p>
@@ -495,16 +515,16 @@ export function CreateWODrawer({
               {/* WO Type — locked to Breakdown when arriving from a breakdown ticket */}
               {lockedToBreakdown ? (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">{WO_COPY.woTypeLabel}</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.workorders.createDrawer.woTypeLabel')}</label>
                   <div className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-sm font-medium ${WO_TYPE_CONFIG.BREAKDOWN.bgClass} ${WO_TYPE_CONFIG.BREAKDOWN.textClass}`} style={{ borderColor: WO_TYPE_CONFIG.BREAKDOWN.color }}>
                     <span className="text-xl">{WO_TYPE_CONFIG.BREAKDOWN.icon}</span>
-                    {WO_TYPE_CONFIG.BREAKDOWN.label}
+                    {t('common.workorders.typeBadge.BREAKDOWN')}
                   </div>
                 </div>
               ) : (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {WO_COPY.woTypeLabel} <span className="text-red-500">*</span>
+                    {t('common.workorders.createDrawer.woTypeLabel')} <span className="text-red-500">*</span>
                   </label>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                     {WO_TYPES_ORDERED.map((type) => {
@@ -522,7 +542,7 @@ export function CreateWODrawer({
                           }`}
                         >
                           <span className="text-2xl">{cfg.icon}</span>
-                          <span className="text-center leading-tight text-xs">{cfg.label}</span>
+                          <span className="text-center leading-tight text-xs">{t(TYPE_LABEL_KEYS_CREATE[type])}</span>
                         </button>
                       );
                     })}
@@ -534,7 +554,7 @@ export function CreateWODrawer({
               {woType === 'PREVENTIVE' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    PM Type <span className="text-red-500">*</span>
+                    {t('common.workorders.createDrawer.pmTypeLabel')} <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={form.watch('pmType')}
@@ -548,7 +568,7 @@ export function CreateWODrawer({
                     ))}
                   </select>
                   <p className="mt-1 text-xs text-gray-400">
-                    Drives the PM schedule's category shown in PM Schedules, Calendar and Compliance.
+                    {t('common.workorders.createDrawer.pmTypeHint')}
                   </p>
                 </div>
               )}
@@ -556,7 +576,7 @@ export function CreateWODrawer({
               {/* Priority */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {WO_COPY.priorityLabel} <span className="text-red-500">*</span>
+                  {t('common.workorders.createDrawer.priorityLabel')} <span className="text-red-500">*</span>
                 </label>
                 <div className="flex gap-2">
                   {(['critical', 'high', 'medium', 'low'] as const).map((p) => {
@@ -573,7 +593,7 @@ export function CreateWODrawer({
                             : 'border-gray-100 text-gray-500 hover:border-gray-300'
                         }`}
                       >
-                        {cfg.label}
+                        {t(PRIORITY_LABEL_KEYS_CREATE[p])}
                       </button>
                     );
                   })}
@@ -583,12 +603,12 @@ export function CreateWODrawer({
               {/* Description */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {WO_COPY.descriptionLabel} <span className="text-red-500">*</span>
+                  {t('common.workorders.createDrawer.descriptionLabel')} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   {...form.register('description')}
                   rows={4}
-                  placeholder={WO_COPY.descriptionPlaceholder}
+                  placeholder={t('common.workorders.createDrawer.descriptionPlaceholder')}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 resize-none"
                 />
                 {form.formState.errors.description && (
@@ -598,29 +618,29 @@ export function CreateWODrawer({
 
               {/* Schedule: Start Date + Due Date */}
               <div className="space-y-3">
-                <p className="text-sm font-medium text-gray-700">Schedule</p>
+                <p className="text-sm font-medium text-gray-700">{t('common.workorders.createDrawer.schedule')}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">
-                      Start Date
+                      {t('common.workorders.createDrawer.startDate')}
                     </label>
                     <input
                       type="datetime-local"
                       {...form.register('scheduledStart', { valueAsDate: true })}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                     />
-                    <p className="mt-1 text-xs text-gray-400">When work is planned to begin</p>
+                    <p className="mt-1 text-xs text-gray-400">{t('common.workorders.createDrawer.startDateHint')}</p>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">
-                      {WO_COPY.dueDateLabel} <span className="text-red-500">*</span>
+                      {t('common.workorders.createDrawer.dueDateLabel')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="datetime-local"
                       {...form.register('dueDate', { valueAsDate: true })}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                     />
-                    <p className="mt-1 text-xs text-gray-400">{WO_COPY.dueDateHint}</p>
+                    <p className="mt-1 text-xs text-gray-400">{t('common.workorders.createDrawer.dueDateHint')}</p>
                   </div>
                 </div>
               </div>
@@ -630,7 +650,7 @@ export function CreateWODrawer({
               {woType === 'BREAKDOWN' && !lockedToBreakdown && (
                 <div className="relative">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {WO_COPY.linkedBreakdownLabel} <span className="text-red-500">*</span>
+                    {t('common.workorders.createDrawer.linkedBreakdownLabel')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -643,13 +663,13 @@ export function CreateWODrawer({
                     }}
                     onFocus={() => setShowBreakdownDropdown(true)}
                     onBlur={() => setTimeout(() => setShowBreakdownDropdown(false), 200)}
-                    placeholder={WO_COPY.linkedBreakdownPlaceholder}
+                    placeholder={t('common.workorders.createDrawer.linkedBreakdownPlaceholder')}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                   />
                   {showBreakdownDropdown && (
                     <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
                       {breakdownTickets.length === 0 ? (
-                        <p className="px-3 py-2 text-xs text-gray-400">No open breakdown tickets found.</p>
+                        <p className="px-3 py-2 text-xs text-gray-400">{t('common.workorders.createDrawer.noOpenBreakdowns')}</p>
                       ) : (
                         breakdownTickets
                           .filter((b) => {
@@ -716,7 +736,7 @@ export function CreateWODrawer({
             <div className="space-y-4">
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {WO_COPY.machineLabel} <span className="text-red-500">*</span>
+                  {t('common.workorders.createDrawer.machineSelectLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -728,13 +748,13 @@ export function CreateWODrawer({
                   }}
                   onFocus={() => setShowMachineDropdown(true)}
                   onBlur={() => setTimeout(() => setShowMachineDropdown(false), 200)}
-                  placeholder={WO_COPY.machinePlaceholder}
+                  placeholder={t('common.workorders.createDrawer.machinePlaceholder')}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                 />
                 {showMachineDropdown && (
                   <div className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
                     {machines.length === 0 ? (
-                      <p className="px-3 py-2 text-xs text-gray-400">No machines found. Add machines first.</p>
+                      <p className="px-3 py-2 text-xs text-gray-400">{t('common.workorders.createDrawer.noMachinesFound')}</p>
                     ) : (
                       machines
                         .filter((m) =>
@@ -779,9 +799,9 @@ export function CreateWODrawer({
                   <p className="font-semibold text-gray-900">{form.watch('machineName')}</p>
                   <p className="text-sm text-gray-600">{form.watch('machineLocation')}</p>
                   <div className="flex items-center gap-3 text-xs text-gray-500">
-                    {form.watch('machineType') && <span>Type: {form.watch('machineType')}</span>}
-                    {form.watch('machineDepartment') && <span>Dept: {form.watch('machineDepartment')}</span>}
-                    {form.watch('machineCriticality') && <span>Criticality: {form.watch('machineCriticality')}/5</span>}
+                    {form.watch('machineType') && <span>{t('common.workorders.createDrawer.machineType', { type: form.watch('machineType') })}</span>}
+                    {form.watch('machineDepartment') && <span>{t('common.workorders.createDrawer.machineDept', { dept: form.watch('machineDepartment') })}</span>}
+                    {form.watch('machineCriticality') && <span>{t('common.workorders.createDrawer.machineCriticality', { criticality: form.watch('machineCriticality') })}</span>}
                   </div>
                 </div>
               )}
@@ -816,7 +836,7 @@ export function CreateWODrawer({
           {/* ── STEP 3: Checklist ── */}
           {step === 3 && (
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">{WO_COPY.checklistLabel}</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">{t('common.workorders.createDrawer.checklistLabel')}</p>
               <ChecklistBuilder
                 items={form.watch('checklist') as Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>[]}
                 onChange={(items) => form.setValue('checklist', items)}
@@ -828,7 +848,7 @@ export function CreateWODrawer({
           {/* ── STEP 4: Documents ── */}
           {step === 4 && (
             <div>
-              <p className="text-sm font-medium text-gray-700 mb-3">{WO_COPY.documentsLabel}</p>
+              <p className="text-sm font-medium text-gray-700 mb-3">{t('common.workorders.createDrawer.documentsLabel')}</p>
               <DocumentUploadZone
                 pendingFiles={pendingFiles}
                 uploadedDocs={[]}
@@ -844,15 +864,15 @@ export function CreateWODrawer({
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Special tools required or components
+                  {t('common.workorders.createDrawer.specialToolsLabel')}
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
-                  List any special tools, fixtures, or components that will be needed to complete this work.
+                  {t('common.workorders.createDrawer.specialToolsHint')}
                 </p>
                 <textarea
                   {...form.register('specialToolsRequired')}
                   rows={6}
-                  placeholder="e.g., torque wrench (50–100 Nm), hydraulic puller, replacement V-belt B-72…"
+                  placeholder={t('common.workorders.createDrawer.specialToolsPlaceholder')}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 resize-none"
                 />
               </div>
@@ -864,22 +884,22 @@ export function CreateWODrawer({
               <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <label className="flex items-center gap-2 text-sm font-semibold text-gray-900">
                   <input type="checkbox" checked={wpEnabled} onChange={(e) => setWpEnabled(e.target.checked)} />
-                  Require a Work Permit before this job can start
+                  {t('common.workorders.createDrawer.requireWorkPermit')}
                 </label>
                 <p className="mt-1 text-xs text-gray-500">
-                  Raises a Permit-to-Work linked to this WO. Technicians can't start the job until it's active.
+                  {t('common.workorders.createDrawer.requireWorkPermitHint')}
                 </p>
                 {wpEnabled && (
                   <div className="mt-3 space-y-3">
                     <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-gray-700">
                       {form.watch('supervisorInChargeName') ? (
-                        <>Permit will be assigned to supervisor <span className="font-semibold">{form.watch('supervisorInChargeName')}</span> for sign-off.</>
+                        t('common.workorders.createDrawer.permitAssignedTo', { name: form.watch('supervisorInChargeName') })
                       ) : (
-                        <>Select a supervisor in charge (Team step) — the permit is assigned to them for sign-off.</>
+                        t('common.workorders.createDrawer.selectSupervisorFirst')
                       )}
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">Permit category</label>
+                      <label className="mb-1 block text-xs font-medium text-gray-600">{t('common.workorders.createDrawer.permitCategory')}</label>
                       <select
                         value={wpCategory}
                         onChange={(e) => { setWpCategory(e.target.value as WorkPermitCategory); setWpPrecautions({}); }}
@@ -890,20 +910,20 @@ export function CreateWODrawer({
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="mb-1 block text-xs font-medium text-gray-600">Valid from</label>
+                        <label className="mb-1 block text-xs font-medium text-gray-600">{t('common.workorders.createDrawer.validFrom')}</label>
                         <input type="datetime-local" value={wpValidFrom} onChange={(e) => setWpValidFrom(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
                       </div>
                       <div>
-                        <label className="mb-1 block text-xs font-medium text-gray-600">Valid to (duration)</label>
+                        <label className="mb-1 block text-xs font-medium text-gray-600">{t('common.workorders.createDrawer.validTo')}</label>
                         <input type="datetime-local" value={wpValidTo} onChange={(e) => setWpValidTo(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
                       </div>
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">Hazards identified</label>
+                      <label className="mb-1 block text-xs font-medium text-gray-600">{t('common.workorders.createDrawer.hazardsIdentified')}</label>
                       <textarea value={wpHazards} onChange={(e) => setWpHazards(e.target.value)} rows={2} className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
                     </div>
                     <div>
-                      <p className="mb-1 text-xs font-medium text-gray-600">Precautions in place</p>
+                      <p className="mb-1 text-xs font-medium text-gray-600">{t('common.workorders.createDrawer.precautionsInPlace')}</p>
                       <div className="space-y-1.5 rounded-lg border border-gray-200 bg-gray-50 p-3">
                         {WORK_PERMIT_CATEGORIES.find((c) => c.value === wpCategory)!.precautions.map((p) => (
                           <label key={p} className="flex items-center gap-2 text-sm text-gray-800">
@@ -914,8 +934,8 @@ export function CreateWODrawer({
                       </div>
                     </div>
                     <div>
-                      <label className="mb-1 block text-xs font-medium text-gray-600">PPE required</label>
-                      <input value={wpPpe} onChange={(e) => setWpPpe(e.target.value)} placeholder="e.g. Helmet, gloves, harness" className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
+                      <label className="mb-1 block text-xs font-medium text-gray-600">{t('common.workorders.createDrawer.ppeRequired')}</label>
+                      <input value={wpPpe} onChange={(e) => setWpPpe(e.target.value)} placeholder={t('common.workorders.createDrawer.ppePlaceholder')} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500" />
                     </div>
                   </div>
                 )}
@@ -924,30 +944,30 @@ export function CreateWODrawer({
               {/* Review summary — everything captured so far, so the creator can
                   verify all filled data before creating the work order. */}
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">Review — Work Order Summary</h3>
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">{t('common.workorders.createDrawer.reviewSummary')}</h3>
                 <dl className="space-y-2 text-sm">
-                  <SummaryRow label="Type" value={WO_TYPE_CONFIG[woType as WOType]?.label ?? woType} />
-                  <SummaryRow label="Priority" value={WO_PRIORITY_CONFIG[priority]?.label ?? priority} />
-                  <SummaryRow label="Description" value={form.watch('description')} />
+                  <SummaryRow label={t('common.workorders.createDrawer.summary.type')} value={woType ? t(TYPE_LABEL_KEYS_CREATE[woType as WOType]) : woType} />
+                  <SummaryRow label={t('common.workorders.createDrawer.summary.priority')} value={priority ? t(PRIORITY_LABEL_KEYS_CREATE[priority]) : priority} />
+                  <SummaryRow label={t('common.workorders.createDrawer.summary.description')} value={form.watch('description')} />
                   {form.watch('linkedBreakdownTicketNumber') && (
-                    <SummaryRow label="Linked breakdown" value={form.watch('linkedBreakdownTicketNumber') as string} />
+                    <SummaryRow label={t('common.workorders.createDrawer.summary.linkedBreakdown')} value={form.watch('linkedBreakdownTicketNumber') as string} />
                   )}
-                  <SummaryRow label="Machine" value={form.watch('machineName')} />
+                  <SummaryRow label={t('common.workorders.createDrawer.summary.machine')} value={form.watch('machineName')} />
                   <SummaryRow
-                    label="Location / Dept"
+                    label={t('common.workorders.createDrawer.summary.locationDept')}
                     value={[form.watch('machineLocation'), form.watch('machineDepartment')].filter(Boolean).join(' · ')}
                   />
                   <SummaryRow
-                    label="Start"
+                    label={t('common.workorders.createDrawer.summary.start')}
                     value={form.watch('scheduledStart') ? new Date(form.watch('scheduledStart') as Date).toLocaleString() : ''}
                   />
                   <SummaryRow
-                    label="Due"
+                    label={t('common.workorders.createDrawer.summary.due')}
                     value={form.watch('dueDate') ? new Date(form.watch('dueDate') as Date).toLocaleString() : ''}
                   />
                   {isContractorWO ? (
                     <SummaryRow
-                      label="Contractor"
+                      label={t('common.workorders.createDrawer.summary.contractor')}
                       value={[
                         form.watch('contractorCompanyName') as string | null,
                         (form.watch('contractorTechnicianNames') as string[] | undefined)?.join(', '),
@@ -955,22 +975,22 @@ export function CreateWODrawer({
                     />
                   ) : (
                     <SummaryRow
-                      label="Technicians"
+                      label={t('common.workorders.createDrawer.summary.technicians')}
                       value={(form.watch('assignedTechnicianNames') as string[] | undefined)?.join(', ')}
                     />
                   )}
-                  <SummaryRow label="Supervisor" value={form.watch('supervisorInChargeName')} />
+                  <SummaryRow label={t('common.workorders.createDrawer.summary.supervisor')} value={form.watch('supervisorInChargeName')} />
                   <SummaryRow
-                    label="Checklist steps"
+                    label={t('common.workorders.createDrawer.summary.checklistSteps')}
                     value={((form.watch('checklist') as unknown[] | undefined)?.length ?? 0).toString()}
                   />
                   <SummaryRow
-                    label="Parts requested"
+                    label={t('common.workorders.createDrawer.summary.partsRequested')}
                     value={((form.watch('partsRequests') as unknown[] | undefined)?.length ?? 0).toString()}
                   />
-                  <SummaryRow label="Documents" value={pendingFiles.filter((f) => !f.error).length.toString()} />
+                  <SummaryRow label={t('common.workorders.createDrawer.summary.documents')} value={pendingFiles.filter((f) => !f.error).length.toString()} />
                   {form.watch('specialToolsRequired') && (
-                    <SummaryRow label="Special tools" value={form.watch('specialToolsRequired') as string} />
+                    <SummaryRow label={t('common.workorders.createDrawer.summary.specialTools')} value={form.watch('specialToolsRequired') as string} />
                   )}
                 </dl>
               </div>
@@ -985,13 +1005,13 @@ export function CreateWODrawer({
             onClick={step === 0 ? onClose : prevStep}
             className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
-            {step === 0 ? 'Cancel' : '← Back'}
+            {step === 0 ? t('common.workorders.createDrawer.cancel') : t('common.workorders.createDrawer.back')}
           </button>
 
           <div className="flex flex-col items-end gap-2">
             {submitErrors.length > 0 && (
               <div className="w-full bg-red-50 border border-red-200 text-red-700 rounded-lg p-2 text-xs space-y-0.5">
-                <p className="font-medium">Please fix the following:</p>
+                <p className="font-medium">{t('common.workorders.createDrawer.fixErrors')}</p>
                 {submitErrors.map((e, i) => <p key={i}>• {e}</p>)}
               </div>
             )}
@@ -1001,7 +1021,7 @@ export function CreateWODrawer({
                 onClick={nextStep}
                 className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Next →
+                {t('common.workorders.createDrawer.next')}
               </button>
             ) : (
               <button
@@ -1010,7 +1030,7 @@ export function CreateWODrawer({
                 disabled={loading}
                 className="px-6 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
               >
-                {loading ? 'Creating…' : 'Create Work Order'}
+                {loading ? t('common.workorders.createDrawer.creating') : t('common.workorders.createDrawer.createButton')}
               </button>
             )}
           </div>

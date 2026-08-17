@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ChecklistItem } from '../../types/workOrder';
-import { WO_COPY } from '../../constants/copy';
 
 type ChecklistItemDraft = Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>;
 
@@ -17,6 +17,7 @@ export function ChecklistBuilder({
   technicianOptions = [],
   readOnly = false,
 }: ChecklistBuilderProps) {
+  const { t } = useTranslation();
   const [newStep, setNewStep] = useState('');
   const [importError, setImportError] = useState<string | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -71,7 +72,7 @@ export function ChecklistBuilder({
       const text = await file.text();
       const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
       if (lines.length === 0) {
-        setImportError('File is empty.');
+        setImportError(t('common.workorders.checklistBuilder.importEmptyFile'));
         return;
       }
       const first = parseCsvLine(lines[0]);
@@ -104,13 +105,13 @@ export function ChecklistBuilder({
         if (idx > 500) return;
       });
       if (imported.length === 0) {
-        setImportError('No valid rows found. Expected at least one row with a step description.');
+        setImportError(t('common.workorders.checklistBuilder.importNoValidRows'));
         return;
       }
       onChange([...items, ...imported]);
     } catch (err) {
       console.error(err);
-      setImportError('Failed to read file. Please upload a CSV file.');
+      setImportError(t('common.workorders.checklistBuilder.importReadError'));
     }
   }
 
@@ -198,7 +199,7 @@ export function ChecklistBuilder({
   return (
     <div className="space-y-3">
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400 py-4 text-center">{WO_COPY.noChecklist}</p>
+        <p className="text-sm text-gray-400 py-4 text-center">{t('common.workorders.checklistExecutor.noStepsDefined')}</p>
       ) : (
         <ol className="space-y-2">
           {items.map((item, index) => {
@@ -221,7 +222,7 @@ export function ChecklistBuilder({
                       value={item.stepDescription}
                       onChange={(e) => updateStep(index, 'stepDescription', e.target.value)}
                       className="w-full text-sm bg-transparent border-b border-gray-200 focus:border-blue-500 outline-none py-0.5"
-                      placeholder={WO_COPY.stepPlaceholder}
+                      placeholder={t('common.workorders.checklistBuilder.stepPlaceholder')}
                     />
                   )}
 
@@ -229,7 +230,7 @@ export function ChecklistBuilder({
                     <div className="space-y-2">
                       {/* Type toggle */}
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-gray-500">Type:</span>
+                        <span className="text-xs text-gray-500">{t('common.workorders.checklistBuilder.typeLabel')}</span>
                         <button
                           type="button"
                           onClick={() => updateStep(index, 'inputType', 'checkbox')}
@@ -239,7 +240,7 @@ export function ChecklistBuilder({
                               : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          Checkbox
+                          {t('common.workorders.checklistBuilder.checkbox')}
                         </button>
                         <button
                           type="button"
@@ -250,7 +251,7 @@ export function ChecklistBuilder({
                               : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          Measurement
+                          {t('common.workorders.checklistBuilder.measurement')}
                         </button>
                       </div>
 
@@ -263,7 +264,7 @@ export function ChecklistBuilder({
                           onChange={(e) =>
                             updateStep(index, 'estimatedMinutes', e.target.value ? Number(e.target.value) : null)
                           }
-                          placeholder="Duration"
+                          placeholder={t('common.workorders.checklistBuilder.durationPlaceholder')}
                           className="w-20 text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                         />
                         <select
@@ -271,9 +272,9 @@ export function ChecklistBuilder({
                           onChange={(e) => updateStep(index, 'estimatedDurationUnit', e.target.value)}
                           className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                         >
-                          <option value="minutes">Minutes</option>
-                          <option value="hours">Hours</option>
-                          <option value="days">Days</option>
+                          <option value="minutes">{t('common.workorders.checklistBuilder.unitMinutes')}</option>
+                          <option value="hours">{t('common.workorders.checklistBuilder.unitHours')}</option>
+                          <option value="days">{t('common.workorders.checklistBuilder.unitDays')}</option>
                         </select>
                       </div>
 
@@ -284,14 +285,14 @@ export function ChecklistBuilder({
                             type="text"
                             value={item.method ?? ''}
                             onChange={(e) => updateStep(index, 'method', e.target.value || null)}
-                            placeholder="Method (e.g. Visual, Micrometer)"
+                            placeholder={t('common.workorders.checklistBuilder.methodPlaceholder')}
                             className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600 col-span-2"
                           />
                           <input
                             type="text"
                             value={item.unit ?? ''}
                             onChange={(e) => updateStep(index, 'unit', e.target.value || null)}
-                            placeholder="Unit (e.g. mm, °C, bar)"
+                            placeholder={t('common.workorders.checklistBuilder.unitPlaceholder')}
                             className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                           />
                           <div className="flex gap-1">
@@ -300,7 +301,7 @@ export function ChecklistBuilder({
                               step="any"
                               value={item.acceptableMin ?? ''}
                               onChange={(e) => updateStep(index, 'acceptableMin', e.target.value ? Number(e.target.value) : null)}
-                              placeholder="Min"
+                              placeholder={t('common.workorders.checklistBuilder.minPlaceholder')}
                               className="w-full text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                             />
                             <input
@@ -308,7 +309,7 @@ export function ChecklistBuilder({
                               step="any"
                               value={item.acceptableMax ?? ''}
                               onChange={(e) => updateStep(index, 'acceptableMax', e.target.value ? Number(e.target.value) : null)}
-                              placeholder="Max"
+                              placeholder={t('common.workorders.checklistBuilder.maxPlaceholder')}
                               className="w-full text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                             />
                           </div>
@@ -317,7 +318,7 @@ export function ChecklistBuilder({
 
                       {technicianOptions.length > 0 && (
                         <div>
-                          <p className="text-xs text-gray-500 mb-1">Assign workers:</p>
+                          <p className="text-xs text-gray-500 mb-1">{t('common.workorders.checklistBuilder.assignWorkers')}</p>
                           <div className="flex flex-wrap gap-1.5">
                             {technicianOptions.map((t) => {
                               const isSelected = (item.assignedTechnicianIds ?? []).includes(t.id);
@@ -357,7 +358,7 @@ export function ChecklistBuilder({
                       onClick={() => moveStep(index, 'up')}
                       disabled={index === 0}
                       className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      aria-label="Move up"
+                      aria-label={t('common.workorders.checklistBuilder.moveUp')}
                     >
                       ↑
                     </button>
@@ -366,7 +367,7 @@ export function ChecklistBuilder({
                       onClick={() => moveStep(index, 'down')}
                       disabled={index === items.length - 1}
                       className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      aria-label="Move down"
+                      aria-label={t('common.workorders.checklistBuilder.moveDown')}
                     >
                       ↓
                     </button>
@@ -374,7 +375,7 @@ export function ChecklistBuilder({
                       type="button"
                       onClick={() => removeStep(index)}
                       className="p-1 text-red-400 hover:text-red-600"
-                      aria-label="Remove step"
+                      aria-label={t('common.workorders.checklistBuilder.removeStep')}
                     >
                       ×
                     </button>
@@ -393,7 +394,7 @@ export function ChecklistBuilder({
             value={newStep}
             onChange={(e) => setNewStep(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStep())}
-            placeholder={WO_COPY.stepPlaceholder}
+            placeholder={t('common.workorders.checklistBuilder.stepPlaceholder')}
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -401,7 +402,7 @@ export function ChecklistBuilder({
             onClick={addStep}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {WO_COPY.addStepButton}
+            {t('common.workorders.checklistBuilder.addStepButton')}
           </button>
         </div>
       )}
@@ -421,7 +422,7 @@ export function ChecklistBuilder({
               onClick={() => importInputRef.current?.click()}
               className="text-blue-600 hover:text-blue-800 underline"
             >
-              {WO_COPY.importTemplateButton}
+              {t('common.workorders.checklistBuilder.importTemplateButton')}
             </button>
             <span className="text-gray-300">|</span>
             <button
@@ -429,12 +430,12 @@ export function ChecklistBuilder({
               onClick={downloadTemplate}
               className="text-gray-500 hover:text-gray-700 underline"
             >
-              Download template
+              {t('common.workorders.checklistBuilder.downloadTemplate')}
             </button>
           </div>
           {importError && <p className="text-xs text-red-500">{importError}</p>}
           <p className="text-xs text-gray-400">
-            CSV format: first column = step description, second column = estimated minutes (optional).
+            {t('common.workorders.checklistBuilder.csvFormatHint')}
           </p>
         </div>
       )}

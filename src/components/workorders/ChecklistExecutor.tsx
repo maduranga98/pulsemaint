@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import type { WorkOrder, ChecklistItem } from '../../types/workOrder';
 import { computeChecklistItemResult } from '../../lib/lotoGate';
@@ -16,7 +17,8 @@ interface ChecklistExecutorProps {
 
 export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false, dark = false }: ChecklistExecutorProps) {
   // Picks the dark-panel class string when `dark` is set, else the light one.
-  const t = (light: string, darkCls: string) => (dark ? darkCls : light);
+  const { t } = useTranslation();
+  const tc = (light: string, darkCls: string) => (dark ? darkCls : light);
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const [localValues, setLocalValues] = useState<Record<number, string>>({});
@@ -119,32 +121,32 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false, dark 
 
   return (
     <div className="space-y-4">
-      {/* Special tools / instructions captured by the WO creator. */}
+      {/* {t('common.workorders.checklistExecutor.specialTools')} captured by the WO creator. */}
       {workOrder.specialToolsRequired?.trim() && (
-        <div className={`rounded-lg border px-3 py-2 ${t('border-amber-200 bg-amber-50', 'border-amber-500/40 bg-amber-500/10')}`}>
-          <p className={`text-xs font-semibold ${t('text-amber-800', 'text-amber-300')}`}>Special tools / instructions</p>
-          <p className={`text-sm whitespace-pre-line ${t('text-amber-900', 'text-amber-200')}`}>{workOrder.specialToolsRequired}</p>
+        <div className={`rounded-lg border px-3 py-2 ${tc('border-amber-200 bg-amber-50', 'border-amber-500/40 bg-amber-500/10')}`}>
+          <p className={`text-xs font-semibold ${tc('text-amber-800', 'text-amber-300')}`}>Special tools / instructions</p>
+          <p className={`text-sm whitespace-pre-line ${tc('text-amber-900', 'text-amber-200')}`}>{workOrder.specialToolsRequired}</p>
         </div>
       )}
 
       {/* Progress */}
       {total > 0 && (
         <div className="space-y-1">
-          <div className={`h-2 rounded-full overflow-hidden ${t('bg-gray-100', 'bg-[#0F1E35]')}`}>
+          <div className={`h-2 rounded-full overflow-hidden ${tc('bg-gray-100', 'bg-[#0F1E35]')}`}>
             <div
               className="h-full bg-blue-500 transition-all"
               style={{ width: `${total > 0 ? (completedCount / total) * 100 : 0}%` }}
             />
           </div>
-          <p className={`text-xs ${t('text-gray-500', 'text-[#8BA3BF]')}`}>{completedCount} / {total} completed</p>
+          <p className={`text-xs ${tc('text-gray-500', 'text-[#8BA3BF]')}`}>{t('common.workorders.checklistExecutor.progressCount', { done: completedCount, total })}</p>
         </div>
       )}
 
       {total === 0 && (
-        <p className={`text-sm py-6 text-center ${t('text-gray-400', 'text-[#8BA3BF]')}`}>
+        <p className={`text-sm py-6 text-center ${tc('text-gray-400', 'text-[#8BA3BF]')}`}>
           {workOrder.checklist.length === 0
-            ? 'No checklist steps defined.'
-            : 'No checklist steps are assigned to you.'}
+            ? t('common.workorders.checklistExecutor.noStepsDefined')
+            : t('common.workorders.checklistExecutor.noStepsAssigned')}
         </p>
       )}
 
@@ -170,47 +172,45 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false, dark 
               className={`rounded-xl border px-4 py-3 space-y-2 ${
                 item.isCompleted
                   ? item.result === 'fail'
-                    ? t('bg-red-50 border-red-200', 'bg-red-500/10 border-red-500/40')
-                    : t('bg-emerald-50 border-emerald-200', 'bg-emerald-500/10 border-emerald-500/40')
-                  : t('bg-gray-50 border-gray-200', 'bg-[#0F1E35] border-[#1E3A5F]')
+                    ? tc('bg-red-50 border-red-200', 'bg-red-500/10 border-red-500/40')
+                    : tc('bg-emerald-50 border-emerald-200', 'bg-emerald-500/10 border-emerald-500/40')
+                  : tc('bg-gray-50 border-gray-200', 'bg-[#0F1E35] border-[#1E3A5F]')
               }`}
             >
               {/* Step header */}
               <div className="flex items-start gap-3">
-                <span className={`flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full text-xs font-bold mt-0.5 ${t('bg-blue-100 text-blue-700', 'bg-blue-500/20 text-blue-300')}`}>
+                <span className={`flex-shrink-0 h-6 w-6 flex items-center justify-center rounded-full text-xs font-bold mt-0.5 ${tc('bg-blue-100 text-blue-700', 'bg-blue-500/20 text-blue-300')}`}>
                   {item.stepNumber}
                 </span>
                 <div className="flex-1">
                   <p className={`text-sm font-medium ${
                     item.isCompleted && item.result !== 'fail'
-                      ? t('text-gray-500 line-through', 'text-[#8BA3BF] line-through')
-                      : t('text-gray-800', 'text-[#F0F4F8]')
+                      ? tc('text-gray-500 line-through', 'text-[#8BA3BF] line-through')
+                      : tc('text-gray-800', 'text-[#F0F4F8]')
                   }`}>
                     {item.stepDescription}
                   </p>
                   {(item.assignedTechnicianNames?.length || item.assignedTechnicianName) && (
-                    <p className={`text-xs mt-0.5 ${t('text-gray-400', 'text-[#8BA3BF]')}`}>
-                      Assigned: {item.assignedTechnicianNames?.length
-                        ? item.assignedTechnicianNames.join(', ')
-                        : item.assignedTechnicianName}
+                    <p className={`text-xs mt-0.5 ${tc('text-gray-400', 'text-[#8BA3BF]')}`}>
+                      {t('common.workorders.checklistExecutor.assigned', { names: item.assignedTechnicianNames?.length ? item.assignedTechnicianNames.join(', ') : item.assignedTechnicianName })}
                     </p>
                   )}
                   {item.estimatedMinutes !== null && (
-                    <p className={`text-xs mt-0.5 ${t('text-gray-400', 'text-[#8BA3BF]')}`}>
-                      Timeline: {item.estimatedMinutes} {item.estimatedDurationUnit}
+                    <p className={`text-xs mt-0.5 ${tc('text-gray-400', 'text-[#8BA3BF]')}`}>
+                      {t('common.workorders.checklistExecutor.timeline', { minutes: item.estimatedMinutes, unit: item.estimatedDurationUnit })}
                     </p>
                   )}
                 </div>
 
                 {/* Result badge */}
                 {currentResult === 'pass' && (
-                  <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${t('bg-emerald-100 text-emerald-700', 'bg-emerald-500/20 text-emerald-300')}`}>
-                    PASS
+                  <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${tc('bg-emerald-100 text-emerald-700', 'bg-emerald-500/20 text-emerald-300')}`}>
+                    {t('common.workorders.checklistExecutor.pass')}
                   </span>
                 )}
                 {currentResult === 'fail' && (
-                  <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${t('bg-red-100 text-red-700', 'bg-red-500/20 text-red-300')}`}>
-                    FAIL
+                  <span className={`flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-semibold ${tc('bg-red-100 text-red-700', 'bg-red-500/20 text-red-300')}`}>
+                    {t('common.workorders.checklistExecutor.fail')}
                   </span>
                 )}
               </div>
@@ -223,26 +223,26 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false, dark 
                       type="checkbox"
                       checked={item.isCompleted}
                       onChange={() => handleCheckboxToggle(index)}
-                      className={`rounded text-emerald-600 ${t('border-gray-300', 'border-[#1E3A5F]')}`}
+                      className={`rounded text-emerald-600 ${tc('border-gray-300', 'border-[#1E3A5F]')}`}
                     />
-                    <span className={`text-sm ${t('text-gray-600', 'text-[#F0F4F8]')}`}>Mark as complete</span>
+                    <span className={`text-sm ${tc('text-gray-600', 'text-[#F0F4F8]')}`}>{t('common.workorders.checklistExecutor.markComplete')}</span>
                   </label>
                   {item.isCompleted && item.completedByName && (
-                    <p className={t('text-xs text-emerald-600', 'text-xs text-emerald-400')}>
-                      Completed by {item.completedByName}
+                    <p className={tc('text-xs text-emerald-600', 'text-xs text-emerald-400')}>
+                      {t('common.workorders.checklistExecutor.completedBy', { name: item.completedByName })}
                     </p>
                   )}
                   {item.isCompleted && (
                     <div className="space-y-1">
-                      <label className={`text-xs font-medium ${t('text-gray-500', 'text-[#8BA3BF]')}`}>
-                        Task note (optional):
+                      <label className={`text-xs font-medium ${tc('text-gray-500', 'text-[#8BA3BF]')}`}>
+                        {t('common.workorders.checklistExecutor.taskNoteLabel')}
                       </label>
                       <textarea
                         rows={2}
                         value={completionNote}
                         onChange={(e) => handleCompletionNote(index, e.target.value)}
-                        placeholder="Add a note about this task…"
-                        className={`w-full text-sm rounded-lg border px-3 py-2 resize-none focus:ring-2 focus:ring-blue-400 outline-none ${t('border-gray-300', 'border-[#1E3A5F] bg-[#0A1628] text-[#F0F4F8] placeholder-[#8BA3BF]')}`}
+                        placeholder={t('common.workorders.checklistExecutor.taskNotePlaceholder')}
+                        className={`w-full text-sm rounded-lg border px-3 py-2 resize-none focus:ring-2 focus:ring-blue-400 outline-none ${tc('border-gray-300', 'border-[#1E3A5F] bg-[#0A1628] text-[#F0F4F8] placeholder-[#8BA3BF]')}`}
                       />
                     </div>
                   )}
@@ -251,14 +251,14 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false, dark 
 
               {!isMeasurement && readOnly && item.isCompleted && (
                 <div className="ml-9 space-y-1">
-                  <p className={t('text-xs text-emerald-600', 'text-xs text-emerald-400')}>
-                    Completed by {item.completedByName}
+                  <p className={tc('text-xs text-emerald-600', 'text-xs text-emerald-400')}>
+                    {t('common.workorders.checklistExecutor.completedBy', { name: item.completedByName })}
                     {item.completedAt?.toDate && ` · ${item.completedAt.toDate().toLocaleString()}`}
                   </p>
                   {item.completionNote && (
-                    <div className={`rounded-lg px-3 py-2 border ${t('bg-white border-gray-200', 'bg-[#0A1628] border-[#1E3A5F]')}`}>
-                      <p className={`text-xs font-medium mb-0.5 ${t('text-gray-500', 'text-[#8BA3BF]')}`}>Task Note:</p>
-                      <p className={`text-xs ${t('text-gray-700', 'text-[#F0F4F8]')}`}>{item.completionNote}</p>
+                    <div className={`rounded-lg px-3 py-2 border ${tc('bg-white border-gray-200', 'bg-[#0A1628] border-[#1E3A5F]')}`}>
+                      <p className={`text-xs font-medium mb-0.5 ${tc('text-gray-500', 'text-[#8BA3BF]')}`}>{t('common.workorders.checklistExecutor.taskNote')}</p>
+                      <p className={`text-xs ${tc('text-gray-700', 'text-[#F0F4F8]')}`}>{item.completionNote}</p>
                     </div>
                   )}
                 </div>
@@ -268,17 +268,17 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false, dark 
               {isMeasurement && (
                 <div className="ml-9 space-y-2">
                   {/* Spec set by the supervisor when the checklist was built */}
-                  <div className={`flex items-center gap-3 text-xs flex-wrap ${t('text-gray-500', 'text-[#8BA3BF]')}`}>
-                    <span className={t('text-gray-400', 'text-[#8BA3BF]')}>Spec:</span>
+                  <div className={`flex items-center gap-3 text-xs flex-wrap ${tc('text-gray-500', 'text-[#8BA3BF]')}`}>
+                    <span className={tc('text-gray-400', 'text-[#8BA3BF]')}>{t('common.workorders.checklistExecutor.spec')}</span>
                     {item.method && (
-                      <span className={`px-2 py-0.5 rounded ${t('bg-gray-100', 'bg-[#0F1E35] text-[#F0F4F8]')}`}>Method: {item.method}</span>
+                      <span className={`px-2 py-0.5 rounded ${tc('bg-gray-100', 'bg-[#0F1E35] text-[#F0F4F8]')}`}>{t('common.workorders.checklistExecutor.method', { method: item.method })}</span>
                     )}
                     {item.unit && (
-                      <span className={`px-2 py-0.5 rounded ${t('bg-gray-100', 'bg-[#0F1E35] text-[#F0F4F8]')}`}>Unit: {item.unit}</span>
+                      <span className={`px-2 py-0.5 rounded ${tc('bg-gray-100', 'bg-[#0F1E35] text-[#F0F4F8]')}`}>{t('common.workorders.checklistExecutor.unit', { unit: item.unit })}</span>
                     )}
                     {item.acceptableMin !== null && item.acceptableMax !== null && (
-                      <span className={`px-2 py-0.5 rounded ${t('bg-blue-50 text-blue-700', 'bg-blue-500/20 text-blue-300')}`}>
-                        Acceptable: {item.acceptableMin} – {item.acceptableMax} {item.unit}
+                      <span className={`px-2 py-0.5 rounded ${tc('bg-blue-50 text-blue-700', 'bg-blue-500/20 text-blue-300')}`}>
+                        {t('common.workorders.checklistExecutor.acceptable', { min: item.acceptableMin, max: item.acceptableMax, unit: item.unit })}
                       </span>
                     )}
                   </div>
@@ -291,56 +291,56 @@ export function ChecklistExecutor({ workOrder, onUpdate, readOnly = false, dark 
                         step="any"
                         value={currentRawValue}
                         onChange={(e) => handleMeasurementInput(index, e.target.value)}
-                        placeholder={`Enter value${item.unit ? ` (${item.unit})` : ''}`}
-                        className={`w-40 text-sm rounded-lg border px-3 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none ${t('border-gray-300', 'border-[#1E3A5F] bg-[#0A1628] text-[#F0F4F8] placeholder-[#8BA3BF]')}`}
+                        placeholder={t('common.workorders.checklistExecutor.enterValuePlaceholder', { unit: item.unit ? ` (${item.unit})` : '' })}
+                        className={`w-40 text-sm rounded-lg border px-3 py-1.5 focus:ring-2 focus:ring-blue-500 outline-none ${tc('border-gray-300', 'border-[#1E3A5F] bg-[#0A1628] text-[#F0F4F8] placeholder-[#8BA3BF]')}`}
                       />
                       {item.unit && (
-                        <span className={`text-sm ${t('text-gray-500', 'text-[#8BA3BF]')}`}>{item.unit}</span>
+                        <span className={`text-sm ${tc('text-gray-500', 'text-[#8BA3BF]')}`}>{item.unit}</span>
                       )}
                     </div>
                   )}
 
                   {readOnly && item.actualValue !== null && (
-                    <p className={`text-sm ${t('text-gray-700', 'text-[#F0F4F8]')}`}>
-                      Actual value used by {item.completedByName || 'the assigned technician'}:{' '}
+                    <p className={`text-sm ${tc('text-gray-700', 'text-[#F0F4F8]')}`}>
+                      {t('common.workorders.checklistExecutor.actualValueUsedBy', { name: item.completedByName || t('common.workorders.checklistExecutor.theAssignedTechnician') })}{' '}
                       <span className="font-semibold">{item.actualValue} {item.unit}</span>
                     </p>
                   )}
 
                   {readOnly && item.isCompleted && (
-                    <p className={t('text-xs text-emerald-600', 'text-xs text-emerald-400')}>
-                      Completed by {item.completedByName}
+                    <p className={tc('text-xs text-emerald-600', 'text-xs text-emerald-400')}>
+                      {t('common.workorders.checklistExecutor.completedBy', { name: item.completedByName })}
                       {item.completedAt?.toDate && ` · ${item.completedAt.toDate().toLocaleString()}`}
                     </p>
                   )}
 
                   {readOnly && item.completionNote && (
-                    <div className={`rounded-lg px-3 py-2 border ${t('bg-white border-gray-200', 'bg-[#0A1628] border-[#1E3A5F]')}`}>
-                      <p className={`text-xs font-medium mb-0.5 ${t('text-gray-500', 'text-[#8BA3BF]')}`}>Task Note:</p>
-                      <p className={`text-xs ${t('text-gray-700', 'text-[#F0F4F8]')}`}>{item.completionNote}</p>
+                    <div className={`rounded-lg px-3 py-2 border ${tc('bg-white border-gray-200', 'bg-[#0A1628] border-[#1E3A5F]')}`}>
+                      <p className={`text-xs font-medium mb-0.5 ${tc('text-gray-500', 'text-[#8BA3BF]')}`}>{t('common.workorders.checklistExecutor.taskNote')}</p>
+                      <p className={`text-xs ${tc('text-gray-700', 'text-[#F0F4F8]')}`}>{item.completionNote}</p>
                     </div>
                   )}
 
                   {/* Repair note on fail */}
                   {currentResult === 'fail' && !readOnly && (
                     <div className="space-y-1">
-                      <label className={t('text-xs font-medium text-red-700', 'text-xs font-medium text-red-300')}>
-                        Repair note (required for FAIL):
+                      <label className={tc('text-xs font-medium text-red-700', 'text-xs font-medium text-red-300')}>
+                        {t('common.workorders.checklistExecutor.repairNoteRequired')}
                       </label>
                       <textarea
                         rows={2}
                         value={repairNote}
                         onChange={(e) => handleRepairNote(index, e.target.value)}
-                        placeholder="Describe the issue and action taken..."
-                        className={`w-full text-sm rounded-lg border px-3 py-2 resize-none focus:ring-2 focus:ring-red-400 outline-none ${t('border-red-200', 'border-red-500/40 bg-[#0A1628] text-[#F0F4F8] placeholder-[#8BA3BF]')}`}
+                        placeholder={t('common.workorders.checklistExecutor.repairNotePlaceholder')}
+                        className={`w-full text-sm rounded-lg border px-3 py-2 resize-none focus:ring-2 focus:ring-red-400 outline-none ${tc('border-red-200', 'border-red-500/40 bg-[#0A1628] text-[#F0F4F8] placeholder-[#8BA3BF]')}`}
                       />
                     </div>
                   )}
 
                   {readOnly && item.repairNote && (
-                    <div className={`rounded-lg px-3 py-2 ${t('bg-red-50', 'bg-red-500/10')}`}>
-                      <p className={t('text-xs font-medium text-red-700 mb-0.5', 'text-xs font-medium text-red-300 mb-0.5')}>Repair Note:</p>
-                      <p className={t('text-xs text-red-800', 'text-xs text-red-200')}>{item.repairNote}</p>
+                    <div className={`rounded-lg px-3 py-2 ${tc('bg-red-50', 'bg-red-500/10')}`}>
+                      <p className={tc('text-xs font-medium text-red-700 mb-0.5', 'text-xs font-medium text-red-300 mb-0.5')}>{t('common.workorders.checklistExecutor.repairNote')}</p>
+                      <p className={tc('text-xs text-red-800', 'text-xs text-red-200')}>{item.repairNote}</p>
                     </div>
                   )}
                 </div>

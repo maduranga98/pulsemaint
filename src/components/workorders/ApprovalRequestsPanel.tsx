@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CheckCircle2, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { WorkOrder } from '../../types/workOrder';
 import { useApprovalRequest } from '../../hooks/useApprovalRequest';
 import { useAuthStore } from '../../store/authStore';
@@ -16,6 +17,7 @@ interface ApprovalRequestsPanelProps {
  * on the work order's own status history.
  */
 export function ApprovalRequestsPanel({ workOrders }: ApprovalRequestsPanelProps) {
+  const { t } = useTranslation();
   const { resolveApprovalRequest, loading } = useApprovalRequest();
   const userProfile = useAuthStore((s) => s.userProfile);
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -47,7 +49,7 @@ export function ApprovalRequestsPanel({ workOrders }: ApprovalRequestsPanelProps
     return (
       <div className="text-center py-16">
         <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-        <p className="text-gray-500">No pending approval requests.</p>
+        <p className="text-gray-500">{t('common.workorders.approvalRequests.empty')}</p>
       </div>
     );
   }
@@ -65,12 +67,12 @@ export function ApprovalRequestsPanel({ workOrders }: ApprovalRequestsPanelProps
                 <p className="text-sm text-gray-500">{wo.machineName}</p>
               </div>
               <span className="px-2 py-0.5 rounded text-xs font-medium bg-orange-50 text-orange-700 ring-1 ring-orange-200 whitespace-nowrap">
-                Pending Approval
+                {t('common.workorders.approvalRequests.pendingApproval')}
               </span>
             </div>
             <div className="bg-orange-50 rounded-lg p-3">
               <p className="text-xs font-medium text-orange-700 uppercase tracking-wide mb-1">
-                {request.technicianName} requested
+                {t('common.workorders.approvalRequests.requested', { name: request.technicianName })}
               </p>
               <p className="text-sm text-gray-800">{request.note}</p>
               <p className="text-xs text-gray-400 mt-1">
@@ -81,7 +83,7 @@ export function ApprovalRequestsPanel({ workOrders }: ApprovalRequestsPanelProps
               value={notes[key] ?? ''}
               onChange={(e) => setNotes((n) => ({ ...n, [key]: e.target.value }))}
               rows={2}
-              placeholder="Note (optional)"
+              placeholder={t('common.workorders.approvalRequests.notePlaceholder')}
               className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none"
             />
             <div className="flex gap-2">
@@ -91,7 +93,7 @@ export function ApprovalRequestsPanel({ workOrders }: ApprovalRequestsPanelProps
                 onClick={() => handleResolve(wo.id, request.id, 'approved')}
                 className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
               >
-                <CheckCircle2 className="w-4 h-4" /> Approve
+                <CheckCircle2 className="w-4 h-4" /> {t('common.workorders.approvalRequests.approve')}
               </button>
               <button
                 type="button"
@@ -99,7 +101,7 @@ export function ApprovalRequestsPanel({ workOrders }: ApprovalRequestsPanelProps
                 onClick={() => handleResolve(wo.id, request.id, 'rejected')}
                 className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-semibold bg-red-50 text-red-700 border border-red-200 rounded-lg hover:bg-red-100 disabled:opacity-50"
               >
-                <XCircle className="w-4 h-4" /> Reject
+                <XCircle className="w-4 h-4" /> {t('common.workorders.approvalRequests.reject')}
               </button>
             </div>
           </div>
