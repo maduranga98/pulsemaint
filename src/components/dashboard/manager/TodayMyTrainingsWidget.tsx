@@ -45,7 +45,12 @@ export default function TodayMyTrainingsWidget() {
   const todayStr = new Date().toISOString().slice(0, 10);
 
   const myAssignedModuleIds = useMemo(
-    () => new Set(assignments.filter((a) => a.status !== 'certified').map((a) => a.moduleId)),
+    () =>
+      new Set(
+        assignments
+          .filter((a) => a.status !== 'certified' && a.status !== 'quiz_passed')
+          .map((a) => a.moduleId),
+      ),
     [assignments],
   );
 

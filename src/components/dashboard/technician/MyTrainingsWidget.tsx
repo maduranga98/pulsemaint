@@ -32,9 +32,13 @@ export default function MyTrainingsWidget() {
   // Excludes assignments whose module has since been deleted — those can
   // never actually open (they dead-end on "Module not found"), so they're
   // left off the dashboard rather than shown as a clickable item that fails.
+  // Also excludes completed ones: 'certified' (signed off) and 'quiz_passed'
+  // (nothing left for the trainee to do) — a dashboard widget is for what's
+  // still outstanding, not a training history log.
   const pending = assignments.filter(
     (a) =>
       a.status !== 'certified' &&
+      a.status !== 'quiz_passed' &&
       !isSafetyAssignment(a, safetyModuleIds, a.moduleId) &&
       allModuleIds.has(a.moduleId),
   );
