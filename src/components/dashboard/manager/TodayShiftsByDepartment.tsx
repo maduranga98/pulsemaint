@@ -3,12 +3,14 @@ import { Users, Clock } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useTodayShifts } from '../../../hooks/dashboard/useTodayShifts';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   companyId: string;
 }
 
 export default function TodayShiftsByDepartment({ companyId }: Props) {
+  const { t } = useTranslation();
   const { departments, loading, error } = useTodayShifts(companyId);
 
   // Only shifts that have actually started (clocked-in or within their time
@@ -26,14 +28,14 @@ export default function TodayShiftsByDepartment({ companyId }: Props) {
 
   return (
     <DashboardWidget
-      title="Today's Shifts by Department"
+      title={t('common.widgets.todayShiftsByDepartment.title')}
       loading={loading}
       error={error}
       live
-      action={<span className="text-xs text-[#8BA3BF]">{totalStarted} started</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.widgets.todayShiftsByDepartment.started', { count: totalStarted })}</span>}
     >
       {activeDepartments.length === 0 ? (
-        <EmptyState message="No active shifts right now" />
+        <EmptyState message={t('common.widgets.todayShiftsByDepartment.empty')} />
       ) : (
         <div className="space-y-4">
           {activeDepartments.map((dept) => (
@@ -41,7 +43,7 @@ export default function TodayShiftsByDepartment({ companyId }: Props) {
               <h4 className="flex items-center gap-2 text-xs font-semibold text-[#8BA3BF] uppercase tracking-wide mb-2">
                 {dept.department}
                 <span className="rounded-full bg-[#10B981]/20 px-1.5 py-0.5 text-[10px] font-semibold text-[#10B981]">
-                  {dept.shifts.length} started
+                  {t('common.widgets.todayShiftsByDepartment.started', { count: dept.shifts.length })}
                 </span>
               </h4>
               <div className="space-y-2">
@@ -57,7 +59,7 @@ export default function TodayShiftsByDepartment({ companyId }: Props) {
                       />
                       <span className="text-sm font-medium text-[#F0F4F8]">{shift.shiftName}</span>
                       <span className="text-[10px] font-semibold text-[#10B981] uppercase tracking-wider">
-                        Active
+                        {t('common.widgets.common.active')}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-[#8BA3BF]">

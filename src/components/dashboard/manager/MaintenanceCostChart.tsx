@@ -15,6 +15,7 @@ import { CHART_DEFAULTS } from '../../../constants/chartTheme';
 import { WO_TYPE_CONFIG } from '../../../constants/woConfig';
 import type { WOType } from '../../../types/workOrder';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface MaintenanceCostChartProps {
   companyId: string;
@@ -22,6 +23,7 @@ interface MaintenanceCostChartProps {
 }
 
 export default function MaintenanceCostChart({ companyId, month }: MaintenanceCostChartProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useCostByWoType(companyId, month);
 
   const chartData = data.map((row) => {
@@ -36,17 +38,17 @@ export default function MaintenanceCostChart({ companyId, month }: MaintenanceCo
 
   return (
     <DashboardWidget
-      title="Maintenance Cost Overview"
+      title={t('common.widgets.maintenanceCostChart.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
     >
       {chartData.length === 0 ? (
-        <EmptyState message="No cost data" />
+        <EmptyState message={t('common.widgets.maintenanceCostChart.empty')} />
       ) : (
         <>
           <p className="text-xs text-[#8BA3BF] mb-2">
-            Total this month: <span className="text-[#F0F4F8] font-semibold">LKR {totalCost.toLocaleString()}</span>
+            {t('common.widgets.maintenanceCostChart.totalThisMonth')} <span className="text-[#F0F4F8] font-semibold">LKR {totalCost.toLocaleString()}</span>
           </p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -64,7 +66,7 @@ export default function MaintenanceCostChart({ companyId, month }: MaintenanceCo
                 <YAxis {...CHART_DEFAULTS.yAxis} tick={{ ...CHART_DEFAULTS.yAxis.tick, fontSize: 11 }} />
                 <Tooltip
                   {...CHART_DEFAULTS.tooltip}
-                  formatter={(val) => [`LKR ${Number(val ?? 0).toLocaleString()}`, 'Cost']}
+                  formatter={(val) => [`LKR ${Number(val ?? 0).toLocaleString()}`, t('common.widgets.maintenanceCostChart.cost')]}
                 />
                 <Bar dataKey="cost" radius={[4, 4, 0, 0]}>
                   {chartData.map((entry, idx) => (

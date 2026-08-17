@@ -5,11 +5,12 @@ import { heatmapColor } from '../../../constants/chartTheme';
 import { dayLabel, hourLabel } from '../../../utils/heatmap.utils';
 import type { ChartDateRange } from '../../../types/analytics.types';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
-const RANGES: { label: string; value: ChartDateRange }[] = [
-  { label: 'This Month', value: '30D' },
-  { label: 'Last 3M', value: '3M' },
-  { label: 'Last 6M', value: '6M' },
+const RANGES: { labelKey: string; value: ChartDateRange }[] = [
+  { labelKey: 'thisMonth', value: '30D' },
+  { labelKey: 'last3m', value: '3M' },
+  { labelKey: 'last6m', value: '6M' },
 ];
 
 interface BreakdownHeatmapProps {
@@ -17,12 +18,13 @@ interface BreakdownHeatmapProps {
 }
 
 export default function BreakdownHeatmap({ companyId }: BreakdownHeatmapProps) {
+  const { t } = useTranslation();
   const [range, setRange] = useState<ChartDateRange>('30D');
   const { heatmap, loading, error, refetch } = useBreakdownHeatmap(companyId, range);
 
   return (
     <DashboardWidget
-      title="Breakdown Frequency Heatmap"
+      title={t('common.widgets.breakdownHeatmap.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
@@ -36,14 +38,14 @@ export default function BreakdownHeatmap({ companyId }: BreakdownHeatmapProps) {
                 range === r.value ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF]'
               }`}
             >
-              {r.label}
+              {t(`common.widgets.breakdownHeatmap.ranges.${r.labelKey}`)}
             </button>
           ))}
         </div>
       }
     >
       {heatmap.length === 0 ? (
-        <EmptyState message="No heatmap data" />
+        <EmptyState message={t('common.widgets.breakdownHeatmap.empty')} />
       ) : (
         <div className="space-y-2">
           {/* Day labels */}
@@ -69,8 +71,8 @@ export default function BreakdownHeatmap({ companyId }: BreakdownHeatmapProps) {
                   const count = cell?.count ?? 0;
                   const machines = cell?.machineNames ?? [];
                   const tooltip = count === 0
-                    ? `${dayLabel(day)} ${hourLabel(hour)} — no breakdowns`
-                    : `${dayLabel(day)} ${hourLabel(hour)} — ${count} breakdown${count === 1 ? '' : 's'}${
+                    ? t('common.widgets.breakdownHeatmap.tooltipNone', { day: dayLabel(day), hour: hourLabel(hour) })
+                    : `${t('common.widgets.breakdownHeatmap.tooltipCount', { day: dayLabel(day), hour: hourLabel(hour), count })}${
                         machines.length ? `\n${machines.join(', ')}` : ''
                       }`;
                   return (

@@ -260,6 +260,531 @@
         "allSuppliers": "All Suppliers",
         "clear": "Clear"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "Add Photo",
+        "checklistProgress": "Checklist Progress",
+        "currentJob": "Current Job",
+        "noActiveJob": "No active job",
+        "of": "{{completed}} of {{total}}",
+        "requestParts": "Request Parts",
+        "scanToCheckIn": "Scan machine QR to check in",
+        "timeOnJob": "Time on job",
+        "updateStatus": "Update Status"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "Assigned {{date}}",
+        "attendFill": "Attend & Fill",
+        "attendFillCount": "Attend & Fill ({{count}})",
+        "empty": "No breakdowns assigned to you",
+        "title": "My Assigned Breakdowns"
+      },
+      "assignedTasksWidget": {
+        "audit": "Audit",
+        "audits": "Audits ({{count}})",
+        "empty": "Nothing assigned",
+        "emptySub": "Work orders, audits, evaluations, and trainings will appear here.",
+        "evaluations": "Evaluations ({{count}})",
+        "pending": "{{count}} pending",
+        "safetyCases": "Safety Cases ({{count}})",
+        "title": "Assigned to Me",
+        "trainingModule": "Training module",
+        "trainings": "Trainings ({{count}})",
+        "workOrders": "Work Orders ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "No breakdown data",
+        "modes": {
+          "type": "type",
+          "severity": "severity",
+          "department": "department"
+        },
+        "title": "Breakdown Distribution"
+      },
+      "breakdownHeatmap": {
+        "empty": "No heatmap data",
+        "ranges": {
+          "thisMonth": "This Month",
+          "last3m": "Last 3M",
+          "last6m": "Last 6M"
+        },
+        "title": "Breakdown Frequency Heatmap",
+        "tooltipCount": "{{day}} {{hour}} — {{count}} breakdown",
+        "tooltipCount_one": "{{day}} {{hour}} — {{count}} breakdown",
+        "tooltipCount_other": "{{day}} {{hour}} — {{count}} breakdowns",
+        "tooltipNone": "{{day}} {{hour}} — no breakdowns"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "NEWLY REPORTED",
+          "signOff": "SIGN OFF & CLOSE"
+        },
+        "title": "Live Breakdown Board"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "No items"
+      },
+      "breakdownTrendChart": {
+        "closed": "Closed",
+        "critical": "Critical",
+        "empty": "No breakdown data",
+        "opened": "Opened",
+        "title": "Breakdown Trend"
+      },
+      "categoryStatusChart": {
+        "completed": "Completed",
+        "ongoing": "Ongoing"
+      },
+      "common": {
+        "active": "Active",
+        "due": "Due {{date}}",
+        "failedToLoad": "Failed to load data",
+        "general": "General",
+        "noData": "No data",
+        "noDataAvailable": "No data available",
+        "resume": "Resume",
+        "retry": "Retry",
+        "safety": "Safety",
+        "start": "Start",
+        "today": "Today",
+        "view": "View",
+        "viewAll": "View all",
+        "trainingStatus": {
+          "notStarted": "Not Started",
+          "inProgress": "In Progress",
+          "quizPassed": "Quiz Passed",
+          "quizFailed": "Quiz Failed",
+          "awaitingPractical": "Awaiting Practical",
+          "expired": "Expired",
+          "retrainingRequired": "Retraining Required"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "No contractor data",
+        "firstFix": "First-fix {{value}}%",
+        "jobs": "{{count}} jobs",
+        "sla": "SLA {{value}}%",
+        "title": "Contractor Scoreboard"
+      },
+      "dateRangeFilter": {
+        "from": "From",
+        "presets": {
+          "allTime": "All Time",
+          "last30Days": "Last 30 Days",
+          "thisMonth": "This Month",
+          "lastMonth": "Last Month",
+          "thisYear": "This Year"
+        },
+        "to": "To"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "Active Staff",
+        "evaluationsInProgress": "Evaluations In Progress",
+        "presentToday": "Present Today",
+        "trainingsInProgress": "Trainings In Progress"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "Low Stock",
+        "outOfStock": "Out of Stock",
+        "pendingRequests": "Pending Requests",
+        "totalParts": "Total Parts"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}}d",
+        "daysOverdue": "{{count}}d overdue",
+        "due": "Due {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "No jobs in queue",
+        "title": "My Job Queue"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "No one is currently on shift",
+        "footer": "{{shifts}} shift live · {{people}} people working",
+        "footer_one": "{{shifts}} shift live · {{people}} people working",
+        "footer_other": "{{shifts}} shifts live · {{people}} people working",
+        "sinceDayTime": "since {{day}} {{time}}",
+        "sinceTime": "since {{time}}",
+        "title": "Live Shift Status",
+        "workingNow": "{{count}} working now",
+        "yesterday": "yesterday"
+      },
+      "lowStockAlertTable": {
+        "category": "Category",
+        "deficit": "Deficit",
+        "empty": "All stock levels healthy",
+        "min": "Min",
+        "part": "Part",
+        "raisePo": "Raise PO",
+        "stock": "Stock",
+        "title": "Low Stock Alerts"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "{{value}} below min ({{current}}/{{min}})",
+        "empty": "All stock levels healthy",
+        "title": "Low Stock Parts"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "BD MTD",
+        "empty": "No machine data",
+        "health": "Health",
+        "machine": "Machine",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "Status",
+        "title": "Machine-Level Analytics"
+      },
+      "maintenanceCostChart": {
+        "cost": "Cost",
+        "empty": "No cost data",
+        "title": "Maintenance Cost Overview",
+        "totalThisMonth": "Total this month:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "No usage data",
+        "title": "Most Moved Parts (Last 30 Days)",
+        "unitsIssued": "Units issued"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "No usage data",
+        "title": "Most Moved Parts"
+      },
+      "mtbfTable": {
+        "dept": "Dept",
+        "empty": "No machine health data",
+        "machine": "Machine",
+        "mtbf": "MTBF",
+        "title": "MTBF Per Machine"
+      },
+      "mttrTrendChart": {
+        "empty": "No MTTR data",
+        "slaTarget": "SLA target",
+        "slaTargetLabel": "SLA Target ({{target}}h)",
+        "title": "MTTR Trend"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "Cancel",
+        "cancelFailed": "Failed to cancel return.",
+        "cancelling": "Cancelling…",
+        "empty": "Nothing to return",
+        "emptySub": "Returnable parts you've collected will appear here until they're handed back.",
+        "requesting": "Requesting…",
+        "return": "Return",
+        "returnCancelled": "Return cancelled.",
+        "returnFailed": "Failed to request return.",
+        "returnRequested": "Return requested — a store keeper will confirm it.",
+        "returning": "Returning",
+        "title": "My Returnable Parts"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "Actions Taken",
+        "actionsTakenCount": "Actions Taken ({{count}})",
+        "description": "Description",
+        "empty": "No safety cases assigned to you",
+        "location": "Location",
+        "movedTo": "moved to {{status}}",
+        "noActionsYet": "No actions logged yet.",
+        "title": "Safety Cases",
+        "whatYouNeedToDo": "What You Need To Do"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "No safety trainings assigned",
+        "title": "Safety Trainings Assigned to Me"
+      },
+      "myTrainingsWidget": {
+        "empty": "No trainings in progress",
+        "title": "My Trainings"
+      },
+      "notificationFeed": {
+        "empty": "No notifications",
+        "emptySub": "All caught up!",
+        "filters": {
+          "all": "All",
+          "breakdowns": "Breakdowns",
+          "workOrders": "Work Orders",
+          "parts": "Parts",
+          "pm": "PM",
+          "alerts": "Alerts"
+        },
+        "title": "Notifications"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "Audits ({{count}})",
+        "empty": "No evaluations or audits currently running",
+        "evaluations": "Evaluations ({{count}})",
+        "noneInProgress": "None in progress",
+        "running": "{{count}} running",
+        "title": "Evaluations & Audits In Progress"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "No trainings currently in progress",
+        "inProgress": "{{count}} in progress",
+        "module": "Module",
+        "name": "Name",
+        "progress": "Progress",
+        "role": "Role",
+        "title": "Ongoing Trainings"
+      },
+      "operatorTrainingTable": {
+        "certified": "Certified",
+        "empty": "No operator data",
+        "expiring": "Expiring",
+        "operator": "Operator",
+        "role": "Role",
+        "status": "Status",
+        "title": "Training Status"
+      },
+      "partsUsageTrendChart": {
+        "empty": "No request activity",
+        "title": "Parts Request Trends (Last 30 Days)",
+        "woPartRequests": "WO part requests"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "Approve",
+        "empty": "No pending approval requests",
+        "emptySub": "Requests raised by technicians and trainees will appear here.",
+        "notePlaceholder": "Note (optional)",
+        "pending": "{{count}} pending",
+        "pendingBadge": "Pending",
+        "reject": "Reject",
+        "requested": "requested",
+        "title": "Pending Approvals",
+        "viewMore": "View {{count}} more…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "No POs awaiting receipt",
+        "items": "Items",
+        "poNumber": "PO #",
+        "statusHeader": "Status",
+        "status": {
+          "sent": "Sent",
+          "invoiceReceived": "Invoice Received",
+          "acknowledged": "Acknowledged",
+          "partiallyReceived": "Partially Received"
+        },
+        "supplier": "Supplier",
+        "title": "Pending PO Receipts",
+        "value": "Value"
+      },
+      "pendingRequestsTable": {
+        "empty": "No pending requests",
+        "estValue": "Est. Value",
+        "more": "+{{count}} more",
+        "parts": "Parts",
+        "requestedBy": "Requested By",
+        "review": "Review",
+        "title": "Pending Parts Requests",
+        "unknownPart": "Unknown part"
+      },
+      "pendingReturnsWidget": {
+        "empty": "No parts pending return",
+        "takenBy": "Taken By",
+        "title": "Pending Parts Returns"
+      },
+      "personalKpiCards": {
+        "avgRepair": "Avg Repair",
+        "avgResponse": "Avg Response",
+        "jobsCompleted": "Jobs Completed",
+        "slaCompliance": "SLA Compliance"
+      },
+      "pmComplianceWidget": {
+        "empty": "No PM data",
+        "missed": "Missed",
+        "onTime": "On time",
+        "thisMonth": "This month",
+        "title": "PM Compliance Rate"
+      },
+      "pmTrendChart": {
+        "empty": "No preventive work order data",
+        "title": "PM Work Orders by Type",
+        "wos": "WOs"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "No receipts recorded in this period",
+        "title": "Parts Received: Good vs Rejected/Damaged",
+        "unitsReceived": "Units received"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "Downtime cost",
+        "hoursLost": "Production Hours Lost This Month",
+        "thisWeek": "This week",
+        "title": "Production Downtime",
+        "today": "Today"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "No programmes ready for sign-off",
+        "emptySub": "Trainees who finish every module in their programme will appear here.",
+        "ready": "{{count}} ready",
+        "readyToSignOff": "Ready to Sign Off",
+        "summary": "{{months}}-month programme · {{count}} modules completed · started {{date}}",
+        "title": "Trainee Programme Sign-Off"
+      },
+      "requestedPartsWidget": {
+        "empty": "No outstanding parts requests",
+        "generalRequest": "General request",
+        "requestParts": "Request Parts",
+        "status": {
+          "requested": "Requested",
+          "inApprovalOfSupervisor": "In Approval of Supervisor",
+          "needToCollect": "Need to Collect"
+        },
+        "title": "Requested Parts"
+      },
+      "safetyForYouWidget": {
+        "empty": "Nothing safety-related pending",
+        "emptySub": "Assigned trainings and cases reported to you will appear here.",
+        "open": "{{count}} open",
+        "safetyTrainings": "Safety Trainings ({{count}})",
+        "title": "Safety"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "By Case Type",
+        "bySeverity": "By Severity",
+        "daysSinceLastIncident": "Days Since Last Incident",
+        "nearMiss30d": "Near-Miss (30d)",
+        "openCases": "Open Cases",
+        "totalSafetyCases": "Total Safety Cases"
+      },
+      "slaGaugeWidget": {
+        "breached": "Breached",
+        "empty": "No SLA data",
+        "title": "SLA Compliance",
+        "withinSla": "Within SLA"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "All breakdowns within SLA",
+        "atRisk": "At Risk",
+        "breached": "Breached",
+        "left": "{{time}} left",
+        "overdue": "{{time}} overdue",
+        "title": "SLA Status",
+        "withinSla": "Within SLA"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "{{count}} active employees",
+        "empty": "No staff data",
+        "roles": {
+          "technicians": "Technicians",
+          "supervisors": "Supervisors",
+          "managers": "Managers",
+          "operators": "Operators",
+          "trainees": "Trainees",
+          "storeKeepers": "Store Keepers",
+          "hrOfficers": "HR Officers",
+          "safetyOfficers": "Safety Officers",
+          "admins": "Admins"
+        },
+        "staff": "Staff",
+        "title": "Employees by Role"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "No purchase orders in this period",
+        "purchaseOrders": "Purchase orders",
+        "title": "Purchase Orders By Supplier"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "Audit Score",
+        "empty": "No team performance data",
+        "evaluationScore": "Evaluation Score",
+        "name": "Name",
+        "quizzesPassed": "Quizzes Passed",
+        "role": "Role",
+        "title": "Team Performance",
+        "trainings": "Trainings"
+      },
+      "technicianPerformanceTable": {
+        "empty": "No performance data",
+        "jobs": "Jobs",
+        "repair": "Repair",
+        "resp": "Resp",
+        "sla": "SLA",
+        "tech": "Tech",
+        "title": "Performance By WOs"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} active",
+        "empty": "No technicians on shift",
+        "title": "Technician Status"
+      },
+      "technicianStatusRow": {
+        "doneToday": "Done today",
+        "on": "On {{wo}}",
+        "status": {
+          "available": "Available",
+          "onJob": "On Job",
+          "onBreak": "On Break",
+          "offShift": "Off Shift"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "No trainings of yours scheduled today",
+        "title": "Today's My Trainings"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "No active shifts right now",
+        "started": "{{count}} started",
+        "title": "Today's Shifts by Department"
+      },
+      "todaysPmList": {
+        "empty": "No PM schedules assigned",
+        "title": "Assigned PM Schedules"
+      },
+      "topPerformersWidget": {
+        "audit": "Audit",
+        "empty": "No performance data yet",
+        "emptySub": "Rankings appear once evaluations or audits are submitted.",
+        "eval": "Eval",
+        "name": "Name",
+        "quizzes": "Quizzes",
+        "role": "Role",
+        "safety": "Safety",
+        "score": "Score",
+        "title": "Top 10 Performing Team Members",
+        "trainings": "Trainings"
+      },
+      "topProblemMachinesChart": {
+        "empty": "No problem machine data",
+        "modes": {
+          "count": "Count",
+          "hours": "Hours",
+          "cost": "Cost"
+        },
+        "title": "Top 10 Problem Machines"
+      },
+      "topUsedPartsChart": {
+        "empty": "No request data",
+        "title": "Parts Requested By Reason"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "My Evaluations",
+        "noEvaluations": "No evaluations recorded yet"
+      },
+      "trainingActivityChart": {
+        "empty": "No training data",
+        "newCertifications": "New Certifications",
+        "renewals": "Renewals",
+        "title": "Training Activity"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "Attend",
+        "attendFailed": "Failed to attend.",
+        "attending": "Attending…",
+        "empty": "No unassigned breakdowns",
+        "title": "Breakdowns"
+      },
+      "woTypeDistributionChart": {
+        "empty": "No work order data",
+        "title": "Work Order Distribution by Type",
+        "wos": "WOs"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "No work orders in progress",
+        "emptyToday": "No work orders due today",
+        "running": "Running ({{count}})",
+        "title": "Work Orders",
+        "today": "Today ({{count}})"
+      }
     }
   }
 }

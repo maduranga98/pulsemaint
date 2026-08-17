@@ -8,6 +8,7 @@ import EmptyState from '../shared/EmptyState';
 import KpiCard from '../shared/KpiCard';
 import { useSafetyCases, useSafetyKpis } from '@/hooks/safety/useSafety';
 import { SAFETY_CASE_TYPES } from '@/types/safety';
+import { useTranslation } from 'react-i18next';
 
 const SEV_COLORS: Record<string, string> = { low: '#10B981', medium: '#EAB308', high: '#F59E0B', critical: '#EF4444' };
 const AXIS = { stroke: '#8BA3BF', fontSize: 11 };
@@ -25,13 +26,14 @@ interface SafetySnapshotWidgetProps {
 }
 
 export default function SafetySnapshotWidget({ companyId, hideKpiCards = false }: SafetySnapshotWidgetProps) {
+  const { t } = useTranslation();
   const { cases, loading } = useSafetyCases(companyId);
   const { kpis } = useSafetyKpis(companyId);
 
   const byType = useMemo(() => {
     const m = new Map<string, number>();
     cases.forEach((c) => m.set(c.type, (m.get(c.type) ?? 0) + 1));
-    return SAFETY_CASE_TYPES.map((t) => ({ name: t.label, count: m.get(t.value) ?? 0 })).filter((r) => r.count > 0);
+    return SAFETY_CASE_TYPES.map((sct) => ({ name: sct.label, count: m.get(sct.value) ?? 0 })).filter((r) => r.count > 0);
   }, [cases]);
 
   const bySeverity = useMemo(() => {
@@ -43,10 +45,10 @@ export default function SafetySnapshotWidget({ companyId, hideKpiCards = false }
   }, [cases]);
 
   const cards = [
-    { label: 'Total Safety Cases', value: kpis.totalCases, color: 'blue' as const },
-    { label: 'Open Cases', value: kpis.openCases, color: (kpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green' },
-    { label: 'Near-Miss (30d)', value: kpis.nearMiss30d, color: 'cyan' as const },
-    { label: 'Days Since Last Incident', value: kpis.daysSinceLastIncident ?? '—', color: 'green' as const },
+    { label: t('common.widgets.safetySnapshotWidget.totalSafetyCases'), value: kpis.totalCases, color: 'blue' as const },
+    { label: t('common.widgets.safetySnapshotWidget.openCases'), value: kpis.openCases, color: (kpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green' },
+    { label: t('common.widgets.safetySnapshotWidget.nearMiss30d'), value: kpis.nearMiss30d, color: 'cyan' as const },
+    { label: t('common.widgets.safetySnapshotWidget.daysSinceLastIncident'), value: kpis.daysSinceLastIncident ?? '—', color: 'green' as const },
   ];
 
   return (
@@ -59,8 +61,8 @@ export default function SafetySnapshotWidget({ companyId, hideKpiCards = false }
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <DashboardWidget title="By Severity" loading={loading}>
-            {bySeverity.length === 0 ? <EmptyState message="No data" /> : (
+          <DashboardWidget title={t('common.widgets.safetySnapshotWidget.bySeverity')} loading={loading}>
+            {bySeverity.length === 0 ? <EmptyState message={t('common.widgets.common.noData')} /> : (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -76,8 +78,8 @@ export default function SafetySnapshotWidget({ companyId, hideKpiCards = false }
         </div>
 
         <div className="lg:col-span-7">
-          <DashboardWidget title="By Case Type" loading={loading}>
-            {byType.length === 0 ? <EmptyState message="No data" /> : (
+          <DashboardWidget title={t('common.widgets.safetySnapshotWidget.byCaseType')} loading={loading}>
+            {byType.length === 0 ? <EmptyState message={t('common.widgets.common.noData')} /> : (
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={byType}>

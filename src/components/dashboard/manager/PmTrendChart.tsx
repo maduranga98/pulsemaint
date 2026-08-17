@@ -4,6 +4,7 @@ import { usePmTypeDistribution } from '../../../hooks/dashboard/usePmTypeDistrib
 import { PM_TYPE_CONFIG } from '../../../constants/pmConfig';
 import { CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface PmTrendChartProps {
   companyId: string;
@@ -13,6 +14,7 @@ interface PmTrendChartProps {
 // Graphical view of PM types vs. how many Preventive work orders exist for
 // each — replaces the earlier day-by-day completion trend line.
 export default function PmTrendChart({ companyId, months }: PmTrendChartProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = usePmTypeDistribution(companyId, months);
 
   const total = data.reduce((s, d) => s + d.count, 0);
@@ -28,9 +30,9 @@ export default function PmTrendChart({ companyId, months }: PmTrendChartProps) {
   });
 
   return (
-    <DashboardWidget title="PM Work Orders by Type" loading={loading} error={error} onRetry={refetch}>
+    <DashboardWidget title={t('common.widgets.pmTrendChart.title')} loading={loading} error={error} onRetry={refetch}>
       {chartData.length === 0 ? (
-        <EmptyState message="No preventive work order data" />
+        <EmptyState message={t('common.widgets.pmTrendChart.empty')} />
       ) : (
         <>
           <div style={{ height: Math.max(220, chartData.length * 34 + 40) }}>
@@ -48,7 +50,7 @@ export default function PmTrendChart({ companyId, months }: PmTrendChartProps) {
                 />
                 <Tooltip
                   {...CHART_DEFAULTS.tooltip}
-                  formatter={(value, _name, props: any) => [`${value} (${props.payload.pct}%)`, 'WOs']}
+                  formatter={(value, _name, props: any) => [`${value} (${props.payload.pct}%)`, t('common.widgets.pmTrendChart.wos')]}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                   {chartData.map((d) => (

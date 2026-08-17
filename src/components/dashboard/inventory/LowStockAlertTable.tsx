@@ -1,12 +1,14 @@
 import DashboardWidget from '../shared/DashboardWidget';
 import { useInventoryHealth } from '../../../hooks/dashboard/useInventoryHealth';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface LowStockAlertTableProps {
   companyId: string;
 }
 
 export default function LowStockAlertTable({ companyId }: LowStockAlertTableProps) {
+  const { t } = useTranslation();
   const { parts, loading, error } = useInventoryHealth(companyId);
 
   const lowStock = parts
@@ -21,19 +23,19 @@ export default function LowStockAlertTable({ companyId }: LowStockAlertTableProp
   };
 
   return (
-    <DashboardWidget title="Low Stock Alerts" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.lowStockAlertTable.title')} loading={loading} error={error}>
       {lowStock.length === 0 ? (
-        <EmptyState message="All stock levels healthy" />
+        <EmptyState message={t('common.widgets.lowStockAlertTable.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
-                <th className="pb-2 font-medium">Part</th>
-                <th className="pb-2 font-medium">Category</th>
-                <th className="pb-2 font-medium text-right">Stock</th>
-                <th className="pb-2 font-medium text-right">Min</th>
-                <th className="pb-2 font-medium text-right">Deficit</th>
+                <th className="pb-2 font-medium">{t('common.widgets.lowStockAlertTable.part')}</th>
+                <th className="pb-2 font-medium">{t('common.widgets.lowStockAlertTable.category')}</th>
+                <th className="pb-2 font-medium text-right">{t('common.widgets.lowStockAlertTable.stock')}</th>
+                <th className="pb-2 font-medium text-right">{t('common.widgets.lowStockAlertTable.min')}</th>
+                <th className="pb-2 font-medium text-right">{t('common.widgets.lowStockAlertTable.deficit')}</th>
                 <th className="pb-2 font-medium"></th>
               </tr>
             </thead>
@@ -50,7 +52,7 @@ export default function LowStockAlertTable({ companyId }: LowStockAlertTableProp
                   <td className="py-2.5 text-right text-[#EF4444]">{(p.minStockLevel ?? 0) - p.currentStock}</td>
                   <td className="py-2.5 text-right">
                     <button className="px-2 py-1 bg-[#1A56DB] text-white text-[10px] font-medium rounded hover:bg-[#1A56DB]/90 transition-colors">
-                      Raise PO
+                      {t('common.widgets.lowStockAlertTable.raisePo')}
                     </button>
                   </td>
                 </tr>

@@ -2,12 +2,14 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useTechnicianStatuses } from '../../../hooks/dashboard/useTechnicianStatuses';
 import TechnicianStatusRow from './TechnicianStatusRow';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface TechnicianStatusListProps {
   companyId: string;
 }
 
 export default function TechnicianStatusList({ companyId }: TechnicianStatusListProps) {
+  const { t } = useTranslation();
   const { technicians, loading, error } = useTechnicianStatuses(companyId);
 
   const sorted = [...technicians].sort((a, b) => {
@@ -17,18 +19,18 @@ export default function TechnicianStatusList({ companyId }: TechnicianStatusList
 
   return (
     <DashboardWidget
-      title="Technician Status"
+      title={t('common.widgets.technicianStatusList.title')}
       live
       loading={loading}
       error={error}
       action={
         <span className="text-xs text-[#8BA3BF]">
-          {technicians.filter((t) => t.currentStatus !== 'off_shift').length} active
+          {t('common.widgets.technicianStatusList.active', { count: technicians.filter((tech) => tech.currentStatus !== 'off_shift').length })}
         </span>
       }
     >
       {sorted.length === 0 ? (
-        <EmptyState message="No technicians on shift" />
+        <EmptyState message={t('common.widgets.technicianStatusList.empty')} />
       ) : (
         <div className="max-h-[320px] overflow-y-auto -mx-5 divide-y divide-[#1E3A5F]/50">
           {sorted.map((t) => (

@@ -3,6 +3,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useWoTypeDistribution } from '../../../hooks/dashboard/useWoTypeDistribution';
 import { CHART_DEFAULTS, CHART_COLORS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 const WO_TYPE_LABELS: Record<string, string> = {
   BREAKDOWN: 'Breakdown (CM)',
@@ -21,6 +22,7 @@ interface WoTypeDistributionChartProps {
 }
 
 export default function WoTypeDistributionChart({ companyId, months }: WoTypeDistributionChartProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useWoTypeDistribution(companyId, months);
 
   const total = data.reduce((s, d) => s + d.count, 0);
@@ -33,13 +35,13 @@ export default function WoTypeDistributionChart({ companyId, months }: WoTypeDis
 
   return (
     <DashboardWidget
-      title="Work Order Distribution by Type"
+      title={t('common.widgets.woTypeDistributionChart.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
     >
       {chartData.length === 0 ? (
-        <EmptyState message="No work order data" />
+        <EmptyState message={t('common.widgets.woTypeDistributionChart.empty')} />
       ) : (
         <>
           <div className="h-56">
@@ -58,7 +60,7 @@ export default function WoTypeDistributionChart({ companyId, months }: WoTypeDis
                   {...CHART_DEFAULTS.tooltip}
                   formatter={(value, _name, props: any) => [
                     `${value} (${props.payload.pct}%)`,
-                    'WOs',
+                    t('common.widgets.woTypeDistributionChart.wos'),
                   ]}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]}>

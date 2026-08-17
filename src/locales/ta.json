@@ -204,6 +204,527 @@
         "allSuppliers": "அனைத்து சப்ளையர்கள்",
         "clear": "அழி"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "புகைப்படம் சேர்க்கவும்",
+        "checklistProgress": "சரிபார்ப்புப் பட்டியல் முன்னேற்றம்",
+        "currentJob": "தற்போதைய பணி",
+        "noActiveJob": "செயலில் உள்ள பணி இல்லை",
+        "of": "{{total}} இல் {{completed}}",
+        "requestParts": "பாகங்களைக் கோரவும்",
+        "scanToCheckIn": "செக்-இன் செய்ய இயந்திரத்தின் QR-ஐ ஸ்கேன் செய்யவும்",
+        "timeOnJob": "பணியில் செலவழித்த நேரம்",
+        "updateStatus": "நிலையைப் புதுப்பிக்கவும்"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "{{date}} அன்று ஒதுக்கப்பட்டது",
+        "attendFill": "கவனித்து நிரப்பவும்",
+        "attendFillCount": "கவனித்து நிரப்பவும் ({{count}})",
+        "empty": "உங்களுக்கு பழுதுகள் ஒதுக்கப்படவில்லை",
+        "title": "எனக்கு ஒதுக்கப்பட்ட பழுதுகள்"
+      },
+      "assignedTasksWidget": {
+        "audit": "தணிக்கை",
+        "audits": "தணிக்கைகள் ({{count}})",
+        "empty": "எதுவும் ஒதுக்கப்படவில்லை",
+        "emptySub": "பணி ஆணைகள், தணிக்கைகள், மதிப்பீடுகள் மற்றும் பயிற்சிகள் இங்கே தோன்றும்.",
+        "evaluations": "மதிப்பீடுகள் ({{count}})",
+        "pending": "{{count}} நிலுவையில்",
+        "safetyCases": "பாதுகாப்பு வழக்குகள் ({{count}})",
+        "title": "எனக்கு ஒதுக்கப்பட்டவை",
+        "trainingModule": "பயிற்சி தொகுதி",
+        "trainings": "பயிற்சிகள் ({{count}})",
+        "workOrders": "பணி ஆணைகள் ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "பழுது தரவு இல்லை",
+        "modes": {
+          "type": "வகை",
+          "severity": "தீவிரம்",
+          "department": "துறை"
+        },
+        "title": "பழுது பரவல்"
+      },
+      "breakdownHeatmap": {
+        "empty": "ஹீட்மேப் தரவு இல்லை",
+        "ranges": {
+          "thisMonth": "இந்த மாதம்",
+          "last3m": "கடந்த 3 மாதங்கள்",
+          "last6m": "கடந்த 6 மாதங்கள்"
+        },
+        "title": "பழுது அதிர்வெண் ஹீட்மேப்",
+        "tooltipCount": "{{day}} {{hour}} — {{count}} பழுது",
+        "tooltipNone": "{{day}} {{hour}} — பழுதுகள் இல்லை"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "புதிதாக அறிவிக்கப்பட்டது",
+          "signOff": "ஒப்புதல் & மூடல்"
+        },
+        "title": "நேரடி பழுது பலகை"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "உருப்படிகள் இல்லை"
+      },
+      "breakdownTrendChart": {
+        "closed": "மூடப்பட்டது",
+        "critical": "மிக முக்கியமான",
+        "empty": "பழுது தரவு இல்லை",
+        "opened": "திறக்கப்பட்டது",
+        "title": "பழுது போக்கு"
+      },
+      "categoryStatusChart": {
+        "completed": "முடிந்தது",
+        "ongoing": "நடைபெறுகிறது"
+      },
+      "common": {
+        "active": "செயலில்",
+        "due": "நிலுவைத் தேதி {{date}}",
+        "failedToLoad": "தரவை ஏற்ற முடியவில்லை",
+        "general": "பொது",
+        "noData": "தரவு இல்லை",
+        "noDataAvailable": "தரவு இல்லை",
+        "resume": "தொடரவும்",
+        "retry": "மீண்டும் முயற்சிக்கவும்",
+        "safety": "பாதுகாப்பு",
+        "start": "தொடங்கவும்",
+        "today": "இன்று",
+        "view": "காண்க",
+        "viewAll": "அனைத்தையும் காண்க",
+        "trainingStatus": {
+          "notStarted": "தொடங்கவில்லை",
+          "inProgress": "நடைபெறுகிறது",
+          "quizPassed": "வினாடிவினா தேர்ச்சி",
+          "quizFailed": "வினாடிவினா தோல்வி",
+          "awaitingPractical": "நடைமுறை பயிற்சிக்காக காத்திருக்கிறது",
+          "expired": "காலாவதியானது",
+          "retrainingRequired": "மீண்டும் பயிற்சி தேவை"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "ஒப்பந்தக்காரர் தரவு இல்லை",
+        "firstFix": "முதல் முறை சரிசெய்தல் {{value}}%",
+        "jobs": "{{count}} பணிகள்",
+        "sla": "SLA {{value}}%",
+        "title": "ஒப்பந்தக்காரர் மதிப்பெண் பலகை"
+      },
+      "dateRangeFilter": {
+        "from": "இருந்து",
+        "presets": {
+          "allTime": "எல்லா நேரமும்",
+          "last30Days": "கடந்த 30 நாட்கள்",
+          "thisMonth": "இந்த மாதம்",
+          "lastMonth": "கடந்த மாதம்",
+          "thisYear": "இந்த ஆண்டு"
+        },
+        "to": "வரை"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "செயலில் உள்ள பணியாளர்கள்",
+        "evaluationsInProgress": "நடைபெறும் மதிப்பீடுகள்",
+        "presentToday": "இன்று வந்துள்ளவர்கள்",
+        "trainingsInProgress": "நடைபெறும் பயிற்சிகள்"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "குறைந்த கையிருப்பு",
+        "outOfStock": "கையிருப்பு இல்லை",
+        "pendingRequests": "நிலுவையிலுள்ள கோரிக்கைகள்",
+        "totalParts": "மொத்த பாகங்கள்"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}} நாட்கள்",
+        "daysOverdue": "{{count}} நாட்கள் தாமதம்",
+        "due": "நிலுவைத் தேதி {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "வரிசையில் பணிகள் இல்லை",
+        "title": "எனது பணி வரிசை"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "தற்போது யாரும் ஷிப்டில் இல்லை",
+        "footer": "{{shifts}} ஷிப்ட் செயலில் · {{people}} பேர் பணியில்",
+        "sinceDayTime": "{{day}} {{time}} முதல்",
+        "sinceTime": "{{time}} முதல்",
+        "title": "நேரடி ஷிப்ட் நிலை",
+        "workingNow": "{{count}} பேர் தற்போது பணியில்",
+        "yesterday": "நேற்று"
+      },
+      "lowStockAlertTable": {
+        "category": "வகை",
+        "deficit": "பற்றாக்குறை",
+        "empty": "அனைத்து கையிருப்பு நிலைகளும் சரியாக உள்ளன",
+        "min": "குறைந்தபட்சம்",
+        "part": "பாகம்",
+        "raisePo": "PO உருவாக்கவும்",
+        "stock": "கையிருப்பு",
+        "title": "குறைந்த கையிருப்பு எச்சரிக்கைகள்"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "குறைந்தபட்சத்திற்கு {{value}} கீழே ({{current}}/{{min}})",
+        "empty": "அனைத்து கையிருப்பு நிலைகளும் சரியாக உள்ளன",
+        "title": "குறைந்த கையிருப்பு பாகங்கள்"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "இந்த மாத பழுதுகள்",
+        "empty": "இயந்திர தரவு இல்லை",
+        "health": "ஆரோக்கியம்",
+        "machine": "இயந்திரம்",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "நிலை",
+        "title": "இயந்திர-நிலை பகுப்பாய்வு"
+      },
+      "maintenanceCostChart": {
+        "cost": "செலவு",
+        "empty": "செலவு தரவு இல்லை",
+        "title": "பராமரிப்பு செலவு கண்ணோட்டம்",
+        "totalThisMonth": "இந்த மாதம் மொத்தம்:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "பயன்பாட்டு தரவு இல்லை",
+        "title": "அதிகம் பயன்படுத்தப்படும் பாகங்கள் (கடந்த 30 நாட்கள்)",
+        "unitsIssued": "வழங்கப்பட்ட அலகுகள்"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "பயன்பாட்டு தரவு இல்லை",
+        "title": "அதிகம் பயன்படுத்தப்படும் பாகங்கள்"
+      },
+      "mtbfTable": {
+        "dept": "துறை",
+        "empty": "இயந்திர ஆரோக்கிய தரவு இல்லை",
+        "machine": "இயந்திரம்",
+        "mtbf": "MTBF",
+        "title": "ஒரு இயந்திரத்திற்கு MTBF"
+      },
+      "mttrTrendChart": {
+        "empty": "MTTR தரவு இல்லை",
+        "slaTarget": "SLA இலக்கு",
+        "slaTargetLabel": "SLA இலக்கு ({{target}} மணி)",
+        "title": "MTTR போக்கு"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "ரத்து செய்",
+        "cancelFailed": "திரும்பப்பெறுதலை ரத்து செய்ய முடியவில்லை.",
+        "cancelling": "ரத்து செய்யப்படுகிறது…",
+        "empty": "திரும்பக் கொடுக்க எதுவும் இல்லை",
+        "emptySub": "நீங்கள் பெற்ற திரும்பக் கொடுக்கக்கூடிய பாகங்கள் திரும்பக் கொடுக்கும் வரை இங்கே தோன்றும்.",
+        "requesting": "கோரப்படுகிறது…",
+        "return": "திரும்பக் கொடு",
+        "returnCancelled": "திரும்பக் கொடுத்தல் ரத்து செய்யப்பட்டது.",
+        "returnFailed": "திரும்பக் கொடுக்கும் கோரிக்கை தோல்வியடைந்தது.",
+        "returnRequested": "திரும்பக் கொடுக்க கோரப்பட்டது — ஒரு கிடங்கு பராமரிப்பாளர் உறுதிப்படுத்துவார்.",
+        "returning": "திரும்பக் கொடுக்கப்படுகிறது",
+        "title": "எனது திரும்பக் கொடுக்கக்கூடிய பாகங்கள்"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "எடுக்கப்பட்ட நடவடிக்கைகள்",
+        "actionsTakenCount": "எடுக்கப்பட்ட நடவடிக்கைகள் ({{count}})",
+        "description": "விளக்கம்",
+        "empty": "உங்களுக்கு பாதுகாப்பு வழக்குகள் ஒதுக்கப்படவில்லை",
+        "location": "இடம்",
+        "movedTo": "{{status}} க்கு மாற்றப்பட்டது",
+        "noActionsYet": "இதுவரை நடவடிக்கைகள் பதிவு செய்யப்படவில்லை.",
+        "title": "பாதுகாப்பு வழக்குகள்",
+        "whatYouNeedToDo": "நீங்கள் செய்ய வேண்டியவை"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "பாதுகாப்பு பயிற்சிகள் ஒதுக்கப்படவில்லை",
+        "title": "எனக்கு ஒதுக்கப்பட்ட பாதுகாப்பு பயிற்சிகள்"
+      },
+      "myTrainingsWidget": {
+        "empty": "நடைபெறும் பயிற்சிகள் இல்லை",
+        "title": "எனது பயிற்சிகள்"
+      },
+      "notificationFeed": {
+        "empty": "அறிவிப்புகள் இல்லை",
+        "emptySub": "அனைத்தும் புதுப்பிக்கப்பட்டது!",
+        "filters": {
+          "all": "அனைத்தும்",
+          "breakdowns": "பழுதுகள்",
+          "workOrders": "பணி ஆணைகள்",
+          "parts": "பாகங்கள்",
+          "pm": "PM",
+          "alerts": "எச்சரிக்கைகள்"
+        },
+        "title": "அறிவிப்புகள்"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "தணிக்கைகள் ({{count}})",
+        "empty": "தற்போது மதிப்பீடுகள் அல்லது தணிக்கைகள் நடைபெறவில்லை",
+        "evaluations": "மதிப்பீடுகள் ({{count}})",
+        "noneInProgress": "எதுவும் நடைபெறவில்லை",
+        "running": "{{count}} நடைபெறுகிறது",
+        "title": "நடைபெறும் மதிப்பீடுகள் & தணிக்கைகள்"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "தற்போது பயிற்சிகள் நடைபெறவில்லை",
+        "inProgress": "{{count}} நடைபெறுகிறது",
+        "module": "தொகுதி",
+        "name": "பெயர்",
+        "progress": "முன்னேற்றம்",
+        "role": "பங்கு",
+        "title": "நடைபெறும் பயிற்சிகள்"
+      },
+      "operatorTrainingTable": {
+        "certified": "சான்றளிக்கப்பட்டது",
+        "empty": "இயக்குநர் தரவு இல்லை",
+        "expiring": "காலாவதியாகிறது",
+        "operator": "இயக்குநர்",
+        "role": "பங்கு",
+        "status": "நிலை",
+        "title": "பயிற்சி நிலை"
+      },
+      "partsUsageTrendChart": {
+        "empty": "கோரிக்கை செயல்பாடு இல்லை",
+        "title": "பாகங்கள் கோரிக்கை போக்குகள் (கடந்த 30 நாட்கள்)",
+        "woPartRequests": "WO பாகங்கள் கோரிக்கைகள்"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "அங்கீகரி",
+        "empty": "நிலுவையிலுள்ள ஒப்புதல் கோரிக்கைகள் இல்லை",
+        "emptySub": "தொழில்நுட்பவியலாளர்கள் மற்றும் பயிற்சியாளர்களால் எழுப்பப்பட்ட கோரிக்கைகள் இங்கே தோன்றும்.",
+        "notePlaceholder": "குறிப்பு (விருப்பம்)",
+        "pending": "{{count}} நிலுவையில்",
+        "pendingBadge": "நிலுவையில்",
+        "reject": "நிராகரி",
+        "requested": "கோரப்பட்டது",
+        "title": "நிலுவையிலுள்ள ஒப்புதல்கள்",
+        "viewMore": "மேலும் {{count}} காண்க…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "பெறுதலுக்காக காத்திருக்கும் PO இல்லை",
+        "items": "பொருட்கள்",
+        "poNumber": "PO எண்",
+        "statusHeader": "நிலை",
+        "status": {
+          "sent": "அனுப்பப்பட்டது",
+          "invoiceReceived": "விலைப்பட்டியல் பெறப்பட்டது",
+          "acknowledged": "ஒப்புக் கொள்ளப்பட்டது",
+          "partiallyReceived": "பகுதியாகப் பெறப்பட்டது"
+        },
+        "supplier": "சப்ளையர்",
+        "title": "நிலுவையிலுள்ள PO பெறுதல்கள்",
+        "value": "மதிப்பு"
+      },
+      "pendingRequestsTable": {
+        "empty": "நிலுவையிலுள்ள கோரிக்கைகள் இல்லை",
+        "estValue": "மதிப்பிடப்பட்ட மதிப்பு",
+        "more": "+{{count}} மேலும்",
+        "parts": "பாகங்கள்",
+        "requestedBy": "கோரியவர்",
+        "review": "மதிப்பாய்வு செய்",
+        "title": "நிலுவையிலுள்ள பாகங்கள் கோரிக்கைகள்",
+        "unknownPart": "தெரியாத பாகம்"
+      },
+      "pendingReturnsWidget": {
+        "empty": "திரும்பக் கொடுக்க பாகங்கள் நிலுவையில் இல்லை",
+        "takenBy": "எடுத்தவர்",
+        "title": "நிலுவையிலுள்ள பாகங்கள் திரும்பக் கொடுத்தல்"
+      },
+      "personalKpiCards": {
+        "avgRepair": "சராசரி பழுதுபார்ப்பு",
+        "avgResponse": "சராசரி பதில்",
+        "jobsCompleted": "முடிக்கப்பட்ட பணிகள்",
+        "slaCompliance": "SLA இணக்கம்"
+      },
+      "pmComplianceWidget": {
+        "empty": "PM தரவு இல்லை",
+        "missed": "தவறவிடப்பட்டது",
+        "onTime": "சரியான நேரத்தில்",
+        "thisMonth": "இந்த மாதம்",
+        "title": "PM இணக்க விகிதம்"
+      },
+      "pmTrendChart": {
+        "empty": "தடுப்பு பணி ஆணை தரவு இல்லை",
+        "title": "வகை வாரியாக PM பணி ஆணைகள்",
+        "wos": "WOs"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "இந்த காலகட்டத்தில் பெறுதல்கள் பதிவு செய்யப்படவில்லை",
+        "title": "பாகங்கள் பெறுதல்: நல்லது எதிராக நிராகரிக்கப்பட்டது/சேதமடைந்தது",
+        "unitsReceived": "பெறப்பட்ட அலகுகள்"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "இயங்காத நேர செலவு",
+        "hoursLost": "இந்த மாதம் இழந்த உற்பத்தி மணிநேரங்கள்",
+        "thisWeek": "இந்த வாரம்",
+        "title": "உற்பத்தி இயங்காத நேரம்",
+        "today": "இன்று"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "கையொப்பமிட தயாராக உள்ள திட்டங்கள் இல்லை",
+        "emptySub": "தங்கள் திட்டத்தின் ஒவ்வொரு தொகுதியையும் முடிக்கும் பயிற்சியாளர்கள் இங்கே தோன்றுவார்கள்.",
+        "ready": "{{count}} தயார்",
+        "readyToSignOff": "கையொப்பமிட தயார்",
+        "summary": "{{months}}-மாத திட்டம் · {{count}} தொகுதிகள் முடிந்தது · {{date}} அன்று தொடங்கியது",
+        "title": "பயிற்சியாளர் திட்ட கையொப்பமிடல்"
+      },
+      "requestedPartsWidget": {
+        "empty": "நிலுவையிலுள்ள பாகங்கள் கோரிக்கைகள் இல்லை",
+        "generalRequest": "பொது கோரிக்கை",
+        "requestParts": "பாகங்களைக் கோரவும்",
+        "status": {
+          "requested": "கோரப்பட்டது",
+          "inApprovalOfSupervisor": "மேற்பார்வையாளர் ஒப்புதலில்",
+          "needToCollect": "சேகரிக்க வேண்டும்"
+        },
+        "title": "கோரப்பட்ட பாகங்கள்"
+      },
+      "safetyForYouWidget": {
+        "empty": "பாதுகாப்பு தொடர்பான நிலுவை எதுவும் இல்லை",
+        "emptySub": "ஒதுக்கப்பட்ட பயிற்சிகள் மற்றும் உங்களுக்கு அறிவிக்கப்பட்ட வழக்குகள் இங்கே தோன்றும்.",
+        "open": "{{count}} திறந்தவை",
+        "safetyTrainings": "பாதுகாப்பு பயிற்சிகள் ({{count}})",
+        "title": "பாதுகாப்பு"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "வழக்கு வகை வாரியாக",
+        "bySeverity": "தீவிரம் வாரியாக",
+        "daysSinceLastIncident": "கடைசி சம்பவத்திலிருந்து நாட்கள்",
+        "nearMiss30d": "தவறவிடப்பட்ட ஆபத்துகள் (30 நாட்கள்)",
+        "openCases": "திறந்த வழக்குகள்",
+        "totalSafetyCases": "மொத்த பாதுகாப்பு வழக்குகள்"
+      },
+      "slaGaugeWidget": {
+        "breached": "மீறப்பட்டது",
+        "empty": "SLA தரவு இல்லை",
+        "title": "SLA இணக்கம்",
+        "withinSla": "SLA க்குள்"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "அனைத்து பழுதுகளும் SLA க்குள்",
+        "atRisk": "ஆபத்தில்",
+        "breached": "மீறப்பட்டது",
+        "left": "{{time}} மீதம்",
+        "overdue": "{{time}} தாமதம்",
+        "title": "SLA நிலை",
+        "withinSla": "SLA க்குள்"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "{{count}} செயலில் உள்ள பணியாளர்கள்",
+        "empty": "பணியாளர் தரவு இல்லை",
+        "roles": {
+          "technicians": "தொழில்நுட்பவியலாளர்கள்",
+          "supervisors": "மேற்பார்வையாளர்கள்",
+          "managers": "மேலாளர்கள்",
+          "operators": "இயக்குநர்கள்",
+          "trainees": "பயிற்சியாளர்கள்",
+          "storeKeepers": "கிடங்கு பராமரிப்பாளர்கள்",
+          "hrOfficers": "HR அதிகாரிகள்",
+          "safetyOfficers": "பாதுகாப்பு அதிகாரிகள்",
+          "admins": "நிர்வாகிகள்"
+        },
+        "staff": "பணியாளர்கள்",
+        "title": "பங்கு வாரியாக பணியாளர்கள்"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "இந்த காலகட்டத்தில் கொள்முதல் ஆணைகள் இல்லை",
+        "purchaseOrders": "கொள்முதல் ஆணைகள்",
+        "title": "சப்ளையர் வாரியாக கொள்முதல் ஆணைகள்"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "தணிக்கை மதிப்பெண்",
+        "empty": "குழு செயல்திறன் தரவு இல்லை",
+        "evaluationScore": "மதிப்பீட்டு மதிப்பெண்",
+        "name": "பெயர்",
+        "quizzesPassed": "தேர்ச்சி பெற்ற வினாடிவினாக்கள்",
+        "role": "பங்கு",
+        "title": "குழு செயல்திறன்",
+        "trainings": "பயிற்சிகள்"
+      },
+      "technicianPerformanceTable": {
+        "empty": "செயல்திறன் தரவு இல்லை",
+        "jobs": "பணிகள்",
+        "repair": "பழுதுபார்ப்பு",
+        "resp": "பதில்",
+        "sla": "SLA",
+        "tech": "தொழில்நுட்பவியலாளர்",
+        "title": "பணி ஆணைகள் வாரியாக செயல்திறன்"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} செயலில்",
+        "empty": "ஷிப்டில் தொழில்நுட்பவியலாளர்கள் இல்லை",
+        "title": "தொழில்நுட்பவியலாளர் நிலை"
+      },
+      "technicianStatusRow": {
+        "doneToday": "இன்று முடிந்தவை",
+        "on": "{{wo}} இல்",
+        "status": {
+          "available": "கிடைக்கிறது",
+          "onJob": "பணியில்",
+          "onBreak": "இடைவேளையில்",
+          "offShift": "ஷிப்ட் இல்லை"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "இன்று உங்கள் பயிற்சிகள் எதுவும் திட்டமிடப்படவில்லை",
+        "title": "இன்று எனது பயிற்சிகள்"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "தற்போது செயலில் உள்ள ஷிப்ட்கள் இல்லை",
+        "started": "{{count}} தொடங்கியது",
+        "title": "துறை வாரியாக இன்றைய ஷிப்ட்கள்"
+      },
+      "todaysPmList": {
+        "empty": "PM அட்டவணைகள் ஒதுக்கப்படவில்லை",
+        "title": "ஒதுக்கப்பட்ட PM அட்டவணைகள்"
+      },
+      "topPerformersWidget": {
+        "audit": "தணிக்கை",
+        "empty": "இதுவரை செயல்திறன் தரவு இல்லை",
+        "emptySub": "மதிப்பீடுகள் அல்லது தணிக்கைகள் சமர்ப்பிக்கப்பட்டவுடன் தரவரிசைகள் தோன்றும்.",
+        "eval": "மதிப்பீடு",
+        "name": "பெயர்",
+        "quizzes": "வினாடிவினாக்கள்",
+        "role": "பங்கு",
+        "safety": "பாதுகாப்பு",
+        "score": "மதிப்பெண்",
+        "title": "சிறந்த 10 செயல்திறன் கொண்ட குழு உறுப்பினர்கள்",
+        "trainings": "பயிற்சிகள்"
+      },
+      "topProblemMachinesChart": {
+        "empty": "சிக்கல் இயந்திர தரவு இல்லை",
+        "modes": {
+          "count": "எண்ணிக்கை",
+          "hours": "மணிநேரங்கள்",
+          "cost": "செலவு"
+        },
+        "title": "முதல் 10 சிக்கலான இயந்திரங்கள்"
+      },
+      "topUsedPartsChart": {
+        "empty": "கோரிக்கை தரவு இல்லை",
+        "title": "காரணம் வாரியாக கோரப்பட்ட பாகங்கள்"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "எனது மதிப்பீடுகள்",
+        "noEvaluations": "இதுவரை மதிப்பீடுகள் பதிவு செய்யப்படவில்லை"
+      },
+      "trainingActivityChart": {
+        "empty": "பயிற்சி தரவு இல்லை",
+        "newCertifications": "புதிய சான்றிதழ்கள்",
+        "renewals": "புதுப்பித்தல்கள்",
+        "title": "பயிற்சி செயல்பாடு"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "கவனி",
+        "attendFailed": "கவனிக்க முடியவில்லை.",
+        "attending": "கவனிக்கப்படுகிறது…",
+        "empty": "ஒதுக்கப்படாத பழுதுகள் இல்லை",
+        "title": "பழுதுகள்"
+      },
+      "woTypeDistributionChart": {
+        "empty": "பணி ஆணை தரவு இல்லை",
+        "title": "வகை வாரியாக பணி ஆணை பரவல்",
+        "wos": "WOs"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "நடைபெறும் பணி ஆணைகள் இல்லை",
+        "emptyToday": "இன்று நிலுவையில் பணி ஆணைகள் இல்லை",
+        "running": "நடைபெறுகிறது ({{count}})",
+        "title": "பணி ஆணைகள்",
+        "today": "இன்று ({{count}})"
+      }
     }
   }
 }

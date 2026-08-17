@@ -12,6 +12,7 @@ import LightAnalyticsWidget from './LightAnalyticsWidget';
 import LightEmptyState from './LightEmptyState';
 import { usePartsRequestReasons } from '../../../hooks/dashboard/usePartsRequestReasons';
 import { CHART_COLORS_LIGHT, CHART_DEFAULTS_LIGHT } from '../../../constants/chartThemeLight';
+import { useTranslation } from 'react-i18next';
 
 interface TopUsedPartsChartLightProps {
   companyId: string;
@@ -25,13 +26,14 @@ const REASON_COLORS: Record<string, string> = {
 };
 
 export default function TopUsedPartsChartLight({ companyId, days = 30 }: TopUsedPartsChartLightProps) {
+  const { t } = useTranslation();
   const { data, loading, error } = usePartsRequestReasons(companyId, days);
   const hasData = data.some((d) => d.count > 0);
 
   return (
-    <LightAnalyticsWidget title="Parts Requested By Reason" loading={loading} error={error}>
+    <LightAnalyticsWidget title={t('common.widgets.topUsedPartsChart.title')} loading={loading} error={error}>
       {!hasData ? (
-        <LightEmptyState message="No request data" />
+        <LightEmptyState message={t('common.widgets.topUsedPartsChart.empty')} />
       ) : (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">

@@ -155,6 +155,527 @@
         "allSuppliers": "सभी आपूर्तिकर्ता",
         "clear": "साफ़ करें"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "फ़ोटो जोड़ें",
+        "checklistProgress": "चेकलिस्ट प्रगति",
+        "currentJob": "वर्तमान कार्य",
+        "noActiveJob": "कोई सक्रिय कार्य नहीं",
+        "of": "{{total}} में से {{completed}}",
+        "requestParts": "पार्ट्स का अनुरोध करें",
+        "scanToCheckIn": "चेक-इन के लिए मशीन का QR स्कैन करें",
+        "timeOnJob": "कार्य पर समय",
+        "updateStatus": "स्थिति अपडेट करें"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "{{date}} को सौंपा गया",
+        "attendFill": "अटेंड करें और भरें",
+        "attendFillCount": "अटेंड करें और भरें ({{count}})",
+        "empty": "आपको कोई ब्रेकडाउन सौंपा नहीं गया है",
+        "title": "मुझे सौंपे गए ब्रेकडाउन"
+      },
+      "assignedTasksWidget": {
+        "audit": "ऑडिट",
+        "audits": "ऑडिट ({{count}})",
+        "empty": "कुछ भी सौंपा नहीं गया",
+        "emptySub": "वर्क ऑर्डर, ऑडिट, मूल्यांकन और प्रशिक्षण यहाँ दिखाई देंगे।",
+        "evaluations": "मूल्यांकन ({{count}})",
+        "pending": "{{count}} लंबित",
+        "safetyCases": "सुरक्षा मामले ({{count}})",
+        "title": "मुझे सौंपा गया",
+        "trainingModule": "प्रशिक्षण मॉड्यूल",
+        "trainings": "प्रशिक्षण ({{count}})",
+        "workOrders": "वर्क ऑर्डर ({{count}})"
+      },
+      "breakdownByTypeChart": {
+        "empty": "कोई ब्रेकडाउन डेटा नहीं",
+        "modes": {
+          "type": "प्रकार",
+          "severity": "गंभीरता",
+          "department": "विभाग"
+        },
+        "title": "ब्रेकडाउन वितरण"
+      },
+      "breakdownHeatmap": {
+        "empty": "कोई हीटमैप डेटा नहीं",
+        "ranges": {
+          "thisMonth": "इस महीने",
+          "last3m": "पिछले 3 महीने",
+          "last6m": "पिछले 6 महीने"
+        },
+        "title": "ब्रेकडाउन आवृत्ति हीटमैप",
+        "tooltipCount": "{{day}} {{hour}} — {{count}} ब्रेकडाउन",
+        "tooltipNone": "{{day}} {{hour}} — कोई ब्रेकडाउन नहीं"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "नई रिपोर्ट की गई",
+          "signOff": "साइन-ऑफ़ और बंद करें"
+        },
+        "title": "लाइव ब्रेकडाउन बोर्ड"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "कोई आइटम नहीं"
+      },
+      "breakdownTrendChart": {
+        "closed": "बंद",
+        "critical": "गंभीर",
+        "empty": "कोई ब्रेकडाउन डेटा नहीं",
+        "opened": "खोला गया",
+        "title": "ब्रेकडाउन प्रवृत्ति"
+      },
+      "categoryStatusChart": {
+        "completed": "पूर्ण",
+        "ongoing": "जारी"
+      },
+      "common": {
+        "active": "सक्रिय",
+        "due": "नियत तिथि {{date}}",
+        "failedToLoad": "डेटा लोड करने में विफल",
+        "general": "सामान्य",
+        "noData": "कोई डेटा नहीं",
+        "noDataAvailable": "कोई डेटा उपलब्ध नहीं",
+        "resume": "फिर से शुरू करें",
+        "retry": "पुनः प्रयास करें",
+        "safety": "सुरक्षा",
+        "start": "शुरू करें",
+        "today": "आज",
+        "view": "देखें",
+        "viewAll": "सभी देखें",
+        "trainingStatus": {
+          "notStarted": "शुरू नहीं हुआ",
+          "inProgress": "प्रगति पर",
+          "quizPassed": "क्विज़ पास",
+          "quizFailed": "क्विज़ फेल",
+          "awaitingPractical": "प्रैक्टिकल प्रतीक्षित",
+          "expired": "समाप्त",
+          "retrainingRequired": "पुनः प्रशिक्षण आवश्यक"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "कोई ठेकेदार डेटा नहीं",
+        "firstFix": "पहली बार सुधार {{value}}%",
+        "jobs": "{{count}} कार्य",
+        "sla": "SLA {{value}}%",
+        "title": "ठेकेदार स्कोरबोर्ड"
+      },
+      "dateRangeFilter": {
+        "from": "से",
+        "presets": {
+          "allTime": "सभी समय",
+          "last30Days": "पिछले 30 दिन",
+          "thisMonth": "इस महीने",
+          "lastMonth": "पिछले महीने",
+          "thisYear": "इस साल"
+        },
+        "to": "तक"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "सक्रिय स्टाफ",
+        "evaluationsInProgress": "मूल्यांकन प्रगति पर",
+        "presentToday": "आज उपस्थित",
+        "trainingsInProgress": "प्रशिक्षण प्रगति पर"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "कम स्टॉक",
+        "outOfStock": "स्टॉक खत्म",
+        "pendingRequests": "लंबित अनुरोध",
+        "totalParts": "कुल पार्ट्स"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}} दिन",
+        "daysOverdue": "{{count}} दिन विलंबित",
+        "due": "नियत तिथि {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "कतार में कोई कार्य नहीं",
+        "title": "मेरी कार्य कतार"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "फिलहाल कोई भी शिफ्ट पर नहीं है",
+        "footer": "{{shifts}} शिफ्ट सक्रिय · {{people}} लोग कार्यरत",
+        "sinceDayTime": "{{day}} {{time}} से",
+        "sinceTime": "{{time}} से",
+        "title": "लाइव शिफ्ट स्थिति",
+        "workingNow": "{{count}} अभी कार्यरत",
+        "yesterday": "कल"
+      },
+      "lowStockAlertTable": {
+        "category": "श्रेणी",
+        "deficit": "कमी",
+        "empty": "सभी स्टॉक स्तर सामान्य हैं",
+        "min": "न्यूनतम",
+        "part": "पार्ट",
+        "raisePo": "PO बनाएं",
+        "stock": "स्टॉक",
+        "title": "कम स्टॉक चेतावनियाँ"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "न्यूनतम से {{value}} कम ({{current}}/{{min}})",
+        "empty": "सभी स्टॉक स्तर सामान्य हैं",
+        "title": "कम स्टॉक वाले पार्ट्स"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "इस माह ब्रेकडाउन",
+        "empty": "कोई मशीन डेटा नहीं",
+        "health": "स्वास्थ्य",
+        "machine": "मशीन",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "स्थिति",
+        "title": "मशीन-स्तरीय विश्लेषण"
+      },
+      "maintenanceCostChart": {
+        "cost": "लागत",
+        "empty": "कोई लागत डेटा नहीं",
+        "title": "रखरखाव लागत अवलोकन",
+        "totalThisMonth": "इस महीने कुल:"
+      },
+      "mostMovedPartsChart": {
+        "empty": "कोई उपयोग डेटा नहीं",
+        "title": "सबसे अधिक इस्तेमाल पार्ट्स (पिछले 30 दिन)",
+        "unitsIssued": "जारी की गई इकाइयाँ"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "कोई उपयोग डेटा नहीं",
+        "title": "सबसे अधिक इस्तेमाल पार्ट्स"
+      },
+      "mtbfTable": {
+        "dept": "विभाग",
+        "empty": "कोई मशीन स्वास्थ्य डेटा नहीं",
+        "machine": "मशीन",
+        "mtbf": "MTBF",
+        "title": "प्रति मशीन MTBF"
+      },
+      "mttrTrendChart": {
+        "empty": "कोई MTTR डेटा नहीं",
+        "slaTarget": "SLA लक्ष्य",
+        "slaTargetLabel": "SLA लक्ष्य ({{target}}घं)",
+        "title": "MTTR प्रवृत्ति"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "रद्द करें",
+        "cancelFailed": "वापसी रद्द करने में विफल।",
+        "cancelling": "रद्द कर रहे हैं…",
+        "empty": "वापस करने के लिए कुछ नहीं",
+        "emptySub": "आपके द्वारा लिए गए वापसी योग्य पार्ट्स यहाँ दिखेंगे जब तक वापस नहीं किए जाते।",
+        "requesting": "अनुरोध कर रहे हैं…",
+        "return": "वापस करें",
+        "returnCancelled": "वापसी रद्द कर दी गई।",
+        "returnFailed": "वापसी अनुरोध विफल।",
+        "returnRequested": "वापसी का अनुरोध किया गया — स्टोरकीपर इसकी पुष्टि करेगा।",
+        "returning": "वापस की जा रही है",
+        "title": "मेरे वापसी योग्य पार्ट्स"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "की गई कार्रवाई",
+        "actionsTakenCount": "की गई कार्रवाई ({{count}})",
+        "description": "विवरण",
+        "empty": "आपको कोई सुरक्षा मामला नहीं सौंपा गया",
+        "location": "स्थान",
+        "movedTo": "{{status}} में स्थानांतरित",
+        "noActionsYet": "अभी तक कोई कार्रवाई दर्ज नहीं हुई।",
+        "title": "सुरक्षा मामले",
+        "whatYouNeedToDo": "आपको क्या करना है"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "कोई सुरक्षा प्रशिक्षण सौंपा नहीं गया",
+        "title": "मुझे सौंपे गए सुरक्षा प्रशिक्षण"
+      },
+      "myTrainingsWidget": {
+        "empty": "कोई प्रशिक्षण प्रगति पर नहीं",
+        "title": "मेरे प्रशिक्षण"
+      },
+      "notificationFeed": {
+        "empty": "कोई सूचना नहीं",
+        "emptySub": "सब कुछ अद्यतित है!",
+        "filters": {
+          "all": "सभी",
+          "breakdowns": "ब्रेकडाउन",
+          "workOrders": "वर्क ऑर्डर",
+          "parts": "पार्ट्स",
+          "pm": "PM",
+          "alerts": "अलर्ट"
+        },
+        "title": "सूचनाएं"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "ऑडिट ({{count}})",
+        "empty": "फिलहाल कोई मूल्यांकन या ऑडिट जारी नहीं",
+        "evaluations": "मूल्यांकन ({{count}})",
+        "noneInProgress": "कोई प्रगति पर नहीं",
+        "running": "{{count}} जारी",
+        "title": "जारी मूल्यांकन और ऑडिट"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "फिलहाल कोई प्रशिक्षण जारी नहीं",
+        "inProgress": "{{count}} प्रगति पर",
+        "module": "मॉड्यूल",
+        "name": "नाम",
+        "progress": "प्रगति",
+        "role": "भूमिका",
+        "title": "जारी प्रशिक्षण"
+      },
+      "operatorTrainingTable": {
+        "certified": "प्रमाणित",
+        "empty": "कोई ऑपरेटर डेटा नहीं",
+        "expiring": "जल्द समाप्त",
+        "operator": "ऑपरेटर",
+        "role": "भूमिका",
+        "status": "स्थिति",
+        "title": "प्रशिक्षण स्थिति"
+      },
+      "partsUsageTrendChart": {
+        "empty": "कोई अनुरोध गतिविधि नहीं",
+        "title": "पार्ट्स अनुरोध प्रवृत्ति (पिछले 30 दिन)",
+        "woPartRequests": "WO पार्ट्स अनुरोध"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "स्वीकृत करें",
+        "empty": "कोई लंबित स्वीकृति अनुरोध नहीं",
+        "emptySub": "तकनीशियनों और प्रशिक्षुओं द्वारा उठाए गए अनुरोध यहाँ दिखेंगे।",
+        "notePlaceholder": "टिप्पणी (वैकल्पिक)",
+        "pending": "{{count}} लंबित",
+        "pendingBadge": "लंबित",
+        "reject": "अस्वीकार करें",
+        "requested": "अनुरोध किया",
+        "title": "लंबित स्वीकृतियाँ",
+        "viewMore": "{{count}} और देखें…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "रसीद की प्रतीक्षा में कोई PO नहीं",
+        "items": "आइटम",
+        "poNumber": "PO #",
+        "statusHeader": "स्थिति",
+        "status": {
+          "sent": "भेजा गया",
+          "invoiceReceived": "इनवॉइस प्राप्त",
+          "acknowledged": "स्वीकृत",
+          "partiallyReceived": "आंशिक रूप से प्राप्त"
+        },
+        "supplier": "आपूर्तिकर्ता",
+        "title": "लंबित PO प्राप्तियाँ",
+        "value": "मूल्य"
+      },
+      "pendingRequestsTable": {
+        "empty": "कोई लंबित अनुरोध नहीं",
+        "estValue": "अनुमानित मूल्य",
+        "more": "+{{count}} और",
+        "parts": "पार्ट्स",
+        "requestedBy": "अनुरोधकर्ता",
+        "review": "समीक्षा करें",
+        "title": "लंबित पार्ट्स अनुरोध",
+        "unknownPart": "अज्ञात पार्ट"
+      },
+      "pendingReturnsWidget": {
+        "empty": "वापसी हेतु कोई पार्ट्स लंबित नहीं",
+        "takenBy": "द्वारा लिया गया",
+        "title": "लंबित पार्ट्स वापसी"
+      },
+      "personalKpiCards": {
+        "avgRepair": "औसत मरम्मत",
+        "avgResponse": "औसत प्रतिक्रिया",
+        "jobsCompleted": "पूर्ण किए गए कार्य",
+        "slaCompliance": "SLA अनुपालन"
+      },
+      "pmComplianceWidget": {
+        "empty": "कोई PM डेटा नहीं",
+        "missed": "छूटा",
+        "onTime": "समय पर",
+        "thisMonth": "इस महीने",
+        "title": "PM अनुपालन दर"
+      },
+      "pmTrendChart": {
+        "empty": "कोई निवारक वर्क ऑर्डर डेटा नहीं",
+        "title": "प्रकार अनुसार PM वर्क ऑर्डर",
+        "wos": "WOs"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "इस अवधि में कोई प्राप्तियाँ दर्ज नहीं",
+        "title": "प्राप्त पार्ट्स: अच्छे बनाम अस्वीकृत/क्षतिग्रस्त",
+        "unitsReceived": "प्राप्त इकाइयाँ"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "डाउनटाइम लागत",
+        "hoursLost": "इस महीने खोए उत्पादन घंटे",
+        "thisWeek": "इस सप्ताह",
+        "title": "उत्पादन डाउनटाइम",
+        "today": "आज"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "साइन-ऑफ के लिए कोई प्रोग्राम तैयार नहीं",
+        "emptySub": "जो प्रशिक्षु अपने प्रोग्राम के हर मॉड्यूल को पूरा करते हैं, वे यहाँ दिखेंगे।",
+        "ready": "{{count}} तैयार",
+        "readyToSignOff": "साइन-ऑफ के लिए तैयार",
+        "summary": "{{months}}-माह प्रोग्राम · {{count}} मॉड्यूल पूर्ण · {{date}} को शुरू हुआ",
+        "title": "प्रशिक्षु प्रोग्राम साइन-ऑफ"
+      },
+      "requestedPartsWidget": {
+        "empty": "कोई लंबित पार्ट्स अनुरोध नहीं",
+        "generalRequest": "सामान्य अनुरोध",
+        "requestParts": "पार्ट्स का अनुरोध करें",
+        "status": {
+          "requested": "अनुरोधित",
+          "inApprovalOfSupervisor": "सुपरवाइज़र की स्वीकृति में",
+          "needToCollect": "लेने की आवश्यकता है"
+        },
+        "title": "अनुरोधित पार्ट्स"
+      },
+      "safetyForYouWidget": {
+        "empty": "कोई सुरक्षा-संबंधी कार्य लंबित नहीं",
+        "emptySub": "आपको सौंपे गए प्रशिक्षण और रिपोर्ट किए गए मामले यहाँ दिखेंगे।",
+        "open": "{{count}} खुले",
+        "safetyTrainings": "सुरक्षा प्रशिक्षण ({{count}})",
+        "title": "सुरक्षा"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "मामले के प्रकार अनुसार",
+        "bySeverity": "गंभीरता अनुसार",
+        "daysSinceLastIncident": "पिछली घटना से दिन",
+        "nearMiss30d": "नियर-मिस (30 दिन)",
+        "openCases": "खुले मामले",
+        "totalSafetyCases": "कुल सुरक्षा मामले"
+      },
+      "slaGaugeWidget": {
+        "breached": "उल्लंघन",
+        "empty": "कोई SLA डेटा नहीं",
+        "title": "SLA अनुपालन",
+        "withinSla": "SLA के भीतर"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "सभी ब्रेकडाउन SLA के भीतर",
+        "atRisk": "जोखिम में",
+        "breached": "उल्लंघन",
+        "left": "{{time}} शेष",
+        "overdue": "{{time}} विलंबित",
+        "title": "SLA स्थिति",
+        "withinSla": "SLA के भीतर"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "{{count}} सक्रिय कर्मचारी",
+        "empty": "कोई स्टाफ डेटा नहीं",
+        "roles": {
+          "technicians": "तकनीशियन",
+          "supervisors": "सुपरवाइज़र",
+          "managers": "प्रबंधक",
+          "operators": "ऑपरेटर",
+          "trainees": "प्रशिक्षु",
+          "storeKeepers": "स्टोरकीपर",
+          "hrOfficers": "HR अधिकारी",
+          "safetyOfficers": "सुरक्षा अधिकारी",
+          "admins": "एडमिन"
+        },
+        "staff": "स्टाफ",
+        "title": "भूमिका अनुसार कर्मचारी"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "इस अवधि में कोई खरीद आदेश नहीं",
+        "purchaseOrders": "खरीद आदेश",
+        "title": "आपूर्तिकर्ता अनुसार खरीद आदेश"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "ऑडिट स्कोर",
+        "empty": "कोई टीम प्रदर्शन डेटा नहीं",
+        "evaluationScore": "मूल्यांकन स्कोर",
+        "name": "नाम",
+        "quizzesPassed": "पास किए गए क्विज़",
+        "role": "भूमिका",
+        "title": "टीम प्रदर्शन",
+        "trainings": "प्रशिक्षण"
+      },
+      "technicianPerformanceTable": {
+        "empty": "कोई प्रदर्शन डेटा नहीं",
+        "jobs": "कार्य",
+        "repair": "मरम्मत",
+        "resp": "प्रतिक्रिया",
+        "sla": "SLA",
+        "tech": "तकनीशियन",
+        "title": "वर्क ऑर्डर अनुसार प्रदर्शन"
+      },
+      "technicianStatusList": {
+        "active": "{{count}} सक्रिय",
+        "empty": "शिफ्ट पर कोई तकनीशियन नहीं",
+        "title": "तकनीशियन स्थिति"
+      },
+      "technicianStatusRow": {
+        "doneToday": "आज पूर्ण हुए",
+        "on": "{{wo}} पर",
+        "status": {
+          "available": "उपलब्ध",
+          "onJob": "कार्यरत",
+          "onBreak": "ब्रेक पर",
+          "offShift": "शिफ्ट से बाहर"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "आज आपका कोई प्रशिक्षण निर्धारित नहीं है",
+        "title": "आज मेरे प्रशिक्षण"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "फिलहाल कोई सक्रिय शिफ्ट नहीं",
+        "started": "{{count}} शुरू हुई",
+        "title": "विभाग अनुसार आज की शिफ्ट"
+      },
+      "todaysPmList": {
+        "empty": "कोई PM शेड्यूल सौंपा नहीं गया",
+        "title": "सौंपे गए PM शेड्यूल"
+      },
+      "topPerformersWidget": {
+        "audit": "ऑडिट",
+        "empty": "अभी तक कोई प्रदर्शन डेटा नहीं",
+        "emptySub": "मूल्यांकन या ऑडिट सबमिट होने पर रैंकिंग दिखाई देगी।",
+        "eval": "मूल्यांकन",
+        "name": "नाम",
+        "quizzes": "क्विज़",
+        "role": "भूमिका",
+        "safety": "सुरक्षा",
+        "score": "स्कोर",
+        "title": "शीर्ष 10 प्रदर्शन करने वाले टीम सदस्य",
+        "trainings": "प्रशिक्षण"
+      },
+      "topProblemMachinesChart": {
+        "empty": "कोई समस्याग्रस्त मशीन डेटा नहीं",
+        "modes": {
+          "count": "संख्या",
+          "hours": "घंटे",
+          "cost": "लागत"
+        },
+        "title": "शीर्ष 10 समस्याग्रस्त मशीनें"
+      },
+      "topUsedPartsChart": {
+        "empty": "कोई अनुरोध डेटा नहीं",
+        "title": "कारण अनुसार अनुरोधित पार्ट्स"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "मेरे मूल्यांकन",
+        "noEvaluations": "अभी तक कोई मूल्यांकन दर्ज नहीं हुआ"
+      },
+      "trainingActivityChart": {
+        "empty": "कोई प्रशिक्षण डेटा नहीं",
+        "newCertifications": "नए प्रमाणन",
+        "renewals": "नवीनीकरण",
+        "title": "प्रशिक्षण गतिविधि"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "अटेंड करें",
+        "attendFailed": "अटेंड करने में विफल।",
+        "attending": "अटेंड कर रहे हैं…",
+        "empty": "कोई असौंपा गया ब्रेकडाउन नहीं",
+        "title": "ब्रेकडाउन"
+      },
+      "woTypeDistributionChart": {
+        "empty": "कोई वर्क ऑर्डर डेटा नहीं",
+        "title": "प्रकार अनुसार वर्क ऑर्डर वितरण",
+        "wos": "WOs"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "कोई वर्क ऑर्डर प्रगति पर नहीं",
+        "emptyToday": "आज कोई वर्क ऑर्डर नियत नहीं",
+        "running": "प्रगति पर ({{count}})",
+        "title": "वर्क ऑर्डर",
+        "today": "आज ({{count}})"
+      }
     }
   }
 }

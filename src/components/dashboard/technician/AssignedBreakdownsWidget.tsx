@@ -7,6 +7,7 @@ import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownSeverity } from '../../../types/breakdown';
 import { groupBreakdownsByMachine } from '../../../lib/breakdowns/groupByMachine';
 import { formatDate } from '../../../lib/dateUtils';
+import { useTranslation } from 'react-i18next';
 
 interface AssignedBreakdownsWidgetProps {
   technicianId: string;
@@ -29,6 +30,7 @@ const SEVERITY_RANK: Record<BreakdownSeverity, number> = { critical: 4, high: 3,
 // ticket has already been assessed (in progress, on hold, etc. — nothing
 // left for me to fill in) aren't shown here; there's no action to take.
 export default function AssignedBreakdownsWidget({ technicianId, siteId }: AssignedBreakdownsWidgetProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,9 +62,9 @@ export default function AssignedBreakdownsWidget({ technicianId, siteId }: Assig
   const groups = groupBreakdownsByMachine(breakdowns);
 
   return (
-    <DashboardWidget title="My Assigned Breakdowns" loading={loading}>
+    <DashboardWidget title={t('common.widgets.assignedBreakdownsWidget.title')} loading={loading}>
       {groups.length === 0 ? (
-        <EmptyState message="No breakdowns assigned to you" />
+        <EmptyState message={t('common.widgets.assignedBreakdownsWidget.empty')} />
       ) : (
         <div className="space-y-2">
           {groups.map((g) => {
@@ -84,7 +86,7 @@ export default function AssignedBreakdownsWidget({ technicianId, siteId }: Assig
                 <div className="min-w-0">
                   <p className="text-sm text-[#F0F4F8] truncate">{g.machineName}</p>
                   {assignedAt && (
-                    <p className="text-[10px] text-[#8BA3BF] mt-0.5">Assigned {formatDate(assignedAt)}</p>
+                    <p className="text-[10px] text-[#8BA3BF] mt-0.5">{t('common.widgets.assignedBreakdownsWidget.assigned', { date: formatDate(assignedAt) })}</p>
                   )}
                 </div>
                 <div className="shrink-0 flex items-center gap-2">
@@ -98,7 +100,7 @@ export default function AssignedBreakdownsWidget({ technicianId, siteId }: Assig
                     onClick={() => navigate(`/app/breakdowns/attend?ids=${g.tickets.map((t) => t.id).join(',')}`)}
                     className="px-2.5 py-1 text-[11px] font-medium bg-[#1A56DB] text-white rounded-md hover:bg-[#1442ad]"
                   >
-                    Attend &amp; Fill{g.tickets.length > 1 ? ` (${g.tickets.length})` : ''}
+                    {g.tickets.length > 1 ? t('common.widgets.assignedBreakdownsWidget.attendFillCount', { count: g.tickets.length }) : t('common.widgets.assignedBreakdownsWidget.attendFill')}
                   </button>
                 </div>
               </div>

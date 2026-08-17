@@ -14,6 +14,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useTopProblemMachines } from '../../../hooks/dashboard/useTopProblemMachines';
 import { CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 type MetricMode = 'breakdowns' | 'downtime' | 'cost';
 
@@ -25,10 +26,10 @@ const SEVERITY_COLORS: Record<'critical' | 'high' | 'medium' | 'low', string> = 
   low: '#10B981',
 };
 
-const MODE_CONFIG: Record<MetricMode, { label: string; unit: string; format: (v: number) => string }> = {
-  breakdowns: { label: 'Count', unit: 'WOs', format: (v) => `${Math.round(v)}` },
-  downtime: { label: 'Hours', unit: 'h', format: (v) => `${v.toFixed(1)}h` },
-  cost: { label: 'Cost', unit: 'LKR', format: (v) => `LKR ${Math.round(v).toLocaleString()}` },
+const MODE_CONFIG: Record<MetricMode, { labelKey: string; unit: string; format: (v: number) => string }> = {
+  breakdowns: { labelKey: 'count', unit: 'WOs', format: (v) => `${Math.round(v)}` },
+  downtime: { labelKey: 'hours', unit: 'h', format: (v) => `${v.toFixed(1)}h` },
+  cost: { labelKey: 'cost', unit: 'LKR', format: (v) => `LKR ${Math.round(v).toLocaleString()}` },
 };
 
 interface TopProblemMachinesChartProps {
@@ -37,6 +38,7 @@ interface TopProblemMachinesChartProps {
 }
 
 export default function TopProblemMachinesChart({ companyId, month }: TopProblemMachinesChartProps) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<MetricMode>('breakdowns');
   const { data, loading, error, refetch } = useTopProblemMachines(companyId, month);
 
@@ -58,7 +60,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
 
   return (
     <DashboardWidget
-      title="Top 10 Problem Machines"
+      title={t('common.widgets.topProblemMachinesChart.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
@@ -72,14 +74,14 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
                 mode === key ? 'bg-[#1A56DB] text-white' : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
               }`}
             >
-              {MODE_CONFIG[key].label}
+              {t(`common.widgets.topProblemMachinesChart.modes.${MODE_CONFIG[key].labelKey}`)}
             </button>
           ))}
         </div>
       }
     >
       {chartData.length === 0 ? (
-        <EmptyState message="No problem machine data" />
+        <EmptyState message={t('common.widgets.topProblemMachinesChart.empty')} />
       ) : (
         <div style={{ height: chartHeight }}>
           <ResponsiveContainer width="100%" height="100%">
@@ -94,7 +96,7 @@ export default function TopProblemMachinesChart({ companyId, month }: TopProblem
                 interval={0}
                 tick={{ fill: '#F0F4F8', fontSize: 12 }}
               />
-              <Tooltip {...CHART_DEFAULTS.tooltip} formatter={(value) => [format(Number(value ?? 0)), MODE_CONFIG[mode].label]} />
+              <Tooltip {...CHART_DEFAULTS.tooltip} formatter={(value) => [format(Number(value ?? 0)), t(`common.widgets.topProblemMachinesChart.modes.${MODE_CONFIG[mode].labelKey}`)]} />
               <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22}>
                 {chartData.map((entry, idx) => (
                   <Cell

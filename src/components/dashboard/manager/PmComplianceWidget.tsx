@@ -13,12 +13,14 @@ import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import { complianceColor } from '../../../utils/analytics.utils';
 import { usePmComplianceHistory } from '../../../hooks/dashboard/usePmComplianceHistory';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface PmComplianceWidgetProps {
   companyId: string;
 }
 
 export default function PmComplianceWidget({ companyId }: PmComplianceWidgetProps) {
+  const { t } = useTranslation();
   const monthly = useDashboardStore((s) => s.monthlyAnalytics);
   const storeLoading = useDashboardStore((s) => s.analyticsLoading);
   const { data: miniData, loading: historyLoading } = usePmComplianceHistory(companyId);
@@ -30,7 +32,7 @@ export default function PmComplianceWidget({ companyId }: PmComplianceWidgetProp
   const loading = storeLoading || historyLoading;
 
   return (
-    <DashboardWidget title="PM Compliance Rate" loading={loading}>
+    <DashboardWidget title={t('common.widgets.pmComplianceWidget.title')} loading={loading}>
       <div className="text-center">
         <span
           className={`text-6xl font-bold font-[Sora] ${
@@ -39,7 +41,7 @@ export default function PmComplianceWidget({ companyId }: PmComplianceWidgetProp
         >
           {Math.round(rate)}%
         </span>
-        <p className="text-xs text-[#8BA3BF] mt-1">This month</p>
+        <p className="text-xs text-[#8BA3BF] mt-1">{t('common.widgets.pmComplianceWidget.thisMonth')}</p>
       </div>
 
       <div className="mt-4 h-24">
@@ -54,17 +56,17 @@ export default function PmComplianceWidget({ companyId }: PmComplianceWidgetProp
             </BarChart>
           </ResponsiveContainer>
         ) : (
-          <EmptyState message="No PM data" />
+          <EmptyState message={t('common.widgets.pmComplianceWidget.empty')} />
         )}
       </div>
 
       <div className="mt-3 pt-3 border-t border-[#1E3A5F]/50 space-y-1 text-xs">
         <div className="flex justify-between">
-          <span className="text-[#8BA3BF]">On time</span>
+          <span className="text-[#8BA3BF]">{t('common.widgets.pmComplianceWidget.onTime')}</span>
           <span className="text-[#10B981] font-medium">{onTime}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-[#8BA3BF]">Missed</span>
+          <span className="text-[#8BA3BF]">{t('common.widgets.pmComplianceWidget.missed')}</span>
           <span className="text-[#EF4444] font-medium">{missed}</span>
         </div>
       </div>

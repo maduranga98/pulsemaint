@@ -9,6 +9,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownSeverity } from '../../../types/breakdown';
 import { groupBreakdownsByMachine } from '../../../lib/breakdowns/groupByMachine';
+import { useTranslation } from 'react-i18next';
 
 interface UnassignedBreakdownsWidgetProps {
   siteId: string;
@@ -29,6 +30,7 @@ const SEVERITY_RANK: Record<BreakdownSeverity, number> = { critical: 4, high: 3,
 // and Attend is the exact same action the page uses: self-assign every
 // reported ticket on that machine, then go straight to the assessment form.
 export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdownsWidgetProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const { department: scopedDepartment } = useDepartmentScope();
@@ -92,16 +94,16 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
       // page/tab.
       navigate(`/app/breakdowns/attend?ids=${tickets.map((t) => t.id).join(',')}`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to attend.');
+      toast.error(err instanceof Error ? err.message : t('common.widgets.unassignedBreakdownsWidget.attendFailed'));
     } finally {
       setAttendingMachineId(null);
     }
   }
 
   return (
-    <DashboardWidget title="Breakdowns" loading={loading}>
+    <DashboardWidget title={t('common.widgets.unassignedBreakdownsWidget.title')} loading={loading}>
       {groups.length === 0 ? (
-        <EmptyState message="No unassigned breakdowns" />
+        <EmptyState message={t('common.widgets.unassignedBreakdownsWidget.empty')} />
       ) : (
         <div className="space-y-3">
           {groups.map((g) => {
@@ -126,7 +128,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
                       onClick={() => handleAttend(g.tickets, g.machineId)}
                       className="px-2.5 py-1 text-[11px] font-medium bg-[#1A56DB] text-white rounded-md hover:bg-[#1442ad] disabled:opacity-50"
                     >
-                      {attendingMachineId === g.machineId ? 'Attending…' : 'Attend'}
+                      {attendingMachineId === g.machineId ? t('common.widgets.unassignedBreakdownsWidget.attending') : t('common.widgets.unassignedBreakdownsWidget.attend')}
                     </button>
                   </div>
                 </div>

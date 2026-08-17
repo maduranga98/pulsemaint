@@ -4,6 +4,7 @@ import { useOpenWorkOrders } from '../../../hooks/dashboard/useOpenWorkOrders';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { WorkOrder } from '../../../types';
+import { useTranslation } from 'react-i18next';
 
 interface WorkOrdersWidgetProps {
   siteId: string;
@@ -44,6 +45,7 @@ function WoRow({ wo, onClick }: { wo: WorkOrder; onClick: () => void }) {
 }
 
 export default function WorkOrdersWidget({ siteId }: WorkOrdersWidgetProps) {
+  const { t } = useTranslation();
   const { workOrders, loading, error } = useOpenWorkOrders(siteId);
   const [tab, setTab] = useState<'running' | 'today'>('running');
   const navigate = useNavigate();
@@ -61,7 +63,7 @@ export default function WorkOrdersWidget({ siteId }: WorkOrdersWidgetProps) {
 
   return (
     <DashboardWidget
-      title="Work Orders"
+      title={t('common.widgets.workOrdersWidget.title')}
       live
       loading={loading}
       error={error}
@@ -70,7 +72,7 @@ export default function WorkOrdersWidget({ siteId }: WorkOrdersWidgetProps) {
           onClick={() => navigate('/app/work-orders')}
           className="text-xs text-[#1A56DB] hover:underline"
         >
-          View all
+          {t('common.widgets.common.viewAll')}
         </button>
       }
     >
@@ -81,7 +83,7 @@ export default function WorkOrdersWidget({ siteId }: WorkOrdersWidgetProps) {
             tab === 'running' ? 'bg-[#1A56DB] text-white' : 'bg-[#0A1628] text-[#8BA3BF] hover:text-[#F0F4F8]'
           }`}
         >
-          Running ({running.length})
+          {t('common.widgets.workOrdersWidget.running', { count: running.length })}
         </button>
         <button
           onClick={() => setTab('today')}
@@ -89,14 +91,14 @@ export default function WorkOrdersWidget({ siteId }: WorkOrdersWidgetProps) {
             tab === 'today' ? 'bg-[#1A56DB] text-white' : 'bg-[#0A1628] text-[#8BA3BF] hover:text-[#F0F4F8]'
           }`}
         >
-          Today ({today.length})
+          {t('common.widgets.workOrdersWidget.today', { count: today.length })}
         </button>
       </div>
 
       <div className="max-h-[280px] overflow-y-auto -mx-5 divide-y divide-[#1E3A5F]/50">
         {list.length === 0 ? (
           <EmptyState
-            message={tab === 'running' ? 'No work orders in progress' : "No work orders due today"}
+            message={tab === 'running' ? t('common.widgets.workOrdersWidget.emptyRunning') : t('common.widgets.workOrdersWidget.emptyToday')}
           />
         ) : (
           list.map((wo) => (

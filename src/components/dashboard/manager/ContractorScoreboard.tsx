@@ -3,6 +3,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useContractorScoreboard } from '../../../hooks/dashboard/useContractorScoreboard';
 import EmptyState from '../shared/EmptyState';
 import type { MonthArg } from '../../../services/analyticsAggregation';
+import { useTranslation } from 'react-i18next';
 
 const RANK_COLORS = ['text-[#F59E0B]', 'text-[#94A3B8]', 'text-[#B45309]'];
 
@@ -12,13 +13,14 @@ interface ContractorScoreboardProps {
 }
 
 export default function ContractorScoreboard({ companyId, month }: ContractorScoreboardProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useContractorScoreboard(companyId, month);
   const contractors = data?.contractorPerformance ?? [];
 
   return (
-    <DashboardWidget title="Contractor Scoreboard" loading={loading} error={error} onRetry={refetch}>
+    <DashboardWidget title={t('common.widgets.contractorScoreboard.title')} loading={loading} error={error} onRetry={refetch}>
       {contractors.length === 0 ? (
-        <EmptyState message="No contractor data" />
+        <EmptyState message={t('common.widgets.contractorScoreboard.empty')} />
       ) : (
         <div className="space-y-2 max-h-[320px] overflow-y-auto">
           {contractors.map((c, idx) => (
@@ -39,9 +41,9 @@ export default function ContractorScoreboard({ companyId, month }: ContractorSco
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-[#F0F4F8] truncate">{c.contractorName}</p>
                 <div className="flex items-center gap-3 mt-0.5 text-[11px] text-[#8BA3BF]">
-                  <span>{c.jobsCompleted} jobs</span>
-                  <span>SLA {Math.round(c.slaCompliance)}%</span>
-                  <span>First-fix {Math.round(c.firstFixRate)}%</span>
+                  <span>{t('common.widgets.contractorScoreboard.jobs', { count: c.jobsCompleted })}</span>
+                  <span>{t('common.widgets.contractorScoreboard.sla', { value: Math.round(c.slaCompliance) })}</span>
+                  <span>{t('common.widgets.contractorScoreboard.firstFix', { value: Math.round(c.firstFixRate) })}</span>
                 </div>
               </div>
 

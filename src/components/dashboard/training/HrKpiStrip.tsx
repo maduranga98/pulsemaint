@@ -1,5 +1,6 @@
 import KpiCard from '../shared/KpiCard';
 import { useHrKpis } from '../../../hooks/dashboard/useHrKpis';
+import { useTranslation } from 'react-i18next';
 
 interface HrKpiStripProps {
   companyId: string;
@@ -12,13 +13,14 @@ interface HrKpiStripProps {
  * previously sat here.
  */
 export default function HrKpiStrip({ companyId }: HrKpiStripProps) {
+  const { t } = useTranslation();
   const { kpis, loading } = useHrKpis(companyId);
 
   const cards = [
-    { label: 'Present Today', value: kpis.presentToday, color: (kpis.presentToday > 0 ? 'green' : 'amber') as 'green' | 'amber' },
-    { label: 'Trainings In Progress', value: kpis.trainingsInProgress, color: 'blue' as const },
-    { label: 'Evaluations In Progress', value: kpis.evaluationsInProgress, color: (kpis.evaluationsInProgress > 0 ? 'amber' : 'green') as 'amber' | 'green' },
-    { label: 'Active Staff', value: kpis.activeStaff, color: 'cyan' as const },
+    { label: t('common.widgets.hrKpiStrip.presentToday'), value: kpis.presentToday, color: (kpis.presentToday > 0 ? 'green' : 'amber') as 'green' | 'amber' },
+    { label: t('common.widgets.hrKpiStrip.trainingsInProgress'), value: kpis.trainingsInProgress, color: 'blue' as const },
+    { label: t('common.widgets.hrKpiStrip.evaluationsInProgress'), value: kpis.evaluationsInProgress, color: (kpis.evaluationsInProgress > 0 ? 'amber' : 'green') as 'amber' | 'green' },
+    { label: t('common.widgets.hrKpiStrip.activeStaff'), value: kpis.activeStaff, color: 'cyan' as const },
   ];
 
   if (loading) {

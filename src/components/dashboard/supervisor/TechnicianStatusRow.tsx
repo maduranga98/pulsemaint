@@ -1,11 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { useDashboardStore } from '../../../store/dashboard.store';
 import type { TechnicianStatusDoc } from '../../../types/analytics.types';
 
-const STATUS_CONFIG: Record<string, { dot: string; label: string; pulse: boolean }> = {
-  available: { dot: 'bg-[#10B981]', label: 'Available', pulse: false },
-  on_job: { dot: 'bg-[#1A56DB]', label: 'On Job', pulse: true },
-  on_break: { dot: 'bg-[#F59E0B]', label: 'On Break', pulse: false },
-  off_shift: { dot: 'bg-[#374151]', label: 'Off Shift', pulse: false },
+const STATUS_CONFIG: Record<string, { dot: string; labelKey: string; pulse: boolean }> = {
+  available: { dot: 'bg-[#10B981]', labelKey: 'available', pulse: false },
+  on_job: { dot: 'bg-[#1A56DB]', labelKey: 'onJob', pulse: true },
+  on_break: { dot: 'bg-[#F59E0B]', labelKey: 'onBreak', pulse: false },
+  off_shift: { dot: 'bg-[#374151]', labelKey: 'offShift', pulse: false },
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -35,6 +36,7 @@ interface TechnicianStatusRowProps {
 }
 
 export default function TechnicianStatusRow({ technician }: TechnicianStatusRowProps) {
+  const { t } = useTranslation();
   const config = STATUS_CONFIG[technician.currentStatus] ?? STATUS_CONFIG.available;
   const setSidePanel = useDashboardStore((s) => s.setSidePanel);
 
@@ -60,7 +62,7 @@ export default function TechnicianStatusRow({ technician }: TechnicianStatusRowP
           <p className="text-sm font-medium text-[#F0F4F8] truncate">{technician.name}</p>
           <span className="inline-flex items-center gap-1 text-[10px]">
             <span className={`w-1.5 h-1.5 rounded-full ${config.dot} ${config.pulse ? 'animate-pulse' : ''}`} />
-            <span className="text-[#8BA3BF]">{config.label}</span>
+            <span className="text-[#8BA3BF]">{t(`common.widgets.technicianStatusRow.status.${config.labelKey}`)}</span>
           </span>
         </div>
 
@@ -73,14 +75,14 @@ export default function TechnicianStatusRow({ technician }: TechnicianStatusRowP
 
         {technician.currentWoNumber && (
           <p className="text-[11px] text-[#5B8DEF] truncate mt-0.5">
-            On {technician.currentWoNumber} · {technician.currentMachineName}
+            {t('common.widgets.technicianStatusRow.on', { wo: technician.currentWoNumber })} · {technician.currentMachineName}
           </p>
         )}
       </div>
 
       <div className="text-right shrink-0">
         <p className="text-xs font-semibold text-[#F0F4F8]">{technician.jobsCompletedToday}</p>
-        <p className="text-[10px] text-[#8BA3BF]">Done today</p>
+        <p className="text-[10px] text-[#8BA3BF]">{t('common.widgets.technicianStatusRow.doneToday')}</p>
       </div>
     </div>
   );

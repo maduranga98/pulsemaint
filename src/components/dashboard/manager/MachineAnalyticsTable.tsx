@@ -3,6 +3,7 @@ import { ArrowUp, ArrowDown, ArrowUpDown, AlertTriangle } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useMtbfPerMachine } from '../../../hooks/dashboard/useMtbfPerMachine';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 type SortKey = 'name' | 'health' | 'breakdowns' | 'mttr' | 'mtbf';
 
@@ -27,6 +28,7 @@ interface MachineAnalyticsTableProps {
 }
 
 export default function MachineAnalyticsTable({ companyId }: MachineAnalyticsTableProps) {
+  const { t } = useTranslation();
   const { machines, loading, error } = useMtbfPerMachine(companyId);
   const [sortKey, setSortKey] = useState<SortKey>('health');
   const [sortAsc, setSortAsc] = useState(true);
@@ -52,9 +54,9 @@ export default function MachineAnalyticsTable({ companyId }: MachineAnalyticsTab
   };
 
   return (
-    <DashboardWidget title="Machine-Level Analytics" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.machineAnalyticsTable.title')} loading={loading} error={error}>
       {sorted.length === 0 ? (
-        <EmptyState message="No machine data" />
+        <EmptyState message={t('common.widgets.machineAnalyticsTable.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
@@ -62,30 +64,30 @@ export default function MachineAnalyticsTable({ companyId }: MachineAnalyticsTab
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
                 <th className="pb-2 font-medium">
                   <button onClick={() => handleSort('name')} className="flex items-center gap-1">
-                    Machine <SortIcon k="name" />
+                    {t('common.widgets.machineAnalyticsTable.machine')} <SortIcon k="name" />
                   </button>
                 </th>
                 <th className="pb-2 font-medium">
                   <button onClick={() => handleSort('health')} className="flex items-center gap-1">
-                    Health <SortIcon k="health" />
+                    {t('common.widgets.machineAnalyticsTable.health')} <SortIcon k="health" />
                   </button>
                 </th>
                 <th className="pb-2 font-medium text-right">
                   <button onClick={() => handleSort('breakdowns')} className="flex items-center gap-1 ml-auto">
-                    BD MTD <SortIcon k="breakdowns" />
+                    {t('common.widgets.machineAnalyticsTable.bdMtd')} <SortIcon k="breakdowns" />
                   </button>
                 </th>
                 <th className="pb-2 font-medium text-right hidden sm:table-cell">
                   <button onClick={() => handleSort('mttr')} className="flex items-center gap-1 ml-auto">
-                    MTTR <SortIcon k="mttr" />
+                    {t('common.widgets.machineAnalyticsTable.mttr')} <SortIcon k="mttr" />
                   </button>
                 </th>
                 <th className="pb-2 font-medium text-right hidden sm:table-cell">
                   <button onClick={() => handleSort('mtbf')} className="flex items-center gap-1 ml-auto">
-                    MTBF <SortIcon k="mtbf" />
+                    {t('common.widgets.machineAnalyticsTable.mtbf')} <SortIcon k="mtbf" />
                   </button>
                 </th>
-                <th className="pb-2 font-medium text-center hidden md:table-cell">Status</th>
+                <th className="pb-2 font-medium text-center hidden md:table-cell">{t('common.widgets.machineAnalyticsTable.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]/50">

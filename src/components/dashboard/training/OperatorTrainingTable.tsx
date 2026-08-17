@@ -1,12 +1,14 @@
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTrainingCompliance } from '../../../hooks/dashboard/useTrainingCompliance';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface OperatorTrainingTableProps {
   companyId: string;
 }
 
 export default function OperatorTrainingTable({ companyId }: OperatorTrainingTableProps) {
+  const { t } = useTranslation();
   const { operators, loading, error } = useTrainingCompliance(companyId);
 
   const STATUS_STYLES: Record<string, string> = {
@@ -16,19 +18,19 @@ export default function OperatorTrainingTable({ companyId }: OperatorTrainingTab
   };
 
   return (
-    <DashboardWidget title="Training Status" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.operatorTrainingTable.title')} loading={loading} error={error}>
       {operators.length === 0 ? (
-        <EmptyState message="No operator data" />
+        <EmptyState message={t('common.widgets.operatorTrainingTable.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
-                <th className="pb-2 font-medium">Operator</th>
-                <th className="pb-2 font-medium">Role</th>
-                <th className="pb-2 font-medium text-right">Certified</th>
-                <th className="pb-2 font-medium text-right">Expiring</th>
-                <th className="pb-2 font-medium">Status</th>
+                <th className="pb-2 font-medium">{t('common.widgets.operatorTrainingTable.operator')}</th>
+                <th className="pb-2 font-medium">{t('common.widgets.operatorTrainingTable.role')}</th>
+                <th className="pb-2 font-medium text-right">{t('common.widgets.operatorTrainingTable.certified')}</th>
+                <th className="pb-2 font-medium text-right">{t('common.widgets.operatorTrainingTable.expiring')}</th>
+                <th className="pb-2 font-medium">{t('common.widgets.operatorTrainingTable.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1E3A5F]/50">

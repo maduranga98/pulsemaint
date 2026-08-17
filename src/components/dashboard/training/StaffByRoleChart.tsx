@@ -13,19 +13,20 @@ import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
 import { useTeamPerformanceByRole } from '../../../hooks/dashboard/useTeamPerformanceByRole';
 import type { DateRange } from '../../../services/teamPerformance.service';
+import { useTranslation } from 'react-i18next';
 
 // Every role counts toward the company's total active-employee figure, not
 // just the frontline/ops roles the old "headcount strip" (HR-001) tracked.
-const ROLE_ORDER: Array<{ role: string; label: string }> = [
-  { role: 'technician', label: 'Technicians' },
-  { role: 'supervisor', label: 'Supervisors' },
-  { role: 'plant_manager', label: 'Managers' },
-  { role: 'floor_operator', label: 'Operators' },
-  { role: 'trainee', label: 'Trainees' },
-  { role: 'store_keeper', label: 'Store Keepers' },
-  { role: 'hr_officer', label: 'HR Officers' },
-  { role: 'safety_officer', label: 'Safety Officers' },
-  { role: 'admin', label: 'Admins' },
+const ROLE_ORDER: Array<{ role: string; labelKey: string }> = [
+  { role: 'technician', labelKey: 'technicians' },
+  { role: 'supervisor', labelKey: 'supervisors' },
+  { role: 'plant_manager', labelKey: 'managers' },
+  { role: 'floor_operator', labelKey: 'operators' },
+  { role: 'trainee', labelKey: 'trainees' },
+  { role: 'store_keeper', labelKey: 'storeKeepers' },
+  { role: 'hr_officer', labelKey: 'hrOfficers' },
+  { role: 'safety_officer', labelKey: 'safetyOfficers' },
+  { role: 'admin', labelKey: 'admins' },
 ];
 
 const BAR_COLORS = [
@@ -43,11 +44,12 @@ interface StaffByRoleChartProps {
 }
 
 export default function StaffByRoleChart({ companyId, dateRange }: StaffByRoleChartProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useTeamPerformanceByRole(companyId, dateRange);
 
   const memberCountByRole = new Map(data.map((row) => [row.role, row.memberCount]));
-  const chartData = ROLE_ORDER.map(({ role, label }) => ({
-    role: label,
+  const chartData = ROLE_ORDER.map(({ role, labelKey }) => ({
+    role: t(`common.widgets.staffByRoleChart.roles.${labelKey}`),
     count: memberCountByRole.get(role) ?? 0,
   }));
   const hasData = chartData.some((d) => d.count > 0);
@@ -55,14 +57,14 @@ export default function StaffByRoleChart({ companyId, dateRange }: StaffByRoleCh
 
   return (
     <DashboardWidget
-      title="Employees by Role"
+      title={t('common.widgets.staffByRoleChart.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
-      action={<span className="text-xs text-[#8BA3BF]">{totalActive} active employees</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.widgets.staffByRoleChart.activeEmployees', { count: totalActive })}</span>}
     >
       {!hasData ? (
-        <EmptyState message="No staff data" />
+        <EmptyState message={t('common.widgets.staffByRoleChart.empty')} />
       ) : (
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
@@ -71,7 +73,7 @@ export default function StaffByRoleChart({ companyId, dateRange }: StaffByRoleCh
               <XAxis {...CHART_DEFAULTS.xAxis} type="number" allowDecimals={false} />
               <YAxis {...CHART_DEFAULTS.yAxis} type="category" dataKey="role" width={100} />
               <Tooltip {...CHART_DEFAULTS.tooltip} />
-              <Bar dataKey="count" name="Staff" radius={[0, 4, 4, 0]}>
+              <Bar dataKey="count" name={t('common.widgets.staffByRoleChart.staff')} radius={[0, 4, 4, 0]}>
                 {chartData.map((entry, idx) => (
                   <Cell key={entry.role} fill={BAR_COLORS[idx % BAR_COLORS.length]} />
                 ))}

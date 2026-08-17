@@ -155,6 +155,527 @@
         "allSuppliers": "すべてのサプライヤー",
         "clear": "クリア"
       }
+    },
+    "widgets": {
+      "activeJobCard": {
+        "addPhoto": "写真を追加",
+        "checklistProgress": "チェックリストの進捗",
+        "currentJob": "現在の作業",
+        "noActiveJob": "進行中の作業はありません",
+        "of": "{{total}}件中{{completed}}件",
+        "requestParts": "部品を申請",
+        "scanToCheckIn": "機械のQRコードをスキャンしてチェックイン",
+        "timeOnJob": "作業時間",
+        "updateStatus": "ステータスを更新"
+      },
+      "assignedBreakdownsWidget": {
+        "assigned": "{{date}}に割り当て",
+        "attendFill": "対応して記入",
+        "attendFillCount": "対応して記入（{{count}}）",
+        "empty": "割り当てられた故障はありません",
+        "title": "自分の担当故障"
+      },
+      "assignedTasksWidget": {
+        "audit": "監査",
+        "audits": "監査（{{count}}）",
+        "empty": "割り当てはありません",
+        "emptySub": "作業指示、監査、評価、トレーニングがここに表示されます。",
+        "evaluations": "評価（{{count}}）",
+        "pending": "{{count}}件保留中",
+        "safetyCases": "安全案件（{{count}}）",
+        "title": "自分への割り当て",
+        "trainingModule": "トレーニングモジュール",
+        "trainings": "トレーニング（{{count}}）",
+        "workOrders": "作業指示書（{{count}}）"
+      },
+      "breakdownByTypeChart": {
+        "empty": "故障データがありません",
+        "modes": {
+          "type": "種類",
+          "severity": "重大度",
+          "department": "部門"
+        },
+        "title": "故障の分布"
+      },
+      "breakdownHeatmap": {
+        "empty": "ヒートマップデータがありません",
+        "ranges": {
+          "thisMonth": "今月",
+          "last3m": "過去3か月",
+          "last6m": "過去6か月"
+        },
+        "title": "故障頻度ヒートマップ",
+        "tooltipCount": "{{day}} {{hour}} — {{count}}件の故障",
+        "tooltipNone": "{{day}} {{hour}} — 故障なし"
+      },
+      "breakdownKanbanBoard": {
+        "lanes": {
+          "newlyReported": "新規報告",
+          "signOff": "承認・完了"
+        },
+        "title": "ライブ故障ボード"
+      },
+      "breakdownKanbanLane": {
+        "noItems": "項目なし"
+      },
+      "breakdownTrendChart": {
+        "closed": "完了",
+        "critical": "重大",
+        "empty": "故障データがありません",
+        "opened": "発生",
+        "title": "故障の傾向"
+      },
+      "categoryStatusChart": {
+        "completed": "完了",
+        "ongoing": "進行中"
+      },
+      "common": {
+        "active": "稼働中",
+        "due": "期限 {{date}}",
+        "failedToLoad": "データの読み込みに失敗しました",
+        "general": "一般",
+        "noData": "データなし",
+        "noDataAvailable": "利用可能なデータがありません",
+        "resume": "再開",
+        "retry": "再試行",
+        "safety": "安全",
+        "start": "開始",
+        "today": "今日",
+        "view": "表示",
+        "viewAll": "すべて表示",
+        "trainingStatus": {
+          "notStarted": "未開始",
+          "inProgress": "進行中",
+          "quizPassed": "クイズ合格",
+          "quizFailed": "クイズ不合格",
+          "awaitingPractical": "実技待ち",
+          "expired": "期限切れ",
+          "retrainingRequired": "再トレーニングが必要"
+        }
+      },
+      "contractorScoreboard": {
+        "empty": "業者データがありません",
+        "firstFix": "初回修理率 {{value}}%",
+        "jobs": "{{count}}件の作業",
+        "sla": "SLA {{value}}%",
+        "title": "業者スコアボード"
+      },
+      "dateRangeFilter": {
+        "from": "開始日",
+        "presets": {
+          "allTime": "全期間",
+          "last30Days": "過去30日間",
+          "thisMonth": "今月",
+          "lastMonth": "先月",
+          "thisYear": "今年"
+        },
+        "to": "終了日"
+      },
+      "hrKpiStrip": {
+        "activeStaff": "在籍スタッフ",
+        "evaluationsInProgress": "進行中の評価",
+        "presentToday": "本日出勤",
+        "trainingsInProgress": "進行中のトレーニング"
+      },
+      "inventoryHealthStrip": {
+        "lowStock": "在庫少",
+        "outOfStock": "在庫切れ",
+        "pendingRequests": "保留中の申請",
+        "totalParts": "部品総数"
+      },
+      "jobQueueItem": {
+        "daysCount": "{{count}}日",
+        "daysOverdue": "{{count}}日超過",
+        "due": "期限 {{date}}"
+      },
+      "jobQueueList": {
+        "empty": "キューに作業はありません",
+        "title": "自分の作業キュー"
+      },
+      "liveShiftStatusWidget": {
+        "empty": "現在勤務中の人はいません",
+        "footer": "{{shifts}}シフト稼働中 · {{people}}人が作業中",
+        "sinceDayTime": "{{day}} {{time}}から",
+        "sinceTime": "{{time}}から",
+        "title": "リアルタイムシフト状況",
+        "workingNow": "{{count}}人が現在作業中",
+        "yesterday": "昨日"
+      },
+      "lowStockAlertTable": {
+        "category": "カテゴリー",
+        "deficit": "不足数",
+        "empty": "すべての在庫水準は正常です",
+        "min": "最小",
+        "part": "部品",
+        "raisePo": "発注する",
+        "stock": "在庫",
+        "title": "在庫不足アラート"
+      },
+      "lowStockPartsChartLight": {
+        "belowMin": "最小値を{{value}}下回る（{{current}}/{{min}}）",
+        "empty": "すべての在庫水準は正常です",
+        "title": "在庫不足の部品"
+      },
+      "machineAnalyticsTable": {
+        "bdMtd": "当月故障数",
+        "empty": "機械データがありません",
+        "health": "健全性",
+        "machine": "機械",
+        "mtbf": "MTBF",
+        "mttr": "MTTR",
+        "status": "状態",
+        "title": "機械別分析"
+      },
+      "maintenanceCostChart": {
+        "cost": "コスト",
+        "empty": "コストデータがありません",
+        "title": "保全コスト概要",
+        "totalThisMonth": "今月の合計："
+      },
+      "mostMovedPartsChart": {
+        "empty": "使用データがありません",
+        "title": "使用頻度の高い部品（過去30日間）",
+        "unitsIssued": "払出数量"
+      },
+      "mostMovedPartsChartLight": {
+        "empty": "使用データがありません",
+        "title": "使用頻度の高い部品"
+      },
+      "mtbfTable": {
+        "dept": "部門",
+        "empty": "機械健全性データがありません",
+        "machine": "機械",
+        "mtbf": "MTBF",
+        "title": "機械別MTBF"
+      },
+      "mttrTrendChart": {
+        "empty": "MTTRデータがありません",
+        "slaTarget": "SLA目標",
+        "slaTargetLabel": "SLA目標（{{target}}時間）",
+        "title": "MTTRの推移"
+      },
+      "myReturnablePartsWidget": {
+        "cancel": "キャンセル",
+        "cancelFailed": "返却のキャンセルに失敗しました。",
+        "cancelling": "キャンセル中…",
+        "empty": "返却対象の部品はありません",
+        "emptySub": "受け取った返却可能部品は、返却されるまでここに表示されます。",
+        "requesting": "申請中…",
+        "return": "返却",
+        "returnCancelled": "返却をキャンセルしました。",
+        "returnFailed": "返却申請に失敗しました。",
+        "returnRequested": "返却を申請しました — 倉庫係が確認します。",
+        "returning": "返却手続き中",
+        "title": "自分の返却可能部品"
+      },
+      "mySafetyCasesWidget": {
+        "actionsTaken": "実施した対応",
+        "actionsTakenCount": "実施した対応（{{count}}）",
+        "description": "説明",
+        "empty": "割り当てられた安全案件はありません",
+        "location": "場所",
+        "movedTo": "{{status}}に変更",
+        "noActionsYet": "まだ対応記録がありません。",
+        "title": "安全案件",
+        "whatYouNeedToDo": "対応が必要な事項"
+      },
+      "mySafetyTrainingsWidget": {
+        "empty": "割り当てられた安全トレーニングはありません",
+        "title": "自分への安全トレーニング割り当て"
+      },
+      "myTrainingsWidget": {
+        "empty": "進行中のトレーニングはありません",
+        "title": "自分のトレーニング"
+      },
+      "notificationFeed": {
+        "empty": "通知はありません",
+        "emptySub": "すべて対応済みです！",
+        "filters": {
+          "all": "すべて",
+          "breakdowns": "故障",
+          "workOrders": "作業指示書",
+          "parts": "部品",
+          "pm": "PM",
+          "alerts": "アラート"
+        },
+        "title": "通知"
+      },
+      "ongoingEvaluationsAuditsWidget": {
+        "audits": "監査（{{count}}）",
+        "empty": "進行中の評価・監査はありません",
+        "evaluations": "評価（{{count}}）",
+        "noneInProgress": "進行中のものはありません",
+        "running": "{{count}}件進行中",
+        "title": "進行中の評価・監査"
+      },
+      "ongoingTrainingsWidget": {
+        "empty": "現在進行中のトレーニングはありません",
+        "inProgress": "{{count}}件進行中",
+        "module": "モジュール",
+        "name": "氏名",
+        "progress": "進捗",
+        "role": "役割",
+        "title": "進行中のトレーニング"
+      },
+      "operatorTrainingTable": {
+        "certified": "認定済み",
+        "empty": "オペレーターデータがありません",
+        "expiring": "期限間近",
+        "operator": "オペレーター",
+        "role": "役割",
+        "status": "状態",
+        "title": "トレーニング状況"
+      },
+      "partsUsageTrendChart": {
+        "empty": "申請アクティビティがありません",
+        "title": "部品申請の推移（過去30日間）",
+        "woPartRequests": "作業指示による部品申請"
+      },
+      "pendingApprovalsWidget": {
+        "approve": "承認",
+        "empty": "保留中の承認申請はありません",
+        "emptySub": "技術者や研修生からの申請がここに表示されます。",
+        "notePlaceholder": "メモ（任意）",
+        "pending": "{{count}}件保留中",
+        "pendingBadge": "保留中",
+        "reject": "却下",
+        "requested": "申請内容：",
+        "title": "保留中の承認",
+        "viewMore": "他{{count}}件を表示…"
+      },
+      "pendingReceiptPOsWidget": {
+        "empty": "入荷待ちの発注書はありません",
+        "items": "品目",
+        "poNumber": "発注番号",
+        "statusHeader": "状態",
+        "status": {
+          "sent": "送付済み",
+          "invoiceReceived": "請求書受領済み",
+          "acknowledged": "確認済み",
+          "partiallyReceived": "一部入荷済み"
+        },
+        "supplier": "サプライヤー",
+        "title": "入荷待ちの発注書",
+        "value": "金額"
+      },
+      "pendingRequestsTable": {
+        "empty": "保留中の申請はありません",
+        "estValue": "見積金額",
+        "more": "他{{count}}件",
+        "parts": "部品",
+        "requestedBy": "申請者",
+        "review": "確認",
+        "title": "保留中の部品申請",
+        "unknownPart": "不明な部品"
+      },
+      "pendingReturnsWidget": {
+        "empty": "返却待ちの部品はありません",
+        "takenBy": "受領者",
+        "title": "保留中の部品返却"
+      },
+      "personalKpiCards": {
+        "avgRepair": "平均修理時間",
+        "avgResponse": "平均対応時間",
+        "jobsCompleted": "完了した作業数",
+        "slaCompliance": "SLA達成率"
+      },
+      "pmComplianceWidget": {
+        "empty": "PMデータがありません",
+        "missed": "未実施",
+        "onTime": "期限内",
+        "thisMonth": "今月",
+        "title": "PM達成率"
+      },
+      "pmTrendChart": {
+        "empty": "予防保全作業指示のデータがありません",
+        "title": "種類別PM作業指示",
+        "wos": "作業指示数"
+      },
+      "poReceiptQualityChartLight": {
+        "empty": "この期間の入荷記録はありません",
+        "title": "入荷品質：良品 vs 不良/破損",
+        "unitsReceived": "入荷数量"
+      },
+      "productionDowntimeStrip": {
+        "downtimeCost": "停止コスト",
+        "hoursLost": "今月の生産損失時間",
+        "thisWeek": "今週",
+        "title": "生産停止",
+        "today": "本日"
+      },
+      "programmeSignOffQueueWidget": {
+        "empty": "承認可能なプログラムはありません",
+        "emptySub": "プログラムの全モジュールを修了した研修生がここに表示されます。",
+        "ready": "{{count}}件準備完了",
+        "readyToSignOff": "承認準備完了",
+        "summary": "{{months}}か月プログラム · {{count}}モジュール修了 · {{date}}開始",
+        "title": "研修生プログラムの承認"
+      },
+      "requestedPartsWidget": {
+        "empty": "未完了の部品申請はありません",
+        "generalRequest": "一般申請",
+        "requestParts": "部品を申請",
+        "status": {
+          "requested": "申請済み",
+          "inApprovalOfSupervisor": "上長承認待ち",
+          "needToCollect": "受け取り待ち"
+        },
+        "title": "申請済み部品"
+      },
+      "safetyForYouWidget": {
+        "empty": "保留中の安全関連事項はありません",
+        "emptySub": "割り当てられたトレーニングと報告された案件がここに表示されます。",
+        "open": "{{count}}件未対応",
+        "safetyTrainings": "安全トレーニング（{{count}}）",
+        "title": "安全"
+      },
+      "safetySnapshotWidget": {
+        "byCaseType": "案件種類別",
+        "bySeverity": "重大度別",
+        "daysSinceLastIncident": "前回事故からの日数",
+        "nearMiss30d": "ヒヤリハット（30日）",
+        "openCases": "未対応案件",
+        "totalSafetyCases": "安全案件総数"
+      },
+      "slaGaugeWidget": {
+        "breached": "違反",
+        "empty": "SLAデータがありません",
+        "title": "SLA達成率",
+        "withinSla": "SLA内"
+      },
+      "slaStatusWidget": {
+        "allWithinSla": "すべての故障がSLA内です",
+        "atRisk": "リスクあり",
+        "breached": "違反",
+        "left": "残り{{time}}",
+        "overdue": "{{time}}超過",
+        "title": "SLA状況",
+        "withinSla": "SLA内"
+      },
+      "staffByRoleChart": {
+        "activeEmployees": "在籍従業員{{count}}人",
+        "empty": "スタッフデータがありません",
+        "roles": {
+          "technicians": "技術者",
+          "supervisors": "監督者",
+          "managers": "マネージャー",
+          "operators": "オペレーター",
+          "trainees": "研修生",
+          "storeKeepers": "倉庫係",
+          "hrOfficers": "人事担当者",
+          "safetyOfficers": "安全担当者",
+          "admins": "管理者"
+        },
+        "staff": "スタッフ",
+        "title": "役割別従業員"
+      },
+      "supplierPoCountsChartLight": {
+        "empty": "この期間の発注書はありません",
+        "purchaseOrders": "発注書",
+        "title": "サプライヤー別発注書"
+      },
+      "teamPerformanceAnalyticsWidget": {
+        "auditScore": "監査スコア",
+        "empty": "チームパフォーマンスデータがありません",
+        "evaluationScore": "評価スコア",
+        "name": "氏名",
+        "quizzesPassed": "合格クイズ数",
+        "role": "役割",
+        "title": "チームパフォーマンス",
+        "trainings": "トレーニング"
+      },
+      "technicianPerformanceTable": {
+        "empty": "パフォーマンスデータがありません",
+        "jobs": "作業数",
+        "repair": "修理",
+        "resp": "対応",
+        "sla": "SLA",
+        "tech": "技術者",
+        "title": "作業指示別パフォーマンス"
+      },
+      "technicianStatusList": {
+        "active": "{{count}}人稼働中",
+        "empty": "勤務中の技術者はいません",
+        "title": "技術者の状況"
+      },
+      "technicianStatusRow": {
+        "doneToday": "本日の完了数",
+        "on": "{{wo}}対応中",
+        "status": {
+          "available": "対応可能",
+          "onJob": "作業中",
+          "onBreak": "休憩中",
+          "offShift": "勤務外"
+        }
+      },
+      "todayMyTrainingsWidget": {
+        "empty": "本日予定されているトレーニングはありません",
+        "title": "本日の自分のトレーニング"
+      },
+      "todayShiftsByDepartment": {
+        "empty": "現在稼働中のシフトはありません",
+        "started": "{{count}}件開始済み",
+        "title": "部門別本日のシフト"
+      },
+      "todaysPmList": {
+        "empty": "割り当てられたPM計画はありません",
+        "title": "割り当てられたPM計画"
+      },
+      "topPerformersWidget": {
+        "audit": "監査",
+        "empty": "まだパフォーマンスデータがありません",
+        "emptySub": "評価または監査が提出されるとランキングが表示されます。",
+        "eval": "評価",
+        "name": "氏名",
+        "quizzes": "クイズ",
+        "role": "役割",
+        "safety": "安全",
+        "score": "スコア",
+        "title": "パフォーマンス上位10名",
+        "trainings": "トレーニング"
+      },
+      "topProblemMachinesChart": {
+        "empty": "問題機械データがありません",
+        "modes": {
+          "count": "件数",
+          "hours": "時間",
+          "cost": "コスト"
+        },
+        "title": "問題機械トップ10"
+      },
+      "topUsedPartsChart": {
+        "empty": "申請データがありません",
+        "title": "理由別の部品申請"
+      },
+      "traineeDashboard": {
+        "myEvaluations": "自分の評価",
+        "noEvaluations": "まだ評価記録がありません"
+      },
+      "trainingActivityChart": {
+        "empty": "トレーニングデータがありません",
+        "newCertifications": "新規認定",
+        "renewals": "更新",
+        "title": "トレーニング活動"
+      },
+      "unassignedBreakdownsWidget": {
+        "attend": "対応",
+        "attendFailed": "対応に失敗しました。",
+        "attending": "対応中…",
+        "empty": "未割り当ての故障はありません",
+        "title": "故障"
+      },
+      "woTypeDistributionChart": {
+        "empty": "作業指示データがありません",
+        "title": "種類別作業指示分布",
+        "wos": "作業指示数"
+      },
+      "workOrdersWidget": {
+        "emptyRunning": "進行中の作業指示はありません",
+        "emptyToday": "本日期限の作業指示はありません",
+        "running": "進行中（{{count}}）",
+        "title": "作業指示書",
+        "today": "本日（{{count}}）"
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ import { ClipboardCheck, BookOpen, CheckSquare } from 'lucide-react';
 import DashboardWidget from '../shared/DashboardWidget';
 import { useTeamPerformanceAnalytics } from '../../../hooks/dashboard/useTeamPerformanceAnalytics';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 const ROLE_LABELS: Record<string, string> = {
   plant_manager: 'Plant Manager',
@@ -31,38 +32,39 @@ interface TeamPerformanceAnalyticsWidgetProps {
 // Trainings Completed, Quizzes Passed — both read from
 // fetchTeamPerformanceByUser so the numbers never drift apart.
 export default function TeamPerformanceAnalyticsWidget({ companyId }: TeamPerformanceAnalyticsWidgetProps) {
+  const { t } = useTranslation();
   const { data, loading, error, refetch } = useTeamPerformanceAnalytics(companyId);
 
   return (
     <DashboardWidget
-      title="Team Performance"
+      title={t('common.widgets.teamPerformanceAnalyticsWidget.title')}
       loading={loading}
       error={error}
       onRetry={refetch}
     >
       {data.length === 0 ? (
-        <EmptyState message="No team performance data" />
+        <EmptyState message={t('common.widgets.teamPerformanceAnalyticsWidget.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="text-left text-[#8BA3BF] border-b border-[#1E3A5F]">
-                <th className="pb-2 font-medium">Name</th>
-                <th className="pb-2 font-medium hidden sm:table-cell">Role</th>
-                <th className="pb-2 font-medium text-center">Evaluation Score</th>
+                <th className="pb-2 font-medium">{t('common.widgets.teamPerformanceAnalyticsWidget.name')}</th>
+                <th className="pb-2 font-medium hidden sm:table-cell">{t('common.widgets.teamPerformanceAnalyticsWidget.role')}</th>
+                <th className="pb-2 font-medium text-center">{t('common.widgets.teamPerformanceAnalyticsWidget.evaluationScore')}</th>
                 <th className="pb-2 font-medium text-center hidden sm:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <ClipboardCheck className="w-3 h-3" /> Audit Score
+                    <ClipboardCheck className="w-3 h-3" /> {t('common.widgets.teamPerformanceAnalyticsWidget.auditScore')}
                   </span>
                 </th>
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <BookOpen className="w-3 h-3" /> Trainings
+                    <BookOpen className="w-3 h-3" /> {t('common.widgets.teamPerformanceAnalyticsWidget.trainings')}
                   </span>
                 </th>
                 <th className="pb-2 font-medium text-center hidden md:table-cell">
                   <span className="flex items-center justify-center gap-1">
-                    <CheckSquare className="w-3 h-3" /> Quizzes Passed
+                    <CheckSquare className="w-3 h-3" /> {t('common.widgets.teamPerformanceAnalyticsWidget.quizzesPassed')}
                   </span>
                 </th>
               </tr>

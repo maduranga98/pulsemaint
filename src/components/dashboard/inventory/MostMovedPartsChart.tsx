@@ -11,18 +11,20 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { useTopMovedParts } from '../../../hooks/dashboard/useTopMovedParts';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface MostMovedPartsChartProps {
   companyId: string;
 }
 
 export default function MostMovedPartsChart({ companyId }: MostMovedPartsChartProps) {
+  const { t } = useTranslation();
   const { parts, loading, error } = useTopMovedParts(companyId);
 
   return (
-    <DashboardWidget title="Most Moved Parts (Last 30 Days)" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.mostMovedPartsChart.title')} loading={loading} error={error}>
       {parts.length === 0 ? (
-        <EmptyState message="No usage data" />
+        <EmptyState message={t('common.widgets.mostMovedPartsChart.empty')} />
       ) : (
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
@@ -37,7 +39,7 @@ export default function MostMovedPartsChart({ companyId }: MostMovedPartsChartPr
                 tick={{ fontSize: 10 }}
               />
               <Tooltip {...CHART_DEFAULTS.tooltip} />
-              <Bar dataKey="count" name="Units issued" fill={CHART_COLORS.secondary} radius={[0, 4, 4, 0]} />
+              <Bar dataKey="count" name={t('common.widgets.mostMovedPartsChart.unitsIssued')} fill={CHART_COLORS.secondary} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

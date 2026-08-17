@@ -5,20 +5,22 @@ import { useAuthStore } from '../../../store/authStore';
 import { useMyAssignments } from '../../../hooks/training/useMyAssignments';
 import { useSafetyTrainingModules, isSafetyAssignment } from '../../../hooks/training/useSafetyTrainings';
 import { formatDate } from '../../../lib/dateUtils';
+import { useTranslation } from 'react-i18next';
 
-const STATUS_LABEL: Record<string, string> = {
-  not_started: 'Not Started',
-  in_progress: 'In Progress',
-  quiz_passed: 'Quiz Passed',
-  quiz_failed: 'Quiz Failed',
-  awaiting_practical: 'Awaiting Practical',
-  expired: 'Expired',
-  retraining_required: 'Retraining Required',
+const STATUS_KEYS: Record<string, string> = {
+  not_started: 'notStarted',
+  in_progress: 'inProgress',
+  quiz_passed: 'quizPassed',
+  quiz_failed: 'quizFailed',
+  awaiting_practical: 'awaitingPractical',
+  expired: 'expired',
+  retraining_required: 'retrainingRequired',
 };
 
 // Safety-training modules assigned to me, excluding ones I've already been
 // certified on.
 export default function MySafetyTrainingsWidget() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const { moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
@@ -33,9 +35,9 @@ export default function MySafetyTrainingsWidget() {
   const loading = modulesLoading || assignmentsLoading;
 
   return (
-    <DashboardWidget title="Safety Trainings Assigned to Me" loading={loading}>
+    <DashboardWidget title={t('common.widgets.mySafetyTrainingsWidget.title')} loading={loading}>
       {pending.length === 0 ? (
-        <EmptyState message="No safety trainings assigned" />
+        <EmptyState message={t('common.widgets.mySafetyTrainingsWidget.empty')} />
       ) : (
         <div className="space-y-2">
           {pending.map((a) => (
@@ -49,12 +51,12 @@ export default function MySafetyTrainingsWidget() {
                 <p className="text-sm text-[#F0F4F8] truncate">{a.moduleName}</p>
                 {a.dueDate && (
                   <p className={`text-[10px] mt-0.5 ${a.dueDate.toMillis() < Date.now() ? 'text-[#EF4444]' : 'text-[#8BA3BF]'}`}>
-                    Due {formatDate(a.dueDate.toDate())}
+                    {t('common.widgets.common.due', { date: formatDate(a.dueDate.toDate()) })}
                   </p>
                 )}
               </div>
               <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-medium bg-[#1E3A5F] text-[#8BA3BF]">
-                {a.status === 'not_started' ? 'Start' : a.status === 'in_progress' ? 'Resume' : STATUS_LABEL[a.status] ?? a.status}
+                {a.status === 'not_started' ? t('common.widgets.common.start') : a.status === 'in_progress' ? t('common.widgets.common.resume') : (STATUS_KEYS[a.status] ? t(`common.widgets.common.trainingStatus.${STATUS_KEYS[a.status]}`) : a.status)}
               </span>
             </button>
           ))}

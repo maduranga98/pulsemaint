@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useProgrammeSignOffQueue } from '../../../hooks/traineeProgram/useProgrammeSignOffQueue';
+import { useTranslation } from 'react-i18next';
 
 interface ProgrammeSignOffQueueWidgetProps {
   companyId: string;
@@ -16,17 +17,18 @@ function formatDate(ts: { toDate?: () => Date } | null | undefined): string {
 // waiting on a recommendation + signature to have their completion
 // certificate issued.
 export default function ProgrammeSignOffQueueWidget({ companyId }: ProgrammeSignOffQueueWidgetProps) {
+  const { t } = useTranslation();
   const { programmes, loading } = useProgrammeSignOffQueue(companyId);
   const navigate = useNavigate();
 
   return (
     <DashboardWidget
-      title="Trainee Programme Sign-Off"
+      title={t('common.widgets.programmeSignOffQueueWidget.title')}
       loading={loading}
-      action={<span className="text-xs text-[#8BA3BF]">{programmes.length} ready</span>}
+      action={<span className="text-xs text-[#8BA3BF]">{t('common.widgets.programmeSignOffQueueWidget.ready', { count: programmes.length })}</span>}
     >
       {programmes.length === 0 ? (
-        <EmptyState message="No programmes ready for sign-off" subMessage="Trainees who finish every module in their programme will appear here." />
+        <EmptyState message={t('common.widgets.programmeSignOffQueueWidget.empty')} subMessage={t('common.widgets.programmeSignOffQueueWidget.emptySub')} />
       ) : (
         <div className="space-y-2">
           {programmes.map((p) => {
@@ -40,11 +42,11 @@ export default function ProgrammeSignOffQueueWidget({ companyId }: ProgrammeSign
                 <div className="min-w-0">
                   <p className="text-sm text-[#F0F4F8] truncate">{p.traineeName}</p>
                   <p className="text-[11px] text-[#8BA3BF]">
-                    {p.durationMonths}-month programme · {totalModules} module{totalModules === 1 ? '' : 's'} completed · started {formatDate(p.startDate)}
+                    {t('common.widgets.programmeSignOffQueueWidget.summary', { months: p.durationMonths, count: totalModules, date: formatDate(p.startDate) })}
                   </p>
                 </div>
                 <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-medium bg-[#10B981]/15 text-[#10B981]">
-                  Ready to Sign Off
+                  {t('common.widgets.programmeSignOffQueueWidget.readyToSignOff')}
                 </span>
               </button>
             );

@@ -11,19 +11,21 @@ import DashboardWidget from '../shared/DashboardWidget';
 import { usePartsRequestTrend } from '../../../hooks/dashboard/usePartsRequestTrend';
 import { CHART_COLORS, CHART_DEFAULTS } from '../../../constants/chartTheme';
 import EmptyState from '../shared/EmptyState';
+import { useTranslation } from 'react-i18next';
 
 interface PartsUsageTrendChartProps {
   companyId: string;
 }
 
 export default function PartsUsageTrendChart({ companyId }: PartsUsageTrendChartProps) {
+  const { t } = useTranslation();
   const { data, loading, error } = usePartsRequestTrend(companyId);
   const hasData = data.some((d) => d.count > 0);
 
   return (
-    <DashboardWidget title="Parts Request Trends (Last 30 Days)" loading={loading} error={error}>
+    <DashboardWidget title={t('common.widgets.partsUsageTrendChart.title')} loading={loading} error={error}>
       {!hasData ? (
-        <EmptyState message="No request activity" />
+        <EmptyState message={t('common.widgets.partsUsageTrendChart.empty')} />
       ) : (
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
@@ -41,7 +43,7 @@ export default function PartsUsageTrendChart({ companyId }: PartsUsageTrendChart
               <Line
                 type="monotone"
                 dataKey="count"
-                name="WO part requests"
+                name={t('common.widgets.partsUsageTrendChart.woPartRequests')}
                 stroke={CHART_COLORS.primary}
                 strokeWidth={2}
                 dot={false}

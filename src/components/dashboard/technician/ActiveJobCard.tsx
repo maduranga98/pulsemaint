@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Clock, CheckCircle, Camera, Package, Wrench } from 'lucide-react';
 import { formatDurationSeconds } from '../../../utils/analytics.utils';
 import type { WorkOrder } from '../../../types';
+import { useTranslation } from 'react-i18next';
 
 interface ActiveJobCardProps {
   workOrder: WorkOrder | null;
@@ -10,6 +11,7 @@ interface ActiveJobCardProps {
 }
 
 export default function ActiveJobCard({ workOrder, onOpen, onRequestParts }: ActiveJobCardProps) {
+  const { t } = useTranslation();
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
@@ -25,8 +27,8 @@ export default function ActiveJobCard({ workOrder, onOpen, onRequestParts }: Act
     return (
       <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-6 text-center">
         <Wrench className="w-10 h-10 text-[#8BA3BF] mx-auto mb-3" />
-        <p className="text-sm text-[#F0F4F8] font-medium">No active job</p>
-        <p className="text-xs text-[#8BA3BF] mt-1">Scan machine QR to check in</p>
+        <p className="text-sm text-[#F0F4F8] font-medium">{t('common.widgets.activeJobCard.noActiveJob')}</p>
+        <p className="text-xs text-[#8BA3BF] mt-1">{t('common.widgets.activeJobCard.scanToCheckIn')}</p>
       </div>
     );
   }
@@ -39,7 +41,7 @@ export default function ActiveJobCard({ workOrder, onOpen, onRequestParts }: Act
     <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-[#8BA3BF] uppercase tracking-wide">Current Job</p>
+          <p className="text-xs text-[#8BA3BF] uppercase tracking-wide">{t('common.widgets.activeJobCard.currentJob')}</p>
           <p className="text-lg font-bold text-[#F0F4F8] font-[Sora] mt-1">{workOrder.woNumber}</p>
           <p className="text-sm text-[#8BA3BF] mt-0.5">{workOrder.machineName} · {workOrder.machineLocation}</p>
         </div>
@@ -48,15 +50,15 @@ export default function ActiveJobCard({ workOrder, onOpen, onRequestParts }: Act
             <Clock className="w-4 h-4" />
             <span className="text-xl font-bold font-mono">{formatDurationSeconds(elapsedSeconds)}</span>
           </div>
-          <p className="text-[10px] text-[#8BA3BF] mt-0.5">Time on job</p>
+          <p className="text-[10px] text-[#8BA3BF] mt-0.5">{t('common.widgets.activeJobCard.timeOnJob')}</p>
         </div>
       </div>
 
       {/* Progress */}
       <div className="mt-4">
         <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-[#8BA3BF]">Checklist Progress</span>
-          <span className="text-[#F0F4F8]">{completedSteps} of {totalSteps}</span>
+          <span className="text-[#8BA3BF]">{t('common.widgets.activeJobCard.checklistProgress')}</span>
+          <span className="text-[#F0F4F8]">{t('common.widgets.activeJobCard.of', { completed: completedSteps, total: totalSteps })}</span>
         </div>
         <div className="h-2 bg-[#0A1628] rounded-full overflow-hidden">
           <div
@@ -73,21 +75,21 @@ export default function ActiveJobCard({ workOrder, onOpen, onRequestParts }: Act
           className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#1A56DB] text-white text-xs font-medium rounded-lg hover:bg-[#1A56DB]/90 transition-colors"
         >
           <CheckCircle className="w-3.5 h-3.5" />
-          Update Status
+          {t('common.widgets.activeJobCard.updateStatus')}
         </button>
         <button
           onClick={() => onOpen?.(workOrder)}
           className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0A1628] border border-[#1E3A5F] text-[#F0F4F8] text-xs font-medium rounded-lg hover:border-[#2E5A8F] transition-colors"
         >
           <Camera className="w-3.5 h-3.5" />
-          Add Photo
+          {t('common.widgets.activeJobCard.addPhoto')}
         </button>
         <button
           onClick={() => onRequestParts?.(workOrder)}
           className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#0A1628] border border-[#1E3A5F] text-[#F0F4F8] text-xs font-medium rounded-lg hover:border-[#2E5A8F] transition-colors"
         >
           <Package className="w-3.5 h-3.5" />
-          Request Parts
+          {t('common.widgets.activeJobCard.requestParts')}
         </button>
       </div>
     </div>
