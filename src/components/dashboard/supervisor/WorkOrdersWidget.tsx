@@ -102,7 +102,7 @@ export default function WorkOrdersWidget({ siteId }: WorkOrdersWidgetProps) {
           />
         ) : (
           list.map((wo) => (
-            <WoRow key={wo.id} wo={wo} onClick={() => navigate('/app/work-orders')} />
+            <WoRow key={wo.id} wo={wo} onClick={() => navigate(`/app/work-orders?woId=${wo.id}`)} />
           ))
         )}
       </div>

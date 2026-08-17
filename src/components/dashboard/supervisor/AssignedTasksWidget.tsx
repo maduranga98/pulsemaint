@@ -31,7 +31,7 @@ export default function AssignedTasksWidget() {
                 {workOrders.slice(0, 5).map((w) => (
                   <button
                     key={w.id}
-                    onClick={() => navigate('/app/work-orders')}
+                    onClick={() => navigate(`/app/work-orders?woId=${w.id}`)}
                     className="w-full text-left px-3 py-2 rounded-md bg-[#0A1628] hover:bg-[#1E3A5F]/40 text-sm text-[#F0F4F8] truncate"
                   >
                     {w.woNumber} · {w.machineName}{w.woType ? ` · ${w.woType.replace(/_/g, ' ')}` : ''}
