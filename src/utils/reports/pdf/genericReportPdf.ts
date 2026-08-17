@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
-import { imageFormatFromDataUrl } from '../../../lib/pdf/logoUtils';
+import { imageFormatFromDataUrl, resolveCompanyLogoDataUrl } from '../../../lib/pdf/logoUtils';
 import { REPORT_DEFINITIONS } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
 import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '../../../services/reports.service';
@@ -148,9 +148,10 @@ export async function exportGenericReportPdf(
   const logoX = 40;
   const logoY = 24;
   let nameX = logoX;
-  if (company?.logoDataUrl) {
+  const logoDataUrl = await resolveCompanyLogoDataUrl(company);
+  if (logoDataUrl) {
     try {
-      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), logoX, logoY, logoSize, logoSize);
+      doc.addImage(logoDataUrl, imageFormatFromDataUrl(logoDataUrl), logoX, logoY, logoSize, logoSize);
       nameX = logoX + logoSize + 8;
     } catch {
       // Malformed/unsupported image data — skip the logo rather than fail the export.

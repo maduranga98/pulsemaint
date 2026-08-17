@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import type { ShiftHandover } from '@/types/handover.types';
 import { formatDuration, formatTimeRange } from '@/utils/handover.utils';
 import { useAuthStore } from '@/store/authStore';
-import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
+import { imageFormatFromDataUrl, resolveCompanyLogoDataUrl } from '@/lib/pdf/logoUtils';
 
 // SUP-024: shift-handover exports used to build an ad-hoc HTML print window
 // (see HandoverDetailPage's old handleExportPdf), which produced a
@@ -25,7 +25,7 @@ function fmt(value: Date | null | undefined): string {
 }
 
 /** Builds a standard-theme PDF for a single shift handover and triggers a download. */
-export function exportHandoverPdf(handover: ShiftHandover): void {
+export async function exportHandoverPdf(handover: ShiftHandover): Promise<void> {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -37,9 +37,10 @@ export function exportHandoverPdf(handover: ShiftHandover): void {
   const logoX = 40;
   const logoY = 24;
   let nameX = logoX;
-  if (company?.logoDataUrl) {
+  const logoDataUrl = await resolveCompanyLogoDataUrl(company);
+  if (logoDataUrl) {
     try {
-      doc.addImage(company.logoDataUrl, imageFormatFromDataUrl(company.logoDataUrl), logoX, logoY, logoSize, logoSize);
+      doc.addImage(logoDataUrl, imageFormatFromDataUrl(logoDataUrl), logoX, logoY, logoSize, logoSize);
       nameX = logoX + logoSize + 8;
     } catch {
       // Malformed/unsupported image data — skip the logo rather than fail the export.
