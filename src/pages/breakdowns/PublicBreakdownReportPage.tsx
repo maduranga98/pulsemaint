@@ -29,6 +29,12 @@ export default function PublicBreakdownReportPage() {
   const [machine, setMachine] = useState<MachineInfo | null>(null);
   const [machineError, setMachineError] = useState<string | null>(null);
   const [loadingMachine, setLoadingMachine] = useState(true);
+  // Safety net: anonymous sign-in or the machine lookup can hang (weak
+  // factory-floor connection, an ad-blocker/extension interfering with
+  // Firebase Auth, ...) with no rejection ever firing, which otherwise
+  // leaves "Loading machine…" spinning forever with no way out.
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   const [description, setDescription] = useState('');
   const [machineStillRunning, setMachineStillRunning] = useState(false);
@@ -47,6 +53,12 @@ export default function PublicBreakdownReportPage() {
 
   useEffect(() => {
     let cancelled = false;
+    setLoadTimedOut(false);
+    setLoadingMachine(true);
+    setMachineError(null);
+    const timeoutTimer = setTimeout(() => {
+      if (!cancelled) setLoadTimedOut(true);
+    }, 10000);
     async function load() {
       if (!machineId) {
         setMachineError('This link is missing a machine — scan the QR code on the machine itself.');
@@ -80,8 +92,11 @@ export default function PublicBreakdownReportPage() {
       }
     }
     load();
-    return () => { cancelled = true; };
-  }, [machineId]);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutTimer);
+    };
+  }, [machineId, retryKey]);
 
   // Anonymous credentials only exist to satisfy the write rule — never leave
   // one lying around once the visitor is done with this page. Only clear
@@ -178,6 +193,20 @@ export default function PublicBreakdownReportPage() {
               <p className="text-lg font-semibold text-slate-900">Breakdown reported</p>
               <p className="text-sm text-slate-500">Ticket <span className="font-mono font-medium">{ticketNumber}</span> has been sent to the maintenance team.</p>
               <p className="text-xs text-slate-400 mt-2">You can close this page.</p>
+            </div>
+          ) : loadingMachine && loadTimedOut ? (
+            <div className="text-center py-4">
+              <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+              <p className="text-slate-700 text-sm mb-4">
+                This is taking longer than usual. Check your connection and try again.
+              </p>
+              <button
+                type="button"
+                onClick={() => setRetryKey((k) => k + 1)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
+              >
+                Retry
+              </button>
             </div>
           ) : loadingMachine ? (
             <p className="text-sm text-slate-500 text-center py-6">Loading machine…</p>

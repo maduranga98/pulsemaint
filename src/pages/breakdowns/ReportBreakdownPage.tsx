@@ -53,6 +53,20 @@ export default function ReportBreakdownPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // ProtectedRoute lets an authenticated user through as soon as Firebase
+  // Auth itself is initialized, before their /users profile doc (which
+  // siteId comes from) has necessarily finished loading — normally that's
+  // a beat, but on a slow connection it can stay pending. Without a
+  // deadline the Machine field just sits on "Loading machines…" forever
+  // with no way out, which reads as the whole form being stuck.
+  const [profileTimedOut, setProfileTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (siteId) return;
+    setProfileTimedOut(false);
+    const timer = setTimeout(() => setProfileTimedOut(true), 8000);
+    return () => clearTimeout(timer);
+  }, [siteId]);
 
   useEffect(() => {
     if (!siteId) return;
@@ -204,6 +218,21 @@ export default function ReportBreakdownPage() {
         </p>
       </div>
 
+      {!siteId && profileTimedOut ? (
+        <div className="max-w-2xl mx-auto px-6 py-10 text-center">
+          <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
+          <p className="text-slate-700 text-sm mb-4">
+            Your account details are taking longer than usual to load. Check your connection and try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
+      ) : (
       <form onSubmit={handleSubmit} className="max-w-2xl mx-auto px-6 py-6 space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
@@ -311,6 +340,7 @@ export default function ReportBreakdownPage() {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 }
