@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle, History, Eye, RotateCcw } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { CheckCircle, Eye, RotateCcw } from 'lucide-react';
 
 interface ImportCompleteScreenProps {
   newCount: number;
@@ -72,13 +71,6 @@ export function ImportCompleteScreen({
             <Eye className="w-4 h-4" />
             View Imported Parts
           </button>
-          <Link
-            to="/app/inventory/import/history"
-            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors text-sm"
-          >
-            <History className="w-4 h-4" />
-            View Import History
-          </Link>
           <button
             onClick={() => setShowUndoModal(true)}
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors text-sm font-medium"

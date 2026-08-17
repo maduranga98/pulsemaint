@@ -88,7 +88,6 @@ import CreatePurchaseOrderPage from '../pages/inventory/CreatePurchaseOrderPage'
 import PurchaseOrderDetailPage from '../pages/inventory/PurchaseOrderDetailPage';
 import EditPurchaseOrderPage from '../pages/inventory/EditPurchaseOrderPage';
 import ExcelImportPage from '../pages/inventory/ExcelImportPage';
-import ImportHistoryPage from '../pages/inventory/ImportHistoryPage';
 import InventoryReportsPage from '../pages/inventory/InventoryReportsPage';
 import InventorySettingsPage from '../pages/inventory/InventorySettingsPage';
 import SuppliersPage from '../pages/inventory/SuppliersPage';
@@ -506,14 +505,6 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
               <ExcelImportPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="inventory/import/history"
-          element={
-            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
-              <ImportHistoryPage />
             </ProtectedRoute>
           }
         />
