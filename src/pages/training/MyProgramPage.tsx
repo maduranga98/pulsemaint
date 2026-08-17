@@ -28,13 +28,17 @@ export default function MyProgramPage() {
   // up — those used to be invisible on this page entirely.
   const { modules: traineeModules } = useTraineeLibraryModules();
   const traineeModuleIds = new Set(traineeModules.map((m) => m.id));
-  const traineeAssignments = assignments.filter((a) => traineeModuleIds.has(a.moduleId));
+  // Only what's still outstanding — completed ones (quiz passed or signed
+  // off) have nothing left to do and are covered by My Certificates instead.
+  const traineeAssignments = assignments.filter(
+    (a) => traineeModuleIds.has(a.moduleId) && a.status !== 'quiz_passed' && a.status !== 'certified',
+  );
 
   const assignedModulesSection = (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
       <h2 className="font-semibold text-slate-900 mb-3">Assigned Trainee Modules</h2>
       {traineeAssignments.length === 0 ? (
-        <p className="text-sm text-slate-500">No trainee modules have been assigned to you yet.</p>
+        <p className="text-sm text-slate-500">No trainee modules outstanding — nothing new assigned, or everything assigned is already complete.</p>
       ) : (
         <div className="space-y-2">
           {traineeAssignments.map((a) => (
