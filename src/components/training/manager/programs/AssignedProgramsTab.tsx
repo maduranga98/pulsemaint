@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
-import { CheckCircle2, ClipboardList, Award } from 'lucide-react';
+import { CheckCircle2, ClipboardList } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '@/store/authStore';
 import { useProgramAssignments } from '@/hooks/training/useProgramAssignments';
 import { signOffProgramAssignment } from '@/services/trainingProgram.service';
+import { SignaturePad } from '@/components/settings/SignaturePad';
 import type { ProgramAssignment } from '@/types/trainingProgram';
-import CertificateView from './CertificateView';
 
 function formatDate(ts: Timestamp | null | undefined): string {
   if (!ts) return '—';
@@ -24,8 +25,8 @@ export default function AssignedProgramsTab() {
 
   const [signingOff, setSigningOff] = useState<ProgramAssignment | null>(null);
   const [note, setNote] = useState('');
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [viewingCert, setViewingCert] = useState<ProgramAssignment | null>(null);
 
   const rows = useMemo(() => {
     return programAssignments.map((pa) => {
@@ -40,19 +41,23 @@ export default function AssignedProgramsTab() {
   }, [programAssignments, moduleAssignmentsById]);
 
   const openRows = rows.filter((r) => r.pa.status !== 'signed_off');
-  const signedOffRows = rows.filter((r) => r.pa.status === 'signed_off');
 
   const handleConfirmSignOff = async () => {
     if (!signingOff) return;
+    if (!signatureDataUrl) {
+      toast.error('Please add your signature to authorize the certificate.');
+      return;
+    }
     const row = rows.find((r) => r.pa.id === signingOff.id);
     setSaving(true);
     try {
       const moduleResults = (row?.moduleAssignments ?? [])
         .filter((a): a is NonNullable<typeof a> => !!a)
         .map((a) => ({ moduleId: a.moduleId, moduleName: a.moduleName, score: a.bestScore ?? 0 }));
-      await signOffProgramAssignment(signingOff.id, note, userId, userName, userRole, moduleResults);
+      await signOffProgramAssignment(signingOff.id, note, userId, userName, userRole, moduleResults, signatureDataUrl);
       setSigningOff(null);
       setNote('');
+      setSignatureDataUrl(null);
     } finally {
       setSaving(false);
     }
@@ -133,30 +138,6 @@ export default function AssignedProgramsTab() {
         )}
       </div>
 
-      {signedOffRows.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-800">Signed Off</h3>
-          </div>
-          <div className="divide-y divide-gray-100">
-            {signedOffRows.map(({ pa }) => (
-              <div key={pa.id} className="flex items-center justify-between px-5 py-3">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{pa.traineeName}</p>
-                  <p className="text-xs text-gray-500">{pa.programName}</p>
-                </div>
-                <button
-                  onClick={() => setViewingCert(pa)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors"
-                >
-                  <Award className="w-3.5 h-3.5" /> View Certificate
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {signingOff && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4">
@@ -176,11 +157,18 @@ export default function AssignedProgramsTab() {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                Authorizing signature <span className="text-red-500">*</span>
+              </label>
+              <SignaturePad onChange={setSignatureDataUrl} />
+            </div>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => {
                   setSigningOff(null);
                   setNote('');
+                  setSignatureDataUrl(null);
                 }}
                 disabled={saving}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
@@ -189,7 +177,7 @@ export default function AssignedProgramsTab() {
               </button>
               <button
                 onClick={() => void handleConfirmSignOff()}
-                disabled={saving}
+                disabled={saving || !signatureDataUrl}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 rounded-lg transition-colors"
               >
                 {saving ? 'Signing off…' : 'Confirm Sign Off'}
@@ -198,8 +186,6 @@ export default function AssignedProgramsTab() {
           </div>
         </div>
       )}
-
-      {viewingCert && <CertificateView programAssignment={viewingCert} onClose={() => setViewingCert(null)} />}
     </div>
   );
 }
