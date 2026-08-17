@@ -53,8 +53,11 @@ export interface ProgramSignOff {
 }
 
 export interface ProgramCertificate {
+  certificateNumber: string;
   moduleResults: ProgramCertificateModuleResult[];
   issuedAt: Timestamp;
+  /** The signing-off manager's captured signature, drawn onto the certificate PDF. */
+  signatureImageDataUrl?: string | null;
 }
 
 export interface ProgramAssignment {

@@ -9,6 +9,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { buildProgramCertificateNumber } from '@/lib/training/programCertificatePdf';
 import type { TraineeLibraryModule } from '@/lib/training/trainingTypes';
 import type {
   ProgramCertificateModuleResult,
@@ -153,7 +154,8 @@ export async function signOffProgramAssignment(
   signedOffBy: string,
   signedOffByName: string,
   signedOffByRole: string,
-  moduleResults: ProgramCertificateModuleResult[]
+  moduleResults: ProgramCertificateModuleResult[],
+  signatureImageDataUrl: string
 ): Promise<void> {
   await updateDoc(doc(db, 'programAssignments', programAssignmentId), {
     status: 'signed_off',
@@ -165,8 +167,10 @@ export async function signOffProgramAssignment(
       signedOffAt: serverTimestamp(),
     },
     certificate: {
+      certificateNumber: buildProgramCertificateNumber(),
       moduleResults,
       issuedAt: serverTimestamp(),
+      signatureImageDataUrl,
     },
   });
 }
