@@ -16,7 +16,6 @@ import type {
   TechnicianDesignation,
   TechnicianStatus,
 } from '@/lib/contractors/contractorTypes';
-import PhotoUploadCrop from './PhotoUploadCrop';
 import type { TechnicianCertificationDoc } from '@/lib/contractors/contractorTypes';
 
 export function TechnicianForm() {
@@ -35,8 +34,6 @@ export function TechnicianForm() {
   const [certifications, setCertifications] = useState('');
   const [certFiles, setCertFiles] = useState<File[]>([]);
   const [existingCertDocs, setExistingCertDocs] = useState<TechnicianCertificationDoc[]>([]);
-  const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [existingPhotoUrl, setExistingPhotoUrl] = useState<string | undefined>();
   const [saving, setSaving] = useState(false);
 
   // Load existing technician when editing.
@@ -56,7 +53,6 @@ export function TechnicianForm() {
       setSpecialization(data.specialization ?? []);
       setCertifications((data.certifications ?? []).join(', '));
       setExistingCertDocs((data.certificationDocuments ?? []) as TechnicianCertificationDoc[]);
-      setExistingPhotoUrl(data.photoUrl);
     })();
     return () => { cancelled = true; };
   }, [contractorId, techId]);
@@ -83,14 +79,6 @@ export function TechnicianForm() {
     }
     setSaving(true);
     try {
-      let photoUrl = existingPhotoUrl ?? null;
-      if (photoFile) {
-        const path = `contractors/${contractorId}/technicians/${Date.now()}_${photoFile.name}`;
-        const sref = storageRef(storage, path);
-        await uploadBytes(sref, photoFile);
-        photoUrl = await getDownloadURL(sref);
-      }
-
       const certList = certifications
         .split(',')
         .map((c) => c.trim())
@@ -128,7 +116,6 @@ export function TechnicianForm() {
         specialization,
         certifications: certList,
         certificationDocuments,
-        photoUrl,
         updatedAt: serverTimestamp(),
       };
 
@@ -155,7 +142,6 @@ export function TechnicianForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border border-slate-200 bg-white p-4">
-      <PhotoUploadCrop photoUrl={existingPhotoUrl} onFileSelect={setPhotoFile} />
       <div className="grid gap-4 sm:grid-cols-2">
         <input placeholder="Full name *" value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
         <input placeholder="NIC/Passport *" value={nicOrPassport} onChange={(e) => setNicOrPassport(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
