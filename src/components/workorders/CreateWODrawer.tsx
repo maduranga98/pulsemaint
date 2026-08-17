@@ -160,9 +160,12 @@ export function CreateWODrawer({
         });
         setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor' || u.role === 'plant_manager' || u.role === 'admin'));
         // Trainees can be assigned to a WO (and its steps/tasks) alongside technicians.
+        // A department-scoped supervisor only ever sees technicians/trainees
+        // registered in their own department — same scoping as the machine list.
         setTechnicians(
           users
             .filter((u) => u.role === 'technician' || u.role === 'trainee')
+            .filter((u) => !scopedDepartment || u.department === scopedDepartment)
             .map((u) => (u.role === 'trainee' ? { ...u, name: `${u.name} (Trainee)` } : u)),
         );
 
@@ -799,7 +802,7 @@ export function CreateWODrawer({
                 department: t.department ?? '',
                 activeWOCount: 0,
               }))}
-              supervisors={supervisors.map((s) => ({ id: s.id, name: s.name }))}
+              supervisors={supervisors.map((s) => ({ id: s.id, name: s.name, role: s.role, department: s.department ?? '' }))}
               contractors={registeredContractors.map((c) => ({
                 id: c.id,
                 companyName: c.companyName,
