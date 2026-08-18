@@ -69,7 +69,7 @@ const DASHBOARD_ITEM: NavItem = {
   labelKey: 'common.nav.dashboard',
   to: '/app/dashboard',
   icon: Icon.dashboard,
-  roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee'],
+  roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'],
 };
 
 // Everything else is organized into collapsible sub-tabs (see NavGroup /
@@ -81,7 +81,11 @@ const NAV_GROUPS: NavGroup[] = [
     labelKey: 'common.nav.groups.maintenance',
     items: [
       { labelKey: 'common.nav.items.machines', to: '/app/machines', icon: Icon.machines, roles: ['supervisor', 'plant_manager', 'admin', 'technician', 'trainee'] },
-      { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'floor_operator', 'supervisor', 'plant_manager', 'admin'] },
+      // floor_operator no longer has a standalone Breakdowns tab — reporting
+      // and their department's breakdown status now live on their dashboard
+      // instead (see ReportBreakdownWidget / MyDepartmentBreakdownsWidget on
+      // FloorOperatorDashboard).
+      { labelKey: 'common.nav.items.breakdowns', to: '/app/breakdowns', icon: Icon.report, roles: ['safety_officer', 'supervisor', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.workOrders', to: '/app/work-orders', icon: Icon.wrench, roles: ['supervisor', 'plant_manager', 'admin'] },
       { labelKey: 'common.nav.items.myWorkOrders', to: '/app/my-work-orders', icon: Icon.wrench, roles: ['plant_manager'] },
       {
@@ -108,20 +112,21 @@ const NAV_GROUPS: NavGroup[] = [
       // on ManagerDashboard, which safety_officer shares); both still have
       // route-level access to the page if linked to directly.
       { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
-      // Frontline roles a safety case can be assigned down to for action — they
-      // land on the same page's "Reported to Me" filtered view. Store keeper
-      // has no standalone Safety tab — their safety cases/trainings surface
-      // on their dashboard instead (see InventoryDashboard's SafetyForYouWidget).
-      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['floor_operator'] },
+      // Frontline roles a safety case can be assigned down to for action land
+      // on the same page's "Reported to Me" filtered view. Store keeper and
+      // floor_operator have no standalone Safety tab — their safety
+      // cases/trainings surface on their dashboard instead (see
+      // InventoryDashboard's SafetyForYouWidget and FloorOperatorDashboard's
+      // MySafetyCasesWidget/MySafetyTrainingsWidget).
       // Safety officer and HR officer now use admin's "Safety Trainings" tab
       // (scheduling safety training sessions) instead of their own separate
       // entries (a general module library link, and a standalone calendar tab).
       { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin', 'supervisor', 'safety_officer'] },
       // Admin/plant manager/supervisor/safety officer/HR officer reach the
       // calendar via the "View Training Schedules" button on the Safety
-      // Trainings page instead of a dedicated nav entry; every other role
-      // still needs one since they don't have access to that page.
-      { labelKey: 'common.nav.items.safetyTrainingSchedules', to: '/app/safety/calendar', icon: Icon.book, roles: ['floor_operator'] },
+      // Trainings page instead of a dedicated nav entry. floor_operator's
+      // safety trainings now surface on their dashboard instead (see
+      // MySafetyTrainingsWidget on FloorOperatorDashboard).
     ],
   },
   {
