@@ -59,13 +59,16 @@ export default function SafetyCasesPage() {
   const isSafetyOfficer = role === 'safety_officer';
   const { cases, loading } = useSafetyCases(companyId);
 
-  // Safety officers own the whole board; managers see only cases reported to them.
+  // Safety officers own the whole board; managers see only cases reported to
+  // them. Closed cases drop out of every non-admin role's view entirely —
+  // admin is the only role that keeps seeing them.
   const visible = useMemo(() => {
-    if (isSafetyOfficer) return cases;
-    if (REPORTED_TO_ROLES.includes(role)) {
-      return cases.filter((c) => c.reportedToUserId === profile?.id);
+    let list = cases;
+    if (!isSafetyOfficer && REPORTED_TO_ROLES.includes(role)) {
+      list = list.filter((c) => c.reportedToUserId === profile?.id);
     }
-    return cases;
+    if (role !== 'admin') list = list.filter((c) => c.status !== 'closed');
+    return list;
   }, [cases, isSafetyOfficer, role, profile?.id]);
 
   const heading = isSafetyOfficer ? 'Safety Cases' : 'Safety Cases Reported to Me';

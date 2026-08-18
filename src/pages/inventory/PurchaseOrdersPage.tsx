@@ -23,6 +23,11 @@ export function PurchaseOrdersPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const { error: toastError, success: toastSuccess } = useToast();
   const canApprove = !!userProfile && CAN_APPROVE_ROLES.includes(userProfile.role);
+  // Closed purchase orders (fully received or cancelled) are only ever
+  // visible to admins — every other role stops seeing a PO once it's done.
+  const CLOSED_PO_STATUSES = new Set(['received', 'cancelled']);
+  const visibleOrders =
+    userProfile?.role === 'admin' ? orders : orders.filter((o) => !CLOSED_PO_STATUSES.has(o.status));
 
   async function queueEmail(order: (typeof orders)[number], event: 'approved' | 'rejected') {
     try {
@@ -163,7 +168,7 @@ export function PurchaseOrdersPage() {
         </div>
       ) : (
         <PurchaseOrderList
-          orders={orders}
+          orders={visibleOrders}
           onView={(id) => navigate(`/app/inventory/purchase-orders/${id}`)}
           onEdit={(id) => navigate(`/app/inventory/purchase-orders/${id}/edit`)}
           onMarkReceived={(id) => navigate(`/app/inventory/receive?poId=${id}`)}

@@ -74,6 +74,11 @@ export function WOListView() {
   // WOReviewSignOffPanel — supervisor and above.
   const canSignOff =
     role === 'supervisor' || role === 'admin' || role === 'plant_manager';
+  // Closed/signed-off/cancelled work orders are only ever visible to admins —
+  // every other role (including supervisors/plant managers who can still
+  // perform the sign-off action itself via canSignOff) stops seeing a WO the
+  // moment it's terminal.
+  const canViewSignedOff = role === 'admin';
 
   const filters: WOFilters = {};
   if (searchQuery) filters.searchQuery = searchQuery;
@@ -116,7 +121,9 @@ export function WOListView() {
     activeCategory === 'needSignOff'
       ? nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status))
       : activeCategory === 'signedOff'
-      ? nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status))
+      ? canViewSignedOff
+        ? nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status))
+        : []
       : activeCategory === 'approvalRequests'
       ? []
       : nonExcludedWOs
@@ -209,7 +216,7 @@ export function WOListView() {
                 </span>
               </button>
             )}
-            {canSignOff && (
+            {canViewSignedOff && (
               <button
                 type="button"
                 onClick={() => setActiveCategory('signedOff')}
