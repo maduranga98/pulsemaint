@@ -725,6 +725,70 @@
         "title": "වැඩ නියෝග",
         "today": "අද ({{count}})"
       }
+    },
+    "machines": {
+      "pageTitle": "යන්ත්‍ර ලේඛනය",
+      "summary": "යන්ත්‍ර {{total}} · ක්‍රියාත්මක {{active}} · නඩත්තුවේ {{maintenance}}",
+      "sortLabel": "යන්ත්‍ර පිළිවෙළ",
+      "sortAZ": "පිළිවෙළ: A → Z",
+      "sortZA": "පිළිවෙළ: Z → A",
+      "addMachine": "+ යන්ත්‍රයක් එකතු කරන්න",
+      "import": "ආයාත කරන්න",
+      "exportCsv": "CSV අපනයනය",
+      "loading": "පූරණය වෙමින්…",
+      "loadMore": "තවත් පූරණය කරන්න",
+      "noMachinesYet": "තවම යන්ත්‍ර ලියාපදිංචි කර නැත",
+      "noMachinesMatch": "ඔබේ පෙරහන්වලට ගැලපෙන යන්ත්‍ර නැත",
+      "addFirstMachine": "පළමු යන්ත්‍රය එකතු කරන්න",
+      "clearFilters": "පෙරහන් ඉවත් කරන්න",
+      "filters": {
+        "searchPlaceholder": "නම, මාදිලිය, හෝ අනුක්‍රමික අංකයෙන් සොයන්න…",
+        "status": "තත්ත්වය",
+        "criticality": "වැදගත්කම",
+        "department": "අංශය",
+        "healthScore": "සෞඛ්‍ය ලකුණු",
+        "statusOptions": {
+          "active": "ක්‍රියාත්මක",
+          "under_maintenance": "නඩත්තුවේ",
+          "decommissioned": "පිටතට ගත් "
+        },
+        "criticalityOptions": {
+          "5": "5 - අතිශය වැදගත්",
+          "4": "4 - ඉහළ",
+          "3": "3 - මධ්‍යම",
+          "2": "2 - අඩු",
+          "1": "1 - අවම"
+        },
+        "healthOptions": {
+          "good": "හොඳයි (70-100)",
+          "warning": "අවවාදයයි (40-69)",
+          "critical": "විවේචනාත්මකයි (0-39)"
+        }
+      },
+      "table": {
+        "machine": "යන්ත්‍රය",
+        "serial": "අනුක්‍රමික අංකය",
+        "location": "පිහිටීම",
+        "type": "වර්ගය",
+        "criticality": "වැදගත්කම",
+        "status": "තත්ත්වය",
+        "health": "සෞඛ්‍යය",
+        "lastService": "අවසන් සේවාව",
+        "nextPm": "ඊළඟ PM",
+        "actions": "ක්‍රියා",
+        "never": "කිසි විටෙක නැත",
+        "notScheduled": "සැලසුම් කර නැත",
+        "noMachinesFound": "යන්ත්‍ර හමු නොවීය",
+        "view": "බලන්න",
+        "edit": "සංස්කරණය",
+        "qr": "QR"
+      },
+      "card": {
+        "noLocation": "පිහිටීමක් නැත",
+        "lastService": "අවසන් සේවාව: {{when}}",
+        "nextPmDue": "ඊළඟ PM දිනය: {{when}}",
+        "viewQrCode": "QR කේතය බලන්න"
+      }
     }
   }
 }

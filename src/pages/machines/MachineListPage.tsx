@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -368,6 +369,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
 }
 
 export function MachineListPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
   const [filters, setFilters] = useState<Partial<MachineFilters>>({});
@@ -431,7 +433,7 @@ export function MachineListPage() {
   if (!userProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-gray-600">{t('common.machines.loading')}</p>
       </div>
     );
   }
@@ -473,9 +475,13 @@ export function MachineListPage() {
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Machine Registry</h1>
+              <h1 className="text-3xl font-bold text-gray-900">{t('common.machines.pageTitle')}</h1>
               <p className="text-gray-600 text-sm mt-1">
-                {scopedDepartment ? scopedMachines.length : totalCount || machines.length} machines · {activeMachines} active · {maintenanceMachines} in maintenance
+                {t('common.machines.summary', {
+                  total: scopedDepartment ? scopedMachines.length : totalCount || machines.length,
+                  active: activeMachines,
+                  maintenance: maintenanceMachines,
+                })}
               </p>
             </div>
 
@@ -484,17 +490,17 @@ export function MachineListPage() {
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
                 className="px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white"
-                aria-label="Sort machines"
+                aria-label={t('common.machines.sortLabel')}
               >
-                <option value="asc">Sort: A → Z</option>
-                <option value="desc">Sort: Z → A</option>
+                <option value="asc">{t('common.machines.sortAZ')}</option>
+                <option value="desc">{t('common.machines.sortZA')}</option>
               </select>
               {canCreateMachine && (
                 <Link
                   to="/app/machines/new"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
                 >
-                  + Add Machine
+                  {t('common.machines.addMachine')}
                 </Link>
               )}
               {canCreateMachine && (
@@ -502,7 +508,7 @@ export function MachineListPage() {
                   onClick={() => setShowImport(true)}
                   className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm"
                 >
-                  Import
+                  {t('common.machines.import')}
                 </button>
               )}
               <button
@@ -510,7 +516,7 @@ export function MachineListPage() {
                 disabled={filteredMachines.length === 0}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
               >
-                Export CSV
+                {t('common.machines.exportCsv')}
               </button>
             </div>
           </div>
@@ -546,14 +552,16 @@ export function MachineListPage() {
         {!loading && filteredMachines.length === 0 && !error && (
           <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
             <p className="text-gray-600 mb-4">
-              {machines.length === 0 ? 'No machines registered yet' : 'No machines match your filters'}
+              {machines.length === 0
+                ? t('common.machines.noMachinesYet')
+                : t('common.machines.noMachinesMatch')}
             </p>
             {canCreateMachine && machines.length === 0 && (
               <Link
                 to="/app/machines/new"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Add First Machine
+                {t('common.machines.addFirstMachine')}
               </Link>
             )}
             {machines.length > 0 && filteredMachines.length === 0 && (
@@ -561,7 +569,7 @@ export function MachineListPage() {
                 onClick={() => setFilters({})}
                 className="text-blue-600 hover:text-blue-800 font-medium text-sm"
               >
-                Clear Filters
+                {t('common.machines.clearFilters')}
               </button>
             )}
           </div>
@@ -590,7 +598,7 @@ export function MachineListPage() {
               onClick={loadMore}
               className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
             >
-              Load More
+              {t('common.machines.loadMore')}
             </button>
           </div>
         )}
