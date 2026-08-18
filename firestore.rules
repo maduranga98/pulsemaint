@@ -366,10 +366,13 @@ service cloud.firestore {
       allow get: if request.auth != null && request.auth.token.firebase.sign_in_provider == 'anonymous';
       // Machines updated by Cloud Functions on WO sign-off; supervisors can update too
       allow write: if isAdmin() || isSupervisor() || isPlantManager();
-      // Technicians may only stamp service metadata when completing a WO
+      // Technicians may only stamp service metadata when completing a WO,
+      // plus `status` — self-attending a breakdown or moving an assigned WO
+      // flips the machine to/from 'under_maintenance' (see
+      // markMachineUnderMaintenance / markMachineActiveIfNoOpenWork).
       allow update: if isTechnician()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'lastServiceDate', 'lastServiceType', 'nextPmDue', 'updatedAt'
+          'lastServiceDate', 'lastServiceType', 'nextPmDue', 'updatedAt', 'status'
         ]);
     }
 

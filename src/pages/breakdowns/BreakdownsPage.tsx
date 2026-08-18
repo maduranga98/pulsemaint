@@ -9,6 +9,7 @@ import { notifyUsers } from '../../services/notifications.service';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import { CreateWODrawer } from '../../components/workorders/CreateWODrawer';
+import { markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 
 const ROLE_LABELS: Record<string, string> = {
@@ -339,6 +340,7 @@ export default function BreakdownsPage() {
         });
       }
       await batch.commit();
+      void markMachineUnderMaintenance(assigningGroup.machineId);
       void notifyUsers(userProfile.companyId, [candidate.id], {
         type: 'breakdown',
         message: `You've been assigned to ${tickets.length > 1 ? `${tickets.length} breakdowns` : 'a breakdown'} on ${assigningGroup.machineName}`,
@@ -381,6 +383,7 @@ export default function BreakdownsPage() {
         });
       }
       await batch.commit();
+      void markMachineUnderMaintenance(group.machineId);
       // One shared assessment form for every ticket just attended on this
       // machine, instead of bouncing the technician between separate pages.
       navigate(`/app/breakdowns/attend?ids=${tickets.map((t) => t.id).join(',')}`);

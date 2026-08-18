@@ -15,6 +15,7 @@ import { useAuthStore } from '../store/authStore';
 import { logAuditEvent } from '../utils/reports/auditLogger';
 import { notifyRoles } from '../services/notifications.service';
 import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
+import { markMachineActiveIfNoOpenWork } from '../lib/machineOperationalStatus';
 import { toast } from 'sonner';
 
 interface UseSignOffResult {
@@ -139,10 +140,15 @@ export function useSignOff(): UseSignOffResult {
           const data = snap.data() as {
             linkedBreakdownId?: string | null;
             woNumber?: string;
+            machineId?: string;
             contractorCompanyId?: string | null;
             contractorTechnicianIds?: string[];
           } | undefined;
           woNumber = data?.woNumber ?? woId;
+
+          if (data?.machineId) {
+            void markMachineActiveIfNoOpenWork(data.machineId);
+          }
 
           // A signed-off contractor job counts as a completed visit for each of
           // its assigned team members — bump their "jobs at this factory" count

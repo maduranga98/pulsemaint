@@ -10,6 +10,7 @@ import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnic
 import { BreakdownDetailCard } from '../../components/breakdowns/BreakdownDetailCard';
 import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 import { notifyUsers } from '../../services/notifications.service';
+import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
@@ -111,6 +112,7 @@ export default function ViewBreakdownPage() {
           note: 'Breakdown closed after resolution and RCA.',
         }),
       });
+      void markMachineActiveIfNoOpenWork(breakdown?.machineId);
       navigate('/app/breakdowns', { replace: true });
     } catch (err: any) {
       setError(err?.message || 'Failed to close breakdown.');
@@ -141,6 +143,7 @@ export default function ViewBreakdownPage() {
           note: `Assigned to ${candidate.fullName} by ${userProfile.fullName}`,
         }),
       });
+      void markMachineUnderMaintenance(breakdown?.machineId);
       void notifyUsers(userProfile.companyId, [candidate.id], {
         type: 'breakdown',
         message: `You've been assigned to breakdown ${breakdown?.ticketNumber} on ${breakdown?.machineName}`,
@@ -177,6 +180,7 @@ export default function ViewBreakdownPage() {
           note: `Self-attended by ${userProfile.fullName}`,
         }),
       });
+      void markMachineUnderMaintenance(breakdown?.machineId);
       navigate(`/app/breakdowns/attend?ids=${id}`);
     } catch (err: any) {
       setError(err?.message || 'Failed to attend.');
