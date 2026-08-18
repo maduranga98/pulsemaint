@@ -30,6 +30,12 @@ export default function ReportBreakdownPage() {
 
   const [machines, setMachines] = useState<MachineOption[]>([]);
   const [machinesLoading, setMachinesLoading] = useState(true);
+  // Same failure mode as the profile-load deadline below: a stalled
+  // connection can leave the machines query pending forever with no
+  // rejection ever firing, stranding the Machine field on "Loading
+  // machines…" with no way out.
+  const [machinesTimedOut, setMachinesTimedOut] = useState(false);
+  const [machinesRetryKey, setMachinesRetryKey] = useState(0);
 
   const [machineId, setMachineId] = useState(preselectedMachineId);
 
@@ -71,6 +77,8 @@ export default function ReportBreakdownPage() {
   useEffect(() => {
     if (!siteId) return;
     setMachinesLoading(true);
+    setMachinesTimedOut(false);
+    const timer = setTimeout(() => setMachinesTimedOut(true), 8000);
     getDocs(query(collection(db, 'machines'), where('siteId', '==', siteId)))
       .then(async (snap) => {
         const list: MachineOption[] = snap.docs.map((d) => {
@@ -105,8 +113,12 @@ export default function ReportBreakdownPage() {
         setMachines(list);
       })
       .catch((e) => setError(e.message))
-      .finally(() => setMachinesLoading(false));
-  }, [siteId, preselectedMachineId]);
+      .finally(() => {
+        clearTimeout(timer);
+        setMachinesLoading(false);
+      });
+    return () => clearTimeout(timer);
+  }, [siteId, preselectedMachineId, machinesRetryKey]);
 
   const scannedMachine = preselectedMachineId
     ? machines.find((m) => m.id === preselectedMachineId)
@@ -252,6 +264,18 @@ export default function ReportBreakdownPage() {
                 </span>
               </div>
             )}
+            {machinesLoading && machinesTimedOut ? (
+              <div className="flex items-center justify-between gap-3 px-4 py-2 border border-slate-200 rounded-lg bg-slate-50">
+                <span className="text-sm text-slate-500">Machine list is taking longer than usual to load.</span>
+                <button
+                  type="button"
+                  onClick={() => setMachinesRetryKey((k) => k + 1)}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg flex-shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : (
             <select
               value={machineId}
               onChange={(e) => setMachineId(e.target.value)}
@@ -267,6 +291,7 @@ export default function ReportBreakdownPage() {
                 </option>
               ))}
             </select>
+            )}
           </div>
 
           <div>
