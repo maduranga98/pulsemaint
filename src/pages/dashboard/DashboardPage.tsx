@@ -10,7 +10,7 @@ const DASHBOARD_BY_ROLE: Record<UserRole, string> = {
   store_keeper: '/app/dashboard/inventory',
   hr_officer: '/app/dashboard/training',
   trainee: '/app/dashboard/trainee',
-  floor_operator: '/app/dashboard', // No access
+  floor_operator: '/app/dashboard/floor-operator',
   // Safety officers use the same dashboard content as admin/plant manager,
   // under their own URL — see /app/dashboard/safety in AppRouter.
   safety_officer: '/app/dashboard/safety',

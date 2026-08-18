@@ -5,3 +5,4 @@ export { default as TechnicianDashboard } from './TechnicianDashboard';
 export { default as TraineeDashboard } from './TraineeDashboard';
 export { default as InventoryDashboard } from './InventoryDashboard';
 export { default as TrainingDashboard } from './TrainingDashboard';
+export { default as FloorOperatorDashboard } from './FloorOperatorDashboard';
