@@ -68,7 +68,11 @@ export function RequestsQueue() {
   // A requester (technician/trainee/etc.) only sees their own requests; the
   // review-queue tabs (To Review / Awaiting Supervisor) don't apply to them.
   const ownOnly = !MANAGE_ROLES.includes(role ?? '');
-  const tabs = ownOnly ? OWN_TABS : role === 'store_keeper' ? STORE_KEEPER_TABS : TABS;
+  // Completed parts requests are only ever visible to admins — every other
+  // role stops seeing a request once it's completed.
+  const isAdmin = role === 'admin';
+  const baseTabs = ownOnly ? OWN_TABS : role === 'store_keeper' ? STORE_KEEPER_TABS : TABS;
+  const tabs = isAdmin ? baseTabs : baseTabs.filter((t) => t.id !== 'completed');
 
   const [activeTab, setActiveTab] = useState<TabId>(ownOnly ? 'all' : 'pending_storekeeper');
   const [search, setSearch] = useState('');
@@ -111,7 +115,11 @@ export function RequestsQueue() {
   const hasPendingReturn = (r: (typeof requests)[number]) =>
     r.items.some((i) => i.isReturnable && !i.isReturned);
 
-  const scoped = activeTab === 'pending_return' ? requests.filter(hasPendingReturn) : requests;
+  // The 'all'/'pending_return' tabs fetch every status server-side (see the
+  // hook call above), so a non-admin's "completed" requests must be dropped
+  // here too, not just from the tab list.
+  const visibleRequests = isAdmin ? requests : requests.filter((r) => r.status !== 'completed');
+  const scoped = activeTab === 'pending_return' ? visibleRequests.filter(hasPendingReturn) : visibleRequests;
 
   // Client-side search filter
   const filtered = scoped.filter((r) => {
@@ -127,9 +135,9 @@ export function RequestsQueue() {
 
   // Count badges per tab
   function countForTab(tabId: TabId): number {
-    if (tabId === 'all') return requests.length;
-    if (tabId === 'pending_return') return requests.filter(hasPendingReturn).length;
-    return requests.filter((r) => r.status === tabId).length;
+    if (tabId === 'all') return visibleRequests.length;
+    if (tabId === 'pending_return') return visibleRequests.filter(hasPendingReturn).length;
+    return visibleRequests.filter((r) => r.status === tabId).length;
   }
 
   function handleReview(requestId: string) {

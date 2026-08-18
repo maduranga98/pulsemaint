@@ -163,6 +163,10 @@ export default function BreakdownsPage() {
   const filtered = useMemo(() => {
     const closedSet = new Set<BreakdownStatus>(['closed', 'cancelled']);
     let list = breakdowns;
+    // Closed/cancelled breakdowns are only ever visible to admins — every
+    // other role stops seeing a ticket the moment it's closed, including on
+    // the "Closed" tab itself.
+    if (role !== 'admin') list = list.filter((b) => !closedSet.has(b.status));
     // Technician/trainee/supervisor/floor_operator only ever see breakdowns
     // for their own registered department — everyone else keeps full
     // site-wide visibility.
@@ -185,7 +189,7 @@ export default function BreakdownsPage() {
       );
     }
     return list;
-  }, [breakdowns, filter, severityFilter, search, scopedDepartment]);
+  }, [breakdowns, filter, severityFilter, search, scopedDepartment, role]);
 
   // Multiple open tickets on the same machine are shown as one row so a
   // supervisor isn't assigning/attending the same machine ticket by ticket.
@@ -434,7 +438,7 @@ export default function BreakdownsPage() {
       <div className="px-6 py-5 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex gap-1">
-            {(['reported', 'assigned', 'open', 'closed'] as Filter[]).map((f) => (
+            {(['reported', 'assigned', 'open', ...(role === 'admin' ? (['closed'] as Filter[]) : [])] as Filter[]).map((f) => (
               <button
                 key={f}
                 type="button"

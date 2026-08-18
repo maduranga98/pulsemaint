@@ -167,12 +167,14 @@ export default function EvaluationsPage() {
         </div>
       )}
 
-      {/* Category view toggle */}
+      {/* Category view toggle. Completed evaluations are only ever visible
+          to admins — every other role stops seeing an evaluation once it's
+          submitted, including this tab. */}
       <div className="mb-3 flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
         {([
           { id: 'role' as const, label: 'By Role' },
           { id: 'department' as const, label: 'By Department' },
-          { id: 'completed' as const, label: 'Completed' },
+          ...(role === 'admin' ? [{ id: 'completed' as const, label: 'Completed' }] : []),
         ]).map((tab) => (
           <button
             key={tab.id}
@@ -188,7 +190,7 @@ export default function EvaluationsPage() {
       </div>
 
       {/* Categories */}
-      {viewMode === 'completed' ? (
+      {viewMode === 'completed' && role === 'admin' ? (
         <div className="mb-6 space-y-3">
           {completedSessions.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-500">No completed evaluations yet.</p>

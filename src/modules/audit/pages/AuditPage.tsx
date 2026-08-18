@@ -76,9 +76,14 @@ export function AuditPage() {
   const [tab, setTab] = useState<Tab>('library');
 
   const isAdmin = role === 'admin';
+  // Completed audits are only ever visible to admins — every other role
+  // stops seeing an audit session once it's submitted.
   const completedSessions = useMemo(
-    () => sessions.filter((s) => s.status === 'submitted').sort((a, b) => (b.submittedAt?.toMillis?.() ?? 0) - (a.submittedAt?.toMillis?.() ?? 0)),
-    [sessions]
+    () =>
+      isAdmin
+        ? sessions.filter((s) => s.status === 'submitted').sort((a, b) => (b.submittedAt?.toMillis?.() ?? 0) - (a.submittedAt?.toMillis?.() ?? 0))
+        : [],
+    [sessions, isAdmin]
   );
 
   // Data-driven category list: one card per distinct category present in
@@ -187,7 +192,8 @@ export function AuditPage() {
           [
             { value: 'inProgress', label: 'In Progress', count: inProgressDrafts.length },
             { value: 'library', label: 'Audit Library', count: 0 },
-            { value: 'completed', label: 'Completed', count: 0 },
+            // Completed audits are only ever visible to admins.
+            ...(isAdmin ? [{ value: 'completed' as Tab, label: 'Completed', count: 0 }] : []),
           ] as { value: Tab; label: string; count: number }[]
         ).map((t) => (
           <button

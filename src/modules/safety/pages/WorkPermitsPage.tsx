@@ -50,11 +50,16 @@ export default function WorkPermitsPage() {
   const [extendValue, setExtendValue] = useState('');
   const [extendSaving, setExtendSaving] = useState(false);
 
+  const role = profile?.role ?? '';
+  // Closed work permits are only ever visible to admins — every other role
+  // stops seeing a permit the moment it closes, including on the Closed tab.
+  const effectiveLifecycleTab = role === 'admin' ? lifecycleTab : 'current';
+
   const filtered = useMemo(() => {
-    let list = permits.filter((p) => (lifecycleTab === 'closed' ? p.status === 'closed' : p.status !== 'closed'));
+    let list = permits.filter((p) => (effectiveLifecycleTab === 'closed' ? p.status === 'closed' : p.status !== 'closed'));
     if (filter !== 'all') list = list.filter((p) => p.category === filter);
     return list;
-  }, [permits, filter, lifecycleTab]);
+  }, [permits, filter, effectiveLifecycleTab]);
 
   // Notify the permit's creator once, when it runs past its validity window.
   const notified = useRef<Set<string>>(new Set());
@@ -122,7 +127,7 @@ export default function WorkPermitsPage() {
       <div className="px-4 pb-10 sm:px-6 lg:px-8">
         {/* Current / Closed lifecycle tabs */}
         <div className="mb-4 flex gap-1 border-b border-[#1E3A5F]">
-          {(['current', 'closed'] as LifecycleTab[]).map((tab) => {
+          {(['current', ...(role === 'admin' ? (['closed'] as LifecycleTab[]) : [])] as LifecycleTab[]).map((tab) => {
             const count = permits.filter((p) => (tab === 'closed' ? p.status === 'closed' : p.status !== 'closed')).length;
             return (
               <button
@@ -130,7 +135,7 @@ export default function WorkPermitsPage() {
                 type="button"
                 onClick={() => setLifecycleTab(tab)}
                 className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                  lifecycleTab === tab
+                  effectiveLifecycleTab === tab
                     ? 'border-[#1A56DB] text-[#5B8DEF]'
                     : 'border-transparent text-[#8BA3BF] hover:text-white'
                 }`}
@@ -161,7 +166,7 @@ export default function WorkPermitsPage() {
           <div className="h-40 animate-pulse rounded-xl border border-[#1E3A5F] bg-[#0F1E35]" />
         ) : filtered.length === 0 ? (
           <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-6">
-            <EmptyState message={lifecycleTab === 'closed' ? 'No closed permits' : 'No current permits in this category'} />
+            <EmptyState message={effectiveLifecycleTab === 'closed' ? 'No closed permits' : 'No current permits in this category'} />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
