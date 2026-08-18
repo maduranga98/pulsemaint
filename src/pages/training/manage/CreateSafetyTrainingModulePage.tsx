@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -21,37 +21,53 @@ export default function CreateSafetyTrainingModulePage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
   const [isSaving, setIsSaving] = useState(false);
+  // A lesson can be added/reordered/deleted (see ModuleEditorLayout) before
+  // the Settings form is ever submitted — the first onSave of any kind
+  // creates the Firestore doc, and every save after that must update the
+  // same doc rather than creating duplicates.
+  const [createdModuleId, setCreatedModuleId] = useState<string | undefined>(undefined);
 
   const handleSave = async (updates: Partial<TrainingModule>) => {
     if (!companyId || !userId) return;
     setIsSaving(true);
     try {
-      const status = updates.status ?? 'active';
-      const ref = await addDoc(collection(db, 'trainingModules'), {
-        ...updates,
-        // A lesson can be added (see ModuleEditorLayout) before the Settings
-        // form is ever submitted, creating the module with no title yet —
-        // falls back to something recognizable rather than a blank title
-        // that reads as "New Module" on the editor this then lands on.
-        title: updates.title || 'Untitled Safety Training',
-        trainingType: SAFETY_TRAINING_TYPE,
-        companyId,
-        createdBy: userId,
-        libraryScope: 'training',
-        status,
-        lessons: updates.lessons ?? [],
-        estimatedMinutes: updates.estimatedMinutes ?? 0,
-        passingScore: updates.passingScore ?? 80,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      toast.success('Safety training module saved. You can now add a quiz or assign it.');
-      navigate(`/app/training/manage/modules/${ref.id}`, { replace: true });
+      if (createdModuleId) {
+        await updateDoc(doc(db, 'trainingModules', createdModuleId), {
+          ...updates,
+          updatedAt: serverTimestamp(),
+        });
+      } else {
+        const status = updates.status ?? 'active';
+        const ref = await addDoc(collection(db, 'trainingModules'), {
+          ...updates,
+          // Falls back to something recognizable rather than a blank title
+          // that reads as "New Module" on the editor while it's mid-creation.
+          title: updates.title || 'Untitled Safety Training',
+          trainingType: SAFETY_TRAINING_TYPE,
+          companyId,
+          createdBy: userId,
+          libraryScope: 'training',
+          status,
+          lessons: updates.lessons ?? [],
+          estimatedMinutes: updates.estimatedMinutes ?? 0,
+          passingScore: updates.passingScore ?? 80,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        setCreatedModuleId(ref.id);
+      }
     } catch (err) {
       console.error('Failed to save safety training module', err);
       toast.error('Failed to save module. Please try again.');
+    } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSaveSettings = async (updates: Partial<TrainingModule>) => {
+    await handleSave(updates);
+    toast.success('Safety training module saved. You can now add a quiz or assign it.');
+    navigate('/app/training/manage/safety-trainings', { replace: true });
   };
 
   return (
@@ -69,12 +85,12 @@ export default function CreateSafetyTrainingModulePage() {
       <ModuleEditorLayout
         module={undefined}
         onSave={handleSave}
-        moduleId={undefined}
+        moduleId={createdModuleId}
         editorBasePath="/app/training/manage/modules"
         renderSettings={() => (
           <ModuleSettingsForm
             defaultValues={undefined}
-            onSubmit={handleSave}
+            onSubmit={handleSaveSettings}
             isLoading={isSaving}
             lockTrainingType={SAFETY_TRAINING_TYPE}
           />

@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import {
   getModuleSessions,
@@ -38,10 +41,29 @@ function formatDate(date: string): string {
 export default function SafetyTrainingsPage() {
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  // Delete is admin-only (see firestore.rules trainingModules delete rule) —
+  // other authoring roles (plant_manager/supervisor/hr_officer/safety_officer)
+  // can edit/assign but would hit a permission-denied write on delete.
+  const isAdmin = useAuthStore((s) => s.userProfile?.role === 'admin');
   const { modules, moduleIds, loading: modulesLoading } = useSafetyTrainingModules(companyId);
   const { assignments, loading: assignmentsLoading } = useCompanySafetyAssignments(companyId, moduleIds);
   const [assigningModule, setAssigningModule] = useState<TrainingModule | null>(null);
   const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  async function handleDelete(moduleId: string, title: string) {
+    if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    setDeletingId(moduleId);
+    try {
+      await deleteDoc(doc(db, 'trainingModules', moduleId));
+      toast.success('Safety training module deleted.');
+    } catch (err) {
+      console.error('Failed to delete safety training module', err);
+      toast.error('Failed to delete module. Please try again.');
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   const assignmentsByModule = useMemo(() => {
     const m = new Map<string, TrainingAssignment[]>();
@@ -151,13 +173,32 @@ export default function SafetyTrainingsPage() {
                       <Users className="h-3.5 w-3.5" /> {rowAssignments.length} assigned
                     </span>
                     {modulesById.has(row.id) && (
-                      <button
-                        type="button"
-                        onClick={() => setAssigningModule(modulesById.get(row.id) ?? null)}
-                        className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100"
-                      >
-                        <UserPlus className="h-3.5 w-3.5" /> Assign
-                      </button>
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setAssigningModule(modulesById.get(row.id) ?? null)}
+                          className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100"
+                        >
+                          <UserPlus className="h-3.5 w-3.5" /> Assign
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/app/training/manage/modules/${row.id}`)}
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                        >
+                          <Pencil className="h-3.5 w-3.5" /> Edit
+                        </button>
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            disabled={deletingId === row.id}
+                            onClick={() => handleDelete(row.id, row.title)}
+                            className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-white px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" /> Delete
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
