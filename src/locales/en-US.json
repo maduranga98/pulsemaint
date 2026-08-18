@@ -849,6 +849,69 @@
         "nextPmDue": "Next PM due: {{when}}",
         "viewQrCode": "View QR code"
       }
+    },
+    "breakdowns": {
+      "pageTitle": "Breakdowns",
+      "summary": "{{count}} {{filter}} across {{machineCount}} machines",
+      "reportViaQr": "Report via QR",
+      "reportBreakdown": "Report Breakdown",
+      "tabs": {
+        "reported": "reported",
+        "assigned": "assigned",
+        "open": "open",
+        "closed": "closed"
+      },
+      "severity": "Severity",
+      "severityOptions": {
+        "all": "All",
+        "normal": "Normal",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "searchPlaceholder": "Search ticket, machine, description…",
+      "empty": "No breakdowns matching this filter.",
+      "table": {
+        "tickets": "Ticket(s)",
+        "machine": "Machine",
+        "severity": "Severity",
+        "status": "Status",
+        "progress": "Progress",
+        "reported": "Reported",
+        "assignedTo": "Assigned To",
+        "action": "Action",
+        "pending": "Pending",
+        "unassigned": "Unassigned"
+      },
+      "actions": {
+        "assign": "Assign",
+        "assignTitle": "Assign a technician or trainee to every open breakdown on this machine",
+        "attend": "Attend",
+        "attending": "Attending…",
+        "attendTitle": "Attend to every open breakdown on this machine yourself",
+        "attendAndFill": "Attend & Fill",
+        "attendAndFillTitle": "Attend and fill in the assessment for every ticket assigned to you on this machine",
+        "createWO": "Create WO",
+        "createWOTitle": "Create one Work Order covering every filled-in breakdown on this machine",
+        "signOffClose": "Sign-Off & Close",
+        "signOffCloseTitle": "The repair work order is complete — sign off (and RCA if required) to close this breakdown"
+      },
+      "qrScanner": {
+        "title": "Scan Machine QR Code",
+        "hint": "Point your camera at a machine QR code to auto-select the machine."
+      },
+      "status": {
+        "reported": "Reported",
+        "acknowledged": "Acknowledged",
+        "triage_in_progress": "In Triage",
+        "assigned": "Assigned",
+        "en_route": "En Route",
+        "repair_in_progress": "In Progress",
+        "on_hold_parts": "On Hold (Parts)",
+        "on_hold_approval": "On Hold (Approval)",
+        "resolved": "Resolved",
+        "closed": "Closed",
+        "cancelled": "Cancelled"
+      }
     }
   }
 }

@@ -789,6 +789,69 @@
         "nextPmDue": "ඊළඟ PM දිනය: {{when}}",
         "viewQrCode": "QR කේතය බලන්න"
       }
+    },
+    "breakdowns": {
+      "pageTitle": "බිඳවැටීම්",
+      "summary": "යන්ත්‍ර {{machineCount}} හරහා {{filter}} {{count}}",
+      "reportViaQr": "QR මගින් වාර්තා කරන්න",
+      "reportBreakdown": "බිඳවැටීමක් වාර්තා කරන්න",
+      "tabs": {
+        "reported": "වාර්තා කළ",
+        "assigned": "පවරන ලද",
+        "open": "විවෘත",
+        "closed": "වසා ඇත"
+      },
+      "severity": "බරපතලකම",
+      "severityOptions": {
+        "all": "සියල්ල",
+        "normal": "සාමාන්‍ය",
+        "medium": "මධ්‍යම",
+        "high": "ඉහළ"
+      },
+      "searchPlaceholder": "ටිකට්පත, යන්ත්‍රය, විස්තරය සොයන්න…",
+      "empty": "මෙම පෙරහනට ගැලපෙන බිඳවැටීම් නැත.",
+      "table": {
+        "tickets": "ටිකට්පත්",
+        "machine": "යන්ත්‍රය",
+        "severity": "බරපතලකම",
+        "status": "තත්ත්වය",
+        "progress": "ප්‍රගතිය",
+        "reported": "වාර්තා කළ",
+        "assignedTo": "පවරන ලද්දේ",
+        "action": "ක්‍රියාව",
+        "pending": "අපේක්ෂිතයි",
+        "unassigned": "නොපවරන ලද"
+      },
+      "actions": {
+        "assign": "පවරන්න",
+        "assignTitle": "මෙම යන්ත්‍රයේ සෑම විවෘත බිඳවැටීමකටම තාක්ෂණවේදියෙකු හෝ පුහුණුකරුවෙකු පවරන්න",
+        "attend": "සහභාගී වන්න",
+        "attending": "සහභාගී වෙමින්…",
+        "attendTitle": "මෙම යන්ත්‍රයේ සෑම විවෘත බිඳවැටීමකටම ඔබම සහභාගී වන්න",
+        "attendAndFill": "සහභාගී වී පුරවන්න",
+        "attendAndFillTitle": "මෙම යන්ත්‍රයේ ඔබට පවරන ලද සෑම ටිකට්පතකටම තක්සේරුව සම්පූර්ණ කරන්න",
+        "createWO": "කාර්ය නියෝගය සාදන්න",
+        "createWOTitle": "මෙම යන්ත්‍රයේ පුරවන ලද සෑම බිඳවැටීමක්ම ආවරණය කරන එක් කාර්ය නියෝගයක් සාදන්න",
+        "signOffClose": "අත්සන් කර වසන්න",
+        "signOffCloseTitle": "අළුත්වැඩියා කාර්ය නියෝගය සම්පූර්ණයි — මෙම බිඳවැටීම වැසීමට අත්සන් කරන්න (අවශ්‍ය නම් RCA ද)"
+      },
+      "qrScanner": {
+        "title": "යන්ත්‍ර QR කේතය සුපිරික්සන්න",
+        "hint": "යන්ත්‍රය ස්වයංක්‍රීයව තෝරා ගැනීමට යන්ත්‍රයේ QR කේතය දෙසට ඔබේ කැමරාව යොමු කරන්න."
+      },
+      "status": {
+        "reported": "වාර්තා කළ",
+        "acknowledged": "පිළිගත්",
+        "triage_in_progress": "වර්ගීකරණයේ",
+        "assigned": "පවරන ලද",
+        "en_route": "මාර්ගයේ",
+        "repair_in_progress": "අළුත්වැඩියා වෙමින්",
+        "on_hold_parts": "අත්හිටුවා (කොටස්)",
+        "on_hold_approval": "අත්හිටුවා (අනුමැතිය)",
+        "resolved": "විසඳන ලද",
+        "closed": "වසා ඇත",
+        "cancelled": "අවලංගු කළ"
+      }
     }
   }
 }
