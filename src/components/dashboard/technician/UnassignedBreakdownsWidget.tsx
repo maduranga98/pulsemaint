@@ -9,6 +9,7 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { Breakdown, BreakdownSeverity } from '../../../types/breakdown';
 import { groupBreakdownsByMachine } from '../../../lib/breakdowns/groupByMachine';
+import { markMachineUnderMaintenance } from '../../../lib/machineOperationalStatus';
 import { useTranslation } from 'react-i18next';
 
 interface UnassignedBreakdownsWidgetProps {
@@ -89,6 +90,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
         });
       }
       await batch.commit();
+      void markMachineUnderMaintenance(machineId);
       // One shared assessment form for every ticket just attended on this
       // machine — the direct next step, not a detour through the Breakdowns
       // page/tab.

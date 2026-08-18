@@ -6,6 +6,9 @@ import type { WorkOrder, WOStatus, TimeSegment, TimeSegmentState } from '../type
 import { useAuthStore } from '../store/authStore';
 import { toast } from 'sonner';
 import { syncPmScheduleWoStatus } from '../utils/pmScheduleSync';
+import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../lib/machineOperationalStatus';
+
+const TERMINAL_WO_STATUSES = new Set<WOStatus>(['SIGNED_OFF', 'CLOSED', 'CANCELLED']);
 
 interface UseUpdateWorkOrderResult {
   updateWO: (id: string, data: Partial<WorkOrder>) => Promise<boolean>;
@@ -156,6 +159,15 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
         try {
           const snap = await getDoc(doc(db, 'workOrders', id));
           const data = snap.data() as any;
+
+          if (data?.machineId) {
+            if (TERMINAL_WO_STATUSES.has(status)) {
+              void markMachineActiveIfNoOpenWork(data.machineId);
+            } else {
+              void markMachineUnderMaintenance(data.machineId);
+            }
+          }
+
           if (data?.linkedBreakdownId) {
             const map: Partial<Record<WOStatus, BreakdownStatus>> = {
               OPEN: 'reported',
