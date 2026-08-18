@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { PMFilters, PMType, PMStatus } from '../../types/pm.types';
 import { PM_TYPE_CONFIG, PM_TYPES_ORDERED, PM_STATUS_CONFIG } from '../../constants/pmConfig';
 
@@ -10,6 +11,7 @@ interface PMFilterBarProps {
 }
 
 export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilterBarProps) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleClear = () => {
@@ -43,7 +45,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
             type="text"
             value={filters.searchQuery || ''}
             onChange={(e) => onChange({ ...filters, searchQuery: e.target.value })}
-            placeholder="Search schedules..."
+            placeholder={t('common.pmSchedules.filters.searchPlaceholder')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
           />
         </div>
@@ -53,7 +55,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
           onChange={(e) => onChange({ ...filters, machineId: e.target.value || undefined })}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
         >
-          <option value="">All Machines</option>
+          <option value="">{t('common.pmSchedules.filters.allMachines')}</option>
           {machines.map((m) => (
             <option key={m.id} value={m.id}>{m.name}</option>
           ))}
@@ -64,7 +66,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
           onChange={(e) => onChange({ ...filters, technicianId: e.target.value || undefined })}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
         >
-          <option value="">All Technicians</option>
+          <option value="">{t('common.pmSchedules.filters.allTechnicians')}</option>
           {technicians.map((t) => (
             <option key={t.id} value={t.id}>{t.name}</option>
           ))}

@@ -940,6 +940,39 @@
         "signOff": "Sign Off",
         "noWorkOrdersFound": "No work orders found."
       }
+    },
+    "pmSchedules": {
+      "pageTitle": "PM Schedules",
+      "count": "{{count}} schedules",
+      "viewMode": "View mode",
+      "table": "Table",
+      "calendar": "Calendar",
+      "newPmWorkOrder": "New PM Work Order",
+      "selectedCount": "{{count}} selected",
+      "delete": "Delete",
+      "loadingCalendar": "Loading calendar…",
+      "empty": {
+        "title": "No PM schedules yet",
+        "description": "PM schedules are created through Preventive work orders. Create a Preventive WO to get started."
+      },
+      "filters": {
+        "searchPlaceholder": "Search schedules…",
+        "allMachines": "All Machines",
+        "allTechnicians": "All Technicians"
+      },
+      "columns": {
+        "schedule": "Schedule",
+        "machine": "Machine",
+        "type": "Type",
+        "dueDate": "Due Date",
+        "assigned": "Assigned",
+        "status": "Status",
+        "compliance": "Compliance",
+        "noSchedulesFound": "No PM schedules found.",
+        "overdue": "{{days}}d overdue",
+        "dueToday": "Due today",
+        "dueIn": "in {{days}}d"
+      }
     }
   }
 }

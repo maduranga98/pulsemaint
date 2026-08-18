@@ -880,6 +880,39 @@
         "signOff": "අත්සන් කරන්න",
         "noWorkOrdersFound": "කාර්ය නියෝග හමු නොවීය."
       }
+    },
+    "pmSchedules": {
+      "pageTitle": "PM කාලසටහන්",
+      "count": "කාලසටහන් {{count}}",
+      "viewMode": "දර්ශන ප්‍රකාරය",
+      "table": "වගුව",
+      "calendar": "දින දර්ශනය",
+      "newPmWorkOrder": "නව PM කාර්ය නියෝගය",
+      "selectedCount": "තෝරාගත් {{count}}",
+      "delete": "මකන්න",
+      "loadingCalendar": "දින දර්ශනය පූරණය වෙමින්…",
+      "empty": {
+        "title": "තවම PM කාලසටහන් නැත",
+        "description": "PM කාලසටහන් නිර්මාණය වන්නේ නివාරණාත්මක කාර්ය නියෝග හරහාය. ආරම්භ කිරීමට නිවාරණාත්මක WO එකක් සාදන්න."
+      },
+      "filters": {
+        "searchPlaceholder": "කාලසටහන් සොයන්න…",
+        "allMachines": "සියලුම යන්ත්‍ර",
+        "allTechnicians": "සියලුම තාක්ෂණවේදීන්"
+      },
+      "columns": {
+        "schedule": "කාලසටහන",
+        "machine": "යන්ත්‍රය",
+        "type": "වර්ගය",
+        "dueDate": "නියමිත දිනය",
+        "assigned": "පවරන ලද",
+        "status": "තත්ත්වය",
+        "compliance": "අනුකූලතාව",
+        "noSchedulesFound": "PM කාලසටහන් හමු නොවීය.",
+        "overdue": "දින {{days}}ක් ප්‍රමාද",
+        "dueToday": "අද නියමිතයි",
+        "dueIn": "දින {{days}}කින්"
+      }
     }
   }
 }

@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
@@ -17,6 +18,7 @@ interface PMScheduleListProps {
 }
 
 export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, woLookup, showSelect = true }: PMScheduleListProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const allSelected = schedules.length > 0 && schedules.every((s) => selectedIds.includes(s.id));
 
@@ -36,13 +38,13 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                   />
                 </th>
               )}
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Schedule</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Machine</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Type</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Due Date</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Assigned</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Compliance</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.columns.schedule')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.columns.machine')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.columns.type')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.columns.dueDate')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.columns.assigned')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.columns.status')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.columns.compliance')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -129,11 +131,11 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
                     <div className="text-gray-900">{dueDateLabel}</div>
                     <div className="text-gray-500 text-xs">
                       {isTerminal ? null : daysUntilDue < 0 ? (
-                        <span className="text-red-600 font-medium">{Math.abs(daysUntilDue)}d overdue</span>
+                        <span className="text-red-600 font-medium">{t('common.pmSchedules.columns.overdue', { days: Math.abs(daysUntilDue) })}</span>
                       ) : daysUntilDue === 0 ? (
-                        <span className="text-amber-600 font-medium">Due today</span>
+                        <span className="text-amber-600 font-medium">{t('common.pmSchedules.columns.dueToday')}</span>
                       ) : (
-                        <span>in {daysUntilDue}d</span>
+                        <span>{t('common.pmSchedules.columns.dueIn', { days: daysUntilDue })}</span>
                       )}
                     </div>
                   </td>
@@ -169,7 +171,7 @@ export function PMScheduleList({ schedules, selectedIds, onSelect, onSelectAll, 
 
       {schedules.length === 0 && (
         <div className="p-8 text-center text-gray-400 text-sm">
-          No PM schedules found.
+          {t('common.pmSchedules.columns.noSchedulesFound')}
         </div>
       )}
     </div>

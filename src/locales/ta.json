@@ -880,6 +880,39 @@
         "signOff": "கையொப்பமிடு",
         "noWorkOrdersFound": "பணி ஆணைகள் இல்லை."
       }
+    },
+    "pmSchedules": {
+      "pageTitle": "PM அட்டவணைகள்",
+      "count": "{{count}} அட்டவணைகள்",
+      "viewMode": "காட்சி முறை",
+      "table": "அட்டவணை",
+      "calendar": "நாட்காட்டி",
+      "newPmWorkOrder": "புதிய PM பணி ஆணை",
+      "selectedCount": "{{count}} தேர்ந்தெடுக்கப்பட்டது",
+      "delete": "நீக்கு",
+      "loadingCalendar": "நாட்காட்டி ஏற்றுகிறது…",
+      "empty": {
+        "title": "இன்னும் PM அட்டவணைகள் இல்லை",
+        "description": "PM அட்டவணைகள் தடுப்பு பணி ஆணைகள் மூலம் உருவாக்கப்படுகின்றன. தொடங்க ஒரு தடுப்பு WO உருவாக்கவும்."
+      },
+      "filters": {
+        "searchPlaceholder": "அட்டவணைகளைத் தேடுங்கள்…",
+        "allMachines": "அனைத்து இயந்திரங்கள்",
+        "allTechnicians": "அனைத்து தொழில்நுட்பவியலாளர்கள்"
+      },
+      "columns": {
+        "schedule": "அட்டவணை",
+        "machine": "இயந்திரம்",
+        "type": "வகை",
+        "dueDate": "நிலுவைத் தேதி",
+        "assigned": "ஒதுக்கப்பட்டது",
+        "status": "நிலை",
+        "compliance": "இணக்கம்",
+        "noSchedulesFound": "PM அட்டவணைகள் இல்லை.",
+        "overdue": "{{days}} நாள் தாமதம்",
+        "dueToday": "இன்று நிலுவை",
+        "dueIn": "{{days}} நாளில்"
+      }
     }
   }
 }
