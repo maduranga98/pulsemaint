@@ -852,6 +852,34 @@
         "closed": "වසා ඇත",
         "cancelled": "අවලංගු කළ"
       }
+    },
+    "workOrders": {
+      "pageTitle": "කාර්ය නියෝග",
+      "count": "කාර්ය නියෝග {{count}}",
+      "createButton": "+ කාර්ය නියෝගයක් සාදන්න",
+      "searchPlaceholder": "WO අංකය, යන්ත්‍රය සොයන්න…",
+      "tabs": {
+        "needSignOff": "අත්සන අවශ්‍යයි",
+        "signedOff": "අත්සන් කළ",
+        "approvalRequests": "අනුමැති ඉල්ලීම්"
+      },
+      "empty": {
+        "needSignOff": "අත්සන් කිරීමට කාර්ය නියෝග නැත.",
+        "signedOff": "තවම අත්සන් කළ හෝ වසා දැමූ කාර්ය නියෝග නැත.",
+        "noOpenWOs": "විවෘත කාර්ය නියෝග නැත. සියල්ල සම්පූර්ණයි!"
+      },
+      "table": {
+        "wo": "කාර්ය නියෝගය",
+        "machine": "යන්ත්‍රය",
+        "type": "වර්ගය",
+        "priority": "ප්‍රමුඛතාව",
+        "sla": "SLA",
+        "assigned": "පවරන ලද",
+        "status": "තත්ත්වය",
+        "action": "ක්‍රියාව",
+        "signOff": "අත්සන් කරන්න",
+        "noWorkOrdersFound": "කාර්ය නියෝග හමු නොවීය."
+      }
     }
   }
 }

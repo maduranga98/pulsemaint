@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ClipboardList } from 'lucide-react';
 import type { WorkOrder, WOFilters, WOType } from '../../types/workOrder';
-import { WO_COPY } from '../../constants/copy';
 import { WO_TYPE_CONFIG, WO_TYPES_ORDERED } from '../../constants/woConfig';
 import { useWorkOrders } from '../../hooks/useWorkOrders';
 import { useAuthStore } from '../../store/authStore';
@@ -32,6 +32,7 @@ const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
 const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.includes(t));
 
 export function WOListView() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const prefilledTab = searchParams.get('tab') as CategoryId | null;
   const [activeCategory, setActiveCategory] = useState<CategoryId>(prefilledTab ?? 'all');
@@ -141,8 +142,8 @@ export function WOListView() {
       <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="font-bold text-2xl text-gray-900">{WO_COPY.listTitle}</h1>
-            <p className="text-sm text-gray-500">{nonExcludedWOs.length} work orders</p>
+            <h1 className="font-bold text-2xl text-gray-900">{t('common.workOrders.pageTitle')}</h1>
+            <p className="text-sm text-gray-500">{t('common.workOrders.count', { count: nonExcludedWOs.length })}</p>
           </div>
           <div className="flex items-center gap-2">
             {canCreateWorkOrder && (
@@ -151,7 +152,7 @@ export function WOListView() {
                 onClick={() => setShowCreateDrawer(true)}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 transition-colors"
               >
-                + {WO_COPY.createButton}
+                {t('common.workOrders.createButton')}
               </button>
             )}
           </div>
@@ -206,7 +207,7 @@ export function WOListView() {
                     : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
                 }`}
               >
-                Need Sign-Off
+                {t('common.workOrders.tabs.needSignOff')}
                 <span
                   className={`text-xs font-medium rounded-full px-1.5 ${
                     activeCategory === 'needSignOff' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-600'
@@ -226,7 +227,7 @@ export function WOListView() {
                     : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
                 }`}
               >
-                Signed Off
+                {t('common.workOrders.tabs.signedOff')}
                 <span
                   className={`text-xs font-medium rounded-full px-1.5 ${
                     activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
@@ -246,7 +247,7 @@ export function WOListView() {
                     : 'text-orange-700 bg-orange-50 hover:bg-orange-100'
                 }`}
               >
-                Approval Requests
+                {t('common.workOrders.tabs.approvalRequests')}
                 <span
                   className={`text-xs font-medium rounded-full px-1.5 ${
                     activeCategory === 'approvalRequests' ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-600'
@@ -262,7 +263,7 @@ export function WOListView() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search WO number, machine…"
+            placeholder={t('common.workOrders.searchPlaceholder')}
             className="w-full sm:w-64 rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -292,10 +293,10 @@ export function WOListView() {
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">
                 {activeCategory === 'needSignOff'
-                  ? 'No work orders awaiting sign-off.'
+                  ? t('common.workOrders.empty.needSignOff')
                   : activeCategory === 'signedOff'
-                  ? 'No work orders signed off or closed yet.'
-                  : WO_COPY.noOpenWOs}
+                  ? t('common.workOrders.empty.signedOff')
+                  : t('common.workOrders.empty.noOpenWOs')}
               </p>
             </div>
           ) : (
