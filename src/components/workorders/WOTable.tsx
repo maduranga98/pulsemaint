@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { WorkOrder } from '../../types/workOrder';
 import { WOTypeBadge } from './WOTypeBadge';
 import { WOStatusBadge } from './WOStatusBadge';
@@ -16,6 +17,7 @@ interface WOTableProps {
 }
 
 export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOff = false, onSignOff }: WOTableProps) {
+  const { t } = useTranslation();
   const showActionColumn = canSignOff && !!onSignOff;
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -23,17 +25,17 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Work Order</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Machine</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.wo')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.machine')}</th>
               {showTypeColumn && (
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Type</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.type')}</th>
               )}
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Priority</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">SLA</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Assigned</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.priority')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.sla')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.assigned')}</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.status')}</th>
               {showActionColumn && (
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Action</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.workOrders.table.action')}</th>
               )}
             </tr>
           </thead>
@@ -96,7 +98,7 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
                           }}
                           className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700"
                         >
-                          Sign Off
+                          {t('common.workOrders.table.signOff')}
                         </button>
                       )}
                     </td>
@@ -109,7 +111,7 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
       </div>
 
       {workOrders.length === 0 && (
-        <div className="p-8 text-center text-gray-400 text-sm">No work orders found.</div>
+        <div className="p-8 text-center text-gray-400 text-sm">{t('common.workOrders.table.noWorkOrdersFound')}</div>
       )}
     </div>
   );

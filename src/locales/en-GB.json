@@ -912,6 +912,34 @@
         "closed": "Closed",
         "cancelled": "Cancelled"
       }
+    },
+    "workOrders": {
+      "pageTitle": "Work Orders",
+      "count": "{{count}} work orders",
+      "createButton": "+ Create Work Order",
+      "searchPlaceholder": "Search WO number, machine…",
+      "tabs": {
+        "needSignOff": "Need Sign-Off",
+        "signedOff": "Signed Off",
+        "approvalRequests": "Approval Requests"
+      },
+      "empty": {
+        "needSignOff": "No work orders awaiting sign-off.",
+        "signedOff": "No work orders signed off or closed yet.",
+        "noOpenWOs": "No open work orders. All caught up!"
+      },
+      "table": {
+        "wo": "Work Order",
+        "machine": "Machine",
+        "type": "Type",
+        "priority": "Priority",
+        "sla": "SLA",
+        "assigned": "Assigned",
+        "status": "Status",
+        "action": "Action",
+        "signOff": "Sign Off",
+        "noWorkOrdersFound": "No work orders found."
+      }
     }
   }
 }
