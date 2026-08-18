@@ -188,7 +188,11 @@ export async function acceptInviteWithGoogle(invitation: Invitation): Promise<Us
   const profile = await createUserFromInvitation(
     uid,
     invitation,
-    userCredential.user.displayName || invitation.fullName,
+    // The name the admin typed when adding this user is authoritative for
+    // the company directory — Google's own profile display name (which can
+    // be a nickname, an old name, or otherwise not match) is only a
+    // fallback for the rare case the invite itself has no name on file.
+    invitation.fullName || userCredential.user.displayName || '',
     userCredential.user.photoURL,
   );
 
