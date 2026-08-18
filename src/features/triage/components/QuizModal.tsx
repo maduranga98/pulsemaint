@@ -199,8 +199,14 @@ export function QuizModal({ assessment, onClose }: Props) {
                   style={{ background: '#22c55e14', border: '1px solid #22c55e40' }}
                 >
                   <Award className="w-8 h-8" style={{ color: '#22c55e' }} />
+                  {/* Triage assessments never issue a real certificate record
+                      (see writeAssessmentResult) — certificates are only
+                      generated from actual Training/Trainee Program module
+                      completions (generateTrainingCertificate). Saying
+                      "Certificate Issued!" here claimed one existed when it
+                      didn't. */}
                   <div className="font-semibold" style={{ color: '#22c55e' }}>
-                    Certificate Issued!
+                    Assessment Passed!
                   </div>
                   <div className="text-xs" style={{ color: '#6b7fa3' }}>
                     You passed {assessment.title}
