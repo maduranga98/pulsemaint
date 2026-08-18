@@ -115,11 +115,18 @@ export function RequestsQueue() {
   const hasPendingReturn = (r: (typeof requests)[number]) =>
     r.items.some((i) => i.isReturnable && !i.isReturned);
 
-  // The 'all'/'pending_return' tabs fetch every status server-side (see the
-  // hook call above), so a non-admin's "completed" requests must be dropped
-  // here too, not just from the tab list.
+  // The 'all' tab fetches every status server-side (see the hook call
+  // above), so a non-admin's "completed" requests must be dropped here too,
+  // not just from the tab list.
   const visibleRequests = isAdmin ? requests : requests.filter((r) => r.status !== 'completed');
-  const scoped = activeTab === 'pending_return' ? visibleRequests.filter(hasPendingReturn) : visibleRequests;
+  // Pending Return deliberately bypasses the completed-hiding filter above:
+  // an item is tracked here by whether it's been physically returned
+  // (isReturnable && !isReturned), not by the parent request's own status —
+  // collecting the parts usually completes the request while a returnable
+  // item (e.g. a borrowed tool) is still outstanding. Filtering out
+  // "completed" requests here made every collected item vanish from Pending
+  // Return before the store keeper ever got to mark it returned.
+  const scoped = activeTab === 'pending_return' ? requests.filter(hasPendingReturn) : visibleRequests;
 
   // Client-side search filter
   const filtered = scoped.filter((r) => {
@@ -136,7 +143,7 @@ export function RequestsQueue() {
   // Count badges per tab
   function countForTab(tabId: TabId): number {
     if (tabId === 'all') return visibleRequests.length;
-    if (tabId === 'pending_return') return visibleRequests.filter(hasPendingReturn).length;
+    if (tabId === 'pending_return') return requests.filter(hasPendingReturn).length;
     return visibleRequests.filter((r) => r.status === tabId).length;
   }
 
