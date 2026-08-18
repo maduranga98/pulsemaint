@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collection, query, where, orderBy, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp, documentId, getDocs } from 'firebase/firestore';
 import { AlertCircle, CheckCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
+import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { notifyUsers } from '../../services/notifications.service';
@@ -31,19 +32,6 @@ function nameWithRole(name: string, uid: string | undefined, roles: Record<strin
   return role ? `${base} (${roleLabel(role)})` : base;
 }
 
-const STATUS_LABEL: Record<BreakdownStatus, string> = {
-  reported: 'Reported',
-  acknowledged: 'Acknowledged',
-  triage_in_progress: 'In Triage',
-  assigned: 'Assigned',
-  en_route: 'En Route',
-  repair_in_progress: 'In Progress',
-  on_hold_parts: 'On Hold (Parts)',
-  on_hold_approval: 'On Hold (Approval)',
-  resolved: 'Resolved',
-  closed: 'Closed',
-  cancelled: 'Cancelled',
-};
 
 const STATUS_COLOR: Record<BreakdownStatus, string> = {
   reported: 'bg-red-50 text-red-700 ring-red-200',
@@ -109,6 +97,7 @@ interface MachineGroup {
 }
 
 export default function BreakdownsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
@@ -414,8 +403,14 @@ export default function BreakdownsPage() {
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Breakdowns</h1>
-            <p className="text-sm text-slate-500">{filtered.length} {filter} across {groups.length} machine{groups.length === 1 ? '' : 's'}</p>
+            <h1 className="text-2xl font-bold text-slate-900">{t('common.breakdowns.pageTitle')}</h1>
+            <p className="text-sm text-slate-500">
+              {t('common.breakdowns.summary', {
+                count: filtered.length,
+                filter: t(`common.breakdowns.tabs.${filter}`),
+                machineCount: groups.length,
+              })}
+            </p>
           </div>
           <div className="flex gap-2">
             <button
@@ -424,14 +419,14 @@ export default function BreakdownsPage() {
               className="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50"
             >
               <QrCode className="w-4 h-4" />
-              Report via QR
+              {t('common.breakdowns.reportViaQr')}
             </button>
             <Link
               to="/app/breakdowns/report"
               className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg"
             >
               <Plus className="w-4 h-4" />
-              Report Breakdown
+              {t('common.breakdowns.reportBreakdown')}
             </Link>
           </div>
         </div>
@@ -449,21 +444,21 @@ export default function BreakdownsPage() {
                   filter === f ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                {f}
+                {t(`common.breakdowns.tabs.${f}`)}
               </button>
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">Severity</label>
+            <label className="text-xs font-medium text-slate-500 uppercase tracking-wide">{t('common.breakdowns.severity')}</label>
             <select
               value={severityFilter}
               onChange={(e) => setSeverityFilter(e.target.value as SeverityFilter)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             >
-              <option value="all">All</option>
-              <option value="normal">Normal</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
+              <option value="all">{t('common.breakdowns.severityOptions.all')}</option>
+              <option value="normal">{t('common.breakdowns.severityOptions.normal')}</option>
+              <option value="medium">{t('common.breakdowns.severityOptions.medium')}</option>
+              <option value="high">{t('common.breakdowns.severityOptions.high')}</option>
             </select>
           </div>
           <div className="relative w-full sm:w-72">
@@ -472,7 +467,7 @@ export default function BreakdownsPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search ticket, machine, description…"
+              placeholder={t('common.breakdowns.searchPlaceholder')}
               className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
@@ -494,21 +489,21 @@ export default function BreakdownsPage() {
         ) : groups.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-xl border border-slate-100">
             <p className="text-5xl mb-3">🛠️</p>
-            <p className="text-slate-500">No breakdowns matching this filter.</p>
+            <p className="text-slate-500">{t('common.breakdowns.empty')}</p>
           </div>
         ) : (
           <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
                 <tr>
-                  <th className="px-4 py-3 text-left">Ticket(s)</th>
-                  <th className="px-4 py-3 text-left">Machine</th>
-                  <th className="px-4 py-3 text-left">Severity</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-left">Progress</th>
-                  <th className="px-4 py-3 text-left">Reported</th>
-                  <th className="px-4 py-3 text-left">Assigned To</th>
-                  <th className="px-4 py-3 text-left">Action</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.tickets')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.machine')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.severity')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.status')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.progress')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.reported')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.assignedTo')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.breakdowns.table.action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -571,7 +566,7 @@ export default function BreakdownsPage() {
                             {worstSeverity}
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending</span>
+                          <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">{t('common.breakdowns.table.pending')}</span>
                         )}
                         {g.tickets.length > 1 && (
                           <span className="ml-1 text-xs text-slate-400">×{g.tickets.length}</span>
@@ -579,7 +574,7 @@ export default function BreakdownsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[representative.status]}`}>
-                          {STATUS_LABEL[representative.status]}
+                          {t(`common.breakdowns.status.${representative.status}`)}
                         </span>
                       </td>
                       <td className="px-4 py-3">
@@ -601,7 +596,7 @@ export default function BreakdownsPage() {
                       <td className="px-4 py-3 text-slate-700">
                         {assignedNames.length > 0
                           ? assignedNames.join(', ')
-                          : <span className="text-slate-400 text-xs">Unassigned</span>}
+                          : <span className="text-slate-400 text-xs">{t('common.breakdowns.table.unassigned')}</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -610,10 +605,10 @@ export default function BreakdownsPage() {
                               type="button"
                               onClick={() => setAssigningGroup(g)}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
-                              title="Assign a technician or trainee to every open breakdown on this machine"
+                              title={t('common.breakdowns.actions.assignTitle')}
                             >
                               <UserPlus className="w-3 h-3" />
-                              Assign
+                              {t('common.breakdowns.actions.assign')}
                             </button>
                           )}
                           {hasReported && canAttend && (
@@ -622,21 +617,21 @@ export default function BreakdownsPage() {
                               disabled={attendingMachineId === g.machineId}
                               onClick={() => handleAttend(g)}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
-                              title="Attend to every open breakdown on this machine yourself"
+                              title={t('common.breakdowns.actions.attendTitle')}
                             >
                               <HardHat className="w-3 h-3" />
-                              {attendingMachineId === g.machineId ? 'Attending…' : 'Attend'}
+                              {attendingMachineId === g.machineId ? t('common.breakdowns.actions.attending') : t('common.breakdowns.actions.attend')}
                             </button>
                           )}
                           {!hasReported && assignedTickets.length > 0 && canAttend
-                            && assignedTickets.some((t) => (t.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '')) && (
+                            && assignedTickets.some((tk) => (tk.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '')) && (
                             <Link
-                              to={`/app/breakdowns/attend?ids=${assignedTickets.map((t) => t.id).join(',')}`}
+                              to={`/app/breakdowns/attend?ids=${assignedTickets.map((tk) => tk.id).join(',')}`}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
-                              title="Attend and fill in the assessment for every ticket assigned to you on this machine"
+                              title={t('common.breakdowns.actions.attendAndFillTitle')}
                             >
                               <HardHat className="w-3 h-3" />
-                              Attend &amp; Fill{assignedTickets.length > 1 ? ` (${assignedTickets.length})` : ''}
+                              {t('common.breakdowns.actions.attendAndFill')}{assignedTickets.length > 1 ? ` (${assignedTickets.length})` : ''}
                             </Link>
                           )}
                           {filledTickets.length > 0 && canAssign && (
@@ -644,20 +639,20 @@ export default function BreakdownsPage() {
                               type="button"
                               onClick={() => goToCreateWorkOrder(filledTickets)}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
-                              title="Create one Work Order covering every filled-in breakdown on this machine"
+                              title={t('common.breakdowns.actions.createWOTitle')}
                             >
                               <ClipboardPlus className="w-3 h-3" />
-                              Create WO{filledTickets.length > 1 ? ` (${filledTickets.length})` : ''}
+                              {t('common.breakdowns.actions.createWO')}{filledTickets.length > 1 ? ` (${filledTickets.length})` : ''}
                             </button>
                           )}
                           {representative.status === 'resolved' && canAssign && (
                             <Link
                               to={`/app/breakdowns/${representative.id}`}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
-                              title="The repair work order is complete — sign off (and RCA if required) to close this breakdown"
+                              title={t('common.breakdowns.actions.signOffCloseTitle')}
                             >
                               <CheckCircle className="w-3 h-3" />
-                              Sign-Off &amp; Close
+                              {t('common.breakdowns.actions.signOffClose')}
                             </Link>
                           )}
                         </div>
@@ -683,13 +678,13 @@ export default function BreakdownsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-md mx-4 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Scan Machine QR Code</h3>
+              <h3 className="text-lg font-semibold text-slate-900">{t('common.breakdowns.qrScanner.title')}</h3>
               <button type="button" onClick={closeQrScanner} className="p-1 rounded-lg hover:bg-slate-100">
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
             <div id="qr-reader" className="w-full" />
-            <p className="text-xs text-slate-500 mt-3 text-center">Point your camera at a machine QR code to auto-select the machine.</p>
+            <p className="text-xs text-slate-500 mt-3 text-center">{t('common.breakdowns.qrScanner.hint')}</p>
           </div>
         </div>
       )}
@@ -761,6 +756,7 @@ function MergedField({ tickets, get }: { tickets: Breakdown[]; get: (t: Breakdow
 // merged across every ticket, then the full status history in chronological
 // order (oldest first) ending at the machine's current status.
 function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBreakdownDetailsProps) {
+  const { t } = useTranslation();
   const tickets = sortTicketsByReportedAt(group.tickets);
   const firstReported = tickets[0]?.reportedAt;
 
@@ -824,7 +820,7 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
           <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending assessment</span>
         )}
         <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[tickets[tickets.length - 1].status]}`}>
-          {STATUS_LABEL[tickets[tickets.length - 1].status]}
+          {t(`common.breakdowns.status.${tickets[tickets.length - 1].status}`)}
         </span>
       </div>
 
@@ -917,7 +913,7 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
               {historyEntries.map((h, idx) => (
                 <li key={idx} className="flex gap-3 items-start">
                   <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-50 border border-slate-200 whitespace-nowrap">
-                    {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
+                    {t(`common.breakdowns.status.${h.status}`, { defaultValue: h.status })}
                   </span>
                   <div>
                     <span className="text-slate-700">
