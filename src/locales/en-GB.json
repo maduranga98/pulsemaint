@@ -785,6 +785,70 @@
         "title": "Work Orders",
         "today": "Today ({{count}})"
       }
+    },
+    "machines": {
+      "pageTitle": "Machine Registry",
+      "summary": "{{total}} machines · {{active}} active · {{maintenance}} in maintenance",
+      "sortLabel": "Sort machines",
+      "sortAZ": "Sort: A → Z",
+      "sortZA": "Sort: Z → A",
+      "addMachine": "+ Add Machine",
+      "import": "Import",
+      "exportCsv": "Export CSV",
+      "loading": "Loading…",
+      "loadMore": "Load More",
+      "noMachinesYet": "No machines registered yet",
+      "noMachinesMatch": "No machines match your filters",
+      "addFirstMachine": "Add First Machine",
+      "clearFilters": "Clear Filters",
+      "filters": {
+        "searchPlaceholder": "Search by name, model, or serial number…",
+        "status": "Status",
+        "criticality": "Criticality",
+        "department": "Department",
+        "healthScore": "Health Score",
+        "statusOptions": {
+          "active": "Active",
+          "under_maintenance": "Under Maintenance",
+          "decommissioned": "Decommissioned"
+        },
+        "criticalityOptions": {
+          "5": "5 - Mission Critical",
+          "4": "4 - High",
+          "3": "3 - Medium",
+          "2": "2 - Low",
+          "1": "1 - Minimal"
+        },
+        "healthOptions": {
+          "good": "Good (70-100)",
+          "warning": "Warning (40-69)",
+          "critical": "Critical (0-39)"
+        }
+      },
+      "table": {
+        "machine": "Machine",
+        "serial": "Serial",
+        "location": "Location",
+        "type": "Type",
+        "criticality": "Criticality",
+        "status": "Status",
+        "health": "Health",
+        "lastService": "Last Service",
+        "nextPm": "Next PM",
+        "actions": "Actions",
+        "never": "Never",
+        "notScheduled": "Not scheduled",
+        "noMachinesFound": "No machines found",
+        "view": "View",
+        "edit": "Edit",
+        "qr": "QR"
+      },
+      "card": {
+        "noLocation": "No location",
+        "lastService": "Last service: {{when}}",
+        "nextPmDue": "Next PM due: {{when}}",
+        "viewQrCode": "View QR code"
+      }
     }
   }
 }

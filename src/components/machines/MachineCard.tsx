@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { QrCode } from 'lucide-react';
 import type { Machine } from '../../types/machine';
 import { MachineStatusBadge } from './MachineStatusBadge';
@@ -11,10 +12,11 @@ interface MachineCardProps {
 }
 
 export function MachineCard({ machine }: MachineCardProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const lastServiceDate = machine.lastServiceDate
     ? formatDistanceToNow(machine.lastServiceDate.toDate?.() || new Date((machine.lastServiceDate as any).seconds * 1000))
-    : 'Never';
+    : t('common.machines.table.never');
 
   return (
     <Link to={`/app/machines/${machine.id}`}>
@@ -37,8 +39,8 @@ export function MachineCard({ machine }: MachineCardProps) {
                 navigate(`/app/machines/${machine.id}/qr`);
               }}
               className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50 hover:text-blue-600"
-              aria-label="View QR code"
-              title="View QR code"
+              aria-label={t('common.machines.card.viewQrCode')}
+              title={t('common.machines.card.viewQrCode')}
             >
               <QrCode className="h-4 w-4" />
             </button>
@@ -65,12 +67,14 @@ export function MachineCard({ machine }: MachineCardProps) {
         {/* Footer: Metadata badges */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100 text-xs text-gray-600">
           <MachineCriticalityBadge criticality={machine.criticality} showLabel={true} size="sm" />
-          <div>Last service: {lastServiceDate}</div>
+          <div>{t('common.machines.card.lastService', { when: lastServiceDate })}</div>
         </div>
 
         {machine.nextPmDue && (
           <div className="text-xs mt-2 text-amber-600">
-            Next PM due: {formatDate(machine.nextPmDue.toDate?.() || new Date((machine.nextPmDue as any).seconds * 1000))}
+            {t('common.machines.card.nextPmDue', {
+              when: formatDate(machine.nextPmDue.toDate?.() || new Date((machine.nextPmDue as any).seconds * 1000)),
+            })}
           </div>
         )}
       </div>

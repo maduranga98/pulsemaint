@@ -725,6 +725,70 @@
         "title": "பணி ஆணைகள்",
         "today": "இன்று ({{count}})"
       }
+    },
+    "machines": {
+      "pageTitle": "இயந்திர பதிவேடு",
+      "summary": "இயந்திரங்கள் {{total}} · செயலில் {{active}} · பராமரிப்பில் {{maintenance}}",
+      "sortLabel": "இயந்திரங்களை வரிசைப்படுத்து",
+      "sortAZ": "வரிசை: A → Z",
+      "sortZA": "வரிசை: Z → A",
+      "addMachine": "+ இயந்திரம் சேர்க்க",
+      "import": "இறக்குமதி",
+      "exportCsv": "CSV ஏற்றுமதி",
+      "loading": "ஏற்றுகிறது…",
+      "loadMore": "மேலும் ஏற்று",
+      "noMachinesYet": "இன்னும் இயந்திரங்கள் பதிவு செய்யப்படவில்லை",
+      "noMachinesMatch": "உங்கள் வடிப்பான்களுக்கு பொருந்தும் இயந்திரங்கள் இல்லை",
+      "addFirstMachine": "முதல் இயந்திரத்தைச் சேர்க்கவும்",
+      "clearFilters": "வடிப்பான்களை அழி",
+      "filters": {
+        "searchPlaceholder": "பெயர், மாடல் அல்லது தொடர் எண் மூலம் தேடுங்கள்…",
+        "status": "நிலை",
+        "criticality": "முக்கியத்துவம்",
+        "department": "துறை",
+        "healthScore": "ஆரோக்கிய மதிப்பெண்",
+        "statusOptions": {
+          "active": "செயலில்",
+          "under_maintenance": "பராமரிப்பில்",
+          "decommissioned": "நீக்கப்பட்டது"
+        },
+        "criticalityOptions": {
+          "5": "5 - மிக முக்கியம்",
+          "4": "4 - உயர்",
+          "3": "3 - நடுத்தர",
+          "2": "2 - குறைந்த",
+          "1": "1 - குறைந்தபட்சம்"
+        },
+        "healthOptions": {
+          "good": "நல்லது (70-100)",
+          "warning": "எச்சரிக்கை (40-69)",
+          "critical": "முக்கியமானது (0-39)"
+        }
+      },
+      "table": {
+        "machine": "இயந்திரம்",
+        "serial": "தொடர் எண்",
+        "location": "இடம்",
+        "type": "வகை",
+        "criticality": "முக்கியத்துவம்",
+        "status": "நிலை",
+        "health": "ஆரோக்கியம்",
+        "lastService": "கடைசி சேவை",
+        "nextPm": "அடுத்த PM",
+        "actions": "செயல்கள்",
+        "never": "ஒருபோதும் இல்லை",
+        "notScheduled": "திட்டமிடப்படவில்லை",
+        "noMachinesFound": "இயந்திரங்கள் இல்லை",
+        "view": "பார்வை",
+        "edit": "திருத்து",
+        "qr": "QR"
+      },
+      "card": {
+        "noLocation": "இடம் இல்லை",
+        "lastService": "கடைசி சேவை: {{when}}",
+        "nextPmDue": "அடுத்த PM தேதி: {{when}}",
+        "viewQrCode": "QR குறியீட்டைக் காண்க"
+      }
     }
   }
 }
