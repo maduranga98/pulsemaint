@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { usePMWorkOrderLookup } from '../../hooks/pm/usePMWorkOrderLookup';
@@ -22,6 +23,7 @@ import {
 } from '../../components/ui';
 
 export default function PMSchedulesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
   const company = useAuthStore((s) => s.company);
@@ -102,17 +104,17 @@ export default function PMSchedulesPage() {
   return (
     <div>
       <PageHeader
-        title="PM Schedules"
-        description={`${schedules.length} schedule${schedules.length === 1 ? '' : 's'}`}
+        title={t('common.pmSchedules.pageTitle')}
+        description={t('common.pmSchedules.count', { count: schedules.length })}
         actions={
           <>
             <SegmentedControl<'table' | 'calendar'>
               value={viewMode}
               onChange={setViewMode}
-              ariaLabel="View mode"
+              ariaLabel={t('common.pmSchedules.viewMode')}
               options={[
-                { value: 'table', label: 'Table' },
-                { value: 'calendar', label: 'Calendar' },
+                { value: 'table', label: t('common.pmSchedules.table') },
+                { value: 'calendar', label: t('common.pmSchedules.calendar') },
               ]}
             />
             {isSupervisor && (
@@ -120,7 +122,7 @@ export default function PMSchedulesPage() {
                 variant="primary"
                 onClick={() => navigate('/app/work-orders?create=1&woType=PREVENTIVE')}
               >
-                New PM Work Order
+                {t('common.pmSchedules.newPmWorkOrder')}
               </Button>
             )}
           </>
@@ -140,12 +142,12 @@ export default function PMSchedulesPage() {
         {viewMode === 'table' && selectedIds.length > 0 && (
           <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 rounded-md px-3 py-2">
             <span className="text-[12px] font-medium text-indigo-800">
-              {selectedIds.length} selected
+              {t('common.pmSchedules.selectedCount', { count: selectedIds.length })}
             </span>
             <div className="flex-1" />
             {canDeleteSchedules && (
               <Button size="sm" variant="danger" onClick={() => handleBulkAction('delete')}>
-                Delete
+                {t('common.pmSchedules.delete')}
               </Button>
             )}
           </div>
@@ -153,7 +155,7 @@ export default function PMSchedulesPage() {
 
         {viewMode === 'calendar' ? (
           calendarLoading ? (
-            <div className="p-8 text-center text-gray-400">Loading calendar...</div>
+            <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.loadingCalendar')}</div>
           ) : (
             <PMCalendarView events={calendarEvents} onEventClick={handleCalendarEventClick} />
           )
@@ -161,15 +163,15 @@ export default function PMSchedulesPage() {
           <SkeletonList rows={6} rowClassName="h-12" />
         ) : schedules.length === 0 ? (
           <EmptyState
-            title="No PM schedules yet"
-            description="PM schedules are created through Preventive work orders. Create a Preventive WO to get started."
+            title={t('common.pmSchedules.empty.title')}
+            description={t('common.pmSchedules.empty.description')}
             action={
               isSupervisor && (
                 <Button
                   variant="primary"
                   onClick={() => navigate('/app/work-orders?create=1&woType=PREVENTIVE')}
                 >
-                  New PM Work Order
+                  {t('common.pmSchedules.newPmWorkOrder')}
                 </Button>
               )
             }
