@@ -16,6 +16,7 @@ import { ChecklistBuilder } from './ChecklistBuilder';
 import { DocumentUploadZone } from './DocumentUploadZone';
 import type { WOType, ChecklistItem } from '../../types/workOrder';
 import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '../../types/safety';
+import { formatMachineLocation } from '../../lib/machineLocation';
 
 type MachineOption = {
   id: string;
@@ -137,7 +138,14 @@ export function CreateWODrawer({
             name: (data.name as string) ?? d.id,
             type: data.type as string | undefined,
             department: data.department as string | undefined,
-            location: data.location as string | undefined,
+            // Machine documents have no single `location` field — only
+            // floor/bay/station — so it must be composed here, not read
+            // directly (that field never existed and was always undefined).
+            location: formatMachineLocation(
+              data.floor as string | null | undefined,
+              data.bay as string | null | undefined,
+              data.station as string | null | undefined,
+            ),
             criticality: data.criticality as number | undefined,
           };
         });
@@ -209,7 +217,14 @@ export function CreateWODrawer({
             form.setValue('machineName' as any, (data.name as string) ?? machine.id);
             form.setValue('machineType' as any, (data.type as string) ?? '');
             form.setValue('machineDepartment' as any, (data.department as string) ?? '');
-            form.setValue('machineLocation' as any, (data.location as string) ?? '');
+            form.setValue(
+              'machineLocation' as any,
+              formatMachineLocation(
+                data.floor as string | null | undefined,
+                data.bay as string | null | undefined,
+                data.station as string | null | undefined,
+              ),
+            );
             form.setValue('machineCriticality' as any, (data.criticality as number) ?? 3);
             setMachineSearch((data.name as string) ?? machine.id);
           }

@@ -219,7 +219,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 <WOStatusBadge status={workOrder.status} size="sm" />
               </div>
               <h1 className="font-bold text-xl text-gray-900">{workOrder.woNumber || ''}</h1>
-              <p className="text-sm text-gray-600 truncate">{workOrder.machineName} · {workOrder.machineLocation}</p>
+              <p className="text-sm text-gray-600 truncate">
+                {[workOrder.machineName, workOrder.machineDepartment, workOrder.machineLocation].filter(Boolean).join(' · ')}
+              </p>
               <div className="mt-1">
                 <SLACountdownTimer slaDeadline={workOrder.slaDeadline} status={workOrder.status} />
               </div>
