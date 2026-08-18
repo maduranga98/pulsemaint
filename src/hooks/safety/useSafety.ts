@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import { subscribeSafetyCases, subscribeWorkPermits } from '../../services/safety.service';
+import { subscribeSafetyCases, subscribeWorkPermits, subscribeSafetyBlacklistResets } from '../../services/safety.service';
 import type { SafetyCase, WorkPermit } from '../../types/safety';
+import { computeBlacklist, type BlacklistEntry, type BlacklistResetMap } from '../../lib/safety/blacklist';
 
 /**
  * The Work Permit gating a given work order, live (or null).
@@ -99,6 +100,34 @@ export function useSafetyCases(companyId: string) {
   }, [companyId]);
 
   return { cases, loading, error };
+}
+
+/** Live safety-blacklist entries (technicians/contractors/operators/machines) for the company. */
+export function useSafetyBlacklist(companyId: string): { entries: BlacklistEntry[]; loading: boolean } {
+  const { cases, loading: casesLoading } = useSafetyCases(companyId);
+  const [resets, setResets] = useState<BlacklistResetMap>({});
+  const [resetsLoading, setResetsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!companyId) {
+      setResetsLoading(false);
+      return;
+    }
+    setResetsLoading(true);
+    const unsub = subscribeSafetyBlacklistResets(
+      companyId,
+      (next) => {
+        setResets(next);
+        setResetsLoading(false);
+      },
+      () => setResetsLoading(false),
+    );
+    return () => unsub();
+  }, [companyId]);
+
+  const entries = useMemo(() => computeBlacklist(cases, resets), [cases, resets]);
+
+  return { entries, loading: casesLoading || resetsLoading };
 }
 
 /** Live work permits for the company, newest first. */

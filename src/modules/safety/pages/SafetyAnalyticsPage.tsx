@@ -3,25 +3,34 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
 } from 'recharts';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Ban } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
 import EmptyState from '@/components/dashboard/shared/EmptyState';
 import KpiCard from '@/components/dashboard/shared/KpiCard';
-import { useSafetyCases } from '@/hooks/safety/useSafety';
+import { useSafetyCases, useSafetyBlacklist } from '@/hooks/safety/useSafety';
 import { SAFETY_CASE_TYPES } from '@/types/safety';
+import { BLACKLIST_THRESHOLD, type BlacklistEntityType } from '@/lib/safety/blacklist';
 
 const SEV_COLORS: Record<string, string> = { low: '#10B981', medium: '#EAB308', high: '#F59E0B', critical: '#EF4444' };
 const AXIS = { stroke: '#8BA3BF', fontSize: 11 };
 const TOOLTIP_STYLE = { background: '#0F1E35', border: '1px solid #1E3A5F', color: '#F0F4F8' };
 
-type TabId = 'severity' | 'type' | 'technicians' | 'machines';
+const ENTITY_LABEL: Record<BlacklistEntityType, string> = {
+  technician: 'Technician',
+  contractor: 'Contractor',
+  operator: 'Operator',
+  machine: 'Machine',
+};
+
+type TabId = 'severity' | 'type' | 'technicians' | 'machines' | 'blacklist';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'severity', label: 'Cases by Severity' },
   { id: 'type', label: 'Cases by Type' },
   { id: 'technicians', label: 'Top 5 Technicians' },
   { id: 'machines', label: 'Top 5 Machines' },
+  { id: 'blacklist', label: 'Blacklisted' },
 ];
 
 const DURATION_OPTIONS = [
@@ -33,6 +42,8 @@ const DURATION_OPTIONS = [
 export default function SafetyAnalyticsPage() {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { cases: allCases, loading } = useSafetyCases(companyId);
+  const { entries: blacklistEntries, loading: blacklistLoading } = useSafetyBlacklist(companyId);
+  const blacklisted = useMemo(() => blacklistEntries.filter((e) => e.isBlacklisted), [blacklistEntries]);
   const [activeTab, setActiveTab] = useState<TabId>('severity');
   const [days, setDays] = useState<number>(30);
 
@@ -210,6 +221,37 @@ export default function SafetyAnalyticsPage() {
                   <Bar dataKey="count" name="Safety cases" fill="#EF4444" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+            </div>
+          )}
+        </DashboardWidget>
+      )}
+
+      {activeTab === 'blacklist' && (
+        <DashboardWidget title={`Blacklisted (${BLACKLIST_THRESHOLD}+ points)`} loading={blacklistLoading}>
+          {blacklisted.length === 0 ? <EmptyState message="No one is currently blacklisted" /> : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] text-sm">
+                <thead>
+                  <tr className="border-b border-[#1E3A5F] text-left text-xs uppercase text-[#8BA3BF]">
+                    <th className="py-2 pr-3 font-medium">Name</th>
+                    <th className="py-2 pr-3 font-medium">Type</th>
+                    <th className="py-2 pr-3 font-medium">Points</th>
+                    <th className="py-2 pr-3 font-medium">Cases</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {blacklisted.map((e) => (
+                    <tr key={`${e.entityType}:${e.entityId}`} className="border-b border-[#1E3A5F]/50 last:border-0">
+                      <td className="py-2.5 pr-3 font-medium text-[#F0F4F8]">{e.entityName}</td>
+                      <td className="py-2.5 pr-3 text-[#8BA3BF]">{ENTITY_LABEL[e.entityType]}</td>
+                      <td className="py-2.5 pr-3 font-semibold text-[#EF4444]">
+                        <span className="inline-flex items-center gap-1"><Ban className="h-3.5 w-3.5" /> {e.points}</span>
+                      </td>
+                      <td className="py-2.5 pr-3 text-[#8BA3BF]">{e.caseCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </DashboardWidget>
