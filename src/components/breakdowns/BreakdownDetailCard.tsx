@@ -91,8 +91,11 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
           <div>
             <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Machine</p>
             <p className="text-slate-900 font-medium">{b.machineName}</p>
-            {b.machineLocation && <p className="text-slate-500 text-xs">{b.machineLocation}</p>}
-            {b.machineDepartment && <p className="text-slate-500 text-xs">{b.machineDepartment}</p>}
+            {(b.machineDepartment || b.machineLocation) && (
+              <p className="text-slate-500 text-xs">
+                {[b.machineDepartment, b.machineLocation].filter(Boolean).join(' · ')}
+              </p>
+            )}
           </div>
           <div>
             <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Reported</p>

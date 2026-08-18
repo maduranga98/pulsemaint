@@ -7,6 +7,7 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
 import { notifyRoles } from '../../services/notifications.service';
+import { formatMachineLocation } from '../../lib/machineLocation';
 
 interface MachineOption {
   id: string;
@@ -87,7 +88,7 @@ export default function ReportBreakdownPage() {
             id: d.id,
             name: data.name || 'Unnamed',
             department: data.department,
-            location: data.floor || data.bay || data.station,
+            location: formatMachineLocation(data.floor, data.bay, data.station),
             criticality: data.criticality,
           };
         });
@@ -102,7 +103,7 @@ export default function ReportBreakdownPage() {
                 id: machineSnap.id,
                 name: data.name || 'Unnamed',
                 department: data.department,
-                location: data.floor || data.bay || data.station,
+                location: formatMachineLocation(data.floor, data.bay, data.station),
                 criticality: data.criticality,
               });
             }
@@ -287,7 +288,9 @@ export default function ReportBreakdownPage() {
               </option>
               {machines.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.name} {m.department ? `— ${m.department}` : ''}
+                  {m.name}
+                  {m.department ? ` — ${m.department}` : ''}
+                  {m.location ? ` (${m.location})` : ''}
                 </option>
               ))}
             </select>

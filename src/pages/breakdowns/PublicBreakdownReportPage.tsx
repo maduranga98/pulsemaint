@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, QrCode } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { auth, db } from '../../lib/firebase';
 import { signInAnonymouslyForReport } from '../../lib/auth';
+import { formatMachineLocation } from '../../lib/machineLocation';
 
 interface MachineInfo {
   id: string;
@@ -80,7 +81,7 @@ export default function PublicBreakdownReportPage() {
             id: snap.id,
             name: data.name || 'Unnamed machine',
             department: data.department,
-            location: data.floor || data.bay || data.station,
+            location: formatMachineLocation(data.floor, data.bay, data.station),
             criticality: data.criticality,
             siteId: data.siteId,
           });
@@ -221,7 +222,8 @@ export default function PublicBreakdownReportPage() {
                 <QrCode className="w-4 h-4 flex-shrink-0" />
                 <span>
                   Reporting on <strong>{machine?.name}</strong>
-                  {machine?.location ? ` — ${machine.location}` : ''}
+                  {machine?.department ? ` — ${machine.department}` : ''}
+                  {machine?.location ? ` · ${machine.location}` : ''}
                 </span>
               </div>
 

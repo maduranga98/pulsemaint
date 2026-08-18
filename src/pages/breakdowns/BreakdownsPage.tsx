@@ -104,6 +104,7 @@ interface MachineGroup {
   machineId: string;
   machineName: string;
   machineLocation: string;
+  machineDepartment: string;
   tickets: Breakdown[];
 }
 
@@ -210,6 +211,7 @@ export default function BreakdownsPage() {
           machineId: b.machineId,
           machineName: b.machineName,
           machineLocation: b.machineLocation,
+          machineDepartment: b.machineDepartment,
           tickets: [b],
         });
       }
@@ -559,7 +561,9 @@ export default function BreakdownsPage() {
                             <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </button>
-                        <p className="text-slate-400 text-xs">{g.machineLocation}</p>
+                        <p className="text-slate-400 text-xs">
+                          {[g.machineDepartment, g.machineLocation].filter(Boolean).join(' · ')}
+                        </p>
                       </td>
                       <td className="px-4 py-3">
                         {worstSeverity ? (

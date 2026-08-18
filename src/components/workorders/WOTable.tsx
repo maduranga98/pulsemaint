@@ -60,7 +60,9 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
                     >
                       {wo.machineName}
                     </button>
-                    <div className="text-gray-400 text-xs">{wo.machineLocation}</div>
+                    <div className="text-gray-400 text-xs">
+                      {[wo.machineDepartment, wo.machineLocation].filter(Boolean).join(' · ')}
+                    </div>
                   </td>
                   {showTypeColumn && (
                     <td className="px-4 py-3">
