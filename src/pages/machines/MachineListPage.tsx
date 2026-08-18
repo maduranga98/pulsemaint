@@ -5,6 +5,7 @@ import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { useMachines } from '../../hooks/useMachines';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import {
   MachineFilterBar,
   MachineCard,
@@ -435,7 +436,12 @@ export function MachineListPage() {
     );
   }
 
-  const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+  // Reactive to viewport/orientation changes — a plain `window.innerWidth`
+  // check computed once at render time got stuck on whichever layout was
+  // true at first paint (e.g. a rotated tablet, or the window resized after
+  // load), stranding a narrow viewport on the desktop table whose QR action
+  // is an easily-scrolled-past text link instead of MachineCard's QR button.
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   const canCreateMachine =
     userProfile.role === 'supervisor' ||

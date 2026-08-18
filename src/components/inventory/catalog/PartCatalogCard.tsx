@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import type { InventoryPart } from '@/types/inventory';
 import { PartStatusBadge } from '@/components/inventory/shared/PartStatusBadge';
 import { PartCriticalityBadge } from '@/components/inventory/shared/PartCriticalityBadge';
 import { CategoryBadge } from '@/components/inventory/shared/CategoryBadge';
 import { StockLevelIndicator } from '@/components/inventory/shared/StockLevelIndicator';
-import { MapPin } from 'lucide-react';
+import { PartQrModal } from '@/components/inventory/catalog/PartQrModal';
+import { MapPin, QrCode } from 'lucide-react';
 
 interface PartCatalogCardProps {
   part: InventoryPart;
@@ -11,17 +13,44 @@ interface PartCatalogCardProps {
 }
 
 export function PartCatalogCard({ part, onClick }: PartCatalogCardProps) {
+  // The grid/card layout is what mobile users actually see (the table with
+  // its QR column is hidden below the `md` breakpoint — see
+  // PartCatalogPage), so this needs its own QR entry point rather than
+  // relying on the table's, which mobile never renders.
+  const [showQr, setShowQr] = useState(false);
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
-      className="w-full text-left bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition-all"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') onClick();
+      }}
+      className="w-full text-left bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md hover:border-blue-200 transition-all cursor-pointer"
     >
-      {/* Header row: Part number + Status */}
-      <div className="flex items-start justify-between mb-2">
+      {showQr && <PartQrModal part={part} onClose={() => setShowQr(false)} />}
+      {/* Header row: Part number + Status + QR */}
+      <div className="flex items-start justify-between mb-2 gap-2">
         <span className="font-mono text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
           {part.partNumber}
         </span>
-        <PartStatusBadge status={part.status} />
+        <div className="flex items-center gap-1.5 shrink-0">
+          <PartStatusBadge status={part.status} />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowQr(true);
+            }}
+            className="rounded-md border border-gray-200 p-1 text-gray-500 hover:bg-gray-50 hover:text-indigo-600"
+            aria-label="View QR code"
+            title="View QR code"
+          >
+            <QrCode className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Part name */}
@@ -57,6 +86,6 @@ export function PartCatalogCard({ part, onClick }: PartCatalogCardProps) {
         </span>
         <span className="shrink-0 ml-2 font-medium text-gray-700">{part.unit}</span>
       </div>
-    </button>
+    </div>
   );
 }
