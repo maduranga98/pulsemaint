@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { db } from '@/lib/firebase';
 import { useTrainingModule } from '@/hooks/training/useTrainingModule';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
-import { isTrainingLibraryModule } from '@/lib/training/trainingTypes';
+import { isTrainingLibraryModule, SAFETY_TRAINING_TYPE } from '@/lib/training/trainingTypes';
 import ModuleEditorLayout from '@/components/training/manager/ModuleEditorLayout';
 import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm';
 import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
@@ -21,8 +21,8 @@ export default function EditModulePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [assigning, setAssigning] = useState(false);
 
-  const handleSave = async (updates: Partial<TrainingModule>) => {
-    if (!moduleId) return;
+  const handleSave = async (updates: Partial<TrainingModule>): Promise<boolean> => {
+    if (!moduleId) return false;
     setIsSaving(true);
     try {
       await updateDoc(doc(db, 'trainingModules', moduleId), {
@@ -30,12 +30,23 @@ export default function EditModulePage() {
         updatedAt: serverTimestamp(),
       });
       toast.success('Module updated.');
+      return true;
     } catch (err) {
       console.error('Failed to update training module', err);
       toast.error('Failed to save module. Please try again.');
+      return false;
     } finally {
       setIsSaving(false);
     }
+  };
+
+  // handleSave above is also used for lesson add/reorder/delete (see
+  // ModuleEditorLayout), which must NOT navigate away — only the Settings
+  // form's own "Save Module" submit should return to the module list, and
+  // only once the save actually succeeded.
+  const handleSaveSettings = async (updates: Partial<TrainingModule>) => {
+    const ok = await handleSave(updates);
+    if (ok) navigate('/app/training/manage/modules');
   };
 
 
@@ -107,7 +118,18 @@ export default function EditModulePage() {
         moduleId={moduleId}
         editorBasePath="/app/training/manage/modules"
         renderSettings={() => (
-          <ModuleSettingsForm defaultValues={module} onSubmit={handleSave} isLoading={isSaving} />
+          <ModuleSettingsForm
+            defaultValues={module}
+            onSubmit={handleSaveSettings}
+            isLoading={isSaving}
+            // A module already saved as Safety Training stays locked to it
+            // here too — same as on creation (CreateSafetyTrainingModulePage)
+            // — so landing on this general editor (e.g. right after adding a
+            // lesson, before ever touching the settings form) can't present
+            // an unlocked, blank-looking Training Type picker that reads as
+            // "this switched to a general training module".
+            lockTrainingType={module.trainingType === SAFETY_TRAINING_TYPE ? SAFETY_TRAINING_TYPE : undefined}
+          />
         )}
       />
       {assigning && (

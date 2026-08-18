@@ -28,6 +28,9 @@ export default function CreateModulePage() {
       const status = updates.status ?? 'active';
       const ref = await addDoc(collection(db, 'trainingModules'), {
         ...updates,
+        // A lesson can be added (see ModuleEditorLayout) before the Settings
+        // form is ever submitted, creating the module with no title yet.
+        title: updates.title || 'Untitled Module',
         companyId,
         createdBy: userId,
         // This page only ever writes into the Training tab's library —
