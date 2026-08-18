@@ -19,6 +19,7 @@ import ContractorScoreboard from '../../components/dashboard/manager/ContractorS
 import ProductionDowntimeStrip from '../../components/dashboard/manager/ProductionDowntimeStrip';
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import SafetySnapshotWidget from '../../components/dashboard/manager/SafetySnapshotWidget';
+import SafetyBlacklistWidget from '../../components/dashboard/manager/SafetyBlacklistWidget';
 import { resolveAnalyticsScopeId } from '../../lib/analytics/analyticsScope';
 import {
   DASHBOARD_RANGE_LABELS,
@@ -190,7 +191,12 @@ export default function AnalyticsPage() {
 
         {tab === 'machines' && <TopProblemMachinesChart companyId={companyId} month={months} />}
 
-        {tab === 'safety' && <SafetySnapshotWidget companyId={companyId} hideKpiCards />}
+        {tab === 'safety' && (
+          <div className="space-y-6">
+            <SafetySnapshotWidget companyId={companyId} hideKpiCards />
+            <SafetyBlacklistWidget companyId={companyId} />
+          </div>
+        )}
 
         {tab === 'team' && (
           <div className="space-y-6">

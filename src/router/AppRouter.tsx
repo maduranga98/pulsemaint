@@ -101,6 +101,7 @@ import WorkPermitsPage from '../modules/safety/pages/WorkPermitsPage';
 import SafetyCalendarPage from '../modules/safety/pages/SafetyCalendarPage';
 import SafetyAnalyticsPage from '../modules/safety/pages/SafetyAnalyticsPage';
 import SafetyCasesPage from '../modules/safety/pages/SafetyCasesPage';
+import SafetyBlacklistPage from '../modules/safety/pages/SafetyBlacklistPage';
 
 // Dashboard
 import {
@@ -579,6 +580,9 @@ export default function AppRouter() {
             calendar, available to every signed-in role. */}
         <Route path="safety/calendar" element={<ProtectedRoute><SafetyCalendarPage /></ProtectedRoute>} />
         <Route path="safety/analytics" element={<ProtectedRoute requiredRoles={['safety_officer']}><SafetyAnalyticsPage /></ProtectedRoute>} />
+        {/* Blacklist: entities (technician/contractor/operator/machine) that have
+            reached the safety-case point threshold. Clearing is admin-only. */}
+        <Route path="safety/blacklist" element={<ProtectedRoute requiredRoles={['admin']}><SafetyBlacklistPage /></ProtectedRoute>} />
 
         <Route
           path="inventory/returns"

@@ -9,6 +9,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   Timestamp,
   updateDoc,
   where,
@@ -24,9 +25,12 @@ import type {
   WorkPermitInput,
   WorkPermitStatus,
 } from '../types/safety';
+import type { BlacklistEntityType, BlacklistResetMap } from '../lib/safety/blacklist';
+import { blacklistKey } from '../lib/safety/blacklist';
 
 const CASES = 'safety_cases';
 const PERMITS = 'work_permits';
+const BLACKLIST_RESETS = 'safety_blacklist_resets';
 
 function mapCase(id: string, d: Record<string, unknown>): SafetyCase {
   return { id, ...(d as Omit<SafetyCase, 'id'>) };
@@ -119,6 +123,52 @@ export async function reportSafetyCaseTo(
     reportedToRole: input.toUserRole,
     actions: arrayUnion(entry),
     updatedAt: serverTimestamp(),
+  });
+}
+
+// ── Safety blacklist ─────────────────────────────────────────────────────────
+// Points are computed live from safety_cases (see src/lib/safety/blacklist.ts).
+// A "clear" doesn't rewrite historical cases — it stores the timestamp the
+// entity's running total should reset from, and every case reported before
+// that moment is excluded from the recomputed total going forward.
+
+export function subscribeSafetyBlacklistResets(
+  companyId: string,
+  cb: (resets: BlacklistResetMap) => void,
+  onError?: (msg: string) => void,
+): () => void {
+  return onSnapshot(
+    query(collection(db, BLACKLIST_RESETS), where('companyId', '==', companyId)),
+    (snap) => {
+      const map: BlacklistResetMap = {};
+      snap.docs.forEach((d) => {
+        const data = d.data() as { entityType: BlacklistEntityType; entityId: string; clearedAt?: Timestamp };
+        map[blacklistKey(data.entityType, data.entityId)] = data.clearedAt?.toMillis?.() ?? Date.now();
+      });
+      cb(map);
+    },
+    (err) => onError?.(err.message),
+  );
+}
+
+/** Admin-only: reset an entity's safety-case point total back to 0. */
+export async function clearSafetyBlacklistEntry(input: {
+  companyId: string;
+  entityType: BlacklistEntityType;
+  entityId: string;
+  entityName: string;
+  clearedBy: string;
+  clearedByName: string;
+}): Promise<void> {
+  const id = `${input.companyId}_${input.entityType}_${input.entityId}`;
+  await setDoc(doc(db, BLACKLIST_RESETS, id), {
+    companyId: input.companyId,
+    entityType: input.entityType,
+    entityId: input.entityId,
+    entityName: input.entityName,
+    clearedBy: input.clearedBy,
+    clearedByName: input.clearedByName,
+    clearedAt: serverTimestamp(),
   });
 }
 

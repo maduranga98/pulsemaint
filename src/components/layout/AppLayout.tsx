@@ -105,13 +105,11 @@ const NAV_GROUPS: NavGroup[] = [
     labelKey: 'common.nav.groups.safety',
     items: [
       { labelKey: 'common.nav.items.workPermits', to: '/app/safety/permits', icon: Icon.report, roles: ['safety_officer', 'admin', 'plant_manager', 'supervisor'] },
-      // HR officer and safety officer no longer have a "Safety Cases" nav
-      // entry at all — HR officer's Safety tab was removed entirely, and
-      // safety officer now works their case board from the "Open Safety
-      // Cases" widget on their dashboard instead (see OpenSafetyCasesWidget
-      // on ManagerDashboard, which safety_officer shares); both still have
-      // route-level access to the page if linked to directly.
-      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor'] },
+      // HR officer still has no "Safety Cases" nav entry — HR officer's
+      // Safety tab was removed entirely. Safety officer now gets a full
+      // nav entry too (in addition to the "Open Safety Cases" dashboard
+      // widget), since the case board is their primary EHS workspace.
+      { labelKey: 'common.nav.items.safetyCases', to: '/app/safety/cases', icon: Icon.report, roles: ['admin', 'plant_manager', 'supervisor', 'safety_officer'] },
       // Frontline roles a safety case can be assigned down to for action land
       // on the same page's "Reported to Me" filtered view. Store keeper and
       // floor_operator have no standalone Safety tab — their safety
@@ -127,6 +125,10 @@ const NAV_GROUPS: NavGroup[] = [
       // Trainings page instead of a dedicated nav entry. floor_operator's
       // safety trainings now surface on their dashboard instead (see
       // MySafetyTrainingsWidget on FloorOperatorDashboard).
+      // Blacklist: technicians/contractors/operators/machines that hit the
+      // safety-case point threshold. Admin-only — clearing it is a
+      // destructive, company-wide action (see firestore.rules).
+      { labelKey: 'common.nav.items.safetyBlacklist', to: '/app/safety/blacklist', icon: Icon.report, roles: ['admin'] },
     ],
   },
   {

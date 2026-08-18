@@ -17,6 +17,7 @@ import { DocumentUploadZone } from './DocumentUploadZone';
 import type { WOType, ChecklistItem } from '../../types/workOrder';
 import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '../../types/safety';
 import { formatMachineLocation } from '../../lib/machineLocation';
+import { useSafetyBlacklist } from '../../hooks/safety/useSafety';
 
 type MachineOption = {
   id: string;
@@ -120,6 +121,12 @@ export function CreateWODrawer({
 
   // Registered contractor companies (for CONTRACTOR work orders).
   const { contractors: registeredContractors } = useContractors();
+  // Technicians, contractors, or machines that hit the safety-case point
+  // threshold are blocked from new WO assignment — see src/lib/safety/blacklist.ts.
+  const { entries: blacklistEntries } = useSafetyBlacklist(companyId ?? '');
+  const blacklistedIds = new Set(
+    blacklistEntries.filter((e) => e.isBlacklisted).map((e) => `${e.entityType}:${e.entityId}`),
+  );
 
   useEffect(() => {
     if (!open || !companyId) return;
@@ -755,6 +762,7 @@ export function CreateWODrawer({
                       <p className="px-3 py-2 text-xs text-gray-400">No machines found. Add machines first.</p>
                     ) : (
                       machines
+                        .filter((m) => !blacklistedIds.has(`machine:${m.id}`))
                         .filter((m) =>
                           machineSearch.trim() === ''
                             ? true
@@ -811,23 +819,27 @@ export function CreateWODrawer({
             <TeamAssignmentPanel
               form={form}
               isContractorWO={isContractorWO}
-              technicians={technicians.map((t) => ({
-                id: t.id,
-                name: t.name,
-                department: t.department ?? '',
-                activeWOCount: 0,
-              }))}
+              technicians={technicians
+                .filter((t) => !blacklistedIds.has(`technician:${t.id}`))
+                .map((t) => ({
+                  id: t.id,
+                  name: t.name,
+                  department: t.department ?? '',
+                  activeWOCount: 0,
+                }))}
               supervisors={supervisors.map((s) => ({ id: s.id, name: s.name, role: s.role, department: s.department ?? '' }))}
-              contractors={registeredContractors.map((c) => ({
-                id: c.id,
-                companyName: c.companyName,
-                specializations: c.specializationTags ?? [],
-                rating: c.avgRating ?? 0,
-                lastJobDate: null,
-                contactPerson: c.primaryContactName ?? '',
-                contactNumber: c.primaryPhone ?? '',
-                isActive: c.status === 'active',
-              }))}
+              contractors={registeredContractors
+                .filter((c) => !blacklistedIds.has(`contractor:${c.id}`))
+                .map((c) => ({
+                  id: c.id,
+                  companyName: c.companyName,
+                  specializations: c.specializationTags ?? [],
+                  rating: c.avgRating ?? 0,
+                  lastJobDate: null,
+                  contactPerson: c.primaryContactName ?? '',
+                  contactNumber: c.primaryPhone ?? '',
+                  isActive: c.status === 'active',
+                }))}
             />
           )}
 

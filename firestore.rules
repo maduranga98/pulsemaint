@@ -431,6 +431,18 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Safety blacklist: one doc per entity a "clear" was ever issued for —
+    // points themselves are computed client-side from safety_cases, this
+    // just records the reset timestamp. Only admin can clear (reset) an
+    // entity's points, matching the Blacklist page being admin-only;
+    // safety-management roles need to read it to see who's blacklisted on
+    // their analytics/case views.
+    match /safety_blacklist_resets/{resetId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId) && canManageSafety();
+      allow create, update: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && isAdmin();
+      allow delete: if isAdmin();
+    }
+
     // ---------------------------------------------------------------------------
     // Condition Monitoring readings — machine profile condition tab
     // ---------------------------------------------------------------------------
