@@ -29,6 +29,11 @@ export default function CreateSafetyTrainingModulePage() {
       const status = updates.status ?? 'active';
       const ref = await addDoc(collection(db, 'trainingModules'), {
         ...updates,
+        // A lesson can be added (see ModuleEditorLayout) before the Settings
+        // form is ever submitted, creating the module with no title yet —
+        // falls back to something recognizable rather than a blank title
+        // that reads as "New Module" on the editor this then lands on.
+        title: updates.title || 'Untitled Safety Training',
         trainingType: SAFETY_TRAINING_TYPE,
         companyId,
         createdBy: userId,

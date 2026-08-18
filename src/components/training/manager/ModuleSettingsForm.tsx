@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
 import type {
@@ -9,8 +10,13 @@ import type {
 import {
   TRAINEE_TRAINING_TYPE_LABELS,
   TRAINING_DELIVERY_MODE_LABELS,
-  SAFETY_TRAINING_TYPE,
 } from '@/lib/training/trainingTypes';
+
+// Sentinel select value that switches the Training Type field into a free-text
+// input, so a company can add a training type beyond the built-in set
+// (Electrical/Mechanical/HR/Civil/Technician/Operator/Safety Training/Other)
+// without a code change. Stored as the raw typed string on the module.
+const CUSTOM_TYPE_VALUE = '__custom__';
 
 interface ModuleSettingsFormProps {
   defaultValues?: Partial<TrainingModule>;
@@ -30,7 +36,9 @@ interface FormValues {
   passingScore: number;
   status: TrainingModuleStatus;
   tags: string;
-  trainingType: TraineeTrainingType | '';
+  // A custom (company-added) type is stored as the raw string the user
+  // typed, not one of the built-in TraineeTrainingType values.
+  trainingType: TraineeTrainingType | string | '';
   trainingMode: TrainingDeliveryMode | '';
 }
 
@@ -48,7 +56,7 @@ export default function ModuleSettingsForm({
   isLoading = false,
   lockTrainingType,
 }: ModuleSettingsFormProps) {
-  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       title: defaultValues?.title ?? '',
       description: defaultValues?.description ?? '',
@@ -63,6 +71,21 @@ export default function ModuleSettingsForm({
       trainingMode: defaultValues?.trainingMode ?? '',
     },
   });
+
+  // A module already saved with a type outside the built-in set (added via
+  // "+ Add new type…" previously) opens straight into the free-text field
+  // instead of silently falling back to the picker with nothing selected.
+  const [isCustomType, setIsCustomType] = useState(() => {
+    const initial = lockTrainingType ?? defaultValues?.trainingType;
+    return !!initial && !(initial in TRAINEE_TRAINING_TYPE_LABELS);
+  });
+  const trainingTypeValue = watch('trainingType');
+  // Establishes the field's validation rule with RHF regardless of which
+  // branch (select vs. free-text) is currently mounted — the select below is
+  // controlled via value/onChange rather than a spread ref, since it also
+  // has to intercept the "+ Add new type…" sentinel before it ever reaches
+  // form state.
+  register('trainingType', { required: 'Training type is required' });
 
   async function handleFormSubmit(values: FormValues) {
     const tags = values.tags
@@ -128,17 +151,46 @@ export default function ModuleSettingsForm({
           <label className="text-sm font-medium text-gray-700">
             Training Type <span className="text-red-500">*</span>
           </label>
-          <select
-            {...register('trainingType', { required: 'Training type is required' })}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-          >
-            <option value="">Select training type…</option>
-            {Object.entries(TRAINEE_TRAINING_TYPE_LABELS)
-              .filter(([value]) => value !== SAFETY_TRAINING_TYPE)
-              .map(([value, label]) => (
+          {isCustomType ? (
+            <div className="flex gap-2">
+              <input
+                type="text"
+                {...register('trainingType', { required: 'Training type is required' })}
+                placeholder="e.g. Forklift Certification"
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCustomType(false);
+                  setValue('trainingType', '');
+                }}
+                className="text-xs font-medium text-blue-600 hover:underline whitespace-nowrap"
+              >
+                Choose from list
+              </button>
+            </div>
+          ) : (
+            <select
+              value={trainingTypeValue}
+              onChange={(e) => {
+                if (e.target.value === CUSTOM_TYPE_VALUE) {
+                  setIsCustomType(true);
+                  setValue('trainingType', '');
+                } else {
+                  setValue('trainingType', e.target.value, { shouldValidate: true });
+                }
+              }}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            >
+              <option value="">Select training type…</option>
+              {Object.entries(TRAINEE_TRAINING_TYPE_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
-          </select>
+              <option value={CUSTOM_TYPE_VALUE}>+ Add new type…</option>
+            </select>
+          )}
           {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
         </div>
       )}
