@@ -144,67 +144,76 @@ export default function NotificationBell() {
               Turn on device notifications with sound for new alerts
             </button>
           )}
-          {/* State-derived alerts: expiring/due items and stock/PO alerts,
-              shown to the roles that own them. They clear automatically once
-              the underlying condition is resolved. */}
-          {alerts.length > 0 && (
-            <div className="divide-y divide-amber-100 bg-amber-50/40">
-              <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
-                Needs attention
-              </p>
-              {alerts.slice(0, 30).map((a) => {
-                const Icon = ICON_MAP[a.type] ?? Bell;
-                return (
-                  <div key={a.id} className="w-full flex items-start gap-3 px-4 py-3 hover:bg-amber-50 transition-colors">
-                    <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[a.severity] ?? 'text-slate-400'}`} />
-                    <button
-                      onClick={() => {
-                        setOpen(false);
-                        if (a.linkTo) navigate(a.linkTo);
-                      }}
-                      className="flex-1 min-w-0 text-left"
-                    >
-                      <p className="text-sm leading-snug text-slate-900 font-medium">{a.message}</p>
-                    </button>
-                    <button
-                      onClick={() => setDismissed((prev) => new Set(prev).add(a.id))}
-                      className="text-slate-300 hover:text-slate-500 text-xs shrink-0"
-                      aria-label="Dismiss"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
           {notifications.length === 0 && alerts.length === 0 ? (
             <p className="text-center py-10 text-sm text-slate-400">You&rsquo;re all caught up.</p>
           ) : (
-            <div className="divide-y divide-slate-100">
-              {/* Everything listed is unread by definition — opening a
-                  notification marks it read, which removes it from the bar. */}
-              {notifications.slice(0, 30).map((n) => {
-                const Icon = ICON_MAP[n.type] ?? Bell;
-                return (
-                  <button
-                    key={n.id}
-                    onClick={() => handleItemClick(n)}
-                    className="w-full flex items-start gap-3 px-4 py-3 text-left bg-blue-50/50 hover:bg-slate-50 transition-colors"
-                  >
-                    <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[n.severity] ?? 'text-slate-400'}`} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm leading-snug text-slate-900 font-medium">
-                        {notificationDisplayMessage(n, userProfile.role, userProfile.id)}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-0.5">{relativeTime(n.timestamp)}</p>
-                    </div>
-                    <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
-                  </button>
-                );
-              })}
-            </div>
+            <>
+              {/* Real, timestamped notifications (already newest-first) come
+                  first so a fresh event — a new breakdown, WO assignment,
+                  safety case, etc. — always shows at the very top of the
+                  bell, ahead of the state-derived "Needs attention" alerts
+                  below, which have no timestamp of their own to sort by. */}
+              {notifications.length > 0 && (
+                <div className="divide-y divide-slate-100">
+                  {/* Everything listed is unread by definition — opening a
+                      notification marks it read, which removes it from the bar. */}
+                  {notifications.slice(0, 30).map((n) => {
+                    const Icon = ICON_MAP[n.type] ?? Bell;
+                    return (
+                      <button
+                        key={n.id}
+                        onClick={() => handleItemClick(n)}
+                        className="w-full flex items-start gap-3 px-4 py-3 text-left bg-blue-50/50 hover:bg-slate-50 transition-colors"
+                      >
+                        <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[n.severity] ?? 'text-slate-400'}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm leading-snug text-slate-900 font-medium">
+                            {notificationDisplayMessage(n, userProfile.role, userProfile.id)}
+                          </p>
+                          <p className="text-xs text-slate-400 mt-0.5">{relativeTime(n.timestamp)}</p>
+                        </div>
+                        <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* State-derived alerts: expiring/due items and stock/PO alerts,
+                  shown to the roles that own them. They clear automatically once
+                  the underlying condition is resolved. */}
+              {alerts.length > 0 && (
+                <div className="divide-y divide-amber-100 bg-amber-50/40">
+                  <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                    Needs attention
+                  </p>
+                  {alerts.slice(0, 30).map((a) => {
+                    const Icon = ICON_MAP[a.type] ?? Bell;
+                    return (
+                      <div key={a.id} className="w-full flex items-start gap-3 px-4 py-3 hover:bg-amber-50 transition-colors">
+                        <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${SEVERITY_COLOR[a.severity] ?? 'text-slate-400'}`} />
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            if (a.linkTo) navigate(a.linkTo);
+                          }}
+                          className="flex-1 min-w-0 text-left"
+                        >
+                          <p className="text-sm leading-snug text-slate-900 font-medium">{a.message}</p>
+                        </button>
+                        <button
+                          onClick={() => setDismissed((prev) => new Set(prev).add(a.id))}
+                          className="text-slate-300 hover:text-slate-500 text-xs shrink-0"
+                          aria-label="Dismiss"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

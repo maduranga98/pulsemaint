@@ -266,15 +266,15 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
                         type="checkbox"
                         checked={selectedUserIds.has(u.id)}
                         onChange={() => toggle(selectedUserIds, u.id, setSelectedUserIds)}
-                        className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="w-4 h-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <span className="text-sm text-gray-900 truncate">{u.fullName}</span>
+                      <span className="flex-1 min-w-0 truncate text-sm text-gray-900">{u.fullName}</span>
                       {u.status === 'pending' && (
-                        <span className="rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                        <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
                           Invite pending
                         </span>
                       )}
-                      <span className="text-xs text-gray-400 ml-auto">{ROLE_LABEL[u.role]}</span>
+                      <span className="shrink-0 text-xs text-gray-400">{ROLE_LABEL[u.role]}</span>
                     </label>
                   ))}
                 </div>
