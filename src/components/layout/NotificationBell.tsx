@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { useNavigate } from 'react-router-dom';
 import { Bell, AlertTriangle, Wrench, Package, Calendar, GraduationCap, ClipboardCheck, FileText, CheckCheck, BellRing, Volume2, VolumeX } from 'lucide-react';
 import { useMyNotifications } from '@/hooks/useMyNotifications';
@@ -45,6 +46,23 @@ export default function NotificationBell() {
   const alerts = derivedAlerts.filter((a) => !dismissed.has(a.id));
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  // Desktop only: anchor the panel to the bell's actual on-screen position
+  // instead of a fixed viewport offset, so it opens right under the icon
+  // instead of over on the far right of the screen. Mobile keeps its
+  // original full-width bar (see the plain Tailwind classes below) —
+  // this style is applied only at sm+.
+  const isDesktop = useMediaQuery('(min-width: 640px)');
+  const [desktopStyle, setDesktopStyle] = useState<CSSProperties>({});
+
+  useEffect(() => {
+    if (!open || !isDesktop || !buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    setDesktopStyle({
+      top: rect.bottom + 8,
+      right: Math.max(8, window.innerWidth - rect.right),
+    });
+  }, [open, isDesktop]);
   const [devicePermission, setDevicePermission] = useState(getNotificationPermission());
   const [soundOn, setSoundOn] = useState(isNotificationSoundEnabled());
 
@@ -93,6 +111,7 @@ export default function NotificationBell() {
   return (
     <div className="relative" ref={ref}>
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((o) => !o)}
         className="relative p-2 rounded-lg text-slate-300 hover:bg-white/10 transition-colors"
@@ -115,7 +134,10 @@ export default function NotificationBell() {
         // not just mobile — the panel was invisible even on desktop.
         // `position: fixed` escapes ancestor overflow/scroll clipping
         // entirely, anchoring purely to the viewport.
-        <div className="fixed left-2 right-2 top-16 sm:left-auto sm:right-4 sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50">
+        <div
+          className="fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50"
+          style={isDesktop ? desktopStyle : undefined}
+        >
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-900">Notifications</p>
             <div className="flex items-center gap-2">
