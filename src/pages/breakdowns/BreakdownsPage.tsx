@@ -887,12 +887,24 @@ function sortTicketsByReportedAt(tickets: Breakdown[]): Breakdown[] {
 function MergedField({ tickets, get }: { tickets: Breakdown[]; get: (t: Breakdown) => string | null | undefined }) {
   const entries = tickets.map((t) => ({ ticketNumber: t.ticketNumber, value: get(t) })).filter((e) => e.value);
   if (entries.length === 0) return <p className="text-slate-400 italic">—</p>;
-  if (entries.length === 1) return <p className="text-slate-800">{entries[0].value}</p>;
+  // The attend form is filled out once per machine (not once per ticket) and
+  // that same answer is written to every ticket in the group — listing it
+  // once per ticket number just repeats the identical text several times.
+  // Collapse consecutive/duplicate values down to one entry, keeping every
+  // ticket tag that shares it, so genuinely different per-ticket answers
+  // still show separately.
+  const deduped: { ticketNumbers: string[]; value: string }[] = [];
+  for (const e of entries) {
+    const existing = deduped.find((d) => d.value === e.value);
+    if (existing) existing.ticketNumbers.push(e.ticketNumber);
+    else deduped.push({ ticketNumbers: [e.ticketNumber], value: e.value! });
+  }
+  if (deduped.length === 1) return <p className="text-slate-800">{deduped[0].value}</p>;
   return (
     <ul className="space-y-1">
-      {entries.map((e, i) => (
+      {deduped.map((e, i) => (
         <li key={i} className="text-slate-800">
-          <span className="text-slate-400 text-xs font-medium mr-1">{e.ticketNumber}:</span>
+          <span className="text-slate-400 text-xs font-medium mr-1">{e.ticketNumbers.join(', ')}:</span>
           {e.value}
         </li>
       ))}
@@ -954,7 +966,10 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
     if (!worst || SEVERITY_RANK[t.severity] > SEVERITY_RANK[worst]) return t.severity;
     return worst;
   }, null);
-  const photos = tickets.flatMap((t) => t.photos ?? []);
+  // Same shared-attend-form reasoning as MergedField above: the same photos
+  // often get attached to every ticket in the group, so dedupe by URL
+  // instead of showing each attachment repeated once per ticket.
+  const photos = Array.from(new Set(tickets.flatMap((t) => t.photos ?? [])));
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-5">
