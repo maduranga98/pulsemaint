@@ -85,26 +85,24 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'signedOffByName', label: 'Signed Off By' },
     { key: 'signedOffAt', label: 'Signed Off' },
   ],
+  // Curated "case file" field set per ticket, grouped under its machine by
+  // genericReportPdf's machine-grouped rendering. Every field here is one the
+  // user explicitly asked to see — not a generic superset of the underlying
+  // documents.
   breakdown_summary: [
     { key: 'ticketNumber', label: 'Ticket' },
-    { key: 'machineName', label: 'Machine' },
-    { key: 'machineDepartment', label: 'Department' },
     { key: 'severity', label: 'Severity' },
-    { key: 'type', label: 'Type' },
-    { key: 'status', label: 'Status' },
-    { key: 'reportedAt', label: 'Reported Date', format: 'date' },
-    { key: 'resolvedAt', label: 'Completed', format: 'date' },
-    { key: 'rcaReason', label: 'RCA Reason' },
-    // The ticket's lifecycle continues on the Work Order it turned into —
-    // these carry it through to sign-off instead of stopping at the ticket.
-    { key: 'woNumber', label: 'WO #' },
-    { key: 'woStatus', label: 'WO Status' },
-    { key: 'woActualStartTime', label: 'WO Started', format: 'datetime' },
-    { key: 'woActualEndTime', label: 'WO Ended', format: 'datetime' },
-    { key: 'woWorkDoneDescription', label: 'Work Done' },
-    { key: 'woSignedOffByName', label: 'Signed Off By' },
-    { key: 'woSignedOffAt', label: 'Signed Off At', format: 'datetime' },
-    { key: 'woSignOffOutcome', label: 'Sign-Off Outcome' },
+    { key: 'description', label: 'What Happened (Reported)' },
+    { key: 'attemptedFixes', label: 'Attempted Fixes' },
+    { key: 'technicianFindings', label: 'What Happened (Technician/Trainee)' },
+    { key: 'assignedTechnicianNames', label: 'Assigned Technicians', format: 'list' },
+    { key: 'woNumber', label: 'Work Order #' },
+    { key: 'woAssignedTechnicianNames', label: 'WO Assigned Technicians', format: 'list' },
+    { key: 'woChecklist', label: 'Checklist (Supervisor)', format: 'list' },
+    { key: 'woRootCause', label: 'Root Cause Analysis' },
+    { key: 'woPartsUsed', label: 'Used Parts', format: 'list' },
+    { key: 'woSignOffNotes', label: 'Signed-Off Note' },
+    { key: 'woSignedOffAt', label: 'Sign-Off Time (WO)', format: 'datetime' },
   ],
   sla_compliance: [
     { key: 'ticketNumber', label: 'Ticket' },

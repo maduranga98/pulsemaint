@@ -1029,6 +1029,11 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
         </div>
 
         <div className="sm:col-span-2">
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened (Technician/Trainee Findings)</p>
+          <MergedField tickets={tickets} get={(t) => (t as any).technicianFindings} />
+        </div>
+
+        <div className="sm:col-span-2">
           <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Assigned Technicians</p>
           {technicians.length === 0 ? (
             <p className="text-slate-400 italic">—</p>

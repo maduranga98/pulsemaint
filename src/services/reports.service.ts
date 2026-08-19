@@ -960,6 +960,37 @@ export async function fetchReportRows(
       row.woSignedOffByName = wo?.supervisorSignOffByName ?? '';
       row.woSignedOffAt = wo?.supervisorSignOffAt ?? null;
       row.woSignOffOutcome = wo?.signOffOutcome ? prettifyEnum(String(wo.signOffOutcome)) : '';
+      // WO's own assigned technicians (distinct from the breakdown ticket's
+      // assignedTechnicianNames, which reflects who attended the breakdown).
+      row.woAssignedTechnicianNames = Array.isArray(wo?.assignedTechnicianNames)
+        ? (wo!.assignedTechnicianNames as unknown[]).map((n) => String(n)).filter(Boolean)
+        : [];
+      // Supervisor's completed checklist off the WO, formatted as one
+      // readable line per item ("[x] Item — note").
+      row.woChecklist = Array.isArray(wo?.checklist)
+        ? (wo!.checklist as Record<string, unknown>[]).map((c) => {
+            const mark = c.completed ? '[x]' : '[ ]';
+            const label = String(c.item ?? c.label ?? c.text ?? '');
+            const note = c.note ? ` — ${String(c.note)}` : '';
+            return `${mark} ${label}${note}`;
+          })
+        : [];
+      // Root cause analysis — read off the WO itself (where the supervisor
+      // records it), falling back to the ticket's own rootCause fields.
+      row.woRootCause = wo?.rootCauseDescription
+        ? String(wo.rootCauseDescription)
+        : wo?.rootCause
+          ? prettifyEnum(wo.rootCause)
+          : (row.rcaReason as string | undefined) ?? '';
+      // Used parts, one line per part.
+      row.woPartsUsed = Array.isArray(wo?.partsUsed)
+        ? (wo!.partsUsed as Record<string, unknown>[]).map((p) => {
+            const qty = p.quantity != null ? ` × ${String(p.quantity)}` : '';
+            return `${String(p.partName ?? '')}${qty}`;
+          })
+        : [];
+      // Sign-off note — only meaningful when present.
+      row.woSignOffNotes = wo?.supervisorSignOffNotes ? String(wo.supervisorSignOffNotes) : '';
     });
   }
 
