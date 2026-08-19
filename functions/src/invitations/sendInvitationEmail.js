@@ -88,9 +88,12 @@ exports.sendInvitationEmail = onCall(
     const sent = await sendEmail({
       to: inv.email,
       subject: `You're invited to join ${companyName} on FirmiCore`,
-      html: brandedEmail(html, "FirmiCore"),
+      // Mirrors sendPoEmails.js: when the company has its own configured
+      // mailbox (Settings → Email Sending), the invite should read as
+      // coming from them, not the shared "FirmiCore" platform brand.
+      html: brandedEmail(html, companyName),
       text: `You've been invited to join ${companyName} on FirmiCore as a ${roleName}. Accept your invitation here: ${inviteUrl}`,
-      fromName: "FirmiCore",
+      fromName: companyName,
       replyTo: companyEmail || undefined,
       companyId,
     });

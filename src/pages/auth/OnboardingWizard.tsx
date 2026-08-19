@@ -6,7 +6,6 @@ import { AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { getDashboardRoute } from '../../lib/auth';
-import { createInvitation } from '../../lib/invitations';
 
 type StepError = { message: string } | null;
 
@@ -32,12 +31,6 @@ export default function OnboardingWizard() {
   const [machineName, setMachineName] = useState('');
   const [machineType, setMachineType] = useState('');
   const [machineLocation, setMachineLocation] = useState('');
-
-  // Step 3
-  const [memberName, setMemberName] = useState('');
-  const [memberRole, setMemberRole] = useState<'technician' | 'supervisor' | 'plant_manager' | 'store_keeper' | 'hr_officer' | 'safety_officer'>('technician');
-  const [memberEmail, setMemberEmail] = useState('');
-  const [memberPhone, setMemberPhone] = useState('');
 
   // Hydrate defaults from company once loaded
   useEffect(() => {
@@ -106,22 +99,6 @@ export default function OnboardingWizard() {
     });
   };
 
-  const saveInvite = async () => {
-    if (!memberName || !memberEmail) return;
-    await createInvitation({
-      companyId: company.id,
-      companyName: company.name,
-      email: memberEmail,
-      role: memberRole,
-      fullName: memberName,
-      department: null,
-      jobTitle: null,
-      phone: memberPhone || null,
-      invitedBy: userProfile.id,
-      invitedByName: userProfile.fullName,
-    });
-  };
-
   const completeOnboarding = async () => {
     const completedAt = Timestamp.now();
     await updateDoc(doc(db, 'companies', company.id), { onboardingCompletedAt: completedAt });
@@ -142,11 +119,8 @@ export default function OnboardingWizard() {
         setStep(2);
       } else if (step === 2) {
         await saveStep2();
-        setStep(3);
-      } else if (step === 3) {
-        await saveInvite();
         await completeOnboarding();
-        setStep(4);
+        setStep(3);
       }
     } catch (err: any) {
       console.error('Onboarding step failed:', err);
@@ -161,10 +135,8 @@ export default function OnboardingWizard() {
     setLoading(true);
     try {
       if (step === 2) {
-        setStep(3);
-      } else if (step === 3) {
         await completeOnboarding();
-        setStep(4);
+        setStep(3);
       }
     } catch (err: any) {
       console.error('Onboarding skip failed:', err);
@@ -190,7 +162,7 @@ export default function OnboardingWizard() {
 
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            {[1, 2, 3, 4].map((s) => (
+            {[1, 2, 3].map((s) => (
               <div
                 key={s}
                 className={`h-2 flex-1 rounded-full mx-1 transition-colors ${
@@ -199,7 +171,7 @@ export default function OnboardingWizard() {
               />
             ))}
           </div>
-          <p className="text-gray-400 text-xs text-center">Step {Math.min(step, 4)} of 4</p>
+          <p className="text-gray-400 text-xs text-center">Step {Math.min(step, 3)} of 3</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8 space-y-6">
@@ -347,74 +319,7 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {step === 3 && (
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold text-gray-900">Invite Team Member</h2>
-              <p className="text-sm text-gray-500">
-                Optional — we'll save the invite and send it once email/SMS is configured.
-              </p>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                <input
-                  type="text"
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                  placeholder="Team member name"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
-                <select
-                  value={memberRole}
-                  onChange={(e) => setMemberRole(e.target.value as typeof memberRole)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                >
-                  <option value="technician">Technician</option>
-                  <option value="supervisor">Supervisor</option>
-                  <option value="plant_manager">Plant Manager</option>
-                  <option value="store_keeper">Store Keeper</option>
-                  <option value="hr_officer">HR Officer</option>
-                  <option value="safety_officer">Safety Officer</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                <input
-                  type="email"
-                  value={memberEmail}
-                  onChange={(e) => setMemberEmail(e.target.value)}
-                  placeholder="team@company.com"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                <input
-                  type="tel"
-                  value={memberPhone}
-                  onChange={(e) => setMemberPhone(e.target.value)}
-                  placeholder="+94 701234567"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                />
-              </div>
-
-              <button
-                type="button"
-                onClick={handleSkipStep}
-                disabled={loading}
-                className="w-full text-[#1A56DB] hover:underline text-sm disabled:opacity-50"
-              >
-                Skip for now and finish
-              </button>
-            </div>
-          )}
-
-          {step >= 4 && (
+          {step >= 3 && (
             <div className="text-center space-y-6">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-8 h-8 text-green-600" />
@@ -438,7 +343,7 @@ export default function OnboardingWizard() {
             </div>
           )}
 
-          {step < 4 && (
+          {step < 3 && (
             <div className="flex gap-4">
               {step > 1 && (
                 <button
@@ -456,7 +361,7 @@ export default function OnboardingWizard() {
                 disabled={loading}
                 className="flex-1 bg-[#1A56DB] hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors disabled:opacity-50 h-11 flex items-center justify-center gap-2"
               >
-                {loading ? 'Saving...' : step === 3 ? 'Complete Setup' : 'Continue'}
+                {loading ? 'Saving...' : step === 2 ? 'Complete Setup' : 'Continue'}
                 {!loading && <ChevronRight className="w-4 h-4" />}
               </button>
             </div>
