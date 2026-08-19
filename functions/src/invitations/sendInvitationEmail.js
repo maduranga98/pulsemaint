@@ -31,7 +31,7 @@ exports.sendInvitationEmail = onCall(
     const companyName = companyData?.name || inv.companyName || "Your Company";
     const companyEmail = companyData?.email || null;
 
-    const inviteUrl = `https://pulsemaint.web.app/invite/${inv.token}`;
+    const inviteUrl = `https://app.firmicore.com/invite/${inv.token}`;
 
     const roleName = (inv.role || "team member").replace(/_/g, " ");
 
