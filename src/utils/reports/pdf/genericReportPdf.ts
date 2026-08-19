@@ -330,12 +330,14 @@ export async function exportGenericReportPdf(
     const bodyFontSize = UNCAPPED_REPORTS.includes(reportType) ? 6 : 7;
 
     if (reportType === 'breakdown_summary') {
-      // Machine-first: a subheading per machine, then one table listing
-      // every ticket reported against it (report -> assign -> repair ->
-      // sign-off, via the WO columns) — rather than one flat table ordered
-      // only by date across every machine. fetchReportRows already sorts
-      // rows machine-first, so grouping here just walks that order.
-      const perTicketColumns = columns.filter((c) => c.key !== 'machineName' && c.key !== 'machineDepartment');
+      // Machine-first, case-file style: a subheading per machine, then one
+      // labeled block per ticket reported against it (report -> assign ->
+      // repair -> sign-off, via the WO fields) — rather than a wide table
+      // row per ticket. fetchReportRows already sorts rows machine-first, so
+      // grouping here just walks that order.
+      const perTicketColumns = columns.filter(
+        (c) => c.key !== 'machineName' && c.key !== 'machineDepartment' && c.key !== 'ticketNumber',
+      );
       const groups: { machineName: string; department: string; rows: Record<string, unknown>[] }[] = [];
       for (const row of rows) {
         const machineName = String(row.machineName ?? 'Unknown Machine');
@@ -363,16 +365,34 @@ export async function exportGenericReportPdf(
         doc.setTextColor(0);
         cursorY += group.department ? 22 : 14;
 
-        autoTable(doc, {
-          head: [perTicketColumns.map((c) => c.label)],
-          body: group.rows.map((row) => perTicketColumns.map((c) => String(formatCell(row[c.key], c.format)))),
-          startY: cursorY,
-          styles: { fontSize: bodyFontSize, cellPadding: 3, overflow: 'linebreak' },
-          headStyles: { fillColor: [230, 236, 244], textColor: [30, 41, 59], fontSize: bodyFontSize },
-          margin: { left: 40, right: 40 },
+        group.rows.forEach((row) => {
+          if (cursorY + 30 > pageHeight - bottomMargin) {
+            doc.addPage();
+            cursorY = 40;
+          }
+          doc.setFontSize(10);
+          doc.setTextColor(30, 64, 175);
+          doc.text(`Ticket ${String(row.ticketNumber ?? '')}`, 50, cursorY);
+          doc.setTextColor(0);
+          cursorY += 6;
+
+          const body = perTicketColumns.map((c) => [c.label, String(formatCell(row[c.key], c.format) || '—')]);
+          autoTable(doc, {
+            body,
+            startY: cursorY,
+            theme: 'grid',
+            styles: { fontSize: bodyFontSize, cellPadding: 3, overflow: 'linebreak' },
+            columnStyles: {
+              0: { fontStyle: 'bold', fillColor: [240, 244, 248], cellWidth: 140 },
+              1: { cellWidth: 'auto' },
+            },
+            margin: { left: 50, right: 40 },
+          });
+          const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY;
+          cursorY = (finalY ?? cursorY) + 16;
         });
-        const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY;
-        cursorY = (finalY ?? cursorY) + 18;
+
+        cursorY += 6;
       });
     } else {
       const head = [columns.map((c) => c.label)];

@@ -58,6 +58,7 @@ export default function AttendBreakdownsPage() {
   const [severity, setSeverity] = useState<BreakdownSeverity>('medium');
   const [breakdownType, setBreakdownType] = useState<BreakdownType>('mechanical');
   const [attemptedFixes, setAttemptedFixes] = useState('');
+  const [technicianFindings, setTechnicianFindings] = useState('');
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -124,6 +125,7 @@ export default function AttendBreakdownsPage() {
           severity,
           type: breakdownType,
           attemptedFixes: attemptedFixes.trim(),
+          technicianFindings: technicianFindings.trim(),
           ...(uploadedUrls.length > 0 ? { photos: arrayUnion(...uploadedUrls) } : {}),
           ...(!t.attendedBy ? {
             attendedBy: userProfile.id,
@@ -273,6 +275,18 @@ export default function AttendBreakdownsPage() {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">Attempted fixes</label>
             <input type="text" value={attemptedFixes} onChange={(e) => setAttemptedFixes(e.target.value)} disabled={saving} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">What happened? (technician/trainee findings)</label>
+            <textarea
+              value={technicianFindings}
+              onChange={(e) => setTechnicianFindings(e.target.value)}
+              disabled={saving}
+              rows={3}
+              placeholder="Your own account of what happened, separate from the reporter's description"
+              className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            />
           </div>
 
           <div>

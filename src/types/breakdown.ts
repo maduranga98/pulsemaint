@@ -95,6 +95,10 @@ export interface Breakdown {
   attemptedFixes: string;
   source: BreakdownSource;
 
+  // The attending technician/trainee's own account of what happened, filled
+  // in on the assign/attend form — distinct from the reporter's `description`.
+  technicianFindings: string;
+
   // Reporter. Not tracked — the report form no longer auto-captures who
   // filed it (and the public QR flow has no logged-in identity at all).
   reportedBy: string | null;
