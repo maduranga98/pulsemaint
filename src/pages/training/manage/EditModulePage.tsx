@@ -46,7 +46,12 @@ export default function EditModulePage() {
   // only once the save actually succeeded.
   const handleSaveSettings = async (updates: Partial<TrainingModule>) => {
     const ok = await handleSave(updates);
-    if (ok) navigate('/app/training/manage/modules');
+    if (!ok) return;
+    // A safety training module's home is the Safety Trainings dashboard,
+    // not the general Training tab it'd otherwise land back on — matches
+    // where creating one lands (CreateSafetyTrainingModulePage).
+    const isSafetyTraining = (updates.trainingType ?? module?.trainingType) === SAFETY_TRAINING_TYPE;
+    navigate(isSafetyTraining ? '/app/training/manage/safety-trainings' : '/app/training/manage/modules');
   };
 
 
