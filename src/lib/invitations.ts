@@ -303,7 +303,7 @@ export async function sendInvitationEmailManually(companyId: string, invitationI
 
 // Invite links are shared outside the app (email, copy-paste), so they must
 // always point at the deployed site — never at localhost or a preview origin.
-const INVITE_BASE_URL = 'https://pulsemaint.web.app';
+const INVITE_BASE_URL = 'https://app.firmicore.com';
 
 export function getInviteLink(token: string): string {
   return `${INVITE_BASE_URL}/invite/${token}`;
