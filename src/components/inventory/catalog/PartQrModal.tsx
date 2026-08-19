@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { X, Printer, Download } from 'lucide-react';
 // @ts-expect-error -- no type declarations for qrcode
 import QRCode from 'qrcode';
-import { downloadQRCodeAsImage, printQRCode } from '@/lib/machineQr';
+import { useAuthStore } from '@/store/authStore';
+import { composeBrandedQrCanvas, downloadCanvasAsImage, printCanvas } from '@/lib/qrBranding';
 import type { InventoryPart } from '@/types/inventory';
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
  */
 export function PartQrModal({ part, onClose }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const company = useAuthStore((s) => s.company);
 
   const payload = JSON.stringify({ type: 'inventory_part', id: part.id, partNumber: part.partNumber });
 
@@ -25,6 +27,26 @@ export function PartQrModal({ part, onClose }: Props) {
       if (err) console.error('Failed to render part QR', err);
     });
   }, [payload]);
+
+  const brandingInfo = {
+    companyName: company?.name ?? '',
+    companyLogoUrl: company?.logoUrl,
+    companyLogoDataUrl: company?.logoDataUrl,
+    title: part.name,
+    subtitle: part.partNumber,
+  };
+
+  async function handleDownload() {
+    if (!canvasRef.current) return;
+    const branded = await composeBrandedQrCanvas(canvasRef.current, brandingInfo);
+    downloadCanvasAsImage(branded, `qr_${part.partNumber}.png`);
+  }
+
+  async function handlePrint() {
+    if (!canvasRef.current) return;
+    const branded = await composeBrandedQrCanvas(canvasRef.current, brandingInfo);
+    printCanvas(branded, `${part.name} QR Code`);
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
@@ -45,7 +67,7 @@ export function PartQrModal({ part, onClose }: Props) {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => canvasRef.current && downloadQRCodeAsImage(canvasRef.current, part.partNumber)}
+            onClick={handleDownload}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <Download className="h-4 w-4" />
@@ -53,10 +75,7 @@ export function PartQrModal({ part, onClose }: Props) {
           </button>
           <button
             type="button"
-            onClick={() => {
-              const el = document.getElementById('part-qr-print-container');
-              if (el) printQRCode(el);
-            }}
+            onClick={handlePrint}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             <Printer className="h-4 w-4" />
