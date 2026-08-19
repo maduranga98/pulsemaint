@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 // @ts-expect-error -- no type declarations for qrcode
 import QRCode from 'qrcode';
 import { useAuthStore } from '../../store/authStore';
@@ -8,6 +9,7 @@ import { generateMachineQrUrl, downloadQRCodeAsImage, printQRCode } from '../../
 import { exportMachineQrPdf } from '../../lib/machineExport';
 
 export function MachineQrPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
@@ -29,7 +31,7 @@ export function MachineQrPage() {
   if (!userProfile || !id) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+        <p className="text-gray-600">{t('common.machines.profile.loading')}</p>
       </div>
     );
   }
@@ -37,7 +39,7 @@ export function MachineQrPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Loading QR code...</p>
+        <p className="text-gray-600">{t('common.machines.profile.qr.loading')}</p>
       </div>
     );
   }
@@ -46,13 +48,13 @@ export function MachineQrPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-gray-900 mb-2">QR Code Not Available</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">{t('common.machines.profile.qr.notAvailable')}</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => navigate('/app/machines')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            Back to Registry
+            {t('common.machines.profile.qr.backToRegistry')}
           </button>
         </div>
       </div>
@@ -85,7 +87,7 @@ export function MachineQrPage() {
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">QR Code</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('common.machines.profile.qr.title')}</h1>
           <p className="text-gray-600 text-sm mt-1">{machine.name}</p>
         </div>
       </div>
@@ -114,17 +116,17 @@ export function MachineQrPage() {
                 {/* Machine Info */}
                 <div className="text-center">
                   <h3 className="font-semibold text-gray-900">{machine.name}</h3>
-                  <p className="text-xs text-gray-600">ID: {machine.id}</p>
+                  <p className="text-xs text-gray-600">{t('common.machines.profile.qr.idLabel', { id: machine.id })}</p>
                   <p className="text-xs text-gray-600 mt-2">
                     {machine.department}
-                    {machine.bay && ` · Bay ${machine.bay}`}
-                    {machine.station && ` · Station ${machine.station}`}
+                    {machine.bay && ` · ${t('common.machines.profile.bay', { bay: machine.bay })}`}
+                    {machine.station && ` · ${t('common.machines.profile.station', { station: machine.station })}`}
                   </p>
                 </div>
 
                 {/* Scan instruction */}
                 <div className="text-xs text-gray-600 text-center">
-                  Scan to report breakdown
+                  {t('common.machines.profile.qr.scanInstruction')}
                 </div>
               </div>
             </div>
@@ -133,37 +135,37 @@ export function MachineQrPage() {
           {/* Actions */}
           <div className="space-y-4">
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">QR Code Actions</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">{t('common.machines.profile.qr.actions')}</h3>
 
               <div className="space-y-3">
                 <button
                   onClick={handleDownloadPng}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
                 >
-                  Download QR (PNG)
+                  {t('common.machines.profile.qr.downloadPng')}
                 </button>
 
                 <button
                   onClick={handleDownloadPdf}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
                 >
-                  Download QR (PDF)
+                  {t('common.machines.profile.qr.downloadPdf')}
                 </button>
 
                 <button
                   onClick={handlePrint}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
                 >
-                  Print
+                  {t('common.machines.profile.qr.print')}
                 </button>
 
                 {userProfile.role === 'admin' && (
                   <button
                     disabled
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-700 opacity-50 cursor-not-allowed font-medium text-sm"
-                    title="Coming soon"
+                    title={t('common.machines.profile.qr.comingSoon')}
                   >
-                    Regenerate QR
+                    {t('common.machines.profile.qr.regenerate')}
                   </button>
                 )}
               </div>
@@ -171,22 +173,22 @@ export function MachineQrPage() {
 
             {/* QR Info */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="font-semibold text-gray-900 mb-3 text-sm">QR Code Details</h3>
+              <h3 className="font-semibold text-gray-900 mb-3 text-sm">{t('common.machines.profile.qr.details')}</h3>
               <dl className="space-y-2 text-xs">
                 <div>
-                  <dt className="text-gray-600">Type:</dt>
-                  <dd className="text-gray-900 font-medium">URL</dd>
+                  <dt className="text-gray-600">{t('common.machines.profile.qr.type')}</dt>
+                  <dd className="text-gray-900 font-medium">{t('common.machines.profile.qr.typeValue')}</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-600">Size:</dt>
+                  <dt className="text-gray-600">{t('common.machines.profile.qr.size')}</dt>
                   <dd className="text-gray-900 font-medium">300x300px</dd>
                 </div>
                 <div>
-                  <dt className="text-gray-600">Format:</dt>
-                  <dd className="text-gray-900 font-medium">QR Code (Level H)</dd>
+                  <dt className="text-gray-600">{t('common.machines.profile.qr.format')}</dt>
+                  <dd className="text-gray-900 font-medium">{t('common.machines.profile.qr.formatValue')}</dd>
                 </div>
                 <div className="pt-2 border-t border-gray-100">
-                  <dt className="text-gray-600 mb-1">URL:</dt>
+                  <dt className="text-gray-600 mb-1">{t('common.machines.profile.qr.url')}</dt>
                   <dd className="text-xs text-gray-900 break-all font-mono bg-gray-50 p-2 rounded">
                     {qrUrl}
                   </dd>
@@ -202,13 +204,13 @@ export function MachineQrPage() {
             onClick={() => navigate(`/app/machines/${machine.id}`)}
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
           >
-            Back to Machine Profile
+            {t('common.machines.profile.qr.backToProfile')}
           </button>
           <button
             onClick={() => navigate('/app/machines')}
             className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium text-sm"
           >
-            Back to Registry
+            {t('common.machines.profile.qr.backToRegistry')}
           </button>
         </div>
       </div>
