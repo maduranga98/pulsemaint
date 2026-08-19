@@ -5,14 +5,16 @@ import { useTranslation } from 'react-i18next';
 import QRCode from 'qrcode';
 import { useAuthStore } from '../../store/authStore';
 import { useMachine } from '../../hooks/useMachine';
-import { generateMachineQrUrl, downloadQRCodeAsImage, printQRCode } from '../../lib/machineQr';
+import { generateMachineQrUrl } from '../../lib/machineQr';
 import { exportMachineQrPdf } from '../../lib/machineExport';
+import { composeBrandedQrCanvas, downloadCanvasAsImage, printCanvas } from '../../lib/qrBranding';
 
 export function MachineQrPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
+  const company = useAuthStore((state) => state.company);
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
@@ -63,10 +65,20 @@ export function MachineQrPage() {
 
   const qrUrl = generateMachineQrUrl(machine.id, siteId);
 
-  const handleDownloadPng = () => {
-    if (qrCanvasRef.current) {
-      downloadQRCodeAsImage(qrCanvasRef.current, machine.id);
-    }
+  const brandingInfo = {
+    companyName: company?.name ?? '',
+    companyLogoUrl: company?.logoUrl,
+    companyLogoDataUrl: company?.logoDataUrl,
+    title: machine.name,
+    subtitle: [machine.department, machine.bay ? `Bay ${machine.bay}` : '', machine.station ? `Station ${machine.station}` : '']
+      .filter(Boolean)
+      .join(' · '),
+  };
+
+  const handleDownloadPng = async () => {
+    if (!qrCanvasRef.current) return;
+    const branded = await composeBrandedQrCanvas(qrCanvasRef.current, brandingInfo);
+    downloadCanvasAsImage(branded, `qr_${machine.id}.png`);
   };
 
   const handleDownloadPdf = () => {
@@ -75,11 +87,10 @@ export function MachineQrPage() {
     }
   };
 
-  const handlePrint = () => {
-    const element = document.getElementById('qr-print-container');
-    if (element) {
-      printQRCode(element);
-    }
+  const handlePrint = async () => {
+    if (!qrCanvasRef.current) return;
+    const branded = await composeBrandedQrCanvas(qrCanvasRef.current, brandingInfo);
+    printCanvas(branded, `${machine.name} QR Code`);
   };
 
   return (
