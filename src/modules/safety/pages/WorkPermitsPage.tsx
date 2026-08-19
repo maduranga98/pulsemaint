@@ -10,8 +10,8 @@ import {
   signOffWorkPermit,
 } from '@/services/safety.service';
 import { createNotification } from '@/services/notifications.service';
+import { useWorkPermitCategories } from '@/hooks/useWorkPermitCategories';
 import {
-  WORK_PERMIT_CATEGORIES,
   WORK_PERMIT_COMPLETIONS,
   formatPermitDateTime,
   isWorkPermitOverdue,
@@ -22,7 +22,6 @@ import {
 } from '@/types/safety';
 import NewWorkPermitModal from '../components/NewWorkPermitModal';
 
-const CAT_LABEL = Object.fromEntries(WORK_PERMIT_CATEGORIES.map((c) => [c.value, c.label])) as Record<WorkPermitCategory, string>;
 const COMPLETION_LABEL = Object.fromEntries(WORK_PERMIT_COMPLETIONS.map((c) => [c.value, c.label]));
 
 const STATUS_STYLE: Record<WorkPermitStatus, string> = {
@@ -42,6 +41,11 @@ export default function WorkPermitsPage() {
   const companyId = profile?.companyId ?? '';
   const toast = useToast();
   const { permits, loading } = useWorkPermits(companyId);
+  const { categories } = useWorkPermitCategories(companyId);
+  const catLabel = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.value, c.label])) as Record<WorkPermitCategory, string>,
+    [categories],
+  );
   const [creating, setCreating] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [lifecycleTab, setLifecycleTab] = useState<LifecycleTab>('current');
@@ -148,7 +152,7 @@ export default function WorkPermitsPage() {
 
         {/* Category filter */}
         <div className="mb-4 flex flex-wrap gap-2">
-          {WORK_PERMIT_CATEGORIES.map((c) => (
+          {categories.map((c) => (
             <button
               key={c.value}
               type="button"
@@ -177,7 +181,7 @@ export default function WorkPermitsPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-md bg-[#1A56DB]/15 px-2 py-0.5 text-xs font-semibold text-[#5B8DEF]">{CAT_LABEL[p.category]}</span>
+                        <span className="rounded-md bg-[#1A56DB]/15 px-2 py-0.5 text-xs font-semibold text-[#5B8DEF]">{catLabel[p.category] ?? p.category}</span>
                         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[p.status]}`}>{p.status}</span>
                         {overdue && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-[#EF4444]/15 px-2 py-0.5 text-xs font-medium text-[#EF4444]">

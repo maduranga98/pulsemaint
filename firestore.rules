@@ -431,6 +431,16 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Company-added work permit categories, layered on top of the 7 seeded
+    // ones in WORK_PERMIT_CATEGORIES (client-side constant) — same role gate
+    // as issuing a permit itself, since adding a category happens inline
+    // from that same form.
+    match /work_permit_categories/{categoryId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && canManageSafety();
+      allow update, delete: if isAdmin();
+    }
+
     // Safety blacklist: one doc per entity a "clear" was ever issued for —
     // points themselves are computed client-side from safety_cases, this
     // just records the reset timestamp. Only admin can clear (reset) an
