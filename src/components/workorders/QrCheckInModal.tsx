@@ -68,8 +68,8 @@ export function QrCheckInModal({ workOrder, onVerified, onClose }: QrCheckInModa
   }, [workOrder.machineId, workOrder.machineName, onVerified]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-5 space-y-4">
+    <div className="fixed inset-0 z-[60] overflow-y-auto flex items-start sm:items-center justify-center bg-black/70 p-4 py-8">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-5 space-y-4 my-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <QrCode className="h-5 w-5 text-blue-600" />

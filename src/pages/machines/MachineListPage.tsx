@@ -384,6 +384,20 @@ export function MachineListPage() {
     filters,
   });
 
+  // Reactive to viewport/orientation changes — a plain `window.innerWidth`
+  // check computed once at render time got stuck on whichever layout was
+  // true at first paint (e.g. a rotated tablet, or the window resized after
+  // load), stranding a narrow viewport on the desktop table whose QR action
+  // is an easily-scrolled-past text link instead of MachineCard's QR button.
+  //
+  // Must be called before the `!userProfile` early return below — hooks
+  // can't be conditional, and this one used to run only after that guard,
+  // so the component called a different number of hooks on the first
+  // (userProfile still null) render vs. every render after auth resolved,
+  // triggering React error #310 ("Rendered more hooks than during the
+  // previous render").
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+
   const filteredMachines = useMemo(() => {
     let result = machines;
 
@@ -437,13 +451,6 @@ export function MachineListPage() {
       </div>
     );
   }
-
-  // Reactive to viewport/orientation changes — a plain `window.innerWidth`
-  // check computed once at render time got stuck on whichever layout was
-  // true at first paint (e.g. a rotated tablet, or the window resized after
-  // load), stranding a narrow viewport on the desktop table whose QR action
-  // is an easily-scrolled-past text link instead of MachineCard's QR button.
-  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   const canCreateMachine =
     userProfile.role === 'supervisor' ||
