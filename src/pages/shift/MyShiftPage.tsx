@@ -245,30 +245,61 @@ export function MyShiftPage() {
         {recent.filter((session) => session.status === 'completed').length === 0 ? (
           <p className="text-sm text-slate-500">No completed shifts yet.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-100 text-left text-xs font-semibold text-slate-500">
-                  <th className="px-4 py-3">Shift</th>
-                  <th className="px-4 py-3">Started</th>
-                  <th className="px-4 py-3">Ended</th>
-                  <th className="px-4 py-3">Total Hours</th>
-                  <th className="px-4 py-3">OT</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.filter((session) => session.status === 'completed').map((session) => (
-                  <tr key={session.id} className="border-b border-slate-50">
-                    <td className="px-4 py-3 font-semibold text-slate-950">{session.shiftName}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatDateTime(session.actualStart)}</td>
-                    <td className="px-4 py-3 text-slate-700">{formatDateTime(session.actualEnd)}</td>
-                    <td className="px-4 py-3 font-semibold text-cyan-700">{session.totalMinutes != null ? formatDuration(session.totalMinutes * 60000) : '-'}</td>
-                    <td className="px-4 py-3 font-semibold text-amber-700">{session.otMinutes ? formatDuration(session.otMinutes * 60000) : ''}</td>
+          <>
+            {/* Card view on mobile — a wide table forces horizontal scrolling
+                on narrow screens, so below lg each completed shift renders as
+                its own labeled card instead. */}
+            <div className="grid gap-3 lg:hidden">
+              {recent.filter((session) => session.status === 'completed').map((session) => (
+                <article key={session.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                  <p className="font-[Sora] font-bold text-slate-950">{session.shiftName}</p>
+                  <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                    <div>
+                      <dt className="text-xs font-semibold text-slate-500">Started</dt>
+                      <dd className="text-slate-700">{formatDateTime(session.actualStart)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-slate-500">Ended</dt>
+                      <dd className="text-slate-700">{formatDateTime(session.actualEnd)}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-slate-500">Total Hours</dt>
+                      <dd className="font-semibold text-cyan-700">{session.totalMinutes != null ? formatDuration(session.totalMinutes * 60000) : '-'}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-xs font-semibold text-slate-500">OT</dt>
+                      <dd className="font-semibold text-amber-700">{session.otMinutes ? formatDuration(session.otMinutes * 60000) : '-'}</dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto rounded-lg border border-slate-200 bg-white shadow-sm lg:block">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100 text-left text-xs font-semibold text-slate-500">
+                    <th className="px-4 py-3">Shift</th>
+                    <th className="px-4 py-3">Started</th>
+                    <th className="px-4 py-3">Ended</th>
+                    <th className="px-4 py-3">Total Hours</th>
+                    <th className="px-4 py-3">OT</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recent.filter((session) => session.status === 'completed').map((session) => (
+                    <tr key={session.id} className="border-b border-slate-50">
+                      <td className="px-4 py-3 font-semibold text-slate-950">{session.shiftName}</td>
+                      <td className="px-4 py-3 text-slate-700">{formatDateTime(session.actualStart)}</td>
+                      <td className="px-4 py-3 text-slate-700">{formatDateTime(session.actualEnd)}</td>
+                      <td className="px-4 py-3 font-semibold text-cyan-700">{session.totalMinutes != null ? formatDuration(session.totalMinutes * 60000) : '-'}</td>
+                      <td className="px-4 py-3 font-semibold text-amber-700">{session.otMinutes ? formatDuration(session.otMinutes * 60000) : ''}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </section>
 
