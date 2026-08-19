@@ -930,6 +930,39 @@ export async function fetchReportRows(
     });
   }
 
+  // Breakdown Summary: join each ticket's linked Work Order so the report
+  // covers the whole lifecycle (report -> assign -> repair -> sign-off), not
+  // just the breakdown ticket itself — previously stopped at whatever the
+  // ticket doc alone carried, with nothing about what actually happened on
+  // the WO it turned into.
+  if (reportType === 'breakdown_summary' && rows.length > 0) {
+    const woIds = Array.from(
+      new Set(rows.map(({ row }) => String(row.linkedWOId ?? '')).filter(Boolean)),
+    );
+    const woById = new Map<string, Record<string, unknown>>();
+    await Promise.all(
+      woIds.map(async (woId) => {
+        try {
+          const snap = await getDoc(doc(db, 'workOrders', woId));
+          if (snap.exists()) woById.set(woId, snap.data());
+        } catch {
+          // Unreadable/missing WO — leave this ticket's WO columns blank.
+        }
+      }),
+    );
+    rows.forEach(({ row }) => {
+      const wo = woById.get(String(row.linkedWOId ?? ''));
+      row.woNumber = wo?.woNumber ?? '';
+      row.woStatus = wo?.status ? prettifyEnum(String(wo.status)) : '';
+      row.woActualStartTime = wo?.actualStartTime ?? null;
+      row.woActualEndTime = wo?.actualEndTime ?? null;
+      row.woWorkDoneDescription = wo?.workDoneDescription ?? '';
+      row.woSignedOffByName = wo?.supervisorSignOffByName ?? '';
+      row.woSignedOffAt = wo?.supervisorSignOffAt ?? null;
+      row.woSignOffOutcome = wo?.signOffOutcome ? prettifyEnum(String(wo.signOffOutcome)) : '';
+    });
+  }
+
   const dateFiltered = rows
     .filter(({ source, row }) => {
       if (snapshotSources.has(source)) return true;
@@ -960,7 +993,7 @@ export async function fetchReportRows(
   // (one row per machine); other reports reference the machine via machineId.
   const isMachineReport = reportType === 'machine_health_score' || reportType === 'machine_history';
 
-  return dateFiltered.filter((row) => {
+  const filtered = dateFiltered.filter((row) => {
     // Machine rows themselves carry the machine ID as the doc ID; other rows
     // only participate in the machine filter when they reference a machine —
     // comparing unrelated doc IDs used to zero out every non-machine report.
@@ -988,6 +1021,21 @@ export async function fetchReportRows(
     }
     return true;
   });
+
+  // Breakdown Summary reads machine-first: every ticket for the same machine
+  // grouped together (oldest first within a machine), instead of one flat
+  // list ordered only by report date across every machine at once.
+  if (reportType === 'breakdown_summary') {
+    filtered.sort((a, b) => {
+      const machineCmp = String(a.machineName ?? '').localeCompare(String(b.machineName ?? ''));
+      if (machineCmp !== 0) return machineCmp;
+      const aMs = a.reportedAt && typeof (a.reportedAt as Timestamp).toDate === 'function' ? (a.reportedAt as Timestamp).toDate().getTime() : 0;
+      const bMs = b.reportedAt && typeof (b.reportedAt as Timestamp).toDate === 'function' ? (b.reportedAt as Timestamp).toDate().getTime() : 0;
+      return aMs - bMs;
+    });
+  }
+
+  return filtered;
 }
 
 // Fields surfaced in the Machine History report's profile block. Kept as a

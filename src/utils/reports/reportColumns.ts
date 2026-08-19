@@ -95,6 +95,16 @@ export const REPORT_COLUMNS: Partial<Record<ReportType, ReportColumn[]>> = {
     { key: 'reportedAt', label: 'Reported Date', format: 'date' },
     { key: 'resolvedAt', label: 'Completed', format: 'date' },
     { key: 'rcaReason', label: 'RCA Reason' },
+    // The ticket's lifecycle continues on the Work Order it turned into —
+    // these carry it through to sign-off instead of stopping at the ticket.
+    { key: 'woNumber', label: 'WO #' },
+    { key: 'woStatus', label: 'WO Status' },
+    { key: 'woActualStartTime', label: 'WO Started', format: 'datetime' },
+    { key: 'woActualEndTime', label: 'WO Ended', format: 'datetime' },
+    { key: 'woWorkDoneDescription', label: 'Work Done' },
+    { key: 'woSignedOffByName', label: 'Signed Off By' },
+    { key: 'woSignedOffAt', label: 'Signed Off At', format: 'datetime' },
+    { key: 'woSignOffOutcome', label: 'Sign-Off Outcome' },
   ],
   sla_compliance: [
     { key: 'ticketNumber', label: 'Ticket' },

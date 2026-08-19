@@ -320,24 +320,73 @@ export async function exportGenericReportPdf(
     // autoTable wraps them to fit rather than dropping them. Shift Handover
     // Summary is one: the portrait cap of 7 silently dropped Shift Ended, OT,
     // and the during-shift counts, so the export didn't match the tab.
-    const UNCAPPED_REPORTS = ['work_order_detail', 'shift_handover_summary', 'work_permit_history'];
+    const UNCAPPED_REPORTS = ['work_order_detail', 'shift_handover_summary', 'work_permit_history', 'breakdown_summary'];
     const columnCap = UNCAPPED_REPORTS.includes(reportType) ? allColumns.length : landscape ? 10 : 7;
     const columns = allColumns.slice(0, columnCap);
-    const head = [columns.map((c) => c.label)];
-    const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format))));
 
-    // Work Order Detail carries every column (no cap above), so it needs a
-    // touch smaller text to keep the table from overflowing the page.
+    // Work Order Detail/Breakdown Summary carry every column (no cap above),
+    // so they need a touch smaller text to keep the table from overflowing
+    // the page.
     const bodyFontSize = UNCAPPED_REPORTS.includes(reportType) ? 6 : 7;
 
-    autoTable(doc, {
-      head,
-      body,
-      startY: cursorY,
-      styles: { fontSize: bodyFontSize, cellPadding: 3, overflow: 'linebreak' },
-      headStyles: { fillColor: [10, 22, 40], textColor: 255 },
-      margin: { left: 40, right: 40 },
-    });
+    if (reportType === 'breakdown_summary') {
+      // Machine-first: a subheading per machine, then one table listing
+      // every ticket reported against it (report -> assign -> repair ->
+      // sign-off, via the WO columns) — rather than one flat table ordered
+      // only by date across every machine. fetchReportRows already sorts
+      // rows machine-first, so grouping here just walks that order.
+      const perTicketColumns = columns.filter((c) => c.key !== 'machineName' && c.key !== 'machineDepartment');
+      const groups: { machineName: string; department: string; rows: Record<string, unknown>[] }[] = [];
+      for (const row of rows) {
+        const machineName = String(row.machineName ?? 'Unknown Machine');
+        const last = groups[groups.length - 1];
+        if (last && last.machineName === machineName) {
+          last.rows.push(row);
+        } else {
+          groups.push({ machineName, department: String(row.machineDepartment ?? ''), rows: [row] });
+        }
+      }
+
+      groups.forEach((group) => {
+        if (cursorY + 40 > pageHeight - bottomMargin) {
+          doc.addPage();
+          cursorY = 40;
+        }
+        doc.setFontSize(12);
+        doc.setTextColor(10, 22, 40);
+        doc.text(group.machineName, 40, cursorY);
+        if (group.department) {
+          doc.setFontSize(9);
+          doc.setTextColor(120);
+          doc.text(group.department, 40, cursorY + 13);
+        }
+        doc.setTextColor(0);
+        cursorY += group.department ? 22 : 14;
+
+        autoTable(doc, {
+          head: [perTicketColumns.map((c) => c.label)],
+          body: group.rows.map((row) => perTicketColumns.map((c) => String(formatCell(row[c.key], c.format)))),
+          startY: cursorY,
+          styles: { fontSize: bodyFontSize, cellPadding: 3, overflow: 'linebreak' },
+          headStyles: { fillColor: [230, 236, 244], textColor: [30, 41, 59], fontSize: bodyFontSize },
+          margin: { left: 40, right: 40 },
+        });
+        const finalY = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY;
+        cursorY = (finalY ?? cursorY) + 18;
+      });
+    } else {
+      const head = [columns.map((c) => c.label)];
+      const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format))));
+
+      autoTable(doc, {
+        head,
+        body,
+        startY: cursorY,
+        styles: { fontSize: bodyFontSize, cellPadding: 3, overflow: 'linebreak' },
+        headStyles: { fillColor: [10, 22, 40], textColor: 255 },
+        margin: { left: 40, right: 40 },
+      });
+    }
   }
 
   const filename = `FirmiCore_${definition.name}_${dateRangeLabel(config.dateFrom, config.dateTo)}.pdf`.replace(

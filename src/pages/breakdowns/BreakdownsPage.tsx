@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collection, query, where, orderBy, onSnapshot, doc, writeBatch, arrayUnion, serverTimestamp, Timestamp, documentId, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, doc, getDoc, writeBatch, arrayUnion, serverTimestamp, Timestamp, documentId, getDocs } from 'firebase/firestore';
 import { AlertCircle, CheckCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +12,7 @@ import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnic
 import { CreateWODrawer } from '../../components/workorders/CreateWODrawer';
 import { markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
+import type { WorkOrder } from '../../types/workOrder';
 
 const ROLE_LABELS: Record<string, string> = {
   technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
@@ -1071,6 +1072,10 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
       </div>
 
       {showHistory && (
+        <LinkedWorkOrderSection woId={tickets.find((t) => t.linkedWOId)?.linkedWOId ?? null} />
+      )}
+
+      {showHistory && (
         <div className="pt-2 border-t border-slate-100">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Status History</p>
           {historyEntries.length === 0 ? (
@@ -1093,6 +1098,115 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
                 </li>
               ))}
             </ol>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const WO_SIGN_OFF_OUTCOME_LABEL: Record<string, string> = {
+  completed: 'Completed',
+  partially_completed: 'Partially Completed',
+  not_completed: 'Not Completed',
+  failed: 'Failed',
+};
+
+function fmtWoDate(ts: { toDate?: () => Date } | null | undefined): string {
+  if (!ts?.toDate) return '—';
+  try {
+    return ts.toDate().toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+  } catch {
+    return '—';
+  }
+}
+
+// The Closed tab reviews a breakdown's whole lifecycle — the ticket alone
+// only covers report-to-assignment; everything after that (the actual
+// repair, parts used, and who signed it off) lives on the Work Order it
+// was turned into, so it's fetched and shown here rather than leaving the
+// closed record's story cut off at "assigned".
+function LinkedWorkOrderSection({ woId }: { woId: string | null }) {
+  const [wo, setWo] = useState<WorkOrder | null>(null);
+  const [loading, setLoading] = useState(!!woId);
+
+  useEffect(() => {
+    if (!woId) {
+      setWo(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    getDoc(doc(db, 'workOrders', woId))
+      .then((snap) => setWo(snap.exists() ? ({ id: snap.id, ...snap.data() } as WorkOrder) : null))
+      .catch(() => setWo(null))
+      .finally(() => setLoading(false));
+  }, [woId]);
+
+  if (!woId) return null;
+
+  return (
+    <div className="pt-2 border-t border-slate-100">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Work Order</p>
+      {loading ? (
+        <p className="text-sm text-slate-400">Loading work order…</p>
+      ) : !wo ? (
+        <p className="text-sm text-slate-400 italic">Linked work order could not be loaded.</p>
+      ) : (
+        <div className="space-y-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link to={`/app/work-orders?woId=${wo.id}`} className="font-semibold text-blue-600 hover:underline">
+              {wo.woNumber}
+            </Link>
+            <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600">{wo.status}</span>
+            {wo.signOffOutcome && (
+              <span className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700">
+                {WO_SIGN_OFF_OUTCOME_LABEL[wo.signOffOutcome] ?? wo.signOffOutcome}
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Team</p>
+              <p className="text-slate-800">
+                {[wo.supervisorInChargeName, ...(wo.assignedTechnicianNames ?? []), wo.contractorCompanyName]
+                  .filter(Boolean)
+                  .join(', ') || '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Started / Ended</p>
+              <p className="text-slate-800">{fmtWoDate(wo.actualStartTime)} — {fmtWoDate(wo.actualEndTime)}</p>
+            </div>
+          </div>
+
+          {wo.workDoneDescription && (
+            <div>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Work Done</p>
+              <p className="text-slate-800">{wo.workDoneDescription}</p>
+            </div>
+          )}
+
+          {wo.partsUsed && wo.partsUsed.length > 0 && (
+            <div>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Parts Used</p>
+              <ul className="text-slate-800 list-disc list-inside">
+                {wo.partsUsed.map((p, i) => (
+                  <li key={i}>{p.partName} × {p.quantity}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {wo.supervisorSignOffByName && (
+            <div>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Signed Off</p>
+              <p className="text-slate-800">
+                {wo.supervisorSignOffByName} · {fmtWoDate(wo.supervisorSignOffAt)}
+                {wo.supervisorSignOffNotes ? ` — ${wo.supervisorSignOffNotes}` : ''}
+              </p>
+            </div>
           )}
         </div>
       )}
