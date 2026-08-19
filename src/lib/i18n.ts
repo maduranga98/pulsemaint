@@ -19,23 +19,18 @@ import de from '../locales/de.json';
 // en-US via fallbackLng below rather than shipping an empty/duplicate file.
 // Labels are deliberately plain English names (not each language's native
 // script) per product decision — easier to scan in a dropdown for users who
-// may not read every script listed. US/UK English are offered as separate
-// picks per the target-market requirement, even though today's copy is
-// identical between the two.
+// may not read every script listed.
+//
+// The switcher is deliberately limited to these 4 by product decision —
+// other locale files (en-GB, si, ta, bn, ar, hi, ur, zh, ja) still exist and
+// stay registered as i18next resources below (so a user previously on one
+// of them doesn't lose their translations if re-selected via localStorage/
+// an old link), they're just not offered as a pick here.
 export const SUPPORTED_LANGUAGES = [
-  { code: 'en-US', label: 'English (US)' },
-  { code: 'en-GB', label: 'English (UK)' },
+  { code: 'en-US', label: 'English' },
   { code: 'es', label: 'Spanish' },
   { code: 'fr', label: 'French' },
   { code: 'de', label: 'German' },
-  { code: 'ar', label: 'Arabic' },
-  { code: 'hi', label: 'Hindi' },
-  { code: 'ur', label: 'Urdu' },
-  { code: 'zh', label: 'Chinese' },
-  { code: 'ja', label: 'Japanese' },
-  { code: 'si', label: 'Sinhala' },
-  { code: 'ta', label: 'Tamil' },
-  { code: 'bn', label: 'Bengali' },
 ] as const;
 
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number]['code'];
