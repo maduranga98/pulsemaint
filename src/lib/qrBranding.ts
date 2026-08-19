@@ -1,7 +1,7 @@
 import { resolveCompanyLogoDataUrl } from './pdf/logoUtils';
 
 const FIRMICORE_WEBSITE = 'https://firmicore.com/';
-const FIRMICORE_LOGO_SRC = '/logo.png';
+const FIRMICORE_LOGO_SRC = '/logo.svg';
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
