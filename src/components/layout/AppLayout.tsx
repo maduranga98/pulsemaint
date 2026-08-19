@@ -490,7 +490,12 @@ export default function AppLayout() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* overflow-x-auto scoped to this action group (not the whole header)
+              so a narrow screen that can't fit every action scrolls just this
+              row instead of the whole page — an unscoped page-level scroll was
+              shifting NotificationBell's anchor and rendering its dropdown
+              panel off-screen. */}
+          <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide shrink-0">
             <LanguageSwitcher />
             <NotificationBell />
             <EndShiftButton />

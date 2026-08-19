@@ -107,7 +107,13 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 max-h-[28rem] overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50">
+        // Fixed (not absolute) on small screens: the header row that hosts this
+        // button can itself scroll horizontally on narrow viewports (it's wider
+        // than the screen), and an `absolute` panel inherits that scroll offset —
+        // it was rendering partly off the left edge of the visible viewport
+        // whenever the header was scrolled to reveal the avatar/sign-out button.
+        // `fixed` anchors it to the actual viewport regardless of header scroll.
+        <div className="fixed left-2 right-2 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50">
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
             <p className="text-sm font-semibold text-slate-900">Notifications</p>
             <div className="flex items-center gap-2">
