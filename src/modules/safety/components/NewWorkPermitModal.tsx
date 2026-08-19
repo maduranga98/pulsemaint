@@ -4,10 +4,13 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import { useCompanyUsers } from '@/hooks/useCompanyUsers';
 import { useWorkOrders } from '@/hooks/useWorkOrders';
+import { useWorkPermitCategories } from '@/hooks/useWorkPermitCategories';
 import { createWorkPermit } from '@/services/safety.service';
 import { notifyRoles, notifyUsers } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
-import { WORK_PERMIT_CATEGORIES, type WorkPermitCategory } from '@/types/safety';
+import type { WorkPermitCategory } from '@/types/safety';
+
+const ADD_NEW_CATEGORY = '__add_new__';
 
 interface Props {
   onClose: () => void;
@@ -33,7 +36,10 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
     return d.toISOString().slice(0, 16);
   })();
 
+  const { categories, addCategory } = useWorkPermitCategories(companyId);
   const [category, setCategory] = useState<WorkPermitCategory>('hot_work');
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCategoryLabel, setNewCategoryLabel] = useState('');
   const [workOrderId, setWorkOrderId] = useState(presetWorkOrderId ?? '');
   const [title, setTitle] = useState('');
   const [location, setLocation] = useState('');
@@ -67,9 +73,19 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
   }, [selectedWO]);
 
   const categoryDef = useMemo(
-    () => WORK_PERMIT_CATEGORIES.find((c) => c.value === category)!,
-    [category],
+    () => categories.find((c) => c.value === category) ?? { value: category, label: category, precautions: [] },
+    [categories, category],
   );
+
+  async function handleAddCategory() {
+    const value = await addCategory(newCategoryLabel);
+    if (value) {
+      setCategory(value);
+      setChecked({});
+    }
+    setNewCategoryLabel('');
+    setAddingCategory(false);
+  }
 
   async function submit() {
     if (!profile?.companyId) return;
@@ -176,13 +192,37 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
 
           <div>
             <label className={labelCls}>Permit Category</label>
-            <select
-              value={category}
-              onChange={(e) => { setCategory(e.target.value as WorkPermitCategory); setChecked({}); }}
-              className={field}
-            >
-              {WORK_PERMIT_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
+            {addingCategory ? (
+              <div className="flex gap-2">
+                <input
+                  autoFocus
+                  value={newCategoryLabel}
+                  onChange={(e) => setNewCategoryLabel(e.target.value)}
+                  placeholder="New category name"
+                  className={field}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void handleAddCategory(); } }}
+                />
+                <button type="button" onClick={() => void handleAddCategory()} className="shrink-0 rounded-lg bg-[#1A56DB] px-3 py-2 text-sm font-semibold text-white">
+                  Add
+                </button>
+                <button type="button" onClick={() => { setAddingCategory(false); setNewCategoryLabel(''); }} className="shrink-0 rounded-lg border border-[#1E3A5F] px-3 py-2 text-sm text-[#8BA3BF] hover:text-white">
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <select
+                value={category}
+                onChange={(e) => {
+                  if (e.target.value === ADD_NEW_CATEGORY) { setAddingCategory(true); return; }
+                  setCategory(e.target.value as WorkPermitCategory);
+                  setChecked({});
+                }}
+                className={field}
+              >
+                {categories.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                <option value={ADD_NEW_CATEGORY}>+ Add new category…</option>
+              </select>
+            )}
           </div>
           <div>
             <label className={labelCls}>Title *</label>
@@ -222,6 +262,9 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
           <div>
             <p className={labelCls}>Precautions in place</p>
             <div className="space-y-1.5 rounded-lg border border-[#1E3A5F] bg-[#0A1628] p-3">
+              {categoryDef.precautions.length === 0 && (
+                <p className="text-xs text-[#8BA3BF]">No preset precautions for this category — note any hazards above.</p>
+              )}
               {categoryDef.precautions.map((p) => (
                 <label key={p} className="flex items-center gap-2 text-sm text-[#F0F4F8]">
                   <input

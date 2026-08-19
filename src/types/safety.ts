@@ -113,6 +113,9 @@ export type SafetyCaseInput = Omit<
 // the LOTO machine-isolation `permits` collection tied to work orders.
 // ---------------------------------------------------------------------------
 
+// The 7 seeded values keep autocomplete/exhaustiveness for known switches;
+// `(string & {})` widens the type to also accept a company-added custom
+// category's slug (see useWorkPermitCategories) without losing that.
 export type WorkPermitCategory =
   | 'hot_work'
   | 'confined_space'
@@ -120,7 +123,8 @@ export type WorkPermitCategory =
   | 'working_at_height'
   | 'excavation'
   | 'chemical_handling'
-  | 'general';
+  | 'general'
+  | (string & {});
 
 export type WorkPermitStatus = 'draft' | 'active' | 'closed' | 'expired';
 
