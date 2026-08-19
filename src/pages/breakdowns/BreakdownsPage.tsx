@@ -434,13 +434,13 @@ export default function BreakdownsPage() {
 
       <div className="px-6 py-5 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1">
             {(['reported', 'assigned', 'open', ...(role === 'admin' ? (['closed'] as Filter[]) : [])] as Filter[]).map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => setFilter(f)}
-                className={`px-4 py-2 text-sm font-medium rounded-lg capitalize transition-colors ${
+                className={`shrink-0 px-4 py-2 text-sm font-medium rounded-lg capitalize transition-colors ${
                   filter === f ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
@@ -492,7 +492,11 @@ export default function BreakdownsPage() {
             <p className="text-slate-500">{t('common.breakdowns.empty')}</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
+          <>
+          {/* Desktop/tablet: table. A fixed-column table can't reflow to fit a
+              phone screen, so below `md` it's replaced with the card list
+              instead of letting it force the whole page to scroll sideways. */}
+          <div className="hidden md:block bg-white rounded-xl border border-slate-100 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
                 <tr>
@@ -671,6 +675,154 @@ export default function BreakdownsPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile: one card per machine group, same data/actions as the table row. */}
+          <div className="md:hidden space-y-3">
+            {groups.map((g) => {
+              const worstSeverity = g.tickets.reduce<BreakdownSeverity | null>((worst, t) => {
+                if (!t.severity) return worst;
+                if (!worst || SEVERITY_RANK[t.severity] > SEVERITY_RANK[worst]) return t.severity;
+                return worst;
+              }, null);
+              const representative = g.tickets.reduce((best, t) =>
+                (STATUS_PROGRESS[t.status] ?? 0) > (STATUS_PROGRESS[best.status] ?? 0) ? t : best
+              , g.tickets[0]);
+              const assignedNames = Array.from(new Set(g.tickets.flatMap((t) => t.assignedTechnicianNames ?? [])));
+              const mostRecentReportedAt = g.tickets
+                .map((t) => t.reportedAt)
+                .filter(Boolean)
+                .sort((a, b) => (b?.toDate?.().getTime() ?? 0) - (a?.toDate?.().getTime() ?? 0))[0];
+              const hasReported = reportedTickets(g).length > 0;
+              const assignedTickets = g.tickets.filter((t) => t.status === 'assigned' && !t.severity);
+              const filledTickets = g.tickets.filter((t) => t.status === 'assigned' && !!t.severity && !t.linkedWOId);
+              const isExpanded = expandedMachineId === g.machineId;
+
+              return (
+                <div key={`card-${g.machineId}::${g.tickets[0]?.id}`} className="bg-white rounded-xl border border-slate-100 p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpanded(g.machineId)}
+                      className="text-left"
+                    >
+                      <div className="inline-flex items-center gap-1 font-medium text-slate-900">
+                        {g.machineName}
+                        {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                      </div>
+                      <p className="text-slate-400 text-xs">
+                        {[g.machineDepartment, g.machineLocation].filter(Boolean).join(' · ')}
+                      </p>
+                    </button>
+                    {worstSeverity ? (
+                      <span className={`shrink-0 px-2 py-0.5 rounded text-xs font-semibold uppercase ${SEVERITY_COLOR[worstSeverity]}`}>
+                        {worstSeverity}{g.tickets.length > 1 ? ` ×${g.tickets.length}` : ''}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">{t('common.breakdowns.table.pending')}</span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    {g.tickets.map((tk) => (
+                      <Link key={tk.id} to={`/app/breakdowns/${tk.id}`} className="text-xs font-medium text-blue-600 hover:underline">
+                        {tk.ticketNumber}
+                      </Link>
+                    ))}
+                  </div>
+
+                  <div>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[representative.status]}`}>
+                      {t(`common.breakdowns.status.${representative.status}`)}
+                    </span>
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${progressBarColor(representative.status)}`}
+                          style={{ width: `${STATUS_PROGRESS[representative.status] ?? 0}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-slate-500 tabular-nums w-9 text-right">
+                        {STATUS_PROGRESS[representative.status] ?? 0}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <p className="text-slate-400 uppercase tracking-wide">{t('common.breakdowns.table.reported')}</p>
+                      <p className="text-slate-600 mt-0.5">{mostRecentReportedAt?.toDate ? mostRecentReportedAt.toDate().toLocaleString() : ''}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 uppercase tracking-wide">{t('common.breakdowns.table.assignedTo')}</p>
+                      <p className="text-slate-600 mt-0.5">
+                        {assignedNames.length > 0 ? assignedNames.join(', ') : t('common.breakdowns.table.unassigned')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 flex-wrap pt-1 border-t border-slate-50">
+                    {hasReported && canAssign && (
+                      <button
+                        type="button"
+                        onClick={() => setAssigningGroup(g)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors"
+                      >
+                        <UserPlus className="w-3 h-3" />
+                        {t('common.breakdowns.actions.assign')}
+                      </button>
+                    )}
+                    {hasReported && canAttend && (
+                      <button
+                        type="button"
+                        disabled={attendingMachineId === g.machineId}
+                        onClick={() => handleAttend(g)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                      >
+                        <HardHat className="w-3 h-3" />
+                        {attendingMachineId === g.machineId ? t('common.breakdowns.actions.attending') : t('common.breakdowns.actions.attend')}
+                      </button>
+                    )}
+                    {!hasReported && assignedTickets.length > 0 && canAttend
+                      && assignedTickets.some((tk) => (tk.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '')) && (
+                      <Link
+                        to={`/app/breakdowns/attend?ids=${assignedTickets.map((tk) => tk.id).join(',')}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                      >
+                        <HardHat className="w-3 h-3" />
+                        {t('common.breakdowns.actions.attendAndFill')}{assignedTickets.length > 1 ? ` (${assignedTickets.length})` : ''}
+                      </Link>
+                    )}
+                    {filledTickets.length > 0 && canAssign && (
+                      <button
+                        type="button"
+                        onClick={() => goToCreateWorkOrder(filledTickets)}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+                      >
+                        <ClipboardPlus className="w-3 h-3" />
+                        {t('common.breakdowns.actions.createWO')}{filledTickets.length > 1 ? ` (${filledTickets.length})` : ''}
+                      </button>
+                    )}
+                    {representative.status === 'resolved' && canAssign && (
+                      <Link
+                        to={`/app/breakdowns/${representative.id}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors"
+                      >
+                        <CheckCircle className="w-3 h-3" />
+                        {t('common.breakdowns.actions.signOffClose')}
+                      </Link>
+                    )}
+                  </div>
+
+                  {isExpanded && (
+                    <div className="pt-2 border-t border-slate-100">
+                      <MachineBreakdownDetails group={g} actorRoles={actorRoles} showHistory={filter === 'closed'} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          </>
         )}
       </div>
 
