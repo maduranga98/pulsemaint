@@ -496,93 +496,169 @@ export default function UsersPage() {
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
-                    <tr>
-                      <th className="px-4 py-3 text-left">Name</th>
-                      <th className="px-4 py-3 text-left">Role</th>
-                      <th className="px-4 py-3 text-left">Contact</th>
-                      <th className="px-4 py-3 text-left">Status</th>
-                      <th className="px-4 py-3 text-left">Shifts</th>
-                      <th className="px-4 py-3 text-left">Last Login</th>
-                      {canManageUsers && <th className="px-4 py-3 text-right">Actions</th>}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {filtered.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50">
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold">
-                              {(u.fullName?.[0] || '?').toUpperCase()}
+              <>
+                {/* Desktop/tablet: table */}
+                <div className="hidden md:block bg-white rounded-xl border border-slate-100 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
+                      <tr>
+                        <th className="px-4 py-3 text-left">Name</th>
+                        <th className="px-4 py-3 text-left">Role</th>
+                        <th className="px-4 py-3 text-left">Contact</th>
+                        <th className="px-4 py-3 text-left">Status</th>
+                        <th className="px-4 py-3 text-left">Shifts</th>
+                        <th className="px-4 py-3 text-left">Last Login</th>
+                        {canManageUsers && <th className="px-4 py-3 text-right">Actions</th>}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filtered.map((u) => (
+                        <tr key={u.id} className="hover:bg-slate-50">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold">
+                                {(u.fullName?.[0] || '?').toUpperCase()}
+                              </div>
+                              <div>
+                                <p className="font-medium text-slate-900">{u.fullName}</p>
+                                {u.jobTitle && <p className="text-xs text-slate-500">{u.jobTitle}</p>}
+                              </div>
                             </div>
-                            <div>
-                              <p className="font-medium text-slate-900">{u.fullName}</p>
-                              {u.jobTitle && <p className="text-xs text-slate-500">{u.jobTitle}</p>}
-                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-slate-700">{ROLE_LABEL[u.role] || u.role}</td>
+                          <td className="px-4 py-3 space-y-0.5 text-xs text-slate-600">
+                            {u.email && (
+                              <div className="flex items-center gap-1.5">
+                                <Mail className="w-3.5 h-3.5 text-slate-400" /> {u.email}
+                              </div>
+                            )}
+                            {u.phone && (
+                              <div className="flex items-center gap-1.5">
+                                <Phone className="w-3.5 h-3.5 text-slate-400" /> {u.phone}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[u.status]}`}>
+                              {u.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <UserShiftChips
+                              userId={u.id}
+                              userShiftId={u.shiftId ?? null}
+                              userDepartment={u.department ?? null}
+                              shifts={shifts}
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-xs text-slate-500">
+                            {u.lastLoginAt && (u.lastLoginAt as { toDate?: () => Date }).toDate
+                              ? (u.lastLoginAt as { toDate: () => Date }).toDate().toLocaleString()
+                              : 'Never'}
+                          </td>
+                          {canManageUsers && (
+                            <td className="px-4 py-3">
+                              <div className="flex items-center justify-end gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setModal({ mode: 'view', user: u })}
+                                  title="View"
+                                  className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                                {canEditRow(u) && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setModal({ mode: 'edit', user: u })}
+                                    title="Edit"
+                                    className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile: one card per user */}
+                <div className="md:hidden space-y-3">
+                  {filtered.map((u) => (
+                    <div key={u.id} className="bg-white rounded-xl border border-slate-100 p-4 space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 shrink-0 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-semibold">
+                            {(u.fullName?.[0] || '?').toUpperCase()}
                           </div>
-                        </td>
-                        <td className="px-4 py-3 text-slate-700">{ROLE_LABEL[u.role] || u.role}</td>
-                        <td className="px-4 py-3 space-y-0.5 text-xs text-slate-600">
-                          {u.email && (
-                            <div className="flex items-center gap-1.5">
-                              <Mail className="w-3.5 h-3.5 text-slate-400" /> {u.email}
-                            </div>
-                          )}
-                          {u.phone && (
-                            <div className="flex items-center gap-1.5">
-                              <Phone className="w-3.5 h-3.5 text-slate-400" /> {u.phone}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[u.status]}`}>
-                            {u.status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <UserShiftChips
-                            userId={u.id}
-                            userShiftId={u.shiftId ?? null}
-                            userDepartment={u.department ?? null}
-                            shifts={shifts}
-                          />
-                        </td>
-                        <td className="px-4 py-3 text-xs text-slate-500">
+                          <div className="min-w-0">
+                            <p className="font-medium text-slate-900 truncate">{u.fullName}</p>
+                            {u.jobTitle && <p className="text-xs text-slate-500 truncate">{u.jobTitle}</p>}
+                          </div>
+                        </div>
+                        <span className={`shrink-0 px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[u.status]}`}>
+                          {u.status}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-slate-600 space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-slate-400 uppercase tracking-wide text-[10px] w-12 shrink-0">Role</span>
+                          {ROLE_LABEL[u.role] || u.role}
+                        </div>
+                        {u.email && (
+                          <div className="flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" /> <span className="truncate">{u.email}</span>
+                          </div>
+                        )}
+                        {u.phone && (
+                          <div className="flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {u.phone}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-slate-400 uppercase tracking-wide text-[10px] w-12 shrink-0">Login</span>
                           {u.lastLoginAt && (u.lastLoginAt as { toDate?: () => Date }).toDate
                             ? (u.lastLoginAt as { toDate: () => Date }).toDate().toLocaleString()
                             : 'Never'}
-                        </td>
-                        {canManageUsers && (
-                          <td className="px-4 py-3">
-                            <div className="flex items-center justify-end gap-1">
-                              <button
-                                type="button"
-                                onClick={() => setModal({ mode: 'view', user: u })}
-                                title="View"
-                                className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-                              >
-                                <Eye className="w-4 h-4" />
-                              </button>
-                              {canEditRow(u) && (
-                                <button
-                                  type="button"
-                                  onClick={() => setModal({ mode: 'edit', user: u })}
-                                  title="Edit"
-                                  className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-                                >
-                                  <Pencil className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
+
+                      <UserShiftChips
+                        userId={u.id}
+                        userShiftId={u.shiftId ?? null}
+                        userDepartment={u.department ?? null}
+                        shifts={shifts}
+                      />
+
+                      {canManageUsers && (
+                        <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
+                          <button
+                            type="button"
+                            onClick={() => setModal({ mode: 'view', user: u })}
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> View
+                          </button>
+                          {canEditRow(u) && (
+                            <button
+                              type="button"
+                              onClick={() => setModal({ mode: 'edit', user: u })}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"
+                            >
+                              <Pencil className="w-3.5 h-3.5" /> Edit
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </>
         )}
@@ -599,30 +675,45 @@ export default function UsersPage() {
                 </p>
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-100 overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
-                    <tr>
-                      <th className="px-4 py-3 text-left">Invitee</th>
-                      <th className="px-4 py-3 text-left">Role</th>
-                      <th className="px-4 py-3 text-left">Status</th>
-                      <th className="px-4 py-3 text-left">Sent</th>
-                      <th className="px-4 py-3 text-left">Expires</th>
-                      <th className="px-4 py-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {filteredInvitations.map((inv) => (
-                      <InvitationRow
-                        key={inv.id}
-                        invitation={inv}
-                        onRevoke={() => handleRevoke(inv)}
-                        onResend={() => handleResend(inv)}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <>
+                {/* Desktop/tablet: table */}
+                <div className="hidden md:block bg-white rounded-xl border border-slate-100 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
+                      <tr>
+                        <th className="px-4 py-3 text-left">Invitee</th>
+                        <th className="px-4 py-3 text-left">Role</th>
+                        <th className="px-4 py-3 text-left">Status</th>
+                        <th className="px-4 py-3 text-left">Sent</th>
+                        <th className="px-4 py-3 text-left">Expires</th>
+                        <th className="px-4 py-3 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filteredInvitations.map((inv) => (
+                        <InvitationRow
+                          key={inv.id}
+                          invitation={inv}
+                          onRevoke={() => handleRevoke(inv)}
+                          onResend={() => handleResend(inv)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile: one card per invitation */}
+                <div className="md:hidden space-y-3">
+                  {filteredInvitations.map((inv) => (
+                    <InvitationCard
+                      key={inv.id}
+                      invitation={inv}
+                      onRevoke={() => handleRevoke(inv)}
+                      onResend={() => handleResend(inv)}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </>
         )}
@@ -740,6 +831,93 @@ function InvitationRow({
         </div>
       </td>
     </tr>
+  );
+}
+
+function InvitationCard({
+  invitation: inv,
+  onRevoke,
+  onResend,
+}: {
+  invitation: Invitation;
+  onRevoke: () => void;
+  onResend: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const copyLink = async () => {
+    const link = getInviteLink(inv.token);
+    await navigator.clipboard.writeText(link);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const isExpired = inv.status === 'pending' && inv.expiresAt?.toDate && inv.expiresAt.toDate() < new Date();
+  const displayStatus = isExpired ? 'expired' : inv.status;
+
+  return (
+    <div className="bg-white rounded-xl border border-slate-100 p-4 space-y-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-medium text-slate-900 truncate">{inv.fullName}</p>
+          <p className="text-xs text-slate-500 flex items-center gap-1 truncate">
+            <Mail className="w-3 h-3 shrink-0" /> {inv.email}
+          </p>
+        </div>
+        <span className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${INVITE_STATUS_COLOR[displayStatus]}`}>
+          {displayStatus === 'pending' && <Clock className="w-3 h-3" />}
+          {displayStatus === 'accepted' && <CheckCircle className="w-3 h-3" />}
+          {displayStatus === 'expired' && <XCircle className="w-3 h-3" />}
+          {displayStatus === 'revoked' && <XCircle className="w-3 h-3" />}
+          {displayStatus}
+        </span>
+      </div>
+
+      <div className="text-xs text-slate-600 grid grid-cols-2 gap-2">
+        <div>
+          <p className="text-slate-400 uppercase tracking-wide text-[10px]">Role</p>
+          {ROLE_LABEL[inv.role] || inv.role}
+        </div>
+        <div>
+          <p className="text-slate-400 uppercase tracking-wide text-[10px]">Sent</p>
+          {inv.createdAt?.toDate ? inv.createdAt.toDate().toLocaleDateString() : ''}
+        </div>
+        <div>
+          <p className="text-slate-400 uppercase tracking-wide text-[10px]">Expires</p>
+          {inv.expiresAt?.toDate ? inv.expiresAt.toDate().toLocaleDateString() : ''}
+        </div>
+      </div>
+
+      {(inv.status === 'pending' && !isExpired) || displayStatus === 'expired' || displayStatus === 'revoked' ? (
+        <div className="flex items-center gap-2 pt-1 border-t border-slate-50">
+          {inv.status === 'pending' && !isExpired && (
+            <>
+              <button
+                onClick={copyLink}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Link2 className="w-3.5 h-3.5" />}
+                {copied ? 'Copied' : 'Copy link'}
+              </button>
+              <button
+                onClick={onRevoke}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100"
+              >
+                <XCircle className="w-3.5 h-3.5" /> Revoke
+              </button>
+            </>
+          )}
+          {(displayStatus === 'expired' || displayStatus === 'revoked') && (
+            <button
+              onClick={onResend}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Resend
+            </button>
+          )}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
