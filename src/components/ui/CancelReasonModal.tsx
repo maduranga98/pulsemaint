@@ -66,8 +66,8 @@ export function CancelReasonModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+    <div className="fixed inset-0 z-50 overflow-y-auto flex items-start sm:items-center justify-center bg-black/40 p-4 py-8">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 my-auto">
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
           <button
