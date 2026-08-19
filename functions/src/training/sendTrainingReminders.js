@@ -15,6 +15,7 @@ function toReminderAssignment(doc) {
     id: doc.id,
     companyId: String(data.companyId),
     traineeId: String(data.traineeId),
+    traineeName: String(data.traineeName || "A trainee"),
     moduleName: String(data.moduleName || "a training module"),
   };
 }
@@ -64,6 +65,16 @@ exports.sendTrainingReminders = onSchedule({schedule: "0 6 * * *", timeZone: "UT
       severity,
       message: `"${a.moduleName}" is ${phrase}`,
       oversightMessage: `has "${a.moduleName}" ${phrase}`,
+      // This is a system-scheduled reminder, not a user action, so there's
+      // no real "actor" — but notificationDisplayMessage's oversight
+      // formatting (client-side) always expects one to prefix the
+      // oversightMessage with ("{actor} (role) — {oversightMessage}"), and
+      // silently falls back to the bare, subject-less oversightMessage when
+      // actorName is missing. Without this, oversight readers (admin/plant
+      // manager) saw a dangling `has "X" overdue` with no name attached.
+      // The trainee is the closest thing to an actor here.
+      actorName: a.traineeName,
+      actorRole: "trainee",
       linkTo: `/app/training/my-modules/${a.id}`,
       timestamp: FieldValue.serverTimestamp(),
       read: false,
