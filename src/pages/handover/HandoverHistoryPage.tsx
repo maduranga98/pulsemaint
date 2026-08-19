@@ -148,7 +148,7 @@ export function HandoverHistoryPage() {
         </div>
       )}
       <div className="grid gap-3 lg:hidden">
-        {handoverHistory.map((handover) => <HandoverHistoryCard key={handover.id} handover={handover} />)}
+        {rows.map((row) => <HandoverHistoryCard key={row.id} row={row} />)}
       </div>
       <div className="hidden lg:block"><HandoverHistoryTable rows={rows} /></div>
       {loading && !rows.length && (
