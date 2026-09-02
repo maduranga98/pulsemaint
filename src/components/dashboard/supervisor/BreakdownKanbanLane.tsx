@@ -27,7 +27,7 @@ export default function BreakdownKanbanLane({ id, title, cards, borderColor }: B
         className="flex items-center justify-between px-4 py-3 border-b border-[#1E3A5F] rounded-t-xl"
         style={{ borderLeftWidth: 4, borderLeftColor: borderColor }}
       >
-        <h4 className="text-sm font-semibold text-[#F0F4F8] font-[Sora]">{title}</h4>
+        <h4 className="text-sm font-semibold text-[#F0F4F8]">{title}</h4>
         <span className="px-2 py-0.5 rounded-full bg-[#1E3A5F] text-[11px] font-medium text-[#8BA3BF]">
           {cards.length}
         </span>

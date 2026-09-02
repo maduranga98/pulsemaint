@@ -13,7 +13,7 @@ export function ImportProgressScreen({ current, total, fileName }: ImportProgres
     <div className="max-w-lg mx-auto flex flex-col items-center gap-8 py-12">
       <div className="flex flex-col items-center gap-3 text-center">
         <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
-        <h2 className="text-xl font-bold text-gray-900 font-[Sora]">Importing Parts…</h2>
+        <h2 className="text-xl font-bold text-gray-900">Importing Parts…</h2>
         <p className="text-sm text-gray-500 truncate max-w-xs">
           {fileName}
         </p>

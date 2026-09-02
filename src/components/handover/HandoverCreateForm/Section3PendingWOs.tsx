@@ -10,7 +10,7 @@ export function Section3PendingWOs({ items, onChange }: Section3PendingWOsProps)
   return (
     <section className="space-y-3">
       <div className="rounded-lg bg-[#0A1628] px-4 py-3 text-white">
-        <h2 className="font-[Sora] font-bold">Pending Work Orders</h2>
+        <h2 className=" font-bold">Pending Work Orders</h2>
         <p className="text-sm text-slate-300">Carry-forward notes only. Work orders are not modified here.</p>
       </div>
       {items.length ? items.map((wo, index) => (

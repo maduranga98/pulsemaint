@@ -48,7 +48,7 @@ export default function ReportsHubPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="font-[Sora] text-[28px] font-bold text-[#F0F4F8]">Reports</h1>
+            <h1 className=" text-[28px] font-bold text-[#F0F4F8]">Reports</h1>
             <p className="mt-1 text-sm text-[#8BA3BF]">Generate, export, and schedule operational reports</p>
           </div>
         </header>

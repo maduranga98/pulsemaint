@@ -37,7 +37,7 @@ export function MoeDashboard() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white font-[Sora]">MOE — Machine Overall Effectiveness</h1>
+          <h1 className="text-2xl font-bold text-white">MOE (Machine Overall Effectiveness)</h1>
           <p className="text-sm text-[#8BA3BF] mt-1">
             Composite score from availability, maintenance compliance, reliability, and health data already in the
             system.

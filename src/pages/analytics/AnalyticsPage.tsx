@@ -104,7 +104,7 @@ export default function AnalyticsPage() {
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">Analytics</h1>
+          <h1 className="text-xl font-bold text-[#F0F4F8]">Analytics</h1>
           <p className="text-sm text-[#8BA3BF] mt-0.5">
             Operational performance, reliability, and cost trends across your fleet.
           </p>

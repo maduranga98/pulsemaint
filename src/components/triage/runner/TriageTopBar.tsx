@@ -50,7 +50,7 @@ export default function TriageTopBar({
       </button>
 
       <div className="flex-1 mx-3 min-w-0">
-        <p className="text-white font-semibold text-[15px] truncate font-['Sora']">{machineName}</p>
+        <p className="text-white font-semibold text-[15px] truncate">{machineName}</p>
       </div>
 
       <div className="flex items-center gap-3">

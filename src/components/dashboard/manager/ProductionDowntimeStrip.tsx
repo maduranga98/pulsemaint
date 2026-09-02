@@ -24,18 +24,10 @@ export default function ProductionDowntimeStrip({}: ProductionDowntimeStripProps
     <DashboardWidget title={t('common.widgets.productionDowntimeStrip.title')} loading={loading}>
       <div className="py-4 text-center bg-gradient-to-r from-[#EF4444]/10 via-transparent to-[#EF4444]/10 rounded-lg">
         <p className="text-sm text-[#8BA3BF] mb-2">{t('common.widgets.productionDowntimeStrip.hoursLost')}</p>
-        <p className="text-4xl font-bold text-[#EF4444] font-[Sora]">
+        <p className="text-4xl font-bold text-[#EF4444]">
           {h}h {m}m
         </p>
         <div className="flex justify-center gap-8 mt-4 text-xs">
-          <div>
-            <p className="text-[#8BA3BF]">{t('common.widgets.productionDowntimeStrip.thisWeek')}</p>
-            <p className="text-[#F0F4F8] font-semibold">{Math.round(hours / 4)}h</p>
-          </div>
-          <div>
-            <p className="text-[#8BA3BF]">{t('common.widgets.productionDowntimeStrip.today')}</p>
-            <p className="text-[#F0F4F8] font-semibold">{Math.round(hours / 30)}h</p>
-          </div>
           <div>
             <p className="text-[#8BA3BF]">{t('common.widgets.productionDowntimeStrip.downtimeCost')}</p>
             <p className="text-[#F0F4F8] font-semibold">LKR {downtimeCost.toLocaleString()}</p>

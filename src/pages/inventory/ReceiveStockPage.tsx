@@ -9,7 +9,7 @@ export function ReceiveStockPage() {
         <Link to="/app/inventory" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Receive New Stock</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Receive New Stock</h1>
       </div>
       <ReceiveAgainstPo />
     </div>

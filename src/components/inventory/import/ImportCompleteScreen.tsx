@@ -40,7 +40,7 @@ export function ImportCompleteScreen({
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-gray-900 font-[Sora]">Import Complete!</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Import Complete!</h2>
           <p className="text-lg font-semibold text-gray-700">
             {newCount} parts created · {updateCount} parts updated
           </p>

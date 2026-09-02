@@ -19,7 +19,7 @@ export default function OutputFormatToggle({
 
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">
-      <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">Output Format</h3>
+      <h3 className=" text-sm font-semibold text-[#F0F4F8]">Output Format</h3>
       <div className="grid gap-2">
         {options.map((option) => (
           <button

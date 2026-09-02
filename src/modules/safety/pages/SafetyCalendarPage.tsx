@@ -202,7 +202,7 @@ export default function SafetyCalendarPage() {
       </button>
 
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="flex items-center gap-2 font-[Sora] text-xl font-bold">
+        <h1 className="flex items-center gap-2 text-xl font-bold">
           <CalendarDays className="h-5 w-5 text-[#5B8DEF]" /> Safety Training Schedules
         </h1>
         <div className="flex items-center gap-3">

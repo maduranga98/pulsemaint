@@ -220,7 +220,7 @@ export function AddPartPage() {
         >
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Add New Part</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Add New Part</h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5" noValidate>

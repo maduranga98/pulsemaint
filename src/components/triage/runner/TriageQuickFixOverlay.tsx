@@ -15,7 +15,7 @@ export default function TriageQuickFixOverlay({ onSubmit, onClose }: Props) {
     <div className="fixed inset-0 z-50 bg-[#10B981] flex flex-col overflow-y-auto">
       <div className="px-4 pt-8 pb-4 flex items-center justify-between">
         <div>
-          <h1 className="text-white text-2xl font-bold font-['Sora']">{t('triage.quick_fix_title')}</h1>
+          <h1 className="text-white text-2xl font-bold">{t('triage.quick_fix_title')}</h1>
           <p className="text-white/80 text-sm mt-1">{t('triage.quick_fix_desc')}</p>
         </div>
         <button onClick={onClose} className="text-white/80 hover:text-white text-3xl leading-none ml-3">

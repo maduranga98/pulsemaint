@@ -53,7 +53,7 @@ export default function TriageCompleteScreen({ session }: Props) {
           </svg>
         </div>
         <div>
-          <h1 className="text-white text-2xl font-bold font-['Sora']">{t('triage.complete')}</h1>
+          <h1 className="text-white text-2xl font-bold">{t('triage.complete')}</h1>
           <p className="text-white/70 text-sm">{session.machineName}</p>
         </div>
       </div>

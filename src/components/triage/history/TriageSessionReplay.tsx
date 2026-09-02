@@ -23,7 +23,7 @@ export default function TriageSessionReplay({ session }: Props) {
       <div className="bg-white border border-gray-200 rounded-xl p-5 mb-6">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl font-bold text-[#0A1628] font-['Sora']">{session.machineName}</h1>
+            <h1 className="text-xl font-bold text-[#0A1628]">{session.machineName}</h1>
             <p className="text-sm text-gray-500 mt-1">
               {startedAt.toLocaleDateString()} {startedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>

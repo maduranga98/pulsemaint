@@ -25,7 +25,7 @@ export function EndShiftConfirmModal({ open, shift, shiftStartTime, onCancel, on
       <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-5 shadow-xl">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="font-[Sora] text-lg font-bold text-white">End Shift</h2>
+            <h2 className=" text-lg font-bold text-white">End Shift</h2>
             <p className="mt-1 text-sm text-slate-300">Are you sure you want to end your shift?</p>
           </div>
           <button type="button" onClick={onCancel} className="min-h-12 min-w-12 rounded-md text-slate-400 hover:text-white" aria-label="Close">

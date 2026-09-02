@@ -62,7 +62,7 @@ export default function FactoryFloorMap({ companyId }: FactoryFloorMapProps) {
           <div className="w-full max-w-sm rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-[Sora] text-lg font-bold text-[#F0F4F8]">{selected.machineName}</h3>
+                <h3 className=" text-lg font-bold text-[#F0F4F8]">{selected.machineName}</h3>
                 <p className="mt-0.5 flex items-center gap-1 text-xs text-[#8BA3BF]">
                   <MapPin className="h-3 w-3" /> {selected.location || t('common.dashboard.floorMap.noLocation')}
                 </p>

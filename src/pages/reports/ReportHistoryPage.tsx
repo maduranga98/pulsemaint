@@ -24,7 +24,7 @@ export default function ReportHistoryPage() {
               <ArrowLeft className="h-4 w-4" />
               Back to Reports
             </Link>
-            <h1 className="font-[Sora] text-[28px] font-bold">Report History</h1>
+            <h1 className=" text-[28px] font-bold">Report History</h1>
             <p className="mt-1 text-sm text-[#8BA3BF]">Download, share, and manage generated report records</p>
           </div>
           <StorageUsageIndicator reports={reportHistory} />

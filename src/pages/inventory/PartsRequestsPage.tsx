@@ -19,7 +19,7 @@ export function PartsRequestsPage() {
       {showCreate && <CreatePartsRequestModal onClose={() => setShowCreate(false)} />}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">{t('common.inventory.requests.title')}</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.requests.title')}</h1>
           <p className="text-gray-500 text-sm mt-0.5">
             {canManage
               ? t('common.inventory.requests.subtitleManage')

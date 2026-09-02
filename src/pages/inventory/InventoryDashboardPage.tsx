@@ -51,7 +51,7 @@ function TechnicianInventoryView() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Inventory</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
           <p className="text-gray-500 text-sm mt-0.5">Check request status and browse the parts catalog.</p>
         </div>
         <button
@@ -127,7 +127,7 @@ function FullInventoryDashboard() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Inventory Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Inventory Management</h1>
           <p className="text-gray-500 text-sm mt-0.5">{todayStr}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -264,7 +264,7 @@ function SupervisorInventoryView() {
 
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Inventory</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Inventory</h1>
           <p className="text-gray-500 text-sm mt-0.5">Requests awaiting your approval, purchase orders, and the parts catalog.</p>
         </div>
         <button

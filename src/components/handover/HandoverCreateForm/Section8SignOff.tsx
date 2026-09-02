@@ -12,7 +12,7 @@ export function Section8SignOff({ supervisorName, shiftName, acknowledged, onAck
   return (
     <section className="space-y-3">
       <div className="rounded-lg bg-[#0A1628] px-4 py-3 text-white">
-        <h2 className="font-[Sora] font-bold">Outgoing Supervisor Sign-Off</h2>
+        <h2 className=" font-bold">Outgoing Supervisor Sign-Off</h2>
       </div>
       <div className="rounded-lg border border-slate-200 bg-white p-4">
         <dl className="grid gap-3 text-sm sm:grid-cols-3">
@@ -31,7 +31,7 @@ export function Section8SignOff({ supervisorName, shiftName, acknowledged, onAck
           type="button"
           disabled={!acknowledged || submitting}
           onClick={onSubmit}
-          className="mt-4 min-h-12 w-full rounded-md bg-blue-600 px-4 py-3 font-[Sora] text-sm font-bold text-white disabled:opacity-50 sm:w-auto"
+          className="mt-4 min-h-12 w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-bold text-white disabled:opacity-50 sm:w-auto"
         >
           {submitting ? 'Submitting...' : 'Submit Handover'}
         </button>

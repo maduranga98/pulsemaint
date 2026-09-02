@@ -34,7 +34,7 @@ export default function TriageFlowDetail({ flow }: Props) {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-xl p-5 mb-5">
-        <h1 className="text-2xl font-bold text-[#0A1628] font-['Sora']">{flow.name}</h1>
+        <h1 className="text-2xl font-bold text-[#0A1628]">{flow.name}</h1>
         {flow.description && <p className="text-gray-500 text-sm mt-1">{flow.description}</p>}
         <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500">
           <span>{flow.steps.length} steps</span>

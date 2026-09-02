@@ -179,7 +179,7 @@ export default function TriageFlowEditor({ initial, flowId }: Props) {
     <div className="flex flex-col h-full">
       {/* Top save bar */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
-        <h1 className="font-semibold text-[#0A1628] font-['Sora']">
+        <h1 className="font-semibold text-[#0A1628]">
           {flowId ? 'Edit Flow' : 'New Triage Flow'}
         </h1>
         <button

@@ -45,7 +45,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
   return (
     <section className="space-y-2 border-b border-[#1E3A5F] pb-5">
       <div className="flex items-center justify-between">
-        <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">Report Preview</h3>
+        <h3 className=" text-sm font-semibold text-[#F0F4F8]">Report Preview</h3>
         {!loading && !error && <span className="text-xs text-[#8BA3BF]">{total} record(s)</span>}
       </div>
 

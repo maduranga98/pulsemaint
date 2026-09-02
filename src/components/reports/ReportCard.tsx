@@ -16,7 +16,7 @@ export default function ReportCard({
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-[#1E3A5F] bg-[#0A1628] text-[#00C2FF]">
           <ReportCategoryIcon icon={report.icon} className="h-5 w-5" />
         </div>
-        <h3 className="min-w-0 flex-1 truncate font-[Sora] text-base font-semibold text-[#F0F4F8]">{report.name}</h3>
+        <h3 className="min-w-0 flex-1 truncate text-base font-semibold text-[#F0F4F8]">{report.name}</h3>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">

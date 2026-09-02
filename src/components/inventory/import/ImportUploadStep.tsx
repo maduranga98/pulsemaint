@@ -71,7 +71,7 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 font-[Sora]">Upload Your File</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Upload Your File</h2>
         <p className="text-gray-500 mt-1 text-sm">
           Upload the completed template. .xlsx or .csv, max 10 MB.
         </p>

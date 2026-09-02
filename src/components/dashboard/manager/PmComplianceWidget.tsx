@@ -35,7 +35,7 @@ export default function PmComplianceWidget({ companyId }: PmComplianceWidgetProp
     <DashboardWidget title={t('common.widgets.pmComplianceWidget.title')} loading={loading}>
       <div className="text-center">
         <span
-          className={`text-6xl font-bold font-[Sora] ${
+          className={`text-6xl font-bold ${
             color === 'green' ? 'text-[#10B981]' : color === 'amber' ? 'text-[#F59E0B]' : 'text-[#EF4444]'
           }`}
         >

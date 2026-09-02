@@ -23,7 +23,7 @@ export function AcceptShiftButton({ handoverId }: AcceptShiftButtonProps) {
               setLoading(true);
               void acceptHandover(handoverId).finally(() => setLoading(false));
             }}
-            className="min-h-14 flex-1 rounded-md bg-blue-600 px-4 font-[Sora] text-sm font-bold text-white disabled:opacity-60"
+            className="min-h-14 flex-1 rounded-md bg-blue-600 px-4 text-sm font-bold text-white disabled:opacity-60"
           >
             {loading ? 'Accepting...' : 'Confirm Acceptance'}
           </button>
@@ -33,7 +33,7 @@ export function AcceptShiftButton({ handoverId }: AcceptShiftButtonProps) {
   }
 
   return (
-    <button type="button" onClick={() => setConfirming(true)} className="min-h-14 w-full rounded-md bg-blue-600 px-4 font-[Sora] text-sm font-bold text-white">
+    <button type="button" onClick={() => setConfirming(true)} className="min-h-14 w-full rounded-md bg-blue-600 px-4 text-sm font-bold text-white">
       Accept Shift & Take Responsibility
     </button>
   );

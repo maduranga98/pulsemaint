@@ -19,7 +19,7 @@ export default function TriageEscalationOverlay({
   return (
     <div className="fixed inset-0 z-50 bg-red-600 flex flex-col overflow-y-auto">
       <div className="px-4 pt-8 pb-4 flex items-center justify-between">
-        <h1 className="text-white text-2xl font-bold font-['Sora']">
+        <h1 className="text-white text-2xl font-bold">
           {t('triage.emergency_overlay_title')}
         </h1>
         <button onClick={onClose} className="text-white/80 hover:text-white text-3xl leading-none">

@@ -110,7 +110,7 @@ export default function SafetyAnalyticsPage() {
     <div className="min-h-full bg-[#0A1628] p-4 text-[#F0F4F8] sm:p-6 lg:p-8">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="mb-1 flex items-center gap-2 font-[Sora] text-xl font-bold">
+          <h1 className="mb-1 flex items-center gap-2 text-xl font-bold">
             <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Analytics
           </h1>
           <p className="text-sm text-[#8BA3BF]">Incident trends, types, severity, and involvement across the factory.</p>

@@ -13,7 +13,7 @@ export default function ReportHistoryCard({
     <article className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-4 lg:hidden">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">{report.reportName}</h3>
+          <h3 className=" text-sm font-semibold text-[#F0F4F8]">{report.reportName}</h3>
           <p className="mt-1 text-xs text-[#8BA3BF]">{report.dateRangeFrom} to {report.dateRangeTo}</p>
         </div>
         <ReportFormatBadge format={report.format} />

@@ -26,7 +26,7 @@ export function Section2WatchFlags({ flags, onChange }: Section2WatchFlagsProps)
     <section className="space-y-3">
       <div className="flex flex-col gap-3 rounded-lg bg-[#0A1628] px-4 py-3 text-white sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-[Sora] font-bold">Watch Machines</h2>
+          <h2 className=" font-bold">Watch Machines</h2>
           <p className="text-sm text-slate-300">Machines needing special attention in the next shift.</p>
         </div>
         <button type="button" onClick={() => setOpen(true)} className="min-h-12 rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white">Add Watch Flag</button>

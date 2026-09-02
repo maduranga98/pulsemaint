@@ -118,7 +118,7 @@ export default function WorkPermitsPage() {
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
         <div>
-          <h1 className="flex items-center gap-2 font-[Sora] text-xl font-bold">
+          <h1 className="flex items-center gap-2 text-xl font-bold">
             <FileCheck className="h-5 w-5 text-[#5B8DEF]" /> Work Permits
           </h1>
           <p className="mt-0.5 text-sm text-[#8BA3BF]">Permit-to-Work: issue, track, extend, and sign off safety permits.</p>
@@ -314,7 +314,7 @@ function SignOffModal({
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center">
       <div className="w-full max-w-md rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] p-5 shadow-xl">
         <div className="flex items-start justify-between">
-          <h2 className="font-[Sora] text-lg font-bold text-[#F0F4F8]">Sign off permit</h2>
+          <h2 className=" text-lg font-bold text-[#F0F4F8]">Sign off permit</h2>
           <button type="button" onClick={onClose} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
             <X className="h-5 w-5" />
           </button>

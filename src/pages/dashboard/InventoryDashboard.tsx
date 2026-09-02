@@ -17,7 +17,7 @@ export default function InventoryDashboard() {
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{t('common.dashboard.inventoryTitle')}</h1>
+        <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.dashboard.inventoryTitle')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
           {t('common.dashboard.greeting.text', { time: t(`common.dashboard.greeting.${getGreeting()}`), name: firstName })}
         </p>

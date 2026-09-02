@@ -7,7 +7,7 @@ export function Section7GeneralNotes({ value, onChange }: Section7GeneralNotesPr
   return (
     <section className="space-y-3">
       <div className="rounded-lg bg-[#0A1628] px-4 py-3 text-white">
-        <h2 className="font-[Sora] font-bold">General Notes</h2>
+        <h2 className=" font-bold">General Notes</h2>
         <p className="text-sm text-slate-300">Plain text notes for the incoming supervisor.</p>
       </div>
       <textarea

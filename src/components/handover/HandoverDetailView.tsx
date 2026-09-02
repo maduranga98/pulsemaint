@@ -26,7 +26,7 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
       <header className="rounded-lg border border-slate-200 bg-white p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="font-[Sora] text-2xl font-bold text-slate-950">{handover.shiftName} Handover</h1>
+            <h1 className=" text-2xl font-bold text-slate-950">{handover.shiftName} Handover</h1>
             <p className="mt-1 text-sm text-slate-500">{handover.shiftDate}</p>
           </div>
           <HandoverStatusBadge status={handover.status} />
@@ -87,7 +87,7 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
       <HandoverTimeline handover={handover} />
 
       <section className="space-y-3">
-        <h2 className="font-[Sora] font-bold text-slate-950">Watch Machine Flags</h2>
+        <h2 className=" font-bold text-slate-950">Watch Machine Flags</h2>
         {handover.watchFlags.length === 0 ? (
           <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">No watch flags raised.</p>
         ) : (
@@ -96,7 +96,7 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-[Sora] font-bold text-slate-950">Pending Work Orders</h2>
+        <h2 className=" font-bold text-slate-950">Pending Work Orders</h2>
         {handover.pendingWOs.length === 0 ? (
           <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">No pending work orders.</p>
         ) : (
@@ -105,7 +105,7 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-[Sora] font-bold text-slate-950">Ongoing Breakdowns</h2>
+        <h2 className=" font-bold text-slate-950">Ongoing Breakdowns</h2>
         {handover.ongoingBreakdowns.length === 0 ? (
           <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">No ongoing breakdowns.</p>
         ) : (
@@ -116,7 +116,7 @@ export function HandoverDetailView({ handover }: HandoverDetailViewProps) {
       <HandoverSafetyCasesSection />
 
       <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-[Sora] font-bold text-slate-950">General Notes &amp; Safety Considerations</h2>
+        <h2 className=" font-bold text-slate-950">General Notes &amp; Safety Considerations</h2>
         <dl className="mt-3 grid gap-3 text-sm">
           <div>
             <dt className="font-semibold text-slate-500">Safety incident</dt>

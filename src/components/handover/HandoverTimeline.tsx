@@ -13,7 +13,7 @@ export function HandoverTimeline({ handover }: HandoverTimelineProps) {
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="font-[Sora] font-bold text-slate-950">Timeline</h2>
+      <h2 className=" font-bold text-slate-950">Timeline</h2>
       <div className="mt-4 space-y-3">
         {items.map(([label, date]) => (
           <div key={label} className="flex gap-3">
