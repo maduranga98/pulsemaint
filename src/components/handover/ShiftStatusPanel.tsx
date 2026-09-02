@@ -87,7 +87,7 @@ export function ShiftStatusPanel() {
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 className="font-[Sora] text-base font-bold text-slate-950">Live Shift Status</h2>
+        <h2 className=" text-base font-bold text-slate-950">Live Shift Status</h2>
         <p className="text-xs text-slate-500">
           {totalWorking} {totalWorking === 1 ? 'person' : 'people'} currently working, across {rows.length} {rows.length === 1 ? 'shift' : 'shifts'}
         </p>

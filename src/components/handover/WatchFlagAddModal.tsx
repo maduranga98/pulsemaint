@@ -156,7 +156,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
     <div className="fixed inset-0 z-50 flex items-end bg-slate-950/50 p-4 sm:items-center sm:justify-center">
       <div className="w-full max-w-xl rounded-lg bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between">
-          <h2 className="font-[Sora] text-lg font-bold text-slate-950">Add Watch Machine</h2>
+          <h2 className=" text-lg font-bold text-slate-950">Add Watch Machine</h2>
           <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-md text-slate-500" aria-label="Close">
             <X className="mx-auto h-5 w-5" />
           </button>

@@ -56,7 +56,7 @@ export default function ReportFilterSection({
 
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">
-      <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">Report Filters</h3>
+      <h3 className=" text-sm font-semibold text-[#F0F4F8]">Report Filters</h3>
       {has('machine') && <MachineMultiSelect values={config.machines} onChange={(machines) => onChange({ machines })} />}
       {report.type === 'machine_history' && config.machines.length !== 1 && (
         <p className="rounded-lg border border-[#F59E0B]/40 bg-[#F59E0B]/10 p-3 text-xs text-[#FCD34D]">

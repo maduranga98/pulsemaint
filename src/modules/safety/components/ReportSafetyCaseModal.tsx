@@ -169,7 +169,7 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center">
       <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] p-5 shadow-xl">
         <div className="flex items-start justify-between">
-          <h2 className="font-[Sora] text-lg font-bold text-[#F0F4F8]">Report Safety Case</h2>
+          <h2 className=" text-lg font-bold text-[#F0F4F8]">Report Safety Case</h2>
           <button type="button" onClick={onClose} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
@@ -234,7 +234,7 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
           {/* Points — auto-categorised from severity */}
           <div className="flex items-center justify-between rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2">
             <span className="text-xs font-medium text-[#8BA3BF]">Safety points (auto from severity)</span>
-            <span className="font-[Sora] text-sm font-bold text-[#F59E0B]">{points} pts</span>
+            <span className=" text-sm font-bold text-[#F59E0B]">{points} pts</span>
           </div>
 
           <div>

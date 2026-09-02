@@ -10,7 +10,7 @@ export function Section5PartsNotes({ lowStockAlerts, partsNotes, onChange }: Sec
   return (
     <section className="space-y-3">
       <div className="rounded-lg bg-[#0A1628] px-4 py-3 text-white">
-        <h2 className="font-[Sora] font-bold">Parts & Inventory Notes</h2>
+        <h2 className=" font-bold">Parts & Inventory Notes</h2>
         <p className="text-sm text-slate-300">Low stock and parts request context for the next supervisor.</p>
       </div>
       <div className="grid gap-3 lg:grid-cols-2">

@@ -17,7 +17,7 @@ export default function PdfOptionsSection({
 
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">
-      <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">PDF Options</h3>
+      <h3 className=" text-sm font-semibold text-[#F0F4F8]">PDF Options</h3>
       {supportsCharts && (
         <label className="flex min-h-11 items-center justify-between rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 text-sm text-[#F0F4F8]">
           Include charts

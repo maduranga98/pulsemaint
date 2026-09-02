@@ -295,7 +295,7 @@ export function SuppliersPage() {
         <Link to="/app/inventory" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora] flex-1">Suppliers</h1>
+        <h1 className="text-2xl font-bold text-gray-900 flex-1">Suppliers</h1>
         <div className="flex flex-wrap items-center gap-2">
           <input
             ref={fileInputRef}

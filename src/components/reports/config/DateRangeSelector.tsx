@@ -23,7 +23,7 @@ export default function DateRangeSelector({
 }) {
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">
-      <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">Date Range</h3>
+      <h3 className=" text-sm font-semibold text-[#F0F4F8]">Date Range</h3>
       <div className="flex flex-wrap gap-2">
         {ranges.map((range) => (
           <button

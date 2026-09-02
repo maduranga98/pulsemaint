@@ -78,7 +78,7 @@ export function SignupPage() {
       <div className="w-full max-w-md">
         {/* Logo & Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white font-[Sora]">FirmiCore</h1>
+          <h1 className="text-4xl font-bold text-white">FirmiCore</h1>
           <p className="text-[#00C2FF] mt-2 font-[DM_Sans]">Keep the pulse of your plant.</p>
         </div>
 

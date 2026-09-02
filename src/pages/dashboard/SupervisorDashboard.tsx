@@ -66,7 +66,7 @@ export default function SupervisorDashboard() {
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       {/* Header */}
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8] font-[Sora]">
+        <h1 className="text-xl font-bold text-[#F0F4F8]">
           {t('common.dashboard.supervisorTitle')}
         </h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">

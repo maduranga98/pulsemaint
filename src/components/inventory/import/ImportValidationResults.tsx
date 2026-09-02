@@ -38,7 +38,7 @@ export function ImportValidationResults({
           <AlertTriangle className="w-8 h-8 text-red-500 shrink-0" />
         )}
         <div>
-          <h2 className="text-xl font-bold text-gray-900 font-[Sora]">
+          <h2 className="text-xl font-bold text-gray-900">
             {isValid ? 'Validation Passed' : 'Validation Failed'}
           </h2>
           <p className="text-sm text-gray-500">

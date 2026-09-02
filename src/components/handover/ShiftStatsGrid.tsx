@@ -22,7 +22,7 @@ export function ShiftStatsGrid({ stats, compact = false }: ShiftStatsGridProps) 
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {items.map((item) => (
         <div key={item.key} className="rounded-lg border border-slate-200 bg-white p-4">
-          <div className={`font-[Sora] text-2xl font-bold ${item.tone}`}>{stats[item.key]}</div>
+          <div className={` text-2xl font-bold ${item.tone}`}>{stats[item.key]}</div>
           <div className="mt-1 text-xs font-medium text-slate-500">{item.label}</div>
         </div>
       ))}

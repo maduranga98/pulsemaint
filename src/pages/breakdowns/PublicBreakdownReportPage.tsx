@@ -180,7 +180,7 @@ export default function PublicBreakdownReportPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-6 flex flex-col items-center gap-2">
           <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto" />
-          <div className="text-2xl font-bold" style={{ fontFamily: "'Sora', var(--font-sans)" }}>
+          <div className="text-2xl font-bold">
             <span className="text-white">Firmi</span>
             <span className="text-[#00C2FF]">Core</span>
           </div>

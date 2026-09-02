@@ -428,7 +428,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         {/* Header */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 font-[Sora]">{order.poNumber}</h2>
+            <h2 className="text-2xl font-bold text-gray-900">{order.poNumber}</h2>
             <p className="text-gray-600 mt-0.5">{order.supplierName}</p>
           </div>
           <div className="flex items-center gap-3">

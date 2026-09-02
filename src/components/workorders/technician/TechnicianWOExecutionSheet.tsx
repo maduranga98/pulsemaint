@@ -177,7 +177,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const elapsed = myStartTime ? now - myStartTime.toDate().getTime() : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" style={{ fontFamily: 'Sora, sans-serif' }}>
+    <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
       <div className="relative flex h-full w-full max-w-lg flex-col bg-[#0A1628] text-[#F0F4F8] shadow-2xl">
         {/* Header */}

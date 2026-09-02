@@ -36,7 +36,7 @@ export default function InventoryAnalyticsPage() {
     <div className="min-h-full bg-gray-50">
       <div className="px-4 py-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-gray-900 font-[Sora]">Inventory Analytics</h1>
+          <h1 className="text-xl font-bold text-gray-900">Inventory Analytics</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             Stock health, parts request reasons, movement, and supplier/PO activity over the selected period.
           </p>

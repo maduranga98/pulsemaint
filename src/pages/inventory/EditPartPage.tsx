@@ -237,7 +237,7 @@ export function EditPartPage() {
           <Link to={`/app/inventory/catalog/${part.id}`} className="text-gray-400 hover:text-gray-700">
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Edit Part</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Edit Part</h1>
           <span className="font-mono text-sm text-gray-500">{part.partNumber}</span>
         </div>
 

@@ -42,7 +42,7 @@ export function ShiftConfigPage() {
         </Link>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="font-[Sora] text-2xl font-bold text-slate-950">Shift Configuration</h1>
+            <h1 className=" text-2xl font-bold text-slate-950">Shift Configuration</h1>
             <p className="mt-1 text-sm text-slate-500">Define the shift plans your company runs and who works each one.</p>
           </div>
           <button
@@ -57,7 +57,7 @@ export function ShiftConfigPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-[Sora] text-sm font-bold text-slate-700">
+          <h2 className=" text-sm font-bold text-slate-700">
             {editing ? `Editing: ${editing.shiftName}` : 'Add New Shift'}
           </h2>
           {editing && (
@@ -78,7 +78,7 @@ export function ShiftConfigPage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-[Sora] text-sm font-bold text-slate-700">
+        <h2 className=" text-sm font-bold text-slate-700">
           Shift Plans{!loading && shifts.length > 0 ? ` (${shifts.length})` : ''}
         </h2>
         <div className="grid gap-3 lg:grid-cols-3">
@@ -93,7 +93,7 @@ export function ShiftConfigPage() {
               <article key={shift.id} className="flex flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="truncate font-[Sora] text-base font-bold text-slate-950">{shift.shiftName}</h3>
+                    <h3 className="truncate text-base font-bold text-slate-950">{shift.shiftName}</h3>
                     <p className="text-sm text-slate-500">{formatTimeRange(shift.startTime, shift.endTime)}</p>
                   </div>
                   <span className="h-5 w-5 shrink-0 rounded-full ring-1 ring-inset ring-slate-200" style={{ backgroundColor: shift.color }} />

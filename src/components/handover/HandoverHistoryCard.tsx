@@ -27,7 +27,7 @@ export function HandoverHistoryCard({ row }: HandoverHistoryCardProps) {
     <article className={`rounded-lg border p-4 shadow-sm ${isLate ? 'border-red-200 bg-red-50' : 'border-slate-200 bg-white'}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="font-[Sora] font-bold text-slate-950">{row.shiftName}</h3>
+          <h3 className=" font-bold text-slate-950">{row.shiftName}</h3>
           <p className="text-sm text-slate-500">
             {row.personName}
             {row.personRole && <span className="capitalize"> · {row.personRole.replace(/_/g, ' ')}</span>}

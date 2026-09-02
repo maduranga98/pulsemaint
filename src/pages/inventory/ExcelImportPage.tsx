@@ -396,7 +396,7 @@ export function ExcelImportPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Excel & CSV Import</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Excel & CSV Import</h1>
         <p className="text-gray-500 text-sm mt-0.5">Import or update inventory parts from a spreadsheet.</p>
       </div>
 

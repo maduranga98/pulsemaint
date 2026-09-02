@@ -138,7 +138,7 @@ export default function LoginPage() {
 
         <div className="relative flex items-center gap-3">
           <img src="/logo.svg" alt="FirmiCore" className="h-9 w-auto" />
-          <div className="text-xl font-bold" style={{ fontFamily: "'Sora', var(--font-sans)" }}>
+          <div className="text-xl font-bold">
             <span className="text-white">Firmi</span>
             <span className="text-[#00C2FF]">Core</span>
           </div>
@@ -153,7 +153,7 @@ export default function LoginPage() {
           <div className="flex flex-col gap-4">
             <h1
               className="text-4xl leading-tight max-w-lg"
-              style={{ color: '#ffffff', fontFamily: "'Sora', var(--font-sans)", fontWeight: 700, letterSpacing: '-0.01em' }}
+              style={{ color: '#ffffff', fontWeight: 700, letterSpacing: '-0.01em' }}
             >
               Turn breakdowns into<br />resolved work orders.
             </h1>
@@ -195,7 +195,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8 flex flex-col items-center gap-2 lg:hidden">
           <img src="/logo.svg" alt="FirmiCore" className="h-14 w-auto" />
-          <div className="text-2xl font-bold" style={{ fontFamily: "'Sora', var(--font-sans)" }}>
+          <div className="text-2xl font-bold">
             <span className="text-white">Firmi</span>
             <span className="text-[#00C2FF]">Core</span>
           </div>
@@ -204,7 +204,7 @@ export default function LoginPage() {
         <div className="flex flex-col gap-1 mb-6">
           <h2
             className="text-3xl"
-            style={{ color: '#ffffff', fontFamily: "'Sora', var(--font-sans)", fontWeight: 700 }}
+            style={{ color: '#ffffff', fontWeight: 700 }}
           >
             Sign In
           </h2>

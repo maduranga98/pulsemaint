@@ -34,7 +34,7 @@ export default function TriageFlowSettings({ flow, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-4 p-4 overflow-y-auto h-full">
-      <h3 className="font-semibold text-[#0A1628] text-lg font-['Sora']">Flow Settings</h3>
+      <h3 className="font-semibold text-[#0A1628] text-lg">Flow Settings</h3>
 
       <div>
         <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.flow_name')} *</label>

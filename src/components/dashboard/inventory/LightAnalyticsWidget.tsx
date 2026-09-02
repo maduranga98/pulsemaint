@@ -27,7 +27,7 @@ export default function LightAnalyticsWidget({
   return (
     <div className={`bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col h-full ${className}`}>
       <div className="px-5 py-4 border-b border-gray-100 min-h-[4.5rem] flex items-center">
-        <h3 className="text-base font-semibold text-gray-900 font-[Sora] leading-snug">{title}</h3>
+        <h3 className="text-base font-semibold text-gray-900 leading-snug">{title}</h3>
       </div>
       <div className="p-5">
         {loading && (

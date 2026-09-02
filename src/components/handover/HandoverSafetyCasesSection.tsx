@@ -24,7 +24,7 @@ export function HandoverSafetyCasesSection() {
 
   return (
     <section className="space-y-3">
-      <h2 className="font-[Sora] font-bold text-slate-950">Safety Cases Reported to You</h2>
+      <h2 className=" font-bold text-slate-950">Safety Cases Reported to You</h2>
       {loading ? (
         <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">Loading safety cases...</p>
       ) : mine.length === 0 ? (

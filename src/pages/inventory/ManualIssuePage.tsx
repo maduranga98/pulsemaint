@@ -314,7 +314,7 @@ export function ManualIssuePage() {
         <Link to="/app/inventory" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Scan &amp; Issue Parts</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Scan &amp; Issue Parts</h1>
       </div>
       <p className="text-sm text-gray-500">
         Scan a part QR code or search for it by name/number to issue it directly from stock — for

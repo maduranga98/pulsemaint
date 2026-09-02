@@ -73,7 +73,7 @@ export function PartDetailHeader({
 
       {/* Part name */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora] leading-tight">{part.name}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 leading-tight">{part.name}</h1>
         <div className="flex flex-wrap items-center gap-2 mt-1.5">
           {part.brand && <span className="text-sm text-gray-600">{part.brand}</span>}
           {part.brand && <span className="text-gray-300">·</span>}

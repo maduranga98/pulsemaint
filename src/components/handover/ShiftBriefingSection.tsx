@@ -13,7 +13,7 @@ export function ShiftBriefingSection({ title, count, children, defaultOpen = fal
   return (
     <section className="rounded-lg bg-white p-4 shadow-sm">
       <button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-12 w-full items-center justify-between gap-3 text-left">
-        <span className="font-[Sora] font-bold text-slate-950">{title} {typeof count === 'number' && <span className="text-slate-500">({count})</span>}</span>
+        <span className=" font-bold text-slate-950">{title} {typeof count === 'number' && <span className="text-slate-500">({count})</span>}</span>
         <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && <div className="mt-3 space-y-3">{children}</div>}

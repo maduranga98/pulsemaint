@@ -133,7 +133,7 @@ export function PurchaseOrdersPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">{t('common.inventory.po.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.po.title')}</h1>
         <div className="flex items-center gap-3">
           <Link
             to="/app/inventory/suppliers"

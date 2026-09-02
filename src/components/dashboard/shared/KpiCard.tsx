@@ -39,7 +39,7 @@ export default function KpiCard({ data, onClick }: KpiCardProps) {
         {data.label}
       </p>
       <div className="mt-2 flex items-baseline gap-1.5 flex-wrap">
-        <span className={`text-3xl font-bold ${colors.text} font-[Sora] leading-none`}>
+        <span className={`text-3xl font-bold ${colors.text} leading-none`}>
           {typeof data.value === 'number' ? data.value.toLocaleString() : data.value}
         </span>
         {data.unit && <span className="text-xs text-[#8BA3BF]">{data.unit}</span>}

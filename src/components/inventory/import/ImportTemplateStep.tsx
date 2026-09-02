@@ -34,7 +34,7 @@ export function ImportTemplateStep({ onDownload, onNext }: ImportTemplateStepPro
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 font-[Sora]">Import Inventory from Excel or CSV</h2>
+        <h2 className="text-2xl font-bold text-gray-900">Import Inventory from Excel or CSV</h2>
         <p className="text-gray-500 mt-1 text-sm">
           Use our template to import or update parts in bulk.
         </p>

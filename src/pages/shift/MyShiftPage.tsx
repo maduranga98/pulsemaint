@@ -137,7 +137,7 @@ export function MyShiftPage() {
   return (
     <div className="space-y-5 p-4 lg:p-6">
       <div>
-        <h1 className="font-[Sora] text-2xl font-bold text-slate-950">My Shift</h1>
+        <h1 className=" text-2xl font-bold text-slate-950">My Shift</h1>
         <p className="mt-1 text-sm text-slate-500">Your shift plans, current shift, and worked hours.</p>
       </div>
 
@@ -145,11 +145,11 @@ export function MyShiftPage() {
 
       {/* Current / active shift */}
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="font-[Sora] text-sm font-bold text-slate-700">Current Shift</h2>
+        <h2 className=" text-sm font-bold text-slate-700">Current Shift</h2>
         {isShiftActive && activeSession ? (
           <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-[Sora] text-lg font-bold text-slate-950">{activeSession.shiftName}</p>
+              <p className=" text-lg font-bold text-slate-950">{activeSession.shiftName}</p>
               <p className="text-sm text-slate-500">
                 Scheduled {formatTimeRange(activeSession.scheduledStart, activeSession.scheduledEnd)} · Started {activeSession.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -175,7 +175,7 @@ export function MyShiftPage() {
         ) : currentPlan ? (
           <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-[Sora] text-lg font-bold text-slate-950">{currentPlan.shiftName}</p>
+              <p className=" text-lg font-bold text-slate-950">{currentPlan.shiftName}</p>
               <p className="text-sm text-slate-500">{formatTimeRange(currentPlan.startTime, currentPlan.endTime)} · happening now</p>
             </div>
             <button
@@ -198,7 +198,7 @@ export function MyShiftPage() {
 
       {/* Available shift plans */}
       <section>
-        <h2 className="mb-3 flex items-center gap-2 font-[Sora] text-sm font-bold text-slate-700"><CalendarDays className="h-4 w-4" /> My Shift Plans</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700"><CalendarDays className="h-4 w-4" /> My Shift Plans</h2>
         {loading ? (
           <p className="text-sm text-slate-500">Loading shift plans…</p>
         ) : activePlans.length === 0 ? (
@@ -213,7 +213,7 @@ export function MyShiftPage() {
               <article key={plan.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-[Sora] font-bold text-slate-950">{plan.shiftName}</h3>
+                    <h3 className=" font-bold text-slate-950">{plan.shiftName}</h3>
                     <p className="text-sm text-slate-500">{formatTimeRange(plan.startTime, plan.endTime)} · {formatDuration(scheduledShiftMinutes(plan.startTime, plan.endTime) * 60000)}</p>
                   </div>
                   <span className="h-4 w-4 rounded-full" style={{ backgroundColor: plan.color }} />
@@ -241,7 +241,7 @@ export function MyShiftPage() {
 
       {/* Recent worked shifts */}
       <section>
-        <h2 className="mb-3 flex items-center gap-2 font-[Sora] text-sm font-bold text-slate-700"><TrendingUp className="h-4 w-4" /> Recent Shifts</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700"><TrendingUp className="h-4 w-4" /> Recent Shifts</h2>
         {recent.filter((session) => session.status === 'completed').length === 0 ? (
           <p className="text-sm text-slate-500">No completed shifts yet.</p>
         ) : (
@@ -252,7 +252,7 @@ export function MyShiftPage() {
             <div className="grid gap-3 lg:hidden">
               {recent.filter((session) => session.status === 'completed').map((session) => (
                 <article key={session.id} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                  <p className="font-[Sora] font-bold text-slate-950">{session.shiftName}</p>
+                  <p className=" font-bold text-slate-950">{session.shiftName}</p>
                   <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                     <div>
                       <dt className="text-xs font-semibold text-slate-500">Started</dt>

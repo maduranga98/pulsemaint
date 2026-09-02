@@ -32,7 +32,7 @@ export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToH
       <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-5 shadow-xl">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="font-[Sora] text-lg font-bold text-white">Shift Ended</h2>
+            <h2 className=" text-lg font-bold text-white">Shift Ended</h2>
             <p className="mt-1 text-sm text-slate-300">{session.shiftName} · {session.shiftDate}</p>
           </div>
           <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-md text-slate-400 hover:text-white" aria-label="Close">
@@ -43,11 +43,11 @@ export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToH
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-cyan-300"><Clock className="h-4 w-4" /> Total Hours</div>
-            <p className="mt-1 font-[Sora] text-2xl font-bold text-cyan-100">{formatDuration(totalMinutes * 60000)}</p>
+            <p className="mt-1 text-2xl font-bold text-cyan-100">{formatDuration(totalMinutes * 60000)}</p>
           </div>
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
             <div className="flex items-center gap-2 text-xs font-semibold text-amber-300"><TrendingUp className="h-4 w-4" /> Overtime</div>
-            <p className="mt-1 font-[Sora] text-2xl font-bold text-amber-100">{otMinutes > 0 ? formatDuration(otMinutes * 60000) : 'None'}</p>
+            <p className="mt-1 text-2xl font-bold text-amber-100">{otMinutes > 0 ? formatDuration(otMinutes * 60000) : 'None'}</p>
           </div>
         </div>
 

@@ -55,7 +55,7 @@ export default function PersonalKpiCards({ technicianId }: PersonalKpiCardsProps
           className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-4 hover:border-[#2E5A8F] transition-colors"
         >
           <div className={`${card.color} mb-2`}>{card.icon}</div>
-          <p className="text-xl font-bold text-[#F0F4F8] font-[Sora]">{card.value}</p>
+          <p className="text-xl font-bold text-[#F0F4F8]">{card.value}</p>
           <p className="text-[11px] text-[#8BA3BF] mt-0.5">{card.label}</p>
         </div>
       ))}

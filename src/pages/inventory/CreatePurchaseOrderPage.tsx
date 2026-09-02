@@ -16,7 +16,7 @@ export function CreatePurchaseOrderPage() {
         <Link to="/app/inventory/purchase-orders" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Create Purchase Order</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Create Purchase Order</h1>
       </div>
       <PurchaseOrderForm onSave={handleSave} />
     </div>

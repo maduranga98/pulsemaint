@@ -21,7 +21,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
 
   return (
     <div className="flex flex-col gap-4 p-4 overflow-y-auto h-full">
-      <h3 className="font-semibold text-[#0A1628] text-lg font-['Sora']">
+      <h3 className="font-semibold text-[#0A1628] text-lg">
         Edit Step #{step.stepNumber}
       </h3>
 

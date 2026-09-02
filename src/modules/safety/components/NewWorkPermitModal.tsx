@@ -165,7 +165,7 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center">
       <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] p-5 shadow-xl">
         <div className="flex items-start justify-between">
-          <h2 className="font-[Sora] text-lg font-bold text-[#F0F4F8]">New Work Permit</h2>
+          <h2 className=" text-lg font-bold text-[#F0F4F8]">New Work Permit</h2>
           <button type="button" onClick={onClose} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
             <X className="h-5 w-5" />
           </button>

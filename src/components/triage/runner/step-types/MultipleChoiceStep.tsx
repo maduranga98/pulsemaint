@@ -12,7 +12,7 @@ export default function MultipleChoiceStep({ step, language, onSelect }: Props) 
 
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-[22px] font-bold font-['Sora'] text-[#0A1628]">{title}</h2>
+      <h2 className="text-[22px] font-bold text-[#0A1628]">{title}</h2>
       <p className="text-[20px] leading-relaxed text-gray-700">{instruction}</p>
       <div className="flex flex-col gap-3 mt-4">
         {step.options.map((opt) => (

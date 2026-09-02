@@ -42,7 +42,7 @@ export default function ActiveJobCard({ workOrder, onOpen, onRequestParts }: Act
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs text-[#8BA3BF] uppercase tracking-wide">{t('common.widgets.activeJobCard.currentJob')}</p>
-          <p className="text-lg font-bold text-[#F0F4F8] font-[Sora] mt-1">{workOrder.woNumber}</p>
+          <p className="text-lg font-bold text-[#F0F4F8] mt-1">{workOrder.woNumber}</p>
           <p className="text-sm text-[#8BA3BF] mt-0.5">{workOrder.machineName} · {workOrder.machineLocation}</p>
         </div>
         <div className="text-right">

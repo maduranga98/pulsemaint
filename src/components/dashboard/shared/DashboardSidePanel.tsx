@@ -28,7 +28,7 @@ export default function DashboardSidePanel() {
         `}
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#1E3A5F]">
-          <h3 className="text-base font-semibold text-[#F0F4F8] font-[Sora] capitalize">
+          <h3 className="text-base font-semibold text-[#F0F4F8] capitalize">
             {sidePanel.type ? sidePanel.type.replace('_', ' ') : ''} Detail
           </h3>
           <button

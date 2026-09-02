@@ -19,7 +19,7 @@ export function WatchFlagCard({ flag, onResolve }: WatchFlagCardProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-[Sora] font-semibold text-slate-950">{flag.machineName}</h3>
+            <h3 className=" font-semibold text-slate-950">{flag.machineName}</h3>
             <WatchFlagBadge level={flag.watchLevel} />
             {flag.status === 'carried_forward' && <span className="text-xs font-semibold text-amber-700">Carried Forward</span>}
           </div>

@@ -30,7 +30,7 @@ export function PartReturnsPage() {
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora] flex items-center gap-2">
+        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Undo2 className="w-6 h-6 text-purple-600" />
           Parts Returns
         </h1>

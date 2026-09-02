@@ -52,7 +52,7 @@ export default function SlaGaugeWidget({}: SlaGaugeWidgetProps) {
           </div>
 
           <div className="text-center -mt-4">
-            <span className="text-3xl font-bold text-[#F0F4F8] font-[Sora]">{Math.round(rate)}%</span>
+            <span className="text-3xl font-bold text-[#F0F4F8]">{Math.round(rate)}%</span>
           </div>
 
           <div className="w-full mt-3 pt-3 border-t border-[#1E3A5F]/50 space-y-1 text-xs">

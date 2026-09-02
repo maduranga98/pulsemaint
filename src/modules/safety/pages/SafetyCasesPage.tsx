@@ -79,7 +79,7 @@ export default function SafetyCasesPage() {
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="flex items-center gap-2 font-[Sora] text-xl font-bold text-[#F0F4F8]">
+        <h1 className="flex items-center gap-2 text-xl font-bold text-[#F0F4F8]">
           <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {heading}
         </h1>
         <p className="mt-0.5 text-sm text-[#8BA3BF]">{subtitle}</p>

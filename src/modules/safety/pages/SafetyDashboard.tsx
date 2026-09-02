@@ -27,7 +27,7 @@ export default function SafetyDashboard() {
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
         <div>
-          <h1 className="flex items-center gap-2 font-[Sora] text-xl font-bold text-[#F0F4F8]">
+          <h1 className="flex items-center gap-2 text-xl font-bold text-[#F0F4F8]">
             <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Dashboard
           </h1>
           <p className="mt-0.5 text-sm text-[#8BA3BF]">Good {greeting()}, {firstName}</p>

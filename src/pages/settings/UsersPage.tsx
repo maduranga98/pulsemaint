@@ -386,7 +386,7 @@ export default function UsersPage() {
     <div className="min-h-full">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#1E3A5F] mb-5">
         <div>
-          <h1 className="text-[20px] font-semibold tracking-tight text-[#F0F4F8] font-[Sora]">Team Management</h1>
+          <h1 className="text-[20px] font-semibold tracking-tight text-[#F0F4F8]">Team Management</h1>
           <p className="text-[13px] text-[#8BA3BF] mt-0.5">
             {users.length} team {users.length === 1 ? 'member' : 'members'} in {company?.name || 'your company'}
           </p>

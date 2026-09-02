@@ -36,7 +36,7 @@ export function ImportHistoryPage() {
         <Link to="/app/inventory/import" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 font-[Sora]">Import History</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Import History</h1>
       </div>
 
       {error && (

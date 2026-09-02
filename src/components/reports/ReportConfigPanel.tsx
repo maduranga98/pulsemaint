@@ -39,7 +39,7 @@ export default function ReportConfigPanel() {
         <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-[#1E3A5F] sm:hidden" />
         <header className="flex items-start justify-between gap-3 border-b border-[#1E3A5F] p-5">
           <div>
-            <h2 className="font-[Sora] text-lg font-bold text-[#F0F4F8]">{report.name}</h2>
+            <h2 className=" text-lg font-bold text-[#F0F4F8]">{report.name}</h2>
             <p className="mt-1 text-sm text-[#8BA3BF]">Estimated generation: {report.estimatedGenerationSecs}s</p>
           </div>
           <button type="button" onClick={close} className="flex h-11 w-11 items-center justify-center rounded-lg text-[#8BA3BF] hover:bg-[#0A1628] hover:text-[#F0F4F8]" aria-label="Close report panel">
@@ -50,7 +50,7 @@ export default function ReportConfigPanel() {
         <div className="flex-1 space-y-5 overflow-y-auto p-5">
           {report.supportsDateRange === false ? (
             <section className="space-y-1 border-b border-[#1E3A5F] pb-5">
-              <h3 className="font-[Sora] text-sm font-semibold text-[#F0F4F8]">Date Range</h3>
+              <h3 className=" text-sm font-semibold text-[#F0F4F8]">Date Range</h3>
               <p className="text-xs text-[#8BA3BF]">
                 This report reflects current data, not a date window — the date range filter doesn't apply here.
               </p>

@@ -22,7 +22,7 @@ function WOCardItem({ wo, onClick }: { wo: WorkOrder; onClick: () => void }) {
       className="w-full rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-4 text-left transition-colors hover:border-[#00C2FF]"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="font-bold text-[#F0F4F8] font-[Sora]">{wo.woNumber}</p>
+        <p className="font-bold text-[#F0F4F8]">{wo.woNumber}</p>
         <WOStatusBadge status={wo.status} size="sm" />
       </div>
       <p className="mt-1 text-sm text-[#F0F4F8]">{wo.machineName}</p>
@@ -81,7 +81,7 @@ export default function MyWorkOrdersPage() {
   );
 
   return (
-    <div className="min-h-full bg-[#0A1628] p-4 sm:p-6" style={{ fontFamily: 'Sora, sans-serif' }}>
+    <div className="min-h-full bg-[#0A1628] p-4 sm:p-6">
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center gap-2">
           <Wrench className="h-6 w-6 text-[#00C2FF]" />
