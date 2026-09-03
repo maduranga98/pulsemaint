@@ -135,7 +135,7 @@ export default function NotificationBell() {
         // `position: fixed` escapes ancestor overflow/scroll clipping
         // entirely, anchoring purely to the viewport.
         <div
-          className="fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto bg-white rounded-xl shadow-xl border border-slate-200 z-50"
+          className="fixed left-2 right-2 top-16 sm:left-auto sm:w-80 max-h-[calc(100vh-4.5rem)] sm:max-h-[28rem] overflow-y-auto scrollbar-hide bg-white rounded-xl shadow-xl border border-slate-200 z-50"
           style={isDesktop ? desktopStyle : undefined}
         >
           <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between gap-2">
@@ -202,7 +202,6 @@ export default function NotificationBell() {
                           </p>
                           <p className="text-xs text-slate-400 mt-0.5">{relativeTime(n.timestamp)}</p>
                         </div>
-                        <span className="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0" />
                       </button>
                     );
                   })}

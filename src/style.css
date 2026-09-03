@@ -92,6 +92,18 @@ a {
   text-decoration: none;
 }
 
+/* `scrollbar-hide` is referenced across the app (sidebar nav, header action
+ * row, main content area) to scroll without a visible scrollbar track/thumb,
+ * but no Tailwind plugin ever defined it — this is that definition. */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
