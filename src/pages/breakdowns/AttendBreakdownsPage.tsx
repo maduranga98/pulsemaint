@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
+import { VoiceDictationButton } from '../../components/ui';
 
 const SEVERITIES: { value: BreakdownSeverity; label: string; color: string }[] = [
   { value: 'critical', label: 'Critical — production halted', color: 'bg-red-600 text-white' },
@@ -278,13 +279,22 @@ export default function AttendBreakdownsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">What happened? (technician/trainee findings)</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-slate-700">What happened? (technician/trainee findings)</label>
+              <VoiceDictationButton
+                disabled={saving}
+                className="w-8 h-8"
+                onTranscript={(text) =>
+                  setTechnicianFindings((prev) => (prev ? `${prev} ${text}` : text))
+                }
+              />
+            </div>
             <textarea
               value={technicianFindings}
               onChange={(e) => setTechnicianFindings(e.target.value)}
               disabled={saving}
               rows={3}
-              placeholder="Your own account of what happened, separate from the reporter's description"
+              placeholder="Your own account of what happened, separate from the reporter's description. Or tap the mic and tell us."
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
