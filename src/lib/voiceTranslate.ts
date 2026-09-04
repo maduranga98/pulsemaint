@@ -76,3 +76,60 @@ export async function translateSpokenText(
     return text;
   }
 }
+
+// In-memory + sessionStorage cache for display-time translation, keyed by
+// the exact text and target language — the same breakdown description gets
+// rendered on every viewer's screen (detail card, list row, ...) and on
+// every re-render, so without caching it would re-call Gemini each time.
+const displayCache = new Map<string, string>();
+
+function displayCacheKey(text: string, targetLanguage: AppLanguage): string {
+  return `${targetLanguage}::${text}`;
+}
+
+function readDisplayCache(key: string): string | undefined {
+  const hit = displayCache.get(key);
+  if (hit !== undefined) return hit;
+  try {
+    const stored = sessionStorage.getItem(`pm.translateCache:${key}`);
+    if (stored !== null) {
+      displayCache.set(key, stored);
+      return stored;
+    }
+  } catch {
+    // ignore — cache is a perf optimization, not a requirement.
+  }
+  return undefined;
+}
+
+function writeDisplayCache(key: string, value: string): void {
+  displayCache.set(key, value);
+  try {
+    sessionStorage.setItem(`pm.translateCache:${key}`, value);
+  } catch {
+    // ignore — sessionStorage full/unavailable, in-memory cache still helps.
+  }
+}
+
+/**
+ * Translates arbitrary already-stored text (a breakdown "what happened"
+ * description, technician findings, etc. — whatever language it was
+ * originally entered or dictated in) into `targetLanguage` for display,
+ * i.e. whichever language the *viewer* currently has selected in the app —
+ * not the language the reporter had selected when they submitted it.
+ * Results are cached per (text, targetLanguage) pair so re-rendering the
+ * same record doesn't re-call the translation API. Falls back to the
+ * original text when no Gemini key is configured or the call fails.
+ */
+export async function translateForDisplay(text: string, targetLanguage: AppLanguage): Promise<string> {
+  const trimmed = text.trim();
+  if (!trimmed || !hasGeminiKey()) return text;
+
+  const key = displayCacheKey(trimmed, targetLanguage);
+  const cached = readDisplayCache(key);
+  if (cached !== undefined) return cached;
+
+  const translated = await translateSpokenText(trimmed, targetLanguage);
+  writeDisplayCache(key, translated);
+  return translated;
+}
