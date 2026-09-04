@@ -7,3 +7,4 @@ export { Skeleton, SkeletonList } from './Skeleton';
 export { SegmentedControl } from './SegmentedControl';
 export { CancelReasonModal } from './CancelReasonModal';
 export type { CancelReasonResult } from './CancelReasonModal';
+export { VoiceDictationButton } from './VoiceDictationButton';

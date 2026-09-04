@@ -8,6 +8,7 @@ import { useAuthStore } from '../../store/authStore';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
 import { notifyRoles } from '../../services/notifications.service';
 import { formatMachineLocation } from '../../lib/machineLocation';
+import { VoiceDictationButton } from '../../components/ui';
 
 interface MachineOption {
   id: string;
@@ -298,15 +299,24 @@ export default function ReportBreakdownPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              What happened? *
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-slate-700">
+                What happened? *
+              </label>
+              <VoiceDictationButton
+                disabled={submitting}
+                className="w-8 h-8"
+                onTranscript={(text) =>
+                  setDescription((prev) => (prev ? `${prev} ${text}` : text))
+                }
+              />
+            </div>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               disabled={submitting}
-              placeholder="Describe the symptoms, error codes, sounds, etc."
+              placeholder="Describe the symptoms, error codes, sounds, etc. Or tap the mic and tell us what happened."
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
