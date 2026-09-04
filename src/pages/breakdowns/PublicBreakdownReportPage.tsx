@@ -18,6 +18,46 @@ interface MachineInfo {
   siteId: string;
 }
 
+// Guards against the same blank report form reappearing (and inviting a
+// duplicate report) if this page gets reloaded right after a successful
+// submit — e.g. the phone's camera/QR app resumes the webview and reloads
+// the URL, or the user taps the same QR code again moments later. The last
+// ticket filed for a given machine is remembered for a short window so a
+// reload shows the confirmation instead of a fresh empty form.
+const LAST_TICKET_TTL_MS = 15 * 60 * 1000;
+
+function lastTicketStorageKey(machineId: string): string {
+  return `pm.lastBreakdownTicket:${machineId}`;
+}
+
+function readRecentTicket(machineId: string): string | null {
+  try {
+    const raw = sessionStorage.getItem(lastTicketStorageKey(machineId));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { ticketNumber: string; ts: number };
+    if (!parsed?.ticketNumber || Date.now() - parsed.ts > LAST_TICKET_TTL_MS) return null;
+    return parsed.ticketNumber;
+  } catch {
+    return null;
+  }
+}
+
+function saveRecentTicket(machineId: string, ticketNumber: string): void {
+  try {
+    sessionStorage.setItem(lastTicketStorageKey(machineId), JSON.stringify({ ticketNumber, ts: Date.now() }));
+  } catch {
+    // Storage unavailable — the confirmation still shows for this page load.
+  }
+}
+
+function clearRecentTicket(machineId: string): void {
+  try {
+    sessionStorage.removeItem(lastTicketStorageKey(machineId));
+  } catch {
+    // ignore
+  }
+}
+
 /**
  * Public, unauthenticated breakdown report — reached by scanning a machine's
  * QR code (or the "Report a breakdown" link on the login page). No sign-in
@@ -42,7 +82,9 @@ export default function PublicBreakdownReportPage() {
   const [machineStillRunning, setMachineStillRunning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [ticketNumber, setTicketNumber] = useState<string | null>(null);
+  const [ticketNumber, setTicketNumber] = useState<string | null>(() =>
+    machineId ? readRecentTicket(machineId) : null
+  );
 
   // Whether *this page* created the anonymous session — only that session
   // is ours to sign back out of. Firebase only allows one active user per
@@ -169,6 +211,7 @@ export default function PublicBreakdownReportPage() {
         slaDeadline: null,
       });
       setTicketNumber(number);
+      saveRecentTicket(machine.id, number);
     } catch (err: any) {
       setError(err?.message || 'Failed to submit breakdown report.');
     } finally {
@@ -195,6 +238,19 @@ export default function PublicBreakdownReportPage() {
               <p className="text-lg font-semibold text-slate-900">Breakdown reported</p>
               <p className="text-sm text-slate-500">Ticket <span className="font-mono font-medium">{ticketNumber}</span> has been sent to the maintenance team.</p>
               <p className="text-xs text-slate-400 mt-2">You can close this page.</p>
+              <button
+                type="button"
+                onClick={() => {
+                  if (machineId) clearRecentTicket(machineId);
+                  setTicketNumber(null);
+                  setDescription('');
+                  setMachineStillRunning(false);
+                  setError(null);
+                }}
+                className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium hover:underline"
+              >
+                Report another breakdown on this machine
+              </button>
             </div>
           ) : loadingMachine && loadTimedOut ? (
             <div className="text-center py-4">
