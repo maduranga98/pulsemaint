@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Mic, Square } from 'lucide-react';
+import { Mic, Square, Loader2 } from 'lucide-react';
+import i18n from '../../lib/i18n';
+import type { AppLanguage } from '../../lib/i18n';
+import { translateSpokenText } from '../../lib/voiceTranslate';
 
 // Minimal shape of the Web Speech API's SpeechRecognition, which lacks
 // official TypeScript lib types and is vendor-prefixed in some browsers.
@@ -31,21 +34,31 @@ function getSpeechRecognitionCtor(): (new () => SpeechRecognitionLike) | null {
 }
 
 interface VoiceDictationButtonProps {
-  /** Called with the appended transcript text each time speech is finalized. */
+  /** Called with the translated (or raw, if translation is unavailable) text each time speech is finalized. */
   onTranscript: (text: string) => void;
   disabled?: boolean;
   className?: string;
+  /**
+   * Speech recognition locale — defaults to the device/browser's own
+   * language so the speaker can talk in whatever language they naturally
+   * use. The transcript is then auto-translated into the app's currently
+   * selected display language (see src/lib/i18n.ts) before being handed
+   * to onTranscript, so the "what happened" field always ends up in the
+   * language the app is set to, regardless of what language was spoken.
+   */
   lang?: string;
 }
 
 /**
- * Tap-to-talk mic button. Appends recognized speech to whatever field it's
- * paired with by calling onTranscript as final results come in, so callers
- * just do setValue(prev => prev + text).
+ * Tap-to-talk mic button. Listens in the speaker's own language, then
+ * translates the recognized speech into the app's active UI language
+ * (via Gemini) and appends it to whatever field it's paired with by
+ * calling onTranscript, so callers just do setValue(prev => prev + text).
  */
-export function VoiceDictationButton({ onTranscript, disabled, className = '', lang = 'en-US' }: VoiceDictationButtonProps) {
+export function VoiceDictationButton({ onTranscript, disabled, className = '', lang }: VoiceDictationButtonProps) {
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   useEffect(() => {
@@ -70,7 +83,10 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '', l
     const recognition = new Ctor();
     recognition.continuous = true;
     recognition.interimResults = false;
-    recognition.lang = lang;
+    // Let the browser recognize the speaker's own spoken language by
+    // default (their device/browser locale) rather than forcing English —
+    // translation into the app's display language happens afterward.
+    recognition.lang = lang ?? navigator.language ?? 'en-US';
 
     recognition.onresult = (event) => {
       let finalText = '';
@@ -80,9 +96,14 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '', l
           finalText += result[0].transcript;
         }
       }
-      if (finalText.trim()) {
-        onTranscript(finalText.trim());
-      }
+      const spoken = finalText.trim();
+      if (!spoken) return;
+
+      const targetLanguage = i18n.language as AppLanguage;
+      setTranslating(true);
+      translateSpokenText(spoken, targetLanguage)
+        .then((translated) => onTranscript(translated))
+        .finally(() => setTranslating(false));
     };
     recognition.onerror = () => {
       setListening(false);
@@ -103,8 +124,8 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '', l
     <button
       type="button"
       onClick={listening ? stop : start}
-      disabled={disabled}
-      title={listening ? 'Stop recording' : 'Tap to speak'}
+      disabled={disabled || translating}
+      title={listening ? 'Stop recording' : translating ? 'Translating…' : 'Tap to speak — say it in any language'}
       aria-pressed={listening}
       className={`inline-flex items-center justify-center rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
         listening
@@ -112,7 +133,13 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '', l
           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
       } ${className}`}
     >
-      {listening ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+      {listening ? (
+        <Square className="w-4 h-4" />
+      ) : translating ? (
+        <Loader2 className="w-4 h-4 animate-spin" />
+      ) : (
+        <Mic className="w-4 h-4" />
+      )}
     </button>
   );
 }
