@@ -11,6 +11,7 @@ import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { AssignTechnicianModal } from '../../components/breakdowns/AssignTechnicianModal';
 import { CreateWODrawer } from '../../components/workorders/CreateWODrawer';
 import { markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
+import { TranslatedText } from '../../components/ui';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 import type { WorkOrder } from '../../types/workOrder';
 
@@ -900,13 +901,13 @@ function MergedField({ tickets, get }: { tickets: Breakdown[]; get: (t: Breakdow
     if (existing) existing.ticketNumbers.push(e.ticketNumber);
     else deduped.push({ ticketNumbers: [e.ticketNumber], value: e.value! });
   }
-  if (deduped.length === 1) return <p className="text-slate-800">{deduped[0].value}</p>;
+  if (deduped.length === 1) return <TranslatedText as="p" className="text-slate-800" text={deduped[0].value} />;
   return (
     <ul className="space-y-1">
       {deduped.map((e, i) => (
         <li key={i} className="text-slate-800">
           <span className="text-slate-400 text-xs font-medium mr-1">{e.ticketNumbers.join(', ')}:</span>
-          {e.value}
+          <TranslatedText text={e.value} />
         </li>
       ))}
     </ul>

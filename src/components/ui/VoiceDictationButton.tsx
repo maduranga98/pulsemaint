@@ -1,8 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Mic, Square, Loader2 } from 'lucide-react';
-import i18n from '../../lib/i18n';
-import type { AppLanguage } from '../../lib/i18n';
-import { translateSpokenText } from '../../lib/voiceTranslate';
+import { Mic, Square } from 'lucide-react';
 
 // Minimal shape of the Web Speech API's SpeechRecognition, which lacks
 // official TypeScript lib types and is vendor-prefixed in some browsers.
@@ -67,7 +64,7 @@ function getStoredVoiceLang(): string {
 }
 
 interface VoiceDictationButtonProps {
-  /** Called with the translated (or raw, if translation is unavailable) text each time speech is finalized. */
+  /** Called with the raw recognized transcript each time speech is finalized. */
   onTranscript: (text: string) => void;
   disabled?: boolean;
   className?: string;
@@ -75,15 +72,20 @@ interface VoiceDictationButtonProps {
 
 /**
  * Tap-to-talk mic button with a spoken-language picker. Recognizes speech
- * in whichever language the speaker selects (Sinhala, Tamil, English, etc.),
- * then translates the recognized speech into the app's active UI language
- * (via Gemini) and appends it to whatever field it's paired with by
+ * in whichever language the speaker selects (Sinhala, Tamil, English, etc.)
+ * and appends the raw transcript to whatever field it's paired with by
  * calling onTranscript, so callers just do setValue(prev => prev + text).
+ *
+ * Translation happens later, at display time (see TranslatedText /
+ * translateForDisplay), into whichever language the *viewer* currently has
+ * selected — not baked in here to the reporter's own language. That keeps
+ * the record in its original spoken language and avoids a lossy
+ * double-translation (spoken language → reporter's language → viewer's
+ * language) when the reporter and viewer use different languages.
  */
 export function VoiceDictationButton({ onTranscript, disabled, className = '' }: VoiceDictationButtonProps) {
   const [supported, setSupported] = useState(true);
   const [listening, setListening] = useState(false);
-  const [translating, setTranslating] = useState(false);
   const [voiceLang, setVoiceLang] = useState(getStoredVoiceLang);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
@@ -121,12 +123,7 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
       }
       const spoken = finalText.trim();
       if (!spoken) return;
-
-      const targetLanguage = i18n.language as AppLanguage;
-      setTranslating(true);
-      translateSpokenText(spoken, targetLanguage, voiceLang)
-        .then((translated) => onTranscript(translated))
-        .finally(() => setTranslating(false));
+      onTranscript(spoken);
     };
     recognition.onerror = () => {
       setListening(false);
@@ -157,7 +154,7 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
       <select
         value={voiceLang}
         onChange={(e) => handleLangChange(e.target.value)}
-        disabled={disabled || listening || translating}
+        disabled={disabled || listening}
         title="Language you'll speak in"
         aria-label="Language you'll speak in"
         className="text-xs px-1.5 py-1 border border-slate-200 rounded-lg bg-white text-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -171,8 +168,8 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
       <button
         type="button"
         onClick={listening ? stop : start}
-        disabled={disabled || translating}
-        title={listening ? 'Stop recording' : translating ? 'Translating…' : 'Tap to speak'}
+        disabled={disabled}
+        title={listening ? 'Stop recording' : 'Tap to speak'}
         aria-pressed={listening}
         className={`inline-flex items-center justify-center rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
           listening
@@ -180,13 +177,7 @@ export function VoiceDictationButton({ onTranscript, disabled, className = '' }:
             : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
         } ${className}`}
       >
-        {listening ? (
-          <Square className="w-4 h-4" />
-        ) : translating ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
-        ) : (
-          <Mic className="w-4 h-4" />
-        )}
+        {listening ? <Square className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
       </button>
     </div>
   );

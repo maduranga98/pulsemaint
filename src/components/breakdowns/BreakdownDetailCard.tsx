@@ -1,4 +1,5 @@
 import type { Breakdown, BreakdownStatus } from '../../types/breakdown';
+import { TranslatedText } from '../ui';
 
 const ROLE_LABELS: Record<string, string> = {
   technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
@@ -123,20 +124,20 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
 
         <div>
           <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened</p>
-          <p className="text-slate-800 text-sm">{b.description || ''}</p>
+          <TranslatedText as="p" className="text-slate-800 text-sm" text={b.description || ''} />
         </div>
 
         {b.productionImpact && (
           <div>
             <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Production Impact</p>
-            <p className="text-slate-800 text-sm">{b.productionImpact}</p>
+            <TranslatedText as="p" className="text-slate-800 text-sm" text={b.productionImpact} />
           </div>
         )}
 
         {b.attemptedFixes && (
           <div>
             <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attempted Fixes</p>
-            <p className="text-slate-800 text-sm">{b.attemptedFixes}</p>
+            <TranslatedText as="p" className="text-slate-800 text-sm" text={b.attemptedFixes} />
           </div>
         )}
 
