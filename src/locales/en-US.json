@@ -1135,6 +1135,192 @@
         "workDone": "Work Done",
         "partsUsed": "Parts Used",
         "signedOff": "Signed Off"
+      },
+      "detailCard": {
+        "machine": "Machine",
+        "machineStillRunning": "Machine still running (degraded)",
+        "machineStopped": "Machine stopped"
+      },
+      "reportPage": {
+        "back": "Back",
+        "title": "Report a Breakdown",
+        "subtitle": "Fast-track a machine breakdown to your maintenance team. A technician will assess severity and type once they attend.",
+        "profileTimedOut": "Your account details are taking longer than usual to load. Check your connection and try again.",
+        "retry": "Retry",
+        "machineLabel": "Machine *",
+        "machineLockedPrefix": "Machine selected via QR scan:",
+        "machinesTimedOut": "Machine list is taking longer than usual to load.",
+        "loadingMachines": "Loading machines…",
+        "noMachines": "No machines yet — add one first",
+        "selectMachine": "Select a machine",
+        "whatHappenedLabel": "What happened? *",
+        "whatHappenedPlaceholder": "Describe the symptoms, error codes, sounds, etc. Or tap the mic and tell us what happened.",
+        "productionImpactLabel": "Production impact",
+        "productionImpactPlaceholder": "e.g., Line 2 stopped, ~500 units/hr lost",
+        "productionCountLabel": "Current production count when stopped",
+        "stillRunningLabel": "Machine is still running (degraded but operational)",
+        "cancel": "Cancel",
+        "submitting": "Submitting…",
+        "submit": "Submit Breakdown",
+        "errors": {
+          "profileNotLoaded": "Your account is not fully loaded yet. Try again in a moment.",
+          "selectMachine": "Please select the machine that broke down.",
+          "descriptionTooShort": "Please describe the breakdown in at least 10 characters.",
+          "machineNotFound": "Selected machine not found.",
+          "submitFailed": "Failed to report breakdown."
+        }
+      },
+      "attendPage": {
+        "back": "Back",
+        "titleSingular": "Attend Breakdown",
+        "titlePlural": "Attend Breakdowns",
+        "subtitle_one": "{{machineName}} — {{count}} ticket: {{tickets}}",
+        "subtitle_other": "{{machineName}} — {{count}} tickets: {{tickets}}",
+        "loading": "Loading…",
+        "backToBreakdowns": "Back to Breakdowns",
+        "notYetAssigned": "These breakdowns haven't been assigned yet.",
+        "assignFirst": "Assign or attend them from the Breakdowns list first.",
+        "noBreakdownsSpecified": "No breakdowns specified.",
+        "reportedDetailsSingular": "Reported details",
+        "reportedDetailsPlural": "Reported details for each ticket",
+        "assessmentSingular": "Your assessment",
+        "assessmentPlural": "Your assessment — applies to all tickets above",
+        "stillRunning": "Still running (degraded)",
+        "stopped": "Stopped",
+        "whatHappenedLabel": "What happened?",
+        "productionImpactLabel": "Production impact",
+        "productionCountLabel": "Current production count when stopped",
+        "severityLabel": "Severity *",
+        "typeLabel": "Type *",
+        "attemptedFixesLabel": "Attempted fixes",
+        "technicianFindingsLabel": "What happened? (technician/trainee findings)",
+        "technicianFindingsPlaceholder": "Your own account of what happened, separate from the reporter's description. Or tap the mic and tell us.",
+        "attachMediaLabel": "Attach media (photos/video)",
+        "filesSelected_one": "{{count}} file selected",
+        "filesSelected_other": "{{count}} files selected",
+        "uploading": "uploading…",
+        "cancel": "Cancel",
+        "saving": "Saving…",
+        "saveAssessment": "Save Assessment",
+        "saveAssessmentMultiple": "Save Assessment for {{count}} Tickets",
+        "severities": {
+          "critical": "Critical — production halted",
+          "high": "High — major impact",
+          "medium": "Medium — minor impact",
+          "low": "Low — cosmetic / observation"
+        },
+        "types": {
+          "mechanical": "Mechanical",
+          "electrical": "Electrical",
+          "hydraulic": "Hydraulic",
+          "pneumatic": "Pneumatic",
+          "software": "Software / Controls",
+          "other": "Other"
+        },
+        "notes": {
+          "assessedSolo": "Assessed by attending technician — severity, type, and attempted fixes recorded.",
+          "assessedAlongside_one": "Assessed by attending technician alongside {{count}} other breakdown on {{machineName}}.",
+          "assessedAlongside_other": "Assessed by attending technician alongside {{count}} other breakdowns on {{machineName}}."
+        },
+        "toasts": {
+          "saved": "Assessment saved",
+          "savedMultiple": "Assessment saved for {{count}} tickets"
+        },
+        "errors": {
+          "saveFailed": "Failed to save."
+        }
+      },
+      "viewPage": {
+        "loading": "Loading breakdown…",
+        "notFound": "Breakdown not found.",
+        "backToBreakdowns": "Back to Breakdowns",
+        "back": "Back",
+        "assignTechnician": "Assign Technician",
+        "attend": "Attend",
+        "attending": "Attending…",
+        "fillReport": "Fill Breakdown Report",
+        "createWorkOrder": "Create Work Order",
+        "closeBreakdown": "Close Breakdown",
+        "notes": {
+          "closed": "Breakdown closed after resolution and RCA.",
+          "assigned": "Assigned to {{name}} by {{actor}}",
+          "selfAttended": "Self-attended by {{actor}}"
+        },
+        "errors": {
+          "closeFailed": "Failed to close breakdown.",
+          "assignFailed": "Failed to assign.",
+          "attendFailed": "Failed to attend."
+        }
+      },
+      "editPage": {
+        "back": "Back",
+        "title": "Attend Breakdown",
+        "loading": "Loading…",
+        "notFound": "Breakdown not found.",
+        "backToBreakdowns": "Back to Breakdowns",
+        "notYetAssigned": "This breakdown hasn't been assigned yet.",
+        "assignFirst": "Assign or attend it from the Breakdowns list first — it becomes editable once someone is attending it.",
+        "viewBreakdown": "View Breakdown",
+        "viewOnly": "reported, view only",
+        "statusLabel": "Status",
+        "stillRunning": "Machine still running (degraded)",
+        "stopped": "Machine stopped",
+        "errors": {
+          "saveFailed": "Failed to save."
+        }
+      },
+      "floorOperatorWidgets": {
+        "myDepartmentTitle": "Breakdowns",
+        "noOpenBreakdowns": "No open breakdowns in your department.",
+        "reportWidgetTitle": "Report a Breakdown",
+        "scanQrCode": "Scan QR Code",
+        "notMachineQr": "That QR code is not a machine QR code."
+      },
+      "rcaModal": {
+        "title": "5-Why Root Cause Analysis",
+        "describeProblem": "Describe the problem",
+        "describeProblemHint": "Provide a clear, factual statement of what happened. Avoid assumptions or causes at this stage.",
+        "problemPlaceholder": "e.g., Machine X stopped producing at 14:00 on June 11, causing 3 hours of downtime.",
+        "fiveWhysAnalysis": "5 Whys Analysis",
+        "fiveWhysHint": "Answer each \"Why\" based on the previous answer. At least Why 1 is required to complete.",
+        "problemLabel": "Problem:",
+        "notSpecified": "(not specified)",
+        "whyLabel": "Why {{index}}",
+        "whyAnswerPlaceholder": "Why {{index}} answer…",
+        "rootCauseLabel": "Root Cause",
+        "rootCauseHint": "Based on your 5-Why analysis, what is the true underlying root cause?",
+        "rootCausePlaceholder": "The root cause is…",
+        "correctiveActionsTitle": "Corrective Actions",
+        "correctiveActionLabel": "Corrective Action (optional)",
+        "correctiveActionPlaceholder": "Describe the corrective action to prevent recurrence…",
+        "createWOForAction": "Create a Work Order for this corrective action",
+        "pmUpdateLabel": "PM Schedule Update (optional)",
+        "pmUpdateHint": "Does this finding require a change to the preventive maintenance schedule?",
+        "pmUpdatePlaceholder": "e.g., Increase lubrication frequency on Machine X from monthly to bi-weekly.",
+        "summary": "Summary",
+        "correctiveActionSummaryLabel": "Corrective Action",
+        "cancel": "Cancel",
+        "back": "Back",
+        "saveDraft": "Save Draft",
+        "next": "Next",
+        "saving": "Saving…",
+        "completeRCA": "Complete RCA",
+        "whyQuestions": {
+          "q1": "Why did this problem occur?",
+          "q2": "Why did that happen?",
+          "q3": "Why did that cause it?",
+          "q4": "Why was that condition present?",
+          "q5": "What is the underlying systemic reason?"
+        },
+        "errors": {
+          "firstWhyRequired": "Please answer at least the first Why before completing the RCA.",
+          "rootCauseRequired": "Root cause is required to complete the RCA.",
+          "saveFailed": "Failed to save RCA."
+        },
+        "toasts": {
+          "completed": "RCA completed.",
+          "draftSaved": "RCA draft saved."
+        }
       }
     },
     "workOrders": {

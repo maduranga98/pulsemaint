@@ -1029,6 +1029,192 @@
         "workDone": "Ausgeführte Arbeit",
         "partsUsed": "Verwendete Teile",
         "signedOff": "Abgezeichnet"
+      },
+      "detailCard": {
+        "machine": "Maschine",
+        "machineStillRunning": "Maschine läuft noch (eingeschränkt)",
+        "machineStopped": "Maschine gestoppt"
+      },
+      "reportPage": {
+        "back": "Zurück",
+        "title": "Störung Melden",
+        "subtitle": "Melden Sie eine Maschinenstörung schnell an Ihr Wartungsteam. Ein Techniker bewertet Schweregrad und Typ bei der Bearbeitung.",
+        "profileTimedOut": "Ihre Kontodaten benötigen länger als gewöhnlich zum Laden. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.",
+        "retry": "Erneut versuchen",
+        "machineLabel": "Maschine *",
+        "machineLockedPrefix": "Maschine über QR-Scan ausgewählt:",
+        "machinesTimedOut": "Die Maschinenliste benötigt länger als gewöhnlich zum Laden.",
+        "loadingMachines": "Maschinen werden geladen…",
+        "noMachines": "Noch keine Maschinen — fügen Sie zuerst eine hinzu",
+        "selectMachine": "Maschine auswählen",
+        "whatHappenedLabel": "Was ist passiert? *",
+        "whatHappenedPlaceholder": "Beschreiben Sie Symptome, Fehlercodes, Geräusche usw. Oder tippen Sie auf das Mikrofon und erzählen Sie uns, was passiert ist.",
+        "productionImpactLabel": "Auswirkung auf die Produktion",
+        "productionImpactPlaceholder": "z. B. Linie 2 gestoppt, ~500 Einheiten/Std. verloren",
+        "productionCountLabel": "Aktueller Produktionszähler zum Zeitpunkt des Stopps",
+        "stillRunningLabel": "Maschine läuft noch (eingeschränkt, aber betriebsbereit)",
+        "cancel": "Abbrechen",
+        "submitting": "Wird gesendet…",
+        "submit": "Störung Senden",
+        "errors": {
+          "profileNotLoaded": "Ihr Konto ist noch nicht vollständig geladen. Versuchen Sie es in einem Moment erneut.",
+          "selectMachine": "Bitte wählen Sie die defekte Maschine aus.",
+          "descriptionTooShort": "Beschreiben Sie die Störung mit mindestens 10 Zeichen.",
+          "machineNotFound": "Ausgewählte Maschine nicht gefunden.",
+          "submitFailed": "Störung konnte nicht gemeldet werden."
+        }
+      },
+      "attendPage": {
+        "back": "Zurück",
+        "titleSingular": "Störung Bearbeiten",
+        "titlePlural": "Störungen Bearbeiten",
+        "subtitle_one": "{{machineName}} — {{count}} Ticket: {{tickets}}",
+        "subtitle_other": "{{machineName}} — {{count}} Tickets: {{tickets}}",
+        "loading": "Wird geladen…",
+        "backToBreakdowns": "Zurück zu Störungen",
+        "notYetAssigned": "Diese Störungen wurden noch nicht zugewiesen.",
+        "assignFirst": "Weisen Sie sie zunächst zu oder bearbeiten Sie sie über die Störungsliste.",
+        "noBreakdownsSpecified": "Keine Störungen angegeben.",
+        "reportedDetailsSingular": "Gemeldete Details",
+        "reportedDetailsPlural": "Gemeldete Details für jedes Ticket",
+        "assessmentSingular": "Ihre Bewertung",
+        "assessmentPlural": "Ihre Bewertung — gilt für alle obigen Tickets",
+        "stillRunning": "Läuft noch (eingeschränkt)",
+        "stopped": "Gestoppt",
+        "whatHappenedLabel": "Was ist passiert?",
+        "productionImpactLabel": "Auswirkung auf die Produktion",
+        "productionCountLabel": "Aktueller Produktionszähler zum Zeitpunkt des Stopps",
+        "severityLabel": "Schweregrad *",
+        "typeLabel": "Typ *",
+        "attemptedFixesLabel": "Versuchte Lösungen",
+        "technicianFindingsLabel": "Was ist passiert? (Befunde des Technikers/Auszubildenden)",
+        "technicianFindingsPlaceholder": "Ihre eigene Darstellung, getrennt von der Beschreibung des Melders. Oder tippen Sie auf das Mikrofon und erzählen Sie uns.",
+        "attachMediaLabel": "Medien anhängen (Fotos/Video)",
+        "filesSelected_one": "{{count}} Datei ausgewählt",
+        "filesSelected_other": "{{count}} Dateien ausgewählt",
+        "uploading": "wird hochgeladen…",
+        "cancel": "Abbrechen",
+        "saving": "Wird gespeichert…",
+        "saveAssessment": "Bewertung Speichern",
+        "saveAssessmentMultiple": "Bewertung für {{count}} Tickets Speichern",
+        "severities": {
+          "critical": "Kritisch — Produktion angehalten",
+          "high": "Hoch — größere Auswirkung",
+          "medium": "Mittel — geringe Auswirkung",
+          "low": "Niedrig — kosmetisch / Beobachtung"
+        },
+        "types": {
+          "mechanical": "Mechanisch",
+          "electrical": "Elektrisch",
+          "hydraulic": "Hydraulisch",
+          "pneumatic": "Pneumatisch",
+          "software": "Software / Steuerung",
+          "other": "Sonstiges"
+        },
+        "notes": {
+          "assessedSolo": "Vom bearbeitenden Techniker bewertet — Schweregrad, Typ und versuchte Lösungen erfasst.",
+          "assessedAlongside_one": "Vom bearbeitenden Techniker zusammen mit {{count}} weiteren Störung an {{machineName}} bewertet.",
+          "assessedAlongside_other": "Vom bearbeitenden Techniker zusammen mit {{count}} weiteren Störungen an {{machineName}} bewertet."
+        },
+        "toasts": {
+          "saved": "Bewertung gespeichert",
+          "savedMultiple": "Bewertung für {{count}} Tickets gespeichert"
+        },
+        "errors": {
+          "saveFailed": "Speichern fehlgeschlagen."
+        }
+      },
+      "viewPage": {
+        "loading": "Störung wird geladen…",
+        "notFound": "Störung nicht gefunden.",
+        "backToBreakdowns": "Zurück zu Störungen",
+        "back": "Zurück",
+        "assignTechnician": "Techniker Zuweisen",
+        "attend": "Bearbeiten",
+        "attending": "Wird bearbeitet…",
+        "fillReport": "Störungsbericht Ausfüllen",
+        "createWorkOrder": "Arbeitsauftrag Erstellen",
+        "closeBreakdown": "Störung Schließen",
+        "notes": {
+          "closed": "Störung nach Behebung und Ursachenanalyse geschlossen.",
+          "assigned": "Zugewiesen an {{name}} von {{actor}}",
+          "selfAttended": "Selbst bearbeitet von {{actor}}"
+        },
+        "errors": {
+          "closeFailed": "Störung konnte nicht geschlossen werden.",
+          "assignFailed": "Zuweisung fehlgeschlagen.",
+          "attendFailed": "Bearbeitung fehlgeschlagen."
+        }
+      },
+      "editPage": {
+        "back": "Zurück",
+        "title": "Störung Bearbeiten",
+        "loading": "Wird geladen…",
+        "notFound": "Störung nicht gefunden.",
+        "backToBreakdowns": "Zurück zu Störungen",
+        "notYetAssigned": "Diese Störung wurde noch nicht zugewiesen.",
+        "assignFirst": "Weisen Sie sie zunächst zu oder bearbeiten Sie sie über die Störungsliste — sie wird bearbeitbar, sobald jemand sie übernimmt.",
+        "viewBreakdown": "Störung Ansehen",
+        "viewOnly": "gemeldet, nur Ansicht",
+        "statusLabel": "Status",
+        "stillRunning": "Maschine läuft noch (eingeschränkt)",
+        "stopped": "Maschine gestoppt",
+        "errors": {
+          "saveFailed": "Speichern fehlgeschlagen."
+        }
+      },
+      "floorOperatorWidgets": {
+        "myDepartmentTitle": "Störungen",
+        "noOpenBreakdowns": "Keine offenen Störungen in Ihrer Abteilung.",
+        "reportWidgetTitle": "Störung Melden",
+        "scanQrCode": "QR-Code Scannen",
+        "notMachineQr": "Dieser QR-Code ist kein Maschinen-QR-Code."
+      },
+      "rcaModal": {
+        "title": "5-Why-Ursachenanalyse",
+        "describeProblem": "Problem Beschreiben",
+        "describeProblemHint": "Geben Sie eine klare, sachliche Darstellung des Geschehenen an. Vermeiden Sie in dieser Phase Annahmen oder Ursachen.",
+        "problemPlaceholder": "z. B. Maschine X stellte am 11. Juni um 14:00 Uhr die Produktion ein, was zu 3 Stunden Stillstand führte.",
+        "fiveWhysAnalysis": "5-Why-Analyse",
+        "fiveWhysHint": "Beantworten Sie jedes „Warum“ basierend auf der vorherigen Antwort. Mindestens Warum 1 ist zum Abschließen erforderlich.",
+        "problemLabel": "Problem:",
+        "notSpecified": "(nicht angegeben)",
+        "whyLabel": "Warum {{index}}",
+        "whyAnswerPlaceholder": "Antwort auf Warum {{index}}…",
+        "rootCauseLabel": "Ursache",
+        "rootCauseHint": "Was ist laut Ihrer 5-Why-Analyse die tatsächliche zugrunde liegende Ursache?",
+        "rootCausePlaceholder": "Die Ursache ist…",
+        "correctiveActionsTitle": "Korrekturmaßnahmen",
+        "correctiveActionLabel": "Korrekturmaßnahme (optional)",
+        "correctiveActionPlaceholder": "Beschreiben Sie die Korrekturmaßnahme zur Vermeidung eines erneuten Auftretens…",
+        "createWOForAction": "Einen Arbeitsauftrag für diese Korrekturmaßnahme erstellen",
+        "pmUpdateLabel": "Aktualisierung des PM-Plans (optional)",
+        "pmUpdateHint": "Erfordert dieser Befund eine Änderung des vorbeugenden Wartungsplans?",
+        "pmUpdatePlaceholder": "z. B. Schmierintervall von Maschine X von monatlich auf zweiwöchentlich erhöhen.",
+        "summary": "Zusammenfassung",
+        "correctiveActionSummaryLabel": "Korrekturmaßnahme",
+        "cancel": "Abbrechen",
+        "back": "Zurück",
+        "saveDraft": "Entwurf Speichern",
+        "next": "Weiter",
+        "saving": "Wird gespeichert…",
+        "completeRCA": "Ursachenanalyse Abschließen",
+        "whyQuestions": {
+          "q1": "Warum ist dieses Problem aufgetreten?",
+          "q2": "Warum ist das passiert?",
+          "q3": "Warum hat das dies verursacht?",
+          "q4": "Warum lag dieser Zustand vor?",
+          "q5": "Was ist der zugrunde liegende systemische Grund?"
+        },
+        "errors": {
+          "firstWhyRequired": "Bitte beantworten Sie mindestens das erste Warum, bevor Sie die Ursachenanalyse abschließen.",
+          "rootCauseRequired": "Zum Abschließen der Ursachenanalyse ist eine Ursache erforderlich.",
+          "saveFailed": "Ursachenanalyse konnte nicht gespeichert werden."
+        },
+        "toasts": {
+          "completed": "Ursachenanalyse abgeschlossen.",
+          "draftSaved": "Entwurf der Ursachenanalyse gespeichert."
+        }
       }
     }
   }

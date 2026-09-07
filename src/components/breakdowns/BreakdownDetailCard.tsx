@@ -92,11 +92,11 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
 
         {b.attendedByName && (
           <div>
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attended By</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.attendedBy')}</p>
             <p className="text-slate-800 text-sm">
               {stripRoleSuffix(b.attendedByName)}
               {b.attendedBy && actorRoles[b.attendedBy] && (
-                <span className="text-slate-500"> ({roleLabel(actorRoles[b.attendedBy])})</span>
+                <span className="text-slate-500"> ({roleLabel(actorRoles[b.attendedBy], t)})</span>
               )}
               {b.attendedAt?.toDate && (
                 <span className="text-slate-500 text-xs ml-2">{b.attendedAt.toDate().toLocaleString()}</span>
@@ -106,40 +106,40 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
         )}
 
         <div>
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened</p>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.whatHappened')}</p>
           <TranslatedText as="p" className="text-slate-800 text-sm" text={b.description || ''} />
         </div>
 
         {b.productionImpact && (
           <div>
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Production Impact</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.productionImpact')}</p>
             <TranslatedText as="p" className="text-slate-800 text-sm" text={b.productionImpact} />
           </div>
         )}
 
         {b.attemptedFixes && (
           <div>
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attempted Fixes</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.attemptedFixes')}</p>
             <TranslatedText as="p" className="text-slate-800 text-sm" text={b.attemptedFixes} />
           </div>
         )}
 
         <div className="flex items-center gap-4 text-sm">
           <span className={`px-2 py-1 rounded text-xs font-medium ${b.machineStillRunning ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-            {b.machineStillRunning ? 'Machine still running (degraded)' : 'Machine stopped'}
+            {b.machineStillRunning ? t('common.breakdowns.detailCard.machineStillRunning') : t('common.breakdowns.detailCard.machineStopped')}
           </span>
         </div>
 
         {(b.assignedTechnicianNames ?? []).length > 0 && (
           <div>
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Assigned Technicians</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.assignedTechnicians')}</p>
             <p className="text-slate-800 text-sm">
               {b.assignedTechnicianNames
                 .map((name, i) => {
                   const base = stripRoleSuffix(name);
                   const id = b.assignedTechnicianIds?.[i];
                   const role = id ? actorRoles[id] : undefined;
-                  return role ? `${base} (${roleLabel(role)})` : base;
+                  return role ? `${base} (${roleLabel(role, t)})` : base;
                 })
                 .join(', ')}
             </p>
@@ -148,7 +148,7 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
 
         {(b.photos ?? []).length > 0 && (
           <div>
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">Attached Media</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">{t('common.breakdowns.detail.attachedMedia')}</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {b.photos.map((url, i) => {
                 const isImage = /\.(jpe?g|png|gif|webp|heic|bmp)(\?|$)/i.test(url);
@@ -162,12 +162,12 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
                     className="block border border-slate-200 rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-300 transition-shadow"
                   >
                     {isImage ? (
-                      <img src={url} alt={`Attachment ${i + 1}`} className="w-full h-24 object-cover" />
+                      <img src={url} alt={t('common.breakdowns.detail.attachmentAlt', { index: i + 1 })} className="w-full h-24 object-cover" />
                     ) : isVideo ? (
                       <video src={url} className="w-full h-24 object-cover" muted />
                     ) : (
                       <div className="w-full h-24 flex items-center justify-center bg-slate-50 text-slate-400 text-xs">
-                        File {i + 1}
+                        {t('common.breakdowns.detail.fileLabel', { index: i + 1 })}
                       </div>
                     )}
                   </a>
@@ -179,21 +179,21 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Status History</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">{t('common.breakdowns.detail.statusHistory')}</p>
         {(b.statusHistory ?? []).length === 0 ? (
-          <p className="text-sm text-slate-500">No status changes yet.</p>
+          <p className="text-sm text-slate-500">{t('common.breakdowns.detail.noStatusChanges')}</p>
         ) : (
           <ol className="space-y-2 text-sm">
             {(b.statusHistory ?? []).map((h: any, idx: number) => (
               <li key={idx} className="flex gap-3 items-start">
                 <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-50 border border-slate-200 whitespace-nowrap">
-                  {STATUS_LABEL[h.status as BreakdownStatus] ?? h.status}
+                  {t(`common.breakdowns.status.${h.status}`, { defaultValue: h.status })}
                 </span>
                 <div>
                   <span className="text-slate-700">
                     {stripRoleSuffix(h.changedByName ?? '')}
                     {h.changedBy && actorRoles[h.changedBy] && (
-                      <span className="text-slate-500"> ({roleLabel(actorRoles[h.changedBy])})</span>
+                      <span className="text-slate-500"> ({roleLabel(actorRoles[h.changedBy], t)})</span>
                     )}
                   </span>
                   <span className="text-slate-400 text-xs ml-2">

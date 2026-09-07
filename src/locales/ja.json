@@ -1025,6 +1025,192 @@
         "workDone": "実施内容",
         "partsUsed": "使用部品",
         "signedOff": "サインオフ済み"
+      },
+      "detailCard": {
+        "machine": "設備",
+        "machineStillRunning": "設備は稼働中（低下状態）",
+        "machineStopped": "設備は停止中"
+      },
+      "reportPage": {
+        "back": "戻る",
+        "title": "故障を報告",
+        "subtitle": "設備の故障を保守チームに素早く報告します。対応する技術者が重大度とタイプを評価します。",
+        "profileTimedOut": "アカウント情報の読み込みに通常より時間がかかっています。接続を確認して再試行してください。",
+        "retry": "再試行",
+        "machineLabel": "設備 *",
+        "machineLockedPrefix": "QR スキャンで選択された設備：",
+        "machinesTimedOut": "設備リストの読み込みに通常より時間がかかっています。",
+        "loadingMachines": "設備を読み込み中…",
+        "noMachines": "設備がまだありません — 先に設備を追加してください",
+        "selectMachine": "設備を選択",
+        "whatHappenedLabel": "何が起きましたか？*",
+        "whatHappenedPlaceholder": "症状、エラーコード、音などを記述してください。またはマイクをタップして状況をお伝えください。",
+        "productionImpactLabel": "生産への影響",
+        "productionImpactPlaceholder": "例：ライン2停止、約500個/時間の損失",
+        "productionCountLabel": "停止時点の現在の生産数",
+        "stillRunningLabel": "設備は稼働中（低下しているが稼働可能）",
+        "cancel": "キャンセル",
+        "submitting": "送信中…",
+        "submit": "故障を送信",
+        "errors": {
+          "profileNotLoaded": "アカウントの読み込みがまだ完了していません。しばらくしてから再試行してください。",
+          "selectMachine": "故障した設備を選択してください。",
+          "descriptionTooShort": "故障内容を10文字以上で説明してください。",
+          "machineNotFound": "選択した設備が見つかりません。",
+          "submitFailed": "故障の報告に失敗しました。"
+        }
+      },
+      "attendPage": {
+        "back": "戻る",
+        "titleSingular": "故障に対応",
+        "titlePlural": "故障に対応",
+        "subtitle_one": "{{machineName}} — {{count}} 件のチケット：{{tickets}}",
+        "subtitle_other": "{{machineName}} — {{count}} 件のチケット：{{tickets}}",
+        "loading": "読み込み中…",
+        "backToBreakdowns": "故障一覧に戻る",
+        "notYetAssigned": "これらの故障はまだ割り当てられていません。",
+        "assignFirst": "まず故障一覧から割り当てるか対応してください。",
+        "noBreakdownsSpecified": "故障が指定されていません。",
+        "reportedDetailsSingular": "報告内容",
+        "reportedDetailsPlural": "各チケットの報告内容",
+        "assessmentSingular": "あなたの評価",
+        "assessmentPlural": "あなたの評価 — 上記すべてのチケットに適用されます",
+        "stillRunning": "稼働中（低下状態）",
+        "stopped": "停止中",
+        "whatHappenedLabel": "何が起きましたか？",
+        "productionImpactLabel": "生産への影響",
+        "productionCountLabel": "停止時点の現在の生産数",
+        "severityLabel": "重大度 *",
+        "typeLabel": "タイプ *",
+        "attemptedFixesLabel": "試みた対処",
+        "technicianFindingsLabel": "何が起きましたか？（技術者・研修生の所見）",
+        "technicianFindingsPlaceholder": "報告者の説明とは別の、あなた自身の状況説明。またはマイクをタップしてお伝えください。",
+        "attachMediaLabel": "メディアを添付（写真/動画）",
+        "filesSelected_one": "{{count}} 件のファイルを選択",
+        "filesSelected_other": "{{count}} 件のファイルを選択",
+        "uploading": "アップロード中…",
+        "cancel": "キャンセル",
+        "saving": "保存中…",
+        "saveAssessment": "評価を保存",
+        "saveAssessmentMultiple": "{{count}} 件のチケットの評価を保存",
+        "severities": {
+          "critical": "重大 — 生産停止",
+          "high": "高 — 大きな影響",
+          "medium": "中 — 軽微な影響",
+          "low": "低 — 外観・観察"
+        },
+        "types": {
+          "mechanical": "機械系",
+          "electrical": "電気系",
+          "hydraulic": "油圧系",
+          "pneumatic": "空圧系",
+          "software": "ソフトウェア／制御系",
+          "other": "その他"
+        },
+        "notes": {
+          "assessedSolo": "対応した技術者により評価済み — 重大度、タイプ、試みた対処が記録されています。",
+          "assessedAlongside_one": "{{machineName}} の他 {{count}} 件の故障と合わせて対応した技術者により評価されました。",
+          "assessedAlongside_other": "{{machineName}} の他 {{count}} 件の故障と合わせて対応した技術者により評価されました。"
+        },
+        "toasts": {
+          "saved": "評価を保存しました",
+          "savedMultiple": "{{count}} 件のチケットの評価を保存しました"
+        },
+        "errors": {
+          "saveFailed": "保存に失敗しました。"
+        }
+      },
+      "viewPage": {
+        "loading": "故障を読み込み中…",
+        "notFound": "故障が見つかりません。",
+        "backToBreakdowns": "故障一覧に戻る",
+        "back": "戻る",
+        "assignTechnician": "技術者を割り当て",
+        "attend": "対応",
+        "attending": "対応中…",
+        "fillReport": "故障報告書を入力",
+        "createWorkOrder": "作業指示書を作成",
+        "closeBreakdown": "故障を完了",
+        "notes": {
+          "closed": "解決および根本原因分析の後、故障を完了にしました。",
+          "assigned": "{{actor}} により {{name}} に割り当てられました",
+          "selfAttended": "{{actor}} が自ら対応しました"
+        },
+        "errors": {
+          "closeFailed": "故障を完了にできませんでした。",
+          "assignFailed": "割り当てに失敗しました。",
+          "attendFailed": "対応に失敗しました。"
+        }
+      },
+      "editPage": {
+        "back": "戻る",
+        "title": "故障に対応",
+        "loading": "読み込み中…",
+        "notFound": "故障が見つかりません。",
+        "backToBreakdowns": "故障一覧に戻る",
+        "notYetAssigned": "この故障はまだ割り当てられていません。",
+        "assignFirst": "まず故障一覧から割り当てるか対応してください — 誰かが対応を開始すると編集可能になります。",
+        "viewBreakdown": "故障を表示",
+        "viewOnly": "報告済み、閲覧のみ",
+        "statusLabel": "ステータス",
+        "stillRunning": "設備は稼働中（低下状態）",
+        "stopped": "設備は停止中",
+        "errors": {
+          "saveFailed": "保存に失敗しました。"
+        }
+      },
+      "floorOperatorWidgets": {
+        "myDepartmentTitle": "故障",
+        "noOpenBreakdowns": "あなたの部門に未対応の故障はありません。",
+        "reportWidgetTitle": "故障を報告",
+        "scanQrCode": "QR コードをスキャン",
+        "notMachineQr": "その QR コードは設備の QR コードではありません。"
+      },
+      "rcaModal": {
+        "title": "5 なぜ根本原因分析",
+        "describeProblem": "問題を記述",
+        "describeProblemHint": "発生した内容を明確かつ事実に基づいて記述してください。この段階では推測や原因の記載は避けてください。",
+        "problemPlaceholder": "例：X 設備が6月11日14:00に生産を停止し、3時間の停止が発生した。",
+        "fiveWhysAnalysis": "5 なぜ分析",
+        "fiveWhysHint": "それぞれの「なぜ」に、直前の回答に基づいて答えてください。完了には少なくとも「なぜ1」が必要です。",
+        "problemLabel": "問題：",
+        "notSpecified": "（未指定）",
+        "whyLabel": "なぜ {{index}}",
+        "whyAnswerPlaceholder": "なぜ {{index}} の回答…",
+        "rootCauseLabel": "根本原因",
+        "rootCauseHint": "5 なぜ分析に基づくと、本当の根本原因は何ですか？",
+        "rootCausePlaceholder": "根本原因は…",
+        "correctiveActionsTitle": "是正措置",
+        "correctiveActionLabel": "是正措置（任意）",
+        "correctiveActionPlaceholder": "再発防止のための是正措置を記述してください…",
+        "createWOForAction": "この是正措置のための作業指示書を作成",
+        "pmUpdateLabel": "PM スケジュールの更新（任意）",
+        "pmUpdateHint": "この所見は予防保全スケジュールの変更を必要としますか？",
+        "pmUpdatePlaceholder": "例：X 設備の給油頻度を毎月から隔週に変更する。",
+        "summary": "要約",
+        "correctiveActionSummaryLabel": "是正措置",
+        "cancel": "キャンセル",
+        "back": "戻る",
+        "saveDraft": "下書きを保存",
+        "next": "次へ",
+        "saving": "保存中…",
+        "completeRCA": "RCA を完了",
+        "whyQuestions": {
+          "q1": "なぜこの問題が発生しましたか？",
+          "q2": "なぜそれが起きましたか？",
+          "q3": "なぜそれが原因になりましたか？",
+          "q4": "なぜその状態が存在していましたか？",
+          "q5": "根本にある構造的な理由は何ですか？"
+        },
+        "errors": {
+          "firstWhyRequired": "RCA を完了する前に、少なくとも最初の「なぜ」に回答してください。",
+          "rootCauseRequired": "RCA を完了するには根本原因が必要です。",
+          "saveFailed": "RCA の保存に失敗しました。"
+        },
+        "toasts": {
+          "completed": "RCA が完了しました。",
+          "draftSaved": "RCA の下書きを保存しました。"
+        }
       }
     }
   }
