@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { UseFormReturn } from 'react-hook-form';
-import { WO_COPY } from '../../constants/copy';
 import { useContractorTechnicians } from '../../hooks/contractors/useContractorTechnicians';
 
 // Stub types — replace with real data from Module 3 / users collection
@@ -63,6 +63,7 @@ export function TeamAssignmentPanel({
   contractors,
   supervisors = [],
 }: TeamAssignmentPanelProps) {
+  const { t } = useTranslation();
   const { register, watch, setValue, formState: { errors } } = form;
   const [contractorSearch, setContractorSearch] = useState('');
   const [techSearch, setTechSearch] = useState('');
@@ -128,8 +129,8 @@ export function TeamAssignmentPanel({
     (c) => c.isActive && c.companyName.toLowerCase().includes(contractorSearch.toLowerCase()),
   );
 
-  const filteredTechs = technicians.filter((t) =>
-    t.name.toLowerCase().includes(techSearch.toLowerCase()),
+  const filteredTechs = technicians.filter((tech) =>
+    tech.name.toLowerCase().includes(techSearch.toLowerCase()),
   );
 
   return (
@@ -137,7 +138,7 @@ export function TeamAssignmentPanel({
       {/* Always visible: Supervisor */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {WO_COPY.supervisorLabel} <span className="text-red-500">*</span>
+          {t('common.workOrders.copy.supervisorLabel')} <span className="text-red-500">*</span>
         </label>
         {supervisors.length > 0 ? (
           <select
@@ -149,7 +150,7 @@ export function TeamAssignmentPanel({
             })}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
-            <option value="">{WO_COPY.supervisorPlaceholder}</option>
+            <option value="">{t('common.workOrders.copy.supervisorPlaceholder')}</option>
             {supervisors.map((s) => (
               <option key={s.id} value={s.id}>
                 {supervisorOptionLabel(s)}
@@ -160,7 +161,7 @@ export function TeamAssignmentPanel({
           <input
             {...register('supervisorInChargeId')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder={WO_COPY.supervisorPlaceholder}
+            placeholder={t('common.workOrders.copy.supervisorPlaceholder')}
           />
         )}
         {errors.supervisorInChargeId && (
@@ -172,7 +173,7 @@ export function TeamAssignmentPanel({
       <div className="flex gap-3">
         <div className="flex-1">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {WO_COPY.estimatedDurationLabel} <span className="text-red-500">*</span>
+            {t('common.workOrders.copy.estimatedDurationLabel')} <span className="text-red-500">*</span>
           </label>
           <input
             type="number"
@@ -191,9 +192,9 @@ export function TeamAssignmentPanel({
             {...register('estimatedDurationUnit')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           >
-            <option value="minutes">Minutes</option>
-            <option value="hours">Hours</option>
-            <option value="days">Days</option>
+            <option value="minutes">{t('common.workOrders.teamAssignment.minutesOption')}</option>
+            <option value="hours">{t('common.workOrders.teamAssignment.hoursOption')}</option>
+            <option value="days">{t('common.workOrders.teamAssignment.daysOption')}</option>
           </select>
         </div>
       </div>
@@ -202,18 +203,18 @@ export function TeamAssignmentPanel({
       {!isContractorWO ? (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {WO_COPY.techniciansLabel}
+            {t('common.workOrders.copy.techniciansLabel')}
           </label>
           <input
             type="text"
             value={techSearch}
             onChange={(e) => setTechSearch(e.target.value)}
-            placeholder={WO_COPY.techniciansPlaceholder}
+            placeholder={t('common.workOrders.copy.techniciansPlaceholder')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 mb-2"
           />
           <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100">
             {filteredTechs.length === 0 ? (
-              <p className="text-xs text-gray-400 px-3 py-2">No technicians found</p>
+              <p className="text-xs text-gray-400 px-3 py-2">{t('common.workOrders.teamAssignment.noTechniciansFound')}</p>
             ) : (
               filteredTechs.map((tech) => {
                 const isSelected = selectedTechIds.includes(tech.id);
@@ -237,14 +238,14 @@ export function TeamAssignmentPanel({
                       <span className="font-medium">{tech.name}</span>
                       <span className="text-gray-400">{tech.department}</span>
                     </span>
-                    <span className="text-xs text-gray-500">{tech.activeWOCount} active WOs</span>
+                    <span className="text-xs text-gray-500">{t('common.workOrders.teamAssignment.activeWOsInline', { count: tech.activeWOCount })}</span>
                   </button>
                 );
               })
             )}
           </div>
           {selectedTechIds.length > 0 && (
-            <p className="mt-1 text-xs text-blue-600">{selectedTechIds.length} technician(s) selected</p>
+            <p className="mt-1 text-xs text-blue-600">{t('common.workOrders.teamAssignment.techniciansSelected', { count: selectedTechIds.length })}</p>
           )}
         </div>
       ) : (
@@ -252,7 +253,7 @@ export function TeamAssignmentPanel({
           {/* Contractor Company */}
           <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {WO_COPY.contractorCompanyLabel} <span className="text-red-500">*</span>
+              {t('common.workOrders.copy.contractorCompanyLabel')} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -260,13 +261,13 @@ export function TeamAssignmentPanel({
               onChange={(e) => handleContractorInput(e.target.value)}
               onFocus={() => setShowContractorDropdown(true)}
               onBlur={() => setTimeout(() => setShowContractorDropdown(false), 200)}
-              placeholder={WO_COPY.contractorPlaceholder}
+              placeholder={t('common.workOrders.copy.contractorPlaceholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
             {isManualContractor && contractorSearch && (
               <div className="mt-1 flex items-center gap-1 text-xs text-amber-600">
                 <span>⚠️</span>
-                <span>{WO_COPY.unregisteredContractorWarning}</span>
+                <span>{t('common.workOrders.copy.unregisteredContractorWarning')}</span>
               </div>
             )}
             {showContractorDropdown && filteredContractors.length > 0 && (
@@ -292,7 +293,7 @@ export function TeamAssignmentPanel({
                       ))}
                     </div>
                     {c.lastJobDate && (
-                      <p className="text-xs text-gray-400 mt-0.5">Last job: {c.lastJobDate}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{t('common.workOrders.teamAssignment.lastJobInline', { date: c.lastJobDate })}</p>
                     )}
                   </button>
                 ))}
@@ -303,7 +304,7 @@ export function TeamAssignmentPanel({
           {/* Contact Person */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {WO_COPY.contractorContactLabel} <span className="text-red-500">*</span>
+              {t('common.workOrders.copy.contractorContactLabel')} <span className="text-red-500">*</span>
             </label>
             <input
               {...register('contractorContactPerson')}
@@ -314,7 +315,7 @@ export function TeamAssignmentPanel({
           {/* Contact Number */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {WO_COPY.contractorPhoneLabel} <span className="text-red-500">*</span>
+              {t('common.workOrders.copy.contractorPhoneLabel')} <span className="text-red-500">*</span>
             </label>
             <input
               {...register('contractorContactNumber')}
@@ -326,7 +327,7 @@ export function TeamAssignmentPanel({
           {/* On-site team members */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {WO_COPY.contractorTechsLabel}
+              {t('common.workOrders.copy.contractorTechsLabel')}
             </label>
 
             {selectedContractorId && !isManualContractor ? (
@@ -334,7 +335,7 @@ export function TeamAssignmentPanel({
               // members' jobs/last-visit counters update when the WO is signed off.
               contractorTeam.length === 0 ? (
                 <p className="text-xs text-gray-400 px-1 py-2">
-                  No team members registered for this contractor yet. Add them on the contractor's Team Members tab.
+                  {t('common.workOrders.teamAssignment.noContractorTeamMembers')}
                 </p>
               ) : (
                 <div className="space-y-1 max-h-56 overflow-y-auto rounded-lg border border-gray-100">
@@ -364,7 +365,7 @@ export function TeamAssignmentPanel({
               <>
                 <textarea
                   rows={3}
-                  placeholder={WO_COPY.contractorTechsHint}
+                  placeholder={t('common.workOrders.copy.contractorTechsHint')}
                   onChange={(e) => {
                     const names = e.target.value
                       .split('\n')
@@ -375,7 +376,7 @@ export function TeamAssignmentPanel({
                   }}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 resize-none"
                 />
-                <p className="mt-0.5 text-xs text-gray-400">{WO_COPY.contractorTechsHint}</p>
+                <p className="mt-0.5 text-xs text-gray-400">{t('common.workOrders.copy.contractorTechsHint')}</p>
               </>
             )}
           </div>
@@ -386,18 +387,18 @@ export function TeamAssignmentPanel({
               security rules treat them as assigned responsible persons. */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Assign internal technicians <span className="text-gray-400 font-normal">(optional)</span>
+              {t('common.workOrders.teamAssignment.assignInternalTechniciansLabel')} <span className="text-gray-400 font-normal">{t('common.workOrders.teamAssignment.optionalLabel')}</span>
             </label>
             <input
               type="text"
               value={techSearch}
               onChange={(e) => setTechSearch(e.target.value)}
-              placeholder={WO_COPY.techniciansPlaceholder}
+              placeholder={t('common.workOrders.copy.techniciansPlaceholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 mb-2"
             />
             <div className="space-y-1 max-h-48 overflow-y-auto rounded-lg border border-gray-100">
               {filteredTechs.length === 0 ? (
-                <p className="text-xs text-gray-400 px-3 py-2">No technicians found</p>
+                <p className="text-xs text-gray-400 px-3 py-2">{t('common.workOrders.teamAssignment.noTechniciansFound')}</p>
               ) : (
                 filteredTechs.map((tech) => {
                   const isSelected = selectedTechIds.includes(tech.id);
@@ -417,14 +418,14 @@ export function TeamAssignmentPanel({
                         <span className="font-medium">{tech.name}</span>
                         <span className="text-gray-400">{tech.department}</span>
                       </span>
-                      <span className="text-xs text-gray-500">{tech.activeWOCount} active WOs</span>
+                      <span className="text-xs text-gray-500">{t('common.workOrders.teamAssignment.activeWOsInline', { count: tech.activeWOCount })}</span>
                     </button>
                   );
                 })
               )}
             </div>
             {selectedTechIds.length > 0 && (
-              <p className="mt-1 text-xs text-blue-600">{selectedTechIds.length} technician(s) selected</p>
+              <p className="mt-1 text-xs text-blue-600">{t('common.workOrders.teamAssignment.techniciansSelected', { count: selectedTechIds.length })}</p>
             )}
           </div>
         </div>

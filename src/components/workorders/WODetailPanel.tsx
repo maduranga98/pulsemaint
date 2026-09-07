@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Timestamp, doc, getDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { WorkOrder } from '../../types/workOrder';
 import type { Breakdown } from '../../types/breakdown';
 import type { IsolationPoint } from '../../types/machine';
-import { WO_COPY } from '../../constants/copy';
 import { WOTypeBadge } from './WOTypeBadge';
 import { PriorityBadge } from './PriorityBadge';
 import { WOStatusBadge } from './WOStatusBadge';
@@ -39,6 +39,7 @@ function detailRoleLabel(role: string): string {
 }
 
 export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetailPanelProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [showCompletionForm, setShowCompletionForm] = useState(false);
   const [showSignOff, setShowSignOff] = useState(false);
@@ -115,11 +116,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
   const checklistPct = checklistTotal > 0 ? Math.round((checklistDone / checklistTotal) * 100) : 0;
 
   const TABS: { key: TabKey; label: string }[] = [
-    { key: 'overview', label: WO_COPY.tabOverview },
-    { key: 'checklist', label: WO_COPY.tabChecklist },
-    { key: 'documents', label: WO_COPY.tabDocuments },
-    { key: 'parts', label: WO_COPY.tabParts },
-    { key: 'history', label: WO_COPY.tabHistory },
+    { key: 'overview', label: t('common.workOrders.copy.tabOverview') },
+    { key: 'checklist', label: t('common.workOrders.copy.tabChecklist') },
+    { key: 'documents', label: t('common.workOrders.copy.tabDocuments') },
+    { key: 'parts', label: t('common.workOrders.copy.tabParts') },
+    { key: 'history', label: t('common.workOrders.copy.tabHistory') },
   ];
 
   // Load the machine's isolation points so the LOTO/PTW safety gate can be
@@ -230,7 +231,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               type="button"
               onClick={onClose}
               className="text-gray-400 hover:text-gray-700 p-1 flex-shrink-0"
-              aria-label="Close"
+              aria-label={t('common.workOrders.detailPanel.closeLabel')}
             >
               ✕
             </button>
@@ -264,7 +265,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   assigned team completes tasks. */}
               <section className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Progress</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('common.workOrders.detailPanel.progress')}</h3>
                   <WOStatusBadge status={workOrder.status} size="sm" />
                 </div>
                 {checklistTotal > 0 ? (
@@ -276,11 +277,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                       />
                     </div>
                     <p className="text-xs text-gray-500">
-                      {checklistDone} / {checklistTotal} checklist steps completed ({checklistPct}%)
+                      {t('common.workOrders.detailPanel.checklistStepsCompleted', { done: checklistDone, total: checklistTotal, pct: checklistPct })}
                     </p>
                   </>
                 ) : (
-                  <p className="text-xs text-gray-400">No checklist steps defined.</p>
+                  <p className="text-xs text-gray-400">{t('common.workOrders.detailPanel.noChecklistDefined')}</p>
                 )}
               </section>
 
@@ -288,7 +289,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {isOverdue && (
                 <section className="bg-red-50 border border-red-200 rounded-xl p-4">
                   <p className="text-sm text-red-700">
-                    This work order is overdue and not yet finished.
+                    {t('common.workOrders.detailPanel.overdueNotice')}
                   </p>
                 </section>
               )}
@@ -297,7 +298,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {safetyGateVisible && (
                 <section className="bg-white border border-gray-200 rounded-xl p-4">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                    Safety Precautions (LOTO / PTW)
+                    {t('common.workOrders.detailPanel.safetyPrecautionsTitle')}
                   </h3>
                   <LotoGate workOrder={workOrder} machineIsolationPoints={isolationPoints ?? []} />
                 </section>
@@ -309,7 +310,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {(workOrder.requiresWorkPermit || workPermits.length > 0) && (
                 <section className="bg-white border border-gray-200 rounded-xl p-4">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                    {workPermits.length > 1 ? `Work Permits (${workPermits.length})` : 'Work Permit'}
+                    {t('common.workOrders.detailPanel.workPermitsTitle', { count: workPermits.length })}
                   </h3>
                   {workPermits.length > 0 ? (
                     <div className="space-y-4 divide-y divide-gray-100">
@@ -321,7 +322,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     </div>
                   ) : (
                     <p className="text-xs text-orange-600">
-                      This work order requires a Work Permit, but none was found.
+                      {t('common.workOrders.detailPanel.workPermitMissing')}
                     </p>
                   )}
                 </section>
@@ -332,23 +333,23 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 workOrder.ptwCategory ||
                 workOrder.linkedBreakdownTicketNumber) && (
                 <section>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Job Details</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.jobDetailsTitle')}</h3>
                   <div className="space-y-1.5 text-sm">
                     {workOrder.specialToolsRequired?.trim() && (
                       <div className="flex items-start gap-2">
-                        <span className="text-gray-500 w-32 flex-shrink-0">Special tools:</span>
+                        <span className="text-gray-500 w-32 flex-shrink-0">{t('common.workOrders.detailPanel.specialToolsInline')}</span>
                         <span className="text-gray-800 whitespace-pre-line">{workOrder.specialToolsRequired}</span>
                       </div>
                     )}
                     {workOrder.ptwCategory && (
                       <div className="flex items-start gap-2">
-                        <span className="text-gray-500 w-32 flex-shrink-0">Permit category:</span>
+                        <span className="text-gray-500 w-32 flex-shrink-0">{t('common.workOrders.detailPanel.permitCategoryInline')}</span>
                         <span className="text-gray-800">{workOrder.ptwCategory}</span>
                       </div>
                     )}
                     {workOrder.linkedBreakdownTicketNumber && (
                       <div className="flex items-start gap-2">
-                        <span className="text-gray-500 w-32 flex-shrink-0">Linked breakdown:</span>
+                        <span className="text-gray-500 w-32 flex-shrink-0">{t('common.workOrders.detailPanel.linkedBreakdownInline')}</span>
                         <span className="text-gray-800">{workOrder.linkedBreakdownTicketNumber}</span>
                       </div>
                     )}
@@ -358,33 +359,33 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
               {/* Description */}
               <section>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Description</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.descriptionTitle')}</h3>
                 <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.description}</p>
               </section>
 
               {/* Machine */}
               <section className="bg-blue-50 rounded-xl p-4 space-y-2">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Machine</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('common.workOrders.detailPanel.machineTitle')}</h3>
                 <p className="font-semibold text-gray-900">{workOrder.machineName}</p>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-600">
-                  <span>Location: {workOrder.machineLocation}</span>
-                  <span>Type: {workOrder.machineType}</span>
-                  <span>Dept: {workOrder.machineDepartment}</span>
-                  <span>Criticality: {workOrder.machineCriticality}/5</span>
+                  <span>{t('common.workOrders.detailPanel.locationInline', { location: workOrder.machineLocation })}</span>
+                  <span>{t('common.workOrders.detailPanel.typeInline', { type: workOrder.machineType })}</span>
+                  <span>{t('common.workOrders.detailPanel.deptInline', { department: workOrder.machineDepartment })}</span>
+                  <span>{t('common.workOrders.detailPanel.criticalityInline', { criticality: workOrder.machineCriticality })}</span>
                 </div>
               </section>
 
               {/* Team */}
               <section>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Team</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.teamTitle')}</h3>
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-gray-500 w-28 flex-shrink-0">Supervisor:</span>
+                    <span className="text-gray-500 w-28 flex-shrink-0">{t('common.workOrders.detailPanel.supervisorInline')}</span>
                     <span className="font-medium">{workOrder.supervisorInChargeName}</span>
                   </div>
                   {workOrder.woType !== 'CONTRACTOR' && workOrder.assignedTechnicianNames.length > 0 && (
                     <div className="flex items-start gap-2 text-sm">
-                      <span className="text-gray-500 w-28 flex-shrink-0">Technicians:</span>
+                      <span className="text-gray-500 w-28 flex-shrink-0">{t('common.workOrders.detailPanel.techniciansInline')}</span>
                       <div className="flex flex-wrap gap-1">
                         {workOrder.assignedTechnicianNames.map((n, i) => (
                           <span key={i} className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-xs">
@@ -400,14 +401,14 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                         <span className="text-lg">🤝</span>
                         <span className="font-semibold">{workOrder.contractorCompanyName}</span>
                         {workOrder.isManualContractor && (
-                          <span className="text-xs text-amber-600">⚠️ Unregistered</span>
+                          <span className="text-xs text-amber-600">{t('common.workOrders.detailPanel.unregisteredBadge')}</span>
                         )}
                       </div>
                       {workOrder.contractorContactPerson && (
-                        <p className="text-gray-600">Contact: {workOrder.contractorContactPerson} · {workOrder.contractorContactNumber}</p>
+                        <p className="text-gray-600">{t('common.workOrders.detailPanel.contactInline', { person: workOrder.contractorContactPerson, number: workOrder.contractorContactNumber })}</p>
                       )}
                       {workOrder.contractorTechnicianNames.length > 0 && (
-                        <p className="text-gray-500 text-xs">On-site: {workOrder.contractorTechnicianNames.join(', ')}</p>
+                        <p className="text-gray-500 text-xs">{t('common.workOrders.detailPanel.onSiteInline', { names: workOrder.contractorTechnicianNames.join(', ') })}</p>
                       )}
                     </div>
                   )}
@@ -418,7 +419,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   assigned person, so a team WO shows all tasks by everyone. */}
               {(workOrder.technicianWorkLogs ?? []).length > 0 && (
                 <section>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Work Done by Team</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.workDoneByTeamTitle')}</h3>
                   <div className="space-y-2">
                     {workOrder.technicianWorkLogs.map((log, i) => (
                       <div key={i} className="bg-gray-50 rounded-lg px-3 py-2 text-sm">
@@ -444,7 +445,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {isSupervisor && (workOrder.assigneeCompletions ?? []).length > 0 && (
                 <section>
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                    Assignee Completions ({completedAssigneeCount}/{totalAssignees})
+                    {t('common.workOrders.detailPanel.assigneeCompletionsTitle', { done: completedAssigneeCount, total: totalAssignees })}
                   </h3>
                   <div className="space-y-2">
                     {(workOrder.assigneeCompletions ?? []).map((c, i) => (
@@ -458,7 +459,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                             {c.technicianRole && <span className="ml-1 text-xs font-normal text-gray-500">({detailRoleLabel(c.technicianRole)})</span>}
                           </span>
                           <span className="text-xs text-gray-500">
-                            {c.completedAt?.toDate?.().toLocaleString?.() ?? 'completed'}
+                            {c.completedAt?.toDate?.().toLocaleString?.() ?? t('common.workOrders.detailPanel.completedFallback')}
                           </span>
                         </div>
                         {c.completedStepsDescription && (
@@ -475,28 +476,28 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
 
               {/* Dates */}
               <section>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Dates</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.datesTitle')}</h3>
                 <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
-                  <span>Created: {workOrder.createdAt?.toDate().toLocaleDateString()}</span>
+                  <span>{t('common.workOrders.detailPanel.createdInline', { date: workOrder.createdAt?.toDate().toLocaleDateString() })}</span>
                   {workOrder.scheduledStart && (
-                    <span>Scheduled: {workOrder.scheduledStart.toDate().toLocaleDateString()}</span>
+                    <span>{t('common.workOrders.detailPanel.scheduledInline', { date: workOrder.scheduledStart.toDate().toLocaleDateString() })}</span>
                   )}
-                  <span>Due: {workOrder.dueDate?.toDate().toLocaleDateString()}</span>
-                  <span>Est. Duration: {workOrder.estimatedDuration} {workOrder.estimatedDurationUnit}</span>
+                  <span>{t('common.workOrders.detailPanel.dueInline', { date: workOrder.dueDate?.toDate().toLocaleDateString() })}</span>
+                  <span>{t('common.workOrders.detailPanel.estDurationInline', { value: workOrder.estimatedDuration, unit: workOrder.estimatedDurationUnit })}</span>
                   {workOrder.checkedInAt && (
                     <span>
-                      Checked in: {workOrder.checkedInAt.toDate().toLocaleString()}
+                      {t('common.workOrders.detailPanel.checkedInInline', { date: workOrder.checkedInAt.toDate().toLocaleString() })}
                       {workOrder.checkedInByName ? ` (${workOrder.checkedInByName})` : ''}
                     </span>
                   )}
                   {workOrder.actualStartTime && (
-                    <span>Started: {workOrder.actualStartTime.toDate().toLocaleString()}</span>
+                    <span>{t('common.workOrders.detailPanel.startedInline', { date: workOrder.actualStartTime.toDate().toLocaleString() })}</span>
                   )}
                   {workOrder.actualEndTime && (
-                    <span>Completed: {workOrder.actualEndTime.toDate().toLocaleString()}</span>
+                    <span>{t('common.workOrders.detailPanel.completedInline', { date: workOrder.actualEndTime.toDate().toLocaleString() })}</span>
                   )}
                   {timeConsumed && (
-                    <span className="font-medium text-gray-900">Time Consumed: {timeConsumed}</span>
+                    <span className="font-medium text-gray-900">{t('common.workOrders.detailPanel.timeConsumedInline', { time: timeConsumed })}</span>
                   )}
                 </div>
               </section>
@@ -504,11 +505,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {/* Completion info (if completed) */}
               {workOrder.workDoneDescription && (
                 <section className="bg-blue-50 rounded-xl p-4 space-y-2">
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Completion</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('common.workOrders.detailPanel.completionTitle')}</h3>
                   <p className="text-sm text-gray-800 whitespace-pre-line">{workOrder.workDoneDescription}</p>
                   {workOrder.rootCause && (
                     <p className="text-sm text-gray-900">
-                      Root cause: <span className="font-semibold">{workOrder.rootCause.replace(/_/g, ' ')}</span>
+                      {t('common.workOrders.detailPanel.rootCauseInline')} <span className="font-semibold">{workOrder.rootCause.replace(/_/g, ' ')}</span>
                     </p>
                   )}
                   {workOrder.rootCauseDescription && (
@@ -516,7 +517,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   )}
                   {workOrder.testRunResult && (
                     <p className="text-sm text-gray-900">
-                      Test run:
+                      {t('common.workOrders.detailPanel.testRunInline')}
                       <span className={`ml-1 font-semibold ${
                         workOrder.testRunResult === 'pass' ? 'text-emerald-800' :
                         workOrder.testRunResult === 'fail' ? 'text-red-800' : 'text-amber-800'
@@ -530,7 +531,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   )}
                   {workOrder.machineStatusAfterRepair && (
                     <p className="text-sm text-gray-900">
-                      Machine: <span className="font-semibold">{workOrder.machineStatusAfterRepair.replace(/_/g, ' ')}</span>
+                      {t('common.workOrders.detailPanel.machineStatusInline')} <span className="font-semibold">{workOrder.machineStatusAfterRepair.replace(/_/g, ' ')}</span>
                     </p>
                   )}
                 </section>
@@ -539,7 +540,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {/* Post-repair checklist (recorded at completion) */}
               {(workOrder.postRepairChecklist ?? []).length > 0 && (
                 <section>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Post-Repair Checks</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.postRepairChecksTitle')}</h3>
                   <ul className="space-y-1.5">
                     {workOrder.postRepairChecklist.map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm bg-gray-50 rounded-lg px-3 py-2">
@@ -560,27 +561,27 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   signs off and closes the WO. */}
               {workOrder.supervisorSignOffAt && (
                 <section className="bg-gray-50 rounded-xl p-4 space-y-1.5">
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sign-Off</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('common.workOrders.detailPanel.signOffTitle')}</h3>
                   {workOrder.signOffOutcome && (
                     <p className="text-sm">
-                      Outcome:{' '}
+                      {t('common.workOrders.detailPanel.outcomeInline')}{' '}
                       <span className={`font-semibold ${
                         workOrder.signOffOutcome === 'complete' ? 'text-emerald-600' :
                         workOrder.signOffOutcome === 'failed' ? 'text-red-600' : 'text-amber-600'
                       }`}>
-                        {workOrder.signOffOutcome === 'complete' ? 'Complete' :
-                         workOrder.signOffOutcome === 'failed' ? 'Failed' : 'Not complete'}
+                        {workOrder.signOffOutcome === 'complete' ? t('common.workOrders.detailPanel.outcomeComplete') :
+                         workOrder.signOffOutcome === 'failed' ? t('common.workOrders.detailPanel.outcomeFailed') : t('common.workOrders.detailPanel.outcomeNotComplete')}
                       </span>
                     </p>
                   )}
                   {workOrder.signOffOutcomeReason && (
-                    <p className="text-sm text-gray-700">Reason: {workOrder.signOffOutcomeReason}</p>
+                    <p className="text-sm text-gray-700">{t('common.workOrders.detailPanel.reasonInline', { reason: workOrder.signOffOutcomeReason })}</p>
                   )}
                   {workOrder.supervisorSignOffNotes && (
                     <p className="text-sm text-gray-700 italic">"{workOrder.supervisorSignOffNotes}"</p>
                   )}
                   <p className="text-xs text-gray-500">
-                    Signed off by {workOrder.supervisorSignOffByName || workOrder.closedByName || ''}
+                    {t('common.workOrders.detailPanel.signedOffByInline', { name: workOrder.supervisorSignOffByName || workOrder.closedByName || '' })}
                     {workOrder.supervisorSignOffAt?.toDate
                       ? ` · ${workOrder.supervisorSignOffAt.toDate().toLocaleString()}`
                       : ''}
@@ -594,7 +595,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {activeTab === 'checklist' && (
             <div className="space-y-3">
               {workOrder.checklist.length === 0 ? (
-                <p className="text-sm text-gray-400 py-6 text-center">No checklist steps defined.</p>
+                <p className="text-sm text-gray-400 py-6 text-center">{t('common.workOrders.detailPanel.noChecklistDefined')}</p>
               ) : canExecuteChecklist ? (
                 <ChecklistExecutor
                   workOrder={workOrder}
@@ -639,7 +640,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                           />
                         </div>
                         <p className="text-xs text-gray-500">
-                          {visibleItems.filter((i) => i.isCompleted).length} / {visibleItems.length} completed
+                          {t('common.workOrders.detailPanel.completedCountInline', { done: visibleItems.filter((i) => i.isCompleted).length, total: visibleItems.length })}
                         </p>
                         <ol className="space-y-2">
                           {visibleItems.map((item, i) => (
@@ -661,31 +662,31 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                                   <div className="mt-1 space-y-0.5">
                                     {(item.method || item.acceptableMin != null || item.acceptableMax != null) && (
                                       <p className="text-xs text-gray-500">
-                                        Spec (set by supervisor):{' '}
+                                        {t('common.workOrders.detailPanel.specBySupervisor')}{' '}
                                         {item.method && <>{item.method} · </>}
                                         {(item.acceptableMin != null || item.acceptableMax != null) && (
-                                          <>Acceptable {item.acceptableMin ?? ''}–{item.acceptableMax ?? ''}{item.unit ? ` ${item.unit}` : ''}</>
+                                          <>{t('common.workOrders.detailPanel.acceptableRange', { min: item.acceptableMin ?? '', max: item.acceptableMax ?? '', unit: item.unit ? ` ${item.unit}` : '' })}</>
                                         )}
                                       </p>
                                     )}
                                     {item.actualValue != null ? (
                                       <p className="text-xs text-gray-700">
-                                        Actual value:{' '}
+                                        {t('common.workOrders.detailPanel.actualValueLabel')}{' '}
                                         <span className="font-semibold">{item.actualValue}{item.unit ? ` ${item.unit}` : ''}</span>
                                         {item.result && (
                                           <span className={`ml-1 font-semibold ${item.result === 'pass' ? 'text-emerald-600' : 'text-red-600'}`}>
                                             ({item.result})
                                           </span>
                                         )}
-                                        {item.completedByName && <> · by {item.completedByName}</>}
+                                        {item.completedByName && <> {t('common.workOrders.detailPanel.byInline', { name: item.completedByName })}</>}
                                       </p>
                                     ) : (
-                                      <p className="text-xs text-gray-400 italic">No reading recorded yet.</p>
+                                      <p className="text-xs text-gray-400 italic">{t('common.workOrders.detailPanel.noReadingYet')}</p>
                                     )}
                                   </div>
                                 )}
                                 {item.repairNote && (
-                                  <p className="text-xs text-gray-600 mt-0.5 italic">Repair note: {item.repairNote}</p>
+                                  <p className="text-xs text-gray-600 mt-0.5 italic">{t('common.workOrders.detailPanel.repairNoteInline', { note: item.repairNote })}</p>
                                 )}
                                 {item.isCompleted && (
                                   <p className="text-xs text-emerald-600 mt-0.5">
@@ -694,7 +695,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                                   </p>
                                 )}
                                 {item.completionNote && (
-                                  <p className="text-xs text-gray-600 mt-0.5 italic">Note: {item.completionNote}</p>
+                                  <p className="text-xs text-gray-600 mt-0.5 italic">{t('common.workOrders.detailPanel.noteInline', { note: item.completionNote })}</p>
                                 )}
                               </div>
                               {item.isCompleted && (
@@ -715,7 +716,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {activeTab === 'documents' && (
             <div className="space-y-4">
               {workOrder.documents.length === 0 ? (
-                <p className="text-sm text-gray-400 py-6 text-center">No documents uploaded.</p>
+                <p className="text-sm text-gray-400 py-6 text-center">{t('common.workOrders.detailPanel.noDocuments')}</p>
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                   {workOrder.documents.map((doc) => (
@@ -740,7 +741,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               )}
               {workOrder.finalPhotos.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Completion Photos</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.workOrders.detailPanel.completionPhotosTitle')}</h3>
                   <div className="grid grid-cols-3 gap-2">
                     {workOrder.finalPhotos.map((url, i) => (
                       <a key={i} href={url} target="_blank" rel="noreferrer">
@@ -764,7 +765,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {(workOrder.partsUsed ?? []).length > 0 && (
                 <div>
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                    Parts Used During This WO
+                    {t('common.workOrders.detailPanel.partsUsedTitle')}
                   </h3>
                   <div className="space-y-2">
                     {workOrder.partsUsed.map((part, i) => (
@@ -775,8 +776,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-800 truncate">{part.partName}</p>
                           <p className="text-xs text-gray-600">
-                            {part.quantity} {part.unit} · {part.source === 'stock' ? 'From store stock' : 'External purchase'}
-                            {part.warrantyMonths ? ` · ${part.warrantyMonths}mo warranty` : ''}
+                            {part.quantity} {part.unit} · {part.source === 'stock' ? t('common.workOrders.detailPanel.fromStock') : t('common.workOrders.detailPanel.externalPurchase')}
+                            {part.warrantyMonths ? t('common.workOrders.detailPanel.warrantyMonths', { months: part.warrantyMonths }) : ''}
                           </p>
                         </div>
                         <span className="text-sm font-semibold text-gray-800 whitespace-nowrap">
@@ -785,7 +786,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                       </div>
                     ))}
                     <div className="flex justify-end text-sm text-gray-600">
-                      Total parts cost:&nbsp;
+                      {t('common.workOrders.detailPanel.totalPartsCost')}&nbsp;
                       <span className="font-semibold text-gray-800">
                         LKR {workOrder.partsUsed.reduce((s, p) => s + (p.totalCost ?? 0), 0).toLocaleString()}
                       </span>
@@ -795,11 +796,11 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               )}
 
               {(workOrder.partsRequests ?? []).length === 0 && (workOrder.partsUsed ?? []).length === 0 ? (
-                <p className="text-sm text-gray-400 py-6 text-center">No parts requested.</p>
+                <p className="text-sm text-gray-400 py-6 text-center">{t('common.workOrders.detailPanel.noPartsRequested')}</p>
               ) : (workOrder.partsRequests ?? []).length === 0 ? null : (
                 <div className="space-y-2">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    Pre-Requested Parts
+                    {t('common.workOrders.detailPanel.preRequestedPartsTitle')}
                   </h3>
                   {(workOrder.partsRequests ?? []).map((req) => (
                     <div key={req.id} className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-3">
@@ -828,7 +829,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
               {linkedBreakdowns.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    Breakdown History ({linkedBreakdowns.length})
+                    {t('common.workOrders.detailPanel.breakdownHistoryTitle', { count: linkedBreakdowns.length })}
                   </h3>
                   {linkedBreakdowns.map((bd) => (
                     <div key={bd.id} className="border border-gray-200 rounded-lg p-3">
@@ -862,9 +863,9 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                 </div>
               )}
 
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Work Order History</h3>
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('common.workOrders.detailPanel.workOrderHistoryTitle')}</h3>
               {workOrder.statusHistory.length === 0 ? (
-                <p className="text-sm text-gray-400 py-6 text-center">No status history.</p>
+                <p className="text-sm text-gray-400 py-6 text-center">{t('common.workOrders.detailPanel.noStatusHistory')}</p>
               ) : (
                 <ol className="relative border-l-2 border-gray-200 ml-3 space-y-6">
                   {workOrder.statusHistory.map((entry, i) => (
@@ -898,8 +899,8 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {showSignOff && (
             <div className="bg-white border-2 border-blue-100 rounded-xl p-5 space-y-4">
               <div>
-                <h3 className="font-semibold text-gray-900">{WO_COPY.signOffTitle}</h3>
-                <p className="text-sm text-gray-600">{WO_COPY.signOffInstructions}</p>
+                <h3 className="font-semibold text-gray-900">{t('common.workOrders.copy.signOffTitle')}</h3>
+                <p className="text-sm text-gray-600">{t('common.workOrders.copy.signOffInstructions')}</p>
               </div>
               <WOSignOffForm
                 workOrder={workOrder}
@@ -915,12 +916,12 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* Cancel confirm */}
           {showCancelConfirm && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
-              <p className="text-sm font-medium text-red-800">Cancel this work order?</p>
+              <p className="text-sm font-medium text-red-800">{t('common.workOrders.detailPanel.cancelWOConfirm')}</p>
               <textarea
                 rows={2}
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                placeholder={WO_COPY.cancelReasonPlaceholder}
+                placeholder={t('common.workOrders.copy.cancelReasonPlaceholder')}
                 className="w-full rounded-lg border border-red-200 px-3 py-2 text-sm resize-none"
               />
               <div className="flex gap-3">
@@ -929,7 +930,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   onClick={() => setShowCancelConfirm(false)}
                   className="flex-1 py-2 text-sm text-gray-600"
                 >
-                  Keep WO
+                  {t('common.workOrders.detailPanel.keepWOButton')}
                 </button>
                 <button
                   type="button"
@@ -940,7 +941,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   disabled={statusLoading}
                   className="flex-1 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50"
                 >
-                  Confirm Cancel
+                  {t('common.workOrders.detailPanel.confirmCancelButton')}
                 </button>
               </div>
             </div>
@@ -959,7 +960,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   disabled={statusLoading}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {WO_COPY.checkInButton}
+                  {t('common.workOrders.copy.checkInButton')}
                 </button>
               )}
               {['ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
@@ -969,7 +970,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   disabled={statusLoading}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  Resume Work
+                  {t('common.workOrders.detailPanel.resumeWorkButton')}
                 </button>
               )}
               {workOrder.status === 'COMPLETED' && (
@@ -978,7 +979,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   onClick={() => setShowSignOff(true)}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
                 >
-                  Sign Off &amp; Close
+                  {t('common.workOrders.detailPanel.signOffCloseButton')}
                 </button>
               )}
               {['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
@@ -986,12 +987,12 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   type="button"
                   onClick={() => setShowCompletionForm(true)}
                   disabled={!everyoneDone}
-                  title={everyoneDone ? undefined : 'All assigned team members must complete their own work first'}
+                  title={everyoneDone ? undefined : t('common.workOrders.detailPanel.allTeamMustComplete')}
                   className="flex-1 px-4 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {everyoneDone
-                    ? WO_COPY.completeButton
-                    : `Awaiting team (${completedAssigneeCount}/${totalAssignees})`}
+                    ? t('common.workOrders.copy.completeButton')
+                    : t('common.workOrders.detailPanel.awaitingTeam', { done: completedAssigneeCount, total: totalAssignees })}
                 </button>
               )}
               {!['CLOSED', 'CANCELLED', 'SIGNED_OFF'].includes(workOrder.status) && (
@@ -1000,7 +1001,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   onClick={() => setShowCancelConfirm(true)}
                   className="flex-1 min-w-fit px-3 py-2 text-sm border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
                 >
-                  {WO_COPY.cancelWOButton}
+                  {t('common.workOrders.copy.cancelWOButton')}
                 </button>
               )}
             </div>
@@ -1015,7 +1016,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   disabled={statusLoading}
                   className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {WO_COPY.checkInButton}
+                  {t('common.workOrders.copy.checkInButton')}
                 </button>
               )}
               {['ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(workOrder.status) && (
@@ -1025,7 +1026,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   disabled={statusLoading}
                   className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  Resume Work
+                  {t('common.workOrders.detailPanel.resumeWorkButton')}
                 </button>
               )}
               {workOrder.status === 'IN_PROGRESS' && (
@@ -1035,12 +1036,12 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                     onClick={() => updateStatus(workOrder.id, 'ON_HOLD_PARTS')}
                     className="flex-1 py-2 border border-amber-300 text-amber-700 text-sm rounded-lg hover:bg-amber-50"
                   >
-                    Parts Needed
+                    {t('common.workOrders.detailPanel.partsNeededButton')}
                   </button>
                   {/* Each assignee completes only their own work first. */}
                   {myCompletion ? (
                     <div className="flex-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-sm font-medium text-emerald-700">
-                      ✓ Your work is complete
+                      {t('common.workOrders.detailPanel.yourWorkComplete')}
                     </div>
                   ) : (
                     <button
@@ -1048,7 +1049,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                       onClick={() => setShowMyWorkForm(true)}
                       className="flex-1 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700"
                     >
-                      Complete My Work
+                      {t('common.workOrders.detailPanel.completeMyWorkButton')}
                     </button>
                   )}
                   {everyoneDone && (
@@ -1057,7 +1058,7 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                       onClick={() => setShowCompletionForm(true)}
                       className="flex-1 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700"
                     >
-                      {WO_COPY.completeButton}
+                      {t('common.workOrders.copy.completeButton')}
                     </button>
                   )}
                 </>
@@ -1068,12 +1069,12 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
           {/* Per-person completion form for an assigned technician. */}
           {isTechnician && isAssigned && showMyWorkForm && !myCompletion && (
             <div className="mt-3 rounded-lg border border-gray-200 bg-white p-3 space-y-2">
-              <p className="text-sm font-semibold text-gray-800">Complete my work</p>
+              <p className="text-sm font-semibold text-gray-800">{t('common.workOrders.detailPanel.completeMyWorkTitle')}</p>
               <textarea
                 rows={3}
                 value={myWorkDone}
                 onChange={(e) => setMyWorkDone(e.target.value)}
-                placeholder="Describe the work you did on this job"
+                placeholder={t('common.workOrders.detailPanel.completeMyWorkPlaceholder')}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 resize-none"
               />
               <div className="flex gap-2">
@@ -1083,14 +1084,14 @@ export function WODetailPanel({ workOrder, onClose, fullPage = false }: WODetail
                   disabled={myWorkLoading || !myWorkDone.trim()}
                   className="flex-1 py-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 disabled:opacity-50"
                 >
-                  Submit my work
+                  {t('common.workOrders.detailPanel.submitMyWorkButton')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowMyWorkForm(false)}
                   className="px-4 py-2 border border-gray-200 text-gray-700 text-sm rounded-lg"
                 >
-                  Cancel
+                  {t('common.workOrders.detailPanel.cancelButton')}
                 </button>
               </div>
             </div>

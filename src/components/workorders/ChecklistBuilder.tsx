@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { ChecklistItem } from '../../types/workOrder';
-import { WO_COPY } from '../../constants/copy';
+import { useTranslation } from 'react-i18next';
 
 type ChecklistItemDraft = Omit<ChecklistItem, 'isCompleted' | 'completedBy' | 'completedByName' | 'completedAt'>;
 
@@ -17,6 +17,7 @@ export function ChecklistBuilder({
   technicianOptions = [],
   readOnly = false,
 }: ChecklistBuilderProps) {
+  const { t } = useTranslation();
   const [newStep, setNewStep] = useState('');
   const [importError, setImportError] = useState<string | null>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -198,7 +199,7 @@ export function ChecklistBuilder({
   return (
     <div className="space-y-3">
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400 py-4 text-center">{WO_COPY.noChecklist}</p>
+        <p className="text-sm text-gray-400 py-4 text-center">{t('common.workOrders.copy.noChecklist')}</p>
       ) : (
         <ol className="space-y-2">
           {items.map((item, index) => {
@@ -221,7 +222,7 @@ export function ChecklistBuilder({
                       value={item.stepDescription}
                       onChange={(e) => updateStep(index, 'stepDescription', e.target.value)}
                       className="w-full text-sm bg-transparent border-b border-gray-200 focus:border-blue-500 outline-none py-0.5"
-                      placeholder={WO_COPY.stepPlaceholder}
+                      placeholder={t('common.workOrders.copy.stepPlaceholder')}
                     />
                   )}
 
@@ -319,13 +320,13 @@ export function ChecklistBuilder({
                         <div>
                           <p className="text-xs text-gray-500 mb-1">Assign workers:</p>
                           <div className="flex flex-wrap gap-1.5">
-                            {technicianOptions.map((t) => {
-                              const isSelected = (item.assignedTechnicianIds ?? []).includes(t.id);
+                            {technicianOptions.map((tech) => {
+                              const isSelected = (item.assignedTechnicianIds ?? []).includes(tech.id);
                               return (
                                 <button
-                                  key={t.id}
+                                  key={tech.id}
                                   type="button"
-                                  onClick={() => toggleTechnician(index, t.id, t.name)}
+                                  onClick={() => toggleTechnician(index, tech.id, tech.name)}
                                   className={`inline-flex items-center gap-1 px-2 py-1 text-xs rounded-md border transition-colors ${
                                     isSelected
                                       ? 'bg-blue-50 border-blue-300 text-blue-700'
@@ -339,7 +340,7 @@ export function ChecklistBuilder({
                                   >
                                     {isSelected && <span className="text-white text-[8px]">✓</span>}
                                   </span>
-                                  {t.name}
+                                  {tech.name}
                                 </button>
                               );
                             })}
@@ -393,7 +394,7 @@ export function ChecklistBuilder({
             value={newStep}
             onChange={(e) => setNewStep(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStep())}
-            placeholder={WO_COPY.stepPlaceholder}
+            placeholder={t('common.workOrders.copy.stepPlaceholder')}
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -401,7 +402,7 @@ export function ChecklistBuilder({
             onClick={addStep}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {WO_COPY.addStepButton}
+            {t('common.workOrders.copy.addStepButton')}
           </button>
         </div>
       )}
@@ -421,7 +422,7 @@ export function ChecklistBuilder({
               onClick={() => importInputRef.current?.click()}
               className="text-blue-600 hover:text-blue-800 underline"
             >
-              {WO_COPY.importTemplateButton}
+              {t('common.workOrders.copy.importTemplateButton')}
             </button>
             <span className="text-gray-300">|</span>
             <button

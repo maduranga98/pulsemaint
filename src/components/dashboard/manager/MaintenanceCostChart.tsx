@@ -29,7 +29,7 @@ export default function MaintenanceCostChart({ companyId, month }: MaintenanceCo
   const chartData = data.map((row) => {
     const config = WO_TYPE_CONFIG[row.woType as WOType];
     return {
-      name: config?.label ?? row.woType,
+      name: config ? t(`common.workOrders.types.${row.woType}`) : row.woType,
       cost: row.cost,
       color: config?.color ?? '#8BA3BF',
     };
