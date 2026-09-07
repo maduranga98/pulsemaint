@@ -75,7 +75,7 @@ export function WOTable({ workOrders, onSelect, showTypeColumn = true, canSignOf
                     <span
                       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${priorityConfig.bgClass} ${priorityConfig.textClass}`}
                     >
-                      {priorityConfig.label}
+                      {t(`common.workOrders.priorities.${wo.priority}`)}
                     </span>
                   </td>
                   <td className="px-4 py-3">

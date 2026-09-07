@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import type { WorkOrder, WORootCause } from '../../types/workOrder';
 import { WO_ROOT_CAUSE_LABELS } from '../../constants/woConfig';
@@ -45,6 +46,7 @@ const MACHINE_STATUS_LABEL: Record<string, string> = {
 };
 
 export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
+  const { t } = useTranslation();
   const wo = workOrder;
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -271,8 +273,8 @@ export function WOReviewSignOffPanel({ workOrder, onClose, onDone }: Props) {
                           onChange={(e) => setRootCauseEnum(e.target.value as WORootCause)}
                           className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
                         >
-                          {Object.entries(WO_ROOT_CAUSE_LABELS).map(([val, label]) => (
-                            <option key={val} value={val}>{label}</option>
+                          {Object.keys(WO_ROOT_CAUSE_LABELS).map((val) => (
+                            <option key={val} value={val}>{t(`common.workOrders.rootCauses.${val}`)}</option>
                           ))}
                         </select>
                       </div>

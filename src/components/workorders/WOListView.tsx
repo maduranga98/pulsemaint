@@ -169,6 +169,7 @@ export function WOListView() {
           <div className="flex flex-wrap gap-1">
             {COLUMN_TYPES.map((type) => {
               const config = WO_TYPE_CONFIG[type];
+              const typeLabel = t(`common.workOrders.types.${type}`);
               const count = nonExcludedWOs.filter(
                 (wo) => wo.woType === type && !SIGNED_OFF_STATUSES.includes(wo.status),
               ).length;
@@ -186,7 +187,7 @@ export function WOListView() {
                   <span className={activeCategory === type ? 'text-white' : ''} style={activeCategory === type ? undefined : { color: config.color }}>
                     {config.icon}
                   </span>
-                  {config.label}
+                  {typeLabel}
                   <span
                     className={`text-xs font-medium rounded-full px-1.5 ${
                       activeCategory === type ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-400'

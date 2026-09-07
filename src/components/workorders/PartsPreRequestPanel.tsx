@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { PartsRequest } from '../../types/workOrder';
-import { WO_COPY } from '../../constants/copy';
+import { useTranslation } from 'react-i18next';
 
 // Stub — replace with real parts catalog from Module 6
 interface PartCatalogItem {
@@ -33,6 +33,7 @@ export function PartsPreRequestPanel({
   catalogItems = [],
   readOnly = false,
 }: PartsPreRequestPanelProps) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedPart, setSelectedPart] = useState<PartCatalogItem | null>(null);
@@ -83,7 +84,7 @@ export function PartsPreRequestPanel({
           {/* Part search */}
           <div className="relative">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              {WO_COPY.partsRequestLabel}
+              {t('common.workOrders.copy.partsRequestLabel')}
             </label>
             <input
               type="text"
@@ -91,7 +92,7 @@ export function PartsPreRequestPanel({
               onChange={(e) => { setSearch(e.target.value); setShowSuggestions(true); setSelectedPart(null); }}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              placeholder={WO_COPY.partSearchPlaceholder}
+              placeholder={t('common.workOrders.copy.partSearchPlaceholder')}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
             {showSuggestions && suggestions.length > 0 && (
@@ -110,7 +111,7 @@ export function PartsPreRequestPanel({
                           part.currentStock > 0 ? 'text-emerald-600' : 'text-red-500'
                         }`}
                       >
-                        {WO_COPY.currentStockLabel}: {part.currentStock} {part.unit}
+                        {t('common.workOrders.copy.currentStockLabel')}: {part.currentStock} {part.unit}
                       </span>
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5">
@@ -125,7 +126,7 @@ export function PartsPreRequestPanel({
           {selectedPart && (
             <div className="flex items-end gap-3">
               <div className="w-24">
-                <label className="block text-xs text-gray-500 mb-1">{WO_COPY.quantityLabel}</label>
+                <label className="block text-xs text-gray-500 mb-1">{t('common.workOrders.copy.quantityLabel')}</label>
                 <input
                   type="number"
                   min={1}
@@ -135,7 +136,7 @@ export function PartsPreRequestPanel({
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-xs text-gray-500 mb-1">{WO_COPY.noteLabel}</label>
+                <label className="block text-xs text-gray-500 mb-1">{t('common.workOrders.copy.noteLabel')}</label>
                 <input
                   type="text"
                   value={note}
@@ -149,7 +150,7 @@ export function PartsPreRequestPanel({
                 onClick={addRequest}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
               >
-                {WO_COPY.addPartButton}
+                {t('common.workOrders.copy.addPartButton')}
               </button>
             </div>
           )}
@@ -158,7 +159,7 @@ export function PartsPreRequestPanel({
 
       {/* Request list */}
       {requests.length === 0 ? (
-        <p className="text-sm text-gray-400 py-3 text-center">{WO_COPY.noParts}</p>
+        <p className="text-sm text-gray-400 py-3 text-center">{t('common.workOrders.copy.noParts')}</p>
       ) : (
         <div className="space-y-2">
           {requests.map((req, i) => (

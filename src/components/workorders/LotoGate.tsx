@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Lock, LockOpen, ShieldCheck, AlertTriangle, Zap, Droplets, Wind, Settings, Flame } from 'lucide-react';
 import { usePermit } from '../../hooks/usePermit';
 import { useAuthStore } from '../../store/authStore';
@@ -40,6 +41,7 @@ function formatTimestamp(ts: any): string {
 }
 
 export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const role = (userProfile?.role ?? '') as string;
@@ -63,7 +65,7 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
 
   if (loading) {
     return (
-      <div className="py-8 text-center text-sm text-gray-400">Loading safety gate...</div>
+      <div className="py-8 text-center text-sm text-gray-400">{t('common.workOrders.lotoGate.loading')}</div>
     );
   }
 
@@ -73,7 +75,7 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
   // Status banner config
   let bannerBg = 'bg-red-50 border-red-200 text-red-700';
   let bannerIcon = <AlertTriangle className="h-5 w-5" />;
-  let bannerText = 'LOTO/PTW not initialized';
+  let bannerText = t('common.workOrders.lotoGate.statusNotInitialized');
 
   if (permit) {
     const lockedCount = permit.isolationChecklist.filter((e) => e.locked).length;
@@ -82,23 +84,23 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
     if (lotoGatePassed) {
       bannerBg = 'bg-emerald-50 border-emerald-200 text-emerald-700';
       bannerIcon = <ShieldCheck className="h-5 w-5" />;
-      bannerText = 'Safety gate PASSED — work may proceed';
+      bannerText = t('common.workOrders.lotoGate.statusPassed');
     } else if (permit.zeroEnergyVerified && !lotoGatePassed && workOrder.ptwCategory) {
       bannerBg = 'bg-blue-50 border-blue-200 text-blue-700';
       bannerIcon = <ShieldCheck className="h-5 w-5" />;
-      bannerText = 'Zero energy verified — PTW permit issuance pending';
+      bannerText = t('common.workOrders.lotoGate.statusZeroEnergyVerified');
     } else if (allPointsLocked && !permit.zeroEnergyVerified) {
       bannerBg = 'bg-orange-50 border-orange-200 text-orange-700';
       bannerIcon = <Lock className="h-5 w-5" />;
-      bannerText = 'All points locked — verify zero energy state';
+      bannerText = t('common.workOrders.lotoGate.statusAllPointsLocked');
     } else if (lockedCount > 0 && lockedCount < total) {
       bannerBg = 'bg-yellow-50 border-yellow-200 text-yellow-700';
       bannerIcon = <AlertTriangle className="h-5 w-5" />;
-      bannerText = `Isolation in progress — ${lockedCount}/${total} points locked`;
+      bannerText = t('common.workOrders.lotoGate.statusInProgress', { locked: lockedCount, total });
     } else if (lockedCount === 0) {
       bannerBg = 'bg-red-50 border-red-200 text-red-700';
       bannerIcon = <AlertTriangle className="h-5 w-5" />;
-      bannerText = 'Isolation not started — lock all points before proceeding';
+      bannerText = t('common.workOrders.lotoGate.statusNotStarted');
     }
   }
 
@@ -113,7 +115,7 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
       {/* No isolation points defined */}
       {machineIsolationPoints.length === 0 && !permit && (
         <div className="text-sm text-gray-500 bg-gray-50 rounded-xl p-4">
-          No isolation points defined for this machine. Add them in the machine profile.
+          {t('common.workOrders.lotoGate.noIsolationPoints')}
         </div>
       )}
 
@@ -124,16 +126,18 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
           onClick={() => createPermit(machineIsolationPoints)}
           className="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors"
         >
-          Initialize LOTO/PTW
+          {t('common.workOrders.lotoGate.initializeButton')}
         </button>
       )}
 
       {/* Isolation Points List */}
       {permit && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Isolation Points</h3>
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+            {t('common.workOrders.lotoGate.isolationPointsTitle')}
+          </h3>
           {permit.isolationChecklist.length === 0 && (
-            <p className="text-sm text-gray-400 py-2">No isolation points in this permit.</p>
+            <p className="text-sm text-gray-400 py-2">{t('common.workOrders.lotoGate.noIsolationPointsInPermit')}</p>
           )}
           {permit.isolationChecklist.map((entry) => {
             const pointDef = machineIsolationPoints.find((p) => p.id === entry.pointId);
@@ -164,8 +168,12 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
                   {location && <p className="text-xs text-gray-500">{location}</p>}
                   {entry.locked && entry.lockedByName && (
                     <p className="text-xs text-emerald-600 mt-0.5">
-                      Locked by {entry.lockedByName}
-                      {entry.lockedAt && ` · ${formatTimestamp(entry.lockedAt)}`}
+                      {entry.lockedAt
+                        ? t('common.workOrders.lotoGate.lockedByAtLabel', {
+                            name: entry.lockedByName,
+                            date: formatTimestamp(entry.lockedAt),
+                          })
+                        : t('common.workOrders.lotoGate.lockedByLabel', { name: entry.lockedByName })}
                     </p>
                   )}
                 </div>
@@ -185,7 +193,7 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
                       onClick={() => lockPoint(entry.pointId, uid, userName)}
                       className="px-2.5 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
-                      Lock
+                      {t('common.workOrders.lotoGate.lockButton')}
                     </button>
                   )}
                   {entry.locked && isSupervisorRole && (
@@ -194,7 +202,7 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
                       onClick={() => unlockPoint(entry.pointId)}
                       className="px-2.5 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
                     >
-                      Unlock
+                      {t('common.workOrders.lotoGate.unlockButton')}
                     </button>
                   )}
                 </div>
@@ -221,16 +229,20 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
               }}
               className="rounded border-gray-300 text-emerald-600"
             />
-            <span className="text-sm font-medium text-gray-800">Zero Energy State Verified</span>
+            <span className="text-sm font-medium text-gray-800">{t('common.workOrders.lotoGate.zeroEnergyLabel')}</span>
             <ShieldCheck className={`h-4 w-4 ${permit.zeroEnergyVerified ? 'text-emerald-500' : 'text-gray-300'}`} />
           </label>
           {!allPointsLocked && (
-            <p className="text-xs text-gray-400 ml-6">Lock all isolation points first</p>
+            <p className="text-xs text-gray-400 ml-6">{t('common.workOrders.lotoGate.lockAllPointsFirst')}</p>
           )}
           {permit.zeroEnergyVerified && permit.zeroEnergyVerifiedByName && (
             <p className="text-xs text-emerald-600 ml-6">
-              Verified by {permit.zeroEnergyVerifiedByName}
-              {permit.zeroEnergyVerifiedAt && ` · ${formatTimestamp(permit.zeroEnergyVerifiedAt)}`}
+              {permit.zeroEnergyVerifiedAt
+                ? t('common.workOrders.lotoGate.verifiedByAtLabel', {
+                    name: permit.zeroEnergyVerifiedByName,
+                    date: formatTimestamp(permit.zeroEnergyVerifiedAt),
+                  })
+                : t('common.workOrders.lotoGate.verifiedByLabel', { name: permit.zeroEnergyVerifiedByName })}
             </p>
           )}
         </div>
@@ -241,7 +253,9 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
         <div className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 space-y-3">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Permit to Work</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                {t('common.workOrders.lotoGate.ptwTitle')}
+              </p>
               <p className="font-semibold text-gray-900">{workOrder.ptwCategory}</p>
             </div>
             <span
@@ -261,8 +275,12 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
 
           {permit.status === 'active' && permit.issuedByName && (
             <p className="text-xs text-emerald-700">
-              Issued by {permit.issuedByName}
-              {permit.issuedAt && ` · ${formatTimestamp(permit.issuedAt)}`}
+              {permit.issuedAt
+                ? t('common.workOrders.lotoGate.issuedByAtLabel', {
+                    name: permit.issuedByName,
+                    date: formatTimestamp(permit.issuedAt),
+                  })
+                : t('common.workOrders.lotoGate.issuedByLabel', { name: permit.issuedByName })}
             </p>
           )}
 
@@ -272,12 +290,12 @@ export function LotoGate({ workOrder, machineIsolationPoints }: LotoGateProps) {
               onClick={() => issuePermit(uid, userName)}
               className="w-full py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700"
             >
-              Issue Permit
+              {t('common.workOrders.lotoGate.issuePermitButton')}
             </button>
           )}
 
           {!permit.zeroEnergyVerified && (
-            <p className="text-xs text-gray-500">Zero energy verification required before permit can be issued.</p>
+            <p className="text-xs text-gray-500">{t('common.workOrders.lotoGate.zeroEnergyRequiredNotice')}</p>
           )}
         </div>
       )}

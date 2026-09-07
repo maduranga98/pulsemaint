@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { WODocument } from '../../types/workOrder';
-import { WO_COPY } from '../../constants/copy';
 
 const MAX_TOTAL_BYTES = 500 * 1024 * 1024; // 500 MB
 
@@ -69,6 +69,7 @@ export function DocumentUploadZone({
   onRemoveUploaded,
   progress = {},
 }: DocumentUploadZoneProps) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -120,7 +121,7 @@ export function DocumentUploadZone({
         }`}
       >
         <p className="text-3xl mb-2">📁</p>
-        <p className="text-sm font-medium text-gray-700">{WO_COPY.uploadHint}</p>
+        <p className="text-sm font-medium text-gray-700">{t('common.workOrders.copy.uploadHint')}</p>
         <p className="text-xs text-gray-400 mt-1">
           CAD, PDF, Images, Video, ZIP supported
         </p>
@@ -137,7 +138,7 @@ export function DocumentUploadZone({
       {/* Storage bar */}
       <div>
         <div className="flex justify-between text-xs text-gray-500 mb-1">
-          <span>{WO_COPY.storageUsed(formatBytes(totalUsed))}</span>
+          <span>{t('common.workOrders.copy.storageUsed', { used: formatBytes(totalUsed) })}</span>
           <span>{usedPct}%</span>
         </div>
         <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">

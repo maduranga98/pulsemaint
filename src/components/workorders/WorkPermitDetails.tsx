@@ -1,3 +1,4 @@
+import { useTranslation, type TFunction } from 'react-i18next';
 import { ShieldCheck } from 'lucide-react';
 import {
   WORK_PERMIT_CATEGORIES,
@@ -48,6 +49,29 @@ interface Row {
   pre?: boolean;
 }
 
+function buildRows(permit: WorkPermit, t: TFunction): Row[] {
+  return [
+    { label: t('common.workOrders.workPermit.categoryLabel'), value: categoryLabel(permit.category) },
+    { label: t('common.workOrders.workPermit.titleLabel'), value: permit.title },
+    { label: t('common.workOrders.workPermit.descriptionLabel'), value: permit.description, pre: true },
+    { label: t('common.workOrders.workPermit.locationLabel'), value: permit.location },
+    { label: t('common.workOrders.workPermit.validFromLabel'), value: formatPermitDateTime(permit.validFrom) },
+    { label: t('common.workOrders.workPermit.validToLabel'), value: formatPermitDateTime(permit.validTo) },
+    { label: t('common.workOrders.workPermit.hazardsLabel'), value: permit.hazards, pre: true },
+    { label: t('common.workOrders.workPermit.ppeRequiredLabel'), value: permit.ppeRequired, pre: true },
+    { label: t('common.workOrders.workPermit.requestedByLabel'), value: permit.requestedByName },
+    { label: t('common.workOrders.workPermit.supervisorLabel'), value: permit.supervisorName },
+    { label: t('common.workOrders.workPermit.linkedWOLabel'), value: permit.workOrderNumber },
+    { label: t('common.workOrders.workPermit.completionLabel'), value: completionLabel(permit.completion) },
+    { label: t('common.workOrders.workPermit.completionNoteLabel'), value: permit.completionNote, pre: true },
+    { label: t('common.workOrders.workPermit.signedOffByLabel'), value: permit.signedOffByName },
+    {
+      label: t('common.workOrders.workPermit.signedOffAtLabel'),
+      value: permit.signedOffAt ? formatTimestamp(permit.signedOffAt) : null,
+    },
+  ];
+}
+
 /**
  * The full detail of a Work Permit (Permit-to-Work), rendered as a labelled
  * field list. Shown wherever a work order's linked permit is surfaced — the WO
@@ -64,29 +88,10 @@ export function WorkPermitDetails({
   permit: WorkPermit;
   variant?: 'light' | 'dark';
 }) {
+  const { t } = useTranslation();
   const dark = variant === 'dark';
   const overdue = isWorkPermitOverdue(permit);
-
-  const rows: Row[] = [
-    { label: 'Category', value: categoryLabel(permit.category) },
-    { label: 'Title', value: permit.title },
-    { label: 'Description', value: permit.description, pre: true },
-    { label: 'Location', value: permit.location },
-    { label: 'Valid from', value: formatPermitDateTime(permit.validFrom) },
-    { label: 'Valid to', value: formatPermitDateTime(permit.validTo) },
-    { label: 'Hazards', value: permit.hazards, pre: true },
-    { label: 'PPE required', value: permit.ppeRequired, pre: true },
-    { label: 'Requested by', value: permit.requestedByName },
-    { label: 'Supervisor', value: permit.supervisorName },
-    { label: 'Linked WO', value: permit.workOrderNumber },
-    { label: 'Completion', value: completionLabel(permit.completion) },
-    { label: 'Completion note', value: permit.completionNote, pre: true },
-    { label: 'Signed off by', value: permit.signedOffByName },
-    {
-      label: 'Signed off at',
-      value: permit.signedOffAt ? formatTimestamp(permit.signedOffAt) : null,
-    },
-  ];
+  const rows = buildRows(permit, t);
 
   const labelClass = dark ? 'text-[#8BA3BF]' : 'text-gray-500';
   const valueClass = dark ? 'text-[#F0F4F8]' : 'text-gray-800';
@@ -97,7 +102,7 @@ export function WorkPermitDetails({
       <div className="flex flex-wrap items-center gap-2">
         <ShieldCheck className={`h-4 w-4 ${dark ? 'text-emerald-400' : 'text-emerald-600'}`} />
         <span className={`text-sm font-semibold ${valueClass}`}>
-          {permit.permitNumber || 'Work Permit'}
+          {permit.permitNumber || t('common.workOrders.workPermit.defaultTitle')}
         </span>
         <span
           className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[permit.status]}`}
@@ -106,7 +111,7 @@ export function WorkPermitDetails({
         </span>
         {overdue && (
           <span className="inline-flex items-center rounded-full bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-700">
-            Overdue
+            {t('common.workOrders.workPermit.overdueBadge')}
           </span>
         )}
       </div>
@@ -123,7 +128,7 @@ export function WorkPermitDetails({
 
         {permit.precautions.length > 0 && (
           <div className="flex items-start gap-2">
-            <span className={`w-32 flex-shrink-0 ${labelClass}`}>Precautions:</span>
+            <span className={`w-32 flex-shrink-0 ${labelClass}`}>{t('common.workOrders.workPermit.precautionsLabel')}</span>
             <ul className={`list-disc space-y-0.5 pl-4 ${valueClass}`}>
               {permit.precautions.map((p, i) => (
                 <li key={i}>{p}</li>

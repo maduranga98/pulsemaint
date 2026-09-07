@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Timestamp } from 'firebase/firestore';
 import type { WOStatus } from '../../types/workOrder';
 import { SLA_STOPPED_STATUSES } from '../../constants/woConfig';
@@ -8,15 +9,16 @@ interface SLACountdownTimerProps {
   status: WOStatus;
 }
 
-function formatDuration(ms: number): string {
+function formatDuration(ms: number, t: (key: string, opts?: Record<string, unknown>) => string): string {
   const abs = Math.abs(ms);
   const h = Math.floor(abs / 3600000);
   const m = Math.floor((abs % 3600000) / 60000);
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
+  if (h > 0) return t('common.workOrders.slaCountdown.hoursMinutes', { hours: h, minutes: m });
+  return t('common.workOrders.slaCountdown.minutes', { minutes: m });
 }
 
 export function SLACountdownTimer({ slaDeadline, status }: SLACountdownTimerProps) {
+  const { t } = useTranslation();
   const [now, setNow] = useState(Date.now());
 
   const isStopped = SLA_STOPPED_STATUSES.includes(status);
@@ -36,7 +38,7 @@ export function SLACountdownTimer({ slaDeadline, status }: SLACountdownTimerProp
     return (
       <span className="inline-flex items-center gap-1 text-xs text-gray-400">
         <span className="h-1.5 w-1.5 rounded-full bg-gray-300" />
-        SLA closed
+        {t('common.workOrders.slaCountdown.slaClosed')}
       </span>
     );
   }
@@ -59,8 +61,8 @@ export function SLACountdownTimer({ slaDeadline, status }: SLACountdownTimerProp
   }
 
   const label = isOverdue
-    ? `Overdue by ${formatDuration(diff)}`
-    : `Due in ${formatDuration(diff)}`;
+    ? t('common.workOrders.slaCountdown.overdueBy', { duration: formatDuration(diff, t) })
+    : t('common.workOrders.slaCountdown.dueIn', { duration: formatDuration(diff, t) });
 
   return (
     <span className={`inline-flex items-center gap-1 text-xs ${colorClass}`}>
