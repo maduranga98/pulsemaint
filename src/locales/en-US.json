@@ -1949,7 +1949,11 @@
         "noPmsScheduled": "No PMs scheduled",
         "noPmsScheduledPeriod": "No PMs scheduled.",
         "openWorkOrder": "Open Work Order",
-        "openSchedule": "Open Schedule"
+        "openSchedule": "Open Schedule",
+        "pageTitle": "PM Calendar",
+        "eventsThisPeriod_one": "{{count}} event this period",
+        "eventsThisPeriod_other": "{{count}} events this period",
+        "loading": "Loading calendar..."
       },
       "newPmWorkOrder": "New PM Work Order",
       "selectedCount": "{{count}} selected",
@@ -2261,6 +2265,56 @@
       "errors": {
         "companyIdRequired": "Company ID is required",
         "fetchCalendarEventsFailed": "Failed to fetch calendar events"
+      },
+      "workloadPage": {
+        "title": "Technician Workload",
+        "description": "Upcoming PM assignments by technician",
+        "dateRangeLabel": "Date range",
+        "range_7": "7 days",
+        "range_14": "14 days",
+        "range_30": "30 days",
+        "loadErrorTitle": "Couldn't load workloads"
+      },
+      "technicianWorkload": {
+        "assignedHoursSummary_one": "{{count}} PM • {{hours}}h est.",
+        "assignedHoursSummary_other": "{{count}} PMs • {{hours}}h est.",
+        "status": {
+          "ok": "OK",
+          "busy": "Busy",
+          "overloaded": "Overloaded"
+        },
+        "moreCount_one": "+{{count}} more",
+        "moreCount_other": "+{{count}} more",
+        "empty": "No upcoming PM assignments in this range."
+      },
+      "complianceDashboard": {
+        "loading": "Loading compliance data...",
+        "kpi": {
+          "overallCompliance": "Overall Compliance",
+          "scheduledThisMonth": "Scheduled This Month",
+          "completedOnTime": "Completed On Time",
+          "overdue": "Overdue"
+        },
+        "trendChartTitle": "Compliance Trend (Last 6 Months)",
+        "chart": {
+          "breakdowns": "Breakdowns",
+          "complianceRate": "Compliance %",
+          "percentAxisLabel": "%"
+        },
+        "byMachineTitle": "Compliance by Machine",
+        "byTechnicianTitle": "Compliance by Technician",
+        "table": {
+          "name": "Name",
+          "rate": "Rate",
+          "scheduled": "Scheduled",
+          "onTime": "On Time",
+          "missed": "Missed"
+        },
+        "noData": "No data available."
+      },
+      "editPage": {
+        "title": "Edit PM Schedule",
+        "notFound": "Schedule not found. It may have been deleted."
       }
     }
   }
