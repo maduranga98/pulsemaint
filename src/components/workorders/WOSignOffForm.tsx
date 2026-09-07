@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, AlertTriangle, XCircle, Lock, Star } from 'lucide-react';
 import type { WorkOrder, WOSignOffOutcome } from '../../types/workOrder';
 import { useSignOff } from '../../hooks/useSignOff';
@@ -7,15 +8,16 @@ import { formatLkr } from '../../lib/contractors/invoiceCalculator';
 import { toast } from 'sonner';
 
 const RATING_DIMENSIONS = [
-  { key: 'speedScore', label: 'Speed' },
-  { key: 'qualityScore', label: 'Quality' },
-  { key: 'professionalismScore', label: 'Professionalism' },
-  { key: 'communicationScore', label: 'Communication' },
+  { key: 'speedScore', labelKey: 'speedLabel' },
+  { key: 'qualityScore', labelKey: 'qualityLabel' },
+  { key: 'professionalismScore', labelKey: 'professionalismLabel' },
+  { key: 'communicationScore', labelKey: 'communicationLabel' },
 ] as const;
 
 type RatingKey = (typeof RATING_DIMENSIONS)[number]['key'];
 
 function StarRow({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((n) => (
@@ -23,7 +25,7 @@ function StarRow({ value, onChange }: { value: number; onChange: (v: number) => 
           key={n}
           type="button"
           onClick={() => onChange(n)}
-          aria-label={`${n} star${n > 1 ? 's' : ''}`}
+          aria-label={t('common.workOrders.signOffForm.starLabel', { count: n })}
           className="p-0.5"
         >
           <Star className={`h-5 w-5 ${n <= value ? 'fill-amber-400 text-amber-400' : 'text-gray-300'}`} />
@@ -40,46 +42,47 @@ interface Props {
   onCancel?: () => void;
 }
 
-const OUTCOMES: {
-  value: WOSignOffOutcome;
-  label: string;
-  hint: string;
-  icon: typeof CheckCircle2;
-  active: string;
-}[] = [
-  {
-    value: 'complete',
-    label: 'Complete',
-    hint: 'Work finished and verified',
-    icon: CheckCircle2,
-    active: 'border-emerald-500 bg-emerald-50 text-emerald-700',
-  },
-  {
-    value: 'not_complete',
-    label: 'Not complete',
-    hint: 'Work could not be finished',
-    icon: AlertTriangle,
-    active: 'border-amber-500 bg-amber-50 text-amber-700',
-  },
-  {
-    value: 'failed',
-    label: 'Failed',
-    hint: 'Repair attempt failed',
-    icon: XCircle,
-    active: 'border-red-500 bg-red-50 text-red-700',
-  },
-];
-
 // Terminal sign-off form: the supervisor/manager records the closing outcome
 // (with a mandatory reason when it isn't a clean completion), an optional note,
 // then signs off and closes the work order in one irreversible action. The
 // person who signs off/closes is recorded automatically — no signature.
 export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
+  const { t } = useTranslation();
   const { signOff, loading } = useSignOff();
   const userProfile = useAuthStore((s) => s.userProfile);
   const [outcome, setOutcome] = useState<WOSignOffOutcome>('complete');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
+
+  const OUTCOMES: {
+    value: WOSignOffOutcome;
+    label: string;
+    hint: string;
+    icon: typeof CheckCircle2;
+    active: string;
+  }[] = [
+    {
+      value: 'complete',
+      label: t('common.workOrders.signOffForm.outcomeComplete'),
+      hint: t('common.workOrders.signOffForm.outcomeCompleteHint'),
+      icon: CheckCircle2,
+      active: 'border-emerald-500 bg-emerald-50 text-emerald-700',
+    },
+    {
+      value: 'not_complete',
+      label: t('common.workOrders.signOffForm.outcomeNotComplete'),
+      hint: t('common.workOrders.signOffForm.outcomeNotCompleteHint'),
+      icon: AlertTriangle,
+      active: 'border-amber-500 bg-amber-50 text-amber-700',
+    },
+    {
+      value: 'failed',
+      label: t('common.workOrders.signOffForm.outcomeFailed'),
+      hint: t('common.workOrders.signOffForm.outcomeFailedHint'),
+      icon: XCircle,
+      active: 'border-red-500 bg-red-50 text-red-700',
+    },
+  ];
 
   // Contractor work orders capture the contractor's own cost and a rating for
   // the job at sign-off — the two things the contractor's history is judged on.
@@ -116,18 +119,18 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
     if (needsReason && !reason.trim()) {
       toast.error(
         outcome === 'failed'
-          ? 'Please add a reason for the failure.'
-          : 'Please add a reason why the work is not complete.',
+          ? t('common.workOrders.signOffForm.reasonRequiredFailed')
+          : t('common.workOrders.signOffForm.reasonRequiredNotComplete'),
       );
       return;
     }
     if (isContractorWO) {
       if (projectCost.trim() && !Number.isFinite(Number(projectCost.replace(/,/g, '')))) {
-        toast.error('Enter a valid project cost.');
+        toast.error(t('common.workOrders.signOffForm.enterValidProjectCost'));
         return;
       }
       if (overallRating === 0) {
-        toast.error('Rate all four areas before signing off this contractor job.');
+        toast.error(t('common.workOrders.signOffForm.rateAllAreas'));
         return;
       }
     }
@@ -156,26 +159,32 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
       {isContractorWO && (
         <>
           <div className="rounded-lg border border-gray-200 p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Total cost</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {t('common.workOrders.signOffForm.totalCostTitle')}
+            </p>
             <p className="mt-0.5 text-xs text-gray-400">
-              Used-parts cost from this work order plus the contractor's project cost.
+              {t('common.workOrders.signOffForm.totalCostHint')}
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-500">Used Parts Cost (auto)</label>
+                <label className="mb-1 block text-xs font-medium text-gray-500">
+                  {t('common.workOrders.signOffForm.usedPartsCostLabel')}
+                </label>
                 <p className="flex h-10 items-center rounded-md border border-gray-200 bg-gray-50 px-3 text-sm text-gray-700">
                   {formatLkr(partsCost)}
                 </p>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-500">Project Cost</label>
+                <label className="mb-1 block text-xs font-medium text-gray-500">
+                  {t('common.workOrders.signOffForm.projectCostLabel')}
+                </label>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-gray-500">LKR</span>
                   <input
                     value={projectCost}
                     onChange={(e) => setProjectCost(e.target.value)}
                     inputMode="decimal"
-                    placeholder="0.00"
+                    placeholder={t('common.workOrders.signOffForm.projectCostPlaceholder')}
                     className="h-10 w-full rounded-md border border-gray-300 px-3 text-sm"
                   />
                 </div>
@@ -183,21 +192,26 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
             </div>
             <div className="mt-3 rounded-md bg-gray-50 p-3">
               <p className="text-xs text-gray-500">
-                Used parts {formatLkr(partsCost)} + project {formatLkr(parsedProjectCost)}
+                {t('common.workOrders.signOffForm.usedPartsPlusProject', {
+                  parts: formatLkr(partsCost),
+                  project: formatLkr(parsedProjectCost),
+                })}
               </p>
               <p className="text-lg font-bold text-gray-900">{formatLkr(totalCost)}</p>
             </div>
           </div>
 
           <div className="rounded-lg border border-gray-200 p-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Contractor rating</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              {t('common.workOrders.signOffForm.contractorRatingTitle')}
+            </p>
             <p className="mt-0.5 text-xs text-gray-400">
-              Rate all four areas — required to sign off, and shown in this contractor's job history.
+              {t('common.workOrders.signOffForm.contractorRatingHint')}
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {RATING_DIMENSIONS.map((d) => (
                 <div key={d.key} className="rounded-md border border-gray-200 p-2.5">
-                  <p className="text-sm font-medium text-gray-800">{d.label}</p>
+                  <p className="text-sm font-medium text-gray-800">{t(`common.workOrders.signOffForm.${d.labelKey}`)}</p>
                   <div className="mt-1.5">
                     <StarRow
                       value={scores[d.key]}
@@ -208,9 +222,9 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
               ))}
             </div>
             <div className="mt-3 rounded-md bg-gray-50 p-3 text-center">
-              <p className="text-xs text-gray-500">Overall score</p>
+              <p className="text-xs text-gray-500">{t('common.workOrders.signOffForm.overallScoreLabel')}</p>
               <p className="text-2xl font-bold text-gray-900">
-                {overallRating ? overallRating.toFixed(1) : '-'}
+                {overallRating ? overallRating.toFixed(1) : t('common.workOrders.signOffForm.overallScorePlaceholder')}
               </p>
             </div>
           </div>
@@ -219,7 +233,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
 
       <div>
         <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Completion outcome
+          {t('common.workOrders.signOffForm.completionOutcomeLabel')}
         </label>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {OUTCOMES.map((o) => {
@@ -247,7 +261,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
       {needsReason && (
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Reason *
+            {t('common.workOrders.signOffForm.reasonLabel')}
           </label>
           <textarea
             value={reason}
@@ -255,8 +269,8 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
             rows={3}
             placeholder={
               outcome === 'failed'
-                ? 'Explain why the repair failed…'
-                : 'Explain why the work could not be completed…'
+                ? t('common.workOrders.signOffForm.reasonPlaceholderFailed')
+                : t('common.workOrders.signOffForm.reasonPlaceholderNotComplete')
             }
             className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
           />
@@ -265,21 +279,20 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
 
       <div>
         <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Sign-off note (optional)
+          {t('common.workOrders.signOffForm.signOffNoteLabel')}
         </label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          placeholder="Add any closing remarks…"
+          placeholder={t('common.workOrders.signOffForm.signOffNotePlaceholder')}
           className="w-full rounded-lg border border-gray-300 p-2 text-sm focus:border-blue-500 focus:outline-none"
         />
       </div>
 
       <div className="rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-500">
         <Lock className="mr-1 inline h-3.5 w-3.5 -mt-0.5" />
-        Signing off records you as the approver and closes this work order. This
-        action cannot be reversed.
+        {t('common.workOrders.signOffForm.irreversibleNotice')}
       </div>
 
       <div className="flex gap-2 border-t border-gray-200 pt-4">
@@ -290,7 +303,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
             disabled={loading}
             className="rounded-lg border border-gray-300 px-4 py-2.5 font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            Cancel
+            {t('common.workOrders.signOffForm.cancelButton')}
           </button>
         )}
         <button
@@ -300,7 +313,7 @@ export function WOSignOffForm({ workOrder, onDone, onCancel }: Props) {
           className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
         >
           <CheckCircle2 className="h-4 w-4" />
-          {loading ? 'Signing off…' : 'Sign off & Close'}
+          {loading ? t('common.workOrders.signOffForm.signingOffButton') : t('common.workOrders.signOffForm.signOffButton')}
         </button>
       </div>
     </div>

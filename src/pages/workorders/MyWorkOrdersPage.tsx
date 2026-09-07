@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Wrench, Clock, PauseCircle, ListTodo } from 'lucide-react';
 import type { WorkOrder, WOStatus } from '../../types/workOrder';
 import { useAuthStore } from '../../store/authStore';
@@ -9,10 +10,10 @@ import { WOStatusBadge } from '../../components/workorders/WOStatusBadge';
 import { SLACountdownTimer } from '../../components/workorders/SLACountdownTimer';
 import { TechnicianWOExecutionSheet } from '../../components/workorders/technician/TechnicianWOExecutionSheet';
 
-const GROUPS: { key: string; label: string; icon: typeof Clock; statuses: WOStatus[] }[] = [
-  { key: 'in_progress', label: 'In Progress', icon: Clock, statuses: ['IN_PROGRESS'] },
-  { key: 'on_hold', label: 'On Hold', icon: PauseCircle, statuses: ['ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'] },
-  { key: 'todo', label: 'To Do', icon: ListTodo, statuses: ['ASSIGNED', 'OPEN'] },
+const GROUPS: { key: string; labelKey: string; icon: typeof Clock; statuses: WOStatus[] }[] = [
+  { key: 'in_progress', labelKey: 'groupInProgress', icon: Clock, statuses: ['IN_PROGRESS'] },
+  { key: 'on_hold', labelKey: 'groupOnHold', icon: PauseCircle, statuses: ['ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'] },
+  { key: 'todo', labelKey: 'groupToDo', icon: ListTodo, statuses: ['ASSIGNED', 'OPEN'] },
 ];
 
 function WOCardItem({ wo, onClick }: { wo: WorkOrder; onClick: () => void }) {
@@ -39,6 +40,7 @@ function WOCardItem({ wo, onClick }: { wo: WorkOrder; onClick: () => void }) {
 }
 
 export default function MyWorkOrdersPage() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   // The security rule authorizes assigned-WO reads on `request.auth.uid`, so the
@@ -85,17 +87,17 @@ export default function MyWorkOrdersPage() {
       <div className="mx-auto max-w-3xl">
         <div className="mb-6 flex items-center gap-2">
           <Wrench className="h-6 w-6 text-[#00C2FF]" />
-          <h1 className="text-xl font-bold text-[#F0F4F8]">My Work Orders</h1>
+          <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.workOrders.myWorkOrders.pageTitle')}</h1>
         </div>
 
-        {loading && <p className="text-sm text-[#8BA3BF]">Loading your jobs…</p>}
+        {loading && <p className="text-sm text-[#8BA3BF]">{t('common.workOrders.myWorkOrders.loading')}</p>}
         {error && <p className="text-sm text-red-400">{error}</p>}
 
         {!loading && !error && workOrders.length === 0 && (
           <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-10 text-center">
             <Wrench className="mx-auto mb-3 h-10 w-10 text-[#8BA3BF]" />
-            <p className="text-sm font-medium text-[#F0F4F8]">No assigned work orders</p>
-            <p className="mt-1 text-xs text-[#8BA3BF]">New jobs assigned to you will appear here.</p>
+            <p className="text-sm font-medium text-[#F0F4F8]">{t('common.workOrders.myWorkOrders.emptyTitle')}</p>
+            <p className="mt-1 text-xs text-[#8BA3BF]">{t('common.workOrders.myWorkOrders.emptyHint')}</p>
           </div>
         )}
 
@@ -106,7 +108,10 @@ export default function MyWorkOrdersPage() {
                 <div className="mb-2 flex items-center gap-2">
                   <g.icon className="h-4 w-4 text-[#8BA3BF]" />
                   <h2 className="text-sm font-semibold uppercase tracking-wide text-[#8BA3BF]">
-                    {g.label} ({g.items.length})
+                    {t('common.workOrders.myWorkOrders.groupCountLabel', {
+                      label: t(`common.workOrders.myWorkOrders.${g.labelKey}`),
+                      count: g.items.length,
+                    })}
                   </h2>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
