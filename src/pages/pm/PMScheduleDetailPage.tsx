@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { usePMSchedules } from '../../hooks/pm/usePMSchedules';
 import { usePMHistory } from '../../hooks/pm/usePMHistory';
 import { useAuthStore } from '../../store/authStore';
 import { PMStatusBadge, PMOperationalStatusBadge } from '../../components/pm/PMStatusBadge';
 import { PMPriorityBadge } from '../../components/pm/PMPriorityBadge';
 import { PMChecklistBuilder } from '../../components/pm/PMChecklistBuilder';
-import { PM_TYPE_CONFIG, RECURRENCE_TYPE_LABELS, PM_HISTORY_STATUS_LABELS } from '../../constants/pmConfig';
+import { PM_TYPE_CONFIG } from '../../constants/pmConfig';
 import { getPMOperationalStatus, getDaysUntilDue, getComplianceColor, calculateComplianceRate } from '../../utils/pm.utils';
 
 export default function PMScheduleDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const company = useAuthStore((s) => s.company);
@@ -34,11 +36,11 @@ export default function PMScheduleDetailPage() {
   }, [linkedWoId, navigate]);
 
   if (!schedule) {
-    return <div className="p-8 text-center text-gray-400">Schedule not found.</div>;
+    return <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.detail.notFound')}</div>;
   }
 
   if (linkedWoId) {
-    return <div className="p-8 text-center text-gray-400">Opening linked work order…</div>;
+    return <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.detail.openingLinkedWo')}</div>;
   }
 
   const opStatus = getPMOperationalStatus(schedule);
@@ -63,7 +65,7 @@ export default function PMScheduleDetailPage() {
             <PMOperationalStatusBadge status={opStatus} />
           </div>
           <p className="text-sm text-gray-500 mt-1">
-            {PM_TYPE_CONFIG[schedule.pmType].icon} {PM_TYPE_CONFIG[schedule.pmType].label} • {schedule.machineName}
+            {PM_TYPE_CONFIG[schedule.pmType].icon} {t(`common.pmSchedules.types.${schedule.pmType}`)} • {schedule.machineName}
           </p>
         </div>
       </div>
@@ -71,25 +73,29 @@ export default function PMScheduleDetailPage() {
       {/* Compliance card */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500">Compliance Rate</p>
+          <p className="text-xs text-gray-500">{t('common.pmSchedules.detail.complianceRate')}</p>
           <p className="text-2xl font-bold" style={{ color: getComplianceColor(complianceRate) }}>
             {complianceRate}%
           </p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500">Next Due</p>
+          <p className="text-xs text-gray-500">{t('common.pmSchedules.detail.nextDue')}</p>
           <p className={`text-lg font-semibold ${daysUntilDue < 0 ? 'text-red-600' : daysUntilDue <= 7 ? 'text-amber-600' : 'text-gray-900'}`}>
-            {daysUntilDue < 0 ? `${Math.abs(daysUntilDue)}d overdue` : daysUntilDue === 0 ? 'Today' : `${daysUntilDue}d`}
+            {daysUntilDue < 0
+              ? t('common.pmSchedules.detail.daysOverdue', { count: Math.abs(daysUntilDue) })
+              : daysUntilDue === 0
+              ? t('common.pmSchedules.detail.today')
+              : t('common.pmSchedules.detail.daysShort', { count: daysUntilDue })}
           </p>
           <p className="text-xs text-gray-400">{nextDue.toLocaleDateString()}</p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500">Completed</p>
+          <p className="text-xs text-gray-500">{t('common.pmSchedules.detail.completed')}</p>
           <p className="text-2xl font-bold text-gray-900">{schedule.completedOnTime + schedule.completedLate}</p>
-          <p className="text-xs text-gray-400">{schedule.missed} missed</p>
+          <p className="text-xs text-gray-400">{t('common.pmSchedules.detail.missedCount', { count: schedule.missed })}</p>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-500">Status</p>
+          <p className="text-xs text-gray-500">{t('common.pmSchedules.detail.status')}</p>
           <div className="mt-1">
             <PMStatusBadge status={schedule.status} />
           </div>
@@ -108,7 +114,7 @@ export default function PMScheduleDetailPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            {tab === 'overview' ? 'Overview' : 'History'}
+            {tab === 'overview' ? t('common.pmSchedules.detail.tabs.overview') : t('common.pmSchedules.detail.tabs.history')}
           </button>
         ))}
       </div>
@@ -117,70 +123,74 @@ export default function PMScheduleDetailPage() {
         <div className="space-y-4">
           {/* Schedule Info */}
           <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
-            <h3 className="font-semibold text-gray-900">Schedule Details</h3>
+            <h3 className="font-semibold text-gray-900">{t('common.pmSchedules.detail.scheduleDetails')}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div className="flex justify-between sm:block">
-                <span className="text-gray-500">Priority</span>
+                <span className="text-gray-500">{t('common.pmSchedules.detail.priority')}</span>
                 <PMPriorityBadge priority={schedule.priority} />
               </div>
               <div className="flex justify-between sm:block">
-                <span className="text-gray-500">Trigger Type</span>
-                <span className="font-medium">{schedule.triggerType === 'calendar' ? 'Calendar-Based' : 'Usage-Based'}</span>
+                <span className="text-gray-500">{t('common.pmSchedules.detail.triggerType')}</span>
+                <span className="font-medium">
+                  {schedule.triggerType === 'calendar'
+                    ? t('common.pmSchedules.createForm.step3.calendarBased')
+                    : t('common.pmSchedules.createForm.step3.usageBased')}
+                </span>
               </div>
               {schedule.triggerType === 'calendar' && (
                 <>
                   <div className="flex justify-between sm:block">
-                    <span className="text-gray-500">Recurrence</span>
-                    <span className="font-medium">{RECURRENCE_TYPE_LABELS[schedule.recurrenceType]}</span>
+                    <span className="text-gray-500">{t('common.pmSchedules.detail.recurrence')}</span>
+                    <span className="font-medium">{t(`common.pmSchedules.recurrence.${schedule.recurrenceType}`)}</span>
                   </div>
                   <div className="flex justify-between sm:block">
-                    <span className="text-gray-500">End Date</span>
-                    <span className="font-medium">{schedule.noEndDate ? 'No end date' : schedule.endDate ? schedule.endDate.toDate().toLocaleDateString() : ''}</span>
+                    <span className="text-gray-500">{t('common.pmSchedules.detail.endDate')}</span>
+                    <span className="font-medium">{schedule.noEndDate ? t('common.pmSchedules.detail.noEndDate') : schedule.endDate ? schedule.endDate.toDate().toLocaleDateString() : ''}</span>
                   </div>
                 </>
               )}
               {schedule.triggerType === 'usage' && (
                 <>
                   <div className="flex justify-between sm:block">
-                    <span className="text-gray-500">Trigger After</span>
-                    <span className="font-medium">{schedule.triggerAfterValue} {schedule.triggerUnit?.replace('_', ' ')}</span>
+                    <span className="text-gray-500">{t('common.pmSchedules.detail.triggerAfter')}</span>
+                    <span className="font-medium">{schedule.triggerAfterValue} {t(`common.pmSchedules.triggerUnits.${schedule.triggerUnit}`, { defaultValue: schedule.triggerUnit?.replace('_', ' ') })}</span>
                   </div>
                   <div className="flex justify-between sm:block">
-                    <span className="text-gray-500">Current Meter</span>
+                    <span className="text-gray-500">{t('common.pmSchedules.detail.currentMeter')}</span>
                     <span className="font-medium">{schedule.currentMeterValue ?? ''}</span>
                   </div>
                 </>
               )}
               <div className="flex justify-between sm:block">
-                <span className="text-gray-500">Est. Duration</span>
+                <span className="text-gray-500">{t('common.pmSchedules.detail.estDuration')}</span>
                 <span className="font-medium">{schedule.estimatedDuration} {schedule.estimatedDurationUnit}</span>
               </div>
               <div className="flex justify-between sm:block">
-                <span className="text-gray-500">Lead Time</span>
-                <span className="font-medium">{schedule.leadTimeDays} day(s)</span>
+                <span className="text-gray-500">{t('common.pmSchedules.detail.leadTime')}</span>
+                <span className="font-medium">{t('common.pmSchedules.detail.leadTimeDays', { count: schedule.leadTimeDays })}</span>
               </div>
               <div className="flex justify-between sm:block">
-                <span className="text-gray-500">Escalation</span>
-                <span className="font-medium">{schedule.overdueEscalationHours}h</span>
+                <span className="text-gray-500">{t('common.pmSchedules.detail.escalation')}</span>
+                <span className="font-medium">{t('common.pmSchedules.detail.escalationHours', { count: schedule.overdueEscalationHours })}</span>
               </div>
             </div>
           </div>
 
           {/* Checklist */}
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Checklist</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">{t('common.pmSchedules.detail.checklist')}</h3>
             <PMChecklistBuilder items={schedule.checklistItems ?? []} onChange={() => {}} readOnly />
           </div>
 
           {/* Parts */}
           {(schedule.preallocatedParts ?? []).length > 0 && (
             <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Pre-allocated Parts</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t('common.pmSchedules.detail.preallocatedParts')}</h3>
               <div className="space-y-2">
                 {(schedule.preallocatedParts ?? []).map((part, i) => (
                   <div key={i} className="flex justify-between text-sm">
                     <span>{part.partName}</span>
-                    <span className="text-gray-500">Qty: {part.quantity}</span>
+                    <span className="text-gray-500">{t('common.pmSchedules.detail.qty', { count: part.quantity })}</span>
                   </div>
                 ))}
               </div>
@@ -192,12 +202,12 @@ export default function PMScheduleDetailPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">WO #</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Due Date</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Completed</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Technicians</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-700">Duration</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.detail.historyTable.woNumber')}</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.detail.historyTable.dueDate')}</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.detail.historyTable.completed')}</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.detail.historyTable.status')}</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.detail.historyTable.technicians')}</th>
+                <th className="px-4 py-3 text-left font-medium text-gray-700">{t('common.pmSchedules.detail.historyTable.duration')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -228,17 +238,17 @@ export default function PMScheduleDetailPage() {
                           : 'bg-red-100 text-red-800'
                       }`}
                     >
-                      {PM_HISTORY_STATUS_LABELS[h.status]}
+                      {t(`common.pmSchedules.historyStatuses.${h.status}`, { defaultValue: h.status })}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-gray-600">{(h.technicianNames ?? []).join(', ')}</td>
-                  <td className="px-4 py-3 text-gray-600">{h.duration ? `${h.duration}m` : ''}</td>
+                  <td className="px-4 py-3 text-gray-600">{h.duration ? t('common.pmSchedules.detail.durationMinutes', { count: h.duration }) : ''}</td>
                 </tr>
               ))}
             </tbody>
           </table>
           {history.length === 0 && (
-            <div className="p-8 text-center text-gray-400 text-sm">No history yet.</div>
+            <div className="p-8 text-center text-gray-400 text-sm">{t('common.pmSchedules.detail.noHistoryYet')}</div>
           )}
         </div>
       )}

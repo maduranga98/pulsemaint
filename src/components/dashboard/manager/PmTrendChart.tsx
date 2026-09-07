@@ -22,7 +22,7 @@ export default function PmTrendChart({ companyId, months }: PmTrendChartProps) {
   const chartData = data.map((d) => {
     const config = PM_TYPE_CONFIG[d.pmType];
     return {
-      name: config.label,
+      name: t(`common.pmSchedules.types.${d.pmType}`),
       count: d.count,
       pct: total > 0 ? Math.round((d.count / total) * 100) : 0,
       color: config.color,

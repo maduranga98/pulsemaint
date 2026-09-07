@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import type { CreatePMFormValues } from '../../../schemas/pm';
 import type { PMPreallocatedPart } from '../../../types/pm.types';
 
 export function Step6Parts() {
+  const { t } = useTranslation();
   const { watch, setValue } = useFormContext<CreatePMFormValues>();
   const preallocatedParts = watch('preallocatedParts') || [];
   const [newPartId, setNewPartId] = useState('');
@@ -33,8 +35,8 @@ export function Step6Parts() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Parts Pre-Allocation</h3>
-      <p className="text-sm text-gray-500">Optional: attach expected spare parts from inventory.</p>
+      <h3 className="text-lg font-semibold text-gray-900">{t('common.pmSchedules.createForm.step6.heading')}</h3>
+      <p className="text-sm text-gray-500">{t('common.pmSchedules.createForm.step6.subheading')}</p>
 
       {preallocatedParts.length > 0 && (
         <div className="space-y-2">
@@ -42,14 +44,14 @@ export function Step6Parts() {
             <div key={index} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
               <div>
                 <p className="text-sm font-medium text-gray-900">{part.partName}</p>
-                <p className="text-xs text-gray-500">{part.partNumber} • Qty: {part.quantity}</p>
+                <p className="text-xs text-gray-500">{t('common.pmSchedules.createForm.step6.partSummary', { number: part.partNumber, quantity: part.quantity })}</p>
               </div>
               <button
                 type="button"
                 onClick={() => removePart(index)}
                 className="text-red-400 hover:text-red-600 text-sm"
               >
-                Remove
+                {t('common.pmSchedules.createForm.step6.remove')}
               </button>
             </div>
           ))}
@@ -61,21 +63,21 @@ export function Step6Parts() {
           type="text"
           value={newPartId}
           onChange={(e) => setNewPartId(e.target.value)}
-          placeholder="Part ID"
+          placeholder={t('common.pmSchedules.createForm.step6.partIdPlaceholder')}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
         />
         <input
           type="text"
           value={newPartName}
           onChange={(e) => setNewPartName(e.target.value)}
-          placeholder="Part Name"
+          placeholder={t('common.pmSchedules.createForm.step6.partNamePlaceholder')}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
         />
         <input
           type="text"
           value={newPartNumber}
           onChange={(e) => setNewPartNumber(e.target.value)}
-          placeholder="Part Number"
+          placeholder={t('common.pmSchedules.createForm.step6.partNumberPlaceholder')}
           className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
         />
         <div className="flex gap-2">
@@ -84,7 +86,7 @@ export function Step6Parts() {
             min={1}
             value={newQuantity}
             onChange={(e) => setNewQuantity(e.target.value)}
-            placeholder="Qty"
+            placeholder={t('common.pmSchedules.createForm.step6.qtyPlaceholder')}
             className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
           />
           <button
@@ -92,7 +94,7 @@ export function Step6Parts() {
             onClick={addPart}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
           >
-            Add
+            {t('common.pmSchedules.createForm.step6.add')}
           </button>
         </div>
       </div>

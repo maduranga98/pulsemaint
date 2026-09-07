@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { PMSchedule } from '../../../types/pm.types';
 import { createPMSchema } from '../../../schemas/pm';
 import type { CreatePMFormValues } from '../../../schemas/pm';
@@ -20,16 +22,18 @@ import { Step6Parts } from './Step6Parts';
 import { Step7Documents } from './Step7Documents';
 import { Step8AlertSettings } from './Step8AlertSettings';
 
-const STEPS = [
-  { id: 'basic', label: 'Basic Info', description: 'Name, type, priority' },
-  { id: 'machine', label: 'Machine', description: 'Select target machine' },
-  { id: 'trigger', label: 'Trigger', description: 'Calendar or usage-based' },
-  { id: 'team', label: 'Team', description: 'Assign technicians' },
-  { id: 'checklist', label: 'Checklist', description: 'PM task steps' },
-  { id: 'parts', label: 'Parts', description: 'Pre-allocate parts' },
-  { id: 'documents', label: 'Documents', description: 'Attach references' },
-  { id: 'alerts', label: 'Alerts', description: 'Notification settings' },
-];
+function getSteps(t: TFunction) {
+  return [
+    { id: 'basic', label: t('common.pmSchedules.createForm.steps.basic.label'), description: t('common.pmSchedules.createForm.steps.basic.description') },
+    { id: 'machine', label: t('common.pmSchedules.createForm.steps.machine.label'), description: t('common.pmSchedules.createForm.steps.machine.description') },
+    { id: 'trigger', label: t('common.pmSchedules.createForm.steps.trigger.label'), description: t('common.pmSchedules.createForm.steps.trigger.description') },
+    { id: 'team', label: t('common.pmSchedules.createForm.steps.team.label'), description: t('common.pmSchedules.createForm.steps.team.description') },
+    { id: 'checklist', label: t('common.pmSchedules.createForm.steps.checklist.label'), description: t('common.pmSchedules.createForm.steps.checklist.description') },
+    { id: 'parts', label: t('common.pmSchedules.createForm.steps.parts.label'), description: t('common.pmSchedules.createForm.steps.parts.description') },
+    { id: 'documents', label: t('common.pmSchedules.createForm.steps.documents.label'), description: t('common.pmSchedules.createForm.steps.documents.description') },
+    { id: 'alerts', label: t('common.pmSchedules.createForm.steps.alerts.label'), description: t('common.pmSchedules.createForm.steps.alerts.description') },
+  ];
+}
 
 interface PMScheduleCreateFormProps {
   editSchedule?: PMSchedule;
@@ -37,6 +41,8 @@ interface PMScheduleCreateFormProps {
 }
 
 export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }: PMScheduleCreateFormProps) {
+  const { t } = useTranslation();
+  const STEPS = getSteps(t);
   const navigate = useNavigate();
   const toast = useToast();
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -170,7 +176,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
 
   const onSubmit = async (data: any) => {
     if (!company?.id || !userProfile?.id) {
-      toast.error('Missing company or user info');
+      toast.error(t('common.pmSchedules.createForm.errors.missingCompanyOrUser'));
       return;
     }
 
@@ -182,16 +188,16 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
           companyId: company.id,
           ...data,
         } as UpdatePMPayload);
-        toast.success('PM schedule updated');
+        toast.success(t('common.pmSchedules.createForm.toasts.updated'));
         navigate(`/app/pm-schedules/${editSchedule.id}`);
       } else {
         const id = await createSchedule({ ...data, documents: documentFiles } as CreatePMPayload, userProfile.id);
-        toast.success('PM schedule created');
+        toast.success(t('common.pmSchedules.createForm.toasts.created'));
         navigate(`/app/pm-schedules/${id}`);
       }
     } catch (err) {
       console.error(err);
-      toast.error(err instanceof Error ? err.message : 'Failed to save');
+      toast.error(err instanceof Error ? err.message : t('common.pmSchedules.createForm.errors.saveFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -252,7 +258,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
                   disabled={currentStep === 0}
                   className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 disabled:opacity-30"
                 >
-                  Back
+                  {t('common.pmSchedules.createForm.back')}
                 </button>
                 {currentStep < STEPS.length - 1 ? (
                   <button
@@ -260,7 +266,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
                     onClick={goNext}
                     className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
                   >
-                    Next
+                    {t('common.pmSchedules.createForm.next')}
                   </button>
                 ) : (
                   <button
@@ -268,7 +274,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
                     disabled={isSubmitting}
                     className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Saving...' : editSchedule ? 'Update Schedule' : 'Create Schedule'}
+                    {isSubmitting ? t('common.pmSchedules.createForm.saving') : editSchedule ? t('common.pmSchedules.createForm.updateSchedule') : t('common.pmSchedules.createForm.createSchedule')}
                   </button>
                 )}
               </div>
@@ -300,7 +306,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
             disabled={currentStep === 0}
             className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 disabled:opacity-30"
           >
-            Back
+            {t('common.pmSchedules.createForm.back')}
           </button>
           {currentStep < STEPS.length - 1 ? (
             <button
@@ -308,7 +314,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
               onClick={goNext}
               className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
             >
-              Next
+              {t('common.pmSchedules.createForm.next')}
             </button>
           ) : (
             <button
@@ -316,7 +322,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
               disabled={isSubmitting}
               className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSubmitting ? 'Saving...' : editSchedule ? 'Update' : 'Create'}
+              {isSubmitting ? t('common.pmSchedules.createForm.saving') : editSchedule ? t('common.pmSchedules.createForm.updateShort') : t('common.pmSchedules.createForm.createShort')}
             </button>
           )}
         </div>

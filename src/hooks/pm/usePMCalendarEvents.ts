@@ -5,10 +5,10 @@ import {
   where,
   onSnapshot,
 } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import type { PMSchedule, CalendarEvent } from '../../types/pm.types';
 import { getPMOperationalStatus } from '../../utils/pm.utils';
-import { PM_TYPE_CONFIG } from '../../constants/pmConfig';
 
 interface UsePMCalendarEventsOptions {
   companyId: string;
@@ -31,6 +31,7 @@ interface PMWorkOrderEvent {
 }
 
 export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCalendarEventsOptions) {
+  const { t } = useTranslation();
   const [schedules, setSchedules] = useState<PMSchedule[]>([]);
   const [pmWOs, setPmWOs] = useState<PMWorkOrderEvent[]>([]);
   // Every Preventive WO keyed by id (including terminal ones) so a schedule's
@@ -41,7 +42,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
 
   useEffect(() => {
     if (!companyId) {
-      setError('Company ID is required');
+      setError(t('common.pmSchedules.errors.companyIdRequired'));
       setLoading(false);
       return;
     }
@@ -65,7 +66,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
       },
       (err) => {
         console.error('Error fetching calendar events:', err);
-        setError(err.message || 'Failed to fetch calendar events');
+        setError(err.message || t('common.pmSchedules.errors.fetchCalendarEventsFailed'));
         setLoading(false);
       },
     );
@@ -131,7 +132,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
         woNumber: linkedWo?.woNumber || null,
         // Calendar entries show the PM type, not the (often junk) free-text
         // schedule name or WO description.
-        title: PM_TYPE_CONFIG[pmType].label,
+        title: t(`common.pmSchedules.types.${pmType}`),
         date: nextDue,
         priority: s.priority,
         machineName: s.machineName,
@@ -151,7 +152,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
         scheduleId: wo.pmScheduleId ?? '',
         woId: wo.id,
         woNumber: wo.woNumber || null,
-        title: PM_TYPE_CONFIG[wo.pmType].label,
+        title: t(`common.pmSchedules.types.${wo.pmType}`),
         date: wo.dueDate,
         priority: wo.priority,
         machineName: wo.machineName,
@@ -169,7 +170,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
       if (month === undefined || year === undefined) return true;
       return e.date.getMonth() === month && e.date.getFullYear() === year;
     });
-  }, [schedules, pmWOs, woById, month, year]);
+  }, [schedules, pmWOs, woById, month, year, t]);
 
   return { events, loading, error };
 }
