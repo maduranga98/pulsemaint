@@ -1,15 +1,11 @@
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import type { Breakdown, BreakdownStatus } from '../../types/breakdown';
 import { TranslatedText } from '../ui';
 
-const ROLE_LABELS: Record<string, string> = {
-  technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
-  maintenance_supervisor: 'Supervisor', plant_manager: 'Plant Manager',
-  store_keeper: 'Store Keeper', floor_operator: 'Floor Operator',
-  hr_officer: 'HR Officer', safety_officer: 'Safety Officer', admin: 'Admin',
-};
-function roleLabel(role: string | undefined): string {
+function roleLabel(role: string | undefined, t: TFunction): string {
   if (!role) return '';
-  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+  return t(`common.breakdowns.roleLabels.${role}`, { defaultValue: role.replace(/_/g, ' ') });
 }
 
 // Some older records have a role already baked into the stored name itself
@@ -19,20 +15,6 @@ function roleLabel(role: string | undefined): string {
 function stripRoleSuffix(name: string): string {
   return name.replace(/\s*\([^)]*\)\s*$/, '').trim();
 }
-
-export const STATUS_LABEL: Record<BreakdownStatus, string> = {
-  reported: 'Reported',
-  acknowledged: 'Acknowledged',
-  triage_in_progress: 'In Triage',
-  assigned: 'Assigned',
-  en_route: 'En Route',
-  repair_in_progress: 'In Progress',
-  on_hold_parts: 'On Hold (Parts)',
-  on_hold_approval: 'On Hold (Approval)',
-  resolved: 'Resolved',
-  closed: 'Closed',
-  cancelled: 'Cancelled',
-};
 
 const STATUS_COLOR: Record<BreakdownStatus, string> = {
   reported: 'bg-red-50 text-red-700 ring-red-200',
@@ -68,6 +50,7 @@ interface Props {
  *  plus its complete status history. Shared by the single-ticket view and
  *  the machine group view so both show identical, complete data. */
 export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeading = false }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
@@ -80,17 +63,17 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
               {b.severity}
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending assessment</span>
+            <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">{t('common.breakdowns.detail.pendingAssessment')}</span>
           )}
           <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[b.status]}`}>
-            {STATUS_LABEL[b.status]}
+            {t(`common.breakdowns.status.${b.status}`)}
           </span>
           {b.type && <span className="text-xs text-slate-500 capitalize">{b.type}</span>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Machine</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">{t('common.breakdowns.detailCard.machine')}</p>
             <p className="text-slate-900 font-medium">{b.machineName}</p>
             {(b.machineDepartment || b.machineLocation) && (
               <p className="text-slate-500 text-xs">
@@ -99,8 +82,8 @@ export function BreakdownDetailCard({ breakdown: b, actorRoles, showTicketHeadin
             )}
           </div>
           <div>
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">Reported</p>
-            <p className="text-slate-900 font-medium capitalize">{b.source?.replace(/_/g, ' ') || 'Web'}</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide">{t('common.breakdowns.detail.reported')}</p>
+            <p className="text-slate-900 font-medium capitalize">{b.source?.replace(/_/g, ' ') || t('common.breakdowns.detail.reportedSourceWeb')}</p>
             <p className="text-slate-500 text-xs">
               {b.reportedAt?.toDate ? b.reportedAt.toDate().toLocaleString() : ''}
             </p>
