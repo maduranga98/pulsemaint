@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { collection, doc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
@@ -76,10 +77,12 @@ function splitCsvLine(line: string): string[] {
 }
 
 /** Parse a date cell (YYYY-MM-DD or anything Date understands). */
-function parseCsvDate(value: string): { date: Date | null; error?: string } {
+function parseCsvDate(value: string, t: TFunction): { date: Date | null; error?: string } {
   if (!value) return { date: null };
   const d = new Date(value);
-  if (isNaN(d.getTime())) return { date: null, error: `Invalid date "${value}" (use YYYY-MM-DD)` };
+  if (isNaN(d.getTime())) {
+    return { date: null, error: t('common.machines.importModal.errors.invalidDate', { value }) };
+  }
   return { date: d };
 }
 
@@ -87,7 +90,7 @@ function parseCsvDate(value: string): { date: Date | null; error?: string } {
  * Parse warranty items from "Part Name:2027-01-31:REF-123; Motor:2026-06-30"
  * (items separated by ";", fields inside an item separated by ":").
  */
-function parseWarrantyItems(value: string): { items: CsvWarrantyItem[]; error?: string } {
+function parseWarrantyItems(value: string, t: TFunction): { items: CsvWarrantyItem[]; error?: string } {
   if (!value) return { items: [] };
   const items: CsvWarrantyItem[] = [];
   for (const raw of value.split(';')) {
@@ -95,14 +98,16 @@ function parseWarrantyItems(value: string): { items: CsvWarrantyItem[]; error?: 
     if (!entry) continue;
     const [partName, expiry, ref] = entry.split(':').map((p) => p.trim());
     if (!partName) continue;
-    const { date, error } = parseCsvDate(expiry ?? '');
-    if (error) return { items: [], error: `Warranty item "${partName}": ${error}` };
+    const { date, error } = parseCsvDate(expiry ?? '', t);
+    if (error) {
+      return { items: [], error: t('common.machines.importModal.errors.warrantyItem', { partName, error }) };
+    }
     items.push({ partName, expiryDate: date, supplierWarrantyRef: ref ?? '' });
   }
   return { items };
 }
 
-function parseCsv(text: string): CsvRow[] {
+function parseCsv(text: string, t: TFunction): CsvRow[] {
   const lines = text.replace(/^\ufeff/, '').split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return [];
   const headers = splitCsvLine(lines[0]).map((h) => h.trim().toLowerCase());
@@ -116,24 +121,28 @@ function parseCsv(text: string): CsvRow[] {
     const critRaw = parseInt(get('criticality') || '3', 10);
     const criticality = ([1,2,3,4,5].includes(critRaw) ? critRaw : 3) as MachineCriticality;
 
-    const purchase = parseCsvDate(get('purchase_date'));
-    const installation = parseCsvDate(get('installation_date'));
-    const nextPm = parseCsvDate(get('next_pm_date'));
-    const warranty = parseWarrantyItems(get('warranty_items'));
+    const purchase = parseCsvDate(get('purchase_date'), t);
+    const installation = parseCsvDate(get('installation_date'), t);
+    const nextPm = parseCsvDate(get('next_pm_date'), t);
+    const warranty = parseWarrantyItems(get('warranty_items'), t);
     const spareParts = get('spare_parts')
       .split(';')
       .map((p) => p.trim())
       .filter(Boolean);
 
     let _error: string | undefined;
-    if (!get('name')) _error = 'Missing name';
-    else if (!get('manufacturer')) _error = 'Missing manufacturer';
-    else if (!type) _error = 'Missing type';
-    else if (!VALID_STATUSES.includes(status)) _error = `Invalid status "${status}"`;
-    else if (purchase.error) _error = `purchase_date: ${purchase.error}`;
-    else if (installation.error) _error = `installation_date: ${installation.error}`;
-    else if (nextPm.error) _error = `next_pm_date: ${nextPm.error}`;
-    else if (warranty.error) _error = warranty.error;
+    if (!get('name')) _error = t('common.machines.importModal.errors.missingName');
+    else if (!get('manufacturer')) _error = t('common.machines.importModal.errors.missingManufacturer');
+    else if (!type) _error = t('common.machines.importModal.errors.missingType');
+    else if (!VALID_STATUSES.includes(status)) {
+      _error = t('common.machines.importModal.errors.invalidStatus', { status });
+    } else if (purchase.error) {
+      _error = t('common.machines.importModal.errors.field', { field: 'purchase_date', error: purchase.error });
+    } else if (installation.error) {
+      _error = t('common.machines.importModal.errors.field', { field: 'installation_date', error: installation.error });
+    } else if (nextPm.error) {
+      _error = t('common.machines.importModal.errors.field', { field: 'next_pm_date', error: nextPm.error });
+    } else if (warranty.error) _error = warranty.error;
 
     return {
       name: get('name'),
@@ -183,6 +192,7 @@ interface ImportModalProps {
 }
 
 function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
+  const { t } = useTranslation();
   const fileRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<CsvRow[]>([]);
   const [importing, setImporting] = useState(false);
@@ -193,7 +203,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => setRows(parseCsv(ev.target?.result as string));
+    reader.onload = (ev) => setRows(parseCsv(ev.target?.result as string, t));
     reader.readAsText(file);
   };
 
@@ -248,7 +258,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
         updatedBy: userId,
       });
       count++;
-      setProgress(`Importing... ${count}/${validRows.length}`);
+      setProgress(t('common.machines.importModal.progress', { count, total: validRows.length }));
     }
     setImporting(false);
     setDone(true);
@@ -259,7 +269,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Import Machines from CSV</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('common.machines.importModal.title')}</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-xl font-bold">×</button>
         </div>
 
@@ -267,13 +277,13 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
           {done ? (
             <div className="text-center py-8">
               <p className="text-green-600 font-medium text-lg">
-                Successfully imported {validRows.length} machine{validRows.length !== 1 ? 's' : ''}!
+                {t('common.machines.importModal.importSuccess', { count: validRows.length })}
               </p>
               <button
                 onClick={onClose}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Close
+                {t('common.machines.importModal.close')}
               </button>
             </div>
           ) : (
@@ -283,18 +293,18 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
                   onClick={downloadCsvTemplate}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
                 >
-                  Download CSV Template
+                  {t('common.machines.importModal.downloadTemplate')}
                 </button>
-                <span className="text-sm text-gray-500">then fill it out and upload below</span>
+                <span className="text-sm text-gray-500">{t('common.machines.importModal.downloadTemplateHint')}</span>
               </div>
 
               <div className="text-xs text-gray-500 bg-gray-50 rounded-lg p-3 space-y-1">
-                <p><strong>Suggested types:</strong> {SUGGESTED_TYPES.join(', ')} — any other value is accepted as a custom type</p>
-                <p><strong>Valid statuses:</strong> {VALID_STATUSES.join(', ')}</p>
-                <p><strong>Criticality:</strong> 1–5 (1=Low, 5=Mission Critical)</p>
-                <p><strong>Dates</strong> (purchase_date, installation_date, next_pm_date): YYYY-MM-DD</p>
-                <p><strong>Warranty items:</strong> "Part Name:Expiry Date:Supplier Ref" — separate multiple items with ";"</p>
-                <p><strong>Spare parts:</strong> separate multiple parts with ";"</p>
+                <p><strong>{t('common.machines.importModal.suggestedTypesLabel')}</strong> {SUGGESTED_TYPES.join(', ')} — {t('common.machines.importModal.suggestedTypesHint')}</p>
+                <p><strong>{t('common.machines.importModal.validStatusesLabel')}</strong> {VALID_STATUSES.join(', ')}</p>
+                <p><strong>{t('common.machines.importModal.criticalityLabel')}</strong> {t('common.machines.importModal.criticalityHint')}</p>
+                <p><strong>{t('common.machines.importModal.datesLabel')}</strong> {t('common.machines.importModal.datesHint')}</p>
+                <p><strong>{t('common.machines.importModal.warrantyItemsLabel')}</strong> {t('common.machines.importModal.warrantyItemsHint')}</p>
+                <p><strong>{t('common.machines.importModal.sparePartsLabel')}</strong> {t('common.machines.importModal.sparePartsHint')}</p>
               </div>
 
               <div>
@@ -303,21 +313,26 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
                   onClick={() => fileRef.current?.click()}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
                 >
-                  Choose CSV File
+                  {t('common.machines.importModal.chooseFile')}
                 </button>
               </div>
 
               {rows.length > 0 && (
                 <div>
                   <p className="text-sm font-medium text-gray-700 mb-2">
-                    Preview — {rows.length} row{rows.length !== 1 ? 's' : ''} ({validRows.length} valid,{' '}
-                    {rows.length - validRows.length} with errors)
+                    {t('common.machines.importModal.previewCount', {
+                      count: rows.length,
+                      valid: validRows.length,
+                      invalid: rows.length - validRows.length,
+                    })}
                   </p>
                   <div className="overflow-x-auto border border-gray-200 rounded-lg max-h-64 overflow-y-auto">
                     <table className="w-full text-xs">
                       <thead className="bg-gray-50 sticky top-0">
                         <tr>
-                          {['Name','Type','Manufacturer','Model','Serial','Department','Status','Crit.','Error'].map((h) => (
+                          {(Object.values(
+                            t('common.machines.importModal.tableHeaders', { returnObjects: true }) as Record<string, string>,
+                          )).map((h) => (
                             <th key={h} className="px-2 py-2 text-left font-medium text-gray-600">{h}</th>
                           ))}
                         </tr>
@@ -352,14 +367,16 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
         {!done && (
           <div className="p-6 border-t border-gray-200 flex gap-3 justify-end">
             <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium">
-              Cancel
+              {t('common.machines.importModal.cancel')}
             </button>
             <button
               onClick={handleImport}
               disabled={validRows.length === 0 || importing}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
             >
-              {importing ? 'Importing...' : `Import ${validRows.length} Machine${validRows.length !== 1 ? 's' : ''}`}
+              {importing
+                ? t('common.machines.importModal.importing')
+                : t('common.machines.importModal.importButton', { count: validRows.length })}
             </button>
           </div>
         )}
