@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { X, UserPlus, Clock } from 'lucide-react';
 import { db } from '../../lib/firebase';
@@ -19,6 +20,7 @@ interface AssignTechnicianModalProps {
 const ASSIGNABLE_ROLES = ['technician', 'trainee'];
 
 export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning }: AssignTechnicianModalProps) {
+  const { t } = useTranslation();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -57,22 +59,22 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-start sm:items-center justify-center bg-black/50 p-4 py-8">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 my-auto">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="text-lg font-semibold text-slate-900">Assign Technician / Trainee</h3>
+          <h3 className="text-lg font-semibold text-slate-900">{t('common.breakdowns.assignModal.title')}</h3>
           <button type="button" onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100">
             <X className="w-5 h-5 text-slate-500" />
           </button>
         </div>
         <p className="text-xs text-slate-500 mb-4 flex items-center gap-1">
           <Clock className="w-3.5 h-3.5" />
-          Only technicians and trainees currently on shift are shown.
+          {t('common.breakdowns.assignModal.onShiftHint')}
         </p>
 
         {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
 
         {loading ? (
-          <p className="text-sm text-slate-500">Loading who's on shift…</p>
+          <p className="text-sm text-slate-500">{t('common.breakdowns.assignModal.loading')}</p>
         ) : candidates.length === 0 ? (
-          <p className="text-sm text-slate-500">No technicians or trainees are currently clocked in. Ask them to start their shift, or assign once someone is on duty.</p>
+          <p className="text-sm text-slate-500">{t('common.breakdowns.assignModal.empty')}</p>
         ) : (
           <div className="space-y-1.5 max-h-64 overflow-y-auto mb-4">
             {candidates.map((c) => (
@@ -84,10 +86,10 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
                   selectedId === c.id ? 'border-blue-600 ring-2 ring-blue-100 bg-blue-50' : 'border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                <span className="font-medium text-slate-800">{c.fullName || 'Unnamed'}</span>
+                <span className="font-medium text-slate-800">{c.fullName || t('common.breakdowns.assignModal.unnamed')}</span>
                 <span className="ml-2 text-xs text-slate-500 capitalize">{c.role}</span>
                 <span className="ml-2 inline-flex items-center gap-1 text-xs text-emerald-600">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> On shift
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {t('common.breakdowns.assignModal.onShift')}
                 </span>
               </button>
             ))}
@@ -100,7 +102,7 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
             onClick={onClose}
             className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 text-sm"
           >
-            Cancel
+            {t('common.breakdowns.assignModal.cancel')}
           </button>
           <button
             type="button"
@@ -109,7 +111,7 @@ export function AssignTechnicianModal({ companyId, onClose, onAssign, assigning 
             className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg text-sm disabled:opacity-50"
           >
             <UserPlus className="w-4 h-4" />
-            {assigning ? 'Assigning…' : 'Assign'}
+            {assigning ? t('common.breakdowns.assignModal.assigning') : t('common.breakdowns.assignModal.assign')}
           </button>
         </div>
       </div>

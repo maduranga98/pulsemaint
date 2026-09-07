@@ -1074,6 +1074,67 @@
         "resolved": "Resolved",
         "closed": "Closed",
         "cancelled": "Cancelled"
+      },
+      "roleLabels": {
+        "technician": "Technician",
+        "trainee": "Trainee",
+        "supervisor": "Supervisor",
+        "maintenance_supervisor": "Supervisor",
+        "plant_manager": "Plant Manager",
+        "store_keeper": "Store Keeper",
+        "floor_operator": "Floor Operator",
+        "hr_officer": "HR Officer",
+        "safety_officer": "Safety Officer",
+        "admin": "Admin"
+      },
+      "errors": {
+        "invalidQrMachine": "QR code did not contain a valid machine ID.",
+        "cameraOpenFailed": "Failed to open camera.",
+        "assignFailed": "Failed to assign.",
+        "attendFailed": "Failed to attend."
+      },
+      "assignModal": {
+        "title": "Assign Technician / Trainee",
+        "onShiftHint": "Only technicians and trainees currently on shift are shown.",
+        "loading": "Loading who's on shift…",
+        "empty": "No technicians or trainees are currently clocked in. Ask them to start their shift, or assign once someone is on duty.",
+        "unnamed": "Unnamed",
+        "onShift": "On shift",
+        "cancel": "Cancel",
+        "assigning": "Assigning…",
+        "assign": "Assign"
+      },
+      "detail": {
+        "pendingAssessment": "Pending assessment",
+        "reported": "Reported",
+        "reportedSourceWeb": "Web",
+        "attendedBy": "Attended By",
+        "whatHappened": "What Happened",
+        "productionImpact": "Production Impact",
+        "attemptedFixes": "Attempted Fixes",
+        "technicianFindings": "What Happened (Technician/Trainee Findings)",
+        "assignedTechnicians": "Assigned Technicians",
+        "attachedMedia": "Attached Media",
+        "attachmentAlt": "Attachment {{index}}",
+        "fileLabel": "File {{index}}",
+        "statusHistory": "Status History",
+        "noStatusChanges": "No status changes yet."
+      },
+      "signOffOutcome": {
+        "completed": "Completed",
+        "partially_completed": "Partially Completed",
+        "not_completed": "Not Completed",
+        "failed": "Failed"
+      },
+      "workOrderSection": {
+        "title": "Work Order",
+        "loading": "Loading work order…",
+        "loadFailed": "Linked work order could not be loaded.",
+        "team": "Team",
+        "startedEnded": "Started / Ended",
+        "workDone": "Work Done",
+        "partsUsed": "Parts Used",
+        "signedOff": "Signed Off"
       }
     },
     "workOrders": {
