@@ -1816,6 +1816,397 @@
         "attachFile": "附加文件",
         "removeAriaLabel": "移除"
       }
+    },
+    "pmSchedules": {
+      "pageTitle": "PM 计划",
+      "count": "{{count}} 个计划",
+      "viewMode": "视图模式",
+      "table": "表格",
+      "calendar": "日历",
+      "newPmWorkOrder": "新建 PM 工单",
+      "selectedCount": "已选择 {{count}} 项",
+      "delete": "删除",
+      "loadingCalendar": "正在加载日历…",
+      "empty": {
+        "title": "尚无 PM 计划",
+        "description": "PM 计划通过预防性工单创建。请先创建一个预防性工单以开始。"
+      },
+      "filters": {
+        "searchPlaceholder": "搜索计划…",
+        "allMachines": "全部设备",
+        "allTechnicians": "全部技术员"
+      },
+      "columns": {
+        "schedule": "计划",
+        "machine": "设备",
+        "type": "类型",
+        "dueDate": "到期日期",
+        "assigned": "已分配",
+        "status": "状态",
+        "compliance": "合规性",
+        "noSchedulesFound": "未找到 PM 计划。",
+        "overdue": "已逾期 {{days}} 天",
+        "dueToday": "今日到期",
+        "dueIn": "{{days}} 天后到期"
+      },
+      "types": {
+        "lubrication": "润滑",
+        "inspection": "检查",
+        "calibration": "校准",
+        "filter_replacement": "更换滤芯",
+        "belt_chain_check": "皮带/链条检查",
+        "full_service": "全面保养",
+        "electrical_check": "电气检查",
+        "hydraulic_service": "液压保养",
+        "safety_inspection": "安全检查",
+        "other": "其他"
+      },
+      "statuses": {
+        "active": "启用",
+        "paused": "已暂停",
+        "completed": "已完成",
+        "archived": "已归档"
+      },
+      "operationalStatuses": {
+        "on_track": "进度正常",
+        "due_soon": "即将到期",
+        "overdue": "已逾期",
+        "paused": "已暂停",
+        "completed": "已完成",
+        "in_progress": "进行中"
+      },
+      "recurrence": {
+        "daily": "每日",
+        "weekly": "每周",
+        "biweekly": "每两周",
+        "monthly": "每月",
+        "quarterly": "每季度",
+        "semi_annual": "每半年",
+        "annual": "每年",
+        "custom": "自定义"
+      },
+      "triggerUnits": {
+        "operating_hours": "运行小时数",
+        "production_cycles": "生产周期数"
+      },
+      "historyStatuses": {
+        "completed_on_time": "按时完成",
+        "completed_late": "延迟完成",
+        "overdue": "已逾期",
+        "missed": "已错过",
+        "in_progress": "进行中"
+      },
+      "skills": {
+        "Electrical": "电气",
+        "Mechanical": "机械",
+        "Hydraulic": "液压",
+        "Pneumatic": "气动",
+        "Welding": "焊接",
+        "PLC": "PLC",
+        "HVAC": "暖通空调",
+        "Other": "其他"
+      },
+      "card": {
+        "roleSupervisor": "{{name}}（主管）",
+        "roleTechnician": "{{name}}（技术员）",
+        "roleContractor": "{{name}}（承包商）",
+        "roleContractorTechnician": "{{name}}（承包商技术员）",
+        "daysOverdue_one": "已逾期 {{count}} 天",
+        "daysOverdue_other": "已逾期 {{count}} 天",
+        "dueToday": "今日到期",
+        "daysUntilDue_one": "还有 {{count}} 天到期",
+        "daysUntilDue_other": "还有 {{count}} 天到期",
+        "triggerAfter": "{{count}} {{unit}}",
+        "unassigned": "未分配"
+      },
+      "checklistBuilder": {
+        "empty": "尚未添加清单步骤。",
+        "stepDescriptionPlaceholder": "步骤描述",
+        "typeLabel": "类型：",
+        "checkbox": "复选框",
+        "measurement": "测量",
+        "methodPlaceholder": "方法（例如：目测、千分尺）",
+        "unitPlaceholder": "单位（例如：mm、°C）",
+        "min": "最小值",
+        "max": "最大值",
+        "estimatedMinutes_one": "{{count}} 分钟",
+        "estimatedMinutes_other": "{{count}} 分钟",
+        "photoRequired": "需要照片",
+        "photo": "照片",
+        "moveUp": "上移",
+        "moveDown": "下移",
+        "removeStep": "删除步骤",
+        "addStepPlaceholder": "添加清单步骤...",
+        "add": "添加",
+        "photoRequiredForStep": "此步骤需要照片",
+        "newStepType": "新步骤类型："
+      },
+      "createForm": {
+        "back": "返回",
+        "next": "下一步",
+        "saving": "保存中...",
+        "updateSchedule": "更新计划",
+        "createSchedule": "创建计划",
+        "updateShort": "更新",
+        "createShort": "创建",
+        "errors": {
+          "missingCompanyOrUser": "缺少公司或用户信息",
+          "saveFailed": "保存失败"
+        },
+        "toasts": {
+          "updated": "PM 计划已更新",
+          "created": "PM 计划已创建"
+        },
+        "steps": {
+          "basic": {
+            "label": "基本信息",
+            "description": "名称、类型、优先级"
+          },
+          "machine": {
+            "label": "设备",
+            "description": "选择目标设备"
+          },
+          "trigger": {
+            "label": "触发条件",
+            "description": "基于日历或使用量"
+          },
+          "team": {
+            "label": "团队",
+            "description": "分配技术员"
+          },
+          "checklist": {
+            "label": "清单",
+            "description": "PM 任务步骤"
+          },
+          "parts": {
+            "label": "备件",
+            "description": "预先分配备件"
+          },
+          "documents": {
+            "label": "文档",
+            "description": "附加参考资料"
+          },
+          "alerts": {
+            "label": "提醒",
+            "description": "通知设置"
+          }
+        },
+        "step1": {
+          "heading": "计划信息",
+          "nameLabel": "计划名称 *",
+          "namePlaceholder": "例如：织机月度润滑",
+          "pmTypeLabel": "PM 类型 *",
+          "priorityLabel": "优先级",
+          "descriptionLabel": "描述",
+          "descriptionPlaceholder": "此次 PM 需要完成什么工作？"
+        },
+        "step2": {
+          "heading": "选择设备",
+          "machineLabel": "设备 *",
+          "selectMachinePlaceholder": "选择设备...",
+          "machineOption": "{{name}} — {{department}}（健康度：{{health}}%）",
+          "department": "部门",
+          "location": "位置",
+          "machineType": "设备类型",
+          "criticality": "关键度",
+          "criticalityValue": "{{value}}/5",
+          "autoUpgraded": "PM 已自动升级为关键",
+          "healthScore": "健康评分"
+        },
+        "step3": {
+          "heading": "触发条件配置",
+          "calendarBased": "基于日历",
+          "usageBased": "基于使用量",
+          "firstPmDateLabel": "首次 PM 日期 *",
+          "recurrenceLabel": "重复频率 *",
+          "everyXDays": "每 X 天",
+          "noEndDate": "无结束日期（无限期执行）",
+          "endDateLabel": "结束日期",
+          "seasonalOverride": "季节性覆盖",
+          "peakSeasonStart": "旺季开始",
+          "peakSeasonEnd": "旺季结束",
+          "peakSeasonInterval": "旺季间隔",
+          "triggerAfterLabel": "触发条件 *",
+          "unitLabel": "单位 *",
+          "selectUnitPlaceholder": "选择...",
+          "currentMeterValue": "当前计量值",
+          "lastMeterResetDate": "上次计量重置日期"
+        },
+        "step4": {
+          "heading": "团队分配",
+          "assignedTechniciansLabel": "已分配技术员 *",
+          "technicianNamePlaceholder": "输入技术员姓名",
+          "add": "添加",
+          "removeTechnician": "移除 {{name}}",
+          "estimatedDurationLabel": "预计时长 *",
+          "unitLabel": "单位 *",
+          "hours": "小时",
+          "days": "天",
+          "skillsRequiredLabel": "所需技能"
+        },
+        "step5": {
+          "heading": "PM 清单",
+          "useExistingTemplate": "使用现有模板",
+          "saveAsTemplate": "保存为模板"
+        },
+        "step6": {
+          "heading": "备件预分配",
+          "subheading": "可选：从库存中附加预计所需的备件。",
+          "partSummary": "{{number}} • 数量：{{quantity}}",
+          "remove": "移除",
+          "partIdPlaceholder": "备件 ID",
+          "partNamePlaceholder": "备件名称",
+          "partNumberPlaceholder": "备件编号",
+          "qtyPlaceholder": "数量",
+          "add": "添加"
+        },
+        "step7": {
+          "heading": "文档与参考资料",
+          "subheading": "附加设备手册、标准作业程序、参考照片。",
+          "fileSizeKb": "（{{size}} KB）",
+          "remove": "移除",
+          "uploadHint": "点击上传文件或拖放到此处",
+          "uploadTypes": "PDF、Word、图片，最大 10MB"
+        },
+        "step8": {
+          "heading": "设置与提醒",
+          "leadTimeLabel": "提前提醒时间（天）",
+          "leadTimeHint": "到期前多少天通知技术员",
+          "overdueEscalationLabel": "逾期升级（小时）",
+          "overdueEscalationHint": "逾期多少小时后升级通知厂长",
+          "autoCloseLabel": "自动关闭（天）",
+          "autoCloseHint": "多少天后自动标记为逾期",
+          "notificationSummaryTitle": "通知摘要",
+          "notif1": "PM 到期时向被分配技术员和主管发送推送通知及邮件",
+          "notif2": "若 PM 未在升级时限内开始，向厂长发送推送通知及短信",
+          "notif3": "自动创建 PM 工单时立即发送推送通知"
+        }
+      },
+      "detail": {
+        "notFound": "未找到该计划。",
+        "openingLinkedWo": "正在打开关联工单…",
+        "complianceRate": "合规率",
+        "nextDue": "下次到期",
+        "daysOverdue_one": "已逾期 {{count}} 天",
+        "daysOverdue_other": "已逾期 {{count}} 天",
+        "today": "今天",
+        "daysShort_one": "{{count}}天",
+        "daysShort_other": "{{count}}天",
+        "completed": "已完成",
+        "missedCount_one": "{{count}} 次错过",
+        "missedCount_other": "{{count}} 次错过",
+        "status": "状态",
+        "tabs": {
+          "overview": "概览",
+          "history": "历史记录"
+        },
+        "scheduleDetails": "计划详情",
+        "priority": "优先级",
+        "triggerType": "触发类型",
+        "recurrence": "重复频率",
+        "endDate": "结束日期",
+        "noEndDate": "无结束日期",
+        "triggerAfter": "触发条件",
+        "currentMeter": "当前计量",
+        "estDuration": "预计时长",
+        "leadTime": "提前提醒时间",
+        "leadTimeDays_one": "{{count}} 天",
+        "leadTimeDays_other": "{{count}} 天",
+        "escalation": "升级",
+        "escalationHours": "{{count}}小时",
+        "checklist": "清单",
+        "preallocatedParts": "预分配备件",
+        "qty_one": "数量：{{count}}",
+        "qty_other": "数量：{{count}}",
+        "historyTable": {
+          "woNumber": "工单号",
+          "dueDate": "到期日期",
+          "completed": "已完成",
+          "status": "状态",
+          "technicians": "技术员",
+          "duration": "时长"
+        },
+        "durationMinutes_one": "{{count}}分钟",
+        "durationMinutes_other": "{{count}}分钟",
+        "noHistoryYet": "暂无历史记录。"
+      },
+      "errors": {
+        "companyIdRequired": "需要公司 ID",
+        "fetchCalendarEventsFailed": "获取日历事件失败"
+      },
+      "calendarView": {
+        "week": "周",
+        "month": "月",
+        "days": {
+          "sun": "周日",
+          "mon": "周一",
+          "tue": "周二",
+          "wed": "周三",
+          "thu": "周四",
+          "fri": "周五",
+          "sat": "周六"
+        },
+        "moreCount_one": "还有 {{count}} 项",
+        "moreCount_other": "还有 {{count}} 项",
+        "noPmsScheduled": "没有已安排的 PM",
+        "noPmsScheduledPeriod": "没有已安排的 PM。",
+        "openWorkOrder": "打开工单",
+        "openSchedule": "打开计划",
+        "pageTitle": "PM 日历",
+        "eventsThisPeriod_one": "本时段共 {{count}} 个事件",
+        "eventsThisPeriod_other": "本时段共 {{count}} 个事件",
+        "loading": "正在加载日历..."
+      },
+      "workloadPage": {
+        "title": "技术员工作负荷",
+        "description": "按技术员划分的即将到来的 PM 分配",
+        "dateRangeLabel": "日期范围",
+        "range_7": "7 天",
+        "range_14": "14 天",
+        "range_30": "30 天",
+        "loadErrorTitle": "无法加载工作负荷"
+      },
+      "technicianWorkload": {
+        "assignedHoursSummary_one": "{{count}} 个 PM · 预计 {{hours}} 小时",
+        "assignedHoursSummary_other": "{{count}} 个 PM · 预计 {{hours}} 小时",
+        "status": {
+          "ok": "正常",
+          "busy": "繁忙",
+          "overloaded": "超负荷"
+        },
+        "moreCount_one": "还有 {{count}} 项",
+        "moreCount_other": "还有 {{count}} 项",
+        "empty": "此时间范围内没有即将到来的 PM 分配。"
+      },
+      "complianceDashboard": {
+        "loading": "正在加载合规数据...",
+        "kpi": {
+          "overallCompliance": "总体合规率",
+          "scheduledThisMonth": "本月计划数",
+          "completedOnTime": "按时完成数",
+          "overdue": "逾期数"
+        },
+        "trendChartTitle": "合规趋势（近 6 个月）",
+        "chart": {
+          "breakdowns": "故障",
+          "complianceRate": "合规率 %",
+          "percentAxisLabel": "%"
+        },
+        "byMachineTitle": "按设备的合规情况",
+        "byTechnicianTitle": "按技术员的合规情况",
+        "table": {
+          "name": "名称",
+          "rate": "比率",
+          "scheduled": "已计划",
+          "onTime": "按时",
+          "missed": "已错过"
+        },
+        "noData": "暂无数据。"
+      },
+      "editPage": {
+        "title": "编辑 PM 计划",
+        "notFound": "未找到该计划，可能已被删除。"
+      }
     }
   }
 }

@@ -1820,6 +1820,397 @@
         "attachFile": "Adjuntar Archivo",
         "removeAriaLabel": "Eliminar"
       }
+    },
+    "pmSchedules": {
+      "pageTitle": "Programas de MP",
+      "count": "{{count}} programas",
+      "viewMode": "Modo de vista",
+      "table": "Tabla",
+      "calendar": "Calendario",
+      "newPmWorkOrder": "Nueva Orden de Trabajo de MP",
+      "selectedCount": "{{count}} seleccionados",
+      "delete": "Eliminar",
+      "loadingCalendar": "Cargando calendario…",
+      "empty": {
+        "title": "Aún no hay programas de MP",
+        "description": "Los programas de MP se crean a través de órdenes de trabajo Preventivas. Cree una OT Preventiva para comenzar."
+      },
+      "filters": {
+        "searchPlaceholder": "Buscar programas…",
+        "allMachines": "Todas las Máquinas",
+        "allTechnicians": "Todos los Técnicos"
+      },
+      "columns": {
+        "schedule": "Programa",
+        "machine": "Máquina",
+        "type": "Tipo",
+        "dueDate": "Fecha de Vencimiento",
+        "assigned": "Asignado",
+        "status": "Estado",
+        "compliance": "Cumplimiento",
+        "noSchedulesFound": "No se encontraron programas de MP.",
+        "overdue": "{{days}}d de retraso",
+        "dueToday": "Vence hoy",
+        "dueIn": "en {{days}}d"
+      },
+      "types": {
+        "lubrication": "Lubricación",
+        "inspection": "Inspección",
+        "calibration": "Calibración",
+        "filter_replacement": "Reemplazo de Filtro",
+        "belt_chain_check": "Revisión de Correa/Cadena",
+        "full_service": "Servicio Completo",
+        "electrical_check": "Revisión Eléctrica",
+        "hydraulic_service": "Servicio Hidráulico",
+        "safety_inspection": "Inspección de Seguridad",
+        "other": "Otro"
+      },
+      "statuses": {
+        "active": "Activo",
+        "paused": "Pausado",
+        "completed": "Completado",
+        "archived": "Archivado"
+      },
+      "operationalStatuses": {
+        "on_track": "En Curso",
+        "due_soon": "Próximo a Vencer",
+        "overdue": "Vencido",
+        "paused": "Pausado",
+        "completed": "Completado",
+        "in_progress": "En Progreso"
+      },
+      "recurrence": {
+        "daily": "Diario",
+        "weekly": "Semanal",
+        "biweekly": "Quincenal",
+        "monthly": "Mensual",
+        "quarterly": "Trimestral",
+        "semi_annual": "Semestral",
+        "annual": "Anual",
+        "custom": "Personalizado"
+      },
+      "triggerUnits": {
+        "operating_hours": "Horas de Operación",
+        "production_cycles": "Ciclos de Producción"
+      },
+      "historyStatuses": {
+        "completed_on_time": "Completado a Tiempo",
+        "completed_late": "Completado con Retraso",
+        "overdue": "Vencido",
+        "missed": "Omitido",
+        "in_progress": "En Progreso"
+      },
+      "skills": {
+        "Electrical": "Eléctrico",
+        "Mechanical": "Mecánico",
+        "Hydraulic": "Hidráulico",
+        "Pneumatic": "Neumático",
+        "Welding": "Soldadura",
+        "PLC": "PLC",
+        "HVAC": "HVAC",
+        "Other": "Otro"
+      },
+      "card": {
+        "roleSupervisor": "{{name}} (Supervisor)",
+        "roleTechnician": "{{name}} (Técnico)",
+        "roleContractor": "{{name}} (Contratista)",
+        "roleContractorTechnician": "{{name}} (Técnico Contratista)",
+        "daysOverdue_one": "{{count}}d de retraso",
+        "daysOverdue_other": "{{count}}d de retraso",
+        "dueToday": "Vence hoy",
+        "daysUntilDue_one": "{{count}}d para vencer",
+        "daysUntilDue_other": "{{count}}d para vencer",
+        "triggerAfter": "{{count}} {{unit}}",
+        "unassigned": "Sin asignar"
+      },
+      "checklistBuilder": {
+        "empty": "Aún no se han agregado pasos de la lista.",
+        "stepDescriptionPlaceholder": "Descripción del paso",
+        "typeLabel": "Tipo:",
+        "checkbox": "Casilla de verificación",
+        "measurement": "Medición",
+        "methodPlaceholder": "Método (ej. Visual, Micrómetro)",
+        "unitPlaceholder": "Unidad (ej. mm, °C)",
+        "min": "Mín",
+        "max": "Máx",
+        "estimatedMinutes_one": "{{count}} min",
+        "estimatedMinutes_other": "{{count}} min",
+        "photoRequired": "Foto requerida",
+        "photo": "Foto",
+        "moveUp": "Mover arriba",
+        "moveDown": "Mover abajo",
+        "removeStep": "Eliminar paso",
+        "addStepPlaceholder": "Agregar un paso a la lista...",
+        "add": "Agregar",
+        "photoRequiredForStep": "Se requiere foto para este paso",
+        "newStepType": "Nuevo tipo de paso:"
+      },
+      "createForm": {
+        "back": "Atrás",
+        "next": "Siguiente",
+        "saving": "Guardando...",
+        "updateSchedule": "Actualizar Programa",
+        "createSchedule": "Crear Programa",
+        "updateShort": "Actualizar",
+        "createShort": "Crear",
+        "errors": {
+          "missingCompanyOrUser": "Falta información de la empresa o del usuario",
+          "saveFailed": "No se pudo guardar"
+        },
+        "toasts": {
+          "updated": "Programa de MP actualizado",
+          "created": "Programa de MP creado"
+        },
+        "steps": {
+          "basic": {
+            "label": "Información Básica",
+            "description": "Nombre, tipo, prioridad"
+          },
+          "machine": {
+            "label": "Máquina",
+            "description": "Seleccionar máquina objetivo"
+          },
+          "trigger": {
+            "label": "Disparador",
+            "description": "Basado en calendario o uso"
+          },
+          "team": {
+            "label": "Equipo",
+            "description": "Asignar técnicos"
+          },
+          "checklist": {
+            "label": "Lista de Tareas",
+            "description": "Pasos de la tarea de MP"
+          },
+          "parts": {
+            "label": "Piezas",
+            "description": "Preasignar piezas"
+          },
+          "documents": {
+            "label": "Documentos",
+            "description": "Adjuntar referencias"
+          },
+          "alerts": {
+            "label": "Alertas",
+            "description": "Configuración de notificaciones"
+          }
+        },
+        "step1": {
+          "heading": "Identidad del Programa",
+          "nameLabel": "Nombre del Programa *",
+          "namePlaceholder": "ej. Lubricación Mensual de Máquina Telar",
+          "pmTypeLabel": "Tipo de MP *",
+          "priorityLabel": "Prioridad",
+          "descriptionLabel": "Descripción",
+          "descriptionPlaceholder": "¿Qué debe hacerse durante este MP?"
+        },
+        "step2": {
+          "heading": "Selección de Máquina",
+          "machineLabel": "Máquina *",
+          "selectMachinePlaceholder": "Seleccione una máquina...",
+          "machineOption": "{{name}} — {{department}} (Salud: {{health}}%)",
+          "department": "Departamento",
+          "location": "Ubicación",
+          "machineType": "Tipo de Máquina",
+          "criticality": "Criticidad",
+          "criticalityValue": "{{value}}/5",
+          "autoUpgraded": "MP actualizado automáticamente a Crítico",
+          "healthScore": "Puntuación de Salud"
+        },
+        "step3": {
+          "heading": "Configuración del Disparador",
+          "calendarBased": "Basado en Calendario",
+          "usageBased": "Basado en Uso",
+          "firstPmDateLabel": "Primera Fecha de MP *",
+          "recurrenceLabel": "Recurrencia *",
+          "everyXDays": "Cada X Días",
+          "noEndDate": "Sin Fecha de Finalización (ejecutar indefinidamente)",
+          "endDateLabel": "Fecha de Finalización",
+          "seasonalOverride": "Anulación Estacional",
+          "peakSeasonStart": "Inicio de Temporada Alta",
+          "peakSeasonEnd": "Fin de Temporada Alta",
+          "peakSeasonInterval": "Intervalo de Temporada Alta",
+          "triggerAfterLabel": "Disparar Después de *",
+          "unitLabel": "Unidad *",
+          "selectUnitPlaceholder": "Seleccionar...",
+          "currentMeterValue": "Valor Actual del Medidor",
+          "lastMeterResetDate": "Fecha del Último Reinicio del Medidor"
+        },
+        "step4": {
+          "heading": "Asignación de Equipo",
+          "assignedTechniciansLabel": "Técnicos Asignados *",
+          "technicianNamePlaceholder": "Ingrese el nombre del técnico",
+          "add": "Agregar",
+          "removeTechnician": "Eliminar a {{name}}",
+          "estimatedDurationLabel": "Duración Estimada *",
+          "unitLabel": "Unidad *",
+          "hours": "Horas",
+          "days": "Días",
+          "skillsRequiredLabel": "Habilidades Requeridas"
+        },
+        "step5": {
+          "heading": "Lista de Tareas de MP",
+          "useExistingTemplate": "Usar plantilla existente",
+          "saveAsTemplate": "Guardar como plantilla"
+        },
+        "step6": {
+          "heading": "Preasignación de Piezas",
+          "subheading": "Opcional: adjunte las piezas de repuesto esperadas del inventario.",
+          "partSummary": "{{number}} • Cant.: {{quantity}}",
+          "remove": "Eliminar",
+          "partIdPlaceholder": "ID de Pieza",
+          "partNamePlaceholder": "Nombre de la Pieza",
+          "partNumberPlaceholder": "Número de Pieza",
+          "qtyPlaceholder": "Cant.",
+          "add": "Agregar"
+        },
+        "step7": {
+          "heading": "Documentos y Referencias",
+          "subheading": "Adjunte manuales de máquina, POE, fotos de referencia.",
+          "fileSizeKb": "({{size}} KB)",
+          "remove": "Eliminar",
+          "uploadHint": "Haga clic para subir archivos o arrastre y suelte",
+          "uploadTypes": "PDF, Word, Imágenes hasta 10MB"
+        },
+        "step8": {
+          "heading": "Configuración y Alertas",
+          "leadTimeLabel": "Tiempo de Anticipación (días)",
+          "leadTimeHint": "Días antes del vencimiento para notificar al técnico",
+          "overdueEscalationLabel": "Escalamiento por Vencimiento (horas)",
+          "overdueEscalationHint": "Horas después del vencimiento para escalar al Gerente de Planta",
+          "autoCloseLabel": "Cierre Automático (días)",
+          "autoCloseHint": "Días para marcar automáticamente como vencido",
+          "notificationSummaryTitle": "Resumen de Notificaciones",
+          "notif1": "Notificación push + correo al técnico asignado y al supervisor cuando el MP vence",
+          "notif2": "Notificación push + SMS al Gerente de Planta si el MP no se inicia dentro de las horas de escalamiento",
+          "notif3": "Notificación push inmediata cuando se crea automáticamente la Orden de Trabajo de MP"
+        }
+      },
+      "detail": {
+        "notFound": "Programa no encontrado.",
+        "openingLinkedWo": "Abriendo orden de trabajo vinculada…",
+        "complianceRate": "Tasa de Cumplimiento",
+        "nextDue": "Próximo Vencimiento",
+        "daysOverdue_one": "{{count}}d de retraso",
+        "daysOverdue_other": "{{count}}d de retraso",
+        "today": "Hoy",
+        "daysShort_one": "{{count}}d",
+        "daysShort_other": "{{count}}d",
+        "completed": "Completado",
+        "missedCount_one": "{{count}} omitido",
+        "missedCount_other": "{{count}} omitidos",
+        "status": "Estado",
+        "tabs": {
+          "overview": "Resumen",
+          "history": "Historial"
+        },
+        "scheduleDetails": "Detalles del Programa",
+        "priority": "Prioridad",
+        "triggerType": "Tipo de Disparador",
+        "recurrence": "Recurrencia",
+        "endDate": "Fecha de Finalización",
+        "noEndDate": "Sin fecha de finalización",
+        "triggerAfter": "Disparar Después de",
+        "currentMeter": "Medidor Actual",
+        "estDuration": "Duración Est.",
+        "leadTime": "Tiempo de Anticipación",
+        "leadTimeDays_one": "{{count}} día",
+        "leadTimeDays_other": "{{count}} día(s)",
+        "escalation": "Escalamiento",
+        "escalationHours": "{{count}}h",
+        "checklist": "Lista de Tareas",
+        "preallocatedParts": "Piezas Preasignadas",
+        "qty_one": "Cant.: {{count}}",
+        "qty_other": "Cant.: {{count}}",
+        "historyTable": {
+          "woNumber": "OT #",
+          "dueDate": "Fecha de Vencimiento",
+          "completed": "Completado",
+          "status": "Estado",
+          "technicians": "Técnicos",
+          "duration": "Duración"
+        },
+        "durationMinutes_one": "{{count}}m",
+        "durationMinutes_other": "{{count}}m",
+        "noHistoryYet": "Aún no hay historial."
+      },
+      "errors": {
+        "companyIdRequired": "Se requiere el ID de la empresa",
+        "fetchCalendarEventsFailed": "No se pudieron obtener los eventos del calendario"
+      },
+      "calendarView": {
+        "week": "Semana",
+        "month": "Mes",
+        "days": {
+          "sun": "Dom",
+          "mon": "Lun",
+          "tue": "Mar",
+          "wed": "Mié",
+          "thu": "Jue",
+          "fri": "Vie",
+          "sat": "Sáb"
+        },
+        "moreCount_one": "+{{count}} más",
+        "moreCount_other": "+{{count}} más",
+        "noPmsScheduled": "No hay MP programados",
+        "noPmsScheduledPeriod": "No hay MP programados.",
+        "openWorkOrder": "Abrir Orden de Trabajo",
+        "openSchedule": "Abrir Programa",
+        "pageTitle": "Calendario de MP",
+        "eventsThisPeriod_one": "{{count}} evento en este período",
+        "eventsThisPeriod_other": "{{count}} eventos en este período",
+        "loading": "Cargando calendario..."
+      },
+      "workloadPage": {
+        "title": "Carga de Trabajo de Técnicos",
+        "description": "Próximas asignaciones de MP por técnico",
+        "dateRangeLabel": "Rango de fechas",
+        "range_7": "7 días",
+        "range_14": "14 días",
+        "range_30": "30 días",
+        "loadErrorTitle": "No se pudo cargar la carga de trabajo"
+      },
+      "technicianWorkload": {
+        "assignedHoursSummary_one": "{{count}} MP • {{hours}}h est.",
+        "assignedHoursSummary_other": "{{count}} MP • {{hours}}h est.",
+        "status": {
+          "ok": "OK",
+          "busy": "Ocupado",
+          "overloaded": "Sobrecargado"
+        },
+        "moreCount_one": "+{{count}} más",
+        "moreCount_other": "+{{count}} más",
+        "empty": "No hay asignaciones de MP próximas en este rango."
+      },
+      "complianceDashboard": {
+        "loading": "Cargando datos de cumplimiento...",
+        "kpi": {
+          "overallCompliance": "Cumplimiento General",
+          "scheduledThisMonth": "Programados Este Mes",
+          "completedOnTime": "Completados a Tiempo",
+          "overdue": "Vencidos"
+        },
+        "trendChartTitle": "Tendencia de Cumplimiento (Últimos 6 Meses)",
+        "chart": {
+          "breakdowns": "Averías",
+          "complianceRate": "% de Cumplimiento",
+          "percentAxisLabel": "%"
+        },
+        "byMachineTitle": "Cumplimiento por Máquina",
+        "byTechnicianTitle": "Cumplimiento por Técnico",
+        "table": {
+          "name": "Nombre",
+          "rate": "Tasa",
+          "scheduled": "Programados",
+          "onTime": "A Tiempo",
+          "missed": "Omitidos"
+        },
+        "noData": "No hay datos disponibles."
+      },
+      "editPage": {
+        "title": "Editar Programa de MP",
+        "notFound": "Programa no encontrado. Es posible que haya sido eliminado."
+      }
     }
   }
 }
