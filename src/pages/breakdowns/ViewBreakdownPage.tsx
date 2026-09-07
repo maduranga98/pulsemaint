@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { doc, onSnapshot, updateDoc, Timestamp, serverTimestamp, arrayUnion, collection, query, where, orderBy, limit, getDocs, documentId } from 'firebase/firestore';
 import { AlertCircle, ArrowLeft, CheckCircle, UserPlus, HardHat, Pencil, ClipboardPlus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown } from '../../types/breakdown';
@@ -16,6 +17,7 @@ const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
 
 export default function ViewBreakdownPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -43,7 +45,7 @@ export default function ViewBreakdownPage() {
         if (snap.exists()) {
           setBreakdown({ ...snap.data(), id: snap.id } as Breakdown);
         } else {
-          setError('Breakdown not found.');
+          setError(t('common.breakdowns.viewPage.notFound'));
         }
         setLoading(false);
       },
@@ -109,13 +111,13 @@ export default function ViewBreakdownPage() {
           changedBy: userProfile.id,
           changedByName: userProfile.fullName,
           changedAt: new Date().toISOString(),
-          note: 'Breakdown closed after resolution and RCA.',
+          note: t('common.breakdowns.viewPage.notes.closed'),
         }),
       });
       void markMachineActiveIfNoOpenWork(breakdown?.machineId);
       navigate('/app/breakdowns', { replace: true });
     } catch (err: any) {
-      setError(err?.message || 'Failed to close breakdown.');
+      setError(err?.message || t('common.breakdowns.viewPage.errors.closeFailed'));
     }
   }
 
@@ -140,7 +142,7 @@ export default function ViewBreakdownPage() {
           changedBy: userProfile.id,
           changedByName: userProfile.fullName,
           changedAt: Timestamp.now(),
-          note: `Assigned to ${candidate.fullName} by ${userProfile.fullName}`,
+          note: t('common.breakdowns.viewPage.notes.assigned', { name: candidate.fullName, actor: userProfile.fullName }),
         }),
       });
       void markMachineUnderMaintenance(breakdown?.machineId);
@@ -155,7 +157,7 @@ export default function ViewBreakdownPage() {
       });
       setShowAssignModal(false);
     } catch (err: any) {
-      setError(err?.message || 'Failed to assign.');
+      setError(err?.message || t('common.breakdowns.viewPage.errors.assignFailed'));
     } finally {
       setAssignBusy(false);
     }
@@ -177,13 +179,13 @@ export default function ViewBreakdownPage() {
           changedBy: userProfile.id,
           changedByName: userProfile.fullName,
           changedAt: Timestamp.now(),
-          note: `Self-attended by ${userProfile.fullName}`,
+          note: t('common.breakdowns.viewPage.notes.selfAttended', { actor: userProfile.fullName }),
         }),
       });
       void markMachineUnderMaintenance(breakdown?.machineId);
       navigate(`/app/breakdowns/attend?ids=${id}`);
     } catch (err: any) {
-      setError(err?.message || 'Failed to attend.');
+      setError(err?.message || t('common.breakdowns.viewPage.errors.attendFailed'));
     } finally {
       setAttendBusy(false);
     }
@@ -228,7 +230,7 @@ export default function ViewBreakdownPage() {
   if (loading) {
     return (
       <div className="min-h-full flex items-center justify-center">
-        <p className="text-slate-500">Loading breakdown…</p>
+        <p className="text-slate-500">{t('common.breakdowns.viewPage.loading')}</p>
       </div>
     );
   }
@@ -238,12 +240,12 @@ export default function ViewBreakdownPage() {
       <div className="min-h-full flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
-          <p className="text-slate-700">{error || 'Breakdown not found.'}</p>
+          <p className="text-slate-700">{error || t('common.breakdowns.viewPage.notFound')}</p>
           <button
             onClick={() => navigate('/app/breakdowns')}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
-            Back to Breakdowns
+            {t('common.breakdowns.viewPage.backToBreakdowns')}
           </button>
         </div>
       </div>
@@ -262,7 +264,7 @@ export default function ViewBreakdownPage() {
               onClick={() => navigate('/app/breakdowns')}
               className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1"
             >
-              <ArrowLeft className="w-4 h-4" /> Back to Breakdowns
+              <ArrowLeft className="w-4 h-4" /> {t('common.breakdowns.viewPage.backToBreakdowns')}
             </button>
             <h1 className="text-2xl font-bold text-slate-900">{b.ticketNumber}</h1>
             <p className="text-sm text-slate-500">{b.machineName}</p>
@@ -274,7 +276,7 @@ export default function ViewBreakdownPage() {
               className="px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 text-sm"
             >
               <ArrowLeft className="w-4 h-4 inline mr-1" />
-              Back
+              {t('common.breakdowns.viewPage.back')}
             </button>
             {b.status === 'reported' && !b.attendedBy && isSupervisorRole && (
               <button
@@ -283,7 +285,7 @@ export default function ViewBreakdownPage() {
                 className="px-4 py-2 border border-indigo-200 bg-indigo-50 text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 text-sm"
               >
                 <UserPlus className="w-4 h-4 inline mr-1" />
-                Assign Technician
+                {t('common.breakdowns.viewPage.assignTechnician')}
               </button>
             )}
             {b.status === 'reported' && canAttend && (
@@ -294,7 +296,7 @@ export default function ViewBreakdownPage() {
                 className="px-4 py-2 border border-emerald-200 bg-emerald-50 text-emerald-700 font-medium rounded-lg hover:bg-emerald-100 text-sm disabled:opacity-50"
               >
                 <HardHat className="w-4 h-4 inline mr-1" />
-                {attendBusy ? 'Attending…' : 'Attend'}
+                {attendBusy ? t('common.breakdowns.viewPage.attending') : t('common.breakdowns.viewPage.attend')}
               </button>
             )}
             {b.status !== 'reported' && !b.severity && (b.assignedTechnicianIds ?? []).includes(userProfile?.id ?? '') && (
@@ -303,7 +305,7 @@ export default function ViewBreakdownPage() {
                 className="px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 font-medium rounded-lg hover:bg-blue-100 text-sm"
               >
                 <Pencil className="w-4 h-4 inline mr-1" />
-                Fill Breakdown Report
+                {t('common.breakdowns.viewPage.fillReport')}
               </Link>
             )}
             {isSupervisorRole && b.status !== 'reported' && !b.linkedWOId && (
@@ -313,7 +315,7 @@ export default function ViewBreakdownPage() {
                 className="px-4 py-2 border border-purple-200 bg-purple-50 text-purple-700 font-medium rounded-lg hover:bg-purple-100 text-sm"
               >
                 <ClipboardPlus className="w-4 h-4 inline mr-1" />
-                Create Work Order
+                {t('common.breakdowns.viewPage.createWorkOrder')}
               </button>
             )}
             {b.status === 'resolved' && (
@@ -323,7 +325,7 @@ export default function ViewBreakdownPage() {
                 className="px-4 py-2 border border-emerald-200 bg-emerald-50 text-emerald-700 font-medium rounded-lg hover:bg-emerald-100 text-sm"
               >
                 <CheckCircle className="w-4 h-4 inline mr-1" />
-                Close Breakdown
+                {t('common.breakdowns.viewPage.closeBreakdown')}
               </button>
             )}
           </div>

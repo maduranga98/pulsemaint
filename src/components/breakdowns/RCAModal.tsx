@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, ChevronRight, ChevronLeft, Save, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useRCA } from '../../hooks/useRCA';
 import type { Breakdown } from '../../types/breakdown';
@@ -12,15 +13,17 @@ interface RCAModalProps {
   onSaved: (rcaId: string, completed: boolean) => void;
 }
 
-const WHY_QUESTIONS: string[] = [
-  'Why did this problem occur?',
-  'Why did that happen?',
-  'Why did that cause it?',
-  'Why was that condition present?',
-  'What is the underlying systemic reason?',
+const WHY_QUESTION_KEYS = [
+  'common.breakdowns.rcaModal.whyQuestions.q1',
+  'common.breakdowns.rcaModal.whyQuestions.q2',
+  'common.breakdowns.rcaModal.whyQuestions.q3',
+  'common.breakdowns.rcaModal.whyQuestions.q4',
+  'common.breakdowns.rcaModal.whyQuestions.q5',
 ];
 
 export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
+  const { t } = useTranslation();
+  const WHY_QUESTIONS: string[] = WHY_QUESTION_KEYS.map((k) => t(k));
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
 
@@ -60,11 +63,11 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
     if (!user || !userProfile) return;
     if (complete) {
       if (whys[0].trim() === '') {
-        toast.error('Please answer at least the first Why before completing the RCA.');
+        toast.error(t('common.breakdowns.rcaModal.errors.firstWhyRequired'));
         return;
       }
       if (rootCause.trim() === '') {
-        toast.error('Root cause is required to complete the RCA.');
+        toast.error(t('common.breakdowns.rcaModal.errors.rootCauseRequired'));
         return;
       }
     }
@@ -82,16 +85,20 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
         user.uid,
         userProfile.fullName,
       );
-      toast.success(complete ? 'RCA completed.' : 'RCA draft saved.');
+      toast.success(complete ? t('common.breakdowns.rcaModal.toasts.completed') : t('common.breakdowns.rcaModal.toasts.draftSaved'));
       onSaved(rcaId, complete);
     } catch (err: any) {
-      toast.error(err?.message || 'Failed to save RCA.');
+      toast.error(err?.message || t('common.breakdowns.rcaModal.errors.saveFailed'));
     } finally {
       setSaving(false);
     }
   }
 
-  const STEPS = ['Problem', '5 Whys & Root Cause', 'Actions'];
+  const STEPS = [
+    t('common.breakdowns.rcaModal.steps.problem'),
+    t('common.breakdowns.rcaModal.steps.fiveWhys'),
+    t('common.breakdowns.rcaModal.steps.actions'),
+  ];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto flex items-start sm:items-center justify-center bg-black/50 py-8">
@@ -99,7 +106,7 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">5-Why Root Cause Analysis</h2>
+            <h2 className="text-lg font-bold text-gray-900">{t('common.breakdowns.rcaModal.title')}</h2>
             <p className="text-xs text-gray-500">{breakdown.ticketNumber} · {breakdown.machineName}</p>
           </div>
           <button
@@ -151,15 +158,15 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
           {/* Step 0: Problem Statement */}
           {step === 0 && (
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-gray-900">Describe the problem</h3>
+              <h3 className="text-sm font-semibold text-gray-900">{t('common.breakdowns.rcaModal.describeProblem')}</h3>
               <p className="text-xs text-gray-500">
-                Provide a clear, factual statement of what happened. Avoid assumptions or causes at this stage.
+                {t('common.breakdowns.rcaModal.describeProblemHint')}
               </p>
               <textarea
                 value={problem}
                 onChange={(e) => setProblem(e.target.value)}
                 rows={6}
-                placeholder="e.g., Machine X stopped producing at 14:00 on June 11, causing 3 hours of downtime."
+                placeholder={t('common.breakdowns.rcaModal.problemPlaceholder')}
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
               />
             </div>
@@ -168,17 +175,17 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
           {/* Step 1: 5 Whys + Root Cause */}
           {step === 1 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900">5 Whys Analysis</h3>
+              <h3 className="text-sm font-semibold text-gray-900">{t('common.breakdowns.rcaModal.fiveWhysAnalysis')}</h3>
               <p className="text-xs text-gray-500">
-                Answer each "Why" based on the previous answer. At least Why 1 is required to complete.
+                {t('common.breakdowns.rcaModal.fiveWhysHint')}
               </p>
               <div className="bg-blue-50 rounded-lg p-3 text-sm text-blue-700">
-                <span className="font-medium">Problem: </span>{problem || '(not specified)'}
+                <span className="font-medium">{t('common.breakdowns.rcaModal.problemLabel')} </span>{problem || t('common.breakdowns.rcaModal.notSpecified')}
               </div>
               {WHY_QUESTIONS.map((q, idx) => (
                 <div key={idx} className="space-y-1">
                   <label className="block text-xs font-semibold text-gray-600">
-                    Why {idx + 1}: {q}
+                    {t('common.breakdowns.rcaModal.whyLabel', { index: idx + 1 })}: {q}
                   </label>
                   <textarea
                     value={whys[idx]}
@@ -188,23 +195,23 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
                       setWhys(next);
                     }}
                     rows={2}
-                    placeholder={`Why ${idx + 1} answer…`}
+                    placeholder={t('common.breakdowns.rcaModal.whyAnswerPlaceholder', { index: idx + 1 })}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
                   />
                 </div>
               ))}
               <div className="space-y-1 pt-2 border-t border-gray-100">
                 <label className="block text-xs font-semibold text-gray-900">
-                  Root Cause <span className="text-red-500">*</span>
+                  {t('common.breakdowns.rcaModal.rootCauseLabel')} <span className="text-red-500">*</span>
                 </label>
                 <p className="text-xs text-gray-500">
-                  Based on your 5-Why analysis, what is the true underlying root cause?
+                  {t('common.breakdowns.rcaModal.rootCauseHint')}
                 </p>
                 <textarea
                   value={rootCause}
                   onChange={(e) => setRootCause(e.target.value)}
                   rows={3}
-                  placeholder="The root cause is…"
+                  placeholder={t('common.breakdowns.rcaModal.rootCausePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
@@ -214,17 +221,17 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
           {/* Step 2: Actions */}
           {step === 2 && (
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-gray-900">Corrective Actions</h3>
+              <h3 className="text-sm font-semibold text-gray-900">{t('common.breakdowns.rcaModal.correctiveActionsTitle')}</h3>
 
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-gray-600">
-                  Corrective Action (optional)
+                  {t('common.breakdowns.rcaModal.correctiveActionLabel')}
                 </label>
                 <textarea
                   value={correctiveAction}
                   onChange={(e) => setCorrectiveAction(e.target.value)}
                   rows={3}
-                  placeholder="Describe the corrective action to prevent recurrence…"
+                  placeholder={t('common.breakdowns.rcaModal.correctiveActionPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
@@ -237,36 +244,36 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
                     onChange={(e) => setCreateWO(e.target.checked)}
                     className="rounded border-gray-300 text-blue-600"
                   />
-                  Create a Work Order for this corrective action
+                  {t('common.breakdowns.rcaModal.createWOForAction')}
                 </label>
               )}
 
               <div className="space-y-1 pt-2 border-t border-gray-100">
                 <label className="block text-xs font-semibold text-gray-600">
-                  PM Schedule Update (optional)
+                  {t('common.breakdowns.rcaModal.pmUpdateLabel')}
                 </label>
                 <p className="text-xs text-gray-500">
-                  Does this finding require a change to the preventive maintenance schedule?
+                  {t('common.breakdowns.rcaModal.pmUpdateHint')}
                 </p>
                 <textarea
                   value={pmUpdate}
                   onChange={(e) => setPmUpdate(e.target.value)}
                   rows={2}
-                  placeholder="e.g., Increase lubrication frequency on Machine X from monthly to bi-weekly."
+                  placeholder={t('common.breakdowns.rcaModal.pmUpdatePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
 
               {/* RCA Summary */}
               <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                <p className="font-medium text-gray-700">Summary</p>
+                <p className="font-medium text-gray-700">{t('common.breakdowns.rcaModal.summary')}</p>
                 <div>
-                  <span className="text-gray-500 text-xs">Root Cause: </span>
+                  <span className="text-gray-500 text-xs">{t('common.breakdowns.rcaModal.rootCauseLabel')}: </span>
                   <span className="text-gray-800">{rootCause || ''}</span>
                 </div>
                 {correctiveAction && (
                   <div>
-                    <span className="text-gray-500 text-xs">Corrective Action: </span>
+                    <span className="text-gray-500 text-xs">{t('common.breakdowns.rcaModal.correctiveActionSummaryLabel')}: </span>
                     <span className="text-gray-800">{correctiveAction}</span>
                   </div>
                 )}
@@ -282,8 +289,8 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
             onClick={step === 0 ? onClose : () => setStep((s) => s - 1)}
             className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
           >
-            {step === 0 ? 'Cancel' : (
-              <span className="flex items-center gap-1"><ChevronLeft className="w-4 h-4" />Back</span>
+            {step === 0 ? t('common.breakdowns.rcaModal.cancel') : (
+              <span className="flex items-center gap-1"><ChevronLeft className="w-4 h-4" />{t('common.breakdowns.rcaModal.back')}</span>
             )}
           </button>
 
@@ -295,7 +302,7 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
               className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50 flex items-center gap-1"
             >
               <Save className="w-4 h-4" />
-              Save Draft
+              {t('common.breakdowns.rcaModal.saveDraft')}
             </button>
 
             {step < 2 ? (
@@ -305,7 +312,7 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
                 disabled={step === 0 && !problem.trim()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 flex items-center gap-1"
               >
-                Next <ChevronRight className="w-4 h-4" />
+                {t('common.breakdowns.rcaModal.next')} <ChevronRight className="w-4 h-4" />
               </button>
             ) : (
               <button
@@ -315,7 +322,7 @@ export function RCAModal({ breakdown, onClose, onSaved }: RCAModalProps) {
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-1"
               >
                 <CheckCircle className="w-4 h-4" />
-                {saving ? 'Saving…' : 'Complete RCA'}
+                {saving ? t('common.breakdowns.rcaModal.saving') : t('common.breakdowns.rcaModal.completeRCA')}
               </button>
             )}
           </div>

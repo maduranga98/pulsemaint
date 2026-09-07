@@ -1025,6 +1025,192 @@
         "workDone": "已完成的工作",
         "partsUsed": "使用的备件",
         "signedOff": "已签核"
+      },
+      "detailCard": {
+        "machine": "设备",
+        "machineStillRunning": "设备仍在运行（降级）",
+        "machineStopped": "设备已停机"
+      },
+      "reportPage": {
+        "back": "返回",
+        "title": "报告故障",
+        "subtitle": "快速将设备故障提交给维护团队。技术员到场后将评估严重程度和类型。",
+        "profileTimedOut": "您的账户信息加载时间比平时长。请检查网络连接后重试。",
+        "retry": "重试",
+        "machineLabel": "设备 *",
+        "machineLockedPrefix": "通过扫码选择的设备：",
+        "machinesTimedOut": "设备列表加载时间比平时长。",
+        "loadingMachines": "正在加载设备…",
+        "noMachines": "尚无设备 — 请先添加一台",
+        "selectMachine": "选择设备",
+        "whatHappenedLabel": "发生了什么？*",
+        "whatHappenedPlaceholder": "描述症状、错误代码、异响等。或点击麦克风告诉我们发生了什么。",
+        "productionImpactLabel": "生产影响",
+        "productionImpactPlaceholder": "例如：2 号线停机，约损失 500 件/小时",
+        "productionCountLabel": "停机时的当前生产计数",
+        "stillRunningLabel": "设备仍在运行（降级但可用）",
+        "cancel": "取消",
+        "submitting": "提交中…",
+        "submit": "提交故障",
+        "errors": {
+          "profileNotLoaded": "您的账户尚未完全加载。请稍后重试。",
+          "selectMachine": "请选择发生故障的设备。",
+          "descriptionTooShort": "请至少输入 10 个字符描述故障。",
+          "machineNotFound": "未找到所选设备。",
+          "submitFailed": "报告故障失败。"
+        }
+      },
+      "attendPage": {
+        "back": "返回",
+        "titleSingular": "处理故障",
+        "titlePlural": "处理故障",
+        "subtitle_one": "{{machineName}} — 共 {{count}} 张工单：{{tickets}}",
+        "subtitle_other": "{{machineName}} — 共 {{count}} 张工单：{{tickets}}",
+        "loading": "加载中…",
+        "backToBreakdowns": "返回故障列表",
+        "notYetAssigned": "这些故障尚未分配。",
+        "assignFirst": "请先在故障列表中分配或处理它们。",
+        "noBreakdownsSpecified": "未指定故障。",
+        "reportedDetailsSingular": "报告详情",
+        "reportedDetailsPlural": "各工单的报告详情",
+        "assessmentSingular": "您的评估",
+        "assessmentPlural": "您的评估 — 适用于以上所有工单",
+        "stillRunning": "仍在运行（降级）",
+        "stopped": "已停机",
+        "whatHappenedLabel": "发生了什么？",
+        "productionImpactLabel": "生产影响",
+        "productionCountLabel": "停机时的当前生产计数",
+        "severityLabel": "严重程度 *",
+        "typeLabel": "类型 *",
+        "attemptedFixesLabel": "已尝试的修复措施",
+        "technicianFindingsLabel": "发生了什么？（技术员/学员的发现）",
+        "technicianFindingsPlaceholder": "您自己对事件的描述，独立于报告人的描述。或点击麦克风告诉我们。",
+        "attachMediaLabel": "附加媒体（照片/视频）",
+        "filesSelected_one": "已选择 {{count}} 个文件",
+        "filesSelected_other": "已选择 {{count}} 个文件",
+        "uploading": "上传中…",
+        "cancel": "取消",
+        "saving": "保存中…",
+        "saveAssessment": "保存评估",
+        "saveAssessmentMultiple": "为 {{count}} 张工单保存评估",
+        "severities": {
+          "critical": "严重 — 生产已停止",
+          "high": "高 — 影响较大",
+          "medium": "中 — 影响较小",
+          "low": "低 — 外观/观察"
+        },
+        "types": {
+          "mechanical": "机械",
+          "electrical": "电气",
+          "hydraulic": "液压",
+          "pneumatic": "气动",
+          "software": "软件/控制",
+          "other": "其他"
+        },
+        "notes": {
+          "assessedSolo": "由到场技术员评估 — 已记录严重程度、类型和已尝试的修复措施。",
+          "assessedAlongside_one": "由到场技术员与 {{machineName}} 上的另外 {{count}} 条故障一并评估。",
+          "assessedAlongside_other": "由到场技术员与 {{machineName}} 上的另外 {{count}} 条故障一并评估。"
+        },
+        "toasts": {
+          "saved": "评估已保存",
+          "savedMultiple": "已为 {{count}} 张工单保存评估"
+        },
+        "errors": {
+          "saveFailed": "保存失败。"
+        }
+      },
+      "viewPage": {
+        "loading": "正在加载故障…",
+        "notFound": "未找到故障。",
+        "backToBreakdowns": "返回故障列表",
+        "back": "返回",
+        "assignTechnician": "分配技术员",
+        "attend": "处理",
+        "attending": "处理中…",
+        "fillReport": "填写故障报告",
+        "createWorkOrder": "创建工单",
+        "closeBreakdown": "关闭故障",
+        "notes": {
+          "closed": "故障已在解决并完成根本原因分析后关闭。",
+          "assigned": "由 {{actor}} 分配给 {{name}}",
+          "selfAttended": "由 {{actor}} 自行处理"
+        },
+        "errors": {
+          "closeFailed": "无法关闭故障。",
+          "assignFailed": "分配失败。",
+          "attendFailed": "处理失败。"
+        }
+      },
+      "editPage": {
+        "back": "返回",
+        "title": "处理故障",
+        "loading": "加载中…",
+        "notFound": "未找到故障。",
+        "backToBreakdowns": "返回故障列表",
+        "notYetAssigned": "此故障尚未分配。",
+        "assignFirst": "请先在故障列表中分配或处理它 — 一旦有人处理即可编辑。",
+        "viewBreakdown": "查看故障",
+        "viewOnly": "已报告，仅查看",
+        "statusLabel": "状态",
+        "stillRunning": "设备仍在运行（降级）",
+        "stopped": "设备已停机",
+        "errors": {
+          "saveFailed": "保存失败。"
+        }
+      },
+      "floorOperatorWidgets": {
+        "myDepartmentTitle": "故障",
+        "noOpenBreakdowns": "您所在部门没有未处理的故障。",
+        "reportWidgetTitle": "报告故障",
+        "scanQrCode": "扫描二维码",
+        "notMachineQr": "该二维码不是设备二维码。"
+      },
+      "rcaModal": {
+        "title": "5 个为什么根本原因分析",
+        "describeProblem": "描述问题",
+        "describeProblemHint": "清晰、客观地说明发生的情况。此阶段请避免假设或推断原因。",
+        "problemPlaceholder": "例如：X 设备于 6 月 11 日 14:00 停止生产，导致 3 小时停机。",
+        "fiveWhysAnalysis": "5 个为什么分析",
+        "fiveWhysHint": "根据上一个答案回答每个“为什么”。至少需回答第 1 个“为什么”才能完成。",
+        "problemLabel": "问题：",
+        "notSpecified": "（未指定）",
+        "whyLabel": "为什么 {{index}}",
+        "whyAnswerPlaceholder": "第 {{index}} 个为什么的答案…",
+        "rootCauseLabel": "根本原因",
+        "rootCauseHint": "根据您的 5 个为什么分析，真正的根本原因是什么？",
+        "rootCausePlaceholder": "根本原因是…",
+        "correctiveActionsTitle": "纠正措施",
+        "correctiveActionLabel": "纠正措施（可选）",
+        "correctiveActionPlaceholder": "描述防止复发的纠正措施…",
+        "createWOForAction": "为此纠正措施创建工单",
+        "pmUpdateLabel": "PM 计划更新（可选）",
+        "pmUpdateHint": "此发现是否需要更改预防性维护计划？",
+        "pmUpdatePlaceholder": "例如：将 X 设备的润滑频率从每月一次提高到每两周一次。",
+        "summary": "摘要",
+        "correctiveActionSummaryLabel": "纠正措施",
+        "cancel": "取消",
+        "back": "返回",
+        "saveDraft": "保存草稿",
+        "next": "下一步",
+        "saving": "保存中…",
+        "completeRCA": "完成 RCA",
+        "whyQuestions": {
+          "q1": "为什么会发生此问题？",
+          "q2": "为什么会发生这种情况？",
+          "q3": "为什么这会导致该问题？",
+          "q4": "为什么会存在这种情况？",
+          "q5": "潜在的系统性原因是什么？"
+        },
+        "errors": {
+          "firstWhyRequired": "请至少回答第一个“为什么”后再完成 RCA。",
+          "rootCauseRequired": "完成 RCA 需要填写根本原因。",
+          "saveFailed": "保存 RCA 失败。"
+        },
+        "toasts": {
+          "completed": "RCA 已完成。",
+          "draftSaved": "RCA 草稿已保存。"
+        }
       }
     }
   }

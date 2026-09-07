@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '../../../lib/firebase';
 import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import DashboardWidget from '../shared/DashboardWidget';
@@ -10,20 +11,6 @@ import type { Breakdown, BreakdownStatus } from '../../../types/breakdown';
 interface MyDepartmentBreakdownsWidgetProps {
   siteId: string;
 }
-
-const STATUS_LABEL: Record<BreakdownStatus, string> = {
-  reported: 'Reported',
-  acknowledged: 'Acknowledged',
-  triage_in_progress: 'In Triage',
-  assigned: 'Assigned',
-  en_route: 'En Route',
-  repair_in_progress: 'In Progress',
-  on_hold_parts: 'On Hold (Parts)',
-  on_hold_approval: 'On Hold (Approval)',
-  resolved: 'Resolved',
-  closed: 'Closed',
-  cancelled: 'Cancelled',
-};
 
 const STATUS_COLOR: Record<BreakdownStatus, string> = {
   reported: 'bg-red-500/15 text-red-300',
@@ -44,6 +31,7 @@ const STATUS_COLOR: Record<BreakdownStatus, string> = {
 // have no assign/attend/close permissions on breakdown_tickets (see
 // firestore.rules), so this never offers an action, only status.
 export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBreakdownsWidgetProps) {
+  const { t } = useTranslation();
   const { department: scopedDepartment } = useDepartmentScope();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,9 +64,9 @@ export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBre
     .slice(0, 8);
 
   return (
-    <DashboardWidget title="Breakdowns" loading={loading}>
+    <DashboardWidget title={t('common.breakdowns.floorOperatorWidgets.myDepartmentTitle')} loading={loading}>
       {visible.length === 0 ? (
-        <EmptyState message="No open breakdowns in your department." />
+        <EmptyState message={t('common.breakdowns.floorOperatorWidgets.noOpenBreakdowns')} />
       ) : (
         <div className="divide-y divide-[#1E3A5F]">
           {visible.map((b) => (
@@ -92,7 +80,7 @@ export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBre
                 <p className="text-xs text-[#8BA3BF] truncate">{b.ticketNumber}</p>
               </div>
               <span className={`shrink-0 px-2 py-0.5 rounded text-[11px] font-medium ${STATUS_COLOR[b.status]}`}>
-                {STATUS_LABEL[b.status]}
+                {t(`common.breakdowns.status.${b.status}`)}
               </span>
             </Link>
           ))}

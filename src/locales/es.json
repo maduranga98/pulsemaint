@@ -1029,6 +1029,192 @@
         "workDone": "Trabajo Realizado",
         "partsUsed": "Piezas Utilizadas",
         "signedOff": "Firmado"
+      },
+      "detailCard": {
+        "machine": "Máquina",
+        "machineStillRunning": "Máquina aún funcionando (degradada)",
+        "machineStopped": "Máquina detenida"
+      },
+      "reportPage": {
+        "back": "Atrás",
+        "title": "Reportar una Avería",
+        "subtitle": "Envíe rápidamente una avería de máquina a su equipo de mantenimiento. Un técnico evaluará la severidad y el tipo al atenderla.",
+        "profileTimedOut": "Los datos de su cuenta están tardando más de lo habitual en cargar. Verifique su conexión e intente de nuevo.",
+        "retry": "Reintentar",
+        "machineLabel": "Máquina *",
+        "machineLockedPrefix": "Máquina seleccionada mediante escaneo QR:",
+        "machinesTimedOut": "La lista de máquinas está tardando más de lo habitual en cargar.",
+        "loadingMachines": "Cargando máquinas…",
+        "noMachines": "Aún no hay máquinas — agregue una primero",
+        "selectMachine": "Seleccione una máquina",
+        "whatHappenedLabel": "¿Qué sucedió? *",
+        "whatHappenedPlaceholder": "Describa los síntomas, códigos de error, sonidos, etc. O toque el micrófono y cuéntenos qué sucedió.",
+        "productionImpactLabel": "Impacto en producción",
+        "productionImpactPlaceholder": "p. ej., Línea 2 detenida, ~500 unidades/h perdidas",
+        "productionCountLabel": "Conteo de producción actual al momento de la parada",
+        "stillRunningLabel": "La máquina sigue funcionando (degradada pero operativa)",
+        "cancel": "Cancelar",
+        "submitting": "Enviando…",
+        "submit": "Enviar Avería",
+        "errors": {
+          "profileNotLoaded": "Su cuenta aún no se ha cargado por completo. Intente de nuevo en un momento.",
+          "selectMachine": "Seleccione la máquina que se averió.",
+          "descriptionTooShort": "Describa la avería con al menos 10 caracteres.",
+          "machineNotFound": "Máquina seleccionada no encontrada.",
+          "submitFailed": "No se pudo reportar la avería."
+        }
+      },
+      "attendPage": {
+        "back": "Atrás",
+        "titleSingular": "Atender Avería",
+        "titlePlural": "Atender Averías",
+        "subtitle_one": "{{machineName}} — {{count}} ticket: {{tickets}}",
+        "subtitle_other": "{{machineName}} — {{count}} tickets: {{tickets}}",
+        "loading": "Cargando…",
+        "backToBreakdowns": "Volver a Averías",
+        "notYetAssigned": "Estas averías aún no han sido asignadas.",
+        "assignFirst": "Asígnelas o atiéndalas primero desde la lista de averías.",
+        "noBreakdownsSpecified": "No se especificaron averías.",
+        "reportedDetailsSingular": "Detalles reportados",
+        "reportedDetailsPlural": "Detalles reportados de cada ticket",
+        "assessmentSingular": "Su evaluación",
+        "assessmentPlural": "Su evaluación — aplica a todos los tickets anteriores",
+        "stillRunning": "Aún funcionando (degradada)",
+        "stopped": "Detenida",
+        "whatHappenedLabel": "¿Qué sucedió?",
+        "productionImpactLabel": "Impacto en producción",
+        "productionCountLabel": "Conteo de producción actual al momento de la parada",
+        "severityLabel": "Severidad *",
+        "typeLabel": "Tipo *",
+        "attemptedFixesLabel": "Soluciones intentadas",
+        "technicianFindingsLabel": "¿Qué sucedió? (hallazgos del técnico/aprendiz)",
+        "technicianFindingsPlaceholder": "Su propio relato de lo sucedido, aparte de la descripción del reportante. O toque el micrófono y cuéntenos.",
+        "attachMediaLabel": "Adjuntar archivos (fotos/video)",
+        "filesSelected_one": "{{count}} archivo seleccionado",
+        "filesSelected_other": "{{count}} archivos seleccionados",
+        "uploading": "subiendo…",
+        "cancel": "Cancelar",
+        "saving": "Guardando…",
+        "saveAssessment": "Guardar Evaluación",
+        "saveAssessmentMultiple": "Guardar Evaluación para {{count}} Tickets",
+        "severities": {
+          "critical": "Crítica — producción detenida",
+          "high": "Alta — impacto mayor",
+          "medium": "Media — impacto menor",
+          "low": "Baja — cosmético / observación"
+        },
+        "types": {
+          "mechanical": "Mecánico",
+          "electrical": "Eléctrico",
+          "hydraulic": "Hidráulico",
+          "pneumatic": "Neumático",
+          "software": "Software / Controles",
+          "other": "Otro"
+        },
+        "notes": {
+          "assessedSolo": "Evaluada por el técnico que atendió — severidad, tipo y soluciones intentadas registradas.",
+          "assessedAlongside_one": "Evaluada por el técnico que atendió junto con {{count}} otra avería en {{machineName}}.",
+          "assessedAlongside_other": "Evaluada por el técnico que atendió junto con {{count}} otras averías en {{machineName}}."
+        },
+        "toasts": {
+          "saved": "Evaluación guardada",
+          "savedMultiple": "Evaluación guardada para {{count}} tickets"
+        },
+        "errors": {
+          "saveFailed": "No se pudo guardar."
+        }
+      },
+      "viewPage": {
+        "loading": "Cargando avería…",
+        "notFound": "Avería no encontrada.",
+        "backToBreakdowns": "Volver a Averías",
+        "back": "Atrás",
+        "assignTechnician": "Asignar Técnico",
+        "attend": "Atender",
+        "attending": "Atendiendo…",
+        "fillReport": "Completar Informe de Avería",
+        "createWorkOrder": "Crear Orden de Trabajo",
+        "closeBreakdown": "Cerrar Avería",
+        "notes": {
+          "closed": "Avería cerrada tras la resolución y el RCA.",
+          "assigned": "Asignada a {{name}} por {{actor}}",
+          "selfAttended": "Autoatendida por {{actor}}"
+        },
+        "errors": {
+          "closeFailed": "No se pudo cerrar la avería.",
+          "assignFailed": "No se pudo asignar.",
+          "attendFailed": "No se pudo atender."
+        }
+      },
+      "editPage": {
+        "back": "Atrás",
+        "title": "Atender Avería",
+        "loading": "Cargando…",
+        "notFound": "Avería no encontrada.",
+        "backToBreakdowns": "Volver a Averías",
+        "notYetAssigned": "Esta avería aún no ha sido asignada.",
+        "assignFirst": "Asígnela o atiéndala primero desde la lista de averías — se vuelve editable una vez que alguien la esté atendiendo.",
+        "viewBreakdown": "Ver Avería",
+        "viewOnly": "reportada, solo lectura",
+        "statusLabel": "Estado",
+        "stillRunning": "Máquina aún funcionando (degradada)",
+        "stopped": "Máquina detenida",
+        "errors": {
+          "saveFailed": "No se pudo guardar."
+        }
+      },
+      "floorOperatorWidgets": {
+        "myDepartmentTitle": "Averías",
+        "noOpenBreakdowns": "No hay averías abiertas en su departamento.",
+        "reportWidgetTitle": "Reportar una Avería",
+        "scanQrCode": "Escanear Código QR",
+        "notMachineQr": "Ese código QR no es un código QR de máquina."
+      },
+      "rcaModal": {
+        "title": "Análisis de Causa Raíz de los 5 Porqués",
+        "describeProblem": "Describa el problema",
+        "describeProblemHint": "Proporcione una declaración clara y objetiva de lo sucedido. Evite suposiciones o causas en esta etapa.",
+        "problemPlaceholder": "p. ej., La máquina X dejó de producir a las 14:00 del 11 de junio, causando 3 horas de inactividad.",
+        "fiveWhysAnalysis": "Análisis de los 5 Porqués",
+        "fiveWhysHint": "Responda cada “Por qué” basándose en la respuesta anterior. Al menos el Por qué 1 es obligatorio para completar.",
+        "problemLabel": "Problema:",
+        "notSpecified": "(no especificado)",
+        "whyLabel": "Por qué {{index}}",
+        "whyAnswerPlaceholder": "Respuesta al Por qué {{index}}…",
+        "rootCauseLabel": "Causa Raíz",
+        "rootCauseHint": "Según su análisis de los 5 Porqués, ¿cuál es la verdadera causa raíz subyacente?",
+        "rootCausePlaceholder": "La causa raíz es…",
+        "correctiveActionsTitle": "Acciones Correctivas",
+        "correctiveActionLabel": "Acción Correctiva (opcional)",
+        "correctiveActionPlaceholder": "Describa la acción correctiva para prevenir la recurrencia…",
+        "createWOForAction": "Crear una Orden de Trabajo para esta acción correctiva",
+        "pmUpdateLabel": "Actualización del Programa de MP (opcional)",
+        "pmUpdateHint": "¿Este hallazgo requiere un cambio en el programa de mantenimiento preventivo?",
+        "pmUpdatePlaceholder": "p. ej., Aumentar la frecuencia de lubricación de la Máquina X de mensual a quincenal.",
+        "summary": "Resumen",
+        "correctiveActionSummaryLabel": "Acción Correctiva",
+        "cancel": "Cancelar",
+        "back": "Atrás",
+        "saveDraft": "Guardar Borrador",
+        "next": "Siguiente",
+        "saving": "Guardando…",
+        "completeRCA": "Completar RCA",
+        "whyQuestions": {
+          "q1": "¿Por qué ocurrió este problema?",
+          "q2": "¿Por qué sucedió eso?",
+          "q3": "¿Por qué eso lo causó?",
+          "q4": "¿Por qué estaba presente esa condición?",
+          "q5": "¿Cuál es la razón sistémica subyacente?"
+        },
+        "errors": {
+          "firstWhyRequired": "Responda al menos el primer Por qué antes de completar el RCA.",
+          "rootCauseRequired": "La causa raíz es obligatoria para completar el RCA.",
+          "saveFailed": "No se pudo guardar el RCA."
+        },
+        "toasts": {
+          "completed": "RCA completado.",
+          "draftSaved": "Borrador de RCA guardado."
+        }
       }
     }
   }

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
 import { AlertCircle, ChevronLeft, QrCode } from 'lucide-react';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
@@ -19,6 +20,7 @@ interface MachineOption {
 }
 
 export default function ReportBreakdownPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
@@ -133,21 +135,21 @@ export default function ReportBreakdownPage() {
     setError(null);
 
     if (!userProfile || !siteId) {
-      setError('Your account is not fully loaded yet. Try again in a moment.');
+      setError(t('common.breakdowns.reportPage.errors.profileNotLoaded'));
       return;
     }
     if (!machineId) {
-      setError('Please select the machine that broke down.');
+      setError(t('common.breakdowns.reportPage.errors.selectMachine'));
       return;
     }
     if (description.trim().length < 10) {
-      setError('Please describe the breakdown in at least 10 characters.');
+      setError(t('common.breakdowns.reportPage.errors.descriptionTooShort'));
       return;
     }
 
     const machine = machines.find((m) => m.id === machineId);
     if (!machine) {
-      setError('Selected machine not found.');
+      setError(t('common.breakdowns.reportPage.errors.machineNotFound'));
       return;
     }
 
@@ -210,7 +212,7 @@ export default function ReportBreakdownPage() {
       navigate('/app/breakdowns', { replace: true });
     } catch (err: any) {
       console.error('Report breakdown failed:', err);
-      setError(err?.message || 'Failed to report breakdown.');
+      setError(err?.message || t('common.breakdowns.reportPage.errors.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -224,11 +226,11 @@ export default function ReportBreakdownPage() {
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1"
         >
-          <ChevronLeft className="w-4 h-4" /> Back
+          <ChevronLeft className="w-4 h-4" /> {t('common.breakdowns.reportPage.back')}
         </button>
-        <h1 className="text-2xl font-bold text-slate-900">Report a Breakdown</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('common.breakdowns.reportPage.title')}</h1>
         <p className="text-sm text-slate-500">
-          Fast-track a machine breakdown to your maintenance team. A technician will assess severity and type once they attend.
+          {t('common.breakdowns.reportPage.subtitle')}
         </p>
       </div>
 
@@ -236,14 +238,14 @@ export default function ReportBreakdownPage() {
         <div className="max-w-2xl mx-auto px-6 py-10 text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700 text-sm mb-4">
-            Your account details are taking longer than usual to load. Check your connection and try again.
+            {t('common.breakdowns.reportPage.profileTimedOut')}
           </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
           >
-            Retry
+            {t('common.breakdowns.reportPage.retry')}
           </button>
         </div>
       ) : (
@@ -257,24 +259,24 @@ export default function ReportBreakdownPage() {
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Machine *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.reportPage.machineLabel')}</label>
             {machineLocked && (
               <div className="mb-2 flex items-center gap-2 text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
                 <QrCode className="w-4 h-4 flex-shrink-0" />
                 <span>
-                  Machine selected via QR scan: <strong>{scannedMachine?.name}</strong>
+                  {t('common.breakdowns.reportPage.machineLockedPrefix')} <strong>{scannedMachine?.name}</strong>
                 </span>
               </div>
             )}
             {machinesLoading && machinesTimedOut ? (
               <div className="flex items-center justify-between gap-3 px-4 py-2 border border-slate-200 rounded-lg bg-slate-50">
-                <span className="text-sm text-slate-500">Machine list is taking longer than usual to load.</span>
+                <span className="text-sm text-slate-500">{t('common.breakdowns.reportPage.machinesTimedOut')}</span>
                 <button
                   type="button"
                   onClick={() => setMachinesRetryKey((k) => k + 1)}
                   className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg flex-shrink-0"
                 >
-                  Retry
+                  {t('common.breakdowns.reportPage.retry')}
                 </button>
               </div>
             ) : (
@@ -285,7 +287,11 @@ export default function ReportBreakdownPage() {
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-50"
             >
               <option value="">
-                {machinesLoading ? 'Loading machines…' : machines.length === 0 ? 'No machines yet — add one first' : 'Select a machine'}
+                {machinesLoading
+                  ? t('common.breakdowns.reportPage.loadingMachines')
+                  : machines.length === 0
+                    ? t('common.breakdowns.reportPage.noMachines')
+                    : t('common.breakdowns.reportPage.selectMachine')}
               </option>
               {machines.map((m) => (
                 <option key={m.id} value={m.id}>
@@ -301,7 +307,7 @@ export default function ReportBreakdownPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block text-sm font-medium text-slate-700">
-                What happened? *
+                {t('common.breakdowns.reportPage.whatHappenedLabel')}
               </label>
               <VoiceDictationButton
                 disabled={submitting}
@@ -316,26 +322,26 @@ export default function ReportBreakdownPage() {
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               disabled={submitting}
-              placeholder="Describe the symptoms, error codes, sounds, etc. Or tap the mic and tell us what happened."
+              placeholder={t('common.breakdowns.reportPage.whatHappenedPlaceholder')}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Production impact</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.reportPage.productionImpactLabel')}</label>
             <input
               type="text"
               value={productionImpact}
               onChange={(e) => setProductionImpact(e.target.value)}
               disabled={submitting}
-              placeholder="e.g., Line 2 stopped, ~500 units/hr lost"
+              placeholder={t('common.breakdowns.reportPage.productionImpactPlaceholder')}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Current production count when stopped
+              {t('common.breakdowns.reportPage.productionCountLabel')}
             </label>
             <input
               type="number"
@@ -356,7 +362,7 @@ export default function ReportBreakdownPage() {
               disabled={submitting}
               className="rounded"
             />
-            Machine is still running (degraded but operational)
+            {t('common.breakdowns.reportPage.stillRunningLabel')}
           </label>
         </div>
 
@@ -367,14 +373,14 @@ export default function ReportBreakdownPage() {
             disabled={submitting}
             className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50"
           >
-            Cancel
+            {t('common.breakdowns.reportPage.cancel')}
           </button>
           <button
             type="submit"
             disabled={submitting}
             className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg disabled:opacity-50"
           >
-            {submitting ? 'Submitting…' : 'Submit Breakdown'}
+            {submitting ? t('common.breakdowns.reportPage.submitting') : t('common.breakdowns.reportPage.submit')}
           </button>
         </div>
       </form>

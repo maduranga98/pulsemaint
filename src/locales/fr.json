@@ -1029,6 +1029,192 @@
         "workDone": "Travail Effectué",
         "partsUsed": "Pièces Utilisées",
         "signedOff": "Validé"
+      },
+      "detailCard": {
+        "machine": "Machine",
+        "machineStillRunning": "Machine toujours en marche (dégradée)",
+        "machineStopped": "Machine arrêtée"
+      },
+      "reportPage": {
+        "back": "Retour",
+        "title": "Signaler une Panne",
+        "subtitle": "Transmettez rapidement une panne de machine à votre équipe de maintenance. Un technicien évaluera la gravité et le type lors de sa prise en charge.",
+        "profileTimedOut": "Les détails de votre compte mettent plus de temps que d'habitude à se charger. Vérifiez votre connexion et réessayez.",
+        "retry": "Réessayer",
+        "machineLabel": "Machine *",
+        "machineLockedPrefix": "Machine sélectionnée via scan QR :",
+        "machinesTimedOut": "La liste des machines met plus de temps que d'habitude à se charger.",
+        "loadingMachines": "Chargement des machines…",
+        "noMachines": "Aucune machine pour l'instant — ajoutez-en une d'abord",
+        "selectMachine": "Sélectionner une machine",
+        "whatHappenedLabel": "Que s'est-il passé ? *",
+        "whatHappenedPlaceholder": "Décrivez les symptômes, codes d'erreur, bruits, etc. Ou appuyez sur le micro et racontez-nous.",
+        "productionImpactLabel": "Impact sur la production",
+        "productionImpactPlaceholder": "ex. : Ligne 2 arrêtée, ~500 unités/h perdues",
+        "productionCountLabel": "Compteur de production actuel au moment de l'arrêt",
+        "stillRunningLabel": "La machine fonctionne toujours (dégradée mais opérationnelle)",
+        "cancel": "Annuler",
+        "submitting": "Envoi…",
+        "submit": "Envoyer la Panne",
+        "errors": {
+          "profileNotLoaded": "Votre compte n'est pas encore entièrement chargé. Réessayez dans un instant.",
+          "selectMachine": "Veuillez sélectionner la machine en panne.",
+          "descriptionTooShort": "Veuillez décrire la panne en au moins 10 caractères.",
+          "machineNotFound": "Machine sélectionnée introuvable.",
+          "submitFailed": "Échec du signalement de la panne."
+        }
+      },
+      "attendPage": {
+        "back": "Retour",
+        "titleSingular": "Traiter la Panne",
+        "titlePlural": "Traiter les Pannes",
+        "subtitle_one": "{{machineName}} — {{count}} ticket : {{tickets}}",
+        "subtitle_other": "{{machineName}} — {{count}} tickets : {{tickets}}",
+        "loading": "Chargement…",
+        "backToBreakdowns": "Retour aux Pannes",
+        "notYetAssigned": "Ces pannes n'ont pas encore été assignées.",
+        "assignFirst": "Assignez-les ou traitez-les d'abord depuis la liste des pannes.",
+        "noBreakdownsSpecified": "Aucune panne spécifiée.",
+        "reportedDetailsSingular": "Détails signalés",
+        "reportedDetailsPlural": "Détails signalés pour chaque ticket",
+        "assessmentSingular": "Votre évaluation",
+        "assessmentPlural": "Votre évaluation — s'applique à tous les tickets ci-dessus",
+        "stillRunning": "Toujours en marche (dégradée)",
+        "stopped": "Arrêtée",
+        "whatHappenedLabel": "Que s'est-il passé ?",
+        "productionImpactLabel": "Impact sur la production",
+        "productionCountLabel": "Compteur de production actuel au moment de l'arrêt",
+        "severityLabel": "Gravité *",
+        "typeLabel": "Type *",
+        "attemptedFixesLabel": "Solutions tentées",
+        "technicianFindingsLabel": "Que s'est-il passé ? (constats du technicien/stagiaire)",
+        "technicianFindingsPlaceholder": "Votre propre récit de ce qui s'est passé, distinct de la description du déclarant. Ou appuyez sur le micro et racontez-nous.",
+        "attachMediaLabel": "Joindre des fichiers (photos/vidéo)",
+        "filesSelected_one": "{{count}} fichier sélectionné",
+        "filesSelected_other": "{{count}} fichiers sélectionnés",
+        "uploading": "envoi en cours…",
+        "cancel": "Annuler",
+        "saving": "Enregistrement…",
+        "saveAssessment": "Enregistrer l'Évaluation",
+        "saveAssessmentMultiple": "Enregistrer l'Évaluation pour {{count}} Tickets",
+        "severities": {
+          "critical": "Critique — production arrêtée",
+          "high": "Élevée — impact majeur",
+          "medium": "Moyenne — impact mineur",
+          "low": "Faible — cosmétique / observation"
+        },
+        "types": {
+          "mechanical": "Mécanique",
+          "electrical": "Électrique",
+          "hydraulic": "Hydraulique",
+          "pneumatic": "Pneumatique",
+          "software": "Logiciel / Commandes",
+          "other": "Autre"
+        },
+        "notes": {
+          "assessedSolo": "Évaluée par le technicien intervenant — gravité, type et solutions tentées enregistrés.",
+          "assessedAlongside_one": "Évaluée par le technicien intervenant en même temps que {{count}} autre panne sur {{machineName}}.",
+          "assessedAlongside_other": "Évaluée par le technicien intervenant en même temps que {{count}} autres pannes sur {{machineName}}."
+        },
+        "toasts": {
+          "saved": "Évaluation enregistrée",
+          "savedMultiple": "Évaluation enregistrée pour {{count}} tickets"
+        },
+        "errors": {
+          "saveFailed": "Échec de l'enregistrement."
+        }
+      },
+      "viewPage": {
+        "loading": "Chargement de la panne…",
+        "notFound": "Panne introuvable.",
+        "backToBreakdowns": "Retour aux Pannes",
+        "back": "Retour",
+        "assignTechnician": "Assigner un Technicien",
+        "attend": "Traiter",
+        "attending": "Traitement…",
+        "fillReport": "Remplir le Rapport de Panne",
+        "createWorkOrder": "Créer un Ordre de Travail",
+        "closeBreakdown": "Clôturer la Panne",
+        "notes": {
+          "closed": "Panne clôturée après résolution et ACR.",
+          "assigned": "Assignée à {{name}} par {{actor}}",
+          "selfAttended": "Traitée soi-même par {{actor}}"
+        },
+        "errors": {
+          "closeFailed": "Échec de la clôture de la panne.",
+          "assignFailed": "Échec de l'assignation.",
+          "attendFailed": "Échec du traitement."
+        }
+      },
+      "editPage": {
+        "back": "Retour",
+        "title": "Traiter la Panne",
+        "loading": "Chargement…",
+        "notFound": "Panne introuvable.",
+        "backToBreakdowns": "Retour aux Pannes",
+        "notYetAssigned": "Cette panne n'a pas encore été assignée.",
+        "assignFirst": "Assignez-la ou traitez-la d'abord depuis la liste des pannes — elle devient modifiable une fois que quelqu'un la traite.",
+        "viewBreakdown": "Voir la Panne",
+        "viewOnly": "signalée, lecture seule",
+        "statusLabel": "Statut",
+        "stillRunning": "Machine toujours en marche (dégradée)",
+        "stopped": "Machine arrêtée",
+        "errors": {
+          "saveFailed": "Échec de l'enregistrement."
+        }
+      },
+      "floorOperatorWidgets": {
+        "myDepartmentTitle": "Pannes",
+        "noOpenBreakdowns": "Aucune panne ouverte dans votre département.",
+        "reportWidgetTitle": "Signaler une Panne",
+        "scanQrCode": "Scanner le Code QR",
+        "notMachineQr": "Ce code QR n'est pas un code QR de machine."
+      },
+      "rcaModal": {
+        "title": "Analyse des Causes Racines des 5 Pourquoi",
+        "describeProblem": "Décrire le problème",
+        "describeProblemHint": "Fournissez un énoncé clair et factuel de ce qui s'est passé. Évitez les suppositions ou les causes à ce stade.",
+        "problemPlaceholder": "ex. : La machine X a cessé de produire à 14h00 le 11 juin, causant 3 heures d'arrêt.",
+        "fiveWhysAnalysis": "Analyse des 5 Pourquoi",
+        "fiveWhysHint": "Répondez à chaque « Pourquoi » en vous basant sur la réponse précédente. Au moins le Pourquoi 1 est requis pour terminer.",
+        "problemLabel": "Problème :",
+        "notSpecified": "(non précisé)",
+        "whyLabel": "Pourquoi {{index}}",
+        "whyAnswerPlaceholder": "Réponse au Pourquoi {{index}}…",
+        "rootCauseLabel": "Cause Racine",
+        "rootCauseHint": "D'après votre analyse des 5 Pourquoi, quelle est la véritable cause racine sous-jacente ?",
+        "rootCausePlaceholder": "La cause racine est…",
+        "correctiveActionsTitle": "Actions Correctives",
+        "correctiveActionLabel": "Action Corrective (facultatif)",
+        "correctiveActionPlaceholder": "Décrivez l'action corrective pour éviter la récurrence…",
+        "createWOForAction": "Créer un Ordre de Travail pour cette action corrective",
+        "pmUpdateLabel": "Mise à Jour du Programme de MP (facultatif)",
+        "pmUpdateHint": "Ce constat nécessite-t-il une modification du programme de maintenance préventive ?",
+        "pmUpdatePlaceholder": "ex. : Augmenter la fréquence de lubrification de la Machine X de mensuelle à bimensuelle.",
+        "summary": "Résumé",
+        "correctiveActionSummaryLabel": "Action Corrective",
+        "cancel": "Annuler",
+        "back": "Retour",
+        "saveDraft": "Enregistrer le Brouillon",
+        "next": "Suivant",
+        "saving": "Enregistrement…",
+        "completeRCA": "Terminer l'ACR",
+        "whyQuestions": {
+          "q1": "Pourquoi ce problème s'est-il produit ?",
+          "q2": "Pourquoi cela s'est-il produit ?",
+          "q3": "Pourquoi cela l'a-t-il causé ?",
+          "q4": "Pourquoi cette condition était-elle présente ?",
+          "q5": "Quelle est la raison systémique sous-jacente ?"
+        },
+        "errors": {
+          "firstWhyRequired": "Veuillez répondre au moins au premier Pourquoi avant de terminer l'ACR.",
+          "rootCauseRequired": "La cause racine est requise pour terminer l'ACR.",
+          "saveFailed": "Échec de l'enregistrement de l'ACR."
+        },
+        "toasts": {
+          "completed": "ACR terminée.",
+          "draftSaved": "Brouillon d'ACR enregistré."
+        }
       }
     }
   }

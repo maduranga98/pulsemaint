@@ -4,26 +4,32 @@ import { doc, onSnapshot, writeBatch, arrayUnion, serverTimestamp, Timestamp } f
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { AlertCircle, ArrowLeft, Paperclip, Lock } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 import { VoiceDictationButton, TranslatedText } from '../../components/ui';
 
-const SEVERITIES: { value: BreakdownSeverity; label: string; color: string }[] = [
-  { value: 'critical', label: 'Critical — production halted', color: 'bg-red-600 text-white' },
-  { value: 'high', label: 'High — major impact', color: 'bg-orange-500 text-white' },
-  { value: 'medium', label: 'Medium — minor impact', color: 'bg-amber-500 text-white' },
-  { value: 'low', label: 'Low — cosmetic / observation', color: 'bg-slate-400 text-white' },
-];
+function getSeverities(t: TFunction): { value: BreakdownSeverity; label: string; color: string }[] {
+  return [
+    { value: 'critical', label: t('common.breakdowns.attendPage.severities.critical'), color: 'bg-red-600 text-white' },
+    { value: 'high', label: t('common.breakdowns.attendPage.severities.high'), color: 'bg-orange-500 text-white' },
+    { value: 'medium', label: t('common.breakdowns.attendPage.severities.medium'), color: 'bg-amber-500 text-white' },
+    { value: 'low', label: t('common.breakdowns.attendPage.severities.low'), color: 'bg-slate-400 text-white' },
+  ];
+}
 
-const TYPES: { value: BreakdownType; label: string }[] = [
-  { value: 'mechanical', label: 'Mechanical' },
-  { value: 'electrical', label: 'Electrical' },
-  { value: 'hydraulic', label: 'Hydraulic' },
-  { value: 'pneumatic', label: 'Pneumatic' },
-  { value: 'software', label: 'Software / Controls' },
-  { value: 'other', label: 'Other' },
-];
+function getTypes(t: TFunction): { value: BreakdownType; label: string }[] {
+  return [
+    { value: 'mechanical', label: t('common.breakdowns.attendPage.types.mechanical') },
+    { value: 'electrical', label: t('common.breakdowns.attendPage.types.electrical') },
+    { value: 'hydraulic', label: t('common.breakdowns.attendPage.types.hydraulic') },
+    { value: 'pneumatic', label: t('common.breakdowns.attendPage.types.pneumatic') },
+    { value: 'software', label: t('common.breakdowns.attendPage.types.software') },
+    { value: 'other', label: t('common.breakdowns.attendPage.types.other') },
+  ];
+}
 
 function ReporterField({ label, value }: { label: string; value: string }) {
   return (
@@ -52,6 +58,9 @@ function ReporterField({ label, value }: { label: string; value: string }) {
  * same machine doesn't have to fill out a separate form per ticket.
  */
 export default function AttendBreakdownsPage() {
+  const { t } = useTranslation();
+  const SEVERITIES = getSeverities(t);
+  const TYPES = getTypes(t);
   const [searchParams] = useSearchParams();
   const ids = (searchParams.get('ids') || '').split(',').filter(Boolean);
   const navigate = useNavigate();
@@ -71,7 +80,7 @@ export default function AttendBreakdownsPage() {
 
   useEffect(() => {
     if (ids.length === 0) {
-      setError('No breakdowns specified.');
+      setError(t('common.breakdowns.attendPage.noBreakdownsSpecified'));
       setLoading(false);
       return;
     }
@@ -150,18 +159,22 @@ export default function AttendBreakdownsPage() {
             changedByName: userProfile.fullName,
             changedAt: new Date().toISOString(),
             note: list.length > 1
-              ? `Assessed by attending technician alongside ${list.length - 1} other breakdown(s) on ${machineName}.`
-              : 'Assessed by attending technician — severity, type, and attempted fixes recorded.',
+              ? t('common.breakdowns.attendPage.notes.assessedAlongside', { count: list.length - 1, machineName })
+              : t('common.breakdowns.attendPage.notes.assessedSolo'),
           }),
         });
       }
       await batch.commit();
-      toast.success(list.length > 1 ? `Assessment saved for ${list.length} tickets` : 'Assessment saved');
+      toast.success(
+        list.length > 1
+          ? t('common.breakdowns.attendPage.toasts.savedMultiple', { count: list.length })
+          : t('common.breakdowns.attendPage.toasts.saved'),
+      );
       // Stays in the Assigned bucket (status is untouched here) — a Work
       // Order is what actually advances it into Open.
       navigate('/app/breakdowns', { replace: true });
     } catch (err: any) {
-      const msg = err?.message || 'Failed to save.';
+      const msg = err?.message || t('common.breakdowns.attendPage.errors.saveFailed');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -173,7 +186,7 @@ export default function AttendBreakdownsPage() {
   if (loading) {
     return (
       <div className="min-h-full flex items-center justify-center">
-        <p className="text-slate-500">Loading…</p>
+        <p className="text-slate-500">{t('common.breakdowns.attendPage.loading')}</p>
       </div>
     );
   }
@@ -185,7 +198,7 @@ export default function AttendBreakdownsPage() {
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700">{error}</p>
           <button onClick={() => navigate('/app/breakdowns')} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
-            Back to Breakdowns
+            {t('common.breakdowns.attendPage.backToBreakdowns')}
           </button>
         </div>
       </div>
@@ -197,10 +210,10 @@ export default function AttendBreakdownsPage() {
       <div className="min-h-full flex items-center justify-center">
         <div className="text-center max-w-sm">
           <Lock className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-          <p className="text-slate-700 font-medium">These breakdowns haven't been assigned yet.</p>
-          <p className="text-slate-500 text-sm mt-1">Assign or attend them from the Breakdowns list first.</p>
+          <p className="text-slate-700 font-medium">{t('common.breakdowns.attendPage.notYetAssigned')}</p>
+          <p className="text-slate-500 text-sm mt-1">{t('common.breakdowns.attendPage.assignFirst')}</p>
           <button onClick={() => navigate('/app/breakdowns')} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
-            Back to Breakdowns
+            {t('common.breakdowns.attendPage.backToBreakdowns')}
           </button>
         </div>
       </div>
@@ -211,11 +224,13 @@ export default function AttendBreakdownsPage() {
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
         <button type="button" onClick={() => navigate('/app/breakdowns')} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1">
-          <ArrowLeft className="w-4 h-4" /> Back
+          <ArrowLeft className="w-4 h-4" /> {t('common.breakdowns.attendPage.back')}
         </button>
-        <h1 className="text-2xl font-bold text-slate-900">Attend Breakdown{list.length > 1 ? 's' : ''}</h1>
+        <h1 className="text-2xl font-bold text-slate-900">
+          {list.length > 1 ? t('common.breakdowns.attendPage.titlePlural') : t('common.breakdowns.attendPage.titleSingular')}
+        </h1>
         <p className="text-sm text-slate-500">
-          {machineName} — {list.length} ticket{list.length === 1 ? '' : 's'}: {list.map((t) => t.ticketNumber).join(', ')}
+          {t('common.breakdowns.attendPage.subtitle', { count: list.length, machineName, tickets: list.map((tk) => tk.ticketNumber).join(', ') })}
         </p>
       </div>
 
@@ -229,20 +244,20 @@ export default function AttendBreakdownsPage() {
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            {list.length > 1 ? 'Reported details for each ticket' : 'Reported details'}
+            {list.length > 1 ? t('common.breakdowns.attendPage.reportedDetailsPlural') : t('common.breakdowns.attendPage.reportedDetailsSingular')}
           </p>
-          {list.map((t) => (
-            <div key={t.id} className="border border-slate-100 rounded-lg p-4 space-y-3">
+          {list.map((tk) => (
+            <div key={tk.id} className="border border-slate-100 rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-sm font-medium text-blue-700">{t.ticketNumber}</span>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${t.machineStillRunning ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                  {t.machineStillRunning ? 'Still running (degraded)' : 'Stopped'}
+                <span className="font-mono text-sm font-medium text-blue-700">{tk.ticketNumber}</span>
+                <span className={`px-2 py-0.5 rounded text-xs font-medium ${tk.machineStillRunning ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                  {tk.machineStillRunning ? t('common.breakdowns.attendPage.stillRunning') : t('common.breakdowns.attendPage.stopped')}
                 </span>
               </div>
-              <ReporterField label="What happened?" value={t.description} />
-              {t.productionImpact && <ReporterField label="Production impact" value={t.productionImpact} />}
-              {(t as any).currentProductionCount != null && (
-                <ReporterField label="Current production count when stopped" value={String((t as any).currentProductionCount)} />
+              <ReporterField label={t('common.breakdowns.attendPage.whatHappenedLabel')} value={tk.description} />
+              {tk.productionImpact && <ReporterField label={t('common.breakdowns.attendPage.productionImpactLabel')} value={tk.productionImpact} />}
+              {(tk as any).currentProductionCount != null && (
+                <ReporterField label={t('common.breakdowns.attendPage.productionCountLabel')} value={String((tk as any).currentProductionCount)} />
               )}
             </div>
           ))}
@@ -250,11 +265,11 @@ export default function AttendBreakdownsPage() {
 
         <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-            {list.length > 1 ? 'Your assessment — applies to all tickets above' : 'Your assessment'}
+            {list.length > 1 ? t('common.breakdowns.attendPage.assessmentPlural') : t('common.breakdowns.attendPage.assessmentSingular')}
           </p>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Severity *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.attendPage.severityLabel')}</label>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {SEVERITIES.map((s) => (
                 <button
@@ -273,20 +288,20 @@ export default function AttendBreakdownsPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Type *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.attendPage.typeLabel')}</label>
             <select value={breakdownType} onChange={(e) => setBreakdownType(e.target.value as BreakdownType)} disabled={saving} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-              {TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              {TYPES.map((ty) => <option key={ty.value} value={ty.value}>{ty.label}</option>)}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Attempted fixes</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.attendPage.attemptedFixesLabel')}</label>
             <input type="text" value={attemptedFixes} onChange={(e) => setAttemptedFixes(e.target.value)} disabled={saving} className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" />
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-slate-700">What happened? (technician/trainee findings)</label>
+              <label className="block text-sm font-medium text-slate-700">{t('common.breakdowns.attendPage.technicianFindingsLabel')}</label>
               <VoiceDictationButton
                 disabled={saving}
                 className="w-8 h-8"
@@ -300,13 +315,13 @@ export default function AttendBreakdownsPage() {
               onChange={(e) => setTechnicianFindings(e.target.value)}
               disabled={saving}
               rows={3}
-              placeholder="Your own account of what happened, separate from the reporter's description. Or tap the mic and tell us."
+              placeholder={t('common.breakdowns.attendPage.technicianFindingsPlaceholder')}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">Attach media (photos/video)</label>
+            <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.attendPage.attachMediaLabel')}</label>
             <div className="flex items-center gap-2">
               <Paperclip className="w-4 h-4 text-slate-400" />
               <input
@@ -319,17 +334,24 @@ export default function AttendBreakdownsPage() {
               />
             </div>
             {mediaFiles.length > 0 && (
-              <p className="text-xs text-slate-500 mt-1">{mediaFiles.length} file(s) selected{uploading ? ' — uploading…' : ''}</p>
+              <p className="text-xs text-slate-500 mt-1">
+                {t('common.breakdowns.attendPage.filesSelected', { count: mediaFiles.length })}
+                {uploading ? ` — ${t('common.breakdowns.attendPage.uploading')}` : ''}
+              </p>
             )}
           </div>
         </div>
 
         <div className="flex gap-3">
           <button type="button" onClick={() => navigate('/app/breakdowns')} disabled={saving} className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50">
-            Cancel
+            {t('common.breakdowns.attendPage.cancel')}
           </button>
           <button type="submit" disabled={saving} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50">
-            {saving ? 'Saving…' : list.length > 1 ? `Save Assessment for ${list.length} Tickets` : 'Save Assessment'}
+            {saving
+              ? t('common.breakdowns.attendPage.saving')
+              : list.length > 1
+                ? t('common.breakdowns.attendPage.saveAssessmentMultiple', { count: list.length })
+                : t('common.breakdowns.attendPage.saveAssessment')}
           </button>
         </div>
       </form>
