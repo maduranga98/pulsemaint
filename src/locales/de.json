@@ -906,6 +906,130 @@
           }
         }
       }
+    },
+    "breakdowns": {
+      "pageTitle": "Störungen",
+      "summary": "{{count}} {{filter}} auf {{machineCount}} Maschinen",
+      "reportViaQr": "Über QR Melden",
+      "reportBreakdown": "Störung Melden",
+      "tabs": {
+        "reported": "gemeldet",
+        "assigned": "zugewiesen",
+        "open": "offen",
+        "closed": "geschlossen"
+      },
+      "severity": "Schweregrad",
+      "severityOptions": {
+        "all": "Alle",
+        "normal": "Normal",
+        "medium": "Mittel",
+        "high": "Hoch"
+      },
+      "searchPlaceholder": "Ticket, Maschine, Beschreibung suchen…",
+      "empty": "Keine Störung entspricht diesem Filter.",
+      "table": {
+        "tickets": "Ticket(s)",
+        "machine": "Maschine",
+        "severity": "Schweregrad",
+        "status": "Status",
+        "progress": "Fortschritt",
+        "reported": "Gemeldet",
+        "assignedTo": "Zugewiesen An",
+        "action": "Aktion",
+        "pending": "Ausstehend",
+        "unassigned": "Nicht zugewiesen"
+      },
+      "actions": {
+        "assign": "Zuweisen",
+        "assignTitle": "Einen Techniker oder Auszubildenden jeder offenen Störung dieser Maschine zuweisen",
+        "attend": "Bearbeiten",
+        "attending": "Wird bearbeitet…",
+        "attendTitle": "Jede offene Störung dieser Maschine selbst bearbeiten",
+        "attendAndFill": "Bearbeiten & Ausfüllen",
+        "attendAndFillTitle": "Die Bewertung für jedes Ihnen zugewiesene Ticket dieser Maschine bearbeiten und ausfüllen",
+        "createWO": "AA Erstellen",
+        "createWOTitle": "Einen Arbeitsauftrag erstellen, der jede ausgefüllte Störung dieser Maschine abdeckt",
+        "signOffClose": "Abzeichnen & Schließen",
+        "signOffCloseTitle": "Der Reparaturarbeitsauftrag ist abgeschlossen — abzeichnen (und Ursachenanalyse falls erforderlich), um diese Störung zu schließen"
+      },
+      "qrScanner": {
+        "title": "Maschinen-QR-Code Scannen",
+        "hint": "Richten Sie Ihre Kamera auf den QR-Code einer Maschine, um sie automatisch auszuwählen."
+      },
+      "status": {
+        "reported": "Gemeldet",
+        "acknowledged": "Bestätigt",
+        "triage_in_progress": "In Triage",
+        "assigned": "Zugewiesen",
+        "en_route": "Unterwegs",
+        "repair_in_progress": "In Bearbeitung",
+        "on_hold_parts": "Wartend (Teile)",
+        "on_hold_approval": "Wartend (Genehmigung)",
+        "resolved": "Behoben",
+        "closed": "Geschlossen",
+        "cancelled": "Storniert"
+      },
+      "roleLabels": {
+        "technician": "Techniker",
+        "trainee": "Auszubildende(r)",
+        "supervisor": "Vorgesetzter",
+        "maintenance_supervisor": "Vorgesetzter",
+        "plant_manager": "Werksleiter",
+        "store_keeper": "Lagerverwalter",
+        "floor_operator": "Betriebsmitarbeiter",
+        "hr_officer": "Personalreferent",
+        "safety_officer": "Sicherheitsbeauftragter",
+        "admin": "Administrator"
+      },
+      "errors": {
+        "invalidQrMachine": "Der QR-Code enthielt keine gültige Maschinen-ID.",
+        "cameraOpenFailed": "Kamera konnte nicht geöffnet werden.",
+        "assignFailed": "Zuweisung fehlgeschlagen.",
+        "attendFailed": "Bearbeitung fehlgeschlagen."
+      },
+      "assignModal": {
+        "title": "Techniker / Auszubildende(n) Zuweisen",
+        "onShiftHint": "Es werden nur Techniker und Auszubildende angezeigt, die derzeit im Dienst sind.",
+        "loading": "Wird geladen, wer im Dienst ist…",
+        "empty": "Derzeit sind keine Techniker oder Auszubildenden eingestempelt. Bitten Sie sie, ihre Schicht zu beginnen, oder weisen Sie zu, sobald jemand verfügbar ist.",
+        "unnamed": "Unbenannt",
+        "onShift": "Im Dienst",
+        "cancel": "Abbrechen",
+        "assigning": "Wird zugewiesen…",
+        "assign": "Zuweisen"
+      },
+      "detail": {
+        "pendingAssessment": "Bewertung ausstehend",
+        "reported": "Gemeldet",
+        "reportedSourceWeb": "Web",
+        "attendedBy": "Bearbeitet Von",
+        "whatHappened": "Was Ist Passiert",
+        "productionImpact": "Auswirkung auf die Produktion",
+        "attemptedFixes": "Versuchte Lösungen",
+        "technicianFindings": "Was Ist Passiert (Befunde des Technikers/Auszubildenden)",
+        "assignedTechnicians": "Zugewiesene Techniker",
+        "attachedMedia": "Angehängte Medien",
+        "attachmentAlt": "Anhang {{index}}",
+        "fileLabel": "Datei {{index}}",
+        "statusHistory": "Statusverlauf",
+        "noStatusChanges": "Noch keine Statusänderungen."
+      },
+      "signOffOutcome": {
+        "completed": "Abgeschlossen",
+        "partially_completed": "Teilweise Abgeschlossen",
+        "not_completed": "Nicht Abgeschlossen",
+        "failed": "Fehlgeschlagen"
+      },
+      "workOrderSection": {
+        "title": "Arbeitsauftrag",
+        "loading": "Arbeitsauftrag wird geladen…",
+        "loadFailed": "Verknüpfter Arbeitsauftrag konnte nicht geladen werden.",
+        "team": "Team",
+        "startedEnded": "Begonnen / Beendet",
+        "workDone": "Ausgeführte Arbeit",
+        "partsUsed": "Verwendete Teile",
+        "signedOff": "Abgezeichnet"
+      }
     }
   }
 }

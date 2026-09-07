@@ -906,6 +906,130 @@
           }
         }
       }
+    },
+    "breakdowns": {
+      "pageTitle": "Averías",
+      "summary": "{{count}} {{filter}} en {{machineCount}} máquinas",
+      "reportViaQr": "Reportar vía QR",
+      "reportBreakdown": "Reportar Avería",
+      "tabs": {
+        "reported": "reportadas",
+        "assigned": "asignadas",
+        "open": "abiertas",
+        "closed": "cerradas"
+      },
+      "severity": "Severidad",
+      "severityOptions": {
+        "all": "Todas",
+        "normal": "Normal",
+        "medium": "Media",
+        "high": "Alta"
+      },
+      "searchPlaceholder": "Buscar ticket, máquina, descripción…",
+      "empty": "Ninguna avería coincide con este filtro.",
+      "table": {
+        "tickets": "Ticket(s)",
+        "machine": "Máquina",
+        "severity": "Severidad",
+        "status": "Estado",
+        "progress": "Progreso",
+        "reported": "Reportada",
+        "assignedTo": "Asignada A",
+        "action": "Acción",
+        "pending": "Pendiente",
+        "unassigned": "Sin asignar"
+      },
+      "actions": {
+        "assign": "Asignar",
+        "assignTitle": "Asignar un técnico o aprendiz a cada avería abierta en esta máquina",
+        "attend": "Atender",
+        "attending": "Atendiendo…",
+        "attendTitle": "Atender usted mismo cada avería abierta en esta máquina",
+        "attendAndFill": "Atender y Completar",
+        "attendAndFillTitle": "Atender y completar la evaluación de cada ticket asignado a usted en esta máquina",
+        "createWO": "Crear OT",
+        "createWOTitle": "Crear una Orden de Trabajo que cubra cada avería completada en esta máquina",
+        "signOffClose": "Firmar y Cerrar",
+        "signOffCloseTitle": "La orden de trabajo de reparación está completa — firme (y RCA si se requiere) para cerrar esta avería"
+      },
+      "qrScanner": {
+        "title": "Escanear Código QR de la Máquina",
+        "hint": "Apunte su cámara al código QR de una máquina para seleccionarla automáticamente."
+      },
+      "status": {
+        "reported": "Reportada",
+        "acknowledged": "Reconocida",
+        "triage_in_progress": "En Triage",
+        "assigned": "Asignada",
+        "en_route": "En Camino",
+        "repair_in_progress": "En Progreso",
+        "on_hold_parts": "En Espera (Piezas)",
+        "on_hold_approval": "En Espera (Aprobación)",
+        "resolved": "Resuelta",
+        "closed": "Cerrada",
+        "cancelled": "Cancelada"
+      },
+      "roleLabels": {
+        "technician": "Técnico",
+        "trainee": "Aprendiz",
+        "supervisor": "Supervisor",
+        "maintenance_supervisor": "Supervisor",
+        "plant_manager": "Gerente de Planta",
+        "store_keeper": "Encargado de Almacén",
+        "floor_operator": "Operador de Planta",
+        "hr_officer": "Oficial de RR. HH.",
+        "safety_officer": "Oficial de Seguridad",
+        "admin": "Administrador"
+      },
+      "errors": {
+        "invalidQrMachine": "El código QR no contenía un ID de máquina válido.",
+        "cameraOpenFailed": "No se pudo abrir la cámara.",
+        "assignFailed": "No se pudo asignar.",
+        "attendFailed": "No se pudo atender."
+      },
+      "assignModal": {
+        "title": "Asignar Técnico / Aprendiz",
+        "onShiftHint": "Solo se muestran técnicos y aprendices actualmente en turno.",
+        "loading": "Cargando quién está en turno…",
+        "empty": "Actualmente no hay técnicos ni aprendices marcados como en turno. Pídales que inicien su turno, o asigne cuando alguien esté disponible.",
+        "unnamed": "Sin nombre",
+        "onShift": "En turno",
+        "cancel": "Cancelar",
+        "assigning": "Asignando…",
+        "assign": "Asignar"
+      },
+      "detail": {
+        "pendingAssessment": "Evaluación pendiente",
+        "reported": "Reportada",
+        "reportedSourceWeb": "Web",
+        "attendedBy": "Atendida Por",
+        "whatHappened": "Qué Sucedió",
+        "productionImpact": "Impacto en Producción",
+        "attemptedFixes": "Soluciones Intentadas",
+        "technicianFindings": "Qué Sucedió (Hallazgos del Técnico/Aprendiz)",
+        "assignedTechnicians": "Técnicos Asignados",
+        "attachedMedia": "Archivos Adjuntos",
+        "attachmentAlt": "Adjunto {{index}}",
+        "fileLabel": "Archivo {{index}}",
+        "statusHistory": "Historial de Estados",
+        "noStatusChanges": "Aún no hay cambios de estado."
+      },
+      "signOffOutcome": {
+        "completed": "Completado",
+        "partially_completed": "Parcialmente Completado",
+        "not_completed": "No Completado",
+        "failed": "Fallido"
+      },
+      "workOrderSection": {
+        "title": "Orden de Trabajo",
+        "loading": "Cargando orden de trabajo…",
+        "loadFailed": "No se pudo cargar la orden de trabajo vinculada.",
+        "team": "Equipo",
+        "startedEnded": "Inicio / Fin",
+        "workDone": "Trabajo Realizado",
+        "partsUsed": "Piezas Utilizadas",
+        "signedOff": "Firmado"
+      }
     }
   }
 }

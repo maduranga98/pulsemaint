@@ -4,6 +4,7 @@ import { collection, query, where, orderBy, onSnapshot, doc, getDoc, writeBatch,
 import { AlertCircle, CheckCircle, ClipboardPlus, Plus, QrCode, Search, UserPlus, HardHat, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { notifyUsers } from '../../services/notifications.service';
@@ -15,23 +16,17 @@ import { TranslatedText } from '../../components/ui';
 import type { Breakdown, BreakdownStatus, BreakdownSeverity } from '../../types/breakdown';
 import type { WorkOrder } from '../../types/workOrder';
 
-const ROLE_LABELS: Record<string, string> = {
-  technician: 'Technician', trainee: 'Trainee', supervisor: 'Supervisor',
-  maintenance_supervisor: 'Supervisor', plant_manager: 'Plant Manager',
-  store_keeper: 'Store Keeper', floor_operator: 'Floor Operator',
-  hr_officer: 'HR Officer', safety_officer: 'Safety Officer', admin: 'Admin',
-};
-function roleLabel(role: string | undefined): string {
+function roleLabel(role: string | undefined, t: TFunction): string {
   if (!role) return '';
-  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+  return t(`common.breakdowns.roleLabels.${role}`, { defaultValue: role.replace(/_/g, ' ') });
 }
 function stripRoleSuffix(name: string): string {
   return name.replace(/\s*\([^)]*\)\s*$/, '').trim();
 }
-function nameWithRole(name: string, uid: string | undefined, roles: Record<string, string>): string {
+function nameWithRole(name: string, uid: string | undefined, roles: Record<string, string>, t: TFunction): string {
   const base = stripRoleSuffix(name);
   const role = uid ? roles[uid] : undefined;
-  return role ? `${base} (${roleLabel(role)})` : base;
+  return role ? `${base} (${roleLabel(role, t)})` : base;
 }
 
 
@@ -284,13 +279,13 @@ export default function BreakdownsPage() {
             if (machineId) {
               navigate(`/app/breakdowns/report?machineId=${machineId}`);
             } else {
-              setError('QR code did not contain a valid machine ID.');
+              setError(t('common.breakdowns.errors.invalidQrMachine'));
             }
           },
           () => {},
         );
       } catch (err: any) {
-        setError(err?.message || 'Failed to open camera.');
+        setError(err?.message || t('common.breakdowns.errors.cameraOpenFailed'));
         setShowQrScanner(false);
       }
     }, 100);
@@ -349,7 +344,7 @@ export default function BreakdownsPage() {
       });
       setAssigningGroup(null);
     } catch (e: any) {
-      setError(e?.message || 'Failed to assign.');
+      setError(e?.message || t('common.breakdowns.errors.assignFailed'));
     } finally {
       setAssignBusy(false);
     }
@@ -385,7 +380,7 @@ export default function BreakdownsPage() {
       // machine, instead of bouncing the technician between separate pages.
       navigate(`/app/breakdowns/attend?ids=${tickets.map((t) => t.id).join(',')}`);
     } catch (e: any) {
-      setError(e?.message || 'Failed to attend.');
+      setError(e?.message || t('common.breakdowns.errors.attendFailed'));
     } finally {
       setAttendingMachineId(null);
     }
@@ -986,7 +981,7 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
             {worstSeverity}
           </span>
         ) : (
-          <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">Pending assessment</span>
+          <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500">{t('common.breakdowns.detail.pendingAssessment')}</span>
         )}
         <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[tickets[tickets.length - 1].status]}`}>
           {t(`common.breakdowns.status.${tickets[tickets.length - 1].status}`)}
@@ -995,59 +990,59 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         <div>
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Reported</p>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.reported')}</p>
           <p className="text-slate-800">
-            {tickets[0]?.source?.replace(/_/g, ' ') || 'Web'}
+            {tickets[0]?.source?.replace(/_/g, ' ') || t('common.breakdowns.detail.reportedSourceWeb')}
             {firstReported?.toDate && <span className="text-slate-400"> · {firstReported.toDate().toLocaleString()}</span>}
           </p>
         </div>
         <div>
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attended By</p>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.attendedBy')}</p>
           {attendees.length === 0 ? (
             <p className="text-slate-400 italic">—</p>
           ) : (
             <p className="text-slate-800">
               {attendees
-                .map((a) => `${nameWithRole(a.name, a.uid, actorRoles)}${a.at?.toDate ? ` (${a.at.toDate().toLocaleString()})` : ''}`)
+                .map((a) => `${nameWithRole(a.name, a.uid, actorRoles, t)}${a.at?.toDate ? ` (${a.at.toDate().toLocaleString()})` : ''}`)
                 .join(', ')}
             </p>
           )}
         </div>
 
         <div className="sm:col-span-2">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened</p>
-          <MergedField tickets={tickets} get={(t) => t.description} />
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.whatHappened')}</p>
+          <MergedField tickets={tickets} get={(ticket) => ticket.description} />
         </div>
 
         <div className="sm:col-span-2">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Production Impact</p>
-          <MergedField tickets={tickets} get={(t) => t.productionImpact} />
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.productionImpact')}</p>
+          <MergedField tickets={tickets} get={(ticket) => ticket.productionImpact} />
         </div>
 
         <div className="sm:col-span-2">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Attempted Fixes</p>
-          <MergedField tickets={tickets} get={(t) => t.attemptedFixes} />
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.attemptedFixes')}</p>
+          <MergedField tickets={tickets} get={(ticket) => ticket.attemptedFixes} />
         </div>
 
         <div className="sm:col-span-2">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">What Happened (Technician/Trainee Findings)</p>
-          <MergedField tickets={tickets} get={(t) => (t as any).technicianFindings} />
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.technicianFindings')}</p>
+          <MergedField tickets={tickets} get={(ticket) => (ticket as any).technicianFindings} />
         </div>
 
         <div className="sm:col-span-2">
-          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">Assigned Technicians</p>
+          <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-1">{t('common.breakdowns.detail.assignedTechnicians')}</p>
           {technicians.length === 0 ? (
             <p className="text-slate-400 italic">—</p>
           ) : (
             <p className="text-slate-800">
-              {technicians.map((t) => nameWithRole(t.name, t.uid, actorRoles)).join(', ')}
+              {technicians.map((tech) => nameWithRole(tech.name, tech.uid, actorRoles, t)).join(', ')}
             </p>
           )}
         </div>
 
         {photos.length > 0 && (
           <div className="sm:col-span-2">
-            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">Attached Media</p>
+            <p className="text-slate-500 text-xs font-medium uppercase tracking-wide mb-2">{t('common.breakdowns.detail.attachedMedia')}</p>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
               {photos.map((url, i) => {
                 const isImage = /\.(jpe?g|png|gif|webp|heic|bmp)(\?|$)/i.test(url);
@@ -1061,12 +1056,12 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
                     className="block border border-slate-200 rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-300 transition-shadow"
                   >
                     {isImage ? (
-                      <img src={url} alt={`Attachment ${i + 1}`} className="w-full h-20 object-cover" />
+                      <img src={url} alt={t('common.breakdowns.detail.attachmentAlt', { index: i + 1 })} className="w-full h-20 object-cover" />
                     ) : isVideo ? (
                       <video src={url} className="w-full h-20 object-cover" muted />
                     ) : (
                       <div className="w-full h-20 flex items-center justify-center bg-slate-50 text-slate-400 text-xs">
-                        File {i + 1}
+                        {t('common.breakdowns.detail.fileLabel', { index: i + 1 })}
                       </div>
                     )}
                   </a>
@@ -1083,9 +1078,9 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
 
       {showHistory && (
         <div className="pt-2 border-t border-slate-100">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Status History</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">{t('common.breakdowns.detail.statusHistory')}</p>
           {historyEntries.length === 0 ? (
-            <p className="text-sm text-slate-500">No status changes yet.</p>
+            <p className="text-sm text-slate-500">{t('common.breakdowns.detail.noStatusChanges')}</p>
           ) : (
             <ol className="space-y-2 text-sm">
               {historyEntries.map((h, idx) => (
@@ -1095,7 +1090,7 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
                   </span>
                   <div>
                     <span className="text-slate-700">
-                      {nameWithRole(h.changedByName ?? '', h.changedBy, actorRoles)}
+                      {nameWithRole(h.changedByName ?? '', h.changedBy, actorRoles, t)}
                     </span>
                     <span className="text-slate-400 text-xs ml-2">
                       {h.changedAt?.toDate ? h.changedAt.toDate().toLocaleString() : (typeof h.changedAt === 'string' ? new Date(h.changedAt).toLocaleString() : '')}
@@ -1110,13 +1105,6 @@ function MachineBreakdownDetails({ group, actorRoles, showHistory }: MachineBrea
     </div>
   );
 }
-
-const WO_SIGN_OFF_OUTCOME_LABEL: Record<string, string> = {
-  completed: 'Completed',
-  partially_completed: 'Partially Completed',
-  not_completed: 'Not Completed',
-  failed: 'Failed',
-};
 
 function fmtWoDate(ts: { toDate?: () => Date } | null | undefined): string {
   if (!ts?.toDate) return '—';
@@ -1133,6 +1121,7 @@ function fmtWoDate(ts: { toDate?: () => Date } | null | undefined): string {
 // was turned into, so it's fetched and shown here rather than leaving the
 // closed record's story cut off at "assigned".
 function LinkedWorkOrderSection({ woId }: { woId: string | null }) {
+  const { t } = useTranslation();
   const [wo, setWo] = useState<WorkOrder | null>(null);
   const [loading, setLoading] = useState(!!woId);
 
@@ -1153,11 +1142,11 @@ function LinkedWorkOrderSection({ woId }: { woId: string | null }) {
 
   return (
     <div className="pt-2 border-t border-slate-100">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Work Order</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">{t('common.breakdowns.workOrderSection.title')}</p>
       {loading ? (
-        <p className="text-sm text-slate-400">Loading work order…</p>
+        <p className="text-sm text-slate-400">{t('common.breakdowns.workOrderSection.loading')}</p>
       ) : !wo ? (
-        <p className="text-sm text-slate-400 italic">Linked work order could not be loaded.</p>
+        <p className="text-sm text-slate-400 italic">{t('common.breakdowns.workOrderSection.loadFailed')}</p>
       ) : (
         <div className="space-y-3 text-sm">
           <div className="flex flex-wrap items-center gap-2">
@@ -1167,14 +1156,14 @@ function LinkedWorkOrderSection({ woId }: { woId: string | null }) {
             <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600">{wo.status}</span>
             {wo.signOffOutcome && (
               <span className="px-2 py-0.5 rounded text-xs font-medium bg-emerald-50 text-emerald-700">
-                {WO_SIGN_OFF_OUTCOME_LABEL[wo.signOffOutcome] ?? wo.signOffOutcome}
+                {t(`common.breakdowns.signOffOutcome.${wo.signOffOutcome}`, { defaultValue: wo.signOffOutcome })}
               </span>
             )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Team</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">{t('common.breakdowns.workOrderSection.team')}</p>
               <p className="text-slate-800">
                 {[wo.supervisorInChargeName, ...(wo.assignedTechnicianNames ?? []), wo.contractorCompanyName]
                   .filter(Boolean)
@@ -1182,21 +1171,21 @@ function LinkedWorkOrderSection({ woId }: { woId: string | null }) {
               </p>
             </div>
             <div>
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Started / Ended</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">{t('common.breakdowns.workOrderSection.startedEnded')}</p>
               <p className="text-slate-800">{fmtWoDate(wo.actualStartTime)} — {fmtWoDate(wo.actualEndTime)}</p>
             </div>
           </div>
 
           {wo.workDoneDescription && (
             <div>
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Work Done</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">{t('common.breakdowns.workOrderSection.workDone')}</p>
               <p className="text-slate-800">{wo.workDoneDescription}</p>
             </div>
           )}
 
           {wo.partsUsed && wo.partsUsed.length > 0 && (
             <div>
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Parts Used</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">{t('common.breakdowns.workOrderSection.partsUsed')}</p>
               <ul className="text-slate-800 list-disc list-inside">
                 {wo.partsUsed.map((p, i) => (
                   <li key={i}>{p.partName} × {p.quantity}</li>
@@ -1207,7 +1196,7 @@ function LinkedWorkOrderSection({ woId }: { woId: string | null }) {
 
           {wo.supervisorSignOffByName && (
             <div>
-              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">Signed Off</p>
+              <p className="text-slate-400 text-xs font-medium uppercase tracking-wide mb-0.5">{t('common.breakdowns.workOrderSection.signedOff')}</p>
               <p className="text-slate-800">
                 {wo.supervisorSignOffByName} · {fmtWoDate(wo.supervisorSignOffAt)}
                 {wo.supervisorSignOffNotes ? ` — ${wo.supervisorSignOffNotes}` : ''}

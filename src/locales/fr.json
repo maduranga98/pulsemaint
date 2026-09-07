@@ -906,6 +906,130 @@
           }
         }
       }
+    },
+    "breakdowns": {
+      "pageTitle": "Pannes",
+      "summary": "{{count}} {{filter}} sur {{machineCount}} machines",
+      "reportViaQr": "Signaler via QR",
+      "reportBreakdown": "Signaler une Panne",
+      "tabs": {
+        "reported": "signalées",
+        "assigned": "assignées",
+        "open": "ouvertes",
+        "closed": "clôturées"
+      },
+      "severity": "Gravité",
+      "severityOptions": {
+        "all": "Toutes",
+        "normal": "Normale",
+        "medium": "Moyenne",
+        "high": "Élevée"
+      },
+      "searchPlaceholder": "Rechercher un ticket, une machine, une description…",
+      "empty": "Aucune panne ne correspond à ce filtre.",
+      "table": {
+        "tickets": "Ticket(s)",
+        "machine": "Machine",
+        "severity": "Gravité",
+        "status": "Statut",
+        "progress": "Progression",
+        "reported": "Signalée",
+        "assignedTo": "Assignée À",
+        "action": "Action",
+        "pending": "En attente",
+        "unassigned": "Non assignée"
+      },
+      "actions": {
+        "assign": "Assigner",
+        "assignTitle": "Assigner un technicien ou un stagiaire à chaque panne ouverte sur cette machine",
+        "attend": "Traiter",
+        "attending": "Traitement…",
+        "attendTitle": "Traiter vous-même chaque panne ouverte sur cette machine",
+        "attendAndFill": "Traiter et Remplir",
+        "attendAndFillTitle": "Traiter et remplir l'évaluation de chaque ticket qui vous est assigné sur cette machine",
+        "createWO": "Créer un OT",
+        "createWOTitle": "Créer un Ordre de Travail couvrant chaque panne renseignée sur cette machine",
+        "signOffClose": "Valider et Clôturer",
+        "signOffCloseTitle": "L'ordre de travail de réparation est terminé — validez (et l'ACR si nécessaire) pour clôturer cette panne"
+      },
+      "qrScanner": {
+        "title": "Scanner le Code QR de la Machine",
+        "hint": "Pointez votre caméra vers le code QR d'une machine pour la sélectionner automatiquement."
+      },
+      "status": {
+        "reported": "Signalée",
+        "acknowledged": "Accusée réception",
+        "triage_in_progress": "En Tri",
+        "assigned": "Assignée",
+        "en_route": "En Route",
+        "repair_in_progress": "En Cours",
+        "on_hold_parts": "En Attente (Pièces)",
+        "on_hold_approval": "En Attente (Approbation)",
+        "resolved": "Résolue",
+        "closed": "Clôturée",
+        "cancelled": "Annulée"
+      },
+      "roleLabels": {
+        "technician": "Technicien",
+        "trainee": "Stagiaire",
+        "supervisor": "Superviseur",
+        "maintenance_supervisor": "Superviseur",
+        "plant_manager": "Directeur d'Usine",
+        "store_keeper": "Magasinier",
+        "floor_operator": "Opérateur de Production",
+        "hr_officer": "Responsable RH",
+        "safety_officer": "Responsable Sécurité",
+        "admin": "Administrateur"
+      },
+      "errors": {
+        "invalidQrMachine": "Le code QR ne contenait pas d'identifiant de machine valide.",
+        "cameraOpenFailed": "Échec de l'ouverture de la caméra.",
+        "assignFailed": "Échec de l'assignation.",
+        "attendFailed": "Échec du traitement."
+      },
+      "assignModal": {
+        "title": "Assigner un Technicien / Stagiaire",
+        "onShiftHint": "Seuls les techniciens et stagiaires actuellement en service sont affichés.",
+        "loading": "Chargement des personnes en service…",
+        "empty": "Aucun technicien ou stagiaire n'est actuellement pointé. Demandez-leur de commencer leur service, ou assignez une fois que quelqu'un est disponible.",
+        "unnamed": "Sans nom",
+        "onShift": "En service",
+        "cancel": "Annuler",
+        "assigning": "Assignation…",
+        "assign": "Assigner"
+      },
+      "detail": {
+        "pendingAssessment": "Évaluation en attente",
+        "reported": "Signalée",
+        "reportedSourceWeb": "Web",
+        "attendedBy": "Traitée Par",
+        "whatHappened": "Ce Qui S'est Passé",
+        "productionImpact": "Impact sur la Production",
+        "attemptedFixes": "Solutions Tentées",
+        "technicianFindings": "Ce Qui S'est Passé (Constats du Technicien/Stagiaire)",
+        "assignedTechnicians": "Techniciens Assignés",
+        "attachedMedia": "Pièces Jointes",
+        "attachmentAlt": "Pièce jointe {{index}}",
+        "fileLabel": "Fichier {{index}}",
+        "statusHistory": "Historique des Statuts",
+        "noStatusChanges": "Aucun changement de statut pour le moment."
+      },
+      "signOffOutcome": {
+        "completed": "Terminé",
+        "partially_completed": "Partiellement Terminé",
+        "not_completed": "Non Terminé",
+        "failed": "Échoué"
+      },
+      "workOrderSection": {
+        "title": "Ordre de Travail",
+        "loading": "Chargement de l'ordre de travail…",
+        "loadFailed": "Impossible de charger l'ordre de travail lié.",
+        "team": "Équipe",
+        "startedEnded": "Début / Fin",
+        "workDone": "Travail Effectué",
+        "partsUsed": "Pièces Utilisées",
+        "signedOff": "Validé"
+      }
     }
   }
 }
