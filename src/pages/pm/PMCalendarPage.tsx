@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { usePMCalendarEvents } from '../../hooks/pm/usePMCalendarEvents';
 import { useAuthStore } from '../../store/authStore';
 import { PMCalendarView } from '../../components/pm/PMCalendarView';
 import type { CalendarEvent } from '../../types/pm.types';
 
 export default function PMCalendarPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const company = useAuthStore((s) => s.company);
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -33,13 +35,15 @@ export default function PMCalendarPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">PM Calendar</h1>
-          <p className="text-sm text-gray-500">{events.length} events this period</p>
+          <h1 className="text-xl font-bold text-gray-900">{t('common.pmSchedules.calendarView.pageTitle')}</h1>
+          <p className="text-sm text-gray-500">
+            {t('common.pmSchedules.calendarView.eventsThisPeriod', { count: events.length })}
+          </p>
         </div>
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-gray-400">Loading calendar...</div>
+        <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.calendarView.loading')}</div>
       ) : (
         <PMCalendarView events={events} onEventClick={handleEventClick} />
       )}

@@ -1,15 +1,17 @@
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import type { CreatePMFormValues } from '../../../schemas/pm';
 import { PMChecklistBuilder } from '../PMChecklistBuilder';
 
 export function Step5Checklist() {
+  const { t } = useTranslation();
   const { watch, setValue, formState: { errors } } = useFormContext<CreatePMFormValues>();
   const checklistItems = watch('checklistItems') || [];
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">PM Checklist</h3>
+        <h3 className="text-lg font-semibold text-gray-900">{t('common.pmSchedules.createForm.step5.heading')}</h3>
         <div className="flex gap-2">
           <button
             type="button"
@@ -18,7 +20,7 @@ export function Step5Checklist() {
             }}
             className="text-xs text-blue-600 hover:text-blue-800 underline"
           >
-            Use existing template
+            {t('common.pmSchedules.createForm.step5.useExistingTemplate')}
           </button>
           <button
             type="button"
@@ -27,7 +29,7 @@ export function Step5Checklist() {
             }}
             className="text-xs text-blue-600 hover:text-blue-800 underline"
           >
-            Save as template
+            {t('common.pmSchedules.createForm.step5.saveAsTemplate')}
           </button>
         </div>
       </div>

@@ -568,7 +568,7 @@ export function CreateWODrawer({
                   >
                     {PM_TYPES_ORDERED.map((pmType) => (
                       <option key={pmType} value={pmType}>
-                        {PM_TYPE_CONFIG[pmType].icon} {PM_TYPE_CONFIG[pmType].label}
+                        {PM_TYPE_CONFIG[pmType].icon} {t(`common.pmSchedules.types.${pmType}`)}
                       </option>
                     ))}
                   </select>

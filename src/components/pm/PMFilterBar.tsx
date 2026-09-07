@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PMFilters, PMType, PMStatus } from '../../types/pm.types';
-import { PM_TYPE_CONFIG, PM_TYPES_ORDERED, PM_STATUS_CONFIG } from '../../constants/pmConfig';
+import { PM_TYPES_ORDERED } from '../../constants/pmConfig';
 
 interface PMFilterBarProps {
   filters: PMFilters;
@@ -104,7 +104,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
               size={4}
             >
               {PM_TYPES_ORDERED.map((type) => (
-                <option key={type} value={type}>{PM_TYPE_CONFIG[type].label}</option>
+                <option key={type} value={type}>{t(`common.pmSchedules.types.${type}`)}</option>
               ))}
             </select>
           </div>
@@ -122,7 +122,7 @@ export function PMFilterBar({ filters, onChange, machines, technicians }: PMFilt
               size={4}
             >
               {(['active', 'paused', 'completed'] as PMStatus[]).map((s) => (
-                <option key={s} value={s}>{PM_STATUS_CONFIG[s].label}</option>
+                <option key={s} value={s}>{t(`common.pmSchedules.statuses.${s}`)}</option>
               ))}
             </select>
           </div>

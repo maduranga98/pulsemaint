@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { PMSchedule } from '../../types/pm.types';
 import { PMOperationalStatusBadge } from './PMStatusBadge';
 import { PMPriorityBadge } from './PMPriorityBadge';
 import { WOStatusBadge } from '../workorders/WOStatusBadge';
 import { PMTypeBadge } from './PMTypeBadge';
-import { RECURRENCE_TYPE_LABELS } from '../../constants/pmConfig';
 import { getPMOperationalStatus, getDaysUntilDue, calculateComplianceRate } from '../../utils/pm.utils';
 import type { PMWorkOrderLookupEntry } from '../../hooks/pm/usePMWorkOrderLookup';
 
@@ -17,6 +17,7 @@ interface PMScheduleCardProps {
 
 export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMScheduleCardProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const opStatus = getPMOperationalStatus(schedule);
   const daysUntilDue = getDaysUntilDue(schedule.nextDueDate);
   const linkedWoId = schedule.activeWoId ?? schedule.lastWoId ?? null;
@@ -36,10 +37,10 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
   const contractorName = linkedWo?.contractorCompanyName ?? schedule.contractorCompanyName;
   const contractorTechNames = linkedWo?.contractorTechnicianNames ?? schedule.contractorTechnicianNames ?? [];
   const assignedNames = [
-    ...(supervisorName ? [`${supervisorName} (Supervisor)`] : []),
-    ...technicianNames.map((n) => `${n} (Technician)`),
-    ...(contractorName ? [`${contractorName} (Contractor)`] : []),
-    ...contractorTechNames.map((n) => `${n} (Contractor Technician)`),
+    ...(supervisorName ? [t('common.pmSchedules.card.roleSupervisor', { name: supervisorName })] : []),
+    ...technicianNames.map((n) => t('common.pmSchedules.card.roleTechnician', { name: n })),
+    ...(contractorName ? [t('common.pmSchedules.card.roleContractor', { name: contractorName })] : []),
+    ...contractorTechNames.map((n) => t('common.pmSchedules.card.roleContractorTechnician', { name: n })),
   ];
 
   const handleClick = () => {
@@ -100,24 +101,24 @@ export function PMScheduleCard({ schedule, selected, onSelect, woLookup }: PMSch
           {schedule.triggerType === 'calendar' ? (
             <>
               {isTerminal ? null : daysUntilDue < 0 ? (
-                <span className="text-red-600 font-medium">{Math.abs(daysUntilDue)}d overdue</span>
+                <span className="text-red-600 font-medium">{t('common.pmSchedules.card.daysOverdue', { count: Math.abs(daysUntilDue) })}</span>
               ) : daysUntilDue === 0 ? (
-                <span className="text-amber-600 font-medium">Due today</span>
+                <span className="text-amber-600 font-medium">{t('common.pmSchedules.card.dueToday')}</span>
               ) : (
-                <span>{daysUntilDue}d until due</span>
+                <span>{t('common.pmSchedules.card.daysUntilDue', { count: daysUntilDue })}</span>
               )}
               {!isTerminal && ' • '}
-              {RECURRENCE_TYPE_LABELS[schedule.recurrenceType]}
+              {t(`common.pmSchedules.recurrence.${schedule.recurrenceType}`)}
             </>
           ) : (
-            <span>{schedule.triggerAfterValue} {schedule.triggerUnit?.replace('_', ' ')}</span>
+            <span>{t('common.pmSchedules.card.triggerAfter', { count: schedule.triggerAfterValue, unit: t(`common.pmSchedules.triggerUnits.${schedule.triggerUnit}`, { defaultValue: schedule.triggerUnit?.replace('_', ' ') }) })}</span>
           )}
         </div>
       </div>
 
       <div className="mt-2 flex items-center justify-between">
         <div className="text-xs text-gray-400">
-          {assignedNames.join(', ') || 'Unassigned'}
+          {assignedNames.join(', ') || t('common.pmSchedules.card.unassigned')}
         </div>
         <span
           className={`text-xs font-semibold ${

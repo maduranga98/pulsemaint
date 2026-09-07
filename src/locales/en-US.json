@@ -1933,6 +1933,29 @@
       "viewMode": "View mode",
       "table": "Table",
       "calendar": "Calendar",
+      "calendarView": {
+        "week": "Week",
+        "month": "Month",
+        "days": {
+          "sun": "Sun",
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat"
+        },
+        "moreCount_one": "+{{count}} more",
+        "moreCount_other": "+{{count}} more",
+        "noPmsScheduled": "No PMs scheduled",
+        "noPmsScheduledPeriod": "No PMs scheduled.",
+        "openWorkOrder": "Open Work Order",
+        "openSchedule": "Open Schedule",
+        "pageTitle": "PM Calendar",
+        "eventsThisPeriod_one": "{{count}} event this period",
+        "eventsThisPeriod_other": "{{count}} events this period",
+        "loading": "Loading calendar..."
+      },
       "newPmWorkOrder": "New PM Work Order",
       "selectedCount": "{{count}} selected",
       "delete": "Delete",
@@ -1958,6 +1981,341 @@
         "overdue": "{{days}}d overdue",
         "dueToday": "Due today",
         "dueIn": "in {{days}}d"
+      },
+      "types": {
+        "lubrication": "Lubrication",
+        "inspection": "Inspection",
+        "calibration": "Calibration",
+        "filter_replacement": "Filter Replacement",
+        "belt_chain_check": "Belt/Chain Check",
+        "full_service": "Full Service",
+        "electrical_check": "Electrical Check",
+        "hydraulic_service": "Hydraulic Service",
+        "safety_inspection": "Safety Inspection",
+        "other": "Other"
+      },
+      "statuses": {
+        "active": "Active",
+        "paused": "Paused",
+        "completed": "Completed",
+        "archived": "Archived"
+      },
+      "operationalStatuses": {
+        "on_track": "On Track",
+        "due_soon": "Due Soon",
+        "overdue": "Overdue",
+        "paused": "Paused",
+        "completed": "Completed",
+        "in_progress": "In Progress"
+      },
+      "recurrence": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "biweekly": "Bi-weekly",
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "semi_annual": "Semi-Annual",
+        "annual": "Annual",
+        "custom": "Custom"
+      },
+      "triggerUnits": {
+        "operating_hours": "Operating Hours",
+        "production_cycles": "Production Cycles"
+      },
+      "historyStatuses": {
+        "completed_on_time": "Completed On Time",
+        "completed_late": "Completed Late",
+        "overdue": "Overdue",
+        "missed": "Missed",
+        "in_progress": "In Progress"
+      },
+      "skills": {
+        "Electrical": "Electrical",
+        "Mechanical": "Mechanical",
+        "Hydraulic": "Hydraulic",
+        "Pneumatic": "Pneumatic",
+        "Welding": "Welding",
+        "PLC": "PLC",
+        "HVAC": "HVAC",
+        "Other": "Other"
+      },
+      "card": {
+        "roleSupervisor": "{{name}} (Supervisor)",
+        "roleTechnician": "{{name}} (Technician)",
+        "roleContractor": "{{name}} (Contractor)",
+        "roleContractorTechnician": "{{name}} (Contractor Technician)",
+        "daysOverdue_one": "{{count}}d overdue",
+        "daysOverdue_other": "{{count}}d overdue",
+        "dueToday": "Due today",
+        "daysUntilDue_one": "{{count}}d until due",
+        "daysUntilDue_other": "{{count}}d until due",
+        "triggerAfter": "{{count}} {{unit}}",
+        "unassigned": "Unassigned"
+      },
+      "checklistBuilder": {
+        "empty": "No checklist steps added yet.",
+        "stepDescriptionPlaceholder": "Step description",
+        "typeLabel": "Type:",
+        "checkbox": "Checkbox",
+        "measurement": "Measurement",
+        "methodPlaceholder": "Method (e.g. Visual, Micrometer)",
+        "unitPlaceholder": "Unit (e.g. mm, °C)",
+        "min": "Min",
+        "max": "Max",
+        "estimatedMinutes_one": "{{count}} min",
+        "estimatedMinutes_other": "{{count}} min",
+        "photoRequired": "Photo required",
+        "photo": "Photo",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "removeStep": "Remove step",
+        "addStepPlaceholder": "Add a checklist step...",
+        "add": "Add",
+        "photoRequiredForStep": "Photo required for this step",
+        "newStepType": "New step type:"
+      },
+      "createForm": {
+        "back": "Back",
+        "next": "Next",
+        "saving": "Saving...",
+        "updateSchedule": "Update Schedule",
+        "createSchedule": "Create Schedule",
+        "updateShort": "Update",
+        "createShort": "Create",
+        "errors": {
+          "missingCompanyOrUser": "Missing company or user info",
+          "saveFailed": "Failed to save"
+        },
+        "toasts": {
+          "updated": "PM schedule updated",
+          "created": "PM schedule created"
+        },
+        "steps": {
+          "basic": {
+            "label": "Basic Info",
+            "description": "Name, type, priority"
+          },
+          "machine": {
+            "label": "Machine",
+            "description": "Select target machine"
+          },
+          "trigger": {
+            "label": "Trigger",
+            "description": "Calendar or usage-based"
+          },
+          "team": {
+            "label": "Team",
+            "description": "Assign technicians"
+          },
+          "checklist": {
+            "label": "Checklist",
+            "description": "PM task steps"
+          },
+          "parts": {
+            "label": "Parts",
+            "description": "Pre-allocate parts"
+          },
+          "documents": {
+            "label": "Documents",
+            "description": "Attach references"
+          },
+          "alerts": {
+            "label": "Alerts",
+            "description": "Notification settings"
+          }
+        },
+        "step1": {
+          "heading": "Schedule Identity",
+          "nameLabel": "Schedule Name *",
+          "namePlaceholder": "e.g. Loom Machine Monthly Lubrication",
+          "pmTypeLabel": "PM Type *",
+          "priorityLabel": "Priority",
+          "descriptionLabel": "Description",
+          "descriptionPlaceholder": "What must be done during this PM?"
+        },
+        "step2": {
+          "heading": "Machine Selection",
+          "machineLabel": "Machine *",
+          "selectMachinePlaceholder": "Select a machine...",
+          "machineOption": "{{name}} — {{department}} (Health: {{health}}%)",
+          "department": "Department",
+          "location": "Location",
+          "machineType": "Machine Type",
+          "criticality": "Criticality",
+          "criticalityValue": "{{value}}/5",
+          "autoUpgraded": "Auto-upgraded PM to Critical",
+          "healthScore": "Health Score"
+        },
+        "step3": {
+          "heading": "Trigger Configuration",
+          "calendarBased": "Calendar-Based",
+          "usageBased": "Usage-Based",
+          "firstPmDateLabel": "First PM Date *",
+          "recurrenceLabel": "Recurrence *",
+          "everyXDays": "Every X Days",
+          "noEndDate": "No End Date (run indefinitely)",
+          "endDateLabel": "End Date",
+          "seasonalOverride": "Seasonal Override",
+          "peakSeasonStart": "Peak Season Start",
+          "peakSeasonEnd": "Peak Season End",
+          "peakSeasonInterval": "Peak Season Interval",
+          "triggerAfterLabel": "Trigger After *",
+          "unitLabel": "Unit *",
+          "selectUnitPlaceholder": "Select...",
+          "currentMeterValue": "Current Meter Value",
+          "lastMeterResetDate": "Last Meter Reset Date"
+        },
+        "step4": {
+          "heading": "Team Assignment",
+          "assignedTechniciansLabel": "Assigned Technicians *",
+          "technicianNamePlaceholder": "Enter technician name",
+          "add": "Add",
+          "removeTechnician": "Remove {{name}}",
+          "estimatedDurationLabel": "Estimated Duration *",
+          "unitLabel": "Unit *",
+          "hours": "Hours",
+          "days": "Days",
+          "skillsRequiredLabel": "Skills Required"
+        },
+        "step5": {
+          "heading": "PM Checklist",
+          "useExistingTemplate": "Use existing template",
+          "saveAsTemplate": "Save as template"
+        },
+        "step6": {
+          "heading": "Parts Pre-Allocation",
+          "subheading": "Optional: attach expected spare parts from inventory.",
+          "partSummary": "{{number}} • Qty: {{quantity}}",
+          "remove": "Remove",
+          "partIdPlaceholder": "Part ID",
+          "partNamePlaceholder": "Part Name",
+          "partNumberPlaceholder": "Part Number",
+          "qtyPlaceholder": "Qty",
+          "add": "Add"
+        },
+        "step7": {
+          "heading": "Documents & References",
+          "subheading": "Attach machine manuals, SOPs, reference photos.",
+          "fileSizeKb": "({{size}} KB)",
+          "remove": "Remove",
+          "uploadHint": "Click to upload files or drag and drop",
+          "uploadTypes": "PDF, Word, Images up to 10MB"
+        },
+        "step8": {
+          "heading": "Settings & Alerts",
+          "leadTimeLabel": "Lead Time (days)",
+          "leadTimeHint": "Days before due to notify technician",
+          "overdueEscalationLabel": "Overdue Escalation (hours)",
+          "overdueEscalationHint": "Hours after due to escalate to Plant Manager",
+          "autoCloseLabel": "Auto-Close (days)",
+          "autoCloseHint": "Days to auto-flag as overdue",
+          "notificationSummaryTitle": "Notification Summary",
+          "notif1": "Push + Email to assigned technician and supervisor when PM is due",
+          "notif2": "Push + SMS to Plant Manager if PM is not started within escalation hours",
+          "notif3": "Immediate push when PM Work Order is auto-created"
+        }
+      },
+      "detail": {
+        "notFound": "Schedule not found.",
+        "openingLinkedWo": "Opening linked work order…",
+        "complianceRate": "Compliance Rate",
+        "nextDue": "Next Due",
+        "daysOverdue_one": "{{count}}d overdue",
+        "daysOverdue_other": "{{count}}d overdue",
+        "today": "Today",
+        "daysShort_one": "{{count}}d",
+        "daysShort_other": "{{count}}d",
+        "completed": "Completed",
+        "missedCount_one": "{{count}} missed",
+        "missedCount_other": "{{count}} missed",
+        "status": "Status",
+        "tabs": {
+          "overview": "Overview",
+          "history": "History"
+        },
+        "scheduleDetails": "Schedule Details",
+        "priority": "Priority",
+        "triggerType": "Trigger Type",
+        "recurrence": "Recurrence",
+        "endDate": "End Date",
+        "noEndDate": "No end date",
+        "triggerAfter": "Trigger After",
+        "currentMeter": "Current Meter",
+        "estDuration": "Est. Duration",
+        "leadTime": "Lead Time",
+        "leadTimeDays_one": "{{count}} day",
+        "leadTimeDays_other": "{{count}} day(s)",
+        "escalation": "Escalation",
+        "escalationHours": "{{count}}h",
+        "checklist": "Checklist",
+        "preallocatedParts": "Pre-allocated Parts",
+        "qty_one": "Qty: {{count}}",
+        "qty_other": "Qty: {{count}}",
+        "historyTable": {
+          "woNumber": "WO #",
+          "dueDate": "Due Date",
+          "completed": "Completed",
+          "status": "Status",
+          "technicians": "Technicians",
+          "duration": "Duration"
+        },
+        "durationMinutes_one": "{{count}}m",
+        "durationMinutes_other": "{{count}}m",
+        "noHistoryYet": "No history yet."
+      },
+      "errors": {
+        "companyIdRequired": "Company ID is required",
+        "fetchCalendarEventsFailed": "Failed to fetch calendar events"
+      },
+      "workloadPage": {
+        "title": "Technician Workload",
+        "description": "Upcoming PM assignments by technician",
+        "dateRangeLabel": "Date range",
+        "range_7": "7 days",
+        "range_14": "14 days",
+        "range_30": "30 days",
+        "loadErrorTitle": "Couldn't load workloads"
+      },
+      "technicianWorkload": {
+        "assignedHoursSummary_one": "{{count}} PM • {{hours}}h est.",
+        "assignedHoursSummary_other": "{{count}} PMs • {{hours}}h est.",
+        "status": {
+          "ok": "OK",
+          "busy": "Busy",
+          "overloaded": "Overloaded"
+        },
+        "moreCount_one": "+{{count}} more",
+        "moreCount_other": "+{{count}} more",
+        "empty": "No upcoming PM assignments in this range."
+      },
+      "complianceDashboard": {
+        "loading": "Loading compliance data...",
+        "kpi": {
+          "overallCompliance": "Overall Compliance",
+          "scheduledThisMonth": "Scheduled This Month",
+          "completedOnTime": "Completed On Time",
+          "overdue": "Overdue"
+        },
+        "trendChartTitle": "Compliance Trend (Last 6 Months)",
+        "chart": {
+          "breakdowns": "Breakdowns",
+          "complianceRate": "Compliance %",
+          "percentAxisLabel": "%"
+        },
+        "byMachineTitle": "Compliance by Machine",
+        "byTechnicianTitle": "Compliance by Technician",
+        "table": {
+          "name": "Name",
+          "rate": "Rate",
+          "scheduled": "Scheduled",
+          "onTime": "On Time",
+          "missed": "Missed"
+        },
+        "noData": "No data available."
+      },
+      "editPage": {
+        "title": "Edit PM Schedule",
+        "notFound": "Schedule not found. It may have been deleted."
       }
     }
   }

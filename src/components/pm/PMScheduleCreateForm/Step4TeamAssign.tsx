@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import type { CreatePMFormValues } from '../../../schemas/pm';
 import { PM_SKILLS_OPTIONS } from '../../../constants/pmConfig';
 
 export function Step4TeamAssign() {
+  const { t } = useTranslation();
   const { register, watch, setValue, formState: { errors } } = useFormContext<CreatePMFormValues>();
   const assignedTechnicianIds = watch('assignedTechnicianIds') || [];
   const assignedTechnicianNames = watch('assignedTechnicianNames') || [];
@@ -36,18 +38,18 @@ export function Step4TeamAssign() {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Team Assignment</h3>
+      <h3 className="text-lg font-semibold text-gray-900">{t('common.pmSchedules.createForm.step4.heading')}</h3>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Assigned Technicians *</label>
-        
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.pmSchedules.createForm.step4.assignedTechniciansLabel')}</label>
+
         <div className="flex gap-2 mb-2">
           <input
             type="text"
             value={newTechName}
             onChange={(e) => setNewTechName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTechnician())}
-            placeholder="Enter technician name"
+            placeholder={t('common.pmSchedules.createForm.step4.technicianNamePlaceholder')}
             className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
           />
           <button
@@ -55,7 +57,7 @@ export function Step4TeamAssign() {
             onClick={addTechnician}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
           >
-            Add
+            {t('common.pmSchedules.createForm.step4.add')}
           </button>
         </div>
 
@@ -71,6 +73,7 @@ export function Step4TeamAssign() {
                   type="button"
                   onClick={() => removeTechnician(index)}
                   className="text-blue-600 hover:text-blue-800"
+                  aria-label={t('common.pmSchedules.createForm.step4.removeTechnician', { name })}
                 >
                   ×
                 </button>
@@ -86,7 +89,7 @@ export function Step4TeamAssign() {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Estimated Duration *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.pmSchedules.createForm.step4.estimatedDurationLabel')}</label>
           <input
             {...register('estimatedDuration', { valueAsNumber: true })}
             type="number"
@@ -96,19 +99,19 @@ export function Step4TeamAssign() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.pmSchedules.createForm.step4.unitLabel')}</label>
           <select
             {...register('estimatedDurationUnit')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
           >
-            <option value="hours">Hours</option>
-            <option value="days">Days</option>
+            <option value="hours">{t('common.pmSchedules.createForm.step4.hours')}</option>
+            <option value="days">{t('common.pmSchedules.createForm.step4.days')}</option>
           </select>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Skills Required</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.pmSchedules.createForm.step4.skillsRequiredLabel')}</label>
         <div className="flex flex-wrap gap-2">
           {PM_SKILLS_OPTIONS.map((skill) => (
             <button
@@ -122,7 +125,7 @@ export function Step4TeamAssign() {
               }`}
             >
               {skillsRequired.includes(skill) && '✓ '}
-              {skill}
+              {t(`common.pmSchedules.skills.${skill}`, { defaultValue: skill })}
             </button>
           ))}
         </div>

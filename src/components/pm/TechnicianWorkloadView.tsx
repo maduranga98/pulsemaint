@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { PMSchedule, TechnicianWorkload } from '../../types/pm.types';
 import { getWorkloadTailwindClass } from '../../utils/pm.utils';
 
@@ -8,6 +9,7 @@ interface TechnicianWorkloadViewProps {
 }
 
 export function TechnicianWorkloadViewComponent({ schedules, rangeDays }: TechnicianWorkloadViewProps) {
+  const { t } = useTranslation();
   const workloads = useMemo(() => {
     const now = new Date();
     const endDate = new Date(now);
@@ -72,13 +74,23 @@ export function TechnicianWorkloadViewComponent({ schedules, rangeDays }: Techni
       {workloads.map((tech) => {
         const barWidth = Math.min((tech.totalEstimatedHours / maxHours) * 100, 100);
         const barClass = getWorkloadTailwindClass(tech.totalEstimatedHours);
+        const statusLabel = tech.totalEstimatedHours <= 20
+          ? t('common.pmSchedules.technicianWorkload.status.ok')
+          : tech.totalEstimatedHours <= 40
+          ? t('common.pmSchedules.technicianWorkload.status.busy')
+          : t('common.pmSchedules.technicianWorkload.status.overloaded');
 
         return (
           <div key={tech.technicianId} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900 text-sm">{tech.technicianName}</h3>
-                <p className="text-xs text-gray-500">{tech.assignedCount} PMs • {tech.totalEstimatedHours}h est.</p>
+                <p className="text-xs text-gray-500">
+                  {t('common.pmSchedules.technicianWorkload.assignedHoursSummary', {
+                    count: tech.assignedCount,
+                    hours: tech.totalEstimatedHours,
+                  })}
+                </p>
               </div>
               <span
                 className={`text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -89,7 +101,7 @@ export function TechnicianWorkloadViewComponent({ schedules, rangeDays }: Techni
                     : 'bg-red-100 text-red-800'
                 }`}
               >
-                {tech.totalEstimatedHours <= 20 ? 'OK' : tech.totalEstimatedHours <= 40 ? 'Busy' : 'Overloaded'}
+                {statusLabel}
               </span>
             </div>
 
@@ -127,7 +139,9 @@ export function TechnicianWorkloadViewComponent({ schedules, rangeDays }: Techni
                 </div>
               ))}
               {tech.schedules.length > 5 && (
-                <p className="text-xs text-gray-400 pl-2">+{tech.schedules.length - 5} more</p>
+                <p className="text-xs text-gray-400 pl-2">
+                  {t('common.pmSchedules.technicianWorkload.moreCount', { count: tech.schedules.length - 5 })}
+                </p>
               )}
             </div>
           </div>
@@ -135,7 +149,9 @@ export function TechnicianWorkloadViewComponent({ schedules, rangeDays }: Techni
       })}
 
       {workloads.length === 0 && (
-        <div className="p-8 text-center text-gray-400 text-sm">No upcoming PM assignments in this range.</div>
+        <div className="p-8 text-center text-gray-400 text-sm">
+          {t('common.pmSchedules.technicianWorkload.empty')}
+        </div>
       )}
     </div>
   );

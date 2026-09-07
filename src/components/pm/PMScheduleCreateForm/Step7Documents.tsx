@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Step7DocumentsProps {
   onFilesChange?: (files: File[]) => void;
 }
 
 export function Step7Documents({ onFilesChange }: Step7DocumentsProps) {
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<File[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,8 +24,8 @@ export function Step7Documents({ onFilesChange }: Step7DocumentsProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Documents & References</h3>
-      <p className="text-sm text-gray-500">Attach machine manuals, SOPs, reference photos.</p>
+      <h3 className="text-lg font-semibold text-gray-900">{t('common.pmSchedules.createForm.step7.heading')}</h3>
+      <p className="text-sm text-gray-500">{t('common.pmSchedules.createForm.step7.subheading')}</p>
 
       {documents.length > 0 && (
         <div className="space-y-2">
@@ -32,14 +34,14 @@ export function Step7Documents({ onFilesChange }: Step7DocumentsProps) {
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-lg">📄</span>
                 <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                <span className="text-xs text-gray-400">({(file.size / 1024).toFixed(1)} KB)</span>
+                <span className="text-xs text-gray-400">{t('common.pmSchedules.createForm.step7.fileSizeKb', { size: (file.size / 1024).toFixed(1) })}</span>
               </div>
               <button
                 type="button"
                 onClick={() => removeFile(index)}
                 className="text-red-400 hover:text-red-600 text-sm flex-shrink-0"
               >
-                Remove
+                {t('common.pmSchedules.createForm.step7.remove')}
               </button>
             </div>
           ))}
@@ -55,8 +57,8 @@ export function Step7Documents({ onFilesChange }: Step7DocumentsProps) {
             className="hidden"
             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
           />
-          <span className="text-sm text-gray-500">Click to upload files or drag and drop</span>
-          <p className="text-xs text-gray-400 mt-1">PDF, Word, Images up to 10MB</p>
+          <span className="text-sm text-gray-500">{t('common.pmSchedules.createForm.step7.uploadHint')}</span>
+          <p className="text-xs text-gray-400 mt-1">{t('common.pmSchedules.createForm.step7.uploadTypes')}</p>
         </label>
       </div>
     </div>

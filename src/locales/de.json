@@ -1820,6 +1820,397 @@
         "attachFile": "Datei Anhängen",
         "removeAriaLabel": "Entfernen"
       }
+    },
+    "pmSchedules": {
+      "pageTitle": "PM-Pläne",
+      "count": "{{count}} Pläne",
+      "viewMode": "Ansichtsmodus",
+      "table": "Tabelle",
+      "calendar": "Kalender",
+      "newPmWorkOrder": "Neuer PM-Arbeitsauftrag",
+      "selectedCount": "{{count}} ausgewählt",
+      "delete": "Löschen",
+      "loadingCalendar": "Kalender wird geladen…",
+      "empty": {
+        "title": "Noch keine PM-Pläne",
+        "description": "PM-Pläne werden über vorbeugende Arbeitsaufträge erstellt. Erstellen Sie einen vorbeugenden AA, um zu beginnen."
+      },
+      "filters": {
+        "searchPlaceholder": "Pläne suchen…",
+        "allMachines": "Alle Maschinen",
+        "allTechnicians": "Alle Techniker"
+      },
+      "columns": {
+        "schedule": "Plan",
+        "machine": "Maschine",
+        "type": "Typ",
+        "dueDate": "Fälligkeitsdatum",
+        "assigned": "Zugewiesen",
+        "status": "Status",
+        "compliance": "Compliance",
+        "noSchedulesFound": "Keine PM-Pläne gefunden.",
+        "overdue": "{{days}}T überfällig",
+        "dueToday": "Heute fällig",
+        "dueIn": "in {{days}}T"
+      },
+      "types": {
+        "lubrication": "Schmierung",
+        "inspection": "Inspektion",
+        "calibration": "Kalibrierung",
+        "filter_replacement": "Filterwechsel",
+        "belt_chain_check": "Riemen-/Kettenprüfung",
+        "full_service": "Vollservice",
+        "electrical_check": "Elektroprüfung",
+        "hydraulic_service": "Hydraulikservice",
+        "safety_inspection": "Sicherheitsinspektion",
+        "other": "Sonstiges"
+      },
+      "statuses": {
+        "active": "Aktiv",
+        "paused": "Pausiert",
+        "completed": "Abgeschlossen",
+        "archived": "Archiviert"
+      },
+      "operationalStatuses": {
+        "on_track": "Im Zeitplan",
+        "due_soon": "Bald Fällig",
+        "overdue": "Überfällig",
+        "paused": "Pausiert",
+        "completed": "Abgeschlossen",
+        "in_progress": "In Bearbeitung"
+      },
+      "recurrence": {
+        "daily": "Täglich",
+        "weekly": "Wöchentlich",
+        "biweekly": "Zweiwöchentlich",
+        "monthly": "Monatlich",
+        "quarterly": "Vierteljährlich",
+        "semi_annual": "Halbjährlich",
+        "annual": "Jährlich",
+        "custom": "Benutzerdefiniert"
+      },
+      "triggerUnits": {
+        "operating_hours": "Betriebsstunden",
+        "production_cycles": "Produktionszyklen"
+      },
+      "historyStatuses": {
+        "completed_on_time": "Pünktlich Abgeschlossen",
+        "completed_late": "Verspätet Abgeschlossen",
+        "overdue": "Überfällig",
+        "missed": "Verpasst",
+        "in_progress": "In Bearbeitung"
+      },
+      "skills": {
+        "Electrical": "Elektrik",
+        "Mechanical": "Mechanik",
+        "Hydraulic": "Hydraulik",
+        "Pneumatic": "Pneumatik",
+        "Welding": "Schweißen",
+        "PLC": "SPS",
+        "HVAC": "HLK",
+        "Other": "Sonstiges"
+      },
+      "card": {
+        "roleSupervisor": "{{name}} (Vorgesetzter)",
+        "roleTechnician": "{{name}} (Techniker)",
+        "roleContractor": "{{name}} (Auftragnehmer)",
+        "roleContractorTechnician": "{{name}} (Auftragnehmer-Techniker)",
+        "daysOverdue_one": "{{count}} Tag überfällig",
+        "daysOverdue_other": "{{count}} Tage überfällig",
+        "dueToday": "Heute fällig",
+        "daysUntilDue_one": "{{count}} Tag bis fällig",
+        "daysUntilDue_other": "{{count}} Tage bis fällig",
+        "triggerAfter": "{{count}} {{unit}}",
+        "unassigned": "Nicht zugewiesen"
+      },
+      "checklistBuilder": {
+        "empty": "Noch keine Listenschritte hinzugefügt.",
+        "stepDescriptionPlaceholder": "Schrittbeschreibung",
+        "typeLabel": "Typ:",
+        "checkbox": "Kontrollkästchen",
+        "measurement": "Messung",
+        "methodPlaceholder": "Methode (z. B. Visuell, Mikrometer)",
+        "unitPlaceholder": "Einheit (z. B. mm, °C)",
+        "min": "Min",
+        "max": "Max",
+        "estimatedMinutes_one": "{{count}} Min",
+        "estimatedMinutes_other": "{{count}} Min",
+        "photoRequired": "Foto erforderlich",
+        "photo": "Foto",
+        "moveUp": "Nach oben",
+        "moveDown": "Nach unten",
+        "removeStep": "Schritt entfernen",
+        "addStepPlaceholder": "Listenschritt hinzufügen...",
+        "add": "Hinzufügen",
+        "photoRequiredForStep": "Foto für diesen Schritt erforderlich",
+        "newStepType": "Neuer Schritttyp:"
+      },
+      "createForm": {
+        "back": "Zurück",
+        "next": "Weiter",
+        "saving": "Wird gespeichert...",
+        "updateSchedule": "Plan Aktualisieren",
+        "createSchedule": "Plan Erstellen",
+        "updateShort": "Aktualisieren",
+        "createShort": "Erstellen",
+        "errors": {
+          "missingCompanyOrUser": "Firmen- oder Benutzerinformationen fehlen",
+          "saveFailed": "Speichern fehlgeschlagen"
+        },
+        "toasts": {
+          "updated": "PM-Plan aktualisiert",
+          "created": "PM-Plan erstellt"
+        },
+        "steps": {
+          "basic": {
+            "label": "Grundinformationen",
+            "description": "Name, Typ, Priorität"
+          },
+          "machine": {
+            "label": "Maschine",
+            "description": "Zielmaschine auswählen"
+          },
+          "trigger": {
+            "label": "Auslöser",
+            "description": "Kalender- oder nutzungsbasiert"
+          },
+          "team": {
+            "label": "Team",
+            "description": "Techniker zuweisen"
+          },
+          "checklist": {
+            "label": "Aufgabenliste",
+            "description": "PM-Aufgabenschritte"
+          },
+          "parts": {
+            "label": "Teile",
+            "description": "Teile vorab zuweisen"
+          },
+          "documents": {
+            "label": "Dokumente",
+            "description": "Referenzen anhängen"
+          },
+          "alerts": {
+            "label": "Warnmeldungen",
+            "description": "Benachrichtigungseinstellungen"
+          }
+        },
+        "step1": {
+          "heading": "Plan-Identität",
+          "nameLabel": "Planname *",
+          "namePlaceholder": "z. B. Monatliche Schmierung der Webmaschine",
+          "pmTypeLabel": "PM-Typ *",
+          "priorityLabel": "Priorität",
+          "descriptionLabel": "Beschreibung",
+          "descriptionPlaceholder": "Was muss während dieser PM erledigt werden?"
+        },
+        "step2": {
+          "heading": "Maschinenauswahl",
+          "machineLabel": "Maschine *",
+          "selectMachinePlaceholder": "Wählen Sie eine Maschine...",
+          "machineOption": "{{name}} — {{department}} (Zustand: {{health}}%)",
+          "department": "Abteilung",
+          "location": "Standort",
+          "machineType": "Maschinentyp",
+          "criticality": "Kritikalität",
+          "criticalityValue": "{{value}}/5",
+          "autoUpgraded": "PM automatisch auf Kritisch hochgestuft",
+          "healthScore": "Zustandswert"
+        },
+        "step3": {
+          "heading": "Auslöserkonfiguration",
+          "calendarBased": "Kalenderbasiert",
+          "usageBased": "Nutzungsbasiert",
+          "firstPmDateLabel": "Erstes PM-Datum *",
+          "recurrenceLabel": "Wiederholung *",
+          "everyXDays": "Alle X Tage",
+          "noEndDate": "Kein Enddatum (unbegrenzt ausführen)",
+          "endDateLabel": "Enddatum",
+          "seasonalOverride": "Saisonale Überschreibung",
+          "peakSeasonStart": "Beginn der Hochsaison",
+          "peakSeasonEnd": "Ende der Hochsaison",
+          "peakSeasonInterval": "Hochsaison-Intervall",
+          "triggerAfterLabel": "Auslösen Nach *",
+          "unitLabel": "Einheit *",
+          "selectUnitPlaceholder": "Auswählen...",
+          "currentMeterValue": "Aktueller Zählerstand",
+          "lastMeterResetDate": "Datum des Letzten Zähler-Resets"
+        },
+        "step4": {
+          "heading": "Teamzuweisung",
+          "assignedTechniciansLabel": "Zugewiesene Techniker *",
+          "technicianNamePlaceholder": "Namen des Technikers eingeben",
+          "add": "Hinzufügen",
+          "removeTechnician": "{{name}} entfernen",
+          "estimatedDurationLabel": "Geschätzte Dauer *",
+          "unitLabel": "Einheit *",
+          "hours": "Stunden",
+          "days": "Tage",
+          "skillsRequiredLabel": "Erforderliche Fähigkeiten"
+        },
+        "step5": {
+          "heading": "PM-Aufgabenliste",
+          "useExistingTemplate": "Vorhandene Vorlage verwenden",
+          "saveAsTemplate": "Als Vorlage speichern"
+        },
+        "step6": {
+          "heading": "Teile-Vorabzuweisung",
+          "subheading": "Optional: Fügen Sie erwartete Ersatzteile aus dem Bestand hinzu.",
+          "partSummary": "{{number}} • Menge: {{quantity}}",
+          "remove": "Entfernen",
+          "partIdPlaceholder": "Teile-ID",
+          "partNamePlaceholder": "Teilename",
+          "partNumberPlaceholder": "Teilenummer",
+          "qtyPlaceholder": "Menge",
+          "add": "Hinzufügen"
+        },
+        "step7": {
+          "heading": "Dokumente & Referenzen",
+          "subheading": "Fügen Sie Maschinenhandbücher, SOPs und Referenzfotos hinzu.",
+          "fileSizeKb": "({{size}} KB)",
+          "remove": "Entfernen",
+          "uploadHint": "Klicken Sie, um Dateien hochzuladen, oder ziehen Sie sie hierher",
+          "uploadTypes": "PDF, Word, Bilder bis 10 MB"
+        },
+        "step8": {
+          "heading": "Einstellungen & Warnmeldungen",
+          "leadTimeLabel": "Vorlaufzeit (Tage)",
+          "leadTimeHint": "Tage vor Fälligkeit, um den Techniker zu benachrichtigen",
+          "overdueEscalationLabel": "Eskalation bei Überfälligkeit (Stunden)",
+          "overdueEscalationHint": "Stunden nach Fälligkeit zur Eskalation an den Werksleiter",
+          "autoCloseLabel": "Automatischer Abschluss (Tage)",
+          "autoCloseHint": "Tage bis zur automatischen Kennzeichnung als überfällig",
+          "notificationSummaryTitle": "Benachrichtigungsübersicht",
+          "notif1": "Push + E-Mail an zugewiesenen Techniker und Vorgesetzten bei PM-Fälligkeit",
+          "notif2": "Push + SMS an Werksleiter, wenn PM nicht innerhalb der Eskalationsstunden begonnen wird",
+          "notif3": "Sofortige Push-Benachrichtigung bei automatischer Erstellung des PM-Arbeitsauftrags"
+        }
+      },
+      "detail": {
+        "notFound": "Plan nicht gefunden.",
+        "openingLinkedWo": "Verknüpfter Arbeitsauftrag wird geöffnet…",
+        "complianceRate": "Compliance-Quote",
+        "nextDue": "Nächste Fälligkeit",
+        "daysOverdue_one": "{{count}} Tag überfällig",
+        "daysOverdue_other": "{{count}} Tage überfällig",
+        "today": "Heute",
+        "daysShort_one": "{{count}}T",
+        "daysShort_other": "{{count}}T",
+        "completed": "Abgeschlossen",
+        "missedCount_one": "{{count}} verpasst",
+        "missedCount_other": "{{count}} verpasst",
+        "status": "Status",
+        "tabs": {
+          "overview": "Übersicht",
+          "history": "Verlauf"
+        },
+        "scheduleDetails": "Plandetails",
+        "priority": "Priorität",
+        "triggerType": "Auslösertyp",
+        "recurrence": "Wiederholung",
+        "endDate": "Enddatum",
+        "noEndDate": "Kein Enddatum",
+        "triggerAfter": "Auslösen Nach",
+        "currentMeter": "Aktueller Zähler",
+        "estDuration": "Gesch. Dauer",
+        "leadTime": "Vorlaufzeit",
+        "leadTimeDays_one": "{{count}} Tag",
+        "leadTimeDays_other": "{{count}} Tage",
+        "escalation": "Eskalation",
+        "escalationHours": "{{count}}Std",
+        "checklist": "Aufgabenliste",
+        "preallocatedParts": "Vorab Zugewiesene Teile",
+        "qty_one": "Menge: {{count}}",
+        "qty_other": "Menge: {{count}}",
+        "historyTable": {
+          "woNumber": "AA Nr.",
+          "dueDate": "Fälligkeitsdatum",
+          "completed": "Abgeschlossen",
+          "status": "Status",
+          "technicians": "Techniker",
+          "duration": "Dauer"
+        },
+        "durationMinutes_one": "{{count}}Min",
+        "durationMinutes_other": "{{count}}Min",
+        "noHistoryYet": "Noch kein Verlauf."
+      },
+      "errors": {
+        "companyIdRequired": "Firmen-ID ist erforderlich",
+        "fetchCalendarEventsFailed": "Kalenderereignisse konnten nicht abgerufen werden"
+      },
+      "calendarView": {
+        "week": "Woche",
+        "month": "Monat",
+        "days": {
+          "sun": "So",
+          "mon": "Mo",
+          "tue": "Di",
+          "wed": "Mi",
+          "thu": "Do",
+          "fri": "Fr",
+          "sat": "Sa"
+        },
+        "moreCount_one": "+{{count}} weitere",
+        "moreCount_other": "+{{count}} weitere",
+        "noPmsScheduled": "Keine PM geplant",
+        "noPmsScheduledPeriod": "Keine PM geplant.",
+        "openWorkOrder": "Arbeitsauftrag Öffnen",
+        "openSchedule": "Plan Öffnen",
+        "pageTitle": "PM-Kalender",
+        "eventsThisPeriod_one": "{{count}} Ereignis in diesem Zeitraum",
+        "eventsThisPeriod_other": "{{count}} Ereignisse in diesem Zeitraum",
+        "loading": "Kalender wird geladen..."
+      },
+      "workloadPage": {
+        "title": "Techniker-Auslastung",
+        "description": "Anstehende PM-Zuweisungen nach Techniker",
+        "dateRangeLabel": "Zeitraum",
+        "range_7": "7 Tage",
+        "range_14": "14 Tage",
+        "range_30": "30 Tage",
+        "loadErrorTitle": "Auslastung konnte nicht geladen werden"
+      },
+      "technicianWorkload": {
+        "assignedHoursSummary_one": "{{count}} PM • {{hours}}Std gesch.",
+        "assignedHoursSummary_other": "{{count}} PM • {{hours}}Std gesch.",
+        "status": {
+          "ok": "OK",
+          "busy": "Beschäftigt",
+          "overloaded": "Überlastet"
+        },
+        "moreCount_one": "+{{count}} weitere",
+        "moreCount_other": "+{{count}} weitere",
+        "empty": "Keine anstehenden PM-Zuweisungen in diesem Zeitraum."
+      },
+      "complianceDashboard": {
+        "loading": "Compliance-Daten werden geladen...",
+        "kpi": {
+          "overallCompliance": "Gesamt-Compliance",
+          "scheduledThisMonth": "Diesen Monat Geplant",
+          "completedOnTime": "Pünktlich Abgeschlossen",
+          "overdue": "Überfällig"
+        },
+        "trendChartTitle": "Compliance-Trend (Letzte 6 Monate)",
+        "chart": {
+          "breakdowns": "Störungen",
+          "complianceRate": "Compliance %",
+          "percentAxisLabel": "%"
+        },
+        "byMachineTitle": "Compliance nach Maschine",
+        "byTechnicianTitle": "Compliance nach Techniker",
+        "table": {
+          "name": "Name",
+          "rate": "Quote",
+          "scheduled": "Geplant",
+          "onTime": "Pünktlich",
+          "missed": "Verpasst"
+        },
+        "noData": "Keine Daten verfügbar."
+      },
+      "editPage": {
+        "title": "PM-Plan Bearbeiten",
+        "notFound": "Plan nicht gefunden. Er wurde möglicherweise gelöscht."
+      }
     }
   }
 }

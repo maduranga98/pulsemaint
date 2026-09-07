@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { PMChecklistItem } from '../../types/pm.types';
 
 interface PMChecklistBuilderProps {
@@ -8,6 +9,7 @@ interface PMChecklistBuilderProps {
 }
 
 export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = false }: PMChecklistBuilderProps) {
+  const { t } = useTranslation();
   const items = itemsProp ?? [];
   const [newStep, setNewStep] = useState('');
   const [newTime, setNewTime] = useState('');
@@ -62,7 +64,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
   return (
     <div className="space-y-3">
       {items.length === 0 ? (
-        <p className="text-sm text-gray-400 py-4 text-center">No checklist steps added yet.</p>
+        <p className="text-sm text-gray-400 py-4 text-center">{t('common.pmSchedules.checklistBuilder.empty')}</p>
       ) : (
         <ol className="space-y-2">
           {items.map((item, index) => {
@@ -85,7 +87,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                       value={item.description}
                       onChange={(e) => updateStep(index, 'description', e.target.value)}
                       className="w-full text-sm bg-transparent border-b border-gray-200 focus:border-blue-500 outline-none py-0.5"
-                      placeholder="Step description"
+                      placeholder={t('common.pmSchedules.checklistBuilder.stepDescriptionPlaceholder')}
                     />
                   )}
 
@@ -93,7 +95,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                     <>
                       {/* Type toggle */}
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-gray-500">Type:</span>
+                        <span className="text-xs text-gray-500">{t('common.pmSchedules.checklistBuilder.typeLabel')}</span>
                         <button
                           type="button"
                           onClick={() => updateStep(index, 'inputType', 'checkbox')}
@@ -103,7 +105,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                               : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          Checkbox
+                          {t('common.pmSchedules.checklistBuilder.checkbox')}
                         </button>
                         <button
                           type="button"
@@ -114,7 +116,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                               : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                           }`}
                         >
-                          Measurement
+                          {t('common.pmSchedules.checklistBuilder.measurement')}
                         </button>
                       </div>
 
@@ -125,14 +127,14 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                             type="text"
                             value={item.method ?? ''}
                             onChange={(e) => updateStep(index, 'method', e.target.value || null)}
-                            placeholder="Method (e.g. Visual, Micrometer)"
+                            placeholder={t('common.pmSchedules.checklistBuilder.methodPlaceholder')}
                             className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600 col-span-2"
                           />
                           <input
                             type="text"
                             value={item.unit ?? ''}
                             onChange={(e) => updateStep(index, 'unit', e.target.value || null)}
-                            placeholder="Unit (e.g. mm, °C)"
+                            placeholder={t('common.pmSchedules.checklistBuilder.unitPlaceholder')}
                             className="text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                           />
                           <div className="flex gap-1">
@@ -141,7 +143,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                               step="any"
                               value={item.acceptableMin ?? ''}
                               onChange={(e) => updateStep(index, 'acceptableMin', e.target.value ? Number(e.target.value) : null)}
-                              placeholder="Min"
+                              placeholder={t('common.pmSchedules.checklistBuilder.min')}
                               className="w-full text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                             />
                             <input
@@ -149,7 +151,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                               step="any"
                               value={item.acceptableMax ?? ''}
                               onChange={(e) => updateStep(index, 'acceptableMax', e.target.value ? Number(e.target.value) : null)}
-                              placeholder="Max"
+                              placeholder={t('common.pmSchedules.checklistBuilder.max')}
                               className="w-full text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                             />
                           </div>
@@ -165,21 +167,21 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                         min={1}
                         value={item.estimatedMinutes}
                         onChange={(e) => updateStep(index, 'estimatedMinutes', Number(e.target.value))}
-                        placeholder="Min"
+                        placeholder={t('common.pmSchedules.checklistBuilder.min')}
                         className="w-20 text-xs rounded border border-gray-200 px-2 py-1 text-gray-600"
                       />
                     )}
-                    <span className="text-xs text-gray-400">{item.estimatedMinutes} min</span>
+                    <span className="text-xs text-gray-400">{t('common.pmSchedules.checklistBuilder.estimatedMinutes', { count: item.estimatedMinutes })}</span>
 
                     {item.photoRequired && (
                       <span className="text-xs bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded-full">
-                        📷 Photo required
+                        📷 {t('common.pmSchedules.checklistBuilder.photoRequired')}
                       </span>
                     )}
 
                     {isMeasurement && (
                       <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">
-                        Measurement
+                        {t('common.pmSchedules.checklistBuilder.measurement')}
                         {item.unit ? ` (${item.unit})` : ''}
                       </span>
                     )}
@@ -192,7 +194,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                           onChange={(e) => updateStep(index, 'photoRequired', e.target.checked)}
                           className="rounded border-gray-300"
                         />
-                        Photo
+                        {t('common.pmSchedules.checklistBuilder.photo')}
                       </label>
                     )}
                   </div>
@@ -205,7 +207,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                       onClick={() => moveStep(index, 'up')}
                       disabled={index === 0}
                       className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      aria-label="Move up"
+                      aria-label={t('common.pmSchedules.checklistBuilder.moveUp')}
                     >
                       ↑
                     </button>
@@ -214,7 +216,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                       onClick={() => moveStep(index, 'down')}
                       disabled={index === items.length - 1}
                       className="p-1 text-gray-400 hover:text-gray-700 disabled:opacity-30"
-                      aria-label="Move down"
+                      aria-label={t('common.pmSchedules.checklistBuilder.moveDown')}
                     >
                       ↓
                     </button>
@@ -222,7 +224,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                       type="button"
                       onClick={() => removeStep(index)}
                       className="p-1 text-red-400 hover:text-red-600"
-                      aria-label="Remove step"
+                      aria-label={t('common.pmSchedules.checklistBuilder.removeStep')}
                     >
                       ×
                     </button>
@@ -242,7 +244,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
               value={newStep}
               onChange={(e) => setNewStep(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addStep())}
-              placeholder="Add a checklist step..."
+              placeholder={t('common.pmSchedules.checklistBuilder.addStepPlaceholder')}
               className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
             <input
@@ -250,7 +252,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
               min={1}
               value={newTime}
               onChange={(e) => setNewTime(e.target.value)}
-              placeholder="Min"
+              placeholder={t('common.pmSchedules.checklistBuilder.min')}
               className="w-20 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
             />
             <button
@@ -258,7 +260,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
               onClick={addStep}
               className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Add
+              {t('common.pmSchedules.checklistBuilder.add')}
             </button>
           </div>
           <div className="flex items-center gap-4">
@@ -269,10 +271,10 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                 onChange={(e) => setPhotoRequired(e.target.checked)}
                 className="rounded border-gray-300"
               />
-              Photo required for this step
+              {t('common.pmSchedules.checklistBuilder.photoRequiredForStep')}
             </label>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-gray-500">New step type:</span>
+              <span className="text-xs text-gray-500">{t('common.pmSchedules.checklistBuilder.newStepType')}</span>
               <button
                 type="button"
                 onClick={() => setNewInputType('checkbox')}
@@ -282,7 +284,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                     : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                 }`}
               >
-                Checkbox
+                {t('common.pmSchedules.checklistBuilder.checkbox')}
               </button>
               <button
                 type="button"
@@ -293,7 +295,7 @@ export function PMChecklistBuilder({ items: itemsProp, onChange, readOnly = fals
                     : 'border-gray-200 text-gray-500 hover:bg-gray-50'
                 }`}
               >
-                Measurement
+                {t('common.pmSchedules.checklistBuilder.measurement')}
               </button>
             </div>
           </div>

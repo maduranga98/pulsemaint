@@ -1816,6 +1816,397 @@
         "attachFile": "ファイルを添付",
         "removeAriaLabel": "削除"
       }
+    },
+    "pmSchedules": {
+      "pageTitle": "PM スケジュール",
+      "count": "スケジュール {{count}} 件",
+      "viewMode": "表示モード",
+      "table": "表",
+      "calendar": "カレンダー",
+      "newPmWorkOrder": "新規 PM 作業指示書",
+      "selectedCount": "{{count}} 件選択中",
+      "delete": "削除",
+      "loadingCalendar": "カレンダーを読み込み中…",
+      "empty": {
+        "title": "PM スケジュールはまだありません",
+        "description": "PM スケジュールは予防保全の作業指示書から作成されます。開始するには予防保全の作業指示書を作成してください。"
+      },
+      "filters": {
+        "searchPlaceholder": "スケジュールを検索…",
+        "allMachines": "すべての設備",
+        "allTechnicians": "すべての技術者"
+      },
+      "columns": {
+        "schedule": "スケジュール",
+        "machine": "設備",
+        "type": "タイプ",
+        "dueDate": "期限日",
+        "assigned": "担当者",
+        "status": "ステータス",
+        "compliance": "遵守状況",
+        "noSchedulesFound": "PM スケジュールが見つかりません。",
+        "overdue": "{{days}}日超過",
+        "dueToday": "本日期限",
+        "dueIn": "あと{{days}}日"
+      },
+      "types": {
+        "lubrication": "給油",
+        "inspection": "点検",
+        "calibration": "校正",
+        "filter_replacement": "フィルター交換",
+        "belt_chain_check": "ベルト／チェーン点検",
+        "full_service": "総合整備",
+        "electrical_check": "電気点検",
+        "hydraulic_service": "油圧整備",
+        "safety_inspection": "安全点検",
+        "other": "その他"
+      },
+      "statuses": {
+        "active": "有効",
+        "paused": "一時停止",
+        "completed": "完了",
+        "archived": "アーカイブ済み"
+      },
+      "operationalStatuses": {
+        "on_track": "順調",
+        "due_soon": "まもなく期限",
+        "overdue": "期限超過",
+        "paused": "一時停止",
+        "completed": "完了",
+        "in_progress": "対応中"
+      },
+      "recurrence": {
+        "daily": "毎日",
+        "weekly": "毎週",
+        "biweekly": "隔週",
+        "monthly": "毎月",
+        "quarterly": "四半期ごと",
+        "semi_annual": "半年ごと",
+        "annual": "毎年",
+        "custom": "カスタム"
+      },
+      "triggerUnits": {
+        "operating_hours": "稼働時間",
+        "production_cycles": "生産サイクル数"
+      },
+      "historyStatuses": {
+        "completed_on_time": "期限内に完了",
+        "completed_late": "遅延して完了",
+        "overdue": "期限超過",
+        "missed": "未実施",
+        "in_progress": "対応中"
+      },
+      "skills": {
+        "Electrical": "電気",
+        "Mechanical": "機械",
+        "Hydraulic": "油圧",
+        "Pneumatic": "空圧",
+        "Welding": "溶接",
+        "PLC": "PLC",
+        "HVAC": "空調",
+        "Other": "その他"
+      },
+      "card": {
+        "roleSupervisor": "{{name}}（スーパーバイザー）",
+        "roleTechnician": "{{name}}（技術者）",
+        "roleContractor": "{{name}}（外注業者）",
+        "roleContractorTechnician": "{{name}}（外注業者の技術者）",
+        "daysOverdue_one": "{{count}}日超過",
+        "daysOverdue_other": "{{count}}日超過",
+        "dueToday": "本日期限",
+        "daysUntilDue_one": "あと{{count}}日",
+        "daysUntilDue_other": "あと{{count}}日",
+        "triggerAfter": "{{count}} {{unit}}",
+        "unassigned": "未割当"
+      },
+      "checklistBuilder": {
+        "empty": "まだチェックリストのステップが追加されていません。",
+        "stepDescriptionPlaceholder": "ステップの説明",
+        "typeLabel": "タイプ：",
+        "checkbox": "チェックボックス",
+        "measurement": "測定",
+        "methodPlaceholder": "方法（例：目視、マイクロメーター）",
+        "unitPlaceholder": "単位（例：mm、°C）",
+        "min": "最小",
+        "max": "最大",
+        "estimatedMinutes_one": "{{count}} 分",
+        "estimatedMinutes_other": "{{count}} 分",
+        "photoRequired": "写真必須",
+        "photo": "写真",
+        "moveUp": "上へ移動",
+        "moveDown": "下へ移動",
+        "removeStep": "ステップを削除",
+        "addStepPlaceholder": "チェックリストのステップを追加...",
+        "add": "追加",
+        "photoRequiredForStep": "このステップには写真が必要です",
+        "newStepType": "新しいステップタイプ："
+      },
+      "createForm": {
+        "back": "戻る",
+        "next": "次へ",
+        "saving": "保存中...",
+        "updateSchedule": "スケジュールを更新",
+        "createSchedule": "スケジュールを作成",
+        "updateShort": "更新",
+        "createShort": "作成",
+        "errors": {
+          "missingCompanyOrUser": "会社またはユーザー情報が不足しています",
+          "saveFailed": "保存に失敗しました"
+        },
+        "toasts": {
+          "updated": "PMスケジュールを更新しました",
+          "created": "PMスケジュールを作成しました"
+        },
+        "steps": {
+          "basic": {
+            "label": "基本情報",
+            "description": "名前、タイプ、優先度"
+          },
+          "machine": {
+            "label": "設備",
+            "description": "対象設備を選択"
+          },
+          "trigger": {
+            "label": "トリガー",
+            "description": "カレンダーまたは使用量ベース"
+          },
+          "team": {
+            "label": "チーム",
+            "description": "技術者を割り当て"
+          },
+          "checklist": {
+            "label": "チェックリスト",
+            "description": "PMタスクのステップ"
+          },
+          "parts": {
+            "label": "部品",
+            "description": "部品を事前割り当て"
+          },
+          "documents": {
+            "label": "書類",
+            "description": "参考資料を添付"
+          },
+          "alerts": {
+            "label": "アラート",
+            "description": "通知設定"
+          }
+        },
+        "step1": {
+          "heading": "スケジュール情報",
+          "nameLabel": "スケジュール名 *",
+          "namePlaceholder": "例：織機の月次給油",
+          "pmTypeLabel": "PMタイプ *",
+          "priorityLabel": "優先度",
+          "descriptionLabel": "説明",
+          "descriptionPlaceholder": "このPMで何を行う必要がありますか？"
+        },
+        "step2": {
+          "heading": "設備選択",
+          "machineLabel": "設備 *",
+          "selectMachinePlaceholder": "設備を選択...",
+          "machineOption": "{{name}} — {{department}}（健全性：{{health}}%）",
+          "department": "部門",
+          "location": "場所",
+          "machineType": "設備タイプ",
+          "criticality": "重要度",
+          "criticalityValue": "{{value}}/5",
+          "autoUpgraded": "PMが自動的にクリティカルに引き上げられました",
+          "healthScore": "健全性スコア"
+        },
+        "step3": {
+          "heading": "トリガー設定",
+          "calendarBased": "カレンダーベース",
+          "usageBased": "使用量ベース",
+          "firstPmDateLabel": "初回PM日 *",
+          "recurrenceLabel": "繰り返し *",
+          "everyXDays": "X日ごと",
+          "noEndDate": "終了日なし（無期限で実行）",
+          "endDateLabel": "終了日",
+          "seasonalOverride": "季節による上書き",
+          "peakSeasonStart": "繁忙期開始",
+          "peakSeasonEnd": "繁忙期終了",
+          "peakSeasonInterval": "繁忙期の間隔",
+          "triggerAfterLabel": "トリガー条件 *",
+          "unitLabel": "単位 *",
+          "selectUnitPlaceholder": "選択...",
+          "currentMeterValue": "現在のメーター値",
+          "lastMeterResetDate": "前回のメーターリセット日"
+        },
+        "step4": {
+          "heading": "チーム編成",
+          "assignedTechniciansLabel": "割り当てられた技術者 *",
+          "technicianNamePlaceholder": "技術者の名前を入力",
+          "add": "追加",
+          "removeTechnician": "{{name}} を削除",
+          "estimatedDurationLabel": "見積り所要時間 *",
+          "unitLabel": "単位 *",
+          "hours": "時間",
+          "days": "日",
+          "skillsRequiredLabel": "必要なスキル"
+        },
+        "step5": {
+          "heading": "PMチェックリスト",
+          "useExistingTemplate": "既存のテンプレートを使用",
+          "saveAsTemplate": "テンプレートとして保存"
+        },
+        "step6": {
+          "heading": "部品の事前割り当て",
+          "subheading": "任意：在庫から必要な予備部品を添付します。",
+          "partSummary": "{{number}} • 数量：{{quantity}}",
+          "remove": "削除",
+          "partIdPlaceholder": "部品ID",
+          "partNamePlaceholder": "部品名",
+          "partNumberPlaceholder": "部品番号",
+          "qtyPlaceholder": "数量",
+          "add": "追加"
+        },
+        "step7": {
+          "heading": "書類と参考資料",
+          "subheading": "設備マニュアル、標準作業手順書、参考写真を添付します。",
+          "fileSizeKb": "（{{size}} KB）",
+          "remove": "削除",
+          "uploadHint": "クリックしてファイルをアップロード、またはドラッグ＆ドロップ",
+          "uploadTypes": "PDF、Word、画像（最大10MB）"
+        },
+        "step8": {
+          "heading": "設定とアラート",
+          "leadTimeLabel": "リードタイム（日）",
+          "leadTimeHint": "期限の何日前に技術者に通知するか",
+          "overdueEscalationLabel": "期限超過時のエスカレーション（時間）",
+          "overdueEscalationHint": "期限超過後、何時間で工場長にエスカレーションするか",
+          "autoCloseLabel": "自動クローズ（日）",
+          "autoCloseHint": "何日で自動的に期限超過としてフラグを立てるか",
+          "notificationSummaryTitle": "通知の概要",
+          "notif1": "PMの期限になると、割り当てられた技術者とスーパーバイザーにプッシュ通知＋メールを送信",
+          "notif2": "エスカレーション時間内にPMが開始されない場合、工場長にプッシュ通知＋SMSを送信",
+          "notif3": "PM作業指示書が自動作成された際に即座にプッシュ通知"
+        }
+      },
+      "detail": {
+        "notFound": "スケジュールが見つかりません。",
+        "openingLinkedWo": "関連する作業指示書を開いています…",
+        "complianceRate": "遵守率",
+        "nextDue": "次回期限",
+        "daysOverdue_one": "{{count}}日超過",
+        "daysOverdue_other": "{{count}}日超過",
+        "today": "本日",
+        "daysShort_one": "{{count}}日",
+        "daysShort_other": "{{count}}日",
+        "completed": "完了",
+        "missedCount_one": "{{count}} 件未実施",
+        "missedCount_other": "{{count}} 件未実施",
+        "status": "ステータス",
+        "tabs": {
+          "overview": "概要",
+          "history": "履歴"
+        },
+        "scheduleDetails": "スケジュール詳細",
+        "priority": "優先度",
+        "triggerType": "トリガータイプ",
+        "recurrence": "繰り返し",
+        "endDate": "終了日",
+        "noEndDate": "終了日なし",
+        "triggerAfter": "トリガー条件",
+        "currentMeter": "現在のメーター",
+        "estDuration": "見積り時間",
+        "leadTime": "リードタイム",
+        "leadTimeDays_one": "{{count}} 日",
+        "leadTimeDays_other": "{{count}} 日",
+        "escalation": "エスカレーション",
+        "escalationHours": "{{count}}時間",
+        "checklist": "チェックリスト",
+        "preallocatedParts": "事前割り当て済み部品",
+        "qty_one": "数量：{{count}}",
+        "qty_other": "数量：{{count}}",
+        "historyTable": {
+          "woNumber": "作業指示書番号",
+          "dueDate": "期限日",
+          "completed": "完了",
+          "status": "ステータス",
+          "technicians": "技術者",
+          "duration": "所要時間"
+        },
+        "durationMinutes_one": "{{count}}分",
+        "durationMinutes_other": "{{count}}分",
+        "noHistoryYet": "まだ履歴はありません。"
+      },
+      "errors": {
+        "companyIdRequired": "会社IDが必要です",
+        "fetchCalendarEventsFailed": "カレンダーイベントの取得に失敗しました"
+      },
+      "calendarView": {
+        "week": "週",
+        "month": "月",
+        "days": {
+          "sun": "日",
+          "mon": "月",
+          "tue": "火",
+          "wed": "水",
+          "thu": "木",
+          "fri": "金",
+          "sat": "土"
+        },
+        "moreCount_one": "他 {{count}} 件",
+        "moreCount_other": "他 {{count}} 件",
+        "noPmsScheduled": "予定されている PM はありません",
+        "noPmsScheduledPeriod": "予定されている PM はありません。",
+        "openWorkOrder": "作業指示書を開く",
+        "openSchedule": "スケジュールを開く",
+        "pageTitle": "PM カレンダー",
+        "eventsThisPeriod_one": "この期間に {{count}} 件のイベント",
+        "eventsThisPeriod_other": "この期間に {{count}} 件のイベント",
+        "loading": "カレンダーを読み込み中..."
+      },
+      "workloadPage": {
+        "title": "技術者の作業負荷",
+        "description": "技術者別の今後の PM 割り当て",
+        "dateRangeLabel": "期間",
+        "range_7": "7日間",
+        "range_14": "14日間",
+        "range_30": "30日間",
+        "loadErrorTitle": "作業負荷を読み込めませんでした"
+      },
+      "technicianWorkload": {
+        "assignedHoursSummary_one": "PM {{count}} 件 • 見積り {{hours}} 時間",
+        "assignedHoursSummary_other": "PM {{count}} 件 • 見積り {{hours}} 時間",
+        "status": {
+          "ok": "適正",
+          "busy": "多忙",
+          "overloaded": "過負荷"
+        },
+        "moreCount_one": "他 {{count}} 件",
+        "moreCount_other": "他 {{count}} 件",
+        "empty": "この期間に予定されている PM 割り当てはありません。"
+      },
+      "complianceDashboard": {
+        "loading": "遵守状況データを読み込み中...",
+        "kpi": {
+          "overallCompliance": "全体遵守率",
+          "scheduledThisMonth": "今月の予定数",
+          "completedOnTime": "期限内完了数",
+          "overdue": "期限超過数"
+        },
+        "trendChartTitle": "遵守状況の推移（過去6か月）",
+        "chart": {
+          "breakdowns": "故障",
+          "complianceRate": "遵守率 %",
+          "percentAxisLabel": "%"
+        },
+        "byMachineTitle": "設備別の遵守状況",
+        "byTechnicianTitle": "技術者別の遵守状況",
+        "table": {
+          "name": "名前",
+          "rate": "割合",
+          "scheduled": "予定",
+          "onTime": "期限内",
+          "missed": "未実施"
+        },
+        "noData": "利用可能なデータがありません。"
+      },
+      "editPage": {
+        "title": "PM スケジュールを編集",
+        "notFound": "スケジュールが見つかりません。削除された可能性があります。"
+      }
     }
   }
 }

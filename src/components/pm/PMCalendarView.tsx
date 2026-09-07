@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { CalendarEvent } from '../../types/pm.types';
-import { PM_PRIORITY_CONFIG, PM_OPERATIONAL_STATUS_CONFIG, PM_TYPE_CONFIG } from '../../constants/pmConfig';
+import { PM_PRIORITY_CONFIG, PM_OPERATIONAL_STATUS_CONFIG } from '../../constants/pmConfig';
 
 interface PMCalendarViewProps {
   events: CalendarEvent[];
@@ -9,13 +10,14 @@ interface PMCalendarViewProps {
   onEventClick?: (event: CalendarEvent) => void;
 }
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 function formatDueTime(date: Date): string {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
 export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
+  const { t } = useTranslation();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'week' | 'month'>('month');
   // Clicking a day selects it and shows its schedules in the panel below —
@@ -96,13 +98,13 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
             onClick={() => setView('week')}
             className={`px-3 py-1 text-xs font-medium rounded-md ${view === 'week' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
           >
-            Week
+            {t('common.pmSchedules.calendarView.week')}
           </button>
           <button
             onClick={() => setView('month')}
             className={`px-3 py-1 text-xs font-medium rounded-md ${view === 'month' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
           >
-            Month
+            {t('common.pmSchedules.calendarView.month')}
           </button>
         </div>
       </div>
@@ -110,9 +112,9 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
       {view === 'month' ? (
         <div className="bg-white rounded-lg border border-gray-200">
           <div className="grid grid-cols-7 border-b border-gray-200">
-            {DAYS.map((d) => (
+            {DAY_KEYS.map((d) => (
               <div key={d} className="px-2 py-2 text-center text-xs font-medium text-gray-500">
-                {d}
+                {t(`common.pmSchedules.calendarView.days.${d}`)}
               </div>
             ))}
           </div>
@@ -152,7 +154,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                               color: PM_PRIORITY_CONFIG[event.priority].textClass.replace('text-', '').replace('700', '800'),
                               borderLeft: `3px solid ${PM_PRIORITY_CONFIG[event.priority].color}`,
                             }}
-                            title={`${event.title}${event.operationalStatus ? ` · ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label}` : ''}`}
+                            title={`${event.title}${event.operationalStatus ? ` · ${t(`common.pmSchedules.operationalStatuses.${event.operationalStatus}`)}` : ''}`}
                           >
                             <span className="flex items-center gap-1 opacity-75 truncate">
                               {event.operationalStatus && (
@@ -161,7 +163,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                               <span className="truncate">{formatDueTime(event.date)}</span>
                             </span>
                             <span className="block font-semibold whitespace-normal break-words leading-tight">
-                              {PM_TYPE_CONFIG[event.pmType]?.label ?? event.title}
+                              {event.pmType ? t(`common.pmSchedules.types.${event.pmType}`) : event.title}
                             </span>
                             {event.woNumber && (
                               <span className="block truncate opacity-75">{event.woNumber}</span>
@@ -169,7 +171,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           </div>
                         ))}
                         {dayEvents.length > 3 && (
-                          <div className="text-[10px] text-gray-400 pl-1">+{dayEvents.length - 3} more</div>
+                          <div className="text-[10px] text-gray-400 pl-1">{t('common.pmSchedules.calendarView.moreCount', { count: dayEvents.length - 3 })}</div>
                         )}
                       </div>
                     </>
@@ -211,16 +213,16 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           )}
                           <span className="opacity-75">{formatDueTime(event.date)} · </span>
                           {event.woNumber && <span className="font-semibold">{event.woNumber} · </span>}
-                          {PM_TYPE_CONFIG[event.pmType]?.label ?? event.title}
+                          {event.pmType ? t(`common.pmSchedules.types.${event.pmType}`) : event.title}
                         </span>
                         <span className="text-xs opacity-75">
-                          {event.operationalStatus ? PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label : event.machineName}
+                          {event.operationalStatus ? t(`common.pmSchedules.operationalStatuses.${event.operationalStatus}`) : event.machineName}
                         </span>
                       </div>
                     </div>
                   ))}
                   {dayEvents.length === 0 && (
-                    <p className="text-xs text-gray-300 py-1">No PMs scheduled</p>
+                    <p className="text-xs text-gray-300 py-1">{t('common.pmSchedules.calendarView.noPmsScheduled')}</p>
                   )}
                 </div>
               </div>
@@ -235,7 +237,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
             {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
           {getEventsForDate(selectedDate).length === 0 ? (
-            <p className="text-sm text-gray-400">No PMs scheduled.</p>
+            <p className="text-sm text-gray-400">{t('common.pmSchedules.calendarView.noPmsScheduledPeriod')}</p>
           ) : (
             <div className="space-y-2">
               {getEventsForDate(selectedDate).map((event) => (
@@ -249,12 +251,12 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                 >
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-gray-900 truncate">
-                      {formatDueTime(event.date)} · {PM_TYPE_CONFIG[event.pmType]?.label ?? event.title}
+                      {formatDueTime(event.date)} · {event.pmType ? t(`common.pmSchedules.types.${event.pmType}`) : event.title}
                       {event.woNumber && ` · ${event.woNumber}`}
                     </p>
                     <p className="text-xs text-gray-500 truncate">
                       {event.machineName}
-                      {event.operationalStatus && ` · ${PM_OPERATIONAL_STATUS_CONFIG[event.operationalStatus].label}`}
+                      {event.operationalStatus && ` · ${t(`common.pmSchedules.operationalStatuses.${event.operationalStatus}`)}`}
                       {event.technicianNames.length > 0 && ` · ${event.technicianNames.join(', ')}`}
                     </p>
                   </div>
@@ -264,7 +266,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                       onClick={() => onEventClick(event)}
                       className="flex-shrink-0 text-xs font-medium text-blue-600 hover:underline"
                     >
-                      {event.woId ? 'Open Work Order' : 'Open Schedule'}
+                      {event.woId ? t('common.pmSchedules.calendarView.openWorkOrder') : t('common.pmSchedules.calendarView.openSchedule')}
                     </button>
                   )}
                 </div>
