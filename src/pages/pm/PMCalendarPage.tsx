@@ -35,15 +35,15 @@ export default function PMCalendarPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">{t('common.pmSchedules.calendar.pageTitle')}</h1>
+          <h1 className="text-xl font-bold text-gray-900">{t('common.pmSchedules.calendarView.pageTitle')}</h1>
           <p className="text-sm text-gray-500">
-            {t('common.pmSchedules.calendar.eventsThisPeriod', { count: events.length })}
+            {t('common.pmSchedules.calendarView.eventsThisPeriod', { count: events.length })}
           </p>
         </div>
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.calendar.loading')}</div>
+        <div className="p-8 text-center text-gray-400">{t('common.pmSchedules.calendarView.loading')}</div>
       ) : (
         <PMCalendarView events={events} onEventClick={handleEventClick} />
       )}

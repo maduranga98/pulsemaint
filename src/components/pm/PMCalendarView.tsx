@@ -98,13 +98,13 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
             onClick={() => setView('week')}
             className={`px-3 py-1 text-xs font-medium rounded-md ${view === 'week' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
           >
-            {t('common.pmSchedules.calendar.week')}
+            {t('common.pmSchedules.calendarView.week')}
           </button>
           <button
             onClick={() => setView('month')}
             className={`px-3 py-1 text-xs font-medium rounded-md ${view === 'month' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
           >
-            {t('common.pmSchedules.calendar.month')}
+            {t('common.pmSchedules.calendarView.month')}
           </button>
         </div>
       </div>
@@ -114,7 +114,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
           <div className="grid grid-cols-7 border-b border-gray-200">
             {DAY_KEYS.map((d) => (
               <div key={d} className="px-2 py-2 text-center text-xs font-medium text-gray-500">
-                {t(`common.pmSchedules.calendar.days.${d}`)}
+                {t(`common.pmSchedules.calendarView.days.${d}`)}
               </div>
             ))}
           </div>
@@ -171,7 +171,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                           </div>
                         ))}
                         {dayEvents.length > 3 && (
-                          <div className="text-[10px] text-gray-400 pl-1">{t('common.pmSchedules.calendar.moreCount', { count: dayEvents.length - 3 })}</div>
+                          <div className="text-[10px] text-gray-400 pl-1">{t('common.pmSchedules.calendarView.moreCount', { count: dayEvents.length - 3 })}</div>
                         )}
                       </div>
                     </>
@@ -222,7 +222,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                     </div>
                   ))}
                   {dayEvents.length === 0 && (
-                    <p className="text-xs text-gray-300 py-1">{t('common.pmSchedules.calendar.noPmsScheduled')}</p>
+                    <p className="text-xs text-gray-300 py-1">{t('common.pmSchedules.calendarView.noPmsScheduled')}</p>
                   )}
                 </div>
               </div>
@@ -237,7 +237,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
             {selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
           </p>
           {getEventsForDate(selectedDate).length === 0 ? (
-            <p className="text-sm text-gray-400">{t('common.pmSchedules.calendar.noPmsScheduledPeriod')}</p>
+            <p className="text-sm text-gray-400">{t('common.pmSchedules.calendarView.noPmsScheduledPeriod')}</p>
           ) : (
             <div className="space-y-2">
               {getEventsForDate(selectedDate).map((event) => (
@@ -266,7 +266,7 @@ export function PMCalendarView({ events, onEventClick }: PMCalendarViewProps) {
                       onClick={() => onEventClick(event)}
                       className="flex-shrink-0 text-xs font-medium text-blue-600 hover:underline"
                     >
-                      {event.woId ? t('common.pmSchedules.calendar.openWorkOrder') : t('common.pmSchedules.calendar.openSchedule')}
+                      {event.woId ? t('common.pmSchedules.calendarView.openWorkOrder') : t('common.pmSchedules.calendarView.openSchedule')}
                     </button>
                   )}
                 </div>

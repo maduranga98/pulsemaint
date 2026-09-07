@@ -1932,7 +1932,8 @@
       "count": "{{count}} schedules",
       "viewMode": "View mode",
       "table": "Table",
-      "calendar": {
+      "calendar": "Calendar",
+      "calendarView": {
         "week": "Week",
         "month": "Month",
         "days": {
