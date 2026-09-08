@@ -2207,6 +2207,111 @@
         "title": "PM スケジュールを編集",
         "notFound": "スケジュールが見つかりません。削除された可能性があります。"
       }
+    },
+    "workPermits": {
+      "pageTitle": "作業許可証",
+      "pageSubtitle": "作業許可：安全許可証の発行、追跡、延長、サインオフを行います。",
+      "newPermit": "新規許可証",
+      "close": "閉じる",
+      "cancel": "キャンセル",
+      "tabs": {
+        "current": "現在",
+        "closed": "終了済み"
+      },
+      "empty": {
+        "closed": "終了済みの許可証はありません",
+        "current": "このカテゴリには現在の許可証がありません"
+      },
+      "overdue": "期限超過",
+      "noLocation": "場所未設定",
+      "validRange": "有効期間 {{from}} → {{to}}",
+      "workOrderLine": "作業指示書：{{number}}",
+      "workOrderLineWithType": "作業指示書：{{number}}（{{type}}）",
+      "supervisorLine": "スーパーバイザー：{{name}}",
+      "signedOffBy": "{{name}} がサインオフ",
+      "extendTime": "時間を延長",
+      "finishAndSignOff": "完了してサインオフ",
+      "statuses": {
+        "draft": "下書き",
+        "active": "有効",
+        "closed": "終了済み",
+        "expired": "期限切れ"
+      },
+      "completions": {
+        "completed": "完了",
+        "partially_completed": "一部完了",
+        "not_completed": "未完了"
+      },
+      "extendModal": {
+        "title": "許可証を延長",
+        "currentlyValidUntil": "現在の有効期限は {{date}} までです。",
+        "newValidUntil": "新しい有効期限",
+        "extend": "延長",
+        "extending": "延長中…",
+        "errors": {
+          "pickDateTime": "新しい日時を選択してください。",
+          "endMustBeLater": "新しい終了日時は現在の有効期限より後である必要があります。"
+        },
+        "toasts": {
+          "extended": "許可証を延長しました。",
+          "failed": "許可証の延長に失敗しました。"
+        }
+      },
+      "signOffModal": {
+        "title": "許可証にサインオフ",
+        "completionStatusLabel": "完了ステータス",
+        "noteLabel": "メモ（任意）",
+        "signOff": "サインオフ",
+        "saving": "保存中…",
+        "toasts": {
+          "signedOff": "許可証にサインオフしました。",
+          "failed": "許可証のサインオフに失敗しました。"
+        }
+      },
+      "createModal": {
+        "title": "新規作業許可証",
+        "workOrder": {
+          "label": "作業指示書（任意）",
+          "none": "作業指示書に関連付けられていません",
+          "option": "{{number}} — {{machine}}",
+          "machineFallback": "設備",
+          "type": "タイプ：",
+          "description": "説明：",
+          "createdBy": "作業指示書作成者："
+        },
+        "category": {
+          "label": "許可証カテゴリ",
+          "newCategoryPlaceholder": "新しいカテゴリ名",
+          "add": "追加",
+          "addNew": "+ 新しいカテゴリを追加…"
+        },
+        "fields": {
+          "title": "タイトル *",
+          "titlePlaceholder": "実施する作業",
+          "location": "場所",
+          "locationPlaceholder": "エリア／設備",
+          "validFrom": "有効開始",
+          "validTo": "有効期限（期間）",
+          "supervisor": "スーパーバイザーを割り当て（任意）",
+          "noSupervisor": "スーパーバイザーなし — 安全チームがサインオフを担当",
+          "description": "作業内容の説明",
+          "hazards": "特定された危険",
+          "precautions": "実施済みの安全対策",
+          "noPrecautions": "このカテゴリには既定の安全対策がありません — 上記に危険性を記載してください。",
+          "ppe": "必要な保護具",
+          "ppePlaceholder": "例：ヘルメット、手袋、安全帯"
+        },
+        "submit": "許可証を発行",
+        "saving": "保存中…",
+        "errors": {
+          "titleRequired": "許可証にタイトルを入力してください。",
+          "validToBeforeFrom": "「有効期限」は「有効開始」以降である必要があります。"
+        },
+        "toasts": {
+          "issued": "作業許可証を発行しました。",
+          "failed": "許可証の発行に失敗しました。"
+        }
+      }
     }
   }
 }
