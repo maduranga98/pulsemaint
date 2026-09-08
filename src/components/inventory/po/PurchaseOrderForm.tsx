@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Save, Send } from 'lucide-react';
@@ -48,6 +49,7 @@ const emptyItem = (): POItemRowData => ({
 });
 
 export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps) {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
@@ -232,7 +234,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
   async function save(values: PurchaseOrderFormValues, status: PurchaseOrderStatus) {
     if (items.length === 0 || items.some((i) => !i.partId || i.quantityOrdered <= 0)) {
-      addToast('Add at least one item with a part and quantity.', 'error');
+      addToast(t('common.inventory.po.form.toasts.missingItems'), 'error');
       return;
     }
     setSaving(true);
@@ -333,15 +335,15 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       }
       const msg =
         status === 'draft'
-          ? 'PO saved as draft.'
+          ? t('common.inventory.po.form.toasts.savedDraft')
           : status === 'pending_approval'
-            ? 'PO submitted for approval.'
-            : 'PO approved. Use "Send to Supplier" on the PO to email it.';
+            ? t('common.inventory.po.form.toasts.submittedForApproval')
+            : t('common.inventory.po.form.toasts.approvedUseSend');
       addToast(msg, 'success');
     } catch (err) {
       console.error('Failed to save purchase order', err);
       const detail = err instanceof Error ? err.message : String(err);
-      addToast(`Failed to save purchase order: ${detail}`, 'error');
+      addToast(t('common.inventory.po.form.toasts.saveFailed', { message: detail }), 'error');
     } finally {
       setSaving(false);
     }
@@ -374,10 +376,10 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
     >
       {/* Supplier info */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
-        <h3 className="font-semibold text-gray-900">Supplier Information</h3>
+        <h3 className="font-semibold text-gray-900">{t('common.inventory.po.form.supplierInfo.title')}</h3>
         {suppliers.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Select Supplier</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.selectSupplierLabel')}</label>
             <select
               value={selectedSupplierId}
               onChange={(e) => {
@@ -395,7 +397,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
               }}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">— Choose a saved supplier, or fill in details below —</option>
+              <option value="">{t('common.inventory.po.form.supplierInfo.selectSupplierPlaceholder')}</option>
               {suppliers.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
@@ -404,58 +406,58 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         )}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.supplierName')}</label>
             <input
               {...register('supplierName')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Supplier name"
+              placeholder={t('common.inventory.po.form.supplierInfo.fields.supplierNamePlaceholder')}
             />
             {errors.supplierName && (
               <p className="text-xs text-red-600 mt-1">{errors.supplierName.message}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.contactPerson')}</label>
             <input
               {...register('supplierContactPerson')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Salesperson name"
+              placeholder={t('common.inventory.po.form.supplierInfo.fields.contactPersonPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.phone')}</label>
             <input
               {...register('supplierPhone')}
               type="tel"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="+94 ..."
+              placeholder={t('common.inventory.po.form.supplierInfo.fields.phonePlaceholder')}
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.email')}</label>
             <input
               {...register('supplierEmail')}
               type="email"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="supplier@example.com"
+              placeholder={t('common.inventory.po.form.supplierInfo.fields.emailPlaceholder')}
             />
             {errors.supplierEmail && (
               <p className="text-xs text-red-600 mt-1">{errors.supplierEmail.message}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Other Contact</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.otherContact')}</label>
             <input
               {...register('supplierContact')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Fax, alt phone, etc."
+              placeholder={t('common.inventory.po.form.supplierInfo.fields.otherContactPlaceholder')}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.currency')}</label>
             <Controller
               name="currency"
               control={control}
@@ -475,7 +477,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.supplierAddress')}</label>
             <textarea
               {...register('supplierAddress')}
               rows={2}
@@ -483,7 +485,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Delivery / Ship-To Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.deliveryAddress')}</label>
             <textarea
               {...register('deliveryAddress')}
               rows={2}
@@ -493,11 +495,11 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Payment Terms</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.supplierInfo.fields.paymentTerms')}</label>
           <input
             {...register('paymentTerms')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="e.g. Net 30, 50% advance"
+            placeholder={t('common.inventory.po.form.supplierInfo.fields.paymentTermsPlaceholder')}
           />
         </div>
       </div>
@@ -514,20 +516,20 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
       {/* Items */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900">Order Items</h3>
+          <h3 className="font-semibold text-gray-900">{t('common.inventory.po.form.items.title')}</h3>
           <button
             type="button"
             onClick={addItem}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            Add Item
+            {t('common.inventory.po.form.items.addItem')}
           </button>
         </div>
 
         {items.length === 0 && (
           <p className="text-sm text-gray-400 text-center py-8 border-2 border-dashed border-gray-200 rounded-xl">
-            No items added. Click "Add Item" to begin.
+            {t('common.inventory.po.form.items.empty')}
           </p>
         )}
 
@@ -543,19 +545,19 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
 
         {items.length > 0 && (
           <p className="text-xs text-gray-500 text-right">
-            Pricing is added once the supplier's invoice is reviewed.
+            {t('common.inventory.po.form.items.pricingNote')}
           </p>
         )}
       </div>
 
       {/* Notes */}
       <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.form.notes.label')}</label>
         <textarea
           {...register('notes')}
           rows={3}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-          placeholder="Additional notes for this purchase order…"
+          placeholder={t('common.inventory.po.form.notes.placeholder')}
         />
       </div>
 
@@ -567,7 +569,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
         >
           <Save className="w-4 h-4" />
-          Save as Draft
+          {t('common.inventory.po.form.actions.saveAsDraft')}
         </button>
         <button
           type="button"
@@ -576,7 +578,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
           className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
         >
           <Send className="w-4 h-4" />
-          Submit for Approval
+          {t('common.inventory.po.form.actions.submitForApproval')}
         </button>
         {canApprove && (
           <button
@@ -586,7 +588,7 @@ export function PurchaseOrderForm({ initialPO, onSave }: PurchaseOrderFormProps)
             className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
           >
             <Send className="w-4 h-4" />
-            Approve
+            {t('common.inventory.po.form.actions.approve')}
           </button>
         )}
       </div>

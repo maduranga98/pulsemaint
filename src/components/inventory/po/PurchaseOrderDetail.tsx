@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { PackageCheck, XCircle, CheckCircle2, FileText, Send, Upload, Paperclip } from 'lucide-react';
 import { updateDoc, doc, serverTimestamp, addDoc, collection, getDocs, query, where, arrayUnion, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -13,26 +15,32 @@ interface PurchaseOrderDetailProps {
   order: PurchaseOrder;
 }
 
-const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> = {
-  draft: { label: 'Draft', cls: 'bg-gray-100 text-gray-600' },
-  pending_approval: { label: 'Pending Approval', cls: 'bg-amber-100 text-amber-700' },
-  approved: { label: 'Approved', cls: 'bg-emerald-100 text-emerald-700' },
-  rejected: { label: 'Rejected', cls: 'bg-red-100 text-red-700' },
-  sent: { label: 'Sent', cls: 'bg-blue-100 text-blue-700' },
-  invoice_received: { label: 'Invoice Received', cls: 'bg-purple-100 text-purple-700' },
-  acknowledged: { label: 'Acknowledged', cls: 'bg-cyan-100 text-cyan-700' },
-  received: { label: 'Received', cls: 'bg-green-100 text-green-700' },
-  partially_received: { label: 'Partially Received', cls: 'bg-amber-100 text-amber-700' },
-  cancelled: { label: 'Cancelled', cls: 'bg-red-100 text-red-600' },
+const statusClsConfig: Record<PurchaseOrderStatus, string> = {
+  draft: 'bg-gray-100 text-gray-600',
+  pending_approval: 'bg-amber-100 text-amber-700',
+  approved: 'bg-emerald-100 text-emerald-700',
+  rejected: 'bg-red-100 text-red-700',
+  sent: 'bg-blue-100 text-blue-700',
+  invoice_received: 'bg-purple-100 text-purple-700',
+  acknowledged: 'bg-cyan-100 text-cyan-700',
+  received: 'bg-green-100 text-green-700',
+  partially_received: 'bg-amber-100 text-amber-700',
+  cancelled: 'bg-red-100 text-red-600',
 };
 
-const TIMELINE_STEPS: { key: keyof PurchaseOrder; label: string }[] = [
-  { key: 'raisedAt', label: 'Raised' },
-  { key: 'sentAt', label: 'Sent' },
-  { key: 'invoiceReceivedAt', label: 'Invoice Received' },
-  { key: 'acknowledgedAt', label: 'Acknowledged' },
-  { key: 'receivedAt', label: 'Received' },
-];
+function statusLabel(status: PurchaseOrderStatus, t: TFunction): string {
+  return t(`common.inventory.po.statuses.${status}`);
+}
+
+function timelineSteps(t: TFunction): { key: keyof PurchaseOrder; label: string }[] {
+  return [
+    { key: 'raisedAt', label: t('common.inventory.po.detail.timeline.steps.raised') },
+    { key: 'sentAt', label: t('common.inventory.po.detail.timeline.steps.sent') },
+    { key: 'invoiceReceivedAt', label: t('common.inventory.po.detail.timeline.steps.invoiceReceived') },
+    { key: 'acknowledgedAt', label: t('common.inventory.po.detail.timeline.steps.acknowledged') },
+    { key: 'receivedAt', label: t('common.inventory.po.detail.timeline.steps.received') },
+  ];
+}
 
 function formatDate(ts: PurchaseOrder['raisedAt'] | null | undefined): string {
   if (!ts) return '';
@@ -53,20 +61,20 @@ interface ProcessHistoryEvent {
   detail?: string;
 }
 
-function buildProcessHistory(order: PurchaseOrder): ProcessHistoryEvent[] {
+function buildProcessHistory(order: PurchaseOrder, t: TFunction): ProcessHistoryEvent[] {
   const events: ProcessHistoryEvent[] = [];
   if (order.raisedAt) {
-    events.push({ label: 'Raised', at: order.raisedAt, detail: order.raisedByName || undefined });
+    events.push({ label: t('common.inventory.po.detail.history.events.raised'), at: order.raisedAt, detail: order.raisedByName || undefined });
   }
   if (order.status === 'rejected' && order.approvedAt) {
     events.push({
-      label: 'Rejected',
+      label: t('common.inventory.po.detail.history.events.rejected'),
       at: order.approvedAt,
       detail: [order.approvedByName, order.rejectedReason].filter(Boolean).join(' — ') || undefined,
     });
   } else if (order.approvedAt) {
     events.push({
-      label: 'Approved',
+      label: t('common.inventory.po.detail.history.events.approved'),
       at: order.approvedAt,
       detail: order.approvedByName
         ? `${order.approvedByName}${order.approvedByRole ? ` (${order.approvedByRole})` : ''}`
@@ -74,31 +82,34 @@ function buildProcessHistory(order: PurchaseOrder): ProcessHistoryEvent[] {
     });
   }
   if (order.sentAt) {
-    events.push({ label: 'Sent to Supplier', at: order.sentAt });
+    events.push({ label: t('common.inventory.po.detail.history.events.sentToSupplier'), at: order.sentAt });
   }
   if (order.invoiceReceivedAt) {
-    events.push({ label: 'Invoice Received', at: order.invoiceReceivedAt, detail: order.invoiceUploadedByName || undefined });
+    events.push({ label: t('common.inventory.po.detail.history.events.invoiceReceived'), at: order.invoiceReceivedAt, detail: order.invoiceUploadedByName || undefined });
   }
   (order.invoiceRevisions ?? []).forEach((rev, idx) => {
     events.push({
-      label: `Priced PO Sent${(order.invoiceRevisions?.length ?? 0) > 1 ? ` (revision ${idx + 1})` : ''}`,
+      label:
+        (order.invoiceRevisions?.length ?? 0) > 1
+          ? t('common.inventory.po.detail.history.events.pricedPoSentRevision', { number: idx + 1 })
+          : t('common.inventory.po.detail.history.events.pricedPoSent'),
       at: rev.revisedAt,
       detail: `${rev.revisedByName} — ${rev.totalOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${order.currency}`,
     });
   });
   if (order.acknowledgedAt) {
-    events.push({ label: 'Acknowledged', at: order.acknowledgedAt });
+    events.push({ label: t('common.inventory.po.detail.history.events.acknowledged'), at: order.acknowledgedAt });
   }
   (order.receiptHistory ?? []).forEach((r) => {
     events.push({
-      label: 'Stock Received',
+      label: t('common.inventory.po.detail.history.events.stockReceived'),
       at: r.receivedAt,
       detail: [r.receivedByName, r.deliveryRef].filter(Boolean).join(' — ') || undefined,
     });
   });
   if (order.cancelledAt) {
     events.push({
-      label: 'Cancelled',
+      label: t('common.inventory.po.detail.history.events.cancelled'),
       at: order.cancelledAt,
       detail: [order.cancelledByName, order.cancelledReason].filter(Boolean).join(' — ') || undefined,
     });
@@ -107,6 +118,7 @@ function buildProcessHistory(order: PurchaseOrder): ProcessHistoryEvent[] {
 }
 
 export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { addToast } = useToast();
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -125,7 +137,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
   const [reviewCosts, setReviewCosts] = useState<Record<string, number> | null>(null);
   const [reviewMessage, setReviewMessage] = useState('');
   const [reviewSaving, setReviewSaving] = useState(false);
-  const sc = statusConfig[order.status];
+  const scCls = statusClsConfig[order.status];
 
   async function queueEmail(event: PurchaseOrderStatus | 'invoice_priced', message?: string, override?: { total: number }): Promise<boolean> {
     try {
@@ -171,10 +183,15 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         updatedAt: serverTimestamp(),
       });
       await queueEmail('approved');
-      addToast('Purchase order approved.', 'success');
+      addToast(t('common.inventory.po.detail.toasts.approved'), 'success');
     } catch (err) {
       console.error(err);
-      addToast(err instanceof Error ? `Failed to approve PO: ${err.message}` : 'Failed to approve PO.', 'error');
+      addToast(
+        err instanceof Error
+          ? t('common.inventory.po.detail.toasts.approveFailed', { message: err.message })
+          : t('common.inventory.po.detail.toasts.approveFailedGeneric'),
+        'error',
+      );
     } finally {
       setActionLoading(false);
     }
@@ -182,7 +199,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
 
   async function reject() {
     if (!userProfile) return;
-    const reason = window.prompt('Reason for rejection?') ?? '';
+    const reason = window.prompt(t('common.inventory.po.detail.toasts.rejectPrompt')) ?? '';
     if (!reason) return;
     setActionLoading(true);
     try {
@@ -196,10 +213,15 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         updatedAt: serverTimestamp(),
       });
       await queueEmail('rejected');
-      addToast('Purchase order rejected.', 'success');
+      addToast(t('common.inventory.po.detail.toasts.rejected'), 'success');
     } catch (err) {
       console.error(err);
-      addToast(err instanceof Error ? `Failed to reject PO: ${err.message}` : 'Failed to reject PO.', 'error');
+      addToast(
+        err instanceof Error
+          ? t('common.inventory.po.detail.toasts.rejectFailed', { message: err.message })
+          : t('common.inventory.po.detail.toasts.rejectFailedGeneric'),
+        'error',
+      );
     } finally {
       setActionLoading(false);
     }
@@ -214,10 +236,10 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         updatedAt: serverTimestamp(),
       });
       await queueEmail('acknowledged');
-      addToast('Supplier acknowledgement recorded.', 'success');
+      addToast(t('common.inventory.po.detail.toasts.acknowledgedRecorded'), 'success');
     } catch (err) {
       console.error(err);
-      addToast('Failed to update PO.', 'error');
+      addToast(t('common.inventory.po.detail.toasts.updateFailed'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -231,10 +253,10 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         updatedAt: serverTimestamp(),
       });
       await queueEmail('pending_approval');
-      addToast('Purchase order submitted for approval.', 'success');
+      addToast(t('common.inventory.po.detail.toasts.submittedForApproval'), 'success');
     } catch (err) {
       console.error(err);
-      addToast('Failed to submit PO for approval.', 'error');
+      addToast(t('common.inventory.po.detail.toasts.submitForApprovalFailed'), 'error');
     } finally {
       setActionLoading(false);
     }
@@ -242,7 +264,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
 
   async function markSent() {
     if (!order.supplierEmail?.trim()) {
-      addToast('Add a supplier email to this PO before sending — without one, no email can go out.', 'error');
+      addToast(t('common.inventory.po.detail.toasts.missingSupplierEmail'), 'error');
       return;
     }
     setActionLoading(true);
@@ -254,13 +276,13 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       });
       const queued = await queueEmail('sent', sendMessage);
       if (queued) {
-        addToast('PO sent to supplier.', 'success');
+        addToast(t('common.inventory.po.detail.toasts.sentToSupplier'), 'success');
       } else {
-        addToast('PO marked as sent, but the supplier email could not be queued. Check the console and retry.', 'error');
+        addToast(t('common.inventory.po.detail.toasts.sentButEmailFailed'), 'error');
       }
     } catch (err) {
       console.error(err);
-      addToast('Failed to update PO.', 'error');
+      addToast(t('common.inventory.po.detail.toasts.updateFailed'), 'error');
     } finally {
       setActionLoading(false);
       setSendModal(false);
@@ -292,12 +314,17 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         updatedAt: serverTimestamp(),
       });
       if (isInitialInvoice) await queueEmail('invoice_received');
-      addToast(isInitialInvoice ? 'Invoice submitted. Review it to confirm pricing.' : 'Renewed invoice attached.', 'success');
+      addToast(
+        isInitialInvoice
+          ? t('common.inventory.po.detail.toasts.invoiceSubmitted')
+          : t('common.inventory.po.detail.toasts.invoiceRenewed'),
+        'success',
+      );
       setInvoiceModal(false);
       setInvoiceFile(null);
     } catch (err) {
       console.error(err);
-      addToast('Failed to submit invoice.', 'error');
+      addToast(t('common.inventory.po.detail.toasts.invoiceSubmitFailed'), 'error');
     } finally {
       setUploadingInvoice(false);
     }
@@ -357,15 +384,15 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       const queued = await queueEmail('invoice_priced', reviewMessage.trim(), { total: totalOrderValue });
       addToast(
         queued
-          ? 'Priced PO sent to supplier.'
-          : 'Pricing saved, but the priced PO email could not be queued. Check the console and retry.',
+          ? t('common.inventory.po.detail.toasts.pricedPoSent')
+          : t('common.inventory.po.detail.toasts.pricedPoSavedEmailFailed'),
         queued ? 'success' : 'error',
       );
       setReviewCosts(null);
       setReviewMessage('');
     } catch (err) {
       console.error(err);
-      addToast('Failed to save invoice pricing.', 'error');
+      addToast(t('common.inventory.po.detail.toasts.pricingSaveFailed'), 'error');
     } finally {
       setReviewSaving(false);
     }
@@ -406,11 +433,11 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         updatedAt: serverTimestamp(),
       });
       if (wasSentToSupplier) await queueEmail('cancelled', cancelReason.trim());
-      addToast('Purchase order cancelled.', 'success');
+      addToast(t('common.inventory.po.detail.toasts.cancelled'), 'success');
       setCancelModal(false);
       setCancelReason('');
     } catch {
-      addToast('Failed to cancel PO.', 'error');
+      addToast(t('common.inventory.po.detail.toasts.cancelFailed'), 'error');
     } finally {
       setCancelling(false);
     }
@@ -432,44 +459,47 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             <p className="text-gray-600 mt-0.5">{order.supplierName}</p>
           </div>
           <div className="flex items-center gap-3">
-            <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${sc.cls}`}>
-              {sc.label}
+            <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${scCls}`}>
+              {statusLabel(order.status, t)}
             </span>
           </div>
         </div>
 
         {/* Timeline */}
         <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Timeline</h3>
+          <h3 className="font-semibold text-gray-900 mb-4 text-sm">{t('common.inventory.po.detail.timeline.title')}</h3>
           <div className="flex items-center gap-2 flex-wrap">
-            {TIMELINE_STEPS.map((step, idx) => {
-              const ts = order[step.key] as PurchaseOrder['raisedAt'] | null;
-              const done = !!ts;
-              return (
-                <div key={step.key} className="flex items-center gap-2">
-                  <div className={`flex flex-col items-center gap-1`}>
-                    <div
-                      className={`w-7 h-7 rounded-full flex items-center justify-center ${done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}
-                    >
-                      {done ? <CheckCircle2 className="w-4 h-4" /> : <span className="text-xs">{idx + 1}</span>}
+            {(() => {
+              const steps = timelineSteps(t);
+              return steps.map((step, idx) => {
+                const ts = order[step.key] as PurchaseOrder['raisedAt'] | null;
+                const done = !!ts;
+                return (
+                  <div key={step.key} className="flex items-center gap-2">
+                    <div className={`flex flex-col items-center gap-1`}>
+                      <div
+                        className={`w-7 h-7 rounded-full flex items-center justify-center ${done ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-400'}`}
+                      >
+                        {done ? <CheckCircle2 className="w-4 h-4" /> : <span className="text-xs">{idx + 1}</span>}
+                      </div>
+                      <span className="text-xs text-gray-600 whitespace-nowrap">{step.label}</span>
+                      {done && <span className="text-xs text-gray-400">{formatDate(ts)}</span>}
                     </div>
-                    <span className="text-xs text-gray-600 whitespace-nowrap">{step.label}</span>
-                    {done && <span className="text-xs text-gray-400">{formatDate(ts)}</span>}
+                    {idx < steps.length - 1 && (
+                      <div className={`h-0.5 w-8 mb-8 ${done ? 'bg-green-400' : 'bg-gray-200'}`} />
+                    )}
                   </div>
-                  {idx < TIMELINE_STEPS.length - 1 && (
-                    <div className={`h-0.5 w-8 mb-8 ${done ? 'bg-green-400' : 'bg-gray-200'}`} />
-                  )}
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
           </div>
         </div>
 
         {/* Process History */}
         <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h3 className="font-semibold text-gray-900 mb-4 text-sm">Process History</h3>
+          <h3 className="font-semibold text-gray-900 mb-4 text-sm">{t('common.inventory.po.detail.history.title')}</h3>
           {(() => {
-            const history = buildProcessHistory(order).sort((a, b) => {
+            const history = buildProcessHistory(order, t).sort((a, b) => {
               const toMillis = (ts: unknown) => {
                 const t = ts as { toDate?: () => Date; seconds?: number };
                 return t.toDate ? t.toDate().getTime() : t.seconds ? t.seconds * 1000 : 0;
@@ -477,7 +507,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               return toMillis(a.at) - toMillis(b.at);
             });
             if (history.length === 0) {
-              return <p className="text-sm text-gray-400">No history yet.</p>;
+              return <p className="text-sm text-gray-400">{t('common.inventory.po.detail.history.empty')}</p>;
             }
             return (
               <ul className="space-y-3">
@@ -501,18 +531,18 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         {/* Items table */}
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100">
-            <h3 className="font-semibold text-gray-900">Order Items</h3>
+            <h3 className="font-semibold text-gray-900">{t('common.inventory.po.detail.items.title')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700">Part</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Ordered</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Received</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Outstanding</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Unit Cost</th>
-                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Total</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700">{t('common.inventory.po.detail.items.columns.part')}</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.detail.items.columns.ordered')}</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.detail.items.columns.received')}</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.detail.items.columns.outstanding')}</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.detail.items.columns.unitCost')}</th>
+                  <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.detail.items.columns.total')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -546,13 +576,13 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
           {/* Totals footer */}
           <div className="px-5 py-4 border-t border-gray-100 bg-gray-50 flex flex-wrap gap-6 justify-end text-sm">
             <div className="text-right">
-              <p className="text-gray-500">Outstanding</p>
+              <p className="text-gray-500">{t('common.inventory.po.detail.items.outstandingLabel')}</p>
               <p className="font-bold text-amber-700">
                 {order.currency} {outstanding.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-gray-500">Grand Total</p>
+              <p className="text-gray-500">{t('common.inventory.po.detail.items.grandTotalLabel')}</p>
               <p className="font-bold text-gray-900 text-lg">
                 {order.currency} {grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
@@ -564,13 +594,13 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         {order.receiptHistory && order.receiptHistory.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-900">Receipt History</h3>
+              <h3 className="font-semibold text-gray-900">{t('common.inventory.po.detail.receiptHistory.title')}</h3>
             </div>
             <ul className="divide-y divide-gray-100">
               {order.receiptHistory.map((r, i) => (
                 <li key={i} className="px-5 py-3 text-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-medium text-gray-900">{r.deliveryRef || 'No delivery reference'}</span>
+                    <span className="font-medium text-gray-900">{r.deliveryRef || t('common.inventory.po.detail.receiptHistory.noDeliveryRef')}</span>
                     <span className="text-xs text-gray-500">{formatDate(r.receivedAt)} · {r.receivedByName}</span>
                   </div>
                   {r.notes && <p className="text-xs text-gray-600 mt-1 whitespace-pre-wrap">{r.notes}</p>}
@@ -583,7 +613,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         {/* Invoice attachments */}
         {order.attachments && order.attachments.length > 0 && (
           <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-2 text-sm">Attachments</h3>
+            <h3 className="font-semibold text-gray-900 mb-2 text-sm">{t('common.inventory.po.detail.attachments.title')}</h3>
             <ul className="space-y-1.5">
               {order.attachments.map((att, i) => (
                 <li key={i}>
@@ -605,7 +635,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
         {/* Notes */}
         {order.notes && (
           <div className="bg-white border border-gray-200 rounded-xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-2 text-sm">Notes</h3>
+            <h3 className="font-semibold text-gray-900 mb-2 text-sm">{t('common.inventory.po.detail.notes.title')}</h3>
             <p className="text-sm text-gray-700 whitespace-pre-wrap">{order.notes}</p>
           </div>
         )}
@@ -618,7 +648,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-xl transition-colors text-sm"
             >
               <FileText className="w-4 h-4" />
-              Download / Print PDF
+              {t('common.inventory.po.detail.actions.downloadPdf')}
             </button>
           )}
 
@@ -628,7 +658,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold rounded-xl transition-colors text-sm"
             >
               <FileText className="w-4 h-4" />
-              Edit PO
+              {t('common.inventory.po.detail.actions.editPo')}
             </button>
           )}
 
@@ -639,7 +669,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <Send className="w-4 h-4" />
-              Submit for Approval
+              {t('common.inventory.po.detail.actions.submitForApproval')}
             </button>
           )}
 
@@ -651,7 +681,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Approve
+                {t('common.inventory.po.detail.actions.approve')}
               </button>
               <button
                 onClick={reject}
@@ -659,7 +689,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
                 <XCircle className="w-4 h-4" />
-                Reject
+                {t('common.inventory.po.detail.actions.reject')}
               </button>
             </>
           )}
@@ -668,11 +698,11 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
             <button
               onClick={() => setSendModal(true)}
               disabled={actionLoading}
-              title={!order.supplierEmail?.trim() ? 'Add a supplier email to this PO before sending' : undefined}
+              title={!order.supplierEmail?.trim() ? t('common.inventory.po.detail.actions.sendToSupplierDisabledTitle') : undefined}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <Send className="w-4 h-4" />
-              Send to Supplier
+              {t('common.inventory.po.detail.actions.sendToSupplier')}
             </button>
           )}
 
@@ -683,7 +713,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <Upload className="w-4 h-4" />
-              Submit Received Invoice
+              {t('common.inventory.po.detail.actions.submitReceivedInvoice')}
             </button>
           )}
 
@@ -693,7 +723,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm"
             >
               <FileText className="w-4 h-4" />
-              Review Invoice &amp; Send Priced PO
+              {t('common.inventory.po.detail.actions.reviewInvoiceAndSend')}
             </button>
           )}
 
@@ -704,7 +734,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <CheckCircle2 className="w-4 h-4" />
-              Mark as Acknowledged
+              {t('common.inventory.po.detail.actions.markAcknowledged')}
             </button>
           )}
 
@@ -718,7 +748,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-purple-300 text-purple-700 hover:bg-purple-50 font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <Upload className="w-4 h-4" />
-              Attach Renewed Invoice
+              {t('common.inventory.po.detail.actions.attachRenewedInvoice')}
             </button>
           )}
 
@@ -728,7 +758,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors text-sm"
             >
               <PackageCheck className="w-4 h-4" />
-              Mark as Received
+              {t('common.inventory.po.detail.actions.markAsReceived')}
             </button>
           )}
           {order.status !== 'received' && order.status !== 'cancelled' && (
@@ -737,7 +767,7 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-xl transition-colors text-sm"
             >
               <XCircle className="w-4 h-4" />
-              Cancel PO
+              {t('common.inventory.po.detail.actions.cancelPo')}
             </button>
           )}
         </div>
@@ -747,19 +777,26 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       {sendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Send PO to {order.supplierName || 'Supplier'}</h3>
+            <h3 className="text-lg font-bold text-gray-900">
+              {t('common.inventory.po.detail.sendModal.title', {
+                supplierName: order.supplierName || t('common.inventory.po.detail.sendModal.defaultSupplier'),
+              })}
+            </h3>
             <p className="text-sm text-gray-600">
-              An email with the PO details will be sent to{' '}
-              <strong>{order.supplierEmail || 'the supplier (no email on file)'}</strong>.
+              <Trans
+                i18nKey="common.inventory.po.detail.sendModal.description"
+                values={{ email: order.supplierEmail || t('common.inventory.po.detail.sendModal.noEmailOnFile') }}
+                components={{ 1: <strong /> }}
+              />
             </p>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Message (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.detail.sendModal.messageLabel')}</label>
               <textarea
                 value={sendMessage}
                 onChange={(e) => setSendMessage(e.target.value)}
                 rows={4}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Add a note for the supplier…"
+                placeholder={t('common.inventory.po.detail.sendModal.messagePlaceholder')}
               />
             </div>
             <div className="flex gap-3">
@@ -768,14 +805,14 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 disabled={actionLoading}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
-                Cancel
+                {t('common.inventory.po.detail.sendModal.cancel')}
               </button>
               <button
                 onClick={markSent}
                 disabled={actionLoading}
                 className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
-                {actionLoading ? 'Sending…' : 'Send'}
+                {actionLoading ? t('common.inventory.po.detail.sendModal.sending') : t('common.inventory.po.detail.sendModal.send')}
               </button>
             </div>
           </div>
@@ -786,14 +823,28 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       {invoiceModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">{isInitialInvoice ? 'Submit Received Invoice' : 'Attach Renewed Invoice'}</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-lg font-bold text-gray-900">
               {isInitialInvoice
-                ? <>Attach the invoice the supplier sent for <strong>{order.poNumber}</strong>. You'll review and confirm its pricing next.</>
-                : <>Attach an updated invoice from the supplier for <strong>{order.poNumber}</strong>. Use Review Invoice &amp; Send Priced PO to apply any new pricing from it.</>}
+                ? t('common.inventory.po.detail.invoiceModal.titleSubmit')
+                : t('common.inventory.po.detail.invoiceModal.titleRenew')}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {isInitialInvoice ? (
+                <Trans
+                  i18nKey="common.inventory.po.detail.invoiceModal.descriptionInitial"
+                  values={{ poNumber: order.poNumber }}
+                  components={{ 1: <strong /> }}
+                />
+              ) : (
+                <Trans
+                  i18nKey="common.inventory.po.detail.invoiceModal.descriptionRenewal"
+                  values={{ poNumber: order.poNumber }}
+                  components={{ 1: <strong /> }}
+                />
+              )}
             </p>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Invoice file</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.detail.invoiceModal.fileLabel')}</label>
               <input
                 type="file"
                 accept="image/*,.pdf"
@@ -807,14 +858,14 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 disabled={uploadingInvoice}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
-                Cancel
+                {t('common.inventory.po.detail.invoiceModal.cancel')}
               </button>
               <button
                 onClick={submitInvoice}
                 disabled={uploadingInvoice || !invoiceFile}
                 className="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
-                {uploadingInvoice ? 'Uploading…' : 'Submit'}
+                {uploadingInvoice ? t('common.inventory.po.detail.invoiceModal.uploading') : t('common.inventory.po.detail.invoiceModal.submit')}
               </button>
             </div>
           </div>
@@ -825,17 +876,20 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       {reviewCosts && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-4 max-h-[85vh] overflow-y-auto">
-            <h3 className="text-lg font-bold text-gray-900">Review Invoice Pricing</h3>
+            <h3 className="text-lg font-bold text-gray-900">{t('common.inventory.po.detail.reviewModal.title')}</h3>
             <p className="text-sm text-gray-600">
-              Enter the unit cost from the supplier's invoice for each item — pre-filled with the current PO price.
-              Sending will email the supplier the finalized priced PO. You can come back and revise again later if the price changes.
+              {t('common.inventory.po.detail.reviewModal.description')}
             </p>
             <div className="space-y-3">
               {order.items.map((it) => (
                 <div key={it.id} className="border border-gray-200 rounded-lg p-3">
                   <p className="text-sm font-medium text-gray-900">{it.partName}</p>
-                  <p className="font-mono text-xs text-gray-500 mb-2">{it.partNumber} · Qty {it.quantityOrdered}</p>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Unit Cost ({order.currency})</label>
+                  <p className="font-mono text-xs text-gray-500 mb-2">
+                    {it.partNumber} · {t('common.inventory.po.detail.reviewModal.qtyLabel', { count: it.quantityOrdered })}
+                  </p>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">
+                    {t('common.inventory.po.detail.reviewModal.unitCostLabel', { currency: order.currency })}
+                  </label>
                   <input
                     type="number"
                     min="0"
@@ -850,13 +904,13 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
               ))}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Message to supplier (optional)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.po.detail.reviewModal.messageLabel')}</label>
               <textarea
                 value={reviewMessage}
                 onChange={(e) => setReviewMessage(e.target.value)}
                 rows={3}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Add a note for the supplier…"
+                placeholder={t('common.inventory.po.detail.reviewModal.messagePlaceholder')}
               />
             </div>
             <div className="flex gap-3">
@@ -865,14 +919,14 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 disabled={reviewSaving}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
-                Cancel
+                {t('common.inventory.po.detail.reviewModal.cancel')}
               </button>
               <button
                 onClick={savePricedPO}
                 disabled={reviewSaving}
                 className="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
-                {reviewSaving ? 'Sending…' : 'Confirm & Send Priced PO'}
+                {reviewSaving ? t('common.inventory.po.detail.reviewModal.sending') : t('common.inventory.po.detail.reviewModal.confirmAndSend')}
               </button>
             </div>
           </div>
@@ -883,21 +937,27 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
       {cancelModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Cancel Purchase Order?</h3>
+            <h3 className="text-lg font-bold text-gray-900">{t('common.inventory.po.detail.cancelModal.title')}</h3>
             <p className="text-sm text-gray-600">
-              This purchase order will be marked as cancelled and cannot be undone.
-              {wasSentToSupplier && ' Since it was already sent, the supplier will be emailed with the reason below.'}
+              {t('common.inventory.po.detail.cancelModal.description')}
+              {wasSentToSupplier && t('common.inventory.po.detail.cancelModal.descriptionSentNote')}
             </p>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reason{wasSentToSupplier ? ' *' : ' (optional)'}
+                {wasSentToSupplier
+                  ? t('common.inventory.po.detail.cancelModal.reasonLabelRequired')
+                  : t('common.inventory.po.detail.cancelModal.reasonLabelOptional')}
               </label>
               <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 rows={3}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder={wasSentToSupplier ? 'Why is this order being cancelled?' : 'Optional note'}
+                placeholder={
+                  wasSentToSupplier
+                    ? t('common.inventory.po.detail.cancelModal.reasonPlaceholderRequired')
+                    : t('common.inventory.po.detail.cancelModal.reasonPlaceholderOptional')
+                }
               />
             </div>
             <div className="flex gap-3">
@@ -906,14 +966,14 @@ export function PurchaseOrderDetail({ order }: PurchaseOrderDetailProps) {
                 disabled={cancelling}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
-                Keep PO
+                {t('common.inventory.po.detail.cancelModal.keepPo')}
               </button>
               <button
                 onClick={handleCancel}
                 disabled={cancelling || (wasSentToSupplier && !cancelReason.trim())}
                 className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
-                {cancelling ? 'Cancelling…' : 'Yes, Cancel'}
+                {cancelling ? t('common.inventory.po.detail.cancelModal.cancelling') : t('common.inventory.po.detail.cancelModal.confirmCancel')}
               </button>
             </div>
           </div>
