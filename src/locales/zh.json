@@ -150,7 +150,294 @@
       "po": {
         "title": "采购单",
         "suppliers": "供应商",
-        "createPO": "创建采购单"
+        "createPO": "创建采购单",
+        "statuses": {
+          "draft": "草稿",
+          "pending_approval": "待审批",
+          "approved": "已批准",
+          "rejected": "已拒绝",
+          "sent": "已发送",
+          "invoice_received": "已收到发票",
+          "acknowledged": "已确认",
+          "received": "已收货",
+          "partially_received": "部分收货",
+          "cancelled": "已取消"
+        },
+        "detail": {
+          "timeline": {
+            "title": "时间线",
+            "steps": {
+              "raised": "已创建",
+              "sent": "已发送",
+              "invoiceReceived": "已收到发票",
+              "acknowledged": "已确认",
+              "received": "已收货"
+            }
+          },
+          "history": {
+            "title": "处理历史",
+            "empty": "暂无历史记录。",
+            "events": {
+              "raised": "已创建",
+              "rejected": "已拒绝",
+              "approved": "已批准",
+              "sentToSupplier": "已发送给供应商",
+              "invoiceReceived": "已收到发票",
+              "pricedPoSent": "已发送带价格的采购单",
+              "pricedPoSentRevision": "已发送带价格的采购单（修订版 {{number}}）",
+              "acknowledged": "已确认",
+              "stockReceived": "已收到库存",
+              "cancelled": "已取消"
+            }
+          },
+          "items": {
+            "title": "订单项目",
+            "columns": {
+              "part": "备件",
+              "ordered": "已订购",
+              "received": "已收到",
+              "outstanding": "未完成",
+              "unitCost": "单价",
+              "total": "总计"
+            },
+            "outstandingLabel": "未完成",
+            "grandTotalLabel": "总计"
+          },
+          "receiptHistory": {
+            "title": "收货历史",
+            "noDeliveryRef": "无送货单号"
+          },
+          "attachments": {
+            "title": "附件"
+          },
+          "notes": {
+            "title": "备注"
+          },
+          "actions": {
+            "downloadPdf": "下载 / 打印 PDF",
+            "editPo": "编辑采购单",
+            "submitForApproval": "提交审批",
+            "approve": "批准",
+            "reject": "拒绝",
+            "sendToSupplier": "发送给供应商",
+            "sendToSupplierDisabledTitle": "发送前请为此采购单添加供应商邮箱",
+            "submitReceivedInvoice": "提交已收发票",
+            "reviewInvoiceAndSend": "审核发票并发送带价格的采购单",
+            "markAcknowledged": "标记为已确认",
+            "attachRenewedInvoice": "附上更新后的发票",
+            "markAsReceived": "标记为已收货",
+            "cancelPo": "取消采购单"
+          },
+          "sendModal": {
+            "title": "将采购单发送给 {{supplierName}}",
+            "defaultSupplier": "供应商",
+            "description": "包含采购单详情的邮件将发送至 <1>{{email}}</1>。",
+            "noEmailOnFile": "该供应商（未登记邮箱）",
+            "messageLabel": "留言（可选）",
+            "messagePlaceholder": "为供应商添加备注…",
+            "cancel": "取消",
+            "send": "发送",
+            "sending": "发送中…"
+          },
+          "invoiceModal": {
+            "titleSubmit": "提交已收发票",
+            "titleRenew": "附上更新后的发票",
+            "descriptionInitial": "附上供应商为 <1>{{poNumber}}</1> 发送的发票。接下来您将审核并确认其价格。",
+            "descriptionRenewal": "附上供应商为 <1>{{poNumber}}</1> 提供的更新发票。使用“审核发票并发送带价格的采购单”以应用任何新价格。",
+            "fileLabel": "发票文件",
+            "cancel": "取消",
+            "submit": "提交",
+            "uploading": "上传中…"
+          },
+          "reviewModal": {
+            "title": "审核发票定价",
+            "description": "为每个项目输入供应商发票上的单价 — 已预填当前采购单价格。发送后将向供应商发送最终定价采购单邮件。如价格有变，您可以稍后再次修改。",
+            "qtyLabel": "数量 {{count}}",
+            "unitCostLabel": "单价（{{currency}}）",
+            "messageLabel": "给供应商的留言（可选）",
+            "messagePlaceholder": "为供应商添加备注…",
+            "cancel": "取消",
+            "confirmAndSend": "确认并发送带价格的采购单",
+            "sending": "发送中…"
+          },
+          "cancelModal": {
+            "title": "取消采购单？",
+            "description": "此采购单将被标记为已取消，且无法撤销。",
+            "descriptionSentNote": " 由于已发送，系统将向供应商发送包含以下原因的邮件。",
+            "reasonLabelRequired": "原因 *",
+            "reasonLabelOptional": "原因（可选）",
+            "reasonPlaceholderRequired": "此订单为何被取消？",
+            "reasonPlaceholderOptional": "可选备注",
+            "keepPo": "保留采购单",
+            "confirmCancel": "是，取消",
+            "cancelling": "取消中…"
+          },
+          "toasts": {
+            "approved": "采购单已批准。",
+            "approveFailed": "批准采购单失败：{{message}}",
+            "approveFailedGeneric": "批准采购单失败。",
+            "rejected": "采购单已拒绝。",
+            "rejectFailed": "拒绝采购单失败：{{message}}",
+            "rejectFailedGeneric": "拒绝采购单失败。",
+            "acknowledgedRecorded": "已记录供应商确认。",
+            "updateFailed": "更新采购单失败。",
+            "submittedForApproval": "采购单已提交审批。",
+            "submitForApprovalFailed": "提交采购单审批失败。",
+            "missingSupplierEmail": "发送前请为此采购单添加供应商邮箱——否则无法发送任何邮件。",
+            "sentToSupplier": "采购单已发送给供应商。",
+            "sentButEmailFailed": "采购单已标记为已发送，但供应商邮件未能加入队列。请检查控制台并重试。",
+            "invoiceSubmitted": "发票已提交。请审核以确认价格。",
+            "invoiceRenewed": "已附上更新后的发票。",
+            "invoiceSubmitFailed": "提交发票失败。",
+            "pricedPoSent": "带价格的采购单已发送给供应商。",
+            "pricedPoSavedEmailFailed": "定价已保存，但带价格的采购单邮件未能加入队列。请检查控制台并重试。",
+            "pricingSaveFailed": "保存发票定价失败。",
+            "cancelled": "采购单已取消。",
+            "cancelFailed": "取消采购单失败。",
+            "rejectPrompt": "拒绝原因？"
+          }
+        },
+        "form": {
+          "supplierInfo": {
+            "title": "供应商信息",
+            "selectSupplierLabel": "选择供应商",
+            "selectSupplierPlaceholder": "— 选择已保存的供应商，或在下方填写详情 —",
+            "fields": {
+              "supplierName": "供应商名称 *",
+              "supplierNamePlaceholder": "供应商名称",
+              "contactPerson": "联系人",
+              "contactPersonPlaceholder": "销售人员姓名",
+              "phone": "电话",
+              "phonePlaceholder": "+94 ...",
+              "email": "邮箱",
+              "emailPlaceholder": "supplier@example.com",
+              "otherContact": "其他联系方式",
+              "otherContactPlaceholder": "传真、备用电话等",
+              "currency": "货币",
+              "supplierAddress": "供应商地址",
+              "deliveryAddress": "送货 / 收货地址",
+              "paymentTerms": "付款条款",
+              "paymentTermsPlaceholder": "例如：净30天，预付50%"
+            }
+          },
+          "items": {
+            "title": "订单项目",
+            "addItem": "添加项目",
+            "empty": "尚未添加项目。点击“添加项目”开始。",
+            "pricingNote": "价格将在审核供应商发票后添加。"
+          },
+          "notes": {
+            "label": "备注",
+            "placeholder": "此采购单的附加备注…"
+          },
+          "actions": {
+            "saveAsDraft": "保存为草稿",
+            "submitForApproval": "提交审批",
+            "approve": "批准"
+          },
+          "toasts": {
+            "missingItems": "请至少添加一个包含备件和数量的项目。",
+            "savedDraft": "采购单已保存为草稿。",
+            "submittedForApproval": "采购单已提交审批。",
+            "approvedUseSend": "采购单已批准。请在采购单上使用“发送给供应商”以邮件发送。",
+            "saveFailed": "保存采购单失败：{{message}}"
+          }
+        },
+        "list": {
+          "empty": {
+            "title": "暂无采购单",
+            "subtitle": "创建您的第一个采购单以开始使用。"
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "搜索供应商…",
+            "statusAll": "全部"
+          },
+          "noMatch": "没有符合筛选条件的订单。",
+          "columns": {
+            "poNumber": "采购单号",
+            "supplier": "供应商",
+            "items": "项目",
+            "totalValue": "总价值",
+            "status": "状态",
+            "raisedBy": "创建人",
+            "date": "日期",
+            "actions": "操作"
+          },
+          "actions": {
+            "view": "查看",
+            "edit": "编辑",
+            "approve": "批准",
+            "reject": "拒绝",
+            "receive": "收货",
+            "cancel": "取消"
+          },
+          "toasts": {
+            "approved": "采购单已批准。",
+            "approveFailed": "批准采购单失败：{{message}}",
+            "approveFailedGeneric": "批准采购单失败。",
+            "rejectPrompt": "拒绝原因？",
+            "rejected": "采购单已拒绝。",
+            "rejectFailed": "拒绝采购单失败：{{message}}",
+            "rejectFailedGeneric": "拒绝采购单失败。",
+            "cancelled": "采购单已取消。",
+            "cancelFailed": "取消采购单失败：{{message}}",
+            "cancelFailedGeneric": "取消采购单失败。"
+          }
+        },
+        "itemRow": {
+          "itemLabel": "项目 {{number}}",
+          "removeAriaLabel": "移除项目",
+          "part": {
+            "label": "备件 *",
+            "change": "更改",
+            "searchPlaceholder": "按编号或名称搜索备件…",
+            "scanPlaceholder": "扫描二维码或输入备件编号，然后按回车",
+            "lookup": "查找",
+            "lookingUp": "查找中…",
+            "scan": "扫描",
+            "scanTitle": "使用相机扫描二维码",
+            "scanModalTitle": "为采购单扫描备件",
+            "notFound": "未找到“{{term}}”对应的备件",
+            "lookupFailed": "二维码查找失败"
+          },
+          "fields": {
+            "quantity": "数量 *",
+            "unit": "单位",
+            "expectedDelivery": "预计到货时间"
+          }
+        },
+        "supplierPicker": {
+          "title": "此前从该供应商购买的备件 — 是否要添加一起发货？",
+          "lowStockBadge": "库存不足",
+          "currentLabel": "当前：",
+          "lowAtLabel": "低库存阈值：",
+          "maxLabel": "最大值：",
+          "addSelected_one": "将 {{count}} 个已选项添加到此采购单",
+          "addSelected_other": "将 {{count}} 个已选项添加到此采购单",
+          "addSelectedNone": "将已选项添加到此采购单"
+        },
+        "lowStockWidget": {
+          "title": "低库存提醒",
+          "createPoForSelected_one": "为 {{count}} 个已选项创建采购单",
+          "createPoForSelected_other": "为 {{count}} 个已选项创建采购单",
+          "allAboveMin": "✓ 所有备件库存均高于最低水平",
+          "selectAriaLabel": "选择 {{name}}",
+          "stockLabel": "库存：{{value}} {{unit}}",
+          "minLabel": "最低：{{value}} {{unit}}",
+          "orderNow": "立即订购"
+        },
+        "createPage": {
+          "title": "创建采购单"
+        },
+        "editPage": {
+          "title": "编辑 {{poNumber}}",
+          "backToList": "返回采购单列表",
+          "notFound": "未找到采购单。"
+        },
+        "detailPage": {
+          "backToList": "返回采购单列表",
+          "notFound": "未找到采购单。"
+        }
       },
       "filters": {
         "searchPlaceholder": "搜索零件…",

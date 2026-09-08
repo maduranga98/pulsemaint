@@ -150,7 +150,294 @@
       "po": {
         "title": "発注書",
         "suppliers": "サプライヤー",
-        "createPO": "発注書を作成"
+        "createPO": "発注書を作成",
+        "statuses": {
+          "draft": "下書き",
+          "pending_approval": "承認待ち",
+          "approved": "承認済み",
+          "rejected": "却下",
+          "sent": "送信済み",
+          "invoice_received": "請求書受領済み",
+          "acknowledged": "確認済み",
+          "received": "受領済み",
+          "partially_received": "一部受領",
+          "cancelled": "キャンセル済み"
+        },
+        "detail": {
+          "timeline": {
+            "title": "タイムライン",
+            "steps": {
+              "raised": "作成",
+              "sent": "送信",
+              "invoiceReceived": "請求書受領",
+              "acknowledged": "確認",
+              "received": "受領"
+            }
+          },
+          "history": {
+            "title": "処理履歴",
+            "empty": "履歴はまだありません。",
+            "events": {
+              "raised": "作成",
+              "rejected": "却下",
+              "approved": "承認",
+              "sentToSupplier": "サプライヤーへ送信",
+              "invoiceReceived": "請求書受領",
+              "pricedPoSent": "価格付き発注書を送信",
+              "pricedPoSentRevision": "価格付き発注書を送信（改訂 {{number}}）",
+              "acknowledged": "確認",
+              "stockReceived": "在庫受領",
+              "cancelled": "キャンセル"
+            }
+          },
+          "items": {
+            "title": "発注項目",
+            "columns": {
+              "part": "部品",
+              "ordered": "発注済",
+              "received": "受領済",
+              "outstanding": "未処理",
+              "unitCost": "単価",
+              "total": "合計"
+            },
+            "outstandingLabel": "未処理",
+            "grandTotalLabel": "総合計"
+          },
+          "receiptHistory": {
+            "title": "受領履歴",
+            "noDeliveryRef": "配送参照番号なし"
+          },
+          "attachments": {
+            "title": "添付ファイル"
+          },
+          "notes": {
+            "title": "メモ"
+          },
+          "actions": {
+            "downloadPdf": "PDFをダウンロード / 印刷",
+            "editPo": "発注書を編集",
+            "submitForApproval": "承認申請",
+            "approve": "承認",
+            "reject": "却下",
+            "sendToSupplier": "サプライヤーへ送信",
+            "sendToSupplierDisabledTitle": "送信前にこの発注書にサプライヤーのメールアドレスを追加してください",
+            "submitReceivedInvoice": "受領した請求書を登録",
+            "reviewInvoiceAndSend": "請求書を確認して価格付き発注書を送信",
+            "markAcknowledged": "確認済みにする",
+            "attachRenewedInvoice": "更新された請求書を添付",
+            "markAsReceived": "受領済みにする",
+            "cancelPo": "発注書をキャンセル"
+          },
+          "sendModal": {
+            "title": "{{supplierName}} へ発注書を送信",
+            "defaultSupplier": "サプライヤー",
+            "description": "発注書の詳細を記載したメールが <1>{{email}}</1> に送信されます。",
+            "noEmailOnFile": "サプライヤー（メールアドレス未登録）",
+            "messageLabel": "メッセージ（任意）",
+            "messagePlaceholder": "サプライヤーへのメモを追加…",
+            "cancel": "キャンセル",
+            "send": "送信",
+            "sending": "送信中…"
+          },
+          "invoiceModal": {
+            "titleSubmit": "受領した請求書を登録",
+            "titleRenew": "更新された請求書を添付",
+            "descriptionInitial": "<1>{{poNumber}}</1> についてサプライヤーから送られた請求書を添付してください。その後、価格を確認・承認します。",
+            "descriptionRenewal": "<1>{{poNumber}}</1> についてサプライヤーからの更新された請求書を添付してください。新しい価格を適用するには「請求書を確認して価格付き発注書を送信」を使用してください。",
+            "fileLabel": "請求書ファイル",
+            "cancel": "キャンセル",
+            "submit": "登録",
+            "uploading": "アップロード中…"
+          },
+          "reviewModal": {
+            "title": "請求書の価格を確認",
+            "description": "各項目についてサプライヤーの請求書に記載された単価を入力してください（現在の発注書価格が初期値として入力されています）。送信すると、最終的な価格付き発注書がサプライヤーにメールで送られます。価格が変わった場合は後で再度修正できます。",
+            "qtyLabel": "数量 {{count}}",
+            "unitCostLabel": "単価（{{currency}}）",
+            "messageLabel": "サプライヤーへのメッセージ（任意）",
+            "messagePlaceholder": "サプライヤーへのメモを追加…",
+            "cancel": "キャンセル",
+            "confirmAndSend": "確認して価格付き発注書を送信",
+            "sending": "送信中…"
+          },
+          "cancelModal": {
+            "title": "発注書をキャンセルしますか？",
+            "description": "この発注書はキャンセル済みとしてマークされ、元に戻すことはできません。",
+            "descriptionSentNote": " すでに送信されているため、以下の理由を記載したメールがサプライヤーに送信されます。",
+            "reasonLabelRequired": "理由 *",
+            "reasonLabelOptional": "理由（任意）",
+            "reasonPlaceholderRequired": "この注文をキャンセルする理由は？",
+            "reasonPlaceholderOptional": "任意のメモ",
+            "keepPo": "発注書を維持",
+            "confirmCancel": "はい、キャンセルします",
+            "cancelling": "キャンセル中…"
+          },
+          "toasts": {
+            "approved": "発注書が承認されました。",
+            "approveFailed": "発注書の承認に失敗しました: {{message}}",
+            "approveFailedGeneric": "発注書の承認に失敗しました。",
+            "rejected": "発注書が却下されました。",
+            "rejectFailed": "発注書の却下に失敗しました: {{message}}",
+            "rejectFailedGeneric": "発注書の却下に失敗しました。",
+            "acknowledgedRecorded": "サプライヤーの確認を記録しました。",
+            "updateFailed": "発注書の更新に失敗しました。",
+            "submittedForApproval": "発注書が承認申請されました。",
+            "submitForApprovalFailed": "発注書の承認申請に失敗しました。",
+            "missingSupplierEmail": "送信前にこの発注書にサプライヤーのメールアドレスを追加してください。追加しないとメールを送信できません。",
+            "sentToSupplier": "発注書をサプライヤーに送信しました。",
+            "sentButEmailFailed": "発注書は送信済みとしてマークされましたが、サプライヤーへのメールをキューに登録できませんでした。コンソールを確認して再試行してください。",
+            "invoiceSubmitted": "請求書が登録されました。価格を確認してください。",
+            "invoiceRenewed": "更新された請求書を添付しました。",
+            "invoiceSubmitFailed": "請求書の登録に失敗しました。",
+            "pricedPoSent": "価格付き発注書をサプライヤーに送信しました。",
+            "pricedPoSavedEmailFailed": "価格は保存されましたが、価格付き発注書のメールをキューに登録できませんでした。コンソールを確認して再試行してください。",
+            "pricingSaveFailed": "請求書の価格の保存に失敗しました。",
+            "cancelled": "発注書がキャンセルされました。",
+            "cancelFailed": "発注書のキャンセルに失敗しました。",
+            "rejectPrompt": "却下の理由は？"
+          }
+        },
+        "form": {
+          "supplierInfo": {
+            "title": "サプライヤー情報",
+            "selectSupplierLabel": "サプライヤーを選択",
+            "selectSupplierPlaceholder": "— 保存済みのサプライヤーを選択するか、以下に詳細を入力してください —",
+            "fields": {
+              "supplierName": "サプライヤー名 *",
+              "supplierNamePlaceholder": "サプライヤー名",
+              "contactPerson": "担当者",
+              "contactPersonPlaceholder": "営業担当者名",
+              "phone": "電話番号",
+              "phonePlaceholder": "+94 ...",
+              "email": "メールアドレス",
+              "emailPlaceholder": "supplier@example.com",
+              "otherContact": "その他の連絡先",
+              "otherContactPlaceholder": "FAX、代替電話番号など",
+              "currency": "通貨",
+              "supplierAddress": "サプライヤー住所",
+              "deliveryAddress": "配送先住所",
+              "paymentTerms": "支払条件",
+              "paymentTermsPlaceholder": "例：Net 30、前払い50%"
+            }
+          },
+          "items": {
+            "title": "発注項目",
+            "addItem": "項目を追加",
+            "empty": "項目が追加されていません。「項目を追加」をクリックして開始してください。",
+            "pricingNote": "価格はサプライヤーの請求書を確認した後に追加されます。"
+          },
+          "notes": {
+            "label": "メモ",
+            "placeholder": "この発注書に関する追加メモ…"
+          },
+          "actions": {
+            "saveAsDraft": "下書きとして保存",
+            "submitForApproval": "承認申請",
+            "approve": "承認"
+          },
+          "toasts": {
+            "missingItems": "部品と数量を含む項目を少なくとも1つ追加してください。",
+            "savedDraft": "発注書を下書きとして保存しました。",
+            "submittedForApproval": "発注書が承認申請されました。",
+            "approvedUseSend": "発注書が承認されました。発注書の「サプライヤーへ送信」を使用してメール送信してください。",
+            "saveFailed": "発注書の保存に失敗しました: {{message}}"
+          }
+        },
+        "list": {
+          "empty": {
+            "title": "発注書がまだありません",
+            "subtitle": "最初の発注書を作成して開始しましょう。"
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "サプライヤーを検索…",
+            "statusAll": "すべて"
+          },
+          "noMatch": "フィルターに一致する注文がありません。",
+          "columns": {
+            "poNumber": "発注番号",
+            "supplier": "サプライヤー",
+            "items": "項目",
+            "totalValue": "合計金額",
+            "status": "ステータス",
+            "raisedBy": "作成者",
+            "date": "日付",
+            "actions": "操作"
+          },
+          "actions": {
+            "view": "表示",
+            "edit": "編集",
+            "approve": "承認",
+            "reject": "却下",
+            "receive": "受領",
+            "cancel": "キャンセル"
+          },
+          "toasts": {
+            "approved": "発注書が承認されました。",
+            "approveFailed": "発注書の承認に失敗しました: {{message}}",
+            "approveFailedGeneric": "発注書の承認に失敗しました。",
+            "rejectPrompt": "却下の理由は？",
+            "rejected": "発注書が却下されました。",
+            "rejectFailed": "発注書の却下に失敗しました: {{message}}",
+            "rejectFailedGeneric": "発注書の却下に失敗しました。",
+            "cancelled": "発注書がキャンセルされました。",
+            "cancelFailed": "発注書のキャンセルに失敗しました: {{message}}",
+            "cancelFailedGeneric": "発注書のキャンセルに失敗しました。"
+          }
+        },
+        "itemRow": {
+          "itemLabel": "項目 {{number}}",
+          "removeAriaLabel": "項目を削除",
+          "part": {
+            "label": "部品 *",
+            "change": "変更",
+            "searchPlaceholder": "番号または名前で部品を検索…",
+            "scanPlaceholder": "QRコードをスキャンするか部品番号を入力してEnterを押してください",
+            "lookup": "検索",
+            "lookingUp": "検索中…",
+            "scan": "スキャン",
+            "scanTitle": "カメラでQRコードをスキャン",
+            "scanModalTitle": "発注書用に部品をスキャン",
+            "notFound": "「{{term}}」に該当する部品が見つかりません",
+            "lookupFailed": "QR検索に失敗しました"
+          },
+          "fields": {
+            "quantity": "数量 *",
+            "unit": "単位",
+            "expectedDelivery": "納期予定"
+          }
+        },
+        "supplierPicker": {
+          "title": "このサプライヤーから以前購入した部品 — 一緒に発送するために追加しますか？",
+          "lowStockBadge": "在庫少",
+          "currentLabel": "現在:",
+          "lowAtLabel": "在庫少ライン:",
+          "maxLabel": "最大:",
+          "addSelected_one": "選択した{{count}}件をこの発注書に追加",
+          "addSelected_other": "選択した{{count}}件をこの発注書に追加",
+          "addSelectedNone": "選択項目をこの発注書に追加"
+        },
+        "lowStockWidget": {
+          "title": "在庫不足アラート",
+          "createPoForSelected_one": "選択した{{count}}件の発注書を作成",
+          "createPoForSelected_other": "選択した{{count}}件の発注書を作成",
+          "allAboveMin": "✓ すべての部品が最低在庫水準を上回っています",
+          "selectAriaLabel": "{{name}}を選択",
+          "stockLabel": "在庫: {{value}} {{unit}}",
+          "minLabel": "最低: {{value}} {{unit}}",
+          "orderNow": "今すぐ発注"
+        },
+        "createPage": {
+          "title": "発注書を作成"
+        },
+        "editPage": {
+          "title": "{{poNumber}} を編集",
+          "backToList": "発注書一覧に戻る",
+          "notFound": "発注書が見つかりません。"
+        },
+        "detailPage": {
+          "backToList": "発注書一覧に戻る",
+          "notFound": "発注書が見つかりません。"
+        }
       },
       "filters": {
         "searchPlaceholder": "部品を検索…",

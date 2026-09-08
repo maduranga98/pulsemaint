@@ -150,7 +150,294 @@
       "po": {
         "title": "Órdenes de compra",
         "suppliers": "Proveedores",
-        "createPO": "Crear orden de compra"
+        "createPO": "Crear orden de compra",
+        "statuses": {
+          "draft": "Borrador",
+          "pending_approval": "Pendiente de aprobación",
+          "approved": "Aprobada",
+          "rejected": "Rechazada",
+          "sent": "Enviada",
+          "invoice_received": "Factura recibida",
+          "acknowledged": "Confirmada",
+          "received": "Recibida",
+          "partially_received": "Recibida parcialmente",
+          "cancelled": "Cancelada"
+        },
+        "detail": {
+          "timeline": {
+            "title": "Cronología",
+            "steps": {
+              "raised": "Creada",
+              "sent": "Enviada",
+              "invoiceReceived": "Factura recibida",
+              "acknowledged": "Confirmada",
+              "received": "Recibida"
+            }
+          },
+          "history": {
+            "title": "Historial del proceso",
+            "empty": "Aún no hay historial.",
+            "events": {
+              "raised": "Creada",
+              "rejected": "Rechazada",
+              "approved": "Aprobada",
+              "sentToSupplier": "Enviada al proveedor",
+              "invoiceReceived": "Factura recibida",
+              "pricedPoSent": "PO con precios enviada",
+              "pricedPoSentRevision": "PO con precios enviada (revisión {{number}})",
+              "acknowledged": "Confirmada",
+              "stockReceived": "Stock recibido",
+              "cancelled": "Cancelada"
+            }
+          },
+          "items": {
+            "title": "Artículos del pedido",
+            "columns": {
+              "part": "Repuesto",
+              "ordered": "Pedido",
+              "received": "Recibido",
+              "outstanding": "Pendiente",
+              "unitCost": "Costo unitario",
+              "total": "Total"
+            },
+            "outstandingLabel": "Pendiente",
+            "grandTotalLabel": "Total general"
+          },
+          "receiptHistory": {
+            "title": "Historial de recepciones",
+            "noDeliveryRef": "Sin referencia de entrega"
+          },
+          "attachments": {
+            "title": "Adjuntos"
+          },
+          "notes": {
+            "title": "Notas"
+          },
+          "actions": {
+            "downloadPdf": "Descargar / Imprimir PDF",
+            "editPo": "Editar OC",
+            "submitForApproval": "Enviar para aprobación",
+            "approve": "Aprobar",
+            "reject": "Rechazar",
+            "sendToSupplier": "Enviar al proveedor",
+            "sendToSupplierDisabledTitle": "Agregue un correo del proveedor a esta OC antes de enviarla",
+            "submitReceivedInvoice": "Registrar factura recibida",
+            "reviewInvoiceAndSend": "Revisar factura y enviar OC con precios",
+            "markAcknowledged": "Marcar como confirmada",
+            "attachRenewedInvoice": "Adjuntar factura renovada",
+            "markAsReceived": "Marcar como recibida",
+            "cancelPo": "Cancelar OC"
+          },
+          "sendModal": {
+            "title": "Enviar OC a {{supplierName}}",
+            "defaultSupplier": "Proveedor",
+            "description": "Se enviará un correo con los detalles de la OC a <1>{{email}}</1>.",
+            "noEmailOnFile": "el proveedor (sin correo registrado)",
+            "messageLabel": "Mensaje (opcional)",
+            "messagePlaceholder": "Agregue una nota para el proveedor…",
+            "cancel": "Cancelar",
+            "send": "Enviar",
+            "sending": "Enviando…"
+          },
+          "invoiceModal": {
+            "titleSubmit": "Registrar factura recibida",
+            "titleRenew": "Adjuntar factura renovada",
+            "descriptionInitial": "Adjunte la factura enviada por el proveedor para <1>{{poNumber}}</1>. Luego revisará y confirmará el precio.",
+            "descriptionRenewal": "Adjunte una factura actualizada del proveedor para <1>{{poNumber}}</1>. Use Revisar factura y enviar OC con precios para aplicar cualquier precio nuevo.",
+            "fileLabel": "Archivo de la factura",
+            "cancel": "Cancelar",
+            "submit": "Enviar",
+            "uploading": "Subiendo…"
+          },
+          "reviewModal": {
+            "title": "Revisar precios de la factura",
+            "description": "Ingrese el costo unitario de la factura del proveedor para cada artículo, precargado con el precio actual de la OC. Al enviar se le enviará al proveedor la OC final con precios. Podrá volver y revisarla nuevamente si el precio cambia.",
+            "qtyLabel": "Cant. {{count}}",
+            "unitCostLabel": "Costo unitario ({{currency}})",
+            "messageLabel": "Mensaje para el proveedor (opcional)",
+            "messagePlaceholder": "Agregue una nota para el proveedor…",
+            "cancel": "Cancelar",
+            "confirmAndSend": "Confirmar y enviar OC con precios",
+            "sending": "Enviando…"
+          },
+          "cancelModal": {
+            "title": "¿Cancelar orden de compra?",
+            "description": "Esta orden de compra se marcará como cancelada y no se puede deshacer.",
+            "descriptionSentNote": " Como ya fue enviada, se le enviará un correo al proveedor con el motivo indicado a continuación.",
+            "reasonLabelRequired": "Motivo *",
+            "reasonLabelOptional": "Motivo (opcional)",
+            "reasonPlaceholderRequired": "¿Por qué se cancela este pedido?",
+            "reasonPlaceholderOptional": "Nota opcional",
+            "keepPo": "Mantener OC",
+            "confirmCancel": "Sí, cancelar",
+            "cancelling": "Cancelando…"
+          },
+          "toasts": {
+            "approved": "Orden de compra aprobada.",
+            "approveFailed": "Error al aprobar la OC: {{message}}",
+            "approveFailedGeneric": "Error al aprobar la OC.",
+            "rejected": "Orden de compra rechazada.",
+            "rejectFailed": "Error al rechazar la OC: {{message}}",
+            "rejectFailedGeneric": "Error al rechazar la OC.",
+            "acknowledgedRecorded": "Confirmación del proveedor registrada.",
+            "updateFailed": "Error al actualizar la OC.",
+            "submittedForApproval": "Orden de compra enviada para aprobación.",
+            "submitForApprovalFailed": "Error al enviar la OC para aprobación.",
+            "missingSupplierEmail": "Agregue un correo del proveedor a esta OC antes de enviarla; sin uno, no se puede enviar ningún correo.",
+            "sentToSupplier": "OC enviada al proveedor.",
+            "sentButEmailFailed": "La OC se marcó como enviada, pero no se pudo programar el correo al proveedor. Revise la consola e intente de nuevo.",
+            "invoiceSubmitted": "Factura registrada. Revísela para confirmar el precio.",
+            "invoiceRenewed": "Factura renovada adjuntada.",
+            "invoiceSubmitFailed": "Error al registrar la factura.",
+            "pricedPoSent": "OC con precios enviada al proveedor.",
+            "pricedPoSavedEmailFailed": "Se guardó el precio, pero no se pudo programar el correo de la OC con precios. Revise la consola e intente de nuevo.",
+            "pricingSaveFailed": "Error al guardar el precio de la factura.",
+            "cancelled": "Orden de compra cancelada.",
+            "cancelFailed": "Error al cancelar la OC.",
+            "rejectPrompt": "¿Motivo del rechazo?"
+          }
+        },
+        "form": {
+          "supplierInfo": {
+            "title": "Información del proveedor",
+            "selectSupplierLabel": "Seleccionar proveedor",
+            "selectSupplierPlaceholder": "— Elija un proveedor guardado, o complete los datos abajo —",
+            "fields": {
+              "supplierName": "Nombre del proveedor *",
+              "supplierNamePlaceholder": "Nombre del proveedor",
+              "contactPerson": "Persona de contacto",
+              "contactPersonPlaceholder": "Nombre del vendedor",
+              "phone": "Teléfono",
+              "phonePlaceholder": "+94 ...",
+              "email": "Correo electrónico",
+              "emailPlaceholder": "proveedor@ejemplo.com",
+              "otherContact": "Otro contacto",
+              "otherContactPlaceholder": "Fax, teléfono alternativo, etc.",
+              "currency": "Moneda",
+              "supplierAddress": "Dirección del proveedor",
+              "deliveryAddress": "Dirección de entrega / envío",
+              "paymentTerms": "Condiciones de pago",
+              "paymentTermsPlaceholder": "p. ej., Neto 30, 50% por adelantado"
+            }
+          },
+          "items": {
+            "title": "Artículos del pedido",
+            "addItem": "Agregar artículo",
+            "empty": "No se agregaron artículos. Haga clic en \"Agregar artículo\" para comenzar.",
+            "pricingNote": "El precio se agrega una vez revisada la factura del proveedor."
+          },
+          "notes": {
+            "label": "Notas",
+            "placeholder": "Notas adicionales para esta orden de compra…"
+          },
+          "actions": {
+            "saveAsDraft": "Guardar como borrador",
+            "submitForApproval": "Enviar para aprobación",
+            "approve": "Aprobar"
+          },
+          "toasts": {
+            "missingItems": "Agregue al menos un artículo con repuesto y cantidad.",
+            "savedDraft": "OC guardada como borrador.",
+            "submittedForApproval": "OC enviada para aprobación.",
+            "approvedUseSend": "OC aprobada. Use \"Enviar al proveedor\" en la OC para enviarla por correo.",
+            "saveFailed": "Error al guardar la orden de compra: {{message}}"
+          }
+        },
+        "list": {
+          "empty": {
+            "title": "Aún no hay órdenes de compra",
+            "subtitle": "Cree su primera orden de compra para comenzar."
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "Buscar proveedor…",
+            "statusAll": "Todos"
+          },
+          "noMatch": "Ninguna orden coincide con sus filtros.",
+          "columns": {
+            "poNumber": "N.° de OC",
+            "supplier": "Proveedor",
+            "items": "Artículos",
+            "totalValue": "Valor total",
+            "status": "Estado",
+            "raisedBy": "Creada por",
+            "date": "Fecha",
+            "actions": "Acciones"
+          },
+          "actions": {
+            "view": "Ver",
+            "edit": "Editar",
+            "approve": "Aprobar",
+            "reject": "Rechazar",
+            "receive": "Recibir",
+            "cancel": "Cancelar"
+          },
+          "toasts": {
+            "approved": "Orden de compra aprobada.",
+            "approveFailed": "Error al aprobar la OC: {{message}}",
+            "approveFailedGeneric": "Error al aprobar la OC.",
+            "rejectPrompt": "¿Motivo del rechazo?",
+            "rejected": "Orden de compra rechazada.",
+            "rejectFailed": "Error al rechazar la OC: {{message}}",
+            "rejectFailedGeneric": "Error al rechazar la OC.",
+            "cancelled": "Orden de compra cancelada.",
+            "cancelFailed": "Error al cancelar la OC: {{message}}",
+            "cancelFailedGeneric": "Error al cancelar la OC."
+          }
+        },
+        "itemRow": {
+          "itemLabel": "Artículo {{number}}",
+          "removeAriaLabel": "Quitar artículo",
+          "part": {
+            "label": "Repuesto *",
+            "change": "Cambiar",
+            "searchPlaceholder": "Buscar repuesto por número o nombre…",
+            "scanPlaceholder": "Escanee el código QR o ingrese el número de repuesto y presione Enter",
+            "lookup": "Buscar",
+            "lookingUp": "Buscando…",
+            "scan": "Escanear",
+            "scanTitle": "Escanear código QR con la cámara",
+            "scanModalTitle": "Escanear repuesto para la OC",
+            "notFound": "No se encontró ningún repuesto para \"{{term}}\"",
+            "lookupFailed": "Error al buscar el código QR"
+          },
+          "fields": {
+            "quantity": "Cantidad *",
+            "unit": "Unidad",
+            "expectedDelivery": "Entrega esperada"
+          }
+        },
+        "supplierPicker": {
+          "title": "Repuestos comprados anteriormente a este proveedor: ¿agregar alguno para enviarlo junto?",
+          "lowStockBadge": "Stock bajo",
+          "currentLabel": "Actual:",
+          "lowAtLabel": "Bajo en:",
+          "maxLabel": "Máx:",
+          "addSelected_one": "Agregar {{count}} seleccionado a esta OC",
+          "addSelected_other": "Agregar {{count}} seleccionados a esta OC",
+          "addSelectedNone": "Agregar seleccionados a esta OC"
+        },
+        "lowStockWidget": {
+          "title": "Alertas de stock bajo",
+          "createPoForSelected_one": "Crear OC para {{count}} seleccionado",
+          "createPoForSelected_other": "Crear OC para {{count}} seleccionados",
+          "allAboveMin": "✓ Todos los repuestos están por encima del nivel mínimo de stock",
+          "selectAriaLabel": "Seleccionar {{name}}",
+          "stockLabel": "Stock: {{value}} {{unit}}",
+          "minLabel": "Mín: {{value}} {{unit}}",
+          "orderNow": "Pedir ahora"
+        },
+        "createPage": {
+          "title": "Crear orden de compra"
+        },
+        "editPage": {
+          "title": "Editar {{poNumber}}",
+          "backToList": "Volver a órdenes de compra",
+          "notFound": "Orden de compra no encontrada."
+        },
+        "detailPage": {
+          "backToList": "Volver a órdenes de compra",
+          "notFound": "Orden de compra no encontrada."
+        }
       },
       "filters": {
         "searchPlaceholder": "Buscar piezas…",
