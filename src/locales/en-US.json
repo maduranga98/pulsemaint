@@ -2317,6 +2317,111 @@
         "title": "Edit PM Schedule",
         "notFound": "Schedule not found. It may have been deleted."
       }
+    },
+    "workPermits": {
+      "pageTitle": "Work Permits",
+      "pageSubtitle": "Permit-to-Work: issue, track, extend, and sign off safety permits.",
+      "newPermit": "New Permit",
+      "close": "Close",
+      "cancel": "Cancel",
+      "tabs": {
+        "current": "Current",
+        "closed": "Closed"
+      },
+      "empty": {
+        "closed": "No closed permits",
+        "current": "No current permits in this category"
+      },
+      "overdue": "Overdue",
+      "noLocation": "No location",
+      "validRange": "Valid {{from}} → {{to}}",
+      "workOrderLine": "WO: {{number}}",
+      "workOrderLineWithType": "WO: {{number}} ({{type}})",
+      "supervisorLine": "Supervisor: {{name}}",
+      "signedOffBy": "signed off by {{name}}",
+      "extendTime": "Extend time",
+      "finishAndSignOff": "Finish & sign off",
+      "statuses": {
+        "draft": "draft",
+        "active": "active",
+        "closed": "closed",
+        "expired": "expired"
+      },
+      "completions": {
+        "completed": "Completed",
+        "partially_completed": "Partially Completed",
+        "not_completed": "Not Completed"
+      },
+      "extendModal": {
+        "title": "Extend permit",
+        "currentlyValidUntil": "Currently valid until {{date}}.",
+        "newValidUntil": "New valid until",
+        "extend": "Extend",
+        "extending": "Extending…",
+        "errors": {
+          "pickDateTime": "Pick a new date and time.",
+          "endMustBeLater": "New end must be later than the current validity."
+        },
+        "toasts": {
+          "extended": "Permit extended.",
+          "failed": "Failed to extend permit."
+        }
+      },
+      "signOffModal": {
+        "title": "Sign off permit",
+        "completionStatusLabel": "Completion status",
+        "noteLabel": "Note (optional)",
+        "signOff": "Sign off",
+        "saving": "Saving…",
+        "toasts": {
+          "signedOff": "Permit signed off.",
+          "failed": "Failed to sign off permit."
+        }
+      },
+      "createModal": {
+        "title": "New Work Permit",
+        "workOrder": {
+          "label": "Work order (optional)",
+          "none": "Not linked to a work order",
+          "option": "{{number}} — {{machine}}",
+          "machineFallback": "Machine",
+          "type": "Type:",
+          "description": "Description:",
+          "createdBy": "WO created by:"
+        },
+        "category": {
+          "label": "Permit Category",
+          "newCategoryPlaceholder": "New category name",
+          "add": "Add",
+          "addNew": "+ Add new category…"
+        },
+        "fields": {
+          "title": "Title *",
+          "titlePlaceholder": "Work to be done",
+          "location": "Location",
+          "locationPlaceholder": "Area / machine",
+          "validFrom": "Valid from",
+          "validTo": "Valid to (duration)",
+          "supervisor": "Assign supervisor (optional)",
+          "noSupervisor": "No supervisor — safety team owns sign-off",
+          "description": "Description of work",
+          "hazards": "Hazards identified",
+          "precautions": "Precautions in place",
+          "noPrecautions": "No preset precautions for this category — note any hazards above.",
+          "ppe": "PPE required",
+          "ppePlaceholder": "e.g. Helmet, gloves, harness"
+        },
+        "submit": "Issue Permit",
+        "saving": "Saving…",
+        "errors": {
+          "titleRequired": "Give the permit a title.",
+          "validToBeforeFrom": "\"Valid to\" must be on or after \"Valid from\"."
+        },
+        "toasts": {
+          "issued": "Work permit issued.",
+          "failed": "Failed to issue permit."
+        }
+      }
     }
   }
 }

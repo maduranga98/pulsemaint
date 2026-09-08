@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus, FileCheck, X, AlertTriangle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
@@ -22,8 +23,6 @@ import {
 } from '@/types/safety';
 import NewWorkPermitModal from '../components/NewWorkPermitModal';
 
-const COMPLETION_LABEL = Object.fromEntries(WORK_PERMIT_COMPLETIONS.map((c) => [c.value, c.label]));
-
 const STATUS_STYLE: Record<WorkPermitStatus, string> = {
   draft: 'bg-slate-500/15 text-slate-300',
   active: 'bg-[#10B981]/15 text-[#10B981]',
@@ -37,6 +36,7 @@ type Filter = 'all' | WorkPermitCategory;
 type LifecycleTab = 'current' | 'closed';
 
 export default function WorkPermitsPage() {
+  const { t } = useTranslation();
   const profile = useAuthStore((s) => s.userProfile);
   const companyId = profile?.companyId ?? '';
   const toast = useToast();
@@ -95,20 +95,20 @@ export default function WorkPermitsPage() {
   async function saveExtend() {
     if (!extending) return;
     if (!extendValue) {
-      toast.error('Pick a new date and time.');
+      toast.error(t('common.workPermits.extendModal.errors.pickDateTime'));
       return;
     }
     if (extendValue <= extending.validFrom || extendValue <= (extending.validTo || '')) {
-      toast.error('New end must be later than the current validity.');
+      toast.error(t('common.workPermits.extendModal.errors.endMustBeLater'));
       return;
     }
     setExtendSaving(true);
     try {
       await extendWorkPermit(extending.id, extendValue);
-      toast.success('Permit extended.');
+      toast.success(t('common.workPermits.extendModal.toasts.extended'));
       setExtending(null);
     } catch {
-      toast.error('Failed to extend permit.');
+      toast.error(t('common.workPermits.extendModal.toasts.failed'));
     } finally {
       setExtendSaving(false);
     }
@@ -119,12 +119,12 @@ export default function WorkPermitsPage() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold">
-            <FileCheck className="h-5 w-5 text-[#5B8DEF]" /> Work Permits
+            <FileCheck className="h-5 w-5 text-[#5B8DEF]" /> {t('common.workPermits.pageTitle')}
           </h1>
-          <p className="mt-0.5 text-sm text-[#8BA3BF]">Permit-to-Work: issue, track, extend, and sign off safety permits.</p>
+          <p className="mt-0.5 text-sm text-[#8BA3BF]">{t('common.workPermits.pageSubtitle')}</p>
         </div>
         <button type="button" onClick={() => setCreating(true)} className="inline-flex items-center gap-2 rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-bold text-white">
-          <Plus className="h-4 w-4" /> New Permit
+          <Plus className="h-4 w-4" /> {t('common.workPermits.newPermit')}
         </button>
       </div>
 
@@ -144,7 +144,7 @@ export default function WorkPermitsPage() {
                     : 'border-transparent text-[#8BA3BF] hover:text-white'
                 }`}
               >
-                {tab === 'current' ? 'Current' : 'Closed'} <span className="text-xs text-[#8BA3BF]">({count})</span>
+                {tab === 'current' ? t('common.workPermits.tabs.current') : t('common.workPermits.tabs.closed')} <span className="text-xs text-[#8BA3BF]">({count})</span>
               </button>
             );
           })}
@@ -170,7 +170,7 @@ export default function WorkPermitsPage() {
           <div className="h-40 animate-pulse rounded-xl border border-[#1E3A5F] bg-[#0F1E35]" />
         ) : filtered.length === 0 ? (
           <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-6">
-            <EmptyState message={effectiveLifecycleTab === 'closed' ? 'No closed permits' : 'No current permits in this category'} />
+            <EmptyState message={effectiveLifecycleTab === 'closed' ? t('common.workPermits.empty.closed') : t('common.workPermits.empty.current')} />
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -182,22 +182,26 @@ export default function WorkPermitsPage() {
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-md bg-[#1A56DB]/15 px-2 py-0.5 text-xs font-semibold text-[#5B8DEF]">{catLabel[p.category] ?? p.category}</span>
-                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[p.status]}`}>{p.status}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLE[p.status]}`}>{t(`common.workPermits.statuses.${p.status}`)}</span>
                         {overdue && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-[#EF4444]/15 px-2 py-0.5 text-xs font-medium text-[#EF4444]">
-                            <AlertTriangle className="h-3 w-3" /> Overdue
+                            <AlertTriangle className="h-3 w-3" /> {t('common.workPermits.overdue')}
                           </span>
                         )}
                       </div>
                       <h3 className="mt-1.5 font-semibold text-[#F0F4F8]">{p.title}</h3>
-                      <p className="text-xs text-[#8BA3BF]">{p.location || 'No location'} · {p.permitNumber}</p>
+                      <p className="text-xs text-[#8BA3BF]">{p.location || t('common.workPermits.noLocation')} · {p.permitNumber}</p>
                     </div>
                   </div>
-                  <div className="mt-2 text-xs text-[#8BA3BF]">Valid {formatPermitDateTime(p.validFrom)} → {formatPermitDateTime(p.validTo)}</div>
+                  <div className="mt-2 text-xs text-[#8BA3BF]">{t('common.workPermits.validRange', { from: formatPermitDateTime(p.validFrom), to: formatPermitDateTime(p.validTo) })}</div>
                   {p.workOrderNumber && (
-                    <div className="mt-1 text-xs text-[#8BA3BF]">WO: {p.workOrderNumber}{p.woType ? ` (${p.woType})` : ''}</div>
+                    <div className="mt-1 text-xs text-[#8BA3BF]">
+                      {p.woType
+                        ? t('common.workPermits.workOrderLineWithType', { number: p.workOrderNumber, type: p.woType })
+                        : t('common.workPermits.workOrderLine', { number: p.workOrderNumber })}
+                    </div>
                   )}
-                  {p.supervisorName && <div className="mt-1 text-xs text-[#8BA3BF]">Supervisor: {p.supervisorName}</div>}
+                  {p.supervisorName && <div className="mt-1 text-xs text-[#8BA3BF]">{t('common.workPermits.supervisorLine', { name: p.supervisorName })}</div>}
                   {p.precautions.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {p.precautions.map((pr) => (
@@ -207,15 +211,15 @@ export default function WorkPermitsPage() {
                   )}
                   {p.status === 'closed' && p.completion && (
                     <div className="mt-2 rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-xs">
-                      <span className="font-semibold text-[#10B981]">{COMPLETION_LABEL[p.completion]}</span>
-                      {p.signedOffByName && <span className="text-[#8BA3BF]"> · signed off by {p.signedOffByName}</span>}
+                      <span className="font-semibold text-[#10B981]">{t(`common.workPermits.completions.${p.completion}`)}</span>
+                      {p.signedOffByName && <span className="text-[#8BA3BF]"> · {t('common.workPermits.signedOffBy', { name: p.signedOffByName })}</span>}
                       {p.completionNote && <div className="mt-0.5 text-[#8BA3BF]">{p.completionNote}</div>}
                     </div>
                   )}
                   {p.status === 'active' && (
                     <div className="mt-3 flex flex-wrap gap-3 border-t border-[#1E3A5F] pt-3">
-                      <button type="button" onClick={() => openExtend(p)} className="text-xs font-semibold text-[#5B8DEF] hover:underline">Extend time</button>
-                      <button type="button" onClick={() => setSigningOff(p)} className="text-xs font-semibold text-[#10B981] hover:underline">Finish &amp; sign off</button>
+                      <button type="button" onClick={() => openExtend(p)} className="text-xs font-semibold text-[#5B8DEF] hover:underline">{t('common.workPermits.extendTime')}</button>
+                      <button type="button" onClick={() => setSigningOff(p)} className="text-xs font-semibold text-[#10B981] hover:underline">{t('common.workPermits.finishAndSignOff')}</button>
                     </div>
                   )}
                 </div>
@@ -238,8 +242,8 @@ export default function WorkPermitsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setExtending(null)}>
           <div className="w-full max-w-sm rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-5 text-[#F0F4F8]" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between">
-              <h3 className="text-base font-semibold">Extend permit</h3>
-              <button type="button" onClick={() => setExtending(null)} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
+              <h3 className="text-base font-semibold">{t('common.workPermits.extendModal.title')}</h3>
+              <button type="button" onClick={() => setExtending(null)} className="text-[#8BA3BF] hover:text-white" aria-label={t('common.workPermits.close')}>
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -247,9 +251,9 @@ export default function WorkPermitsPage() {
               {extending.permitNumber} · {extending.title}
             </p>
             <p className="mt-2 text-xs text-[#8BA3BF]">
-              Currently valid until {formatPermitDateTime(extending.validTo)}.
+              {t('common.workPermits.extendModal.currentlyValidUntil', { date: formatPermitDateTime(extending.validTo) })}
             </p>
-            <label className="mt-3 block text-xs font-medium text-[#8BA3BF]">New valid until</label>
+            <label className="mt-3 block text-xs font-medium text-[#8BA3BF]">{t('common.workPermits.extendModal.newValidUntil')}</label>
             <input
               type="datetime-local"
               value={extendValue}
@@ -263,7 +267,7 @@ export default function WorkPermitsPage() {
                 onClick={() => setExtending(null)}
                 className="rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-4 py-2 text-sm text-[#F0F4F8]"
               >
-                Cancel
+                {t('common.workPermits.cancel')}
               </button>
               <button
                 type="button"
@@ -271,7 +275,7 @@ export default function WorkPermitsPage() {
                 disabled={extendSaving}
                 className="rounded-lg bg-[#1A56DB] px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
               >
-                {extendSaving ? 'Extending…' : 'Extend'}
+                {extendSaving ? t('common.workPermits.extendModal.extending') : t('common.workPermits.extendModal.extend')}
               </button>
             </div>
           </div>
@@ -292,6 +296,7 @@ function SignOffModal({
   signedOffBy: string;
   signedOffByName: string;
 }) {
+  const { t } = useTranslation();
   const toast = useToast();
   const [completion, setCompletion] = useState<WorkPermitCompletion>('completed');
   const [note, setNote] = useState('');
@@ -301,10 +306,10 @@ function SignOffModal({
     setSaving(true);
     try {
       await signOffWorkPermit(permit.id, { completion, completionNote: note.trim(), signedOffBy, signedOffByName });
-      toast.success('Permit signed off.');
+      toast.success(t('common.workPermits.signOffModal.toasts.signedOff'));
       onClose();
     } catch {
-      toast.error('Failed to sign off permit.');
+      toast.error(t('common.workPermits.signOffModal.toasts.failed'));
     } finally {
       setSaving(false);
     }
@@ -314,28 +319,28 @@ function SignOffModal({
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 sm:items-center">
       <div className="w-full max-w-md rounded-2xl border border-[#1E3A5F] bg-[#0F1E35] p-5 shadow-xl">
         <div className="flex items-start justify-between">
-          <h2 className=" text-lg font-bold text-[#F0F4F8]">Sign off permit</h2>
-          <button type="button" onClick={onClose} className="text-[#8BA3BF] hover:text-white" aria-label="Close">
+          <h2 className=" text-lg font-bold text-[#F0F4F8]">{t('common.workPermits.signOffModal.title')}</h2>
+          <button type="button" onClick={onClose} className="text-[#8BA3BF] hover:text-white" aria-label={t('common.workPermits.close')}>
             <X className="h-5 w-5" />
           </button>
         </div>
         <p className="mt-1 text-xs text-[#8BA3BF]">{permit.permitNumber} · {permit.title}</p>
         <div className="mt-4 space-y-3">
           <div>
-            <label className="block text-xs font-medium text-[#8BA3BF] mb-1">Completion status</label>
+            <label className="block text-xs font-medium text-[#8BA3BF] mb-1">{t('common.workPermits.signOffModal.completionStatusLabel')}</label>
             <select value={completion} onChange={(e) => setCompletion(e.target.value as WorkPermitCompletion)} className={field}>
-              {WORK_PERMIT_COMPLETIONS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+              {WORK_PERMIT_COMPLETIONS.map((c) => <option key={c.value} value={c.value}>{t(`common.workPermits.completions.${c.value}`)}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-[#8BA3BF] mb-1">Note (optional)</label>
+            <label className="block text-xs font-medium text-[#8BA3BF] mb-1">{t('common.workPermits.signOffModal.noteLabel')}</label>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} className={field} />
           </div>
         </div>
         <div className="mt-5 flex justify-end gap-2">
-          <button type="button" onClick={onClose} className="rounded-lg border border-[#1E3A5F] px-4 py-2 text-sm font-semibold text-[#8BA3BF] hover:text-white">Cancel</button>
+          <button type="button" onClick={onClose} className="rounded-lg border border-[#1E3A5F] px-4 py-2 text-sm font-semibold text-[#8BA3BF] hover:text-white">{t('common.workPermits.cancel')}</button>
           <button type="button" onClick={() => void submit()} disabled={saving} className="rounded-lg bg-[#10B981] px-4 py-2 text-sm font-bold text-white disabled:opacity-60">
-            {saving ? 'Saving…' : 'Sign off'}
+            {saving ? t('common.workPermits.signOffModal.saving') : t('common.workPermits.signOffModal.signOff')}
           </button>
         </div>
       </div>
