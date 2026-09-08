@@ -9,7 +9,7 @@ export default function TriageBuilderFlowDetailPage() {
   const { flow, loading, error } = useTriageFlow(flowId);
 
   if (loading) return <div className="p-8 text-gray-500">{t('triage.loading')}</div>;
-  if (error || !flow) return <div className="p-8 text-red-500">{error ?? 'Not found'}</div>;
+  if (error || !flow) return <div className="p-8 text-red-500">{error ?? t('triage.not_found')}</div>;
 
   return <TriageFlowDetail flow={flow} />;
 }

@@ -42,7 +42,7 @@ export default function TriageTopBar({
       <button
         onClick={handleBack}
         className="text-white/80 hover:text-white flex items-center gap-1 min-h-[44px] px-1"
-        aria-label="Back"
+        aria-label={t('triage.back')}
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <polyline points="15 18 9 12 15 6" />

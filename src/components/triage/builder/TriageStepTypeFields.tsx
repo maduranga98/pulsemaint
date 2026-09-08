@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TriageStep, TriageStepType } from '../../../types/triage';
 import TriageOptionEditor from './TriageOptionEditor';
 import TriageChecklistEditor from './TriageChecklistEditor';
@@ -9,12 +10,13 @@ interface Props {
 }
 
 export default function TriageStepTypeFields({ step, allStepIds, onChange }: Props) {
+  const { t } = useTranslation();
   const type: TriageStepType = step.type;
 
   if (type === 'yes_no' || type === 'multiple_choice') {
     return (
       <div>
-        <label className="text-xs font-semibold text-gray-600 mb-1 block">Options</label>
+        <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.options_label')}</label>
         <TriageOptionEditor
           options={step.options}
           allStepIds={allStepIds}
@@ -27,7 +29,7 @@ export default function TriageStepTypeFields({ step, allStepIds, onChange }: Pro
   if (type === 'checklist') {
     return (
       <div>
-        <label className="text-xs font-semibold text-gray-600 mb-1 block">Checklist Items</label>
+        <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.checklist_items_label')}</label>
         <TriageChecklistEditor
           items={step.checklistItems}
           onChange={(items) => onChange({ checklistItems: items })}
@@ -40,7 +42,7 @@ export default function TriageStepTypeFields({ step, allStepIds, onChange }: Pro
     return (
       <div className="flex flex-col gap-3">
         <div>
-          <label className="text-xs font-semibold text-gray-600 mb-1 block">Field Label</label>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.field_label')}</label>
           <input
             type="text"
             value={step.fieldLabel ?? ''}
@@ -50,7 +52,7 @@ export default function TriageStepTypeFields({ step, allStepIds, onChange }: Pro
         </div>
         <div className="flex gap-2">
           <div className="flex-1">
-            <label className="text-xs font-semibold text-gray-600 mb-1 block">Unit</label>
+            <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.unit_label')}</label>
             <input
               type="text"
               value={step.unit ?? ''}
@@ -59,7 +61,7 @@ export default function TriageStepTypeFields({ step, allStepIds, onChange }: Pro
             />
           </div>
           <div className="flex-1">
-            <label className="text-xs font-semibold text-gray-600 mb-1 block">Min</label>
+            <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.min_label')}</label>
             <input
               type="number"
               value={step.normalMin ?? ''}
@@ -68,7 +70,7 @@ export default function TriageStepTypeFields({ step, allStepIds, onChange }: Pro
             />
           </div>
           <div className="flex-1">
-            <label className="text-xs font-semibold text-gray-600 mb-1 block">Max</label>
+            <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.max_label')}</label>
             <input
               type="number"
               value={step.normalMax ?? ''}
@@ -85,7 +87,7 @@ export default function TriageStepTypeFields({ step, allStepIds, onChange }: Pro
     return (
       <div className="flex flex-col gap-3">
         <div>
-          <label className="text-xs font-semibold text-gray-600 mb-1 block">Placeholder</label>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.placeholder_label')}</label>
           <input
             type="text"
             value={step.placeholder ?? ''}
@@ -94,7 +96,7 @@ export default function TriageStepTypeFields({ step, allStepIds, onChange }: Pro
           />
         </div>
         <div>
-          <label className="text-xs font-semibold text-gray-600 mb-1 block">Max Characters</label>
+          <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.max_characters_label')}</label>
           <input
             type="number"
             value={step.maxChars ?? 500}

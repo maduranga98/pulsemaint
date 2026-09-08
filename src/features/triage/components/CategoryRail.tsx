@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { ClipboardCheck, Pin, UserCog, type LucideIcon } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { COL } from '../api';
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export function CategoryRail({ selected, onSelect }: Props) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const [cats, setCats] = useState<TriageCategory[]>([]);
@@ -80,7 +82,7 @@ export function CategoryRail({ selected, onSelect }: Props) {
           className="text-[10px] font-bold uppercase tracking-wider mb-2 px-1"
           style={{ color: '#3d5070' }}
         >
-          Categories
+          {t('common.triage.knowledge.categoryRail.categoriesHeading')}
         </div>
         <div className="space-y-0.5">
           {cats.map((cat) => {
@@ -104,7 +106,7 @@ export function CategoryRail({ selected, onSelect }: Props) {
           })}
           {cats.length === 0 && (
             <div className="text-xs text-center py-6" style={{ color: '#3d5070' }}>
-              No categories yet
+              {t('common.triage.knowledge.categoryRail.noCategories')}
             </div>
           )}
         </div>
@@ -112,8 +114,8 @@ export function CategoryRail({ selected, onSelect }: Props) {
 
       {/* Bottom */}
       <div className="p-3 space-y-0.5" style={{ borderTop: '1px solid #1a2840' }}>
-        <RailBtn id="contacts" label="Responsible Persons" icon={UserCog} color="#f97316" />
-        <RailBtn id="assessments" label="Quick Assessments" icon={ClipboardCheck} color="#fbbf24" />
+        <RailBtn id="contacts" label={t('common.triage.knowledge.categoryRail.contacts')} icon={UserCog} color="#f97316" />
+        <RailBtn id="assessments" label={t('common.triage.knowledge.categoryRail.assessments')} icon={ClipboardCheck} color="#fbbf24" />
       </div>
     </div>
   );

@@ -3574,6 +3574,387 @@
         },
         "submit": "モジュールを保存"
       }
+    },
+    "triage": {
+      "knowledge": {
+        "page": {
+          "title": "トリアージ",
+          "subtitle": "手順、ガイド、連絡先、簡易評価",
+          "create": "作成",
+          "selectCategoryPrompt": "左側のパネルからカテゴリを選択してください"
+        },
+        "categoryRail": {
+          "categoriesHeading": "カテゴリ",
+          "noCategories": "カテゴリはまだありません",
+          "contacts": "担当者",
+          "assessments": "簡易評価"
+        },
+        "contactList": {
+          "heading": "担当者",
+          "subtitle": "緊急連絡先と主要人員",
+          "empty": "まだ連絡先が追加されていません。",
+          "deleteTitle": "連絡先を削除",
+          "levels": {
+            "normal": "通常",
+            "emergency": "緊急"
+          }
+        },
+        "contentList": {
+          "back": "戻る",
+          "empty": "このカテゴリにはまだコンテンツがありません。",
+          "deleteTitle": "項目を削除",
+          "openFullSize": "フルサイズで開く ↗",
+          "types": {
+            "procedure": "手順",
+            "guide": "ガイド",
+            "video": "動画",
+            "pdf": "PDF",
+            "image": "画像",
+            "media": "メディア"
+          }
+        },
+        "assessmentList": {
+          "heading": "簡易評価",
+          "subtitle": "知識をテストして認定を取得しましょう",
+          "empty": "利用可能な評価はまだありません。",
+          "passMark": "合格ライン: {{value}}%",
+          "lastScore": "前回のスコア: {{value}}%",
+          "status": {
+            "certified": "認定済み",
+            "retry": "再挑戦",
+            "start": "開始"
+          },
+          "button": {
+            "certified": "確認",
+            "retry": "クイズを再挑戦",
+            "start": "クイズを受ける"
+          }
+        },
+        "quizModal": {
+          "passMark": "合格ライン: {{value}}%",
+          "close": "閉じる",
+          "progress": "{{current}} / {{total}}",
+          "correct": "✓ 正解！",
+          "incorrect": "✗ 不正解",
+          "next": "次へ →",
+          "finish": "終了",
+          "resultSummary": "{{score}} / {{total}} 正解 · 合格ライン {{passMark}}%",
+          "passedTitle": "評価に合格しました！",
+          "passedDetail": "{{title}} に合格しました",
+          "failedTitle": "不合格",
+          "failedDetail": "内容を復習してもう一度お試しください",
+          "savingResult": "結果を保存中..."
+        },
+        "builder": {
+          "accessRestricted": {
+            "title": "アクセス制限",
+            "message": "トリアージビルダーは、上長、工場長、人事担当者、安全担当者、管理者のみが利用できます。"
+          },
+          "back": "トリアージに戻る",
+          "title": "トリアージビルダー",
+          "subtitle": "トリアージのコンテンツ、連絡先、評価を作成・管理します",
+          "tabs": {
+            "content": "コンテンツとカテゴリ",
+            "contacts": "連絡先",
+            "assessments": "評価"
+          },
+          "contactBuilder": {
+            "addContactHeading": "連絡先を追加",
+            "currentContactsHeading": "現在の連絡先",
+            "fields": {
+              "name": "名前 *",
+              "role": "役職",
+              "dept": "部署",
+              "phone": "電話番号 / 内線 *",
+              "priority": "優先度"
+            },
+            "placeholders": {
+              "name": "氏名",
+              "role": "例：保全担当主任",
+              "dept": "例：エンジニアリング",
+              "phone": "例：内線555または+1 555-0100"
+            },
+            "levels": {
+              "normal": "通常",
+              "emergency": "緊急"
+            },
+            "saving": "保存中...",
+            "addContact": "+ 連絡先を追加"
+          },
+          "assessmentBuilder": {
+            "newAssessmentHeading": "新しい評価",
+            "fields": {
+              "title": "タイトル *",
+              "category": "カテゴリ *",
+              "passMark": "合格ライン（%）"
+            },
+            "placeholders": {
+              "title": "例：安全ロックアウト手順クイズ",
+              "selectCategory": "選択…"
+            },
+            "questionLabel": "質問 {{number}}",
+            "removeQuestion": "削除",
+            "questionPlaceholder": "質問文…",
+            "optionPlaceholder": "選択肢 {{letter}}",
+            "correctAnswerTitle": "正解としてマーク",
+            "addQuestion": "+ 質問を追加",
+            "saving": "保存中...",
+            "saveAssessment": "💾 評価を保存",
+            "existingHeading": "既存の評価（{{count}}）",
+            "empty": "まだ評価が作成されていません。",
+            "summary": "{{category}} · {{count}}問 · 合格 {{passMark}}%",
+            "deleteTitle": "評価を削除",
+            "status": {
+              "open": "公開中",
+              "archived": "アーカイブ済み"
+            }
+          },
+          "contentBuilder": {
+            "addContentItemHeading": "コンテンツ項目を追加",
+            "fields": {
+              "category": "カテゴリ *",
+              "type": "種別 *",
+              "title": "タイトル *",
+              "meta": "メタ情報 / サブタイトル",
+              "introduction": "はじめに",
+              "steps": "手順（1行に1つ、形式: タイトル | 説明）",
+              "warningNote": "警告メモ（任意）",
+              "bodyBullets": "本文の箇条書き（1行に1つ）",
+              "videoUrl": "YouTube URLまたは動画ID",
+              "uploadPdf": "PDFをアップロードまたはURLを貼り付け",
+              "uploadImage": "画像をアップロード",
+              "uploadFile": "ファイルをアップロード（動画、文書など）"
+            },
+            "placeholders": {
+              "selectCategory": "カテゴリを選択…",
+              "createNewCategory": "+ 新しいカテゴリを作成…",
+              "title": "例：非常停止手順",
+              "meta": "例：手順 · 6ステップ · 重大",
+              "introduction": "簡単な説明文",
+              "steps": "電源を遮断 | 主ブレーカーをオフにする\n危険を確認 | 漏れや火花がないか確認する",
+              "warningNote": "例：上長の承認なしに再起動しないこと",
+              "bodyBullets": "毎日油量を確認する\n500時間ごとにフィルターを交換する",
+              "videoUrl": "https://youtube.com/watch?v=... または dQw4w9WgXcQ",
+              "orPasteUrl": "または公開PDFのURLを貼り付け",
+              "orPasteFileUrl": "または公開ファイルのURLを貼り付け"
+            },
+            "types": {
+              "procedure": "手順",
+              "guide": "ガイド",
+              "video": "動画",
+              "pdf": "PDF",
+              "image": "画像",
+              "media": "メディア"
+            },
+            "newCategory": {
+              "iconLabel": "アイコン",
+              "titleLabel": "タイトル *",
+              "titlePlaceholder": "例：安全と緊急事態",
+              "descriptionLabel": "説明",
+              "descriptionPlaceholder": "簡単な説明",
+              "colourLabel": "色",
+              "creating": "作成中…",
+              "createCategory": "カテゴリを作成",
+              "suggestions": {
+                "safetyEmergency": "安全と緊急事態",
+                "electrical": "電気",
+                "mechanical": "機械",
+                "hydraulics": "油圧",
+                "lubrication": "潤滑",
+                "startupShutdown": "起動と停止",
+                "troubleshooting": "トラブルシューティング",
+                "preventiveMaintenance": "予防保全"
+              }
+            },
+            "saving": "保存中...",
+            "addContentItem": "+ コンテンツ項目を追加",
+            "manageCategories": "カテゴリを管理（{{count}}）",
+            "columns": {
+              "icon": "アイコン",
+              "title": "タイトル",
+              "color": "色",
+              "pinned": "固定",
+              "actions": "操作"
+            },
+            "pinnedYes": "はい",
+            "deleteCategoryTitle": "カテゴリを削除",
+            "livePreviewHeading": "ライブプレビュー",
+            "addCategoryToPreview": "プレビューを表示するにはカテゴリを追加してください"
+          }
+        }
+      }
+    }
+  },
+  "triage": {
+    "next_step": "次のステップ",
+    "confirm": "確認済み — 次のステップ",
+    "skip_step": "ステップをスキップ",
+    "yes": "はい",
+    "no": "いいえ",
+    "capture_photo": "写真を撮影",
+    "add_photo": "写真を追加",
+    "retake": "撮り直す",
+    "use_photo": "この写真を使用",
+    "add_note": "メモを追加",
+    "emergency_escalate": "緊急エスカレーション",
+    "issue_resolved": "オペレーターが問題を解決しました",
+    "step_of": "ステップ {{current}} / {{total}}",
+    "phase": {
+      "safety": "安全確認",
+      "assessment": "評価",
+      "safe_action": "安全な対応",
+      "document": "状態を記録",
+      "wait": "待機指示"
+    },
+    "abandon_confirm": "トリアージを中止しますか？進捗は保存されます。",
+    "complete": "トリアージ完了",
+    "safety_banner": {
+      "danger": "⚠ 危険 — 必ず内容を確認してから進んでください",
+      "caution": "⚠ 注意 — 慎重に進めてください",
+      "safe": "✓ 安全 — このステップに進んでください"
+    },
+    "working_offline": "⚡ オフラインで作業中 — 接続時にデータが同期されます",
+    "emergency_overlay_title": "🚨 緊急エスカレーション",
+    "quick_fix_title": "✓ オペレーターが問題を解決しました！",
+    "quick_fix_desc": "よくできました。修理チームなしで機械の問題が解決しました。",
+    "outcome": {
+      "resolved_by_operator": "オペレーター安全 — 問題解決（応急処置）",
+      "repair_team_required": "オペレーター安全 — 修理チームが必要",
+      "machine_shutdown": "機械を安全に停止 — 修理チームが必要",
+      "emergency_escalated": "緊急事態をエスカレーション",
+      "abandoned": "トリアージ中止"
+    },
+    "outcome_label": "結果",
+    "notes_label": "メモ",
+    "duration_label": "所要時間",
+    "machine_label": "機械",
+    "supervisor_label": "監督者",
+    "flow_label": "使用したフロー",
+    "session_photos": "セッションの写真",
+    "view_report": "トリアージレポートを見る",
+    "back_to_ticket": "故障チケットに戻る",
+    "back_to_history": "履歴に戻る",
+    "loading": "読み込み中...",
+    "no_flows": "トリアージフローが見つかりません。",
+    "create_flow": "フローを作成",
+    "browse_templates": "テンプレートを見る",
+    "custom_flows": "カスタムフロー",
+    "templates": "テンプレート",
+    "run_demo": "デモを実行",
+    "edit": "編集",
+    "duplicate": "複製",
+    "view_sessions": "セッションを見る",
+    "delete": "削除",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "add_step": "ステップを追加",
+    "step": "ステップ",
+    "flow_name": "フロー名",
+    "description": "説明",
+    "machine_type": "機械の種類",
+    "specific_machine": "特定の機械",
+    "language": "言語",
+    "emergency_contacts": "緊急連絡先",
+    "shutdown_procedure": "機械の停止手順",
+    "active": "有効",
+    "inactive": "無効",
+    "use_template": "テンプレートを使用",
+    "preview": "プレビュー",
+    "date_range": "日付範囲",
+    "all_outcomes": "すべての結果",
+    "all_statuses": "すべてのステータス",
+    "filter": "フィルター",
+    "timeline": "セッションのタイムライン",
+    "download_pdf": "PDFをダウンロード",
+    "no_sessions": "セッションが見つかりません。",
+    "call_contact": "電話をかける",
+    "notify_manager": "工場責任者に通知",
+    "mark_shutdown": "機械を停止済みとしてマーク",
+    "machine_status": "機械の状態",
+    "what_did_operator_do": "オペレーターは問題解決のために何をしましたか？",
+    "submit": "送信",
+    "confirm_abandon": "中止を確認",
+    "keep_going": "続行",
+    "photo_required_hint": "続行するには少なくとも1枚の写真が必要です。",
+    "out_of_range": "値が正常範囲外です！",
+    "normal_range": "正常範囲: {{min}} ～ {{max}} {{unit}}",
+    "char_count": "{{count}} / {{max}} 文字",
+    "add_another_photo": "別の写真を追加",
+    "reference_media": "参考資料",
+    "step_notes": "ステップのメモ",
+    "escalation_warning": "⚠ このステップはエスカレーションが必要な場合があります。",
+    "required": "必須",
+    "optional": "任意",
+    "translate_tab": "翻訳",
+    "settings_tab": "設定",
+    "steps_tab": "ステップ",
+    "preview_tab": "プレビュー",
+    "checklist_item_placeholder": "チェックリスト項目",
+    "add_item": "+ 項目を追加",
+    "option_label_placeholder": "選択肢のラベル",
+    "escalate": "エスカレーション",
+    "safe": "安全",
+    "next_step_select": "次のステップ",
+    "add_option": "+ 選択肢を追加",
+    "options_label": "選択肢",
+    "checklist_items_label": "チェックリスト項目",
+    "field_label": "フィールドラベル",
+    "unit_label": "単位",
+    "min_label": "最小",
+    "max_label": "最大",
+    "placeholder_label": "プレースホルダー",
+    "max_characters_label": "最大文字数",
+    "translation_title_label": "タイトル",
+    "translation_instruction_label": "指示",
+    "select_step_to_preview": "プレビューするステップを選択してください",
+    "untitled_step": "無題のステップ",
+    "delete_step": "ステップを削除",
+    "supervisor_prefix": "監督者: {{name}}",
+    "flow_prefix": "フロー: {{name}}",
+    "demo_badge": "デモ",
+    "response_label": "回答: {{value}}",
+    "skipped_label": "スキップ: {{reason}}",
+    "close": "閉じる",
+    "photo_alt": "写真 {{index}}",
+    "session_status": {
+      "in_progress": "進行中",
+      "completed": "完了",
+      "escalated": "エスカレーション済み",
+      "quick_fix": "応急処置",
+      "abandoned": "中止"
+    },
+    "flow_settings_title": "フロー設定",
+    "add_contact": "+ 追加",
+    "contact_name_placeholder": "氏名",
+    "contact_role_placeholder": "役職",
+    "contact_phone_placeholder": "電話番号",
+    "back": "戻る",
+    "triage_history_title": "トリアージ履歴",
+    "supervisor_label_short": "監督者",
+    "flow_label_short": "フロー",
+    "duration_label_short": "所要時間",
+    "steps_completed": "完了したステップ",
+    "edit_step_title": "ステップ #{{number}} を編集",
+    "title_field": "タイトル *",
+    "phase_field": "フェーズ",
+    "type_field": "種類",
+    "safety_field": "安全性",
+    "select_step_to_edit": "編集するステップを選択してください",
+    "preview_label": "プレビュー",
+    "triage_flows_title": "トリアージフロー",
+    "triage_flows_subtitle": "オペレーター向けトリアージ案内フローを管理",
+    "templates_subtitle": "FirmiCore 組み込みのトリアージフローテンプレート",
+    "no_templates_available": "利用可能なテンプレートがありません。",
+    "session_not_found": "セッションが見つかりません",
+    "not_found": "見つかりません",
+    "step_type": {
+      "statement": "説明文",
+      "yes_no": "はい / いいえ",
+      "multiple_choice": "選択式",
+      "photo_required": "写真必須",
+      "number_input": "数値入力",
+      "text_input": "テキスト入力",
+      "checklist": "チェックリスト"
     }
   }
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Award, BookX } from 'lucide-react';
 import { useAuthStore } from '../../../store/authStore';
 import { writeAssessmentResult } from '../api';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export function QuizModal({ assessment, onClose }: Props) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
 
@@ -100,7 +102,7 @@ export function QuizModal({ assessment, onClose }: Props) {
               {assessment.title}
             </div>
             <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
-              {assessment.cat} · Pass mark: {assessment.passMark}%
+              {assessment.cat} · {t('common.triage.knowledge.quizModal.passMark', { value: assessment.passMark })}
             </div>
           </div>
           <button
@@ -136,7 +138,7 @@ export function QuizModal({ assessment, onClose }: Props) {
                   />
                 </div>
                 <span className="text-xs shrink-0" style={{ color: '#6b7fa3' }}>
-                  {currentQ + 1} / {totalQ}
+                  {t('common.triage.knowledge.quizModal.progress', { current: currentQ + 1, total: totalQ })}
                 </span>
               </div>
 
@@ -169,14 +171,18 @@ export function QuizModal({ assessment, onClose }: Props) {
                     className="text-sm font-medium"
                     style={{ color: selectedOpt === q.a ? '#22c55e' : '#ef4444' }}
                   >
-                    {selectedOpt === q.a ? '✓ Correct!' : '✗ Incorrect'}
+                    {selectedOpt === q.a
+                      ? t('common.triage.knowledge.quizModal.correct')
+                      : t('common.triage.knowledge.quizModal.incorrect')}
                   </div>
                   <button
                     onClick={handleNext}
                     className="px-5 py-2 rounded-xl text-sm font-semibold transition-colors"
                     style={{ background: '#1d4ed8', color: 'white' }}
                   >
-                    {currentQ < totalQ - 1 ? 'Next →' : 'Finish'}
+                    {currentQ < totalQ - 1
+                      ? t('common.triage.knowledge.quizModal.next')
+                      : t('common.triage.knowledge.quizModal.finish')}
                   </button>
                 </div>
               )}
@@ -190,7 +196,11 @@ export function QuizModal({ assessment, onClose }: Props) {
                 {pct}%
               </div>
               <div className="text-sm mb-5" style={{ color: '#6b7fa3' }}>
-                {score} / {totalQ} correct · Pass mark {assessment.passMark}%
+                {t('common.triage.knowledge.quizModal.resultSummary', {
+                  score,
+                  total: totalQ,
+                  passMark: assessment.passMark,
+                })}
               </div>
 
               {passed ? (
@@ -206,10 +216,10 @@ export function QuizModal({ assessment, onClose }: Props) {
                       "Certificate Issued!" here claimed one existed when it
                       didn't. */}
                   <div className="font-semibold" style={{ color: '#22c55e' }}>
-                    Assessment Passed!
+                    {t('common.triage.knowledge.quizModal.passedTitle')}
                   </div>
                   <div className="text-xs" style={{ color: '#6b7fa3' }}>
-                    You passed {assessment.title}
+                    {t('common.triage.knowledge.quizModal.passedDetail', { title: assessment.title })}
                   </div>
                 </div>
               ) : (
@@ -219,17 +229,17 @@ export function QuizModal({ assessment, onClose }: Props) {
                 >
                   <BookX className="w-8 h-8" style={{ color: '#ef4444' }} />
                   <div className="font-semibold" style={{ color: '#ef4444' }}>
-                    Not Passed
+                    {t('common.triage.knowledge.quizModal.failedTitle')}
                   </div>
                   <div className="text-xs" style={{ color: '#6b7fa3' }}>
-                    Review the material and try again
+                    {t('common.triage.knowledge.quizModal.failedDetail')}
                   </div>
                 </div>
               )}
 
               {saving && (
                 <div className="text-xs mb-3" style={{ color: '#6b7fa3' }}>
-                  Saving result...
+                  {t('common.triage.knowledge.quizModal.savingResult')}
                 </div>
               )}
 
@@ -238,7 +248,7 @@ export function QuizModal({ assessment, onClose }: Props) {
                 className="px-6 py-2.5 rounded-xl text-sm font-semibold transition-colors"
                 style={{ background: '#1d4ed8', color: 'white' }}
               >
-                Close
+                {t('common.triage.knowledge.quizModal.close')}
               </button>
             </div>
           )}

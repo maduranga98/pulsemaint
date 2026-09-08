@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TriageStepTranslation } from '../../../types/triage';
 
 interface Props {
@@ -13,6 +14,7 @@ const LANGS = [
 ];
 
 export default function TriageTranslationEditor({ translations, onChange }: Props) {
+  const { t } = useTranslation();
   const [tab, setTab] = useState('si');
 
   const update = (code: string, field: keyof TriageStepTranslation, value: string) => {
@@ -41,7 +43,7 @@ export default function TriageTranslationEditor({ translations, onChange }: Prop
       </div>
       <div className="flex flex-col gap-3">
         <div>
-          <label className="text-xs text-gray-500 mb-1 block">Title</label>
+          <label className="text-xs text-gray-500 mb-1 block">{t('triage.translation_title_label')}</label>
           <input
             type="text"
             value={translations[tab]?.title ?? ''}
@@ -50,7 +52,7 @@ export default function TriageTranslationEditor({ translations, onChange }: Prop
           />
         </div>
         <div>
-          <label className="text-xs text-gray-500 mb-1 block">Instruction</label>
+          <label className="text-xs text-gray-500 mb-1 block">{t('triage.translation_instruction_label')}</label>
           <textarea
             value={translations[tab]?.instruction ?? ''}
             onChange={(e) => update(tab, 'instruction', e.target.value)}

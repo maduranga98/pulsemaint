@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TriageStepLog } from '../../../types/triage';
 import TriagePhotoGallery from '../runner/TriagePhotoGallery';
 
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export default function TriageSessionTimeline({ stepLogs }: Props) {
+  const { t } = useTranslation();
   return (
     <div className="relative pl-6">
       <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gray-200" />
@@ -29,12 +31,12 @@ export default function TriageSessionTimeline({ stepLogs }: Props) {
               <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{log.phase}</span>
               {log.response !== null && (
                 <p className="text-sm text-gray-700 mt-2">
-                  Response: <span className="font-medium">{String(log.response)}</span>
+                  {t('triage.response_label', { value: String(log.response) })}
                 </p>
               )}
               {log.notes && <p className="text-sm text-gray-500 italic mt-1">{log.notes}</p>}
               {log.skipped && (
-                <p className="text-xs text-amber-600 mt-1">Skipped: {log.skipReason}</p>
+                <p className="text-xs text-amber-600 mt-1">{t('triage.skipped_label', { reason: log.skipReason })}</p>
               )}
               {log.photoUrls.length > 0 && <TriagePhotoGallery photoUrls={log.photoUrls} />}
             </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { Phone, Siren, Trash2, User, UserCog } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { deleteContact, COL } from '../api';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function ContactList({ showDelete = false }: Props) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const [contacts, setContacts] = useState<TriageContact[]>([]);
@@ -33,10 +35,10 @@ export function ContactList({ showDelete = false }: Props) {
         <UserCog className="w-6 h-6" style={{ color: '#f97316' }} />
         <div>
           <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
-            Responsible Persons
+            {t('common.triage.knowledge.contactList.heading')}
           </h2>
           <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-            Emergency contacts and key personnel
+            {t('common.triage.knowledge.contactList.subtitle')}
           </p>
         </div>
       </div>
@@ -47,7 +49,7 @@ export function ContactList({ showDelete = false }: Props) {
           style={{ background: '#111d2e', border: '1px solid #1a2840' }}
         >
           <div className="text-sm" style={{ color: '#3d5070' }}>
-            No contacts added yet.
+            {t('common.triage.knowledge.contactList.empty')}
           </div>
         </div>
       )}
@@ -87,7 +89,7 @@ export function ContactList({ showDelete = false }: Props) {
                 <button
                   onClick={() => deleteContact(contact.id)}
                   className="opacity-50 hover:opacity-100 transition-opacity"
-                  title="Delete contact"
+                  title={t('common.triage.knowledge.contactList.deleteTitle')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

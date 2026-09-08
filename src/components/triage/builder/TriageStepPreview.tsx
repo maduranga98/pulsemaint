@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TriageStep } from '../../../types/triage';
 import TriageSafetyBanner from '../runner/TriageSafetyBanner';
 import StatementStep from '../runner/step-types/StatementStep';
@@ -9,10 +10,11 @@ interface Props {
 }
 
 export default function TriageStepPreview({ step }: Props) {
+  const { t } = useTranslation();
   if (!step) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
-        <p>Select a step to preview</p>
+        <p>{t('triage.select_step_to_preview')}</p>
       </div>
     );
   }

@@ -19,7 +19,7 @@ export default function TriageCompletePage() {
   if (error || !session) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-white">
-        <p className="text-red-500">{error ?? 'Session not found'}</p>
+        <p className="text-red-500">{error ?? t('triage.session_not_found')}</p>
       </div>
     );
   }

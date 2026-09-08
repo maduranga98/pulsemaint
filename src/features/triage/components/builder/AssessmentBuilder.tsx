@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { Trash2 } from 'lucide-react';
 import { db } from '../../../../lib/firebase';
 import { addAssessment, deleteAssessment, COL } from '../../api';
@@ -22,6 +23,7 @@ function emptyQ(): QuestionDraft {
 }
 
 export function AssessmentBuilder() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
@@ -125,20 +127,20 @@ export function AssessmentBuilder() {
           style={{ background: '#111d2e', border: '1px solid #1a2840' }}
         >
           <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
-            New Assessment
+            {t('common.triage.knowledge.builder.assessmentBuilder.newAssessmentHeading')}
           </div>
 
           <form onSubmit={handleSave} className="space-y-4">
             <div>
               <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                Title *
+                {t('common.triage.knowledge.builder.assessmentBuilder.fields.title')}
               </label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className={input}
                 style={inputStyle}
-                placeholder="e.g. Safety Lockout Procedure Quiz"
+                placeholder={t('common.triage.knowledge.builder.assessmentBuilder.placeholders.title')}
                 required
               />
             </div>
@@ -146,7 +148,7 @@ export function AssessmentBuilder() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                  Category *
+                  {t('common.triage.knowledge.builder.assessmentBuilder.fields.category')}
                 </label>
                 <select
                   value={catLabel}
@@ -155,7 +157,7 @@ export function AssessmentBuilder() {
                   style={{ ...inputStyle, cursor: 'pointer' }}
                   required
                 >
-                  <option value="">Select…</option>
+                  <option value="">{t('common.triage.knowledge.builder.assessmentBuilder.placeholders.selectCategory')}</option>
                   {cats.map((c) => (
                     <option key={c.id} value={c.title}>
                       {c.icon} {c.title}
@@ -165,7 +167,7 @@ export function AssessmentBuilder() {
               </div>
               <div>
                 <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                  Pass Mark (%)
+                  {t('common.triage.knowledge.builder.assessmentBuilder.fields.passMark')}
                 </label>
                 <input
                   type="number"
@@ -189,7 +191,7 @@ export function AssessmentBuilder() {
                 >
                   <div className="flex items-center justify-between mb-3">
                     <div className="text-xs font-semibold" style={{ color: '#6b7fa3' }}>
-                      Question {qIdx + 1}
+                      {t('common.triage.knowledge.builder.assessmentBuilder.questionLabel', { number: qIdx + 1 })}
                     </div>
                     {questions.length > 1 && (
                       <button
@@ -200,7 +202,7 @@ export function AssessmentBuilder() {
                         className="text-xs opacity-60 hover:opacity-100 transition-opacity"
                         style={{ color: '#ef4444' }}
                       >
-                        Remove
+                        {t('common.triage.knowledge.builder.assessmentBuilder.removeQuestion')}
                       </button>
                     )}
                   </div>
@@ -210,7 +212,7 @@ export function AssessmentBuilder() {
                     onChange={(e) => updateQ(qIdx, { q: e.target.value })}
                     className={input + ' mb-3'}
                     style={inputStyle}
-                    placeholder="Question text…"
+                    placeholder={t('common.triage.knowledge.builder.assessmentBuilder.questionPlaceholder')}
                   />
 
                   <div className="space-y-2">
@@ -222,14 +224,16 @@ export function AssessmentBuilder() {
                           checked={q.a === oIdx}
                           onChange={() => updateQ(qIdx, { a: oIdx })}
                           className="shrink-0 accent-blue-500"
-                          title="Mark as correct answer"
+                          title={t('common.triage.knowledge.builder.assessmentBuilder.correctAnswerTitle')}
                         />
                         <input
                           value={opt}
                           onChange={(e) => updateOpt(qIdx, oIdx, e.target.value)}
                           className={input + ' flex-1'}
                           style={inputStyle}
-                          placeholder={`Option ${String.fromCharCode(65 + oIdx)}`}
+                          placeholder={t('common.triage.knowledge.builder.assessmentBuilder.optionPlaceholder', {
+                            letter: String.fromCharCode(65 + oIdx),
+                          })}
                         />
                         {q.a === oIdx && (
                           <span className="text-xs shrink-0" style={{ color: '#22c55e' }}>
@@ -249,7 +253,7 @@ export function AssessmentBuilder() {
               className="w-full py-2 rounded-lg text-xs font-medium transition-colors"
               style={{ background: '#1a2840', color: '#6b7fa3', border: '1px solid #243450' }}
             >
-              + Add Question
+              {t('common.triage.knowledge.builder.assessmentBuilder.addQuestion')}
             </button>
 
             <button
@@ -258,7 +262,9 @@ export function AssessmentBuilder() {
               className="w-full py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
               style={{ background: '#1d4ed8', color: 'white' }}
             >
-              {saving ? 'Saving...' : '💾 Save Assessment'}
+              {saving
+                ? t('common.triage.knowledge.builder.assessmentBuilder.saving')
+                : t('common.triage.knowledge.builder.assessmentBuilder.saveAssessment')}
             </button>
           </form>
         </div>
@@ -270,12 +276,12 @@ export function AssessmentBuilder() {
         style={{ background: '#0e1628', border: '1px solid #1a2840' }}
       >
         <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
-          Existing Assessments ({assessments.length})
+          {t('common.triage.knowledge.builder.assessmentBuilder.existingHeading', { count: assessments.length })}
         </div>
 
         {assessments.length === 0 && (
           <div className="text-sm text-center py-10" style={{ color: '#3d5070' }}>
-            No assessments created yet.
+            {t('common.triage.knowledge.builder.assessmentBuilder.empty')}
           </div>
         )}
 
@@ -291,7 +297,11 @@ export function AssessmentBuilder() {
                   {a.title}
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
-                  {a.cat} · {a.questions.length} questions · Pass {a.passMark}%
+                  {t('common.triage.knowledge.builder.assessmentBuilder.summary', {
+                    category: a.cat,
+                    count: a.questions.length,
+                    passMark: a.passMark,
+                  })}
                 </div>
                 <div className="mt-1">
                   <span
@@ -301,7 +311,7 @@ export function AssessmentBuilder() {
                       color: a.status === 'open' ? '#22c55e' : '#6b7fa3',
                     }}
                   >
-                    {a.status}
+                    {t(`common.triage.knowledge.builder.assessmentBuilder.status.${a.status}`)}
                   </span>
                 </div>
               </div>
@@ -309,7 +319,7 @@ export function AssessmentBuilder() {
                 <button
                   onClick={() => deleteAssessment(a.id)}
                   className="opacity-50 hover:opacity-100 transition-opacity shrink-0"
-                  title="Delete assessment"
+                  title={t('common.triage.knowledge.builder.assessmentBuilder.deleteTitle')}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

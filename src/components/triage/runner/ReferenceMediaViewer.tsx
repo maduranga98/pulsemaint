@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TriageMediaRef } from '../../../types/triage';
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
 }
 
 export default function ReferenceMediaViewer({ media, onClose }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center"
@@ -14,7 +16,7 @@ export default function ReferenceMediaViewer({ media, onClose }: Props) {
       <button
         className="absolute top-4 right-4 text-white text-3xl"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={t('triage.close')}
       >
         ×
       </button>

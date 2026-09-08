@@ -20,8 +20,8 @@ export default function TriageFlowLibrary() {
     <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#0A1628]">Triage Flows</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage operator triage guidance flows</p>
+          <h1 className="text-2xl font-bold text-[#0A1628]">{t('triage.triage_flows_title')}</h1>
+          <p className="text-gray-500 text-sm mt-1">{t('triage.triage_flows_subtitle')}</p>
         </div>
         <div className="flex gap-3">
           <Link

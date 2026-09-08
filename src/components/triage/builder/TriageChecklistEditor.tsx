@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TriageChecklistItem } from '../../../types/triage';
 import { nanoid } from 'nanoid';
 
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export default function TriageChecklistEditor({ items, onChange }: Props) {
+  const { t } = useTranslation();
   const add = () =>
     onChange([...items, { id: nanoid(), text: '', required: false }]);
 
@@ -24,7 +26,7 @@ export default function TriageChecklistEditor({ items, onChange }: Props) {
               type="text"
               value={item.text}
               onChange={(e) => update(i, { text: e.target.value })}
-              placeholder="Checklist item"
+              placeholder={t('triage.checklist_item_placeholder')}
               className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A56DB]"
             />
             <label className="flex items-center gap-1 text-xs whitespace-nowrap cursor-pointer">
@@ -34,7 +36,7 @@ export default function TriageChecklistEditor({ items, onChange }: Props) {
                 onChange={(e) => update(i, { required: e.target.checked })}
                 className="accent-red-500"
               />
-              Required
+              {t('triage.required')}
             </label>
             <button
               onClick={() => remove(i)}
@@ -46,7 +48,7 @@ export default function TriageChecklistEditor({ items, onChange }: Props) {
         ))}
       </div>
       <button onClick={add} className="mt-2 text-sm text-[#1A56DB] hover:underline">
-        + Add item
+        {t('triage.add_item')}
       </button>
     </div>
   );

@@ -102,7 +102,74 @@
     "translate_tab": "Translations",
     "settings_tab": "Settings",
     "steps_tab": "Steps",
-    "preview_tab": "Preview"
+    "preview_tab": "Preview",
+    "checklist_item_placeholder": "Checklist item",
+    "add_item": "+ Add item",
+    "option_label_placeholder": "Option label",
+    "escalate": "Escalate",
+    "safe": "Safe",
+    "next_step_select": "Next step",
+    "add_option": "+ Add option",
+    "options_label": "Options",
+    "checklist_items_label": "Checklist Items",
+    "field_label": "Field Label",
+    "unit_label": "Unit",
+    "min_label": "Min",
+    "max_label": "Max",
+    "placeholder_label": "Placeholder",
+    "max_characters_label": "Max Characters",
+    "translation_title_label": "Title",
+    "translation_instruction_label": "Instruction",
+    "select_step_to_preview": "Select a step to preview",
+    "untitled_step": "Untitled step",
+    "delete_step": "Delete step",
+    "supervisor_prefix": "Supervisor: {{name}}",
+    "flow_prefix": "Flow: {{name}}",
+    "demo_badge": "Demo",
+    "response_label": "Response: {{value}}",
+    "skipped_label": "Skipped: {{reason}}",
+    "close": "Close",
+    "photo_alt": "Photo {{index}}",
+    "session_status": {
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "escalated": "Escalated",
+      "quick_fix": "Quick Fix",
+      "abandoned": "Abandoned"
+    },
+    "flow_settings_title": "Flow Settings",
+    "add_contact": "+ Add",
+    "contact_name_placeholder": "Name",
+    "contact_role_placeholder": "Role",
+    "contact_phone_placeholder": "Phone",
+    "back": "Back",
+    "triage_history_title": "Triage History",
+    "supervisor_label_short": "Supervisor",
+    "flow_label_short": "Flow",
+    "duration_label_short": "Duration",
+    "steps_completed": "Steps completed",
+    "edit_step_title": "Edit Step #{{number}}",
+    "title_field": "Title *",
+    "phase_field": "Phase",
+    "type_field": "Type",
+    "safety_field": "Safety",
+    "select_step_to_edit": "Select a step to edit",
+    "preview_label": "Preview",
+    "triage_flows_title": "Triage Flows",
+    "triage_flows_subtitle": "Manage operator triage guidance flows",
+    "templates_subtitle": "FirmiCore built-in triage flow templates",
+    "no_templates_available": "No templates available.",
+    "session_not_found": "Session not found",
+    "not_found": "Not found",
+    "step_type": {
+      "statement": "Statement",
+      "yes_no": "Yes / No",
+      "multiple_choice": "Multiple Choice",
+      "photo_required": "Photo Required",
+      "number_input": "Number Input",
+      "text_input": "Text Input",
+      "checklist": "Checklist"
+    }
   },
   "common": {
     "signOut": "Sign out",
@@ -3683,6 +3750,215 @@
           "modeRequired": "Mode is required"
         },
         "submit": "Save Module"
+      }
+    },
+    "triage": {
+      "knowledge": {
+        "page": {
+          "title": "Triage",
+          "subtitle": "Procedures, guides, contacts, and quick assessments",
+          "create": "Create",
+          "selectCategoryPrompt": "Select a category from the left panel"
+        },
+        "categoryRail": {
+          "categoriesHeading": "Categories",
+          "noCategories": "No categories yet",
+          "contacts": "Responsible Persons",
+          "assessments": "Quick Assessments"
+        },
+        "contactList": {
+          "heading": "Responsible Persons",
+          "subtitle": "Emergency contacts and key personnel",
+          "empty": "No contacts added yet.",
+          "deleteTitle": "Delete contact",
+          "levels": {
+            "normal": "Normal",
+            "emergency": "Emergency"
+          }
+        },
+        "contentList": {
+          "back": "Back",
+          "empty": "No content in this category yet.",
+          "deleteTitle": "Delete item",
+          "openFullSize": "Open full size ↗",
+          "types": {
+            "procedure": "Procedure",
+            "guide": "Guide",
+            "video": "Video",
+            "pdf": "PDF",
+            "image": "Image",
+            "media": "Media"
+          }
+        },
+        "assessmentList": {
+          "heading": "Quick Assessments",
+          "subtitle": "Test your knowledge and earn certifications",
+          "empty": "No assessments available yet.",
+          "passMark": "Pass mark: {{value}}%",
+          "lastScore": "Last score: {{value}}%",
+          "status": {
+            "certified": "Certified",
+            "retry": "Retry",
+            "start": "Start"
+          },
+          "button": {
+            "certified": "Review",
+            "retry": "Retry Quiz",
+            "start": "Take Quiz"
+          }
+        },
+        "quizModal": {
+          "passMark": "Pass mark: {{value}}%",
+          "close": "Close",
+          "progress": "{{current}} / {{total}}",
+          "correct": "✓ Correct!",
+          "incorrect": "✗ Incorrect",
+          "next": "Next →",
+          "finish": "Finish",
+          "resultSummary": "{{score}} / {{total}} correct · Pass mark {{passMark}}%",
+          "passedTitle": "Assessment Passed!",
+          "passedDetail": "You passed {{title}}",
+          "failedTitle": "Not Passed",
+          "failedDetail": "Review the material and try again",
+          "savingResult": "Saving result..."
+        },
+        "builder": {
+          "accessRestricted": {
+            "title": "Access Restricted",
+            "message": "The Triage Builder is available to Supervisors, Plant Managers, HR Officers, Safety Officers, and Admins only."
+          },
+          "back": "Back to Triage",
+          "title": "Triage Builder",
+          "subtitle": "Create and manage triage content, contacts, and assessments",
+          "tabs": {
+            "content": "Content & Categories",
+            "contacts": "Contacts",
+            "assessments": "Assessments"
+          },
+          "contactBuilder": {
+            "addContactHeading": "Add Contact",
+            "currentContactsHeading": "Current Contacts",
+            "fields": {
+              "name": "Name *",
+              "role": "Role",
+              "dept": "Department",
+              "phone": "Phone / Extension *",
+              "priority": "Priority"
+            },
+            "placeholders": {
+              "name": "Full name",
+              "role": "e.g. Maintenance Supervisor",
+              "dept": "e.g. Engineering",
+              "phone": "e.g. ext. 555 or +1 555-0100"
+            },
+            "levels": {
+              "normal": "normal",
+              "emergency": "emergency"
+            },
+            "saving": "Saving...",
+            "addContact": "+ Add Contact"
+          },
+          "assessmentBuilder": {
+            "newAssessmentHeading": "New Assessment",
+            "fields": {
+              "title": "Title *",
+              "category": "Category *",
+              "passMark": "Pass Mark (%)"
+            },
+            "placeholders": {
+              "title": "e.g. Safety Lockout Procedure Quiz",
+              "selectCategory": "Select…"
+            },
+            "questionLabel": "Question {{number}}",
+            "removeQuestion": "Remove",
+            "questionPlaceholder": "Question text…",
+            "optionPlaceholder": "Option {{letter}}",
+            "correctAnswerTitle": "Mark as correct answer",
+            "addQuestion": "+ Add Question",
+            "saving": "Saving...",
+            "saveAssessment": "💾 Save Assessment",
+            "existingHeading": "Existing Assessments ({{count}})",
+            "empty": "No assessments created yet.",
+            "summary": "{{category}} · {{count}} questions · Pass {{passMark}}%",
+            "deleteTitle": "Delete assessment",
+            "status": {
+              "open": "open",
+              "archived": "archived"
+            }
+          },
+          "contentBuilder": {
+            "addContentItemHeading": "Add Content Item",
+            "fields": {
+              "category": "Category *",
+              "type": "Type *",
+              "title": "Title *",
+              "meta": "Meta / subtitle",
+              "introduction": "Introduction",
+              "steps": "Steps (one per line, format: Title | description)",
+              "warningNote": "Warning note (optional)",
+              "bodyBullets": "Body bullets (one per line)",
+              "videoUrl": "YouTube URL or Video ID",
+              "uploadPdf": "Upload PDF or paste URL",
+              "uploadImage": "Upload an image",
+              "uploadFile": "Upload a file (video, document, etc.)"
+            },
+            "placeholders": {
+              "selectCategory": "Select category…",
+              "createNewCategory": "+ Create new category…",
+              "title": "e.g. Emergency Stop Procedure",
+              "meta": "e.g. Procedure · 6 steps · CRITICAL",
+              "introduction": "Brief explanation paragraph",
+              "steps": "Isolate power | Switch off main breaker\nCheck for hazards | Look for leaks or sparks",
+              "warningNote": "e.g. Do not restart without supervisor approval",
+              "bodyBullets": "Check oil level daily\nReplace filter every 500 hours",
+              "videoUrl": "https://youtube.com/watch?v=... or dQw4w9WgXcQ",
+              "orPasteUrl": "Or paste a public PDF URL",
+              "orPasteFileUrl": "Or paste a public file URL"
+            },
+            "types": {
+              "procedure": "procedure",
+              "guide": "guide",
+              "video": "video",
+              "pdf": "pdf",
+              "image": "image",
+              "media": "media"
+            },
+            "newCategory": {
+              "iconLabel": "Icon",
+              "titleLabel": "Title *",
+              "titlePlaceholder": "e.g. Safety & Emergency",
+              "descriptionLabel": "Description",
+              "descriptionPlaceholder": "Short description",
+              "colourLabel": "Colour",
+              "creating": "Creating…",
+              "createCategory": "Create Category",
+              "suggestions": {
+                "safetyEmergency": "Safety & Emergency",
+                "electrical": "Electrical",
+                "mechanical": "Mechanical",
+                "hydraulics": "Hydraulics",
+                "lubrication": "Lubrication",
+                "startupShutdown": "Startup & Shutdown",
+                "troubleshooting": "Troubleshooting",
+                "preventiveMaintenance": "Preventive Maintenance"
+              }
+            },
+            "saving": "Saving...",
+            "addContentItem": "+ Add Content Item",
+            "manageCategories": "Manage Categories ({{count}})",
+            "columns": {
+              "icon": "Icon",
+              "title": "Title",
+              "color": "Color",
+              "pinned": "Pinned",
+              "actions": "Actions"
+            },
+            "pinnedYes": "Yes",
+            "deleteCategoryTitle": "Delete category",
+            "livePreviewHeading": "Live Preview",
+            "addCategoryToPreview": "Add a category to see the preview"
+          }
+        }
       }
     }
   }
