@@ -2211,6 +2211,111 @@
         "title": "PM-Plan Bearbeiten",
         "notFound": "Plan nicht gefunden. Er wurde möglicherweise gelöscht."
       }
+    },
+    "workPermits": {
+      "pageTitle": "Arbeitserlaubnisse",
+      "pageSubtitle": "Arbeitserlaubnis: Sicherheitsgenehmigungen ausstellen, verfolgen, verlängern und abzeichnen.",
+      "newPermit": "Neue Erlaubnis",
+      "close": "Schließen",
+      "cancel": "Abbrechen",
+      "tabs": {
+        "current": "Aktuell",
+        "closed": "Geschlossen"
+      },
+      "empty": {
+        "closed": "Keine geschlossenen Erlaubnisse",
+        "current": "Keine aktuellen Erlaubnisse in dieser Kategorie"
+      },
+      "overdue": "Überfällig",
+      "noLocation": "Kein Standort",
+      "validRange": "Gültig {{from}} → {{to}}",
+      "workOrderLine": "AA: {{number}}",
+      "workOrderLineWithType": "AA: {{number}} ({{type}})",
+      "supervisorLine": "Vorgesetzter: {{name}}",
+      "signedOffBy": "abgezeichnet von {{name}}",
+      "extendTime": "Zeit Verlängern",
+      "finishAndSignOff": "Abschließen & Abzeichnen",
+      "statuses": {
+        "draft": "Entwurf",
+        "active": "aktiv",
+        "closed": "geschlossen",
+        "expired": "abgelaufen"
+      },
+      "completions": {
+        "completed": "Abgeschlossen",
+        "partially_completed": "Teilweise Abgeschlossen",
+        "not_completed": "Nicht Abgeschlossen"
+      },
+      "extendModal": {
+        "title": "Erlaubnis Verlängern",
+        "currentlyValidUntil": "Derzeit gültig bis {{date}}.",
+        "newValidUntil": "Neue Gültigkeit bis",
+        "extend": "Verlängern",
+        "extending": "Wird verlängert…",
+        "errors": {
+          "pickDateTime": "Wählen Sie ein neues Datum und eine neue Uhrzeit.",
+          "endMustBeLater": "Das neue Ende muss nach der aktuellen Gültigkeit liegen."
+        },
+        "toasts": {
+          "extended": "Erlaubnis verlängert.",
+          "failed": "Verlängerung der Erlaubnis fehlgeschlagen."
+        }
+      },
+      "signOffModal": {
+        "title": "Erlaubnis Abzeichnen",
+        "completionStatusLabel": "Abschlussstatus",
+        "noteLabel": "Notiz (optional)",
+        "signOff": "Abzeichnen",
+        "saving": "Wird gespeichert…",
+        "toasts": {
+          "signedOff": "Erlaubnis abgezeichnet.",
+          "failed": "Abzeichnen der Erlaubnis fehlgeschlagen."
+        }
+      },
+      "createModal": {
+        "title": "Neue Arbeitserlaubnis",
+        "workOrder": {
+          "label": "Arbeitsauftrag (optional)",
+          "none": "Nicht mit einem Arbeitsauftrag verknüpft",
+          "option": "{{number}} — {{machine}}",
+          "machineFallback": "Maschine",
+          "type": "Typ:",
+          "description": "Beschreibung:",
+          "createdBy": "AA erstellt von:"
+        },
+        "category": {
+          "label": "Erlaubniskategorie",
+          "newCategoryPlaceholder": "Name der neuen Kategorie",
+          "add": "Hinzufügen",
+          "addNew": "+ Neue Kategorie hinzufügen…"
+        },
+        "fields": {
+          "title": "Titel *",
+          "titlePlaceholder": "Auszuführende Arbeit",
+          "location": "Standort",
+          "locationPlaceholder": "Bereich / Maschine",
+          "validFrom": "Gültig ab",
+          "validTo": "Gültig bis (Dauer)",
+          "supervisor": "Vorgesetzten zuweisen (optional)",
+          "noSupervisor": "Kein Vorgesetzter — Sicherheitsteam übernimmt die Abzeichnung",
+          "description": "Beschreibung der Arbeit",
+          "hazards": "Identifizierte Gefahren",
+          "precautions": "Vorhandene Vorsichtsmaßnahmen",
+          "noPrecautions": "Keine voreingestellten Vorsichtsmaßnahmen für diese Kategorie — notieren Sie oben etwaige Gefahren.",
+          "ppe": "Erforderliche PSA",
+          "ppePlaceholder": "z. B. Helm, Handschuhe, Gurt"
+        },
+        "submit": "Erlaubnis Ausstellen",
+        "saving": "Wird gespeichert…",
+        "errors": {
+          "titleRequired": "Geben Sie der Erlaubnis einen Titel.",
+          "validToBeforeFrom": "„Gültig bis“ muss am oder nach „Gültig ab“ liegen."
+        },
+        "toasts": {
+          "issued": "Arbeitserlaubnis ausgestellt.",
+          "failed": "Ausstellung der Erlaubnis fehlgeschlagen."
+        }
+      }
     }
   }
 }

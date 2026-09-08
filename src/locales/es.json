@@ -2211,6 +2211,111 @@
         "title": "Editar Programa de MP",
         "notFound": "Programa no encontrado. Es posible que haya sido eliminado."
       }
+    },
+    "workPermits": {
+      "pageTitle": "Permisos de Trabajo",
+      "pageSubtitle": "Permiso de Trabajo: emitir, rastrear, extender y firmar permisos de seguridad.",
+      "newPermit": "Nuevo Permiso",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "tabs": {
+        "current": "Actuales",
+        "closed": "Cerrados"
+      },
+      "empty": {
+        "closed": "No hay permisos cerrados",
+        "current": "No hay permisos actuales en esta categoría"
+      },
+      "overdue": "Vencido",
+      "noLocation": "Sin ubicación",
+      "validRange": "Válido {{from}} → {{to}}",
+      "workOrderLine": "OT: {{number}}",
+      "workOrderLineWithType": "OT: {{number}} ({{type}})",
+      "supervisorLine": "Supervisor: {{name}}",
+      "signedOffBy": "firmado por {{name}}",
+      "extendTime": "Extender tiempo",
+      "finishAndSignOff": "Finalizar y firmar",
+      "statuses": {
+        "draft": "borrador",
+        "active": "activo",
+        "closed": "cerrado",
+        "expired": "vencido"
+      },
+      "completions": {
+        "completed": "Completado",
+        "partially_completed": "Parcialmente Completado",
+        "not_completed": "No Completado"
+      },
+      "extendModal": {
+        "title": "Extender permiso",
+        "currentlyValidUntil": "Actualmente válido hasta {{date}}.",
+        "newValidUntil": "Nueva validez hasta",
+        "extend": "Extender",
+        "extending": "Extendiendo…",
+        "errors": {
+          "pickDateTime": "Elija una nueva fecha y hora.",
+          "endMustBeLater": "El nuevo fin debe ser posterior a la validez actual."
+        },
+        "toasts": {
+          "extended": "Permiso extendido.",
+          "failed": "No se pudo extender el permiso."
+        }
+      },
+      "signOffModal": {
+        "title": "Firmar permiso",
+        "completionStatusLabel": "Estado de finalización",
+        "noteLabel": "Nota (opcional)",
+        "signOff": "Firmar",
+        "saving": "Guardando…",
+        "toasts": {
+          "signedOff": "Permiso firmado.",
+          "failed": "No se pudo firmar el permiso."
+        }
+      },
+      "createModal": {
+        "title": "Nuevo Permiso de Trabajo",
+        "workOrder": {
+          "label": "Orden de trabajo (opcional)",
+          "none": "No vinculado a una orden de trabajo",
+          "option": "{{number}} — {{machine}}",
+          "machineFallback": "Máquina",
+          "type": "Tipo:",
+          "description": "Descripción:",
+          "createdBy": "OT creada por:"
+        },
+        "category": {
+          "label": "Categoría de Permiso",
+          "newCategoryPlaceholder": "Nombre de la nueva categoría",
+          "add": "Agregar",
+          "addNew": "+ Agregar nueva categoría…"
+        },
+        "fields": {
+          "title": "Título *",
+          "titlePlaceholder": "Trabajo a realizar",
+          "location": "Ubicación",
+          "locationPlaceholder": "Área / máquina",
+          "validFrom": "Válido desde",
+          "validTo": "Válido hasta (duración)",
+          "supervisor": "Asignar supervisor (opcional)",
+          "noSupervisor": "Sin supervisor — el equipo de seguridad se encarga de la firma",
+          "description": "Descripción del trabajo",
+          "hazards": "Peligros identificados",
+          "precautions": "Precauciones vigentes",
+          "noPrecautions": "No hay precauciones preestablecidas para esta categoría — anote cualquier peligro arriba.",
+          "ppe": "EPP requerido",
+          "ppePlaceholder": "ej. Casco, guantes, arnés"
+        },
+        "submit": "Emitir Permiso",
+        "saving": "Guardando…",
+        "errors": {
+          "titleRequired": "Asigne un título al permiso.",
+          "validToBeforeFrom": "\"Válido hasta\" debe ser igual o posterior a \"Válido desde\"."
+        },
+        "toasts": {
+          "issued": "Permiso de trabajo emitido.",
+          "failed": "No se pudo emitir el permiso."
+        }
+      }
     }
   }
 }

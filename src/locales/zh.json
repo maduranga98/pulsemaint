@@ -2207,6 +2207,111 @@
         "title": "编辑 PM 计划",
         "notFound": "未找到该计划，可能已被删除。"
       }
+    },
+    "workPermits": {
+      "pageTitle": "工作许可证",
+      "pageSubtitle": "工作许可：签发、跟踪、延期并签核安全许可证。",
+      "newPermit": "新建许可证",
+      "close": "关闭",
+      "cancel": "取消",
+      "tabs": {
+        "current": "当前",
+        "closed": "已关闭"
+      },
+      "empty": {
+        "closed": "没有已关闭的许可证",
+        "current": "此类别下没有当前许可证"
+      },
+      "overdue": "已逾期",
+      "noLocation": "无位置信息",
+      "validRange": "有效期 {{from}} → {{to}}",
+      "workOrderLine": "工单：{{number}}",
+      "workOrderLineWithType": "工单：{{number}}（{{type}}）",
+      "supervisorLine": "主管：{{name}}",
+      "signedOffBy": "由 {{name}} 签核",
+      "extendTime": "延长时间",
+      "finishAndSignOff": "完成并签核",
+      "statuses": {
+        "draft": "草稿",
+        "active": "生效中",
+        "closed": "已关闭",
+        "expired": "已过期"
+      },
+      "completions": {
+        "completed": "已完成",
+        "partially_completed": "部分完成",
+        "not_completed": "未完成"
+      },
+      "extendModal": {
+        "title": "延长许可证",
+        "currentlyValidUntil": "当前有效期至 {{date}}。",
+        "newValidUntil": "新的有效期至",
+        "extend": "延长",
+        "extending": "延长中…",
+        "errors": {
+          "pickDateTime": "请选择新的日期和时间。",
+          "endMustBeLater": "新的结束时间必须晚于当前有效期。"
+        },
+        "toasts": {
+          "extended": "许可证已延长。",
+          "failed": "延长许可证失败。"
+        }
+      },
+      "signOffModal": {
+        "title": "签核许可证",
+        "completionStatusLabel": "完成状态",
+        "noteLabel": "备注（可选）",
+        "signOff": "签核",
+        "saving": "保存中…",
+        "toasts": {
+          "signedOff": "许可证已签核。",
+          "failed": "签核许可证失败。"
+        }
+      },
+      "createModal": {
+        "title": "新建工作许可证",
+        "workOrder": {
+          "label": "工单（可选）",
+          "none": "未关联工单",
+          "option": "{{number}} — {{machine}}",
+          "machineFallback": "设备",
+          "type": "类型：",
+          "description": "描述：",
+          "createdBy": "工单创建人："
+        },
+        "category": {
+          "label": "许可证类别",
+          "newCategoryPlaceholder": "新类别名称",
+          "add": "添加",
+          "addNew": "+ 添加新类别…"
+        },
+        "fields": {
+          "title": "标题 *",
+          "titlePlaceholder": "待完成的工作",
+          "location": "位置",
+          "locationPlaceholder": "区域/设备",
+          "validFrom": "生效起始",
+          "validTo": "有效期至（时长）",
+          "supervisor": "分配主管（可选）",
+          "noSupervisor": "无主管 — 由安全团队负责签核",
+          "description": "工作描述",
+          "hazards": "已识别的危险",
+          "precautions": "已采取的防范措施",
+          "noPrecautions": "此类别没有预设的防范措施 — 请在上方注明任何危险因素。",
+          "ppe": "所需个人防护装备",
+          "ppePlaceholder": "例如：头盔、手套、安全带"
+        },
+        "submit": "签发许可证",
+        "saving": "保存中…",
+        "errors": {
+          "titleRequired": "请为许可证填写标题。",
+          "validToBeforeFrom": "“有效期至”必须晚于或等于“生效起始”。"
+        },
+        "toasts": {
+          "issued": "工作许可证已签发。",
+          "failed": "签发许可证失败。"
+        }
+      }
     }
   }
 }

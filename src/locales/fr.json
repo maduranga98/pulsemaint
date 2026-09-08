@@ -2211,6 +2211,111 @@
         "title": "Modifier le Programme de MP",
         "notFound": "Programme introuvable. Il a peut-être été supprimé."
       }
+    },
+    "workPermits": {
+      "pageTitle": "Permis de Travail",
+      "pageSubtitle": "Permis de Travail : émettre, suivre, prolonger et valider les permis de sécurité.",
+      "newPermit": "Nouveau Permis",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "tabs": {
+        "current": "En Cours",
+        "closed": "Clôturés"
+      },
+      "empty": {
+        "closed": "Aucun permis clôturé",
+        "current": "Aucun permis en cours dans cette catégorie"
+      },
+      "overdue": "En Retard",
+      "noLocation": "Aucun emplacement",
+      "validRange": "Valide {{from}} → {{to}}",
+      "workOrderLine": "OT : {{number}}",
+      "workOrderLineWithType": "OT : {{number}} ({{type}})",
+      "supervisorLine": "Superviseur : {{name}}",
+      "signedOffBy": "validé par {{name}}",
+      "extendTime": "Prolonger le délai",
+      "finishAndSignOff": "Terminer et valider",
+      "statuses": {
+        "draft": "brouillon",
+        "active": "actif",
+        "closed": "clôturé",
+        "expired": "expiré"
+      },
+      "completions": {
+        "completed": "Terminé",
+        "partially_completed": "Partiellement Terminé",
+        "not_completed": "Non Terminé"
+      },
+      "extendModal": {
+        "title": "Prolonger le permis",
+        "currentlyValidUntil": "Actuellement valide jusqu'au {{date}}.",
+        "newValidUntil": "Nouvelle validité jusqu'à",
+        "extend": "Prolonger",
+        "extending": "Prolongation…",
+        "errors": {
+          "pickDateTime": "Choisissez une nouvelle date et heure.",
+          "endMustBeLater": "La nouvelle fin doit être postérieure à la validité actuelle."
+        },
+        "toasts": {
+          "extended": "Permis prolongé.",
+          "failed": "Échec de la prolongation du permis."
+        }
+      },
+      "signOffModal": {
+        "title": "Valider le permis",
+        "completionStatusLabel": "Statut d'achèvement",
+        "noteLabel": "Note (facultatif)",
+        "signOff": "Valider",
+        "saving": "Enregistrement…",
+        "toasts": {
+          "signedOff": "Permis validé.",
+          "failed": "Échec de la validation du permis."
+        }
+      },
+      "createModal": {
+        "title": "Nouveau Permis de Travail",
+        "workOrder": {
+          "label": "Ordre de travail (facultatif)",
+          "none": "Non lié à un ordre de travail",
+          "option": "{{number}} — {{machine}}",
+          "machineFallback": "Machine",
+          "type": "Type :",
+          "description": "Description :",
+          "createdBy": "OT créé par :"
+        },
+        "category": {
+          "label": "Catégorie de Permis",
+          "newCategoryPlaceholder": "Nom de la nouvelle catégorie",
+          "add": "Ajouter",
+          "addNew": "+ Ajouter une nouvelle catégorie…"
+        },
+        "fields": {
+          "title": "Titre *",
+          "titlePlaceholder": "Travail à effectuer",
+          "location": "Emplacement",
+          "locationPlaceholder": "Zone / machine",
+          "validFrom": "Valide à partir de",
+          "validTo": "Valide jusqu'à (durée)",
+          "supervisor": "Assigner un superviseur (facultatif)",
+          "noSupervisor": "Aucun superviseur — l'équipe sécurité gère la validation",
+          "description": "Description du travail",
+          "hazards": "Dangers identifiés",
+          "precautions": "Précautions en place",
+          "noPrecautions": "Aucune précaution prédéfinie pour cette catégorie — notez les dangers ci-dessus.",
+          "ppe": "EPI requis",
+          "ppePlaceholder": "ex. Casque, gants, harnais"
+        },
+        "submit": "Émettre le Permis",
+        "saving": "Enregistrement…",
+        "errors": {
+          "titleRequired": "Donnez un titre au permis.",
+          "validToBeforeFrom": "« Valide jusqu'à » doit être égal ou postérieur à « Valide à partir de »."
+        },
+        "toasts": {
+          "issued": "Permis de travail émis.",
+          "failed": "Échec de l'émission du permis."
+        }
+      }
     }
   }
 }
