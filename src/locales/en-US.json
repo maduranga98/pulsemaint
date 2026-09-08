@@ -2555,6 +2555,160 @@
           "reportedToOversight": "reported a safety case to {{name}}: {{title}}"
         }
       }
+    },
+    "safetyTrainings": {
+      "pageTitle": "Safety Trainings",
+      "viewSchedules": "View Training Schedules",
+      "createModule": "Create Safety Training Module",
+      "stats": {
+        "modules": "Safety modules",
+        "assignments": "Assignments",
+        "peopleAssigned": "People assigned"
+      },
+      "list": {
+        "empty": "No safety trainings yet. Use \"Create Safety Training Module\" above, then assign it.",
+        "assigned_one": "{{count}} assigned",
+        "assigned_other": "{{count}} assigned",
+        "notAssigned": "Not assigned to anyone yet.",
+        "assign": "Assign",
+        "edit": "Edit",
+        "delete": "Delete",
+        "defaultTitle": "Safety Training",
+        "completed": "Completed {{date}}"
+      },
+      "table": {
+        "attendee": "Attendee",
+        "assignedBy": "Assigned by",
+        "assignedAt": "Assigned at",
+        "completionStatus": "Completion status"
+      },
+      "deleteConfirm": "Delete \"{{title}}\"? This cannot be undone.",
+      "toasts": {
+        "deleted": "Safety training module deleted.",
+        "deleteFailed": "Failed to delete module. Please try again.",
+        "saveFailed": "Failed to save module. Please try again.",
+        "saved": "Safety training module saved. You can now add a quiz or assign it."
+      },
+      "createPage": {
+        "backAria": "Back to Safety Trainings",
+        "title": "Create Safety Training Module",
+        "untitled": "Untitled Safety Training"
+      }
+    },
+    "trainingShared": {
+      "statusBadge": {
+        "ariaLabel": "Status: {{label}}",
+        "statuses": {
+          "not_started": "Not Started",
+          "in_progress": "In Progress",
+          "quiz_passed": "Quiz Passed",
+          "quiz_failed": "Failed — Retry",
+          "awaiting_practical": "Awaiting Sign-Off",
+          "certified": "Certified ✓",
+          "expired": "Expired",
+          "retraining_required": "Retraining Required"
+        }
+      },
+      "assignForm": {
+        "title": "Assign Module",
+        "closeAria": "Close",
+        "modes": {
+          "users": "Users",
+          "roles": "Roles",
+          "departments": "Departments"
+        },
+        "searchPlaceholder": "Search users…",
+        "invitePending": "Invite pending",
+        "noDepartments": "No departments set up yet.",
+        "willBeAssigned_one": "{{count}} person will be assigned",
+        "willBeAssigned_other": "{{count}} people will be assigned",
+        "dueDate": "Due Date",
+        "optional": "(optional)",
+        "notifyAssignees": "Notify assignees",
+        "cancel": "Cancel",
+        "assign": "Assign",
+        "result": {
+          "assignedTo_one": "Assigned to {{count}} person.",
+          "assignedTo_other": "Assigned to {{count}} people.",
+          "skipped": " {{count}} already had an active assignment for this module and were skipped.",
+          "done": "Done"
+        },
+        "roleLabels": {
+          "admin": "Admin",
+          "plant_manager": "Plant Manager",
+          "supervisor": "Supervisor",
+          "technician": "Technician",
+          "store_keeper": "Store Keeper",
+          "hr_officer": "HR Officer",
+          "trainee": "Trainee",
+          "floor_operator": "Floor Operator",
+          "safety_officer": "Safety Officer"
+        },
+        "errors": {
+          "failed": "Failed to assign training."
+        },
+        "notification": {
+          "message": "You've been assigned a new training module: {{title}}",
+          "oversightMessage": "assigned \"{{title}}\" to {{name}}"
+        }
+      },
+      "editorLayout": {
+        "tabs": {
+          "settings": "Settings",
+          "lessons_one": "Lessons ({{count}})",
+          "lessons_other": "Lessons ({{count}})",
+          "lessonsNoCount": "Lessons"
+        },
+        "newModule": "New Module",
+        "lessonsSection": {
+          "title": "Lessons",
+          "count_one": "{{count}} lesson",
+          "count_other": "{{count}} lessons"
+        },
+        "quiz": {
+          "title": "Quiz",
+          "untitled": "Untitled Quiz",
+          "questions_one": "{{count}} question",
+          "questions_other": "{{count}} questions",
+          "passLabel": "Pass {{score}}%",
+          "editQuiz": "Edit Quiz",
+          "noQuiz": "No quiz yet",
+          "noQuizHint": "Add a quiz to assess learner understanding.",
+          "addQuiz": "Add Quiz"
+        }
+      },
+      "settingsForm": {
+        "sectionTitle": "Module Info",
+        "fields": {
+          "title": "Module Title",
+          "titlePlaceholder": "e.g. CNC Machine Safety Training",
+          "description": "Description",
+          "descriptionPlaceholder": "Briefly describe what this module covers…",
+          "trainingType": "Training Type",
+          "trainingTypePlaceholder": "e.g. Forklift Certification",
+          "chooseFromList": "Choose from list",
+          "selectTrainingType": "Select training type…",
+          "addNewType": "+ Add new type…",
+          "mode": "Mode",
+          "selectMode": "Select mode…",
+          "passingScore": "Passing Score",
+          "status": "Status",
+          "tags": "Tags",
+          "tagsPlaceholder": "safety, cnc, level-1  (comma-separated)",
+          "tagsHint": "Separate tags with commas"
+        },
+        "statuses": {
+          "draft": "Draft",
+          "active": "Active",
+          "archived": "Archived"
+        },
+        "errors": {
+          "titleRequired": "Title is required",
+          "trainingTypeRequired": "Training type is required",
+          "modeRequired": "Mode is required"
+        },
+        "submit": "Save Module"
+      }
     }
   }
 }

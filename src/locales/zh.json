@@ -2445,6 +2445,160 @@
           "reportedToOversight": "向 {{name}} 报告了安全事件：{{title}}"
         }
       }
+    },
+    "safetyTrainings": {
+      "pageTitle": "安全培训",
+      "viewSchedules": "查看培训安排",
+      "createModule": "创建安全培训模块",
+      "stats": {
+        "modules": "安全模块",
+        "assignments": "分配数",
+        "peopleAssigned": "已分配人数"
+      },
+      "list": {
+        "empty": "尚无安全培训。请先点击上方的\"创建安全培训模块\"，然后进行分配。",
+        "assigned_one": "已分配 {{count}} 人",
+        "assigned_other": "已分配 {{count}} 人",
+        "notAssigned": "尚未分配给任何人。",
+        "assign": "分配",
+        "edit": "编辑",
+        "delete": "删除",
+        "defaultTitle": "安全培训",
+        "completed": "已于 {{date}} 完成"
+      },
+      "table": {
+        "attendee": "参加人员",
+        "assignedBy": "分配人",
+        "assignedAt": "分配时间",
+        "completionStatus": "完成状态"
+      },
+      "deleteConfirm": "删除“{{title}}”？此操作无法撤销。",
+      "toasts": {
+        "deleted": "安全培训模块已删除。",
+        "deleteFailed": "删除模块失败，请重试。",
+        "saveFailed": "保存模块失败，请重试。",
+        "saved": "安全培训模块已保存。您现在可以添加测验或进行分配。"
+      },
+      "createPage": {
+        "backAria": "返回安全培训",
+        "title": "创建安全培训模块",
+        "untitled": "未命名安全培训"
+      }
+    },
+    "trainingShared": {
+      "statusBadge": {
+        "ariaLabel": "状态：{{label}}",
+        "statuses": {
+          "not_started": "未开始",
+          "in_progress": "进行中",
+          "quiz_passed": "测验已通过",
+          "quiz_failed": "未通过 — 重试",
+          "awaiting_practical": "等待签核",
+          "certified": "已认证 ✓",
+          "expired": "已过期",
+          "retraining_required": "需要再培训"
+        }
+      },
+      "assignForm": {
+        "title": "分配模块",
+        "closeAria": "关闭",
+        "modes": {
+          "users": "用户",
+          "roles": "角色",
+          "departments": "部门"
+        },
+        "searchPlaceholder": "搜索用户…",
+        "invitePending": "邀请待处理",
+        "noDepartments": "尚未设置任何部门。",
+        "willBeAssigned_one": "将分配给 {{count}} 人",
+        "willBeAssigned_other": "将分配给 {{count}} 人",
+        "dueDate": "截止日期",
+        "optional": "（可选）",
+        "notifyAssignees": "通知被分配人",
+        "cancel": "取消",
+        "assign": "分配",
+        "result": {
+          "assignedTo_one": "已分配给 {{count}} 人。",
+          "assignedTo_other": "已分配给 {{count}} 人。",
+          "skipped": " {{count}} 人已有此模块的有效分配，已跳过。",
+          "done": "完成"
+        },
+        "roleLabels": {
+          "admin": "管理员",
+          "plant_manager": "厂长",
+          "supervisor": "主管",
+          "technician": "技术员",
+          "store_keeper": "仓库管理员",
+          "hr_officer": "人力资源专员",
+          "trainee": "学员",
+          "floor_operator": "现场操作员",
+          "safety_officer": "安全专员"
+        },
+        "errors": {
+          "failed": "分配培训失败。"
+        },
+        "notification": {
+          "message": "系统已为您分配新的培训模块：{{title}}",
+          "oversightMessage": "将“{{title}}”分配给了 {{name}}"
+        }
+      },
+      "editorLayout": {
+        "tabs": {
+          "settings": "设置",
+          "lessons_one": "课程（{{count}}）",
+          "lessons_other": "课程（{{count}}）",
+          "lessonsNoCount": "课程"
+        },
+        "newModule": "新建模块",
+        "lessonsSection": {
+          "title": "课程",
+          "count_one": "{{count}} 节课",
+          "count_other": "{{count}} 节课"
+        },
+        "quiz": {
+          "title": "测验",
+          "untitled": "未命名测验",
+          "questions_one": "{{count}} 道题",
+          "questions_other": "{{count}} 道题",
+          "passLabel": "及格线 {{score}}%",
+          "editQuiz": "编辑测验",
+          "noQuiz": "尚无测验",
+          "noQuizHint": "添加测验以评估学员的理解程度。",
+          "addQuiz": "添加测验"
+        }
+      },
+      "settingsForm": {
+        "sectionTitle": "模块信息",
+        "fields": {
+          "title": "模块标题",
+          "titlePlaceholder": "例如：数控机床安全培训",
+          "description": "描述",
+          "descriptionPlaceholder": "简要描述此模块涵盖的内容…",
+          "trainingType": "培训类型",
+          "trainingTypePlaceholder": "例如：叉车认证",
+          "chooseFromList": "从列表中选择",
+          "selectTrainingType": "选择培训类型…",
+          "addNewType": "+ 添加新类型…",
+          "mode": "模式",
+          "selectMode": "选择模式…",
+          "passingScore": "及格分数",
+          "status": "状态",
+          "tags": "标签",
+          "tagsPlaceholder": "安全、数控、一级（以逗号分隔）",
+          "tagsHint": "用逗号分隔标签"
+        },
+        "statuses": {
+          "draft": "草稿",
+          "active": "启用",
+          "archived": "已归档"
+        },
+        "errors": {
+          "titleRequired": "标题为必填项",
+          "trainingTypeRequired": "培训类型为必填项",
+          "modeRequired": "模式为必填项"
+        },
+        "submit": "保存模块"
+      }
     }
   }
 }

@@ -2449,6 +2449,160 @@
           "reportedToOversight": "hat {{name}} einen Sicherheitsfall gemeldet: {{title}}"
         }
       }
+    },
+    "safetyTrainings": {
+      "pageTitle": "Sicherheitsschulungen",
+      "viewSchedules": "Schulungspläne Anzeigen",
+      "createModule": "Sicherheitsschulungsmodul Erstellen",
+      "stats": {
+        "modules": "Sicherheitsmodule",
+        "assignments": "Zuweisungen",
+        "peopleAssigned": "Zugewiesene Personen"
+      },
+      "list": {
+        "empty": "Noch keine Sicherheitsschulungen. Verwenden Sie oben „Sicherheitsschulungsmodul Erstellen“ und weisen Sie es dann zu.",
+        "assigned_one": "{{count}} zugewiesen",
+        "assigned_other": "{{count}} zugewiesen",
+        "notAssigned": "Noch niemandem zugewiesen.",
+        "assign": "Zuweisen",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "defaultTitle": "Sicherheitsschulung",
+        "completed": "Abgeschlossen am {{date}}"
+      },
+      "table": {
+        "attendee": "Teilnehmer",
+        "assignedBy": "Zugewiesen von",
+        "assignedAt": "Zugewiesen am",
+        "completionStatus": "Abschlussstatus"
+      },
+      "deleteConfirm": "„{{title}}“ löschen? Dies kann nicht rückgängig gemacht werden.",
+      "toasts": {
+        "deleted": "Sicherheitsschulungsmodul gelöscht.",
+        "deleteFailed": "Löschen des Moduls fehlgeschlagen. Bitte erneut versuchen.",
+        "saveFailed": "Speichern des Moduls fehlgeschlagen. Bitte erneut versuchen.",
+        "saved": "Sicherheitsschulungsmodul gespeichert. Sie können jetzt ein Quiz hinzufügen oder es zuweisen."
+      },
+      "createPage": {
+        "backAria": "Zurück zu Sicherheitsschulungen",
+        "title": "Sicherheitsschulungsmodul Erstellen",
+        "untitled": "Unbenannte Sicherheitsschulung"
+      }
+    },
+    "trainingShared": {
+      "statusBadge": {
+        "ariaLabel": "Status: {{label}}",
+        "statuses": {
+          "not_started": "Nicht Begonnen",
+          "in_progress": "In Bearbeitung",
+          "quiz_passed": "Quiz Bestanden",
+          "quiz_failed": "Nicht Bestanden — Wiederholen",
+          "awaiting_practical": "Abzeichnung Ausstehend",
+          "certified": "Zertifiziert ✓",
+          "expired": "Abgelaufen",
+          "retraining_required": "Nachschulung Erforderlich"
+        }
+      },
+      "assignForm": {
+        "title": "Modul Zuweisen",
+        "closeAria": "Schließen",
+        "modes": {
+          "users": "Benutzer",
+          "roles": "Rollen",
+          "departments": "Abteilungen"
+        },
+        "searchPlaceholder": "Benutzer suchen…",
+        "invitePending": "Einladung ausstehend",
+        "noDepartments": "Noch keine Abteilungen eingerichtet.",
+        "willBeAssigned_one": "{{count}} Person wird zugewiesen",
+        "willBeAssigned_other": "{{count}} Personen werden zugewiesen",
+        "dueDate": "Fälligkeitsdatum",
+        "optional": "(optional)",
+        "notifyAssignees": "Zugewiesene benachrichtigen",
+        "cancel": "Abbrechen",
+        "assign": "Zuweisen",
+        "result": {
+          "assignedTo_one": "{{count}} Person zugewiesen.",
+          "assignedTo_other": "{{count}} Personen zugewiesen.",
+          "skipped": " {{count}} hatten bereits eine aktive Zuweisung für dieses Modul und wurden übersprungen.",
+          "done": "Fertig"
+        },
+        "roleLabels": {
+          "admin": "Administrator",
+          "plant_manager": "Werksleiter",
+          "supervisor": "Vorgesetzter",
+          "technician": "Techniker",
+          "store_keeper": "Lagerverwalter",
+          "hr_officer": "Personalreferent",
+          "trainee": "Auszubildende(r)",
+          "floor_operator": "Betriebsmitarbeiter",
+          "safety_officer": "Sicherheitsbeauftragter"
+        },
+        "errors": {
+          "failed": "Zuweisung der Schulung fehlgeschlagen."
+        },
+        "notification": {
+          "message": "Ihnen wurde ein neues Schulungsmodul zugewiesen: {{title}}",
+          "oversightMessage": "hat „{{title}}“ an {{name}} zugewiesen"
+        }
+      },
+      "editorLayout": {
+        "tabs": {
+          "settings": "Einstellungen",
+          "lessons_one": "Lektionen ({{count}})",
+          "lessons_other": "Lektionen ({{count}})",
+          "lessonsNoCount": "Lektionen"
+        },
+        "newModule": "Neues Modul",
+        "lessonsSection": {
+          "title": "Lektionen",
+          "count_one": "{{count}} Lektion",
+          "count_other": "{{count}} Lektionen"
+        },
+        "quiz": {
+          "title": "Quiz",
+          "untitled": "Unbenanntes Quiz",
+          "questions_one": "{{count}} Frage",
+          "questions_other": "{{count}} Fragen",
+          "passLabel": "Bestehen {{score}}%",
+          "editQuiz": "Quiz Bearbeiten",
+          "noQuiz": "Noch kein Quiz",
+          "noQuizHint": "Fügen Sie ein Quiz hinzu, um das Verständnis der Lernenden zu bewerten.",
+          "addQuiz": "Quiz Hinzufügen"
+        }
+      },
+      "settingsForm": {
+        "sectionTitle": "Modulinformationen",
+        "fields": {
+          "title": "Modultitel",
+          "titlePlaceholder": "z. B. CNC-Maschinen-Sicherheitsschulung",
+          "description": "Beschreibung",
+          "descriptionPlaceholder": "Beschreiben Sie kurz, was dieses Modul abdeckt…",
+          "trainingType": "Schulungstyp",
+          "trainingTypePlaceholder": "z. B. Gabelstapler-Zertifizierung",
+          "chooseFromList": "Aus Liste wählen",
+          "selectTrainingType": "Schulungstyp auswählen…",
+          "addNewType": "+ Neuen Typ hinzufügen…",
+          "mode": "Modus",
+          "selectMode": "Modus auswählen…",
+          "passingScore": "Bestehensgrenze",
+          "status": "Status",
+          "tags": "Tags",
+          "tagsPlaceholder": "sicherheit, cnc, stufe-1 (durch Kommas getrennt)",
+          "tagsHint": "Tags durch Kommas trennen"
+        },
+        "statuses": {
+          "draft": "Entwurf",
+          "active": "Aktiv",
+          "archived": "Archiviert"
+        },
+        "errors": {
+          "titleRequired": "Titel ist erforderlich",
+          "trainingTypeRequired": "Schulungstyp ist erforderlich",
+          "modeRequired": "Modus ist erforderlich"
+        },
+        "submit": "Modul Speichern"
+      }
     }
   }
 }

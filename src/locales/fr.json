@@ -2449,6 +2449,160 @@
           "reportedToOversight": "a signalé un cas de sécurité à {{name}} : {{title}}"
         }
       }
+    },
+    "safetyTrainings": {
+      "pageTitle": "Formations Sécurité",
+      "viewSchedules": "Voir les Calendriers de Formation",
+      "createModule": "Créer un Module de Formation Sécurité",
+      "stats": {
+        "modules": "Modules de sécurité",
+        "assignments": "Affectations",
+        "peopleAssigned": "Personnes assignées"
+      },
+      "list": {
+        "empty": "Aucune formation sécurité pour l'instant. Utilisez « Créer un Module de Formation Sécurité » ci-dessus, puis assignez-le.",
+        "assigned_one": "{{count}} assigné",
+        "assigned_other": "{{count}} assignés",
+        "notAssigned": "Pas encore assigné à personne.",
+        "assign": "Assigner",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "defaultTitle": "Formation Sécurité",
+        "completed": "Terminé le {{date}}"
+      },
+      "table": {
+        "attendee": "Participant",
+        "assignedBy": "Assigné par",
+        "assignedAt": "Assigné le",
+        "completionStatus": "Statut d'achèvement"
+      },
+      "deleteConfirm": "Supprimer « {{title}} » ? Cette action est irréversible.",
+      "toasts": {
+        "deleted": "Module de formation sécurité supprimé.",
+        "deleteFailed": "Échec de la suppression du module. Réessayez.",
+        "saveFailed": "Échec de l'enregistrement du module. Réessayez.",
+        "saved": "Module de formation sécurité enregistré. Vous pouvez maintenant ajouter un quiz ou l'assigner."
+      },
+      "createPage": {
+        "backAria": "Retour aux Formations Sécurité",
+        "title": "Créer un Module de Formation Sécurité",
+        "untitled": "Formation Sécurité Sans Titre"
+      }
+    },
+    "trainingShared": {
+      "statusBadge": {
+        "ariaLabel": "Statut : {{label}}",
+        "statuses": {
+          "not_started": "Non Commencé",
+          "in_progress": "En Cours",
+          "quiz_passed": "Quiz Réussi",
+          "quiz_failed": "Échoué — Réessayer",
+          "awaiting_practical": "En Attente de Validation",
+          "certified": "Certifié ✓",
+          "expired": "Expiré",
+          "retraining_required": "Recyclage Requis"
+        }
+      },
+      "assignForm": {
+        "title": "Assigner le Module",
+        "closeAria": "Fermer",
+        "modes": {
+          "users": "Utilisateurs",
+          "roles": "Rôles",
+          "departments": "Départements"
+        },
+        "searchPlaceholder": "Rechercher des utilisateurs…",
+        "invitePending": "Invitation en attente",
+        "noDepartments": "Aucun département configuré pour l'instant.",
+        "willBeAssigned_one": "{{count}} personne sera assignée",
+        "willBeAssigned_other": "{{count}} personnes seront assignées",
+        "dueDate": "Date d'Échéance",
+        "optional": "(facultatif)",
+        "notifyAssignees": "Notifier les assignés",
+        "cancel": "Annuler",
+        "assign": "Assigner",
+        "result": {
+          "assignedTo_one": "Assigné à {{count}} personne.",
+          "assignedTo_other": "Assigné à {{count}} personnes.",
+          "skipped": " {{count}} avaient déjà une affectation active pour ce module et ont été ignorés.",
+          "done": "Terminé"
+        },
+        "roleLabels": {
+          "admin": "Administrateur",
+          "plant_manager": "Directeur d'Usine",
+          "supervisor": "Superviseur",
+          "technician": "Technicien",
+          "store_keeper": "Magasinier",
+          "hr_officer": "Responsable RH",
+          "trainee": "Stagiaire",
+          "floor_operator": "Opérateur de Production",
+          "safety_officer": "Responsable Sécurité"
+        },
+        "errors": {
+          "failed": "Échec de l'assignation de la formation."
+        },
+        "notification": {
+          "message": "Un nouveau module de formation vous a été assigné : {{title}}",
+          "oversightMessage": "a assigné « {{title}} » à {{name}}"
+        }
+      },
+      "editorLayout": {
+        "tabs": {
+          "settings": "Paramètres",
+          "lessons_one": "Leçons ({{count}})",
+          "lessons_other": "Leçons ({{count}})",
+          "lessonsNoCount": "Leçons"
+        },
+        "newModule": "Nouveau Module",
+        "lessonsSection": {
+          "title": "Leçons",
+          "count_one": "{{count}} leçon",
+          "count_other": "{{count}} leçons"
+        },
+        "quiz": {
+          "title": "Quiz",
+          "untitled": "Quiz Sans Titre",
+          "questions_one": "{{count}} question",
+          "questions_other": "{{count}} questions",
+          "passLabel": "Réussite {{score}}%",
+          "editQuiz": "Modifier le Quiz",
+          "noQuiz": "Pas encore de quiz",
+          "noQuizHint": "Ajoutez un quiz pour évaluer la compréhension de l'apprenant.",
+          "addQuiz": "Ajouter un Quiz"
+        }
+      },
+      "settingsForm": {
+        "sectionTitle": "Informations sur le Module",
+        "fields": {
+          "title": "Titre du Module",
+          "titlePlaceholder": "ex. Formation Sécurité Machine CNC",
+          "description": "Description",
+          "descriptionPlaceholder": "Décrivez brièvement ce que couvre ce module…",
+          "trainingType": "Type de Formation",
+          "trainingTypePlaceholder": "ex. Certification Chariot Élévateur",
+          "chooseFromList": "Choisir dans la liste",
+          "selectTrainingType": "Sélectionnez le type de formation…",
+          "addNewType": "+ Ajouter un nouveau type…",
+          "mode": "Mode",
+          "selectMode": "Sélectionnez le mode…",
+          "passingScore": "Score de Réussite",
+          "status": "Statut",
+          "tags": "Étiquettes",
+          "tagsPlaceholder": "sécurité, cnc, niveau-1 (séparés par des virgules)",
+          "tagsHint": "Séparez les étiquettes par des virgules"
+        },
+        "statuses": {
+          "draft": "Brouillon",
+          "active": "Actif",
+          "archived": "Archivé"
+        },
+        "errors": {
+          "titleRequired": "Le titre est requis",
+          "trainingTypeRequired": "Le type de formation est requis",
+          "modeRequired": "Le mode est requis"
+        },
+        "submit": "Enregistrer le Module"
+      }
     }
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { AssignmentStatus } from '@/lib/training/trainingTypes';
 
 interface TrainingStatusBadgeProps {
@@ -5,40 +6,29 @@ interface TrainingStatusBadgeProps {
   className?: string;
 }
 
-const STATUS_CONFIG: Record<
-  AssignmentStatus,
-  { label: string; className: string; pulse?: boolean }
-> = {
+const STATUS_CLASS_CONFIG: Record<AssignmentStatus, { className: string; pulse?: boolean }> = {
   not_started: {
-    label: 'Not Started',
     className: 'bg-gray-100 text-gray-600',
   },
   in_progress: {
-    label: 'In Progress',
     className: 'bg-blue-100 text-blue-700',
   },
   quiz_passed: {
-    label: 'Quiz Passed',
     className: 'bg-amber-100 text-amber-700',
   },
   quiz_failed: {
-    label: 'Failed — Retry',
     className: 'bg-red-100 text-red-700',
   },
   awaiting_practical: {
-    label: 'Awaiting Sign-Off',
     className: 'bg-amber-100 text-amber-700',
   },
   certified: {
-    label: 'Certified ✓',
     className: 'bg-green-100 text-green-700',
   },
   expired: {
-    label: 'Expired',
     className: 'bg-red-100 text-red-700',
   },
   retraining_required: {
-    label: 'Retraining Required',
     className: 'bg-red-100 text-red-700',
     pulse: true,
   },
@@ -48,7 +38,9 @@ export default function TrainingStatusBadge({
   status,
   className = '',
 }: TrainingStatusBadgeProps) {
-  const config = STATUS_CONFIG[status];
+  const { t } = useTranslation();
+  const config = STATUS_CLASS_CONFIG[status];
+  const label = t(`common.trainingShared.statusBadge.statuses.${status}`);
 
   return (
     <span
@@ -60,9 +52,9 @@ export default function TrainingStatusBadge({
       ]
         .filter(Boolean)
         .join(' ')}
-      aria-label={`Status: ${config.label}`}
+      aria-label={t('common.trainingShared.statusBadge.ariaLabel', { label })}
     >
-      {config.label}
+      {label}
     </span>
   );
 }

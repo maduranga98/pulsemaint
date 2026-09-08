@@ -2445,6 +2445,160 @@
           "reportedToOversight": "{{name}} に安全案件を報告しました：{{title}}"
         }
       }
+    },
+    "safetyTrainings": {
+      "pageTitle": "安全研修",
+      "viewSchedules": "研修スケジュールを表示",
+      "createModule": "安全研修モジュールを作成",
+      "stats": {
+        "modules": "安全モジュール",
+        "assignments": "割り当て数",
+        "peopleAssigned": "割り当て済み人数"
+      },
+      "list": {
+        "empty": "まだ安全研修がありません。上の「安全研修モジュールを作成」を使用してから割り当ててください。",
+        "assigned_one": "{{count}} 人に割り当て済み",
+        "assigned_other": "{{count}} 人に割り当て済み",
+        "notAssigned": "まだ誰にも割り当てられていません。",
+        "assign": "割り当て",
+        "edit": "編集",
+        "delete": "削除",
+        "defaultTitle": "安全研修",
+        "completed": "{{date}} に完了"
+      },
+      "table": {
+        "attendee": "受講者",
+        "assignedBy": "割り当て者",
+        "assignedAt": "割り当て日時",
+        "completionStatus": "完了ステータス"
+      },
+      "deleteConfirm": "「{{title}}」を削除しますか？この操作は元に戻せません。",
+      "toasts": {
+        "deleted": "安全研修モジュールを削除しました。",
+        "deleteFailed": "モジュールの削除に失敗しました。もう一度お試しください。",
+        "saveFailed": "モジュールの保存に失敗しました。もう一度お試しください。",
+        "saved": "安全研修モジュールを保存しました。クイズを追加するか、割り当てを行えます。"
+      },
+      "createPage": {
+        "backAria": "安全研修に戻る",
+        "title": "安全研修モジュールを作成",
+        "untitled": "無題の安全研修"
+      }
+    },
+    "trainingShared": {
+      "statusBadge": {
+        "ariaLabel": "ステータス：{{label}}",
+        "statuses": {
+          "not_started": "未開始",
+          "in_progress": "対応中",
+          "quiz_passed": "クイズ合格",
+          "quiz_failed": "不合格 — 再挑戦",
+          "awaiting_practical": "サインオフ待ち",
+          "certified": "認定済み ✓",
+          "expired": "期限切れ",
+          "retraining_required": "再研修が必要"
+        }
+      },
+      "assignForm": {
+        "title": "モジュールを割り当て",
+        "closeAria": "閉じる",
+        "modes": {
+          "users": "ユーザー",
+          "roles": "役割",
+          "departments": "部門"
+        },
+        "searchPlaceholder": "ユーザーを検索…",
+        "invitePending": "招待保留中",
+        "noDepartments": "まだ部門が設定されていません。",
+        "willBeAssigned_one": "{{count}} 人に割り当てられます",
+        "willBeAssigned_other": "{{count}} 人に割り当てられます",
+        "dueDate": "期限日",
+        "optional": "（任意）",
+        "notifyAssignees": "割り当て対象者に通知",
+        "cancel": "キャンセル",
+        "assign": "割り当て",
+        "result": {
+          "assignedTo_one": "{{count}} 人に割り当てました。",
+          "assignedTo_other": "{{count}} 人に割り当てました。",
+          "skipped": " このモジュールにすでに有効な割り当てがある {{count}} 人はスキップされました。",
+          "done": "完了"
+        },
+        "roleLabels": {
+          "admin": "管理者",
+          "plant_manager": "工場長",
+          "supervisor": "スーパーバイザー",
+          "technician": "技術者",
+          "store_keeper": "倉庫管理者",
+          "hr_officer": "人事担当者",
+          "trainee": "研修生",
+          "floor_operator": "現場オペレーター",
+          "safety_officer": "安全管理者"
+        },
+        "errors": {
+          "failed": "研修の割り当てに失敗しました。"
+        },
+        "notification": {
+          "message": "新しい研修モジュールが割り当てられました：{{title}}",
+          "oversightMessage": "「{{title}}」を {{name}} に割り当てました"
+        }
+      },
+      "editorLayout": {
+        "tabs": {
+          "settings": "設定",
+          "lessons_one": "レッスン（{{count}}）",
+          "lessons_other": "レッスン（{{count}}）",
+          "lessonsNoCount": "レッスン"
+        },
+        "newModule": "新規モジュール",
+        "lessonsSection": {
+          "title": "レッスン",
+          "count_one": "{{count}} レッスン",
+          "count_other": "{{count}} レッスン"
+        },
+        "quiz": {
+          "title": "クイズ",
+          "untitled": "無題のクイズ",
+          "questions_one": "{{count}} 問",
+          "questions_other": "{{count}} 問",
+          "passLabel": "合格ライン {{score}}%",
+          "editQuiz": "クイズを編集",
+          "noQuiz": "まだクイズがありません",
+          "noQuizHint": "受講者の理解度を評価するクイズを追加してください。",
+          "addQuiz": "クイズを追加"
+        }
+      },
+      "settingsForm": {
+        "sectionTitle": "モジュール情報",
+        "fields": {
+          "title": "モジュールタイトル",
+          "titlePlaceholder": "例：CNC設備安全研修",
+          "description": "説明",
+          "descriptionPlaceholder": "このモジュールの内容を簡単に説明してください…",
+          "trainingType": "研修タイプ",
+          "trainingTypePlaceholder": "例：フォークリフト資格",
+          "chooseFromList": "リストから選択",
+          "selectTrainingType": "研修タイプを選択…",
+          "addNewType": "+ 新しいタイプを追加…",
+          "mode": "モード",
+          "selectMode": "モードを選択…",
+          "passingScore": "合格点",
+          "status": "ステータス",
+          "tags": "タグ",
+          "tagsPlaceholder": "安全, cnc, レベル1（カンマ区切り）",
+          "tagsHint": "タグはカンマで区切ってください"
+        },
+        "statuses": {
+          "draft": "下書き",
+          "active": "有効",
+          "archived": "アーカイブ済み"
+        },
+        "errors": {
+          "titleRequired": "タイトルは必須です",
+          "trainingTypeRequired": "研修タイプは必須です",
+          "modeRequired": "モードは必須です"
+        },
+        "submit": "モジュールを保存"
+      }
     }
   }
 }
