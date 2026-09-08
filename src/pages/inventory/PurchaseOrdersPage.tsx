@@ -70,7 +70,7 @@ export function PurchaseOrdersPage() {
       });
       const order = orders.find((o) => o.id === id);
       if (order) await queueEmail(order, 'approved');
-      toastSuccess('Purchase order approved.');
+      toastSuccess(t('common.inventory.po.list.toasts.approved'));
       logAuditEvent({
         companyId: userProfile.companyId,
         userId: userProfile.id,
@@ -82,13 +82,17 @@ export function PurchaseOrdersPage() {
         entityName: `Purchase Order ${id}`,
       }).catch(() => {});
     } catch (err) {
-      toastError(err instanceof Error ? `Failed to approve PO: ${err.message}` : 'Failed to approve PO.');
+      toastError(
+        err instanceof Error
+          ? t('common.inventory.po.list.toasts.approveFailed', { message: err.message })
+          : t('common.inventory.po.list.toasts.approveFailedGeneric'),
+      );
     }
   }
 
   async function handleReject(id: string) {
     if (!userProfile) return;
-    const reason = window.prompt('Reason for rejection?') ?? '';
+    const reason = window.prompt(t('common.inventory.po.list.toasts.rejectPrompt')) ?? '';
     if (!reason) return;
     try {
       await updateDoc(doc(db, 'purchaseOrders', id), {
@@ -102,7 +106,7 @@ export function PurchaseOrdersPage() {
       });
       const order = orders.find((o) => o.id === id);
       if (order) await queueEmail(order, 'rejected');
-      toastSuccess('Purchase order rejected.');
+      toastSuccess(t('common.inventory.po.list.toasts.rejected'));
       logAuditEvent({
         companyId: userProfile.companyId,
         userId: userProfile.id,
@@ -114,7 +118,11 @@ export function PurchaseOrdersPage() {
         entityName: `Purchase Order ${id}`,
       }).catch(() => {});
     } catch (err) {
-      toastError(err instanceof Error ? `Failed to reject PO: ${err.message}` : 'Failed to reject PO.');
+      toastError(
+        err instanceof Error
+          ? t('common.inventory.po.list.toasts.rejectFailed', { message: err.message })
+          : t('common.inventory.po.list.toasts.rejectFailedGeneric'),
+      );
     }
   }
 
@@ -124,9 +132,13 @@ export function PurchaseOrdersPage() {
         status: 'cancelled',
         updatedAt: serverTimestamp(),
       });
-      toastSuccess('Purchase order cancelled.');
+      toastSuccess(t('common.inventory.po.list.toasts.cancelled'));
     } catch (err) {
-      toastError(err instanceof Error ? `Failed to cancel PO: ${err.message}` : 'Failed to cancel PO.');
+      toastError(
+        err instanceof Error
+          ? t('common.inventory.po.list.toasts.cancelFailed', { message: err.message })
+          : t('common.inventory.po.list.toasts.cancelFailedGeneric'),
+      );
     }
   }
 

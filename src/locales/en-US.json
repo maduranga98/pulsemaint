@@ -256,7 +256,294 @@
       "po": {
         "title": "Purchase Orders",
         "suppliers": "Suppliers",
-        "createPO": "Create PO"
+        "createPO": "Create PO",
+        "statuses": {
+          "draft": "Draft",
+          "pending_approval": "Pending Approval",
+          "approved": "Approved",
+          "rejected": "Rejected",
+          "sent": "Sent",
+          "invoice_received": "Invoice Received",
+          "acknowledged": "Acknowledged",
+          "received": "Received",
+          "partially_received": "Partially Received",
+          "cancelled": "Cancelled"
+        },
+        "detail": {
+          "timeline": {
+            "title": "Timeline",
+            "steps": {
+              "raised": "Raised",
+              "sent": "Sent",
+              "invoiceReceived": "Invoice Received",
+              "acknowledged": "Acknowledged",
+              "received": "Received"
+            }
+          },
+          "history": {
+            "title": "Process History",
+            "empty": "No history yet.",
+            "events": {
+              "raised": "Raised",
+              "rejected": "Rejected",
+              "approved": "Approved",
+              "sentToSupplier": "Sent to Supplier",
+              "invoiceReceived": "Invoice Received",
+              "pricedPoSent": "Priced PO Sent",
+              "pricedPoSentRevision": "Priced PO Sent (revision {{number}})",
+              "acknowledged": "Acknowledged",
+              "stockReceived": "Stock Received",
+              "cancelled": "Cancelled"
+            }
+          },
+          "items": {
+            "title": "Order Items",
+            "columns": {
+              "part": "Part",
+              "ordered": "Ordered",
+              "received": "Received",
+              "outstanding": "Outstanding",
+              "unitCost": "Unit Cost",
+              "total": "Total"
+            },
+            "outstandingLabel": "Outstanding",
+            "grandTotalLabel": "Grand Total"
+          },
+          "receiptHistory": {
+            "title": "Receipt History",
+            "noDeliveryRef": "No delivery reference"
+          },
+          "attachments": {
+            "title": "Attachments"
+          },
+          "notes": {
+            "title": "Notes"
+          },
+          "actions": {
+            "downloadPdf": "Download / Print PDF",
+            "editPo": "Edit PO",
+            "submitForApproval": "Submit for Approval",
+            "approve": "Approve",
+            "reject": "Reject",
+            "sendToSupplier": "Send to Supplier",
+            "sendToSupplierDisabledTitle": "Add a supplier email to this PO before sending",
+            "submitReceivedInvoice": "Submit Received Invoice",
+            "reviewInvoiceAndSend": "Review Invoice & Send Priced PO",
+            "markAcknowledged": "Mark as Acknowledged",
+            "attachRenewedInvoice": "Attach Renewed Invoice",
+            "markAsReceived": "Mark as Received",
+            "cancelPo": "Cancel PO"
+          },
+          "sendModal": {
+            "title": "Send PO to {{supplierName}}",
+            "defaultSupplier": "Supplier",
+            "description": "An email with the PO details will be sent to <1>{{email}}</1>.",
+            "noEmailOnFile": "the supplier (no email on file)",
+            "messageLabel": "Message (optional)",
+            "messagePlaceholder": "Add a note for the supplier…",
+            "cancel": "Cancel",
+            "send": "Send",
+            "sending": "Sending…"
+          },
+          "invoiceModal": {
+            "titleSubmit": "Submit Received Invoice",
+            "titleRenew": "Attach Renewed Invoice",
+            "descriptionInitial": "Attach the invoice the supplier sent for <1>{{poNumber}}</1>. You'll review and confirm its pricing next.",
+            "descriptionRenewal": "Attach an updated invoice from the supplier for <1>{{poNumber}}</1>. Use Review Invoice & Send Priced PO to apply any new pricing from it.",
+            "fileLabel": "Invoice file",
+            "cancel": "Cancel",
+            "submit": "Submit",
+            "uploading": "Uploading…"
+          },
+          "reviewModal": {
+            "title": "Review Invoice Pricing",
+            "description": "Enter the unit cost from the supplier's invoice for each item — pre-filled with the current PO price. Sending will email the supplier the finalized priced PO. You can come back and revise again later if the price changes.",
+            "qtyLabel": "Qty {{count}}",
+            "unitCostLabel": "Unit Cost ({{currency}})",
+            "messageLabel": "Message to supplier (optional)",
+            "messagePlaceholder": "Add a note for the supplier…",
+            "cancel": "Cancel",
+            "confirmAndSend": "Confirm & Send Priced PO",
+            "sending": "Sending…"
+          },
+          "cancelModal": {
+            "title": "Cancel Purchase Order?",
+            "description": "This purchase order will be marked as cancelled and cannot be undone.",
+            "descriptionSentNote": " Since it was already sent, the supplier will be emailed with the reason below.",
+            "reasonLabelRequired": "Reason *",
+            "reasonLabelOptional": "Reason (optional)",
+            "reasonPlaceholderRequired": "Why is this order being cancelled?",
+            "reasonPlaceholderOptional": "Optional note",
+            "keepPo": "Keep PO",
+            "confirmCancel": "Yes, Cancel",
+            "cancelling": "Cancelling…"
+          },
+          "toasts": {
+            "approved": "Purchase order approved.",
+            "approveFailed": "Failed to approve PO: {{message}}",
+            "approveFailedGeneric": "Failed to approve PO.",
+            "rejected": "Purchase order rejected.",
+            "rejectFailed": "Failed to reject PO: {{message}}",
+            "rejectFailedGeneric": "Failed to reject PO.",
+            "acknowledgedRecorded": "Supplier acknowledgement recorded.",
+            "updateFailed": "Failed to update PO.",
+            "submittedForApproval": "Purchase order submitted for approval.",
+            "submitForApprovalFailed": "Failed to submit PO for approval.",
+            "missingSupplierEmail": "Add a supplier email to this PO before sending — without one, no email can go out.",
+            "sentToSupplier": "PO sent to supplier.",
+            "sentButEmailFailed": "PO marked as sent, but the supplier email could not be queued. Check the console and retry.",
+            "invoiceSubmitted": "Invoice submitted. Review it to confirm pricing.",
+            "invoiceRenewed": "Renewed invoice attached.",
+            "invoiceSubmitFailed": "Failed to submit invoice.",
+            "pricedPoSent": "Priced PO sent to supplier.",
+            "pricedPoSavedEmailFailed": "Pricing saved, but the priced PO email could not be queued. Check the console and retry.",
+            "pricingSaveFailed": "Failed to save invoice pricing.",
+            "cancelled": "Purchase order cancelled.",
+            "cancelFailed": "Failed to cancel PO.",
+            "rejectPrompt": "Reason for rejection?"
+          }
+        },
+        "form": {
+          "supplierInfo": {
+            "title": "Supplier Information",
+            "selectSupplierLabel": "Select Supplier",
+            "selectSupplierPlaceholder": "— Choose a saved supplier, or fill in details below —",
+            "fields": {
+              "supplierName": "Supplier Name *",
+              "supplierNamePlaceholder": "Supplier name",
+              "contactPerson": "Contact Person",
+              "contactPersonPlaceholder": "Salesperson name",
+              "phone": "Phone",
+              "phonePlaceholder": "+94 ...",
+              "email": "Email",
+              "emailPlaceholder": "supplier@example.com",
+              "otherContact": "Other Contact",
+              "otherContactPlaceholder": "Fax, alt phone, etc.",
+              "currency": "Currency",
+              "supplierAddress": "Supplier Address",
+              "deliveryAddress": "Delivery / Ship-To Address",
+              "paymentTerms": "Payment Terms",
+              "paymentTermsPlaceholder": "e.g. Net 30, 50% advance"
+            }
+          },
+          "items": {
+            "title": "Order Items",
+            "addItem": "Add Item",
+            "empty": "No items added. Click \"Add Item\" to begin.",
+            "pricingNote": "Pricing is added once the supplier's invoice is reviewed."
+          },
+          "notes": {
+            "label": "Notes",
+            "placeholder": "Additional notes for this purchase order…"
+          },
+          "actions": {
+            "saveAsDraft": "Save as Draft",
+            "submitForApproval": "Submit for Approval",
+            "approve": "Approve"
+          },
+          "toasts": {
+            "missingItems": "Add at least one item with a part and quantity.",
+            "savedDraft": "PO saved as draft.",
+            "submittedForApproval": "PO submitted for approval.",
+            "approvedUseSend": "PO approved. Use \"Send to Supplier\" on the PO to email it.",
+            "saveFailed": "Failed to save purchase order: {{message}}"
+          }
+        },
+        "list": {
+          "empty": {
+            "title": "No purchase orders yet",
+            "subtitle": "Create your first purchase order to get started."
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "Search supplier…",
+            "statusAll": "All"
+          },
+          "noMatch": "No orders match your filters.",
+          "columns": {
+            "poNumber": "PO #",
+            "supplier": "Supplier",
+            "items": "Items",
+            "totalValue": "Total Value",
+            "status": "Status",
+            "raisedBy": "Raised By",
+            "date": "Date",
+            "actions": "Actions"
+          },
+          "actions": {
+            "view": "View",
+            "edit": "Edit",
+            "approve": "Approve",
+            "reject": "Reject",
+            "receive": "Receive",
+            "cancel": "Cancel"
+          },
+          "toasts": {
+            "approved": "Purchase order approved.",
+            "approveFailed": "Failed to approve PO: {{message}}",
+            "approveFailedGeneric": "Failed to approve PO.",
+            "rejectPrompt": "Reason for rejection?",
+            "rejected": "Purchase order rejected.",
+            "rejectFailed": "Failed to reject PO: {{message}}",
+            "rejectFailedGeneric": "Failed to reject PO.",
+            "cancelled": "Purchase order cancelled.",
+            "cancelFailed": "Failed to cancel PO: {{message}}",
+            "cancelFailedGeneric": "Failed to cancel PO."
+          }
+        },
+        "itemRow": {
+          "itemLabel": "Item {{number}}",
+          "removeAriaLabel": "Remove item",
+          "part": {
+            "label": "Part *",
+            "change": "Change",
+            "searchPlaceholder": "Search part by number or name…",
+            "scanPlaceholder": "Scan QR / enter part number, then Enter",
+            "lookup": "Lookup",
+            "lookingUp": "Looking…",
+            "scan": "Scan",
+            "scanTitle": "Scan QR with camera",
+            "scanModalTitle": "Scan Part for PO",
+            "notFound": "No part found for \"{{term}}\"",
+            "lookupFailed": "QR lookup failed"
+          },
+          "fields": {
+            "quantity": "Quantity *",
+            "unit": "Unit",
+            "expectedDelivery": "Expected Delivery"
+          }
+        },
+        "supplierPicker": {
+          "title": "Parts previously bought from this supplier — add any to ship together?",
+          "lowStockBadge": "Low stock",
+          "currentLabel": "Current:",
+          "lowAtLabel": "Low at:",
+          "maxLabel": "Max:",
+          "addSelected_one": "Add {{count}} selected to this PO",
+          "addSelected_other": "Add {{count}} selected to this PO",
+          "addSelectedNone": "Add selected to this PO"
+        },
+        "lowStockWidget": {
+          "title": "Low Stock Alerts",
+          "createPoForSelected_one": "Create PO for {{count}} selected",
+          "createPoForSelected_other": "Create PO for {{count}} selected",
+          "allAboveMin": "✓ All parts above minimum stock levels",
+          "selectAriaLabel": "Select {{name}}",
+          "stockLabel": "Stock: {{value}} {{unit}}",
+          "minLabel": "Min: {{value}} {{unit}}",
+          "orderNow": "Order Now"
+        },
+        "createPage": {
+          "title": "Create Purchase Order"
+        },
+        "editPage": {
+          "title": "Edit {{poNumber}}",
+          "backToList": "Back to Purchase Orders",
+          "notFound": "Purchase order not found."
+        },
+        "detailPage": {
+          "backToList": "Back to Purchase Orders",
+          "notFound": "Purchase order not found."
+        }
       },
       "filters": {
         "searchPlaceholder": "Search parts…",

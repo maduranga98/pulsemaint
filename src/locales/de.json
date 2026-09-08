@@ -150,7 +150,294 @@
       "po": {
         "title": "Bestellungen",
         "suppliers": "Lieferanten",
-        "createPO": "Bestellung erstellen"
+        "createPO": "Bestellung erstellen",
+        "statuses": {
+          "draft": "Entwurf",
+          "pending_approval": "Genehmigung ausstehend",
+          "approved": "Genehmigt",
+          "rejected": "Abgelehnt",
+          "sent": "Gesendet",
+          "invoice_received": "Rechnung erhalten",
+          "acknowledged": "Bestätigt",
+          "received": "Erhalten",
+          "partially_received": "Teilweise erhalten",
+          "cancelled": "Storniert"
+        },
+        "detail": {
+          "timeline": {
+            "title": "Zeitleiste",
+            "steps": {
+              "raised": "Erstellt",
+              "sent": "Gesendet",
+              "invoiceReceived": "Rechnung erhalten",
+              "acknowledged": "Bestätigt",
+              "received": "Erhalten"
+            }
+          },
+          "history": {
+            "title": "Vorgangsverlauf",
+            "empty": "Noch kein Verlauf vorhanden.",
+            "events": {
+              "raised": "Erstellt",
+              "rejected": "Abgelehnt",
+              "approved": "Genehmigt",
+              "sentToSupplier": "An Lieferant gesendet",
+              "invoiceReceived": "Rechnung erhalten",
+              "pricedPoSent": "Bepreiste Bestellung gesendet",
+              "pricedPoSentRevision": "Bepreiste Bestellung gesendet (Revision {{number}})",
+              "acknowledged": "Bestätigt",
+              "stockReceived": "Bestand erhalten",
+              "cancelled": "Storniert"
+            }
+          },
+          "items": {
+            "title": "Bestellpositionen",
+            "columns": {
+              "part": "Ersatzteil",
+              "ordered": "Bestellt",
+              "received": "Erhalten",
+              "outstanding": "Ausstehend",
+              "unitCost": "Stückkosten",
+              "total": "Gesamt"
+            },
+            "outstandingLabel": "Ausstehend",
+            "grandTotalLabel": "Gesamtsumme"
+          },
+          "receiptHistory": {
+            "title": "Wareneingangsverlauf",
+            "noDeliveryRef": "Keine Lieferreferenz"
+          },
+          "attachments": {
+            "title": "Anhänge"
+          },
+          "notes": {
+            "title": "Notizen"
+          },
+          "actions": {
+            "downloadPdf": "PDF herunterladen / drucken",
+            "editPo": "Bestellung bearbeiten",
+            "submitForApproval": "Zur Genehmigung einreichen",
+            "approve": "Genehmigen",
+            "reject": "Ablehnen",
+            "sendToSupplier": "An Lieferant senden",
+            "sendToSupplierDisabledTitle": "Fügen Sie dieser Bestellung eine Lieferanten-E-Mail hinzu, bevor Sie sie senden",
+            "submitReceivedInvoice": "Erhaltene Rechnung einreichen",
+            "reviewInvoiceAndSend": "Rechnung prüfen & bepreiste Bestellung senden",
+            "markAcknowledged": "Als bestätigt markieren",
+            "attachRenewedInvoice": "Erneuerte Rechnung anhängen",
+            "markAsReceived": "Als erhalten markieren",
+            "cancelPo": "Bestellung stornieren"
+          },
+          "sendModal": {
+            "title": "Bestellung an {{supplierName}} senden",
+            "defaultSupplier": "Lieferant",
+            "description": "Eine E-Mail mit den Bestelldetails wird an <1>{{email}}</1> gesendet.",
+            "noEmailOnFile": "den Lieferanten (keine E-Mail hinterlegt)",
+            "messageLabel": "Nachricht (optional)",
+            "messagePlaceholder": "Notiz für den Lieferanten hinzufügen…",
+            "cancel": "Abbrechen",
+            "send": "Senden",
+            "sending": "Wird gesendet…"
+          },
+          "invoiceModal": {
+            "titleSubmit": "Erhaltene Rechnung einreichen",
+            "titleRenew": "Erneuerte Rechnung anhängen",
+            "descriptionInitial": "Hängen Sie die vom Lieferanten für <1>{{poNumber}}</1> gesendete Rechnung an. Anschließend prüfen und bestätigen Sie die Preisgestaltung.",
+            "descriptionRenewal": "Hängen Sie eine aktualisierte Rechnung des Lieferanten für <1>{{poNumber}}</1> an. Verwenden Sie „Rechnung prüfen & bepreiste Bestellung senden“, um neue Preise anzuwenden.",
+            "fileLabel": "Rechnungsdatei",
+            "cancel": "Abbrechen",
+            "submit": "Einreichen",
+            "uploading": "Wird hochgeladen…"
+          },
+          "reviewModal": {
+            "title": "Rechnungspreise prüfen",
+            "description": "Geben Sie die Stückkosten aus der Rechnung des Lieferanten für jede Position ein — vorausgefüllt mit dem aktuellen Bestellpreis. Beim Senden wird dem Lieferanten die endgültige bepreiste Bestellung per E-Mail zugesandt. Sie können später zurückkehren und bei Preisänderungen erneut überarbeiten.",
+            "qtyLabel": "Menge {{count}}",
+            "unitCostLabel": "Stückkosten ({{currency}})",
+            "messageLabel": "Nachricht an den Lieferanten (optional)",
+            "messagePlaceholder": "Notiz für den Lieferanten hinzufügen…",
+            "cancel": "Abbrechen",
+            "confirmAndSend": "Bestätigen & bepreiste Bestellung senden",
+            "sending": "Wird gesendet…"
+          },
+          "cancelModal": {
+            "title": "Bestellung stornieren?",
+            "description": "Diese Bestellung wird als storniert markiert und kann nicht rückgängig gemacht werden.",
+            "descriptionSentNote": " Da sie bereits gesendet wurde, erhält der Lieferant eine E-Mail mit dem unten angegebenen Grund.",
+            "reasonLabelRequired": "Grund *",
+            "reasonLabelOptional": "Grund (optional)",
+            "reasonPlaceholderRequired": "Warum wird diese Bestellung storniert?",
+            "reasonPlaceholderOptional": "Optionale Notiz",
+            "keepPo": "Bestellung behalten",
+            "confirmCancel": "Ja, stornieren",
+            "cancelling": "Wird storniert…"
+          },
+          "toasts": {
+            "approved": "Bestellung genehmigt.",
+            "approveFailed": "Genehmigung der Bestellung fehlgeschlagen: {{message}}",
+            "approveFailedGeneric": "Genehmigung der Bestellung fehlgeschlagen.",
+            "rejected": "Bestellung abgelehnt.",
+            "rejectFailed": "Ablehnung der Bestellung fehlgeschlagen: {{message}}",
+            "rejectFailedGeneric": "Ablehnung der Bestellung fehlgeschlagen.",
+            "acknowledgedRecorded": "Lieferantenbestätigung erfasst.",
+            "updateFailed": "Aktualisierung der Bestellung fehlgeschlagen.",
+            "submittedForApproval": "Bestellung zur Genehmigung eingereicht.",
+            "submitForApprovalFailed": "Einreichen der Bestellung zur Genehmigung fehlgeschlagen.",
+            "missingSupplierEmail": "Fügen Sie dieser Bestellung eine Lieferanten-E-Mail hinzu, bevor Sie sie senden — ohne diese kann keine E-Mail gesendet werden.",
+            "sentToSupplier": "Bestellung an Lieferant gesendet.",
+            "sentButEmailFailed": "Die Bestellung wurde als gesendet markiert, aber die E-Mail an den Lieferanten konnte nicht eingereiht werden. Konsole prüfen und erneut versuchen.",
+            "invoiceSubmitted": "Rechnung eingereicht. Prüfen Sie sie, um die Preisgestaltung zu bestätigen.",
+            "invoiceRenewed": "Erneuerte Rechnung angehängt.",
+            "invoiceSubmitFailed": "Einreichen der Rechnung fehlgeschlagen.",
+            "pricedPoSent": "Bepreiste Bestellung an Lieferant gesendet.",
+            "pricedPoSavedEmailFailed": "Preisgestaltung gespeichert, aber die E-Mail der bepreisten Bestellung konnte nicht eingereiht werden. Konsole prüfen und erneut versuchen.",
+            "pricingSaveFailed": "Speichern der Rechnungspreise fehlgeschlagen.",
+            "cancelled": "Bestellung storniert.",
+            "cancelFailed": "Stornierung der Bestellung fehlgeschlagen.",
+            "rejectPrompt": "Grund für die Ablehnung?"
+          }
+        },
+        "form": {
+          "supplierInfo": {
+            "title": "Lieferanteninformationen",
+            "selectSupplierLabel": "Lieferant auswählen",
+            "selectSupplierPlaceholder": "— Wählen Sie einen gespeicherten Lieferanten oder füllen Sie die Details unten aus —",
+            "fields": {
+              "supplierName": "Lieferantenname *",
+              "supplierNamePlaceholder": "Lieferantenname",
+              "contactPerson": "Ansprechpartner",
+              "contactPersonPlaceholder": "Name des Vertriebsmitarbeiters",
+              "phone": "Telefon",
+              "phonePlaceholder": "+94 ...",
+              "email": "E-Mail",
+              "emailPlaceholder": "lieferant@beispiel.com",
+              "otherContact": "Weiterer Kontakt",
+              "otherContactPlaceholder": "Fax, alternative Telefonnummer usw.",
+              "currency": "Währung",
+              "supplierAddress": "Lieferantenadresse",
+              "deliveryAddress": "Liefer-/Versandadresse",
+              "paymentTerms": "Zahlungsbedingungen",
+              "paymentTermsPlaceholder": "z. B. Netto 30, 50 % Vorauszahlung"
+            }
+          },
+          "items": {
+            "title": "Bestellpositionen",
+            "addItem": "Position hinzufügen",
+            "empty": "Keine Positionen hinzugefügt. Klicken Sie auf „Position hinzufügen“, um zu beginnen.",
+            "pricingNote": "Die Preisgestaltung wird hinzugefügt, sobald die Rechnung des Lieferanten geprüft wurde."
+          },
+          "notes": {
+            "label": "Notizen",
+            "placeholder": "Zusätzliche Notizen zu dieser Bestellung…"
+          },
+          "actions": {
+            "saveAsDraft": "Als Entwurf speichern",
+            "submitForApproval": "Zur Genehmigung einreichen",
+            "approve": "Genehmigen"
+          },
+          "toasts": {
+            "missingItems": "Fügen Sie mindestens eine Position mit Ersatzteil und Menge hinzu.",
+            "savedDraft": "Bestellung als Entwurf gespeichert.",
+            "submittedForApproval": "Bestellung zur Genehmigung eingereicht.",
+            "approvedUseSend": "Bestellung genehmigt. Verwenden Sie „An Lieferant senden“ auf der Bestellung, um sie per E-Mail zu versenden.",
+            "saveFailed": "Speichern der Bestellung fehlgeschlagen: {{message}}"
+          }
+        },
+        "list": {
+          "empty": {
+            "title": "Noch keine Bestellungen",
+            "subtitle": "Erstellen Sie Ihre erste Bestellung, um zu beginnen."
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "Lieferant suchen…",
+            "statusAll": "Alle"
+          },
+          "noMatch": "Keine Bestellungen entsprechen Ihren Filtern.",
+          "columns": {
+            "poNumber": "Bestell-Nr.",
+            "supplier": "Lieferant",
+            "items": "Positionen",
+            "totalValue": "Gesamtwert",
+            "status": "Status",
+            "raisedBy": "Erstellt von",
+            "date": "Datum",
+            "actions": "Aktionen"
+          },
+          "actions": {
+            "view": "Anzeigen",
+            "edit": "Bearbeiten",
+            "approve": "Genehmigen",
+            "reject": "Ablehnen",
+            "receive": "Erhalten",
+            "cancel": "Stornieren"
+          },
+          "toasts": {
+            "approved": "Bestellung genehmigt.",
+            "approveFailed": "Genehmigung der Bestellung fehlgeschlagen: {{message}}",
+            "approveFailedGeneric": "Genehmigung der Bestellung fehlgeschlagen.",
+            "rejectPrompt": "Grund für die Ablehnung?",
+            "rejected": "Bestellung abgelehnt.",
+            "rejectFailed": "Ablehnung der Bestellung fehlgeschlagen: {{message}}",
+            "rejectFailedGeneric": "Ablehnung der Bestellung fehlgeschlagen.",
+            "cancelled": "Bestellung storniert.",
+            "cancelFailed": "Stornierung der Bestellung fehlgeschlagen: {{message}}",
+            "cancelFailedGeneric": "Stornierung der Bestellung fehlgeschlagen."
+          }
+        },
+        "itemRow": {
+          "itemLabel": "Position {{number}}",
+          "removeAriaLabel": "Position entfernen",
+          "part": {
+            "label": "Ersatzteil *",
+            "change": "Ändern",
+            "searchPlaceholder": "Ersatzteil nach Nummer oder Name suchen…",
+            "scanPlaceholder": "QR-Code scannen oder Ersatzteilnummer eingeben, dann Enter drücken",
+            "lookup": "Suchen",
+            "lookingUp": "Wird gesucht…",
+            "scan": "Scannen",
+            "scanTitle": "QR-Code mit der Kamera scannen",
+            "scanModalTitle": "Ersatzteil für Bestellung scannen",
+            "notFound": "Kein Ersatzteil für „{{term}}“ gefunden",
+            "lookupFailed": "QR-Suche fehlgeschlagen"
+          },
+          "fields": {
+            "quantity": "Menge *",
+            "unit": "Einheit",
+            "expectedDelivery": "Erwartete Lieferung"
+          }
+        },
+        "supplierPicker": {
+          "title": "Zuvor bei diesem Lieferanten gekaufte Ersatzteile — möchten Sie welche für den gemeinsamen Versand hinzufügen?",
+          "lowStockBadge": "Niedriger Bestand",
+          "currentLabel": "Aktuell:",
+          "lowAtLabel": "Niedrig bei:",
+          "maxLabel": "Max:",
+          "addSelected_one": "{{count}} ausgewähltes Teil zu dieser Bestellung hinzufügen",
+          "addSelected_other": "{{count}} ausgewählte Teile zu dieser Bestellung hinzufügen",
+          "addSelectedNone": "Auswahl zu dieser Bestellung hinzufügen"
+        },
+        "lowStockWidget": {
+          "title": "Warnungen bei niedrigem Bestand",
+          "createPoForSelected_one": "Bestellung für {{count}} ausgewähltes Teil erstellen",
+          "createPoForSelected_other": "Bestellung für {{count}} ausgewählte Teile erstellen",
+          "allAboveMin": "✓ Alle Ersatzteile liegen über dem Mindestbestand",
+          "selectAriaLabel": "{{name}} auswählen",
+          "stockLabel": "Bestand: {{value}} {{unit}}",
+          "minLabel": "Min: {{value}} {{unit}}",
+          "orderNow": "Jetzt bestellen"
+        },
+        "createPage": {
+          "title": "Bestellung erstellen"
+        },
+        "editPage": {
+          "title": "{{poNumber}} bearbeiten",
+          "backToList": "Zurück zu Bestellungen",
+          "notFound": "Bestellung nicht gefunden."
+        },
+        "detailPage": {
+          "backToList": "Zurück zu Bestellungen",
+          "notFound": "Bestellung nicht gefunden."
+        }
       },
       "filters": {
         "searchPlaceholder": "Teile suchen…",

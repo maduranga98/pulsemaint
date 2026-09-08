@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 import { PurchaseOrderForm } from '@/components/inventory/po/PurchaseOrderForm';
 import type { PurchaseOrder } from '@/types/inventory';
 
 export function CreatePurchaseOrderPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   function handleSave(saved: PurchaseOrder) {
@@ -16,7 +18,7 @@ export function CreatePurchaseOrderPage() {
         <Link to="/app/inventory/purchase-orders" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Create Purchase Order</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.po.createPage.title')}</h1>
       </div>
       <PurchaseOrderForm onSave={handleSave} />
     </div>

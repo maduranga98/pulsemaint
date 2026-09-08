@@ -150,7 +150,294 @@
       "po": {
         "title": "Bons de commande",
         "suppliers": "Fournisseurs",
-        "createPO": "Créer un bon de commande"
+        "createPO": "Créer un bon de commande",
+        "statuses": {
+          "draft": "Brouillon",
+          "pending_approval": "En attente d'approbation",
+          "approved": "Approuvée",
+          "rejected": "Rejetée",
+          "sent": "Envoyée",
+          "invoice_received": "Facture reçue",
+          "acknowledged": "Confirmée",
+          "received": "Reçue",
+          "partially_received": "Partiellement reçue",
+          "cancelled": "Annulée"
+        },
+        "detail": {
+          "timeline": {
+            "title": "Chronologie",
+            "steps": {
+              "raised": "Créée",
+              "sent": "Envoyée",
+              "invoiceReceived": "Facture reçue",
+              "acknowledged": "Confirmée",
+              "received": "Reçue"
+            }
+          },
+          "history": {
+            "title": "Historique du processus",
+            "empty": "Aucun historique pour le moment.",
+            "events": {
+              "raised": "Créée",
+              "rejected": "Rejetée",
+              "approved": "Approuvée",
+              "sentToSupplier": "Envoyée au fournisseur",
+              "invoiceReceived": "Facture reçue",
+              "pricedPoSent": "Bon de commande tarifé envoyé",
+              "pricedPoSentRevision": "Bon de commande tarifé envoyé (révision {{number}})",
+              "acknowledged": "Confirmée",
+              "stockReceived": "Stock reçu",
+              "cancelled": "Annulée"
+            }
+          },
+          "items": {
+            "title": "Articles de la commande",
+            "columns": {
+              "part": "Pièce",
+              "ordered": "Commandé",
+              "received": "Reçu",
+              "outstanding": "En attente",
+              "unitCost": "Coût unitaire",
+              "total": "Total"
+            },
+            "outstandingLabel": "En attente",
+            "grandTotalLabel": "Total général"
+          },
+          "receiptHistory": {
+            "title": "Historique des réceptions",
+            "noDeliveryRef": "Aucune référence de livraison"
+          },
+          "attachments": {
+            "title": "Pièces jointes"
+          },
+          "notes": {
+            "title": "Notes"
+          },
+          "actions": {
+            "downloadPdf": "Télécharger / Imprimer le PDF",
+            "editPo": "Modifier le BC",
+            "submitForApproval": "Soumettre pour approbation",
+            "approve": "Approuver",
+            "reject": "Rejeter",
+            "sendToSupplier": "Envoyer au fournisseur",
+            "sendToSupplierDisabledTitle": "Ajoutez un e-mail de fournisseur à ce BC avant de l'envoyer",
+            "submitReceivedInvoice": "Soumettre la facture reçue",
+            "reviewInvoiceAndSend": "Vérifier la facture et envoyer le BC tarifé",
+            "markAcknowledged": "Marquer comme confirmée",
+            "attachRenewedInvoice": "Joindre la facture renouvelée",
+            "markAsReceived": "Marquer comme reçue",
+            "cancelPo": "Annuler le BC"
+          },
+          "sendModal": {
+            "title": "Envoyer le BC à {{supplierName}}",
+            "defaultSupplier": "Fournisseur",
+            "description": "Un e-mail avec les détails du BC sera envoyé à <1>{{email}}</1>.",
+            "noEmailOnFile": "le fournisseur (aucun e-mail enregistré)",
+            "messageLabel": "Message (facultatif)",
+            "messagePlaceholder": "Ajoutez une note pour le fournisseur…",
+            "cancel": "Annuler",
+            "send": "Envoyer",
+            "sending": "Envoi en cours…"
+          },
+          "invoiceModal": {
+            "titleSubmit": "Soumettre la facture reçue",
+            "titleRenew": "Joindre la facture renouvelée",
+            "descriptionInitial": "Joignez la facture envoyée par le fournisseur pour <1>{{poNumber}}</1>. Vous vérifierez et confirmerez ensuite son tarif.",
+            "descriptionRenewal": "Joignez une facture mise à jour du fournisseur pour <1>{{poNumber}}</1>. Utilisez Vérifier la facture et envoyer le BC tarifé pour appliquer tout nouveau tarif.",
+            "fileLabel": "Fichier de la facture",
+            "cancel": "Annuler",
+            "submit": "Soumettre",
+            "uploading": "Téléversement…"
+          },
+          "reviewModal": {
+            "title": "Vérifier le tarif de la facture",
+            "description": "Saisissez le coût unitaire indiqué sur la facture du fournisseur pour chaque article, pré-rempli avec le prix actuel du BC. L'envoi enverra au fournisseur le BC tarifé finalisé par e-mail. Vous pourrez revenir et le réviser plus tard si le prix change.",
+            "qtyLabel": "Qté {{count}}",
+            "unitCostLabel": "Coût unitaire ({{currency}})",
+            "messageLabel": "Message au fournisseur (facultatif)",
+            "messagePlaceholder": "Ajoutez une note pour le fournisseur…",
+            "cancel": "Annuler",
+            "confirmAndSend": "Confirmer et envoyer le BC tarifé",
+            "sending": "Envoi en cours…"
+          },
+          "cancelModal": {
+            "title": "Annuler le bon de commande ?",
+            "description": "Ce bon de commande sera marqué comme annulé et cette action est irréversible.",
+            "descriptionSentNote": " Comme il a déjà été envoyé, le fournisseur recevra un e-mail avec le motif ci-dessous.",
+            "reasonLabelRequired": "Motif *",
+            "reasonLabelOptional": "Motif (facultatif)",
+            "reasonPlaceholderRequired": "Pourquoi cette commande est-elle annulée ?",
+            "reasonPlaceholderOptional": "Note facultative",
+            "keepPo": "Conserver le BC",
+            "confirmCancel": "Oui, annuler",
+            "cancelling": "Annulation…"
+          },
+          "toasts": {
+            "approved": "Bon de commande approuvé.",
+            "approveFailed": "Échec de l'approbation du BC : {{message}}",
+            "approveFailedGeneric": "Échec de l'approbation du BC.",
+            "rejected": "Bon de commande rejeté.",
+            "rejectFailed": "Échec du rejet du BC : {{message}}",
+            "rejectFailedGeneric": "Échec du rejet du BC.",
+            "acknowledgedRecorded": "Confirmation du fournisseur enregistrée.",
+            "updateFailed": "Échec de la mise à jour du BC.",
+            "submittedForApproval": "Bon de commande soumis pour approbation.",
+            "submitForApprovalFailed": "Échec de la soumission du BC pour approbation.",
+            "missingSupplierEmail": "Ajoutez un e-mail de fournisseur à ce BC avant de l'envoyer : sans cela, aucun e-mail ne peut être envoyé.",
+            "sentToSupplier": "BC envoyé au fournisseur.",
+            "sentButEmailFailed": "Le BC a été marqué comme envoyé, mais l'e-mail au fournisseur n'a pas pu être mis en file d'attente. Vérifiez la console et réessayez.",
+            "invoiceSubmitted": "Facture soumise. Vérifiez-la pour confirmer le tarif.",
+            "invoiceRenewed": "Facture renouvelée jointe.",
+            "invoiceSubmitFailed": "Échec de la soumission de la facture.",
+            "pricedPoSent": "BC tarifé envoyé au fournisseur.",
+            "pricedPoSavedEmailFailed": "Le tarif a été enregistré, mais l'e-mail du BC tarifé n'a pas pu être mis en file d'attente. Vérifiez la console et réessayez.",
+            "pricingSaveFailed": "Échec de l'enregistrement du tarif de la facture.",
+            "cancelled": "Bon de commande annulé.",
+            "cancelFailed": "Échec de l'annulation du BC.",
+            "rejectPrompt": "Motif du rejet ?"
+          }
+        },
+        "form": {
+          "supplierInfo": {
+            "title": "Informations sur le fournisseur",
+            "selectSupplierLabel": "Sélectionner un fournisseur",
+            "selectSupplierPlaceholder": "— Choisissez un fournisseur enregistré, ou remplissez les détails ci-dessous —",
+            "fields": {
+              "supplierName": "Nom du fournisseur *",
+              "supplierNamePlaceholder": "Nom du fournisseur",
+              "contactPerson": "Personne à contacter",
+              "contactPersonPlaceholder": "Nom du commercial",
+              "phone": "Téléphone",
+              "phonePlaceholder": "+94 ...",
+              "email": "E-mail",
+              "emailPlaceholder": "fournisseur@exemple.com",
+              "otherContact": "Autre contact",
+              "otherContactPlaceholder": "Fax, autre téléphone, etc.",
+              "currency": "Devise",
+              "supplierAddress": "Adresse du fournisseur",
+              "deliveryAddress": "Adresse de livraison",
+              "paymentTerms": "Conditions de paiement",
+              "paymentTermsPlaceholder": "p. ex. Net 30, 50 % d'acompte"
+            }
+          },
+          "items": {
+            "title": "Articles de la commande",
+            "addItem": "Ajouter un article",
+            "empty": "Aucun article ajouté. Cliquez sur « Ajouter un article » pour commencer.",
+            "pricingNote": "Le tarif est ajouté une fois la facture du fournisseur vérifiée."
+          },
+          "notes": {
+            "label": "Notes",
+            "placeholder": "Notes supplémentaires pour ce bon de commande…"
+          },
+          "actions": {
+            "saveAsDraft": "Enregistrer comme brouillon",
+            "submitForApproval": "Soumettre pour approbation",
+            "approve": "Approuver"
+          },
+          "toasts": {
+            "missingItems": "Ajoutez au moins un article avec une pièce et une quantité.",
+            "savedDraft": "BC enregistré comme brouillon.",
+            "submittedForApproval": "BC soumis pour approbation.",
+            "approvedUseSend": "BC approuvé. Utilisez « Envoyer au fournisseur » sur le BC pour l'envoyer par e-mail.",
+            "saveFailed": "Échec de l'enregistrement du bon de commande : {{message}}"
+          }
+        },
+        "list": {
+          "empty": {
+            "title": "Aucun bon de commande pour le moment",
+            "subtitle": "Créez votre premier bon de commande pour commencer."
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "Rechercher un fournisseur…",
+            "statusAll": "Tous"
+          },
+          "noMatch": "Aucune commande ne correspond à vos filtres.",
+          "columns": {
+            "poNumber": "N° de BC",
+            "supplier": "Fournisseur",
+            "items": "Articles",
+            "totalValue": "Valeur totale",
+            "status": "Statut",
+            "raisedBy": "Créé par",
+            "date": "Date",
+            "actions": "Actions"
+          },
+          "actions": {
+            "view": "Voir",
+            "edit": "Modifier",
+            "approve": "Approuver",
+            "reject": "Rejeter",
+            "receive": "Recevoir",
+            "cancel": "Annuler"
+          },
+          "toasts": {
+            "approved": "Bon de commande approuvé.",
+            "approveFailed": "Échec de l'approbation du BC : {{message}}",
+            "approveFailedGeneric": "Échec de l'approbation du BC.",
+            "rejectPrompt": "Motif du rejet ?",
+            "rejected": "Bon de commande rejeté.",
+            "rejectFailed": "Échec du rejet du BC : {{message}}",
+            "rejectFailedGeneric": "Échec du rejet du BC.",
+            "cancelled": "Bon de commande annulé.",
+            "cancelFailed": "Échec de l'annulation du BC : {{message}}",
+            "cancelFailedGeneric": "Échec de l'annulation du BC."
+          }
+        },
+        "itemRow": {
+          "itemLabel": "Article {{number}}",
+          "removeAriaLabel": "Supprimer l'article",
+          "part": {
+            "label": "Pièce *",
+            "change": "Modifier",
+            "searchPlaceholder": "Rechercher une pièce par numéro ou nom…",
+            "scanPlaceholder": "Scannez le code QR ou saisissez le numéro de pièce, puis Entrée",
+            "lookup": "Rechercher",
+            "lookingUp": "Recherche…",
+            "scan": "Scanner",
+            "scanTitle": "Scanner le code QR avec la caméra",
+            "scanModalTitle": "Scanner une pièce pour le BC",
+            "notFound": "Aucune pièce trouvée pour « {{term}} »",
+            "lookupFailed": "Échec de la lecture du code QR"
+          },
+          "fields": {
+            "quantity": "Quantité *",
+            "unit": "Unité",
+            "expectedDelivery": "Livraison prévue"
+          }
+        },
+        "supplierPicker": {
+          "title": "Pièces précédemment achetées à ce fournisseur — en ajouter pour les expédier ensemble ?",
+          "lowStockBadge": "Stock faible",
+          "currentLabel": "Actuel :",
+          "lowAtLabel": "Faible à :",
+          "maxLabel": "Max :",
+          "addSelected_one": "Ajouter {{count}} sélectionné à ce BC",
+          "addSelected_other": "Ajouter {{count}} sélectionnés à ce BC",
+          "addSelectedNone": "Ajouter la sélection à ce BC"
+        },
+        "lowStockWidget": {
+          "title": "Alertes de stock faible",
+          "createPoForSelected_one": "Créer un BC pour {{count}} sélectionné",
+          "createPoForSelected_other": "Créer un BC pour {{count}} sélectionnés",
+          "allAboveMin": "✓ Toutes les pièces sont au-dessus du niveau de stock minimum",
+          "selectAriaLabel": "Sélectionner {{name}}",
+          "stockLabel": "Stock : {{value}} {{unit}}",
+          "minLabel": "Min : {{value}} {{unit}}",
+          "orderNow": "Commander maintenant"
+        },
+        "createPage": {
+          "title": "Créer un bon de commande"
+        },
+        "editPage": {
+          "title": "Modifier {{poNumber}}",
+          "backToList": "Retour aux bons de commande",
+          "notFound": "Bon de commande introuvable."
+        },
+        "detailPage": {
+          "backToList": "Retour aux bons de commande",
+          "notFound": "Bon de commande introuvable."
+        }
       },
       "filters": {
         "searchPlaceholder": "Rechercher des pièces…",

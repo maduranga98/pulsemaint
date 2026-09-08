@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -7,6 +8,7 @@ import type { PurchaseOrder } from '@/types/inventory';
 import { PurchaseOrderDetail } from '@/components/inventory/po/PurchaseOrderDetail';
 
 export function PurchaseOrderDetailPage() {
+  const { t } = useTranslation();
   const { poId } = useParams<{ poId: string }>();
 
   // Subscribe to the single PO document — the company-wide list query needs a
@@ -55,10 +57,10 @@ export function PurchaseOrderDetailPage() {
     return (
       <div className="space-y-4">
         <Link to="/app/inventory/purchase-orders" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
-          <ChevronLeft className="w-4 h-4" /> Back to Purchase Orders
+          <ChevronLeft className="w-4 h-4" /> {t('common.inventory.po.detailPage.backToList')}
         </Link>
         <div className="p-6 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm">
-          Purchase order not found.
+          {t('common.inventory.po.detailPage.notFound')}
         </div>
       </div>
     );
@@ -70,7 +72,7 @@ export function PurchaseOrderDetailPage() {
         to="/app/inventory/purchase-orders"
         className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors"
       >
-        <ChevronLeft className="w-4 h-4" /> Back to Purchase Orders
+        <ChevronLeft className="w-4 h-4" /> {t('common.inventory.po.detailPage.backToList')}
       </Link>
       <PurchaseOrderDetail order={order} />
     </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QrCode, Trash2, ScanLine } from 'lucide-react';
 import { collection, getDocs, limit, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -32,6 +33,7 @@ export function PurchaseOrderItemRow({
   onUpdate,
   onRemove,
 }: PurchaseOrderItemRowProps) {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [qrInput, setQrInput] = useState('');
@@ -63,7 +65,7 @@ export function PurchaseOrderItemRow({
         ),
       );
       if (snap.empty) {
-        addToast(`No part found for "${term}"`, 'error');
+        addToast(t('common.inventory.po.itemRow.part.notFound', { term }), 'error');
         return;
       }
       const docSnap = snap.docs[0];
@@ -71,7 +73,7 @@ export function PurchaseOrderItemRow({
       setQrInput('');
     } catch (err) {
       console.error('QR lookup failed', err);
-      addToast('QR lookup failed', 'error');
+      addToast(t('common.inventory.po.itemRow.part.lookupFailed'), 'error');
     } finally {
       setLookingUp(false);
     }
@@ -81,13 +83,13 @@ export function PurchaseOrderItemRow({
     <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-white">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-          Item {index + 1}
+          {t('common.inventory.po.itemRow.itemLabel', { number: index + 1 })}
         </span>
         <button
           type="button"
           onClick={onRemove}
           className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-          aria-label="Remove item"
+          aria-label={t('common.inventory.po.itemRow.removeAriaLabel')}
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -95,7 +97,7 @@ export function PurchaseOrderItemRow({
 
       {/* Part search */}
       <div>
-        <label className="block text-xs font-medium text-gray-600 mb-1">Part *</label>
+        <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.inventory.po.itemRow.part.label')}</label>
         {value.partId ? (
           <div className="flex items-center gap-2 p-2.5 bg-blue-50 border border-blue-200 rounded-lg text-sm">
             <span className="font-mono text-blue-700 font-semibold">{value.partNumber}</span>
@@ -105,12 +107,12 @@ export function PurchaseOrderItemRow({
               onClick={() => onUpdate({ ...value, partId: '', partNumber: '', partName: '', unit: '' })}
               className="text-xs text-gray-400 hover:text-red-500 shrink-0"
             >
-              Change
+              {t('common.inventory.po.itemRow.part.change')}
             </button>
           </div>
         ) : (
           <div className="space-y-2">
-            <PartSearchInput onSelect={handlePartSelect} placeholder="Search part by number or name…" />
+            <PartSearchInput onSelect={handlePartSelect} placeholder={t('common.inventory.po.itemRow.part.searchPlaceholder')} />
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
                 <QrCode className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -126,7 +128,7 @@ export function PurchaseOrderItemRow({
                       lookupByCode(qrInput);
                     }
                   }}
-                  placeholder="Scan QR / enter part number, then Enter"
+                  placeholder={t('common.inventory.po.itemRow.part.scanPlaceholder')}
                   className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -136,16 +138,16 @@ export function PurchaseOrderItemRow({
                 disabled={!qrInput || lookingUp}
                 className="px-3 py-2 bg-gray-700 hover:bg-gray-800 disabled:opacity-50 text-white text-xs font-medium rounded-lg"
               >
-                {lookingUp ? 'Looking…' : 'Lookup'}
+                {lookingUp ? t('common.inventory.po.itemRow.part.lookingUp') : t('common.inventory.po.itemRow.part.lookup')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowScanner(true)}
-                title="Scan QR with camera"
+                title={t('common.inventory.po.itemRow.part.scanTitle')}
                 className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg flex items-center gap-1"
               >
                 <ScanLine className="w-3.5 h-3.5" />
-                Scan
+                {t('common.inventory.po.itemRow.part.scan')}
               </button>
             </div>
           </div>
@@ -154,7 +156,7 @@ export function PurchaseOrderItemRow({
 
       {showScanner && (
         <PartQrScanModal
-          title="Scan Part for PO"
+          title={t('common.inventory.po.itemRow.part.scanModalTitle')}
           onScan={(partNumber) => {
             setShowScanner(false);
             lookupByCode(partNumber);
@@ -166,7 +168,7 @@ export function PurchaseOrderItemRow({
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {/* Quantity */}
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Quantity *</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.inventory.po.itemRow.fields.quantity')}</label>
           <input
             type="number"
             min="0"
@@ -180,7 +182,7 @@ export function PurchaseOrderItemRow({
 
         {/* Unit */}
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Unit</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.inventory.po.itemRow.fields.unit')}</label>
           <div className="w-full border border-gray-200 bg-gray-50 rounded-lg px-3 py-2 text-sm font-semibold text-gray-800">
             {value.unit || ''}
           </div>
@@ -188,7 +190,7 @@ export function PurchaseOrderItemRow({
 
         {/* Expected delivery */}
         <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">Expected Delivery</label>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.inventory.po.itemRow.fields.expectedDelivery')}</label>
           <input
             type="date"
             value={value.expectedDelivery ?? ''}
