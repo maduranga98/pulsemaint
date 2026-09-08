@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface RequestPriorityBadgeProps {
   priority: 'critical' | 'high' | 'medium' | 'low';
   isUrgent?: boolean;
@@ -5,33 +7,31 @@ interface RequestPriorityBadgeProps {
 
 const config: Record<
   RequestPriorityBadgeProps['priority'],
-  { label: string; className: string; pulse: boolean }
+  { className: string; pulse: boolean }
 > = {
   critical: {
-    label: 'Critical',
     className: 'bg-red-100 text-red-700 border border-red-300',
     pulse: true,
   },
   high: {
-    label: 'High',
     className: 'bg-red-100 text-red-700 border border-red-200',
     pulse: false,
   },
   medium: {
-    label: 'Medium',
     className: 'bg-amber-100 text-amber-700 border border-amber-200',
     pulse: false,
   },
   low: {
-    label: 'Low',
     className: 'bg-gray-100 text-gray-600 border border-gray-200',
     pulse: false,
   },
 };
 
 export function RequestPriorityBadge({ priority, isUrgent }: RequestPriorityBadgeProps) {
-  const { label, className, pulse } = config[priority];
+  const { t } = useTranslation();
+  const { className, pulse } = config[priority];
   const shouldPulse = pulse || isUrgent;
+  const label = t(`common.workOrders.priorities.${priority}`);
 
   return (
     <span

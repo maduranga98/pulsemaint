@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 import {
   doc,
@@ -23,6 +24,7 @@ import { RequestReviewPanel } from '@/components/inventory/requests/RequestRevie
 import { RequestReviewHistory } from '@/components/inventory/requests/RequestReviewHistory';
 
 export function RequestDetailPage() {
+  const { t } = useTranslation();
   const { requestId } = useParams<{ requestId: string }>();
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -48,10 +50,10 @@ export function RequestDetailPage() {
     return (
       <div className="space-y-4">
         <Link to="/app/inventory/requests" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
-          <ChevronLeft className="w-4 h-4" /> Back to Requests
+          <ChevronLeft className="w-4 h-4" /> {t('common.inventory.requests.backToRequests')}
         </Link>
         <div className="p-6 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-          {error ?? 'Request not found.'}
+          {error ?? t('common.inventory.requests.requestNotFound')}
         </div>
       </div>
     );
@@ -216,15 +218,15 @@ export function RequestDetailPage() {
 
       addToast(
         decision === 'reject'
-          ? 'Request rejected.'
+          ? t('common.inventory.requests.toasts.requestRejected')
           : decision === 'escalate'
-          ? 'Escalated to supervisor.'
-          : 'Parts issued — moved to Parts to Collect.',
+          ? t('common.inventory.requests.toasts.escalatedToSupervisor')
+          : t('common.inventory.requests.toasts.partsIssuedMoved'),
         'success',
       );
       navigate('/app/inventory/requests');
     } catch (err) {
-      addToast('Failed to process decision.', 'error');
+      addToast(t('common.inventory.requests.toasts.decisionFailed'), 'error');
       console.error(err);
     }
   }
@@ -285,7 +287,7 @@ export function RequestDetailPage() {
           }
         });
 
-        addToast('Collection confirmed — request completed.', 'success');
+        addToast(t('common.inventory.requests.toasts.collectionConfirmed'), 'success');
       } else {
         // Not collected — return the stock that was deducted at issue.
         await runTransaction(db, async (tx) => {
@@ -346,12 +348,12 @@ export function RequestDetailPage() {
           });
         });
 
-        addToast('Marked not collected — stock returned.', 'success');
+        addToast(t('common.inventory.requests.toasts.notCollectedReturned'), 'success');
       }
 
       navigate('/app/inventory/requests');
     } catch (err) {
-      addToast('Failed to update collection status.', 'error');
+      addToast(t('common.inventory.requests.toasts.collectionUpdateFailed'), 'error');
       console.error(err);
     }
   }
@@ -398,9 +400,9 @@ export function RequestDetailPage() {
         actorRole: (userRole || null) as UserRole | null,
         actorUserId: userId,
       });
-      addToast('Return requested — a store keeper will confirm it.', 'success');
+      addToast(t('common.inventory.requests.toasts.returnRequested'), 'success');
     } catch (err) {
-      addToast('Failed to request return.', 'error');
+      addToast(t('common.inventory.requests.toasts.returnRequestFailed'), 'error');
       console.error(err);
     }
   }
@@ -410,9 +412,9 @@ export function RequestDetailPage() {
   async function handleCancelReturn(returnId: string) {
     try {
       await updateDoc(doc(db, 'partReturns', returnId), { status: 'cancelled' });
-      addToast('Return cancelled.', 'success');
+      addToast(t('common.inventory.requests.toasts.returnCancelled'), 'success');
     } catch (err) {
-      addToast('Failed to cancel return.', 'error');
+      addToast(t('common.inventory.requests.toasts.returnCancelFailed'), 'error');
       console.error(err);
     }
   }
@@ -423,7 +425,7 @@ export function RequestDetailPage() {
         to="/app/inventory/requests"
         className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors"
       >
-        <ChevronLeft className="w-4 h-4" /> Back to Requests
+        <ChevronLeft className="w-4 h-4" /> {t('common.inventory.requests.backToRequests')}
       </Link>
 
       <RequestDetailHeader request={request} />

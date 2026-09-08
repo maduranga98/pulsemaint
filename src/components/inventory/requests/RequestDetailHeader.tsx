@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { PartsRequest } from '@/types/inventory';
 import { RequestPriorityBadge } from './RequestPriorityBadge';
 import { formatDistanceToNow } from 'date-fns';
@@ -6,23 +7,22 @@ interface RequestDetailHeaderProps {
   request: PartsRequest;
 }
 
-const statusConfig: Record<
-  string,
-  { label: string; className: string }
-> = {
-  pending_storekeeper: { label: 'To Review', className: 'bg-yellow-100 text-yellow-800' },
-  pending_supervisor: { label: 'Awaiting Supervisor', className: 'bg-blue-100 text-blue-800' },
-  approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
-  partially_approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
-  rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800' },
-  parts_reserved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-800' },
-  issued: { label: 'Completed', className: 'bg-green-100 text-green-800' },
-  completed: { label: 'Completed', className: 'bg-gray-100 text-gray-700' },
-  cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
+const statusClassNames: Record<string, string> = {
+  pending_storekeeper: 'bg-yellow-100 text-yellow-800',
+  pending_supervisor: 'bg-blue-100 text-blue-800',
+  approved: 'bg-indigo-100 text-indigo-800',
+  partially_approved: 'bg-indigo-100 text-indigo-800',
+  rejected: 'bg-red-100 text-red-800',
+  parts_reserved: 'bg-indigo-100 text-indigo-800',
+  issued: 'bg-green-100 text-green-800',
+  completed: 'bg-gray-100 text-gray-700',
+  cancelled: 'bg-gray-100 text-gray-400',
 };
 
 export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
-  const status = statusConfig[request.status] ?? { label: request.status, className: 'bg-gray-100 text-gray-700' };
+  const { t } = useTranslation();
+  const statusLabel = t(`common.inventory.requests.statusLabels.${request.status}`, { defaultValue: request.status });
+  const statusClassName = statusClassNames[request.status] ?? 'bg-gray-100 text-gray-700';
 
   const requestedDate = request.requestedAt?.toDate?.();
   const ageText = requestedDate
@@ -35,11 +35,11 @@ export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900">
-            Request #{request.requestNumber}
+            {t('common.inventory.requests.detailHeader.requestNumber', { number: request.requestNumber })}
           </h2>
           <div className="flex flex-wrap items-center gap-2 mt-2">
-            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${status.className}`}>
-              {status.label}
+            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusClassName}`}>
+              {statusLabel}
             </span>
             <RequestPriorityBadge
               priority={request.priorityLevel}
@@ -50,13 +50,13 @@ export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
 
         <div className="text-right text-sm text-gray-600 space-y-1">
           <div>
-            <span className="font-medium">Created:</span> {dateStr}
+            <span className="font-medium">{t('common.inventory.requests.detailHeader.createdLabel')}</span> {dateStr}
           </div>
           <div>
-            <span className="font-medium">Age:</span> {ageText}
+            <span className="font-medium">{t('common.inventory.requests.detailHeader.ageLabel')}</span> {ageText}
           </div>
           <div>
-            <span className="font-medium">By:</span>{' '}
+            <span className="font-medium">{t('common.inventory.requests.detailHeader.byLabel')}</span>{' '}
             <span className="text-gray-900 font-medium">{request.requestedByName}</span>{' '}
             <span className="text-gray-500 capitalize">
               ({request.requestedByRole.replace(/_/g, ' ')})
@@ -67,15 +67,16 @@ export function RequestDetailHeader({ request }: RequestDetailHeaderProps) {
 
       {(request.status === 'issued' || request.status === 'completed') && request.collectedByName && (
         <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
-          <span className="font-medium text-gray-900">Collected by:</span>{' '}
+          <span className="font-medium text-gray-900">{t('common.inventory.requests.detailHeader.collectedByLabel')}</span>{' '}
           {request.collectedByName}
           {request.collectedAt?.toDate && (
             <span className="text-gray-500">
-              {' '}on {request.collectedAt.toDate().toLocaleString()}
+              {' '}
+              {t('common.inventory.requests.detailHeader.collectedOn', { date: request.collectedAt.toDate().toLocaleString() })}
             </span>
           )}
           {request.confirmedByName && (
-            <span className="text-gray-500"> · confirmed by {request.confirmedByName}</span>
+            <span className="text-gray-500"> · {t('common.inventory.requests.detailHeader.confirmedBy', { name: request.confirmedByName })}</span>
           )}
         </div>
       )}

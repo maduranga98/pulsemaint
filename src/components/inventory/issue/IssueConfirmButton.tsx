@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface Props {
   allChecked: boolean;
   onConfirm: () => void;
@@ -7,6 +9,7 @@ interface Props {
 }
 
 export function IssueConfirmButton({ allChecked, onConfirm, isLoading, totalItems, checkedCount }: Props) {
+  const { t } = useTranslation();
   const isDisabled = !allChecked || isLoading;
 
   return (
@@ -41,10 +44,10 @@ export function IssueConfirmButton({ allChecked, onConfirm, isLoading, totalItem
               d="M4 12a8 8 0 018-8v8H4z"
             />
           </svg>
-          Issuing…
+          {t('common.inventory.requests.issueScreen.issuing')}
         </>
       ) : (
-        `Issue Parts (${checkedCount}/${totalItems} checked)`
+        t('common.inventory.requests.issueScreen.issuePartsChecked', { checked: checkedCount, total: totalItems })
       )}
     </button>
   );

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { PartsRequest, RequestStatus } from '@/types/inventory';
 import { RequestPriorityBadge } from './RequestPriorityBadge';
 import { ReturnCell, type ReturnInfo } from './RequestQueueRow';
@@ -10,34 +11,37 @@ interface Props {
   showStatus?: boolean;
 }
 
-function formatAge(ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } {
-  if (!ts) return { label: '', isOld: false };
-  const diffMs = Date.now() - ts.seconds * 1000;
-  const diffH = diffMs / 3600000;
-  const diffD = diffMs / 86400000;
-  if (diffH < 1) return { label: 'Just now', isOld: false };
-  if (diffH < 24) return { label: `${Math.floor(diffH)}h ago`, isOld: false };
-  return { label: `${Math.floor(diffD)}d ago`, isOld: true };
+function useFormatAge() {
+  const { t } = useTranslation();
+  return (ts: { seconds: number } | null | undefined): { label: string; isOld: boolean } => {
+    if (!ts) return { label: '', isOld: false };
+    const diffMs = Date.now() - ts.seconds * 1000;
+    const diffH = diffMs / 3600000;
+    const diffD = diffMs / 86400000;
+    if (diffH < 1) return { label: t('common.inventory.requests.queue.justNow'), isOld: false };
+    if (diffH < 24) return { label: t('common.inventory.requests.queue.hoursAgo', { count: Math.floor(diffH) }), isOld: false };
+    return { label: t('common.inventory.requests.queue.daysAgo', { count: Math.floor(diffD) }), isOld: true };
+  };
 }
 
-const STATUS_BADGE: Record<RequestStatus, { label: string; className: string }> = {
-  pending_storekeeper: { label: 'To Review', className: 'bg-amber-100 text-amber-700' },
-  pending_supervisor: { label: 'Awaiting Supervisor', className: 'bg-blue-100 text-blue-700' },
-  approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
-  partially_approved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
-  rejected: { label: 'Rejected', className: 'bg-red-100 text-red-700' },
-  parts_reserved: { label: 'Parts to Collect', className: 'bg-indigo-100 text-indigo-700' },
-  issued: { label: 'Completed', className: 'bg-green-100 text-green-700' },
-  completed: { label: 'Completed', className: 'bg-gray-100 text-gray-600' },
-  cancelled: { label: 'Not Collected', className: 'bg-gray-100 text-gray-400' },
+const STATUS_BADGE_CLASSNAME: Record<RequestStatus, string> = {
+  pending_storekeeper: 'bg-amber-100 text-amber-700',
+  pending_supervisor: 'bg-blue-100 text-blue-700',
+  approved: 'bg-indigo-100 text-indigo-700',
+  partially_approved: 'bg-indigo-100 text-indigo-700',
+  rejected: 'bg-red-100 text-red-700',
+  parts_reserved: 'bg-indigo-100 text-indigo-700',
+  issued: 'bg-green-100 text-green-700',
+  completed: 'bg-gray-100 text-gray-600',
+  cancelled: 'bg-gray-100 text-gray-400',
 };
 
 export function RequestQueueCard({ request, returnInfo, onReview, canManageReturns = false, showStatus = true }: Props) {
+  const { t } = useTranslation();
+  const formatAge = useFormatAge();
   const age = formatAge(request.requestedAt);
-  const statusCfg = STATUS_BADGE[request.status] ?? {
-    label: request.status,
-    className: 'bg-gray-100 text-gray-600',
-  };
+  const statusLabel = t(`common.inventory.requests.statusLabels.${request.status}`, { defaultValue: request.status });
+  const statusClassName = STATUS_BADGE_CLASSNAME[request.status] ?? 'bg-gray-100 text-gray-600';
 
   const firstTwo = request.items.slice(0, 2).map((i) => i.partName);
   const remaining = request.items.length - 2;
@@ -55,9 +59,9 @@ export function RequestQueueCard({ request, returnInfo, onReview, canManageRetur
         </div>
         {showStatus && (
           <span
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${statusCfg.className}`}
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${statusClassName}`}
           >
-            {statusCfg.label}
+            {statusLabel}
           </span>
         )}
       </div>
@@ -69,7 +73,7 @@ export function RequestQueueCard({ request, returnInfo, onReview, canManageRetur
       {/* WO + Machine */}
       <div>
         <p className="font-bold text-gray-900">
-          {request.workOrderNumber ?? 'No WO'}
+          {request.workOrderNumber ?? t('common.inventory.requests.queue.noWo')}
           {request.workOrderType && (
             <span className="ml-1.5 text-sm font-normal text-gray-500">{request.workOrderType}</span>
           )}
@@ -85,7 +89,7 @@ export function RequestQueueCard({ request, returnInfo, onReview, canManageRetur
           <span key={i} className="block truncate">{name}</span>
         ))}
         {remaining > 0 && (
-          <span className="text-xs text-gray-400">and {remaining} more</span>
+          <span className="text-xs text-gray-400">{t('common.inventory.requests.queue.andMore', { count: remaining })}</span>
         )}
       </div>
 
@@ -104,7 +108,7 @@ export function RequestQueueCard({ request, returnInfo, onReview, canManageRetur
         onClick={onReview}
         className="w-full py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors"
       >
-        Review
+        {t('common.inventory.requests.queue.reviewButton')}
       </button>
     </div>
   );

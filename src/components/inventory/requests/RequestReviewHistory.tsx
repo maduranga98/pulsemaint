@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Timestamp } from 'firebase/firestore';
 import type { PartsRequest } from '@/types/inventory';
 
@@ -15,16 +16,6 @@ function formatTimestamp(ts: Timestamp | null | undefined): string {
   }) + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
-function decisionLabel(decision: string): string {
-  switch (decision) {
-    case 'approve': return 'Approved';
-    case 'escalate': return 'Escalated to Supervisor';
-    case 'reject': return 'Rejected';
-    case 'partial': return 'Partially Approved';
-    default: return decision;
-  }
-}
-
 interface TimelineEvent {
   key: string;
   label: string;
@@ -33,11 +24,17 @@ interface TimelineEvent {
 }
 
 export function RequestReviewHistory({ request }: Props) {
+  const { t } = useTranslation();
+
+  function decisionLabel(decision: string): string {
+    return t(`common.inventory.requests.reviewHistory.decisions.${decision}`, { defaultValue: decision });
+  }
+
   const events: TimelineEvent[] = [];
 
   events.push({
     key: 'submitted',
-    label: `Submitted by ${request.requestedByName}`,
+    label: t('common.inventory.requests.reviewHistory.submittedBy', { name: request.requestedByName }),
     timestamp: request.requestedAt,
     dotColor: 'bg-blue-500',
   });
@@ -45,7 +42,10 @@ export function RequestReviewHistory({ request }: Props) {
   if (request.storeKeeperReview) {
     events.push({
       key: 'storekeeper',
-      label: `Store Keeper ${request.storeKeeperReview.reviewedByName} — ${decisionLabel(request.storeKeeperReview.decision)}`,
+      label: t('common.inventory.requests.reviewHistory.storeKeeperDecision', {
+        name: request.storeKeeperReview.reviewedByName,
+        decision: decisionLabel(request.storeKeeperReview.decision),
+      }),
       timestamp: request.storeKeeperReview.reviewedAt,
       dotColor: 'bg-purple-500',
     });
@@ -54,7 +54,10 @@ export function RequestReviewHistory({ request }: Props) {
   if (request.supervisorReview) {
     events.push({
       key: 'supervisor',
-      label: `Supervisor ${request.supervisorReview.reviewedByName} — ${decisionLabel(request.supervisorReview.decision)}`,
+      label: t('common.inventory.requests.reviewHistory.supervisorDecision', {
+        name: request.supervisorReview.reviewedByName,
+        decision: decisionLabel(request.supervisorReview.decision),
+      }),
       timestamp: request.supervisorReview.reviewedAt,
       dotColor: 'bg-orange-500',
     });
@@ -63,7 +66,7 @@ export function RequestReviewHistory({ request }: Props) {
   if (request.reservedAt) {
     events.push({
       key: 'reserved',
-      label: 'Stock reserved',
+      label: t('common.inventory.requests.reviewHistory.stockReserved'),
       timestamp: request.reservedAt,
       dotColor: 'bg-green-500',
     });
@@ -72,7 +75,9 @@ export function RequestReviewHistory({ request }: Props) {
   if (request.issuedAt) {
     events.push({
       key: 'issued',
-      label: `Parts issued${request.issuedByName ? ` by ${request.issuedByName}` : ''}`,
+      label: request.issuedByName
+        ? t('common.inventory.requests.reviewHistory.partsIssuedBy', { name: request.issuedByName })
+        : t('common.inventory.requests.reviewHistory.partsIssued'),
       timestamp: request.issuedAt,
       dotColor: 'bg-green-600',
     });
@@ -81,7 +86,9 @@ export function RequestReviewHistory({ request }: Props) {
   if (request.collectedAt) {
     events.push({
       key: 'collected',
-      label: `Collected${request.collectedByName ? ` by ${request.collectedByName}` : ''}`,
+      label: request.collectedByName
+        ? t('common.inventory.requests.reviewHistory.collectedBy', { name: request.collectedByName })
+        : t('common.inventory.requests.reviewHistory.collected'),
       timestamp: request.collectedAt,
       dotColor: 'bg-teal-500',
     });
@@ -90,7 +97,9 @@ export function RequestReviewHistory({ request }: Props) {
   if (request.returnedAt) {
     events.push({
       key: 'returned',
-      label: `Returned${request.confirmedByName ? ` — confirmed by ${request.confirmedByName}` : ''}`,
+      label: request.confirmedByName
+        ? t('common.inventory.requests.reviewHistory.returnedConfirmedBy', { name: request.confirmedByName })
+        : t('common.inventory.requests.reviewHistory.returned'),
       timestamp: request.returnedAt,
       dotColor: 'bg-indigo-500',
     });
@@ -99,7 +108,7 @@ export function RequestReviewHistory({ request }: Props) {
   if (request.completedAt) {
     events.push({
       key: 'completed',
-      label: 'Request completed',
+      label: t('common.inventory.requests.reviewHistory.requestCompleted'),
       timestamp: request.completedAt,
       dotColor: 'bg-gray-400',
     });
@@ -107,7 +116,7 @@ export function RequestReviewHistory({ request }: Props) {
 
   return (
     <div className="space-y-0">
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">Review History</h3>
+      <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('common.inventory.requests.reviewHistory.title')}</h3>
       <ol className="relative">
         {events.map((event, idx) => (
           <li key={event.key} className="flex gap-3 pb-4 last:pb-0">

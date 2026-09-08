@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { CheckCircle, XCircle, PackageCheck, Undo2, ArrowUp, RotateCcw, X } from 'lucide-react';
 import type { PartsRequest } from '@/types/inventory';
 import { useAuthStore } from '@/store/authStore';
@@ -19,27 +20,32 @@ interface Props {
   onCancelReturn: (returnId: string) => Promise<void>;
 }
 
-const ESCALATION_REASONS = [
-  'Cost exceeds approval limit',
-  'Critical parts require supervisor sign-off',
-  'Unusual request — needs verification',
-  'Contractor job — supervisor awareness required',
-  'Other',
-];
+const ESCALATION_REASON_KEYS = [
+  'costExceedsLimit',
+  'criticalPartsSignOff',
+  'unusualRequest',
+  'contractorAwareness',
+  'other',
+] as const;
 
 // Statuses in which the parts have been issued and are waiting to be collected.
 const AWAITING_COLLECTION = ['parts_reserved', 'approved', 'partially_approved'];
 
-function formatStatus(status: string): string {
-  if (status === 'parts_reserved') return 'Parts to Collect';
-  if (status === 'pending_storekeeper' || status === 'pending_supervisor') return 'To Review';
-  if (status === 'cancelled') return 'Not Collected';
-  return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 export function RequestReviewPanel({ request, onDecision, onCollection, onRequestReturn, onCancelReturn }: Props) {
+  const { t } = useTranslation();
   const role = useAuthStore((s) => s.userProfile?.role);
   const userId = useAuthStore((s) => s.userProfile?.id);
+
+  const escalationReasons = ESCALATION_REASON_KEYS.map((key) => ({
+    key,
+    label: t(`common.inventory.requests.reviewPanel.escalationReasons.${key}`),
+  }));
+
+  function formatStatus(status: string): string {
+    return t(`common.inventory.requests.statusLabels.${status}`, {
+      defaultValue: status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+    });
+  }
 
   const [isLoading, setIsLoading] = useState(false);
   const [activeAction, setActiveAction] = useState<
@@ -95,14 +101,17 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
           <span>{formatStatus(request.status)}</span>
         </div>
         <p className="text-sm text-indigo-700">
-          Parts have been issued and stock deducted. Awaiting collection by{' '}
-          <strong>{request.requestedByName}</strong>.
+          <Trans
+            i18nKey="common.inventory.requests.reviewPanel.awaitingCollectionMessage"
+            values={{ name: request.requestedByName }}
+            components={{ 1: <strong /> }}
+          />
         </p>
 
         {canManage ? (
           <div className="space-y-3">
             <div className="space-y-1">
-              <p className="text-xs font-medium text-gray-600">Mark items as returnable</p>
+              <p className="text-xs font-medium text-gray-600">{t('common.inventory.requests.reviewPanel.markReturnableTitle')}</p>
               {request.items.map((item) => (
                 <label key={item.id} className="flex items-center gap-2 text-sm text-gray-700">
                   <input
@@ -118,12 +127,12 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
               ))}
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Collected by</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.inventory.requests.reviewPanel.collectedByLabel')}</label>
               <input
                 type="text"
                 value={collectorName}
                 onChange={(e) => setCollectorName(e.target.value)}
-                placeholder="Name of the person collecting the parts"
+                placeholder={t('common.inventory.requests.reviewPanel.collectedByPlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -134,7 +143,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <CheckCircle className="w-4 h-4" />
-                {isLoading && activeAction === 'collect' ? 'Saving…' : 'Mark Collected'}
+                {isLoading && activeAction === 'collect' ? t('common.inventory.requests.reviewPanel.saving') : t('common.inventory.requests.reviewPanel.markCollected')}
               </button>
               <button
                 onClick={() => run('return', () => onCollection(false, collectorName))}
@@ -142,12 +151,12 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-amber-300 text-amber-700 text-sm font-semibold hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Undo2 className="w-4 h-4" />
-                {isLoading && activeAction === 'return' ? 'Returning…' : 'Not Collected — Return Stock'}
+                {isLoading && activeAction === 'return' ? t('common.inventory.requests.reviewPanel.returning') : t('common.inventory.requests.reviewPanel.notCollectedReturnStock')}
               </button>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-indigo-600">The store keeper will confirm collection.</p>
+          <p className="text-sm text-indigo-600">{t('common.inventory.requests.reviewPanel.storeKeeperWillConfirm')}</p>
         )}
       </div>
     );
@@ -167,16 +176,16 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
           <div className="text-sm text-green-700 mt-2 space-y-1">
             {request.collectedByName && (
               <p>
-                Collected by <strong>{request.collectedByName}</strong>
-                {collectedAt && <> on {collectedAt.toDate().toLocaleString()}</>}
+                {t('common.inventory.requests.reviewPanel.collectedByStrong')} <strong>{request.collectedByName}</strong>
+                {collectedAt && <> {t('common.inventory.requests.reviewPanel.collectedOn', { date: collectedAt.toDate().toLocaleString() })}</>}
               </p>
             )}
             {(request.confirmedByName || request.issuedByName) && (
               <p>
-                Confirmed by <strong>{request.confirmedByName ?? request.issuedByName}</strong>
+                {t('common.inventory.requests.reviewPanel.confirmedBy')} <strong>{request.confirmedByName ?? request.issuedByName}</strong>
               </p>
             )}
-            {!request.collectedByName && <p className="text-green-600">This request has been processed.</p>}
+            {!request.collectedByName && <p className="text-green-600">{t('common.inventory.requests.reviewPanel.requestProcessed')}</p>}
           </div>
         </div>
 
@@ -184,7 +193,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
           <div className="rounded-lg border border-purple-200 bg-purple-50 p-4 space-y-3">
             <div className="flex items-center gap-2 text-purple-700 font-semibold">
               <RotateCcw className="w-5 h-5" />
-              <span>Returnable Items</span>
+              <span>{t('common.inventory.requests.reviewPanel.returnableItemsTitle')}</span>
             </div>
             {returnableItems.map((item) => {
               const alreadyIssued = item.quantityIssued > 0 ? item.quantityIssued : item.quantityApproved;
@@ -201,7 +210,11 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
                           className="flex items-center justify-between text-sm bg-purple-100 rounded-lg px-3 py-1.5"
                         >
                           <span className="text-purple-800">
-                            {item.partName} · {r.quantity} {item.unit} pending confirmation
+                            {t('common.inventory.requests.reviewPanel.pendingConfirmation', {
+                              part: item.partName,
+                              quantity: r.quantity,
+                              unit: item.unit,
+                            })}
                           </span>
                           <button
                             onClick={async () => {
@@ -216,7 +229,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
                             className="flex items-center gap-1 text-xs font-semibold text-purple-700 hover:text-purple-900 disabled:opacity-50"
                           >
                             <X className="w-3.5 h-3.5" />
-                            {cancellingReturnId === r.id ? 'Cancelling…' : 'Cancel'}
+                            {cancellingReturnId === r.id ? t('common.inventory.requests.reviewPanel.cancelling') : t('common.inventory.requests.reviewPanel.cancel')}
                           </button>
                         </div>
                       ))}
@@ -226,7 +239,9 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
                     <div className="flex items-center justify-between gap-3 text-sm">
                       <div className="min-w-0">
                         <p className="font-medium text-gray-800 truncate">{item.partName}</p>
-                        <p className="text-xs text-gray-500">Issued: {alreadyIssued} {item.unit}</p>
+                        <p className="text-xs text-gray-500">
+                          {t('common.inventory.requests.reviewPanel.issuedLabel', { quantity: alreadyIssued, unit: item.unit })}
+                        </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <input
@@ -255,7 +270,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 disabled:opacity-50"
                         >
                           <RotateCcw className="w-3.5 h-3.5" />
-                          {returningItemId === item.id ? 'Requesting…' : 'Mark as Returned'}
+                          {returningItemId === item.id ? t('common.inventory.requests.reviewPanel.requesting') : t('common.inventory.requests.reviewPanel.markAsReturned')}
                         </button>
                       </div>
                     </div>
@@ -279,7 +294,9 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
         </div>
         {request.status === 'rejected' && (request.rejectionReason || request.storeKeeperReview?.notes) && (
           <p className="text-sm text-red-700 mt-2">
-            Reason: {request.rejectionReason || request.storeKeeperReview?.notes}
+            {t('common.inventory.requests.reviewPanel.reasonLabel', {
+              reason: request.rejectionReason || request.storeKeeperReview?.notes,
+            })}
           </p>
         )}
       </div>
@@ -295,7 +312,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
   if (isSupervisorStage && role === 'store_keeper') {
     return (
       <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700">
-        Escalated — awaiting supervisor review.
+        {t('common.inventory.requests.reviewPanel.escalatedAwaitingSupervisor')}
       </div>
     );
   }
@@ -304,12 +321,14 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 space-y-4">
       <h3 className="font-semibold text-gray-900">
-        {isSupervisorStage ? 'Supervisor Review' : 'Review Request'}
+        {isSupervisorStage
+          ? t('common.inventory.requests.reviewPanel.supervisorReviewTitle')
+          : t('common.inventory.requests.reviewPanel.reviewRequestTitle')}
       </h3>
 
       {/* Per-item approved quantities (enables partial issue) */}
       <div className="space-y-2">
-        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Approved Quantities</p>
+        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('common.inventory.requests.reviewPanel.approvedQuantitiesTitle')}</p>
         {request.items.map((item) => (
           <div
             key={item.id}
@@ -319,11 +338,13 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
               <p className="text-sm font-medium text-gray-800 truncate">{item.partName}</p>
               <p className="text-xs text-gray-500 font-mono">{item.partNumber}</p>
               {item.isCritical && (
-                <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-semibold">Critical</span>
+                <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-semibold">
+                  {t('common.inventory.requests.itemsTable.critical')}
+                </span>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-gray-500">Req: {item.quantityRequested}</span>
+              <span className="text-xs text-gray-500">{t('common.inventory.requests.reviewPanel.reqLabel', { quantity: item.quantityRequested })}</span>
               <input
                 type="number"
                 min={0}
@@ -350,30 +371,30 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
       {isStoreKeeperStage && activeAction === 'escalate' && (
         <div className="space-y-2">
           <label className="block text-xs font-medium text-gray-500">
-            Escalation Reason <span className="text-red-500">*</span>
+            {t('common.inventory.requests.reviewPanel.escalationReasonLabel')} <span className="text-red-500">*</span>
           </label>
           <div className="space-y-1">
-            {ESCALATION_REASONS.map((reason) => (
-              <label key={reason} className="flex items-center gap-2 cursor-pointer">
+            {escalationReasons.map((reason) => (
+              <label key={reason.key} className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="escalation"
-                  value={reason}
-                  checked={escalationReason === reason}
-                  onChange={() => setEscalationReason(reason)}
+                  value={reason.label}
+                  checked={escalationReason === reason.label}
+                  onChange={() => setEscalationReason(reason.label)}
                   className="text-blue-600"
                 />
-                <span className="text-sm text-gray-700">{reason}</span>
+                <span className="text-sm text-gray-700">{reason.label}</span>
               </label>
             ))}
           </div>
-          {escalationReason === 'Other' && (
+          {escalationReason === t('common.inventory.requests.reviewPanel.escalationReasons.other') && (
             <textarea
               value={customEscalation}
               onChange={(e) => setCustomEscalation(e.target.value)}
               rows={2}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              placeholder="Describe reason for escalation…"
+              placeholder={t('common.inventory.requests.reviewPanel.escalationReasonOtherPlaceholder')}
             />
           )}
         </div>
@@ -383,7 +404,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
       {activeAction === 'reject' && (
         <div>
           <label className="block text-xs font-medium text-gray-500 mb-1">
-            Rejection reason <span className="text-red-500">*</span>
+            {t('common.inventory.requests.reviewPanel.rejectionReasonLabel')} <span className="text-red-500">*</span>
           </label>
           <textarea
             value={rejectReason}
@@ -391,7 +412,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
             rows={2}
             autoFocus
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            placeholder="Why is this request being rejected?"
+            placeholder={t('common.inventory.requests.reviewPanel.rejectionReasonPlaceholder')}
           />
         </div>
       )}
@@ -405,7 +426,7 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <PackageCheck className="w-4 h-4" />
-            {isLoading && activeAction === 'partial' ? 'Issuing…' : 'Partially Issue'}
+            {isLoading && activeAction === 'partial' ? t('common.inventory.requests.reviewPanel.issuing') : t('common.inventory.requests.reviewPanel.partiallyIssue')}
           </button>
         ) : (
           <button
@@ -414,14 +435,14 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <PackageCheck className="w-4 h-4" />
-            {isLoading && activeAction === 'approve' ? 'Issuing…' : 'Issue Parts'}
+            {isLoading && activeAction === 'approve' ? t('common.inventory.requests.reviewPanel.issuing') : t('common.inventory.requests.reviewPanel.issueParts')}
           </button>
         )}
 
         {isStoreKeeperStage && (
           <button
             onClick={() => {
-              const finalReason = escalationReason === 'Other' ? customEscalation : escalationReason;
+              const finalReason = escalationReason === t('common.inventory.requests.reviewPanel.escalationReasons.other') ? customEscalation : escalationReason;
               if (activeAction !== 'escalate') {
                 setActiveAction('escalate');
               } else if (finalReason.trim()) {
@@ -431,16 +452,16 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
             disabled={
               isLoading ||
               (activeAction === 'escalate' &&
-                !(escalationReason === 'Other' ? customEscalation.trim() : escalationReason.trim()))
+                !(escalationReason === t('common.inventory.requests.reviewPanel.escalationReasons.other') ? customEscalation.trim() : escalationReason.trim()))
             }
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ArrowUp className="w-4 h-4" />
             {isLoading && activeAction === 'escalate'
-              ? 'Escalating…'
+              ? t('common.inventory.requests.reviewPanel.escalating')
               : activeAction === 'escalate'
-              ? 'Confirm Escalate'
-              : 'Escalate to Supervisor'}
+              ? t('common.inventory.requests.reviewPanel.confirmEscalate')
+              : t('common.inventory.requests.reviewPanel.escalateToSupervisor')}
           </button>
         )}
 
@@ -457,10 +478,10 @@ export function RequestReviewPanel({ request, onDecision, onCollection, onReques
         >
           <XCircle className="w-4 h-4" />
           {isLoading && activeAction === 'reject'
-            ? 'Rejecting…'
+            ? t('common.inventory.requests.reviewPanel.rejecting')
             : activeAction === 'reject'
-            ? 'Confirm Reject'
-            : 'Reject'}
+            ? t('common.inventory.requests.reviewPanel.confirmReject')
+            : t('common.inventory.requests.reviewPanel.reject')}
         </button>
       </div>
     </div>

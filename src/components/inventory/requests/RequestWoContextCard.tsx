@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Wrench, AlertTriangle } from 'lucide-react';
 import type { PartsRequest } from '@/types/inventory';
 
@@ -14,16 +15,20 @@ const woTypeBgColor: Record<string, string> = {
 };
 
 export function RequestWoContextCard({ request }: RequestWoContextCardProps) {
+  const { t } = useTranslation();
   const woTypeColor = request.workOrderType
     ? (woTypeBgColor[request.workOrderType.toLowerCase()] ?? 'bg-gray-100 text-gray-700')
     : 'bg-gray-100 text-gray-700';
+  const priorityLabel = t(`common.workOrders.priorities.${request.priorityLevel}`);
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
       {request.isContractorJob && (
         <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm font-medium">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-          Contractor Job — {request.contractorCompany ?? 'External Company'}
+          {t('common.inventory.requests.woContextCard.contractorJob', {
+            company: request.contractorCompany ?? t('common.inventory.requests.woContextCard.externalCompany'),
+          })}
         </div>
       )}
 
@@ -33,10 +38,10 @@ export function RequestWoContextCard({ request }: RequestWoContextCardProps) {
             to={`/app/work-orders/${request.workOrderId}`}
             className="font-semibold text-blue-700 hover:underline text-base"
           >
-            WO #{request.workOrderNumber}
+            {t('common.inventory.requests.woContextCard.woNumber', { number: request.workOrderNumber })}
           </Link>
         ) : (
-          <span className="text-gray-500 text-sm">No Work Order linked</span>
+          <span className="text-gray-500 text-sm">{t('common.inventory.requests.woContextCard.noWorkOrderLinked')}</span>
         )}
 
         {request.workOrderType && (
@@ -54,7 +59,7 @@ export function RequestWoContextCard({ request }: RequestWoContextCardProps) {
                 : 'bg-gray-100 text-gray-600'
           }`}
         >
-          {request.priorityLevel.charAt(0).toUpperCase() + request.priorityLevel.slice(1)} Priority
+          {t('common.inventory.requests.woContextCard.priorityLabel', { priority: priorityLabel })}
         </span>
       </div>
 
@@ -67,7 +72,7 @@ export function RequestWoContextCard({ request }: RequestWoContextCardProps) {
 
       {!request.workOrderNumber && request.purpose && (
         <div className="text-sm text-gray-700">
-          <span className="font-medium text-gray-500">Reason: </span>
+          <span className="font-medium text-gray-500">{t('common.inventory.requests.woContextCard.reasonLabel')}</span>
           {request.purpose}
         </div>
       )}
