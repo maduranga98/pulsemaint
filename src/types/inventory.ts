@@ -506,6 +506,11 @@ export interface InventorySettings {
   partNumberPrefix: string;
   poNumberPrefix: string;
   requestNumberPrefix: string;
+  // Language outbound PO emails (to suppliers) render in. Company-wide, not
+  // per-user — suppliers have no app account/profile to hold a preference.
+  // One of SUPPORTED_LANGUAGES's codes (src/lib/i18n.ts); defaults to
+  // 'en-US' when unset.
+  poEmailLanguage?: string;
   updatedAt: Timestamp;
   updatedBy: string;
 }

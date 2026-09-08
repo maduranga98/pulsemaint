@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   collection,
   getDocs,
@@ -42,6 +43,7 @@ interface ImportState {
 }
 
 export function ExcelImportPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { addToast } = useToast();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
@@ -89,7 +91,7 @@ export function ExcelImportPage() {
       }));
       setStep(3);
     } catch (err) {
-      addToast('Failed to parse file. Please check the format and try again.', 'error');
+      addToast(t('common.inventory.import.toasts.parseFailed'), 'error');
       console.error(err);
     }
   }
@@ -361,7 +363,7 @@ export function ExcelImportPage() {
       }));
       setStep(5);
     } catch (err) {
-      addToast('Import failed. Please try again.', 'error');
+      addToast(t('common.inventory.import.toasts.importFailed'), 'error');
       console.error(err);
       setStep(3);
     }
@@ -386,9 +388,9 @@ export function ExcelImportPage() {
         reversedBy: userId,
       });
 
-      addToast('Import has been reversed.', 'success');
+      addToast(t('common.inventory.import.toasts.importReversed'), 'success');
     } catch (err) {
-      addToast('Failed to undo import.', 'error');
+      addToast(t('common.inventory.import.toasts.undoFailed'), 'error');
       console.error(err);
     }
   }
@@ -396,8 +398,8 @@ export function ExcelImportPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Excel & CSV Import</h1>
-        <p className="text-gray-500 text-sm mt-0.5">Import or update inventory parts from a spreadsheet.</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.import.page.title')}</h1>
+        <p className="text-gray-500 text-sm mt-0.5">{t('common.inventory.import.page.subtitle')}</p>
       </div>
 
       <ImportStepIndicator currentStep={step} />

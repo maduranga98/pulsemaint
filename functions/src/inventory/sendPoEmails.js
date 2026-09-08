@@ -26,6 +26,7 @@ const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
 const { brandedEmail, sendEmail } = require("../lib/mailer");
+const { getPoEmailStrings, t: interpolate, DEFAULT_LANGUAGE } = require("./poEmailTranslations");
 
 const db = getFirestore("default");
 
@@ -62,6 +63,23 @@ async function companyMetaFor(companyId) {
   }
 }
 
+// The language outbound PO emails render in — company-wide (set on
+// inventorySettings/{companyId}.poEmailLanguage by an admin/plant_manager),
+// since the supplier has no app account/profile of their own to hold a
+// language preference. Defaults to en-US when unset or unrecognized.
+async function poEmailLanguageFor(companyId) {
+  if (!companyId) return DEFAULT_LANGUAGE;
+  try {
+    const snap = await db.collection("inventorySettings").doc(companyId).get();
+    if (!snap.exists) return DEFAULT_LANGUAGE;
+    const data = snap.data() || {};
+    return data.poEmailLanguage || DEFAULT_LANGUAGE;
+  } catch (err) {
+    logger.warn(`Could not load inventorySettings ${companyId} for PO email language`, err);
+    return DEFAULT_LANGUAGE;
+  }
+}
+
 function esc(s) {
   if (s == null) return "";
   return String(s)
@@ -80,7 +98,7 @@ function fmtDate(ts) {
 // Minimal white-page shell for the PO document emails — the document itself
 // carries the company's name/branding in its header, so this deliberately
 // skips the gradient "FirmiCore"-style hero used by brandedEmail().
-function plainEmailShell(bodyHtml, companyName) {
+function plainEmailShell(bodyHtml, companyName, strings) {
   return `
 <!DOCTYPE html>
 <html>
@@ -101,7 +119,7 @@ function plainEmailShell(bodyHtml, companyName) {
           <tr>
             <td style="background:#f8fafc;padding:16px 32px;text-align:center;border-top:1px solid #eee;">
               <p style="margin:0;color:#aaa;font-size:11px;">
-                &copy; ${new Date().getFullYear()} ${esc(companyName) || "Purchase Order"}. All rights reserved.
+                &copy; ${new Date().getFullYear()} ${esc(companyName) || esc(strings.footerFallback)}. ${esc(strings.footerCopyright)}
               </p>
             </td>
           </tr>
@@ -120,7 +138,7 @@ function plainEmailShell(bodyHtml, companyName) {
 // columns appear: false for the initial "sent" email (the supplier is the
 // one who quotes cost), true for the "invoice_priced" email once the
 // supplier's invoice has given us prices to confirm back to them.
-function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
+function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}, strings) {
   const rows = (Array.isArray(items) ? items : [])
     .map(
       (it, idx) => `
@@ -144,15 +162,15 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
     <table width="100%" cellpadding="0" cellspacing="0">
       <tr>
         <td style="vertical-align:top;">
-          <div style="font-weight:700;font-size:18px;color:#111;">${esc(companyMeta.name) || "Company"}</div>
+          <div style="font-weight:700;font-size:18px;color:#111;">${esc(companyMeta.name) || esc(strings.companyFallback)}</div>
           ${companyMeta.address ? `<div style="font-size:13px;color:#555;">${esc(companyMeta.address)}</div>` : ""}
-          ${companyMeta.phone ? `<div style="font-size:13px;color:#555;">Phone: ${esc(companyMeta.phone)}</div>` : ""}
-          ${companyMeta.email ? `<div style="font-size:13px;color:#555;">Email: ${esc(companyMeta.email)}</div>` : ""}
+          ${companyMeta.phone ? `<div style="font-size:13px;color:#555;">${esc(strings.phoneLabel)}: ${esc(companyMeta.phone)}</div>` : ""}
+          ${companyMeta.email ? `<div style="font-size:13px;color:#555;">${esc(strings.emailLabel)}: ${esc(companyMeta.email)}</div>` : ""}
         </td>
         <td style="vertical-align:top;text-align:right;">
-          <div style="font-weight:700;font-size:22px;letter-spacing:1px;color:#111;">PURCHASE ORDER</div>
+          <div style="font-weight:700;font-size:22px;letter-spacing:1px;color:#111;">${esc(strings.purchaseOrderHeading)}</div>
           <div style="font-family:ui-monospace,Menlo,monospace;font-weight:700;font-size:14px;color:#111;">${esc(po.poNumber)}</div>
-          <div style="font-size:13px;color:#555;">Date: ${fmtDate(po.raisedAt)}</div>
+          <div style="font-size:13px;color:#555;">${esc(strings.dateLabel)}: ${fmtDate(po.raisedAt)}</div>
         </td>
       </tr>
     </table>
@@ -164,20 +182,20 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
     <tr>
       <td width="50%" style="vertical-align:top;padding-right:8px;">
         <div style="border:1px solid #ddd;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#888;margin-bottom:6px;">Supplier</div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#888;margin-bottom:6px;">${esc(strings.supplierLabel)}</div>
           <div style="font-weight:700;font-size:14px;color:#111;">${esc(po.supplierName)}</div>
-          ${po.supplierContactPerson ? `<div style="font-size:13px;color:#333;">Attn: ${esc(po.supplierContactPerson)}</div>` : ""}
-          ${po.supplierPhone ? `<div style="font-size:13px;color:#333;">Phone: ${esc(po.supplierPhone)}</div>` : ""}
-          ${po.supplierEmail ? `<div style="font-size:13px;color:#333;">Email: ${esc(po.supplierEmail)}</div>` : ""}
+          ${po.supplierContactPerson ? `<div style="font-size:13px;color:#333;">${esc(strings.attnLabel)}: ${esc(po.supplierContactPerson)}</div>` : ""}
+          ${po.supplierPhone ? `<div style="font-size:13px;color:#333;">${esc(strings.phoneLabel)}: ${esc(po.supplierPhone)}</div>` : ""}
+          ${po.supplierEmail ? `<div style="font-size:13px;color:#333;">${esc(strings.emailLabel)}: ${esc(po.supplierEmail)}</div>` : ""}
           ${po.supplierAddress ? `<div style="font-size:12px;color:#888;margin-top:6px;">${esc(po.supplierAddress)}</div>` : ""}
         </div>
       </td>
       <td width="50%" style="vertical-align:top;padding-left:8px;">
         <div style="border:1px solid #ddd;border-radius:8px;padding:12px 14px;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#888;margin-bottom:6px;">Ship To</div>
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#888;margin-bottom:6px;">${esc(strings.shipToLabel)}</div>
           <div style="font-size:13px;color:#333;">${esc(po.deliveryAddress || companyMeta.address || companyMeta.name)}</div>
-          ${po.paymentTerms ? `<div style="font-size:13px;color:#333;margin-top:6px;"><strong>Payment Terms:</strong> ${esc(po.paymentTerms)}</div>` : ""}
-          <div style="font-size:13px;color:#333;margin-top:6px;"><strong>Currency:</strong> ${esc(po.currency)}</div>
+          ${po.paymentTerms ? `<div style="font-size:13px;color:#333;margin-top:6px;"><strong>${esc(strings.paymentTermsLabel)}:</strong> ${esc(po.paymentTerms)}</div>` : ""}
+          <div style="font-size:13px;color:#333;margin-top:6px;"><strong>${esc(strings.currencyLabel)}:</strong> ${esc(po.currency)}</div>
         </div>
       </td>
     </tr>
@@ -185,12 +203,12 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
 
   <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr style="background:#f5f5f5;">
-      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;width:32px;">#</td>
-      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;">Part</td>
-      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">Qty</td>
-      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;">Expected Delivery</td>
-      ${showPricing ? `<td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">Unit Cost</td>
-      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">Line Total</td>` : ""}
+      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;width:32px;">${esc(strings.colIndex)}</td>
+      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;">${esc(strings.colPart)}</td>
+      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">${esc(strings.colQty)}</td>
+      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;">${esc(strings.colExpectedDelivery)}</td>
+      ${showPricing ? `<td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">${esc(strings.colUnitCost)}</td>
+      <td style="padding:8px;border:1px solid #ddd;font-size:12px;text-transform:uppercase;color:#666;text-align:right;">${esc(strings.colLineTotal)}</td>` : ""}
     </tr>
     ${rows}
   </table>
@@ -201,7 +219,7 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
       <td></td>
       <td style="width:220px;border:1px solid #111;padding:10px 14px;">
         <table width="100%" cellpadding="0" cellspacing="0"><tr>
-          <td style="font-size:14px;font-weight:700;">Total</td>
+          <td style="font-size:14px;font-weight:700;">${esc(strings.totalLabel)}</td>
           <td style="font-size:14px;font-weight:700;text-align:right;">${formatMoney(total, po.currency)}</td>
         </tr></table>
       </td>
@@ -209,17 +227,17 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
   </table>` : ""}
 
   ${po.notes ? `<div style="margin-top:16px;border:1px solid #ddd;border-radius:8px;padding:12px 14px;">
-    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#888;margin-bottom:6px;">Notes</div>
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.6px;color:#888;margin-bottom:6px;">${esc(strings.notesLabel)}</div>
     <div style="font-size:13px;color:#333;white-space:pre-wrap;">${esc(po.notes)}</div>
   </div>` : ""}
 
   <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:36px;">
     <tr>
       <td width="50%" style="border-top:1px solid #111;padding-top:6px;font-size:12px;color:#555;">
-        Prepared by: ${esc(po.raisedByName)}${po.raisedByRole ? ` (${esc(po.raisedByRole)})` : ""}
+        ${esc(strings.preparedByLabel)}: ${esc(po.raisedByName)}${po.raisedByRole ? ` (${esc(po.raisedByRole)})` : ""}
       </td>
       <td width="50%" style="border-top:1px solid #111;padding-top:6px;font-size:12px;color:#555;">
-        Approved by: ${esc(po.approvedByName || "—")}${po.approvedByRole ? ` (${esc(po.approvedByRole)})` : ""}
+        ${esc(strings.approvedByLabel)}: ${esc(po.approvedByName || "—")}${po.approvedByRole ? ` (${esc(po.approvedByRole)})` : ""}
       </td>
     </tr>
   </table>`;
@@ -229,24 +247,36 @@ function poDocumentEmailHtml(po, items, companyMeta, {showPricing, introHtml}) {
 // and the faults/damages notice. Per-item notes are always shown when
 // present — not just on the issues table — so anything the receiver
 // mentioned about a specific line item reaches the supplier.
-function receivedItemsTableHtml(items, {showCondition = false} = {}) {
+const CONDITION_LABEL_KEYS = {
+  good: "conditionGood",
+  damaged: "conditionDamaged",
+  wrong_item: "conditionWrongItem",
+};
+
+function conditionLabel(condition, strings) {
+  const key = CONDITION_LABEL_KEYS[condition];
+  if (key && strings[key]) return strings[key];
+  return String(condition || "").replace(/_/g, " ");
+}
+
+function receivedItemsTableHtml(items, strings, {showCondition = false} = {}) {
   if (!Array.isArray(items) || items.length === 0) return "";
   const rows = items
       .map(
           (i) => `
     <tr>
-      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${i.partNumber || ""} — ${i.partName || ""}</td>
+      <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${esc(i.partNumber || "")} — ${esc(i.partName || "")}</td>
       <td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;text-align:right;">${i.quantity ?? ""}</td>
-      ${showCondition ? `<td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${String(i.condition || "").replace(/_/g, " ")}${i.notes ? ` — ${i.notes}` : ""}</td>` : `<td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;color:#888;">${i.notes || ""}</td>`}
+      ${showCondition ? `<td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;">${esc(conditionLabel(i.condition, strings))}${i.notes ? ` — ${esc(i.notes)}` : ""}</td>` : `<td style="padding:6px 10px;border-bottom:1px solid #eee;font-size:13px;color:#888;">${esc(i.notes || "")}</td>`}
     </tr>`,
       )
       .join("");
   return `
   <table width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;border:1px solid #eee;border-radius:8px;overflow:hidden;">
     <tr style="background:#f8fafc;">
-      <td style="padding:8px 10px;font-size:12px;color:#888;">Item</td>
-      <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">Qty received</td>
-      <td style="padding:8px 10px;font-size:12px;color:#888;">${showCondition ? "Issue" : "Notes"}</td>
+      <td style="padding:8px 10px;font-size:12px;color:#888;">${esc(strings.colItem)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:#888;text-align:right;">${esc(strings.colQtyReceived)}</td>
+      <td style="padding:8px 10px;font-size:12px;color:#888;">${showCondition ? esc(strings.colIssue) : esc(strings.colNotes)}</td>
     </tr>
     ${rows}
   </table>`;
@@ -263,6 +293,9 @@ exports.sendPoEmails = onDocumentCreated(
       const notification = event.data.data();
       const {companyId, poId, poNumber, supplierName, supplierEmail, event: poEvent, message, receivedItems, issueItems, notes: deliveryNotes} = notification;
       const companyName = await companyNameFor(companyId);
+      const poEmailLanguage = await poEmailLanguageFor(companyId);
+      const strings = getPoEmailStrings(poEmailLanguage);
+      const supplierDisplayName = esc(supplierName) || esc(strings.supplierFallback);
 
       // Stock receipt — thank the supplier and confirm what arrived, and (if any
       // items were flagged) send a separate faults/damages notice.
@@ -273,20 +306,20 @@ exports.sendPoEmails = onDocumentCreated(
 
           if (goodItems.length > 0) {
             const deliveryNotesHtml = deliveryNotes
-              ? `<p style="color:#555;font-size:14px;"><strong>Delivery notes:</strong> ${String(deliveryNotes).replace(/\n/g, "<br/>")}</p>`
+              ? `<p style="color:#555;font-size:14px;"><strong>${esc(strings.deliveryNotesLabel)}:</strong> ${esc(String(deliveryNotes)).replace(/\n/g, "<br/>")}</p>`
               : "";
             const thankYouHtml = `
-              <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">Delivery received — thank you</h2>
-              <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
-              <p style="color:#555;font-size:14px;">Thank you for your delivery against purchase order <strong>${poNumber}</strong>. We have received the following items:</p>
-              ${receivedItemsTableHtml(goodItems)}
+              <h2 style="margin:0 0 12px;color:#0A1628;font-size:18px;">${esc(strings.deliveryReceivedHeading)}</h2>
+              <p style="color:#555;font-size:14px;">${interpolate(strings, "dearSupplier", {name: supplierDisplayName})}</p>
+              <p style="color:#555;font-size:14px;">${interpolate(strings, "deliveryReceivedIntro", {poNumber: `<strong>${esc(poNumber)}</strong>`})}</p>
+              ${receivedItemsTableHtml(goodItems, strings)}
               ${deliveryNotesHtml}
-              <p style="color:#555;font-size:14px;">We appreciate your continued partnership.</p>
+              <p style="color:#555;font-size:14px;">${esc(strings.deliveryReceivedClosing)}</p>
             `;
             await sendEmail({
               companyId,
               to: supplierEmail,
-              subject: `Delivery received — PO ${poNumber}`,
+              subject: interpolate(strings, "subjectDeliveryReceived", {poNumber}),
               html: brandedEmail(thankYouHtml, companyName),
               fromName: companyName,
               replyTo: companyMetaReceived.email || undefined,
@@ -296,15 +329,15 @@ exports.sendPoEmails = onDocumentCreated(
           const problems = Array.isArray(issueItems) ? issueItems : [];
           if (problems.length > 0) {
             const issueHtml = `
-              <h2 style="margin:0 0 12px;color:#B91C1C;font-size:18px;">Issue with delivery — PO ${poNumber}</h2>
-              <p style="color:#555;font-size:14px;">Dear ${supplierName || "Supplier"},</p>
-              <p style="color:#555;font-size:14px;">While receiving purchase order <strong>${poNumber}</strong> we found the following items damaged or incorrect. Please advise on a replacement or credit:</p>
-              ${receivedItemsTableHtml(problems, {showCondition: true})}
+              <h2 style="margin:0 0 12px;color:#B91C1C;font-size:18px;">${interpolate(strings, "deliveryIssueHeading", {poNumber: esc(poNumber)})}</h2>
+              <p style="color:#555;font-size:14px;">${interpolate(strings, "dearSupplier", {name: supplierDisplayName})}</p>
+              <p style="color:#555;font-size:14px;">${interpolate(strings, "deliveryIssueIntro", {poNumber: `<strong>${esc(poNumber)}</strong>`})}</p>
+              ${receivedItemsTableHtml(problems, strings, {showCondition: true})}
             `;
             await sendEmail({
               companyId,
               to: supplierEmail,
-              subject: `Issue with delivery — PO ${poNumber}`,
+              subject: interpolate(strings, "subjectDeliveryIssue", {poNumber}),
               html: brandedEmail(issueHtml, companyName),
               fromName: companyName,
               replyTo: companyMetaReceived.email || undefined,
@@ -336,15 +369,15 @@ exports.sendPoEmails = onDocumentCreated(
       if (poEvent === "sent" && supplierEmail && poData) {
         const companyMeta = await companyMetaFor(companyId);
         const introHtml = `
-          <p style="color:#555;font-size:14px;margin:0 0 4px;">Dear ${esc(supplierName) || "Supplier"},</p>
-          <p style="color:#555;font-size:14px;">${message ? esc(message).replace(/\n/g, "<br/>") : "Please find our purchase order below. Kindly confirm receipt and send your invoice with pricing for our review."}</p>
+          <p style="color:#555;font-size:14px;margin:0 0 4px;">${interpolate(strings, "dearSupplier", {name: supplierDisplayName})}</p>
+          <p style="color:#555;font-size:14px;">${message ? esc(message).replace(/\n/g, "<br/>") : esc(strings.introSentDefault)}</p>
         `;
-        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml});
+        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml}, strings);
         const sent = await sendEmail({
           companyId,
           to: supplierEmail,
-          subject: `Purchase Order ${poNumber}`,
-          html: plainEmailShell(bodyHtml, companyMeta.name),
+          subject: interpolate(strings, "subjectSent", {poNumber}),
+          html: plainEmailShell(bodyHtml, companyMeta.name, strings),
           fromName: companyMeta.name,
           replyTo: companyMeta.email || undefined,
         });
@@ -363,15 +396,15 @@ exports.sendPoEmails = onDocumentCreated(
       if (poEvent === "invoice_priced" && supplierEmail && poData) {
         const companyMeta = await companyMetaFor(companyId);
         const introHtml = `
-          <p style="color:#555;font-size:14px;margin:0 0 4px;">Dear ${esc(supplierName) || "Supplier"},</p>
-          <p style="color:#555;font-size:14px;">${message ? esc(message).replace(/\n/g, "<br/>") : "Thank you for your invoice. Here is the suggested pricing based on it — please confirm."}</p>
+          <p style="color:#555;font-size:14px;margin:0 0 4px;">${interpolate(strings, "dearSupplier", {name: supplierDisplayName})}</p>
+          <p style="color:#555;font-size:14px;">${message ? esc(message).replace(/\n/g, "<br/>") : esc(strings.introInvoicePricedDefault)}</p>
         `;
-        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: true, introHtml});
+        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: true, introHtml}, strings);
         await sendEmail({
           companyId,
           to: supplierEmail,
-          subject: `Purchase Order ${poNumber} — suggested pricing per invoice`,
-          html: plainEmailShell(bodyHtml, companyMeta.name),
+          subject: interpolate(strings, "subjectInvoicePriced", {poNumber}),
+          html: plainEmailShell(bodyHtml, companyMeta.name, strings),
           fromName: companyMeta.name,
           replyTo: companyMeta.email || undefined,
         });
@@ -387,22 +420,22 @@ exports.sendPoEmails = onDocumentCreated(
       if (poEvent === "cancelled" && supplierEmail && poData) {
         const companyMeta = await companyMetaFor(companyId);
         const reasonHtml = message
-          ? `<p style="color:#555;font-size:14px;"><strong>Reason:</strong> ${esc(message).replace(/\n/g, "<br/>")}</p>`
+          ? `<p style="color:#555;font-size:14px;"><strong>${esc(strings.reasonLabel)}:</strong> ${esc(message).replace(/\n/g, "<br/>")}</p>`
           : "";
         const introHtml = `
           <div style="border:1px solid #B91C1C;background:#FEF2F2;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
-            <div style="font-weight:700;font-size:15px;color:#B91C1C;margin-bottom:4px;">CANCELLED</div>
-            <p style="color:#555;font-size:14px;margin:0 0 4px;">Dear ${esc(supplierName) || "Supplier"},</p>
-            <p style="color:#555;font-size:14px;margin:0;">This purchase order, previously sent to you, has been cancelled. Please stop any preparation or shipment against it.</p>
+            <div style="font-weight:700;font-size:15px;color:#B91C1C;margin-bottom:4px;">${esc(strings.cancelledBanner)}</div>
+            <p style="color:#555;font-size:14px;margin:0 0 4px;">${interpolate(strings, "dearSupplier", {name: supplierDisplayName})}</p>
+            <p style="color:#555;font-size:14px;margin:0;">${esc(strings.cancelledBody)}</p>
             ${reasonHtml}
           </div>
         `;
-        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml});
+        const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml}, strings);
         await sendEmail({
           companyId,
           to: supplierEmail,
-          subject: `Purchase Order ${poNumber} — cancelled`,
-          html: plainEmailShell(bodyHtml, companyMeta.name),
+          subject: interpolate(strings, "subjectCancelled", {poNumber}),
+          html: plainEmailShell(bodyHtml, companyMeta.name, strings),
           fromName: companyMeta.name,
           replyTo: companyMeta.email || undefined,
         });

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Eye, RotateCcw } from 'lucide-react';
 import type { InventoryImportSession } from '@/types/inventory';
 import { ImportStatusBadge } from '@/components/inventory/shared/ImportStatusBadge';
@@ -26,6 +27,7 @@ function formatBytes(bytes: number): string {
 }
 
 export function ImportHistoryTable({ sessions, onReverseImport }: ImportHistoryTableProps) {
+  const { t } = useTranslation();
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [reversing, setReversing] = useState(false);
 
@@ -43,8 +45,8 @@ export function ImportHistoryTable({ sessions, onReverseImport }: ImportHistoryT
   if (sessions.length === 0) {
     return (
       <div className="text-center py-16 text-gray-400">
-        <p className="text-lg font-medium">No import sessions found</p>
-        <p className="text-sm mt-1">Import history will appear here after your first import.</p>
+        <p className="text-lg font-medium">{t('common.inventory.import.historyTable.emptyTitle')}</p>
+        <p className="text-sm mt-1">{t('common.inventory.import.historyTable.emptySubtitle')}</p>
       </div>
     );
   }
@@ -55,15 +57,15 @@ export function ImportHistoryTable({ sessions, onReverseImport }: ImportHistoryT
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Date</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">File</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Rows</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Created</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Updated</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Errors</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Imported By</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Status</th>
-              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Actions</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.date')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.file')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.rows')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.created')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.updated')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.errors')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.importedBy')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.status')}</th>
+              <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.import.historyTable.columns.actions')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -95,7 +97,7 @@ export function ImportHistoryTable({ sessions, onReverseImport }: ImportHistoryT
                     <div className="flex items-center gap-2">
                       <button className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
                         <Eye className="w-3 h-3" />
-                        Details
+                        {t('common.inventory.import.historyTable.details')}
                       </button>
                       {canUndo && (
                         <button
@@ -103,7 +105,7 @@ export function ImportHistoryTable({ sessions, onReverseImport }: ImportHistoryT
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                         >
                           <RotateCcw className="w-3 h-3" />
-                          Undo
+                          {t('common.inventory.import.historyTable.undo')}
                         </button>
                       )}
                     </div>
@@ -119,9 +121,9 @@ export function ImportHistoryTable({ sessions, onReverseImport }: ImportHistoryT
       {confirmId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Undo Import?</h3>
+            <h3 className="text-lg font-bold text-gray-900">{t('common.inventory.import.historyTable.undoModal.title')}</h3>
             <p className="text-sm text-gray-600">
-              This will revert all changes from this import session. Created parts will be deleted and updated parts will be restored to their previous state.
+              {t('common.inventory.import.historyTable.undoModal.body')}
             </p>
             <div className="flex gap-3">
               <button
@@ -129,14 +131,16 @@ export function ImportHistoryTable({ sessions, onReverseImport }: ImportHistoryT
                 disabled={reversing}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
-                Cancel
+                {t('common.inventory.import.historyTable.undoModal.cancel')}
               </button>
               <button
                 onClick={handleReverse}
                 disabled={reversing}
                 className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
-                {reversing ? 'Undoing…' : 'Yes, Undo'}
+                {reversing
+                  ? t('common.inventory.import.historyTable.undoModal.undoing')
+                  : t('common.inventory.import.historyTable.undoModal.yesUndo')}
               </button>
             </div>
           </div>

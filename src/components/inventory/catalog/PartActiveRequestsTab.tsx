@@ -4,6 +4,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { PartsRequest, PurchaseOrder } from '@/types/inventory';
+import { useTranslation } from 'react-i18next';
 
 interface PartActiveRequestsTabProps {
   partId: string;
@@ -17,6 +18,7 @@ const WAITING_PO_STATUSES = new Set(['pending_approval']);
 // Purchase Orders awaiting approval — mirroring the same "waiting
 // permissions" definition as the dashboard's Active Requests stat.
 export function PartActiveRequestsTab({ partId }: PartActiveRequestsTabProps) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [requests, setRequests] = useState<PartsRequest[]>([]);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
@@ -66,11 +68,11 @@ export function PartActiveRequestsTab({ partId }: PartActiveRequestsTabProps) {
   );
 
   if (loading) {
-    return <div className="text-sm text-gray-400 py-8 text-center">Loading active requests…</div>;
+    return <div className="text-sm text-gray-400 py-8 text-center">{t('common.inventory.detailPage.activeRequests.loading')}</div>;
   }
 
   if (relevantRequests.length === 0 && relevantOrders.length === 0) {
-    return <div className="text-sm text-gray-500 py-8 text-center">No active requests waiting on approval for this part.</div>;
+    return <div className="text-sm text-gray-500 py-8 text-center">{t('common.inventory.detailPage.activeRequests.empty')}</div>;
   }
 
   return (
@@ -78,7 +80,7 @@ export function PartActiveRequestsTab({ partId }: PartActiveRequestsTabProps) {
       {relevantRequests.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="px-5 py-3 border-b border-gray-100">
-            <h3 className="font-semibold text-gray-900 text-sm">Parts Requests Awaiting Approval</h3>
+            <h3 className="font-semibold text-gray-900 text-sm">{t('common.inventory.detailPage.activeRequests.partsRequestsAwaiting')}</h3>
           </div>
           <ul className="divide-y divide-gray-100">
             {relevantRequests.map((r) => {
@@ -90,11 +92,13 @@ export function PartActiveRequestsTab({ partId }: PartActiveRequestsTabProps) {
                       {r.requestNumber}
                     </Link>
                     <p className="text-xs text-gray-500">
-                      {item ? `Qty ${item.quantityRequested}` : ''} · Requested by {r.requestedByName}
+                      {item ? t('common.inventory.detailPage.activeRequests.qty', { quantity: item.quantityRequested }) : ''} · {t('common.inventory.detailPage.activeRequests.requestedBy', { name: r.requestedByName })}
                     </p>
                   </div>
                   <span className="text-xs font-medium px-2 py-1 rounded-full bg-amber-100 text-amber-700">
-                    {r.status === 'pending_storekeeper' ? 'Awaiting Store Keeper' : 'Awaiting Supervisor'}
+                    {r.status === 'pending_storekeeper'
+                      ? t('common.inventory.detailPage.activeRequests.awaitingStoreKeeper')
+                      : t('common.inventory.detailPage.activeRequests.awaitingSupervisor')}
                   </span>
                 </li>
               );
@@ -106,7 +110,7 @@ export function PartActiveRequestsTab({ partId }: PartActiveRequestsTabProps) {
       {relevantOrders.length > 0 && (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
           <div className="px-5 py-3 border-b border-gray-100">
-            <h3 className="font-semibold text-gray-900 text-sm">Purchase Orders Awaiting Approval</h3>
+            <h3 className="font-semibold text-gray-900 text-sm">{t('common.inventory.detailPage.activeRequests.purchaseOrdersAwaiting')}</h3>
           </div>
           <ul className="divide-y divide-gray-100">
             {relevantOrders.map((o) => {
@@ -118,11 +122,11 @@ export function PartActiveRequestsTab({ partId }: PartActiveRequestsTabProps) {
                       {o.poNumber}
                     </Link>
                     <p className="text-xs text-gray-500">
-                      {item ? `Qty ${item.quantityOrdered}` : ''} · {o.supplierName}
+                      {item ? t('common.inventory.detailPage.activeRequests.qty', { quantity: item.quantityOrdered }) : ''} · {o.supplierName}
                     </p>
                   </div>
                   <span className="text-xs font-medium px-2 py-1 rounded-full bg-amber-100 text-amber-700">
-                    Pending Approval
+                    {t('common.inventory.detailPage.activeRequests.pendingApproval')}
                   </span>
                 </li>
               );

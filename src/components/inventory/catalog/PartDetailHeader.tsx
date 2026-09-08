@@ -5,6 +5,7 @@ import { PartCriticalityBadge } from '@/components/inventory/shared/PartCritical
 import { CategoryBadge } from '@/components/inventory/shared/CategoryBadge';
 import { useAuthStore } from '@/store/authStore';
 import { getStockStatus } from '@/lib/inventory/stockCalculator';
+import { useTranslation } from 'react-i18next';
 
 interface PartDetailHeaderProps {
   part: InventoryPart;
@@ -23,6 +24,7 @@ export function PartDetailHeader({
   onRaisePO,
   onShowQr,
 }: PartDetailHeaderProps) {
+  const { t } = useTranslation();
   const { canAccess } = useAuthStore();
   const stockStatus = getStockStatus(part);
   const available = Math.max(0, part.currentStock - part.reservedStock);
@@ -37,7 +39,9 @@ export function PartDetailHeader({
     banner = (
       <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
         <XCircle className="w-4 h-4 shrink-0" />
-        <span className="text-sm font-medium">Out of Stock — 0 {part.unit} available</span>
+        <span className="text-sm font-medium">
+          {t('common.inventory.detailPage.header.outOfStock', { unit: part.unit })}
+        </span>
       </div>
     );
   } else if (stockStatus === 'low_stock') {
@@ -45,7 +49,7 @@ export function PartDetailHeader({
       <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700">
         <AlertTriangle className="w-4 h-4 shrink-0" />
         <span className="text-sm font-medium">
-          Low Stock — {available} {part.unit} remaining (min: {part.minStockLevel})
+          {t('common.inventory.detailPage.header.lowStock', { available, unit: part.unit, min: part.minStockLevel })}
         </span>
       </div>
     );
@@ -54,7 +58,7 @@ export function PartDetailHeader({
       <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-lg text-green-700">
         <CheckCircle className="w-4 h-4 shrink-0" />
         <span className="text-sm font-medium">
-          In Stock — {available} {part.unit} available
+          {t('common.inventory.detailPage.header.inStock', { available, unit: part.unit })}
         </span>
       </div>
     );
@@ -87,17 +91,17 @@ export function PartDetailHeader({
       {/* Stock figures row */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500 mb-0.5">Current</p>
+          <p className="text-xs text-gray-500 mb-0.5">{t('common.inventory.detailPage.header.current')}</p>
           <p className="text-xl font-bold text-gray-900">{part.currentStock.toLocaleString()}</p>
           <p className="text-xs text-gray-500">{part.unit}</p>
         </div>
         <div className="bg-white border border-gray-200 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500 mb-0.5">Min. Stock Level</p>
+          <p className="text-xs text-gray-500 mb-0.5">{t('common.inventory.detailPage.header.minStockLevel')}</p>
           <p className="text-xl font-bold text-gray-700">{part.minStockLevel.toLocaleString()}</p>
           <p className="text-xs text-gray-500">{part.unit}</p>
         </div>
         <div className={`border rounded-lg p-3 text-center ${stockStatus === 'out_of_stock' ? 'bg-red-50 border-red-200' : stockStatus === 'low_stock' ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
-          <p className="text-xs text-gray-500 mb-0.5">Available</p>
+          <p className="text-xs text-gray-500 mb-0.5">{t('common.inventory.detailPage.header.available')}</p>
           <p className={`text-xl font-bold ${stockStatus === 'out_of_stock' ? 'text-red-700' : stockStatus === 'low_stock' ? 'text-amber-700' : 'text-green-700'}`}>
             {available.toLocaleString()}
           </p>
@@ -113,7 +117,7 @@ export function PartDetailHeader({
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
           >
             <Pencil className="w-4 h-4" />
-            Edit Part
+            {t('common.inventory.detailPage.header.editPart')}
           </button>
         )}
         {canReceive && onReceive && (
@@ -122,7 +126,7 @@ export function PartDetailHeader({
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
           >
             <PackagePlus className="w-4 h-4" />
-            Receive Stock
+            {t('common.inventory.detailPage.header.receiveStock')}
           </button>
         )}
         {canAdjust && onAdjust && (
@@ -131,7 +135,7 @@ export function PartDetailHeader({
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
-            Adjust Stock
+            {t('common.inventory.detailPage.header.adjustStock')}
           </button>
         )}
         {canRaisePO && onRaisePO && (
@@ -140,7 +144,7 @@ export function PartDetailHeader({
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
           >
             <ShoppingCart className="w-4 h-4" />
-            Raise PO
+            {t('common.inventory.detailPage.header.raisePO')}
           </button>
         )}
         {onShowQr && (
@@ -149,7 +153,7 @@ export function PartDetailHeader({
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors"
           >
             <QrCode className="w-4 h-4" />
-            View QR
+            {t('common.inventory.detailPage.header.viewQr')}
           </button>
         )}
       </div>

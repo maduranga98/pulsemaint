@@ -283,6 +283,18 @@
           "in_stock": "In Stock",
           "low_stock": "Low Stock",
           "out_of_stock": "Out of Stock"
+        },
+        "movementType": {
+          "issue": "Issue",
+          "return": "Return",
+          "receive": "Receive",
+          "adjustment": "Adjustment",
+          "reserve": "Reserve",
+          "unreserve": "Unreserve",
+          "import_create": "Import (New)",
+          "import_update": "Import (Update)",
+          "transfer_out": "Transfer Out",
+          "transfer_in": "Transfer In"
         }
       },
       "partForm": {
@@ -405,7 +417,259 @@
           "noCadFiles": "No CAD files attached.",
           "noImages": "No images attached."
         },
-        "analyticsPlaceholder": "Usage analytics will appear here."
+        "analyticsPlaceholder": "Usage analytics will appear here.",
+        "header": {
+          "outOfStock": "Out of Stock — 0 {{unit}} available",
+          "lowStock": "Low Stock — {{available}} {{unit}} remaining (min: {{min}})",
+          "inStock": "In Stock — {{available}} {{unit}} available",
+          "current": "Current",
+          "minStockLevel": "Min. Stock Level",
+          "available": "Available",
+          "editPart": "Edit Part",
+          "receiveStock": "Receive Stock",
+          "adjustStock": "Adjust Stock",
+          "raisePO": "Raise PO",
+          "viewQr": "View QR"
+        },
+        "overview": {
+          "partDetails": "Part Details",
+          "brand": "Brand",
+          "modelRef": "Model Ref.",
+          "warranty": "Warranty",
+          "warrantyMonths_one": "{{count}} month",
+          "warrantyMonths_other": "{{count}} months",
+          "notes": "Notes",
+          "created": "Created",
+          "updated": "Updated",
+          "locationStorage": "Location & Storage",
+          "storeLocation": "Store Location",
+          "compatibleMachines": "Compatible Machines",
+          "supplierInfo": "Supplier Info",
+          "supplier": "Supplier",
+          "supplierCode": "Supplier Code",
+          "contactPerson": "Contact Person",
+          "phone": "Phone",
+          "email": "Email",
+          "address": "Address",
+          "country": "Country",
+          "website": "Website",
+          "paymentMethod": "Payment Method",
+          "bankDetails": "Bank Details",
+          "supplierPartCode": "Supplier Part Code",
+          "leadTime": "Lead Time",
+          "leadTimeDays_one": "{{count}} day",
+          "leadTimeDays_other": "{{count}} days",
+          "lastPurchase": "Last Purchase",
+          "stockLevels": "Stock Levels",
+          "current": "Current",
+          "reserved": "Reserved",
+          "available": "Available",
+          "lastReceived": "Last Received",
+          "lastIssued": "Last Issued",
+          "costSummary": "Cost Summary",
+          "unitCost": "Unit Cost",
+          "lastPurchasePrice": "Last Purchase Price",
+          "totalStockValue": "Total Stock Value",
+          "totalUsedAllTime": "Total Used (All Time)",
+          "totalCostAllTime": "Total Cost (All Time)"
+        },
+        "history": {
+          "totalReceived": "Total Received",
+          "totalIssued": "Total Issued",
+          "adjustments": "Adjustments",
+          "netChange": "Net Change",
+          "allTypes": "All Types",
+          "movementTypes": {
+            "issue": "Issue",
+            "return": "Return",
+            "receive": "Receive",
+            "adjustment": "Adjustment",
+            "reserve": "Reserve",
+            "unreserve": "Unreserve",
+            "transfer_out": "Transfer Out",
+            "transfer_in": "Transfer In"
+          },
+          "fromPlaceholder": "From",
+          "toPlaceholder": "To",
+          "loading": "Loading movements…",
+          "noMovements": "No stock movements found.",
+          "by": "By:",
+          "ref": "Ref:",
+          "wo": "WO:"
+        },
+        "activeRequests": {
+          "loading": "Loading active requests…",
+          "empty": "No active requests waiting on approval for this part.",
+          "partsRequestsAwaiting": "Parts Requests Awaiting Approval",
+          "qty": "Qty {{quantity}}",
+          "requestedBy": "Requested by {{name}}",
+          "awaitingStoreKeeper": "Awaiting Store Keeper",
+          "awaitingSupervisor": "Awaiting Supervisor",
+          "purchaseOrdersAwaiting": "Purchase Orders Awaiting Approval",
+          "pendingApproval": "Pending Approval"
+        },
+        "qrModal": {
+          "title": "Part QR Code",
+          "download": "Download",
+          "print": "Print"
+        }
+      },
+      "import": {
+        "stepIndicator": {
+          "template": "Template",
+          "upload": "Upload",
+          "validate": "Validate",
+          "import": "Import",
+          "complete": "Complete"
+        },
+        "templateStep": {
+          "pageTitle": "Import Inventory from Excel or CSV",
+          "pageSubtitle": "Use our template to import or update parts in bulk.",
+          "howItWorks": "How it works",
+          "steps": [
+            "Download the template below and fill in your part data.",
+            "Upload the completed file (max 10 MB, .xlsx or .csv).",
+            "We validate every row — fix any errors before proceeding.",
+            "Review the import preview, then confirm to apply changes."
+          ],
+          "templateDetails": "Template Details",
+          "sheets": "Sheets",
+          "columns": "Columns",
+          "maxRows": "Max rows",
+          "maxFileSize": "Max file size",
+          "tipsForSuccess": "Tips for success",
+          "tips": [
+            "Columns marked with * are required — leave them blank and that row will fail validation.",
+            "Part Number is optional — leave it blank and the system auto-generates one from Category (e.g. E-012-RAS-0001, combining Category, Supplier, and Location).",
+            "If a Part Number is given and already exists in the system, the row will update that part.",
+            "Any Supplier Name not already in your Suppliers list is added automatically, with an auto-generated Supplier Code.",
+            "Dates must be in YYYY-MM-DD format (e.g. 2025-01-15).",
+            "See the \"Valid Units\" and \"Valid Categories\" sheets inside the template for allowed values."
+          ],
+          "downloadTemplate": "Download Template",
+          "nextUploadFile": "Next: Upload File"
+        },
+        "uploadStep": {
+          "pageTitle": "Upload Your File",
+          "pageSubtitle": "Upload the completed template. .xlsx or .csv, max 10 MB.",
+          "dropHere": "Drop your file here",
+          "dragDrop": "Drag & drop your .xlsx or .csv file here",
+          "orBrowse": "or click to browse files",
+          "maxSizeHint": "Max 10 MB · .xlsx or .csv",
+          "removeFile": "Remove file",
+          "invalidFileType": "Only .xlsx or .csv files are accepted.",
+          "fileTooLarge": "File exceeds 10 MB limit ({{size}}). Please reduce the file size.",
+          "uploadAndValidate": "Upload & Validate",
+          "back": "Back"
+        },
+        "validation": {
+          "passed": "Validation Passed",
+          "failed": "Validation Failed",
+          "allValid": "All rows are valid and ready to import.",
+          "errorsMustBeFixed_one": "{{count}} error must be fixed before importing.",
+          "errorsMustBeFixed_other": "{{count}} errors must be fixed before importing.",
+          "totalRows": "Total Rows",
+          "valid": "Valid",
+          "errors": "Errors",
+          "create": "Create",
+          "update": "Update",
+          "uploadNewFile": "Upload New File",
+          "confirmImport": "Confirm Import",
+          "uploadDifferentFile": "Upload Different File"
+        },
+        "progress": {
+          "importingParts": "Importing Parts…",
+          "importingOfTotal": "Importing {{current}} of {{total}} parts",
+          "doNotNavigateAway": "Do not navigate away from this page while the import is in progress."
+        },
+        "complete": {
+          "title": "Import Complete!",
+          "summary": "{{newCount}} parts created · {{updateCount}} parts updated",
+          "rowsSkipped_one": "{{count}} row skipped",
+          "rowsSkipped_other": "{{count}} rows skipped",
+          "created": "Created",
+          "updated": "Updated",
+          "skipped": "Skipped",
+          "viewImportedParts": "View Imported Parts",
+          "viewImportHistory": "View Import History",
+          "undoImport": "Undo Import",
+          "undoWithinHours": "(within 24h)",
+          "undoModalTitle": "Undo Import?",
+          "undoModalBody": "This will revert all changes from this import. Created parts will be deleted and updated parts will be restored.",
+          "cancel": "Cancel",
+          "undoing": "Undoing…",
+          "yesUndo": "Yes, Undo"
+        },
+        "historyPage": {
+          "title": "Import History"
+        },
+        "toasts": {
+          "parseFailed": "Failed to parse file. Please check the format and try again.",
+          "importFailed": "Import failed. Please try again.",
+          "importReversed": "Import has been reversed.",
+          "undoFailed": "Failed to undo import.",
+          "reverseSuccess": "Import reversed successfully.",
+          "reverseFailed": "Failed to reverse import."
+        },
+        "page": {
+          "title": "Excel & CSV Import",
+          "subtitle": "Import or update inventory parts from a spreadsheet."
+        },
+        "historyTable": {
+          "emptyTitle": "No import sessions found",
+          "emptySubtitle": "Import history will appear here after your first import.",
+          "columns": {
+            "date": "Date",
+            "file": "File",
+            "rows": "Rows",
+            "created": "Created",
+            "updated": "Updated",
+            "errors": "Errors",
+            "importedBy": "Imported By",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "details": "Details",
+          "undo": "Undo",
+          "undoModal": {
+            "title": "Undo Import?",
+            "body": "This will revert all changes from this import session. Created parts will be deleted and updated parts will be restored to their previous state.",
+            "cancel": "Cancel",
+            "undoing": "Undoing…",
+            "yesUndo": "Yes, Undo"
+          }
+        },
+        "errorTable": {
+          "errorsFound_one": "{{count}} validation error found",
+          "errorsFound_other": "{{count}} validation errors found",
+          "downloadReport": "Download Report",
+          "columns": {
+            "row": "Row #",
+            "column": "Column",
+            "errorCode": "Error Code",
+            "message": "Message",
+            "fixHint": "Fix Hint"
+          }
+        },
+        "previewTable": {
+          "showingRows": "Showing first {{shown}} of {{total}} rows. All rows validated.",
+          "newPartsWillBeCreated_one": "{{count}} new part will be created",
+          "newPartsWillBeCreated_other": "{{count}} new parts will be created",
+          "partsWillBeUpdated_one": "{{count}} part will be updated",
+          "partsWillBeUpdated_other": "{{count}} parts will be updated",
+          "autoGenerated": "auto-generated",
+          "columns": {
+            "partNumber": "Part Number",
+            "partName": "Part Name",
+            "category": "Category",
+            "unit": "Unit",
+            "stock": "Stock",
+            "unitCost": "Unit Cost",
+            "action": "Action"
+          },
+          "actionCreate": "CREATE",
+          "actionUpdate": "UPDATE"
+        }
       },
       "table": {
         "noPartsFound": "No parts found.",
@@ -431,6 +695,12 @@
       "card": {
         "viewQrCode": "View QR code",
         "noLocation": "No location"
+      },
+      "shared": {
+        "stockGauge": {
+          "min": "Min",
+          "max": "Max"
+        }
       }
     },
     "widgets": {

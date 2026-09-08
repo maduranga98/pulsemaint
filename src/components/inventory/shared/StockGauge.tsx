@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { PartUnit } from '@/types/inventory';
 import { UnitLabel } from './UnitLabel';
 
@@ -9,6 +10,9 @@ interface StockGaugeProps {
 }
 
 export function StockGauge({ current, min, max, unit }: StockGaugeProps) {
+  const { t } = useTranslation();
+  const minLabel = t('common.inventory.shared.stockGauge.min');
+  const maxLabel = t('common.inventory.shared.stockGauge.max');
   const effectiveMax = max > 0 ? max : Math.max(min * 2, current * 1.5, 1);
   const fillPct = Math.min(100, Math.max(0, (current / effectiveMax) * 100));
   const minPct = Math.min(100, Math.max(0, (min / effectiveMax) * 100));
@@ -35,7 +39,7 @@ export function StockGauge({ current, min, max, unit }: StockGaugeProps) {
           <div
             className="absolute top-0 bottom-0 w-0.5 bg-gray-400"
             style={{ left: `${minPct}%` }}
-            title={`Min: ${min}`}
+            title={`${minLabel}: ${min}`}
           />
         )}
       </div>
@@ -43,14 +47,14 @@ export function StockGauge({ current, min, max, unit }: StockGaugeProps) {
       {/* Labels */}
       <div className="flex justify-between text-xs">
         <span className="text-gray-500">
-          Min: <span className="font-medium text-gray-700"><UnitLabel unit={unit} quantity={min} /></span>
+          {minLabel}: <span className="font-medium text-gray-700"><UnitLabel unit={unit} quantity={min} /></span>
         </span>
         <span className={`font-semibold ${labelColor}`}>
           <UnitLabel unit={unit} quantity={current} />
         </span>
         {max > 0 && (
           <span className="text-gray-500">
-            Max: <span className="font-medium text-gray-700"><UnitLabel unit={unit} quantity={max} /></span>
+            {maxLabel}: <span className="font-medium text-gray-700"><UnitLabel unit={unit} quantity={max} /></span>
           </span>
         )}
       </div>

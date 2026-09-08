@@ -9,6 +9,7 @@ import { formatLKR } from '@/lib/inventory/stockCalculator';
 import { formatDistanceToNow, formatDate } from '@/lib/dateUtils';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, Cpu } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface PartOverviewTabProps {
   part: InventoryPart;
@@ -40,6 +41,7 @@ function tsToDate(ts: { toDate?: () => Date; seconds?: number } | null | undefin
 }
 
 export function PartOverviewTab({ part }: PartOverviewTabProps) {
+  const { t } = useTranslation();
   const isTechnician = useAuthStore((s) => s.isTechnician);
   const { suppliers } = useSuppliers();
   const { machines } = useMachineOptions();
@@ -62,34 +64,37 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Part Details */}
-      <Card title="Part Details">
+      <Card title={t('common.inventory.detailPage.overview.partDetails')}>
         {part.description && (
           <p className="text-sm text-gray-600 leading-relaxed">{part.description}</p>
         )}
-        <Row label="Brand" value={part.brand} />
-        <Row label="Model Ref." value={part.modelRef} />
+        <Row label={t('common.inventory.partForm.fields.brand')} value={part.brand} />
+        <Row label={t('common.inventory.detailPage.overview.modelRef')} value={part.modelRef} />
         {part.warrantyMonths > 0 && (
-          <Row label="Warranty" value={`${part.warrantyMonths} months`} />
+          <Row
+            label={t('common.inventory.detailPage.overview.warranty')}
+            value={t('common.inventory.detailPage.overview.warrantyMonths', { count: part.warrantyMonths })}
+          />
         )}
         {part.notes && (
           <div className="text-sm">
-            <p className="text-gray-500 mb-1">Notes</p>
+            <p className="text-gray-500 mb-1">{t('common.inventory.detailPage.overview.notes')}</p>
             <p className="text-gray-700 bg-gray-50 rounded p-2 text-xs">{part.notes}</p>
           </div>
         )}
-        {createdDate && <Row label="Created" value={formatDate(createdDate)} />}
-        {updatedDate && <Row label="Updated" value={formatDistanceToNow(updatedDate)} />}
+        {createdDate && <Row label={t('common.inventory.detailPage.overview.created')} value={formatDate(createdDate)} />}
+        {updatedDate && <Row label={t('common.inventory.detailPage.overview.updated')} value={formatDistanceToNow(updatedDate)} />}
       </Card>
 
       {/* Location & Storage */}
-      <Card title="Location & Storage">
+      <Card title={t('common.inventory.detailPage.overview.locationStorage')}>
         <div className="text-center py-2">
-          <p className="text-xs text-gray-500 mb-1">Store Location</p>
+          <p className="text-xs text-gray-500 mb-1">{t('common.inventory.detailPage.overview.storeLocation')}</p>
           <p className="text-2xl font-bold text-gray-900 font-mono">{part.storeLocation || ''}</p>
         </div>
         {part.compatibleMachineIds.length > 0 && (
           <div>
-            <p className="text-xs text-gray-500 mb-2">Compatible Machines</p>
+            <p className="text-xs text-gray-500 mb-2">{t('common.inventory.detailPage.overview.compatibleMachines')}</p>
             <div className="flex flex-wrap gap-1.5">
               {part.compatibleMachineIds.map((id) => {
                 const machine = machines.find((m) => m.id === id);
@@ -110,16 +115,16 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
       </Card>
 
       {/* Supplier Info — mirrors the supplier's own profile on the Suppliers page */}
-      <Card title="Supplier Info">
-        <Row label="Supplier" value={supplier?.name || part.supplierName} />
-        <Row label="Supplier Code" value={supplier?.supplierCode} />
-        <Row label="Contact Person" value={supplier?.contactPerson} />
-        <Row label="Phone" value={supplier?.phone || (part.supplierContact && !part.supplierContact.includes('@') ? part.supplierContact : '')} />
-        <Row label="Email" value={supplier?.email || (part.supplierContact.includes('@') ? part.supplierContact : '')} />
-        <Row label="Address" value={supplier?.address} />
-        <Row label="Country" value={supplier?.country} />
+      <Card title={t('common.inventory.detailPage.overview.supplierInfo')}>
+        <Row label={t('common.inventory.detailPage.overview.supplier')} value={supplier?.name || part.supplierName} />
+        <Row label={t('common.inventory.detailPage.overview.supplierCode')} value={supplier?.supplierCode} />
+        <Row label={t('common.inventory.detailPage.overview.contactPerson')} value={supplier?.contactPerson} />
+        <Row label={t('common.inventory.detailPage.overview.phone')} value={supplier?.phone || (part.supplierContact && !part.supplierContact.includes('@') ? part.supplierContact : '')} />
+        <Row label={t('common.inventory.detailPage.overview.email')} value={supplier?.email || (part.supplierContact.includes('@') ? part.supplierContact : '')} />
+        <Row label={t('common.inventory.detailPage.overview.address')} value={supplier?.address} />
+        <Row label={t('common.inventory.detailPage.overview.country')} value={supplier?.country} />
         <Row
-          label="Website"
+          label={t('common.inventory.detailPage.overview.website')}
           value={
             supplier?.website ? (
               <a href={supplier.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
@@ -128,11 +133,14 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
             ) : null
           }
         />
-        <Row label="Payment Method" value={supplier?.paymentMethod} />
-        <Row label="Bank Details" value={supplier?.bankDetails} />
-        <Row label="Supplier Part Code" value={part.supplierPartCode} />
-        <Row label="Lead Time" value={part.leadTimeDays ? `${part.leadTimeDays} days` : null} />
-        {lastPurchaseDate && <Row label="Last Purchase" value={formatDate(lastPurchaseDate)} />}
+        <Row label={t('common.inventory.detailPage.overview.paymentMethod')} value={supplier?.paymentMethod} />
+        <Row label={t('common.inventory.detailPage.overview.bankDetails')} value={supplier?.bankDetails} />
+        <Row label={t('common.inventory.detailPage.overview.supplierPartCode')} value={part.supplierPartCode} />
+        <Row
+          label={t('common.inventory.detailPage.overview.leadTime')}
+          value={part.leadTimeDays ? t('common.inventory.detailPage.overview.leadTimeDays', { count: part.leadTimeDays }) : null}
+        />
+        {lastPurchaseDate && <Row label={t('common.inventory.detailPage.overview.lastPurchase')} value={formatDate(lastPurchaseDate)} />}
         {(() => {
           const phone = supplier?.phone || (!part.supplierContact.includes('@') ? part.supplierContact : '');
           const email = supplier?.email || (part.supplierContact.includes('@') ? part.supplierContact : '');
@@ -157,7 +165,7 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
       </Card>
 
       {/* Stock Levels */}
-      <Card title="Stock Levels">
+      <Card title={t('common.inventory.detailPage.overview.stockLevels')}>
         <StockGauge
           current={part.currentStock}
           min={part.minStockLevel}
@@ -166,34 +174,34 @@ export function PartOverviewTab({ part }: PartOverviewTabProps) {
         />
         <div className="grid grid-cols-3 gap-3 mt-3 text-center text-xs">
           <div>
-            <p className="text-gray-500">Current</p>
+            <p className="text-gray-500">{t('common.inventory.detailPage.overview.current')}</p>
             <p className="font-bold text-gray-900"><UnitLabel unit={part.unit} quantity={part.currentStock} /></p>
           </div>
           <div>
-            <p className="text-gray-500">Reserved</p>
+            <p className="text-gray-500">{t('common.inventory.detailPage.overview.reserved')}</p>
             <p className="font-bold text-gray-700"><UnitLabel unit={part.unit} quantity={part.reservedStock} /></p>
           </div>
           <div>
-            <p className="text-gray-500">Available</p>
+            <p className="text-gray-500">{t('common.inventory.detailPage.overview.available')}</p>
             <p className="font-bold text-green-700"><UnitLabel unit={part.unit} quantity={available} /></p>
           </div>
         </div>
-        {lastReceivedDate && <Row label="Last Received" value={formatDistanceToNow(lastReceivedDate)} />}
-        {lastIssuedDate && <Row label="Last Issued" value={formatDistanceToNow(lastIssuedDate)} />}
+        {lastReceivedDate && <Row label={t('common.inventory.detailPage.overview.lastReceived')} value={formatDistanceToNow(lastReceivedDate)} />}
+        {lastIssuedDate && <Row label={t('common.inventory.detailPage.overview.lastIssued')} value={formatDistanceToNow(lastIssuedDate)} />}
       </Card>
 
       {/* Cost Summary — hidden from technician */}
       {!isTechnician && (
-        <Card title="Cost Summary">
-          <Row label="Unit Cost" value={<CostDisplay amount={part.unitCost} />} />
-          <Row label="Last Purchase Price" value={<CostDisplay amount={part.lastPurchasePrice} />} />
+        <Card title={t('common.inventory.detailPage.overview.costSummary')}>
+          <Row label={t('common.inventory.detailPage.overview.unitCost')} value={<CostDisplay amount={part.unitCost} />} />
+          <Row label={t('common.inventory.detailPage.overview.lastPurchasePrice')} value={<CostDisplay amount={part.lastPurchasePrice} />} />
           <Row
-            label="Total Stock Value"
+            label={t('common.inventory.detailPage.overview.totalStockValue')}
             value={<span className="text-blue-700 font-semibold">{formatLKR(part.unitCost * part.currentStock)}</span>}
           />
           <div className="border-t border-gray-100 pt-2 mt-2">
-            <Row label="Total Used (All Time)" value={<UnitLabel unit={part.unit} quantity={part.totalUsedAllTime} />} />
-            <Row label="Total Cost (All Time)" value={<CostDisplay amount={part.totalCostAllTime} />} />
+            <Row label={t('common.inventory.detailPage.overview.totalUsedAllTime')} value={<UnitLabel unit={part.unit} quantity={part.totalUsedAllTime} />} />
+            <Row label={t('common.inventory.detailPage.overview.totalCostAllTime')} value={<CostDisplay amount={part.totalCostAllTime} />} />
           </div>
         </Card>
       )}

@@ -5,6 +5,7 @@ import QRCode from 'qrcode';
 import { useAuthStore } from '@/store/authStore';
 import { composeBrandedQrCanvas, downloadCanvasAsImage, printCanvas } from '@/lib/qrBranding';
 import type { InventoryPart } from '@/types/inventory';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   part: InventoryPart;
@@ -16,6 +17,7 @@ interface Props {
  * The encoded payload identifies the part for stock-change scanning.
  */
 export function PartQrModal({ part, onClose }: Props) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const company = useAuthStore((s) => s.company);
 
@@ -52,7 +54,7 @@ export function PartQrModal({ part, onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-gray-900">Part QR Code</h3>
+          <h3 className="text-base font-semibold text-gray-900">{t('common.inventory.detailPage.qrModal.title')}</h3>
           <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <X className="h-4 w-4" />
           </button>
@@ -71,7 +73,7 @@ export function PartQrModal({ part, onClose }: Props) {
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             <Download className="h-4 w-4" />
-            Download
+            {t('common.inventory.detailPage.qrModal.download')}
           </button>
           <button
             type="button"
@@ -79,7 +81,7 @@ export function PartQrModal({ part, onClose }: Props) {
             className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             <Printer className="h-4 w-4" />
-            Print
+            {t('common.inventory.detailPage.qrModal.print')}
           </button>
         </div>
       </div>

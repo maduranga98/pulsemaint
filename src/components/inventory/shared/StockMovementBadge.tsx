@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { MovementType } from '@/types/inventory';
 import { StockMovementIcon } from './StockMovementIcon';
 
@@ -5,19 +6,6 @@ interface StockMovementBadgeProps {
   type: MovementType;
   size?: 'sm' | 'md';
 }
-
-const movementLabels: Record<MovementType, string> = {
-  issue: 'Issue',
-  return: 'Return',
-  receive: 'Receive',
-  adjustment: 'Adjustment',
-  reserve: 'Reserve',
-  unreserve: 'Unreserve',
-  import_create: 'Import (New)',
-  import_update: 'Import (Update)',
-  transfer_out: 'Transfer Out',
-  transfer_in: 'Transfer In',
-};
 
 const movementBgColors: Record<MovementType, string> = {
   issue: 'bg-red-50 text-red-700',
@@ -38,12 +26,15 @@ const sizeClasses = {
 };
 
 export function StockMovementBadge({ type, size = 'sm' }: StockMovementBadgeProps) {
+  const { t } = useTranslation();
+  const label = t(`common.inventory.enums.movementType.${type}`);
+
   return (
     <span
       className={`inline-flex items-center rounded-full font-medium ${movementBgColors[type]} ${sizeClasses[size]}`}
     >
       <StockMovementIcon type={type} className="w-3 h-3" />
-      {movementLabels[type]}
+      {label}
     </span>
   );
 }

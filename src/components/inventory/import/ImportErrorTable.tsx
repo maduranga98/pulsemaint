@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';
 import type { ValidationError } from '@/types/inventory';
 
@@ -6,6 +7,8 @@ interface ImportErrorTableProps {
 }
 
 export function ImportErrorTable({ errors }: ImportErrorTableProps) {
+  const { t } = useTranslation();
+
   function handleDownload() {
     console.log('[ImportErrorTable] Download error report:', errors);
   }
@@ -16,14 +19,14 @@ export function ImportErrorTable({ errors }: ImportErrorTableProps) {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-red-700 text-sm">
-          {errors.length} validation {errors.length === 1 ? 'error' : 'errors'} found
+          {t('common.inventory.import.errorTable.errorsFound', { count: errors.length })}
         </h3>
         <button
           onClick={handleDownload}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
         >
           <Download className="w-3.5 h-3.5" />
-          Download Report
+          {t('common.inventory.import.errorTable.downloadReport')}
         </button>
       </div>
 
@@ -31,11 +34,11 @@ export function ImportErrorTable({ errors }: ImportErrorTableProps) {
         <table className="w-full text-xs">
           <thead className="bg-red-50 sticky top-0">
             <tr>
-              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">Row #</th>
-              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">Column</th>
-              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">Error Code</th>
-              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">Message</th>
-              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">Fix Hint</th>
+              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">{t('common.inventory.import.errorTable.columns.row')}</th>
+              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">{t('common.inventory.import.errorTable.columns.column')}</th>
+              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">{t('common.inventory.import.errorTable.columns.errorCode')}</th>
+              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">{t('common.inventory.import.errorTable.columns.message')}</th>
+              <th className="px-3 py-2 text-left font-semibold text-red-800 whitespace-nowrap">{t('common.inventory.import.errorTable.columns.fixHint')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-red-100">

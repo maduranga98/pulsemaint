@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { PartStatus } from '@/types/inventory';
 
 interface PartStatusBadgeProps {
@@ -5,19 +6,16 @@ interface PartStatusBadgeProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const statusConfig: Record<PartStatus, { label: string; color: string; bg: string }> = {
+const statusColors: Record<PartStatus, { color: string; bg: string }> = {
   active: {
-    label: 'Active',
     color: 'text-green-700',
     bg: 'bg-green-50',
   },
   inactive: {
-    label: 'Inactive',
     color: 'text-amber-700',
     bg: 'bg-amber-50',
   },
   discontinued: {
-    label: 'Discontinued',
     color: 'text-gray-600',
     bg: 'bg-gray-100',
   },
@@ -30,14 +28,16 @@ const sizeClasses = {
 };
 
 export function PartStatusBadge({ status, size = 'sm' }: PartStatusBadgeProps) {
-  const config = statusConfig[status];
+  const { t } = useTranslation();
+  const config = statusColors[status];
+  const label = t(`common.inventory.enums.status.${status}`);
 
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full font-medium ${config.bg} ${config.color} ${sizeClasses[size]}`}
     >
       <span className="inline-block w-1.5 h-1.5 rounded-full bg-current" />
-      {config.label}
+      {label}
     </span>
   );
 }
