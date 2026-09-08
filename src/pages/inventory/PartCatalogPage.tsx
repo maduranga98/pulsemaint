@@ -68,7 +68,7 @@ export function PartCatalogPage() {
 
   async function handleDeleteSelected() {
     if (selectedIds.length === 0) return;
-    if (!confirm(`Delete ${selectedIds.length} selected part${selectedIds.length === 1 ? '' : 's'}? This cannot be undone.`)) {
+    if (!confirm(t('common.inventory.catalog.confirmDelete', { count: selectedIds.length }))) {
       return;
     }
     setDeleting(true);
@@ -80,11 +80,11 @@ export function PartCatalogPage() {
         selectedIds.slice(i, i + CHUNK).forEach((id) => batch.delete(doc(db, 'inventoryParts', id)));
         await batch.commit();
       }
-      addToast(`${selectedIds.length} part(s) deleted.`, 'success');
+      addToast(t('common.inventory.catalog.deleteSuccess', { count: selectedIds.length }), 'success');
       setSelectedIds([]);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      addToast(`Failed to delete parts: ${message}`, 'error');
+      const message = err instanceof Error ? err.message : t('common.inventory.addPartPage.errors.unknown');
+      addToast(t('common.inventory.catalog.deleteFailed', { message }), 'error');
     } finally {
       setDeleting(false);
     }
@@ -98,7 +98,7 @@ export function PartCatalogPage() {
           <Link
             to="/app/inventory"
             className="mt-1 text-gray-400 hover:text-gray-700 transition-colors"
-            aria-label="Back to inventory"
+            aria-label={t('common.inventory.catalog.backToInventory')}
           >
             <ChevronLeft className="w-5 h-5" />
           </Link>

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { ChevronLeft } from 'lucide-react';
 import { useInventoryPart } from '@/hooks/inventory/useInventoryPart';
 import { PartDetailHeader } from '@/components/inventory/catalog/PartDetailHeader';
@@ -10,13 +12,15 @@ import { PartActiveRequestsTab } from '@/components/inventory/catalog/PartActive
 
 type TabId = 'overview' | 'history' | 'requests' | 'files' | 'analytics';
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'history', label: 'Stock History' },
-  { id: 'requests', label: 'Active Requests' },
-  { id: 'files', label: 'Files' },
-  { id: 'analytics', label: 'Analytics' },
-];
+function getTabs(t: TFunction): { id: TabId; label: string }[] {
+  return [
+    { id: 'overview', label: t('common.inventory.detailPage.tabs.overview') },
+    { id: 'history', label: t('common.inventory.detailPage.tabs.history') },
+    { id: 'requests', label: t('common.inventory.detailPage.tabs.requests') },
+    { id: 'files', label: t('common.inventory.detailPage.tabs.files') },
+    { id: 'analytics', label: t('common.inventory.detailPage.tabs.analytics') },
+  ];
+}
 
 function SkeletonDetail() {
   return (
@@ -34,10 +38,12 @@ function SkeletonDetail() {
 }
 
 export function PartDetailPage() {
+  const { t } = useTranslation();
   const { partId } = useParams<{ partId: string }>();
   const { part, loading, error } = useInventoryPart(partId);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
   const [showQr, setShowQr] = useState(false);
+  const TABS = getTabs(t);
 
   if (loading) return <SkeletonDetail />;
 
@@ -45,10 +51,10 @@ export function PartDetailPage() {
     return (
       <div className="space-y-4">
         <Link to="/app/inventory/catalog" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
-          <ChevronLeft className="w-4 h-4" /> Back to Catalog
+          <ChevronLeft className="w-4 h-4" /> {t('common.inventory.detailPage.backToCatalog')}
         </Link>
         <div className="p-6 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-          {error ?? 'Part not found.'}
+          {error ?? t('common.inventory.detailPage.partNotFound')}
         </div>
       </div>
     );
@@ -61,7 +67,7 @@ export function PartDetailPage() {
         to="/app/inventory/catalog"
         className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 transition-colors"
       >
-        <ChevronLeft className="w-4 h-4" /> Back to Catalog
+        <ChevronLeft className="w-4 h-4" /> {t('common.inventory.detailPage.backToCatalog')}
       </Link>
 
       {/* Header */}
@@ -95,14 +101,14 @@ export function PartDetailPage() {
         {activeTab === 'files' && (
           <div className="space-y-5">
             {[
-              { title: 'Warranty Documents', files: part.warrantyDocuments ?? [] },
-              { title: 'CAD Files', files: part.cadFiles ?? [] },
-              { title: 'Images', files: (part.images ?? []).map((url, i) => ({ name: `Image ${i + 1}`, url })) },
-            ].map(({ title, files }) => (
+              { title: t('common.inventory.detailPage.files.warrantyDocuments'), noneLabel: t('common.inventory.detailPage.files.noWarrantyDocuments'), files: part.warrantyDocuments ?? [] },
+              { title: t('common.inventory.detailPage.files.cadFiles'), noneLabel: t('common.inventory.detailPage.files.noCadFiles'), files: part.cadFiles ?? [] },
+              { title: t('common.inventory.detailPage.files.images'), noneLabel: t('common.inventory.detailPage.files.noImages'), files: (part.images ?? []).map((url, i) => ({ name: t('common.inventory.detailPage.files.imageLabel', { index: i + 1 }), url })) },
+            ].map(({ title, noneLabel, files }) => (
               <div key={title} className="bg-white border border-gray-200 rounded-xl p-4">
                 <h3 className="font-semibold text-gray-900 text-sm mb-3">{title}</h3>
                 {files.length === 0 ? (
-                  <p className="text-sm text-gray-400">No {title.toLowerCase()} attached.</p>
+                  <p className="text-sm text-gray-400">{noneLabel}</p>
                 ) : (
                   <ul className="space-y-2">
                     {files.map((f, i) => (
@@ -124,7 +130,7 @@ export function PartDetailPage() {
           </div>
         )}
         {activeTab === 'analytics' && (
-          <div className="text-sm text-gray-500 py-8 text-center">Usage analytics will appear here.</div>
+          <div className="text-sm text-gray-500 py-8 text-center">{t('common.inventory.detailPage.analyticsPlaceholder')}</div>
         )}
       </div>
     </div>

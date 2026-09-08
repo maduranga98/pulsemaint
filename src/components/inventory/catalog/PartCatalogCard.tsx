@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { InventoryPart } from '@/types/inventory';
 import { PartStatusBadge } from '@/components/inventory/shared/PartStatusBadge';
 import { PartCriticalityBadge } from '@/components/inventory/shared/PartCriticalityBadge';
@@ -13,6 +14,7 @@ interface PartCatalogCardProps {
 }
 
 export function PartCatalogCard({ part, onClick }: PartCatalogCardProps) {
+  const { t } = useTranslation();
   // The grid/card layout is what mobile users actually see (the table with
   // its QR column is hidden below the `md` breakpoint — see
   // PartCatalogPage), so this needs its own QR entry point rather than
@@ -45,8 +47,8 @@ export function PartCatalogCard({ part, onClick }: PartCatalogCardProps) {
               setShowQr(true);
             }}
             className="rounded-md border border-gray-200 p-1 text-gray-500 hover:bg-gray-50 hover:text-indigo-600"
-            aria-label="View QR code"
-            title="View QR code"
+            aria-label={t('common.inventory.card.viewQrCode')}
+            title={t('common.inventory.card.viewQrCode')}
           >
             <QrCode className="h-3.5 w-3.5" />
           </button>
@@ -82,7 +84,7 @@ export function PartCatalogCard({ part, onClick }: PartCatalogCardProps) {
       <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
         <span className="flex items-center gap-1 truncate">
           <MapPin className="w-3 h-3 shrink-0" />
-          <span className="truncate">{part.storeLocation || 'No location'}</span>
+          <span className="truncate">{part.storeLocation || t('common.inventory.card.noLocation')}</span>
         </span>
         <span className="shrink-0 ml-2 font-medium text-gray-700">{part.unit}</span>
       </div>
