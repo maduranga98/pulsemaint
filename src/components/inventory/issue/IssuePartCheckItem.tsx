@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 interface Props {
   item: {
     id: string;
@@ -15,6 +17,7 @@ interface Props {
 }
 
 export function IssuePartCheckItem({ item, checked, skipped, onCheck, onSkip }: Props) {
+  const { t } = useTranslation();
   return (
     <div
       className={`flex items-start gap-4 min-h-[64px] p-4 rounded-xl border transition-colors ${
@@ -70,11 +73,11 @@ export function IssuePartCheckItem({ item, checked, skipped, onCheck, onSkip }: 
 
             <div className="flex items-center gap-3 mt-2 flex-wrap">
               <span className="text-lg font-semibold text-gray-800">
-                Issue: {item.quantityApproved} {item.unit}
+                {t('common.inventory.requests.issueScreen.issueLabel', { quantity: item.quantityApproved, unit: item.unit })}
               </span>
               {item.isCritical && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 border border-red-200">
-                  Critical
+                  {t('common.inventory.requests.issueScreen.critical')}
                 </span>
               )}
             </div>
@@ -92,7 +95,7 @@ export function IssuePartCheckItem({ item, checked, skipped, onCheck, onSkip }: 
                 : 'border-gray-300 text-gray-600 hover:border-amber-400 hover:text-amber-600'
             }`}
           >
-            {skipped ? 'Undo skip' : 'Cannot find — skip'}
+            {skipped ? t('common.inventory.requests.issueScreen.undoSkip') : t('common.inventory.requests.issueScreen.cannotFindSkip')}
           </button>
         </div>
       </div>

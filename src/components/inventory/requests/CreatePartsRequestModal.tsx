@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Trash2 } from 'lucide-react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { nanoid } from 'nanoid';
@@ -28,6 +29,8 @@ interface CreatePartsRequestModalProps {
 
 type PriorityLevel = 'critical' | 'high' | 'medium' | 'low';
 
+const PRIORITY_LEVELS: PriorityLevel[] = ['low', 'medium', 'high', 'critical'];
+
 interface DraftItem {
   part: InventoryPart;
   quantity: number;
@@ -41,6 +44,7 @@ function makeRequestNumber(): string {
 }
 
 export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: CreatePartsRequestModalProps) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const [items, setItems] = useState<DraftItem[]>([]);
   const [priorityLevel, setPriorityLevel] = useState<PriorityLevel>('medium');
@@ -97,11 +101,11 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
   const handleSubmit = async () => {
     if (!userProfile || items.length === 0) return;
     if (items.some((it) => !it.quantity || it.quantity < 1)) {
-      setError('Every item needs a quantity of at least 1.');
+      setError(t('common.inventory.requests.createModal.errors.minQuantity'));
       return;
     }
     if (needsManualReason && !purpose.trim()) {
-      setError('Select a linked work order, or enter a reason for this request.');
+      setError(t('common.inventory.requests.createModal.errors.needWoOrReason'));
       return;
     }
     setSubmitting(true);
@@ -170,7 +174,7 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
       setDone(true);
       onCreated?.(docRef.id);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to submit request');
+      setError(e instanceof Error ? e.message : t('common.inventory.requests.createModal.errors.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -181,15 +185,16 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-gray-200">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Request Parts</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('common.inventory.requests.createModal.title')}</h2>
             {effectiveWorkOrder && (
               <p className="text-xs text-gray-500 mt-0.5">
-                For work order <span className="font-mono font-medium">{effectiveWorkOrder.woNumber}</span>
+                {t('common.inventory.requests.createModal.forWorkOrder')}{' '}
+                <span className="font-mono font-medium">{effectiveWorkOrder.woNumber}</span>
                 {effectiveWorkOrder.machineName && <> · {effectiveWorkOrder.machineName}</>}
               </p>
             )}
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label="Close">
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700" aria-label={t('common.inventory.requests.createModal.close')}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -197,15 +202,15 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
         <div className="p-5 overflow-y-auto flex-1 space-y-4">
           {done ? (
             <div className="text-center py-8">
-              <p className="text-green-600 font-medium text-lg">Parts request submitted!</p>
+              <p className="text-green-600 font-medium text-lg">{t('common.inventory.requests.createModal.submittedTitle')}</p>
               <p className="text-sm text-gray-500 mt-1">
-                The store keeper will review your request.
+                {t('common.inventory.requests.createModal.submittedSubtitle')}
               </p>
               <button
                 onClick={onClose}
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Close
+                {t('common.inventory.requests.createModal.close')}
               </button>
             </div>
           ) : (
@@ -213,14 +218,14 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
               {allowWoPicker && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Link to a work order (optional)
+                    {t('common.inventory.requests.createModal.linkWorkOrderLabel')}
                   </label>
                   <select
                     value={linkedWoId}
                     onChange={(e) => setLinkedWoId(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
-                    <option value="">No work order — enter a reason below</option>
+                    <option value="">{t('common.inventory.requests.createModal.noWorkOrderOption')}</option>
                     {myWorkOrders.map((wo) => (
                       <option key={wo.id} value={wo.id}>
                         {wo.woNumber} · {wo.machineName}
@@ -228,13 +233,13 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
                     ))}
                   </select>
                   <p className="text-xs text-gray-500 mt-1">
-                    Pick the job ticket this request is for, or leave unlinked and explain why below.
+                    {t('common.inventory.requests.createModal.linkWorkOrderHint')}
                   </p>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Add parts</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.requests.createModal.addPartsLabel')}</label>
                 <PartSearchInput
                   onSelect={addPart}
                   excludePartIds={items.map((it) => it.part.id)}
@@ -251,20 +256,20 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
                           <div className="min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">{it.part.name}</p>
                             <p className="text-xs text-gray-500 font-mono">
-                              {it.part.partNumber} · {available} {it.part.unit} available
+                              {it.part.partNumber} · {t('common.inventory.requests.createModal.availableUnit', { count: available, unit: it.part.unit })}
                             </p>
                           </div>
                           <button
                             onClick={() => removeItem(idx)}
                             className="text-gray-400 hover:text-red-600 shrink-0"
-                            aria-label="Remove item"
+                            aria-label={t('common.inventory.requests.createModal.removeItem')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                         <div className="flex gap-3 mt-2">
                           <div className="w-28">
-                            <label className="block text-xs text-gray-500 mb-0.5">Quantity</label>
+                            <label className="block text-xs text-gray-500 mb-0.5">{t('common.inventory.requests.createModal.quantityLabel')}</label>
                             <input
                               type="number"
                               min={1}
@@ -274,12 +279,12 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
                             />
                           </div>
                           <div className="flex-1">
-                            <label className="block text-xs text-gray-500 mb-0.5">Notes (optional)</label>
+                            <label className="block text-xs text-gray-500 mb-0.5">{t('common.inventory.requests.createModal.notesLabel')}</label>
                             <input
                               type="text"
                               value={it.notes}
                               onChange={(e) => updateItem(idx, { notes: e.target.value })}
-                              placeholder="e.g. replacement for worn part"
+                              placeholder={t('common.inventory.requests.createModal.notesPlaceholder')}
                               className="w-full px-2 py-1.5 border border-gray-300 rounded-lg text-sm"
                             />
                           </div>
@@ -292,16 +297,17 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.requests.createModal.priorityLabel')}</label>
                   <select
                     value={priorityLevel}
                     onChange={(e) => setPriorityLevel(e.target.value as PriorityLevel)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                   >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="critical">Critical</option>
+                    {PRIORITY_LEVELS.map((level) => (
+                      <option key={level} value={level}>
+                        {t(`common.workOrders.priorities.${level}`)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="flex items-end pb-1">
@@ -312,20 +318,22 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
                       onChange={(e) => setIsUrgent(e.target.checked)}
                       className="rounded border-gray-300"
                     />
-                    Mark as urgent
+                    {t('common.inventory.requests.createModal.markUrgent')}
                   </label>
                 </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {needsManualReason ? 'Reason for request (required)' : 'Purpose (optional)'}
+                  {needsManualReason
+                    ? t('common.inventory.requests.createModal.reasonRequiredLabel')
+                    : t('common.inventory.requests.createModal.purposeOptionalLabel')}
                 </label>
                 <textarea
                   value={purpose}
                   onChange={(e) => setPurpose(e.target.value)}
                   rows={2}
-                  placeholder="What are these parts needed for?"
+                  placeholder={t('common.inventory.requests.createModal.purposePlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                 />
               </div>
@@ -342,22 +350,22 @@ export function CreatePartsRequestModal({ onClose, onCreated, workOrder }: Creat
         {!done && (
           <div className="p-5 border-t border-gray-200 flex items-center justify-between gap-3">
             <p className="text-sm text-gray-500">
-              {items.length} item{items.length !== 1 ? 's' : ''}
-              {totalEstimatedCost > 0 && ` · est. cost ${totalEstimatedCost.toLocaleString()}`}
+              {t('common.inventory.requests.createModal.itemCount', { count: items.length })}
+              {totalEstimatedCost > 0 && t('common.inventory.requests.createModal.estCost', { amount: totalEstimatedCost.toLocaleString() })}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={onClose}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
               >
-                Cancel
+                {t('common.inventory.requests.createModal.cancel')}
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={items.length === 0 || submitting || (needsManualReason && !purpose.trim())}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
               >
-                {submitting ? 'Submitting…' : 'Submit Request'}
+                {submitting ? t('common.inventory.requests.createModal.submitting') : t('common.inventory.requests.createModal.submitRequest')}
               </button>
             </div>
           </div>

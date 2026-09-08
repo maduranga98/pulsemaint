@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { InboxIcon } from 'lucide-react';
 import { usePartsRequests } from '@/hooks/inventory/usePartsRequests';
 import { usePartReturns } from '@/hooks/inventory/usePartReturns';
@@ -14,16 +15,16 @@ const MANAGE_ROLES = ['store_keeper', 'supervisor', 'plant_manager', 'admin'];
 
 interface TabDef {
   id: TabId;
-  label: string;
+  labelKey: string;
 }
 
 const TABS: TabDef[] = [
-  { id: 'pending_storekeeper', label: 'To Review' },
-  { id: 'pending_supervisor', label: 'Awaiting Supervisor' },
-  { id: 'parts_reserved', label: 'Parts to Collect' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'pending_return', label: 'Pending Return' },
-  { id: 'rejected', label: 'Rejected' },
+  { id: 'pending_storekeeper', labelKey: 'common.inventory.requests.queue.tabs.toReview' },
+  { id: 'pending_supervisor', labelKey: 'common.inventory.requests.queue.tabs.awaitingSupervisor' },
+  { id: 'parts_reserved', labelKey: 'common.inventory.requests.queue.tabs.partsToCollect' },
+  { id: 'completed', labelKey: 'common.inventory.requests.queue.tabs.completed' },
+  { id: 'pending_return', labelKey: 'common.inventory.requests.queue.tabs.pendingReturn' },
+  { id: 'rejected', labelKey: 'common.inventory.requests.queue.tabs.rejected' },
 ];
 
 // Store keeper's queue drops "Completed" — their Pending Return tab already
@@ -35,20 +36,14 @@ const STORE_KEEPER_TABS: TabDef[] = TABS.filter((t) => t.id !== 'completed');
 // apply since they can't act on those; keep it focused on their own request
 // lifecycle plus the return flow this component adds.
 const OWN_TABS: TabDef[] = [
-  { id: 'all', label: 'My Requests' },
-  { id: 'parts_reserved', label: 'Parts to Collect' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'pending_return', label: 'Pending Return' },
-  { id: 'rejected', label: 'Rejected' },
+  { id: 'all', labelKey: 'common.inventory.requests.queue.tabs.myRequests' },
+  { id: 'parts_reserved', labelKey: 'common.inventory.requests.queue.tabs.partsToCollect' },
+  { id: 'completed', labelKey: 'common.inventory.requests.queue.tabs.completed' },
+  { id: 'pending_return', labelKey: 'common.inventory.requests.queue.tabs.pendingReturn' },
+  { id: 'rejected', labelKey: 'common.inventory.requests.queue.tabs.rejected' },
 ];
 
-const PRIORITY_OPTIONS = [
-  { value: '', label: 'All Priorities' },
-  { value: 'critical', label: 'Critical' },
-  { value: 'high', label: 'High' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'low', label: 'Low' },
-];
+const PRIORITY_VALUES = ['critical', 'high', 'medium', 'low'];
 
 function SkeletonRow() {
   return (
@@ -63,6 +58,7 @@ function SkeletonRow() {
 }
 
 export function RequestsQueue() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const role = useAuthStore((s) => s.userProfile?.role);
   // A requester (technician/trainee/etc.) only sees their own requests; the
@@ -72,7 +68,7 @@ export function RequestsQueue() {
   // role stops seeing a request once it's completed.
   const isAdmin = role === 'admin';
   const baseTabs = ownOnly ? OWN_TABS : role === 'store_keeper' ? STORE_KEEPER_TABS : TABS;
-  const tabs = isAdmin ? baseTabs : baseTabs.filter((t) => t.id !== 'completed');
+  const tabs = isAdmin ? baseTabs : baseTabs.filter((tab) => tab.id !== 'completed');
 
   const [activeTab, setActiveTab] = useState<TabId>(ownOnly ? 'all' : 'pending_storekeeper');
   const [search, setSearch] = useState('');
@@ -151,6 +147,35 @@ export function RequestsQueue() {
     navigate(`/app/inventory/requests/${requestId}`);
   }
 
+  const columnHeaders =
+    // On Pending Return every visible request is already Completed —
+    // the Status column is redundant there, so it's dropped in
+    // favor of the Return column showing the actual action taken.
+    activeTab === 'pending_return'
+      ? [
+          t('common.inventory.requests.queue.columns.requestNumber'),
+          t('common.inventory.requests.queue.columns.woNumberType'),
+          t('common.inventory.requests.queue.columns.requestedBy'),
+          t('common.inventory.requests.queue.columns.parts'),
+          t('common.inventory.requests.queue.columns.totalCost'),
+          t('common.inventory.requests.queue.columns.priority'),
+          t('common.inventory.requests.queue.columns.return'),
+          t('common.inventory.requests.queue.columns.age'),
+          '',
+        ]
+      : [
+          t('common.inventory.requests.queue.columns.requestNumber'),
+          t('common.inventory.requests.queue.columns.woNumberType'),
+          t('common.inventory.requests.queue.columns.requestedBy'),
+          t('common.inventory.requests.queue.columns.parts'),
+          t('common.inventory.requests.queue.columns.totalCost'),
+          t('common.inventory.requests.queue.columns.priority'),
+          t('common.inventory.requests.queue.columns.status'),
+          t('common.inventory.requests.queue.columns.return'),
+          t('common.inventory.requests.queue.columns.age'),
+          '',
+        ];
+
   return (
     <div className="space-y-4">
       {/* Tab bar */}
@@ -168,7 +193,7 @@ export function RequestsQueue() {
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {tab.label}
+              {t(tab.labelKey)}
               {count > 0 && (
                 <span
                   className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-xs font-bold ${
@@ -189,7 +214,7 @@ export function RequestsQueue() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by request #, WO #, technician or part…"
+          placeholder={t('common.inventory.requests.queue.searchPlaceholder')}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
@@ -197,9 +222,10 @@ export function RequestsQueue() {
           onChange={(e) => setPriorityFilter(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {PRIORITY_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
+          <option value="">{t('common.inventory.requests.queue.priorityOptions.all')}</option>
+          {PRIORITY_VALUES.map((value) => (
+            <option key={value} value={value}>
+              {t(`common.workOrders.priorities.${value}`)}
             </option>
           ))}
         </select>
@@ -210,16 +236,9 @@ export function RequestsQueue() {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              {(
-                // On Pending Return every visible request is already Completed —
-                // the Status column is redundant there, so it's dropped in
-                // favor of the Return column showing the actual action taken.
-                activeTab === 'pending_return'
-                  ? ['Request #', 'WO # / Type', 'Requested By', 'Parts', 'Total Cost', 'Priority', 'Return', 'Age', '']
-                  : ['Request #', 'WO # / Type', 'Requested By', 'Parts', 'Total Cost', 'Priority', 'Status', 'Return', 'Age', '']
-              ).map((h) => (
+              {columnHeaders.map((h, i) => (
                 <th
-                  key={h}
+                  key={i}
                   className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap"
                 >
                   {h}
@@ -238,7 +257,7 @@ export function RequestsQueue() {
               <tr>
                 <td colSpan={10} className="px-4 py-12 text-center">
                   <InboxIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                  <p className="text-gray-500 text-sm">No requests found</p>
+                  <p className="text-gray-500 text-sm">{t('common.inventory.requests.queue.noRequestsFound')}</p>
                 </td>
               </tr>
             ) : (
@@ -266,7 +285,7 @@ export function RequestsQueue() {
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center">
             <InboxIcon className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-            <p className="text-gray-500 text-sm">No requests found</p>
+            <p className="text-gray-500 text-sm">{t('common.inventory.requests.queue.noRequestsFound')}</p>
           </div>
         ) : (
           filtered.map((r) => (

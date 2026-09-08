@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   doc,
   getDocs,
@@ -29,6 +30,7 @@ interface StoreLocations {
 }
 
 export function PhysicalIssueScreen() {
+  const { t } = useTranslation();
   const { requestId } = useParams<{ requestId: string }>();
   const navigate = useNavigate();
   const toast = useToast();
@@ -124,7 +126,7 @@ export function PhysicalIssueScreen() {
   async function handleConfirm() {
     if (!request || !userProfile || !companyId) return;
     if (!collectorName.trim()) {
-      toast.error('Enter the name of the person collecting the parts.');
+      toast.error(t('common.inventory.requests.toasts.enterCollectorName'));
       return;
     }
     setIsConfirming(true);
@@ -237,11 +239,11 @@ export function PhysicalIssueScreen() {
         }
       });
 
-      toast.success('Collection confirmed — parts issued successfully');
+      toast.success(t('common.inventory.requests.toasts.partsIssuedSuccess'));
       navigate('/app/inventory/requests');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to issue parts. Please try again.');
+      toast.error(t('common.inventory.requests.toasts.issueFailed'));
     } finally {
       setIsConfirming(false);
     }
@@ -258,7 +260,7 @@ export function PhysicalIssueScreen() {
   if (error || !request) {
     return (
       <div className="p-6 text-center text-red-600">
-        {error ?? 'Request not found'}
+        {error ?? t('common.inventory.requests.issueScreen.requestNotFound')}
       </div>
     );
   }
@@ -272,17 +274,21 @@ export function PhysicalIssueScreen() {
         <div className="px-4 py-3">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Issue Parts</h1>
+              <h1 className="text-xl font-bold text-gray-900">{t('common.inventory.requests.issueScreen.title')}</h1>
               <div className="flex items-center gap-3 text-sm text-gray-600 mt-0.5">
                 <span className="font-mono">{request.requestNumber}</span>
                 {request.workOrderNumber && (
-                  <span>WO: <strong>{request.workOrderNumber}</strong></span>
+                  <span>{t('common.inventory.requests.issueScreen.woLabel')} <strong>{request.workOrderNumber}</strong></span>
                 )}
               </div>
             </div>
           </div>
           <p className="text-sm text-gray-600 mt-2">
-            Technician <strong>{request.requestedByName}</strong> is collecting these parts.
+            <Trans
+              i18nKey="common.inventory.requests.issueScreen.collectingMessage"
+              values={{ name: request.requestedByName }}
+              components={{ 1: <strong /> }}
+            />
           </p>
         </div>
 
@@ -290,14 +296,14 @@ export function PhysicalIssueScreen() {
         {request.isContractorJob && request.contractorCompany && (
           <div className="mx-4 mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium">
             <span>⚠</span>
-            <span>Parts for contractor job — {request.contractorCompany}</span>
+            <span>{t('common.inventory.requests.issueScreen.contractorBanner', { company: request.contractorCompany })}</span>
           </div>
         )}
 
         {/* Progress bar */}
         <div className="px-4 pb-3">
           <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-            <span>{checkedCount} of {issuableItems.length} parts confirmed</span>
+            <span>{t('common.inventory.requests.issueScreen.progressLabel', { checked: checkedCount, total: issuableItems.length })}</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -335,14 +341,14 @@ export function PhysicalIssueScreen() {
       <div className="fixed bottom-0 left-0 right-0 z-10 bg-white border-t border-gray-200 p-4 space-y-2">
         <div>
           <label htmlFor="collector-name" className="block text-xs font-medium text-gray-600 mb-1">
-            Collected by <span className="text-red-500">*</span>
+            {t('common.inventory.requests.issueScreen.collectedByLabel')} <span className="text-red-500">*</span>
           </label>
           <input
             id="collector-name"
             type="text"
             value={collectorName}
             onChange={(e) => setCollectorName(e.target.value)}
-            placeholder="Name of the person collecting the parts"
+            placeholder={t('common.inventory.requests.issueScreen.collectedByPlaceholder')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
