@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ChevronLeft, Save, FileText, X } from 'lucide-react';
@@ -49,6 +50,7 @@ function Field({ label, required, error, children }: { label: string; required?:
 }
 
 export function EditPartPage() {
+  const { t } = useTranslation();
   const { partId } = useParams<{ partId: string }>();
   const navigate = useNavigate();
   const { addToast } = useToast();
@@ -134,7 +136,7 @@ export function EditPartPage() {
   if (error || !part) {
     return (
       <div className="p-6 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-        {error ?? 'Part not found.'}
+        {error ?? t('common.inventory.editPartPage.partNotFound')}
       </div>
     );
   }
@@ -162,8 +164,8 @@ export function EditPartPage() {
     if (!part) return;
     const updated = (part.warrantyDocuments ?? []).filter((_, i) => i !== index);
     updateDoc(doc(db, 'inventoryParts', part.id), { warrantyDocuments: updated, updatedAt: serverTimestamp(), updatedBy: userId })
-      .then(() => addToast('Warranty document removed.', 'success'))
-      .catch(() => addToast('Failed to remove document.', 'error'));
+      .then(() => addToast(t('common.inventory.editPartPage.toasts.removeDocSuccess'), 'success'))
+      .catch(() => addToast(t('common.inventory.editPartPage.toasts.removeDocFailed'), 'error'));
   }
 
   async function doSave(values: CreatePartFormValues) {
@@ -210,10 +212,10 @@ export function EditPartPage() {
         });
       }
 
-      addToast('Part updated successfully.', 'success');
+      addToast(t('common.inventory.editPartPage.toasts.updateSuccess'), 'success');
       navigate(`/app/inventory/catalog/${part.id}`);
     } catch (err) {
-      addToast('Failed to update part.', 'error');
+      addToast(t('common.inventory.editPartPage.toasts.updateFailed'), 'error');
       console.error(err);
     } finally {
       setSaving(false);
@@ -237,83 +239,83 @@ export function EditPartPage() {
           <Link to={`/app/inventory/catalog/${part.id}`} className="text-gray-400 hover:text-gray-700">
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Part</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.editPartPage.title')}</h1>
           <span className="font-mono text-sm text-gray-500">{part.partNumber}</span>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5" noValidate>
-          <SectionCard title="Identification">
+          <SectionCard title={t('common.inventory.editPartPage.sections.identification')}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Part Number" required error={errors.partNumber?.message}>
+              <Field label={t('common.inventory.partForm.fields.partNumber')} required error={errors.partNumber?.message}>
                 <input {...register('partNumber')} className={inputCls} />
               </Field>
-              <Field label="Name" required error={errors.name?.message}>
+              <Field label={t('common.inventory.partForm.fields.name')} required error={errors.name?.message}>
                 <input {...register('name')} className={inputCls} />
               </Field>
-              <Field label="Category" required error={errors.category?.message}>
+              <Field label={t('common.inventory.partForm.fields.category')} required error={errors.category?.message}>
                 <Controller name="category" control={control} render={({ field }) => (
                   <CategorySelect value={field.value ?? ''} onChange={field.onChange} required className={inputCls} />
                 )} />
               </Field>
-              <Field label="Unit" required error={errors.unit?.message}>
+              <Field label={t('common.inventory.partForm.fields.unit')} required error={errors.unit?.message}>
                 <Controller name="unit" control={control} render={({ field }) => (
                   <select {...field} className={inputCls}>
                     {UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
                   </select>
                 )} />
               </Field>
-              <Field label="Status">
+              <Field label={t('common.inventory.partForm.fields.status')}>
                 <Controller name="status" control={control} render={({ field }) => (
                   <select {...field} className={inputCls}>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                    <option value="discontinued">Discontinued</option>
+                    <option value="active">{t('common.inventory.enums.status.active')}</option>
+                    <option value="inactive">{t('common.inventory.enums.status.inactive')}</option>
+                    <option value="discontinued">{t('common.inventory.enums.status.discontinued')}</option>
                   </select>
                 )} />
               </Field>
-              <Field label="Criticality">
+              <Field label={t('common.inventory.partForm.fields.criticality')}>
                 <Controller name="criticality" control={control} render={({ field }) => (
                   <select {...field} className={inputCls}>
-                    <option value="critical">Critical</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
+                    <option value="critical">{t('common.inventory.enums.criticality.critical')}</option>
+                    <option value="high">{t('common.inventory.enums.criticality.high')}</option>
+                    <option value="medium">{t('common.inventory.enums.criticality.medium')}</option>
+                    <option value="low">{t('common.inventory.enums.criticality.low')}</option>
                   </select>
                 )} />
               </Field>
             </div>
           </SectionCard>
 
-          <SectionCard title="Stock Levels">
+          <SectionCard title={t('common.inventory.editPartPage.sections.stockLevels')}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Field label="Current Stock" error={errors.currentStock?.message}>
+              <Field label={t('common.inventory.partForm.fields.currentStock')} error={errors.currentStock?.message}>
                 <input type="number" min="0" step="0.001" {...register('currentStock', { valueAsNumber: true })} className={inputCls} />
               </Field>
-              <Field label="Min Stock Level" error={errors.minStockLevel?.message}>
+              <Field label={t('common.inventory.partForm.fields.minStockLevel')} error={errors.minStockLevel?.message}>
                 <input type="number" min="0" {...register('minStockLevel', { valueAsNumber: true })} className={inputCls} />
               </Field>
-              <Field label="Max Stock Level" error={errors.maxStockLevel?.message}>
+              <Field label={t('common.inventory.partForm.fields.maxStockLevel')} error={errors.maxStockLevel?.message}>
                 <input type="number" min="0" {...register('maxStockLevel', { valueAsNumber: true })} className={inputCls} />
               </Field>
             </div>
-            <Field label="Store Location">
+            <Field label={t('common.inventory.partForm.fields.storeLocation')}>
               <input {...register('storeLocation')} className={inputCls} />
             </Field>
             <StockGauge current={currentStock} min={minStock} max={maxStock} unit={watch('unit')} />
           </SectionCard>
 
-          <SectionCard title="Details">
+          <SectionCard title={t('common.inventory.editPartPage.sections.details')}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Brand"><input {...register('brand')} className={inputCls} /></Field>
-              <Field label="Model Reference"><input {...register('modelRef')} className={inputCls} /></Field>
-              <Field label="Warranty (Months)">
+              <Field label={t('common.inventory.partForm.fields.brand')}><input {...register('brand')} className={inputCls} /></Field>
+              <Field label={t('common.inventory.partForm.fields.modelRef')}><input {...register('modelRef')} className={inputCls} /></Field>
+              <Field label={t('common.inventory.partForm.fields.warrantyMonths')}>
                 <input type="number" min="0" {...register('warrantyMonths', { valueAsNumber: true })} className={inputCls} />
               </Field>
             </div>
-            <Field label="Description">
+            <Field label={t('common.inventory.partForm.fields.description')}>
               <textarea {...register('description')} rows={3} className={`${inputCls} resize-none`} />
             </Field>
-            <Field label="Compatible Machines">
+            <Field label={t('common.inventory.partForm.fields.compatibleMachines')}>
               <Controller
                 name="compatibleMachineIds"
                 control={control}
@@ -322,7 +324,7 @@ export function EditPartPage() {
                 )}
               />
             </Field>
-            <Field label="Warranty Documents / Images (optional)">
+            <Field label={t('common.inventory.partForm.fields.warrantyFiles')}>
               {part.warrantyDocuments && part.warrantyDocuments.length > 0 && (
                 <ul className="mb-2 space-y-1">
                   {part.warrantyDocuments.map((docItem, i) => (
@@ -353,12 +355,12 @@ export function EditPartPage() {
           </SectionCard>
 
           {canViewCost && (
-            <SectionCard title="Supplier &amp; Pricing">
+            <SectionCard title={t('common.inventory.editPartPage.sections.supplierPricing')}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Unit Cost (LKR)">
+                <Field label={t('common.inventory.partForm.fields.unitCost')}>
                   <input type="number" min="0" step="0.01" {...register('unitCost', { valueAsNumber: true })} className={inputCls} />
                 </Field>
-                <Field label="Supplier" error={errors.supplierName?.message}>
+                <Field label={t('common.inventory.partForm.fields.supplier')} error={errors.supplierName?.message}>
                   {suppliers.length > 0 ? (
                     <select
                       value={selectedSupplierId}
@@ -375,40 +377,40 @@ export function EditPartPage() {
                       }}
                       className={inputCls}
                     >
-                      <option value="">Select a supplier…</option>
+                      <option value="">{t('common.inventory.partForm.fields.selectSupplier')}</option>
                       {suppliers.map((s) => (
                         <option key={s.id} value={s.id}>{s.name}</option>
                       ))}
                     </select>
                   ) : (
                     <p className="text-xs text-gray-500">
-                      No suppliers yet.{' '}
+                      {t('common.inventory.partForm.fields.noSuppliers')}{' '}
                       <Link to="/app/inventory/suppliers" className="text-blue-600 hover:underline">
-                        Add a supplier
+                        {t('common.inventory.partForm.fields.addSupplierLink')}
                       </Link>{' '}
-                      first, then it'll be selectable here.
+                      {t('common.inventory.partForm.fields.addSupplierSuffix')}
                     </p>
                   )}
                 </Field>
-                <Field label="Supplier Contact">
-                  <input {...register('supplierContact')} readOnly disabled className={`${inputCls} bg-gray-50 text-gray-500`} placeholder="From selected supplier" />
+                <Field label={t('common.inventory.partForm.fields.supplierContact')}>
+                  <input {...register('supplierContact')} readOnly disabled className={`${inputCls} bg-gray-50 text-gray-500`} placeholder={t('common.inventory.partForm.fields.supplierContactPlaceholder')} />
                 </Field>
-                <Field label="Supplier Part Code"><input {...register('supplierPartCode')} className={inputCls} placeholder="Auto-filled from supplier, editable" /></Field>
-                <Field label="Lead Time (Days)">
+                <Field label={t('common.inventory.partForm.fields.supplierPartCode')}><input {...register('supplierPartCode')} className={inputCls} placeholder={t('common.inventory.partForm.fields.supplierPartCodePlaceholder')} /></Field>
+                <Field label={t('common.inventory.partForm.fields.leadTimeDays')}>
                   <input type="number" min="0" {...register('leadTimeDays', { valueAsNumber: true })} className={inputCls} />
                 </Field>
-                <Field label="Last Purchase Date">
+                <Field label={t('common.inventory.partForm.fields.lastPurchaseDate')}>
                   <input type="date" {...register('lastPurchaseDate')} className={inputCls} />
                 </Field>
-                <Field label="Last Purchase Price (LKR)">
+                <Field label={t('common.inventory.partForm.fields.lastPurchasePrice')}>
                   <input type="number" min="0" step="0.01" {...register('lastPurchasePrice', { valueAsNumber: true })} className={inputCls} />
                 </Field>
               </div>
             </SectionCard>
           )}
 
-          <SectionCard title="Notes">
-            <Field label="Notes">
+          <SectionCard title={t('common.inventory.editPartPage.sections.notes')}>
+            <Field label={t('common.inventory.partForm.fields.notes')}>
               <textarea {...register('notes')} rows={4} className={`${inputCls} resize-none`} />
             </Field>
           </SectionCard>
@@ -420,13 +422,13 @@ export function EditPartPage() {
               className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
             >
               <Save className="w-4 h-4" />
-              Save Changes
+              {t('common.inventory.editPartPage.actions.saveChanges')}
             </button>
             <Link
               to={`/app/inventory/catalog/${part.id}`}
               className="inline-flex items-center justify-center px-5 py-3 text-gray-500 hover:text-gray-700 text-sm font-medium"
             >
-              Cancel
+              {t('common.inventory.editPartPage.actions.cancel')}
             </Link>
           </div>
         </form>
@@ -436,19 +438,18 @@ export function EditPartPage() {
       {showAdjustModal && pendingValues && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Stock Quantity Changed</h3>
+            <h3 className="text-lg font-bold text-gray-900">{t('common.inventory.editPartPage.adjustModal.title')}</h3>
             <p className="text-sm text-gray-600">
-              Stock changed from <strong>{part.currentStock}</strong> to <strong>{pendingValues.currentStock}</strong>.
-              Please provide a reason for this adjustment.
+              {t('common.inventory.editPartPage.adjustModal.description', { from: part.currentStock, to: pendingValues.currentStock })}
             </p>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Reason *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.inventory.editPartPage.adjustModal.reasonLabel')}</label>
               <textarea
                 value={adjustReason}
                 onChange={(e) => setAdjustReason(e.target.value)}
                 rows={3}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Reason for stock adjustment…"
+                placeholder={t('common.inventory.editPartPage.adjustModal.reasonPlaceholder')}
               />
             </div>
             <div className="flex gap-3">
@@ -456,14 +457,14 @@ export function EditPartPage() {
                 onClick={() => { setShowAdjustModal(false); setPendingValues(null); }}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 text-sm"
               >
-                Cancel
+                {t('common.inventory.editPartPage.adjustModal.cancel')}
               </button>
               <button
                 onClick={() => doSave(pendingValues)}
                 disabled={!adjustReason.trim() || saving}
                 className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm disabled:opacity-60"
               >
-                {saving ? 'Saving…' : 'Confirm'}
+                {saving ? t('common.inventory.editPartPage.adjustModal.saving') : t('common.inventory.editPartPage.adjustModal.confirm')}
               </button>
             </div>
           </div>

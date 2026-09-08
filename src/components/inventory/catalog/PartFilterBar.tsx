@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Search, X, ChevronDown } from 'lucide-react';
 import type { PartCategory, PartStatus, PartCriticality } from '@/types/inventory';
 import { VALID_CATEGORIES, CATEGORY_LABELS } from '@/lib/inventory/inventoryTypes';
@@ -24,24 +25,30 @@ const CATEGORIES: { value: PartCategory; label: string }[] = VALID_CATEGORIES.ma
   label: CATEGORY_LABELS[c],
 }));
 
-const STATUSES: { value: PartStatus; label: string }[] = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-  { value: 'discontinued', label: 'Discontinued' },
-];
+function useStatusOptions(t: TFunction): { value: PartStatus; label: string }[] {
+  return [
+    { value: 'active', label: t('common.inventory.enums.status.active') },
+    { value: 'inactive', label: t('common.inventory.enums.status.inactive') },
+    { value: 'discontinued', label: t('common.inventory.enums.status.discontinued') },
+  ];
+}
 
-const CRITICALITIES: { value: PartCriticality; label: string }[] = [
-  { value: 'critical', label: 'Critical' },
-  { value: 'high', label: 'High' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'low', label: 'Low' },
-];
+function useCriticalityOptions(t: TFunction): { value: PartCriticality; label: string }[] {
+  return [
+    { value: 'critical', label: t('common.inventory.enums.criticality.critical') },
+    { value: 'high', label: t('common.inventory.enums.criticality.high') },
+    { value: 'medium', label: t('common.inventory.enums.criticality.medium') },
+    { value: 'low', label: t('common.inventory.enums.criticality.low') },
+  ];
+}
 
-const STOCK_STATUSES: { value: 'in_stock' | 'low_stock' | 'out_of_stock'; label: string }[] = [
-  { value: 'in_stock', label: 'In Stock' },
-  { value: 'low_stock', label: 'Low Stock' },
-  { value: 'out_of_stock', label: 'Out of Stock' },
-];
+function useStockStatusOptions(t: TFunction): { value: 'in_stock' | 'low_stock' | 'out_of_stock'; label: string }[] {
+  return [
+    { value: 'in_stock', label: t('common.inventory.enums.stockStatus.in_stock') },
+    { value: 'low_stock', label: t('common.inventory.enums.stockStatus.low_stock') },
+    { value: 'out_of_stock', label: t('common.inventory.enums.stockStatus.out_of_stock') },
+  ];
+}
 
 function Select<T extends string>({
   value,
@@ -75,6 +82,9 @@ function Select<T extends string>({
 
 export function PartFilterBar({ filters, onChange, supplierOptions }: PartFilterBarProps) {
   const { t } = useTranslation();
+  const STATUSES = useStatusOptions(t);
+  const CRITICALITIES = useCriticalityOptions(t);
+  const STOCK_STATUSES = useStockStatusOptions(t);
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
