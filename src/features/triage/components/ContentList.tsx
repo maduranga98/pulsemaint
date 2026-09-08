@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, Trash2 } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { deleteContentItem, COL } from '../api';
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export function ContentList({ category, showDelete = false }: Props) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const [items, setItems] = useState<TriageContentItem[]>([]);
@@ -52,7 +54,7 @@ export function ContentList({ category, showDelete = false }: Props) {
           className="flex items-center gap-2 mb-4 text-sm transition-colors hover:text-white"
           style={{ color: '#6b7fa3' }}
         >
-          ← Back
+          ← {t('common.triage.knowledge.contentList.back')}
         </button>
         <div className="relative w-full rounded-xl overflow-hidden" style={{ paddingTop: '56.25%' }}>
           <iframe
@@ -97,7 +99,7 @@ export function ContentList({ category, showDelete = false }: Props) {
           style={{ background: '#111d2e', border: '1px solid #1a2840' }}
         >
           <div className="text-sm" style={{ color: '#3d5070' }}>
-            No content in this category yet.
+            {t('common.triage.knowledge.contentList.empty')}
           </div>
         </div>
       )}
@@ -167,7 +169,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                   <button
                     onClick={() => deleteContentItem(item.id)}
                     className="px-3 py-3 transition-opacity opacity-50 hover:opacity-100"
-                    title="Delete item"
+                    title={t('common.triage.knowledge.contentList.deleteTitle')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -252,7 +254,7 @@ export function ContentList({ category, showDelete = false }: Props) {
                         className="inline-block mt-2 text-xs"
                         style={{ color: '#3b82f6' }}
                       >
-                        Open full size ↗
+                        {t('common.triage.knowledge.contentList.openFullSize')}
                       </a>
                     </div>
                   )}

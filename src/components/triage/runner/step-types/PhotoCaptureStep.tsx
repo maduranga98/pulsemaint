@@ -64,7 +64,7 @@ export default function PhotoCaptureStep({ step, language, onComplete }: Props) 
 
       {pending ? (
         <div className="flex flex-col items-center gap-3">
-          <img src={pending.preview} alt="Preview" className="w-full max-h-64 object-cover rounded-xl border" />
+          <img src={pending.preview} alt={t('triage.preview_label')} className="w-full max-h-64 object-cover rounded-xl border" />
           <div className="flex gap-3 w-full">
             <button
               onClick={retake}

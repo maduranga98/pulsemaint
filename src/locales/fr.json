@@ -3578,6 +3578,387 @@
         },
         "submit": "Enregistrer le Module"
       }
+    },
+    "triage": {
+      "knowledge": {
+        "page": {
+          "title": "Triage",
+          "subtitle": "Procédures, guides, contacts et évaluations rapides",
+          "create": "Créer",
+          "selectCategoryPrompt": "Sélectionnez une catégorie dans le panneau de gauche"
+        },
+        "categoryRail": {
+          "categoriesHeading": "Catégories",
+          "noCategories": "Aucune catégorie pour le moment",
+          "contacts": "Personnes responsables",
+          "assessments": "Évaluations rapides"
+        },
+        "contactList": {
+          "heading": "Personnes responsables",
+          "subtitle": "Contacts d'urgence et personnel clé",
+          "empty": "Aucun contact ajouté pour le moment.",
+          "deleteTitle": "Supprimer le contact",
+          "levels": {
+            "normal": "Normal",
+            "emergency": "Urgence"
+          }
+        },
+        "contentList": {
+          "back": "Retour",
+          "empty": "Aucun contenu dans cette catégorie pour le moment.",
+          "deleteTitle": "Supprimer l'élément",
+          "openFullSize": "Ouvrir en taille réelle ↗",
+          "types": {
+            "procedure": "Procédure",
+            "guide": "Guide",
+            "video": "Vidéo",
+            "pdf": "PDF",
+            "image": "Image",
+            "media": "Média"
+          }
+        },
+        "assessmentList": {
+          "heading": "Évaluations rapides",
+          "subtitle": "Testez vos connaissances et obtenez des certifications",
+          "empty": "Aucune évaluation disponible pour le moment.",
+          "passMark": "Note de passage : {{value}} %",
+          "lastScore": "Dernier score : {{value}} %",
+          "status": {
+            "certified": "Certifié",
+            "retry": "Réessayer",
+            "start": "Commencer"
+          },
+          "button": {
+            "certified": "Revoir",
+            "retry": "Repasser le quiz",
+            "start": "Passer le quiz"
+          }
+        },
+        "quizModal": {
+          "passMark": "Note de passage : {{value}} %",
+          "close": "Fermer",
+          "progress": "{{current}} / {{total}}",
+          "correct": "✓ Correct !",
+          "incorrect": "✗ Incorrect",
+          "next": "Suivant →",
+          "finish": "Terminer",
+          "resultSummary": "{{score}} / {{total}} correctes · Note de passage {{passMark}} %",
+          "passedTitle": "Évaluation réussie !",
+          "passedDetail": "Vous avez réussi {{title}}",
+          "failedTitle": "Non réussi",
+          "failedDetail": "Revoyez le contenu et réessayez",
+          "savingResult": "Enregistrement du résultat..."
+        },
+        "builder": {
+          "accessRestricted": {
+            "title": "Accès restreint",
+            "message": "Le Générateur de triage est réservé aux superviseurs, directeurs d'usine, responsables RH, responsables sécurité et administrateurs."
+          },
+          "back": "Retour au triage",
+          "title": "Générateur de triage",
+          "subtitle": "Créez et gérez le contenu, les contacts et les évaluations de triage",
+          "tabs": {
+            "content": "Contenu et catégories",
+            "contacts": "Contacts",
+            "assessments": "Évaluations"
+          },
+          "contactBuilder": {
+            "addContactHeading": "Ajouter un contact",
+            "currentContactsHeading": "Contacts actuels",
+            "fields": {
+              "name": "Nom *",
+              "role": "Fonction",
+              "dept": "Service",
+              "phone": "Téléphone / Poste *",
+              "priority": "Priorité"
+            },
+            "placeholders": {
+              "name": "Nom complet",
+              "role": "p. ex. Superviseur de maintenance",
+              "dept": "p. ex. Ingénierie",
+              "phone": "p. ex. poste 555 ou +1 555-0100"
+            },
+            "levels": {
+              "normal": "normal",
+              "emergency": "urgence"
+            },
+            "saving": "Enregistrement...",
+            "addContact": "+ Ajouter un contact"
+          },
+          "assessmentBuilder": {
+            "newAssessmentHeading": "Nouvelle évaluation",
+            "fields": {
+              "title": "Titre *",
+              "category": "Catégorie *",
+              "passMark": "Note de passage (%)"
+            },
+            "placeholders": {
+              "title": "p. ex. Quiz sur la procédure de verrouillage de sécurité",
+              "selectCategory": "Sélectionner…"
+            },
+            "questionLabel": "Question {{number}}",
+            "removeQuestion": "Supprimer",
+            "questionPlaceholder": "Texte de la question…",
+            "optionPlaceholder": "Option {{letter}}",
+            "correctAnswerTitle": "Marquer comme bonne réponse",
+            "addQuestion": "+ Ajouter une question",
+            "saving": "Enregistrement...",
+            "saveAssessment": "💾 Enregistrer l'évaluation",
+            "existingHeading": "Évaluations existantes ({{count}})",
+            "empty": "Aucune évaluation créée pour le moment.",
+            "summary": "{{category}} · {{count}} questions · Passage {{passMark}} %",
+            "deleteTitle": "Supprimer l'évaluation",
+            "status": {
+              "open": "ouverte",
+              "archived": "archivée"
+            }
+          },
+          "contentBuilder": {
+            "addContentItemHeading": "Ajouter un élément de contenu",
+            "fields": {
+              "category": "Catégorie *",
+              "type": "Type *",
+              "title": "Titre *",
+              "meta": "Méta / sous-titre",
+              "introduction": "Introduction",
+              "steps": "Étapes (une par ligne, format : Titre | description)",
+              "warningNote": "Note d'avertissement (facultatif)",
+              "bodyBullets": "Puces du corps (une par ligne)",
+              "videoUrl": "URL YouTube ou ID de la vidéo",
+              "uploadPdf": "Téléverser un PDF ou coller une URL",
+              "uploadImage": "Téléverser une image",
+              "uploadFile": "Téléverser un fichier (vidéo, document, etc.)"
+            },
+            "placeholders": {
+              "selectCategory": "Sélectionner une catégorie…",
+              "createNewCategory": "+ Créer une nouvelle catégorie…",
+              "title": "p. ex. Procédure d'arrêt d'urgence",
+              "meta": "p. ex. Procédure · 6 étapes · CRITIQUE",
+              "introduction": "Bref paragraphe explicatif",
+              "steps": "Isoler l'alimentation | Éteindre le disjoncteur principal\nVérifier les dangers | Rechercher des fuites ou des étincelles",
+              "warningNote": "p. ex. Ne pas redémarrer sans l'approbation du superviseur",
+              "bodyBullets": "Vérifier le niveau d'huile quotidiennement\nRemplacer le filtre toutes les 500 heures",
+              "videoUrl": "https://youtube.com/watch?v=... ou dQw4w9WgXcQ",
+              "orPasteUrl": "Ou collez une URL de PDF publique",
+              "orPasteFileUrl": "Ou collez une URL de fichier publique"
+            },
+            "types": {
+              "procedure": "procédure",
+              "guide": "guide",
+              "video": "vidéo",
+              "pdf": "pdf",
+              "image": "image",
+              "media": "média"
+            },
+            "newCategory": {
+              "iconLabel": "Icône",
+              "titleLabel": "Titre *",
+              "titlePlaceholder": "p. ex. Sécurité et urgences",
+              "descriptionLabel": "Description",
+              "descriptionPlaceholder": "Brève description",
+              "colourLabel": "Couleur",
+              "creating": "Création…",
+              "createCategory": "Créer la catégorie",
+              "suggestions": {
+                "safetyEmergency": "Sécurité et urgences",
+                "electrical": "Électrique",
+                "mechanical": "Mécanique",
+                "hydraulics": "Hydraulique",
+                "lubrication": "Lubrification",
+                "startupShutdown": "Démarrage et arrêt",
+                "troubleshooting": "Dépannage",
+                "preventiveMaintenance": "Maintenance préventive"
+              }
+            },
+            "saving": "Enregistrement...",
+            "addContentItem": "+ Ajouter un élément de contenu",
+            "manageCategories": "Gérer les catégories ({{count}})",
+            "columns": {
+              "icon": "Icône",
+              "title": "Titre",
+              "color": "Couleur",
+              "pinned": "Épinglé",
+              "actions": "Actions"
+            },
+            "pinnedYes": "Oui",
+            "deleteCategoryTitle": "Supprimer la catégorie",
+            "livePreviewHeading": "Aperçu en direct",
+            "addCategoryToPreview": "Ajoutez une catégorie pour voir l'aperçu"
+          }
+        }
+      }
+    }
+  },
+  "triage": {
+    "next_step": "Étape suivante",
+    "confirm": "Confirmé — Étape suivante",
+    "skip_step": "Passer l'étape",
+    "yes": "Oui",
+    "no": "Non",
+    "capture_photo": "Prendre une photo",
+    "add_photo": "Ajouter une photo",
+    "retake": "Reprendre",
+    "use_photo": "Utiliser la photo",
+    "add_note": "Ajouter une note",
+    "emergency_escalate": "Escalade d'urgence",
+    "issue_resolved": "Problème résolu par l'opérateur",
+    "step_of": "Étape {{current}} sur {{total}}",
+    "phase": {
+      "safety": "Contrôle de sécurité",
+      "assessment": "Évaluation",
+      "safe_action": "Action sécurisée",
+      "document": "Documenter l'état",
+      "wait": "Instructions d'attente"
+    },
+    "abandon_confirm": "Abandonner le triage ? La progression sera enregistrée.",
+    "complete": "Triage terminé",
+    "safety_banner": {
+      "danger": "⚠ DANGER — NE PAS CONTINUER SANS LIRE",
+      "caution": "⚠ ATTENTION — Procédez avec prudence",
+      "safe": "✓ SÛR — Poursuivez cette étape"
+    },
+    "working_offline": "⚡ Travail hors ligne — les données seront synchronisées une fois reconnecté",
+    "emergency_overlay_title": "🚨 ESCALADE D'URGENCE",
+    "quick_fix_title": "✓ Problème résolu par l'opérateur !",
+    "quick_fix_desc": "Bon travail. Le problème de la machine a été résolu sans l'équipe de réparation.",
+    "outcome": {
+      "resolved_by_operator": "Opérateur en sécurité — problème résolu (solution rapide)",
+      "repair_team_required": "Opérateur en sécurité — équipe de réparation requise",
+      "machine_shutdown": "Machine arrêtée en toute sécurité — équipe de réparation requise",
+      "emergency_escalated": "Urgence signalée",
+      "abandoned": "Triage abandonné"
+    },
+    "outcome_label": "Résultat",
+    "notes_label": "Notes",
+    "duration_label": "Durée",
+    "machine_label": "Machine",
+    "supervisor_label": "Superviseur",
+    "flow_label": "Flux utilisé",
+    "session_photos": "Photos de la session",
+    "view_report": "Voir le rapport de triage",
+    "back_to_ticket": "Retour au ticket de panne",
+    "back_to_history": "Retour à l'historique",
+    "loading": "Chargement...",
+    "no_flows": "Aucun flux de triage trouvé.",
+    "create_flow": "Créer un flux",
+    "browse_templates": "Parcourir les modèles",
+    "custom_flows": "Flux personnalisés",
+    "templates": "Modèles",
+    "run_demo": "Lancer la démo",
+    "edit": "Modifier",
+    "duplicate": "Dupliquer",
+    "view_sessions": "Voir les sessions",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "add_step": "Ajouter une étape",
+    "step": "Étape",
+    "flow_name": "Nom du flux",
+    "description": "Description",
+    "machine_type": "Type de machine",
+    "specific_machine": "Machine spécifique",
+    "language": "Langue",
+    "emergency_contacts": "Contacts d'urgence",
+    "shutdown_procedure": "Procédure d'arrêt de la machine",
+    "active": "Actif",
+    "inactive": "Inactif",
+    "use_template": "Utiliser le modèle",
+    "preview": "Aperçu",
+    "date_range": "Plage de dates",
+    "all_outcomes": "Tous les résultats",
+    "all_statuses": "Tous les statuts",
+    "filter": "Filtrer",
+    "timeline": "Chronologie de la session",
+    "download_pdf": "Télécharger le PDF",
+    "no_sessions": "Aucune session trouvée.",
+    "call_contact": "Appeler",
+    "notify_manager": "Notifier le responsable d'usine",
+    "mark_shutdown": "Marquer la machine comme arrêtée",
+    "machine_status": "État de la machine",
+    "what_did_operator_do": "Qu'a fait l'opérateur pour résoudre le problème ?",
+    "submit": "Soumettre",
+    "confirm_abandon": "Confirmer l'abandon",
+    "keep_going": "Continuer",
+    "photo_required_hint": "Au moins une photo est requise pour continuer.",
+    "out_of_range": "Valeur hors de la plage normale !",
+    "normal_range": "Plage normale : {{min}} – {{max}} {{unit}}",
+    "char_count": "{{count}} / {{max}} caractères",
+    "add_another_photo": "Ajouter une autre photo",
+    "reference_media": "Médias de référence",
+    "step_notes": "Notes de l'étape",
+    "escalation_warning": "⚠ Cette étape peut nécessiter une escalade.",
+    "required": "Obligatoire",
+    "optional": "Facultatif",
+    "translate_tab": "Traductions",
+    "settings_tab": "Paramètres",
+    "steps_tab": "Étapes",
+    "preview_tab": "Aperçu",
+    "checklist_item_placeholder": "Élément de la liste",
+    "add_item": "+ Ajouter un élément",
+    "option_label_placeholder": "Libellé de l'option",
+    "escalate": "Escalader",
+    "safe": "Sûr",
+    "next_step_select": "Étape suivante",
+    "add_option": "+ Ajouter une option",
+    "options_label": "Options",
+    "checklist_items_label": "Éléments de la liste",
+    "field_label": "Libellé du champ",
+    "unit_label": "Unité",
+    "min_label": "Min",
+    "max_label": "Max",
+    "placeholder_label": "Texte indicatif",
+    "max_characters_label": "Caractères max.",
+    "translation_title_label": "Titre",
+    "translation_instruction_label": "Instruction",
+    "select_step_to_preview": "Sélectionnez une étape à prévisualiser",
+    "untitled_step": "Étape sans titre",
+    "delete_step": "Supprimer l'étape",
+    "supervisor_prefix": "Superviseur : {{name}}",
+    "flow_prefix": "Flux : {{name}}",
+    "demo_badge": "Démo",
+    "response_label": "Réponse : {{value}}",
+    "skipped_label": "Ignoré : {{reason}}",
+    "close": "Fermer",
+    "photo_alt": "Photo {{index}}",
+    "session_status": {
+      "in_progress": "En cours",
+      "completed": "Terminé",
+      "escalated": "Escaladé",
+      "quick_fix": "Solution rapide",
+      "abandoned": "Abandonné"
+    },
+    "flow_settings_title": "Paramètres du flux",
+    "add_contact": "+ Ajouter",
+    "contact_name_placeholder": "Nom",
+    "contact_role_placeholder": "Fonction",
+    "contact_phone_placeholder": "Téléphone",
+    "back": "Retour",
+    "triage_history_title": "Historique de triage",
+    "supervisor_label_short": "Superviseur",
+    "flow_label_short": "Flux",
+    "duration_label_short": "Durée",
+    "steps_completed": "Étapes terminées",
+    "edit_step_title": "Modifier l'étape n° {{number}}",
+    "title_field": "Titre *",
+    "phase_field": "Phase",
+    "type_field": "Type",
+    "safety_field": "Sécurité",
+    "select_step_to_edit": "Sélectionnez une étape à modifier",
+    "preview_label": "Aperçu",
+    "triage_flows_title": "Flux de triage",
+    "triage_flows_subtitle": "Gérer les flux de guidage de triage des opérateurs",
+    "templates_subtitle": "Modèles de flux de triage intégrés à FirmiCore",
+    "no_templates_available": "Aucun modèle disponible.",
+    "session_not_found": "Session introuvable",
+    "not_found": "Introuvable",
+    "step_type": {
+      "statement": "Déclaration",
+      "yes_no": "Oui / Non",
+      "multiple_choice": "Choix multiple",
+      "photo_required": "Photo requise",
+      "number_input": "Saisie numérique",
+      "text_input": "Saisie de texte",
+      "checklist": "Liste de contrôle"
     }
   }
 }

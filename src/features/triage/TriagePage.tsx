@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { COL } from './api';
@@ -13,6 +14,7 @@ import { AssessmentList } from './components/AssessmentList';
 import TriageBuilderPage, { BUILDER_ROLES } from './TriageBuilderPage';
 
 export default function TriagePage() {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const uid = userProfile?.id ?? '';
@@ -64,7 +66,7 @@ export default function TriagePage() {
             className="flex items-center justify-center h-full text-sm"
             style={{ color: '#3d5070' }}
           >
-            Select a category from the left panel
+            {t('common.triage.knowledge.page.selectCategoryPrompt')}
           </div>
         );
     }
@@ -75,10 +77,10 @@ export default function TriagePage() {
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
-            Triage
+            {t('common.triage.knowledge.page.title')}
           </h1>
           <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-            Procedures, guides, contacts, and quick assessments
+            {t('common.triage.knowledge.page.subtitle')}
           </p>
         </div>
         {canBuild && (
@@ -88,7 +90,7 @@ export default function TriagePage() {
             className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors"
             style={{ background: '#1d4ed8' }}
           >
-            <Plus className="w-4 h-4" /> Create
+            <Plus className="w-4 h-4" /> {t('common.triage.knowledge.page.create')}
           </button>
         )}
       </div>

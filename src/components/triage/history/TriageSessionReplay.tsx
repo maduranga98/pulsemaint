@@ -33,19 +33,19 @@ export default function TriageSessionReplay({ session }: Props) {
 
         <div className="grid grid-cols-2 gap-3 mt-4">
           <div>
-            <p className="text-xs text-gray-500">Supervisor</p>
+            <p className="text-xs text-gray-500">{t('triage.supervisor_label_short')}</p>
             <p className="font-medium text-sm">{session.supervisorName}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Flow</p>
+            <p className="text-xs text-gray-500">{t('triage.flow_label_short')}</p>
             <p className="font-medium text-sm">{session.flowName}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Duration</p>
+            <p className="text-xs text-gray-500">{t('triage.duration_label_short')}</p>
             <p className="font-medium text-sm">{formatDuration(session.totalDuration)}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Steps completed</p>
+            <p className="text-xs text-gray-500">{t('triage.steps_completed')}</p>
             <p className="font-medium text-sm">{session.stepLogs.length}</p>
           </div>
         </div>

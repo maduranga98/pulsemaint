@@ -3578,6 +3578,387 @@
         },
         "submit": "Guardar Módulo"
       }
+    },
+    "triage": {
+      "knowledge": {
+        "page": {
+          "title": "Triaje",
+          "subtitle": "Procedimientos, guías, contactos y evaluaciones rápidas",
+          "create": "Crear",
+          "selectCategoryPrompt": "Seleccione una categoría en el panel izquierdo"
+        },
+        "categoryRail": {
+          "categoriesHeading": "Categorías",
+          "noCategories": "Aún no hay categorías",
+          "contacts": "Personas responsables",
+          "assessments": "Evaluaciones rápidas"
+        },
+        "contactList": {
+          "heading": "Personas responsables",
+          "subtitle": "Contactos de emergencia y personal clave",
+          "empty": "Aún no se han agregado contactos.",
+          "deleteTitle": "Eliminar contacto",
+          "levels": {
+            "normal": "Normal",
+            "emergency": "Emergencia"
+          }
+        },
+        "contentList": {
+          "back": "Volver",
+          "empty": "Aún no hay contenido en esta categoría.",
+          "deleteTitle": "Eliminar elemento",
+          "openFullSize": "Abrir a tamaño completo ↗",
+          "types": {
+            "procedure": "Procedimiento",
+            "guide": "Guía",
+            "video": "Video",
+            "pdf": "PDF",
+            "image": "Imagen",
+            "media": "Multimedia"
+          }
+        },
+        "assessmentList": {
+          "heading": "Evaluaciones rápidas",
+          "subtitle": "Ponga a prueba sus conocimientos y obtenga certificaciones",
+          "empty": "Aún no hay evaluaciones disponibles.",
+          "passMark": "Nota mínima: {{value}}%",
+          "lastScore": "Última puntuación: {{value}}%",
+          "status": {
+            "certified": "Certificado",
+            "retry": "Reintentar",
+            "start": "Comenzar"
+          },
+          "button": {
+            "certified": "Revisar",
+            "retry": "Reintentar cuestionario",
+            "start": "Realizar cuestionario"
+          }
+        },
+        "quizModal": {
+          "passMark": "Nota mínima: {{value}}%",
+          "close": "Cerrar",
+          "progress": "{{current}} / {{total}}",
+          "correct": "✓ ¡Correcto!",
+          "incorrect": "✗ Incorrecto",
+          "next": "Siguiente →",
+          "finish": "Finalizar",
+          "resultSummary": "{{score}} / {{total}} correctas · Nota mínima {{passMark}}%",
+          "passedTitle": "¡Evaluación aprobada!",
+          "passedDetail": "Aprobó {{title}}",
+          "failedTitle": "No aprobado",
+          "failedDetail": "Revise el material e inténtelo de nuevo",
+          "savingResult": "Guardando resultado..."
+        },
+        "builder": {
+          "accessRestricted": {
+            "title": "Acceso restringido",
+            "message": "El Constructor de Triaje está disponible solo para supervisores, gerentes de planta, oficiales de RR. HH., oficiales de seguridad y administradores."
+          },
+          "back": "Volver a Triaje",
+          "title": "Constructor de Triaje",
+          "subtitle": "Cree y gestione contenido, contactos y evaluaciones de triaje",
+          "tabs": {
+            "content": "Contenido y categorías",
+            "contacts": "Contactos",
+            "assessments": "Evaluaciones"
+          },
+          "contactBuilder": {
+            "addContactHeading": "Agregar contacto",
+            "currentContactsHeading": "Contactos actuales",
+            "fields": {
+              "name": "Nombre *",
+              "role": "Cargo",
+              "dept": "Departamento",
+              "phone": "Teléfono / Extensión *",
+              "priority": "Prioridad"
+            },
+            "placeholders": {
+              "name": "Nombre completo",
+              "role": "p. ej., Supervisor de Mantenimiento",
+              "dept": "p. ej., Ingeniería",
+              "phone": "p. ej., ext. 555 o +1 555-0100"
+            },
+            "levels": {
+              "normal": "normal",
+              "emergency": "emergencia"
+            },
+            "saving": "Guardando...",
+            "addContact": "+ Agregar contacto"
+          },
+          "assessmentBuilder": {
+            "newAssessmentHeading": "Nueva evaluación",
+            "fields": {
+              "title": "Título *",
+              "category": "Categoría *",
+              "passMark": "Nota mínima (%)"
+            },
+            "placeholders": {
+              "title": "p. ej., Cuestionario de Procedimiento de Bloqueo de Seguridad",
+              "selectCategory": "Seleccionar…"
+            },
+            "questionLabel": "Pregunta {{number}}",
+            "removeQuestion": "Quitar",
+            "questionPlaceholder": "Texto de la pregunta…",
+            "optionPlaceholder": "Opción {{letter}}",
+            "correctAnswerTitle": "Marcar como respuesta correcta",
+            "addQuestion": "+ Agregar pregunta",
+            "saving": "Guardando...",
+            "saveAssessment": "💾 Guardar evaluación",
+            "existingHeading": "Evaluaciones existentes ({{count}})",
+            "empty": "Aún no se han creado evaluaciones.",
+            "summary": "{{category}} · {{count}} preguntas · Nota mínima {{passMark}}%",
+            "deleteTitle": "Eliminar evaluación",
+            "status": {
+              "open": "abierta",
+              "archived": "archivada"
+            }
+          },
+          "contentBuilder": {
+            "addContentItemHeading": "Agregar elemento de contenido",
+            "fields": {
+              "category": "Categoría *",
+              "type": "Tipo *",
+              "title": "Título *",
+              "meta": "Meta / subtítulo",
+              "introduction": "Introducción",
+              "steps": "Pasos (uno por línea, formato: Título | descripción)",
+              "warningNote": "Nota de advertencia (opcional)",
+              "bodyBullets": "Viñetas del cuerpo (una por línea)",
+              "videoUrl": "URL de YouTube o ID del video",
+              "uploadPdf": "Suba un PDF o pegue una URL",
+              "uploadImage": "Suba una imagen",
+              "uploadFile": "Suba un archivo (video, documento, etc.)"
+            },
+            "placeholders": {
+              "selectCategory": "Seleccionar categoría…",
+              "createNewCategory": "+ Crear nueva categoría…",
+              "title": "p. ej., Procedimiento de Parada de Emergencia",
+              "meta": "p. ej., Procedimiento · 6 pasos · CRÍTICO",
+              "introduction": "Párrafo de explicación breve",
+              "steps": "Aislar energía | Apagar el interruptor principal\nRevisar riesgos | Buscar fugas o chispas",
+              "warningNote": "p. ej., No reiniciar sin aprobación del supervisor",
+              "bodyBullets": "Revisar el nivel de aceite diariamente\nReemplazar el filtro cada 500 horas",
+              "videoUrl": "https://youtube.com/watch?v=... o dQw4w9WgXcQ",
+              "orPasteUrl": "O pegue una URL pública de PDF",
+              "orPasteFileUrl": "O pegue una URL pública de archivo"
+            },
+            "types": {
+              "procedure": "procedimiento",
+              "guide": "guía",
+              "video": "video",
+              "pdf": "pdf",
+              "image": "imagen",
+              "media": "multimedia"
+            },
+            "newCategory": {
+              "iconLabel": "Ícono",
+              "titleLabel": "Título *",
+              "titlePlaceholder": "p. ej., Seguridad y Emergencias",
+              "descriptionLabel": "Descripción",
+              "descriptionPlaceholder": "Descripción breve",
+              "colourLabel": "Color",
+              "creating": "Creando…",
+              "createCategory": "Crear categoría",
+              "suggestions": {
+                "safetyEmergency": "Seguridad y Emergencias",
+                "electrical": "Eléctrico",
+                "mechanical": "Mecánico",
+                "hydraulics": "Hidráulica",
+                "lubrication": "Lubricación",
+                "startupShutdown": "Arranque y Parada",
+                "troubleshooting": "Solución de problemas",
+                "preventiveMaintenance": "Mantenimiento preventivo"
+              }
+            },
+            "saving": "Guardando...",
+            "addContentItem": "+ Agregar elemento de contenido",
+            "manageCategories": "Gestionar categorías ({{count}})",
+            "columns": {
+              "icon": "Ícono",
+              "title": "Título",
+              "color": "Color",
+              "pinned": "Fijado",
+              "actions": "Acciones"
+            },
+            "pinnedYes": "Sí",
+            "deleteCategoryTitle": "Eliminar categoría",
+            "livePreviewHeading": "Vista previa en vivo",
+            "addCategoryToPreview": "Agregue una categoría para ver la vista previa"
+          }
+        }
+      }
+    }
+  },
+  "triage": {
+    "next_step": "Siguiente paso",
+    "confirm": "Confirmado — Siguiente paso",
+    "skip_step": "Omitir paso",
+    "yes": "Sí",
+    "no": "No",
+    "capture_photo": "Tomar foto",
+    "add_photo": "Añadir foto",
+    "retake": "Repetir foto",
+    "use_photo": "Usar foto",
+    "add_note": "Añadir nota",
+    "emergency_escalate": "Escalar emergencia",
+    "issue_resolved": "Problema resuelto por el operador",
+    "step_of": "Paso {{current}} de {{total}}",
+    "phase": {
+      "safety": "Verificación de seguridad",
+      "assessment": "Evaluación",
+      "safe_action": "Acción segura",
+      "document": "Documentar estado",
+      "wait": "Instrucciones de espera"
+    },
+    "abandon_confirm": "¿Abandonar el triage? El progreso se guardará.",
+    "complete": "Triage completado",
+    "safety_banner": {
+      "danger": "⚠ PELIGRO — NO CONTINÚE SIN LEER",
+      "caution": "⚠ PRECAUCIÓN — Proceda con cuidado",
+      "safe": "✓ SEGURO — Continúe con este paso"
+    },
+    "working_offline": "⚡ Trabajando sin conexión — los datos se sincronizarán al reconectar",
+    "emergency_overlay_title": "🚨 ESCALAMIENTO DE EMERGENCIA",
+    "quick_fix_title": "✓ ¡Problema resuelto por el operador!",
+    "quick_fix_desc": "Buen trabajo. El problema de la máquina se resolvió sin el equipo de reparación.",
+    "outcome": {
+      "resolved_by_operator": "Operador a salvo — problema resuelto (solución rápida)",
+      "repair_team_required": "Operador a salvo — se requiere equipo de reparación",
+      "machine_shutdown": "Máquina apagada de forma segura — se requiere equipo de reparación",
+      "emergency_escalated": "Emergencia escalada",
+      "abandoned": "Triage abandonado"
+    },
+    "outcome_label": "Resultado",
+    "notes_label": "Notas",
+    "duration_label": "Duración",
+    "machine_label": "Máquina",
+    "supervisor_label": "Supervisor",
+    "flow_label": "Flujo utilizado",
+    "session_photos": "Fotos de la sesión",
+    "view_report": "Ver informe de triage",
+    "back_to_ticket": "Volver al ticket de avería",
+    "back_to_history": "Volver al historial",
+    "loading": "Cargando...",
+    "no_flows": "No se encontraron flujos de triage.",
+    "create_flow": "Crear flujo",
+    "browse_templates": "Explorar plantillas",
+    "custom_flows": "Flujos personalizados",
+    "templates": "Plantillas",
+    "run_demo": "Ejecutar demostración",
+    "edit": "Editar",
+    "duplicate": "Duplicar",
+    "view_sessions": "Ver sesiones",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "add_step": "Añadir paso",
+    "step": "Paso",
+    "flow_name": "Nombre del flujo",
+    "description": "Descripción",
+    "machine_type": "Tipo de máquina",
+    "specific_machine": "Máquina específica",
+    "language": "Idioma",
+    "emergency_contacts": "Contactos de emergencia",
+    "shutdown_procedure": "Procedimiento de apagado de la máquina",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "use_template": "Usar plantilla",
+    "preview": "Vista previa",
+    "date_range": "Rango de fechas",
+    "all_outcomes": "Todos los resultados",
+    "all_statuses": "Todos los estados",
+    "filter": "Filtrar",
+    "timeline": "Cronología de la sesión",
+    "download_pdf": "Descargar PDF",
+    "no_sessions": "No se encontraron sesiones.",
+    "call_contact": "Llamar",
+    "notify_manager": "Notificar al gerente de planta",
+    "mark_shutdown": "Marcar máquina apagada",
+    "machine_status": "Estado de la máquina",
+    "what_did_operator_do": "¿Qué hizo el operador para resolver el problema?",
+    "submit": "Enviar",
+    "confirm_abandon": "Confirmar abandono",
+    "keep_going": "Continuar",
+    "photo_required_hint": "Se requiere al menos una foto para continuar.",
+    "out_of_range": "¡Valor fuera del rango normal!",
+    "normal_range": "Rango normal: {{min}} – {{max}} {{unit}}",
+    "char_count": "{{count}} / {{max}} caracteres",
+    "add_another_photo": "Añadir otra foto",
+    "reference_media": "Material de referencia",
+    "step_notes": "Notas del paso",
+    "escalation_warning": "⚠ Este paso puede requerir escalamiento.",
+    "required": "Obligatorio",
+    "optional": "Opcional",
+    "translate_tab": "Traducciones",
+    "settings_tab": "Configuración",
+    "steps_tab": "Pasos",
+    "preview_tab": "Vista previa",
+    "checklist_item_placeholder": "Elemento de la lista",
+    "add_item": "+ Añadir elemento",
+    "option_label_placeholder": "Etiqueta de la opción",
+    "escalate": "Escalar",
+    "safe": "Seguro",
+    "next_step_select": "Siguiente paso",
+    "add_option": "+ Añadir opción",
+    "options_label": "Opciones",
+    "checklist_items_label": "Elementos de la lista",
+    "field_label": "Etiqueta del campo",
+    "unit_label": "Unidad",
+    "min_label": "Mín",
+    "max_label": "Máx",
+    "placeholder_label": "Marcador de posición",
+    "max_characters_label": "Máx. de caracteres",
+    "translation_title_label": "Título",
+    "translation_instruction_label": "Instrucción",
+    "select_step_to_preview": "Seleccione un paso para previsualizar",
+    "untitled_step": "Paso sin título",
+    "delete_step": "Eliminar paso",
+    "supervisor_prefix": "Supervisor: {{name}}",
+    "flow_prefix": "Flujo: {{name}}",
+    "demo_badge": "Demo",
+    "response_label": "Respuesta: {{value}}",
+    "skipped_label": "Omitido: {{reason}}",
+    "close": "Cerrar",
+    "photo_alt": "Foto {{index}}",
+    "session_status": {
+      "in_progress": "En curso",
+      "completed": "Completado",
+      "escalated": "Escalado",
+      "quick_fix": "Solución rápida",
+      "abandoned": "Abandonado"
+    },
+    "flow_settings_title": "Configuración del flujo",
+    "add_contact": "+ Añadir",
+    "contact_name_placeholder": "Nombre",
+    "contact_role_placeholder": "Cargo",
+    "contact_phone_placeholder": "Teléfono",
+    "back": "Atrás",
+    "triage_history_title": "Historial de triage",
+    "supervisor_label_short": "Supervisor",
+    "flow_label_short": "Flujo",
+    "duration_label_short": "Duración",
+    "steps_completed": "Pasos completados",
+    "edit_step_title": "Editar paso n.º {{number}}",
+    "title_field": "Título *",
+    "phase_field": "Fase",
+    "type_field": "Tipo",
+    "safety_field": "Seguridad",
+    "select_step_to_edit": "Seleccione un paso para editar",
+    "preview_label": "Vista previa",
+    "triage_flows_title": "Flujos de triage",
+    "triage_flows_subtitle": "Gestionar los flujos de orientación de triage para operadores",
+    "templates_subtitle": "Plantillas de flujo de triage integradas de FirmiCore",
+    "no_templates_available": "No hay plantillas disponibles.",
+    "session_not_found": "Sesión no encontrada",
+    "not_found": "No encontrado",
+    "step_type": {
+      "statement": "Declaración",
+      "yes_no": "Sí / No",
+      "multiple_choice": "Opción múltiple",
+      "photo_required": "Foto requerida",
+      "number_input": "Entrada numérica",
+      "text_input": "Entrada de texto",
+      "checklist": "Lista de verificación"
     }
   }
 }

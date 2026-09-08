@@ -34,7 +34,7 @@ export default function TriageFlowSettings({ flow, onChange }: Props) {
 
   return (
     <div className="flex flex-col gap-4 p-4 overflow-y-auto h-full">
-      <h3 className="font-semibold text-[#0A1628] text-lg">Flow Settings</h3>
+      <h3 className="font-semibold text-[#0A1628] text-lg">{t('triage.flow_settings_title')}</h3>
 
       <div>
         <label className="text-xs font-semibold text-gray-600 mb-1 block">{t('triage.flow_name')} *</label>
@@ -82,7 +82,7 @@ export default function TriageFlowSettings({ flow, onChange }: Props) {
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="text-xs font-semibold text-gray-600">{t('triage.emergency_contacts')}</label>
-          <button onClick={addContact} className="text-xs text-[#1A56DB] hover:underline">+ Add</button>
+          <button onClick={addContact} className="text-xs text-[#1A56DB] hover:underline">{t('triage.add_contact')}</button>
         </div>
         <div className="flex flex-col gap-2">
           {(flow.emergencyContacts ?? []).map((c, i) => (
@@ -92,14 +92,14 @@ export default function TriageFlowSettings({ flow, onChange }: Props) {
                   type="text"
                   value={c.name}
                   onChange={(e) => updateContact(i, { name: e.target.value })}
-                  placeholder="Name"
+                  placeholder={t('triage.contact_name_placeholder')}
                   className="flex-1 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none"
                 />
                 <input
                   type="text"
                   value={c.role}
                   onChange={(e) => updateContact(i, { role: e.target.value })}
-                  placeholder="Role"
+                  placeholder={t('triage.contact_role_placeholder')}
                   className="flex-1 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none"
                 />
                 <button onClick={() => removeContact(i)} className="text-red-400 hover:text-red-600">×</button>
@@ -108,7 +108,7 @@ export default function TriageFlowSettings({ flow, onChange }: Props) {
                 type="tel"
                 value={c.phone}
                 onChange={(e) => updateContact(i, { phone: e.target.value })}
-                placeholder="Phone"
+                placeholder={t('triage.contact_phone_placeholder')}
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none"
               />
             </div>
@@ -117,7 +117,7 @@ export default function TriageFlowSettings({ flow, onChange }: Props) {
       </div>
 
       <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700">Active</label>
+        <label className="text-sm font-medium text-gray-700">{t('triage.active')}</label>
         <button
           onClick={() => onChange({ isActive: !flow.isActive })}
           className={`relative w-10 h-6 rounded-full transition-colors ${

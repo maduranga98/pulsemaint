@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, BookOpen, ClipboardList, Lock, Users } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { ContentBuilder } from './components/builder/ContentBuilder';
@@ -8,10 +9,10 @@ import { AssessmentBuilder } from './components/builder/AssessmentBuilder';
 
 type Tab = 'content' | 'contacts' | 'assessments';
 
-const TABS: { id: Tab; label: string; icon: typeof BookOpen }[] = [
-  { id: 'content', label: 'Content & Categories', icon: BookOpen },
-  { id: 'contacts', label: 'Contacts', icon: Users },
-  { id: 'assessments', label: 'Assessments', icon: ClipboardList },
+const TAB_DEFS: { id: Tab; icon: typeof BookOpen }[] = [
+  { id: 'content', icon: BookOpen },
+  { id: 'contacts', icon: Users },
+  { id: 'assessments', icon: ClipboardList },
 ];
 
 export const BUILDER_ROLES = ['supervisor', 'plant_manager', 'admin', 'hr_officer', 'safety_officer'] as const;
@@ -25,10 +26,16 @@ interface Props {
 }
 
 export default function TriageBuilderPage({ onBack }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const [activeTab, setActiveTab] = useState<Tab>('content');
   const handleBack = onBack ?? (() => navigate('/app/triage'));
+
+  const TABS = TAB_DEFS.map((tab) => ({
+    ...tab,
+    label: t(`common.triage.knowledge.builder.tabs.${tab.id}`),
+  }));
 
   if (!userProfile?.role || !(BUILDER_ROLES as readonly string[]).includes(userProfile.role)) {
     return (
@@ -36,10 +43,10 @@ export default function TriageBuilderPage({ onBack }: Props) {
         <div className="text-center">
           <Lock className="w-10 h-10 mx-auto mb-4" style={{ color: '#6b7fa3' }} />
           <h2 className="text-lg font-semibold mb-2" style={{ color: '#e2e8f0' }}>
-            Access Restricted
+            {t('common.triage.knowledge.builder.accessRestricted.title')}
           </h2>
           <p className="text-sm" style={{ color: '#6b7fa3' }}>
-            The Triage Builder is available to Supervisors, Plant Managers, HR Officers, Safety Officers, and Admins only.
+            {t('common.triage.knowledge.builder.accessRestricted.message')}
           </p>
         </div>
       </div>
@@ -54,15 +61,15 @@ export default function TriageBuilderPage({ onBack }: Props) {
         className="inline-flex items-center gap-1.5 text-sm font-medium mb-4 transition-colors"
         style={{ color: '#6b7fa3' }}
       >
-        <ArrowLeft className="w-4 h-4" /> Back to Triage
+        <ArrowLeft className="w-4 h-4" /> {t('common.triage.knowledge.builder.back')}
       </button>
 
       <div className="mb-5">
         <h1 className="text-xl font-bold" style={{ color: '#e2e8f0' }}>
-          Triage Builder
+          {t('common.triage.knowledge.builder.title')}
         </h1>
         <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-          Create and manage triage content, contacts, and assessments
+          {t('common.triage.knowledge.builder.subtitle')}
         </p>
       </div>
 

@@ -1,5 +1,5 @@
+import { useTranslation } from 'react-i18next';
 import type { TriageStepType } from '../../../types/triage';
-import { stepTypeLabel } from '../../../lib/triage/triageStepTypes';
 
 interface Props {
   type: TriageStepType;
@@ -16,9 +16,10 @@ const typeColors: Record<TriageStepType, string> = {
 };
 
 export default function TriageStepTypeBadge({ type }: Props) {
+  const { t } = useTranslation();
   return (
     <span className={`inline-block text-xs font-medium px-2 py-0.5 rounded ${typeColors[type]}`}>
-      {stepTypeLabel(type)}
+      {t(`triage.step_type.${type}`)}
     </span>
   );
 }

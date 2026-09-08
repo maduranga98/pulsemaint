@@ -115,13 +115,13 @@ export default function TriageFlowEditor({ initial, flowId }: Props) {
           />
         ) : (
           <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-            Select a step to edit
+            {t('triage.select_step_to_edit')}
           </div>
         )}
       </div>
       {/* Preview */}
       <div className="w-96 shrink-0 bg-gray-100 p-4 overflow-y-auto flex flex-col items-center">
-        <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">Preview</p>
+        <p className="text-xs font-semibold text-gray-500 mb-3 uppercase tracking-wide">{t('triage.preview_label')}</p>
         <TriageStepPreview step={selectedStep} />
       </div>
     </div>

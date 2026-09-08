@@ -5,6 +5,7 @@ import {
   query,
   where,
 } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { db } from '../../../../lib/firebase';
 import {
@@ -23,17 +24,18 @@ import { TRIAGE_ICON_OPTIONS, TriageCategoryIcon } from '../../triageIcons';
 const COLOR_PRESETS = ['#ef4444', '#f97316', '#fbbf24', '#22c55e', '#3b82f6', '#a78bfa'];
 const NEW_CATEGORY_VALUE = '__new__';
 
-// Suggested category titles surfaced as quick-fill chips.
-const TITLE_SUGGESTIONS = [
-  'Safety & Emergency',
-  'Electrical',
-  'Mechanical',
-  'Hydraulics',
-  'Lubrication',
-  'Startup & Shutdown',
-  'Troubleshooting',
-  'Preventive Maintenance',
-];
+// Suggested category titles surfaced as quick-fill chips. Keys into
+// builder.contentBuilder.newCategory.suggestions.
+const TITLE_SUGGESTION_KEYS = [
+  'safetyEmergency',
+  'electrical',
+  'mechanical',
+  'hydraulics',
+  'lubrication',
+  'startupShutdown',
+  'troubleshooting',
+  'preventiveMaintenance',
+] as const;
 
 type ContentType = TriageContentType;
 
@@ -88,6 +90,7 @@ function parseBody(raw: string): string[] {
 }
 
 export function ContentBuilder() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
@@ -231,12 +234,12 @@ export function ContentBuilder() {
           style={{ background: '#111d2e', border: '1px solid #1a2840' }}
         >
           <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
-            Add Content Item
+            {t('common.triage.knowledge.builder.contentBuilder.addContentItemHeading')}
           </div>
           <form onSubmit={handleAddContent} className="space-y-3">
             <div>
               <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                Category *
+                {t('common.triage.knowledge.builder.contentBuilder.fields.category')}
               </label>
               <select
                 value={form.categoryId}
@@ -245,13 +248,15 @@ export function ContentBuilder() {
                 style={{ ...inputStyle, cursor: 'pointer' }}
                 required
               >
-                <option value="">Select category…</option>
+                <option value="">{t('common.triage.knowledge.builder.contentBuilder.placeholders.selectCategory')}</option>
                 {cats.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.icon} {c.title}
                   </option>
                 ))}
-                <option value={NEW_CATEGORY_VALUE}>+ Create new category…</option>
+                <option value={NEW_CATEGORY_VALUE}>
+                  {t('common.triage.knowledge.builder.contentBuilder.placeholders.createNewCategory')}
+                </option>
               </select>
 
               {form.categoryId === NEW_CATEGORY_VALUE && (
@@ -261,7 +266,7 @@ export function ContentBuilder() {
                 >
                   <div>
                     <label className="text-xs block mb-1.5" style={{ color: '#6b7fa3' }}>
-                      Icon
+                      {t('common.triage.knowledge.builder.contentBuilder.newCategory.iconLabel')}
                     </label>
                     <div className="flex flex-wrap gap-1.5">
                       {TRIAGE_ICON_OPTIONS.map(({ emoji, Icon }) => (
@@ -284,48 +289,53 @@ export function ContentBuilder() {
                   </div>
                   <div>
                     <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                      Title *
+                      {t('common.triage.knowledge.builder.contentBuilder.newCategory.titleLabel')}
                     </label>
                     <input
                       value={catTitle}
                       onChange={(e) => setCatTitle(e.target.value)}
                       className={input}
                       style={inputStyle}
-                      placeholder="e.g. Safety & Emergency"
+                      placeholder={t('common.triage.knowledge.builder.contentBuilder.newCategory.titlePlaceholder')}
                     />
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {TITLE_SUGGESTIONS.map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => setCatTitle(s)}
-                          className="px-2 py-0.5 rounded-full text-[11px] transition-colors"
-                          style={{
-                            background: catTitle === s ? '#1d4ed81e' : '#0e1628',
-                            color: catTitle === s ? '#3b82f6' : '#6b7fa3',
-                            border: `1px solid ${catTitle === s ? '#3b82f666' : '#1a2840'}`,
-                          }}
-                        >
-                          {s}
-                        </button>
-                      ))}
+                      {TITLE_SUGGESTION_KEYS.map((key) => {
+                        const label = t(
+                          `common.triage.knowledge.builder.contentBuilder.newCategory.suggestions.${key}`,
+                        );
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setCatTitle(label)}
+                            className="px-2 py-0.5 rounded-full text-[11px] transition-colors"
+                            style={{
+                              background: catTitle === label ? '#1d4ed81e' : '#0e1628',
+                              color: catTitle === label ? '#3b82f6' : '#6b7fa3',
+                              border: `1px solid ${catTitle === label ? '#3b82f666' : '#1a2840'}`,
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   <div>
                     <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                      Description
+                      {t('common.triage.knowledge.builder.contentBuilder.newCategory.descriptionLabel')}
                     </label>
                     <input
                       value={catDesc}
                       onChange={(e) => setCatDesc(e.target.value)}
                       className={input}
                       style={inputStyle}
-                      placeholder="Short description"
+                      placeholder={t('common.triage.knowledge.builder.contentBuilder.newCategory.descriptionPlaceholder')}
                     />
                   </div>
                   <div>
                     <label className="text-xs block mb-2" style={{ color: '#6b7fa3' }}>
-                      Colour
+                      {t('common.triage.knowledge.builder.contentBuilder.newCategory.colourLabel')}
                     </label>
                     <div className="flex gap-2">
                       {COLOR_PRESETS.map((c) => (
@@ -349,7 +359,9 @@ export function ContentBuilder() {
                     className="w-full py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
                     style={{ background: '#1d4ed8', color: 'white' }}
                   >
-                    {catSaving ? 'Creating…' : 'Create Category'}
+                    {catSaving
+                      ? t('common.triage.knowledge.builder.contentBuilder.newCategory.creating')
+                      : t('common.triage.knowledge.builder.contentBuilder.newCategory.createCategory')}
                   </button>
                 </div>
               )}
@@ -357,21 +369,21 @@ export function ContentBuilder() {
 
             <div>
               <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                Type *
+                {t('common.triage.knowledge.builder.contentBuilder.fields.type')}
               </label>
               <div className="grid grid-cols-3 gap-1">
-                {(['procedure', 'guide', 'video', 'pdf', 'image', 'media'] as ContentType[]).map((t) => (
+                {(['procedure', 'guide', 'video', 'pdf', 'image', 'media'] as ContentType[]).map((ct) => (
                   <button
-                    key={t}
+                    key={ct}
                     type="button"
-                    onClick={() => setForm((f) => ({ ...f, type: t }))}
+                    onClick={() => setForm((f) => ({ ...f, type: ct }))}
                     className="py-2 rounded-lg text-xs font-medium transition-colors capitalize"
                     style={{
-                      background: form.type === t ? '#1d4ed8' : '#1a2840',
-                      color: form.type === t ? 'white' : '#6b7fa3',
+                      background: form.type === ct ? '#1d4ed8' : '#1a2840',
+                      color: form.type === ct ? 'white' : '#6b7fa3',
                     }}
                   >
-                    {t}
+                    {t(`common.triage.knowledge.builder.contentBuilder.types.${ct}`)}
                   </button>
                 ))}
               </div>
@@ -379,28 +391,28 @@ export function ContentBuilder() {
 
             <div>
               <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                Title *
+                {t('common.triage.knowledge.builder.contentBuilder.fields.title')}
               </label>
               <input
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 className={input}
                 style={inputStyle}
-                placeholder="e.g. Emergency Stop Procedure"
+                placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.title')}
                 required
               />
             </div>
 
             <div>
               <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                Meta / subtitle
+                {t('common.triage.knowledge.builder.contentBuilder.fields.meta')}
               </label>
               <input
                 value={form.meta}
                 onChange={(e) => setForm((f) => ({ ...f, meta: e.target.value }))}
                 className={input}
                 style={inputStyle}
-                placeholder="e.g. Procedure · 6 steps · CRITICAL"
+                placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.meta')}
               />
             </div>
 
@@ -409,7 +421,7 @@ export function ContentBuilder() {
               <>
                 <div>
                   <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                    Introduction
+                    {t('common.triage.knowledge.builder.contentBuilder.fields.introduction')}
                   </label>
                   <textarea
                     value={form.intro}
@@ -417,12 +429,12 @@ export function ContentBuilder() {
                     rows={2}
                     className={input + ' resize-none'}
                     style={inputStyle}
-                    placeholder="Brief explanation paragraph"
+                    placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.introduction')}
                   />
                 </div>
                 <div>
                   <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                    Steps (one per line, format: Title | description)
+                    {t('common.triage.knowledge.builder.contentBuilder.fields.steps')}
                   </label>
                   <textarea
                     value={form.stepsRaw}
@@ -430,19 +442,19 @@ export function ContentBuilder() {
                     rows={4}
                     className={input + ' resize-none'}
                     style={inputStyle}
-                    placeholder={`Isolate power | Switch off main breaker\nCheck for hazards | Look for leaks or sparks`}
+                    placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.steps')}
                   />
                 </div>
                 <div>
                   <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                    Warning note (optional)
+                    {t('common.triage.knowledge.builder.contentBuilder.fields.warningNote')}
                   </label>
                   <input
                     value={form.note}
                     onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
                     className={input}
                     style={inputStyle}
-                    placeholder="e.g. Do not restart without supervisor approval"
+                    placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.warningNote')}
                   />
                 </div>
               </>
@@ -451,7 +463,7 @@ export function ContentBuilder() {
             {form.type === 'guide' && (
               <div>
                 <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                  Body bullets (one per line)
+                  {t('common.triage.knowledge.builder.contentBuilder.fields.bodyBullets')}
                 </label>
                 <textarea
                   value={form.bodyRaw}
@@ -459,7 +471,7 @@ export function ContentBuilder() {
                   rows={4}
                   className={input + ' resize-none'}
                   style={inputStyle}
-                  placeholder="Check oil level daily&#10;Replace filter every 500 hours"
+                  placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.bodyBullets')}
                 />
               </div>
             )}
@@ -467,14 +479,14 @@ export function ContentBuilder() {
             {form.type === 'video' && (
               <div>
                 <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-                  YouTube URL or Video ID
+                  {t('common.triage.knowledge.builder.contentBuilder.fields.videoUrl')}
                 </label>
                 <input
                   value={form.videoUrl}
                   onChange={(e) => setForm((f) => ({ ...f, videoUrl: e.target.value }))}
                   className={input}
                   style={inputStyle}
-                  placeholder="https://youtube.com/watch?v=... or dQw4w9WgXcQ"
+                  placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.videoUrl')}
                 />
               </div>
             )}
@@ -482,7 +494,7 @@ export function ContentBuilder() {
             {form.type === 'pdf' && (
               <div className="space-y-2">
                 <label className="text-xs block" style={{ color: '#6b7fa3' }}>
-                  Upload PDF or paste URL
+                  {t('common.triage.knowledge.builder.contentBuilder.fields.uploadPdf')}
                 </label>
                 <input
                   ref={fileRef}
@@ -497,7 +509,7 @@ export function ContentBuilder() {
                   onChange={(e) => setForm((f) => ({ ...f, pdfUrl: e.target.value }))}
                   className={input}
                   style={inputStyle}
-                  placeholder="Or paste a public PDF URL"
+                  placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.orPasteUrl')}
                   disabled={!!pdfFile}
                 />
               </div>
@@ -507,8 +519,8 @@ export function ContentBuilder() {
               <div className="space-y-2">
                 <label className="text-xs block" style={{ color: '#6b7fa3' }}>
                   {form.type === 'image'
-                    ? 'Upload an image'
-                    : 'Upload a file (video, document, etc.)'}
+                    ? t('common.triage.knowledge.builder.contentBuilder.fields.uploadImage')
+                    : t('common.triage.knowledge.builder.contentBuilder.fields.uploadFile')}
                 </label>
                 <input
                   ref={mediaRef}
@@ -523,7 +535,7 @@ export function ContentBuilder() {
                   onChange={(e) => setForm((f) => ({ ...f, pdfUrl: e.target.value }))}
                   className={input}
                   style={inputStyle}
-                  placeholder="Or paste a public file URL"
+                  placeholder={t('common.triage.knowledge.builder.contentBuilder.placeholders.orPasteFileUrl')}
                   disabled={!!mediaFile}
                 />
               </div>
@@ -543,7 +555,9 @@ export function ContentBuilder() {
               className="w-full py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
               style={{ background: '#1d4ed8', color: 'white' }}
             >
-              {itemSaving ? 'Saving...' : '+ Add Content Item'}
+              {itemSaving
+                ? t('common.triage.knowledge.builder.contentBuilder.saving')
+                : t('common.triage.knowledge.builder.contentBuilder.addContentItem')}
             </button>
           </form>
         </div>
@@ -562,7 +576,7 @@ export function ContentBuilder() {
               className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold"
               style={{ color: '#e2e8f0' }}
             >
-              Manage Categories ({cats.length})
+              {t('common.triage.knowledge.builder.contentBuilder.manageCategories', { count: cats.length })}
               {manageCategoriesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
             {manageCategoriesOpen && (
@@ -570,11 +584,11 @@ export function ContentBuilder() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr style={{ borderTop: '1px solid #1a2840', borderBottom: '1px solid #1a2840' }}>
-                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Icon</th>
-                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Title</th>
-                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Color</th>
-                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>Pinned</th>
-                      <th className="px-4 py-2 text-right font-medium" style={{ color: '#6b7fa3' }}>Actions</th>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>{t('common.triage.knowledge.builder.contentBuilder.columns.icon')}</th>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>{t('common.triage.knowledge.builder.contentBuilder.columns.title')}</th>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>{t('common.triage.knowledge.builder.contentBuilder.columns.color')}</th>
+                      <th className="px-4 py-2 text-left font-medium" style={{ color: '#6b7fa3' }}>{t('common.triage.knowledge.builder.contentBuilder.columns.pinned')}</th>
+                      <th className="px-4 py-2 text-right font-medium" style={{ color: '#6b7fa3' }}>{t('common.triage.knowledge.builder.contentBuilder.columns.actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -585,13 +599,13 @@ export function ContentBuilder() {
                         <td className="px-4 py-2.5">
                           <div className="w-3 h-3 rounded-full" style={{ background: c.color }} />
                         </td>
-                        <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{c.pinned ? 'Yes' : ''}</td>
+                        <td className="px-4 py-2.5" style={{ color: '#6b7fa3' }}>{c.pinned ? t('common.triage.knowledge.builder.contentBuilder.pinnedYes') : ''}</td>
                         <td className="px-4 py-2.5 text-right">
                           {canDelete && (
                             <button
                               onClick={() => deleteCategory(c.id)}
                               className="inline-flex opacity-50 hover:opacity-100 transition-opacity"
-                              title="Delete category"
+                              title={t('common.triage.knowledge.builder.contentBuilder.deleteCategoryTitle')}
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -614,7 +628,7 @@ export function ContentBuilder() {
           style={{ background: '#0e1628', border: '1px solid #1a2840' }}
         >
           <div className="text-sm font-semibold mb-3" style={{ color: '#e2e8f0' }}>
-            Live Preview
+            {t('common.triage.knowledge.builder.contentBuilder.livePreviewHeading')}
           </div>
 
           {cats.length > 0 && (
@@ -641,7 +655,7 @@ export function ContentBuilder() {
             <ContentList category={previewCat} showDelete={canDelete} />
           ) : (
             <div className="text-sm text-center py-10" style={{ color: '#3d5070' }}>
-              Add a category to see the preview
+              {t('common.triage.knowledge.builder.contentBuilder.addCategoryToPreview')}
             </div>
           )}
         </div>

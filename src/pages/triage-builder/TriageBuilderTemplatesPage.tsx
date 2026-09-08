@@ -14,7 +14,7 @@ export default function TriageBuilderTemplatesPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold text-[#0A1628] mb-2">{t('triage.templates')}</h1>
-      <p className="text-gray-500 text-sm mb-6">FirmiCore built-in triage flow templates</p>
+      <p className="text-gray-500 text-sm mb-6">{t('triage.templates_subtitle')}</p>
 
       {loading ? (
         <p className="text-gray-400 text-sm">{t('triage.loading')}</p>
@@ -22,7 +22,7 @@ export default function TriageBuilderTemplatesPage() {
         <p className="text-red-500 text-sm">{error}</p>
       ) : templates.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
-          <p className="text-gray-500">No templates available.</p>
+          <p className="text-gray-500">{t('triage.no_templates_available')}</p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

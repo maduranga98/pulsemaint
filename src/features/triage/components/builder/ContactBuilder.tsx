@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { addContact } from '../../api';
 import { useAuthStore } from '../../../../store/authStore';
 import { ContactList } from '../ContactList';
@@ -20,6 +21,7 @@ const EMPTY: ContactForm = {
 };
 
 export function ContactBuilder() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
@@ -57,62 +59,62 @@ export function ContactBuilder() {
         style={{ background: '#111d2e', border: '1px solid #1a2840' }}
       >
         <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
-          Add Contact
+          {t('common.triage.knowledge.builder.contactBuilder.addContactHeading')}
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-              Name *
+              {t('common.triage.knowledge.builder.contactBuilder.fields.name')}
             </label>
             <input
               value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
               className={input}
               style={inputStyle}
-              placeholder="Full name"
+              placeholder={t('common.triage.knowledge.builder.contactBuilder.placeholders.name')}
               required
             />
           </div>
           <div>
             <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-              Role
+              {t('common.triage.knowledge.builder.contactBuilder.fields.role')}
             </label>
             <input
               value={form.role}
               onChange={(e) => setForm((f) => ({ ...f, role: e.target.value }))}
               className={input}
               style={inputStyle}
-              placeholder="e.g. Maintenance Supervisor"
+              placeholder={t('common.triage.knowledge.builder.contactBuilder.placeholders.role')}
             />
           </div>
           <div>
             <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-              Department
+              {t('common.triage.knowledge.builder.contactBuilder.fields.dept')}
             </label>
             <input
               value={form.dept}
               onChange={(e) => setForm((f) => ({ ...f, dept: e.target.value }))}
               className={input}
               style={inputStyle}
-              placeholder="e.g. Engineering"
+              placeholder={t('common.triage.knowledge.builder.contactBuilder.placeholders.dept')}
             />
           </div>
           <div>
             <label className="text-xs block mb-1" style={{ color: '#6b7fa3' }}>
-              Phone / Extension *
+              {t('common.triage.knowledge.builder.contactBuilder.fields.phone')}
             </label>
             <input
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
               className={input}
               style={inputStyle}
-              placeholder="e.g. ext. 555 or +1 555-0100"
+              placeholder={t('common.triage.knowledge.builder.contactBuilder.placeholders.phone')}
               required
             />
           </div>
           <div>
             <label className="text-xs block mb-2" style={{ color: '#6b7fa3' }}>
-              Priority
+              {t('common.triage.knowledge.builder.contactBuilder.fields.priority')}
             </label>
             <div className="grid grid-cols-2 gap-2">
               {(['normal', 'emergency'] as const).map((lvl) => (
@@ -135,7 +137,7 @@ export function ContactBuilder() {
                     }`,
                   }}
                 >
-                  {lvl === 'emergency' ? '🚨' : '👤'} {lvl}
+                  {lvl === 'emergency' ? '🚨' : '👤'} {t(`common.triage.knowledge.builder.contactBuilder.levels.${lvl}`)}
                 </button>
               ))}
             </div>
@@ -146,7 +148,9 @@ export function ContactBuilder() {
             className="w-full py-2 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50"
             style={{ background: '#1d4ed8', color: 'white' }}
           >
-            {saving ? 'Saving...' : '+ Add Contact'}
+            {saving
+              ? t('common.triage.knowledge.builder.contactBuilder.saving')
+              : t('common.triage.knowledge.builder.contactBuilder.addContact')}
           </button>
         </form>
       </div>
@@ -157,7 +161,7 @@ export function ContactBuilder() {
         style={{ background: '#0e1628', border: '1px solid #1a2840' }}
       >
         <div className="text-sm font-semibold mb-4" style={{ color: '#e2e8f0' }}>
-          Current Contacts
+          {t('common.triage.knowledge.builder.contactBuilder.currentContactsHeading')}
         </div>
         <ContactList showDelete={canDelete} />
       </div>

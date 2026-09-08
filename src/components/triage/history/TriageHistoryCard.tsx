@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { TriageSession } from '../../../types/triage';
 import TriageSessionStatusBadge from '../shared/TriageSessionStatusBadge';
 import TriageOutcomeCard from '../shared/TriageOutcomeCard';
@@ -14,6 +15,7 @@ function formatDuration(seconds: number) {
 }
 
 export default function TriageHistoryCard({ session }: Props) {
+  const { t } = useTranslation();
   const startedAt = new Date(session.startedAt.seconds * 1000);
 
   return (
@@ -32,12 +34,12 @@ export default function TriageHistoryCard({ session }: Props) {
       </div>
 
       <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-500">
-        <span>Supervisor: {session.supervisorName}</span>
+        <span>{t('triage.supervisor_prefix', { name: session.supervisorName })}</span>
         <span>·</span>
-        <span>Flow: {session.flowName}</span>
+        <span>{t('triage.flow_prefix', { name: session.flowName })}</span>
         <span>·</span>
         <span>{formatDuration(session.totalDuration)}</span>
-        {session.isDemo && <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Demo</span>}
+        {session.isDemo && <span className="bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">{t('triage.demo_badge')}</span>}
       </div>
 
       {session.outcomeType && (

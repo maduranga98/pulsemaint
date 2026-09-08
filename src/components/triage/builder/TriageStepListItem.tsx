@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { TriageStep } from '../../../types/triage';
@@ -24,6 +25,7 @@ export default function TriageStepListItem({
   onMoveDown,
   isMobile = false,
 }: Props) {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: step.id,
   });
@@ -66,7 +68,7 @@ export default function TriageStepListItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-400 shrink-0">#{step.stepNumber}</span>
-          <span className="text-sm font-medium text-gray-800 truncate">{step.title || 'Untitled step'}</span>
+          <span className="text-sm font-medium text-gray-800 truncate">{step.title || t('triage.untitled_step')}</span>
         </div>
         <div className="flex items-center gap-2 mt-0.5">
           <TriageStepTypeBadge type={step.type} />
@@ -77,7 +79,7 @@ export default function TriageStepListItem({
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
         className="text-red-400 hover:text-red-600 text-lg leading-none shrink-0"
-        aria-label="Delete step"
+        aria-label={t('triage.delete_step')}
       >
         ×
       </button>

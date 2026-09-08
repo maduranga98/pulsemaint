@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, ClipboardCheck, FileEdit, RotateCcw } from 'lucide-react';
 import { db } from '../../../lib/firebase';
 import { COL } from '../api';
@@ -8,6 +9,7 @@ import type { TriageAssessment, TriageAssessmentResult } from '../types';
 import { QuizModal } from './QuizModal';
 
 export function AssessmentList() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
@@ -79,9 +81,24 @@ export function AssessmentList() {
   }
 
   const STATUS_META = {
-    certified: { label: 'Certified', icon: CheckCircle2, color: '#22c55e', btn: 'Review' },
-    retry: { label: 'Retry', icon: RotateCcw, color: '#f97316', btn: 'Retry Quiz' },
-    start: { label: 'Start', icon: FileEdit, color: '#3b82f6', btn: 'Take Quiz' },
+    certified: {
+      label: t('common.triage.knowledge.assessmentList.status.certified'),
+      icon: CheckCircle2,
+      color: '#22c55e',
+      btn: t('common.triage.knowledge.assessmentList.button.certified'),
+    },
+    retry: {
+      label: t('common.triage.knowledge.assessmentList.status.retry'),
+      icon: RotateCcw,
+      color: '#f97316',
+      btn: t('common.triage.knowledge.assessmentList.button.retry'),
+    },
+    start: {
+      label: t('common.triage.knowledge.assessmentList.status.start'),
+      icon: FileEdit,
+      color: '#3b82f6',
+      btn: t('common.triage.knowledge.assessmentList.button.start'),
+    },
   };
 
   return (
@@ -99,10 +116,10 @@ export function AssessmentList() {
         </div>
         <div>
           <h2 className="text-lg font-semibold" style={{ color: '#e2e8f0' }}>
-            Quick Assessments
+            {t('common.triage.knowledge.assessmentList.heading')}
           </h2>
           <p className="text-sm mt-0.5" style={{ color: '#6b7fa3' }}>
-            Test your knowledge and earn certifications
+            {t('common.triage.knowledge.assessmentList.subtitle')}
           </p>
         </div>
       </div>
@@ -113,7 +130,7 @@ export function AssessmentList() {
           style={{ background: '#111d2e', border: '1px solid #1a2840' }}
         >
           <div className="text-sm" style={{ color: '#3d5070' }}>
-            No assessments available yet.
+            {t('common.triage.knowledge.assessmentList.empty')}
           </div>
         </div>
       )}
@@ -138,8 +155,8 @@ export function AssessmentList() {
                   {a.title}
                 </div>
                 <div className="text-xs mt-0.5" style={{ color: '#6b7fa3' }}>
-                  {a.cat} · Pass mark: {a.passMark}%
-                  {lastPct !== null && ` · Last score: ${lastPct}%`}
+                  {a.cat} · {t('common.triage.knowledge.assessmentList.passMark', { value: a.passMark })}
+                  {lastPct !== null && ` · ${t('common.triage.knowledge.assessmentList.lastScore', { value: lastPct })}`}
                 </div>
               </div>
               <div className="flex items-center gap-3 shrink-0">

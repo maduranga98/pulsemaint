@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { TriageStepOption } from '../../../types/triage';
 import { nanoid } from 'nanoid';
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function TriageOptionEditor({ options, allStepIds, onChange }: Props) {
+  const { t } = useTranslation();
   const addOption = () => {
     onChange([
       ...options,
@@ -33,7 +35,7 @@ export default function TriageOptionEditor({ options, allStepIds, onChange }: Pr
                 type="text"
                 value={opt.label}
                 onChange={(e) => updateOption(i, { label: e.target.value })}
-                placeholder="Option label"
+                placeholder={t('triage.option_label_placeholder')}
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A56DB]"
               />
               <button
@@ -51,7 +53,7 @@ export default function TriageOptionEditor({ options, allStepIds, onChange }: Pr
                   onChange={(e) => updateOption(i, { isEscalate: e.target.checked })}
                   className="accent-red-500"
                 />
-                Escalate
+                {t('triage.escalate')}
               </label>
               <label className="flex items-center gap-1 text-xs cursor-pointer">
                 <input
@@ -60,14 +62,14 @@ export default function TriageOptionEditor({ options, allStepIds, onChange }: Pr
                   onChange={(e) => updateOption(i, { isSafe: e.target.checked })}
                   className="accent-green-500"
                 />
-                Safe
+                {t('triage.safe')}
               </label>
               <select
                 value={opt.nextStepId ?? ''}
                 onChange={(e) => updateOption(i, { nextStepId: e.target.value || null })}
                 className="border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none"
               >
-                <option value="">Next step</option>
+                <option value="">{t('triage.next_step_select')}</option>
                 {allStepIds.map((id) => (
                   <option key={id} value={id}>{id.slice(0, 8)}</option>
                 ))}
@@ -80,7 +82,7 @@ export default function TriageOptionEditor({ options, allStepIds, onChange }: Pr
         onClick={addOption}
         className="mt-2 text-sm text-[#1A56DB] hover:underline"
       >
-        + Add option
+        {t('triage.add_option')}
       </button>
     </div>
   );

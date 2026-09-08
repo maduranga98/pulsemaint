@@ -3574,6 +3574,387 @@
         },
         "submit": "保存模块"
       }
+    },
+    "triage": {
+      "knowledge": {
+        "page": {
+          "title": "分诊",
+          "subtitle": "程序、指南、联系人和快速评估",
+          "create": "创建",
+          "selectCategoryPrompt": "请在左侧面板选择一个类别"
+        },
+        "categoryRail": {
+          "categoriesHeading": "类别",
+          "noCategories": "暂无类别",
+          "contacts": "负责人",
+          "assessments": "快速评估"
+        },
+        "contactList": {
+          "heading": "负责人",
+          "subtitle": "紧急联系人和关键人员",
+          "empty": "尚未添加联系人。",
+          "deleteTitle": "删除联系人",
+          "levels": {
+            "normal": "普通",
+            "emergency": "紧急"
+          }
+        },
+        "contentList": {
+          "back": "返回",
+          "empty": "此类别暂无内容。",
+          "deleteTitle": "删除项目",
+          "openFullSize": "打开原始大小 ↗",
+          "types": {
+            "procedure": "程序",
+            "guide": "指南",
+            "video": "视频",
+            "pdf": "PDF",
+            "image": "图片",
+            "media": "媒体"
+          }
+        },
+        "assessmentList": {
+          "heading": "快速评估",
+          "subtitle": "测试您的知识并获得认证",
+          "empty": "暂无可用评估。",
+          "passMark": "及格分数：{{value}}%",
+          "lastScore": "最近得分：{{value}}%",
+          "status": {
+            "certified": "已认证",
+            "retry": "重试",
+            "start": "开始"
+          },
+          "button": {
+            "certified": "查看",
+            "retry": "重新测验",
+            "start": "参加测验"
+          }
+        },
+        "quizModal": {
+          "passMark": "及格分数：{{value}}%",
+          "close": "关闭",
+          "progress": "{{current}} / {{total}}",
+          "correct": "✓ 正确！",
+          "incorrect": "✗ 错误",
+          "next": "下一题 →",
+          "finish": "完成",
+          "resultSummary": "{{score}} / {{total}} 正确 · 及格分数 {{passMark}}%",
+          "passedTitle": "评估通过！",
+          "passedDetail": "您已通过 {{title}}",
+          "failedTitle": "未通过",
+          "failedDetail": "请复习内容后重试",
+          "savingResult": "正在保存结果..."
+        },
+        "builder": {
+          "accessRestricted": {
+            "title": "访问受限",
+            "message": "分诊构建器仅供主管、厂长、人力资源专员、安全专员和管理员使用。"
+          },
+          "back": "返回分诊",
+          "title": "分诊构建器",
+          "subtitle": "创建和管理分诊内容、联系人和评估",
+          "tabs": {
+            "content": "内容和类别",
+            "contacts": "联系人",
+            "assessments": "评估"
+          },
+          "contactBuilder": {
+            "addContactHeading": "添加联系人",
+            "currentContactsHeading": "当前联系人",
+            "fields": {
+              "name": "姓名 *",
+              "role": "职位",
+              "dept": "部门",
+              "phone": "电话 / 分机 *",
+              "priority": "优先级"
+            },
+            "placeholders": {
+              "name": "全名",
+              "role": "例如：维修主管",
+              "dept": "例如：工程部",
+              "phone": "例如：分机555或+1 555-0100"
+            },
+            "levels": {
+              "normal": "普通",
+              "emergency": "紧急"
+            },
+            "saving": "保存中...",
+            "addContact": "+ 添加联系人"
+          },
+          "assessmentBuilder": {
+            "newAssessmentHeading": "新建评估",
+            "fields": {
+              "title": "标题 *",
+              "category": "类别 *",
+              "passMark": "及格分数（%）"
+            },
+            "placeholders": {
+              "title": "例如：安全锁定程序测验",
+              "selectCategory": "选择…"
+            },
+            "questionLabel": "问题 {{number}}",
+            "removeQuestion": "移除",
+            "questionPlaceholder": "问题内容…",
+            "optionPlaceholder": "选项 {{letter}}",
+            "correctAnswerTitle": "标记为正确答案",
+            "addQuestion": "+ 添加问题",
+            "saving": "保存中...",
+            "saveAssessment": "💾 保存评估",
+            "existingHeading": "现有评估（{{count}}）",
+            "empty": "尚未创建评估。",
+            "summary": "{{category}} · {{count}} 个问题 · 及格 {{passMark}}%",
+            "deleteTitle": "删除评估",
+            "status": {
+              "open": "开放",
+              "archived": "已归档"
+            }
+          },
+          "contentBuilder": {
+            "addContentItemHeading": "添加内容项目",
+            "fields": {
+              "category": "类别 *",
+              "type": "类型 *",
+              "title": "标题 *",
+              "meta": "元信息 / 副标题",
+              "introduction": "简介",
+              "steps": "步骤（每行一个，格式：标题 | 描述）",
+              "warningNote": "警告说明（可选）",
+              "bodyBullets": "正文要点（每行一个）",
+              "videoUrl": "YouTube 网址或视频 ID",
+              "uploadPdf": "上传 PDF 或粘贴网址",
+              "uploadImage": "上传图片",
+              "uploadFile": "上传文件（视频、文档等）"
+            },
+            "placeholders": {
+              "selectCategory": "选择类别…",
+              "createNewCategory": "+ 创建新类别…",
+              "title": "例如：紧急停机程序",
+              "meta": "例如：程序 · 6个步骤 · 关键",
+              "introduction": "简要说明段落",
+              "steps": "隔离电源 | 关闭总断路器\n检查危险 | 查看是否有泄漏或火花",
+              "warningNote": "例如：未经主管批准不得重新启动",
+              "bodyBullets": "每天检查油位\n每500小时更换滤芯",
+              "videoUrl": "https://youtube.com/watch?v=... 或 dQw4w9WgXcQ",
+              "orPasteUrl": "或粘贴公开的PDF网址",
+              "orPasteFileUrl": "或粘贴公开的文件网址"
+            },
+            "types": {
+              "procedure": "程序",
+              "guide": "指南",
+              "video": "视频",
+              "pdf": "PDF",
+              "image": "图片",
+              "media": "媒体"
+            },
+            "newCategory": {
+              "iconLabel": "图标",
+              "titleLabel": "标题 *",
+              "titlePlaceholder": "例如：安全与紧急情况",
+              "descriptionLabel": "描述",
+              "descriptionPlaceholder": "简短描述",
+              "colourLabel": "颜色",
+              "creating": "创建中…",
+              "createCategory": "创建类别",
+              "suggestions": {
+                "safetyEmergency": "安全与紧急情况",
+                "electrical": "电气",
+                "mechanical": "机械",
+                "hydraulics": "液压",
+                "lubrication": "润滑",
+                "startupShutdown": "启动与停机",
+                "troubleshooting": "故障排除",
+                "preventiveMaintenance": "预防性维护"
+              }
+            },
+            "saving": "保存中...",
+            "addContentItem": "+ 添加内容项目",
+            "manageCategories": "管理类别（{{count}}）",
+            "columns": {
+              "icon": "图标",
+              "title": "标题",
+              "color": "颜色",
+              "pinned": "已置顶",
+              "actions": "操作"
+            },
+            "pinnedYes": "是",
+            "deleteCategoryTitle": "删除类别",
+            "livePreviewHeading": "实时预览",
+            "addCategoryToPreview": "添加一个类别以查看预览"
+          }
+        }
+      }
+    }
+  },
+  "triage": {
+    "next_step": "下一步",
+    "confirm": "已确认 — 下一步",
+    "skip_step": "跳过此步骤",
+    "yes": "是",
+    "no": "否",
+    "capture_photo": "拍照",
+    "add_photo": "添加照片",
+    "retake": "重拍",
+    "use_photo": "使用照片",
+    "add_note": "添加备注",
+    "emergency_escalate": "紧急上报",
+    "issue_resolved": "操作员已解决问题",
+    "step_of": "第 {{current}} 步，共 {{total}} 步",
+    "phase": {
+      "safety": "安全检查",
+      "assessment": "评估",
+      "safe_action": "安全操作",
+      "document": "记录状态",
+      "wait": "等待说明"
+    },
+    "abandon_confirm": "放弃排查？进度将被保存。",
+    "complete": "排查完成",
+    "safety_banner": {
+      "danger": "⚠ 危险 — 请先阅读后再继续",
+      "caution": "⚠ 注意 — 请谨慎操作",
+      "safe": "✓ 安全 — 可继续此步骤"
+    },
+    "working_offline": "⚡ 离线工作中 — 联网后数据将自动同步",
+    "emergency_overlay_title": "🚨 紧急上报",
+    "quick_fix_title": "✓ 操作员已解决问题！",
+    "quick_fix_desc": "做得好。此机器问题已在无需维修团队的情况下解决。",
+    "outcome": {
+      "resolved_by_operator": "操作员安全 — 问题已解决（快速处理）",
+      "repair_team_required": "操作员安全 — 需要维修团队",
+      "machine_shutdown": "机器已安全停机 — 需要维修团队",
+      "emergency_escalated": "已上报紧急情况",
+      "abandoned": "排查已放弃"
+    },
+    "outcome_label": "结果",
+    "notes_label": "备注",
+    "duration_label": "持续时间",
+    "machine_label": "机器",
+    "supervisor_label": "主管",
+    "flow_label": "使用的流程",
+    "session_photos": "会话照片",
+    "view_report": "查看排查报告",
+    "back_to_ticket": "返回故障工单",
+    "back_to_history": "返回历史记录",
+    "loading": "加载中...",
+    "no_flows": "未找到排查流程。",
+    "create_flow": "创建流程",
+    "browse_templates": "浏览模板",
+    "custom_flows": "自定义流程",
+    "templates": "模板",
+    "run_demo": "运行演示",
+    "edit": "编辑",
+    "duplicate": "复制",
+    "view_sessions": "查看会话",
+    "delete": "删除",
+    "save": "保存",
+    "cancel": "取消",
+    "add_step": "添加步骤",
+    "step": "步骤",
+    "flow_name": "流程名称",
+    "description": "描述",
+    "machine_type": "机器类型",
+    "specific_machine": "指定机器",
+    "language": "语言",
+    "emergency_contacts": "紧急联系人",
+    "shutdown_procedure": "机器停机程序",
+    "active": "启用",
+    "inactive": "停用",
+    "use_template": "使用模板",
+    "preview": "预览",
+    "date_range": "日期范围",
+    "all_outcomes": "所有结果",
+    "all_statuses": "所有状态",
+    "filter": "筛选",
+    "timeline": "会话时间线",
+    "download_pdf": "下载 PDF",
+    "no_sessions": "未找到会话。",
+    "call_contact": "呼叫",
+    "notify_manager": "通知厂长",
+    "mark_shutdown": "标记机器为已停机",
+    "machine_status": "机器状态",
+    "what_did_operator_do": "操作员做了什么来解决问题？",
+    "submit": "提交",
+    "confirm_abandon": "确认放弃",
+    "keep_going": "继续",
+    "photo_required_hint": "至少需要一张照片才能继续。",
+    "out_of_range": "数值超出正常范围！",
+    "normal_range": "正常范围：{{min}} – {{max}} {{unit}}",
+    "char_count": "{{count}} / {{max}} 字符",
+    "add_another_photo": "添加另一张照片",
+    "reference_media": "参考资料",
+    "step_notes": "步骤备注",
+    "escalation_warning": "⚠ 此步骤可能需要上报。",
+    "required": "必填",
+    "optional": "可选",
+    "translate_tab": "翻译",
+    "settings_tab": "设置",
+    "steps_tab": "步骤",
+    "preview_tab": "预览",
+    "checklist_item_placeholder": "检查项",
+    "add_item": "+ 添加项目",
+    "option_label_placeholder": "选项标签",
+    "escalate": "上报",
+    "safe": "安全",
+    "next_step_select": "下一步",
+    "add_option": "+ 添加选项",
+    "options_label": "选项",
+    "checklist_items_label": "检查项列表",
+    "field_label": "字段标签",
+    "unit_label": "单位",
+    "min_label": "最小值",
+    "max_label": "最大值",
+    "placeholder_label": "占位符",
+    "max_characters_label": "最大字符数",
+    "translation_title_label": "标题",
+    "translation_instruction_label": "说明",
+    "select_step_to_preview": "选择一个步骤进行预览",
+    "untitled_step": "未命名步骤",
+    "delete_step": "删除步骤",
+    "supervisor_prefix": "主管：{{name}}",
+    "flow_prefix": "流程：{{name}}",
+    "demo_badge": "演示",
+    "response_label": "回答：{{value}}",
+    "skipped_label": "已跳过：{{reason}}",
+    "close": "关闭",
+    "photo_alt": "照片 {{index}}",
+    "session_status": {
+      "in_progress": "进行中",
+      "completed": "已完成",
+      "escalated": "已上报",
+      "quick_fix": "快速处理",
+      "abandoned": "已放弃"
+    },
+    "flow_settings_title": "流程设置",
+    "add_contact": "+ 添加",
+    "contact_name_placeholder": "姓名",
+    "contact_role_placeholder": "职位",
+    "contact_phone_placeholder": "电话",
+    "back": "返回",
+    "triage_history_title": "排查历史",
+    "supervisor_label_short": "主管",
+    "flow_label_short": "流程",
+    "duration_label_short": "持续时间",
+    "steps_completed": "已完成步骤",
+    "edit_step_title": "编辑步骤 #{{number}}",
+    "title_field": "标题 *",
+    "phase_field": "阶段",
+    "type_field": "类型",
+    "safety_field": "安全性",
+    "select_step_to_edit": "选择一个步骤进行编辑",
+    "preview_label": "预览",
+    "triage_flows_title": "排查流程",
+    "triage_flows_subtitle": "管理操作员排查指导流程",
+    "templates_subtitle": "FirmiCore 内置排查流程模板",
+    "no_templates_available": "暂无可用模板。",
+    "session_not_found": "未找到会话",
+    "not_found": "未找到",
+    "step_type": {
+      "statement": "陈述",
+      "yes_no": "是 / 否",
+      "multiple_choice": "多项选择",
+      "photo_required": "需要照片",
+      "number_input": "数字输入",
+      "text_input": "文本输入",
+      "checklist": "检查清单"
     }
   }
 }

@@ -22,11 +22,11 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
   return (
     <div className="flex flex-col gap-4 p-4 overflow-y-auto h-full">
       <h3 className="font-semibold text-[#0A1628] text-lg">
-        Edit Step #{step.stepNumber}
+        {t('triage.edit_step_title', { number: step.stepNumber })}
       </h3>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold text-gray-600">Title *</label>
+        <label className="text-xs font-semibold text-gray-600">{t('triage.title_field')}</label>
         <input
           type="text"
           value={step.title}
@@ -36,7 +36,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold text-gray-600">Instruction</label>
+        <label className="text-xs font-semibold text-gray-600">{t('triage.translation_instruction_label')}</label>
         <textarea
           value={step.instruction}
           onChange={(e) => onChange({ instruction: e.target.value })}
@@ -47,7 +47,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
 
       <div className="grid grid-cols-3 gap-2">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-600">Phase</label>
+          <label className="text-xs font-semibold text-gray-600">{t('triage.phase_field')}</label>
           <select
             value={step.phase}
             onChange={(e) => onChange({ phase: e.target.value as TriageStepPhase })}
@@ -57,7 +57,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-600">Type</label>
+          <label className="text-xs font-semibold text-gray-600">{t('triage.type_field')}</label>
           <select
             value={step.type}
             onChange={(e) => onChange({ type: e.target.value as TriageStepType })}
@@ -67,7 +67,7 @@ export default function TriageStepEditor({ step, allStepIds, onChange, onSave }:
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-600">Safety</label>
+          <label className="text-xs font-semibold text-gray-600">{t('triage.safety_field')}</label>
           <select
             value={step.safetyLevel}
             onChange={(e) => onChange({ safetyLevel: e.target.value as TriageSafetyLevel })}
