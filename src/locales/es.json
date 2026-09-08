@@ -2449,6 +2449,160 @@
           "reportedToOversight": "reportó un caso de seguridad a {{name}}: {{title}}"
         }
       }
+    },
+    "safetyTrainings": {
+      "pageTitle": "Capacitaciones de Seguridad",
+      "viewSchedules": "Ver Horarios de Capacitación",
+      "createModule": "Crear Módulo de Capacitación de Seguridad",
+      "stats": {
+        "modules": "Módulos de seguridad",
+        "assignments": "Asignaciones",
+        "peopleAssigned": "Personas asignadas"
+      },
+      "list": {
+        "empty": "Aún no hay capacitaciones de seguridad. Use \"Crear Módulo de Capacitación de Seguridad\" arriba y luego asígnelo.",
+        "assigned_one": "{{count}} asignado",
+        "assigned_other": "{{count}} asignados",
+        "notAssigned": "Aún no asignado a nadie.",
+        "assign": "Asignar",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "defaultTitle": "Capacitación de Seguridad",
+        "completed": "Completado {{date}}"
+      },
+      "table": {
+        "attendee": "Asistente",
+        "assignedBy": "Asignado por",
+        "assignedAt": "Asignado el",
+        "completionStatus": "Estado de finalización"
+      },
+      "deleteConfirm": "¿Eliminar \"{{title}}\"? Esto no se puede deshacer.",
+      "toasts": {
+        "deleted": "Módulo de capacitación de seguridad eliminado.",
+        "deleteFailed": "No se pudo eliminar el módulo. Intente de nuevo.",
+        "saveFailed": "No se pudo guardar el módulo. Intente de nuevo.",
+        "saved": "Módulo de capacitación de seguridad guardado. Ahora puede agregar un cuestionario o asignarlo."
+      },
+      "createPage": {
+        "backAria": "Volver a Capacitaciones de Seguridad",
+        "title": "Crear Módulo de Capacitación de Seguridad",
+        "untitled": "Capacitación de Seguridad sin Título"
+      }
+    },
+    "trainingShared": {
+      "statusBadge": {
+        "ariaLabel": "Estado: {{label}}",
+        "statuses": {
+          "not_started": "No Iniciado",
+          "in_progress": "En Progreso",
+          "quiz_passed": "Cuestionario Aprobado",
+          "quiz_failed": "Fallido — Reintentar",
+          "awaiting_practical": "Esperando Firma",
+          "certified": "Certificado ✓",
+          "expired": "Vencido",
+          "retraining_required": "Recapacitación Requerida"
+        }
+      },
+      "assignForm": {
+        "title": "Asignar Módulo",
+        "closeAria": "Cerrar",
+        "modes": {
+          "users": "Usuarios",
+          "roles": "Roles",
+          "departments": "Departamentos"
+        },
+        "searchPlaceholder": "Buscar usuarios…",
+        "invitePending": "Invitación pendiente",
+        "noDepartments": "Aún no se han configurado departamentos.",
+        "willBeAssigned_one": "Se asignará a {{count}} persona",
+        "willBeAssigned_other": "Se asignará a {{count}} personas",
+        "dueDate": "Fecha Límite",
+        "optional": "(opcional)",
+        "notifyAssignees": "Notificar a los asignados",
+        "cancel": "Cancelar",
+        "assign": "Asignar",
+        "result": {
+          "assignedTo_one": "Asignado a {{count}} persona.",
+          "assignedTo_other": "Asignado a {{count}} personas.",
+          "skipped": " {{count}} ya tenían una asignación activa para este módulo y se omitieron.",
+          "done": "Listo"
+        },
+        "roleLabels": {
+          "admin": "Administrador",
+          "plant_manager": "Gerente de Planta",
+          "supervisor": "Supervisor",
+          "technician": "Técnico",
+          "store_keeper": "Encargado de Almacén",
+          "hr_officer": "Oficial de RR. HH.",
+          "trainee": "Aprendiz",
+          "floor_operator": "Operador de Planta",
+          "safety_officer": "Oficial de Seguridad"
+        },
+        "errors": {
+          "failed": "No se pudo asignar la capacitación."
+        },
+        "notification": {
+          "message": "Se le ha asignado un nuevo módulo de capacitación: {{title}}",
+          "oversightMessage": "asignó \"{{title}}\" a {{name}}"
+        }
+      },
+      "editorLayout": {
+        "tabs": {
+          "settings": "Configuración",
+          "lessons_one": "Lecciones ({{count}})",
+          "lessons_other": "Lecciones ({{count}})",
+          "lessonsNoCount": "Lecciones"
+        },
+        "newModule": "Nuevo Módulo",
+        "lessonsSection": {
+          "title": "Lecciones",
+          "count_one": "{{count}} lección",
+          "count_other": "{{count}} lecciones"
+        },
+        "quiz": {
+          "title": "Cuestionario",
+          "untitled": "Cuestionario sin Título",
+          "questions_one": "{{count}} pregunta",
+          "questions_other": "{{count}} preguntas",
+          "passLabel": "Aprobar {{score}}%",
+          "editQuiz": "Editar Cuestionario",
+          "noQuiz": "Aún no hay cuestionario",
+          "noQuizHint": "Agregue un cuestionario para evaluar la comprensión del aprendiz.",
+          "addQuiz": "Agregar Cuestionario"
+        }
+      },
+      "settingsForm": {
+        "sectionTitle": "Información del Módulo",
+        "fields": {
+          "title": "Título del Módulo",
+          "titlePlaceholder": "ej. Capacitación de Seguridad de Máquina CNC",
+          "description": "Descripción",
+          "descriptionPlaceholder": "Describa brevemente lo que cubre este módulo…",
+          "trainingType": "Tipo de Capacitación",
+          "trainingTypePlaceholder": "ej. Certificación de Montacargas",
+          "chooseFromList": "Elegir de la lista",
+          "selectTrainingType": "Seleccione el tipo de capacitación…",
+          "addNewType": "+ Agregar nuevo tipo…",
+          "mode": "Modo",
+          "selectMode": "Seleccione el modo…",
+          "passingScore": "Puntuación de Aprobación",
+          "status": "Estado",
+          "tags": "Etiquetas",
+          "tagsPlaceholder": "seguridad, cnc, nivel-1 (separadas por comas)",
+          "tagsHint": "Separe las etiquetas con comas"
+        },
+        "statuses": {
+          "draft": "Borrador",
+          "active": "Activo",
+          "archived": "Archivado"
+        },
+        "errors": {
+          "titleRequired": "El título es obligatorio",
+          "trainingTypeRequired": "El tipo de capacitación es obligatorio",
+          "modeRequired": "El modo es obligatorio"
+        },
+        "submit": "Guardar Módulo"
+      }
     }
   }
 }
