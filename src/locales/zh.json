@@ -177,6 +177,18 @@
           "in_stock": "有库存",
           "low_stock": "库存偏低",
           "out_of_stock": "无库存"
+        },
+        "movementType": {
+          "adjustment": "调整",
+          "import_create": "导入（新建）",
+          "import_update": "导入（更新）",
+          "issue": "领用",
+          "receive": "入库",
+          "reserve": "预留",
+          "return": "退回",
+          "transfer_in": "调入",
+          "transfer_out": "调出",
+          "unreserve": "取消预留"
         }
       },
       "partForm": {
@@ -299,7 +311,102 @@
           "noCadFiles": "没有已附加的 CAD 文件。",
           "noImages": "没有已附加的图片。"
         },
-        "analyticsPlaceholder": "使用情况分析将显示在此处。"
+        "analyticsPlaceholder": "使用情况分析将显示在此处。",
+        "activeRequests": {
+          "awaitingStoreKeeper": "等待仓库管理员",
+          "awaitingSupervisor": "等待主管",
+          "empty": "此备件没有等待审批的有效申请。",
+          "loading": "正在加载有效申请…",
+          "partsRequestsAwaiting": "等待审批的备件申请",
+          "pendingApproval": "待审批",
+          "purchaseOrdersAwaiting": "等待审批的采购单",
+          "qty": "数量 {{quantity}}",
+          "requestedBy": "申请人：{{name}}"
+        },
+        "header": {
+          "adjustStock": "调整库存",
+          "available": "可用",
+          "current": "当前",
+          "editPart": "编辑备件",
+          "inStock": "有库存 — 可用 {{available}} {{unit}}",
+          "lowStock": "库存偏低 — 剩余 {{available}} {{unit}}（最低：{{min}}）",
+          "minStockLevel": "最低库存水平",
+          "outOfStock": "无库存 — 可用 0 {{unit}}",
+          "raisePO": "生成采购单",
+          "receiveStock": "接收库存",
+          "viewQr": "查看二维码"
+        },
+        "history": {
+          "adjustments": "调整",
+          "allTypes": "所有类型",
+          "by": "操作人：",
+          "fromPlaceholder": "起始",
+          "loading": "正在加载库存变动…",
+          "movementTypes": {
+            "adjustment": "调整",
+            "issue": "领用",
+            "receive": "入库",
+            "reserve": "预留",
+            "return": "退回",
+            "transfer_in": "调入",
+            "transfer_out": "调出",
+            "unreserve": "取消预留"
+          },
+          "netChange": "净变化",
+          "noMovements": "未找到库存变动记录。",
+          "ref": "参考：",
+          "toPlaceholder": "截止",
+          "totalIssued": "累计领用",
+          "totalReceived": "累计入库",
+          "wo": "工单："
+        },
+        "overview": {
+          "address": "地址",
+          "available": "可用",
+          "bankDetails": "银行信息",
+          "brand": "品牌",
+          "compatibleMachines": "兼容设备",
+          "contactPerson": "联系人",
+          "costSummary": "成本摘要",
+          "country": "国家",
+          "created": "创建时间",
+          "current": "当前",
+          "email": "电子邮箱",
+          "lastIssued": "上次领用",
+          "lastPurchase": "上次采购",
+          "lastPurchasePrice": "上次采购价格",
+          "lastReceived": "上次入库",
+          "leadTime": "交货周期",
+          "leadTimeDays_one": "{{count}} 天",
+          "leadTimeDays_other": "{{count}} 天",
+          "locationStorage": "位置与存储",
+          "modelRef": "型号参考",
+          "notes": "备注",
+          "partDetails": "备件详情",
+          "paymentMethod": "付款方式",
+          "phone": "电话",
+          "reserved": "已预留",
+          "stockLevels": "库存水平",
+          "storeLocation": "仓库位置",
+          "supplier": "供应商",
+          "supplierCode": "供应商代码",
+          "supplierInfo": "供应商信息",
+          "supplierPartCode": "供应商备件代码",
+          "totalCostAllTime": "总成本（历史累计）",
+          "totalStockValue": "库存总价值",
+          "totalUsedAllTime": "总使用量（历史累计）",
+          "unitCost": "单价",
+          "updated": "更新时间",
+          "warranty": "保修",
+          "warrantyMonths_one": "{{count}} 个月",
+          "warrantyMonths_other": "{{count}} 个月",
+          "website": "网站"
+        },
+        "qrModal": {
+          "download": "下载",
+          "print": "打印",
+          "title": "备件二维码"
+        }
       },
       "table": {
         "noPartsFound": "未找到备件。",
@@ -325,6 +432,169 @@
       "card": {
         "viewQrCode": "查看二维码",
         "noLocation": "无位置信息"
+      },
+      "import": {
+        "complete": {
+          "cancel": "取消",
+          "created": "已创建",
+          "rowsSkipped_one": "已跳过 {{count}} 行",
+          "rowsSkipped_other": "已跳过 {{count}} 行",
+          "skipped": "已跳过",
+          "summary": "已创建 {{newCount}} 个备件 · 已更新 {{updateCount}} 个备件",
+          "title": "导入完成！",
+          "undoImport": "撤销导入",
+          "undoModalBody": "这将撤销此次导入的所有更改。新建的备件将被删除，已更新的备件将被恢复。",
+          "undoModalTitle": "撤销导入？",
+          "undoWithinHours": "（24 小时内）",
+          "undoing": "正在撤销…",
+          "updated": "已更新",
+          "viewImportHistory": "查看导入历史",
+          "viewImportedParts": "查看已导入的备件",
+          "yesUndo": "是，撤销"
+        },
+        "errorTable": {
+          "columns": {
+            "column": "列",
+            "errorCode": "错误代码",
+            "fixHint": "修复提示",
+            "message": "消息",
+            "row": "行号"
+          },
+          "downloadReport": "下载报告",
+          "errorsFound_one": "发现 {{count}} 个验证错误",
+          "errorsFound_other": "发现 {{count}} 个验证错误"
+        },
+        "historyPage": {
+          "title": "导入历史"
+        },
+        "historyTable": {
+          "columns": {
+            "actions": "操作",
+            "created": "已创建",
+            "date": "日期",
+            "errors": "错误",
+            "file": "文件",
+            "importedBy": "导入人",
+            "rows": "行数",
+            "status": "状态",
+            "updated": "已更新"
+          },
+          "details": "详情",
+          "emptySubtitle": "首次导入后，导入历史将显示在此处。",
+          "emptyTitle": "未找到导入记录",
+          "undo": "撤销",
+          "undoModal": {
+            "body": "这将撤销此导入会话的所有更改。新建的备件将被删除，已更新的备件将恢复到之前的状态。",
+            "cancel": "取消",
+            "title": "撤销导入？",
+            "undoing": "正在撤销…",
+            "yesUndo": "是，撤销"
+          }
+        },
+        "page": {
+          "subtitle": "从电子表格导入或更新库存备件。",
+          "title": "Excel 和 CSV 导入"
+        },
+        "previewTable": {
+          "actionCreate": "新建",
+          "actionUpdate": "更新",
+          "autoGenerated": "自动生成",
+          "columns": {
+            "action": "操作",
+            "category": "类别",
+            "partName": "备件名称",
+            "partNumber": "备件编号",
+            "stock": "库存",
+            "unit": "单位",
+            "unitCost": "单价"
+          },
+          "newPartsWillBeCreated_one": "将创建 {{count}} 个新备件",
+          "newPartsWillBeCreated_other": "将创建 {{count}} 个新备件",
+          "partsWillBeUpdated_one": "将更新 {{count}} 个备件",
+          "partsWillBeUpdated_other": "将更新 {{count}} 个备件",
+          "showingRows": "显示前 {{shown}} 行，共 {{total}} 行。所有行均已验证。"
+        },
+        "progress": {
+          "doNotNavigateAway": "导入进行中时请勿离开此页面。",
+          "importingOfTotal": "正在导入第 {{current}} 个，共 {{total}} 个备件",
+          "importingParts": "正在导入备件…"
+        },
+        "stepIndicator": {
+          "complete": "完成",
+          "import": "导入",
+          "template": "模板",
+          "upload": "上传",
+          "validate": "验证"
+        },
+        "templateStep": {
+          "columns": "列数",
+          "downloadTemplate": "下载模板",
+          "howItWorks": "运作方式",
+          "maxFileSize": "最大文件大小",
+          "maxRows": "最大行数",
+          "nextUploadFile": "下一步：上传文件",
+          "pageSubtitle": "使用我们的模板批量导入或更新备件。",
+          "pageTitle": "从 Excel 或 CSV 导入库存",
+          "sheets": "工作表",
+          "templateDetails": "模板详情",
+          "tipsForSuccess": "成功导入的小贴士",
+          "steps": [
+            "下载下方模板并填写您的备件数据。",
+            "上传已填写完成的文件（最大 10 MB，.xlsx 或 .csv）。",
+            "我们会验证每一行 — 请在继续前修复所有错误。",
+            "查看导入预览，确认后应用更改。"
+          ],
+          "tips": [
+            "标有 * 的列为必填项 — 留空该行将无法通过验证。",
+            "备件编号为可选项 — 留空后系统会根据类别自动生成一个（例如 E-012-RAS-0001，由类别、供应商和位置组合而成）。",
+            "如果提供了系统中已存在的备件编号，该行将更新对应的备件。",
+            "任何不在您供应商列表中的供应商名称都会自动添加，并自动生成供应商代码。",
+            "日期必须为 YYYY-MM-DD 格式（例如 2025-01-15）。",
+            "请查看模板中的“有效单位”和“有效类别”工作表，了解允许的取值。"
+          ]
+        },
+        "toasts": {
+          "importFailed": "导入失败，请重试。",
+          "importReversed": "导入已撤销。",
+          "parseFailed": "文件解析失败，请检查格式后重试。",
+          "reverseFailed": "撤销导入失败。",
+          "reverseSuccess": "导入撤销成功。",
+          "undoFailed": "撤销导入失败。"
+        },
+        "uploadStep": {
+          "back": "返回",
+          "dragDrop": "将您的 .xlsx 或 .csv 文件拖放到此处",
+          "dropHere": "将文件拖放到此处",
+          "fileTooLarge": "文件超过 10 MB 限制（{{size}}），请减小文件大小。",
+          "invalidFileType": "仅接受 .xlsx 或 .csv 文件。",
+          "maxSizeHint": "最大 10 MB · .xlsx 或 .csv",
+          "orBrowse": "或点击浏览文件",
+          "pageSubtitle": "上传已填写完成的模板。.xlsx 或 .csv，最大 10 MB。",
+          "pageTitle": "上传您的文件",
+          "removeFile": "移除文件",
+          "uploadAndValidate": "上传并验证"
+        },
+        "validation": {
+          "allValid": "所有行均有效，可以导入。",
+          "confirmImport": "确认导入",
+          "create": "新建",
+          "errors": "错误",
+          "errorsMustBeFixed_one": "导入前必须修复 {{count}} 个错误。",
+          "errorsMustBeFixed_other": "导入前必须修复 {{count}} 个错误。",
+          "failed": "验证失败",
+          "passed": "验证通过",
+          "totalRows": "总行数",
+          "update": "更新",
+          "uploadDifferentFile": "上传其他文件",
+          "uploadNewFile": "上传新文件",
+          "valid": "有效"
+        }
+      },
+      "shared": {
+        "stockGauge": {
+          "max": "最大",
+          "min": "最小"
+        }
       }
     },
     "widgets": {

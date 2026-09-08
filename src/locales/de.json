@@ -177,6 +177,18 @@
           "in_stock": "Auf Lager",
           "low_stock": "Niedriger Bestand",
           "out_of_stock": "Nicht Vorrätig"
+        },
+        "movementType": {
+          "adjustment": "Anpassung",
+          "import_create": "Import (Neu)",
+          "import_update": "Import (Aktualisierung)",
+          "issue": "Ausgabe",
+          "receive": "Wareneingang",
+          "reserve": "Reservierung",
+          "return": "Rückgabe",
+          "transfer_in": "Transfer Eingang",
+          "transfer_out": "Transfer Ausgang",
+          "unreserve": "Reservierung Aufheben"
         }
       },
       "partForm": {
@@ -299,7 +311,102 @@
           "noCadFiles": "Keine CAD-Dateien angehängt.",
           "noImages": "Keine Bilder angehängt."
         },
-        "analyticsPlaceholder": "Nutzungsanalysen werden hier angezeigt."
+        "analyticsPlaceholder": "Nutzungsanalysen werden hier angezeigt.",
+        "activeRequests": {
+          "awaitingStoreKeeper": "Wartet auf Lagerverwalter",
+          "awaitingSupervisor": "Wartet auf Vorgesetzten",
+          "empty": "Keine aktiven Anfragen warten auf Genehmigung für dieses Teil.",
+          "loading": "Aktive Anfragen werden geladen…",
+          "partsRequestsAwaiting": "Teileanfragen Warten auf Genehmigung",
+          "pendingApproval": "Genehmigung Ausstehend",
+          "purchaseOrdersAwaiting": "Bestellungen Warten auf Genehmigung",
+          "qty": "Menge {{quantity}}",
+          "requestedBy": "Angefordert von {{name}}"
+        },
+        "header": {
+          "adjustStock": "Bestand Anpassen",
+          "available": "Verfügbar",
+          "current": "Aktuell",
+          "editPart": "Teil Bearbeiten",
+          "inStock": "Auf Lager — {{available}} {{unit}} verfügbar",
+          "lowStock": "Niedriger Bestand — {{available}} {{unit}} verbleibend (Min: {{min}})",
+          "minStockLevel": "Mindestbestand",
+          "outOfStock": "Nicht Vorrätig — 0 {{unit}} verfügbar",
+          "raisePO": "Bestellung Erstellen",
+          "receiveStock": "Bestand Empfangen",
+          "viewQr": "QR Ansehen"
+        },
+        "history": {
+          "adjustments": "Anpassungen",
+          "allTypes": "Alle Typen",
+          "by": "Von:",
+          "fromPlaceholder": "Von",
+          "loading": "Bewegungen werden geladen…",
+          "movementTypes": {
+            "adjustment": "Anpassung",
+            "issue": "Ausgabe",
+            "receive": "Wareneingang",
+            "reserve": "Reservierung",
+            "return": "Rückgabe",
+            "transfer_in": "Transfer Eingang",
+            "transfer_out": "Transfer Ausgang",
+            "unreserve": "Reservierung Aufheben"
+          },
+          "netChange": "Nettoänderung",
+          "noMovements": "Keine Lagerbewegungen gefunden.",
+          "ref": "Ref:",
+          "toPlaceholder": "Bis",
+          "totalIssued": "Gesamt Ausgegeben",
+          "totalReceived": "Gesamt Empfangen",
+          "wo": "AA:"
+        },
+        "overview": {
+          "address": "Adresse",
+          "available": "Verfügbar",
+          "bankDetails": "Bankverbindung",
+          "brand": "Marke",
+          "compatibleMachines": "Kompatible Maschinen",
+          "contactPerson": "Ansprechpartner",
+          "costSummary": "Kostenübersicht",
+          "country": "Land",
+          "created": "Erstellt",
+          "current": "Aktuell",
+          "email": "E-Mail",
+          "lastIssued": "Letzte Ausgabe",
+          "lastPurchase": "Letzter Kauf",
+          "lastPurchasePrice": "Preis des Letzten Kaufs",
+          "lastReceived": "Letzter Wareneingang",
+          "leadTime": "Lieferzeit",
+          "leadTimeDays_one": "{{count}} Tag",
+          "leadTimeDays_other": "{{count}} Tage",
+          "locationStorage": "Standort & Lagerung",
+          "modelRef": "Modellref.",
+          "notes": "Notizen",
+          "partDetails": "Teiledetails",
+          "paymentMethod": "Zahlungsmethode",
+          "phone": "Telefon",
+          "reserved": "Reserviert",
+          "stockLevels": "Bestandsniveaus",
+          "storeLocation": "Lagerort",
+          "supplier": "Lieferant",
+          "supplierCode": "Lieferantencode",
+          "supplierInfo": "Lieferanteninformationen",
+          "supplierPartCode": "Teilecode des Lieferanten",
+          "totalCostAllTime": "Gesamtkosten (Gesamt)",
+          "totalStockValue": "Gesamter Lagerwert",
+          "totalUsedAllTime": "Gesamt Verwendet (Gesamt)",
+          "unitCost": "Stückkosten",
+          "updated": "Aktualisiert",
+          "warranty": "Garantie",
+          "warrantyMonths_one": "{{count}} Monat",
+          "warrantyMonths_other": "{{count}} Monate",
+          "website": "Website"
+        },
+        "qrModal": {
+          "download": "Herunterladen",
+          "print": "Drucken",
+          "title": "QR-Code des Teils"
+        }
       },
       "table": {
         "noPartsFound": "Keine Teile gefunden.",
@@ -325,6 +432,169 @@
       "card": {
         "viewQrCode": "QR-Code Ansehen",
         "noLocation": "Kein Standort"
+      },
+      "import": {
+        "complete": {
+          "cancel": "Abbrechen",
+          "created": "Erstellt",
+          "rowsSkipped_one": "{{count}} Zeile übersprungen",
+          "rowsSkipped_other": "{{count}} Zeilen übersprungen",
+          "skipped": "Übersprungen",
+          "summary": "{{newCount}} Teile erstellt · {{updateCount}} Teile aktualisiert",
+          "title": "Import Abgeschlossen!",
+          "undoImport": "Import Rückgängig Machen",
+          "undoModalBody": "Dies macht alle Änderungen aus diesem Import rückgängig. Erstellte Teile werden gelöscht und aktualisierte Teile werden wiederhergestellt.",
+          "undoModalTitle": "Import Rückgängig Machen?",
+          "undoWithinHours": "(innerhalb von 24 Std.)",
+          "undoing": "Wird rückgängig gemacht…",
+          "updated": "Aktualisiert",
+          "viewImportHistory": "Importverlauf Ansehen",
+          "viewImportedParts": "Importierte Teile Ansehen",
+          "yesUndo": "Ja, Rückgängig Machen"
+        },
+        "errorTable": {
+          "columns": {
+            "column": "Spalte",
+            "errorCode": "Fehlercode",
+            "fixHint": "Korrekturhinweis",
+            "message": "Meldung",
+            "row": "Zeile Nr."
+          },
+          "downloadReport": "Bericht Herunterladen",
+          "errorsFound_one": "{{count}} Validierungsfehler gefunden",
+          "errorsFound_other": "{{count}} Validierungsfehler gefunden"
+        },
+        "historyPage": {
+          "title": "Importverlauf"
+        },
+        "historyTable": {
+          "columns": {
+            "actions": "Aktionen",
+            "created": "Erstellt",
+            "date": "Datum",
+            "errors": "Fehler",
+            "file": "Datei",
+            "importedBy": "Importiert Von",
+            "rows": "Zeilen",
+            "status": "Status",
+            "updated": "Aktualisiert"
+          },
+          "details": "Details",
+          "emptySubtitle": "Der Importverlauf wird hier nach Ihrem ersten Import angezeigt.",
+          "emptyTitle": "Keine Importsitzungen gefunden",
+          "undo": "Rückgängig",
+          "undoModal": {
+            "body": "Dies macht alle Änderungen aus dieser Importsitzung rückgängig. Erstellte Teile werden gelöscht und aktualisierte Teile auf ihren vorherigen Zustand zurückgesetzt.",
+            "cancel": "Abbrechen",
+            "title": "Import Rückgängig Machen?",
+            "undoing": "Wird rückgängig gemacht…",
+            "yesUndo": "Ja, Rückgängig Machen"
+          }
+        },
+        "page": {
+          "subtitle": "Importieren oder aktualisieren Sie Inventarteile aus einer Tabelle.",
+          "title": "Excel- & CSV-Import"
+        },
+        "previewTable": {
+          "actionCreate": "ERSTELLEN",
+          "actionUpdate": "AKTUALISIEREN",
+          "autoGenerated": "automatisch generiert",
+          "columns": {
+            "action": "Aktion",
+            "category": "Kategorie",
+            "partName": "Teilename",
+            "partNumber": "Teilenummer",
+            "stock": "Bestand",
+            "unit": "Einheit",
+            "unitCost": "Stückkosten"
+          },
+          "newPartsWillBeCreated_one": "{{count}} neues Teil wird erstellt",
+          "newPartsWillBeCreated_other": "{{count}} neue Teile werden erstellt",
+          "partsWillBeUpdated_one": "{{count}} Teil wird aktualisiert",
+          "partsWillBeUpdated_other": "{{count}} Teile werden aktualisiert",
+          "showingRows": "Zeigt die ersten {{shown}} von {{total}} Zeilen. Alle Zeilen validiert."
+        },
+        "progress": {
+          "doNotNavigateAway": "Verlassen Sie diese Seite nicht, während der Import läuft.",
+          "importingOfTotal": "Importiere {{current}} von {{total}} Teilen",
+          "importingParts": "Teile werden Importiert…"
+        },
+        "stepIndicator": {
+          "complete": "Abgeschlossen",
+          "import": "Importieren",
+          "template": "Vorlage",
+          "upload": "Hochladen",
+          "validate": "Validieren"
+        },
+        "templateStep": {
+          "columns": "Spalten",
+          "downloadTemplate": "Vorlage Herunterladen",
+          "howItWorks": "So funktioniert es",
+          "maxFileSize": "Maximale Dateigröße",
+          "maxRows": "Maximale Zeilen",
+          "nextUploadFile": "Weiter: Datei Hochladen",
+          "pageSubtitle": "Verwenden Sie unsere Vorlage, um Teile im großen Umfang zu importieren oder zu aktualisieren.",
+          "pageTitle": "Bestand aus Excel oder CSV Importieren",
+          "sheets": "Blätter",
+          "templateDetails": "Vorlagendetails",
+          "tipsForSuccess": "Tipps für den Erfolg",
+          "steps": [
+            "Laden Sie die untenstehende Vorlage herunter und füllen Sie Ihre Teiledaten aus.",
+            "Laden Sie die ausgefüllte Datei hoch (max. 10 MB, .xlsx oder .csv).",
+            "Wir validieren jede Zeile — beheben Sie Fehler, bevor Sie fortfahren.",
+            "Überprüfen Sie die Importvorschau und bestätigen Sie, um die Änderungen anzuwenden."
+          ],
+          "tips": [
+            "Mit * markierte Spalten sind erforderlich — lassen Sie sie leer, schlägt die Validierung für diese Zeile fehl.",
+            "Die Teilenummer ist optional — lassen Sie sie leer, generiert das System automatisch eine aus der Kategorie (z. B. E-012-RAS-0001, kombiniert aus Kategorie, Lieferant und Standort).",
+            "Wenn eine Teilenummer angegeben wird und bereits im System existiert, aktualisiert die Zeile dieses Teil.",
+            "Jeder Lieferantenname, der noch nicht in Ihrer Lieferantenliste ist, wird automatisch mit einem automatisch generierten Lieferantencode hinzugefügt.",
+            "Daten müssen im Format JJJJ-MM-TT vorliegen (z. B. 2025-01-15).",
+            "Siehe die Blätter „Gültige Einheiten“ und „Gültige Kategorien“ in der Vorlage für zulässige Werte."
+          ]
+        },
+        "toasts": {
+          "importFailed": "Import fehlgeschlagen. Bitte erneut versuchen.",
+          "importReversed": "Der Import wurde rückgängig gemacht.",
+          "parseFailed": "Datei konnte nicht analysiert werden. Bitte Format prüfen und erneut versuchen.",
+          "reverseFailed": "Rückgängigmachen des Imports fehlgeschlagen.",
+          "reverseSuccess": "Import erfolgreich rückgängig gemacht.",
+          "undoFailed": "Rückgängigmachen des Imports fehlgeschlagen."
+        },
+        "uploadStep": {
+          "back": "Zurück",
+          "dragDrop": "Ziehen Sie Ihre .xlsx- oder .csv-Datei hierher",
+          "dropHere": "Datei hier ablegen",
+          "fileTooLarge": "Die Datei überschreitet das 10-MB-Limit ({{size}}). Bitte Dateigröße verringern.",
+          "invalidFileType": "Nur .xlsx- oder .csv-Dateien werden akzeptiert.",
+          "maxSizeHint": "Max. 10 MB · .xlsx oder .csv",
+          "orBrowse": "oder klicken, um Dateien zu durchsuchen",
+          "pageSubtitle": "Laden Sie die ausgefüllte Vorlage hoch. .xlsx oder .csv, max. 10 MB.",
+          "pageTitle": "Datei Hochladen",
+          "removeFile": "Datei entfernen",
+          "uploadAndValidate": "Hochladen & Validieren"
+        },
+        "validation": {
+          "allValid": "Alle Zeilen sind gültig und bereit zum Import.",
+          "confirmImport": "Import Bestätigen",
+          "create": "Erstellen",
+          "errors": "Fehler",
+          "errorsMustBeFixed_one": "{{count}} Fehler muss vor dem Import behoben werden.",
+          "errorsMustBeFixed_other": "{{count}} Fehler müssen vor dem Import behoben werden.",
+          "failed": "Validierung Fehlgeschlagen",
+          "passed": "Validierung Bestanden",
+          "totalRows": "Gesamtzeilen",
+          "update": "Aktualisieren",
+          "uploadDifferentFile": "Andere Datei Hochladen",
+          "uploadNewFile": "Neue Datei Hochladen",
+          "valid": "Gültig"
+        }
+      },
+      "shared": {
+        "stockGauge": {
+          "max": "Max",
+          "min": "Min"
+        }
       }
     },
     "widgets": {

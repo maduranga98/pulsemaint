@@ -177,6 +177,18 @@
           "in_stock": "在庫あり",
           "low_stock": "在庫少",
           "out_of_stock": "在庫切れ"
+        },
+        "movementType": {
+          "adjustment": "調整",
+          "import_create": "インポート（新規）",
+          "import_update": "インポート（更新）",
+          "issue": "出庫",
+          "receive": "入庫",
+          "reserve": "引当",
+          "return": "返却",
+          "transfer_in": "移動（入庫）",
+          "transfer_out": "移動（出庫）",
+          "unreserve": "引当解除"
         }
       },
       "partForm": {
@@ -299,7 +311,102 @@
           "noCadFiles": "CADファイルは添付されていません。",
           "noImages": "画像は添付されていません。"
         },
-        "analyticsPlaceholder": "使用状況の分析はここに表示されます。"
+        "analyticsPlaceholder": "使用状況の分析はここに表示されます。",
+        "activeRequests": {
+          "awaitingStoreKeeper": "倉庫管理者の承認待ち",
+          "awaitingSupervisor": "スーパーバイザーの承認待ち",
+          "empty": "この部品には承認待ちの有効な申請はありません。",
+          "loading": "有効な申請を読み込み中…",
+          "partsRequestsAwaiting": "承認待ちの部品申請",
+          "pendingApproval": "承認待ち",
+          "purchaseOrdersAwaiting": "承認待ちの発注書",
+          "qty": "数量 {{quantity}}",
+          "requestedBy": "{{name}} が申請"
+        },
+        "header": {
+          "adjustStock": "在庫を調整",
+          "available": "利用可能",
+          "current": "現在",
+          "editPart": "部品を編集",
+          "inStock": "在庫あり — {{available}} {{unit}} 利用可能",
+          "lowStock": "在庫少 — 残り {{available}} {{unit}}（最小: {{min}}）",
+          "minStockLevel": "最小在庫レベル",
+          "outOfStock": "在庫切れ — 利用可能 0 {{unit}}",
+          "raisePO": "発注書を作成",
+          "receiveStock": "入庫処理",
+          "viewQr": "QRを表示"
+        },
+        "history": {
+          "adjustments": "調整",
+          "allTypes": "すべてのタイプ",
+          "by": "担当：",
+          "fromPlaceholder": "開始",
+          "loading": "在庫変動を読み込み中…",
+          "movementTypes": {
+            "adjustment": "調整",
+            "issue": "出庫",
+            "receive": "入庫",
+            "reserve": "引当",
+            "return": "返却",
+            "transfer_in": "移動（入庫）",
+            "transfer_out": "移動（出庫）",
+            "unreserve": "引当解除"
+          },
+          "netChange": "純増減",
+          "noMovements": "在庫変動が見つかりません。",
+          "ref": "参照：",
+          "toPlaceholder": "終了",
+          "totalIssued": "累計出庫数",
+          "totalReceived": "累計入庫数",
+          "wo": "作業指示書："
+        },
+        "overview": {
+          "address": "住所",
+          "available": "利用可能",
+          "bankDetails": "銀行情報",
+          "brand": "ブランド",
+          "compatibleMachines": "対応設備",
+          "contactPerson": "担当者",
+          "costSummary": "コスト概要",
+          "country": "国",
+          "created": "作成日",
+          "current": "現在",
+          "email": "メールアドレス",
+          "lastIssued": "前回出庫",
+          "lastPurchase": "前回購入",
+          "lastPurchasePrice": "前回購入価格",
+          "lastReceived": "前回入庫",
+          "leadTime": "リードタイム",
+          "leadTimeDays_one": "{{count}} 日",
+          "leadTimeDays_other": "{{count}} 日",
+          "locationStorage": "場所と保管",
+          "modelRef": "型式参照",
+          "notes": "メモ",
+          "partDetails": "部品詳細",
+          "paymentMethod": "支払方法",
+          "phone": "電話番号",
+          "reserved": "引当済み",
+          "stockLevels": "在庫レベル",
+          "storeLocation": "保管場所",
+          "supplier": "サプライヤー",
+          "supplierCode": "サプライヤーコード",
+          "supplierInfo": "サプライヤー情報",
+          "supplierPartCode": "サプライヤー部品コード",
+          "totalCostAllTime": "総コスト（累計）",
+          "totalStockValue": "在庫総額",
+          "totalUsedAllTime": "総使用量（累計）",
+          "unitCost": "単価",
+          "updated": "更新日",
+          "warranty": "保証",
+          "warrantyMonths_one": "{{count}} ヶ月",
+          "warrantyMonths_other": "{{count}} ヶ月",
+          "website": "ウェブサイト"
+        },
+        "qrModal": {
+          "download": "ダウンロード",
+          "print": "印刷",
+          "title": "部品のQRコード"
+        }
       },
       "table": {
         "noPartsFound": "部品が見つかりません。",
@@ -325,6 +432,169 @@
       "card": {
         "viewQrCode": "QRコードを表示",
         "noLocation": "場所未設定"
+      },
+      "import": {
+        "complete": {
+          "cancel": "キャンセル",
+          "created": "作成済み",
+          "rowsSkipped_one": "{{count}} 行をスキップ",
+          "rowsSkipped_other": "{{count}} 行をスキップ",
+          "skipped": "スキップ",
+          "summary": "{{newCount}} 件の部品を作成 · {{updateCount}} 件の部品を更新",
+          "title": "インポート完了！",
+          "undoImport": "インポートを元に戻す",
+          "undoModalBody": "このインポートによる変更はすべて取り消されます。作成された部品は削除され、更新された部品は元に戻されます。",
+          "undoModalTitle": "インポートを元に戻しますか？",
+          "undoWithinHours": "（24時間以内）",
+          "undoing": "元に戻しています…",
+          "updated": "更新済み",
+          "viewImportHistory": "インポート履歴を表示",
+          "viewImportedParts": "インポートされた部品を表示",
+          "yesUndo": "はい、元に戻す"
+        },
+        "errorTable": {
+          "columns": {
+            "column": "列",
+            "errorCode": "エラーコード",
+            "fixHint": "修正のヒント",
+            "message": "メッセージ",
+            "row": "行番号"
+          },
+          "downloadReport": "レポートをダウンロード",
+          "errorsFound_one": "{{count}} 件の検証エラーが見つかりました",
+          "errorsFound_other": "{{count}} 件の検証エラーが見つかりました"
+        },
+        "historyPage": {
+          "title": "インポート履歴"
+        },
+        "historyTable": {
+          "columns": {
+            "actions": "操作",
+            "created": "作成済み",
+            "date": "日付",
+            "errors": "エラー",
+            "file": "ファイル",
+            "importedBy": "インポート実行者",
+            "rows": "行数",
+            "status": "ステータス",
+            "updated": "更新済み"
+          },
+          "details": "詳細",
+          "emptySubtitle": "初回インポート後、ここにインポート履歴が表示されます。",
+          "emptyTitle": "インポートセッションが見つかりません",
+          "undo": "元に戻す",
+          "undoModal": {
+            "body": "このインポートセッションによる変更はすべて取り消されます。作成された部品は削除され、更新された部品は以前の状態に戻されます。",
+            "cancel": "キャンセル",
+            "title": "インポートを元に戻しますか？",
+            "undoing": "元に戻しています…",
+            "yesUndo": "はい、元に戻す"
+          }
+        },
+        "page": {
+          "subtitle": "スプレッドシートから在庫部品をインポートまたは更新します。",
+          "title": "Excel・CSVインポート"
+        },
+        "previewTable": {
+          "actionCreate": "新規作成",
+          "actionUpdate": "更新",
+          "autoGenerated": "自動生成",
+          "columns": {
+            "action": "操作",
+            "category": "カテゴリ",
+            "partName": "部品名",
+            "partNumber": "部品番号",
+            "stock": "在庫",
+            "unit": "単位",
+            "unitCost": "単価"
+          },
+          "newPartsWillBeCreated_one": "{{count}} 件の新規部品が作成されます",
+          "newPartsWillBeCreated_other": "{{count}} 件の新規部品が作成されます",
+          "partsWillBeUpdated_one": "{{count}} 件の部品が更新されます",
+          "partsWillBeUpdated_other": "{{count}} 件の部品が更新されます",
+          "showingRows": "{{total}} 行中 最初の {{shown}} 行を表示しています。すべての行が検証済みです。"
+        },
+        "progress": {
+          "doNotNavigateAway": "インポート中はこのページから離れないでください。",
+          "importingOfTotal": "{{total}} 件中 {{current}} 件をインポート中",
+          "importingParts": "部品をインポート中…"
+        },
+        "stepIndicator": {
+          "complete": "完了",
+          "import": "インポート",
+          "template": "テンプレート",
+          "upload": "アップロード",
+          "validate": "検証"
+        },
+        "templateStep": {
+          "columns": "列数",
+          "downloadTemplate": "テンプレートをダウンロード",
+          "howItWorks": "使い方",
+          "maxFileSize": "最大ファイルサイズ",
+          "maxRows": "最大行数",
+          "nextUploadFile": "次へ：ファイルをアップロード",
+          "pageSubtitle": "当社のテンプレートを使用して部品を一括インポートまたは更新します。",
+          "pageTitle": "Excel または CSV から在庫をインポート",
+          "sheets": "シート数",
+          "templateDetails": "テンプレートの詳細",
+          "tipsForSuccess": "成功のためのヒント",
+          "steps": [
+            "以下のテンプレートをダウンロードし、部品データを入力してください。",
+            "入力済みのファイルをアップロードしてください（最大10MB、.xlsx または .csv）。",
+            "各行を検証します — 続行する前にエラーを修正してください。",
+            "インポートプレビューを確認し、変更を適用するために確定してください。"
+          ],
+          "tips": [
+            "*が付いた列は必須です — 空欄のままにするとその行は検証に失敗します。",
+            "部品番号は任意です — 空欄にすると、システムがカテゴリから自動生成します（例：E-012-RAS-0001、カテゴリ・サプライヤー・場所を組み合わせたもの）。",
+            "部品番号が指定され、システムに既に存在する場合、その行はその部品を更新します。",
+            "サプライヤーリストにまだないサプライヤー名は、自動生成されたサプライヤーコードとともに自動的に追加されます。",
+            "日付は YYYY-MM-DD 形式である必要があります（例：2025-01-15）。",
+            "許可される値については、テンプレート内の「有効な単位」および「有効なカテゴリ」シートを参照してください。"
+          ]
+        },
+        "toasts": {
+          "importFailed": "インポートに失敗しました。もう一度お試しください。",
+          "importReversed": "インポートが取り消されました。",
+          "parseFailed": "ファイルの解析に失敗しました。形式を確認してもう一度お試しください。",
+          "reverseFailed": "インポートの取り消しに失敗しました。",
+          "reverseSuccess": "インポートを正常に取り消しました。",
+          "undoFailed": "インポートを元に戻すことに失敗しました。"
+        },
+        "uploadStep": {
+          "back": "戻る",
+          "dragDrop": ".xlsx または .csv ファイルをここにドラッグ＆ドロップ",
+          "dropHere": "ここにファイルをドロップ",
+          "fileTooLarge": "ファイルが10MBの上限を超えています（{{size}}）。ファイルサイズを小さくしてください。",
+          "invalidFileType": ".xlsx または .csv ファイルのみ受け付けます。",
+          "maxSizeHint": "最大10MB · .xlsx または .csv",
+          "orBrowse": "またはクリックしてファイルを参照",
+          "pageSubtitle": "入力済みのテンプレートをアップロードしてください。.xlsx または .csv、最大10MB。",
+          "pageTitle": "ファイルをアップロード",
+          "removeFile": "ファイルを削除",
+          "uploadAndValidate": "アップロードして検証"
+        },
+        "validation": {
+          "allValid": "すべての行が有効で、インポートの準備が整いました。",
+          "confirmImport": "インポートを確認",
+          "create": "新規作成",
+          "errors": "エラー",
+          "errorsMustBeFixed_one": "インポート前に {{count}} 件のエラーを修正する必要があります。",
+          "errorsMustBeFixed_other": "インポート前に {{count}} 件のエラーを修正する必要があります。",
+          "failed": "検証失敗",
+          "passed": "検証成功",
+          "totalRows": "総行数",
+          "update": "更新",
+          "uploadDifferentFile": "別のファイルをアップロード",
+          "uploadNewFile": "新しいファイルをアップロード",
+          "valid": "有効"
+        }
+      },
+      "shared": {
+        "stockGauge": {
+          "max": "最大",
+          "min": "最小"
+        }
       }
     },
     "widgets": {
