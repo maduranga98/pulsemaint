@@ -448,6 +448,101 @@
             "approvedUseSend": "PO approved. Use \"Send to Supplier\" on the PO to email it.",
             "saveFailed": "Failed to save purchase order: {{message}}"
           }
+        },
+        "list": {
+          "empty": {
+            "title": "No purchase orders yet",
+            "subtitle": "Create your first purchase order to get started."
+          },
+          "filters": {
+            "supplierSearchPlaceholder": "Search supplier…",
+            "statusAll": "All"
+          },
+          "noMatch": "No orders match your filters.",
+          "columns": {
+            "poNumber": "PO #",
+            "supplier": "Supplier",
+            "items": "Items",
+            "totalValue": "Total Value",
+            "status": "Status",
+            "raisedBy": "Raised By",
+            "date": "Date",
+            "actions": "Actions"
+          },
+          "actions": {
+            "view": "View",
+            "edit": "Edit",
+            "approve": "Approve",
+            "reject": "Reject",
+            "receive": "Receive",
+            "cancel": "Cancel"
+          },
+          "toasts": {
+            "approved": "Purchase order approved.",
+            "approveFailed": "Failed to approve PO: {{message}}",
+            "approveFailedGeneric": "Failed to approve PO.",
+            "rejectPrompt": "Reason for rejection?",
+            "rejected": "Purchase order rejected.",
+            "rejectFailed": "Failed to reject PO: {{message}}",
+            "rejectFailedGeneric": "Failed to reject PO.",
+            "cancelled": "Purchase order cancelled.",
+            "cancelFailed": "Failed to cancel PO: {{message}}",
+            "cancelFailedGeneric": "Failed to cancel PO."
+          }
+        },
+        "itemRow": {
+          "itemLabel": "Item {{number}}",
+          "removeAriaLabel": "Remove item",
+          "part": {
+            "label": "Part *",
+            "change": "Change",
+            "searchPlaceholder": "Search part by number or name…",
+            "scanPlaceholder": "Scan QR / enter part number, then Enter",
+            "lookup": "Lookup",
+            "lookingUp": "Looking…",
+            "scan": "Scan",
+            "scanTitle": "Scan QR with camera",
+            "scanModalTitle": "Scan Part for PO",
+            "notFound": "No part found for \"{{term}}\"",
+            "lookupFailed": "QR lookup failed"
+          },
+          "fields": {
+            "quantity": "Quantity *",
+            "unit": "Unit",
+            "expectedDelivery": "Expected Delivery"
+          }
+        },
+        "supplierPicker": {
+          "title": "Parts previously bought from this supplier — add any to ship together?",
+          "lowStockBadge": "Low stock",
+          "currentLabel": "Current:",
+          "lowAtLabel": "Low at:",
+          "maxLabel": "Max:",
+          "addSelected_one": "Add {{count}} selected to this PO",
+          "addSelected_other": "Add {{count}} selected to this PO",
+          "addSelectedNone": "Add selected to this PO"
+        },
+        "lowStockWidget": {
+          "title": "Low Stock Alerts",
+          "createPoForSelected_one": "Create PO for {{count}} selected",
+          "createPoForSelected_other": "Create PO for {{count}} selected",
+          "allAboveMin": "✓ All parts above minimum stock levels",
+          "selectAriaLabel": "Select {{name}}",
+          "stockLabel": "Stock: {{value}} {{unit}}",
+          "minLabel": "Min: {{value}} {{unit}}",
+          "orderNow": "Order Now"
+        },
+        "createPage": {
+          "title": "Create Purchase Order"
+        },
+        "editPage": {
+          "title": "Edit {{poNumber}}",
+          "backToList": "Back to Purchase Orders",
+          "notFound": "Purchase order not found."
+        },
+        "detailPage": {
+          "backToList": "Back to Purchase Orders",
+          "notFound": "Purchase order not found."
         }
       },
       "filters": {

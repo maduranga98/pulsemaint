@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Eye, Pencil, PackageCheck, XCircle, CheckCircle2 } from 'lucide-react';
 import type { PurchaseOrder, PurchaseOrderStatus } from '@/types/inventory';
 
@@ -12,32 +14,34 @@ interface PurchaseOrderListProps {
   onReject?: (id: string) => void;
 }
 
-const statusConfig: Record<PurchaseOrderStatus, { label: string; cls: string }> = {
-  draft: { label: 'Draft', cls: 'bg-gray-100 text-gray-600' },
-  sent: { label: 'Sent', cls: 'bg-blue-100 text-blue-700' },
-  invoice_received: { label: 'Invoice Received', cls: 'bg-purple-100 text-purple-700' },
-  acknowledged: { label: 'Acknowledged', cls: 'bg-cyan-100 text-cyan-700' },
-  received: { label: 'Received', cls: 'bg-green-100 text-green-700' },
-  partially_received: { label: 'Partial', cls: 'bg-amber-100 text-amber-700' },
-  cancelled: { label: 'Cancelled', cls: 'bg-red-100 text-red-600' },
-  approved: { label: 'Approved', cls: 'bg-green-100 text-green-700' },
-  rejected: { label: 'Rejected', cls: 'bg-red-100 text-red-600' },
-  pending_approval: { label: 'Pending Approval', cls: 'bg-amber-100 text-amber-700' },
+const statusClsConfig: Record<PurchaseOrderStatus, string> = {
+  draft: 'bg-gray-100 text-gray-600',
+  sent: 'bg-blue-100 text-blue-700',
+  invoice_received: 'bg-purple-100 text-purple-700',
+  acknowledged: 'bg-cyan-100 text-cyan-700',
+  received: 'bg-green-100 text-green-700',
+  partially_received: 'bg-amber-100 text-amber-700',
+  cancelled: 'bg-red-100 text-red-600',
+  approved: 'bg-green-100 text-green-700',
+  rejected: 'bg-red-100 text-red-600',
+  pending_approval: 'bg-amber-100 text-amber-700',
 };
 
-const STATUS_FILTERS: { label: string; value: PurchaseOrderStatus | 'all' }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Draft', value: 'draft' },
-  { label: 'Pending Approval', value: 'pending_approval' },
-  { label: 'Approved', value: 'approved' },
-  { label: 'Rejected', value: 'rejected' },
-  { label: 'Sent', value: 'sent' },
-  { label: 'Invoice Received', value: 'invoice_received' },
-  { label: 'Acknowledged', value: 'acknowledged' },
-  { label: 'Received', value: 'received' },
-  { label: 'Partial', value: 'partially_received' },
-  { label: 'Cancelled', value: 'cancelled' },
-];
+function statusFilters(t: TFunction): { label: string; value: PurchaseOrderStatus | 'all' }[] {
+  return [
+    { label: t('common.inventory.po.list.filters.statusAll'), value: 'all' },
+    { label: t('common.inventory.po.statuses.draft'), value: 'draft' },
+    { label: t('common.inventory.po.statuses.pending_approval'), value: 'pending_approval' },
+    { label: t('common.inventory.po.statuses.approved'), value: 'approved' },
+    { label: t('common.inventory.po.statuses.rejected'), value: 'rejected' },
+    { label: t('common.inventory.po.statuses.sent'), value: 'sent' },
+    { label: t('common.inventory.po.statuses.invoice_received'), value: 'invoice_received' },
+    { label: t('common.inventory.po.statuses.acknowledged'), value: 'acknowledged' },
+    { label: t('common.inventory.po.statuses.received'), value: 'received' },
+    { label: t('common.inventory.po.statuses.partially_received'), value: 'partially_received' },
+    { label: t('common.inventory.po.statuses.cancelled'), value: 'cancelled' },
+  ];
+}
 
 function formatDate(ts: PurchaseOrder['raisedAt']): string {
   if (!ts) return '';
@@ -54,6 +58,7 @@ export function PurchaseOrderList({
   onApprove,
   onReject,
 }: PurchaseOrderListProps) {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<PurchaseOrderStatus | 'all'>('all');
   const [supplierSearch, setSupplierSearch] = useState('');
 
@@ -66,8 +71,8 @@ export function PurchaseOrderList({
   if (orders.length === 0) {
     return (
       <div className="text-center py-16 text-gray-400">
-        <p className="text-lg font-medium">No purchase orders yet</p>
-        <p className="text-sm mt-1">Create your first purchase order to get started.</p>
+        <p className="text-lg font-medium">{t('common.inventory.po.list.empty.title')}</p>
+        <p className="text-sm mt-1">{t('common.inventory.po.list.empty.subtitle')}</p>
       </div>
     );
   }
@@ -79,7 +84,7 @@ export function PurchaseOrderList({
         <input
           value={supplierSearch}
           onChange={(e) => setSupplierSearch(e.target.value)}
-          placeholder="Search supplier…"
+          placeholder={t('common.inventory.po.list.filters.supplierSearchPlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-48"
         />
         <select
@@ -87,7 +92,7 @@ export function PurchaseOrderList({
           onChange={(e) => setStatusFilter(e.target.value as PurchaseOrderStatus | 'all')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {STATUS_FILTERS.map((f) => (
+          {statusFilters(t).map((f) => (
             <option key={f.value} value={f.value}>{f.label}</option>
           ))}
         </select>
@@ -95,25 +100,25 @@ export function PurchaseOrderList({
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <p className="text-center text-gray-400 py-8">No orders match your filters.</p>
+        <p className="text-center text-gray-400 py-8">{t('common.inventory.po.list.noMatch')}</p>
       ) : (
         <div className="overflow-x-auto border border-gray-200 rounded-xl">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">PO #</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Supplier</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Items</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Total Value</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Status</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Raised By</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Date</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">Actions</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.poNumber')}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.supplier')}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.items')}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.totalValue')}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.status')}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.raisedBy')}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.date')}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-700 whitespace-nowrap">{t('common.inventory.po.list.columns.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.map((order) => {
-                const sc = statusConfig[order.status];
+                const scCls = statusClsConfig[order.status];
                 return (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-mono font-semibold text-gray-900 whitespace-nowrap">
@@ -125,8 +130,8 @@ export function PurchaseOrderList({
                       {order.currency} {order.totalOrderValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${sc.cls}`}>
-                        {sc.label}
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${scCls}`}>
+                        {t(`common.inventory.po.statuses.${order.status}`)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{order.raisedByName}</td>
@@ -138,7 +143,7 @@ export function PurchaseOrderList({
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                         >
                           <Eye className="w-3 h-3" />
-                          View
+                          {t('common.inventory.po.list.actions.view')}
                         </button>
                         {onEdit && order.status === 'draft' && (
                           <button
@@ -146,7 +151,7 @@ export function PurchaseOrderList({
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                           >
                             <Pencil className="w-3 h-3" />
-                            Edit
+                            {t('common.inventory.po.list.actions.edit')}
                           </button>
                         )}
                         {onApprove && order.status === 'pending_approval' && (
@@ -155,7 +160,7 @@ export function PurchaseOrderList({
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors"
                           >
                             <CheckCircle2 className="w-3 h-3" />
-                            Approve
+                            {t('common.inventory.po.list.actions.approve')}
                           </button>
                         )}
                         {onReject && order.status === 'pending_approval' && (
@@ -164,7 +169,7 @@ export function PurchaseOrderList({
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                           >
                             <XCircle className="w-3 h-3" />
-                            Reject
+                            {t('common.inventory.po.list.actions.reject')}
                           </button>
                         )}
                         {onMarkReceived && (order.status === 'sent' || order.status === 'invoice_received' || order.status === 'acknowledged' || order.status === 'partially_received') && (
@@ -173,7 +178,7 @@ export function PurchaseOrderList({
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
                           >
                             <PackageCheck className="w-3 h-3" />
-                            Receive
+                            {t('common.inventory.po.list.actions.receive')}
                           </button>
                         )}
                         {onCancel && order.status !== 'received' && order.status !== 'cancelled' && (
@@ -182,7 +187,7 @@ export function PurchaseOrderList({
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                           >
                             <XCircle className="w-3 h-3" />
-                            Cancel
+                            {t('common.inventory.po.list.actions.cancel')}
                           </button>
                         )}
                       </div>

@@ -1,4 +1,5 @@
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 import { PurchaseOrderForm } from '@/components/inventory/po/PurchaseOrderForm';
 import { usePurchaseOrders } from '@/hooks/inventory/usePurchaseOrders';
@@ -8,6 +9,7 @@ import type { PurchaseOrder } from '@/types/inventory';
  * PM-055 — Approvers must be able to edit PO details before approving and sending.
  */
 export function EditPurchaseOrderPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { poId } = useParams<{ poId: string }>();
   const { orders, loading, error } = usePurchaseOrders();
@@ -31,10 +33,10 @@ export function EditPurchaseOrderPage() {
     return (
       <div className="space-y-4 max-w-3xl mx-auto">
         <Link to="/app/inventory/purchase-orders" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
-          <ChevronLeft className="w-4 h-4" /> Back to Purchase Orders
+          <ChevronLeft className="w-4 h-4" /> {t('common.inventory.po.editPage.backToList')}
         </Link>
         <div className="p-6 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm">
-          {error || 'Purchase order not found.'}
+          {error || t('common.inventory.po.editPage.notFound')}
         </div>
       </div>
     );
@@ -46,7 +48,7 @@ export function EditPurchaseOrderPage() {
         <Link to={`/app/inventory/purchase-orders/${order.id}`} className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Edit {order.poNumber}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.po.editPage.title', { poNumber: order.poNumber })}</h1>
       </div>
       <PurchaseOrderForm initialPO={order} onSave={handleSave} />
     </div>

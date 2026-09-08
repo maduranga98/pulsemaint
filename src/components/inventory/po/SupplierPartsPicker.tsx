@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { PackagePlus } from 'lucide-react';
 import { db } from '@/lib/firebase';
@@ -31,6 +32,7 @@ function normalize(name: string) {
 // requiring supplierId) is what makes parts actually show up for that common
 // case.
 export function SupplierPartsPicker({ supplierId, supplierName, excludePartIds, onAdd }: Props) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const [allParts, setAllParts] = useState<InventoryPart[]>([]);
   const [selected, setSelected] = useState<Record<string, number>>({});
@@ -108,7 +110,7 @@ export function SupplierPartsPicker({ supplierId, supplierName, excludePartIds, 
       <div className="flex items-center gap-2">
         <PackagePlus className="w-4 h-4 text-amber-700" />
         <h3 className="font-semibold text-amber-900 text-sm">
-          Parts previously bought from this supplier — add any to ship together?
+          {t('common.inventory.po.supplierPicker.title')}
         </h3>
       </div>
       <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
@@ -130,16 +132,16 @@ export function SupplierPartsPicker({ supplierId, supplierName, excludePartIds, 
                   {p.name}
                   {p.isLowStock && (
                     <span className="shrink-0 rounded-full bg-red-100 text-red-700 px-1.5 py-0.5 text-[10px] font-semibold uppercase">
-                      Low stock
+                      {t('common.inventory.po.supplierPicker.lowStockBadge')}
                     </span>
                   )}
                 </p>
                 <p className="font-mono text-xs text-gray-500">{p.partNumber}</p>
               </div>
               <div className="text-xs text-gray-600 flex gap-3">
-                <span>Current: <strong>{p.currentStock}</strong></span>
-                <span>Low at: <strong>{p.minStockLevel}</strong></span>
-                <span>Max: <strong>{p.maxStockLevel}</strong></span>
+                <span>{t('common.inventory.po.supplierPicker.currentLabel')} <strong>{p.currentStock}</strong></span>
+                <span>{t('common.inventory.po.supplierPicker.lowAtLabel')} <strong>{p.minStockLevel}</strong></span>
+                <span>{t('common.inventory.po.supplierPicker.maxLabel')} <strong>{p.maxStockLevel}</strong></span>
               </div>
               {checked && (
                 <input
@@ -160,7 +162,9 @@ export function SupplierPartsPicker({ supplierId, supplierName, excludePartIds, 
         disabled={selectedCount === 0}
         className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-xs font-semibold rounded-lg transition-colors"
       >
-        Add {selectedCount > 0 ? selectedCount : ''} selected to this PO
+        {selectedCount > 0
+          ? t('common.inventory.po.supplierPicker.addSelected', { count: selectedCount })
+          : t('common.inventory.po.supplierPicker.addSelectedNone')}
       </button>
     </div>
   );

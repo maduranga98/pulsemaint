@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { InventoryPart } from '@/types/inventory';
 
 interface Props {
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function LowStockWidget({ parts }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string[]>([]);
 
@@ -23,7 +25,7 @@ export function LowStockWidget({ parts }: Props) {
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
       <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3">
         <h2 className="font-semibold text-gray-900">
-          Low Stock Alerts
+          {t('common.inventory.po.lowStockWidget.title')}
           {parts.length > 0 && (
             <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold">
               {parts.length}
@@ -35,7 +37,7 @@ export function LowStockWidget({ parts }: Props) {
             onClick={createPoForSelected}
             className="shrink-0 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors"
           >
-            Create PO for {selected.length} selected
+            {t('common.inventory.po.lowStockWidget.createPoForSelected', { count: selected.length })}
           </button>
         )}
       </div>
@@ -43,7 +45,7 @@ export function LowStockWidget({ parts }: Props) {
       {parts.length === 0 ? (
         <div className="px-4 py-8 text-center">
           <p className="text-green-600 font-medium text-sm">
-            ✓ All parts above minimum stock levels
+            {t('common.inventory.po.lowStockWidget.allAboveMin')}
           </p>
         </div>
       ) : (
@@ -63,7 +65,7 @@ export function LowStockWidget({ parts }: Props) {
                   checked={checked}
                   onChange={(e) => toggle(part.id, e.target.checked)}
                   className="w-4 h-4 shrink-0"
-                  aria-label={`Select ${part.name}`}
+                  aria-label={t('common.inventory.po.lowStockWidget.selectAriaLabel', { name: part.name })}
                 />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-900 truncate">{part.name}</p>
@@ -73,9 +75,11 @@ export function LowStockWidget({ parts }: Props) {
                   </p>
                   <div className="flex items-center gap-3 mt-1 text-xs">
                     <span className={`font-bold ${isOut ? 'text-red-600' : 'text-amber-600'}`}>
-                      Stock: {part.currentStock} {part.unit}
+                      {t('common.inventory.po.lowStockWidget.stockLabel', { value: part.currentStock, unit: part.unit })}
                     </span>
-                    <span className="text-gray-500">Min: {part.minStockLevel} {part.unit}</span>
+                    <span className="text-gray-500">
+                      {t('common.inventory.po.lowStockWidget.minLabel', { value: part.minStockLevel, unit: part.unit })}
+                    </span>
                   </div>
                 </div>
                 <button
@@ -84,7 +88,7 @@ export function LowStockWidget({ parts }: Props) {
                   }
                   className="shrink-0 px-3 py-1.5 rounded-lg border border-blue-300 text-blue-600 text-xs font-semibold hover:bg-blue-50 transition-colors"
                 >
-                  Order Now
+                  {t('common.inventory.po.lowStockWidget.orderNow')}
                 </button>
               </div>
             );
