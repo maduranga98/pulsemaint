@@ -1,5 +1,6 @@
 import { useState, useRef, DragEvent, ChangeEvent } from 'react';
 import { Upload, FileSpreadsheet, X, ChevronLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ImportUploadStepProps {
   onFileSelected: (file: File) => void;
@@ -15,6 +16,7 @@ function formatBytes(bytes: number): string {
 }
 
 export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +25,11 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
   function validateAndSet(f: File) {
     setError(null);
     if (!f.name.endsWith('.xlsx') && !f.name.endsWith('.csv')) {
-      setError('Only .xlsx or .csv files are accepted.');
+      setError(t('common.inventory.import.uploadStep.invalidFileType'));
       return;
     }
     if (f.size > MAX_SIZE_BYTES) {
-      setError(`File exceeds 10 MB limit (${formatBytes(f.size)}). Please reduce the file size.`);
+      setError(t('common.inventory.import.uploadStep.fileTooLarge', { size: formatBytes(f.size) }));
       return;
     }
     setFile(f);
@@ -71,9 +73,9 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Upload Your File</h2>
+        <h2 className="text-2xl font-bold text-gray-900">{t('common.inventory.import.uploadStep.pageTitle')}</h2>
         <p className="text-gray-500 mt-1 text-sm">
-          Upload the completed template. .xlsx or .csv, max 10 MB.
+          {t('common.inventory.import.uploadStep.pageSubtitle')}
         </p>
       </div>
 
@@ -91,11 +93,11 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
           <Upload className={`w-10 h-10 ${dragActive ? 'text-blue-600' : 'text-gray-400'}`} />
           <div className="text-center">
             <p className="font-semibold text-gray-700">
-              {dragActive ? 'Drop your file here' : 'Drag & drop your .xlsx or .csv file here'}
+              {dragActive ? t('common.inventory.import.uploadStep.dropHere') : t('common.inventory.import.uploadStep.dragDrop')}
             </p>
-            <p className="text-sm text-gray-500 mt-1">or click to browse files</p>
+            <p className="text-sm text-gray-500 mt-1">{t('common.inventory.import.uploadStep.orBrowse')}</p>
           </div>
-          <span className="text-xs text-gray-400">Max 10 MB · .xlsx or .csv</span>
+          <span className="text-xs text-gray-400">{t('common.inventory.import.uploadStep.maxSizeHint')}</span>
           <input
             ref={inputRef}
             type="file"
@@ -114,7 +116,7 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
           <button
             onClick={handleRemove}
             className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            aria-label="Remove file"
+            aria-label={t('common.inventory.import.uploadStep.removeFile')}
           >
             <X className="w-4 h-4" />
           </button>
@@ -136,14 +138,14 @@ export function ImportUploadStep({ onFileSelected, onBack }: ImportUploadStepPro
           className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors text-sm"
         >
           <Upload className="w-4 h-4" />
-          Upload &amp; Validate
+          {t('common.inventory.import.uploadStep.uploadAndValidate')}
         </button>
         <button
           onClick={onBack}
           className="inline-flex items-center justify-center gap-1.5 px-4 py-3 text-gray-600 hover:text-gray-900 text-sm font-medium"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back
+          {t('common.inventory.import.uploadStep.back')}
         </button>
       </div>
     </div>

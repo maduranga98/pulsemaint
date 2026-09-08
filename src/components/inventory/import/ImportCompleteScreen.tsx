@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CheckCircle, History, Eye, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface ImportCompleteScreenProps {
   newCount: number;
@@ -18,6 +19,7 @@ export function ImportCompleteScreen({
   onUndo,
   onViewParts,
 }: ImportCompleteScreenProps) {
+  const { t } = useTranslation();
   const [showUndoModal, setShowUndoModal] = useState(false);
   const [undoing, setUndoing] = useState(false);
 
@@ -40,21 +42,21 @@ export function ImportCompleteScreen({
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold text-gray-900">Import Complete!</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('common.inventory.import.complete.title')}</h2>
           <p className="text-lg font-semibold text-gray-700">
-            {newCount} parts created · {updateCount} parts updated
+            {t('common.inventory.import.complete.summary', { newCount, updateCount })}
           </p>
           {skippedCount > 0 && (
-            <p className="text-sm text-gray-500">{skippedCount} rows skipped</p>
+            <p className="text-sm text-gray-500">{t('common.inventory.import.complete.rowsSkipped', { count: skippedCount })}</p>
           )}
         </div>
 
         {/* Stats */}
         <div className="w-full grid grid-cols-3 gap-3">
           {[
-            { label: 'Created', value: newCount, color: 'text-green-700 bg-green-50' },
-            { label: 'Updated', value: updateCount, color: 'text-blue-700 bg-blue-50' },
-            { label: 'Skipped', value: skippedCount, color: 'text-gray-600 bg-gray-50' },
+            { label: t('common.inventory.import.complete.created'), value: newCount, color: 'text-green-700 bg-green-50' },
+            { label: t('common.inventory.import.complete.updated'), value: updateCount, color: 'text-blue-700 bg-blue-50' },
+            { label: t('common.inventory.import.complete.skipped'), value: skippedCount, color: 'text-gray-600 bg-gray-50' },
           ].map((s) => (
             <div key={s.label} className={`rounded-xl p-3 ${s.color}`}>
               <p className="text-2xl font-bold">{s.value}</p>
@@ -70,22 +72,22 @@ export function ImportCompleteScreen({
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm"
           >
             <Eye className="w-4 h-4" />
-            View Imported Parts
+            {t('common.inventory.import.complete.viewImportedParts')}
           </button>
           <Link
             to="/app/inventory/import/history"
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors text-sm"
           >
             <History className="w-4 h-4" />
-            View Import History
+            {t('common.inventory.import.complete.viewImportHistory')}
           </Link>
           <button
             onClick={() => setShowUndoModal(true)}
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors text-sm font-medium"
           >
             <RotateCcw className="w-4 h-4" />
-            Undo Import
-            <span className="text-xs text-gray-400 ml-1">(within 24h)</span>
+            {t('common.inventory.import.complete.undoImport')}
+            <span className="text-xs text-gray-400 ml-1">{t('common.inventory.import.complete.undoWithinHours')}</span>
           </button>
         </div>
       </div>
@@ -94,9 +96,9 @@ export function ImportCompleteScreen({
       {showUndoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Undo Import?</h3>
+            <h3 className="text-lg font-bold text-gray-900">{t('common.inventory.import.complete.undoModalTitle')}</h3>
             <p className="text-sm text-gray-600">
-              This will revert all changes from this import. Created parts will be deleted and updated parts will be restored.
+              {t('common.inventory.import.complete.undoModalBody')}
             </p>
             <div className="flex gap-3">
               <button
@@ -104,14 +106,14 @@ export function ImportCompleteScreen({
                 disabled={undoing}
                 className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors text-sm"
               >
-                Cancel
+                {t('common.inventory.import.complete.cancel')}
               </button>
               <button
                 onClick={handleUndo}
                 disabled={undoing}
                 className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors text-sm disabled:opacity-60"
               >
-                {undoing ? 'Undoing…' : 'Yes, Undo'}
+                {undoing ? t('common.inventory.import.complete.undoing') : t('common.inventory.import.complete.yesUndo')}
               </button>
             </div>
           </div>

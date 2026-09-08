@@ -4,6 +4,7 @@ import { Save } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useInventorySettings } from '@/hooks/inventory/useInventorySettings';
 import { useToast } from '@/hooks/useToast';
+import { SUPPORTED_LANGUAGES } from '@/lib/i18n';
 
 const ROLE_OPTIONS = ['store_keeper', 'supervisor', 'plant_manager', 'admin', 'technician'];
 
@@ -22,6 +23,7 @@ export function InventorySettingsPage() {
   const [poPrefix, setPoPrefix] = useState('PO');
   const [reqPrefix, setReqPrefix] = useState('REQ');
   const [requireReturn, setRequireReturn] = useState(false);
+  const [poEmailLanguage, setPoEmailLanguage] = useState('en-US');
   const [saving, setSaving] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,6 +34,7 @@ export function InventorySettingsPage() {
       setPoPrefix(settings.poNumberPrefix || 'PO');
       setReqPrefix(settings.requestNumberPrefix || 'REQ');
       setRequireReturn(settings.requireReturnLog);
+      setPoEmailLanguage(settings.poEmailLanguage || 'en-US');
     }
   }, [settings]);
 
@@ -185,6 +188,38 @@ export function InventorySettingsPage() {
         >
           <Save className="w-3.5 h-3.5" />
           {saving === 'return' ? 'Saving…' : 'Save'}
+        </button>
+      </div>
+
+      {/* 5. Supplier Communication */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+        <h3 className="font-semibold text-gray-900">Supplier Communication</h3>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Purchase order email language
+          </label>
+          <p className="text-xs text-gray-400 mb-2">
+            Language used for outbound PO emails sent to suppliers (PO document, pricing, cancellation, and delivery notices).
+          </p>
+          <select
+            value={poEmailLanguage}
+            onChange={(e) => setPoEmailLanguage(e.target.value)}
+            className="w-full sm:w-64 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {SUPPORTED_LANGUAGES.map(({ code, label }) => (
+              <option key={code} value={code}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <button
+          onClick={() => save('poEmailLanguage', { poEmailLanguage })}
+          disabled={saving === 'poEmailLanguage'}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl transition-colors disabled:opacity-60"
+        >
+          <Save className="w-3.5 h-3.5" />
+          {saving === 'poEmailLanguage' ? 'Saving…' : 'Save'}
         </button>
       </div>
     </div>

@@ -1,18 +1,19 @@
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ImportStepIndicatorProps {
   currentStep: 1 | 2 | 3 | 4 | 5;
 }
 
-const STEPS = [
-  { number: 1, label: 'Template' },
-  { number: 2, label: 'Upload' },
-  { number: 3, label: 'Validate' },
-  { number: 4, label: 'Import' },
-  { number: 5, label: 'Complete' },
-];
-
 export function ImportStepIndicator({ currentStep }: ImportStepIndicatorProps) {
+  const { t } = useTranslation();
+  const STEPS = [
+    { number: 1, label: t('common.inventory.import.stepIndicator.template') },
+    { number: 2, label: t('common.inventory.import.stepIndicator.upload') },
+    { number: 3, label: t('common.inventory.import.stepIndicator.validate') },
+    { number: 4, label: t('common.inventory.import.stepIndicator.import') },
+    { number: 5, label: t('common.inventory.import.stepIndicator.complete') },
+  ];
   return (
     <div className="flex items-center justify-center w-full mb-8">
       {STEPS.map((step, idx) => {

@@ -5,6 +5,8 @@ import { StockMovementBadge } from '@/components/inventory/shared/StockMovementB
 import type { MovementType } from '@/types/inventory';
 import { formatDistanceToNow } from '@/lib/dateUtils';
 import { ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 interface PartStockHistoryTabProps {
   partId: string;
@@ -23,18 +25,22 @@ function tsToDate(ts: unknown): Date | null {
   return null;
 }
 
-const MOVEMENT_TYPES: { value: MovementType; label: string }[] = [
-  { value: 'issue', label: 'Issue' },
-  { value: 'return', label: 'Return' },
-  { value: 'receive', label: 'Receive' },
-  { value: 'adjustment', label: 'Adjustment' },
-  { value: 'reserve', label: 'Reserve' },
-  { value: 'unreserve', label: 'Unreserve' },
-  { value: 'transfer_out', label: 'Transfer Out' },
-  { value: 'transfer_in', label: 'Transfer In' },
-];
+function getMovementTypes(t: TFunction): { value: MovementType; label: string }[] {
+  return [
+    { value: 'issue', label: t('common.inventory.detailPage.history.movementTypes.issue') },
+    { value: 'return', label: t('common.inventory.detailPage.history.movementTypes.return') },
+    { value: 'receive', label: t('common.inventory.detailPage.history.movementTypes.receive') },
+    { value: 'adjustment', label: t('common.inventory.detailPage.history.movementTypes.adjustment') },
+    { value: 'reserve', label: t('common.inventory.detailPage.history.movementTypes.reserve') },
+    { value: 'unreserve', label: t('common.inventory.detailPage.history.movementTypes.unreserve') },
+    { value: 'transfer_out', label: t('common.inventory.detailPage.history.movementTypes.transfer_out') },
+    { value: 'transfer_in', label: t('common.inventory.detailPage.history.movementTypes.transfer_in') },
+  ];
+}
 
 export function PartStockHistoryTab({ partId }: PartStockHistoryTabProps) {
+  const { t } = useTranslation();
+  const MOVEMENT_TYPES = getMovementTypes(t);
   const [movementType, setMovementType] = useState<AnyMovementType>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
@@ -57,10 +63,10 @@ export function PartStockHistoryTab({ partId }: PartStockHistoryTabProps) {
       {/* Stats row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Total Received', value: totalReceived, color: 'text-green-700' },
-          { label: 'Total Issued', value: totalIssued, color: 'text-red-700' },
-          { label: 'Adjustments', value: totalAdjustments, color: 'text-amber-700' },
-          { label: 'Net Change', value: netChange >= 0 ? `+${netChange}` : netChange, color: netChange >= 0 ? 'text-green-700' : 'text-red-700' },
+          { label: t('common.inventory.detailPage.history.totalReceived'), value: totalReceived, color: 'text-green-700' },
+          { label: t('common.inventory.detailPage.history.totalIssued'), value: totalIssued, color: 'text-red-700' },
+          { label: t('common.inventory.detailPage.history.adjustments'), value: totalAdjustments, color: 'text-amber-700' },
+          { label: t('common.inventory.detailPage.history.netChange'), value: netChange >= 0 ? `+${netChange}` : netChange, color: netChange >= 0 ? 'text-green-700' : 'text-red-700' },
         ].map((stat) => (
           <div key={stat.label} className="bg-white border border-gray-200 rounded-lg p-3 text-center">
             <p className="text-xs text-gray-500">{stat.label}</p>
@@ -77,9 +83,9 @@ export function PartStockHistoryTab({ partId }: PartStockHistoryTabProps) {
             onChange={(e) => setMovementType(e.target.value as AnyMovementType)}
             className="appearance-none border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
-            <option value="">All Types</option>
-            {MOVEMENT_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>{t.label}</option>
+            <option value="">{t('common.inventory.detailPage.history.allTypes')}</option>
+            {MOVEMENT_TYPES.map((mt) => (
+              <option key={mt.value} value={mt.value}>{mt.label}</option>
             ))}
           </select>
           <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -89,26 +95,26 @@ export function PartStockHistoryTab({ partId }: PartStockHistoryTabProps) {
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="From"
+          placeholder={t('common.inventory.detailPage.history.fromPlaceholder')}
         />
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="To"
+          placeholder={t('common.inventory.detailPage.history.toPlaceholder')}
         />
       </div>
 
       {/* Timeline */}
       {loading && (
-        <div className="text-center py-8 text-sm text-gray-500">Loading movements…</div>
+        <div className="text-center py-8 text-sm text-gray-500">{t('common.inventory.detailPage.history.loading')}</div>
       )}
       {error && (
         <div className="text-center py-8 text-sm text-red-600">{error}</div>
       )}
       {!loading && !error && movements.length === 0 && (
-        <div className="text-center py-8 text-sm text-gray-500">No stock movements found.</div>
+        <div className="text-center py-8 text-sm text-gray-500">{t('common.inventory.detailPage.history.noMovements')}</div>
       )}
 
       <div className="space-y-2">
@@ -133,13 +139,13 @@ export function PartStockHistoryTab({ partId }: PartStockHistoryTabProps) {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                    <span>By: <span className="font-medium text-gray-700">{m.performedByName}</span></span>
+                    <span>{t('common.inventory.detailPage.history.by')} <span className="font-medium text-gray-700">{m.performedByName}</span></span>
                     {date && <span>{formatDistanceToNow(date)}</span>}
                     {m.referenceId && m.referenceType !== 'manual_adjustment' && (
-                      <span>Ref: <span className="font-mono text-blue-600">{m.referenceId.slice(0, 8)}</span></span>
+                      <span>{t('common.inventory.detailPage.history.ref')} <span className="font-mono text-blue-600">{m.referenceId.slice(0, 8)}</span></span>
                     )}
                     {m.workOrderNumber && (
-                      <span>WO: <span className="font-medium text-gray-700">{m.workOrderNumber}</span></span>
+                      <span>{t('common.inventory.detailPage.history.wo')} <span className="font-medium text-gray-700">{m.workOrderNumber}</span></span>
                     )}
                   </div>
                   {m.notes && (

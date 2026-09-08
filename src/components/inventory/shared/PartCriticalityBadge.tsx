@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ShieldAlert, AlertCircle, Minus } from 'lucide-react';
 import type { PartCriticality } from '@/types/inventory';
 
@@ -8,28 +9,24 @@ interface PartCriticalityBadgeProps {
 
 const criticalityConfig: Record<
   PartCriticality,
-  { label: string; color: string; bg: string; Icon: React.ComponentType<{ className?: string }> }
+  { color: string; bg: string; Icon: React.ComponentType<{ className?: string }> }
 > = {
   critical: {
-    label: 'Critical',
     color: 'text-red-700',
     bg: 'bg-red-50',
     Icon: ShieldAlert,
   },
   high: {
-    label: 'High',
     color: 'text-orange-700',
     bg: 'bg-orange-50',
     Icon: AlertTriangle,
   },
   medium: {
-    label: 'Medium',
     color: 'text-amber-700',
     bg: 'bg-amber-50',
     Icon: AlertCircle,
   },
   low: {
-    label: 'Low',
     color: 'text-gray-600',
     bg: 'bg-gray-100',
     Icon: Minus,
@@ -49,15 +46,17 @@ const iconSizes = {
 };
 
 export function PartCriticalityBadge({ criticality, size = 'sm' }: PartCriticalityBadgeProps) {
+  const { t } = useTranslation();
   const config = criticalityConfig[criticality];
   const { Icon } = config;
+  const label = t(`common.inventory.enums.criticality.${criticality}`);
 
   return (
     <span
       className={`inline-flex items-center rounded-full font-medium ${config.bg} ${config.color} ${sizeClasses[size]}`}
     >
       <Icon className={iconSizes[size]} />
-      {config.label}
+      {label}
     </span>
   );
 }

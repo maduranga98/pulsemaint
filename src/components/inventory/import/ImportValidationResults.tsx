@@ -2,6 +2,7 @@ import { CheckCircle, AlertTriangle, RefreshCw, ChevronRight } from 'lucide-reac
 import type { ValidationResult, ParsedPartRow } from '@/types/inventory';
 import { ImportErrorTable } from './ImportErrorTable';
 import { ImportPreviewTable } from './ImportPreviewTable';
+import { useTranslation } from 'react-i18next';
 
 interface ImportValidationResultsProps {
   validationResult: ValidationResult;
@@ -25,6 +26,7 @@ export function ImportValidationResults({
   onConfirm,
   onReUpload,
 }: ImportValidationResultsProps) {
+  const { t } = useTranslation();
   const { validRows, errors, createCount, updateCount, isValid } = validationResult;
   const totalRows = validRows.length + errors.length;
 
@@ -39,23 +41,23 @@ export function ImportValidationResults({
         )}
         <div>
           <h2 className="text-xl font-bold text-gray-900">
-            {isValid ? 'Validation Passed' : 'Validation Failed'}
+            {isValid ? t('common.inventory.import.validation.passed') : t('common.inventory.import.validation.failed')}
           </h2>
           <p className="text-sm text-gray-500">
             {isValid
-              ? 'All rows are valid and ready to import.'
-              : `${errors.length} error${errors.length !== 1 ? 's' : ''} must be fixed before importing.`}
+              ? t('common.inventory.import.validation.allValid')
+              : t('common.inventory.import.validation.errorsMustBeFixed', { count: errors.length })}
           </p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <StatCard label="Total Rows" value={totalRows} color="bg-gray-50 text-gray-700" />
-        <StatCard label="Valid" value={validRows.length} color="bg-green-50 text-green-700" />
-        <StatCard label="Errors" value={errors.length} color={errors.length > 0 ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-500'} />
-        <StatCard label="Create" value={createCount} color="bg-green-50 text-green-700" />
-        <StatCard label="Update" value={updateCount} color="bg-blue-50 text-blue-700" />
+        <StatCard label={t('common.inventory.import.validation.totalRows')} value={totalRows} color="bg-gray-50 text-gray-700" />
+        <StatCard label={t('common.inventory.import.validation.valid')} value={validRows.length} color="bg-green-50 text-green-700" />
+        <StatCard label={t('common.inventory.import.validation.errors')} value={errors.length} color={errors.length > 0 ? 'bg-red-50 text-red-700' : 'bg-gray-50 text-gray-500'} />
+        <StatCard label={t('common.inventory.import.validation.create')} value={createCount} color="bg-green-50 text-green-700" />
+        <StatCard label={t('common.inventory.import.validation.update')} value={updateCount} color="bg-blue-50 text-blue-700" />
       </div>
 
       {/* Content */}
@@ -67,7 +69,7 @@ export function ImportValidationResults({
             className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors text-sm"
           >
             <RefreshCw className="w-4 h-4" />
-            Upload New File
+            {t('common.inventory.import.validation.uploadNewFile')}
           </button>
         </div>
       ) : (
@@ -83,7 +85,7 @@ export function ImportValidationResults({
               onClick={onConfirm}
               className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors text-sm"
             >
-              Confirm Import
+              {t('common.inventory.import.validation.confirmImport')}
               <ChevronRight className="w-4 h-4" />
             </button>
             <button
@@ -91,7 +93,7 @@ export function ImportValidationResults({
               className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 font-medium rounded-xl transition-colors text-sm"
             >
               <RefreshCw className="w-4 h-4" />
-              Upload Different File
+              {t('common.inventory.import.validation.uploadDifferentFile')}
             </button>
           </div>
         </div>

@@ -10,8 +10,10 @@ import { useAuthStore } from '@/store/authStore';
 import { useImportHistory } from '@/hooks/inventory/useImportHistory';
 import { useToast } from '@/hooks/useToast';
 import { ImportHistoryTable } from '@/components/inventory/import/ImportHistoryTable';
+import { useTranslation } from 'react-i18next';
 
 export function ImportHistoryPage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const { sessions, loading, error } = useImportHistory();
@@ -23,9 +25,9 @@ export function ImportHistoryPage() {
         reversedAt: serverTimestamp(),
         reversedBy: userId,
       });
-      addToast('Import reversed successfully.', 'success');
+      addToast(t('common.inventory.import.toasts.reverseSuccess'), 'success');
     } catch (err) {
-      addToast('Failed to reverse import.', 'error');
+      addToast(t('common.inventory.import.toasts.reverseFailed'), 'error');
       console.error(err);
     }
   }
@@ -36,7 +38,7 @@ export function ImportHistoryPage() {
         <Link to="/app/inventory/import" className="text-gray-400 hover:text-gray-700 transition-colors">
           <ChevronLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900">Import History</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('common.inventory.import.historyPage.title')}</h1>
       </div>
 
       {error && (
