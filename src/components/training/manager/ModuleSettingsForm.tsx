@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type {
   TrainingModule,
   TrainingModuleStatus,
@@ -56,6 +57,7 @@ export default function ModuleSettingsForm({
   isLoading = false,
   lockTrainingType,
 }: ModuleSettingsFormProps) {
+  const { t } = useTranslation();
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     defaultValues: {
       title: defaultValues?.title ?? '',
@@ -85,7 +87,7 @@ export default function ModuleSettingsForm({
   // controlled via value/onChange rather than a spread ref, since it also
   // has to intercept the "+ Add new type…" sentinel before it ever reaches
   // form state.
-  register('trainingType', { required: 'Training type is required' });
+  register('trainingType', { required: t('common.trainingShared.settingsForm.errors.trainingTypeRequired') });
 
   async function handleFormSubmit(values: FormValues) {
     const tags = values.tags
@@ -118,17 +120,19 @@ export default function ModuleSettingsForm({
     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
       {/* Module Info Section */}
       <div className="flex flex-col gap-1">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Module Info</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+          {t('common.trainingShared.settingsForm.sectionTitle')}
+        </h3>
       </div>
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">
-          Module Title <span className="text-red-500">*</span>
+          {t('common.trainingShared.settingsForm.fields.title')} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
-          {...register('title', { required: 'Title is required' })}
-          placeholder="e.g. CNC Machine Safety Training"
+          {...register('title', { required: t('common.trainingShared.settingsForm.errors.titleRequired') })}
+          placeholder={t('common.trainingShared.settingsForm.fields.titlePlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         {errors.title && (
@@ -137,11 +141,11 @@ export default function ModuleSettingsForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Description</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.settingsForm.fields.description')}</label>
         <textarea
           {...register('description')}
           rows={3}
-          placeholder="Briefly describe what this module covers…"
+          placeholder={t('common.trainingShared.settingsForm.fields.descriptionPlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
         />
       </div>
@@ -149,14 +153,14 @@ export default function ModuleSettingsForm({
       {!lockTrainingType && (
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
-            Training Type <span className="text-red-500">*</span>
+            {t('common.trainingShared.settingsForm.fields.trainingType')} <span className="text-red-500">*</span>
           </label>
           {isCustomType ? (
             <div className="flex gap-2">
               <input
                 type="text"
-                {...register('trainingType', { required: 'Training type is required' })}
-                placeholder="e.g. Forklift Certification"
+                {...register('trainingType', { required: t('common.trainingShared.settingsForm.errors.trainingTypeRequired') })}
+                placeholder={t('common.trainingShared.settingsForm.fields.trainingTypePlaceholder')}
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 autoFocus
               />
@@ -168,7 +172,7 @@ export default function ModuleSettingsForm({
                 }}
                 className="text-xs font-medium text-blue-600 hover:underline whitespace-nowrap"
               >
-                Choose from list
+                {t('common.trainingShared.settingsForm.fields.chooseFromList')}
               </button>
             </div>
           ) : (
@@ -184,11 +188,11 @@ export default function ModuleSettingsForm({
               }}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
             >
-              <option value="">Select training type…</option>
+              <option value="">{t('common.trainingShared.settingsForm.fields.selectTrainingType')}</option>
               {Object.entries(TRAINEE_TRAINING_TYPE_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
-              <option value={CUSTOM_TYPE_VALUE}>+ Add new type…</option>
+              <option value={CUSTOM_TYPE_VALUE}>{t('common.trainingShared.settingsForm.fields.addNewType')}</option>
             </select>
           )}
           {errors.trainingType && <p className="text-xs text-red-500">{errors.trainingType.message}</p>}
@@ -201,13 +205,13 @@ export default function ModuleSettingsForm({
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">
-          Mode <span className="text-red-500">*</span>
+          {t('common.trainingShared.settingsForm.fields.mode')} <span className="text-red-500">*</span>
         </label>
         <select
-          {...register('trainingMode', { required: 'Mode is required' })}
+          {...register('trainingMode', { required: t('common.trainingShared.settingsForm.errors.modeRequired') })}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         >
-          <option value="">Select mode…</option>
+          <option value="">{t('common.trainingShared.settingsForm.fields.selectMode')}</option>
           {Object.entries(TRAINING_DELIVERY_MODE_LABELS).map(([value, label]) => (
             <option key={value} value={value}>{label}</option>
           ))}
@@ -216,7 +220,7 @@ export default function ModuleSettingsForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Passing Score</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.settingsForm.fields.passingScore')}</label>
         <div className="flex items-center gap-2 w-40">
           <input
             type="number"
@@ -230,26 +234,26 @@ export default function ModuleSettingsForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Status</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.settingsForm.fields.status')}</label>
         <select
           {...register('status')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
         >
-          <option value="draft">Draft</option>
-          <option value="active">Active</option>
-          <option value="archived">Archived</option>
+          <option value="draft">{t('common.trainingShared.settingsForm.statuses.draft')}</option>
+          <option value="active">{t('common.trainingShared.settingsForm.statuses.active')}</option>
+          <option value="archived">{t('common.trainingShared.settingsForm.statuses.archived')}</option>
         </select>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Tags</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.settingsForm.fields.tags')}</label>
         <input
           type="text"
           {...register('tags')}
-          placeholder="safety, cnc, level-1  (comma-separated)"
+          placeholder={t('common.trainingShared.settingsForm.fields.tagsPlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        <p className="text-xs text-gray-400">Separate tags with commas</p>
+        <p className="text-xs text-gray-400">{t('common.trainingShared.settingsForm.fields.tagsHint')}</p>
       </div>
 
       {/* Real quiz settings (pass score, attempts, time limit, shuffle)
@@ -263,7 +267,7 @@ export default function ModuleSettingsForm({
         className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg py-2.5 px-4 text-sm transition-colors"
       >
         {isLoading && <Loader2 size={16} className="animate-spin" />}
-        Save Module
+        {t('common.trainingShared.settingsForm.submit')}
       </button>
     </form>
   );

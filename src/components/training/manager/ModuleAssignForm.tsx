@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, addDoc, getDocs, onSnapshot, query, serverTimestamp, where } from 'firebase/firestore';
 import { X, Loader2, Users, Shield, Building2 } from 'lucide-react';
+import { useTranslation, type TFunction } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
@@ -9,18 +10,21 @@ import type { UserProfile, UserRole } from '@/types/auth';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
 import { getModuleCategory } from '@/lib/training/offboardTraining';
 
-const ROLE_LABEL: Record<UserRole, string> = {
-  admin: 'Admin',
-  plant_manager: 'Plant Manager',
-  supervisor: 'Supervisor',
-  technician: 'Technician',
-  store_keeper: 'Store Keeper',
-  hr_officer: 'HR Officer',
-  trainee: 'Trainee',
-  floor_operator: 'Floor Operator',
-  safety_officer: 'Safety Officer',
-};
-const ROLE_OPTIONS = Object.keys(ROLE_LABEL) as UserRole[];
+const ROLE_OPTIONS = [
+  'admin',
+  'plant_manager',
+  'supervisor',
+  'technician',
+  'store_keeper',
+  'hr_officer',
+  'trainee',
+  'floor_operator',
+  'safety_officer',
+] as UserRole[];
+
+function roleLabel(role: UserRole, t: TFunction): string {
+  return t(`common.trainingShared.assignForm.roleLabels.${role}`, { defaultValue: role.replace(/_/g, ' ') });
+}
 
 type TargetMode = 'users' | 'roles' | 'departments';
 
@@ -37,6 +41,7 @@ interface ModuleAssignFormProps {
  * trainees.
  */
 export default function ModuleAssignForm({ module, onClose, onAssigned }: ModuleAssignFormProps) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
 
@@ -180,8 +185,11 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
         if (notifyTrainee) {
           void notifyUsers(companyId, [trainee.id], {
             type: 'training',
-            message: `You've been assigned a new training module: ${module.title}`,
-            oversightMessage: `assigned "${module.title}" to ${trainee.fullName}`,
+            message: t('common.trainingShared.assignForm.notification.message', { title: module.title }),
+            oversightMessage: t('common.trainingShared.assignForm.notification.oversightMessage', {
+              title: module.title,
+              name: trainee.fullName,
+            }),
             actorName: userProfile.fullName ?? '',
             actorRole: userProfile.role,
             actorUserId: userProfile.id,
@@ -191,7 +199,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
       }
       setResult({ assigned, skipped });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to assign training.');
+      setError(err instanceof Error ? err.message : t('common.trainingShared.assignForm.errors.failed'));
     } finally {
       setSubmitting(false);
     }
@@ -202,10 +210,10 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
       <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Assign Module</h2>
+            <h2 className="text-lg font-bold text-slate-900">{t('common.trainingShared.assignForm.title')}</h2>
             <p className="text-xs text-slate-500 mt-0.5 truncate">{module.title}</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700" aria-label="Close">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700" aria-label={t('common.trainingShared.assignForm.closeAria')}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -213,23 +221,24 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
         {result ? (
           <div className="p-6 space-y-4">
             <p className="text-sm text-slate-700">
-              Assigned to <strong>{result.assigned}</strong> {result.assigned === 1 ? 'person' : 'people'}.
-              {result.skipped > 0 && ` ${result.skipped} already had an active assignment for this module and were skipped.`}
+              {t('common.trainingShared.assignForm.result.assignedTo', { count: result.assigned })}
+              {result.skipped > 0 &&
+                t('common.trainingShared.assignForm.result.skipped', { count: result.skipped })}
             </p>
             <button
               onClick={onAssigned}
               className="w-full px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Done
+              {t('common.trainingShared.assignForm.result.done')}
             </button>
           </div>
         ) : (
           <div className="p-6 space-y-4">
             <div className="flex gap-2">
               {([
-                ['users', 'Users', Users],
-                ['roles', 'Roles', Shield],
-                ['departments', 'Departments', Building2],
+                ['users', t('common.trainingShared.assignForm.modes.users'), Users],
+                ['roles', t('common.trainingShared.assignForm.modes.roles'), Shield],
+                ['departments', t('common.trainingShared.assignForm.modes.departments'), Building2],
               ] as [TargetMode, string, typeof Users][]).map(([value, label, Icon]) => (
                 <button
                   key={value}
@@ -256,7 +265,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
                 <input
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="Search users…"
+                  placeholder={t('common.trainingShared.assignForm.searchPlaceholder')}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm mb-2"
                 />
                 <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-56 overflow-y-auto">
@@ -271,10 +280,10 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
                       <span className="flex-1 min-w-0 truncate text-sm text-gray-900">{u.fullName}</span>
                       {u.status === 'pending' && (
                         <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
-                          Invite pending
+                          {t('common.trainingShared.assignForm.invitePending')}
                         </span>
                       )}
-                      <span className="shrink-0 text-xs text-gray-400">{ROLE_LABEL[u.role]}</span>
+                      <span className="shrink-0 text-xs text-gray-400">{roleLabel(u.role, t)}</span>
                     </label>
                   ))}
                 </div>
@@ -289,14 +298,14 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
                       onChange={() => toggle(selectedRoles, r, setSelectedRoles)}
                       className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-900">{ROLE_LABEL[r]}</span>
+                    <span className="text-sm text-gray-900">{roleLabel(r, t)}</span>
                   </label>
                 ))}
               </div>
             ) : (
               <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-56 overflow-y-auto">
                 {departments.length === 0 ? (
-                  <p className="text-center py-6 text-sm text-gray-400">No departments set up yet.</p>
+                  <p className="text-center py-6 text-sm text-gray-400">{t('common.trainingShared.assignForm.noDepartments')}</p>
                 ) : (
                   departments.map((d) => (
                     <label key={d} className="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-gray-50">
@@ -314,12 +323,13 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
             )}
 
             <p className="text-sm text-gray-500">
-              {resolvedUsers.length} {resolvedUsers.length === 1 ? 'person' : 'people'} will be assigned
+              {t('common.trainingShared.assignForm.willBeAssigned', { count: resolvedUsers.length })}
             </p>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Due Date <span className="text-gray-400 font-normal">(optional)</span>
+                {t('common.trainingShared.assignForm.dueDate')}{' '}
+                <span className="text-gray-400 font-normal">{t('common.trainingShared.assignForm.optional')}</span>
               </label>
               <input
                 type="date"
@@ -330,7 +340,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
             </div>
 
             <label className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer">
-              <span className="text-sm font-medium text-gray-900">Notify assignees</span>
+              <span className="text-sm font-medium text-gray-900">{t('common.trainingShared.assignForm.notifyAssignees')}</span>
               <input
                 type="checkbox"
                 checked={notifyTrainee}
@@ -343,7 +353,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
 
             <div className="flex justify-end gap-3 pt-2">
               <button onClick={onClose} disabled={submitting} className="px-4 py-2 text-sm font-medium border border-slate-300 rounded-lg hover:bg-slate-50">
-                Cancel
+                {t('common.trainingShared.assignForm.cancel')}
               </button>
               <button
                 onClick={() => void handleSubmit()}
@@ -351,7 +361,7 @@ export default function ModuleAssignForm({ module, onClose, onAssigned }: Module
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60"
               >
                 {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                Assign
+                {t('common.trainingShared.assignForm.assign')}
               </button>
             </div>
           </div>

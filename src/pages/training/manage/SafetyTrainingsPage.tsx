@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, ShieldAlert, CalendarClock, Users, UserPlus, Plus, CalendarDays, ChevronDown, ChevronUp, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation, type TFunction } from 'react-i18next';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -40,6 +41,7 @@ function formatDate(date: string): string {
  */
 export default function SafetyTrainingsPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   // Delete is admin-only (see firestore.rules trainingModules delete rule) —
   // other authoring roles (plant_manager/supervisor/hr_officer/safety_officer)
@@ -52,14 +54,14 @@ export default function SafetyTrainingsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleDelete(moduleId: string, title: string) {
-    if (!window.confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    if (!window.confirm(t('common.safetyTrainings.deleteConfirm', { title }))) return;
     setDeletingId(moduleId);
     try {
       await deleteDoc(doc(db, 'trainingModules', moduleId));
-      toast.success('Safety training module deleted.');
+      toast.success(t('common.safetyTrainings.toasts.deleted'));
     } catch (err) {
       console.error('Failed to delete safety training module', err);
-      toast.error('Failed to delete module. Please try again.');
+      toast.error(t('common.safetyTrainings.toasts.deleteFailed'));
     } finally {
       setDeletingId(null);
     }
@@ -103,7 +105,7 @@ export default function SafetyTrainingsPage() {
     ...modules.map((m) => ({ id: m.id, title: m.title, sessions: getModuleSessions(m) })),
     ...orphanModuleIds.map((id) => ({
       id,
-      title: assignmentsByModule.get(id)?.[0]?.moduleName ?? 'Safety Training',
+      title: assignmentsByModule.get(id)?.[0]?.moduleName ?? t('common.safetyTrainings.list.defaultTitle'),
       sessions: [] as ReturnType<typeof getModuleSessions>,
     })),
   ];
@@ -113,7 +115,7 @@ export default function SafetyTrainingsPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <ShieldAlert className="h-6 w-6 text-amber-600" />
-          <h1 className="text-xl font-bold text-slate-900">Safety Trainings</h1>
+          <h1 className="text-xl font-bold text-slate-900">{t('common.safetyTrainings.pageTitle')}</h1>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -121,14 +123,14 @@ export default function SafetyTrainingsPage() {
             onClick={() => navigate('/app/safety/calendar')}
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
-            <CalendarDays className="h-4 w-4" /> View Training Schedules
+            <CalendarDays className="h-4 w-4" /> {t('common.safetyTrainings.viewSchedules')}
           </button>
           <button
             type="button"
             onClick={() => navigate('/app/training/manage/safety-trainings/new')}
             className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700"
           >
-            <Plus className="h-4 w-4" /> Create Safety Training Module
+            <Plus className="h-4 w-4" /> {t('common.safetyTrainings.createModule')}
           </button>
         </div>
       </div>
@@ -136,21 +138,21 @@ export default function SafetyTrainingsPage() {
       <div className="mb-6 grid grid-cols-3 gap-3">
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
           <div className="text-2xl font-bold text-slate-900">{modules.length}</div>
-          <div className="text-xs text-slate-500">Safety modules</div>
+          <div className="text-xs text-slate-500">{t('common.safetyTrainings.stats.modules')}</div>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
           <div className="text-2xl font-bold text-slate-900">{assignments.length}</div>
-          <div className="text-xs text-slate-500">Assignments</div>
+          <div className="text-xs text-slate-500">{t('common.safetyTrainings.stats.assignments')}</div>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
           <div className="text-2xl font-bold text-slate-900">{totalAssignees}</div>
-          <div className="text-xs text-slate-500">People assigned</div>
+          <div className="text-xs text-slate-500">{t('common.safetyTrainings.stats.peopleAssigned')}</div>
         </div>
       </div>
 
       {moduleRows.length === 0 ? (
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-          No safety trainings yet. Use "Create Safety Training Module" above, then assign it.
+          {t('common.safetyTrainings.list.empty')}
         </div>
       ) : (
         <div className="space-y-5">
@@ -170,7 +172,7 @@ export default function SafetyTrainingsPage() {
                   </button>
                   <div className="flex items-center gap-3">
                     <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                      <Users className="h-3.5 w-3.5" /> {rowAssignments.length} assigned
+                      <Users className="h-3.5 w-3.5" /> {t('common.safetyTrainings.list.assigned', { count: rowAssignments.length })}
                     </span>
                     {modulesById.has(row.id) && (
                       <>
@@ -179,14 +181,14 @@ export default function SafetyTrainingsPage() {
                           onClick={() => setAssigningModule(modulesById.get(row.id) ?? null)}
                           className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700 hover:bg-amber-100"
                         >
-                          <UserPlus className="h-3.5 w-3.5" /> Assign
+                          <UserPlus className="h-3.5 w-3.5" /> {t('common.safetyTrainings.list.assign')}
                         </button>
                         <button
                           type="button"
                           onClick={() => navigate(`/app/training/manage/modules/${row.id}`)}
                           className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
                         >
-                          <Pencil className="h-3.5 w-3.5" /> Edit
+                          <Pencil className="h-3.5 w-3.5" /> {t('common.safetyTrainings.list.edit')}
                         </button>
                         {isAdmin && (
                           <button
@@ -195,7 +197,7 @@ export default function SafetyTrainingsPage() {
                             onClick={() => handleDelete(row.id, row.title)}
                             className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-white px-2.5 py-1 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
                           >
-                            <Trash2 className="h-3.5 w-3.5" /> Delete
+                            <Trash2 className="h-3.5 w-3.5" /> {t('common.safetyTrainings.list.delete')}
                           </button>
                         )}
                       </>
@@ -222,16 +224,16 @@ export default function SafetyTrainingsPage() {
                     )}
 
                     {rowAssignments.length === 0 ? (
-                      <p className="text-sm text-slate-500">Not assigned to anyone yet.</p>
+                      <p className="text-sm text-slate-500">{t('common.safetyTrainings.list.notAssigned')}</p>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full min-w-[520px] text-sm">
                           <thead>
                             <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
-                              <th className="py-2 pr-3 font-medium">Attendee</th>
-                              <th className="py-2 pr-3 font-medium">Assigned by</th>
-                              <th className="py-2 pr-3 font-medium">Assigned at</th>
-                              <th className="py-2 pr-3 font-medium">Completion status</th>
+                              <th className="py-2 pr-3 font-medium">{t('common.safetyTrainings.table.attendee')}</th>
+                              <th className="py-2 pr-3 font-medium">{t('common.safetyTrainings.table.assignedBy')}</th>
+                              <th className="py-2 pr-3 font-medium">{t('common.safetyTrainings.table.assignedAt')}</th>
+                              <th className="py-2 pr-3 font-medium">{t('common.safetyTrainings.table.completionStatus')}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -249,7 +251,7 @@ export default function SafetyTrainingsPage() {
                                   <TrainingStatusBadge status={a.status} />
                                   {a.completedAt && (
                                     <span className="block text-xs text-slate-400 mt-0.5">
-                                      Completed {formatTimestamp(a.completedAt)}
+                                      {t('common.safetyTrainings.list.completed', { date: formatTimestamp(a.completedAt) })}
                                     </span>
                                   )}
                                 </td>

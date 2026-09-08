@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { collection, addDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
@@ -18,6 +19,7 @@ import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm
  */
 export default function CreateSafetyTrainingModulePage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,7 +44,7 @@ export default function CreateSafetyTrainingModulePage() {
           ...updates,
           // Falls back to something recognizable rather than a blank title
           // that reads as "New Module" on the editor while it's mid-creation.
-          title: updates.title || 'Untitled Safety Training',
+          title: updates.title || t('common.safetyTrainings.createPage.untitled'),
           trainingType: SAFETY_TRAINING_TYPE,
           companyId,
           createdBy: userId,
@@ -58,7 +60,7 @@ export default function CreateSafetyTrainingModulePage() {
       }
     } catch (err) {
       console.error('Failed to save safety training module', err);
-      toast.error('Failed to save module. Please try again.');
+      toast.error(t('common.safetyTrainings.toasts.saveFailed'));
     } finally {
       setIsSaving(false);
     }
@@ -66,7 +68,7 @@ export default function CreateSafetyTrainingModulePage() {
 
   const handleSaveSettings = async (updates: Partial<TrainingModule>) => {
     await handleSave(updates);
-    toast.success('Safety training module saved. You can now add a quiz or assign it.');
+    toast.success(t('common.safetyTrainings.toasts.saved'));
     navigate('/app/training/manage/safety-trainings', { replace: true });
   };
 
@@ -76,11 +78,11 @@ export default function CreateSafetyTrainingModulePage() {
         <button
           onClick={() => navigate('/app/training/manage/safety-trainings')}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back to Safety Trainings"
+          aria-label={t('common.safetyTrainings.createPage.backAria')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm flex-1">Create Safety Training Module</h1>
+        <h1 className="font-semibold text-slate-900 text-sm flex-1">{t('common.safetyTrainings.createPage.title')}</h1>
       </div>
       <ModuleEditorLayout
         module={undefined}

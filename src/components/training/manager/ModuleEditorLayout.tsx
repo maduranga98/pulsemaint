@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, ClipboardList } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
 import { isOffboardModule } from '@/lib/training/offboardTraining';
 import LessonListEditor from './LessonListEditor';
@@ -38,6 +39,7 @@ export default function ModuleEditorLayout({
   editorBasePath,
 }: ModuleEditorLayoutProps) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [lessons, setLessons] = useState<LessonItem[]>(module?.lessons ?? []);
   const [editingLesson, setEditingLesson] = useState<Partial<LessonItem> | null>(null);
   const [isNewLesson, setIsNewLesson] = useState(false);
@@ -125,7 +127,7 @@ export default function ModuleEditorLayout({
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Settings
+          {t('common.trainingShared.editorLayout.tabs.settings')}
         </button>
         {!isOffboard && (
           <button
@@ -137,7 +139,9 @@ export default function ModuleEditorLayout({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Lessons {lessons.length > 0 && `(${lessons.length})`}
+            {lessons.length > 0
+              ? t('common.trainingShared.editorLayout.tabs.lessons', { count: lessons.length })
+              : t('common.trainingShared.editorLayout.tabs.lessonsNoCount')}
           </button>
         )}
       </div>
@@ -154,7 +158,7 @@ export default function ModuleEditorLayout({
             <div className="flex items-center gap-2 mb-4">
               <BookOpen size={18} className="text-blue-600" />
               <h2 className="text-base font-semibold text-gray-800">
-                {module?.title || 'New Module'}
+                {module?.title || t('common.trainingShared.editorLayout.newModule')}
               </h2>
             </div>
             {renderSettings()}
@@ -172,9 +176,11 @@ export default function ModuleEditorLayout({
           <div className="bg-white rounded-xl border border-gray-200 p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold text-gray-800">
-                Lessons
+                {t('common.trainingShared.editorLayout.lessonsSection.title')}
               </h2>
-              <span className="text-xs text-gray-400">{lessons.length} lesson{lessons.length !== 1 ? 's' : ''}</span>
+              <span className="text-xs text-gray-400">
+                {t('common.trainingShared.editorLayout.lessonsSection.count', { count: lessons.length })}
+              </span>
             </div>
 
             <LessonListEditor
@@ -199,7 +205,7 @@ export default function ModuleEditorLayout({
           {/* Quiz section */}
           <div className="bg-white rounded-xl border border-gray-200 p-5">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-gray-800">Quiz</h2>
+              <h2 className="text-base font-semibold text-gray-800">{t('common.trainingShared.editorLayout.quiz.title')}</h2>
             </div>
 
             {hasQuiz ? (
@@ -207,11 +213,11 @@ export default function ModuleEditorLayout({
                 <ClipboardList size={20} className="text-blue-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-blue-700 truncate">
-                    {module.quiz!.title || 'Untitled Quiz'}
+                    {module.quiz!.title || t('common.trainingShared.editorLayout.quiz.untitled')}
                   </p>
                   <p className="text-xs text-blue-500">
-                    {module.quiz!.questions.length} question{module.quiz!.questions.length !== 1 ? 's' : ''} ·
-                    Pass {module.quiz!.passingScore}%
+                    {t('common.trainingShared.editorLayout.quiz.questions', { count: module.quiz!.questions.length })} ·{' '}
+                    {t('common.trainingShared.editorLayout.quiz.passLabel', { score: module.quiz!.passingScore })}
                   </p>
                 </div>
                 {moduleId && (
@@ -220,7 +226,7 @@ export default function ModuleEditorLayout({
                     onClick={() => navigate(`${editorBasePath}/${moduleId}/quiz`)}
                     className="text-xs font-medium text-blue-600 hover:text-blue-700 border border-blue-300 hover:border-blue-400 rounded-lg px-3 py-1.5 transition-colors whitespace-nowrap"
                   >
-                    Edit Quiz
+                    {t('common.trainingShared.editorLayout.quiz.editQuiz')}
                   </button>
                 )}
               </div>
@@ -228,8 +234,8 @@ export default function ModuleEditorLayout({
               <div className="flex flex-col items-center gap-3 py-8 text-center">
                 <ClipboardList size={32} className="text-gray-200" />
                 <div>
-                  <p className="text-sm font-medium text-gray-500">No quiz yet</p>
-                  <p className="text-xs text-gray-400">Add a quiz to assess learner understanding.</p>
+                  <p className="text-sm font-medium text-gray-500">{t('common.trainingShared.editorLayout.quiz.noQuiz')}</p>
+                  <p className="text-xs text-gray-400">{t('common.trainingShared.editorLayout.quiz.noQuizHint')}</p>
                 </div>
                 {moduleId && (
                   <button
@@ -237,7 +243,7 @@ export default function ModuleEditorLayout({
                     onClick={() => navigate(`${editorBasePath}/${moduleId}/quiz`)}
                     className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 border border-blue-300 hover:border-blue-400 rounded-lg px-4 py-2 transition-colors"
                   >
-                    Add Quiz
+                    {t('common.trainingShared.editorLayout.quiz.addQuiz')}
                   </button>
                 )}
               </div>
