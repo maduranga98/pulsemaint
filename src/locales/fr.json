@@ -2316,6 +2316,139 @@
           "failed": "Échec de l'émission du permis."
         }
       }
+    },
+    "safetyCases": {
+      "pageTitle": "Cas de Sécurité",
+      "pageTitleReportedToMe": "Cas de Sécurité qui Me Sont Signalés",
+      "subtitle": "Enregistrez les actions et suivez chaque cas de sécurité signalé.",
+      "subtitleReportedToMe": "Cas que l'équipe sécurité vous a transmis.",
+      "cases_one": "Cas ({{count}})",
+      "cases_other": "Cas ({{count}})",
+      "empty": {
+        "officer": "Aucun cas de sécurité enregistré pour l'instant",
+        "reportedToMe": "Aucun cas ne vous a été signalé"
+      },
+      "types": {
+        "incident": "Incident",
+        "near_miss": "Presqu'accident",
+        "hazard": "Danger",
+        "unsafe_act": "Acte Dangereux"
+      },
+      "severities": {
+        "low": "Faible",
+        "medium": "Moyenne",
+        "high": "Élevée",
+        "critical": "Critique"
+      },
+      "statuses": {
+        "open": "ouvert",
+        "investigating": "en investigation",
+        "closed": "clôturé"
+      },
+      "subjectTypes": {
+        "other": "Autre",
+        "work_order": "Ordre de Travail",
+        "contractor": "Prestataire",
+        "operator": "Opérateur",
+        "technician": "Technicien"
+      },
+      "roleLabels": {
+        "admin": "Administrateur",
+        "plant_manager": "Directeur d'Usine",
+        "supervisor": "Superviseur",
+        "hr_officer": "Responsable RH",
+        "technician": "Technicien",
+        "floor_operator": "Opérateur",
+        "store_keeper": "Magasinier",
+        "trainee": "Stagiaire",
+        "safety_officer": "Responsable Sécurité"
+      },
+      "points": "{{points}} pts",
+      "row": {
+        "reportedBy": "Signalé par",
+        "reportedAt": "Signalé le",
+        "location": "Emplacement",
+        "reportedTo": "Signalé à",
+        "whatHappened": "Ce qui s'est passé",
+        "actionToTake": "Action à entreprendre",
+        "actionsTaken_one": "Actions entreprises ({{count}})",
+        "actionsTaken_other": "Actions entreprises ({{count}})",
+        "noActions": "Aucune action enregistrée pour l'instant.",
+        "closedNotice": "Ce cas est clôturé et ne peut plus être modifié."
+      },
+      "actionForm": {
+        "heading": "Enregistrer une action",
+        "notePlaceholder": "Qu'a-t-il été fait à propos de ce cas ?",
+        "keepStatus": "Conserver le statut ({{status}})",
+        "setToOpen": "Marquer comme Ouvert",
+        "setToInvestigating": "Marquer comme En Investigation",
+        "setToClosed": "Marquer comme Clôturé",
+        "record": "Enregistrer",
+        "recording": "Enregistrement…",
+        "errors": {
+          "noteOrStatus": "Ajoutez une note ou modifiez le statut."
+        },
+        "toasts": {
+          "recorded": "Action enregistrée.",
+          "failed": "Échec de l'enregistrement de l'action."
+        }
+      },
+      "reportTo": {
+        "label": "Signaler à",
+        "selectPerson": "Sélectionnez une personne…",
+        "report": "Signaler",
+        "reporting": "Signalement…",
+        "errors": {
+          "chooseRecipient": "Choisissez à qui signaler ce cas."
+        },
+        "toasts": {
+          "reported": "Signalé à {{name}}.",
+          "failed": "Échec du signalement du cas."
+        },
+        "notification": "Cas de sécurité qui vous a été signalé : {{title}}"
+      },
+      "createModal": {
+        "title": "Signaler un Cas de Sécurité",
+        "close": "Fermer",
+        "cancel": "Annuler",
+        "submit": "Enregistrer le Cas",
+        "saving": "Enregistrement…",
+        "subject": {
+          "label": "L'incident concerne",
+          "select": "Sélectionner…",
+          "workOrderLabel": "Ordre de travail concerné (en cours)",
+          "workOrderOption": "{{number}} — {{machine}}",
+          "machineFallback": "Machine",
+          "noWorkOrders": "Aucun ordre de travail en cours pour le moment.",
+          "noPeople": "Aucun {{label}} trouvé."
+        },
+        "fields": {
+          "type": "Type",
+          "severity": "Gravité",
+          "pointsLabel": "Points de sécurité (automatique selon la gravité)",
+          "title": "Titre *",
+          "titlePlaceholder": "ex. Risque de glissade près de la ligne d'emballage",
+          "location": "Emplacement",
+          "locationPlaceholder": "Zone / machine",
+          "whatHappened": "Que s'est-il passé ?",
+          "actionToTake": "Action à entreprendre",
+          "reportTo": "Signaler à (facultatif)",
+          "reportToNone": "Personne — conserver avec l'équipe sécurité"
+        },
+        "errors": {
+          "titleRequired": "Donnez un titre court au cas."
+        },
+        "toasts": {
+          "logged": "Cas de sécurité enregistré.",
+          "failed": "Échec de l'enregistrement du cas de sécurité."
+        },
+        "notifications": {
+          "newCase": "Nouveau cas de sécurité signalé : {{title}}",
+          "newCaseOversight": "a signalé un cas de sécurité : {{title}}",
+          "reportedTo": "Cas de sécurité qui vous a été signalé : {{title}}",
+          "reportedToOversight": "a signalé un cas de sécurité à {{name}} : {{title}}"
+        }
+      }
     }
   }
 }

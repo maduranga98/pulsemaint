@@ -2312,6 +2312,139 @@
           "failed": "签发许可证失败。"
         }
       }
+    },
+    "safetyCases": {
+      "pageTitle": "安全事件",
+      "pageTitleReportedToMe": "报告给我的安全事件",
+      "subtitle": "记录处理措施并跟踪每一个已报告的安全事件。",
+      "subtitleReportedToMe": "安全团队升级给您的事件。",
+      "cases_one": "事件（{{count}}）",
+      "cases_other": "事件（{{count}}）",
+      "empty": {
+        "officer": "尚未记录任何安全事件",
+        "reportedToMe": "尚无报告给您的事件"
+      },
+      "types": {
+        "incident": "事故",
+        "near_miss": "未遂事件",
+        "hazard": "隐患",
+        "unsafe_act": "不安全行为"
+      },
+      "severities": {
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "critical": "严重"
+      },
+      "statuses": {
+        "open": "未处理",
+        "investigating": "调查中",
+        "closed": "已关闭"
+      },
+      "subjectTypes": {
+        "other": "其他",
+        "work_order": "工单",
+        "contractor": "承包商",
+        "operator": "操作员",
+        "technician": "技术员"
+      },
+      "roleLabels": {
+        "admin": "管理员",
+        "plant_manager": "厂长",
+        "supervisor": "主管",
+        "hr_officer": "人力资源专员",
+        "technician": "技术员",
+        "floor_operator": "操作员",
+        "store_keeper": "仓库管理员",
+        "trainee": "学员",
+        "safety_officer": "安全专员"
+      },
+      "points": "{{points}} 分",
+      "row": {
+        "reportedBy": "报告人",
+        "reportedAt": "报告时间",
+        "location": "位置",
+        "reportedTo": "报告对象",
+        "whatHappened": "发生了什么",
+        "actionToTake": "应采取的措施",
+        "actionsTaken_one": "已采取的措施（{{count}}）",
+        "actionsTaken_other": "已采取的措施（{{count}}）",
+        "noActions": "尚未记录任何措施。",
+        "closedNotice": "此事件已关闭，无法再编辑。"
+      },
+      "actionForm": {
+        "heading": "记录处理措施",
+        "notePlaceholder": "针对此事件采取了什么措施？",
+        "keepStatus": "保持状态（{{status}}）",
+        "setToOpen": "设为未处理",
+        "setToInvestigating": "设为调查中",
+        "setToClosed": "设为已关闭",
+        "record": "记录",
+        "recording": "保存中…",
+        "errors": {
+          "noteOrStatus": "请添加备注或更改状态。"
+        },
+        "toasts": {
+          "recorded": "措施已记录。",
+          "failed": "记录措施失败。"
+        }
+      },
+      "reportTo": {
+        "label": "报告给",
+        "selectPerson": "选择人员…",
+        "report": "报告",
+        "reporting": "报告中…",
+        "errors": {
+          "chooseRecipient": "请选择将此事件报告给谁。"
+        },
+        "toasts": {
+          "reported": "已报告给 {{name}}。",
+          "failed": "报告事件失败。"
+        },
+        "notification": "已向您报告安全事件：{{title}}"
+      },
+      "createModal": {
+        "title": "报告安全事件",
+        "close": "关闭",
+        "cancel": "取消",
+        "submit": "记录事件",
+        "saving": "保存中…",
+        "subject": {
+          "label": "此事件涉及",
+          "select": "选择…",
+          "workOrderLabel": "相关工单（进行中）",
+          "workOrderOption": "{{number}} — {{machine}}",
+          "machineFallback": "设备",
+          "noWorkOrders": "当前没有进行中的工单。",
+          "noPeople": "未找到{{label}}。"
+        },
+        "fields": {
+          "type": "类型",
+          "severity": "严重程度",
+          "pointsLabel": "安全分数（根据严重程度自动计算）",
+          "title": "标题 *",
+          "titlePlaceholder": "例如：包装线附近有滑倒风险",
+          "location": "位置",
+          "locationPlaceholder": "区域/设备",
+          "whatHappened": "发生了什么？",
+          "actionToTake": "应采取的措施",
+          "reportTo": "报告给（可选）",
+          "reportToNone": "不指定 — 由安全团队处理"
+        },
+        "errors": {
+          "titleRequired": "请为事件填写简短标题。"
+        },
+        "toasts": {
+          "logged": "安全事件已记录。",
+          "failed": "记录安全事件失败。"
+        },
+        "notifications": {
+          "newCase": "报告了新的安全事件：{{title}}",
+          "newCaseOversight": "报告了一起安全事件：{{title}}",
+          "reportedTo": "已向您报告安全事件：{{title}}",
+          "reportedToOversight": "向 {{name}} 报告了安全事件：{{title}}"
+        }
+      }
     }
   }
 }

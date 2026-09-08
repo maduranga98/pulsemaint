@@ -2422,6 +2422,139 @@
           "failed": "Failed to issue permit."
         }
       }
+    },
+    "safetyCases": {
+      "pageTitle": "Safety Cases",
+      "pageTitleReportedToMe": "Safety Cases Reported to Me",
+      "subtitle": "Log actions and track every reported safety case.",
+      "subtitleReportedToMe": "Cases the safety team has escalated to you.",
+      "cases_one": "Cases ({{count}})",
+      "cases_other": "Cases ({{count}})",
+      "empty": {
+        "officer": "No safety cases logged yet",
+        "reportedToMe": "No cases have been reported to you"
+      },
+      "types": {
+        "incident": "Incident",
+        "near_miss": "Near Miss",
+        "hazard": "Hazard",
+        "unsafe_act": "Unsafe Act"
+      },
+      "severities": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      },
+      "statuses": {
+        "open": "open",
+        "investigating": "investigating",
+        "closed": "closed"
+      },
+      "subjectTypes": {
+        "other": "Other",
+        "work_order": "Work Order",
+        "contractor": "Contractor",
+        "operator": "Operator",
+        "technician": "Technician"
+      },
+      "roleLabels": {
+        "admin": "Admin",
+        "plant_manager": "Plant Manager",
+        "supervisor": "Supervisor",
+        "hr_officer": "HR Officer",
+        "technician": "Technician",
+        "floor_operator": "Operator",
+        "store_keeper": "Store Keeper",
+        "trainee": "Trainee",
+        "safety_officer": "Safety Officer"
+      },
+      "points": "{{points}} pts",
+      "row": {
+        "reportedBy": "Reported by",
+        "reportedAt": "Reported at",
+        "location": "Location",
+        "reportedTo": "Reported to",
+        "whatHappened": "What happened",
+        "actionToTake": "Action that should be taken",
+        "actionsTaken_one": "Actions taken ({{count}})",
+        "actionsTaken_other": "Actions taken ({{count}})",
+        "noActions": "No actions recorded yet.",
+        "closedNotice": "This case is closed and can no longer be edited."
+      },
+      "actionForm": {
+        "heading": "Record an action",
+        "notePlaceholder": "What was done about this case?",
+        "keepStatus": "Keep status ({{status}})",
+        "setToOpen": "Set to Open",
+        "setToInvestigating": "Set to Investigating",
+        "setToClosed": "Set to Closed",
+        "record": "Record",
+        "recording": "Saving…",
+        "errors": {
+          "noteOrStatus": "Add a note or change the status."
+        },
+        "toasts": {
+          "recorded": "Action recorded.",
+          "failed": "Failed to record action."
+        }
+      },
+      "reportTo": {
+        "label": "Report to",
+        "selectPerson": "Select a person…",
+        "report": "Report",
+        "reporting": "Reporting…",
+        "errors": {
+          "chooseRecipient": "Choose who to report this case to."
+        },
+        "toasts": {
+          "reported": "Reported to {{name}}.",
+          "failed": "Failed to report the case."
+        },
+        "notification": "Safety case reported to you: {{title}}"
+      },
+      "createModal": {
+        "title": "Report Safety Case",
+        "close": "Close",
+        "cancel": "Cancel",
+        "submit": "Log Case",
+        "saving": "Saving…",
+        "subject": {
+          "label": "Incident is about",
+          "select": "Select…",
+          "workOrderLabel": "Related work order (in progress)",
+          "workOrderOption": "{{number}} — {{machine}}",
+          "machineFallback": "Machine",
+          "noWorkOrders": "No work orders are in progress right now.",
+          "noPeople": "No {{label}}s found."
+        },
+        "fields": {
+          "type": "Type",
+          "severity": "Severity",
+          "pointsLabel": "Safety points (auto from severity)",
+          "title": "Title *",
+          "titlePlaceholder": "e.g. Slip hazard near packing line",
+          "location": "Location",
+          "locationPlaceholder": "Area / machine",
+          "whatHappened": "What happened?",
+          "actionToTake": "Action that should be taken",
+          "reportTo": "Report to (optional)",
+          "reportToNone": "No one — keep with safety team"
+        },
+        "errors": {
+          "titleRequired": "Give the case a short title."
+        },
+        "toasts": {
+          "logged": "Safety case logged.",
+          "failed": "Failed to log safety case."
+        },
+        "notifications": {
+          "newCase": "New safety case reported: {{title}}",
+          "newCaseOversight": "reported a safety case: {{title}}",
+          "reportedTo": "Safety case reported to you: {{title}}",
+          "reportedToOversight": "reported a safety case to {{name}}: {{title}}"
+        }
+      }
     }
   }
 }

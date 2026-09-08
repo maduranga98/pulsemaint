@@ -2316,6 +2316,139 @@
           "failed": "Ausstellung der Erlaubnis fehlgeschlagen."
         }
       }
+    },
+    "safetyCases": {
+      "pageTitle": "Sicherheitsfälle",
+      "pageTitleReportedToMe": "Mir Gemeldete Sicherheitsfälle",
+      "subtitle": "Maßnahmen erfassen und jeden gemeldeten Sicherheitsfall verfolgen.",
+      "subtitleReportedToMe": "Fälle, die das Sicherheitsteam an Sie eskaliert hat.",
+      "cases_one": "Fälle ({{count}})",
+      "cases_other": "Fälle ({{count}})",
+      "empty": {
+        "officer": "Noch keine Sicherheitsfälle erfasst",
+        "reportedToMe": "Ihnen wurden keine Fälle gemeldet"
+      },
+      "types": {
+        "incident": "Vorfall",
+        "near_miss": "Beinaheunfall",
+        "hazard": "Gefahr",
+        "unsafe_act": "Unsichere Handlung"
+      },
+      "severities": {
+        "low": "Niedrig",
+        "medium": "Mittel",
+        "high": "Hoch",
+        "critical": "Kritisch"
+      },
+      "statuses": {
+        "open": "offen",
+        "investigating": "in Untersuchung",
+        "closed": "geschlossen"
+      },
+      "subjectTypes": {
+        "other": "Sonstiges",
+        "work_order": "Arbeitsauftrag",
+        "contractor": "Auftragnehmer",
+        "operator": "Bediener",
+        "technician": "Techniker"
+      },
+      "roleLabels": {
+        "admin": "Administrator",
+        "plant_manager": "Werksleiter",
+        "supervisor": "Vorgesetzter",
+        "hr_officer": "Personalreferent",
+        "technician": "Techniker",
+        "floor_operator": "Bediener",
+        "store_keeper": "Lagerverwalter",
+        "trainee": "Auszubildende(r)",
+        "safety_officer": "Sicherheitsbeauftragter"
+      },
+      "points": "{{points}} Pkt.",
+      "row": {
+        "reportedBy": "Gemeldet von",
+        "reportedAt": "Gemeldet am",
+        "location": "Standort",
+        "reportedTo": "Gemeldet an",
+        "whatHappened": "Was ist passiert",
+        "actionToTake": "Zu ergreifende Maßnahme",
+        "actionsTaken_one": "Ergriffene Maßnahmen ({{count}})",
+        "actionsTaken_other": "Ergriffene Maßnahmen ({{count}})",
+        "noActions": "Noch keine Maßnahmen erfasst.",
+        "closedNotice": "Dieser Fall ist geschlossen und kann nicht mehr bearbeitet werden."
+      },
+      "actionForm": {
+        "heading": "Maßnahme Erfassen",
+        "notePlaceholder": "Was wurde in diesem Fall unternommen?",
+        "keepStatus": "Status Beibehalten ({{status}})",
+        "setToOpen": "Auf Offen Setzen",
+        "setToInvestigating": "Auf In Untersuchung Setzen",
+        "setToClosed": "Auf Geschlossen Setzen",
+        "record": "Erfassen",
+        "recording": "Wird gespeichert…",
+        "errors": {
+          "noteOrStatus": "Fügen Sie eine Notiz hinzu oder ändern Sie den Status."
+        },
+        "toasts": {
+          "recorded": "Maßnahme erfasst.",
+          "failed": "Erfassen der Maßnahme fehlgeschlagen."
+        }
+      },
+      "reportTo": {
+        "label": "Melden an",
+        "selectPerson": "Person auswählen…",
+        "report": "Melden",
+        "reporting": "Wird gemeldet…",
+        "errors": {
+          "chooseRecipient": "Wählen Sie, an wen dieser Fall gemeldet werden soll."
+        },
+        "toasts": {
+          "reported": "An {{name}} gemeldet.",
+          "failed": "Melden des Falls fehlgeschlagen."
+        },
+        "notification": "Ihnen gemeldeter Sicherheitsfall: {{title}}"
+      },
+      "createModal": {
+        "title": "Sicherheitsfall Melden",
+        "close": "Schließen",
+        "cancel": "Abbrechen",
+        "submit": "Fall Erfassen",
+        "saving": "Wird gespeichert…",
+        "subject": {
+          "label": "Der Vorfall betrifft",
+          "select": "Auswählen…",
+          "workOrderLabel": "Zugehöriger Arbeitsauftrag (in Bearbeitung)",
+          "workOrderOption": "{{number}} — {{machine}}",
+          "machineFallback": "Maschine",
+          "noWorkOrders": "Derzeit sind keine Arbeitsaufträge in Bearbeitung.",
+          "noPeople": "Keine {{label}} gefunden."
+        },
+        "fields": {
+          "type": "Typ",
+          "severity": "Schweregrad",
+          "pointsLabel": "Sicherheitspunkte (automatisch nach Schweregrad)",
+          "title": "Titel *",
+          "titlePlaceholder": "z. B. Rutschgefahr in der Nähe der Verpackungslinie",
+          "location": "Standort",
+          "locationPlaceholder": "Bereich / Maschine",
+          "whatHappened": "Was ist passiert?",
+          "actionToTake": "Zu ergreifende Maßnahme",
+          "reportTo": "Melden an (optional)",
+          "reportToNone": "Niemand — beim Sicherheitsteam belassen"
+        },
+        "errors": {
+          "titleRequired": "Geben Sie dem Fall einen kurzen Titel."
+        },
+        "toasts": {
+          "logged": "Sicherheitsfall erfasst.",
+          "failed": "Erfassen des Sicherheitsfalls fehlgeschlagen."
+        },
+        "notifications": {
+          "newCase": "Neuer Sicherheitsfall gemeldet: {{title}}",
+          "newCaseOversight": "hat einen Sicherheitsfall gemeldet: {{title}}",
+          "reportedTo": "Ihnen gemeldeter Sicherheitsfall: {{title}}",
+          "reportedToOversight": "hat {{name}} einen Sicherheitsfall gemeldet: {{title}}"
+        }
+      }
     }
   }
 }
