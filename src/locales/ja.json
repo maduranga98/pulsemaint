@@ -2312,6 +2312,139 @@
           "failed": "許可証の発行に失敗しました。"
         }
       }
+    },
+    "safetyCases": {
+      "pageTitle": "安全案件",
+      "pageTitleReportedToMe": "自分に報告された安全案件",
+      "subtitle": "対応内容を記録し、報告されたすべての安全案件を追跡します。",
+      "subtitleReportedToMe": "安全チームからエスカレーションされた案件。",
+      "cases_one": "案件（{{count}}件）",
+      "cases_other": "案件（{{count}}件）",
+      "empty": {
+        "officer": "まだ安全案件は記録されていません",
+        "reportedToMe": "あなたに報告された案件はありません"
+      },
+      "types": {
+        "incident": "事故",
+        "near_miss": "ヒヤリハット",
+        "hazard": "危険源",
+        "unsafe_act": "不安全行動"
+      },
+      "severities": {
+        "low": "低",
+        "medium": "中",
+        "high": "高",
+        "critical": "重大"
+      },
+      "statuses": {
+        "open": "未対応",
+        "investigating": "調査中",
+        "closed": "終了"
+      },
+      "subjectTypes": {
+        "other": "その他",
+        "work_order": "作業指示書",
+        "contractor": "外注業者",
+        "operator": "オペレーター",
+        "technician": "技術者"
+      },
+      "roleLabels": {
+        "admin": "管理者",
+        "plant_manager": "工場長",
+        "supervisor": "スーパーバイザー",
+        "hr_officer": "人事担当者",
+        "technician": "技術者",
+        "floor_operator": "オペレーター",
+        "store_keeper": "倉庫管理者",
+        "trainee": "研修生",
+        "safety_officer": "安全管理者"
+      },
+      "points": "{{points}} ポイント",
+      "row": {
+        "reportedBy": "報告者",
+        "reportedAt": "報告日時",
+        "location": "場所",
+        "reportedTo": "報告先",
+        "whatHappened": "発生した内容",
+        "actionToTake": "取るべき対応",
+        "actionsTaken_one": "実施済みの対応（{{count}}件）",
+        "actionsTaken_other": "実施済みの対応（{{count}}件）",
+        "noActions": "まだ対応が記録されていません。",
+        "closedNotice": "この案件は終了しており、これ以上編集できません。"
+      },
+      "actionForm": {
+        "heading": "対応を記録",
+        "notePlaceholder": "この案件に対して何が行われましたか？",
+        "keepStatus": "ステータスを維持（{{status}}）",
+        "setToOpen": "未対応にする",
+        "setToInvestigating": "調査中にする",
+        "setToClosed": "終了にする",
+        "record": "記録",
+        "recording": "保存中…",
+        "errors": {
+          "noteOrStatus": "メモを追加するか、ステータスを変更してください。"
+        },
+        "toasts": {
+          "recorded": "対応を記録しました。",
+          "failed": "対応の記録に失敗しました。"
+        }
+      },
+      "reportTo": {
+        "label": "報告先",
+        "selectPerson": "担当者を選択…",
+        "report": "報告",
+        "reporting": "報告中…",
+        "errors": {
+          "chooseRecipient": "この案件の報告先を選択してください。"
+        },
+        "toasts": {
+          "reported": "{{name}} に報告しました。",
+          "failed": "案件の報告に失敗しました。"
+        },
+        "notification": "安全案件があなたに報告されました：{{title}}"
+      },
+      "createModal": {
+        "title": "安全案件を報告",
+        "close": "閉じる",
+        "cancel": "キャンセル",
+        "submit": "案件を記録",
+        "saving": "保存中…",
+        "subject": {
+          "label": "この事故の対象",
+          "select": "選択…",
+          "workOrderLabel": "関連する作業指示書（対応中）",
+          "workOrderOption": "{{number}} — {{machine}}",
+          "machineFallback": "設備",
+          "noWorkOrders": "現在対応中の作業指示書はありません。",
+          "noPeople": "{{label}}が見つかりません。"
+        },
+        "fields": {
+          "type": "タイプ",
+          "severity": "重大度",
+          "pointsLabel": "安全ポイント（重大度に応じて自動計算）",
+          "title": "タイトル *",
+          "titlePlaceholder": "例：梱包ライン付近の滑りやすい危険箇所",
+          "location": "場所",
+          "locationPlaceholder": "エリア／設備",
+          "whatHappened": "何が起きましたか？",
+          "actionToTake": "取るべき対応",
+          "reportTo": "報告先（任意）",
+          "reportToNone": "指定なし — 安全チームが対応"
+        },
+        "errors": {
+          "titleRequired": "案件に簡単なタイトルを付けてください。"
+        },
+        "toasts": {
+          "logged": "安全案件を記録しました。",
+          "failed": "安全案件の記録に失敗しました。"
+        },
+        "notifications": {
+          "newCase": "新しい安全案件が報告されました：{{title}}",
+          "newCaseOversight": "安全案件を報告しました：{{title}}",
+          "reportedTo": "安全案件があなたに報告されました：{{title}}",
+          "reportedToOversight": "{{name}} に安全案件を報告しました：{{title}}"
+        }
+      }
     }
   }
 }

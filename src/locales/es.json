@@ -2316,6 +2316,139 @@
           "failed": "No se pudo emitir el permiso."
         }
       }
+    },
+    "safetyCases": {
+      "pageTitle": "Casos de Seguridad",
+      "pageTitleReportedToMe": "Casos de Seguridad Reportados a Mí",
+      "subtitle": "Registre acciones y siga cada caso de seguridad reportado.",
+      "subtitleReportedToMe": "Casos que el equipo de seguridad le ha escalado.",
+      "cases_one": "Casos ({{count}})",
+      "cases_other": "Casos ({{count}})",
+      "empty": {
+        "officer": "Aún no se han registrado casos de seguridad",
+        "reportedToMe": "No se le han reportado casos"
+      },
+      "types": {
+        "incident": "Incidente",
+        "near_miss": "Cuasi Accidente",
+        "hazard": "Peligro",
+        "unsafe_act": "Acto Inseguro"
+      },
+      "severities": {
+        "low": "Baja",
+        "medium": "Media",
+        "high": "Alta",
+        "critical": "Crítica"
+      },
+      "statuses": {
+        "open": "abierto",
+        "investigating": "en investigación",
+        "closed": "cerrado"
+      },
+      "subjectTypes": {
+        "other": "Otro",
+        "work_order": "Orden de Trabajo",
+        "contractor": "Contratista",
+        "operator": "Operador",
+        "technician": "Técnico"
+      },
+      "roleLabels": {
+        "admin": "Administrador",
+        "plant_manager": "Gerente de Planta",
+        "supervisor": "Supervisor",
+        "hr_officer": "Oficial de RR. HH.",
+        "technician": "Técnico",
+        "floor_operator": "Operador",
+        "store_keeper": "Encargado de Almacén",
+        "trainee": "Aprendiz",
+        "safety_officer": "Oficial de Seguridad"
+      },
+      "points": "{{points}} pts",
+      "row": {
+        "reportedBy": "Reportado por",
+        "reportedAt": "Reportado el",
+        "location": "Ubicación",
+        "reportedTo": "Reportado a",
+        "whatHappened": "Qué sucedió",
+        "actionToTake": "Acción que debe tomarse",
+        "actionsTaken_one": "Acciones tomadas ({{count}})",
+        "actionsTaken_other": "Acciones tomadas ({{count}})",
+        "noActions": "Aún no se han registrado acciones.",
+        "closedNotice": "Este caso está cerrado y ya no se puede editar."
+      },
+      "actionForm": {
+        "heading": "Registrar una acción",
+        "notePlaceholder": "¿Qué se hizo respecto a este caso?",
+        "keepStatus": "Mantener estado ({{status}})",
+        "setToOpen": "Marcar como Abierto",
+        "setToInvestigating": "Marcar como En Investigación",
+        "setToClosed": "Marcar como Cerrado",
+        "record": "Registrar",
+        "recording": "Guardando…",
+        "errors": {
+          "noteOrStatus": "Agregue una nota o cambie el estado."
+        },
+        "toasts": {
+          "recorded": "Acción registrada.",
+          "failed": "No se pudo registrar la acción."
+        }
+      },
+      "reportTo": {
+        "label": "Reportar a",
+        "selectPerson": "Seleccione una persona…",
+        "report": "Reportar",
+        "reporting": "Reportando…",
+        "errors": {
+          "chooseRecipient": "Elija a quién reportar este caso."
+        },
+        "toasts": {
+          "reported": "Reportado a {{name}}.",
+          "failed": "No se pudo reportar el caso."
+        },
+        "notification": "Caso de seguridad reportado a usted: {{title}}"
+      },
+      "createModal": {
+        "title": "Reportar Caso de Seguridad",
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "submit": "Registrar Caso",
+        "saving": "Guardando…",
+        "subject": {
+          "label": "El incidente trata sobre",
+          "select": "Seleccionar…",
+          "workOrderLabel": "Orden de trabajo relacionada (en progreso)",
+          "workOrderOption": "{{number}} — {{machine}}",
+          "machineFallback": "Máquina",
+          "noWorkOrders": "No hay órdenes de trabajo en progreso en este momento.",
+          "noPeople": "No se encontraron {{label}}s."
+        },
+        "fields": {
+          "type": "Tipo",
+          "severity": "Severidad",
+          "pointsLabel": "Puntos de seguridad (automático según severidad)",
+          "title": "Título *",
+          "titlePlaceholder": "ej. Riesgo de resbalón cerca de la línea de embalaje",
+          "location": "Ubicación",
+          "locationPlaceholder": "Área / máquina",
+          "whatHappened": "¿Qué sucedió?",
+          "actionToTake": "Acción que debe tomarse",
+          "reportTo": "Reportar a (opcional)",
+          "reportToNone": "Nadie — mantener con el equipo de seguridad"
+        },
+        "errors": {
+          "titleRequired": "Asigne un título breve al caso."
+        },
+        "toasts": {
+          "logged": "Caso de seguridad registrado.",
+          "failed": "No se pudo registrar el caso de seguridad."
+        },
+        "notifications": {
+          "newCase": "Nuevo caso de seguridad reportado: {{title}}",
+          "newCaseOversight": "reportó un caso de seguridad: {{title}}",
+          "reportedTo": "Caso de seguridad reportado a usted: {{title}}",
+          "reportedToOversight": "reportó un caso de seguridad a {{name}}: {{title}}"
+        }
+      }
     }
   }
 }
