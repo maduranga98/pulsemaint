@@ -6010,6 +6010,60 @@
           "notRegisteredPrompt": "承包商尚未登记？可手动输入承包商名称"
         }
       }
+    },
+    "myShift": {
+      "title": "我的班次",
+      "subtitle": "您的排班计划、当前班次和已工作时长。",
+      "errors": {
+        "loadRecentFailed": "加载最近班次失败",
+        "startFailed": "开始班次失败",
+        "endFailed": "结束班次失败"
+      },
+      "currentShift": {
+        "title": "当前班次",
+        "scheduledStarted": "计划时间 {{range}} · 开始于 {{time}}",
+        "onShiftFor": "已在岗 {{duration}}",
+        "otBadge": "加班 {{duration}}",
+        "ending": "结束中…",
+        "endShift": "结束班次",
+        "happeningNow": "{{range}} · 正在进行",
+        "starting": "开始中…",
+        "startShift": "开始班次",
+        "noPlansAssigned": "您尚未被分配任何排班计划。请管理员在设置 → 班次 或 设置 → 用户 中为您分配。",
+        "noPlanRunning": "您目前没有正在进行的排班计划。您可以从下方列表开始您的下一个班次。"
+      },
+      "plans": {
+        "title": "我的排班计划",
+        "loading": "正在加载排班计划…",
+        "noneAssigned": "尚未为您分配排班计划。",
+        "noneActive": "您目前没有正在进行的排班计划。",
+        "allDepartments": "所有部门",
+        "activeNow": "当前进行中",
+        "startThisShift": "开始此班次"
+      },
+      "recent": {
+        "title": "最近班次",
+        "empty": "尚无已完成的班次。",
+        "columns": {
+          "shift": "班次",
+          "started": "开始时间",
+          "ended": "结束时间",
+          "totalHours": "总工时",
+          "ot": "加班"
+        }
+      },
+      "summaryModal": {
+        "title": "班次已结束",
+        "closeAria": "关闭",
+        "totalHours": "总工时",
+        "overtime": "加班时长",
+        "none": "无",
+        "scheduled": "计划时间",
+        "started": "开始时间",
+        "ended": "结束时间",
+        "close": "关闭",
+        "handOverToNext": "交接给下一位人员"
+      }
     }
   },
   "triage": {

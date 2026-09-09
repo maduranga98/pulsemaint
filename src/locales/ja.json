@@ -6010,6 +6010,60 @@
           "notRegisteredPrompt": "契約業者が未登録ですか? 契約業者名を手動で入力"
         }
       }
+    },
+    "myShift": {
+      "title": "マイシフト",
+      "subtitle": "あなたのシフト計画、現在のシフト、勤務時間。",
+      "errors": {
+        "loadRecentFailed": "最近のシフトの読み込みに失敗しました",
+        "startFailed": "シフトの開始に失敗しました",
+        "endFailed": "シフトの終了に失敗しました"
+      },
+      "currentShift": {
+        "title": "現在のシフト",
+        "scheduledStarted": "予定: {{range}} ・ 開始: {{time}}",
+        "onShiftFor": "勤務時間: {{duration}}",
+        "otBadge": "残業 {{duration}}",
+        "ending": "終了中…",
+        "endShift": "シフトを終了",
+        "happeningNow": "{{range}} ・ 現在進行中",
+        "starting": "開始中…",
+        "startShift": "シフトを開始",
+        "noPlansAssigned": "まだシフト計画が割り当てられていません。管理者に設定 → シフト または 設定 → ユーザー で割り当ててもらってください。",
+        "noPlanRunning": "現在進行中のシフト計画はありません。下記のリストから次のシフトを開始できます。"
+      },
+      "plans": {
+        "title": "マイシフト計画",
+        "loading": "シフト計画を読み込み中…",
+        "noneAssigned": "シフト計画が割り当てられていません。",
+        "noneActive": "現在有効なシフト計画はありません。",
+        "allDepartments": "すべての部署",
+        "activeNow": "現在進行中",
+        "startThisShift": "このシフトを開始"
+      },
+      "recent": {
+        "title": "最近のシフト",
+        "empty": "まだ完了したシフトはありません。",
+        "columns": {
+          "shift": "シフト",
+          "started": "開始",
+          "ended": "終了",
+          "totalHours": "合計時間",
+          "ot": "残業"
+        }
+      },
+      "summaryModal": {
+        "title": "シフト終了",
+        "closeAria": "閉じる",
+        "totalHours": "合計時間",
+        "overtime": "残業時間",
+        "none": "なし",
+        "scheduled": "予定",
+        "started": "開始",
+        "ended": "終了",
+        "close": "閉じる",
+        "handOverToNext": "次の担当者に引き継ぐ"
+      }
     }
   },
   "triage": {

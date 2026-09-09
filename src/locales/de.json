@@ -6014,6 +6014,60 @@
           "notRegisteredPrompt": "Auftragnehmer nicht registriert? Namen manuell eingeben"
         }
       }
+    },
+    "myShift": {
+      "title": "Meine Schicht",
+      "subtitle": "Ihre Schichtpläne, aktuelle Schicht und geleistete Stunden.",
+      "errors": {
+        "loadRecentFailed": "Laden der letzten Schichten fehlgeschlagen",
+        "startFailed": "Starten der Schicht fehlgeschlagen",
+        "endFailed": "Beenden der Schicht fehlgeschlagen"
+      },
+      "currentShift": {
+        "title": "Aktuelle Schicht",
+        "scheduledStarted": "Geplant {{range}} · Begonnen {{time}}",
+        "onShiftFor": "Seit {{duration}} im Dienst",
+        "otBadge": "Überstunden {{duration}}",
+        "ending": "Wird beendet…",
+        "endShift": "Schicht beenden",
+        "happeningNow": "{{range}} · findet gerade statt",
+        "starting": "Wird gestartet…",
+        "startShift": "Schicht starten",
+        "noPlansAssigned": "Ihnen ist noch kein Schichtplan zugewiesen. Bitten Sie einen Administrator, Sie unter Einstellungen → Schichten oder Einstellungen → Benutzer zuzuweisen.",
+        "noPlanRunning": "Keiner Ihrer Schichtpläne läuft gerade. Sie können Ihre nächste Schicht aus der Liste unten starten."
+      },
+      "plans": {
+        "title": "Meine Schichtpläne",
+        "loading": "Schichtpläne werden geladen…",
+        "noneAssigned": "Ihnen sind keine Schichtpläne zugewiesen.",
+        "noneActive": "Keiner Ihrer Schichtpläne ist gerade aktiv.",
+        "allDepartments": "Alle Abteilungen",
+        "activeNow": "Jetzt aktiv",
+        "startThisShift": "Diese Schicht starten"
+      },
+      "recent": {
+        "title": "Letzte Schichten",
+        "empty": "Noch keine abgeschlossenen Schichten.",
+        "columns": {
+          "shift": "Schicht",
+          "started": "Begonnen",
+          "ended": "Beendet",
+          "totalHours": "Gesamtstunden",
+          "ot": "Überstunden"
+        }
+      },
+      "summaryModal": {
+        "title": "Schicht beendet",
+        "closeAria": "Schließen",
+        "totalHours": "Gesamtstunden",
+        "overtime": "Überstunden",
+        "none": "Keine",
+        "scheduled": "Geplant",
+        "started": "Begonnen",
+        "ended": "Beendet",
+        "close": "Schließen",
+        "handOverToNext": "An die nächste Person übergeben"
+      }
     }
   },
   "triage": {
