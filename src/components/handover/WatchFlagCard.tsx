@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { WatchFlag } from '@/types/handover.types';
 import WatchFlagBadge from './WatchFlagBadge';
 
@@ -14,6 +15,7 @@ const BORDER = {
 };
 
 export function WatchFlagCard({ flag, onResolve }: WatchFlagCardProps) {
+  const { t } = useTranslation();
   return (
     <article className={`rounded-lg border border-l-4 border-slate-200 bg-white p-4 shadow-sm ${BORDER[flag.watchLevel]} ${flag.watchLevel === 'critical_watch' && flag.status !== 'resolved' ? 'animate-pulse' : ''}`}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -21,18 +23,18 @@ export function WatchFlagCard({ flag, onResolve }: WatchFlagCardProps) {
           <div className="flex flex-wrap items-center gap-2">
             <h3 className=" font-semibold text-slate-950">{flag.machineName}</h3>
             <WatchFlagBadge level={flag.watchLevel} />
-            {flag.status === 'carried_forward' && <span className="text-xs font-semibold text-amber-700">Carried Forward</span>}
+            {flag.status === 'carried_forward' && <span className="text-xs font-semibold text-amber-700">{t('common.shiftHandovers.watchFlagCard.carriedForward')}</span>}
           </div>
           <p className="mt-1 text-xs text-slate-500">{flag.machineLocation}</p>
         </div>
-        <Link to={`/app/machines/${flag.machineId}`} className="text-xs font-semibold text-blue-700">Machine Detail</Link>
+        <Link to={`/app/machines/${flag.machineId}`} className="text-xs font-semibold text-blue-700">{t('common.shiftHandovers.watchFlagCard.machineDetail')}</Link>
       </div>
       <p className="mt-3 text-sm text-slate-800">{flag.reason}</p>
-      <p className="mt-2 text-sm text-slate-600"><span className="font-semibold">Recommended:</span> {flag.recommendedAction}</p>
-      {flag.linkedBreakdownId && <Link to={`/app/breakdowns/${flag.linkedBreakdownId}`} className="mt-3 inline-block text-xs font-semibold text-red-700">Linked breakdown</Link>}
+      <p className="mt-2 text-sm text-slate-600"><span className="font-semibold">{t('common.shiftHandovers.watchFlagCard.recommended')}</span> {flag.recommendedAction}</p>
+      {flag.linkedBreakdownId && <Link to={`/app/breakdowns/${flag.linkedBreakdownId}`} className="mt-3 inline-block text-xs font-semibold text-red-700">{t('common.shiftHandovers.watchFlagCard.linkedBreakdown')}</Link>}
       {onResolve && flag.status !== 'resolved' && (
         <button type="button" onClick={() => onResolve(flag.id)} className="mt-3 min-h-12 rounded-md border border-emerald-200 px-4 py-2 text-sm font-semibold text-emerald-700">
-          Resolve Flag
+          {t('common.shiftHandovers.watchFlagCard.resolveFlag')}
         </button>
       )}
     </article>

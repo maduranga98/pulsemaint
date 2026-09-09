@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Settings2 } from 'lucide-react';
 import HandoverFilterBar from '@/components/handover/HandoverFilterBar';
 import HandoverHistoryCard from '@/components/handover/HandoverHistoryCard';
@@ -21,6 +22,7 @@ const initialFilters: HandoverHistoryFilters = {
 };
 
 export function HandoverHistoryPage() {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState(initialFilters);
   const { handoverHistory, loading, error } = useHandoverHistory(filters);
 
@@ -125,15 +127,15 @@ export function HandoverHistoryPage() {
     <div className="space-y-5 p-4 lg:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className=" text-2xl font-bold text-slate-950">Shift Handovers</h1>
-          <p className="mt-1 text-sm text-slate-500">Timestamped archive of supervisor accountability transfers across every shift and user.</p>
+          <h1 className=" text-2xl font-bold text-slate-950">{t('common.shiftHandovers.historyPage.title')}</h1>
+          <p className="mt-1 text-sm text-slate-500">{t('common.shiftHandovers.historyPage.subtitle')}</p>
         </div>
         <Link
           to="/app/settings/shifts"
           className="inline-flex min-h-12 shrink-0 items-center gap-2 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-slate-300 hover:bg-slate-50"
         >
           <Settings2 className="h-4 w-4" />
-          Shift Configuration
+          {t('common.shiftHandovers.historyPage.shiftConfiguration')}
         </Link>
       </div>
       <HandoverFilterBar
@@ -152,10 +154,10 @@ export function HandoverHistoryPage() {
       </div>
       <div className="hidden lg:block"><HandoverHistoryTable rows={rows} /></div>
       {loading && !rows.length && (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-400">Loading…</div>
+        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-400">{t('common.shiftHandovers.historyPage.loading')}</div>
       )}
       {!loading && !rows.length && !error && (
-        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">No handovers found.</div>
+        <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">{t('common.shiftHandovers.historyPage.empty')}</div>
       )}
     </div>
   );

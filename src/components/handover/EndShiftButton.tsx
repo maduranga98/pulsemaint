@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Clock, Play } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useHandoverStore } from '@/store/handover.store';
@@ -9,6 +10,7 @@ import ShiftSummaryModal from './ShiftSummaryModal';
 import type { ShiftSession } from '@/types/handover.types';
 
 export function EndShiftButton() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const profile = useAuthStore((state) => state.userProfile);
   const currentShift = useHandoverStore((state) => state.currentShift);
@@ -35,7 +37,7 @@ export function EndShiftButton() {
   // plant manager's and technician's plain start/end, not supervisor's.
   const canHandover = profile.role === 'supervisor';
 
-  const elapsed = shiftStartTime ? formatDuration(Date.now() - shiftStartTime.getTime()) : 'Start';
+  const elapsed = shiftStartTime ? formatDuration(Date.now() - shiftStartTime.getTime()) : t('common.shiftHandovers.endShiftButton.start');
 
   async function handleStart() {
     setStartError(null);
@@ -43,7 +45,7 @@ export function EndShiftButton() {
     try {
       await startShift();
     } catch (err) {
-      setStartError(err instanceof Error ? err.message : 'Failed to start shift');
+      setStartError(err instanceof Error ? err.message : t('common.shiftHandovers.endShiftButton.failedToStart'));
     } finally {
       setStarting(false);
     }
@@ -85,7 +87,7 @@ export function EndShiftButton() {
           className="hidden min-h-10 items-center gap-2 rounded-md bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-sm sm:inline-flex disabled:opacity-60"
         >
           <Play className="h-4 w-4" />
-          {starting ? 'Starting…' : 'Start Shift'}
+          {starting ? t('common.shiftHandovers.endShiftButton.starting') : t('common.shiftHandovers.endShiftButton.startShift')}
         </button>
         <button
           type="button"
@@ -93,7 +95,7 @@ export function EndShiftButton() {
           disabled={starting}
           className="fixed bottom-4 right-4 z-30 min-h-12 rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg sm:hidden disabled:opacity-60"
         >
-          {starting ? 'Starting…' : 'Start Shift'}
+          {starting ? t('common.shiftHandovers.endShiftButton.starting') : t('common.shiftHandovers.endShiftButton.startShift')}
         </button>
         {startError && (
           <span className="hidden max-w-[220px] text-[11px] font-semibold text-red-400 sm:inline">{startError}</span>
@@ -110,7 +112,7 @@ export function EndShiftButton() {
         className="hidden min-h-10 items-center gap-2 rounded-md bg-amber-500 px-3 py-2 text-xs font-bold text-white shadow-sm sm:inline-flex"
       >
         <Clock className="h-4 w-4" />
-        End Shift
+        {t('common.shiftHandovers.endShiftButton.endShift')}
         <span className="rounded bg-white/20 px-1.5 py-0.5">{currentShift?.shiftName ?? elapsed}</span>
       </button>
       <button
@@ -118,7 +120,7 @@ export function EndShiftButton() {
         onClick={() => setOpen(true)}
         className="fixed bottom-4 right-4 z-30 min-h-12 rounded-full bg-amber-500 px-5 py-3 text-sm font-bold text-white shadow-lg sm:hidden"
       >
-        End Shift
+        {t('common.shiftHandovers.endShiftButton.endShift')}
       </button>
       <EndShiftConfirmModal
         open={open}

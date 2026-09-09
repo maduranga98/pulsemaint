@@ -6064,6 +6064,427 @@
         "close": "关闭",
         "handOverToNext": "交接给下一位人员"
       }
+    },
+    "shiftHandovers": {
+      "createPage": {
+        "title": "创建交接班记录",
+        "subtitle": "查看已汇总的班次摘要，并将责任移交给接班主管。"
+      },
+      "detailPage": {
+        "loading": "正在加载交接记录...",
+        "exportPdf": "导出 PDF"
+      },
+      "historyPage": {
+        "title": "交接班记录",
+        "subtitle": "按时间戳记录的主管责任移交存档，涵盖所有班次和用户。",
+        "shiftConfiguration": "班次配置",
+        "loading": "加载中…",
+        "empty": "未找到交接记录。"
+      },
+      "filterBar": {
+        "searchNamePlaceholder": "搜索姓名…",
+        "allRoles": "所有角色",
+        "allShifts": "所有班次",
+        "allDepartments": "所有部门",
+        "lateOnly": "仅显示迟到",
+        "roleLabels": {
+          "admin": "管理员",
+          "plant_manager": "厂长",
+          "supervisor": "主管",
+          "technician": "技术员",
+          "store_keeper": "仓库管理员",
+          "hr_officer": "人力资源专员",
+          "trainee": "学员",
+          "floor_operator": "现场操作员"
+        }
+      },
+      "historyCard": {
+        "shiftLog": "班次日志",
+        "started": "开始时间：{{time}}",
+        "late": "（迟到 {{duration}}）",
+        "ended": "结束时间：{{time}}",
+        "ot": "加班：{{value}}",
+        "watchFlags": "关注标记：{{count}}",
+        "breakdownsDuringShift": "班次内故障：{{count}}",
+        "wosDuringShift": "班次内工单：{{count}}",
+        "viewArchive": "查看存档",
+        "export": "导出"
+      },
+      "historyTable": {
+        "columns": {
+          "shiftName": "班次名称",
+          "personAndRole": "人员与角色",
+          "department": "部门",
+          "shiftStarted": "班次开始",
+          "lateBy": "迟到时长",
+          "shiftEnded": "班次结束",
+          "ot": "加班",
+          "breakdownsDuringShift": "班次内故障",
+          "wosDuringShift": "班次内工单",
+          "watchFlags": "关注标记",
+          "action": "操作"
+        },
+        "onTime": "准时",
+        "late": "迟到 {{duration}}",
+        "none": "无",
+        "shiftLog": "班次日志",
+        "view": "查看",
+        "export": "导出"
+      },
+      "statusBadge": {
+        "pendingAcceptance": "待确认",
+        "accepted": "已确认",
+        "archived": "已归档"
+      },
+      "timeline": {
+        "title": "时间线",
+        "shiftStart": "班次开始",
+        "handoverSubmitted": "交接已提交",
+        "handoverAccepted": "交接已确认"
+      },
+      "detailView": {
+        "titleSuffix": "交接记录",
+        "assignedShift": "指定班次",
+        "scheduledRange": "计划 {{start}}–{{end}}",
+        "shiftTakenFrom": "接班自",
+        "shiftHandedOverTo": "交接给",
+        "pendingAcceptance": "待确认",
+        "shiftStartTime": "班次开始时间",
+        "shiftEndTime": "班次结束时间",
+        "overtime": "加班（OT）",
+        "workedVsScheduled": "（实际工作 {{worked}}，计划 {{scheduled}}）",
+        "watchMachineFlags": "关注设备标记",
+        "noWatchFlags": "未提出关注标记。",
+        "pendingWorkOrders": "待处理工单",
+        "noPendingWOs": "没有待处理工单。",
+        "ongoingBreakdowns": "进行中的故障",
+        "noOngoingBreakdowns": "没有进行中的故障。",
+        "generalNotesSafety": "一般备注与安全注意事项",
+        "safetyIncident": "安全事件",
+        "safetyIncidentReportedNoDescription": "已报告事件（未提供描述）。",
+        "noSafetyIncidents": "未报告安全事件。",
+        "restrictedAreas": "限制区域",
+        "temporaryRepairs": "临时维修",
+        "generalNotes": "一般备注"
+      },
+      "safetyCasesSection": {
+        "title": "报告给您的安全案例",
+        "loading": "正在加载安全案例...",
+        "empty": "没有报告给您的未结安全案例。"
+      },
+      "pendingWoRow": {
+        "noDueDate": "无截止日期",
+        "noNote": "无备注",
+        "supervisorNotePlaceholder": "主管备注",
+        "carryForward": {
+          "continue": "延续至下一班次",
+          "escalate": "上报经理",
+          "on_hold": "暂缓处理"
+        }
+      },
+      "breakdownSnapshotRow": {
+        "minutesElapsed": "已用时 {{count}} 分钟",
+        "noNote": "无备注",
+        "notePlaceholder": "故障备注",
+        "nextShiftPriority": {
+          "urgent": "紧急 - 立即处理",
+          "continue": "正常继续处理",
+          "monitor": "仅需监控"
+        }
+      },
+      "createForm": {
+        "endShiftFirst": "请先结束班次，以汇总交接摘要。",
+        "steps": {
+          "stats": "统计数据",
+          "watch": "关注",
+          "wos": "工单",
+          "breakdowns": "故障",
+          "safety": "安全",
+          "notes": "备注",
+          "signOff": "签字确认"
+        },
+        "errors": {
+          "acknowledgeRequired": "提交前请确认签字确认事项。",
+          "statsNotCompiled": "班次摘要尚未汇总。请先结束班次。",
+          "submitFailed": "提交交接记录失败"
+        },
+        "toasts": {
+          "submitSuccess": "交接记录提交成功"
+        },
+        "wizard": {
+          "back": "上一步",
+          "next": "下一步"
+        },
+        "section1AutoStats": {
+          "title": "自动生成的班次统计数据",
+          "subtitle": "根据 Firestore 实时记录汇总的只读摘要。",
+          "emptyState": "汇总班次摘要以填充统计数据。"
+        },
+        "section2WatchFlags": {
+          "title": "关注设备",
+          "subtitle": "下一班次需要特别关注的设备。",
+          "addWatchFlag": "添加关注标记",
+          "empty": "尚未添加关注设备。"
+        },
+        "section3PendingWOs": {
+          "title": "待处理工单",
+          "subtitle": "仅用于延续备注，此处不会修改工单本身。",
+          "empty": "没有待处理工单。"
+        },
+        "section4OngoingBreakdowns": {
+          "title": "进行中的故障",
+          "subtitle": "需要下一班次关注的未结故障。",
+          "empty": "没有进行中的故障。"
+        },
+        "section5PartsNotes": {
+          "title": "备件与库存备注",
+          "subtitle": "为接班主管提供的低库存及备件申请背景信息。",
+          "lowStockAlerts": "低库存警报",
+          "noAlerts": "未汇总低库存警报。",
+          "alertLine": "{{name}}：{{current}} / 最低 {{min}}",
+          "notesPlaceholder": "备件与库存备注"
+        },
+        "section6SafetyIncidents": {
+          "title": "安全与事件",
+          "subtitle": "安全事件、限制区域及临时维修。",
+          "incidentQuestion": "本班次是否发生安全事件或未遂事故？",
+          "incidentDescriptionPlaceholder": "描述事件、涉及的设备、已采取的行动及后续所需事项",
+          "restrictedAreasPlaceholder": "限制区域",
+          "temporaryRepairsPlaceholder": "临时维修"
+        },
+        "section7GeneralNotes": {
+          "title": "一般备注",
+          "subtitle": "写给接班主管的纯文本备注。",
+          "placeholder": "上述未涵盖的任何事项",
+          "charCount": "{{count}}/2000"
+        },
+        "section8SignOff": {
+          "title": "离班主管签字确认",
+          "supervisor": "主管",
+          "shift": "班次",
+          "signOffTime": "签字确认时间",
+          "confirmation": "我确认以上信息准确完整。",
+          "submitting": "正在提交...",
+          "submit": "提交交接记录"
+        }
+      },
+      "briefingPage": {
+        "noPending": "没有待处理的接班简报。",
+        "returnToDashboard": "返回仪表盘"
+      },
+      "briefingHeader": {
+        "title": "接班简报",
+        "handoverFrom": "由 {{name}} 于 {{time}} 交接"
+      },
+      "briefingScreen": {
+        "watchMachines": "关注设备",
+        "noWatchFlags": "没有关注标记。",
+        "activeBreakdowns": "当前故障",
+        "pendingWorkOrders": "待处理工单",
+        "partsInventoryFlags": "备件与库存提醒",
+        "partQtyLine": "{{name}}：{{current}} / 最低 {{min}}",
+        "noPartsNotes": "没有备件备注。",
+        "lastShiftStatistics": "上一班次统计数据",
+        "generalNotes": "一般备注",
+        "noGeneralNotes": "没有一般备注。"
+      },
+      "overlapBanner": {
+        "handedOver": "已于 {{time}} 交接给 {{name}}。",
+        "overlapInProgress": "交接进行中 - {{name}} 正在交接 {{shiftName}}。",
+        "reviewBriefing": "查看简报"
+      },
+      "statsGrid": {
+        "breakdowns": "故障",
+        "openWOs": "未结工单",
+        "pmsDone": "已完成保养",
+        "hoursLost": "损失工时",
+        "partsIssued": "已发放备件",
+        "wosCompleted": "已完成工单",
+        "critical": "严重",
+        "pmsMissed": "错过的保养"
+      },
+      "acceptShiftButton": {
+        "confirmText": "确认接受即表示您已查看班次简报，并承担本班次的责任。",
+        "cancel": "取消",
+        "accepting": "正在确认...",
+        "confirmAcceptance": "确认接受",
+        "acceptShift": "接受班次并承担责任"
+      },
+      "endShiftConfirmModal": {
+        "title": "结束班次",
+        "confirmQuestion": "确定要结束班次吗？",
+        "closeAria": "关闭",
+        "currentShift": "当前班次",
+        "currentShiftFallback": "当前班次",
+        "scheduled": "计划",
+        "currentTime": "当前时间",
+        "duration": "持续时间",
+        "notStarted": "尚未开始",
+        "cancel": "取消",
+        "generating": "正在生成...",
+        "endShiftAndGenerateReport": "结束班次并生成报告",
+        "endShift": "结束班次"
+      },
+      "endShiftButton": {
+        "start": "开始",
+        "failedToStart": "班次启动失败",
+        "starting": "正在启动…",
+        "startShift": "开始班次",
+        "endShift": "结束班次"
+      },
+      "statusPanel": {
+        "since": "自 {{time}} 起",
+        "sinceDay": "自 {{day}} {{time}} 起",
+        "yesterday": "昨天",
+        "notStartedToday": "今日尚未开始",
+        "ended": "已于 {{time}} 结束",
+        "working": "工作中",
+        "notWorking": "未工作",
+        "workingCount": "工作中（{{count}}）",
+        "noOneScheduled": "此班次尚未安排任何人员。",
+        "liveShiftStatus": "实时班次状态",
+        "summaryLine": "当前 {{people}} 人在岗，分布于 {{shifts}}",
+        "personCount_one": "{{count}} 人",
+        "personCount_other": "{{count}} 人",
+        "shiftCount_one": "{{count}} 个班次",
+        "shiftCount_other": "{{count}} 个班次"
+      },
+      "watchFlagAddModal": {
+        "title": "添加关注设备",
+        "closeAria": "关闭",
+        "machine": "设备",
+        "loadingMachines": "正在加载设备…",
+        "selectMachine": "选择一台设备",
+        "machineId": "设备编号",
+        "location": "位置",
+        "department": "部门",
+        "floor": "楼层",
+        "bay": "工位区",
+        "station": "工作站",
+        "criticalWatch": "重点关注",
+        "monitor": "监控",
+        "infoOnly": "仅供参考",
+        "watchReason": "关注原因",
+        "recommendedAction": "建议措施",
+        "linkedBreakdownOptional": "关联故障（可选）",
+        "selectMachineFirst": "请先选择设备",
+        "loadingBreakdowns": "正在加载故障记录…",
+        "noOpenBreakdowns": "该设备没有未结故障",
+        "none": "无",
+        "addWatchFlag": "添加关注标记"
+      },
+      "watchFlagBadge": {
+        "criticalWatch": "重点关注",
+        "monitor": "监控",
+        "infoOnly": "仅供参考"
+      },
+      "watchFlagCard": {
+        "carriedForward": "已延续",
+        "machineDetail": "设备详情",
+        "recommended": "建议：",
+        "linkedBreakdown": "关联故障",
+        "resolveFlag": "解除标记"
+      },
+      "configPage": {
+        "backToShiftHandovers": "返回交接班记录",
+        "title": "班次配置",
+        "subtitle": "定义公司运行的班次计划及各班次的人员安排。",
+        "seedDefaults": "生成默认配置",
+        "editingShift": "正在编辑：{{name}}",
+        "addNewShift": "新增班次",
+        "cancelEdit": "取消编辑",
+        "shiftPlans": "班次计划",
+        "shiftPlansWithCount": "班次计划（{{count}}）",
+        "loadingShifts": "正在加载班次…",
+        "noShiftsConfigured": "尚未配置任何班次。",
+        "active": "启用",
+        "inactive": "停用",
+        "individualAssignmentsHint": "也可以在“设置 → 用户”中进行个别人员的班次分配。",
+        "edit": "编辑",
+        "delete": "删除",
+        "confirmDelete": "确定要删除此班次配置吗？",
+        "days": {
+          "Mon": "周一",
+          "Tue": "周二",
+          "Wed": "周三",
+          "Thu": "周四",
+          "Fri": "周五",
+          "Sat": "周六",
+          "Sun": "周日"
+        }
+      },
+      "configForm": {
+        "shiftName": "班次名称",
+        "shiftNamePlaceholder": "例如：早班",
+        "from": "开始",
+        "to": "结束",
+        "colour": "颜色",
+        "status": "状态",
+        "active": "启用",
+        "inactive": "停用",
+        "assignShiftBy": "班次分配方式",
+        "department": "部门",
+        "rolesOnThisShift": "此班次涉及的角色",
+        "employeesOnShift": "此班次的员工",
+        "employeesOnShiftWithCount": "此班次的员工（已选 {{count}} 人）",
+        "clearSelection": "清除选择",
+        "searchByNameOrRole": "按姓名或角色搜索…",
+        "loadingEmployees": "正在加载员工…",
+        "noEmployeesYet": "该公司尚无员工。",
+        "noEmployeesMatch": "没有符合搜索条件的员工。",
+        "individualAssignmentHint": "也可以在<strong>设置 → 用户</strong>中为某人单独指定班次，这将覆盖按部门或角色统一设定的计划。分配对象在此计划变更时会收到邮件通知，并会在班次开始前 2-3 小时收到提醒。",
+        "shiftSaved": "班次已保存。",
+        "saving": "正在保存…",
+        "saveShift": "保存班次",
+        "newDepartmentPlaceholder": "例如：土建、安全",
+        "add": "添加",
+        "cancel": "取消",
+        "selectDepartment": "选择部门…",
+        "addNewDepartment": "+ 新增部门…",
+        "days": {
+          "Mon": "周一",
+          "Tue": "周二",
+          "Wed": "周三",
+          "Thu": "周四",
+          "Fri": "周五",
+          "Sat": "周六",
+          "Sun": "周日"
+        },
+        "roles": {
+          "admin": "管理员",
+          "supervisor": "主管",
+          "technician": "技术员",
+          "floorOperator": "现场操作员",
+          "storeKeeper": "仓库管理员",
+          "trainee": "学员",
+          "plantManager": "厂长",
+          "hrOfficer": "人力资源专员",
+          "safetyOfficer": "安全专员"
+        },
+        "assignBy": {
+          "department": {
+            "label": "按部门",
+            "hint": "所选部门的所有人员均上此班次。"
+          },
+          "role": {
+            "label": "按角色",
+            "hint": "所选角色的所有人员均上此班次。"
+          },
+          "employee": {
+            "label": "按员工",
+            "hint": "仅下方所选人员上此班次。"
+          }
+        },
+        "errors": {
+          "shiftNameRequired": "班次名称为必填项。",
+          "invalidTimes": "请为该班次设置有效的开始和结束时间。",
+          "departmentRequired": "请为此班次选择或创建一个部门。",
+          "roleRequired": "请至少为此班次选择一个角色。",
+          "employeeRequired": "请至少为此班次选择一名员工。",
+          "activeDayRequired": "请至少选择一个有效工作日。",
+          "saveFailed": "保存班次失败。"
+        }
+      }
     }
   },
   "triage": {

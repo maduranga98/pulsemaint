@@ -6241,6 +6241,427 @@
         "close": "Close",
         "handOverToNext": "Hand Over to Next Person"
       }
+    },
+    "shiftHandovers": {
+      "createPage": {
+        "title": "Create Shift Handover",
+        "subtitle": "Review the compiled shift summary and transfer accountability to the incoming supervisor."
+      },
+      "detailPage": {
+        "loading": "Loading handover...",
+        "exportPdf": "Export PDF"
+      },
+      "historyPage": {
+        "title": "Shift Handovers",
+        "subtitle": "Timestamped archive of supervisor accountability transfers across every shift and user.",
+        "shiftConfiguration": "Shift Configuration",
+        "loading": "Loading…",
+        "empty": "No handovers found."
+      },
+      "filterBar": {
+        "searchNamePlaceholder": "Search name…",
+        "allRoles": "All roles",
+        "allShifts": "All shifts",
+        "allDepartments": "All departments",
+        "lateOnly": "Late only",
+        "roleLabels": {
+          "admin": "Admin",
+          "plant_manager": "Plant Manager",
+          "supervisor": "Supervisor",
+          "technician": "Technician",
+          "store_keeper": "Store Keeper",
+          "hr_officer": "HR Officer",
+          "trainee": "Trainee",
+          "floor_operator": "Floor Operator"
+        }
+      },
+      "historyCard": {
+        "shiftLog": "Shift log",
+        "started": "Started: {{time}}",
+        "late": "({{duration}} late)",
+        "ended": "Ended: {{time}}",
+        "ot": "OT: {{value}}",
+        "watchFlags": "Watch flags: {{count}}",
+        "breakdownsDuringShift": "Breakdowns during shift: {{count}}",
+        "wosDuringShift": "WOs during shift: {{count}}",
+        "viewArchive": "View Archive",
+        "export": "Export"
+      },
+      "historyTable": {
+        "columns": {
+          "shiftName": "Shift Name",
+          "personAndRole": "Person & Role",
+          "department": "Department",
+          "shiftStarted": "Shift Started",
+          "lateBy": "Late By",
+          "shiftEnded": "Shift Ended",
+          "ot": "OT",
+          "breakdownsDuringShift": "Breakdowns during Shift",
+          "wosDuringShift": "WOs during Shift",
+          "watchFlags": "Watch Flags",
+          "action": "Action"
+        },
+        "onTime": "On time",
+        "late": "{{duration}} late",
+        "none": "None",
+        "shiftLog": "Shift log",
+        "view": "View",
+        "export": "Export"
+      },
+      "statusBadge": {
+        "pendingAcceptance": "Pending Acceptance",
+        "accepted": "Accepted",
+        "archived": "Archived"
+      },
+      "timeline": {
+        "title": "Timeline",
+        "shiftStart": "Shift start",
+        "handoverSubmitted": "Handover submitted",
+        "handoverAccepted": "Handover accepted"
+      },
+      "detailView": {
+        "titleSuffix": "Handover",
+        "assignedShift": "Assigned shift",
+        "scheduledRange": "scheduled {{start}}–{{end}}",
+        "shiftTakenFrom": "Shift taken from",
+        "shiftHandedOverTo": "Shift handed over to",
+        "pendingAcceptance": "Pending acceptance",
+        "shiftStartTime": "Shift start time",
+        "shiftEndTime": "Shift end time",
+        "overtime": "Overtime (OT)",
+        "workedVsScheduled": "(worked {{worked}} vs scheduled {{scheduled}})",
+        "watchMachineFlags": "Watch Machine Flags",
+        "noWatchFlags": "No watch flags raised.",
+        "pendingWorkOrders": "Pending Work Orders",
+        "noPendingWOs": "No pending work orders.",
+        "ongoingBreakdowns": "Ongoing Breakdowns",
+        "noOngoingBreakdowns": "No ongoing breakdowns.",
+        "generalNotesSafety": "General Notes & Safety Considerations",
+        "safetyIncident": "Safety incident",
+        "safetyIncidentReportedNoDescription": "Incident reported (no description provided).",
+        "noSafetyIncidents": "No safety incidents reported.",
+        "restrictedAreas": "Restricted areas",
+        "temporaryRepairs": "Temporary repairs",
+        "generalNotes": "General notes"
+      },
+      "safetyCasesSection": {
+        "title": "Safety Cases Reported to You",
+        "loading": "Loading safety cases...",
+        "empty": "No open safety cases reported to you."
+      },
+      "pendingWoRow": {
+        "noDueDate": "No due date",
+        "noNote": "No note",
+        "supervisorNotePlaceholder": "Supervisor note",
+        "carryForward": {
+          "continue": "Continue Next Shift",
+          "escalate": "Escalate to Manager",
+          "on_hold": "On Hold"
+        }
+      },
+      "breakdownSnapshotRow": {
+        "minutesElapsed": "{{count}} min elapsed",
+        "noNote": "No note",
+        "notePlaceholder": "Breakdown note",
+        "nextShiftPriority": {
+          "urgent": "Urgent - resolve immediately",
+          "continue": "Continue normally",
+          "monitor": "Monitoring only"
+        }
+      },
+      "createForm": {
+        "endShiftFirst": "End your shift first to compile the handover summary.",
+        "steps": {
+          "stats": "Stats",
+          "watch": "Watch",
+          "wos": "WOs",
+          "breakdowns": "Breakdowns",
+          "safety": "Safety",
+          "notes": "Notes",
+          "signOff": "Sign-Off"
+        },
+        "errors": {
+          "acknowledgeRequired": "Please confirm the sign-off before submitting.",
+          "statsNotCompiled": "Shift summary is not compiled yet. End your shift first.",
+          "submitFailed": "Failed to submit handover"
+        },
+        "toasts": {
+          "submitSuccess": "Handover submitted successfully"
+        },
+        "wizard": {
+          "back": "Back",
+          "next": "Next"
+        },
+        "section1AutoStats": {
+          "title": "Auto-Generated Shift Statistics",
+          "subtitle": "Read-only summary compiled from live Firestore records.",
+          "emptyState": "Compile shift summary to populate statistics."
+        },
+        "section2WatchFlags": {
+          "title": "Watch Machines",
+          "subtitle": "Machines needing special attention in the next shift.",
+          "addWatchFlag": "Add Watch Flag",
+          "empty": "No watch machines added."
+        },
+        "section3PendingWOs": {
+          "title": "Pending Work Orders",
+          "subtitle": "Carry-forward notes only. Work orders are not modified here.",
+          "empty": "No pending work orders."
+        },
+        "section4OngoingBreakdowns": {
+          "title": "Ongoing Breakdowns",
+          "subtitle": "Open breakdowns that need next-shift attention.",
+          "empty": "No ongoing breakdowns."
+        },
+        "section5PartsNotes": {
+          "title": "Parts & Inventory Notes",
+          "subtitle": "Low stock and parts request context for the next supervisor.",
+          "lowStockAlerts": "Low Stock Alerts",
+          "noAlerts": "No low stock alerts compiled.",
+          "alertLine": "{{name}}: {{current}} / min {{min}}",
+          "notesPlaceholder": "Parts and inventory notes"
+        },
+        "section6SafetyIncidents": {
+          "title": "Safety & Incidents",
+          "subtitle": "Safety incidents, restricted areas, and temporary repairs.",
+          "incidentQuestion": "Any safety incident or near-miss during this shift?",
+          "incidentDescriptionPlaceholder": "Describe incident, machines involved, actions taken, follow-up required",
+          "restrictedAreasPlaceholder": "Restricted areas",
+          "temporaryRepairsPlaceholder": "Temporary repairs"
+        },
+        "section7GeneralNotes": {
+          "title": "General Notes",
+          "subtitle": "Plain text notes for the incoming supervisor.",
+          "placeholder": "Anything not covered above",
+          "charCount": "{{count}}/2000"
+        },
+        "section8SignOff": {
+          "title": "Outgoing Supervisor Sign-Off",
+          "supervisor": "Supervisor",
+          "shift": "Shift",
+          "signOffTime": "Sign-off time",
+          "confirmation": "I confirm the above information is accurate and complete.",
+          "submitting": "Submitting...",
+          "submit": "Submit Handover"
+        }
+      },
+      "briefingPage": {
+        "noPending": "No pending shift briefing.",
+        "returnToDashboard": "Return to dashboard"
+      },
+      "briefingHeader": {
+        "title": "Incoming Shift Briefing",
+        "handoverFrom": "Handover from {{name}} at {{time}}"
+      },
+      "briefingScreen": {
+        "watchMachines": "Watch Machines",
+        "noWatchFlags": "No watch flags.",
+        "activeBreakdowns": "Active Breakdowns",
+        "pendingWorkOrders": "Pending Work Orders",
+        "partsInventoryFlags": "Parts & Inventory Flags",
+        "partQtyLine": "{{name}}: {{current}} / min {{min}}",
+        "noPartsNotes": "No parts notes.",
+        "lastShiftStatistics": "Last Shift Statistics",
+        "generalNotes": "General Notes",
+        "noGeneralNotes": "No general notes."
+      },
+      "overlapBanner": {
+        "handedOver": "Shift handed over to {{name}} at {{time}}.",
+        "overlapInProgress": "Overlap in progress - {{name}} is handing over {{shiftName}}.",
+        "reviewBriefing": "Review Briefing"
+      },
+      "statsGrid": {
+        "breakdowns": "Breakdowns",
+        "openWOs": "Open WOs",
+        "pmsDone": "PMs Done",
+        "hoursLost": "Hours Lost",
+        "partsIssued": "Parts Issued",
+        "wosCompleted": "WOs Completed",
+        "critical": "Critical",
+        "pmsMissed": "PMs Missed"
+      },
+      "acceptShiftButton": {
+        "confirmText": "By accepting, you confirm you reviewed the shift briefing and take responsibility for this shift.",
+        "cancel": "Cancel",
+        "accepting": "Accepting...",
+        "confirmAcceptance": "Confirm Acceptance",
+        "acceptShift": "Accept Shift & Take Responsibility"
+      },
+      "endShiftConfirmModal": {
+        "title": "End Shift",
+        "confirmQuestion": "Are you sure you want to end your shift?",
+        "closeAria": "Close",
+        "currentShift": "Current shift",
+        "currentShiftFallback": "Current Shift",
+        "scheduled": "Scheduled",
+        "currentTime": "Current time",
+        "duration": "Duration",
+        "notStarted": "Not started",
+        "cancel": "Cancel",
+        "generating": "Generating...",
+        "endShiftAndGenerateReport": "End Shift & Generate Report",
+        "endShift": "End Shift"
+      },
+      "endShiftButton": {
+        "start": "Start",
+        "failedToStart": "Failed to start shift",
+        "starting": "Starting…",
+        "startShift": "Start Shift",
+        "endShift": "End Shift"
+      },
+      "statusPanel": {
+        "since": "Since {{time}}",
+        "sinceDay": "Since {{day}} {{time}}",
+        "yesterday": "yesterday",
+        "notStartedToday": "Not started today",
+        "ended": "Ended {{time}}",
+        "working": "Working",
+        "notWorking": "Not Working",
+        "workingCount": "Working ({{count}})",
+        "noOneScheduled": "No one scheduled on this shift yet.",
+        "liveShiftStatus": "Live Shift Status",
+        "summaryLine": "{{people}} currently working, across {{shifts}}",
+        "personCount_one": "{{count}} person",
+        "personCount_other": "{{count}} people",
+        "shiftCount_one": "{{count}} shift",
+        "shiftCount_other": "{{count}} shifts"
+      },
+      "watchFlagAddModal": {
+        "title": "Add Watch Machine",
+        "closeAria": "Close",
+        "machine": "Machine",
+        "loadingMachines": "Loading machines…",
+        "selectMachine": "Select a machine",
+        "machineId": "Machine ID",
+        "location": "Location",
+        "department": "Department",
+        "floor": "Floor",
+        "bay": "Bay",
+        "station": "Station",
+        "criticalWatch": "Critical Watch",
+        "monitor": "Monitor",
+        "infoOnly": "Info Only",
+        "watchReason": "Watch reason",
+        "recommendedAction": "Recommended action",
+        "linkedBreakdownOptional": "Linked Breakdown (optional)",
+        "selectMachineFirst": "Select a machine first",
+        "loadingBreakdowns": "Loading breakdowns…",
+        "noOpenBreakdowns": "No open breakdowns for this machine",
+        "none": "None",
+        "addWatchFlag": "Add Watch Flag"
+      },
+      "watchFlagBadge": {
+        "criticalWatch": "Critical Watch",
+        "monitor": "Monitor",
+        "infoOnly": "Info Only"
+      },
+      "watchFlagCard": {
+        "carriedForward": "Carried Forward",
+        "machineDetail": "Machine Detail",
+        "recommended": "Recommended:",
+        "linkedBreakdown": "Linked breakdown",
+        "resolveFlag": "Resolve Flag"
+      },
+      "configPage": {
+        "backToShiftHandovers": "Back to Shift Handovers",
+        "title": "Shift Configuration",
+        "subtitle": "Define the shift plans your company runs and who works each one.",
+        "seedDefaults": "Seed Defaults",
+        "editingShift": "Editing: {{name}}",
+        "addNewShift": "Add New Shift",
+        "cancelEdit": "Cancel edit",
+        "shiftPlans": "Shift Plans",
+        "shiftPlansWithCount": "Shift Plans ({{count}})",
+        "loadingShifts": "Loading shifts…",
+        "noShiftsConfigured": "No shifts configured yet.",
+        "active": "Active",
+        "inactive": "Inactive",
+        "individualAssignmentsHint": "Individual assignments can also be made in Settings → Users.",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirmDelete": "Delete this shift configuration?",
+        "days": {
+          "Mon": "Mon",
+          "Tue": "Tue",
+          "Wed": "Wed",
+          "Thu": "Thu",
+          "Fri": "Fri",
+          "Sat": "Sat",
+          "Sun": "Sun"
+        }
+      },
+      "configForm": {
+        "shiftName": "Shift Name",
+        "shiftNamePlaceholder": "e.g. Morning Shift",
+        "from": "From",
+        "to": "To",
+        "colour": "Colour",
+        "status": "Status",
+        "active": "Active",
+        "inactive": "Inactive",
+        "assignShiftBy": "Assign shift by",
+        "department": "Department",
+        "rolesOnThisShift": "Roles on this shift",
+        "employeesOnShift": "Employees on this shift",
+        "employeesOnShiftWithCount": "Employees on this shift ({{count}} selected)",
+        "clearSelection": "Clear selection",
+        "searchByNameOrRole": "Search by name or role…",
+        "loadingEmployees": "Loading employees…",
+        "noEmployeesYet": "No employees in this company yet.",
+        "noEmployeesMatch": "No employees match that search.",
+        "individualAssignmentHint": "A person can also be put on a shift individually from <strong>Settings → Users</strong> by picking a shift there, which overrides a department- or role-wide plan for them. Assigned members are emailed when this plan changes and reminded 2–3 hours before the shift starts.",
+        "shiftSaved": "Shift saved.",
+        "saving": "Saving…",
+        "saveShift": "Save Shift",
+        "newDepartmentPlaceholder": "e.g. Civil, Safety",
+        "add": "Add",
+        "cancel": "Cancel",
+        "selectDepartment": "Select a department…",
+        "addNewDepartment": "+ Add new department…",
+        "days": {
+          "Mon": "Mon",
+          "Tue": "Tue",
+          "Wed": "Wed",
+          "Thu": "Thu",
+          "Fri": "Fri",
+          "Sat": "Sat",
+          "Sun": "Sun"
+        },
+        "roles": {
+          "admin": "Admin",
+          "supervisor": "Supervisor",
+          "technician": "Technician",
+          "floorOperator": "Floor Operator",
+          "storeKeeper": "Store Keeper",
+          "trainee": "Trainee",
+          "plantManager": "Plant Manager",
+          "hrOfficer": "HR Officer",
+          "safetyOfficer": "Safety Officer"
+        },
+        "assignBy": {
+          "department": {
+            "label": "By department",
+            "hint": "Everyone in the chosen department works this shift."
+          },
+          "role": {
+            "label": "By role",
+            "hint": "Everyone with the chosen roles works this shift."
+          },
+          "employee": {
+            "label": "By employee",
+            "hint": "Only the people you pick below work this shift."
+          }
+        },
+        "errors": {
+          "shiftNameRequired": "Shift name is required.",
+          "invalidTimes": "Set valid From and To times for the shift.",
+          "departmentRequired": "Select or create a department for this shift.",
+          "roleRequired": "Select at least one role for this shift.",
+          "employeeRequired": "Select at least one employee for this shift.",
+          "activeDayRequired": "Select at least one active day.",
+          "saveFailed": "Failed to save shift."
+        }
+      }
     }
   }
 }

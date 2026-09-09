@@ -6068,6 +6068,427 @@
         "close": "Cerrar",
         "handOverToNext": "Entregar turno a la siguiente persona"
       }
+    },
+    "shiftHandovers": {
+      "createPage": {
+        "title": "Crear entrega de turno",
+        "subtitle": "Revise el resumen compilado del turno y transfiera la responsabilidad al supervisor entrante."
+      },
+      "detailPage": {
+        "loading": "Cargando entrega...",
+        "exportPdf": "Exportar PDF"
+      },
+      "historyPage": {
+        "title": "Entregas de Turno",
+        "subtitle": "Archivo con marca de tiempo de las transferencias de responsabilidad de los supervisores en cada turno y usuario.",
+        "shiftConfiguration": "Configuración de Turnos",
+        "loading": "Cargando…",
+        "empty": "No se encontraron entregas."
+      },
+      "filterBar": {
+        "searchNamePlaceholder": "Buscar nombre…",
+        "allRoles": "Todos los roles",
+        "allShifts": "Todos los turnos",
+        "allDepartments": "Todos los departamentos",
+        "lateOnly": "Solo tardíos",
+        "roleLabels": {
+          "admin": "Administrador",
+          "plant_manager": "Gerente de Planta",
+          "supervisor": "Supervisor",
+          "technician": "Técnico",
+          "store_keeper": "Encargado de Almacén",
+          "hr_officer": "Oficial de RR. HH.",
+          "trainee": "Aprendiz",
+          "floor_operator": "Operador de Planta"
+        }
+      },
+      "historyCard": {
+        "shiftLog": "Registro de turno",
+        "started": "Iniciado: {{time}}",
+        "late": "({{duration}} de retraso)",
+        "ended": "Finalizado: {{time}}",
+        "ot": "HE: {{value}}",
+        "watchFlags": "Alertas de vigilancia: {{count}}",
+        "breakdownsDuringShift": "Averías durante el turno: {{count}}",
+        "wosDuringShift": "OT durante el turno: {{count}}",
+        "viewArchive": "Ver Archivo",
+        "export": "Exportar"
+      },
+      "historyTable": {
+        "columns": {
+          "shiftName": "Nombre del Turno",
+          "personAndRole": "Persona y Rol",
+          "department": "Departamento",
+          "shiftStarted": "Turno Iniciado",
+          "lateBy": "Retraso de",
+          "shiftEnded": "Turno Finalizado",
+          "ot": "HE",
+          "breakdownsDuringShift": "Averías durante el Turno",
+          "wosDuringShift": "OT durante el Turno",
+          "watchFlags": "Alertas de Vigilancia",
+          "action": "Acción"
+        },
+        "onTime": "A tiempo",
+        "late": "{{duration}} de retraso",
+        "none": "Ninguno",
+        "shiftLog": "Registro de turno",
+        "view": "Ver",
+        "export": "Exportar"
+      },
+      "statusBadge": {
+        "pendingAcceptance": "Aceptación Pendiente",
+        "accepted": "Aceptada",
+        "archived": "Archivada"
+      },
+      "timeline": {
+        "title": "Cronología",
+        "shiftStart": "Inicio del turno",
+        "handoverSubmitted": "Entrega enviada",
+        "handoverAccepted": "Entrega aceptada"
+      },
+      "detailView": {
+        "titleSuffix": "Entrega",
+        "assignedShift": "Turno asignado",
+        "scheduledRange": "programado {{start}}–{{end}}",
+        "shiftTakenFrom": "Turno recibido de",
+        "shiftHandedOverTo": "Turno entregado a",
+        "pendingAcceptance": "Aceptación pendiente",
+        "shiftStartTime": "Hora de inicio del turno",
+        "shiftEndTime": "Hora de finalización del turno",
+        "overtime": "Horas extra (HE)",
+        "workedVsScheduled": "(trabajado {{worked}} vs. programado {{scheduled}})",
+        "watchMachineFlags": "Máquinas en Vigilancia",
+        "noWatchFlags": "No se registraron alertas de vigilancia.",
+        "pendingWorkOrders": "Órdenes de Trabajo Pendientes",
+        "noPendingWOs": "No hay órdenes de trabajo pendientes.",
+        "ongoingBreakdowns": "Averías en Curso",
+        "noOngoingBreakdowns": "No hay averías en curso.",
+        "generalNotesSafety": "Notas Generales y Consideraciones de Seguridad",
+        "safetyIncident": "Incidente de seguridad",
+        "safetyIncidentReportedNoDescription": "Incidente reportado (sin descripción proporcionada).",
+        "noSafetyIncidents": "No se reportaron incidentes de seguridad.",
+        "restrictedAreas": "Áreas restringidas",
+        "temporaryRepairs": "Reparaciones temporales",
+        "generalNotes": "Notas generales"
+      },
+      "safetyCasesSection": {
+        "title": "Casos de Seguridad Reportados a Usted",
+        "loading": "Cargando casos de seguridad...",
+        "empty": "No hay casos de seguridad abiertos reportados a usted."
+      },
+      "pendingWoRow": {
+        "noDueDate": "Sin fecha límite",
+        "noNote": "Sin nota",
+        "supervisorNotePlaceholder": "Nota del supervisor",
+        "carryForward": {
+          "continue": "Continuar en el Próximo Turno",
+          "escalate": "Escalar al Gerente",
+          "on_hold": "En Espera"
+        }
+      },
+      "breakdownSnapshotRow": {
+        "minutesElapsed": "{{count}} min transcurridos",
+        "noNote": "Sin nota",
+        "notePlaceholder": "Nota de la avería",
+        "nextShiftPriority": {
+          "urgent": "Urgente - resolver de inmediato",
+          "continue": "Continuar normalmente",
+          "monitor": "Solo monitorear"
+        }
+      },
+      "createForm": {
+        "endShiftFirst": "Finalice su turno primero para compilar el resumen de la entrega.",
+        "steps": {
+          "stats": "Estadísticas",
+          "watch": "Vigilancia",
+          "wos": "OT",
+          "breakdowns": "Averías",
+          "safety": "Seguridad",
+          "notes": "Notas",
+          "signOff": "Cierre"
+        },
+        "errors": {
+          "acknowledgeRequired": "Confirme el cierre antes de enviar.",
+          "statsNotCompiled": "El resumen del turno aún no está compilado. Finalice su turno primero.",
+          "submitFailed": "No se pudo enviar la entrega"
+        },
+        "toasts": {
+          "submitSuccess": "Entrega enviada correctamente"
+        },
+        "wizard": {
+          "back": "Atrás",
+          "next": "Siguiente"
+        },
+        "section1AutoStats": {
+          "title": "Estadísticas del Turno Generadas Automáticamente",
+          "subtitle": "Resumen de solo lectura compilado a partir de registros en vivo de Firestore.",
+          "emptyState": "Compile el resumen del turno para completar las estadísticas."
+        },
+        "section2WatchFlags": {
+          "title": "Máquinas en Vigilancia",
+          "subtitle": "Máquinas que requieren atención especial en el próximo turno.",
+          "addWatchFlag": "Agregar Alerta de Vigilancia",
+          "empty": "No se agregaron máquinas en vigilancia."
+        },
+        "section3PendingWOs": {
+          "title": "Órdenes de Trabajo Pendientes",
+          "subtitle": "Solo notas de continuidad. Las órdenes de trabajo no se modifican aquí.",
+          "empty": "No hay órdenes de trabajo pendientes."
+        },
+        "section4OngoingBreakdowns": {
+          "title": "Averías en Curso",
+          "subtitle": "Averías abiertas que requieren atención en el próximo turno.",
+          "empty": "No hay averías en curso."
+        },
+        "section5PartsNotes": {
+          "title": "Notas de Repuestos e Inventario",
+          "subtitle": "Alertas de stock bajo y contexto de solicitudes de repuestos para el próximo supervisor.",
+          "lowStockAlerts": "Alertas de Stock Bajo",
+          "noAlerts": "No se compilaron alertas de stock bajo.",
+          "alertLine": "{{name}}: {{current}} / mín {{min}}",
+          "notesPlaceholder": "Notas de repuestos e inventario"
+        },
+        "section6SafetyIncidents": {
+          "title": "Seguridad e Incidentes",
+          "subtitle": "Incidentes de seguridad, áreas restringidas y reparaciones temporales.",
+          "incidentQuestion": "¿Hubo algún incidente de seguridad o cuasi accidente durante este turno?",
+          "incidentDescriptionPlaceholder": "Describa el incidente, las máquinas involucradas, las acciones tomadas y el seguimiento requerido",
+          "restrictedAreasPlaceholder": "Áreas restringidas",
+          "temporaryRepairsPlaceholder": "Reparaciones temporales"
+        },
+        "section7GeneralNotes": {
+          "title": "Notas Generales",
+          "subtitle": "Notas de texto libre para el supervisor entrante.",
+          "placeholder": "Cualquier cosa no cubierta anteriormente",
+          "charCount": "{{count}}/2000"
+        },
+        "section8SignOff": {
+          "title": "Cierre del Supervisor Saliente",
+          "supervisor": "Supervisor",
+          "shift": "Turno",
+          "signOffTime": "Hora de cierre",
+          "confirmation": "Confirmo que la información anterior es precisa y está completa.",
+          "submitting": "Enviando...",
+          "submit": "Enviar Entrega"
+        }
+      },
+      "briefingPage": {
+        "noPending": "No hay ninguna sesión informativa de turno pendiente.",
+        "returnToDashboard": "Volver al panel"
+      },
+      "briefingHeader": {
+        "title": "Sesión Informativa del Turno Entrante",
+        "handoverFrom": "Entrega de {{name}} a las {{time}}"
+      },
+      "briefingScreen": {
+        "watchMachines": "Máquinas en Vigilancia",
+        "noWatchFlags": "No hay alertas de vigilancia.",
+        "activeBreakdowns": "Averías Activas",
+        "pendingWorkOrders": "Órdenes de Trabajo Pendientes",
+        "partsInventoryFlags": "Alertas de Repuestos e Inventario",
+        "partQtyLine": "{{name}}: {{current}} / mín {{min}}",
+        "noPartsNotes": "No hay notas de repuestos.",
+        "lastShiftStatistics": "Estadísticas del Último Turno",
+        "generalNotes": "Notas Generales",
+        "noGeneralNotes": "No hay notas generales."
+      },
+      "overlapBanner": {
+        "handedOver": "Turno entregado a {{name}} a las {{time}}.",
+        "overlapInProgress": "Solapamiento en curso - {{name}} está entregando {{shiftName}}.",
+        "reviewBriefing": "Revisar Sesión Informativa"
+      },
+      "statsGrid": {
+        "breakdowns": "Averías",
+        "openWOs": "OT Abiertas",
+        "pmsDone": "MP Realizados",
+        "hoursLost": "Horas Perdidas",
+        "partsIssued": "Repuestos Emitidos",
+        "wosCompleted": "OT Completadas",
+        "critical": "Crítico",
+        "pmsMissed": "MP Incumplidos"
+      },
+      "acceptShiftButton": {
+        "confirmText": "Al aceptar, confirma que revisó la sesión informativa del turno y asume la responsabilidad de este turno.",
+        "cancel": "Cancelar",
+        "accepting": "Aceptando...",
+        "confirmAcceptance": "Confirmar Aceptación",
+        "acceptShift": "Aceptar Turno y Asumir Responsabilidad"
+      },
+      "endShiftConfirmModal": {
+        "title": "Finalizar Turno",
+        "confirmQuestion": "¿Está seguro de que desea finalizar su turno?",
+        "closeAria": "Cerrar",
+        "currentShift": "Turno actual",
+        "currentShiftFallback": "Turno Actual",
+        "scheduled": "Programado",
+        "currentTime": "Hora actual",
+        "duration": "Duración",
+        "notStarted": "No iniciado",
+        "cancel": "Cancelar",
+        "generating": "Generando...",
+        "endShiftAndGenerateReport": "Finalizar Turno y Generar Informe",
+        "endShift": "Finalizar Turno"
+      },
+      "endShiftButton": {
+        "start": "Iniciar",
+        "failedToStart": "No se pudo iniciar el turno",
+        "starting": "Iniciando…",
+        "startShift": "Iniciar Turno",
+        "endShift": "Finalizar Turno"
+      },
+      "statusPanel": {
+        "since": "Desde las {{time}}",
+        "sinceDay": "Desde el {{day}} a las {{time}}",
+        "yesterday": "ayer",
+        "notStartedToday": "No iniciado hoy",
+        "ended": "Finalizado a las {{time}}",
+        "working": "Trabajando",
+        "notWorking": "Sin Trabajar",
+        "workingCount": "Trabajando ({{count}})",
+        "noOneScheduled": "Nadie está programado en este turno todavía.",
+        "liveShiftStatus": "Estado del Turno en Vivo",
+        "summaryLine": "{{people}} trabajando actualmente, en {{shifts}}",
+        "personCount_one": "{{count}} persona",
+        "personCount_other": "{{count}} personas",
+        "shiftCount_one": "{{count}} turno",
+        "shiftCount_other": "{{count}} turnos"
+      },
+      "watchFlagAddModal": {
+        "title": "Agregar Máquina en Vigilancia",
+        "closeAria": "Cerrar",
+        "machine": "Máquina",
+        "loadingMachines": "Cargando máquinas…",
+        "selectMachine": "Seleccione una máquina",
+        "machineId": "ID de Máquina",
+        "location": "Ubicación",
+        "department": "Departamento",
+        "floor": "Piso",
+        "bay": "Bahía",
+        "station": "Estación",
+        "criticalWatch": "Vigilancia Crítica",
+        "monitor": "Monitorear",
+        "infoOnly": "Solo Información",
+        "watchReason": "Motivo de la vigilancia",
+        "recommendedAction": "Acción recomendada",
+        "linkedBreakdownOptional": "Avería Vinculada (opcional)",
+        "selectMachineFirst": "Seleccione primero una máquina",
+        "loadingBreakdowns": "Cargando averías…",
+        "noOpenBreakdowns": "No hay averías abiertas para esta máquina",
+        "none": "Ninguna",
+        "addWatchFlag": "Agregar Alerta de Vigilancia"
+      },
+      "watchFlagBadge": {
+        "criticalWatch": "Vigilancia Crítica",
+        "monitor": "Monitorear",
+        "infoOnly": "Solo Información"
+      },
+      "watchFlagCard": {
+        "carriedForward": "Trasladado",
+        "machineDetail": "Detalle de Máquina",
+        "recommended": "Recomendado:",
+        "linkedBreakdown": "Avería vinculada",
+        "resolveFlag": "Resolver Alerta"
+      },
+      "configPage": {
+        "backToShiftHandovers": "Volver a Entregas de Turno",
+        "title": "Configuración de Turnos",
+        "subtitle": "Defina los planes de turno que maneja su empresa y quién trabaja en cada uno.",
+        "seedDefaults": "Cargar Valores Predeterminados",
+        "editingShift": "Editando: {{name}}",
+        "addNewShift": "Agregar Nuevo Turno",
+        "cancelEdit": "Cancelar edición",
+        "shiftPlans": "Planes de Turno",
+        "shiftPlansWithCount": "Planes de Turno ({{count}})",
+        "loadingShifts": "Cargando turnos…",
+        "noShiftsConfigured": "Aún no hay turnos configurados.",
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "individualAssignmentsHint": "Las asignaciones individuales también se pueden hacer en Configuración → Usuarios.",
+        "edit": "Editar",
+        "delete": "Eliminar",
+        "confirmDelete": "¿Eliminar esta configuración de turno?",
+        "days": {
+          "Mon": "Lun",
+          "Tue": "Mar",
+          "Wed": "Mié",
+          "Thu": "Jue",
+          "Fri": "Vie",
+          "Sat": "Sáb",
+          "Sun": "Dom"
+        }
+      },
+      "configForm": {
+        "shiftName": "Nombre del Turno",
+        "shiftNamePlaceholder": "p. ej. Turno Matutino",
+        "from": "Desde",
+        "to": "Hasta",
+        "colour": "Color",
+        "status": "Estado",
+        "active": "Activo",
+        "inactive": "Inactivo",
+        "assignShiftBy": "Asignar turno por",
+        "department": "Departamento",
+        "rolesOnThisShift": "Roles en este turno",
+        "employeesOnShift": "Empleados en este turno",
+        "employeesOnShiftWithCount": "Empleados en este turno ({{count}} seleccionados)",
+        "clearSelection": "Borrar selección",
+        "searchByNameOrRole": "Buscar por nombre o rol…",
+        "loadingEmployees": "Cargando empleados…",
+        "noEmployeesYet": "Aún no hay empleados en esta empresa.",
+        "noEmployeesMatch": "Ningún empleado coincide con esa búsqueda.",
+        "individualAssignmentHint": "Una persona también puede asignarse a un turno individualmente desde <strong>Configuración → Usuarios</strong> eligiendo un turno allí, lo cual anula un plan por departamento o por rol para ella. Los miembros asignados reciben un correo cuando este plan cambia y un recordatorio 2–3 horas antes de que comience el turno.",
+        "shiftSaved": "Turno guardado.",
+        "saving": "Guardando…",
+        "saveShift": "Guardar Turno",
+        "newDepartmentPlaceholder": "p. ej. Civil, Seguridad",
+        "add": "Agregar",
+        "cancel": "Cancelar",
+        "selectDepartment": "Seleccione un departamento…",
+        "addNewDepartment": "+ Agregar nuevo departamento…",
+        "days": {
+          "Mon": "Lun",
+          "Tue": "Mar",
+          "Wed": "Mié",
+          "Thu": "Jue",
+          "Fri": "Vie",
+          "Sat": "Sáb",
+          "Sun": "Dom"
+        },
+        "roles": {
+          "admin": "Administrador",
+          "supervisor": "Supervisor",
+          "technician": "Técnico",
+          "floorOperator": "Operador de Planta",
+          "storeKeeper": "Encargado de Almacén",
+          "trainee": "Aprendiz",
+          "plantManager": "Gerente de Planta",
+          "hrOfficer": "Oficial de RR. HH.",
+          "safetyOfficer": "Oficial de Seguridad"
+        },
+        "assignBy": {
+          "department": {
+            "label": "Por departamento",
+            "hint": "Todos en el departamento elegido trabajan este turno."
+          },
+          "role": {
+            "label": "Por rol",
+            "hint": "Todos con los roles elegidos trabajan este turno."
+          },
+          "employee": {
+            "label": "Por empleado",
+            "hint": "Solo las personas que seleccione a continuación trabajan este turno."
+          }
+        },
+        "errors": {
+          "shiftNameRequired": "El nombre del turno es obligatorio.",
+          "invalidTimes": "Configure horas válidas de Desde y Hasta para el turno.",
+          "departmentRequired": "Seleccione o cree un departamento para este turno.",
+          "roleRequired": "Seleccione al menos un rol para este turno.",
+          "employeeRequired": "Seleccione al menos un empleado para este turno.",
+          "activeDayRequired": "Seleccione al menos un día activo.",
+          "saveFailed": "No se pudo guardar el turno."
+        }
+      }
     }
   },
   "triage": {

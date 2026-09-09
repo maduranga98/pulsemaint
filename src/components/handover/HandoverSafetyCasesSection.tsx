@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useSafetyCases } from '@/hooks/safety/useSafety';
 
@@ -12,6 +13,7 @@ const SEVERITY_CLASS: Record<string, string> = {
 // or naming them as the subject), excluding closed ones — so the incoming/
 // outgoing supervisor sees what's actually still open on their plate.
 export function HandoverSafetyCasesSection() {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const { cases, loading } = useSafetyCases(companyId);
@@ -24,11 +26,11 @@ export function HandoverSafetyCasesSection() {
 
   return (
     <section className="space-y-3">
-      <h2 className=" font-bold text-slate-950">Safety Cases Reported to You</h2>
+      <h2 className=" font-bold text-slate-950">{t('common.shiftHandovers.safetyCasesSection.title')}</h2>
       {loading ? (
-        <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">Loading safety cases...</p>
+        <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">{t('common.shiftHandovers.safetyCasesSection.loading')}</p>
       ) : mine.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">No open safety cases reported to you.</p>
+        <p className="rounded-lg border border-dashed border-slate-200 bg-white p-4 text-sm text-slate-500">{t('common.shiftHandovers.safetyCasesSection.empty')}</p>
       ) : (
         mine.map((c) => (
           <div key={c.id} className="rounded-lg border border-slate-200 bg-white p-3">

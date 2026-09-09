@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useHandoverStore } from '@/store/handover.store';
 import { useToast } from '@/hooks/useToast';
@@ -11,12 +12,20 @@ import Section6SafetyIncidents from './Section6SafetyIncidents';
 import Section7GeneralNotes from './Section7GeneralNotes';
 import Section8SignOff from './Section8SignOff';
 
-const STEPS = ['Stats', 'Watch', 'WOs', 'Breakdowns', 'Safety', 'Notes', 'Sign-Off'];
-
 export function HandoverCreateForm() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
   const profile = useAuthStore((state) => state.userProfile);
+  const STEPS = [
+    t('common.shiftHandovers.createForm.steps.stats'),
+    t('common.shiftHandovers.createForm.steps.watch'),
+    t('common.shiftHandovers.createForm.steps.wos'),
+    t('common.shiftHandovers.createForm.steps.breakdowns'),
+    t('common.shiftHandovers.createForm.steps.safety'),
+    t('common.shiftHandovers.createForm.steps.notes'),
+    t('common.shiftHandovers.createForm.steps.signOff'),
+  ];
   const draft = useHandoverStore((state) => state.draftHandover);
   const stats = useHandoverStore((state) => state.compiledStats);
   const updateDraftHandover = useHandoverStore((state) => state.updateDraftHandover);
@@ -28,21 +37,21 @@ export function HandoverCreateForm() {
   const handleSubmit = async () => {
     if (submitting) return;
     if (!draft?.outgoingAcknowledged) {
-      setSubmitError('Please confirm the sign-off before submitting.');
+      setSubmitError(t('common.shiftHandovers.createForm.errors.acknowledgeRequired'));
       return;
     }
     if (!stats) {
-      setSubmitError('Shift summary is not compiled yet. End your shift first.');
+      setSubmitError(t('common.shiftHandovers.createForm.errors.statsNotCompiled'));
       return;
     }
     setSubmitError(null);
     setSubmitting(true);
     try {
       const id = await submitHandover();
-      toast.success('Handover submitted successfully');
+      toast.success(t('common.shiftHandovers.createForm.toasts.submitSuccess'));
       navigate(`/app/shift/handover/${id}`);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to submit handover';
+      const message = err instanceof Error ? err.message : t('common.shiftHandovers.createForm.errors.submitFailed');
       setSubmitError(message);
       toast.error(message);
     } finally {
@@ -53,7 +62,7 @@ export function HandoverCreateForm() {
   if (!draft) {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 text-amber-900">
-        End your shift first to compile the handover summary.
+        {t('common.shiftHandovers.createForm.endShiftFirst')}
       </div>
     );
   }
@@ -96,8 +105,8 @@ export function HandoverCreateForm() {
       <div className="lg:hidden">{sections[step]}</div>
       <div className="hidden space-y-6 lg:block">{sections}</div>
       <div className="sticky bottom-0 flex justify-between gap-2 border-t border-slate-200 bg-slate-50 p-3 lg:hidden">
-        <button type="button" disabled={step === 0} onClick={() => setStep((value) => value - 1)} className="min-h-12 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 disabled:opacity-50">Back</button>
-        <button type="button" disabled={step === sections.length - 1} onClick={() => setStep((value) => value + 1)} className="min-h-12 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white disabled:opacity-50">Next</button>
+        <button type="button" disabled={step === 0} onClick={() => setStep((value) => value - 1)} className="min-h-12 rounded-md border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 disabled:opacity-50">{t('common.shiftHandovers.createForm.wizard.back')}</button>
+        <button type="button" disabled={step === sections.length - 1} onClick={() => setStep((value) => value + 1)} className="min-h-12 rounded-md bg-blue-600 px-4 text-sm font-semibold text-white disabled:opacity-50">{t('common.shiftHandovers.createForm.wizard.next')}</button>
       </div>
     </div>
   );

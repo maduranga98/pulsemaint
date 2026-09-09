@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ShiftHandover } from '@/types/handover.types';
 
 interface HandoverTimelineProps {
@@ -5,15 +6,16 @@ interface HandoverTimelineProps {
 }
 
 export function HandoverTimeline({ handover }: HandoverTimelineProps) {
+  const { t } = useTranslation();
   const items = [
-    ['Shift start', handover.shiftActualStart],
-    ['Handover submitted', handover.handoverSubmittedAt],
-    ['Handover accepted', handover.handoverAcceptedAt],
+    [t('common.shiftHandovers.timeline.shiftStart'), handover.shiftActualStart],
+    [t('common.shiftHandovers.timeline.handoverSubmitted'), handover.handoverSubmittedAt],
+    [t('common.shiftHandovers.timeline.handoverAccepted'), handover.handoverAcceptedAt],
   ] as const;
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className=" font-bold text-slate-950">Timeline</h2>
+      <h2 className=" font-bold text-slate-950">{t('common.shiftHandovers.timeline.title')}</h2>
       <div className="mt-4 space-y-3">
         {items.map(([label, date]) => (
           <div key={label} className="flex gap-3">

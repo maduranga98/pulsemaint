@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Trans, useTranslation, type TFunction } from 'react-i18next';
 import type { ShiftAssignBy, ShiftConfig, ShiftDay } from '@/types/handover.types';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
@@ -12,33 +13,35 @@ interface ShiftConfigFormProps {
 
 const DAYS: ShiftDay[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const SCHEDULABLE_ROLES: Array<{ value: string; label: string }> = [
-  { value: 'supervisor', label: 'Supervisor' },
-  { value: 'technician', label: 'Technician' },
-  { value: 'floor_operator', label: 'Floor Operator' },
-  { value: 'store_keeper', label: 'Store Keeper' },
-  { value: 'trainee', label: 'Trainee' },
-  { value: 'plant_manager', label: 'Plant Manager' },
-  { value: 'hr_officer', label: 'HR Officer' },
-  { value: 'safety_officer', label: 'Safety Officer' },
+const SCHEDULABLE_ROLES: Array<{ value: string; labelKey: string }> = [
+  { value: 'supervisor', labelKey: 'common.shiftHandovers.configForm.roles.supervisor' },
+  { value: 'technician', labelKey: 'common.shiftHandovers.configForm.roles.technician' },
+  { value: 'floor_operator', labelKey: 'common.shiftHandovers.configForm.roles.floorOperator' },
+  { value: 'store_keeper', labelKey: 'common.shiftHandovers.configForm.roles.storeKeeper' },
+  { value: 'trainee', labelKey: 'common.shiftHandovers.configForm.roles.trainee' },
+  { value: 'plant_manager', labelKey: 'common.shiftHandovers.configForm.roles.plantManager' },
+  { value: 'hr_officer', labelKey: 'common.shiftHandovers.configForm.roles.hrOfficer' },
+  { value: 'safety_officer', labelKey: 'common.shiftHandovers.configForm.roles.safetyOfficer' },
 ];
 
-const ASSIGN_BY_OPTIONS: Array<{ value: ShiftAssignBy; label: string; hint: string }> = [
-  { value: 'department', label: 'By department', hint: 'Everyone in the chosen department works this shift.' },
-  { value: 'role', label: 'By role', hint: 'Everyone with the chosen roles works this shift.' },
-  { value: 'employee', label: 'By employee', hint: 'Only the people you pick below work this shift.' },
+const ASSIGN_BY_OPTIONS: Array<{ value: ShiftAssignBy; labelKey: string; hintKey: string }> = [
+  { value: 'department', labelKey: 'common.shiftHandovers.configForm.assignBy.department.label', hintKey: 'common.shiftHandovers.configForm.assignBy.department.hint' },
+  { value: 'role', labelKey: 'common.shiftHandovers.configForm.assignBy.role.label', hintKey: 'common.shiftHandovers.configForm.assignBy.role.hint' },
+  { value: 'employee', labelKey: 'common.shiftHandovers.configForm.assignBy.employee.label', hintKey: 'common.shiftHandovers.configForm.assignBy.employee.hint' },
 ];
 
-const ROLE_LABELS: Record<string, string> = SCHEDULABLE_ROLES.reduce<Record<string, string>>(
-  (acc, role) => ({ ...acc, [role.value]: role.label }),
-  { admin: 'Admin' },
+const ROLE_LABEL_KEYS: Record<string, string> = SCHEDULABLE_ROLES.reduce<Record<string, string>>(
+  (acc, role) => ({ ...acc, [role.value]: role.labelKey }),
+  { admin: 'common.shiftHandovers.configForm.roles.admin' },
 );
 
-function roleLabelFor(role: string): string {
-  return ROLE_LABELS[role] ?? role.replace(/_/g, ' ');
+function roleLabelFor(t: TFunction, role: string): string {
+  const key = ROLE_LABEL_KEYS[role];
+  return key ? t(key) : role.replace(/_/g, ' ');
 }
 
 export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
+  const { t } = useTranslation();
   const [shiftName, setShiftName] = useState(initial?.shiftName ?? '');
   const [startTime, setStartTime] = useState(initial?.startTime ?? '06:00');
   const [endTime, setEndTime] = useState(initial?.endTime ?? '14:00');
@@ -81,28 +84,28 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
     setError(null);
     setSuccess(false);
     if (!shiftName.trim()) {
-      setError('Shift name is required.');
+      setError(t('common.shiftHandovers.configForm.errors.shiftNameRequired'));
       return;
     }
     if (!/^\d{2}:\d{2}$/.test(startTime) || !/^\d{2}:\d{2}$/.test(endTime)) {
-      setError('Set valid From and To times for the shift.');
+      setError(t('common.shiftHandovers.configForm.errors.invalidTimes'));
       return;
     }
     // Only the dimension the shift is assigned by has to be filled in.
     if (assignBy === 'department' && !department.trim()) {
-      setError('Select or create a department for this shift.');
+      setError(t('common.shiftHandovers.configForm.errors.departmentRequired'));
       return;
     }
     if (assignBy === 'role' && roles.length === 0) {
-      setError('Select at least one role for this shift.');
+      setError(t('common.shiftHandovers.configForm.errors.roleRequired'));
       return;
     }
     if (assignBy === 'employee' && memberIds.length === 0) {
-      setError('Select at least one employee for this shift.');
+      setError(t('common.shiftHandovers.configForm.errors.employeeRequired'));
       return;
     }
     if (activeDays.length === 0) {
-      setError('Select at least one active day.');
+      setError(t('common.shiftHandovers.configForm.errors.activeDayRequired'));
       return;
     }
     setSaving(true);
@@ -135,7 +138,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
       }
     } catch (err) {
       console.error('Failed to save shift', err);
-      setError(err instanceof Error ? err.message : 'Failed to save shift.');
+      setError(err instanceof Error ? err.message : t('common.shiftHandovers.configForm.errors.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -145,26 +148,26 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
     <form className="rounded-lg border border-slate-200 bg-white p-4 space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-          Shift Name
-          <input value={shiftName} onChange={(event) => setShiftName(event.target.value)} placeholder="e.g. Morning Shift" className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
+          {t('common.shiftHandovers.configForm.shiftName')}
+          <input value={shiftName} onChange={(event) => setShiftName(event.target.value)} placeholder={t('common.shiftHandovers.configForm.shiftNamePlaceholder')} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-          From
+          {t('common.shiftHandovers.configForm.from')}
           <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-          To
+          {t('common.shiftHandovers.configForm.to')}
           <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-          Colour
+          {t('common.shiftHandovers.configForm.colour')}
           <input type="color" value={color} onChange={(event) => setColor(event.target.value)} className="min-h-12 rounded-md border border-slate-200 p-1" />
         </label>
         <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-          Status
+          {t('common.shiftHandovers.configForm.status')}
           <select value={status} onChange={(event) => setStatus(event.target.value as ShiftConfig['status'])} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="active">{t('common.shiftHandovers.configForm.active')}</option>
+            <option value="inactive">{t('common.shiftHandovers.configForm.inactive')}</option>
           </select>
         </label>
       </div>
@@ -174,33 +177,33 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
       <div className="rounded-md border border-slate-200 bg-slate-50 p-3 space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-            Assign shift by
+            {t('common.shiftHandovers.configForm.assignShiftBy')}
             <select
               value={assignBy}
               onChange={(event) => setAssignBy(event.target.value as ShiftAssignBy)}
               className="min-h-12 rounded-md border border-slate-200 bg-white px-3 text-sm"
             >
               {ASSIGN_BY_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
+                <option key={option.value} value={option.value}>{t(option.labelKey)}</option>
               ))}
             </select>
           </label>
 
           {assignBy === 'department' && (
             <label className="flex flex-col gap-1 text-xs font-medium text-slate-600">
-              Department
+              {t('common.shiftHandovers.configForm.department')}
               <DepartmentPicker value={department} onChange={setDepartment} />
             </label>
           )}
         </div>
 
         <p className="text-xs text-slate-500">
-          {ASSIGN_BY_OPTIONS.find((option) => option.value === assignBy)?.hint}
+          {t(ASSIGN_BY_OPTIONS.find((option) => option.value === assignBy)?.hintKey ?? '')}
         </p>
 
         {assignBy === 'role' && (
           <fieldset>
-            <legend className="mb-2 text-xs font-medium text-slate-600">Roles on this shift</legend>
+            <legend className="mb-2 text-xs font-medium text-slate-600">{t('common.shiftHandovers.configForm.rolesOnThisShift')}</legend>
             <div className="flex flex-wrap gap-2">
               {SCHEDULABLE_ROLES.map((role) => (
                 <label key={role.value} className="flex min-h-12 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm">
@@ -209,7 +212,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
                     checked={roles.includes(role.value)}
                     onChange={(event) => setRoles((current) => event.target.checked ? [...current, role.value] : current.filter((item) => item !== role.value))}
                   />
-                  {role.label}
+                  {t(role.labelKey)}
                 </label>
               ))}
             </div>
@@ -240,20 +243,24 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
               checked={activeDays.includes(day)}
               onChange={(event) => setActiveDays((days) => event.target.checked ? [...days, day] : days.filter((item) => item !== day))}
             />
-            {day}
+            {t(`common.shiftHandovers.configForm.days.${day}`)}
           </label>
         ))}
       </div>
 
       <p className="text-xs text-slate-500">
-        A person can also be put on a shift individually from <span className="font-semibold">Settings → Users</span> by picking a shift there, which overrides a department- or role-wide plan for them. Assigned members are emailed when this plan changes and reminded 2–3 hours before the shift starts.
+        <Trans
+          t={t}
+          i18nKey="common.shiftHandovers.configForm.individualAssignmentHint"
+          components={{ strong: <span className="font-semibold" /> }}
+        />
       </p>
 
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
       )}
       {success && !error && (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Shift saved.</div>
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{t('common.shiftHandovers.configForm.shiftSaved')}</div>
       )}
       <button
         type="button"
@@ -261,7 +268,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         disabled={saving}
         className="min-h-12 rounded-md bg-blue-600 px-4 text-sm font-bold text-white disabled:opacity-60"
       >
-        {saving ? 'Saving…' : 'Save Shift'}
+        {saving ? t('common.shiftHandovers.configForm.saving') : t('common.shiftHandovers.configForm.saveShift')}
       </button>
     </form>
   );
@@ -285,13 +292,14 @@ function EmployeePicker({
   onToggle: (userId: string) => void;
   onClear: () => void;
 }) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const term = search.trim().toLowerCase();
   const filtered = term
     ? users.filter(
         (user) =>
           user.fullName.toLowerCase().includes(term) ||
-          roleLabelFor(user.role).toLowerCase().includes(term),
+          roleLabelFor(t, user.role).toLowerCase().includes(term),
       )
     : users;
 
@@ -299,25 +307,27 @@ function EmployeePicker({
     <fieldset>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <legend className="text-xs font-medium text-slate-600">
-          Employees on this shift{selectedIds.length > 0 ? ` (${selectedIds.length} selected)` : ''}
+          {selectedIds.length > 0
+            ? t('common.shiftHandovers.configForm.employeesOnShiftWithCount', { count: selectedIds.length })
+            : t('common.shiftHandovers.configForm.employeesOnShift')}
         </legend>
         {selectedIds.length > 0 && (
           <button type="button" onClick={onClear} className="text-xs font-semibold text-slate-500 hover:text-slate-700">
-            Clear selection
+            {t('common.shiftHandovers.configForm.clearSelection')}
           </button>
         )}
       </div>
       <input
         value={search}
         onChange={(event) => setSearch(event.target.value)}
-        placeholder="Search by name or role…"
+        placeholder={t('common.shiftHandovers.configForm.searchByNameOrRole')}
         className="mb-2 min-h-12 w-full rounded-md border border-slate-200 bg-white px-3 text-sm"
       />
       {loading ? (
-        <p className="text-xs text-slate-500">Loading employees…</p>
+        <p className="text-xs text-slate-500">{t('common.shiftHandovers.configForm.loadingEmployees')}</p>
       ) : filtered.length === 0 ? (
         <p className="text-xs text-slate-500">
-          {users.length === 0 ? 'No employees in this company yet.' : 'No employees match that search.'}
+          {users.length === 0 ? t('common.shiftHandovers.configForm.noEmployeesYet') : t('common.shiftHandovers.configForm.noEmployeesMatch')}
         </p>
       ) : (
         <div className="max-h-56 overflow-y-auto rounded-md border border-slate-200 bg-white">
@@ -329,7 +339,7 @@ function EmployeePicker({
                 onChange={() => onToggle(user.id)}
               />
               <span className="font-medium text-slate-800">{user.fullName || user.id}</span>
-              <span className="text-xs text-slate-500">({roleLabelFor(user.role)})</span>
+              <span className="text-xs text-slate-500">({roleLabelFor(t, user.role)})</span>
               {user.department && <span className="ml-auto text-xs text-slate-400">{user.department}</span>}
             </label>
           ))}
@@ -340,6 +350,7 @@ function EmployeePicker({
 }
 
 function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { departments, addDepartment } = useDepartments(companyId);
   const [adding, setAdding] = useState(false);
@@ -370,14 +381,14 @@ function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: 
               void commitAdd();
             }
           }}
-          placeholder="e.g. Civil, Safety"
+          placeholder={t('common.shiftHandovers.configForm.newDepartmentPlaceholder')}
           className="flex-1 bg-transparent px-1 text-sm outline-none"
         />
         <button type="button" onClick={() => void commitAdd()} className="rounded bg-blue-600 px-2 py-1 text-xs font-bold text-white">
-          Add
+          {t('common.shiftHandovers.configForm.add')}
         </button>
         <button type="button" onClick={() => { setAdding(false); setNewName(''); }} className="text-xs text-slate-500">
-          Cancel
+          {t('common.shiftHandovers.configForm.cancel')}
         </button>
       </div>
     );
@@ -395,11 +406,11 @@ function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: 
       }}
       className="min-h-12 rounded-md border border-slate-200 bg-white px-3 text-sm"
     >
-      <option value="">Select a department…</option>
+      <option value="">{t('common.shiftHandovers.configForm.selectDepartment')}</option>
       {departments.map((d) => (
         <option key={d} value={d}>{d}</option>
       ))}
-      <option value="__add__">+ Add new department…</option>
+      <option value="__add__">{t('common.shiftHandovers.configForm.addNewDepartment')}</option>
     </select>
   );
 }
