@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { OffboardTrainingDetails, OffboardTrainingMode } from '@/lib/training/trainingTypes';
 import {
   DEFAULT_OFFBOARD_QUESTIONS,
@@ -69,6 +70,7 @@ export function defaultOffboardFormValues(): OffboardFormValues {
 }
 
 export default function OffboardTrainingFields({ value, onChange }: OffboardTrainingFieldsProps) {
+  const { t } = useTranslation();
   const [customQuestion, setCustomQuestion] = useState('');
   const durationDays = computeDurationDays(value.startDate || null, value.endDate || null);
 
@@ -104,21 +106,21 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-1">
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-          Offboard / External Training Details
+          {t('common.traineeManagement.library.offboardFields.sectionTitle')}
         </h3>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
-            Country <span className="text-red-500">*</span>
+            {t('common.traineeManagement.library.offboardFields.country')} <span className="text-red-500">*</span>
           </label>
           <select
             value={value.country}
             onChange={(e) => update('country', e.target.value)}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="">Select country…</option>
+            <option value="">{t('common.traineeManagement.library.offboardFields.countryPlaceholder')}</option>
             {OFFBOARD_COUNTRIES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
@@ -127,13 +129,13 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
-            Third-Party Company <span className="text-red-500">*</span>
+            {t('common.traineeManagement.library.offboardFields.thirdPartyCompany')} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
             value={value.thirdPartyCompany}
             onChange={(e) => update('thirdPartyCompany', e.target.value)}
-            placeholder="e.g. Siemens Training Center"
+            placeholder={t('common.traineeManagement.library.offboardFields.thirdPartyCompanyPlaceholder')}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -141,7 +143,7 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Contact Name</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.library.offboardFields.contactName')}</label>
           <input
             type="text"
             value={value.thirdPartyContactName}
@@ -150,19 +152,19 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Contact Info</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.library.offboardFields.contactInfo')}</label>
           <input
             type="text"
             value={value.thirdPartyContactInfo}
             onChange={(e) => update('thirdPartyContactInfo', e.target.value)}
-            placeholder="email / phone"
+            placeholder={t('common.traineeManagement.library.offboardFields.contactInfoPlaceholder')}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Mode</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.library.offboardFields.mode')}</label>
         <div className="flex gap-4">
           {(['in-person', 'online', 'hybrid'] as OffboardTrainingMode[]).map((m) => (
             <label key={m} className="flex items-center gap-1.5 text-sm text-gray-700">
@@ -172,7 +174,11 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
                 checked={value.mode === m}
                 onChange={() => update('mode', m)}
               />
-              {m === 'in-person' ? 'In-person' : m === 'online' ? 'Online' : 'Hybrid'}
+              {m === 'in-person'
+                ? t('common.traineeManagement.library.offboardFields.modeOptions.inPerson')
+                : m === 'online'
+                ? t('common.traineeManagement.library.offboardFields.modeOptions.online')
+                : t('common.traineeManagement.library.offboardFields.modeOptions.hybrid')}
             </label>
           ))}
         </div>
@@ -180,7 +186,7 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
 
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Start Date</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.library.offboardFields.startDate')}</label>
           <input
             type="date"
             value={value.startDate}
@@ -189,7 +195,7 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">End Date</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.library.offboardFields.endDate')}</label>
           <input
             type="date"
             value={value.endDate}
@@ -200,27 +206,27 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
       </div>
       {durationDays > 0 && (
         <p className="text-xs text-gray-500 -mt-3">
-          Duration: <strong>{durationDays} day{durationDays !== 1 ? 's' : ''}</strong>
+          <strong>{t('common.traineeManagement.library.offboardFields.duration', { count: durationDays })}</strong>
         </p>
       )}
 
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">
-          Topic <span className="text-red-500">*</span>
+          {t('common.traineeManagement.library.offboardFields.topic')} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           value={value.topic}
           onChange={(e) => update('topic', e.target.value)}
-          placeholder="e.g. Advanced PLC Programming"
+          placeholder={t('common.traineeManagement.library.offboardFields.topicPlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div className="border border-gray-200 rounded-xl p-4 bg-gray-50 flex flex-col gap-2">
-        <span className="text-sm font-semibold text-gray-700">Assessment Questions</span>
+        <span className="text-sm font-semibold text-gray-700">{t('common.traineeManagement.library.offboardFields.assessmentQuestions')}</span>
         <p className="text-xs text-gray-400 mb-1">
-          Trainee will answer these after completing the training.
+          {t('common.traineeManagement.library.offboardFields.assessmentQuestionsHint')}
         </p>
         {DEFAULT_OFFBOARD_QUESTIONS.map((q) => (
           <label key={q} className="flex items-start gap-2 text-sm text-gray-700">
@@ -250,7 +256,7 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
             type="text"
             value={customQuestion}
             onChange={(e) => setCustomQuestion(e.target.value)}
-            placeholder="Add a custom question…"
+            placeholder={t('common.traineeManagement.library.offboardFields.customQuestionPlaceholder')}
             className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -258,7 +264,7 @@ export default function OffboardTrainingFields({ value, onChange }: OffboardTrai
             onClick={addCustomQuestion}
             className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 border border-blue-300 rounded-lg px-2 py-1.5"
           >
-            <Plus size={14} /> Add
+            <Plus size={14} /> {t('common.traineeManagement.library.offboardFields.addQuestion')}
           </button>
         </div>
       </div>

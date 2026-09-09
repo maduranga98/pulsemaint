@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { X, Loader2, Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useTraineeList } from '@/hooks/training/useTraineeList';
 import { assignProgramToTrainee } from '@/services/trainingProgram.service';
@@ -12,6 +13,7 @@ interface AssignProgramModalProps {
 }
 
 export default function AssignProgramModal({ program, onClose, onAssigned }: AssignProgramModalProps) {
+  const { t } = useTranslation();
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const [search, setSearch] = useState('');
@@ -34,7 +36,7 @@ export default function AssignProgramModal({ program, onClose, onAssigned }: Ass
     setSaving(true);
     setError(null);
     try {
-      const targets = trainees.filter((t) => selectedIds.has(t.id));
+      const targets = trainees.filter((trainee) => selectedIds.has(trainee.id));
       for (const trainee of targets) {
         await assignProgramToTrainee(
           program,
@@ -51,7 +53,7 @@ export default function AssignProgramModal({ program, onClose, onAssigned }: Ass
       }
       onAssigned();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to assign program');
+      setError(e instanceof Error ? e.message : t('common.traineeManagement.library.assignProgramModal.errors.failed'));
     } finally {
       setSaving(false);
     }
@@ -62,7 +64,7 @@ export default function AssignProgramModal({ program, onClose, onAssigned }: Ass
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
-            <h3 className="text-base font-semibold text-gray-900">Assign Program</h3>
+            <h3 className="text-base font-semibold text-gray-900">{t('common.traineeManagement.library.assignProgramModal.title')}</h3>
             <p className="text-xs text-gray-500 mt-0.5">{program.title}</p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -75,7 +77,7 @@ export default function AssignProgramModal({ program, onClose, onAssigned }: Ass
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search trainees..."
+              placeholder={t('common.traineeManagement.library.assignProgramModal.searchPlaceholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -89,18 +91,18 @@ export default function AssignProgramModal({ program, onClose, onAssigned }: Ass
               <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
             </div>
           ) : trainees.length === 0 ? (
-            <p className="text-center py-8 text-sm text-gray-400">No trainees found.</p>
+            <p className="text-center py-8 text-sm text-gray-400">{t('common.traineeManagement.library.assignProgramModal.emptyState')}</p>
           ) : (
             <div className="divide-y divide-gray-100">
-              {trainees.map((t) => (
-                <label key={t.id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 cursor-pointer">
+              {trainees.map((trainee) => (
+                <label key={trainee.id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 cursor-pointer">
                   <input
                     type="checkbox"
-                    checked={selectedIds.has(t.id)}
-                    onChange={() => toggle(t.id)}
+                    checked={selectedIds.has(trainee.id)}
+                    onChange={() => toggle(trainee.id)}
                     className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <span className="text-sm text-gray-800">{t.fullName}</span>
+                  <span className="text-sm text-gray-800">{trainee.fullName}</span>
                 </label>
               ))}
             </div>
@@ -115,14 +117,18 @@ export default function AssignProgramModal({ program, onClose, onAssigned }: Ass
             disabled={saving}
             className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            Cancel
+            {t('common.traineeManagement.library.assignProgramModal.cancel')}
           </button>
           <button
             onClick={() => void handleAssign()}
             disabled={saving || selectedIds.size === 0}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors"
           >
-            {saving ? 'Assigning…' : `Assign to ${selectedIds.size || ''}`.trim()}
+            {saving
+              ? t('common.traineeManagement.library.assignProgramModal.assigning')
+              : selectedIds.size > 0
+              ? t('common.traineeManagement.library.assignProgramModal.assignTo', { count: selectedIds.size })
+              : t('common.traineeManagement.library.assignProgramModal.assign')}
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
@@ -15,6 +16,7 @@ import TraineeModuleSettingsForm from '@/components/training/manager/TraineeModu
  * CreateModulePage — no shared query param decides which library you are in.
  */
 export default function CreateTraineeModulePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
@@ -51,7 +53,7 @@ export default function CreateTraineeModulePage() {
           passingScore: 80,
           ...updates,
         } as TrainingModule);
-        toast.success('Trainee module saved.');
+        toast.success(t('common.traineeManagement.createModulePage.toasts.saved'));
       } else {
         await updateDoc(doc(db, 'trainingModules', moduleId), {
           ...updates,
@@ -71,11 +73,11 @@ export default function CreateTraineeModulePage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.traineeManagement.createModulePage.backAria')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm">Create Trainee Module</h1>
+        <h1 className="font-semibold text-slate-900 text-sm">{t('common.traineeManagement.createModulePage.title')}</h1>
       </div>
       <ModuleEditorLayout
         module={module}

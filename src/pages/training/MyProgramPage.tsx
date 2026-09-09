@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useMyProgramme } from '@/hooks/traineeProgram/useMyProgramme';
 import { useProgrammeCertificate } from '@/hooks/traineeProgram/useProgrammeCertificate';
 import { useMyAssignments } from '@/hooks/training/useMyAssignments';
@@ -14,6 +15,7 @@ function formatDate(ts: { toDate?: () => Date } | null | undefined): string {
 }
 
 export default function MyProgramPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { programme, loading } = useMyProgramme();
   const { assignments } = useMyAssignments();
@@ -36,9 +38,9 @@ export default function MyProgramPage() {
 
   const assignedModulesSection = (
     <div className="rounded-xl border border-slate-200 bg-white p-5">
-      <h2 className="font-semibold text-slate-900 mb-3">Assigned Trainee Modules</h2>
+      <h2 className="font-semibold text-slate-900 mb-3">{t('common.traineeManagement.myProgramPage.assignedModules.title')}</h2>
       {traineeAssignments.length === 0 ? (
-        <p className="text-sm text-slate-500">No trainee modules outstanding — nothing new assigned, or everything assigned is already complete.</p>
+        <p className="text-sm text-slate-500">{t('common.traineeManagement.myProgramPage.assignedModules.noneOutstanding')}</p>
       ) : (
         <div className="space-y-2">
           {traineeAssignments.map((a) => (
@@ -50,8 +52,12 @@ export default function MyProgramPage() {
               <span className="min-w-0">
                 <span className="block text-sm font-medium text-slate-800 truncate">{a.moduleName}</span>
                 <span className="block text-xs text-slate-500">
-                  Assigned {formatDate(a.assignedAt)}
-                  {a.dueDate ? ` · due ${formatDate(a.dueDate)}` : ''}
+                  {a.dueDate
+                    ? t('common.traineeManagement.myProgramPage.assignedModules.assignedWithDue', {
+                        assignedDate: formatDate(a.assignedAt),
+                        dueDate: formatDate(a.dueDate),
+                      })
+                    : t('common.traineeManagement.myProgramPage.assignedModules.assigned', { date: formatDate(a.assignedAt) })}
                 </span>
               </span>
               <TrainingStatusBadge status={a.status} />
@@ -73,9 +79,9 @@ export default function MyProgramPage() {
   if (!programme) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900">My Training Programme</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('common.traineeManagement.myProgramPage.title')}</h1>
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-slate-500">
-          No month-by-month programme has been set up for you yet — the trainee modules assigned to you are below.
+          {t('common.traineeManagement.myProgramPage.noProgramme')}
         </div>
         {assignedModulesSection}
       </div>
@@ -99,24 +105,32 @@ export default function MyProgramPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">My Training Programme</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('common.traineeManagement.myProgramPage.title')}</h1>
         <p className="mt-1 text-slate-600">
-          {programme.durationMonths}-month programme · started {formatDate(programme.startDate)} · expected completion {formatDate(programme.expectedEndDate)}
+          {t('common.traineeManagement.myProgramPage.summary', {
+            count: programme.durationMonths,
+            startDate: formatDate(programme.startDate),
+            endDate: formatDate(programme.expectedEndDate),
+          })}
         </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-5 mb-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-slate-700">Overall Progress</span>
-          <span className="text-sm font-semibold text-slate-900">{completedModules} / {totalModules} modules</span>
+          <span className="text-sm font-medium text-slate-700">{t('common.traineeManagement.myProgramPage.overallProgress')}</span>
+          <span className="text-sm font-semibold text-slate-900">
+            {t('common.traineeManagement.myProgramPage.moduleCount', { completed: completedModules, total: totalModules })}
+          </span>
         </div>
         <TrainingProgressBar progress={overallPercent} showLabel />
         {programme.status === 'completed' && (
           <p className="mt-3 text-sm font-medium text-green-700">
-            Programme completed{programme.finalMark != null ? ` — final mark ${programme.finalMark}%` : ''}.{' '}
+            {programme.finalMark != null
+              ? t('common.traineeManagement.myProgramPage.completedWithMark', { mark: programme.finalMark })
+              : t('common.traineeManagement.myProgramPage.completed')}{' '}
             {certificate?.pdfUrl && (
               <a href={certificate.pdfUrl} target="_blank" rel="noreferrer" className="underline">
-                Download certificate
+                {t('common.traineeManagement.myProgramPage.downloadCertificate')}
               </a>
             )}
           </p>
@@ -129,10 +143,12 @@ export default function MyProgramPage() {
           return (
             <div key={m.month} className="rounded-xl border border-slate-200 bg-white p-5">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="font-semibold text-slate-900">Month {m.month}{m.title ? ` — ${m.title}` : ''}</h2>
+                <h2 className="font-semibold text-slate-900">
+                  {t('common.traineeManagement.myProgramPage.monthLabel', { number: m.month })}{m.title ? ` — ${m.title}` : ''}
+                </h2>
               </div>
               {monthModules.length === 0 ? (
-                <p className="text-sm text-slate-500">No modules assigned for this month yet.</p>
+                <p className="text-sm text-slate-500">{t('common.traineeManagement.myProgramPage.noModulesThisMonth')}</p>
               ) : (
                 <div className="space-y-2">
                   {monthModules.map((a) => (

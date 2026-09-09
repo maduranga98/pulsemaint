@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
 import { createTrainingProgram } from '@/services/trainingProgram.service';
@@ -11,6 +12,7 @@ interface CreateProgramModalProps {
 }
 
 export default function CreateProgramModal({ onClose, onCreated }: CreateProgramModalProps) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
@@ -40,7 +42,7 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
 
   const handleSave = async () => {
     if (!title.trim() || selectedModuleIds.length === 0) {
-      setError('Add a title and select at least one module.');
+      setError(t('common.traineeManagement.library.createProgramModal.errors.validation'));
       return;
     }
     setSaving(true);
@@ -58,7 +60,7 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
       });
       onCreated();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to create program');
+      setError(e instanceof Error ? e.message : t('common.traineeManagement.library.createProgramModal.errors.failed'));
     } finally {
       setSaving(false);
     }
@@ -68,7 +70,7 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h3 className="text-base font-semibold text-gray-900">Create Training Program</h3>
+          <h3 className="text-base font-semibold text-gray-900">{t('common.traineeManagement.library.createProgramModal.title')}</h3>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
@@ -76,18 +78,18 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
 
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Program Title *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.traineeManagement.library.createProgramModal.programTitle')} *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Electrical Trainee Program"
+              placeholder={t('common.traineeManagement.library.createProgramModal.programTitlePlaceholder')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.traineeManagement.library.createProgramModal.description')}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -97,7 +99,7 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Total Program Duration *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.traineeManagement.library.createProgramModal.totalDuration')} *</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -106,13 +108,13 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
                 onChange={(e) => setTotalDurationDays(Number(e.target.value))}
                 className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
               />
-              <span className="text-sm text-gray-500">days</span>
+              <span className="text-sm text-gray-500">{t('common.traineeManagement.library.createProgramModal.days')}</span>
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Modules * <span className="text-gray-400 font-normal">(select and set each module's due duration)</span>
+              {t('common.traineeManagement.library.createProgramModal.modulesLabel')} * <span className="text-gray-400 font-normal">{t('common.traineeManagement.library.createProgramModal.modulesHint')}</span>
             </label>
             {modulesLoading ? (
               <div className="flex justify-center py-6">
@@ -120,7 +122,7 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
               </div>
             ) : modules.length === 0 ? (
               <p className="text-sm text-gray-400 py-4 text-center">
-                No modules yet — create one in the Modules tab first.
+                {t('common.traineeManagement.library.createProgramModal.modulesEmpty')}
               </p>
             ) : (
               <div className="border border-gray-200 rounded-lg divide-y divide-gray-100 max-h-64 overflow-y-auto">
@@ -144,7 +146,7 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
                             onChange={(e) => setDueDays(mod.id, Number(e.target.value))}
                             className="w-16 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
-                          <span className="text-xs text-gray-500 whitespace-nowrap">days due</span>
+                          <span className="text-xs text-gray-500 whitespace-nowrap">{t('common.traineeManagement.library.createProgramModal.dueDaysSuffix')}</span>
                         </div>
                       )}
                     </div>
@@ -163,14 +165,16 @@ export default function CreateProgramModal({ onClose, onCreated }: CreateProgram
             disabled={saving}
             className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            Cancel
+            {t('common.traineeManagement.library.createProgramModal.cancel')}
           </button>
           <button
             onClick={() => void handleSave()}
             disabled={saving}
             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors"
           >
-            {saving ? 'Creating…' : 'Create Program'}
+            {saving
+              ? t('common.traineeManagement.library.createProgramModal.creating')
+              : t('common.traineeManagement.library.createProgramModal.create')}
           </button>
         </div>
       </div>

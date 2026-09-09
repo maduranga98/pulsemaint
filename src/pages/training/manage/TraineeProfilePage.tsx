@@ -11,6 +11,7 @@ import {
   updateDoc,
   serverTimestamp,
 } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
@@ -29,6 +30,7 @@ function formatTs(ts: Timestamp | null | undefined): string {
 }
 
 export default function TraineeProfilePage() {
+  const { t } = useTranslation();
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
@@ -123,11 +125,11 @@ export default function TraineeProfilePage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.traineeManagement.traineeProfilePage.backAria')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm truncate flex-1">Trainee Profile</h1>
+        <h1 className="font-semibold text-slate-900 text-sm truncate flex-1">{t('common.traineeManagement.traineeProfilePage.title')}</h1>
       </div>
 
       <div className="p-4 sm:p-6 max-w-3xl mx-auto space-y-6">
@@ -148,7 +150,7 @@ export default function TraineeProfilePage() {
               onClick={() => navigate(`/app/training/manage/trainees/${userId}/programme`)}
               className="ml-auto shrink-0 px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              Training Programme
+              {t('common.traineeManagement.traineeProfilePage.trainingProgramme')}
             </button>
           )}
         </div>
@@ -156,7 +158,7 @@ export default function TraineeProfilePage() {
         {/* Awaiting practical sign-off */}
         {awaitingSignOff.length > 0 && (
           <section>
-            <h2 className="text-sm font-semibold text-slate-700 mb-3">Awaiting Practical Sign-Off</h2>
+            <h2 className="text-sm font-semibold text-slate-700 mb-3">{t('common.traineeManagement.traineeProfilePage.awaitingSignOff')}</h2>
             <div className="space-y-3">
               {/* Same rule as the Sign-Off Queue: a plant manager cannot
                   sign off training they assigned themselves. */}
@@ -183,13 +185,13 @@ export default function TraineeProfilePage() {
         {/* All assignments */}
         <section>
           <h2 className="text-sm font-semibold text-slate-700 mb-3">
-            All Assignments ({otherAssignments.length})
+            {t('common.traineeManagement.traineeProfilePage.allAssignments', { count: otherAssignments.length })}
           </h2>
           {assignments.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-8">No assignments yet.</p>
+            <p className="text-sm text-slate-500 text-center py-8">{t('common.traineeManagement.traineeProfilePage.noAssignments')}</p>
           ) : otherAssignments.length === 0 ? (
             <p className="text-sm text-slate-500 text-center py-8">
-              No other assignments — see &ldquo;Awaiting Practical Sign-Off&rdquo; above.
+              {t('common.traineeManagement.traineeProfilePage.noOtherAssignments')}
             </p>
           ) : (
             <div className="space-y-2">
@@ -201,8 +203,8 @@ export default function TraineeProfilePage() {
                   </div>
                   <TrainingProgressBar progress={a.overallProgress} showLabel />
                   <div className="flex gap-4 mt-2 text-xs text-slate-500">
-                    <span>Assigned: {formatTs(a.assignedAt)}</span>
-                    {a.dueDate && <span>Due: {formatTs(a.dueDate)}</span>}
+                    <span>{t('common.traineeManagement.traineeProfilePage.assignedLabel', { date: formatTs(a.assignedAt) })}</span>
+                    {a.dueDate && <span>{t('common.traineeManagement.traineeProfilePage.dueLabel', { date: formatTs(a.dueDate) })}</span>}
                   </div>
                 </div>
               ))}

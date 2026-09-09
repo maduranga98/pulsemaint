@@ -4575,6 +4575,442 @@
           }
         }
       }
+    },
+    "traineeManagement": {
+      "managementList": {
+        "searchPlaceholder": "Buscar aprendiz por nombre, departamento o ID de empleado...",
+        "profilesHeading": "Perfiles de Aprendices",
+        "noTrainees": "No se encontraron aprendices.",
+        "stats": {
+          "trainings": "Capacitaciones",
+          "progress": "Progreso",
+          "marks": "Calificación"
+        },
+        "woCount_one": "{{count}} OT vinculada",
+        "woCount_other": "{{count}} OTs vinculadas",
+        "viewTrainings": "Ver capacitaciones",
+        "hideTrainings": "Ocultar capacitaciones",
+        "trainingsHeading": "Capacitaciones",
+        "trainingsHeadingWithName": "Capacitaciones — {{name}}",
+        "selectTraineePrompt": "Seleccione un aprendiz arriba para ver sus capacitaciones asignadas.",
+        "setupProgramme": "Configurar Programa de Capacitación",
+        "noTrainingsAssigned": "Aún no hay capacitaciones asignadas.",
+        "columns": {
+          "module": "Módulo",
+          "period": "Período",
+          "progress": "Progreso",
+          "marks": "Calificación",
+          "status": "Estado",
+          "actions": "Acciones"
+        },
+        "periodMonths_one": "{{count}} mes",
+        "periodMonths_other": "{{count}} meses",
+        "notAvailable": "—",
+        "status": {
+          "not_started": "No Iniciado",
+          "in_progress": "En Progreso",
+          "quiz_passed": "Cuestionario Aprobado",
+          "quiz_failed": "Cuestionario Reprobado",
+          "awaiting_practical": "Pendiente de Aprobación",
+          "certified": "Certificado",
+          "expired": "Vencido",
+          "retraining_required": "Recapacitación"
+        },
+        "actions": {
+          "report": "Informe"
+        }
+      },
+      "moduleSettingsForm": {
+        "sectionTitle": "Información del Módulo para Aprendices",
+        "fields": {
+          "title": "Título del Módulo",
+          "titlePlaceholder": "p. ej. Orientación para Aprendices de Electricidad",
+          "description": "Descripción",
+          "descriptionPlaceholder": "Describa brevemente lo que cubre este módulo del programa…",
+          "trainingType": "Tipo de Capacitación",
+          "selectTrainingType": "Seleccione el tipo de capacitación…",
+          "passingScore": "Puntaje de Aprobación",
+          "status": "Estado",
+          "tags": "Etiquetas",
+          "tagsPlaceholder": "eléctrico, aprendiz, seguridad (separadas por comas)",
+          "tagsHint": "Separe las etiquetas con comas"
+        },
+        "statuses": {
+          "draft": "Borrador",
+          "active": "Activo",
+          "archived": "Archivado"
+        },
+        "errors": {
+          "titleRequired": "El título es obligatorio",
+          "trainingTypeRequired": "El tipo de capacitación es obligatorio"
+        },
+        "submit": "Guardar Módulo"
+      },
+      "library": {
+        "moduleLibrary": {
+          "titleDefault": "Biblioteca de Módulos para Aprendices",
+          "loadSamples": "Cargar Módulos de Ejemplo",
+          "loadingSamples": "Cargando…",
+          "createModule": "Crear Módulo para Aprendices",
+          "searchPlaceholder": "Buscar módulos para aprendices...",
+          "allTrainingTypes": "Todos los tipos de capacitación",
+          "statusFilters": {
+            "all": "Todos",
+            "draft": "Borrador",
+            "active": "Activo",
+            "archived": "Archivado"
+          },
+          "columns": {
+            "title": "Título",
+            "trainingType": "Tipo de Capacitación",
+            "lessons": "Lecciones",
+            "hasQuiz": "Tiene Cuestionario",
+            "status": "Estado",
+            "actions": "Acciones"
+          },
+          "yes": "Sí",
+          "no": "No",
+          "notAvailable": "—",
+          "emptyState": "No se encontraron módulos para aprendices.",
+          "lessonsCount_one": "{{count}} lección",
+          "lessonsCount_other": "{{count}} lecciones",
+          "hasQuizLabel": "Tiene cuestionario",
+          "actions": {
+            "edit": "Editar",
+            "archive": "Archivar",
+            "delete": "Eliminar"
+          },
+          "confirm": {
+            "archive": "¿Archivar este módulo? Ya no podrá asignarse a aprendices.",
+            "delete": "¿Eliminar este módulo permanentemente? Esta acción no se puede deshacer."
+          }
+        },
+        "offboardFields": {
+          "sectionTitle": "Detalles de Capacitación Externa / con Terceros",
+          "country": "País",
+          "countryPlaceholder": "Seleccione el país…",
+          "thirdPartyCompany": "Empresa Externa",
+          "thirdPartyCompanyPlaceholder": "p. ej. Centro de Capacitación Siemens",
+          "contactName": "Nombre del Contacto",
+          "contactInfo": "Información de Contacto",
+          "contactInfoPlaceholder": "correo electrónico / teléfono",
+          "mode": "Modalidad",
+          "modeOptions": {
+            "inPerson": "Presencial",
+            "online": "En línea",
+            "hybrid": "Híbrida"
+          },
+          "startDate": "Fecha de Inicio",
+          "endDate": "Fecha de Finalización",
+          "duration_one": "Duración: {{count}} día",
+          "duration_other": "Duración: {{count}} días",
+          "topic": "Tema",
+          "topicPlaceholder": "p. ej. Programación Avanzada de PLC",
+          "assessmentQuestions": "Preguntas de Evaluación",
+          "assessmentQuestionsHint": "El aprendiz responderá estas preguntas después de completar la capacitación.",
+          "customQuestionPlaceholder": "Agregar una pregunta personalizada…",
+          "addQuestion": "Agregar"
+        },
+        "offboardReportViewer": {
+          "trainingDetails": "Detalles de la Capacitación",
+          "trainee": "Aprendiz",
+          "provider": "Proveedor",
+          "country": "País",
+          "mode": "Modalidad",
+          "duration": "Duración",
+          "durationValue": "{{count}} día(s)",
+          "dates": "Fechas",
+          "notAvailable": "—",
+          "knowledgeGained": "Conocimientos Adquiridos",
+          "assessmentQA": "Preguntas y Respuestas de Evaluación",
+          "attachments": "Archivos Adjuntos",
+          "downloadPdf": "Descargar Informe en PDF",
+          "pdfGenerating": "El informe en PDF se está generando.",
+          "notSubmitted": "El aprendiz aún no ha enviado el informe de conocimientos."
+        },
+        "practicalSignOff": {
+          "title": "Aprobación Práctica",
+          "quizScore": "Puntaje del Cuestionario",
+          "observationsLabel": "Observaciones",
+          "observationsPlaceholder": "Describa lo observado durante la evaluación práctica (mín. 10 caracteres)...",
+          "observationsCounter": "{{count}} / 10 caracteres mínimos",
+          "assessmentResult": "Resultado de la Evaluación",
+          "pass": "Aprobado",
+          "fail": "Reprobado",
+          "signature": "Firma autorizante",
+          "submit": "Aprobar",
+          "errors": {
+            "observationsTooShort": "Las observaciones deben tener al menos 10 caracteres.",
+            "selectResult": "Seleccione Aprobado o Reprobado.",
+            "signatureRequired": "Agregue su firma para autorizar el certificado.",
+            "signOffFailed": "Error al registrar la aprobación."
+          }
+        },
+        "programsTab": {
+          "heading": "Programas",
+          "createProgram": "Crear Programa",
+          "assignedToast": "Programa asignado correctamente.",
+          "emptyState": "Aún no se han creado programas.",
+          "columns": {
+            "title": "Título",
+            "modules": "Módulos",
+            "totalDuration": "Duración Total",
+            "status": "Estado",
+            "actions": "Acciones"
+          },
+          "durationDays": "{{count}} días",
+          "status": {
+            "active": "Activo",
+            "archived": "Archivado"
+          },
+          "actions": {
+            "assign": "Asignar",
+            "delete": "Eliminar"
+          },
+          "confirm": {
+            "delete": "¿Eliminar este programa? Esto lo elimina permanentemente del catálogo y no se puede deshacer. Los aprendices ya asignados conservarán su progreso."
+          }
+        },
+        "assignedProgramsTab": {
+          "emptyState": "Nadie tiene una asignación de programa abierta.",
+          "columns": {
+            "program": "Programa",
+            "trainee": "Aprendiz",
+            "assigned": "Asignado",
+            "dueDate": "Fecha Límite",
+            "progress": "Progreso",
+            "status": "Estado",
+            "action": "Acción"
+          },
+          "status": {
+            "awaitingSignOff": "Pendiente de Aprobación",
+            "inProgress": "En Progreso"
+          },
+          "signOff": "Aprobar",
+          "notAvailable": "—",
+          "modal": {
+            "title": "Aprobar Programa",
+            "subtitle": "{{traineeName}} — {{programName}}",
+            "noteLabel": "Nota",
+            "notePlaceholder": "Nota de aprobación...",
+            "signatureLabel": "Firma autorizante",
+            "cancel": "Cancelar",
+            "confirm": "Confirmar Aprobación",
+            "confirming": "Aprobando…"
+          },
+          "toasts": {
+            "signatureRequired": "Agregue su firma para autorizar el certificado."
+          }
+        },
+        "createProgramModal": {
+          "title": "Crear Programa de Capacitación",
+          "programTitle": "Título del Programa",
+          "programTitlePlaceholder": "p. ej. Programa de Aprendices de Electricidad",
+          "description": "Descripción",
+          "totalDuration": "Duración Total del Programa",
+          "days": "días",
+          "modulesLabel": "Módulos",
+          "modulesHint": "(seleccione y defina la duración límite de cada módulo)",
+          "modulesEmpty": "Aún no hay módulos — cree uno primero en la pestaña Módulos.",
+          "dueDaysSuffix": "días de plazo",
+          "cancel": "Cancelar",
+          "create": "Crear Programa",
+          "creating": "Creando…",
+          "errors": {
+            "validation": "Agregue un título y seleccione al menos un módulo.",
+            "failed": "Error al crear el programa"
+          }
+        },
+        "assignProgramModal": {
+          "title": "Asignar Programa",
+          "searchPlaceholder": "Buscar aprendices...",
+          "emptyState": "No se encontraron aprendices.",
+          "cancel": "Cancelar",
+          "assign": "Asignar",
+          "assignTo": "Asignar a {{count}}",
+          "assigning": "Asignando…",
+          "errors": {
+            "failed": "Error al asignar el programa"
+          }
+        },
+        "offboardCompletionForm": {
+          "backLink": "← Volver a Mi Capacitación",
+          "provider": "Proveedor",
+          "country": "País",
+          "mode": "Modalidad",
+          "duration": "Duración",
+          "durationValue": "{{count}} día(s)",
+          "start": "Inicio",
+          "end": "Fin",
+          "topic": "Tema",
+          "notAvailable": "—",
+          "knowledgeGainedLabel": "Conocimientos Adquiridos",
+          "knowledgeGainedPlaceholder": "Resuma lo que aprendió y cómo lo aplicará...",
+          "assessmentQuestions": "Preguntas de Evaluación",
+          "attachments": "Archivos Adjuntos",
+          "uploadLink": "Subir documentación / manuales",
+          "uploading": "Subiendo…",
+          "submit": "Enviar Informe de Conocimientos",
+          "success": {
+            "heading": "Informe de Conocimientos Enviado",
+            "message": "Gracias — su informe de capacitación ha sido enviado para revisión. RR. HH. dará seguimiento si se requiere un certificado o alguna otra acción.",
+            "backButton": "Volver a Mi Capacitación"
+          },
+          "errors": {
+            "fileTooLarge": "{{fileName}} supera el límite de 25 MB.",
+            "uploadFailed": "Error al subir el archivo adjunto",
+            "submitFailed": "Error al enviar el informe"
+          }
+        },
+        "programCertificateCard": {
+          "heading": "Certificado de Finalización del Programa",
+          "certificateNo": "N.º de Certificado",
+          "program": "Programa",
+          "modulesCompleted": "Módulos Completados",
+          "modulesCompleted_one": "{{count}} módulo",
+          "modulesCompleted_other": "{{count}} módulos",
+          "issued": "Emitido el {{date}}",
+          "signedOffBy": "Aprobado por {{name}} ({{role}})",
+          "notAvailable": "—",
+          "downloadAria": "Descargar certificado del programa como PDF A4",
+          "downloadButton": "Descargar PDF A4",
+          "toasts": {
+            "pdfFailed": "No se pudo generar el PDF del certificado."
+          }
+        },
+        "programmeCertificateCard": {
+          "heading": "Certificado de Finalización del Programa",
+          "certificateNo": "N.º de Certificado",
+          "programme": "Programa",
+          "programmeTitle": "Programa de Aprendiz de {{count}} Meses",
+          "modulesCompleted_one": "{{count}} módulo en {{months}} meses",
+          "modulesCompleted_other": "{{count}} módulos en {{months}} meses",
+          "issued": "Emitido el {{date}}",
+          "signedOffBy": "Aprobado por {{name}} ({{role}})",
+          "finalMark": "Calificación Final: {{mark}}%",
+          "downloadAria": "Descargar PDF del certificado del programa",
+          "downloadButton": "Descargar PDF"
+        }
+      },
+      "assignmentsListPage": {
+        "title": "Gestión de Aprendices",
+        "tabs": {
+          "assigned": "Asignados",
+          "programs": "Programas",
+          "modules": "Módulos"
+        }
+      },
+      "createModulePage": {
+        "toasts": {
+          "saved": "Módulo para aprendices guardado."
+        },
+        "backAria": "Volver",
+        "title": "Crear Módulo para Aprendices"
+      },
+      "editModulePage": {
+        "notFound": "Módulo no encontrado.",
+        "back": "Volver",
+        "wrongLibrary": {
+          "title": "No se encuentra en esta biblioteca.",
+          "description": "Este módulo pertenece a la biblioteca de Capacitación. Ábralo desde la pestaña Capacitación."
+        },
+        "backAria": "Volver",
+        "quizBuilder": "Generador de Cuestionarios"
+      },
+      "traineeProfilePage": {
+        "backAria": "Volver",
+        "title": "Perfil del Aprendiz",
+        "trainingProgramme": "Programa de Capacitación",
+        "awaitingSignOff": "Pendiente de Aprobación Práctica",
+        "allAssignments_one": "Todas las Asignaciones ({{count}})",
+        "allAssignments_other": "Todas las Asignaciones ({{count}})",
+        "noAssignments": "Aún no hay asignaciones.",
+        "noOtherAssignments": "No hay otras asignaciones — vea “Pendiente de Aprobación Práctica” arriba.",
+        "assignedLabel": "Asignado: {{date}}",
+        "dueLabel": "Vence: {{date}}"
+      },
+      "traineeProgrammePage": {
+        "programmeStatuses": {
+          "active": "activo",
+          "completed": "completado",
+          "discontinued": "interrumpido"
+        },
+        "reviewStatuses": {
+          "pending": "pendiente",
+          "reviewed": "revisado",
+          "needs_revision": "requiere_revisión"
+        },
+        "errors": {
+          "pickEndDate": "Seleccione una fecha de finalización para una duración personalizada.",
+          "endAfterStart": "La fecha de finalización debe ser posterior a la fecha de inicio.",
+          "createFailed": "Error al crear el programa",
+          "reviewFailed": "Error al revisar el resumen",
+          "signatureRequired": "Agregue su firma para autorizar el certificado.",
+          "issueCertificateFailed": "Error al emitir el certificado"
+        },
+        "toasts": {
+          "created": "Programa de capacitación creado.",
+          "summaryReviewed": "Resumen revisado.",
+          "certificateIssued": "Certificado emitido."
+        },
+        "backAria": "Volver",
+        "headerTitle": "Programa de Capacitación — {{name}}",
+        "monthProgramme_one": "Programa de {{count}} Mes",
+        "monthProgramme_other": "Programa de {{count}} Meses",
+        "monthLabel": "Mes {{number}}",
+        "knowledgeWriteups": "Informes de Conocimientos",
+        "noSubmissions": "Aún no hay envíos.",
+        "defaultWriteupName": "Informe de conocimientos",
+        "actions": {
+          "markReviewed": "Marcar como Revisado",
+          "needsRevision": "Requiere Revisión"
+        },
+        "defaultRevisionComment": "Agregue más detalle, por favor.",
+        "issueCertificate": {
+          "title": "Emitir Certificado de Finalización",
+          "mustCertifyAll": "Todos los módulos deben estar certificados antes de poder emitir un certificado.",
+          "recommendationPlaceholder": "Recomendación del responsable (supervisor / administrador / gerente de planta)...",
+          "authorizingSignature": "Firma autorizante ({{name}})",
+          "issuing": "Emitiendo…",
+          "issue": "Emitir Certificado"
+        },
+        "setup": {
+          "title": "Configurar Programa de Capacitación",
+          "duration": "Duración",
+          "durationOptions": {
+            "sixMonths": "6 Meses",
+            "oneYear": "1 Año",
+            "custom": "Rango personalizado…"
+          },
+          "startDate": "Fecha de Inicio",
+          "endDate": "Fecha de Finalización",
+          "customRangeSized_one": "Esta es una pasantía de {{count}} mes — el plan a continuación se ha ajustado en consecuencia.",
+          "customRangeSized_other": "Esta es una pasantía de {{count}} meses — el plan a continuación se ha ajustado en consecuencia.",
+          "monthFocusPlaceholder": "Enfoque del mes (opcional)",
+          "modules": "Módulos",
+          "weekendTasksPlaceholder": "Tareas de fin de semana para este mes, una por línea",
+          "creating": "Creando…",
+          "create": "Crear Programa"
+        }
+      },
+      "myProgramPage": {
+        "assignedModules": {
+          "title": "Módulos Asignados para Aprendices",
+          "noneOutstanding": "No hay módulos para aprendices pendientes — no se asignó nada nuevo, o todo lo asignado ya está completo.",
+          "assignedWithDue": "Asignado el {{assignedDate}} · vence el {{dueDate}}",
+          "assigned": "Asignado el {{date}}"
+        },
+        "monthLabel": "Mes {{number}}",
+        "noModulesThisMonth": "Aún no hay módulos asignados para este mes.",
+        "title": "Mi Programa de Capacitación",
+        "noProgramme": "Aún no se ha configurado un programa mensual para usted — a continuación se muestran los módulos para aprendices que tiene asignados.",
+        "summary": "Programa de {{count}} meses · iniciado el {{startDate}} · finalización prevista el {{endDate}}",
+        "overallProgress": "Progreso General",
+        "moduleCount": "{{completed}} / {{total}} módulos",
+        "completedWithMark": "Programa completado — calificación final {{mark}}%.",
+        "completed": "Programa completado.",
+        "downloadCertificate": "Descargar certificado"
+      }
     }
   },
   "triage": {

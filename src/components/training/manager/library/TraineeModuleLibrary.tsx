@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Sparkles, Edit2, Archive, Trash2, BookOpen } from 'lucide-react';
 import { collection, addDoc, deleteDoc, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
@@ -12,12 +13,6 @@ import ModuleStatusBadge from './shared/ModuleStatusBadge';
 import { LibraryEmpty, LibraryLoading } from './shared/LibraryStates';
 
 const CAN_AUTHOR_ROLES = ['plant_manager', 'admin', 'hr_officer', 'supervisor'];
-const STATUS_FILTERS: { label: string; value: 'all' | TrainingModuleStatus }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Draft', value: 'draft' },
-  { label: 'Active', value: 'active' },
-  { label: 'Archived', value: 'archived' },
-];
 const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [TraineeTrainingType, string][];
 
 /**
@@ -32,7 +27,15 @@ const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [T
  * Deliberately has no per-module Assign action: assignment here stays
  * trainee-first through AssignTrainingWizard, which reads only this library.
  */
-export default function TraineeModuleLibrary({ title = 'Trainee Module Library' }: { title?: string }) {
+export default function TraineeModuleLibrary({ title }: { title?: string }) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t('common.traineeManagement.library.moduleLibrary.titleDefault');
+  const STATUS_FILTERS: { label: string; value: 'all' | TrainingModuleStatus }[] = [
+    { label: t('common.traineeManagement.library.moduleLibrary.statusFilters.all'), value: 'all' },
+    { label: t('common.traineeManagement.library.moduleLibrary.statusFilters.draft'), value: 'draft' },
+    { label: t('common.traineeManagement.library.moduleLibrary.statusFilters.active'), value: 'active' },
+    { label: t('common.traineeManagement.library.moduleLibrary.statusFilters.archived'), value: 'archived' },
+  ];
   const navigate = useNavigate();
   const role = useAuthStore((s) => s.userProfile?.role);
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
@@ -61,12 +64,12 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
   );
 
   const handleArchive = async (id: string) => {
-    if (!confirm('Archive this module? It will no longer be assignable to trainees.')) return;
+    if (!confirm(t('common.traineeManagement.library.moduleLibrary.confirm.archive'))) return;
     await updateDoc(doc(db, 'trainingModules', id), { status: 'archived', updatedAt: serverTimestamp() });
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this module permanently? This cannot be undone.')) return;
+    if (!confirm(t('common.traineeManagement.library.moduleLibrary.confirm.delete'))) return;
     await deleteDoc(doc(db, 'trainingModules', id));
   };
 
@@ -106,7 +109,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{title}</h2>
+        <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{resolvedTitle}</h2>
         {canAuthor && (
           <div className="flex items-center gap-2">
             <button
@@ -114,13 +117,13 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
               disabled={seeding}
               className="flex items-center gap-2 border border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-60 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
-              <Sparkles size={16} /> {seeding ? 'Loading…' : 'Load Sample Modules'}
+              <Sparkles size={16} /> {seeding ? t('common.traineeManagement.library.moduleLibrary.loadingSamples') : t('common.traineeManagement.library.moduleLibrary.loadSamples')}
             </button>
             <button
               onClick={() => navigate('/app/training/manage/trainee-modules/new')}
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
-              <Plus size={16} /> Create Trainee Module
+              <Plus size={16} /> {t('common.traineeManagement.library.moduleLibrary.createModule')}
             </button>
           </div>
         )}
@@ -131,7 +134,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
       <div className="flex flex-col lg:flex-row gap-3">
         <input
           type="text"
-          placeholder="Search trainee modules..."
+          placeholder={t('common.traineeManagement.library.moduleLibrary.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -141,7 +144,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
           onChange={(e) => setTypeFilter(e.target.value as TraineeTrainingType | '')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 lg:w-56"
         >
-          <option value="">All training types</option>
+          <option value="">{t('common.traineeManagement.library.moduleLibrary.allTrainingTypes')}</option>
           {TRAINING_TYPE_OPTIONS.map(([value, label]) => (
             <option key={value} value={value}>
               {label}
@@ -168,17 +171,17 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
         {loading ? (
           <LibraryLoading />
         ) : filtered.length === 0 ? (
-          <LibraryEmpty message="No trainee modules found." />
+          <LibraryEmpty message={t('common.traineeManagement.library.moduleLibrary.emptyState')} />
         ) : (
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Title</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Training Type</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Lessons</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Has Quiz</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.traineeManagement.library.moduleLibrary.columns.title')}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.traineeManagement.library.moduleLibrary.columns.trainingType')}</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">{t('common.traineeManagement.library.moduleLibrary.columns.lessons')}</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">{t('common.traineeManagement.library.moduleLibrary.columns.hasQuiz')}</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">{t('common.traineeManagement.library.moduleLibrary.columns.status')}</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-600">{t('common.traineeManagement.library.moduleLibrary.columns.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -191,9 +194,9 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
                   <td className="px-4 py-3 text-center text-gray-600">{module.lessons?.length ?? 0}</td>
                   <td className="px-4 py-3 text-center">
                     {module.quiz ? (
-                      <span className="text-green-600 font-medium">Yes</span>
+                      <span className="text-green-600 font-medium">{t('common.traineeManagement.library.moduleLibrary.yes')}</span>
                     ) : (
-                      <span className="text-gray-400">No</span>
+                      <span className="text-gray-400">{t('common.traineeManagement.library.moduleLibrary.no')}</span>
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
@@ -207,7 +210,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
                           className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
                         >
                           <Edit2 className="w-3 h-3" />
-                          Edit
+                          {t('common.traineeManagement.library.moduleLibrary.actions.edit')}
                         </button>
                       )}
                       {canAuthor && module.status !== 'archived' && (
@@ -216,7 +219,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
                           className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-500 bg-gray-50 rounded hover:bg-gray-200 transition-colors"
                         >
                           <Archive className="w-3 h-3" />
-                          Archive
+                          {t('common.traineeManagement.library.moduleLibrary.actions.archive')}
                         </button>
                       )}
                       {canDelete && (
@@ -225,7 +228,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
                           className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
                         >
                           <Trash2 className="w-3 h-3" />
-                          Delete
+                          {t('common.traineeManagement.library.moduleLibrary.actions.delete')}
                         </button>
                       )}
                     </div>
@@ -242,7 +245,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
         {loading ? (
           <LibraryLoading />
         ) : filtered.length === 0 ? (
-          <LibraryEmpty message="No trainee modules found." />
+          <LibraryEmpty message={t('common.traineeManagement.library.moduleLibrary.emptyState')} />
         ) : (
           filtered.map((module) => (
             <div key={module.id} className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
@@ -256,9 +259,9 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
                 <span className="flex items-center gap-1">
                   <BookOpen className="w-3.5 h-3.5" />
-                  {module.lessons?.length ?? 0} lessons
+                  {t('common.traineeManagement.library.moduleLibrary.lessonsCount', { count: module.lessons?.length ?? 0 })}
                 </span>
-                {module.quiz && <span>Has quiz</span>}
+                {module.quiz && <span>{t('common.traineeManagement.library.moduleLibrary.hasQuizLabel')}</span>}
               </div>
               <div className="flex gap-2">
                 {canAuthor && (
@@ -266,7 +269,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
                     onClick={() => navigate(`/app/training/manage/trainee-modules/${module.id}`)}
                     className="flex-1 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                   >
-                    Edit
+                    {t('common.traineeManagement.library.moduleLibrary.actions.edit')}
                   </button>
                 )}
                 {canDelete && (
@@ -274,7 +277,7 @@ export default function TraineeModuleLibrary({ title = 'Trainee Module Library' 
                     onClick={() => void handleDelete(module.id)}
                     className="flex-1 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                   >
-                    Delete
+                    {t('common.traineeManagement.library.moduleLibrary.actions.delete')}
                   </button>
                 )}
               </div>

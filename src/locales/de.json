@@ -4575,6 +4575,442 @@
           }
         }
       }
+    },
+    "traineeManagement": {
+      "managementList": {
+        "searchPlaceholder": "Auszubildende nach Name, Abteilung oder Personalnummer suchen...",
+        "profilesHeading": "Profile der Auszubildenden",
+        "noTrainees": "Keine Auszubildenden gefunden.",
+        "stats": {
+          "trainings": "Schulungen",
+          "progress": "Fortschritt",
+          "marks": "Bewertung"
+        },
+        "woCount_one": "{{count}} Arbeitsauftrag verknüpft",
+        "woCount_other": "{{count}} Arbeitsaufträge verknüpft",
+        "viewTrainings": "Schulungen anzeigen",
+        "hideTrainings": "Schulungen ausblenden",
+        "trainingsHeading": "Schulungen",
+        "trainingsHeadingWithName": "Schulungen — {{name}}",
+        "selectTraineePrompt": "Wählen Sie oben eine/n Auszubildende/n aus, um die zugewiesenen Schulungen anzuzeigen.",
+        "setupProgramme": "Ausbildungsprogramm einrichten",
+        "noTrainingsAssigned": "Noch keine Schulungen zugewiesen.",
+        "columns": {
+          "module": "Modul",
+          "period": "Zeitraum",
+          "progress": "Fortschritt",
+          "marks": "Bewertung",
+          "status": "Status",
+          "actions": "Aktionen"
+        },
+        "periodMonths_one": "{{count}} Monat",
+        "periodMonths_other": "{{count}} Monate",
+        "notAvailable": "—",
+        "status": {
+          "not_started": "Nicht begonnen",
+          "in_progress": "In Bearbeitung",
+          "quiz_passed": "Quiz bestanden",
+          "quiz_failed": "Quiz nicht bestanden",
+          "awaiting_practical": "Abnahme ausstehend",
+          "certified": "Zertifiziert",
+          "expired": "Abgelaufen",
+          "retraining_required": "Nachschulung erforderlich"
+        },
+        "actions": {
+          "report": "Bericht"
+        }
+      },
+      "moduleSettingsForm": {
+        "sectionTitle": "Informationen zum Auszubildendenmodul",
+        "fields": {
+          "title": "Modultitel",
+          "titlePlaceholder": "z. B. Elektro-Einführung für Auszubildende",
+          "description": "Beschreibung",
+          "descriptionPlaceholder": "Beschreiben Sie kurz, was dieses Programmmodul abdeckt…",
+          "trainingType": "Schulungsart",
+          "selectTrainingType": "Schulungsart auswählen…",
+          "passingScore": "Bestehensgrenze",
+          "status": "Status",
+          "tags": "Schlagwörter",
+          "tagsPlaceholder": "elektrik, auszubildende, sicherheit (durch Komma getrennt)",
+          "tagsHint": "Schlagwörter durch Kommas trennen"
+        },
+        "statuses": {
+          "draft": "Entwurf",
+          "active": "Aktiv",
+          "archived": "Archiviert"
+        },
+        "errors": {
+          "titleRequired": "Titel ist erforderlich",
+          "trainingTypeRequired": "Schulungsart ist erforderlich"
+        },
+        "submit": "Modul speichern"
+      },
+      "library": {
+        "moduleLibrary": {
+          "titleDefault": "Modulbibliothek für Auszubildende",
+          "loadSamples": "Beispielmodule laden",
+          "loadingSamples": "Wird geladen…",
+          "createModule": "Modul für Auszubildende erstellen",
+          "searchPlaceholder": "Module für Auszubildende suchen...",
+          "allTrainingTypes": "Alle Schulungsarten",
+          "statusFilters": {
+            "all": "Alle",
+            "draft": "Entwurf",
+            "active": "Aktiv",
+            "archived": "Archiviert"
+          },
+          "columns": {
+            "title": "Titel",
+            "trainingType": "Schulungsart",
+            "lessons": "Lektionen",
+            "hasQuiz": "Hat Quiz",
+            "status": "Status",
+            "actions": "Aktionen"
+          },
+          "yes": "Ja",
+          "no": "Nein",
+          "notAvailable": "—",
+          "emptyState": "Keine Module für Auszubildende gefunden.",
+          "lessonsCount_one": "{{count}} Lektion",
+          "lessonsCount_other": "{{count}} Lektionen",
+          "hasQuizLabel": "Hat Quiz",
+          "actions": {
+            "edit": "Bearbeiten",
+            "archive": "Archivieren",
+            "delete": "Löschen"
+          },
+          "confirm": {
+            "archive": "Dieses Modul archivieren? Es kann Auszubildenden dann nicht mehr zugewiesen werden.",
+            "delete": "Dieses Modul dauerhaft löschen? Dies kann nicht rückgängig gemacht werden."
+          }
+        },
+        "offboardFields": {
+          "sectionTitle": "Details zur externen Schulung",
+          "country": "Land",
+          "countryPlaceholder": "Land auswählen…",
+          "thirdPartyCompany": "Externer Anbieter",
+          "thirdPartyCompanyPlaceholder": "z. B. Siemens Training Center",
+          "contactName": "Ansprechpartner",
+          "contactInfo": "Kontaktdaten",
+          "contactInfoPlaceholder": "E-Mail / Telefon",
+          "mode": "Format",
+          "modeOptions": {
+            "inPerson": "Vor Ort",
+            "online": "Online",
+            "hybrid": "Hybrid"
+          },
+          "startDate": "Startdatum",
+          "endDate": "Enddatum",
+          "duration_one": "Dauer: {{count}} Tag",
+          "duration_other": "Dauer: {{count}} Tage",
+          "topic": "Thema",
+          "topicPlaceholder": "z. B. Fortgeschrittene SPS-Programmierung",
+          "assessmentQuestions": "Bewertungsfragen",
+          "assessmentQuestionsHint": "Der/die Auszubildende beantwortet diese nach Abschluss der Schulung.",
+          "customQuestionPlaceholder": "Eigene Frage hinzufügen…",
+          "addQuestion": "Hinzufügen"
+        },
+        "offboardReportViewer": {
+          "trainingDetails": "Schulungsdetails",
+          "trainee": "Auszubildende/r",
+          "provider": "Anbieter",
+          "country": "Land",
+          "mode": "Format",
+          "duration": "Dauer",
+          "durationValue": "{{count}} Tag(e)",
+          "dates": "Termine",
+          "notAvailable": "—",
+          "knowledgeGained": "Erworbenes Wissen",
+          "assessmentQA": "Bewertungsfragen & Antworten",
+          "attachments": "Anhänge",
+          "downloadPdf": "PDF-Bericht herunterladen",
+          "pdfGenerating": "Der PDF-Bericht wird erstellt.",
+          "notSubmitted": "Wissensbericht wurde vom/von der Auszubildenden noch nicht eingereicht."
+        },
+        "practicalSignOff": {
+          "title": "Praktische Abnahme",
+          "quizScore": "Quiz-Ergebnis",
+          "observationsLabel": "Beobachtungen",
+          "observationsPlaceholder": "Beschreiben Sie, was bei der praktischen Bewertung beobachtet wurde (mind. 10 Zeichen)...",
+          "observationsCounter": "{{count}} / 10 Zeichen mindestens",
+          "assessmentResult": "Bewertungsergebnis",
+          "pass": "Bestanden",
+          "fail": "Nicht bestanden",
+          "signature": "Unterschrift zur Autorisierung",
+          "submit": "Abnahme bestätigen",
+          "errors": {
+            "observationsTooShort": "Die Beobachtungen müssen mindestens 10 Zeichen umfassen.",
+            "selectResult": "Bitte wählen Sie Bestanden oder Nicht bestanden aus.",
+            "signatureRequired": "Bitte fügen Sie Ihre Unterschrift hinzu, um das Zertifikat zu autorisieren.",
+            "signOffFailed": "Abnahme fehlgeschlagen."
+          }
+        },
+        "programsTab": {
+          "heading": "Programme",
+          "createProgram": "Programm erstellen",
+          "assignedToast": "Programm erfolgreich zugewiesen.",
+          "emptyState": "Noch keine Programme erstellt.",
+          "columns": {
+            "title": "Titel",
+            "modules": "Module",
+            "totalDuration": "Gesamtdauer",
+            "status": "Status",
+            "actions": "Aktionen"
+          },
+          "durationDays": "{{count}} Tage",
+          "status": {
+            "active": "Aktiv",
+            "archived": "Archiviert"
+          },
+          "actions": {
+            "assign": "Zuweisen",
+            "delete": "Löschen"
+          },
+          "confirm": {
+            "delete": "Dieses Programm löschen? Es wird dauerhaft aus dem Katalog entfernt und kann nicht wiederhergestellt werden. Bereits zugewiesene Auszubildende behalten ihren Fortschritt."
+          }
+        },
+        "assignedProgramsTab": {
+          "emptyState": "Es gibt keine offenen Programmzuweisungen.",
+          "columns": {
+            "program": "Programm",
+            "trainee": "Auszubildende/r",
+            "assigned": "Zugewiesen",
+            "dueDate": "Fällig am",
+            "progress": "Fortschritt",
+            "status": "Status",
+            "action": "Aktion"
+          },
+          "status": {
+            "awaitingSignOff": "Abnahme ausstehend",
+            "inProgress": "In Bearbeitung"
+          },
+          "signOff": "Abnahme",
+          "notAvailable": "—",
+          "modal": {
+            "title": "Programm-Abnahme",
+            "subtitle": "{{traineeName}} — {{programName}}",
+            "noteLabel": "Notiz",
+            "notePlaceholder": "Notiz zur Abnahme...",
+            "signatureLabel": "Unterschrift zur Autorisierung",
+            "cancel": "Abbrechen",
+            "confirm": "Abnahme bestätigen",
+            "confirming": "Abnahme wird bestätigt…"
+          },
+          "toasts": {
+            "signatureRequired": "Bitte fügen Sie Ihre Unterschrift hinzu, um das Zertifikat zu autorisieren."
+          }
+        },
+        "createProgramModal": {
+          "title": "Ausbildungsprogramm erstellen",
+          "programTitle": "Programmtitel",
+          "programTitlePlaceholder": "z. B. Elektro-Ausbildungsprogramm",
+          "description": "Beschreibung",
+          "totalDuration": "Gesamtdauer des Programms",
+          "days": "Tage",
+          "modulesLabel": "Module",
+          "modulesHint": "(auswählen und die Fälligkeitsdauer jedes Moduls festlegen)",
+          "modulesEmpty": "Noch keine Module vorhanden — erstellen Sie zuerst eines im Tab Module.",
+          "dueDaysSuffix": "Tage bis fällig",
+          "cancel": "Abbrechen",
+          "create": "Programm erstellen",
+          "creating": "Wird erstellt…",
+          "errors": {
+            "validation": "Fügen Sie einen Titel hinzu und wählen Sie mindestens ein Modul aus.",
+            "failed": "Programm konnte nicht erstellt werden"
+          }
+        },
+        "assignProgramModal": {
+          "title": "Programm zuweisen",
+          "searchPlaceholder": "Auszubildende suchen...",
+          "emptyState": "Keine Auszubildenden gefunden.",
+          "cancel": "Abbrechen",
+          "assign": "Zuweisen",
+          "assignTo": "{{count}} zuweisen",
+          "assigning": "Wird zugewiesen…",
+          "errors": {
+            "failed": "Programm konnte nicht zugewiesen werden"
+          }
+        },
+        "offboardCompletionForm": {
+          "backLink": "← Zurück zu Meine Schulung",
+          "provider": "Anbieter",
+          "country": "Land",
+          "mode": "Format",
+          "duration": "Dauer",
+          "durationValue": "{{count}} Tag(e)",
+          "start": "Beginn",
+          "end": "Ende",
+          "topic": "Thema",
+          "notAvailable": "—",
+          "knowledgeGainedLabel": "Erworbenes Wissen",
+          "knowledgeGainedPlaceholder": "Fassen Sie zusammen, was Sie gelernt haben und wie Sie es anwenden werden...",
+          "assessmentQuestions": "Bewertungsfragen",
+          "attachments": "Anhänge",
+          "uploadLink": "Dokumentation / Handbücher hochladen",
+          "uploading": "Wird hochgeladen…",
+          "submit": "Wissensbericht einreichen",
+          "success": {
+            "heading": "Wissensbericht eingereicht",
+            "message": "Danke — Ihr Schulungsbericht wurde zur Prüfung übermittelt. HR wird sich melden, falls ein Zertifikat oder weitere Schritte erforderlich sind.",
+            "backButton": "Zurück zu Meine Schulung"
+          },
+          "errors": {
+            "fileTooLarge": "{{fileName}} überschreitet das Limit von 25 MB.",
+            "uploadFailed": "Anhang konnte nicht hochgeladen werden",
+            "submitFailed": "Bericht konnte nicht eingereicht werden"
+          }
+        },
+        "programCertificateCard": {
+          "heading": "Zertifikat für Programmabschluss",
+          "certificateNo": "Zertifikatsnummer",
+          "program": "Programm",
+          "modulesCompleted": "Abgeschlossene Module",
+          "modulesCompleted_one": "{{count}} Modul",
+          "modulesCompleted_other": "{{count}} Module",
+          "issued": "Ausgestellt am {{date}}",
+          "signedOffBy": "Abgenommen von {{name}} ({{role}})",
+          "notAvailable": "—",
+          "downloadAria": "Programmzertifikat als A4-PDF herunterladen",
+          "downloadButton": "A4-PDF herunterladen",
+          "toasts": {
+            "pdfFailed": "Das Zertifikats-PDF konnte nicht erstellt werden."
+          }
+        },
+        "programmeCertificateCard": {
+          "heading": "Zertifikat für Ausbildungsabschluss",
+          "certificateNo": "Zertifikatsnummer",
+          "programme": "Ausbildungsprogramm",
+          "programmeTitle": "{{count}}-monatiges Ausbildungsprogramm",
+          "modulesCompleted_one": "{{count}} Modul über {{months}} Monate",
+          "modulesCompleted_other": "{{count}} Module über {{months}} Monate",
+          "issued": "Ausgestellt am {{date}}",
+          "signedOffBy": "Abgenommen von {{name}} ({{role}})",
+          "finalMark": "Endnote: {{mark}} %",
+          "downloadAria": "Ausbildungszertifikat als PDF herunterladen",
+          "downloadButton": "PDF herunterladen"
+        }
+      },
+      "assignmentsListPage": {
+        "title": "Auszubildendenverwaltung",
+        "tabs": {
+          "assigned": "Zugewiesen",
+          "programs": "Programme",
+          "modules": "Module"
+        }
+      },
+      "createModulePage": {
+        "toasts": {
+          "saved": "Modul für Auszubildende gespeichert."
+        },
+        "backAria": "Zurück",
+        "title": "Modul für Auszubildende erstellen"
+      },
+      "editModulePage": {
+        "notFound": "Modul nicht gefunden.",
+        "back": "Zurück",
+        "wrongLibrary": {
+          "title": "In dieser Bibliothek nicht gefunden.",
+          "description": "Dieses Modul gehört zur Schulungsbibliothek. Öffnen Sie es stattdessen über den Tab Schulung."
+        },
+        "backAria": "Zurück",
+        "quizBuilder": "Quiz-Editor"
+      },
+      "traineeProfilePage": {
+        "backAria": "Zurück",
+        "title": "Profil des/der Auszubildenden",
+        "trainingProgramme": "Ausbildungsprogramm",
+        "awaitingSignOff": "Praktische Abnahme ausstehend",
+        "allAssignments_one": "Alle Zuweisungen ({{count}})",
+        "allAssignments_other": "Alle Zuweisungen ({{count}})",
+        "noAssignments": "Noch keine Zuweisungen.",
+        "noOtherAssignments": "Keine weiteren Zuweisungen — siehe „Praktische Abnahme ausstehend“ oben.",
+        "assignedLabel": "Zugewiesen: {{date}}",
+        "dueLabel": "Fällig: {{date}}"
+      },
+      "traineeProgrammePage": {
+        "programmeStatuses": {
+          "active": "aktiv",
+          "completed": "abgeschlossen",
+          "discontinued": "abgebrochen"
+        },
+        "reviewStatuses": {
+          "pending": "ausstehend",
+          "reviewed": "geprüft",
+          "needs_revision": "überarbeitung erforderlich"
+        },
+        "errors": {
+          "pickEndDate": "Wählen Sie ein Enddatum für einen benutzerdefinierten Zeitraum.",
+          "endAfterStart": "Das Enddatum muss nach dem Startdatum liegen.",
+          "createFailed": "Ausbildungsprogramm konnte nicht erstellt werden",
+          "reviewFailed": "Zusammenfassung konnte nicht geprüft werden",
+          "signatureRequired": "Bitte fügen Sie Ihre Unterschrift hinzu, um das Zertifikat zu autorisieren.",
+          "issueCertificateFailed": "Zertifikat konnte nicht ausgestellt werden"
+        },
+        "toasts": {
+          "created": "Ausbildungsprogramm erstellt.",
+          "summaryReviewed": "Zusammenfassung geprüft.",
+          "certificateIssued": "Zertifikat ausgestellt."
+        },
+        "backAria": "Zurück",
+        "headerTitle": "Ausbildungsprogramm — {{name}}",
+        "monthProgramme_one": "{{count}}-Monats-Programm",
+        "monthProgramme_other": "{{count}}-Monats-Programm",
+        "monthLabel": "Monat {{number}}",
+        "knowledgeWriteups": "Wissensberichte",
+        "noSubmissions": "Noch keine Einreichungen.",
+        "defaultWriteupName": "Wissensbericht",
+        "actions": {
+          "markReviewed": "Als geprüft markieren",
+          "needsRevision": "Überarbeitung erforderlich"
+        },
+        "defaultRevisionComment": "Bitte fügen Sie weitere Details hinzu.",
+        "issueCertificate": {
+          "title": "Abschlusszertifikat ausstellen",
+          "mustCertifyAll": "Alle Module müssen zertifiziert sein, bevor ein Zertifikat ausgestellt werden kann.",
+          "recommendationPlaceholder": "Empfehlung der/des Verantwortlichen (Vorgesetzte/r / Admin / Werksleitung)...",
+          "authorizingSignature": "Unterschrift zur Autorisierung ({{name}})",
+          "issuing": "Wird ausgestellt…",
+          "issue": "Zertifikat ausstellen"
+        },
+        "setup": {
+          "title": "Ausbildungsprogramm einrichten",
+          "duration": "Dauer",
+          "durationOptions": {
+            "sixMonths": "6 Monate",
+            "oneYear": "1 Jahr",
+            "custom": "Benutzerdefinierter Zeitraum…"
+          },
+          "startDate": "Startdatum",
+          "endDate": "Enddatum",
+          "customRangeSized_one": "Dies ist ein {{count}}-monatiger Einsatz — der untenstehende Plan wurde entsprechend angepasst.",
+          "customRangeSized_other": "Dies ist ein {{count}}-monatiger Einsatz — der untenstehende Plan wurde entsprechend angepasst.",
+          "monthFocusPlaceholder": "Schwerpunkt des Monats (optional)",
+          "modules": "Module",
+          "weekendTasksPlaceholder": "Wochenendaufgaben für diesen Monat, eine pro Zeile",
+          "creating": "Wird erstellt…",
+          "create": "Programm erstellen"
+        }
+      },
+      "myProgramPage": {
+        "assignedModules": {
+          "title": "Zugewiesene Module für Auszubildende",
+          "noneOutstanding": "Keine offenen Module für Auszubildende — entweder wurde nichts Neues zugewiesen, oder alles Zugewiesene ist bereits abgeschlossen.",
+          "assignedWithDue": "Zugewiesen am {{assignedDate}} · fällig am {{dueDate}}",
+          "assigned": "Zugewiesen am {{date}}"
+        },
+        "monthLabel": "Monat {{number}}",
+        "noModulesThisMonth": "Für diesen Monat sind noch keine Module zugewiesen.",
+        "title": "Mein Ausbildungsprogramm",
+        "noProgramme": "Für Sie wurde noch kein monatliches Programm eingerichtet — die Ihnen zugewiesenen Module für Auszubildende finden Sie unten.",
+        "summary": "{{count}}-monatiges Programm · begonnen am {{startDate}} · voraussichtlicher Abschluss am {{endDate}}",
+        "overallProgress": "Gesamtfortschritt",
+        "moduleCount": "{{completed}} / {{total}} Module",
+        "completedWithMark": "Programm abgeschlossen — Endnote {{mark}} %.",
+        "completed": "Programm abgeschlossen.",
+        "downloadCertificate": "Zertifikat herunterladen"
+      }
     }
   },
   "triage": {
