@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Clock, MapPin } from 'lucide-react';
 import { doc, serverTimestamp, Timestamp, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorJob } from '@/lib/contractors/contractorTypes';
@@ -12,6 +13,7 @@ interface ArrivalLogSectionProps {
 }
 
 export function ArrivalLogSection({ job }: ArrivalLogSectionProps) {
+  const { t } = useTranslation();
   const access = useContractorAccess();
   const userProfile = useAuthStore((s) => s.userProfile);
   const [saving, setSaving] = useState(false);
@@ -27,9 +29,9 @@ export function ArrivalLogSection({ job }: ArrivalLogSectionProps) {
         status: job.status === 'invitation_sent' || job.status === 'acknowledged' ? 'contractor_arrived' : job.status,
         updatedAt: serverTimestamp(),
       });
-      toast.success('Arrival logged.');
+      toast.success(t('common.contractors.jobs.arrivalLog.toasts.arrivalLogged'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to log arrival');
+      toast.error(err instanceof Error ? err.message : t('common.contractors.jobs.arrivalLog.toasts.arrivalFailed'));
     } finally {
       setSaving(false);
     }
@@ -48,9 +50,9 @@ export function ArrivalLogSection({ job }: ArrivalLogSectionProps) {
         ...(onSiteDurationMinutes !== undefined ? { onSiteDurationMinutes } : {}),
         updatedAt: serverTimestamp(),
       });
-      toast.success('Departure logged.');
+      toast.success(t('common.contractors.jobs.arrivalLog.toasts.departureLogged'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to log departure');
+      toast.error(err instanceof Error ? err.message : t('common.contractors.jobs.arrivalLog.toasts.departureFailed'));
     } finally {
       setSaving(false);
     }
@@ -58,27 +60,27 @@ export function ArrivalLogSection({ job }: ArrivalLogSectionProps) {
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="font-semibold text-slate-950">Arrival & Departure</h2>
+      <h2 className="font-semibold text-slate-950">{t('common.contractors.jobs.arrivalLog.title')}</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
           <MapPin className="mb-2 h-4 w-4 text-blue-600" />
-          Arrival: {job.arrivedAt ? job.arrivedAt.toDate().toLocaleString() : 'Not arrived'}
+          {t('common.contractors.jobs.arrivalLog.arrivalLabel', { value: job.arrivedAt ? job.arrivedAt.toDate().toLocaleString() : t('common.contractors.jobs.arrivalLog.notArrived') })}
         </div>
         <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
           <Clock className="mb-2 h-4 w-4 text-blue-600" />
-          Departure: {job.departedAt ? job.departedAt.toDate().toLocaleString() : 'Not departed'}
+          {t('common.contractors.jobs.arrivalLog.departureLabel', { value: job.departedAt ? job.departedAt.toDate().toLocaleString() : t('common.contractors.jobs.arrivalLog.notDeparted') })}
         </div>
       </div>
       {access.canLogContractorWork && (
         <div className="mt-4 flex flex-wrap gap-2">
           {!arrived && (
             <button type="button" disabled={saving} onClick={logArrival} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
-              Log Contractor Arrival
+              {t('common.contractors.jobs.arrivalLog.actions.logArrival')}
             </button>
           )}
           {arrived && !departed && (
             <button type="button" disabled={saving} onClick={logDeparture} className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">
-              Log Departure
+              {t('common.contractors.jobs.arrivalLog.actions.logDeparture')}
             </button>
           )}
         </div>

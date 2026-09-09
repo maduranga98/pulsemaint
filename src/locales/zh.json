@@ -5007,6 +5007,1009 @@
         "completed": "计划已完成。",
         "downloadCertificate": "下载证书"
       }
+    },
+    "contractors": {
+      "jobs": {
+        "listPage": {
+          "title": "承包商工单",
+          "subtitle": "跟踪邀请、到场、施工记录、签核、发票及评分。",
+          "loading": "正在加载承包商工单..."
+        },
+        "detailPage": {
+          "loading": "正在加载工单...",
+          "notFound": "未找到承包商工单。",
+          "team": {
+            "title": "承包商团队",
+            "techniciansNotConfirmed": "技术人员尚未确认"
+          },
+          "actions": {
+            "logWork": "记录施工",
+            "signOff": "签核",
+            "invoice": "发票",
+            "rate": "评分"
+          }
+        },
+        "logWorkPage": {
+          "loading": "正在加载施工记录...",
+          "notFound": "未找到该工单。",
+          "onSiteFor": "在场时长：{{minutes}} 分钟",
+          "actions": {
+            "logDeparture": "记录离场",
+            "completeChecklist": "完成检查清单"
+          }
+        },
+        "signOffPage": {
+          "loading": "正在加载签核信息...",
+          "notFound": "未找到该工单。",
+          "title": "承包商签核"
+        },
+        "ratePage": {
+          "loading": "正在加载评分表...",
+          "notFound": "未找到该工单。"
+        },
+        "invoiceComparisonPage": {
+          "loading": "正在加载发票...",
+          "notFound": "未找到该工单。",
+          "title": "发票比对"
+        },
+        "statusBadge": {
+          "invitation_sent": "已邀请",
+          "acknowledged": "已确认",
+          "contractor_arrived": "已到场",
+          "work_in_progress": "施工中",
+          "checklist_complete": "清单已完成",
+          "signed_off": "已签核",
+          "invoice_submitted": "待处理发票",
+          "payment_processed": "已付款",
+          "cancelled": "已取消"
+        },
+        "statusStepper": {
+          "invitation_sent": "已邀请",
+          "acknowledged": "已确认",
+          "contractor_arrived": "已到场",
+          "work_in_progress": "施工中",
+          "checklist_complete": "检查清单",
+          "signed_off": "已签核",
+          "invoice_submitted": "发票",
+          "payment_processed": "已完成"
+        },
+        "jobList": {
+          "tabs": {
+            "active": "进行中",
+            "invitation_sent": "已发出邀请",
+            "work_in_progress": "施工中",
+            "checklist_complete": "待签核",
+            "invoice_submitted": "待处理发票",
+            "completed": "已完成",
+            "cancelled": "已取消"
+          },
+          "columns": {
+            "wo": "工单",
+            "contractor": "承包商",
+            "machine": "设备",
+            "priority": "优先级",
+            "status": "状态",
+            "invited": "已邀请",
+            "onSite": "在场",
+            "rating": "评分",
+            "invoice": "发票",
+            "actions": "操作"
+          },
+          "empty": "未找到承包商工单。",
+          "viewJob": "查看工单",
+          "view": "查看"
+        },
+        "jobHeader": {
+          "slaDeadline": "SLA 截止时间：{{deadline}}"
+        },
+        "arrivalLog": {
+          "title": "到场与离场",
+          "arrivalLabel": "到场时间：{{value}}",
+          "departureLabel": "离场时间：{{value}}",
+          "notArrived": "尚未到场",
+          "notDeparted": "尚未离场",
+          "actions": {
+            "logArrival": "记录承包商到场",
+            "logDeparture": "记录离场"
+          },
+          "toasts": {
+            "arrivalLogged": "已记录到场。",
+            "arrivalFailed": "记录到场失败",
+            "departureLogged": "已记录离场。",
+            "departureFailed": "记录离场失败"
+          }
+        },
+        "timeline": {
+          "title": "工单时间线",
+          "workStarted": "开始施工：{{value}}",
+          "workCompleted": "完成施工：{{value}}",
+          "waitingForParts": "等待备件：{{start}} → {{end}}",
+          "waitingForPermission": "等待许可：{{start}} → {{end}}",
+          "actions": {
+            "startWork": "开始施工",
+            "markWorkComplete": "标记施工完成",
+            "markWaitingForParts": "标记为等待备件",
+            "resolvePartsWait": "解除备件等待",
+            "markWaitingForPermission": "标记为等待许可",
+            "resolvePermissionWait": "解除许可等待"
+          },
+          "toasts": {
+            "workStartLogged": "已记录开始施工。",
+            "workCompletionLogged": "已记录完成施工。",
+            "markedWaitingForParts": "已标记为等待备件。",
+            "partsWaitResolved": "备件等待已解除。",
+            "markedWaitingForPermission": "已标记为等待许可。",
+            "permissionWaitResolved": "许可等待已解除。",
+            "updateFailed": "更新工单时间线失败"
+          }
+        },
+        "invitation": {
+          "title": "工单邀请",
+          "sent": "发送时间：{{value}}",
+          "acknowledged": "确认时间：{{value}}",
+          "notAcknowledged": "尚未确认",
+          "actions": {
+            "viewDetails": "查看邀请详情",
+            "resend": "重新发送邀请",
+            "markAcknowledged": "标记为已确认"
+          }
+        },
+        "workLog": {
+          "entryForm": {
+            "title": "记录施工步骤",
+            "descriptionPlaceholder": "完成了哪些工作？",
+            "addPhotos": "添加照片",
+            "durationPlaceholder": "时长（分钟）",
+            "addStep": "添加步骤"
+          },
+          "timeline": {
+            "title": "施工记录",
+            "empty": "尚未记录任何施工步骤。"
+          },
+          "stepCard": {
+            "step": "步骤 {{number}}",
+            "duration": "{{minutes}} 分钟",
+            "logged": "记录于 {{value}}",
+            "pendingSync": "待同步"
+          }
+        },
+        "partsUsed": {
+          "title": "已使用备件",
+          "factoryParts": {
+            "title": "已发放工厂备件",
+            "empty": "未发放工厂备件。",
+            "line": "{{name}} x {{quantity}}"
+          },
+          "contractorMaterials": {
+            "title": "承包商材料",
+            "empty": "未记录承包商材料。",
+            "line": "{{description}} x {{quantity}} {{unit}}"
+          }
+        },
+        "checklist": {
+          "title": "工后检查清单",
+          "empty": "检查清单尚未完成。",
+          "pass": "合格",
+          "fail": "不合格",
+          "testRun": "试运行：{{value}}",
+          "machineAfter": "维修后设备状态：{{value}}"
+        },
+        "photos": {
+          "title": "照片与文件",
+          "addPhotos": "添加照片",
+          "empty": "尚未上传照片。"
+        },
+        "invoiceUpload": {
+          "title": "上传承包商发票",
+          "referencePlaceholder": "发票编号",
+          "amountPlaceholder": "金额（LKR）",
+          "uploadPdf": "上传发票 PDF"
+        },
+        "invoiceComparison": {
+          "title": "发票比对",
+          "systemInvoice": {
+            "title": "系统发票",
+            "labor": "人工",
+            "laborValue": "{{hours}} 小时 x {{rate}}",
+            "laborCost": "人工费用",
+            "factoryParts": "工厂备件",
+            "systemTotal": "系统合计"
+          },
+          "contractorInvoice": {
+            "title": "承包商发票",
+            "reference": "发票编号",
+            "date": "日期",
+            "invoiceTotal": "发票合计"
+          },
+          "variance": {
+            "label": "差异：{{amount}}",
+            "match": "发票金额与系统计算相符。",
+            "mismatch": "承包商发票{{direction}} {{percent}}%。",
+            "flagged": "差异 {{percent}}%",
+            "withinRange": "在允许范围内 {{percent}}%"
+          }
+        },
+        "ratingForm": {
+          "title": "为 {{contractorName}} 评分",
+          "dimensions": {
+            "speed": {
+              "label": "速度",
+              "helper": "维修完成的速度如何？"
+            },
+            "quality": {
+              "label": "质量",
+              "helper": "施工质量如何？"
+            },
+            "professionalism": {
+              "label": "专业度",
+              "helper": "承包商团队的专业程度如何？"
+            },
+            "communication": {
+              "label": "沟通",
+              "helper": "沟通配合情况如何？"
+            }
+          },
+          "overallScore": "总体评分",
+          "notesPlaceholder": "添加详细反馈",
+          "submit": "提交评分",
+          "saving": "保存中…",
+          "toasts": {
+            "success": "评分已提交",
+            "incomplete": "请先为全部四个维度评分后再提交。",
+            "failed": "提交评分失败"
+          }
+        },
+        "ratingQuickTags": {
+          "arrivedOnTime": "准时到场",
+          "neatWorkmanship": "施工工艺整洁",
+          "explainedIssueWell": "问题说明清楚",
+          "leftSiteClean": "离场时现场整洁",
+          "requiredNoCallbacks": "无需返修",
+          "professionalTeam": "团队专业"
+        },
+        "followUpFlag": {
+          "label": "同一问题在 30 天内再次出现",
+          "placeholder": "描述后续问题"
+        },
+        "signOffForm": {
+          "reviewSummary": {
+            "title": "审核摘要",
+            "workDoneDescriptionPlaceholder": "施工内容说明",
+            "machineStatus": {
+              "operational": "可正常运行",
+              "partially_operational": "部分可运行",
+              "still_down": "仍处于停机状态"
+            }
+          },
+          "totalCost": {
+            "title": "总费用",
+            "helper": "已用备件费用（来自本工单）加上下方填写的项目费用。将记录到本工单、设备成本历史及维护成本分析中。",
+            "usedPartsCost": "已用备件费用（自动）",
+            "projectCost": "项目费用",
+            "summary": "总费用 — 已用备件 {{partsCost}} + 项目 {{projectCost}}"
+          },
+          "rating": {
+            "title": "承包商评分",
+            "helper": "请为全部四个维度评分 — 签核前必须完成评分，评分将显示在该承包商的工单历史中。",
+            "overallScore": "总体评分",
+            "dimensions": {
+              "speed": "速度",
+              "quality": "质量",
+              "professionalism": "专业度",
+              "communication": "沟通"
+            }
+          },
+          "signature": {
+            "title": "电子签名",
+            "clear": "清除"
+          },
+          "concerns": {
+            "label": "我对此次施工质量有疑虑",
+            "notesPlaceholder": "签核备注或争议说明"
+          },
+          "submit": "签核并完成",
+          "saving": "保存中…",
+          "errors": {
+            "signatureRequired": "签核此工单需要签名。",
+            "invalidProjectCost": "请输入有效的项目费用。",
+            "ratingRequired": "签核此工单前请为全部四个维度评分。"
+          },
+          "toasts": {
+            "success": "工单签核成功",
+            "failed": "该工单签核失败。"
+          }
+        }
+      },
+      "documents": {
+        "expiryTimer": {},
+        "renewalModal": {
+          "title": "续期文件",
+          "titleWithName": "续期 {{name}}"
+        },
+        "criticalWarning": {
+          "message": "文件到期未续期前，该承包商无法被分配新工单。"
+        },
+        "historyAccordion": {
+          "title": "{{documentType}} 历史记录",
+          "version": "第 {{version}} 版"
+        },
+        "statusBadge": {
+          "noExpiry": "无到期日",
+          "blocksAssignment": "阻止分配"
+        },
+        "card": {
+          "noExpiry": "无到期日",
+          "versionUploadedBy": "第 {{version}} 版 - 由 {{name}} 上传",
+          "issued": "签发日期：{{date}}",
+          "expiry": "到期日期：{{date}}",
+          "actions": {
+            "download": "下载",
+            "preview": "预览",
+            "renew": "续期"
+          }
+        },
+        "list": {
+          "title": "文件",
+          "subtitle": "有效、即将到期、已过期及永久有效的合规记录。",
+          "empty": "尚未上传任何文件。",
+          "actions": {
+            "upload": "上传文件"
+          },
+          "legend": {
+            "valid": "绿色：有效",
+            "expiringSoon": "琥珀色：30 天内到期",
+            "expired": "红色：已过期",
+            "noExpiry": "灰色：无到期日"
+          }
+        },
+        "uploadModal": {
+          "defaultTitle": "上传文件",
+          "fields": {
+            "documentName": "文件名称",
+            "issueDate": "签发日期",
+            "expiryDate": "到期日期（若为永久有效请留空）",
+            "notes": "备注"
+          },
+          "fileArea": {
+            "uploadHint": "支持 PDF、DOCX、JPG 或 PNG，最大 50MB",
+            "renewalHint": "可选：替换文件（若不选择则保留当前文件）"
+          },
+          "currentValidity": {
+            "label": "当前有效期：",
+            "expires": "{{date}} 到期",
+            "noExpiry": "未记录到期日",
+            "hint": "在下方设置新的到期日期以延长合同。"
+          },
+          "actions": {
+            "close": "关闭",
+            "saving": "保存中…",
+            "upload": "上传",
+            "renew": "续期文件"
+          },
+          "toasts": {
+            "uploaded": "文件已上传",
+            "renewed": "文件已续期",
+            "renewedWithDate": "文件已续期 — 有效期至 {{date}}"
+          },
+          "errors": {
+            "missingContractor": "缺少承包商引用信息，无法上传。",
+            "mustBeLoggedIn": "您必须登录才能上传文件。",
+            "fileRequired": "请选择要上传的文件。",
+            "expiryRequired": "请为续期文件设置新的到期日期。",
+            "uploadFailed": "上传失败"
+          }
+        }
+      },
+      "technicians": {
+        "designations": {
+          "engineer": "工程师",
+          "senior_technician": "高级技术员",
+          "technician": "技术员",
+          "helper": "助手",
+          "other": "其他"
+        },
+        "statuses": {
+          "active": "启用",
+          "inactive": "停用"
+        },
+        "accessLog": {
+          "empty": "暂无到访记录。",
+          "notRecorded": "-",
+          "arrivalDeparture": "到场 {{arrival}} - 离场 {{departure}}"
+        },
+        "grid": {
+          "empty": "尚未登记团队成员。"
+        },
+        "card": {
+          "nicOrPassport": "身份证/护照号：",
+          "jobs": "工单数：{{count}}",
+          "lastVisit": "最近到访：{{date}}",
+          "never": "从未",
+          "actions": {
+            "view": "查看",
+            "edit": "编辑"
+          }
+        },
+        "detailModal": {
+          "fields": {
+            "nicOrPassport": "身份证/护照号",
+            "contractor": "承包商",
+            "phone": "电话",
+            "email": "邮箱",
+            "jobsAtThisFactory": "在本厂的工单数",
+            "lastVisit": "最近到访",
+            "specialization": "专长",
+            "certifications": "资质证书",
+            "certificationFiles": "资质证书文件"
+          },
+          "actions": {
+            "close": "关闭",
+            "view": "查看",
+            "download": "下载"
+          }
+        },
+        "form": {
+          "fields": {
+            "fullName": "姓名 *",
+            "nicOrPassport": "身份证/护照号 *",
+            "phone": "电话",
+            "email": "邮箱",
+            "specialization": "专长",
+            "certifications": "资质证书，以逗号分隔",
+            "certificationAttachments": "资质证书附件"
+          },
+          "actions": {
+            "save": "保存技术人员",
+            "saving": "保存中…",
+            "removeAttachment": "移除附件"
+          },
+          "toasts": {
+            "updated": "技术人员信息已更新",
+            "added": "技术人员已添加"
+          },
+          "errors": {
+            "missingContractor": "缺少承包商引用信息。",
+            "mustBeLoggedIn": "您必须登录。",
+            "requiredFields": "姓名和身份证/护照号为必填项。",
+            "saveFailed": "保存技术人员失败"
+          }
+        }
+      },
+      "analytics": {
+        "blockedList": {
+          "title": "已过期并阻止分配",
+          "expiredDaysAgo": "{{documentType}} 已过期 {{days}} 天"
+        },
+        "expiryAlerts": {
+          "title": "30 天内到期",
+          "empty": "暂无即将到期的文件。"
+        },
+        "performanceDashboard": {
+          "loading": "正在加载承包商绩效...",
+          "topPerformer": "最佳表现",
+          "needsReview": "需关注",
+          "stats": {
+            "activeContractors": "在用承包商",
+            "jobsThisMonth": "本月工单数",
+            "avgRating": "平均评分",
+            "slaCompliance": "SLA 达成率"
+          },
+          "charts": {
+            "jobsByContractor": "按承包商统计工单数",
+            "avgRatingComparison": "平均评分对比",
+            "totalCostByContractor": "按承包商统计总费用"
+          }
+        },
+        "complianceMatrix": {
+          "columns": {
+            "contractor": "承包商"
+          },
+          "status": {
+            "notUploaded": "未上传",
+            "expired": "已过期",
+            "expiring": "即将到期",
+            "noExpiry": "无到期日",
+            "valid": "有效"
+          }
+        },
+        "scoreboard": {
+          "columns": {
+            "rank": "排名",
+            "contractor": "承包商",
+            "rating": "评分",
+            "jobs": "工单数",
+            "mttr": "平均修复时间",
+            "sla": "SLA",
+            "invoice": "发票",
+            "lastJob": "最近工单"
+          },
+          "minutes": "{{count}} 分钟",
+          "empty": "暂无承包商绩效数据。{{amount}}"
+        }
+      },
+      "addContractorPage": {
+        "title": "新增承包商",
+        "subtitle": "创建外部承包商档案。承包商不会获得 FirmiCore 登录权限。"
+      },
+      "editContractorPage": {
+        "title": "编辑承包商",
+        "subtitle": "更新档案、联系方式、能力及受限的财务字段。"
+      },
+      "addTechnicianPage": {
+        "title": "新增团队成员",
+        "subtitle": "登记单个技术人员信息，用于门禁识别及工单历史记录。"
+      },
+      "editTechnicianPage": {
+        "title": "编辑技术人员",
+        "subtitle": "更新承包商技术人员详情及状态。"
+      },
+      "profilePage": {
+        "loading": "正在加载承包商信息...",
+        "notFound": "未找到该承包商。",
+        "tabs": {
+          "overview": "概览",
+          "documents": "文件",
+          "teamMembers": "团队成员",
+          "jobHistory": "工单历史",
+          "analytics": "分析"
+        }
+      },
+      "documentsPage": {
+        "title": "承包商文件",
+        "subtitle": "合规文件、续期状态及分配阻止状态。",
+        "loading": "正在加载文件..."
+      },
+      "techniciansPage": {
+        "title": "承包商团队成员",
+        "registeredCount_one": "已登记 {{count}} 名团队成员。",
+        "registeredCount_other": "已登记 {{count}} 名团队成员。",
+        "loading": "正在加载团队成员...",
+        "actions": {
+          "addTeamMember": "添加团队成员"
+        }
+      },
+      "historyPage": {
+        "title": "承包商工单历史",
+        "loading": "正在加载历史记录..."
+      },
+      "analyticsPage": {
+        "title": "{{companyName}} 分析",
+        "loading": "正在加载分析数据...",
+        "notFound": "未找到该承包商。"
+      },
+      "performanceDashboardPage": {
+        "title": "承包商绩效",
+        "subtitle": "记分卡、SLA 趋势、评分、费用及发票准确性。"
+      },
+      "compliancePage": {
+        "title": "文件合规",
+        "subtitle": "供人力资源、主管及厂长查看的合规视图。",
+        "loading": "正在加载合规数据...",
+        "stats": {
+          "totalContractors": "承包商总数",
+          "fullyValid": "完全合规",
+          "expiringDocs": "即将到期文件",
+          "blocked": "已阻止"
+        }
+      },
+      "reportsHubPage": {
+        "title": "承包商报表",
+        "subtitle": "为模块 7 生成 PDF、Excel 或 Google 表格导出。",
+        "reports": {
+          "performance": {
+            "title": "承包商绩效报表",
+            "description": "各承包商指标、评分及平均修复时间"
+          },
+          "invoiceComparison": {
+            "title": "承包商发票比对报表",
+            "description": "发票、差异及审批状态"
+          },
+          "jobHistory": {
+            "title": "工单历史报表",
+            "description": "可按承包商、设备及日期筛选的全部工单"
+          },
+          "rating": {
+            "title": "承包商评分报表",
+            "description": "评分明细及反馈趋势"
+          },
+          "documentCompliance": {
+            "title": "文件合规报表",
+            "description": "各承包商的文件状态"
+          }
+        },
+        "actions": {
+          "generatePdf": "生成 PDF",
+          "exportExcel": "导出 Excel",
+          "pushToSheets": "推送至 Google 表格"
+        }
+      },
+      "registry": {
+        "alertBanner": {
+          "blockedByDocument": "工单分配已阻止 - {{documentName}} 已过期。请续期后再分配工单。",
+          "blockedCount_one": "{{count}} 家承包商文件已过期 - 工单分配已阻止。",
+          "blockedCount_other": "{{count}} 家承包商文件已过期 - 工单分配已阻止。",
+          "expiringCount_one": "{{count}} 份承包商文件将在 30 天内到期。",
+          "expiringCount_other": "{{count}} 份承包商文件将在 30 天内到期。",
+          "complianceLink": "合规"
+        },
+        "formStepper": {
+          "steps": {
+            "company": "公司信息",
+            "contacts": "联系人",
+            "specializations": "专长",
+            "financial": "财务",
+            "documents": "文件"
+          }
+        },
+        "docStatusDot": {
+          "valid": "文件有效",
+          "expiring": "即将到期",
+          "expired": "文件已过期"
+        },
+        "statusBadge": {
+          "active": "启用",
+          "inactive": "停用",
+          "blacklisted": "已列入黑名单"
+        },
+        "techniciansTab": {
+          "registeredCount_one": "已登记 {{count}} 名团队成员",
+          "registeredCount_other": "已登记 {{count}} 名团队成员",
+          "subtitle": "用于门禁识别及工单历史记录的承包商个人员工。",
+          "actions": {
+            "addTeamMember": "添加团队成员"
+          }
+        },
+        "formSection1": {
+          "title": "公司信息",
+          "fields": {
+            "companyName": "公司名称 *",
+            "tradeName": "商用名称",
+            "registrationNumber": "注册编号 *",
+            "dateEstablished": "成立年份",
+            "city": "城市 *",
+            "district": "地区",
+            "country": "国家 *",
+            "website": "网站",
+            "primaryAddress": "主要地址 *",
+            "notes": "内部备注"
+          },
+          "companyTypes": {
+            "private_ltd": "私人有限公司",
+            "sole_proprietor": "独资企业",
+            "partnership": "合伙企业",
+            "public_ltd": "上市有限公司",
+            "foreign": "外资企业"
+          }
+        },
+        "formSection2": {
+          "title": "联系方式",
+          "primaryContact": "主要联系人",
+          "secondaryContact": "次要联系人",
+          "other": "其他",
+          "fields": {
+            "fullName": "姓名 *",
+            "fullNameOptional": "姓名",
+            "designation": "职位",
+            "phone": "电话 *",
+            "phoneOptional": "电话",
+            "email": "邮箱 *",
+            "emailOptional": "邮箱",
+            "emergencyContact": "紧急联系人 *",
+            "whatsappNumber": "WhatsApp 号码"
+          }
+        },
+        "formSection3": {
+          "title": "专长",
+          "specializationTags": "专长标签 *",
+          "fields": {
+            "machineTypesServiced": "可维修设备类型",
+            "industriesServed": "服务行业",
+            "geographicCoverage": "服务地理范围",
+            "emergencyResponseTime": "紧急响应时间",
+            "teamSizeAvailable": "可调配团队规模",
+            "languagesSpoken": "可使用语言"
+          },
+          "serviceHours": {
+            "24_7": "全天候（24/7）",
+            "business_hours": "工作时间",
+            "on_call": "随叫随到",
+            "custom": "自定义"
+          }
+        },
+        "formSection4": {
+          "title": "财务与结算",
+          "restricted": "财务详情仅厂长和管理员可查看。",
+          "paymentMethods": "付款方式",
+          "paymentMethodOptions": {
+            "bankTransfer": "银行转账",
+            "cheque": "支票",
+            "cash": "现金",
+            "onlineWallet": "线上支付/电子钱包"
+          },
+          "bankDetails": "银行信息",
+          "completedProjects": "既往已完成项目（含费用）",
+          "fields": {
+            "bankName": "银行名称",
+            "branch": "支行",
+            "accountHolderName": "账户持有人姓名",
+            "accountNumber": "账号",
+            "routingSwift": "汇款代码 / SWIFT",
+            "tinNumber": "税号（TIN）",
+            "projectClientName": "项目 / 客户名称",
+            "costLkr": "费用（LKR）",
+            "ratingPlaceholder": "评分…",
+            "duration": "工期（例如 3 个月）",
+            "contractType": "合同类型（例如固定价、按工时计价）",
+            "forbiddenActions": "存在的违规行为（可选）"
+          },
+          "actions": {
+            "add": "添加",
+            "removeProject": "移除项目"
+          }
+        },
+        "formSection5": {
+          "title": "初始文件",
+          "alreadyUploaded": "已上传",
+          "view": "查看",
+          "dropzone": "将文件拖拽到此处，或选择 PDF、DOCX、JPG、PNG",
+          "newUploads": "新上传",
+          "removeFile": "移除文件",
+          "note": "您可以稍后在承包商档案中添加更多文件。"
+        },
+        "list": {
+          "title": "承包商登记表",
+          "summary": "共 {{totalCount}} 家承包商 - {{activeCount}} 家启用 - {{blockedCount}} 家被阻止",
+          "loading": "正在加载承包商...",
+          "empty": "尚未登记任何承包商。请添加您的第一家承包商。",
+          "actions": {
+            "addContractor": "新增承包商"
+          }
+        },
+        "card": {
+          "jobCount_one": "{{count}} 个工单",
+          "jobCount_other": "{{count}} 个工单",
+          "viewProfile": "查看档案"
+        },
+        "specializationTags": {
+          "electrical": "电气",
+          "mechanical": "机械",
+          "hydraulic": "液压",
+          "pneumatic": "气动",
+          "welding": "焊接",
+          "plc_automation": "PLC / 自动化",
+          "hvac": "暖通空调",
+          "civil": "土建",
+          "oem_authorized": "原厂授权",
+          "calibration": "校准",
+          "inspection": "检验",
+          "pressure_vessel": "压力容器",
+          "elevator": "电梯",
+          "fire_safety": "消防安全",
+          "other": "其他",
+          "moreCount_one": "还有 {{count}} 项",
+          "moreCount_other": "还有 {{count}} 项"
+        },
+        "analyticsTab": {
+          "jobsPerMonth": "每月工单数",
+          "ratingTrend": "评分趋势",
+          "costPerJob": "单工单费用",
+          "jobTypeDistribution": "工单类型分布",
+          "jobTypes": {
+            "breakdown": "故障维修",
+            "preventive": "预防性维护",
+            "corrective": "纠正性维护",
+            "installation": "安装",
+            "modification": "改造/升级",
+            "inspection": "检验",
+            "other": "其他"
+          }
+        },
+        "filterBar": {
+          "searchPlaceholder": "搜索公司名称、商用名称、注册编号",
+          "clear": "清除",
+          "status": {
+            "all": "全部状态"
+          },
+          "rating": {
+            "any": "任意评分",
+            "fourPlus": "4 星以上",
+            "threePlus": "3 星以上"
+          },
+          "docs": {
+            "all": "全部文件"
+          }
+        },
+        "listTable": {
+          "empty": "尚未登记任何承包商。请添加您的第一家承包商。",
+          "columns": {
+            "company": "公司",
+            "specializations": "专长",
+            "status": "状态",
+            "rating": "评分",
+            "jobs": "工单数",
+            "lastJob": "最近工单",
+            "documents": "文件",
+            "actions": "操作"
+          },
+          "lastJob": {
+            "never": "从未",
+            "today": "今天",
+            "yesterday": "昨天",
+            "daysAgo_one": "{{count}} 天前",
+            "daysAgo_other": "{{count}} 天前"
+          },
+          "actions": {
+            "view": "查看",
+            "edit": "编辑"
+          }
+        },
+        "profileHeader": {
+          "jobCount_one": "{{count}} 个工单",
+          "jobCount_other": "{{count}} 个工单",
+          "actions": {
+            "rate": "评分",
+            "edit": "编辑",
+            "moreActions": "更多操作"
+          },
+          "rateModal": {
+            "title": "为 {{companyName}} 评分",
+            "starLabel": "{{count}} 星",
+            "cancel": "取消",
+            "saving": "保存中…",
+            "saveRating": "保存评分",
+            "errors": {
+              "selectRating": "请选择 1 到 5 星的评分。",
+              "updateFailed": "更新评分失败。"
+            }
+          }
+        },
+        "overviewTab": {
+          "companyInformation": {
+            "title": "公司信息",
+            "legalName": "法定名称",
+            "tradeName": "商用名称",
+            "registration": "注册编号",
+            "companyType": "公司类型",
+            "established": "成立年份",
+            "address": "地址",
+            "website": "网站",
+            "notes": "备注"
+          },
+          "contactDetails": {
+            "title": "联系方式",
+            "primaryContact": "主要联系人",
+            "primaryPhone": "主要电话",
+            "primaryEmail": "主要邮箱",
+            "secondaryContact": "次要联系人",
+            "secondaryPhone": "次要电话",
+            "emergency": "紧急联系",
+            "whatsapp": "WhatsApp"
+          },
+          "serviceCapabilities": {
+            "title": "服务能力",
+            "specializations": "专长",
+            "machineTypes": "设备类型",
+            "industries": "服务行业",
+            "coverage": "服务范围",
+            "serviceHours": "服务时间",
+            "responseTime": "响应时间",
+            "teamSize": "团队规模",
+            "languages": "可使用语言"
+          },
+          "financialDetails": {
+            "title": "财务详情",
+            "paymentMethods": "付款方式",
+            "bank": "银行",
+            "account": "账户",
+            "taxRegistration": "税务登记"
+          },
+          "completedProjects": {
+            "title": "既往已完成项目",
+            "untitledProject": "未命名项目",
+            "cost": "费用：{{cost}}",
+            "rating": "评分：{{rating}} ★",
+            "duration": "工期：{{duration}}",
+            "type": "类型：{{type}}",
+            "violations": "违规行为：{{violations}}"
+          },
+          "performanceSummary": {
+            "title": "绩效摘要",
+            "averageRating": "平均评分",
+            "averageRatingValue": "{{rating}}/5（{{count}} 次评分）",
+            "totalJobs": "工单总数",
+            "totalJobsValue": "{{total}}（故障维修 {{breakdown}} | 预防性维护 {{pm}} | 安装 {{install}}）",
+            "averageMttr": "平均修复时间",
+            "minutesValue": "{{minutes}} 分钟",
+            "slaCompliance": "SLA 达成率",
+            "avgJobCost": "平均单工单费用"
+          }
+        },
+        "jobHistoryTab": {
+          "stats": {
+            "totalJobs": "工单总数",
+            "avgRating": "平均评分",
+            "totalCost": "总费用",
+            "slaJobs": "达标 SLA 工单数"
+          },
+          "techniciansNotLogged": "未记录技术人员",
+          "onSite": "在场时长：{{minutes}} 分钟",
+          "usedPartsCost": "已用备件费用",
+          "projectCost": "项目费用",
+          "totalCost": "总费用",
+          "jobRating": "工单评分：{{score}} / 5",
+          "ratingBreakdown": {
+            "speed": "速度：{{score}}",
+            "quality": "质量：{{score}}",
+            "professionalism": "专业度：{{score}}",
+            "communication": "沟通：{{score}}"
+          },
+          "ratedBy": "评分人：{{name}}",
+          "ratedOn": " 于 {{date}}",
+          "unknown": "未知",
+          "notRatedYet": "尚未评分。",
+          "started": "开始时间：{{date}}",
+          "completed": "完成时间：{{date}}",
+          "signedOff": "签核时间：{{date}}",
+          "waitedForParts": "等待备件：{{minutes}} 分钟",
+          "waitedForPermission": "等待许可：{{minutes}} 分钟",
+          "contractorWo": "承包商工单编号",
+          "empty": "暂无工单历史。",
+          "auditRatings": {
+            "title": "审计评分",
+            "subtitle": "承包商审计中记录的各工单星级评分及备注。",
+            "unlinkedJob": "未关联工单",
+            "fromAudit": "来自 {{name}} 于 {{date}} 的审计"
+          },
+          "completedProjects": {
+            "title": "既往已完成项目",
+            "subtitle": "承包商纳入系统前记录的项目。",
+            "rating": "评分：{{rating}}",
+            "projectCost": "项目费用：{{cost}}",
+            "duration": "工期：{{duration}}",
+            "forbiddenActions": "违规行为：{{actions}}"
+          }
+        },
+        "formLayout": {
+          "loading": "正在加载承包商信息…",
+          "notFound": "未找到该承包商。",
+          "actions": {
+            "cancel": "取消",
+            "saving": "保存中…",
+            "saveAndAddDocuments": "保存并添加文件",
+            "saveContractor": "保存承包商",
+            "updateContractor": "更新承包商"
+          },
+          "errors": {
+            "missingCompanyContext": "缺少公司上下文信息，请重新登录。",
+            "missingRequiredFields": "请填写全部必填字段（公司名称、注册编号、主要联系人）。",
+            "saveFailed": "保存承包商失败。"
+          }
+        }
+      },
+      "shared": {
+        "assignmentBlocker": {
+          "title": "该承包商无法被分配新工单。",
+          "defaultReason": "一份关键合规文件已过期。",
+          "renewPrompt": "请先续期该文件，再分配此承包商。"
+        },
+        "manualEntryFlag": {
+          "notRegistered": "{{contractorName}} 尚未登记。",
+          "registerNow": "立即登记"
+        },
+        "invitationStatusBadge": {
+          "email": "邮箱",
+          "whatsapp": "WhatsApp"
+        },
+        "searchDropdown": {
+          "companyNameLabel": "承包商公司名称",
+          "manualNamePlaceholder": "手动输入承包商名称",
+          "searchPlaceholder": "搜索承包商",
+          "blockedTitle": "关键合规文件已过期，请续期后再分配。",
+          "lastJob": "最近工单：{{date}}",
+          "never": "从未",
+          "notRegisteredPrompt": "承包商尚未登记？可手动输入承包商名称"
+        }
+      }
     }
   },
   "triage": {

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Edit, Eye, UserRound } from 'lucide-react';
 import type { ContractorTechnician } from '@/lib/contractors/contractorTypes';
@@ -15,6 +16,8 @@ function maskId(value: string) {
 }
 
 export function TechnicianCard({ technician, contractorId, canManage, onView }: TechnicianCardProps) {
+  const { t } = useTranslation();
+
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start gap-3">
@@ -27,9 +30,9 @@ export function TechnicianCard({ technician, contractorId, canManage, onView }: 
         )}
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-slate-950">{technician.fullName}</h3>
-          <p className="text-xs capitalize text-slate-500">{technician.designation.replace(/_/g, ' ')}</p>
+          <p className="text-xs capitalize text-slate-500">{t(`common.contractors.technicians.designations.${technician.designation}`)}</p>
           <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold ${technician.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
-            {technician.status}
+            {t(`common.contractors.technicians.statuses.${technician.status}`)}
           </span>
         </div>
       </div>
@@ -37,14 +40,14 @@ export function TechnicianCard({ technician, contractorId, canManage, onView }: 
         <ContractorSpecializationTags tags={technician.specialization} limit={3} />
       </div>
       <dl className="mt-3 grid gap-1 text-xs text-slate-600">
-        <div>NIC/Passport: <span className="font-mono">{maskId(technician.nicOrPassport)}</span></div>
-        <div>Jobs: {technician.jobsAtThisFactory}</div>
-        <div>Last visit: {technician.lastVisitedAt ? technician.lastVisitedAt.toDate().toLocaleDateString() : 'Never'}</div>
+        <div>{t('common.contractors.technicians.card.nicOrPassport')} <span className="font-mono">{maskId(technician.nicOrPassport)}</span></div>
+        <div>{t('common.contractors.technicians.card.jobs', { count: technician.jobsAtThisFactory })}</div>
+        <div>{t('common.contractors.technicians.card.lastVisit', { date: technician.lastVisitedAt ? technician.lastVisitedAt.toDate().toLocaleDateString() : t('common.contractors.technicians.card.never') })}</div>
       </dl>
       <div className="mt-4 flex gap-2">
         <button type="button" onClick={() => onView?.(technician)} className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">
           <Eye className="h-3.5 w-3.5" />
-          View
+          {t('common.contractors.technicians.card.actions.view')}
         </button>
         {canManage && contractorId && (
           <Link
@@ -52,7 +55,7 @@ export function TechnicianCard({ technician, contractorId, canManage, onView }: 
             className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:border-blue-300 hover:text-blue-700"
           >
             <Edit className="h-3.5 w-3.5" />
-            Edit
+            {t('common.contractors.technicians.card.actions.edit')}
           </Link>
         )}
       </div>

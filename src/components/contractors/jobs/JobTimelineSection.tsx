@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CircleDashed, PauseCircle, PlayCircle } from 'lucide-react';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import type { ContractorJob } from '@/lib/contractors/contractorTypes';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
@@ -20,6 +21,7 @@ function fmt(ts?: { toDate: () => Date } | null): string {
  * wait-for-permission windows, separate from actual working time.
  */
 export function JobTimelineSection({ job }: JobTimelineSectionProps) {
+  const { t } = useTranslation();
   const access = useContractorAccess();
   const [saving, setSaving] = useState(false);
 
@@ -29,7 +31,7 @@ export function JobTimelineSection({ job }: JobTimelineSectionProps) {
       await updateDoc(doc(db, 'contractorJobs', job.id), { ...fields, updatedAt: serverTimestamp() });
       toast.success(message);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update job timeline');
+      toast.error(err instanceof Error ? err.message : t('common.contractors.jobs.timeline.toasts.updateFailed'));
     } finally {
       setSaving(false);
     }
@@ -40,23 +42,23 @@ export function JobTimelineSection({ job }: JobTimelineSectionProps) {
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h2 className="font-semibold text-slate-950">Job Timeline</h2>
+      <h2 className="font-semibold text-slate-950">{t('common.contractors.jobs.timeline.title')}</h2>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
           <PlayCircle className="mb-2 h-4 w-4 text-blue-600" />
-          Work Started: {fmt(job.workStartedAt)}
+          {t('common.contractors.jobs.timeline.workStarted', { value: fmt(job.workStartedAt) })}
         </div>
         <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
           <PlayCircle className="mb-2 h-4 w-4 text-emerald-600" />
-          Work Completed: {fmt(job.workCompletedAt)}
+          {t('common.contractors.jobs.timeline.workCompleted', { value: fmt(job.workCompletedAt) })}
         </div>
         <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
           <PauseCircle className="mb-2 h-4 w-4 text-amber-600" />
-          Waiting for Parts: {fmt(job.waitForPartsAt)} → {fmt(job.waitForPartsResolvedAt)}
+          {t('common.contractors.jobs.timeline.waitingForParts', { start: fmt(job.waitForPartsAt), end: fmt(job.waitForPartsResolvedAt) })}
         </div>
         <div className="rounded-md bg-slate-50 p-3 text-sm text-slate-700">
           <CircleDashed className="mb-2 h-4 w-4 text-amber-600" />
-          Waiting for Permission: {fmt(job.waitForPermissionAt)} → {fmt(job.waitForPermissionResolvedAt)}
+          {t('common.contractors.jobs.timeline.waitingForPermission', { start: fmt(job.waitForPermissionAt), end: fmt(job.waitForPermissionResolvedAt) })}
         </div>
       </div>
 
@@ -66,58 +68,58 @@ export function JobTimelineSection({ job }: JobTimelineSectionProps) {
             <button
               type="button"
               disabled={saving}
-              onClick={() => update({ workStartedAt: serverTimestamp() }, 'Work start logged.')}
+              onClick={() => update({ workStartedAt: serverTimestamp() }, t('common.contractors.jobs.timeline.toasts.workStartLogged'))}
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
-              Start Work
+              {t('common.contractors.jobs.timeline.actions.startWork')}
             </button>
           )}
           {job.workStartedAt && !job.workCompletedAt && (
             <button
               type="button"
               disabled={saving}
-              onClick={() => update({ workCompletedAt: serverTimestamp() }, 'Work completion logged.')}
+              onClick={() => update({ workCompletedAt: serverTimestamp() }, t('common.contractors.jobs.timeline.toasts.workCompletionLogged'))}
               className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
-              Mark Work Complete
+              {t('common.contractors.jobs.timeline.actions.markWorkComplete')}
             </button>
           )}
           {!waitingForParts ? (
             <button
               type="button"
               disabled={saving}
-              onClick={() => update({ waitForPartsAt: serverTimestamp(), waitForPartsResolvedAt: null }, 'Marked waiting for parts.')}
+              onClick={() => update({ waitForPartsAt: serverTimestamp(), waitForPartsResolvedAt: null }, t('common.contractors.jobs.timeline.toasts.markedWaitingForParts'))}
               className="rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 disabled:opacity-60"
             >
-              Mark Waiting for Parts
+              {t('common.contractors.jobs.timeline.actions.markWaitingForParts')}
             </button>
           ) : (
             <button
               type="button"
               disabled={saving}
-              onClick={() => update({ waitForPartsResolvedAt: serverTimestamp() }, 'Parts wait resolved.')}
+              onClick={() => update({ waitForPartsResolvedAt: serverTimestamp() }, t('common.contractors.jobs.timeline.toasts.partsWaitResolved'))}
               className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
-              Resolve Parts Wait
+              {t('common.contractors.jobs.timeline.actions.resolvePartsWait')}
             </button>
           )}
           {!waitingForPermission ? (
             <button
               type="button"
               disabled={saving}
-              onClick={() => update({ waitForPermissionAt: serverTimestamp(), waitForPermissionResolvedAt: null }, 'Marked waiting for permission.')}
+              onClick={() => update({ waitForPermissionAt: serverTimestamp(), waitForPermissionResolvedAt: null }, t('common.contractors.jobs.timeline.toasts.markedWaitingForPermission'))}
               className="rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 disabled:opacity-60"
             >
-              Mark Waiting for Permission
+              {t('common.contractors.jobs.timeline.actions.markWaitingForPermission')}
             </button>
           ) : (
             <button
               type="button"
               disabled={saving}
-              onClick={() => update({ waitForPermissionResolvedAt: serverTimestamp() }, 'Permission wait resolved.')}
+              onClick={() => update({ waitForPermissionResolvedAt: serverTimestamp() }, t('common.contractors.jobs.timeline.toasts.permissionWaitResolved'))}
               className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
             >
-              Resolve Permission Wait
+              {t('common.contractors.jobs.timeline.actions.resolvePermissionWait')}
             </button>
           )}
         </div>

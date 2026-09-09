@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ContractorJob } from '@/lib/contractors/contractorTypes';
 import ContractorRatingDisplay from '@/components/contractors/registry/ContractorRatingDisplay';
 import ContractorJobStatusBadge from './ContractorJobStatusBadge';
@@ -8,6 +9,7 @@ interface ContractorJobRowProps {
 }
 
 export function ContractorJobRow({ job }: ContractorJobRowProps) {
+  const { t } = useTranslation();
   return (
     <tr className="border-b border-slate-100 hover:bg-slate-50">
       <td className="px-4 py-3">
@@ -25,7 +27,7 @@ export function ContractorJobRow({ job }: ContractorJobRowProps) {
       <td className="px-4 py-3 text-xs text-slate-600">{job.onSiteDurationMinutes ? `${job.onSiteDurationMinutes} min` : '-'}</td>
       <td className="px-4 py-3">{job.rating ? <ContractorRatingDisplay rating={job.rating.overallScore} compact /> : '-'}</td>
       <td className="px-4 py-3 text-xs capitalize text-slate-600">{job.invoiceStatus ?? 'pending'}</td>
-      <td className="px-4 py-3"><Link to={`/app/contractors/jobs/${job.id}`} className="text-xs font-semibold text-blue-700">View</Link></td>
+      <td className="px-4 py-3"><Link to={`/app/contractors/jobs/${job.id}`} className="text-xs font-semibold text-blue-700">{t('common.contractors.jobs.jobList.view')}</Link></td>
     </tr>
   );
 }

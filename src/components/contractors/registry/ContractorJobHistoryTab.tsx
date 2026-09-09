@@ -1,5 +1,6 @@
 import { Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ContractorCompletedProject, ContractorJob } from '@/lib/contractors/contractorTypes';
 import { formatLkr } from '@/lib/contractors/invoiceCalculator';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
@@ -32,6 +33,7 @@ export function ContractorJobHistoryTab({
   previouslyCompletedProjects = [],
   auditRatings = [],
 }: ContractorJobHistoryTabProps) {
+  const { t } = useTranslation();
   // Job detail pages carry active work-log/sign-off/invoice actions gated to
   // supervisor/plant_manager/admin — roles without that access (e.g.
   // hr_officer viewing job history for compliance) get the reference number
@@ -57,10 +59,10 @@ export function ContractorJobHistoryTab({
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-4">
-        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Total jobs</p><p className="text-2xl font-bold">{jobs.length + workOrders.length}</p></div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Avg rating</p><p className="text-2xl font-bold">{combinedAvgRating.toFixed(1)}</p></div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">Total cost</p><p className="text-2xl font-bold">{formatLkr(totalCost)}</p></div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">SLA jobs</p><p className="text-2xl font-bold">{jobs.filter((job) => job.signedOffAt && job.slaDeadline && job.signedOffAt.toMillis() <= job.slaDeadline.toMillis()).length}</p></div>
+        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.stats.totalJobs')}</p><p className="text-2xl font-bold">{jobs.length + workOrders.length}</p></div>
+        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.stats.avgRating')}</p><p className="text-2xl font-bold">{combinedAvgRating.toFixed(1)}</p></div>
+        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.stats.totalCost')}</p><p className="text-2xl font-bold">{formatLkr(totalCost)}</p></div>
+        <div className="rounded-lg border border-slate-200 bg-white p-4"><p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.stats.slaJobs')}</p><p className="text-2xl font-bold">{jobs.filter((job) => job.signedOffAt && job.slaDeadline && job.signedOffAt.toMillis() <= job.slaDeadline.toMillis()).length}</p></div>
       </div>
       <div className="space-y-3">
         {jobs.map((job) => (
@@ -77,27 +79,27 @@ export function ContractorJobHistoryTab({
                   <span className="rounded-full bg-red-50 px-2 py-1 text-xs capitalize text-red-700">{job.priority}</span>
                 </div>
                 <p className="mt-2 text-sm text-slate-700">{job.machineName} - {job.machineLocation}</p>
-                <p className="text-xs text-slate-500">{job.technicianNames.join(', ') || 'Technicians not logged'}</p>
+                <p className="text-xs text-slate-500">{job.technicianNames.join(', ') || t('common.contractors.registry.jobHistoryTab.techniciansNotLogged')}</p>
               </div>
               <ContractorJobStatusBadge status={job.status} />
             </div>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-slate-600">
-              <span>On-site: {job.onSiteDurationMinutes ?? 0} min</span>
+              <span>{t('common.contractors.registry.jobHistoryTab.onSite', { minutes: job.onSiteDurationMinutes ?? 0 })}</span>
               {typeof job.invoiceVariancePercent === 'number' && <InvoiceVarianceBadge percent={job.invoiceVariancePercent} />}
             </div>
 
             {/* Cost breakdown captured at sign-off: used parts + project cost. */}
             <div className="mt-3 grid gap-2 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-3">
               <div>
-                <p className="text-xs text-slate-500">Used parts cost</p>
+                <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.usedPartsCost')}</p>
                 <p className="font-medium text-slate-800">{formatLkr(partsCost(job))}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-500">Project cost</p>
+                <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.projectCost')}</p>
                 <p className="font-medium text-slate-800">{formatLkr(projectCost(job))}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-500">Total cost</p>
+                <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.totalCost')}</p>
                 <p className="font-bold text-slate-950">{formatLkr(jobCost(job))}</p>
               </div>
             </div>
@@ -107,7 +109,7 @@ export function ContractorJobHistoryTab({
               <div className="mt-3 rounded-lg border border-slate-200 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-semibold text-slate-900">
-                    Job rating: {job.rating.overallScore.toFixed(1)} / 5
+                    {t('common.contractors.registry.jobHistoryTab.jobRating', { score: job.rating.overallScore.toFixed(1) })}
                   </p>
                   <div className="flex items-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((n) => (
@@ -119,29 +121,29 @@ export function ContractorJobHistoryTab({
                   </div>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-                  <span>Speed: {job.rating.speedScore}</span>
-                  <span>Quality: {job.rating.qualityScore}</span>
-                  <span>Professionalism: {job.rating.professionalismScore}</span>
-                  <span>Communication: {job.rating.communicationScore}</span>
+                  <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.speed', { score: job.rating.speedScore })}</span>
+                  <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.quality', { score: job.rating.qualityScore })}</span>
+                  <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.professionalism', { score: job.rating.professionalismScore })}</span>
+                  <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.communication', { score: job.rating.communicationScore })}</span>
                 </div>
                 {job.rating.notes && <p className="mt-2 text-sm text-slate-600">{job.rating.notes}</p>}
                 <p className="mt-2 text-xs text-slate-500">
-                  Rated by {job.rating.ratedByName || 'Unknown'}
-                  {job.rating.ratedAt ? ` on ${fmtTs(job.rating.ratedAt)}` : ''}
+                  {t('common.contractors.registry.jobHistoryTab.ratedBy', { name: job.rating.ratedByName || t('common.contractors.registry.jobHistoryTab.unknown') })}
+                  {job.rating.ratedAt ? t('common.contractors.registry.jobHistoryTab.ratedOn', { date: fmtTs(job.rating.ratedAt) }) : ''}
                 </p>
               </div>
             ) : (
-              <p className="mt-3 text-xs text-slate-500">Not rated yet.</p>
+              <p className="mt-3 text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.notRatedYet')}</p>
             )}
             <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-              <span>Started: {fmtTs(job.workStartedAt)}</span>
-              <span>Completed: {fmtTs(job.workCompletedAt)}</span>
-              <span>Signed off: {fmtTs(job.signedOffAt)}</span>
+              <span>{t('common.contractors.registry.jobHistoryTab.started', { date: fmtTs(job.workStartedAt) })}</span>
+              <span>{t('common.contractors.registry.jobHistoryTab.completed', { date: fmtTs(job.workCompletedAt) })}</span>
+              <span>{t('common.contractors.registry.jobHistoryTab.signedOff', { date: fmtTs(job.signedOffAt) })}</span>
               {waitMinutes(job.waitForPartsAt, job.waitForPartsResolvedAt) !== null && (
-                <span>Waited for parts: {waitMinutes(job.waitForPartsAt, job.waitForPartsResolvedAt)} min</span>
+                <span>{t('common.contractors.registry.jobHistoryTab.waitedForParts', { minutes: waitMinutes(job.waitForPartsAt, job.waitForPartsResolvedAt) })}</span>
               )}
               {waitMinutes(job.waitForPermissionAt, job.waitForPermissionResolvedAt) !== null && (
-                <span>Waited for permission: {waitMinutes(job.waitForPermissionAt, job.waitForPermissionResolvedAt)} min</span>
+                <span>{t('common.contractors.registry.jobHistoryTab.waitedForPermission', { minutes: waitMinutes(job.waitForPermissionAt, job.waitForPermissionResolvedAt) })}</span>
               )}
             </div>
           </article>
@@ -157,12 +159,12 @@ export function ContractorJobHistoryTab({
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-semibold text-slate-900">{wo.woNumber}</span>
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs">Contractor WO</span>
+                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs">{t('common.contractors.registry.jobHistoryTab.contractorWo')}</span>
                     <span className="rounded-full bg-red-50 px-2 py-1 text-xs capitalize text-red-700">{wo.priority}</span>
                   </div>
                   <p className="mt-2 text-sm text-slate-700">{wo.machineName} - {wo.machineLocation}</p>
                   <p className="text-xs text-slate-500">
-                    {wo.contractorTechnicianNames?.join(', ') || 'Technicians not logged'}
+                    {wo.contractorTechnicianNames?.join(', ') || t('common.contractors.registry.jobHistoryTab.techniciansNotLogged')}
                   </p>
                 </div>
                 <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">{wo.status}</span>
@@ -170,15 +172,15 @@ export function ContractorJobHistoryTab({
 
               <div className="mt-3 grid gap-2 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-3">
                 <div>
-                  <p className="text-xs text-slate-500">Used parts cost</p>
+                  <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.usedPartsCost')}</p>
                   <p className="font-medium text-slate-800">{formatLkr(partsCost)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">Project cost</p>
+                  <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.projectCost')}</p>
                   <p className="font-medium text-slate-800">{formatLkr(project)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">Total cost</p>
+                  <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.totalCost')}</p>
                   <p className="font-bold text-slate-950">{formatLkr(total)}</p>
                 </div>
               </div>
@@ -187,7 +189,7 @@ export function ContractorJobHistoryTab({
                 <div className="mt-3 rounded-lg border border-slate-200 p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-slate-900">
-                      Job rating: {rating.overallScore.toFixed(1)} / 5
+                      {t('common.contractors.registry.jobHistoryTab.jobRating', { score: rating.overallScore.toFixed(1) })}
                     </p>
                     <div className="flex items-center gap-0.5">
                       {[1, 2, 3, 4, 5].map((n) => (
@@ -199,37 +201,37 @@ export function ContractorJobHistoryTab({
                     </div>
                   </div>
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
-                    <span>Speed: {rating.speedScore}</span>
-                    <span>Quality: {rating.qualityScore}</span>
-                    <span>Professionalism: {rating.professionalismScore}</span>
-                    <span>Communication: {rating.communicationScore}</span>
+                    <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.speed', { score: rating.speedScore })}</span>
+                    <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.quality', { score: rating.qualityScore })}</span>
+                    <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.professionalism', { score: rating.professionalismScore })}</span>
+                    <span>{t('common.contractors.registry.jobHistoryTab.ratingBreakdown.communication', { score: rating.communicationScore })}</span>
                   </div>
                   <p className="mt-2 text-xs text-slate-500">
-                    Rated by {rating.ratedByName || 'Unknown'}
-                    {rating.ratedAt ? ` on ${fmtTs(rating.ratedAt)}` : ''}
+                    {t('common.contractors.registry.jobHistoryTab.ratedBy', { name: rating.ratedByName || t('common.contractors.registry.jobHistoryTab.unknown') })}
+                    {rating.ratedAt ? t('common.contractors.registry.jobHistoryTab.ratedOn', { date: fmtTs(rating.ratedAt) }) : ''}
                   </p>
                 </div>
               ) : (
-                <p className="mt-3 text-xs text-slate-500">Not rated yet.</p>
+                <p className="mt-3 text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.notRatedYet')}</p>
               )}
 
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                <span>Completed: {fmtTs(wo.actualEndTime)}</span>
-                <span>Signed off: {fmtTs(wo.supervisorSignOffAt)}</span>
+                <span>{t('common.contractors.registry.jobHistoryTab.completed', { date: fmtTs(wo.actualEndTime) })}</span>
+                <span>{t('common.contractors.registry.jobHistoryTab.signedOff', { date: fmtTs(wo.supervisorSignOffAt) })}</span>
               </div>
             </article>
           );
         })}
-        {!jobs.length && !workOrders.length && <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">No job history yet.</div>}
+        {!jobs.length && !workOrders.length && <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-slate-500">{t('common.contractors.registry.jobHistoryTab.empty')}</div>}
       </div>
       {auditRatings.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-700">Audit Ratings</h3>
-          <p className="text-xs text-slate-500">Per-job star ratings and notes captured during Contractor Audits.</p>
+          <h3 className="text-sm font-semibold text-slate-700">{t('common.contractors.registry.jobHistoryTab.auditRatings.title')}</h3>
+          <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.auditRatings.subtitle')}</p>
           {auditRatings.map((r, index) => (
             <article key={`${r.sessionId}-${r.jobId}-${index}`} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-semibold text-slate-900">{r.workOrderNumber || 'Unlinked job'}</span>
+                <span className="font-semibold text-slate-900">{r.workOrderNumber || t('common.contractors.registry.jobHistoryTab.auditRatings.unlinkedJob')}</span>
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <Star key={n} className={`h-4 w-4 ${n <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
@@ -238,7 +240,7 @@ export function ContractorJobHistoryTab({
               </div>
               {r.notes && <p className="mt-2 text-sm text-slate-600">{r.notes}</p>}
               <p className="mt-2 text-xs text-slate-500">
-                From audit by {r.auditorName || 'Unknown'} on {r.auditDate || (r.submittedAt ? r.submittedAt.toDate().toLocaleDateString() : '-')}
+                {t('common.contractors.registry.jobHistoryTab.auditRatings.fromAudit', { name: r.auditorName || t('common.contractors.registry.jobHistoryTab.unknown'), date: r.auditDate || (r.submittedAt ? r.submittedAt.toDate().toLocaleDateString() : '-') })}
               </p>
             </article>
           ))}
@@ -246,8 +248,8 @@ export function ContractorJobHistoryTab({
       )}
       {previouslyCompletedProjects.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-slate-700">Previously Completed Projects</h3>
-          <p className="text-xs text-slate-500">Projects recorded before the contractor was onboarded into the system.</p>
+          <h3 className="text-sm font-semibold text-slate-700">{t('common.contractors.registry.jobHistoryTab.completedProjects.title')}</h3>
+          <p className="text-xs text-slate-500">{t('common.contractors.registry.jobHistoryTab.completedProjects.subtitle')}</p>
           {previouslyCompletedProjects.map((project, index) => (
             <article key={`${project.name}-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="flex flex-wrap items-center gap-2">
@@ -255,12 +257,12 @@ export function ContractorJobHistoryTab({
                 {project.contractType && <span className="rounded-full bg-slate-200 px-2 py-1 text-xs">{project.contractType}</span>}
               </div>
               <div className="mt-2 flex flex-wrap gap-3 text-sm text-slate-600">
-                <span>Rating: {project.rating || '-'}</span>
-                <span className="font-medium text-slate-800">Project cost: {project.cost || '-'}</span>
-                {project.duration && <span>Duration: {project.duration}</span>}
+                <span>{t('common.contractors.registry.jobHistoryTab.completedProjects.rating', { rating: project.rating || '-' })}</span>
+                <span className="font-medium text-slate-800">{t('common.contractors.registry.jobHistoryTab.completedProjects.projectCost', { cost: project.cost || '-' })}</span>
+                {project.duration && <span>{t('common.contractors.registry.jobHistoryTab.completedProjects.duration', { duration: project.duration })}</span>}
               </div>
               {project.forbiddenActions && (
-                <p className="mt-2 text-xs text-red-700">Forbidden actions: {project.forbiddenActions}</p>
+                <p className="mt-2 text-xs text-red-700">{t('common.contractors.registry.jobHistoryTab.completedProjects.forbiddenActions', { actions: project.forbiddenActions })}</p>
               )}
             </article>
           ))}

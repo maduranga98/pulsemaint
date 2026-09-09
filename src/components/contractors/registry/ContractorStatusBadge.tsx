@@ -1,4 +1,5 @@
 import { Ban, CheckCircle2, CircleDashed } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ContractorStatus } from '@/lib/contractors/contractorTypes';
 
 interface ContractorStatusBadgeProps {
@@ -7,10 +8,11 @@ interface ContractorStatusBadgeProps {
 }
 
 export function ContractorStatusBadge({ status, size = 'md' }: ContractorStatusBadgeProps) {
+  const { t } = useTranslation();
   const configs = {
-    active: { label: 'Active', className: 'bg-emerald-50 text-emerald-700 border-emerald-200', Icon: CheckCircle2 },
-    inactive: { label: 'Inactive', className: 'bg-slate-100 text-slate-600 border-slate-200', Icon: CircleDashed },
-    blacklisted: { label: 'Blacklisted', className: 'bg-red-50 text-red-700 border-red-200', Icon: Ban },
+    active: { label: t('common.contractors.registry.statusBadge.active'), className: 'bg-emerald-50 text-emerald-700 border-emerald-200', Icon: CheckCircle2 },
+    inactive: { label: t('common.contractors.registry.statusBadge.inactive'), className: 'bg-slate-100 text-slate-600 border-slate-200', Icon: CircleDashed },
+    blacklisted: { label: t('common.contractors.registry.statusBadge.blacklisted'), className: 'bg-red-50 text-red-700 border-red-200', Icon: Ban },
   };
   const config = configs[status] ?? configs.inactive;
   const textSize = size === 'lg' ? 'text-sm px-3 py-1.5' : size === 'sm' ? 'text-[11px] px-2 py-0.5' : 'text-xs px-2.5 py-1';

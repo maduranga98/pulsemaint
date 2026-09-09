@@ -1,4 +1,5 @@
 import { Search, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   CONTRACTOR_SPECIALIZATION_TAGS,
   SPECIALIZATION_LABELS,
@@ -12,6 +13,7 @@ interface ContractorFilterBarProps {
 }
 
 export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarProps) {
+  const { t } = useTranslation();
   const toggleTag = (tag: ContractorSpecializationTag) => {
     const current = filters.specializationTags ?? [];
     const next = current.includes(tag) ? current.filter((item) => item !== tag) : [...current, tag];
@@ -26,7 +28,7 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
           <input
             value={filters.search ?? ''}
             onChange={(event) => onChange({ ...filters, search: event.target.value })}
-            placeholder="Search company, trade name, registration"
+            placeholder={t('common.contractors.registry.filterBar.searchPlaceholder')}
             className="h-10 w-full rounded-md border border-slate-200 pl-9 pr-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
           />
         </label>
@@ -35,33 +37,33 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
           onChange={(event) => onChange({ ...filters, status: event.target.value as ContractorFilters['status'] })}
           className="h-10 rounded-md border border-slate-200 px-3 text-sm"
         >
-          <option value="all">All status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="blacklisted">Blacklisted</option>
+          <option value="all">{t('common.contractors.registry.filterBar.status.all')}</option>
+          <option value="active">{t('common.contractors.registry.statusBadge.active')}</option>
+          <option value="inactive">{t('common.contractors.registry.statusBadge.inactive')}</option>
+          <option value="blacklisted">{t('common.contractors.registry.statusBadge.blacklisted')}</option>
         </select>
         <select
           value={filters.minRating ?? 0}
           onChange={(event) => onChange({ ...filters, minRating: Number(event.target.value) || undefined })}
           className="h-10 rounded-md border border-slate-200 px-3 text-sm"
         >
-          <option value="0">Any rating</option>
-          <option value="4">4 stars+</option>
-          <option value="3">3 stars+</option>
+          <option value="0">{t('common.contractors.registry.filterBar.rating.any')}</option>
+          <option value="4">{t('common.contractors.registry.filterBar.rating.fourPlus')}</option>
+          <option value="3">{t('common.contractors.registry.filterBar.rating.threePlus')}</option>
         </select>
         <select
           value={filters.documentStatus ?? 'all'}
           onChange={(event) => onChange({ ...filters, documentStatus: event.target.value as ContractorFilters['documentStatus'] })}
           className="h-10 rounded-md border border-slate-200 px-3 text-sm"
         >
-          <option value="all">All docs</option>
-          <option value="valid">Valid</option>
-          <option value="expiring">Expiring</option>
-          <option value="expired">Expired</option>
+          <option value="all">{t('common.contractors.registry.filterBar.docs.all')}</option>
+          <option value="valid">{t('common.contractors.registry.docStatusDot.valid')}</option>
+          <option value="expiring">{t('common.contractors.registry.docStatusDot.expiring')}</option>
+          <option value="expired">{t('common.contractors.registry.docStatusDot.expired')}</option>
         </select>
         <button type="button" onClick={() => onChange({})} className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-slate-200 px-3 text-sm font-medium text-slate-700">
           <X className="h-4 w-4" />
-          Clear
+          {t('common.contractors.registry.filterBar.clear')}
         </button>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -74,7 +76,7 @@ export function ContractorFilterBar({ filters, onChange }: ContractorFilterBarPr
               onClick={() => toggleTag(tag)}
               className={`shrink-0 rounded-full border px-3 py-1 text-xs font-medium ${selected ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600'}`}
             >
-              {SPECIALIZATION_LABELS[tag]}
+              {t(`common.contractors.registry.specializationTags.${tag}`, SPECIALIZATION_LABELS[tag])}
             </button>
           );
         })}

@@ -1,5 +1,6 @@
 import { AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface ContractorAlertBannerProps {
   blockedCount?: number;
@@ -8,6 +9,7 @@ interface ContractorAlertBannerProps {
 }
 
 export function ContractorAlertBanner({ blockedCount = 0, expiringCount = 0, documentName }: ContractorAlertBannerProps) {
+  const { t } = useTranslation();
   if (!blockedCount && !expiringCount && !documentName) return null;
 
   const blocked = blockedCount > 0 || Boolean(documentName);
@@ -20,13 +22,13 @@ export function ContractorAlertBanner({ blockedCount = 0, expiringCount = 0, doc
           <p>
             {blocked
               ? documentName
-                ? `Job assignment blocked - ${documentName} expired. Renew to assign jobs.`
-                : `${blockedCount} contractors with expired documents - job assignment blocked.`
-              : `${expiringCount} contractor documents expiring within 30 days.`}
+                ? t('common.contractors.registry.alertBanner.blockedByDocument', { documentName })
+                : t('common.contractors.registry.alertBanner.blockedCount_other', { count: blockedCount })
+              : t('common.contractors.registry.alertBanner.expiringCount_other', { count: expiringCount })}
           </p>
         </div>
         <Link to="/app/contractors/compliance" className="shrink-0 font-semibold underline">
-          Compliance
+          {t('common.contractors.registry.alertBanner.complianceLink')}
         </Link>
       </div>
     </div>

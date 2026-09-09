@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ContractorDocument } from '@/lib/contractors/contractorTypes';
 import DocumentUploadModal from './DocumentUploadModal';
 
@@ -8,6 +9,7 @@ interface DocumentRenewalModalProps {
 }
 
 export function DocumentRenewalModal({ document, contractorId, onClose }: DocumentRenewalModalProps) {
+  const { t } = useTranslation();
   return (
     <DocumentUploadModal
       key={document?.id ?? 'renew-empty'}
@@ -15,7 +17,11 @@ export function DocumentRenewalModal({ document, contractorId, onClose }: Docume
       onClose={onClose}
       contractorId={contractorId}
       renewalOf={document}
-      title={document ? `Renew ${document.documentName}` : 'Renew Document'}
+      title={
+        document
+          ? t('common.contractors.documents.renewalModal.titleWithName', { name: document.documentName })
+          : t('common.contractors.documents.renewalModal.title')
+      }
     />
   );
 }

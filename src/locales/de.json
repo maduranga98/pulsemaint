@@ -5011,6 +5011,1009 @@
         "completed": "Programm abgeschlossen.",
         "downloadCertificate": "Zertifikat herunterladen"
       }
+    },
+    "contractors": {
+      "jobs": {
+        "listPage": {
+          "title": "Auftragnehmer-Aufträge",
+          "subtitle": "Einladungen, Ankünfte, Arbeitsprotokolle, Abnahmen, Rechnungen und Bewertungen verfolgen.",
+          "loading": "Auftragnehmer-Aufträge werden geladen..."
+        },
+        "detailPage": {
+          "loading": "Auftrag wird geladen...",
+          "notFound": "Auftragnehmer-Auftrag nicht gefunden.",
+          "team": {
+            "title": "Auftragnehmer-Team",
+            "techniciansNotConfirmed": "Techniker nicht bestätigt"
+          },
+          "actions": {
+            "logWork": "Arbeit protokollieren",
+            "signOff": "Abnahme",
+            "invoice": "Rechnung",
+            "rate": "Bewerten"
+          }
+        },
+        "logWorkPage": {
+          "loading": "Arbeitsprotokoll wird geladen...",
+          "notFound": "Auftrag nicht gefunden.",
+          "onSiteFor": "Vor Ort seit: {{minutes}} Minuten",
+          "actions": {
+            "logDeparture": "Abfahrt protokollieren",
+            "completeChecklist": "Checkliste abschließen"
+          }
+        },
+        "signOffPage": {
+          "loading": "Abnahme wird geladen...",
+          "notFound": "Auftrag nicht gefunden.",
+          "title": "Auftragnehmer-Abnahme"
+        },
+        "ratePage": {
+          "loading": "Bewertungsformular wird geladen...",
+          "notFound": "Auftrag nicht gefunden."
+        },
+        "invoiceComparisonPage": {
+          "loading": "Rechnung wird geladen...",
+          "notFound": "Auftrag nicht gefunden.",
+          "title": "Rechnungsvergleich"
+        },
+        "statusBadge": {
+          "invitation_sent": "Eingeladen",
+          "acknowledged": "Bestätigt",
+          "contractor_arrived": "Vor Ort",
+          "work_in_progress": "In Arbeit",
+          "checklist_complete": "Checkliste erledigt",
+          "signed_off": "Abgenommen",
+          "invoice_submitted": "Rechnung ausstehend",
+          "payment_processed": "Bezahlt",
+          "cancelled": "Storniert"
+        },
+        "statusStepper": {
+          "invitation_sent": "Eingeladen",
+          "acknowledged": "Bestätigt",
+          "contractor_arrived": "Vor Ort",
+          "work_in_progress": "In Arbeit",
+          "checklist_complete": "Checkliste",
+          "signed_off": "Abgenommen",
+          "invoice_submitted": "Rechnung",
+          "payment_processed": "Erledigt"
+        },
+        "jobList": {
+          "tabs": {
+            "active": "Aktiv",
+            "invitation_sent": "Einladung gesendet",
+            "work_in_progress": "In Bearbeitung",
+            "checklist_complete": "Abnahme ausstehend",
+            "invoice_submitted": "Rechnung ausstehend",
+            "completed": "Abgeschlossen",
+            "cancelled": "Storniert"
+          },
+          "columns": {
+            "wo": "AA",
+            "contractor": "Auftragnehmer",
+            "machine": "Maschine",
+            "priority": "Priorität",
+            "status": "Status",
+            "invited": "Eingeladen",
+            "onSite": "Vor Ort",
+            "rating": "Bewertung",
+            "invoice": "Rechnung",
+            "actions": "Aktionen"
+          },
+          "empty": "Keine Auftragnehmer-Aufträge gefunden.",
+          "viewJob": "Auftrag ansehen",
+          "view": "Ansehen"
+        },
+        "jobHeader": {
+          "slaDeadline": "SLA-Frist: {{deadline}}"
+        },
+        "arrivalLog": {
+          "title": "Ankunft & Abfahrt",
+          "arrivalLabel": "Ankunft: {{value}}",
+          "departureLabel": "Abfahrt: {{value}}",
+          "notArrived": "Nicht angekommen",
+          "notDeparted": "Nicht abgereist",
+          "actions": {
+            "logArrival": "Ankunft des Auftragnehmers protokollieren",
+            "logDeparture": "Abfahrt protokollieren"
+          },
+          "toasts": {
+            "arrivalLogged": "Ankunft protokolliert.",
+            "arrivalFailed": "Ankunft konnte nicht protokolliert werden",
+            "departureLogged": "Abfahrt protokolliert.",
+            "departureFailed": "Abfahrt konnte nicht protokolliert werden"
+          }
+        },
+        "timeline": {
+          "title": "Auftragsverlauf",
+          "workStarted": "Arbeit begonnen: {{value}}",
+          "workCompleted": "Arbeit abgeschlossen: {{value}}",
+          "waitingForParts": "Wartet auf Teile: {{start}} → {{end}}",
+          "waitingForPermission": "Wartet auf Freigabe: {{start}} → {{end}}",
+          "actions": {
+            "startWork": "Arbeit beginnen",
+            "markWorkComplete": "Arbeit als abgeschlossen markieren",
+            "markWaitingForParts": "Als „wartet auf Teile“ markieren",
+            "resolvePartsWait": "Teile-Wartezeit auflösen",
+            "markWaitingForPermission": "Als „wartet auf Freigabe“ markieren",
+            "resolvePermissionWait": "Freigabe-Wartezeit auflösen"
+          },
+          "toasts": {
+            "workStartLogged": "Arbeitsbeginn protokolliert.",
+            "workCompletionLogged": "Arbeitsabschluss protokolliert.",
+            "markedWaitingForParts": "Als „wartet auf Teile“ markiert.",
+            "partsWaitResolved": "Teile-Wartezeit aufgelöst.",
+            "markedWaitingForPermission": "Als „wartet auf Freigabe“ markiert.",
+            "permissionWaitResolved": "Freigabe-Wartezeit aufgelöst.",
+            "updateFailed": "Auftragsverlauf konnte nicht aktualisiert werden"
+          }
+        },
+        "invitation": {
+          "title": "Auftragseinladung",
+          "sent": "Gesendet: {{value}}",
+          "acknowledged": "Bestätigt: {{value}}",
+          "notAcknowledged": "Nicht bestätigt",
+          "actions": {
+            "viewDetails": "Einladungsdetails ansehen",
+            "resend": "Einladung erneut senden",
+            "markAcknowledged": "Als bestätigt markieren"
+          }
+        },
+        "workLog": {
+          "entryForm": {
+            "title": "Arbeitsschritt protokollieren",
+            "descriptionPlaceholder": "Was wurde getan?",
+            "addPhotos": "Fotos hinzufügen",
+            "durationPlaceholder": "Dauer in Minuten",
+            "addStep": "Schritt hinzufügen"
+          },
+          "timeline": {
+            "title": "Arbeitsprotokoll",
+            "empty": "Noch keine Arbeitsschritte protokolliert."
+          },
+          "stepCard": {
+            "step": "Schritt {{number}}",
+            "duration": "{{minutes}} Min.",
+            "logged": "Protokolliert am {{value}}",
+            "pendingSync": "Synchronisierung ausstehend"
+          }
+        },
+        "partsUsed": {
+          "title": "Verwendete Teile",
+          "factoryParts": {
+            "title": "Ausgegebene Werksteile",
+            "empty": "Keine Werksteile ausgegeben.",
+            "line": "{{name}} x {{quantity}}"
+          },
+          "contractorMaterials": {
+            "title": "Materialien des Auftragnehmers",
+            "empty": "Keine Materialien des Auftragnehmers protokolliert.",
+            "line": "{{description}} x {{quantity}} {{unit}}"
+          }
+        },
+        "checklist": {
+          "title": "Checkliste nach Auftragsabschluss",
+          "empty": "Checkliste noch nicht abgeschlossen.",
+          "pass": "Bestanden",
+          "fail": "Nicht bestanden",
+          "testRun": "Testlauf: {{value}}",
+          "machineAfter": "Maschine danach: {{value}}"
+        },
+        "photos": {
+          "title": "Fotos & Dokumente",
+          "addPhotos": "Fotos hinzufügen",
+          "empty": "Noch keine Fotos hochgeladen."
+        },
+        "invoiceUpload": {
+          "title": "Rechnung des Auftragnehmers hochladen",
+          "referencePlaceholder": "Rechnungsreferenz",
+          "amountPlaceholder": "Betrag (LKR)",
+          "uploadPdf": "Rechnungs-PDF hochladen"
+        },
+        "invoiceComparison": {
+          "title": "Rechnungsvergleich",
+          "systemInvoice": {
+            "title": "Systemrechnung",
+            "labor": "Arbeitszeit",
+            "laborValue": "{{hours}} Std. x {{rate}}",
+            "laborCost": "Arbeitskosten",
+            "factoryParts": "Werksteile",
+            "systemTotal": "Systemgesamtsumme"
+          },
+          "contractorInvoice": {
+            "title": "Rechnung des Auftragnehmers",
+            "reference": "Referenz",
+            "date": "Datum",
+            "invoiceTotal": "Rechnungssumme"
+          },
+          "variance": {
+            "label": "Abweichung: {{amount}}",
+            "match": "Rechnung stimmt mit der Systemberechnung überein.",
+            "mismatch": "Die Rechnung des Auftragnehmers weicht um {{percent}}% {{direction}} ab.",
+            "flagged": "Abweichung {{percent}}%",
+            "withinRange": "Innerhalb des Rahmens {{percent}}%"
+          }
+        },
+        "ratingForm": {
+          "title": "{{contractorName}} bewerten",
+          "dimensions": {
+            "speed": {
+              "label": "Geschwindigkeit",
+              "helper": "Wie schnell wurde die Reparatur abgeschlossen?"
+            },
+            "quality": {
+              "label": "Qualität",
+              "helper": "Wie gut wurde die Arbeit ausgeführt?"
+            },
+            "professionalism": {
+              "label": "Professionalität",
+              "helper": "Wie professionell war das Team des Auftragnehmers?"
+            },
+            "communication": {
+              "label": "Kommunikation",
+              "helper": "Wie gut haben sie kommuniziert?"
+            }
+          },
+          "overallScore": "Gesamtbewertung",
+          "notesPlaceholder": "Ausführliches Feedback hinzufügen",
+          "submit": "Bewertung absenden",
+          "saving": "Wird gespeichert…",
+          "toasts": {
+            "success": "Bewertung übermittelt",
+            "incomplete": "Bitte bewerten Sie alle vier Bereiche, bevor Sie absenden.",
+            "failed": "Bewertung konnte nicht übermittelt werden"
+          }
+        },
+        "ratingQuickTags": {
+          "arrivedOnTime": "Pünktlich angekommen",
+          "neatWorkmanship": "Saubere Ausführung",
+          "explainedIssueWell": "Problem gut erklärt",
+          "leftSiteClean": "Arbeitsplatz sauber hinterlassen",
+          "requiredNoCallbacks": "Keine Nachbesserung erforderlich",
+          "professionalTeam": "Professionelles Team"
+        },
+        "followUpFlag": {
+          "label": "Das gleiche Problem trat innerhalb von 30 Tagen erneut auf",
+          "placeholder": "Folgeproblem beschreiben"
+        },
+        "signOffForm": {
+          "reviewSummary": {
+            "title": "Zusammenfassung der Prüfung",
+            "workDoneDescriptionPlaceholder": "Beschreibung der ausgeführten Arbeit",
+            "machineStatus": {
+              "operational": "Betriebsbereit",
+              "partially_operational": "Teilweise betriebsbereit",
+              "still_down": "Weiterhin außer Betrieb"
+            }
+          },
+          "totalCost": {
+            "title": "Gesamtkosten",
+            "helper": "Kosten der verwendeten Teile (aus diesem Arbeitsauftrag) zuzüglich der unten eingegebenen Projektkosten. Wird im Arbeitsauftrag, in der Kostenhistorie der Maschine und in der Wartungskostenanalyse erfasst.",
+            "usedPartsCost": "Kosten verwendeter Teile (automatisch)",
+            "projectCost": "Projektkosten",
+            "summary": "Gesamtkosten — verwendete Teile {{partsCost}} + Projekt {{projectCost}}"
+          },
+          "rating": {
+            "title": "Bewertung des Auftragnehmers",
+            "helper": "Bewerten Sie alle vier Bereiche — eine Bewertung ist für die Abnahme erforderlich und erscheint in der Auftragshistorie dieses Auftragnehmers.",
+            "overallScore": "Gesamtbewertung",
+            "dimensions": {
+              "speed": "Geschwindigkeit",
+              "quality": "Qualität",
+              "professionalism": "Professionalität",
+              "communication": "Kommunikation"
+            }
+          },
+          "signature": {
+            "title": "Digitale Unterschrift",
+            "clear": "Löschen"
+          },
+          "concerns": {
+            "label": "Ich habe Bedenken hinsichtlich der Qualität dieser Arbeit",
+            "notesPlaceholder": "Abnahmehinweise oder Einspruchshinweise"
+          },
+          "submit": "Abnehmen & Abschließen",
+          "saving": "Wird gespeichert…",
+          "errors": {
+            "signatureRequired": "Zur Abnahme dieses Auftrags ist eine Unterschrift erforderlich.",
+            "invalidProjectCost": "Geben Sie gültige Projektkosten ein.",
+            "ratingRequired": "Bewerten Sie alle vier Bereiche, bevor Sie diesen Auftrag abnehmen."
+          },
+          "toasts": {
+            "success": "Auftrag erfolgreich abgenommen",
+            "failed": "Auftrag konnte nicht abgenommen werden."
+          }
+        }
+      },
+      "documents": {
+        "expiryTimer": {},
+        "renewalModal": {
+          "title": "Dokument erneuern",
+          "titleWithName": "{{name}} erneuern"
+        },
+        "criticalWarning": {
+          "message": "Der Auftragnehmer kann keinen neuen Aufträgen zugewiesen werden, bis abgelaufene Dokumente erneuert wurden."
+        },
+        "historyAccordion": {
+          "title": "Historie: {{documentType}}",
+          "version": "v{{version}}"
+        },
+        "statusBadge": {
+          "noExpiry": "Kein Ablauf",
+          "blocksAssignment": "Blockiert Zuweisung"
+        },
+        "card": {
+          "noExpiry": "Kein Ablauf",
+          "versionUploadedBy": "Version {{version}} - hochgeladen von {{name}}",
+          "issued": "Ausgestellt: {{date}}",
+          "expiry": "Ablauf: {{date}}",
+          "actions": {
+            "download": "Herunterladen",
+            "preview": "Vorschau",
+            "renew": "Erneuern"
+          }
+        },
+        "list": {
+          "title": "Dokumente",
+          "subtitle": "Gültige, ablaufende, abgelaufene und dauerhafte Compliance-Nachweise.",
+          "empty": "Noch keine Dokumente hochgeladen.",
+          "actions": {
+            "upload": "Dokument hochladen"
+          },
+          "legend": {
+            "valid": "Grün: Gültig",
+            "expiringSoon": "Gelb: Läuft innerhalb von 30 Tagen ab",
+            "expired": "Rot: Abgelaufen",
+            "noExpiry": "Grau: Kein Ablauf"
+          }
+        },
+        "uploadModal": {
+          "defaultTitle": "Dokument hochladen",
+          "fields": {
+            "documentName": "Dokumentname",
+            "issueDate": "Ausstellungsdatum",
+            "expiryDate": "Ablaufdatum (leer lassen, wenn dauerhaft gültig)",
+            "notes": "Notizen"
+          },
+          "fileArea": {
+            "uploadHint": "PDF, DOCX, JPG oder PNG bis zu 50 MB",
+            "renewalHint": "Optional: Datei ersetzen (aktuelle Datei bleibt erhalten, wenn keine ausgewählt wird)"
+          },
+          "currentValidity": {
+            "label": "Aktuelle Gültigkeit:",
+            "expires": "läuft ab am {{date}}",
+            "noExpiry": "kein Ablaufdatum erfasst",
+            "hint": "Legen Sie unten das neue Ablaufdatum fest, um den Vertrag zu verlängern."
+          },
+          "actions": {
+            "close": "Schließen",
+            "saving": "Wird gespeichert…",
+            "upload": "Hochladen",
+            "renew": "Dokument erneuern"
+          },
+          "toasts": {
+            "uploaded": "Dokument hochgeladen",
+            "renewed": "Dokument erneuert",
+            "renewedWithDate": "Dokument erneuert — gültig bis {{date}}"
+          },
+          "errors": {
+            "missingContractor": "Fehlende Auftragnehmer-Referenz. Hochladen nicht möglich.",
+            "mustBeLoggedIn": "Sie müssen angemeldet sein, um Dokumente hochzuladen.",
+            "fileRequired": "Bitte wählen Sie eine Datei zum Hochladen aus.",
+            "expiryRequired": "Bitte legen Sie das neue Ablaufdatum für das erneuerte Dokument fest.",
+            "uploadFailed": "Hochladen fehlgeschlagen"
+          }
+        }
+      },
+      "technicians": {
+        "designations": {
+          "engineer": "Ingenieur",
+          "senior_technician": "Senior-Techniker",
+          "technician": "Techniker",
+          "helper": "Helfer",
+          "other": "Sonstige"
+        },
+        "statuses": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv"
+        },
+        "accessLog": {
+          "empty": "Keine erfassten Besuche.",
+          "notRecorded": "-",
+          "arrivalDeparture": "Ankunft {{arrival}} - Abfahrt {{departure}}"
+        },
+        "grid": {
+          "empty": "Keine Teammitglieder registriert."
+        },
+        "card": {
+          "nicOrPassport": "NIC/Reisepass:",
+          "jobs": "Aufträge: {{count}}",
+          "lastVisit": "Letzter Besuch: {{date}}",
+          "never": "Nie",
+          "actions": {
+            "view": "Ansehen",
+            "edit": "Bearbeiten"
+          }
+        },
+        "detailModal": {
+          "fields": {
+            "nicOrPassport": "NIC/Reisepass",
+            "contractor": "Auftragnehmer",
+            "phone": "Telefon",
+            "email": "E-Mail",
+            "jobsAtThisFactory": "Aufträge in diesem Werk",
+            "lastVisit": "Letzter Besuch",
+            "specialization": "Spezialisierung",
+            "certifications": "Zertifizierungen",
+            "certificationFiles": "Zertifizierungsdateien"
+          },
+          "actions": {
+            "close": "Schließen",
+            "view": "Ansehen",
+            "download": "Herunterladen"
+          }
+        },
+        "form": {
+          "fields": {
+            "fullName": "Vollständiger Name *",
+            "nicOrPassport": "NIC/Reisepass *",
+            "phone": "Telefon",
+            "email": "E-Mail",
+            "specialization": "Spezialisierung",
+            "certifications": "Zertifizierungen, durch Komma getrennt",
+            "certificationAttachments": "Zertifizierungsanhänge"
+          },
+          "actions": {
+            "save": "Techniker speichern",
+            "saving": "Wird gespeichert…",
+            "removeAttachment": "Anhang entfernen"
+          },
+          "toasts": {
+            "updated": "Techniker aktualisiert",
+            "added": "Techniker hinzugefügt"
+          },
+          "errors": {
+            "missingContractor": "Fehlende Auftragnehmer-Referenz.",
+            "mustBeLoggedIn": "Sie müssen angemeldet sein.",
+            "requiredFields": "Vollständiger Name und NIC/Reisepass sind erforderlich.",
+            "saveFailed": "Techniker konnte nicht gespeichert werden"
+          }
+        }
+      },
+      "analytics": {
+        "blockedList": {
+          "title": "Abgelaufen & Zuweisung blockiert",
+          "expiredDaysAgo": "{{documentType}} vor {{days}} Tagen abgelaufen"
+        },
+        "expiryAlerts": {
+          "title": "Läuft innerhalb von 30 Tagen ab",
+          "empty": "Keine Dokumente laufen bald ab."
+        },
+        "performanceDashboard": {
+          "loading": "Leistung der Auftragnehmer wird geladen...",
+          "topPerformer": "Bester Leistungsträger",
+          "needsReview": "Prüfung erforderlich",
+          "stats": {
+            "activeContractors": "Aktive Auftragnehmer",
+            "jobsThisMonth": "Aufträge diesen Monat",
+            "avgRating": "Ø Bewertung",
+            "slaCompliance": "SLA-Einhaltung"
+          },
+          "charts": {
+            "jobsByContractor": "Aufträge nach Auftragnehmer",
+            "avgRatingComparison": "Vergleich der Durchschnittsbewertung",
+            "totalCostByContractor": "Gesamtkosten nach Auftragnehmer"
+          }
+        },
+        "complianceMatrix": {
+          "columns": {
+            "contractor": "Auftragnehmer"
+          },
+          "status": {
+            "notUploaded": "Nicht hochgeladen",
+            "expired": "Abgelaufen",
+            "expiring": "Läuft bald ab",
+            "noExpiry": "Kein Ablauf",
+            "valid": "Gültig"
+          }
+        },
+        "scoreboard": {
+          "columns": {
+            "rank": "Rang",
+            "contractor": "Auftragnehmer",
+            "rating": "Bewertung",
+            "jobs": "Aufträge",
+            "mttr": "MTTR",
+            "sla": "SLA",
+            "invoice": "Rechnung",
+            "lastJob": "Letzter Auftrag"
+          },
+          "minutes": "{{count}} Min.",
+          "empty": "Noch keine Leistungsdaten für Auftragnehmer. {{amount}}"
+        }
+      },
+      "addContractorPage": {
+        "title": "Auftragnehmer hinzufügen",
+        "subtitle": "Ein externes Auftragnehmerprofil anlegen. Auftragnehmer erhalten keinen FirmiCore-Anmeldezugang."
+      },
+      "editContractorPage": {
+        "title": "Auftragnehmer bearbeiten",
+        "subtitle": "Profil, Kontakte, Fähigkeiten und geschützte Finanzfelder aktualisieren."
+      },
+      "addTechnicianPage": {
+        "title": "Teammitglied hinzufügen",
+        "subtitle": "Einen einzelnen Techniker für die Zugangskontrolle am Tor und die Auftragshistorie registrieren."
+      },
+      "editTechnicianPage": {
+        "title": "Techniker bearbeiten",
+        "subtitle": "Details und Status des Auftragnehmer-Technikers aktualisieren."
+      },
+      "profilePage": {
+        "loading": "Auftragnehmer wird geladen...",
+        "notFound": "Auftragnehmer nicht gefunden.",
+        "tabs": {
+          "overview": "Übersicht",
+          "documents": "Dokumente",
+          "teamMembers": "Teammitglieder",
+          "jobHistory": "Auftragshistorie",
+          "analytics": "Analysen"
+        }
+      },
+      "documentsPage": {
+        "title": "Auftragnehmer-Dokumente",
+        "subtitle": "Compliance-Dokumente, Erneuerungen und Status der Zuweisungssperre.",
+        "loading": "Dokumente werden geladen..."
+      },
+      "techniciansPage": {
+        "title": "Teammitglieder des Auftragnehmers",
+        "registeredCount_one": "{{count}} Teammitglied registriert.",
+        "registeredCount_other": "{{count}} Teammitglieder registriert.",
+        "loading": "Teammitglieder werden geladen...",
+        "actions": {
+          "addTeamMember": "Teammitglied hinzufügen"
+        }
+      },
+      "historyPage": {
+        "title": "Auftragshistorie des Auftragnehmers",
+        "loading": "Historie wird geladen..."
+      },
+      "analyticsPage": {
+        "title": "Analysen: {{companyName}}",
+        "loading": "Analysen werden geladen...",
+        "notFound": "Auftragnehmer nicht gefunden."
+      },
+      "performanceDashboardPage": {
+        "title": "Leistung der Auftragnehmer",
+        "subtitle": "Scorecards, SLA-Trends, Bewertungen, Kosten und Rechnungsgenauigkeit."
+      },
+      "compliancePage": {
+        "title": "Dokumenten-Compliance",
+        "subtitle": "Compliance-Ansicht für HR, Vorgesetzte und Werksleiter.",
+        "loading": "Compliance wird geladen...",
+        "stats": {
+          "totalContractors": "Auftragnehmer gesamt",
+          "fullyValid": "Vollständig gültig",
+          "expiringDocs": "Ablaufende Dokumente",
+          "blocked": "Blockiert"
+        }
+      },
+      "reportsHubPage": {
+        "title": "Auftragnehmer-Berichte",
+        "subtitle": "PDF-, Excel- oder Google-Sheets-Exporte für Modul 7 erstellen.",
+        "reports": {
+          "performance": {
+            "title": "Leistungsbericht Auftragnehmer",
+            "description": "Kennzahlen, Bewertungen und MTTR je Auftragnehmer"
+          },
+          "invoiceComparison": {
+            "title": "Rechnungsvergleich Auftragnehmer",
+            "description": "Rechnungen, Abweichungen und Freigabestatus"
+          },
+          "jobHistory": {
+            "title": "Auftragshistorie-Bericht",
+            "description": "Alle Aufträge, filterbar nach Auftragnehmer, Maschine und Datum"
+          },
+          "rating": {
+            "title": "Bewertungsbericht Auftragnehmer",
+            "description": "Bewertungsaufschlüsselung und Feedback-Trends"
+          },
+          "documentCompliance": {
+            "title": "Dokumenten-Compliance-Bericht",
+            "description": "Dokumentenstatus über alle Auftragnehmer hinweg"
+          }
+        },
+        "actions": {
+          "generatePdf": "PDF erstellen",
+          "exportExcel": "Nach Excel exportieren",
+          "pushToSheets": "An Google Sheets übertragen"
+        }
+      },
+      "registry": {
+        "alertBanner": {
+          "blockedByDocument": "Auftragszuweisung blockiert - {{documentName}} abgelaufen. Zum Zuweisen von Aufträgen erneuern.",
+          "blockedCount_one": "{{count}} Auftragnehmer mit abgelaufenen Dokumenten - Auftragszuweisung blockiert.",
+          "blockedCount_other": "{{count}} Auftragnehmer mit abgelaufenen Dokumenten - Auftragszuweisung blockiert.",
+          "expiringCount_one": "{{count}} Auftragnehmer-Dokument läuft innerhalb von 30 Tagen ab.",
+          "expiringCount_other": "{{count}} Auftragnehmer-Dokumente laufen innerhalb von 30 Tagen ab.",
+          "complianceLink": "Compliance"
+        },
+        "formStepper": {
+          "steps": {
+            "company": "Unternehmen",
+            "contacts": "Kontakte",
+            "specializations": "Spezialisierungen",
+            "financial": "Finanzen",
+            "documents": "Dokumente"
+          }
+        },
+        "docStatusDot": {
+          "valid": "Dokumente gültig",
+          "expiring": "Läuft bald ab",
+          "expired": "Dokumente abgelaufen"
+        },
+        "statusBadge": {
+          "active": "Aktiv",
+          "inactive": "Inaktiv",
+          "blacklisted": "Gesperrt"
+        },
+        "techniciansTab": {
+          "registeredCount_one": "{{count}} Teammitglied registriert",
+          "registeredCount_other": "{{count}} Teammitglieder registriert",
+          "subtitle": "Einzelne Mitarbeiter des Auftragnehmers für die Zugangskontrolle am Tor und die Auftragshistorie.",
+          "actions": {
+            "addTeamMember": "Teammitglied hinzufügen"
+          }
+        },
+        "formSection1": {
+          "title": "Unternehmensinformationen",
+          "fields": {
+            "companyName": "Firmenname *",
+            "tradeName": "Handelsname",
+            "registrationNumber": "Registrierungsnummer *",
+            "dateEstablished": "Gründungsjahr",
+            "city": "Stadt *",
+            "district": "Bezirk",
+            "country": "Land *",
+            "website": "Website",
+            "primaryAddress": "Hauptadresse *",
+            "notes": "Interne Notizen"
+          },
+          "companyTypes": {
+            "private_ltd": "GmbH (Private Ltd)",
+            "sole_proprietor": "Einzelunternehmen",
+            "partnership": "Personengesellschaft",
+            "public_ltd": "Aktiengesellschaft (Public Ltd)",
+            "foreign": "Ausländisch"
+          }
+        },
+        "formSection2": {
+          "title": "Kontaktdaten",
+          "primaryContact": "Hauptansprechpartner",
+          "secondaryContact": "Zweiter Ansprechpartner",
+          "other": "Sonstige",
+          "fields": {
+            "fullName": "Vollständiger Name *",
+            "fullNameOptional": "Vollständiger Name",
+            "designation": "Position",
+            "phone": "Telefon *",
+            "phoneOptional": "Telefon",
+            "email": "E-Mail *",
+            "emailOptional": "E-Mail",
+            "emergencyContact": "Notfallkontakt *",
+            "whatsappNumber": "WhatsApp-Nummer"
+          }
+        },
+        "formSection3": {
+          "title": "Spezialisierungen",
+          "specializationTags": "Spezialisierungs-Tags *",
+          "fields": {
+            "machineTypesServiced": "Betreute Maschinentypen",
+            "industriesServed": "Betreute Branchen",
+            "geographicCoverage": "Geografische Abdeckung",
+            "emergencyResponseTime": "Notfall-Reaktionszeit",
+            "teamSizeAvailable": "Verfügbare Teamgröße",
+            "languagesSpoken": "Gesprochene Sprachen"
+          },
+          "serviceHours": {
+            "24_7": "24/7",
+            "business_hours": "Geschäftszeiten",
+            "on_call": "Bereitschaftsdienst",
+            "custom": "Individuell"
+          }
+        },
+        "formSection4": {
+          "title": "Finanzen & Abrechnung",
+          "restricted": "Finanzdetails sind nur für Werksleiter und Administratoren verfügbar.",
+          "paymentMethods": "Zahlungsmethoden",
+          "paymentMethodOptions": {
+            "bankTransfer": "Banküberweisung",
+            "cheque": "Scheck",
+            "cash": "Bar",
+            "onlineWallet": "Online / Wallet"
+          },
+          "bankDetails": "Bankdaten",
+          "completedProjects": "Bisher abgeschlossene Projekte (mit Kosten)",
+          "fields": {
+            "bankName": "Bankname",
+            "branch": "Filiale",
+            "accountHolderName": "Name des Kontoinhabers",
+            "accountNumber": "Kontonummer",
+            "routingSwift": "Bankleitzahl / SWIFT",
+            "tinNumber": "Steuernummer",
+            "projectClientName": "Projekt-/Kundenname",
+            "costLkr": "Kosten (LKR)",
+            "ratingPlaceholder": "Bewertung…",
+            "duration": "Dauer (z. B. 3 Monate)",
+            "contractType": "Vertragsart (z. B. Festpreis, Aufwand/Zeit)",
+            "forbiddenActions": "Etwaige unzulässige Handlungen / Verstöße (optional)"
+          },
+          "actions": {
+            "add": "Hinzufügen",
+            "removeProject": "Projekt entfernen"
+          }
+        },
+        "formSection5": {
+          "title": "Erstdokumente",
+          "alreadyUploaded": "Bereits hochgeladen",
+          "view": "Ansehen",
+          "dropzone": "Dateien hierher ziehen oder PDF, DOCX, JPG, PNG auswählen",
+          "newUploads": "Neue Uploads",
+          "removeFile": "Datei entfernen",
+          "note": "Sie können später weitere Dokumente über das Auftragnehmerprofil hinzufügen."
+        },
+        "list": {
+          "title": "Auftragnehmer-Verzeichnis",
+          "summary": "{{totalCount}} Auftragnehmer - {{activeCount}} aktiv - {{blockedCount}} blockiert",
+          "loading": "Auftragnehmer werden geladen...",
+          "empty": "Keine Auftragnehmer registriert. Fügen Sie Ihren ersten Auftragnehmer hinzu.",
+          "actions": {
+            "addContractor": "Auftragnehmer hinzufügen"
+          }
+        },
+        "card": {
+          "jobCount_one": "{{count}} Auftrag",
+          "jobCount_other": "{{count}} Aufträge",
+          "viewProfile": "Profil ansehen"
+        },
+        "specializationTags": {
+          "electrical": "Elektrik",
+          "mechanical": "Mechanik",
+          "hydraulic": "Hydraulik",
+          "pneumatic": "Pneumatik",
+          "welding": "Schweißen",
+          "plc_automation": "SPS / Automatisierung",
+          "hvac": "HLK",
+          "civil": "Bauwesen",
+          "oem_authorized": "OEM-autorisiert",
+          "calibration": "Kalibrierung",
+          "inspection": "Inspektion",
+          "pressure_vessel": "Druckbehälter",
+          "elevator": "Aufzug",
+          "fire_safety": "Brandschutz",
+          "other": "Sonstige",
+          "moreCount_one": "+{{count}} weitere",
+          "moreCount_other": "+{{count}} weitere"
+        },
+        "analyticsTab": {
+          "jobsPerMonth": "Aufträge pro Monat",
+          "ratingTrend": "Bewertungstrend",
+          "costPerJob": "Kosten pro Auftrag",
+          "jobTypeDistribution": "Verteilung der Auftragsarten",
+          "jobTypes": {
+            "breakdown": "Störung",
+            "preventive": "Vorbeugend",
+            "corrective": "Korrektiv",
+            "installation": "Installation",
+            "modification": "Umbau",
+            "inspection": "Inspektion",
+            "other": "Sonstige"
+          }
+        },
+        "filterBar": {
+          "searchPlaceholder": "Firma, Handelsname, Registrierung suchen",
+          "clear": "Zurücksetzen",
+          "status": {
+            "all": "Alle Status"
+          },
+          "rating": {
+            "any": "Beliebige Bewertung",
+            "fourPlus": "4 Sterne+",
+            "threePlus": "3 Sterne+"
+          },
+          "docs": {
+            "all": "Alle Dokumente"
+          }
+        },
+        "listTable": {
+          "empty": "Keine Auftragnehmer registriert. Fügen Sie Ihren ersten Auftragnehmer hinzu.",
+          "columns": {
+            "company": "Unternehmen",
+            "specializations": "Spezialisierungen",
+            "status": "Status",
+            "rating": "Bewertung",
+            "jobs": "Aufträge",
+            "lastJob": "Letzter Auftrag",
+            "documents": "Dokumente",
+            "actions": "Aktionen"
+          },
+          "lastJob": {
+            "never": "Nie",
+            "today": "Heute",
+            "yesterday": "Gestern",
+            "daysAgo_one": "vor {{count}} Tag",
+            "daysAgo_other": "vor {{count}} Tagen"
+          },
+          "actions": {
+            "view": "Ansehen",
+            "edit": "Bearbeiten"
+          }
+        },
+        "profileHeader": {
+          "jobCount_one": "{{count}} Auftrag",
+          "jobCount_other": "{{count}} Aufträge",
+          "actions": {
+            "rate": "Bewerten",
+            "edit": "Bearbeiten",
+            "moreActions": "Weitere Aktionen"
+          },
+          "rateModal": {
+            "title": "{{companyName}} bewerten",
+            "starLabel": "{{count}} Stern",
+            "cancel": "Abbrechen",
+            "saving": "Wird gespeichert…",
+            "saveRating": "Bewertung speichern",
+            "errors": {
+              "selectRating": "Wählen Sie eine Bewertung von 1 bis 5 Sternen.",
+              "updateFailed": "Bewertung konnte nicht aktualisiert werden."
+            }
+          }
+        },
+        "overviewTab": {
+          "companyInformation": {
+            "title": "Unternehmensinformationen",
+            "legalName": "Firmierung",
+            "tradeName": "Handelsname",
+            "registration": "Registrierung",
+            "companyType": "Unternehmensform",
+            "established": "Gegründet",
+            "address": "Adresse",
+            "website": "Website",
+            "notes": "Notizen"
+          },
+          "contactDetails": {
+            "title": "Kontaktdaten",
+            "primaryContact": "Hauptansprechpartner",
+            "primaryPhone": "Haupttelefon",
+            "primaryEmail": "Haupt-E-Mail",
+            "secondaryContact": "Zweiter Ansprechpartner",
+            "secondaryPhone": "Zweites Telefon",
+            "emergency": "Notfall",
+            "whatsapp": "WhatsApp"
+          },
+          "serviceCapabilities": {
+            "title": "Leistungsfähigkeiten",
+            "specializations": "Spezialisierungen",
+            "machineTypes": "Maschinentypen",
+            "industries": "Branchen",
+            "coverage": "Abdeckung",
+            "serviceHours": "Servicezeiten",
+            "responseTime": "Reaktionszeit",
+            "teamSize": "Teamgröße",
+            "languages": "Sprachen"
+          },
+          "financialDetails": {
+            "title": "Finanzdetails",
+            "paymentMethods": "Zahlungsmethoden",
+            "bank": "Bank",
+            "account": "Konto",
+            "taxRegistration": "Steuerliche Registrierung"
+          },
+          "completedProjects": {
+            "title": "Bisher abgeschlossene Projekte",
+            "untitledProject": "Unbenanntes Projekt",
+            "cost": "Kosten: {{cost}}",
+            "rating": "Bewertung: {{rating}} ★",
+            "duration": "Dauer: {{duration}}",
+            "type": "Art: {{type}}",
+            "violations": "Verstöße: {{violations}}"
+          },
+          "performanceSummary": {
+            "title": "Leistungsübersicht",
+            "averageRating": "Durchschnittsbewertung",
+            "averageRatingValue": "{{rating}}/5 ({{count}} Bewertungen)",
+            "totalJobs": "Aufträge gesamt",
+            "totalJobsValue": "{{total}} (Störung {{breakdown}} | PM {{pm}} | Installation {{install}})",
+            "averageMttr": "Durchschnittliche MTTR",
+            "minutesValue": "{{minutes}} Min.",
+            "slaCompliance": "SLA-Einhaltung",
+            "avgJobCost": "Ø Auftragskosten"
+          }
+        },
+        "jobHistoryTab": {
+          "stats": {
+            "totalJobs": "Aufträge gesamt",
+            "avgRating": "Ø Bewertung",
+            "totalCost": "Gesamtkosten",
+            "slaJobs": "SLA-Aufträge"
+          },
+          "techniciansNotLogged": "Techniker nicht protokolliert",
+          "onSite": "Vor Ort: {{minutes}} Min.",
+          "usedPartsCost": "Kosten verwendeter Teile",
+          "projectCost": "Projektkosten",
+          "totalCost": "Gesamtkosten",
+          "jobRating": "Auftragsbewertung: {{score}} / 5",
+          "ratingBreakdown": {
+            "speed": "Geschwindigkeit: {{score}}",
+            "quality": "Qualität: {{score}}",
+            "professionalism": "Professionalität: {{score}}",
+            "communication": "Kommunikation: {{score}}"
+          },
+          "ratedBy": "Bewertet von {{name}}",
+          "ratedOn": " am {{date}}",
+          "unknown": "Unbekannt",
+          "notRatedYet": "Noch nicht bewertet.",
+          "started": "Begonnen: {{date}}",
+          "completed": "Abgeschlossen: {{date}}",
+          "signedOff": "Abgenommen: {{date}}",
+          "waitedForParts": "Wartezeit auf Teile: {{minutes}} Min.",
+          "waitedForPermission": "Wartezeit auf Freigabe: {{minutes}} Min.",
+          "contractorWo": "Auftragnehmer-AA",
+          "empty": "Noch keine Auftragshistorie.",
+          "auditRatings": {
+            "title": "Audit-Bewertungen",
+            "subtitle": "Sternebewertungen und Notizen je Auftrag, erfasst während Auftragnehmer-Audits.",
+            "unlinkedJob": "Nicht verknüpfter Auftrag",
+            "fromAudit": "Aus Audit von {{name}} am {{date}}"
+          },
+          "completedProjects": {
+            "title": "Bisher abgeschlossene Projekte",
+            "subtitle": "Projekte, die vor der Aufnahme des Auftragnehmers in das System erfasst wurden.",
+            "rating": "Bewertung: {{rating}}",
+            "projectCost": "Projektkosten: {{cost}}",
+            "duration": "Dauer: {{duration}}",
+            "forbiddenActions": "Unzulässige Handlungen: {{actions}}"
+          }
+        },
+        "formLayout": {
+          "loading": "Auftragnehmer wird geladen…",
+          "notFound": "Auftragnehmer nicht gefunden.",
+          "actions": {
+            "cancel": "Abbrechen",
+            "saving": "Wird gespeichert…",
+            "saveAndAddDocuments": "Speichern & Dokumente hinzufügen",
+            "saveContractor": "Auftragnehmer speichern",
+            "updateContractor": "Auftragnehmer aktualisieren"
+          },
+          "errors": {
+            "missingCompanyContext": "Fehlender Unternehmenskontext. Bitte erneut anmelden.",
+            "missingRequiredFields": "Bitte füllen Sie alle Pflichtfelder aus (Firmenname, Registrierungsnummer, Hauptansprechpartner).",
+            "saveFailed": "Auftragnehmer konnte nicht gespeichert werden."
+          }
+        }
+      },
+      "shared": {
+        "assignmentBlocker": {
+          "title": "Der Auftragnehmer kann keinen neuen Aufträgen zugewiesen werden.",
+          "defaultReason": "Ein kritisches Compliance-Dokument ist abgelaufen.",
+          "renewPrompt": "Erneuern Sie das Dokument, bevor Sie diesen Auftragnehmer zuweisen."
+        },
+        "manualEntryFlag": {
+          "notRegistered": "{{contractorName}} ist nicht registriert.",
+          "registerNow": "Jetzt registrieren"
+        },
+        "invitationStatusBadge": {
+          "email": "E-Mail",
+          "whatsapp": "WhatsApp"
+        },
+        "searchDropdown": {
+          "companyNameLabel": "Firmenname des Auftragnehmers",
+          "manualNamePlaceholder": "Namen des Auftragnehmers manuell eingeben",
+          "searchPlaceholder": "Auftragnehmer suchen",
+          "blockedTitle": "Kritisches Compliance-Dokument abgelaufen. Zur Freigabe der Zuweisung erneuern.",
+          "lastJob": "Letzter Auftrag: {{date}}",
+          "never": "Nie",
+          "notRegisteredPrompt": "Auftragnehmer nicht registriert? Namen manuell eingeben"
+        }
+      }
     }
   },
   "triage": {

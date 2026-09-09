@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 import type { ContractorDocument } from '@/lib/contractors/contractorTypes';
 
@@ -6,6 +7,7 @@ interface CriticalDocumentWarningProps {
 }
 
 export function CriticalDocumentWarning({ documents }: CriticalDocumentWarningProps) {
+  const { t } = useTranslation();
   const blocking = documents.filter((document) => !document.supersededBy && document.blocksAssignment);
   if (!blocking.length) return null;
 
@@ -14,7 +16,7 @@ export function CriticalDocumentWarning({ documents }: CriticalDocumentWarningPr
       <div className="flex gap-2">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
         <div>
-          <p className="font-semibold">Contractor cannot be assigned to new jobs until expired documents are renewed.</p>
+          <p className="font-semibold">{t('common.contractors.documents.criticalWarning.message')}</p>
           <p>{blocking.map((document) => document.documentName).join(', ')}</p>
         </div>
       </div>

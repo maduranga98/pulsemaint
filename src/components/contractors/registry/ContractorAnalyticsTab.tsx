@@ -1,4 +1,5 @@
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import type { Contractor, ContractorJob } from '@/lib/contractors/contractorTypes';
 
 interface ContractorAnalyticsTabProps {
@@ -7,6 +8,7 @@ interface ContractorAnalyticsTabProps {
 }
 
 export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
+  const { t } = useTranslation();
   // Total cost captured at sign-off — the same figure the Job History tab uses.
   // systemInvoiceAmount alone is only set for invoiced jobs, so Cost per Job sat
   // at zero for most jobs; fall back through the cost fields that are actually
@@ -46,15 +48,15 @@ export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
   // buckets never matched values like 'preventive_maintenance' and dropped
   // every other type, so the pie looked frozen.
   const TYPE_LABELS: Record<string, string> = {
-    breakdown_repair: 'Breakdown', breakdown: 'Breakdown',
-    preventive_maintenance: 'Preventive', preventive: 'Preventive', pm: 'Preventive',
-    corrective_maintenance: 'Corrective', corrective: 'Corrective',
-    installation: 'Installation', modification: 'Modification', inspection: 'Inspection',
+    breakdown_repair: t('common.contractors.registry.analyticsTab.jobTypes.breakdown'), breakdown: t('common.contractors.registry.analyticsTab.jobTypes.breakdown'),
+    preventive_maintenance: t('common.contractors.registry.analyticsTab.jobTypes.preventive'), preventive: t('common.contractors.registry.analyticsTab.jobTypes.preventive'), pm: t('common.contractors.registry.analyticsTab.jobTypes.preventive'),
+    corrective_maintenance: t('common.contractors.registry.analyticsTab.jobTypes.corrective'), corrective: t('common.contractors.registry.analyticsTab.jobTypes.corrective'),
+    installation: t('common.contractors.registry.analyticsTab.jobTypes.installation'), modification: t('common.contractors.registry.analyticsTab.jobTypes.modification'), inspection: t('common.contractors.registry.analyticsTab.jobTypes.inspection'),
   };
   const distMap = new Map<string, number>();
   for (const job of jobs) {
     const raw = (job.workOrderType ?? '').toLowerCase().trim();
-    const label = TYPE_LABELS[raw] ?? (raw ? raw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : 'Other');
+    const label = TYPE_LABELS[raw] ?? (raw ? raw.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) : t('common.contractors.registry.analyticsTab.jobTypes.other'));
     distMap.set(label, (distMap.get(label) ?? 0) + 1);
   }
   const distribution = [...distMap.entries()].map(([name, value]) => ({ name, value }));
@@ -62,19 +64,19 @@ export function ContractorAnalyticsTab({ jobs }: ContractorAnalyticsTabProps) {
   return (
     <div className="grid gap-4 xl:grid-cols-2">
       <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-semibold text-slate-950">Jobs per Month</h2>
+        <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.jobsPerMonth')}</h2>
         <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={monthly}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Bar dataKey="jobs" fill="#1A56DB" /></BarChart></ResponsiveContainer></div>
       </section>
       <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-semibold text-slate-950">Rating Trend</h2>
+        <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.ratingTrend')}</h2>
         <div className="mt-4 h-64"><ResponsiveContainer><LineChart data={monthly}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis domain={[0, 5]} /><Tooltip /><Line dataKey="rating" stroke="#10B981" strokeWidth={2} /></LineChart></ResponsiveContainer></div>
       </section>
       <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-semibold text-slate-950">Cost per Job</h2>
+        <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.costPerJob')}</h2>
         <div className="mt-4 h-64"><ResponsiveContainer><BarChart data={monthly}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="month" /><YAxis /><Tooltip /><Bar dataKey="cost" fill="#00C2FF" /></BarChart></ResponsiveContainer></div>
       </section>
       <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="font-semibold text-slate-950">Job Type Distribution</h2>
+        <h2 className="font-semibold text-slate-950">{t('common.contractors.registry.analyticsTab.jobTypeDistribution')}</h2>
         <div className="mt-4 h-64"><ResponsiveContainer><PieChart><Pie data={distribution} dataKey="value" nameKey="name" fill="#1A56DB" label /></PieChart></ResponsiveContainer></div>
       </section>
     </div>
