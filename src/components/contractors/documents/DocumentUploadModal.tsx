@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { Upload } from 'lucide-react';
 import { collection, doc, serverTimestamp, Timestamp, writeBatch } from 'firebase/firestore';
@@ -19,7 +20,8 @@ interface DocumentUploadModalProps {
   renewalOf?: ContractorDocument | null;
 }
 
-export function DocumentUploadModal({ open, onClose, contractorId, title = 'Upload Document', renewalOf }: DocumentUploadModalProps) {
+export function DocumentUploadModal({ open, onClose, contractorId, title, renewalOf }: DocumentUploadModalProps) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const params = useParams<{ contractorId?: string }>();
   // Resolve the contractor from every available source so renewals/uploads
@@ -47,6 +49,8 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
 
   if (!open) return null;
 
+  const modalTitle = title ?? t('common.contractors.documents.uploadModal.defaultTitle');
+
   function resetAndClose() {
     setDocumentName('');
     setIssueDate('');
@@ -58,22 +62,22 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
 
   async function handleUpload() {
     if (!effectiveContractorId) {
-      toast.error('Missing contractor reference. Cannot upload.');
+      toast.error(t('common.contractors.documents.uploadModal.errors.missingContractor'));
       return;
     }
     const targetContractorId = effectiveContractorId;
     if (!userProfile?.companyId) {
-      toast.error('You must be logged in to upload documents.');
+      toast.error(t('common.contractors.documents.uploadModal.errors.mustBeLoggedIn'));
       return;
     }
     // Renewals may keep the existing file — the point of renewing is the new
     // validity dates. Fresh uploads still need a file.
     if (!file && !renewalOf) {
-      toast.error('Please choose a file to upload.');
+      toast.error(t('common.contractors.documents.uploadModal.errors.fileRequired'));
       return;
     }
     if (renewalOf && !renewalOf.isPermanent && expiryDate === '') {
-      toast.error('Please set the new expiry date for the renewed document.');
+      toast.error(t('common.contractors.documents.uploadModal.errors.expiryRequired'));
       return;
     }
     setUploading(true);
@@ -136,14 +140,14 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
       toast.success(
         renewalOf
           ? expiry
-            ? `Document renewed — valid until ${expiry.toLocaleDateString()}`
-            : 'Document renewed'
-          : 'Document uploaded',
+            ? t('common.contractors.documents.uploadModal.toasts.renewedWithDate', { date: expiry.toLocaleDateString() })
+            : t('common.contractors.documents.uploadModal.toasts.renewed')
+          : t('common.contractors.documents.uploadModal.toasts.uploaded'),
       );
       resetAndClose();
     } catch (err) {
       console.error('Document upload failed', err);
-      toast.error(err instanceof Error ? err.message : 'Upload failed');
+      toast.error(err instanceof Error ? err.message : t('common.contractors.documents.uploadModal.errors.uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -153,17 +157,19 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
     <div className="fixed inset-0 z-50 flex items-end bg-slate-950/40 p-4 sm:items-center sm:justify-center">
       <div className="w-full max-w-xl rounded-lg bg-white p-4 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-950">{title}</h2>
-          <button type="button" onClick={resetAndClose} className="text-sm font-semibold text-slate-500">Close</button>
+          <h2 className="text-lg font-semibold text-slate-950">{modalTitle}</h2>
+          <button type="button" onClick={resetAndClose} className="text-sm font-semibold text-slate-500">{t('common.contractors.documents.uploadModal.actions.close')}</button>
         </div>
         <div className="mt-4 grid gap-3">
           {renewalOf && (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              Current validity:{' '}
+              {t('common.contractors.documents.uploadModal.currentValidity.label')}{' '}
               <strong>
-                {currentExpiry ? `expires ${currentExpiry.toLocaleDateString()}` : 'no expiry recorded'}
+                {currentExpiry
+                  ? t('common.contractors.documents.uploadModal.currentValidity.expires', { date: currentExpiry.toLocaleDateString() })
+                  : t('common.contractors.documents.uploadModal.currentValidity.noExpiry')}
               </strong>
-              . Set the new expiry date below to extend the contract.
+              . {t('common.contractors.documents.uploadModal.currentValidity.hint')}
             </div>
           )}
           <select
@@ -174,24 +180,28 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
             {CONTRACTOR_DOCUMENT_TYPES.map((type) => <option key={type} value={type}>{DOCUMENT_TYPE_LABELS[type]}</option>)}
           </select>
           <input
-            placeholder="Document name"
+            placeholder={t('common.contractors.documents.uploadModal.fields.documentName')}
             value={documentName}
             onChange={(e) => setDocumentName(e.target.value)}
             className="h-10 rounded-md border border-slate-200 px-3 text-sm"
           />
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-xs text-slate-500">
-              Issue date
+              {t('common.contractors.documents.uploadModal.fields.issueDate')}
               <input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm" />
             </label>
             <label className="text-xs text-slate-500">
-              Expiry date (leave blank if permanent)
+              {t('common.contractors.documents.uploadModal.fields.expiryDate')}
               <input type="date" value={expiryDate} onChange={(e) => setExpiryDate(e.target.value)} className="mt-1 h-10 w-full rounded-md border border-slate-200 px-3 text-sm" />
             </label>
           </div>
           <label className="flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4 text-center text-sm text-slate-500">
             <Upload className="mb-2 h-6 w-6 text-blue-600" />
-            {file ? file.name : renewalOf ? 'Optional: replace the file (current file is kept if none chosen)' : 'PDF, DOCX, JPG or PNG up to 50MB'}
+            {file
+              ? file.name
+              : renewalOf
+                ? t('common.contractors.documents.uploadModal.fileArea.renewalHint')
+                : t('common.contractors.documents.uploadModal.fileArea.uploadHint')}
             <input
               type="file"
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
@@ -200,7 +210,7 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
             />
           </label>
           <textarea
-            placeholder="Notes"
+            placeholder={t('common.contractors.documents.uploadModal.fields.notes')}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm"
@@ -211,7 +221,11 @@ export function DocumentUploadModal({ open, onClose, contractorId, title = 'Uplo
             disabled={uploading}
             className="rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           >
-            {uploading ? 'Saving…' : renewalOf ? 'Renew Document' : 'Upload'}
+            {uploading
+              ? t('common.contractors.documents.uploadModal.actions.saving')
+              : renewalOf
+                ? t('common.contractors.documents.uploadModal.actions.renew')
+                : t('common.contractors.documents.uploadModal.actions.upload')}
           </button>
         </div>
       </div>

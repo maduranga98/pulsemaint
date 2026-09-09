@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ContractorDocument } from '@/lib/contractors/contractorTypes';
 import { DOCUMENT_TYPE_LABELS } from '@/lib/contractors/contractorTypes';
 import DocumentStatusBadge from '@/components/contractors/documents/DocumentStatusBadge';
@@ -7,9 +8,10 @@ interface ExpiryAlertListProps {
 }
 
 export function ExpiryAlertList({ documents }: ExpiryAlertListProps) {
+  const { t } = useTranslation();
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4">
-      <h2 className="font-semibold text-slate-950">Expiring within 30 days</h2>
+      <h2 className="font-semibold text-slate-950">{t('common.contractors.analytics.expiryAlerts.title')}</h2>
       <div className="mt-3 space-y-2">
         {documents.length ? documents.map((document) => (
           <div key={document.id} className="flex flex-col gap-2 rounded-md border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -19,7 +21,7 @@ export function ExpiryAlertList({ documents }: ExpiryAlertListProps) {
             </div>
             <DocumentStatusBadge document={document} />
           </div>
-        )) : <p className="text-sm text-slate-500">No documents expiring soon.</p>}
+        )) : <p className="text-sm text-slate-500">{t('common.contractors.analytics.expiryAlerts.empty')}</p>}
       </div>
     </section>
   );

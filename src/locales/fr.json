@@ -5011,6 +5011,1009 @@
         "completed": "Programme terminé.",
         "downloadCertificate": "Télécharger le certificat"
       }
+    },
+    "contractors": {
+      "jobs": {
+        "listPage": {
+          "title": "Interventions sous-traitants",
+          "subtitle": "Suivez les invitations, arrivées, journaux de travail, réceptions, factures et évaluations.",
+          "loading": "Chargement des interventions sous-traitants..."
+        },
+        "detailPage": {
+          "loading": "Chargement de l'intervention...",
+          "notFound": "Intervention sous-traitant introuvable.",
+          "team": {
+            "title": "Équipe sous-traitante",
+            "techniciansNotConfirmed": "Techniciens non confirmés"
+          },
+          "actions": {
+            "logWork": "Consigner le travail",
+            "signOff": "Réception",
+            "invoice": "Facture",
+            "rate": "Évaluer"
+          }
+        },
+        "logWorkPage": {
+          "loading": "Chargement du journal de travail...",
+          "notFound": "Intervention introuvable.",
+          "onSiteFor": "Présence sur site : {{minutes}} minutes",
+          "actions": {
+            "logDeparture": "Consigner le départ",
+            "completeChecklist": "Compléter la check-list"
+          }
+        },
+        "signOffPage": {
+          "loading": "Chargement de la réception...",
+          "notFound": "Intervention introuvable.",
+          "title": "Réception sous-traitant"
+        },
+        "ratePage": {
+          "loading": "Chargement du formulaire d'évaluation...",
+          "notFound": "Intervention introuvable."
+        },
+        "invoiceComparisonPage": {
+          "loading": "Chargement de la facture...",
+          "notFound": "Intervention introuvable.",
+          "title": "Comparaison de facture"
+        },
+        "statusBadge": {
+          "invitation_sent": "Invité",
+          "acknowledged": "Confirmé",
+          "contractor_arrived": "Sur site",
+          "work_in_progress": "En cours",
+          "checklist_complete": "Check-list terminée",
+          "signed_off": "Réceptionné",
+          "invoice_submitted": "Facture en attente",
+          "payment_processed": "Payé",
+          "cancelled": "Annulé"
+        },
+        "statusStepper": {
+          "invitation_sent": "Invité",
+          "acknowledged": "Confirmé",
+          "contractor_arrived": "Sur site",
+          "work_in_progress": "En cours",
+          "checklist_complete": "Check-list",
+          "signed_off": "Réceptionné",
+          "invoice_submitted": "Facture",
+          "payment_processed": "Terminé"
+        },
+        "jobList": {
+          "tabs": {
+            "active": "Actives",
+            "invitation_sent": "Invitation envoyée",
+            "work_in_progress": "En cours",
+            "checklist_complete": "En attente de réception",
+            "invoice_submitted": "Facture en attente",
+            "completed": "Terminées",
+            "cancelled": "Annulées"
+          },
+          "columns": {
+            "wo": "OT",
+            "contractor": "Sous-traitant",
+            "machine": "Machine",
+            "priority": "Priorité",
+            "status": "Statut",
+            "invited": "Invité",
+            "onSite": "Sur site",
+            "rating": "Évaluation",
+            "invoice": "Facture",
+            "actions": "Actions"
+          },
+          "empty": "Aucune intervention sous-traitant trouvée.",
+          "viewJob": "Voir l'intervention",
+          "view": "Voir"
+        },
+        "jobHeader": {
+          "slaDeadline": "Échéance SLA : {{deadline}}"
+        },
+        "arrivalLog": {
+          "title": "Arrivée et départ",
+          "arrivalLabel": "Arrivée : {{value}}",
+          "departureLabel": "Départ : {{value}}",
+          "notArrived": "Pas encore arrivé",
+          "notDeparted": "Pas encore parti",
+          "actions": {
+            "logArrival": "Consigner l'arrivée du sous-traitant",
+            "logDeparture": "Consigner le départ"
+          },
+          "toasts": {
+            "arrivalLogged": "Arrivée consignée.",
+            "arrivalFailed": "Échec de l'enregistrement de l'arrivée",
+            "departureLogged": "Départ consigné.",
+            "departureFailed": "Échec de l'enregistrement du départ"
+          }
+        },
+        "timeline": {
+          "title": "Chronologie de l'intervention",
+          "workStarted": "Travail débuté : {{value}}",
+          "workCompleted": "Travail terminé : {{value}}",
+          "waitingForParts": "En attente de pièces : {{start}} → {{end}}",
+          "waitingForPermission": "En attente d'autorisation : {{start}} → {{end}}",
+          "actions": {
+            "startWork": "Démarrer le travail",
+            "markWorkComplete": "Marquer le travail comme terminé",
+            "markWaitingForParts": "Marquer en attente de pièces",
+            "resolvePartsWait": "Lever l'attente de pièces",
+            "markWaitingForPermission": "Marquer en attente d'autorisation",
+            "resolvePermissionWait": "Lever l'attente d'autorisation"
+          },
+          "toasts": {
+            "workStartLogged": "Début du travail consigné.",
+            "workCompletionLogged": "Fin du travail consignée.",
+            "markedWaitingForParts": "Marqué en attente de pièces.",
+            "partsWaitResolved": "Attente de pièces levée.",
+            "markedWaitingForPermission": "Marqué en attente d'autorisation.",
+            "permissionWaitResolved": "Attente d'autorisation levée.",
+            "updateFailed": "Échec de la mise à jour de la chronologie de l'intervention"
+          }
+        },
+        "invitation": {
+          "title": "Invitation d'intervention",
+          "sent": "Envoyée : {{value}}",
+          "acknowledged": "Confirmée : {{value}}",
+          "notAcknowledged": "Non confirmée",
+          "actions": {
+            "viewDetails": "Voir les détails de l'invitation",
+            "resend": "Renvoyer l'invitation",
+            "markAcknowledged": "Marquer comme confirmée"
+          }
+        },
+        "workLog": {
+          "entryForm": {
+            "title": "Consigner une étape de travail",
+            "descriptionPlaceholder": "Qu'a-t-il été fait ?",
+            "addPhotos": "Ajouter des photos",
+            "durationPlaceholder": "Durée en minutes",
+            "addStep": "Ajouter l'étape"
+          },
+          "timeline": {
+            "title": "Journal de travail",
+            "empty": "Aucune étape de travail consignée pour le moment."
+          },
+          "stepCard": {
+            "step": "Étape {{number}}",
+            "duration": "{{minutes}} min",
+            "logged": "Consigné {{value}}",
+            "pendingSync": "Synchronisation en attente"
+          }
+        },
+        "partsUsed": {
+          "title": "Pièces utilisées",
+          "factoryParts": {
+            "title": "Pièces d'usine sorties",
+            "empty": "Aucune pièce d'usine sortie.",
+            "line": "{{name}} x {{quantity}}"
+          },
+          "contractorMaterials": {
+            "title": "Matériaux du sous-traitant",
+            "empty": "Aucun matériau du sous-traitant consigné.",
+            "line": "{{description}} x {{quantity}} {{unit}}"
+          }
+        },
+        "checklist": {
+          "title": "Check-list post-intervention",
+          "empty": "Check-list pas encore complétée.",
+          "pass": "Réussi",
+          "fail": "Échoué",
+          "testRun": "Essai de fonctionnement : {{value}}",
+          "machineAfter": "État de la machine après : {{value}}"
+        },
+        "photos": {
+          "title": "Photos et documents",
+          "addPhotos": "Ajouter des photos",
+          "empty": "Aucune photo téléversée pour le moment."
+        },
+        "invoiceUpload": {
+          "title": "Téléverser la facture du sous-traitant",
+          "referencePlaceholder": "Référence de la facture",
+          "amountPlaceholder": "Montant (LKR)",
+          "uploadPdf": "Téléverser le PDF de la facture"
+        },
+        "invoiceComparison": {
+          "title": "Comparaison de facture",
+          "systemInvoice": {
+            "title": "Facture système",
+            "labor": "Main-d'œuvre",
+            "laborValue": "{{hours}} h x {{rate}}",
+            "laborCost": "Coût de la main-d'œuvre",
+            "factoryParts": "Pièces d'usine",
+            "systemTotal": "Total système"
+          },
+          "contractorInvoice": {
+            "title": "Facture du sous-traitant",
+            "reference": "Référence",
+            "date": "Date",
+            "invoiceTotal": "Total de la facture"
+          },
+          "variance": {
+            "label": "Écart : {{amount}}",
+            "match": "La facture correspond au calcul du système.",
+            "mismatch": "La facture du sous-traitant est {{direction}} de {{percent}} %.",
+            "flagged": "Écart {{percent}} %",
+            "withinRange": "Dans la plage {{percent}} %"
+          }
+        },
+        "ratingForm": {
+          "title": "Évaluer {{contractorName}}",
+          "dimensions": {
+            "speed": {
+              "label": "Rapidité",
+              "helper": "À quelle vitesse la réparation a-t-elle été effectuée ?"
+            },
+            "quality": {
+              "label": "Qualité",
+              "helper": "Dans quelle mesure le travail a-t-il été bien fait ?"
+            },
+            "professionalism": {
+              "label": "Professionnalisme",
+              "helper": "Dans quelle mesure l'équipe du sous-traitant a-t-elle été professionnelle ?"
+            },
+            "communication": {
+              "label": "Communication",
+              "helper": "Dans quelle mesure ont-ils bien communiqué ?"
+            }
+          },
+          "overallScore": "Note globale",
+          "notesPlaceholder": "Ajouter des commentaires détaillés",
+          "submit": "Soumettre l'évaluation",
+          "saving": "Enregistrement…",
+          "toasts": {
+            "success": "Évaluation soumise",
+            "incomplete": "Veuillez évaluer les quatre critères avant de soumettre.",
+            "failed": "Échec de la soumission de l'évaluation"
+          }
+        },
+        "ratingQuickTags": {
+          "arrivedOnTime": "Arrivé à l'heure",
+          "neatWorkmanship": "Travail soigné",
+          "explainedIssueWell": "A bien expliqué le problème",
+          "leftSiteClean": "A laissé le site propre",
+          "requiredNoCallbacks": "Aucune reprise nécessaire",
+          "professionalTeam": "Équipe professionnelle"
+        },
+        "followUpFlag": {
+          "label": "Le même problème est réapparu dans les 30 jours",
+          "placeholder": "Décrire le problème de suivi"
+        },
+        "signOffForm": {
+          "reviewSummary": {
+            "title": "Résumé de la révision",
+            "workDoneDescriptionPlaceholder": "Description du travail effectué",
+            "machineStatus": {
+              "operational": "Opérationnelle",
+              "partially_operational": "Partiellement opérationnelle",
+              "still_down": "Toujours à l'arrêt"
+            }
+          },
+          "totalCost": {
+            "title": "Coût total",
+            "helper": "Coût des pièces utilisées (issu de cet ordre de travail) plus le coût du projet saisi ci-dessous. Enregistré sur cet ordre de travail, l'historique des coûts de la machine et l'analyse des coûts de maintenance.",
+            "usedPartsCost": "Coût des pièces utilisées (auto)",
+            "projectCost": "Coût du projet",
+            "summary": "Coût total — pièces utilisées {{partsCost}} + projet {{projectCost}}"
+          },
+          "rating": {
+            "title": "Évaluation du sous-traitant",
+            "helper": "Évaluez les quatre critères — une évaluation est requise pour la réception et apparaît dans l'historique d'interventions de ce sous-traitant.",
+            "overallScore": "Note globale",
+            "dimensions": {
+              "speed": "Rapidité",
+              "quality": "Qualité",
+              "professionalism": "Professionnalisme",
+              "communication": "Communication"
+            }
+          },
+          "signature": {
+            "title": "Signature numérique",
+            "clear": "Effacer"
+          },
+          "concerns": {
+            "label": "J'ai des réserves sur la qualité de ce travail",
+            "notesPlaceholder": "Notes de réception ou de litige"
+          },
+          "submit": "Réceptionner et clôturer",
+          "saving": "Enregistrement…",
+          "errors": {
+            "signatureRequired": "Une signature est requise pour réceptionner cette intervention.",
+            "invalidProjectCost": "Saisissez un coût de projet valide.",
+            "ratingRequired": "Évaluez les quatre critères avant de réceptionner cette intervention."
+          },
+          "toasts": {
+            "success": "Intervention réceptionnée avec succès",
+            "failed": "Échec de la réception de cette intervention."
+          }
+        }
+      },
+      "documents": {
+        "expiryTimer": {},
+        "renewalModal": {
+          "title": "Renouveler le document",
+          "titleWithName": "Renouveler {{name}}"
+        },
+        "criticalWarning": {
+          "message": "Le sous-traitant ne peut pas être affecté à de nouvelles interventions tant que les documents expirés ne sont pas renouvelés."
+        },
+        "historyAccordion": {
+          "title": "Historique {{documentType}}",
+          "version": "v{{version}}"
+        },
+        "statusBadge": {
+          "noExpiry": "Sans expiration",
+          "blocksAssignment": "Bloque l'affectation"
+        },
+        "card": {
+          "noExpiry": "Sans expiration",
+          "versionUploadedBy": "Version {{version}} - Téléversée par {{name}}",
+          "issued": "Émis : {{date}}",
+          "expiry": "Expiration : {{date}}",
+          "actions": {
+            "download": "Télécharger",
+            "preview": "Aperçu",
+            "renew": "Renouveler"
+          }
+        },
+        "list": {
+          "title": "Documents",
+          "subtitle": "Registres de conformité valides, expirant, expirés et permanents.",
+          "empty": "Aucun document téléversé pour le moment.",
+          "actions": {
+            "upload": "Téléverser un document"
+          },
+          "legend": {
+            "valid": "Vert : Valide",
+            "expiringSoon": "Ambre : Expire dans 30 jours",
+            "expired": "Rouge : Expiré",
+            "noExpiry": "Gris : Sans expiration"
+          }
+        },
+        "uploadModal": {
+          "defaultTitle": "Téléverser un document",
+          "fields": {
+            "documentName": "Nom du document",
+            "issueDate": "Date d'émission",
+            "expiryDate": "Date d'expiration (laisser vide si permanent)",
+            "notes": "Notes"
+          },
+          "fileArea": {
+            "uploadHint": "PDF, DOCX, JPG ou PNG jusqu'à 50 Mo",
+            "renewalHint": "Facultatif : remplacer le fichier (le fichier actuel est conservé si aucun n'est choisi)"
+          },
+          "currentValidity": {
+            "label": "Validité actuelle :",
+            "expires": "expire le {{date}}",
+            "noExpiry": "aucune expiration enregistrée",
+            "hint": "Définissez la nouvelle date d'expiration ci-dessous pour prolonger le contrat."
+          },
+          "actions": {
+            "close": "Fermer",
+            "saving": "Enregistrement…",
+            "upload": "Téléverser",
+            "renew": "Renouveler le document"
+          },
+          "toasts": {
+            "uploaded": "Document téléversé",
+            "renewed": "Document renouvelé",
+            "renewedWithDate": "Document renouvelé — valide jusqu'au {{date}}"
+          },
+          "errors": {
+            "missingContractor": "Référence de sous-traitant manquante. Impossible de téléverser.",
+            "mustBeLoggedIn": "Vous devez être connecté pour téléverser des documents.",
+            "fileRequired": "Veuillez choisir un fichier à téléverser.",
+            "expiryRequired": "Veuillez définir la nouvelle date d'expiration du document renouvelé.",
+            "uploadFailed": "Échec du téléversement"
+          }
+        }
+      },
+      "technicians": {
+        "designations": {
+          "engineer": "Ingénieur",
+          "senior_technician": "Technicien sénior",
+          "technician": "Technicien",
+          "helper": "Aide",
+          "other": "Autre"
+        },
+        "statuses": {
+          "active": "Actif",
+          "inactive": "Inactif"
+        },
+        "accessLog": {
+          "empty": "Aucune visite enregistrée.",
+          "notRecorded": "-",
+          "arrivalDeparture": "Arrivée {{arrival}} - Départ {{departure}}"
+        },
+        "grid": {
+          "empty": "Aucun membre d'équipe enregistré."
+        },
+        "card": {
+          "nicOrPassport": "CIN/Passeport :",
+          "jobs": "Interventions : {{count}}",
+          "lastVisit": "Dernière visite : {{date}}",
+          "never": "Jamais",
+          "actions": {
+            "view": "Voir",
+            "edit": "Modifier"
+          }
+        },
+        "detailModal": {
+          "fields": {
+            "nicOrPassport": "CIN/Passeport",
+            "contractor": "Sous-traitant",
+            "phone": "Téléphone",
+            "email": "E-mail",
+            "jobsAtThisFactory": "Interventions dans cette usine",
+            "lastVisit": "Dernière visite",
+            "specialization": "Spécialisation",
+            "certifications": "Certifications",
+            "certificationFiles": "Fichiers de certification"
+          },
+          "actions": {
+            "close": "Fermer",
+            "view": "Voir",
+            "download": "Télécharger"
+          }
+        },
+        "form": {
+          "fields": {
+            "fullName": "Nom complet *",
+            "nicOrPassport": "CIN/Passeport *",
+            "phone": "Téléphone",
+            "email": "E-mail",
+            "specialization": "Spécialisation",
+            "certifications": "Certifications, séparées par des virgules",
+            "certificationAttachments": "Pièces jointes de certification"
+          },
+          "actions": {
+            "save": "Enregistrer le technicien",
+            "saving": "Enregistrement…",
+            "removeAttachment": "Supprimer la pièce jointe"
+          },
+          "toasts": {
+            "updated": "Technicien mis à jour",
+            "added": "Technicien ajouté"
+          },
+          "errors": {
+            "missingContractor": "Référence de sous-traitant manquante.",
+            "mustBeLoggedIn": "Vous devez être connecté.",
+            "requiredFields": "Le nom complet et le CIN/passeport sont obligatoires.",
+            "saveFailed": "Échec de l'enregistrement du technicien"
+          }
+        }
+      },
+      "analytics": {
+        "blockedList": {
+          "title": "Expirés et bloquant l'affectation",
+          "expiredDaysAgo": "{{documentType}} expiré il y a {{days}} jours"
+        },
+        "expiryAlerts": {
+          "title": "Expire dans 30 jours",
+          "empty": "Aucun document n'expire prochainement."
+        },
+        "performanceDashboard": {
+          "loading": "Chargement de la performance des sous-traitants...",
+          "topPerformer": "Meilleur performeur",
+          "needsReview": "Nécessite une révision",
+          "stats": {
+            "activeContractors": "Sous-traitants actifs",
+            "jobsThisMonth": "Interventions ce mois-ci",
+            "avgRating": "Évaluation moyenne",
+            "slaCompliance": "Conformité SLA"
+          },
+          "charts": {
+            "jobsByContractor": "Interventions par sous-traitant",
+            "avgRatingComparison": "Comparaison des évaluations moyennes",
+            "totalCostByContractor": "Coût total par sous-traitant"
+          }
+        },
+        "complianceMatrix": {
+          "columns": {
+            "contractor": "Sous-traitant"
+          },
+          "status": {
+            "notUploaded": "Non téléversé",
+            "expired": "Expiré",
+            "expiring": "Expire bientôt",
+            "noExpiry": "Sans expiration",
+            "valid": "Valide"
+          }
+        },
+        "scoreboard": {
+          "columns": {
+            "rank": "Rang",
+            "contractor": "Sous-traitant",
+            "rating": "Évaluation",
+            "jobs": "Interventions",
+            "mttr": "MTTR",
+            "sla": "SLA",
+            "invoice": "Facture",
+            "lastJob": "Dernière intervention"
+          },
+          "minutes": "{{count}} min",
+          "empty": "Aucune donnée de performance des sous-traitants pour le moment. {{amount}}"
+        }
+      },
+      "addContractorPage": {
+        "title": "Ajouter un sous-traitant",
+        "subtitle": "Créer un profil de sous-traitant externe. Les sous-traitants ne reçoivent pas d'accès de connexion FirmiCore."
+      },
+      "editContractorPage": {
+        "title": "Modifier le sous-traitant",
+        "subtitle": "Mettre à jour le profil, les contacts, les capacités et les champs financiers protégés."
+      },
+      "addTechnicianPage": {
+        "title": "Ajouter un membre d'équipe",
+        "subtitle": "Enregistrer un technicien individuel pour l'identification au portail et l'historique des interventions."
+      },
+      "editTechnicianPage": {
+        "title": "Modifier le technicien",
+        "subtitle": "Mettre à jour les détails et le statut du technicien du sous-traitant."
+      },
+      "profilePage": {
+        "loading": "Chargement du sous-traitant...",
+        "notFound": "Sous-traitant introuvable.",
+        "tabs": {
+          "overview": "Aperçu",
+          "documents": "Documents",
+          "teamMembers": "Membres d'équipe",
+          "jobHistory": "Historique des interventions",
+          "analytics": "Analytique"
+        }
+      },
+      "documentsPage": {
+        "title": "Documents du sous-traitant",
+        "subtitle": "Documents de conformité, renouvellements et statut de blocage d'affectation.",
+        "loading": "Chargement des documents..."
+      },
+      "techniciansPage": {
+        "title": "Membres d'équipe sous-traitants",
+        "registeredCount_one": "{{count}} membre d'équipe enregistré.",
+        "registeredCount_other": "{{count}} membres d'équipe enregistrés.",
+        "loading": "Chargement des membres d'équipe...",
+        "actions": {
+          "addTeamMember": "Ajouter un membre d'équipe"
+        }
+      },
+      "historyPage": {
+        "title": "Historique des interventions du sous-traitant",
+        "loading": "Chargement de l'historique..."
+      },
+      "analyticsPage": {
+        "title": "Analytique - {{companyName}}",
+        "loading": "Chargement de l'analytique...",
+        "notFound": "Sous-traitant introuvable."
+      },
+      "performanceDashboardPage": {
+        "title": "Performance des sous-traitants",
+        "subtitle": "Fiches d'évaluation, tendances SLA, notes, coûts et exactitude des factures."
+      },
+      "compliancePage": {
+        "title": "Conformité des documents",
+        "subtitle": "Vue de conformité pour les RH, superviseurs et directeurs d'usine.",
+        "loading": "Chargement de la conformité...",
+        "stats": {
+          "totalContractors": "Total des sous-traitants",
+          "fullyValid": "Entièrement valides",
+          "expiringDocs": "Documents expirant",
+          "blocked": "Bloqués"
+        }
+      },
+      "reportsHubPage": {
+        "title": "Rapports sous-traitants",
+        "subtitle": "Générez des exports PDF, Excel ou Google Sheets pour le Module 7.",
+        "reports": {
+          "performance": {
+            "title": "Rapport de performance des sous-traitants",
+            "description": "Métriques, évaluations et MTTR par sous-traitant"
+          },
+          "invoiceComparison": {
+            "title": "Comparaison de factures sous-traitants",
+            "description": "Factures, écarts et statut d'approbation"
+          },
+          "jobHistory": {
+            "title": "Rapport d'historique des interventions",
+            "description": "Toutes les interventions filtrables par sous-traitant, machine et date"
+          },
+          "rating": {
+            "title": "Rapport d'évaluation des sous-traitants",
+            "description": "Répartition des évaluations et tendances des commentaires"
+          },
+          "documentCompliance": {
+            "title": "Rapport de conformité documentaire",
+            "description": "Statut des documents par sous-traitant"
+          }
+        },
+        "actions": {
+          "generatePdf": "Générer le PDF",
+          "exportExcel": "Exporter vers Excel",
+          "pushToSheets": "Envoyer vers Google Sheets"
+        }
+      },
+      "registry": {
+        "alertBanner": {
+          "blockedByDocument": "Affectation d'intervention bloquée - {{documentName}} expiré. Renouvelez pour affecter des interventions.",
+          "blockedCount_one": "{{count}} sous-traitant avec des documents expirés - affectation d'intervention bloquée.",
+          "blockedCount_other": "{{count}} sous-traitants avec des documents expirés - affectation d'intervention bloquée.",
+          "expiringCount_one": "{{count}} document de sous-traitant expire dans 30 jours.",
+          "expiringCount_other": "{{count}} documents de sous-traitants expirent dans 30 jours.",
+          "complianceLink": "Conformité"
+        },
+        "formStepper": {
+          "steps": {
+            "company": "Entreprise",
+            "contacts": "Contacts",
+            "specializations": "Spécialisations",
+            "financial": "Financier",
+            "documents": "Documents"
+          }
+        },
+        "docStatusDot": {
+          "valid": "Documents valides",
+          "expiring": "Expire bientôt",
+          "expired": "Documents expirés"
+        },
+        "statusBadge": {
+          "active": "Actif",
+          "inactive": "Inactif",
+          "blacklisted": "Sur liste noire"
+        },
+        "techniciansTab": {
+          "registeredCount_one": "{{count}} membre d'équipe enregistré",
+          "registeredCount_other": "{{count}} membres d'équipe enregistrés",
+          "subtitle": "Personnel individuel du sous-traitant pour l'identification au portail et l'historique des interventions.",
+          "actions": {
+            "addTeamMember": "Ajouter un membre d'équipe"
+          }
+        },
+        "formSection1": {
+          "title": "Informations sur l'entreprise",
+          "fields": {
+            "companyName": "Nom de l'entreprise *",
+            "tradeName": "Nom commercial",
+            "registrationNumber": "Numéro d'enregistrement *",
+            "dateEstablished": "Année de création",
+            "city": "Ville *",
+            "district": "District",
+            "country": "Pays *",
+            "website": "Site web",
+            "primaryAddress": "Adresse principale *",
+            "notes": "Notes internes"
+          },
+          "companyTypes": {
+            "private_ltd": "SARL privée",
+            "sole_proprietor": "Entreprise individuelle",
+            "partnership": "Société en nom collectif",
+            "public_ltd": "Société anonyme",
+            "foreign": "Étrangère"
+          }
+        },
+        "formSection2": {
+          "title": "Coordonnées",
+          "primaryContact": "Contact principal",
+          "secondaryContact": "Contact secondaire",
+          "other": "Autre",
+          "fields": {
+            "fullName": "Nom complet *",
+            "fullNameOptional": "Nom complet",
+            "designation": "Fonction",
+            "phone": "Téléphone *",
+            "phoneOptional": "Téléphone",
+            "email": "E-mail *",
+            "emailOptional": "E-mail",
+            "emergencyContact": "Contact d'urgence *",
+            "whatsappNumber": "Numéro WhatsApp"
+          }
+        },
+        "formSection3": {
+          "title": "Spécialisations",
+          "specializationTags": "Étiquettes de spécialisation *",
+          "fields": {
+            "machineTypesServiced": "Types de machines entretenues",
+            "industriesServed": "Secteurs desservis",
+            "geographicCoverage": "Couverture géographique",
+            "emergencyResponseTime": "Délai d'intervention d'urgence",
+            "teamSizeAvailable": "Taille d'équipe disponible",
+            "languagesSpoken": "Langues parlées"
+          },
+          "serviceHours": {
+            "24_7": "24 h/24, 7 j/7",
+            "business_hours": "Heures ouvrables",
+            "on_call": "Sur appel",
+            "custom": "Personnalisé"
+          }
+        },
+        "formSection4": {
+          "title": "Finances et facturation",
+          "restricted": "Les détails financiers sont réservés aux directeurs d'usine et aux administrateurs.",
+          "paymentMethods": "Modes de paiement",
+          "paymentMethodOptions": {
+            "bankTransfer": "Virement bancaire",
+            "cheque": "Chèque",
+            "cash": "Espèces",
+            "onlineWallet": "En ligne / Portefeuille électronique"
+          },
+          "bankDetails": "Coordonnées bancaires",
+          "completedProjects": "Projets déjà réalisés (avec coûts)",
+          "fields": {
+            "bankName": "Nom de la banque",
+            "branch": "Agence",
+            "accountHolderName": "Nom du titulaire du compte",
+            "accountNumber": "Numéro de compte",
+            "routingSwift": "Code d'acheminement / SWIFT",
+            "tinNumber": "Numéro d'identification fiscale",
+            "projectClientName": "Nom du projet / client",
+            "costLkr": "Coût (LKR)",
+            "ratingPlaceholder": "Évaluation…",
+            "duration": "Durée (ex. 3 mois)",
+            "contractType": "Type de contrat (ex. forfait, régie)",
+            "forbiddenActions": "Actions interdites / infractions constatées (facultatif)"
+          },
+          "actions": {
+            "add": "Ajouter",
+            "removeProject": "Supprimer le projet"
+          }
+        },
+        "formSection5": {
+          "title": "Documents initiaux",
+          "alreadyUploaded": "Déjà téléversé",
+          "view": "Voir",
+          "dropzone": "Glissez les fichiers ici ou choisissez PDF, DOCX, JPG, PNG",
+          "newUploads": "Nouveaux téléversements",
+          "removeFile": "Supprimer le fichier",
+          "note": "Vous pourrez ajouter d'autres documents depuis le profil du sous-traitant plus tard."
+        },
+        "list": {
+          "title": "Registre des sous-traitants",
+          "summary": "{{totalCount}} sous-traitants - {{activeCount}} actifs - {{blockedCount}} bloqués",
+          "loading": "Chargement des sous-traitants...",
+          "empty": "Aucun sous-traitant enregistré. Ajoutez votre premier sous-traitant.",
+          "actions": {
+            "addContractor": "Ajouter un sous-traitant"
+          }
+        },
+        "card": {
+          "jobCount_one": "{{count}} intervention",
+          "jobCount_other": "{{count}} interventions",
+          "viewProfile": "Voir le profil"
+        },
+        "specializationTags": {
+          "electrical": "Électricité",
+          "mechanical": "Mécanique",
+          "hydraulic": "Hydraulique",
+          "pneumatic": "Pneumatique",
+          "welding": "Soudure",
+          "plc_automation": "Automate / Automatisation",
+          "hvac": "CVC",
+          "civil": "Génie civil",
+          "oem_authorized": "Agréé constructeur",
+          "calibration": "Étalonnage",
+          "inspection": "Inspection",
+          "pressure_vessel": "Appareil sous pression",
+          "elevator": "Ascenseur",
+          "fire_safety": "Sécurité incendie",
+          "other": "Autre",
+          "moreCount_one": "+{{count}} de plus",
+          "moreCount_other": "+{{count}} de plus"
+        },
+        "analyticsTab": {
+          "jobsPerMonth": "Interventions par mois",
+          "ratingTrend": "Tendance des évaluations",
+          "costPerJob": "Coût par intervention",
+          "jobTypeDistribution": "Répartition par type d'intervention",
+          "jobTypes": {
+            "breakdown": "Panne",
+            "preventive": "Préventive",
+            "corrective": "Corrective",
+            "installation": "Installation",
+            "modification": "Modification",
+            "inspection": "Inspection",
+            "other": "Autre"
+          }
+        },
+        "filterBar": {
+          "searchPlaceholder": "Rechercher entreprise, nom commercial, enregistrement",
+          "clear": "Effacer",
+          "status": {
+            "all": "Tous les statuts"
+          },
+          "rating": {
+            "any": "Toute évaluation",
+            "fourPlus": "4 étoiles et plus",
+            "threePlus": "3 étoiles et plus"
+          },
+          "docs": {
+            "all": "Tous les documents"
+          }
+        },
+        "listTable": {
+          "empty": "Aucun sous-traitant enregistré. Ajoutez votre premier sous-traitant.",
+          "columns": {
+            "company": "Entreprise",
+            "specializations": "Spécialisations",
+            "status": "Statut",
+            "rating": "Évaluation",
+            "jobs": "Interventions",
+            "lastJob": "Dernière intervention",
+            "documents": "Documents",
+            "actions": "Actions"
+          },
+          "lastJob": {
+            "never": "Jamais",
+            "today": "Aujourd'hui",
+            "yesterday": "Hier",
+            "daysAgo_one": "Il y a {{count}} jour",
+            "daysAgo_other": "Il y a {{count}} jours"
+          },
+          "actions": {
+            "view": "Voir",
+            "edit": "Modifier"
+          }
+        },
+        "profileHeader": {
+          "jobCount_one": "{{count}} intervention",
+          "jobCount_other": "{{count}} interventions",
+          "actions": {
+            "rate": "Évaluer",
+            "edit": "Modifier",
+            "moreActions": "Plus d'actions"
+          },
+          "rateModal": {
+            "title": "Évaluer {{companyName}}",
+            "starLabel": "{{count}} étoile",
+            "cancel": "Annuler",
+            "saving": "Enregistrement…",
+            "saveRating": "Enregistrer l'évaluation",
+            "errors": {
+              "selectRating": "Sélectionnez une évaluation de 1 à 5 étoiles.",
+              "updateFailed": "Échec de la mise à jour de l'évaluation."
+            }
+          }
+        },
+        "overviewTab": {
+          "companyInformation": {
+            "title": "Informations sur l'entreprise",
+            "legalName": "Raison sociale",
+            "tradeName": "Nom commercial",
+            "registration": "Enregistrement",
+            "companyType": "Type d'entreprise",
+            "established": "Création",
+            "address": "Adresse",
+            "website": "Site web",
+            "notes": "Notes"
+          },
+          "contactDetails": {
+            "title": "Coordonnées",
+            "primaryContact": "Contact principal",
+            "primaryPhone": "Téléphone principal",
+            "primaryEmail": "E-mail principal",
+            "secondaryContact": "Contact secondaire",
+            "secondaryPhone": "Téléphone secondaire",
+            "emergency": "Urgence",
+            "whatsapp": "WhatsApp"
+          },
+          "serviceCapabilities": {
+            "title": "Capacités de service",
+            "specializations": "Spécialisations",
+            "machineTypes": "Types de machines",
+            "industries": "Secteurs",
+            "coverage": "Couverture",
+            "serviceHours": "Horaires de service",
+            "responseTime": "Délai de réponse",
+            "teamSize": "Taille d'équipe",
+            "languages": "Langues"
+          },
+          "financialDetails": {
+            "title": "Détails financiers",
+            "paymentMethods": "Modes de paiement",
+            "bank": "Banque",
+            "account": "Compte",
+            "taxRegistration": "Immatriculation fiscale"
+          },
+          "completedProjects": {
+            "title": "Projets déjà réalisés",
+            "untitledProject": "Projet sans titre",
+            "cost": "Coût : {{cost}}",
+            "rating": "Évaluation : {{rating}} ★",
+            "duration": "Durée : {{duration}}",
+            "type": "Type : {{type}}",
+            "violations": "Infractions : {{violations}}"
+          },
+          "performanceSummary": {
+            "title": "Résumé de performance",
+            "averageRating": "Évaluation moyenne",
+            "averageRatingValue": "{{rating}}/5 ({{count}} évaluations)",
+            "totalJobs": "Total des interventions",
+            "totalJobsValue": "{{total}} (Panne {{breakdown}} | PM {{pm}} | Installation {{install}})",
+            "averageMttr": "MTTR moyen",
+            "minutesValue": "{{minutes}} min",
+            "slaCompliance": "Conformité SLA",
+            "avgJobCost": "Coût moyen par intervention"
+          }
+        },
+        "jobHistoryTab": {
+          "stats": {
+            "totalJobs": "Total des interventions",
+            "avgRating": "Évaluation moyenne",
+            "totalCost": "Coût total",
+            "slaJobs": "Interventions SLA"
+          },
+          "techniciansNotLogged": "Techniciens non consignés",
+          "onSite": "Sur site : {{minutes}} min",
+          "usedPartsCost": "Coût des pièces utilisées",
+          "projectCost": "Coût du projet",
+          "totalCost": "Coût total",
+          "jobRating": "Évaluation de l'intervention : {{score}} / 5",
+          "ratingBreakdown": {
+            "speed": "Rapidité : {{score}}",
+            "quality": "Qualité : {{score}}",
+            "professionalism": "Professionnalisme : {{score}}",
+            "communication": "Communication : {{score}}"
+          },
+          "ratedBy": "Évalué par {{name}}",
+          "ratedOn": " le {{date}}",
+          "unknown": "Inconnu",
+          "notRatedYet": "Pas encore évalué.",
+          "started": "Débuté : {{date}}",
+          "completed": "Terminé : {{date}}",
+          "signedOff": "Réceptionné : {{date}}",
+          "waitedForParts": "Attente de pièces : {{minutes}} min",
+          "waitedForPermission": "Attente d'autorisation : {{minutes}} min",
+          "contractorWo": "OT sous-traitant",
+          "empty": "Aucun historique d'intervention pour le moment.",
+          "auditRatings": {
+            "title": "Évaluations d'audit",
+            "subtitle": "Évaluations par étoiles et notes par intervention, saisies lors des audits sous-traitants.",
+            "unlinkedJob": "Intervention non liée",
+            "fromAudit": "De l'audit par {{name}} le {{date}}"
+          },
+          "completedProjects": {
+            "title": "Projets déjà réalisés",
+            "subtitle": "Projets enregistrés avant l'intégration du sous-traitant dans le système.",
+            "rating": "Évaluation : {{rating}}",
+            "projectCost": "Coût du projet : {{cost}}",
+            "duration": "Durée : {{duration}}",
+            "forbiddenActions": "Actions interdites : {{actions}}"
+          }
+        },
+        "formLayout": {
+          "loading": "Chargement du sous-traitant…",
+          "notFound": "Sous-traitant introuvable.",
+          "actions": {
+            "cancel": "Annuler",
+            "saving": "Enregistrement…",
+            "saveAndAddDocuments": "Enregistrer et ajouter des documents",
+            "saveContractor": "Enregistrer le sous-traitant",
+            "updateContractor": "Mettre à jour le sous-traitant"
+          },
+          "errors": {
+            "missingCompanyContext": "Contexte d'entreprise manquant. Veuillez vous reconnecter.",
+            "missingRequiredFields": "Veuillez remplir tous les champs obligatoires (nom de l'entreprise, numéro d'enregistrement, contact principal).",
+            "saveFailed": "Échec de l'enregistrement du sous-traitant."
+          }
+        }
+      },
+      "shared": {
+        "assignmentBlocker": {
+          "title": "Le sous-traitant ne peut pas être affecté à de nouvelles interventions.",
+          "defaultReason": "Un document de conformité critique a expiré.",
+          "renewPrompt": "Renouvelez le document avant d'affecter ce sous-traitant."
+        },
+        "manualEntryFlag": {
+          "notRegistered": "{{contractorName}} n'est pas enregistré.",
+          "registerNow": "Enregistrer maintenant"
+        },
+        "invitationStatusBadge": {
+          "email": "E-mail",
+          "whatsapp": "WhatsApp"
+        },
+        "searchDropdown": {
+          "companyNameLabel": "Nom de l'entreprise sous-traitante",
+          "manualNamePlaceholder": "Saisir le nom du sous-traitant manuellement",
+          "searchPlaceholder": "Rechercher des sous-traitants",
+          "blockedTitle": "Document de conformité critique expiré. Renouvelez pour activer l'affectation.",
+          "lastJob": "Dernière intervention : {{date}}",
+          "never": "Jamais",
+          "notRegisteredPrompt": "Sous-traitant non enregistré ? Saisissez son nom manuellement"
+        }
+      }
     }
   },
   "triage": {

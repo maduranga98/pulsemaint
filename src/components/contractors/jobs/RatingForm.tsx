@@ -2,6 +2,7 @@ import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContractorJob } from '@/lib/contractors/contractorTypes';
@@ -16,6 +17,7 @@ interface RatingFormProps {
 }
 
 export function RatingForm({ job }: RatingFormProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
   const [speed, setSpeed] = useState(job.rating?.speedScore ?? 0);
@@ -35,15 +37,15 @@ export function RatingForm({ job }: RatingFormProps) {
     setter: Dispatch<SetStateAction<number>>;
     helper: string;
   }> = [
-    { label: 'Speed', value: speed, setter: setSpeed, helper: 'How fast was the repair completed?' },
-    { label: 'Quality', value: quality, setter: setQuality, helper: 'How well was the work done?' },
-    { label: 'Professionalism', value: professionalism, setter: setProfessionalism, helper: 'How professional was the contractor team?' },
-    { label: 'Communication', value: communication, setter: setCommunication, helper: 'How well did they communicate?' },
+    { label: t('common.contractors.jobs.ratingForm.dimensions.speed.label'), value: speed, setter: setSpeed, helper: t('common.contractors.jobs.ratingForm.dimensions.speed.helper') },
+    { label: t('common.contractors.jobs.ratingForm.dimensions.quality.label'), value: quality, setter: setQuality, helper: t('common.contractors.jobs.ratingForm.dimensions.quality.helper') },
+    { label: t('common.contractors.jobs.ratingForm.dimensions.professionalism.label'), value: professionalism, setter: setProfessionalism, helper: t('common.contractors.jobs.ratingForm.dimensions.professionalism.helper') },
+    { label: t('common.contractors.jobs.ratingForm.dimensions.communication.label'), value: communication, setter: setCommunication, helper: t('common.contractors.jobs.ratingForm.dimensions.communication.helper') },
   ];
 
   async function handleSubmit() {
     if (!overall) {
-      toast.error('Please rate all four areas before submitting.');
+      toast.error(t('common.contractors.jobs.ratingForm.toasts.incomplete'));
       return;
     }
     setSaving(true);
@@ -84,11 +86,11 @@ export function RatingForm({ job }: RatingFormProps) {
         linkTo: `/app/contractors/jobs/${job.id}`,
       });
 
-      toast.success('Rating submitted');
+      toast.success(t('common.contractors.jobs.ratingForm.toasts.success'));
       navigate(`/app/contractors/jobs/${job.id}`);
     } catch (err) {
       console.error('Submit rating failed', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to submit rating');
+      toast.error(err instanceof Error ? err.message : t('common.contractors.jobs.ratingForm.toasts.failed'));
     } finally {
       setSaving(false);
     }
@@ -96,7 +98,7 @@ export function RatingForm({ job }: RatingFormProps) {
 
   return (
     <form className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm" onSubmit={(event) => event.preventDefault()}>
-      <h2 className="text-lg font-semibold text-slate-950">Rate {job.contractorName}</h2>
+      <h2 className="text-lg font-semibold text-slate-950">{t('common.contractors.jobs.ratingForm.title', { contractorName: job.contractorName })}</h2>
       {dimensions.map(({ label, value, setter, helper }) => (
         <div key={label} className="rounded-lg border border-slate-200 p-3">
           <p className="font-semibold text-slate-900">{label}</p>
@@ -105,10 +107,10 @@ export function RatingForm({ job }: RatingFormProps) {
         </div>
       ))}
       <div className="rounded-lg bg-slate-50 p-4 text-center">
-        <p className="text-sm text-slate-500">Overall score</p>
+        <p className="text-sm text-slate-500">{t('common.contractors.jobs.ratingForm.overallScore')}</p>
         <p className="text-3xl font-bold text-slate-950">{overall ? overall.toFixed(1) : '-'}</p>
       </div>
-      <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Add detailed feedback" className="min-h-24 w-full rounded-md border border-slate-200 px-3 py-2 text-sm" />
+      <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder={t('common.contractors.jobs.ratingForm.notesPlaceholder')} className="min-h-24 w-full rounded-md border border-slate-200 px-3 py-2 text-sm" />
       <RatingQuickTags onSelect={(tag) => setNotes((value) => (value ? `${value}, ${tag}` : tag))} />
       <FollowUpFlagToggle enabled={followUp} onChange={setFollowUp} />
       <button
@@ -117,7 +119,7 @@ export function RatingForm({ job }: RatingFormProps) {
         disabled={saving}
         className="w-full rounded-md bg-blue-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-60 sm:w-auto"
       >
-        {saving ? 'Saving…' : 'Submit Rating'}
+        {saving ? t('common.contractors.jobs.ratingForm.saving') : t('common.contractors.jobs.ratingForm.submit')}
       </button>
     </form>
   );

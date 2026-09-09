@@ -172,6 +172,1009 @@
     }
   },
   "common": {
+    "contractors": {
+      "jobs": {
+        "listPage": {
+          "title": "Contractor Jobs",
+          "subtitle": "Track invitations, arrivals, work logs, sign-off, invoices, and ratings.",
+          "loading": "Loading contractor jobs..."
+        },
+        "detailPage": {
+          "loading": "Loading job...",
+          "notFound": "Contractor job not found.",
+          "team": {
+            "title": "Contractor Team",
+            "techniciansNotConfirmed": "Technicians not confirmed"
+          },
+          "actions": {
+            "logWork": "Log Work",
+            "signOff": "Sign-Off",
+            "invoice": "Invoice",
+            "rate": "Rate"
+          }
+        },
+        "logWorkPage": {
+          "loading": "Loading work log...",
+          "notFound": "Job not found.",
+          "onSiteFor": "On-site for: {{minutes}} minutes",
+          "actions": {
+            "logDeparture": "Log Departure",
+            "completeChecklist": "Complete Checklist"
+          }
+        },
+        "signOffPage": {
+          "loading": "Loading sign-off...",
+          "notFound": "Job not found.",
+          "title": "Contractor Sign-Off"
+        },
+        "ratePage": {
+          "loading": "Loading rating form...",
+          "notFound": "Job not found."
+        },
+        "invoiceComparisonPage": {
+          "loading": "Loading invoice...",
+          "notFound": "Job not found.",
+          "title": "Invoice Comparison"
+        },
+        "statusBadge": {
+          "invitation_sent": "Invited",
+          "acknowledged": "Acknowledged",
+          "contractor_arrived": "On Site",
+          "work_in_progress": "Working",
+          "checklist_complete": "Checklist Done",
+          "signed_off": "Signed Off",
+          "invoice_submitted": "Invoice Pending",
+          "payment_processed": "Paid",
+          "cancelled": "Cancelled"
+        },
+        "statusStepper": {
+          "invitation_sent": "Invited",
+          "acknowledged": "Acknowledged",
+          "contractor_arrived": "On Site",
+          "work_in_progress": "Working",
+          "checklist_complete": "Checklist",
+          "signed_off": "Signed Off",
+          "invoice_submitted": "Invoice",
+          "payment_processed": "Done"
+        },
+        "jobList": {
+          "tabs": {
+            "active": "Active",
+            "invitation_sent": "Invitation Sent",
+            "work_in_progress": "In Progress",
+            "checklist_complete": "Awaiting Sign-Off",
+            "invoice_submitted": "Invoice Pending",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+          },
+          "columns": {
+            "wo": "WO",
+            "contractor": "Contractor",
+            "machine": "Machine",
+            "priority": "Priority",
+            "status": "Status",
+            "invited": "Invited",
+            "onSite": "On-site",
+            "rating": "Rating",
+            "invoice": "Invoice",
+            "actions": "Actions"
+          },
+          "empty": "No contractor jobs found.",
+          "viewJob": "View Job",
+          "view": "View"
+        },
+        "jobHeader": {
+          "slaDeadline": "SLA deadline: {{deadline}}"
+        },
+        "arrivalLog": {
+          "title": "Arrival & Departure",
+          "arrivalLabel": "Arrival: {{value}}",
+          "departureLabel": "Departure: {{value}}",
+          "notArrived": "Not arrived",
+          "notDeparted": "Not departed",
+          "actions": {
+            "logArrival": "Log Contractor Arrival",
+            "logDeparture": "Log Departure"
+          },
+          "toasts": {
+            "arrivalLogged": "Arrival logged.",
+            "arrivalFailed": "Failed to log arrival",
+            "departureLogged": "Departure logged.",
+            "departureFailed": "Failed to log departure"
+          }
+        },
+        "timeline": {
+          "title": "Job Timeline",
+          "workStarted": "Work Started: {{value}}",
+          "workCompleted": "Work Completed: {{value}}",
+          "waitingForParts": "Waiting for Parts: {{start}} → {{end}}",
+          "waitingForPermission": "Waiting for Permission: {{start}} → {{end}}",
+          "actions": {
+            "startWork": "Start Work",
+            "markWorkComplete": "Mark Work Complete",
+            "markWaitingForParts": "Mark Waiting for Parts",
+            "resolvePartsWait": "Resolve Parts Wait",
+            "markWaitingForPermission": "Mark Waiting for Permission",
+            "resolvePermissionWait": "Resolve Permission Wait"
+          },
+          "toasts": {
+            "workStartLogged": "Work start logged.",
+            "workCompletionLogged": "Work completion logged.",
+            "markedWaitingForParts": "Marked waiting for parts.",
+            "partsWaitResolved": "Parts wait resolved.",
+            "markedWaitingForPermission": "Marked waiting for permission.",
+            "permissionWaitResolved": "Permission wait resolved.",
+            "updateFailed": "Failed to update job timeline"
+          }
+        },
+        "invitation": {
+          "title": "Job Invitation",
+          "sent": "Sent: {{value}}",
+          "acknowledged": "Acknowledged: {{value}}",
+          "notAcknowledged": "Not acknowledged",
+          "actions": {
+            "viewDetails": "View Invitation Details",
+            "resend": "Resend Invitation",
+            "markAcknowledged": "Mark as Acknowledged"
+          }
+        },
+        "workLog": {
+          "entryForm": {
+            "title": "Log Work Step",
+            "descriptionPlaceholder": "What was done?",
+            "addPhotos": "Add Photos",
+            "durationPlaceholder": "Duration minutes",
+            "addStep": "Add Step"
+          },
+          "timeline": {
+            "title": "Work Log",
+            "empty": "No work steps logged yet."
+          },
+          "stepCard": {
+            "step": "Step {{number}}",
+            "duration": "{{minutes}} min",
+            "logged": "Logged {{value}}",
+            "pendingSync": "Pending sync"
+          }
+        },
+        "partsUsed": {
+          "title": "Parts Used",
+          "factoryParts": {
+            "title": "Factory Parts Issued",
+            "empty": "No factory parts issued.",
+            "line": "{{name}} x {{quantity}}"
+          },
+          "contractorMaterials": {
+            "title": "Contractor Materials",
+            "empty": "No contractor materials logged.",
+            "line": "{{description}} x {{quantity}} {{unit}}"
+          }
+        },
+        "checklist": {
+          "title": "Post-Job Checklist",
+          "empty": "Checklist not completed yet.",
+          "pass": "Pass",
+          "fail": "Fail",
+          "testRun": "Test run: {{value}}",
+          "machineAfter": "Machine after: {{value}}"
+        },
+        "photos": {
+          "title": "Photos & Documents",
+          "addPhotos": "Add Photos",
+          "empty": "No photos uploaded yet."
+        },
+        "invoiceUpload": {
+          "title": "Upload Contractor Invoice",
+          "referencePlaceholder": "Invoice reference",
+          "amountPlaceholder": "Amount (LKR)",
+          "uploadPdf": "Upload Invoice PDF"
+        },
+        "invoiceComparison": {
+          "title": "Invoice Comparison",
+          "systemInvoice": {
+            "title": "System Invoice",
+            "labor": "Labor",
+            "laborValue": "{{hours}}h x {{rate}}",
+            "laborCost": "Labor cost",
+            "factoryParts": "Factory parts",
+            "systemTotal": "System total"
+          },
+          "contractorInvoice": {
+            "title": "Contractor Invoice",
+            "reference": "Reference",
+            "date": "Date",
+            "invoiceTotal": "Invoice total"
+          },
+          "variance": {
+            "label": "Variance: {{amount}}",
+            "match": "Invoice matches system calculation.",
+            "mismatch": "Contractor invoice is {{direction}} by {{percent}}%.",
+            "flagged": "Variance {{percent}}%",
+            "withinRange": "Within range {{percent}}%"
+          }
+        },
+        "ratingForm": {
+          "title": "Rate {{contractorName}}",
+          "dimensions": {
+            "speed": {
+              "label": "Speed",
+              "helper": "How fast was the repair completed?"
+            },
+            "quality": {
+              "label": "Quality",
+              "helper": "How well was the work done?"
+            },
+            "professionalism": {
+              "label": "Professionalism",
+              "helper": "How professional was the contractor team?"
+            },
+            "communication": {
+              "label": "Communication",
+              "helper": "How well did they communicate?"
+            }
+          },
+          "overallScore": "Overall score",
+          "notesPlaceholder": "Add detailed feedback",
+          "submit": "Submit Rating",
+          "saving": "Saving…",
+          "toasts": {
+            "success": "Rating submitted",
+            "incomplete": "Please rate all four areas before submitting.",
+            "failed": "Failed to submit rating"
+          }
+        },
+        "ratingQuickTags": {
+          "arrivedOnTime": "Arrived on time",
+          "neatWorkmanship": "Neat workmanship",
+          "explainedIssueWell": "Explained the issue well",
+          "leftSiteClean": "Left site clean",
+          "requiredNoCallbacks": "Required no callbacks",
+          "professionalTeam": "Professional team"
+        },
+        "followUpFlag": {
+          "label": "The same issue returned within 30 days",
+          "placeholder": "Describe the follow-up issue"
+        },
+        "signOffForm": {
+          "reviewSummary": {
+            "title": "Review Summary",
+            "workDoneDescriptionPlaceholder": "Work done description",
+            "machineStatus": {
+              "operational": "Operational",
+              "partially_operational": "Partially Operational",
+              "still_down": "Still Down"
+            }
+          },
+          "totalCost": {
+            "title": "Total Cost",
+            "helper": "Used-parts cost (from this work order) plus the project cost you enter below. Recorded against this work order, the machine's cost history and the maintenance cost analysis.",
+            "usedPartsCost": "Used Parts Cost (auto)",
+            "projectCost": "Project Cost",
+            "summary": "Total cost — used parts {{partsCost}} + project {{projectCost}}"
+          },
+          "rating": {
+            "title": "Contractor Rating",
+            "helper": "Rate all four areas — a rating is required to sign off, and appears in this contractor's job history.",
+            "overallScore": "Overall score",
+            "dimensions": {
+              "speed": "Speed",
+              "quality": "Quality",
+              "professionalism": "Professionalism",
+              "communication": "Communication"
+            }
+          },
+          "signature": {
+            "title": "Digital Signature",
+            "clear": "Clear"
+          },
+          "concerns": {
+            "label": "I have concerns about the quality of this work",
+            "notesPlaceholder": "Sign-off notes or dispute notes"
+          },
+          "submit": "Sign Off & Complete",
+          "saving": "Saving…",
+          "errors": {
+            "signatureRequired": "A signature is required to sign off this job.",
+            "invalidProjectCost": "Enter a valid project cost.",
+            "ratingRequired": "Rate all four areas before signing off this job."
+          },
+          "toasts": {
+            "success": "Job signed off successfully",
+            "failed": "Failed to sign off this job."
+          }
+        }
+      },
+      "documents": {
+        "expiryTimer": {},
+        "renewalModal": {
+          "title": "Renew Document",
+          "titleWithName": "Renew {{name}}"
+        },
+        "criticalWarning": {
+          "message": "Contractor cannot be assigned to new jobs until expired documents are renewed."
+        },
+        "historyAccordion": {
+          "title": "{{documentType}} history",
+          "version": "v{{version}}"
+        },
+        "statusBadge": {
+          "noExpiry": "No Expiry",
+          "blocksAssignment": "Blocks assignment"
+        },
+        "card": {
+          "noExpiry": "No expiry",
+          "versionUploadedBy": "Version {{version}} - Uploaded by {{name}}",
+          "issued": "Issued: {{date}}",
+          "expiry": "Expiry: {{date}}",
+          "actions": {
+            "download": "Download",
+            "preview": "Preview",
+            "renew": "Renew"
+          }
+        },
+        "list": {
+          "title": "Documents",
+          "subtitle": "Valid, expiring, expired and permanent compliance records.",
+          "empty": "No documents uploaded yet.",
+          "actions": {
+            "upload": "Upload Document"
+          },
+          "legend": {
+            "valid": "Green: Valid",
+            "expiringSoon": "Amber: Expiring within 30 days",
+            "expired": "Red: Expired",
+            "noExpiry": "Grey: No expiry"
+          }
+        },
+        "uploadModal": {
+          "defaultTitle": "Upload Document",
+          "fields": {
+            "documentName": "Document name",
+            "issueDate": "Issue date",
+            "expiryDate": "Expiry date (leave blank if permanent)",
+            "notes": "Notes"
+          },
+          "fileArea": {
+            "uploadHint": "PDF, DOCX, JPG or PNG up to 50MB",
+            "renewalHint": "Optional: replace the file (current file is kept if none chosen)"
+          },
+          "currentValidity": {
+            "label": "Current validity:",
+            "expires": "expires {{date}}",
+            "noExpiry": "no expiry recorded",
+            "hint": "Set the new expiry date below to extend the contract."
+          },
+          "actions": {
+            "close": "Close",
+            "saving": "Saving…",
+            "upload": "Upload",
+            "renew": "Renew Document"
+          },
+          "toasts": {
+            "uploaded": "Document uploaded",
+            "renewed": "Document renewed",
+            "renewedWithDate": "Document renewed — valid until {{date}}"
+          },
+          "errors": {
+            "missingContractor": "Missing contractor reference. Cannot upload.",
+            "mustBeLoggedIn": "You must be logged in to upload documents.",
+            "fileRequired": "Please choose a file to upload.",
+            "expiryRequired": "Please set the new expiry date for the renewed document.",
+            "uploadFailed": "Upload failed"
+          }
+        }
+      },
+      "technicians": {
+        "designations": {
+          "engineer": "Engineer",
+          "senior_technician": "Senior Technician",
+          "technician": "Technician",
+          "helper": "Helper",
+          "other": "Other"
+        },
+        "statuses": {
+          "active": "Active",
+          "inactive": "Inactive"
+        },
+        "accessLog": {
+          "empty": "No recorded visits.",
+          "notRecorded": "-",
+          "arrivalDeparture": "Arrival {{arrival}} - Departure {{departure}}"
+        },
+        "grid": {
+          "empty": "No team members registered."
+        },
+        "card": {
+          "nicOrPassport": "NIC/Passport:",
+          "jobs": "Jobs: {{count}}",
+          "lastVisit": "Last visit: {{date}}",
+          "never": "Never",
+          "actions": {
+            "view": "View",
+            "edit": "Edit"
+          }
+        },
+        "detailModal": {
+          "fields": {
+            "nicOrPassport": "NIC/Passport",
+            "contractor": "Contractor",
+            "phone": "Phone",
+            "email": "Email",
+            "jobsAtThisFactory": "Jobs at this factory",
+            "lastVisit": "Last visit",
+            "specialization": "Specialization",
+            "certifications": "Certifications",
+            "certificationFiles": "Certification files"
+          },
+          "actions": {
+            "close": "Close",
+            "view": "View",
+            "download": "Download"
+          }
+        },
+        "form": {
+          "fields": {
+            "fullName": "Full name *",
+            "nicOrPassport": "NIC/Passport *",
+            "phone": "Phone",
+            "email": "Email",
+            "specialization": "Specialization",
+            "certifications": "Certifications, comma separated",
+            "certificationAttachments": "Certification attachments"
+          },
+          "actions": {
+            "save": "Save Technician",
+            "saving": "Saving…",
+            "removeAttachment": "Remove attachment"
+          },
+          "toasts": {
+            "updated": "Technician updated",
+            "added": "Technician added"
+          },
+          "errors": {
+            "missingContractor": "Missing contractor reference.",
+            "mustBeLoggedIn": "You must be logged in.",
+            "requiredFields": "Full name and NIC/Passport are required.",
+            "saveFailed": "Failed to save technician"
+          }
+        }
+      },
+      "analytics": {
+        "blockedList": {
+          "title": "Expired & Blocking Assignment",
+          "expiredDaysAgo": "{{documentType}} expired {{days}} days ago"
+        },
+        "expiryAlerts": {
+          "title": "Expiring within 30 days",
+          "empty": "No documents expiring soon."
+        },
+        "performanceDashboard": {
+          "loading": "Loading contractor performance...",
+          "topPerformer": "Top Performer",
+          "needsReview": "Needs Review",
+          "stats": {
+            "activeContractors": "Active contractors",
+            "jobsThisMonth": "Jobs this month",
+            "avgRating": "Avg rating",
+            "slaCompliance": "SLA compliance"
+          },
+          "charts": {
+            "jobsByContractor": "Jobs by Contractor",
+            "avgRatingComparison": "Avg Rating Comparison",
+            "totalCostByContractor": "Total Cost by Contractor"
+          }
+        },
+        "complianceMatrix": {
+          "columns": {
+            "contractor": "Contractor"
+          },
+          "status": {
+            "notUploaded": "Not uploaded",
+            "expired": "Expired",
+            "expiring": "Expiring",
+            "noExpiry": "No Expiry",
+            "valid": "Valid"
+          }
+        },
+        "scoreboard": {
+          "columns": {
+            "rank": "Rank",
+            "contractor": "Contractor",
+            "rating": "Rating",
+            "jobs": "Jobs",
+            "mttr": "MTTR",
+            "sla": "SLA",
+            "invoice": "Invoice",
+            "lastJob": "Last Job"
+          },
+          "minutes": "{{count}} min",
+          "empty": "No contractor performance data yet. {{amount}}"
+        }
+      },
+      "addContractorPage": {
+        "title": "Add Contractor",
+        "subtitle": "Create an external contractor profile. Contractors do not receive FirmiCore login access."
+      },
+      "editContractorPage": {
+        "title": "Edit Contractor",
+        "subtitle": "Update profile, contacts, capabilities, and guarded financial fields."
+      },
+      "addTechnicianPage": {
+        "title": "Add a team member",
+        "subtitle": "Register an individual technician for gate identification and job history."
+      },
+      "editTechnicianPage": {
+        "title": "Edit Technician",
+        "subtitle": "Update contractor technician details and status."
+      },
+      "profilePage": {
+        "loading": "Loading contractor...",
+        "notFound": "Contractor not found.",
+        "tabs": {
+          "overview": "Overview",
+          "documents": "Documents",
+          "teamMembers": "Team Members",
+          "jobHistory": "Job History",
+          "analytics": "Analytics"
+        }
+      },
+      "documentsPage": {
+        "title": "Contractor Documents",
+        "subtitle": "Compliance documents, renewals, and assignment blocking status.",
+        "loading": "Loading documents..."
+      },
+      "techniciansPage": {
+        "title": "Contractor Team Members",
+        "registeredCount_one": "{{count}} team member registered.",
+        "registeredCount_other": "{{count}} team members registered.",
+        "loading": "Loading team members...",
+        "actions": {
+          "addTeamMember": "Add Team Member"
+        }
+      },
+      "historyPage": {
+        "title": "Contractor Job History",
+        "loading": "Loading history..."
+      },
+      "analyticsPage": {
+        "title": "{{companyName}} Analytics",
+        "loading": "Loading analytics...",
+        "notFound": "Contractor not found."
+      },
+      "performanceDashboardPage": {
+        "title": "Contractor Performance",
+        "subtitle": "Scorecards, SLA trends, ratings, costs, and invoice accuracy."
+      },
+      "compliancePage": {
+        "title": "Document Compliance",
+        "subtitle": "Compliance view for HR, supervisors, and plant managers.",
+        "loading": "Loading compliance...",
+        "stats": {
+          "totalContractors": "Total contractors",
+          "fullyValid": "Fully valid",
+          "expiringDocs": "Expiring docs",
+          "blocked": "Blocked"
+        }
+      },
+      "reportsHubPage": {
+        "title": "Contractor Reports",
+        "subtitle": "Generate PDF, Excel, or Google Sheets exports for Module 7.",
+        "reports": {
+          "performance": {
+            "title": "Contractor Performance Report",
+            "description": "Per-contractor metrics, ratings, and MTTR"
+          },
+          "invoiceComparison": {
+            "title": "Contractor Invoice Comparison",
+            "description": "Invoices, variances, and approval status"
+          },
+          "jobHistory": {
+            "title": "Job History Report",
+            "description": "All jobs filterable by contractor, machine, and date"
+          },
+          "rating": {
+            "title": "Contractor Rating Report",
+            "description": "Ratings breakdown and feedback trends"
+          },
+          "documentCompliance": {
+            "title": "Document Compliance Report",
+            "description": "Document status across contractors"
+          }
+        },
+        "actions": {
+          "generatePdf": "Generate PDF",
+          "exportExcel": "Export Excel",
+          "pushToSheets": "Push to Google Sheets"
+        }
+      },
+      "registry": {
+        "alertBanner": {
+          "blockedByDocument": "Job assignment blocked - {{documentName}} expired. Renew to assign jobs.",
+          "blockedCount_one": "{{count}} contractor with expired documents - job assignment blocked.",
+          "blockedCount_other": "{{count}} contractors with expired documents - job assignment blocked.",
+          "expiringCount_one": "{{count}} contractor document expiring within 30 days.",
+          "expiringCount_other": "{{count}} contractor documents expiring within 30 days.",
+          "complianceLink": "Compliance"
+        },
+        "formStepper": {
+          "steps": {
+            "company": "Company",
+            "contacts": "Contacts",
+            "specializations": "Specializations",
+            "financial": "Financial",
+            "documents": "Documents"
+          }
+        },
+        "docStatusDot": {
+          "valid": "Documents valid",
+          "expiring": "Expiring soon",
+          "expired": "Expired documents"
+        },
+        "statusBadge": {
+          "active": "Active",
+          "inactive": "Inactive",
+          "blacklisted": "Blacklisted"
+        },
+        "techniciansTab": {
+          "registeredCount_one": "{{count}} team member registered",
+          "registeredCount_other": "{{count}} team members registered",
+          "subtitle": "Individual contractor staff for gate identification and job history.",
+          "actions": {
+            "addTeamMember": "Add Team Member"
+          }
+        },
+        "formSection1": {
+          "title": "Company Information",
+          "fields": {
+            "companyName": "Company Name *",
+            "tradeName": "Trade Name",
+            "registrationNumber": "Registration Number *",
+            "dateEstablished": "Established year",
+            "city": "City *",
+            "district": "District",
+            "country": "Country *",
+            "website": "Website",
+            "primaryAddress": "Primary Address *",
+            "notes": "Internal Notes"
+          },
+          "companyTypes": {
+            "private_ltd": "Private Ltd",
+            "sole_proprietor": "Sole Proprietor",
+            "partnership": "Partnership",
+            "public_ltd": "Public Ltd",
+            "foreign": "Foreign"
+          }
+        },
+        "formSection2": {
+          "title": "Contact Details",
+          "primaryContact": "Primary Contact",
+          "secondaryContact": "Secondary Contact",
+          "other": "Other",
+          "fields": {
+            "fullName": "Full Name *",
+            "fullNameOptional": "Full Name",
+            "designation": "Designation",
+            "phone": "Phone *",
+            "phoneOptional": "Phone",
+            "email": "Email *",
+            "emailOptional": "Email",
+            "emergencyContact": "Emergency Contact *",
+            "whatsappNumber": "WhatsApp Number"
+          }
+        },
+        "formSection3": {
+          "title": "Specializations",
+          "specializationTags": "Specialization Tags *",
+          "fields": {
+            "machineTypesServiced": "Machine Types Serviced",
+            "industriesServed": "Industries Served",
+            "geographicCoverage": "Geographic Coverage",
+            "emergencyResponseTime": "Emergency Response Time",
+            "teamSizeAvailable": "Team Size Available",
+            "languagesSpoken": "Languages Spoken"
+          },
+          "serviceHours": {
+            "24_7": "24/7",
+            "business_hours": "Business Hours",
+            "on_call": "On Call",
+            "custom": "Custom"
+          }
+        },
+        "formSection4": {
+          "title": "Financial & Billing",
+          "restricted": "Financial details are available to Plant Managers and Admins only.",
+          "paymentMethods": "Payment Methods",
+          "paymentMethodOptions": {
+            "bankTransfer": "Bank Transfer",
+            "cheque": "Cheque",
+            "cash": "Cash",
+            "onlineWallet": "Online / Wallet"
+          },
+          "bankDetails": "Bank Details",
+          "completedProjects": "Previously Completed Projects (with costs)",
+          "fields": {
+            "bankName": "Bank Name",
+            "branch": "Branch",
+            "accountHolderName": "Account Holder Name",
+            "accountNumber": "Account Number",
+            "routingSwift": "Routing / SWIFT",
+            "tinNumber": "TIN Number",
+            "projectClientName": "Project / Client Name",
+            "costLkr": "Cost (LKR)",
+            "ratingPlaceholder": "Rating…",
+            "duration": "Duration (e.g. 3 months)",
+            "contractType": "Contract Type (e.g. fixed, T&M)",
+            "forbiddenActions": "Any forbidden actions taken / violations (optional)"
+          },
+          "actions": {
+            "add": "Add",
+            "removeProject": "Remove project"
+          }
+        },
+        "formSection5": {
+          "title": "Initial Documents",
+          "alreadyUploaded": "Already uploaded",
+          "view": "View",
+          "dropzone": "Drag files here or choose PDF, DOCX, JPG, PNG",
+          "newUploads": "New uploads",
+          "removeFile": "Remove file",
+          "note": "You can add more documents from the contractor profile later."
+        },
+        "list": {
+          "title": "Contractor Registry",
+          "summary": "{{totalCount}} contractors - {{activeCount}} active - {{blockedCount}} blocked",
+          "loading": "Loading contractors...",
+          "empty": "No contractors registered. Add your first contractor.",
+          "actions": {
+            "addContractor": "Add Contractor"
+          }
+        },
+        "card": {
+          "jobCount_one": "{{count}} job",
+          "jobCount_other": "{{count}} jobs",
+          "viewProfile": "View Profile"
+        },
+        "specializationTags": {
+          "electrical": "Electrical",
+          "mechanical": "Mechanical",
+          "hydraulic": "Hydraulic",
+          "pneumatic": "Pneumatic",
+          "welding": "Welding",
+          "plc_automation": "PLC / Automation",
+          "hvac": "HVAC",
+          "civil": "Civil",
+          "oem_authorized": "OEM Authorized",
+          "calibration": "Calibration",
+          "inspection": "Inspection",
+          "pressure_vessel": "Pressure Vessel",
+          "elevator": "Elevator",
+          "fire_safety": "Fire Safety",
+          "other": "Other",
+          "moreCount_one": "+{{count}} more",
+          "moreCount_other": "+{{count}} more"
+        },
+        "analyticsTab": {
+          "jobsPerMonth": "Jobs per Month",
+          "ratingTrend": "Rating Trend",
+          "costPerJob": "Cost per Job",
+          "jobTypeDistribution": "Job Type Distribution",
+          "jobTypes": {
+            "breakdown": "Breakdown",
+            "preventive": "Preventive",
+            "corrective": "Corrective",
+            "installation": "Installation",
+            "modification": "Modification",
+            "inspection": "Inspection",
+            "other": "Other"
+          }
+        },
+        "filterBar": {
+          "searchPlaceholder": "Search company, trade name, registration",
+          "clear": "Clear",
+          "status": {
+            "all": "All status"
+          },
+          "rating": {
+            "any": "Any rating",
+            "fourPlus": "4 stars+",
+            "threePlus": "3 stars+"
+          },
+          "docs": {
+            "all": "All docs"
+          }
+        },
+        "listTable": {
+          "empty": "No contractors registered. Add your first contractor.",
+          "columns": {
+            "company": "Company",
+            "specializations": "Specializations",
+            "status": "Status",
+            "rating": "Rating",
+            "jobs": "Jobs",
+            "lastJob": "Last Job",
+            "documents": "Documents",
+            "actions": "Actions"
+          },
+          "lastJob": {
+            "never": "Never",
+            "today": "Today",
+            "yesterday": "Yesterday",
+            "daysAgo_one": "{{count}} day ago",
+            "daysAgo_other": "{{count}} days ago"
+          },
+          "actions": {
+            "view": "View",
+            "edit": "Edit"
+          }
+        },
+        "profileHeader": {
+          "jobCount_one": "{{count}} job",
+          "jobCount_other": "{{count}} jobs",
+          "actions": {
+            "rate": "Rate",
+            "edit": "Edit",
+            "moreActions": "More actions"
+          },
+          "rateModal": {
+            "title": "Rate {{companyName}}",
+            "starLabel": "{{count}} star",
+            "cancel": "Cancel",
+            "saving": "Saving…",
+            "saveRating": "Save Rating",
+            "errors": {
+              "selectRating": "Select a rating from 1 to 5 stars.",
+              "updateFailed": "Failed to update rating."
+            }
+          }
+        },
+        "overviewTab": {
+          "companyInformation": {
+            "title": "Company Information",
+            "legalName": "Legal name",
+            "tradeName": "Trade name",
+            "registration": "Registration",
+            "companyType": "Company type",
+            "established": "Established",
+            "address": "Address",
+            "website": "Website",
+            "notes": "Notes"
+          },
+          "contactDetails": {
+            "title": "Contact Details",
+            "primaryContact": "Primary contact",
+            "primaryPhone": "Primary phone",
+            "primaryEmail": "Primary email",
+            "secondaryContact": "Secondary contact",
+            "secondaryPhone": "Secondary phone",
+            "emergency": "Emergency",
+            "whatsapp": "WhatsApp"
+          },
+          "serviceCapabilities": {
+            "title": "Service Capabilities",
+            "specializations": "Specializations",
+            "machineTypes": "Machine types",
+            "industries": "Industries",
+            "coverage": "Coverage",
+            "serviceHours": "Service hours",
+            "responseTime": "Response time",
+            "teamSize": "Team size",
+            "languages": "Languages"
+          },
+          "financialDetails": {
+            "title": "Financial Details",
+            "paymentMethods": "Payment methods",
+            "bank": "Bank",
+            "account": "Account",
+            "taxRegistration": "Tax registration"
+          },
+          "completedProjects": {
+            "title": "Previously Completed Projects",
+            "untitledProject": "Untitled project",
+            "cost": "Cost: {{cost}}",
+            "rating": "Rating: {{rating}} ★",
+            "duration": "Duration: {{duration}}",
+            "type": "Type: {{type}}",
+            "violations": "Violations: {{violations}}"
+          },
+          "performanceSummary": {
+            "title": "Performance Summary",
+            "averageRating": "Average rating",
+            "averageRatingValue": "{{rating}}/5 ({{count}} ratings)",
+            "totalJobs": "Total jobs",
+            "totalJobsValue": "{{total}} (Breakdown {{breakdown}} | PM {{pm}} | Install {{install}})",
+            "averageMttr": "Average MTTR",
+            "minutesValue": "{{minutes}} min",
+            "slaCompliance": "SLA compliance",
+            "avgJobCost": "Avg job cost"
+          }
+        },
+        "jobHistoryTab": {
+          "stats": {
+            "totalJobs": "Total jobs",
+            "avgRating": "Avg rating",
+            "totalCost": "Total cost",
+            "slaJobs": "SLA jobs"
+          },
+          "techniciansNotLogged": "Technicians not logged",
+          "onSite": "On-site: {{minutes}} min",
+          "usedPartsCost": "Used parts cost",
+          "projectCost": "Project cost",
+          "totalCost": "Total cost",
+          "jobRating": "Job rating: {{score}} / 5",
+          "ratingBreakdown": {
+            "speed": "Speed: {{score}}",
+            "quality": "Quality: {{score}}",
+            "professionalism": "Professionalism: {{score}}",
+            "communication": "Communication: {{score}}"
+          },
+          "ratedBy": "Rated by {{name}}",
+          "ratedOn": " on {{date}}",
+          "unknown": "Unknown",
+          "notRatedYet": "Not rated yet.",
+          "started": "Started: {{date}}",
+          "completed": "Completed: {{date}}",
+          "signedOff": "Signed off: {{date}}",
+          "waitedForParts": "Waited for parts: {{minutes}} min",
+          "waitedForPermission": "Waited for permission: {{minutes}} min",
+          "contractorWo": "Contractor WO",
+          "empty": "No job history yet.",
+          "auditRatings": {
+            "title": "Audit Ratings",
+            "subtitle": "Per-job star ratings and notes captured during Contractor Audits.",
+            "unlinkedJob": "Unlinked job",
+            "fromAudit": "From audit by {{name}} on {{date}}"
+          },
+          "completedProjects": {
+            "title": "Previously Completed Projects",
+            "subtitle": "Projects recorded before the contractor was onboarded into the system.",
+            "rating": "Rating: {{rating}}",
+            "projectCost": "Project cost: {{cost}}",
+            "duration": "Duration: {{duration}}",
+            "forbiddenActions": "Forbidden actions: {{actions}}"
+          }
+        },
+        "formLayout": {
+          "loading": "Loading contractor…",
+          "notFound": "Contractor not found.",
+          "actions": {
+            "cancel": "Cancel",
+            "saving": "Saving…",
+            "saveAndAddDocuments": "Save & Add Documents",
+            "saveContractor": "Save Contractor",
+            "updateContractor": "Update Contractor"
+          },
+          "errors": {
+            "missingCompanyContext": "Missing company context. Please re-login.",
+            "missingRequiredFields": "Please fill in all required fields (Company Name, Registration Number, Primary Contact).",
+            "saveFailed": "Failed to save contractor."
+          }
+        }
+      },
+      "shared": {
+        "assignmentBlocker": {
+          "title": "Contractor cannot be assigned to new jobs.",
+          "defaultReason": "A critical compliance document has expired.",
+          "renewPrompt": "Renew the document before assigning this contractor."
+        },
+        "manualEntryFlag": {
+          "notRegistered": "{{contractorName}} is not registered.",
+          "registerNow": "Register Now"
+        },
+        "invitationStatusBadge": {
+          "email": "Email",
+          "whatsapp": "WhatsApp"
+        },
+        "searchDropdown": {
+          "companyNameLabel": "Contractor company name",
+          "manualNamePlaceholder": "Type contractor name manually",
+          "searchPlaceholder": "Search contractors",
+          "blockedTitle": "Critical compliance document expired. Renew to enable assignment.",
+          "lastJob": "Last job: {{date}}",
+          "never": "Never",
+          "notRegisteredPrompt": "Contractor not registered? Type contractor name manually"
+        }
+      }
+    },
     "signOut": "Sign out",
     "language": "Language",
     "trial": {

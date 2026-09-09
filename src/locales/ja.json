@@ -5007,6 +5007,1009 @@
         "completed": "プログラムが完了しました。",
         "downloadCertificate": "証明書をダウンロード"
       }
+    },
+    "contractors": {
+      "jobs": {
+        "listPage": {
+          "title": "契約業者ジョブ",
+          "subtitle": "招待、到着、作業ログ、サインオフ、請求書、評価を追跡します。",
+          "loading": "契約業者ジョブを読み込み中..."
+        },
+        "detailPage": {
+          "loading": "ジョブを読み込み中...",
+          "notFound": "契約業者ジョブが見つかりません。",
+          "team": {
+            "title": "契約業者チーム",
+            "techniciansNotConfirmed": "技術者が未確定です"
+          },
+          "actions": {
+            "logWork": "作業を記録",
+            "signOff": "サインオフ",
+            "invoice": "請求書",
+            "rate": "評価する"
+          }
+        },
+        "logWorkPage": {
+          "loading": "作業ログを読み込み中...",
+          "notFound": "ジョブが見つかりません。",
+          "onSiteFor": "現場滞在時間: {{minutes}} 分",
+          "actions": {
+            "logDeparture": "退出を記録",
+            "completeChecklist": "チェックリストを完了"
+          }
+        },
+        "signOffPage": {
+          "loading": "サインオフを読み込み中...",
+          "notFound": "ジョブが見つかりません。",
+          "title": "契約業者サインオフ"
+        },
+        "ratePage": {
+          "loading": "評価フォームを読み込み中...",
+          "notFound": "ジョブが見つかりません。"
+        },
+        "invoiceComparisonPage": {
+          "loading": "請求書を読み込み中...",
+          "notFound": "ジョブが見つかりません。",
+          "title": "請求書比較"
+        },
+        "statusBadge": {
+          "invitation_sent": "招待済み",
+          "acknowledged": "確認済み",
+          "contractor_arrived": "現場到着",
+          "work_in_progress": "作業中",
+          "checklist_complete": "チェックリスト完了",
+          "signed_off": "サインオフ済み",
+          "invoice_submitted": "請求書処理待ち",
+          "payment_processed": "支払済み",
+          "cancelled": "キャンセル済み"
+        },
+        "statusStepper": {
+          "invitation_sent": "招待済み",
+          "acknowledged": "確認済み",
+          "contractor_arrived": "現場到着",
+          "work_in_progress": "作業中",
+          "checklist_complete": "チェックリスト",
+          "signed_off": "サインオフ済み",
+          "invoice_submitted": "請求書",
+          "payment_processed": "完了"
+        },
+        "jobList": {
+          "tabs": {
+            "active": "進行中",
+            "invitation_sent": "招待送信済み",
+            "work_in_progress": "作業中",
+            "checklist_complete": "サインオフ待ち",
+            "invoice_submitted": "請求書処理待ち",
+            "completed": "完了",
+            "cancelled": "キャンセル済み"
+          },
+          "columns": {
+            "wo": "作業指示",
+            "contractor": "契約業者",
+            "machine": "機械",
+            "priority": "優先度",
+            "status": "ステータス",
+            "invited": "招待日時",
+            "onSite": "現場滞在",
+            "rating": "評価",
+            "invoice": "請求書",
+            "actions": "操作"
+          },
+          "empty": "契約業者ジョブが見つかりません。",
+          "viewJob": "ジョブを表示",
+          "view": "表示"
+        },
+        "jobHeader": {
+          "slaDeadline": "SLA期限: {{deadline}}"
+        },
+        "arrivalLog": {
+          "title": "到着・退出",
+          "arrivalLabel": "到着: {{value}}",
+          "departureLabel": "退出: {{value}}",
+          "notArrived": "未到着",
+          "notDeparted": "未退出",
+          "actions": {
+            "logArrival": "契約業者の到着を記録",
+            "logDeparture": "退出を記録"
+          },
+          "toasts": {
+            "arrivalLogged": "到着を記録しました。",
+            "arrivalFailed": "到着の記録に失敗しました",
+            "departureLogged": "退出を記録しました。",
+            "departureFailed": "退出の記録に失敗しました"
+          }
+        },
+        "timeline": {
+          "title": "ジョブタイムライン",
+          "workStarted": "作業開始: {{value}}",
+          "workCompleted": "作業完了: {{value}}",
+          "waitingForParts": "部品待ち: {{start}} → {{end}}",
+          "waitingForPermission": "許可待ち: {{start}} → {{end}}",
+          "actions": {
+            "startWork": "作業を開始",
+            "markWorkComplete": "作業完了にする",
+            "markWaitingForParts": "部品待ちにする",
+            "resolvePartsWait": "部品待ちを解除",
+            "markWaitingForPermission": "許可待ちにする",
+            "resolvePermissionWait": "許可待ちを解除"
+          },
+          "toasts": {
+            "workStartLogged": "作業開始を記録しました。",
+            "workCompletionLogged": "作業完了を記録しました。",
+            "markedWaitingForParts": "部品待ちに設定しました。",
+            "partsWaitResolved": "部品待ちを解除しました。",
+            "markedWaitingForPermission": "許可待ちに設定しました。",
+            "permissionWaitResolved": "許可待ちを解除しました。",
+            "updateFailed": "ジョブタイムラインの更新に失敗しました"
+          }
+        },
+        "invitation": {
+          "title": "ジョブ招待",
+          "sent": "送信日時: {{value}}",
+          "acknowledged": "確認日時: {{value}}",
+          "notAcknowledged": "未確認",
+          "actions": {
+            "viewDetails": "招待の詳細を表示",
+            "resend": "招待を再送信",
+            "markAcknowledged": "確認済みにする"
+          }
+        },
+        "workLog": {
+          "entryForm": {
+            "title": "作業ステップを記録",
+            "descriptionPlaceholder": "実施した内容は?",
+            "addPhotos": "写真を追加",
+            "durationPlaceholder": "所要時間(分)",
+            "addStep": "ステップを追加"
+          },
+          "timeline": {
+            "title": "作業ログ",
+            "empty": "作業ステップはまだ記録されていません。"
+          },
+          "stepCard": {
+            "step": "ステップ {{number}}",
+            "duration": "{{minutes}} 分",
+            "logged": "{{value}} に記録",
+            "pendingSync": "同期待ち"
+          }
+        },
+        "partsUsed": {
+          "title": "使用部品",
+          "factoryParts": {
+            "title": "払い出された工場部品",
+            "empty": "払い出された工場部品はありません。",
+            "line": "{{name}} x {{quantity}}"
+          },
+          "contractorMaterials": {
+            "title": "契約業者持ち込み資材",
+            "empty": "契約業者持ち込み資材の記録はありません。",
+            "line": "{{description}} x {{quantity}} {{unit}}"
+          }
+        },
+        "checklist": {
+          "title": "作業後チェックリスト",
+          "empty": "チェックリストはまだ完了していません。",
+          "pass": "合格",
+          "fail": "不合格",
+          "testRun": "試運転: {{value}}",
+          "machineAfter": "作業後の機械状態: {{value}}"
+        },
+        "photos": {
+          "title": "写真・書類",
+          "addPhotos": "写真を追加",
+          "empty": "写真はまだアップロードされていません。"
+        },
+        "invoiceUpload": {
+          "title": "契約業者請求書をアップロード",
+          "referencePlaceholder": "請求書番号",
+          "amountPlaceholder": "金額 (LKR)",
+          "uploadPdf": "請求書PDFをアップロード"
+        },
+        "invoiceComparison": {
+          "title": "請求書比較",
+          "systemInvoice": {
+            "title": "システム請求額",
+            "labor": "人件費",
+            "laborValue": "{{hours}}時間 x {{rate}}",
+            "laborCost": "人件費",
+            "factoryParts": "工場部品",
+            "systemTotal": "システム合計"
+          },
+          "contractorInvoice": {
+            "title": "契約業者請求書",
+            "reference": "請求書番号",
+            "date": "日付",
+            "invoiceTotal": "請求合計"
+          },
+          "variance": {
+            "label": "差異: {{amount}}",
+            "match": "請求書はシステム計算額と一致しています。",
+            "mismatch": "契約業者請求額はシステム計算額より{{percent}}%{{direction}}です。",
+            "flagged": "差異 {{percent}}%",
+            "withinRange": "許容範囲内 {{percent}}%"
+          }
+        },
+        "ratingForm": {
+          "title": "{{contractorName}} を評価",
+          "dimensions": {
+            "speed": {
+              "label": "スピード",
+              "helper": "修理はどれだけ迅速に完了しましたか?"
+            },
+            "quality": {
+              "label": "品質",
+              "helper": "作業品質はどうでしたか?"
+            },
+            "professionalism": {
+              "label": "プロフェッショナリズム",
+              "helper": "契約業者チームのプロ意識はどうでしたか?"
+            },
+            "communication": {
+              "label": "コミュニケーション",
+              "helper": "意思疎通はどれだけ円滑でしたか?"
+            }
+          },
+          "overallScore": "総合評価",
+          "notesPlaceholder": "詳細なフィードバックを追加",
+          "submit": "評価を送信",
+          "saving": "保存中…",
+          "toasts": {
+            "success": "評価を送信しました",
+            "incomplete": "送信する前に4項目すべてを評価してください。",
+            "failed": "評価の送信に失敗しました"
+          }
+        },
+        "ratingQuickTags": {
+          "arrivedOnTime": "時間通りに到着",
+          "neatWorkmanship": "丁寧な仕上がり",
+          "explainedIssueWell": "問題を分かりやすく説明",
+          "leftSiteClean": "現場をきれいに整理",
+          "requiredNoCallbacks": "再訪不要だった",
+          "professionalTeam": "プロフェッショナルなチーム"
+        },
+        "followUpFlag": {
+          "label": "同じ問題が30日以内に再発した",
+          "placeholder": "再発した問題の内容を記入してください"
+        },
+        "signOffForm": {
+          "reviewSummary": {
+            "title": "レビュー概要",
+            "workDoneDescriptionPlaceholder": "実施した作業の説明",
+            "machineStatus": {
+              "operational": "稼働可能",
+              "partially_operational": "一部稼働可能",
+              "still_down": "依然として停止中"
+            }
+          },
+          "totalCost": {
+            "title": "総費用",
+            "helper": "この作業指示で使用した部品費用に、以下で入力するプロジェクト費用を加算します。この作業指示、機械のコスト履歴、保全コスト分析に記録されます。",
+            "usedPartsCost": "使用部品費用(自動)",
+            "projectCost": "プロジェクト費用",
+            "summary": "総費用 — 使用部品 {{partsCost}} + プロジェクト {{projectCost}}"
+          },
+          "rating": {
+            "title": "契約業者評価",
+            "helper": "4項目すべてを評価してください — サインオフには評価が必須で、この契約業者のジョブ履歴に表示されます。",
+            "overallScore": "総合評価",
+            "dimensions": {
+              "speed": "スピード",
+              "quality": "品質",
+              "professionalism": "プロフェッショナリズム",
+              "communication": "コミュニケーション"
+            }
+          },
+          "signature": {
+            "title": "電子署名",
+            "clear": "クリア"
+          },
+          "concerns": {
+            "label": "この作業の品質について懸念があります",
+            "notesPlaceholder": "サインオフメモまたは異議のメモ"
+          },
+          "submit": "サインオフして完了",
+          "saving": "保存中…",
+          "errors": {
+            "signatureRequired": "このジョブをサインオフするには署名が必要です。",
+            "invalidProjectCost": "有効なプロジェクト費用を入力してください。",
+            "ratingRequired": "サインオフする前に4項目すべてを評価してください。"
+          },
+          "toasts": {
+            "success": "ジョブのサインオフが完了しました",
+            "failed": "このジョブのサインオフに失敗しました。"
+          }
+        }
+      },
+      "documents": {
+        "expiryTimer": {},
+        "renewalModal": {
+          "title": "書類を更新",
+          "titleWithName": "{{name}} を更新"
+        },
+        "criticalWarning": {
+          "message": "期限切れの書類が更新されるまで、この契約業者を新規ジョブに割り当てることはできません。"
+        },
+        "historyAccordion": {
+          "title": "{{documentType}} の履歴",
+          "version": "v{{version}}"
+        },
+        "statusBadge": {
+          "noExpiry": "有効期限なし",
+          "blocksAssignment": "割り当てをブロック"
+        },
+        "card": {
+          "noExpiry": "有効期限なし",
+          "versionUploadedBy": "バージョン {{version}} - {{name}} がアップロード",
+          "issued": "発行日: {{date}}",
+          "expiry": "有効期限: {{date}}",
+          "actions": {
+            "download": "ダウンロード",
+            "preview": "プレビュー",
+            "renew": "更新"
+          }
+        },
+        "list": {
+          "title": "書類",
+          "subtitle": "有効、期限間近、期限切れ、および永久有効なコンプライアンス記録です。",
+          "empty": "書類はまだアップロードされていません。",
+          "actions": {
+            "upload": "書類をアップロード"
+          },
+          "legend": {
+            "valid": "緑: 有効",
+            "expiringSoon": "琥珀: 30日以内に期限切れ",
+            "expired": "赤: 期限切れ",
+            "noExpiry": "灰: 有効期限なし"
+          }
+        },
+        "uploadModal": {
+          "defaultTitle": "書類をアップロード",
+          "fields": {
+            "documentName": "書類名",
+            "issueDate": "発行日",
+            "expiryDate": "有効期限(永久有効の場合は空欄)",
+            "notes": "備考"
+          },
+          "fileArea": {
+            "uploadHint": "PDF、DOCX、JPG、PNG(50MBまで)",
+            "renewalHint": "任意: ファイルを差し替え(選択しない場合は現行ファイルを保持)"
+          },
+          "currentValidity": {
+            "label": "現在の有効期限:",
+            "expires": "{{date}} に失効",
+            "noExpiry": "有効期限の記録なし",
+            "hint": "契約を延長するには、下の新しい有効期限を設定してください。"
+          },
+          "actions": {
+            "close": "閉じる",
+            "saving": "保存中…",
+            "upload": "アップロード",
+            "renew": "書類を更新"
+          },
+          "toasts": {
+            "uploaded": "書類をアップロードしました",
+            "renewed": "書類を更新しました",
+            "renewedWithDate": "書類を更新しました — {{date}} まで有効"
+          },
+          "errors": {
+            "missingContractor": "契約業者の参照情報がありません。アップロードできません。",
+            "mustBeLoggedIn": "書類をアップロードするにはログインが必要です。",
+            "fileRequired": "アップロードするファイルを選択してください。",
+            "expiryRequired": "更新後の書類の新しい有効期限を設定してください。",
+            "uploadFailed": "アップロードに失敗しました"
+          }
+        }
+      },
+      "technicians": {
+        "designations": {
+          "engineer": "エンジニア",
+          "senior_technician": "上級技術者",
+          "technician": "技術者",
+          "helper": "アシスタント",
+          "other": "その他"
+        },
+        "statuses": {
+          "active": "有効",
+          "inactive": "無効"
+        },
+        "accessLog": {
+          "empty": "記録された訪問はありません。",
+          "notRecorded": "-",
+          "arrivalDeparture": "到着 {{arrival}} - 退出 {{departure}}"
+        },
+        "grid": {
+          "empty": "登録されているチームメンバーはいません。"
+        },
+        "card": {
+          "nicOrPassport": "NIC/パスポート:",
+          "jobs": "ジョブ数: {{count}}",
+          "lastVisit": "最終訪問: {{date}}",
+          "never": "なし",
+          "actions": {
+            "view": "表示",
+            "edit": "編集"
+          }
+        },
+        "detailModal": {
+          "fields": {
+            "nicOrPassport": "NIC/パスポート",
+            "contractor": "契約業者",
+            "phone": "電話番号",
+            "email": "メールアドレス",
+            "jobsAtThisFactory": "この工場でのジョブ数",
+            "lastVisit": "最終訪問",
+            "specialization": "専門分野",
+            "certifications": "資格",
+            "certificationFiles": "資格証明書ファイル"
+          },
+          "actions": {
+            "close": "閉じる",
+            "view": "表示",
+            "download": "ダウンロード"
+          }
+        },
+        "form": {
+          "fields": {
+            "fullName": "氏名 *",
+            "nicOrPassport": "NIC/パスポート *",
+            "phone": "電話番号",
+            "email": "メールアドレス",
+            "specialization": "専門分野",
+            "certifications": "資格(カンマ区切り)",
+            "certificationAttachments": "資格証明書の添付ファイル"
+          },
+          "actions": {
+            "save": "技術者を保存",
+            "saving": "保存中…",
+            "removeAttachment": "添付ファイルを削除"
+          },
+          "toasts": {
+            "updated": "技術者情報を更新しました",
+            "added": "技術者を追加しました"
+          },
+          "errors": {
+            "missingContractor": "契約業者の参照情報がありません。",
+            "mustBeLoggedIn": "ログインが必要です。",
+            "requiredFields": "氏名とNIC/パスポートは必須です。",
+            "saveFailed": "技術者の保存に失敗しました"
+          }
+        }
+      },
+      "analytics": {
+        "blockedList": {
+          "title": "期限切れ・割り当てブロック中",
+          "expiredDaysAgo": "{{documentType}} は{{days}}日前に期限切れになりました"
+        },
+        "expiryAlerts": {
+          "title": "30日以内に期限切れ",
+          "empty": "まもなく期限切れになる書類はありません。"
+        },
+        "performanceDashboard": {
+          "loading": "契約業者のパフォーマンスを読み込み中...",
+          "topPerformer": "最優秀契約業者",
+          "needsReview": "要確認",
+          "stats": {
+            "activeContractors": "有効な契約業者数",
+            "jobsThisMonth": "今月のジョブ数",
+            "avgRating": "平均評価",
+            "slaCompliance": "SLA遵守率"
+          },
+          "charts": {
+            "jobsByContractor": "契約業者別ジョブ数",
+            "avgRatingComparison": "平均評価の比較",
+            "totalCostByContractor": "契約業者別総費用"
+          }
+        },
+        "complianceMatrix": {
+          "columns": {
+            "contractor": "契約業者"
+          },
+          "status": {
+            "notUploaded": "未アップロード",
+            "expired": "期限切れ",
+            "expiring": "期限間近",
+            "noExpiry": "有効期限なし",
+            "valid": "有効"
+          }
+        },
+        "scoreboard": {
+          "columns": {
+            "rank": "順位",
+            "contractor": "契約業者",
+            "rating": "評価",
+            "jobs": "ジョブ数",
+            "mttr": "MTTR",
+            "sla": "SLA",
+            "invoice": "請求書",
+            "lastJob": "最終ジョブ"
+          },
+          "minutes": "{{count}} 分",
+          "empty": "契約業者のパフォーマンスデータはまだありません。{{amount}}"
+        }
+      },
+      "addContractorPage": {
+        "title": "契約業者を追加",
+        "subtitle": "外部契約業者プロファイルを作成します。契約業者にはFirmiCoreのログインアクセス権は付与されません。"
+      },
+      "editContractorPage": {
+        "title": "契約業者を編集",
+        "subtitle": "プロファイル、連絡先、対応能力、および制限付き財務項目を更新します。"
+      },
+      "addTechnicianPage": {
+        "title": "チームメンバーを追加",
+        "subtitle": "ゲート識別とジョブ履歴のために、個々の技術者を登録します。"
+      },
+      "editTechnicianPage": {
+        "title": "技術者を編集",
+        "subtitle": "契約業者の技術者情報とステータスを更新します。"
+      },
+      "profilePage": {
+        "loading": "契約業者を読み込み中...",
+        "notFound": "契約業者が見つかりません。",
+        "tabs": {
+          "overview": "概要",
+          "documents": "書類",
+          "teamMembers": "チームメンバー",
+          "jobHistory": "ジョブ履歴",
+          "analytics": "分析"
+        }
+      },
+      "documentsPage": {
+        "title": "契約業者書類",
+        "subtitle": "コンプライアンス書類、更新、割り当てブロック状況。",
+        "loading": "書類を読み込み中..."
+      },
+      "techniciansPage": {
+        "title": "契約業者チームメンバー",
+        "registeredCount_one": "{{count}} 名のチームメンバーが登録されています。",
+        "registeredCount_other": "{{count}} 名のチームメンバーが登録されています。",
+        "loading": "チームメンバーを読み込み中...",
+        "actions": {
+          "addTeamMember": "チームメンバーを追加"
+        }
+      },
+      "historyPage": {
+        "title": "契約業者ジョブ履歴",
+        "loading": "履歴を読み込み中..."
+      },
+      "analyticsPage": {
+        "title": "{{companyName}} の分析",
+        "loading": "分析を読み込み中...",
+        "notFound": "契約業者が見つかりません。"
+      },
+      "performanceDashboardPage": {
+        "title": "契約業者パフォーマンス",
+        "subtitle": "スコアカード、SLA推移、評価、費用、請求精度。"
+      },
+      "compliancePage": {
+        "title": "書類コンプライアンス",
+        "subtitle": "人事、監督者、および工場長向けのコンプライアンスビューです。",
+        "loading": "コンプライアンス情報を読み込み中...",
+        "stats": {
+          "totalContractors": "契約業者総数",
+          "fullyValid": "完全に有効",
+          "expiringDocs": "期限間近の書類",
+          "blocked": "ブロック中"
+        }
+      },
+      "reportsHubPage": {
+        "title": "契約業者レポート",
+        "subtitle": "モジュール7用にPDF、Excel、またはGoogleスプレッドシートのエクスポートを生成します。",
+        "reports": {
+          "performance": {
+            "title": "契約業者パフォーマンスレポート",
+            "description": "契約業者別の指標、評価、MTTR"
+          },
+          "invoiceComparison": {
+            "title": "契約業者請求書比較",
+            "description": "請求書、差異、承認状況"
+          },
+          "jobHistory": {
+            "title": "ジョブ履歴レポート",
+            "description": "契約業者、機械、日付で絞り込み可能な全ジョブ"
+          },
+          "rating": {
+            "title": "契約業者評価レポート",
+            "description": "評価の内訳とフィードバックの傾向"
+          },
+          "documentCompliance": {
+            "title": "書類コンプライアンスレポート",
+            "description": "契約業者ごとの書類ステータス"
+          }
+        },
+        "actions": {
+          "generatePdf": "PDFを生成",
+          "exportExcel": "Excelにエクスポート",
+          "pushToSheets": "Googleスプレッドシートに送信"
+        }
+      },
+      "registry": {
+        "alertBanner": {
+          "blockedByDocument": "ジョブ割り当てがブロックされています - {{documentName}} が期限切れです。割り当てるには更新してください。",
+          "blockedCount_one": "期限切れの書類がある契約業者が {{count}} 件あります - ジョブ割り当てがブロックされています。",
+          "blockedCount_other": "期限切れの書類がある契約業者が {{count}} 件あります - ジョブ割り当てがブロックされています。",
+          "expiringCount_one": "{{count}} 件の契約業者書類が30日以内に期限切れになります。",
+          "expiringCount_other": "{{count}} 件の契約業者書類が30日以内に期限切れになります。",
+          "complianceLink": "コンプライアンス"
+        },
+        "formStepper": {
+          "steps": {
+            "company": "会社情報",
+            "contacts": "連絡先",
+            "specializations": "専門分野",
+            "financial": "財務",
+            "documents": "書類"
+          }
+        },
+        "docStatusDot": {
+          "valid": "書類は有効です",
+          "expiring": "まもなく期限切れ",
+          "expired": "期限切れの書類があります"
+        },
+        "statusBadge": {
+          "active": "有効",
+          "inactive": "無効",
+          "blacklisted": "取引停止"
+        },
+        "techniciansTab": {
+          "registeredCount_one": "{{count}} 名のチームメンバーが登録済み",
+          "registeredCount_other": "{{count}} 名のチームメンバーが登録済み",
+          "subtitle": "ゲート識別とジョブ履歴のための個々の契約業者スタッフです。",
+          "actions": {
+            "addTeamMember": "チームメンバーを追加"
+          }
+        },
+        "formSection1": {
+          "title": "会社情報",
+          "fields": {
+            "companyName": "会社名 *",
+            "tradeName": "屋号",
+            "registrationNumber": "登録番号 *",
+            "dateEstablished": "設立年",
+            "city": "市区町村 *",
+            "district": "地区",
+            "country": "国 *",
+            "website": "ウェブサイト",
+            "primaryAddress": "主要住所 *",
+            "notes": "社内メモ"
+          },
+          "companyTypes": {
+            "private_ltd": "有限会社(非公開)",
+            "sole_proprietor": "個人事業主",
+            "partnership": "パートナーシップ",
+            "public_ltd": "株式会社(公開)",
+            "foreign": "外資系"
+          }
+        },
+        "formSection2": {
+          "title": "連絡先情報",
+          "primaryContact": "主担当者",
+          "secondaryContact": "副担当者",
+          "other": "その他",
+          "fields": {
+            "fullName": "氏名 *",
+            "fullNameOptional": "氏名",
+            "designation": "役職",
+            "phone": "電話番号 *",
+            "phoneOptional": "電話番号",
+            "email": "メールアドレス *",
+            "emailOptional": "メールアドレス",
+            "emergencyContact": "緊急連絡先 *",
+            "whatsappNumber": "WhatsApp番号"
+          }
+        },
+        "formSection3": {
+          "title": "専門分野",
+          "specializationTags": "専門分野タグ *",
+          "fields": {
+            "machineTypesServiced": "対応可能な機械種別",
+            "industriesServed": "対応業種",
+            "geographicCoverage": "対応地域",
+            "emergencyResponseTime": "緊急対応時間",
+            "teamSizeAvailable": "対応可能なチーム規模",
+            "languagesSpoken": "対応言語"
+          },
+          "serviceHours": {
+            "24_7": "24時間365日",
+            "business_hours": "営業時間内",
+            "on_call": "オンコール",
+            "custom": "カスタム"
+          }
+        },
+        "formSection4": {
+          "title": "財務・請求",
+          "restricted": "財務詳細は工場長および管理者のみが閲覧できます。",
+          "paymentMethods": "支払方法",
+          "paymentMethodOptions": {
+            "bankTransfer": "銀行振込",
+            "cheque": "小切手",
+            "cash": "現金",
+            "onlineWallet": "オンライン / ウォレット"
+          },
+          "bankDetails": "銀行情報",
+          "completedProjects": "過去の完了プロジェクト(費用込み)",
+          "fields": {
+            "bankName": "銀行名",
+            "branch": "支店",
+            "accountHolderName": "口座名義",
+            "accountNumber": "口座番号",
+            "routingSwift": "支店コード / SWIFT",
+            "tinNumber": "納税者番号(TIN)",
+            "projectClientName": "プロジェクト / クライアント名",
+            "costLkr": "費用 (LKR)",
+            "ratingPlaceholder": "評価…",
+            "duration": "期間(例: 3か月)",
+            "contractType": "契約形態(例: 固定額、T&M)",
+            "forbiddenActions": "禁止行為・違反事項(任意)"
+          },
+          "actions": {
+            "add": "追加",
+            "removeProject": "プロジェクトを削除"
+          }
+        },
+        "formSection5": {
+          "title": "初期書類",
+          "alreadyUploaded": "アップロード済み",
+          "view": "表示",
+          "dropzone": "ファイルをここにドラッグ、またはPDF、DOCX、JPG、PNGを選択",
+          "newUploads": "新規アップロード",
+          "removeFile": "ファイルを削除",
+          "note": "書類は後で契約業者プロファイルから追加できます。"
+        },
+        "list": {
+          "title": "契約業者登録",
+          "summary": "契約業者 {{totalCount}} 件 - 有効 {{activeCount}} 件 - ブロック中 {{blockedCount}} 件",
+          "loading": "契約業者を読み込み中...",
+          "empty": "登録されている契約業者はいません。最初の契約業者を追加してください。",
+          "actions": {
+            "addContractor": "契約業者を追加"
+          }
+        },
+        "card": {
+          "jobCount_one": "{{count}} 件のジョブ",
+          "jobCount_other": "{{count}} 件のジョブ",
+          "viewProfile": "プロファイルを表示"
+        },
+        "specializationTags": {
+          "electrical": "電気",
+          "mechanical": "機械",
+          "hydraulic": "油圧",
+          "pneumatic": "空圧",
+          "welding": "溶接",
+          "plc_automation": "PLC / 自動化",
+          "hvac": "空調",
+          "civil": "土木",
+          "oem_authorized": "OEM正規認定",
+          "calibration": "校正",
+          "inspection": "点検",
+          "pressure_vessel": "圧力容器",
+          "elevator": "エレベーター",
+          "fire_safety": "防火安全",
+          "other": "その他",
+          "moreCount_one": "他 {{count}} 件",
+          "moreCount_other": "他 {{count}} 件"
+        },
+        "analyticsTab": {
+          "jobsPerMonth": "月別ジョブ数",
+          "ratingTrend": "評価の推移",
+          "costPerJob": "ジョブあたり費用",
+          "jobTypeDistribution": "ジョブ種別分布",
+          "jobTypes": {
+            "breakdown": "故障対応",
+            "preventive": "予防保全",
+            "corrective": "是正保全",
+            "installation": "設置",
+            "modification": "改造",
+            "inspection": "点検",
+            "other": "その他"
+          }
+        },
+        "filterBar": {
+          "searchPlaceholder": "会社名、屋号、登録番号で検索",
+          "clear": "クリア",
+          "status": {
+            "all": "すべてのステータス"
+          },
+          "rating": {
+            "any": "評価を問わない",
+            "fourPlus": "星4つ以上",
+            "threePlus": "星3つ以上"
+          },
+          "docs": {
+            "all": "すべての書類"
+          }
+        },
+        "listTable": {
+          "empty": "登録されている契約業者はいません。最初の契約業者を追加してください。",
+          "columns": {
+            "company": "会社",
+            "specializations": "専門分野",
+            "status": "ステータス",
+            "rating": "評価",
+            "jobs": "ジョブ数",
+            "lastJob": "最終ジョブ",
+            "documents": "書類",
+            "actions": "操作"
+          },
+          "lastJob": {
+            "never": "なし",
+            "today": "本日",
+            "yesterday": "昨日",
+            "daysAgo_one": "{{count}} 日前",
+            "daysAgo_other": "{{count}} 日前"
+          },
+          "actions": {
+            "view": "表示",
+            "edit": "編集"
+          }
+        },
+        "profileHeader": {
+          "jobCount_one": "{{count}} 件のジョブ",
+          "jobCount_other": "{{count}} 件のジョブ",
+          "actions": {
+            "rate": "評価する",
+            "edit": "編集",
+            "moreActions": "その他の操作"
+          },
+          "rateModal": {
+            "title": "{{companyName}} を評価",
+            "starLabel": "星{{count}}つ",
+            "cancel": "キャンセル",
+            "saving": "保存中…",
+            "saveRating": "評価を保存",
+            "errors": {
+              "selectRating": "1〜5の星で評価を選択してください。",
+              "updateFailed": "評価の更新に失敗しました。"
+            }
+          }
+        },
+        "overviewTab": {
+          "companyInformation": {
+            "title": "会社情報",
+            "legalName": "正式名称",
+            "tradeName": "屋号",
+            "registration": "登録番号",
+            "companyType": "会社形態",
+            "established": "設立",
+            "address": "住所",
+            "website": "ウェブサイト",
+            "notes": "備考"
+          },
+          "contactDetails": {
+            "title": "連絡先情報",
+            "primaryContact": "主担当者",
+            "primaryPhone": "主担当者電話番号",
+            "primaryEmail": "主担当者メールアドレス",
+            "secondaryContact": "副担当者",
+            "secondaryPhone": "副担当者電話番号",
+            "emergency": "緊急連絡先",
+            "whatsapp": "WhatsApp"
+          },
+          "serviceCapabilities": {
+            "title": "対応能力",
+            "specializations": "専門分野",
+            "machineTypes": "機械種別",
+            "industries": "対応業種",
+            "coverage": "対応地域",
+            "serviceHours": "対応時間",
+            "responseTime": "対応時間(初動)",
+            "teamSize": "チーム規模",
+            "languages": "対応言語"
+          },
+          "financialDetails": {
+            "title": "財務情報",
+            "paymentMethods": "支払方法",
+            "bank": "銀行",
+            "account": "口座",
+            "taxRegistration": "納税登録"
+          },
+          "completedProjects": {
+            "title": "過去の完了プロジェクト",
+            "untitledProject": "無題のプロジェクト",
+            "cost": "費用: {{cost}}",
+            "rating": "評価: {{rating}} ★",
+            "duration": "期間: {{duration}}",
+            "type": "種別: {{type}}",
+            "violations": "違反事項: {{violations}}"
+          },
+          "performanceSummary": {
+            "title": "パフォーマンス概要",
+            "averageRating": "平均評価",
+            "averageRatingValue": "{{rating}}/5({{count}} 件の評価)",
+            "totalJobs": "総ジョブ数",
+            "totalJobsValue": "{{total}}(故障対応 {{breakdown}} | 予防保全 {{pm}} | 設置 {{install}})",
+            "averageMttr": "平均MTTR",
+            "minutesValue": "{{minutes}} 分",
+            "slaCompliance": "SLA遵守率",
+            "avgJobCost": "平均ジョブ費用"
+          }
+        },
+        "jobHistoryTab": {
+          "stats": {
+            "totalJobs": "総ジョブ数",
+            "avgRating": "平均評価",
+            "totalCost": "総費用",
+            "slaJobs": "SLA遵守ジョブ数"
+          },
+          "techniciansNotLogged": "技術者が記録されていません",
+          "onSite": "現場滞在: {{minutes}} 分",
+          "usedPartsCost": "使用部品費用",
+          "projectCost": "プロジェクト費用",
+          "totalCost": "総費用",
+          "jobRating": "ジョブ評価: {{score}} / 5",
+          "ratingBreakdown": {
+            "speed": "スピード: {{score}}",
+            "quality": "品質: {{score}}",
+            "professionalism": "プロフェッショナリズム: {{score}}",
+            "communication": "コミュニケーション: {{score}}"
+          },
+          "ratedBy": "{{name}} による評価",
+          "ratedOn": " ({{date}})",
+          "unknown": "不明",
+          "notRatedYet": "まだ評価されていません。",
+          "started": "開始: {{date}}",
+          "completed": "完了: {{date}}",
+          "signedOff": "サインオフ: {{date}}",
+          "waitedForParts": "部品待ち時間: {{minutes}} 分",
+          "waitedForPermission": "許可待ち時間: {{minutes}} 分",
+          "contractorWo": "契約業者作業指示",
+          "empty": "ジョブ履歴はまだありません。",
+          "auditRatings": {
+            "title": "監査評価",
+            "subtitle": "契約業者監査時に記録されたジョブ別の星評価とメモです。",
+            "unlinkedJob": "紐付けされていないジョブ",
+            "fromAudit": "{{name}} による監査 ({{date}})"
+          },
+          "completedProjects": {
+            "title": "過去の完了プロジェクト",
+            "subtitle": "契約業者がシステムに登録される前に記録されたプロジェクトです。",
+            "rating": "評価: {{rating}}",
+            "projectCost": "プロジェクト費用: {{cost}}",
+            "duration": "期間: {{duration}}",
+            "forbiddenActions": "禁止行為: {{actions}}"
+          }
+        },
+        "formLayout": {
+          "loading": "契約業者を読み込み中…",
+          "notFound": "契約業者が見つかりません。",
+          "actions": {
+            "cancel": "キャンセル",
+            "saving": "保存中…",
+            "saveAndAddDocuments": "保存して書類を追加",
+            "saveContractor": "契約業者を保存",
+            "updateContractor": "契約業者を更新"
+          },
+          "errors": {
+            "missingCompanyContext": "会社の情報が見つかりません。再ログインしてください。",
+            "missingRequiredFields": "必須項目(会社名、登録番号、主担当者)をすべて入力してください。",
+            "saveFailed": "契約業者の保存に失敗しました。"
+          }
+        }
+      },
+      "shared": {
+        "assignmentBlocker": {
+          "title": "この契約業者は新規ジョブに割り当てられません。",
+          "defaultReason": "重要なコンプライアンス書類の有効期限が切れています。",
+          "renewPrompt": "この契約業者を割り当てる前に書類を更新してください。"
+        },
+        "manualEntryFlag": {
+          "notRegistered": "{{contractorName}} は登録されていません。",
+          "registerNow": "今すぐ登録"
+        },
+        "invitationStatusBadge": {
+          "email": "メール",
+          "whatsapp": "WhatsApp"
+        },
+        "searchDropdown": {
+          "companyNameLabel": "契約業者の会社名",
+          "manualNamePlaceholder": "契約業者名を手動で入力",
+          "searchPlaceholder": "契約業者を検索",
+          "blockedTitle": "重要なコンプライアンス書類の有効期限が切れています。割り当てを有効にするには更新してください。",
+          "lastJob": "最終ジョブ: {{date}}",
+          "never": "なし",
+          "notRegisteredPrompt": "契約業者が未登録ですか? 契約業者名を手動で入力"
+        }
+      }
     }
   },
   "triage": {

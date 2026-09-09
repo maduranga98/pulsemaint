@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
 import { formatLkr } from '@/lib/contractors/invoiceCalculator';
 import { useContractorAccess } from '@/hooks/contractors/useContractorAccess';
@@ -36,6 +37,7 @@ function InfoCard({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export function ContractorOverviewTab({ contractor }: ContractorOverviewTabProps) {
+  const { t } = useTranslation();
   const access = useContractorAccess();
 
   const primaryContact = `${contractor.primaryContactName ?? ''} ${
@@ -72,52 +74,52 @@ export function ContractorOverviewTab({ contractor }: ContractorOverviewTabProps
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      <InfoCard title="Company Information">
-        <Field label="Legal name" value={contractor.companyName} />
-        <Field label="Trade name" value={contractor.tradeName} />
-        <Field label="Registration" value={contractor.registrationNumber} />
-        <Field label="Company type" value={contractor.companyType?.replace(/_/g, ' ')} />
-        <Field label="Established" value={contractor.dateEstablished} />
-        <Field label="Address" value={address} />
-        <Field label="Website" value={contractor.website} />
-        <Field label="Notes" value={contractor.notes} />
+      <InfoCard title={t('common.contractors.registry.overviewTab.companyInformation.title')}>
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.legalName')} value={contractor.companyName} />
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.tradeName')} value={contractor.tradeName} />
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.registration')} value={contractor.registrationNumber} />
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.companyType')} value={contractor.companyType?.replace(/_/g, ' ')} />
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.established')} value={contractor.dateEstablished} />
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.address')} value={address} />
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.website')} value={contractor.website} />
+        <Field label={t('common.contractors.registry.overviewTab.companyInformation.notes')} value={contractor.notes} />
       </InfoCard>
 
       {hasContactData && (
-      <InfoCard title="Contact Details">
-        <Field label="Primary contact" value={primaryContact} />
-        <Field label="Primary phone" value={contractor.primaryPhone} />
-        <Field label="Primary email" value={contractor.primaryEmail} />
-        <Field label="Secondary contact" value={contractor.secondaryContactName} />
-        <Field label="Secondary phone" value={contractor.secondaryPhone} />
-        <Field label="Emergency" value={contractor.emergencyContact} />
-        <Field label="WhatsApp" value={contractor.whatsappNumber} />
+      <InfoCard title={t('common.contractors.registry.overviewTab.contactDetails.title')}>
+        <Field label={t('common.contractors.registry.overviewTab.contactDetails.primaryContact')} value={primaryContact} />
+        <Field label={t('common.contractors.registry.overviewTab.contactDetails.primaryPhone')} value={contractor.primaryPhone} />
+        <Field label={t('common.contractors.registry.overviewTab.contactDetails.primaryEmail')} value={contractor.primaryEmail} />
+        <Field label={t('common.contractors.registry.overviewTab.contactDetails.secondaryContact')} value={contractor.secondaryContactName} />
+        <Field label={t('common.contractors.registry.overviewTab.contactDetails.secondaryPhone')} value={contractor.secondaryPhone} />
+        <Field label={t('common.contractors.registry.overviewTab.contactDetails.emergency')} value={contractor.emergencyContact} />
+        <Field label={t('common.contractors.registry.overviewTab.contactDetails.whatsapp')} value={contractor.whatsappNumber} />
       </InfoCard>
       )}
 
       {hasServiceData && (
-      <InfoCard title="Service Capabilities">
+      <InfoCard title={t('common.contractors.registry.overviewTab.serviceCapabilities.title')}>
         {specializations.length > 0 && (
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">Specializations</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-slate-400">{t('common.contractors.registry.overviewTab.serviceCapabilities.specializations')}</dt>
             <dd className="mt-2"><ContractorSpecializationTags tags={specializations} /></dd>
           </div>
         )}
-        <Field label="Machine types" value={(contractor.machineTypesServiced ?? []).join(', ')} />
-        <Field label="Industries" value={(contractor.industriesServed ?? []).join(', ')} />
-        <Field label="Coverage" value={coverage} />
-        <Field label="Service hours" value={contractor.serviceHours?.replace(/_/g, ' ')} />
-        <Field label="Response time" value={contractor.emergencyResponseTime} />
-        <Field label="Team size" value={contractor.teamSizeAvailable ? contractor.teamSizeAvailable : null} />
-        <Field label="Languages" value={languages} />
+        <Field label={t('common.contractors.registry.overviewTab.serviceCapabilities.machineTypes')} value={(contractor.machineTypesServiced ?? []).join(', ')} />
+        <Field label={t('common.contractors.registry.overviewTab.serviceCapabilities.industries')} value={(contractor.industriesServed ?? []).join(', ')} />
+        <Field label={t('common.contractors.registry.overviewTab.serviceCapabilities.coverage')} value={coverage} />
+        <Field label={t('common.contractors.registry.overviewTab.serviceCapabilities.serviceHours')} value={contractor.serviceHours?.replace(/_/g, ' ')} />
+        <Field label={t('common.contractors.registry.overviewTab.serviceCapabilities.responseTime')} value={contractor.emergencyResponseTime} />
+        <Field label={t('common.contractors.registry.overviewTab.serviceCapabilities.teamSize')} value={contractor.teamSizeAvailable ? contractor.teamSizeAvailable : null} />
+        <Field label={t('common.contractors.registry.overviewTab.serviceCapabilities.languages')} value={languages} />
       </InfoCard>
       )}
 
       {access.canViewFinancials && hasFinancialData && (
-        <InfoCard title="Financial Details">
-          <Field label="Payment methods" value={paymentMethods} />
+        <InfoCard title={t('common.contractors.registry.overviewTab.financialDetails.title')}>
+          <Field label={t('common.contractors.registry.overviewTab.financialDetails.paymentMethods')} value={paymentMethods} />
           <Field
-            label="Bank"
+            label={t('common.contractors.registry.overviewTab.financialDetails.bank')}
             value={
               contractor.bankName
                 ? `${contractor.bankName}${contractor.bankBranch ? ` (${contractor.bankBranch})` : ''}`
@@ -125,30 +127,30 @@ export function ContractorOverviewTab({ contractor }: ContractorOverviewTabProps
             }
           />
           <Field
-            label="Account"
+            label={t('common.contractors.registry.overviewTab.financialDetails.account')}
             value={
               contractor.bankAccountNumber
                 ? `${contractor.bankAccountName ? `${contractor.bankAccountName} · ` : ''}****${contractor.bankAccountNumber.slice(-4)}`
                 : null
             }
           />
-          <Field label="Tax registration" value={contractor.taxRegistrationNumber} />
+          <Field label={t('common.contractors.registry.overviewTab.financialDetails.taxRegistration')} value={contractor.taxRegistrationNumber} />
         </InfoCard>
       )}
 
       {access.canViewFinancials && projects.length > 0 && (
-        <InfoCard title="Previously Completed Projects">
+        <InfoCard title={t('common.contractors.registry.overviewTab.completedProjects.title')}>
           {projects.map((project, index) => (
             <div key={index} className="rounded-md border border-slate-100 bg-slate-50 p-3">
-              <p className="text-sm font-semibold text-slate-800">{project.name || 'Untitled project'}</p>
+              <p className="text-sm font-semibold text-slate-800">{project.name || t('common.contractors.registry.overviewTab.completedProjects.untitledProject')}</p>
               <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                {hasValue(project.cost) && <span>Cost: {project.cost}</span>}
-                {hasValue(project.rating) && <span>Rating: {project.rating} ★</span>}
-                {hasValue(project.duration) && <span>Duration: {project.duration}</span>}
-                {hasValue(project.contractType) && <span>Type: {project.contractType}</span>}
+                {hasValue(project.cost) && <span>{t('common.contractors.registry.overviewTab.completedProjects.cost', { cost: project.cost })}</span>}
+                {hasValue(project.rating) && <span>{t('common.contractors.registry.overviewTab.completedProjects.rating', { rating: project.rating })}</span>}
+                {hasValue(project.duration) && <span>{t('common.contractors.registry.overviewTab.completedProjects.duration', { duration: project.duration })}</span>}
+                {hasValue(project.contractType) && <span>{t('common.contractors.registry.overviewTab.completedProjects.type', { type: project.contractType })}</span>}
               </div>
               {hasValue(project.forbiddenActions) && (
-                <p className="mt-1 text-xs text-red-600">Violations: {project.forbiddenActions}</p>
+                <p className="mt-1 text-xs text-red-600">{t('common.contractors.registry.overviewTab.completedProjects.violations', { violations: project.forbiddenActions })}</p>
               )}
             </div>
           ))}
@@ -156,12 +158,12 @@ export function ContractorOverviewTab({ contractor }: ContractorOverviewTabProps
       )}
 
       {hasPerformanceData && (
-        <InfoCard title="Performance Summary">
-          <Field label="Average rating" value={`${(contractor.avgRating ?? 0).toFixed(1)}/5 (${contractor.ratingCount ?? 0} ratings)`} />
-          <Field label="Total jobs" value={`${contractor.totalJobsCount ?? 0} (Breakdown ${contractor.breakdownJobsCount ?? 0} | PM ${contractor.pmJobsCount ?? 0} | Install ${contractor.installationJobsCount ?? 0})`} />
-          <Field label="Average MTTR" value={(contractor.avgMttr ?? 0) > 0 ? `${contractor.avgMttr} min` : null} />
-          <Field label="SLA compliance" value={(contractor.slaComplianceRate ?? 0) > 0 ? `${contractor.slaComplianceRate}%` : null} />
-          <Field label="Avg job cost" value={(contractor.avgJobCost ?? 0) > 0 ? formatLkr(contractor.avgJobCost) : null} />
+        <InfoCard title={t('common.contractors.registry.overviewTab.performanceSummary.title')}>
+          <Field label={t('common.contractors.registry.overviewTab.performanceSummary.averageRating')} value={t('common.contractors.registry.overviewTab.performanceSummary.averageRatingValue', { rating: (contractor.avgRating ?? 0).toFixed(1), count: contractor.ratingCount ?? 0 })} />
+          <Field label={t('common.contractors.registry.overviewTab.performanceSummary.totalJobs')} value={t('common.contractors.registry.overviewTab.performanceSummary.totalJobsValue', { total: contractor.totalJobsCount ?? 0, breakdown: contractor.breakdownJobsCount ?? 0, pm: contractor.pmJobsCount ?? 0, install: contractor.installationJobsCount ?? 0 })} />
+          <Field label={t('common.contractors.registry.overviewTab.performanceSummary.averageMttr')} value={(contractor.avgMttr ?? 0) > 0 ? t('common.contractors.registry.overviewTab.performanceSummary.minutesValue', { minutes: contractor.avgMttr }) : null} />
+          <Field label={t('common.contractors.registry.overviewTab.performanceSummary.slaCompliance')} value={(contractor.slaComplianceRate ?? 0) > 0 ? `${contractor.slaComplianceRate}%` : null} />
+          <Field label={t('common.contractors.registry.overviewTab.performanceSummary.avgJobCost')} value={(contractor.avgJobCost ?? 0) > 0 ? formatLkr(contractor.avgJobCost) : null} />
         </InfoCard>
       )}
     </div>

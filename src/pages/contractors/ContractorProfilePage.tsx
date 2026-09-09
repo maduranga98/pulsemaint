@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useContractor } from '@/hooks/contractors/useContractor';
 import { useContractorDocuments } from '@/hooks/contractors/useContractorDocuments';
 import { useContractorJobs } from '@/hooks/contractors/useContractorJobs';
@@ -18,6 +19,7 @@ import ContractorTechniciansTab from '@/components/contractors/registry/Contract
 const TABS = ['Overview', 'Documents', 'Team Members', 'Job History', 'Analytics'] as const;
 
 export function ContractorProfilePage() {
+  const { t } = useTranslation();
   const { contractorId } = useParams();
   const [tab, setTab] = useState<(typeof TABS)[number]>('Overview');
   const { contractor, loading } = useContractor(contractorId);
@@ -27,8 +29,16 @@ export function ContractorProfilePage() {
   const { workOrders: contractorWorkOrders } = useContractorWorkOrders(contractorId);
   const { ratings: auditRatings } = useContractorAuditRatings(contractorId);
 
-  if (loading) return <div className="p-6 text-slate-500">Loading contractor...</div>;
-  if (!contractor) return <div className="p-6 text-slate-500">Contractor not found.</div>;
+  const TAB_LABELS: Record<(typeof TABS)[number], string> = {
+    Overview: t('common.contractors.profilePage.tabs.overview'),
+    Documents: t('common.contractors.profilePage.tabs.documents'),
+    'Team Members': t('common.contractors.profilePage.tabs.teamMembers'),
+    'Job History': t('common.contractors.profilePage.tabs.jobHistory'),
+    Analytics: t('common.contractors.profilePage.tabs.analytics'),
+  };
+
+  if (loading) return <div className="p-6 text-slate-500">{t('common.contractors.profilePage.loading')}</div>;
+  if (!contractor) return <div className="p-6 text-slate-500">{t('common.contractors.profilePage.notFound')}</div>;
 
   return (
     <div className="space-y-5 p-4 lg:p-6">
@@ -38,7 +48,7 @@ export function ContractorProfilePage() {
       <div className="flex gap-2 overflow-x-auto">
         {TABS.map((item) => (
           <button key={item} type="button" onClick={() => setTab(item)} className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold ${tab === item ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-600'}`}>
-            {item}
+            {TAB_LABELS[item]}
           </button>
         ))}
       </div>

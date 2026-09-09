@@ -5011,6 +5011,1009 @@
         "completed": "Programa completado.",
         "downloadCertificate": "Descargar certificado"
       }
+    },
+    "contractors": {
+      "jobs": {
+        "listPage": {
+          "title": "Trabajos de Contratistas",
+          "subtitle": "Seguimiento de invitaciones, llegadas, registros de trabajo, firma de conformidad, facturas y valoraciones.",
+          "loading": "Cargando trabajos de contratistas..."
+        },
+        "detailPage": {
+          "loading": "Cargando trabajo...",
+          "notFound": "Trabajo de contratista no encontrado.",
+          "team": {
+            "title": "Equipo del Contratista",
+            "techniciansNotConfirmed": "Técnicos no confirmados"
+          },
+          "actions": {
+            "logWork": "Registrar Trabajo",
+            "signOff": "Firma de Conformidad",
+            "invoice": "Factura",
+            "rate": "Valorar"
+          }
+        },
+        "logWorkPage": {
+          "loading": "Cargando registro de trabajo...",
+          "notFound": "Trabajo no encontrado.",
+          "onSiteFor": "En sitio desde hace: {{minutes}} minutos",
+          "actions": {
+            "logDeparture": "Registrar Salida",
+            "completeChecklist": "Completar Lista de Verificación"
+          }
+        },
+        "signOffPage": {
+          "loading": "Cargando firma de conformidad...",
+          "notFound": "Trabajo no encontrado.",
+          "title": "Firma de Conformidad del Contratista"
+        },
+        "ratePage": {
+          "loading": "Cargando formulario de valoración...",
+          "notFound": "Trabajo no encontrado."
+        },
+        "invoiceComparisonPage": {
+          "loading": "Cargando factura...",
+          "notFound": "Trabajo no encontrado.",
+          "title": "Comparación de Facturas"
+        },
+        "statusBadge": {
+          "invitation_sent": "Invitado",
+          "acknowledged": "Confirmado",
+          "contractor_arrived": "En Sitio",
+          "work_in_progress": "Trabajando",
+          "checklist_complete": "Lista Completada",
+          "signed_off": "Firmado",
+          "invoice_submitted": "Factura Pendiente",
+          "payment_processed": "Pagado",
+          "cancelled": "Cancelado"
+        },
+        "statusStepper": {
+          "invitation_sent": "Invitado",
+          "acknowledged": "Confirmado",
+          "contractor_arrived": "En Sitio",
+          "work_in_progress": "Trabajando",
+          "checklist_complete": "Lista",
+          "signed_off": "Firmado",
+          "invoice_submitted": "Factura",
+          "payment_processed": "Finalizado"
+        },
+        "jobList": {
+          "tabs": {
+            "active": "Activos",
+            "invitation_sent": "Invitación Enviada",
+            "work_in_progress": "En Progreso",
+            "checklist_complete": "Pendiente de Firma",
+            "invoice_submitted": "Factura Pendiente",
+            "completed": "Completados",
+            "cancelled": "Cancelados"
+          },
+          "columns": {
+            "wo": "OT",
+            "contractor": "Contratista",
+            "machine": "Máquina",
+            "priority": "Prioridad",
+            "status": "Estado",
+            "invited": "Invitado",
+            "onSite": "En sitio",
+            "rating": "Valoración",
+            "invoice": "Factura",
+            "actions": "Acciones"
+          },
+          "empty": "No se encontraron trabajos de contratistas.",
+          "viewJob": "Ver Trabajo",
+          "view": "Ver"
+        },
+        "jobHeader": {
+          "slaDeadline": "Plazo SLA: {{deadline}}"
+        },
+        "arrivalLog": {
+          "title": "Llegada y Salida",
+          "arrivalLabel": "Llegada: {{value}}",
+          "departureLabel": "Salida: {{value}}",
+          "notArrived": "Sin llegada registrada",
+          "notDeparted": "Sin salida registrada",
+          "actions": {
+            "logArrival": "Registrar Llegada del Contratista",
+            "logDeparture": "Registrar Salida"
+          },
+          "toasts": {
+            "arrivalLogged": "Llegada registrada.",
+            "arrivalFailed": "No se pudo registrar la llegada",
+            "departureLogged": "Salida registrada.",
+            "departureFailed": "No se pudo registrar la salida"
+          }
+        },
+        "timeline": {
+          "title": "Cronología del Trabajo",
+          "workStarted": "Trabajo Iniciado: {{value}}",
+          "workCompleted": "Trabajo Completado: {{value}}",
+          "waitingForParts": "Esperando Piezas: {{start}} → {{end}}",
+          "waitingForPermission": "Esperando Autorización: {{start}} → {{end}}",
+          "actions": {
+            "startWork": "Iniciar Trabajo",
+            "markWorkComplete": "Marcar Trabajo Completado",
+            "markWaitingForParts": "Marcar Esperando Piezas",
+            "resolvePartsWait": "Resolver Espera de Piezas",
+            "markWaitingForPermission": "Marcar Esperando Autorización",
+            "resolvePermissionWait": "Resolver Espera de Autorización"
+          },
+          "toasts": {
+            "workStartLogged": "Inicio de trabajo registrado.",
+            "workCompletionLogged": "Finalización de trabajo registrada.",
+            "markedWaitingForParts": "Marcado como esperando piezas.",
+            "partsWaitResolved": "Espera de piezas resuelta.",
+            "markedWaitingForPermission": "Marcado como esperando autorización.",
+            "permissionWaitResolved": "Espera de autorización resuelta.",
+            "updateFailed": "No se pudo actualizar la cronología del trabajo"
+          }
+        },
+        "invitation": {
+          "title": "Invitación de Trabajo",
+          "sent": "Enviada: {{value}}",
+          "acknowledged": "Confirmada: {{value}}",
+          "notAcknowledged": "No confirmada",
+          "actions": {
+            "viewDetails": "Ver Detalles de la Invitación",
+            "resend": "Reenviar Invitación",
+            "markAcknowledged": "Marcar como Confirmada"
+          }
+        },
+        "workLog": {
+          "entryForm": {
+            "title": "Registrar Paso de Trabajo",
+            "descriptionPlaceholder": "¿Qué se realizó?",
+            "addPhotos": "Añadir Fotos",
+            "durationPlaceholder": "Duración en minutos",
+            "addStep": "Añadir Paso"
+          },
+          "timeline": {
+            "title": "Registro de Trabajo",
+            "empty": "Aún no se han registrado pasos de trabajo."
+          },
+          "stepCard": {
+            "step": "Paso {{number}}",
+            "duration": "{{minutes}} min",
+            "logged": "Registrado {{value}}",
+            "pendingSync": "Sincronización pendiente"
+          }
+        },
+        "partsUsed": {
+          "title": "Piezas Utilizadas",
+          "factoryParts": {
+            "title": "Piezas de Fábrica Entregadas",
+            "empty": "No se han entregado piezas de fábrica.",
+            "line": "{{name}} x {{quantity}}"
+          },
+          "contractorMaterials": {
+            "title": "Materiales del Contratista",
+            "empty": "No se han registrado materiales del contratista.",
+            "line": "{{description}} x {{quantity}} {{unit}}"
+          }
+        },
+        "checklist": {
+          "title": "Lista de Verificación Posterior al Trabajo",
+          "empty": "Lista de verificación aún no completada.",
+          "pass": "Aprobado",
+          "fail": "Rechazado",
+          "testRun": "Prueba de funcionamiento: {{value}}",
+          "machineAfter": "Máquina después: {{value}}"
+        },
+        "photos": {
+          "title": "Fotos y Documentos",
+          "addPhotos": "Añadir Fotos",
+          "empty": "Aún no se han subido fotos."
+        },
+        "invoiceUpload": {
+          "title": "Subir Factura del Contratista",
+          "referencePlaceholder": "Referencia de la factura",
+          "amountPlaceholder": "Importe (LKR)",
+          "uploadPdf": "Subir Factura en PDF"
+        },
+        "invoiceComparison": {
+          "title": "Comparación de Facturas",
+          "systemInvoice": {
+            "title": "Factura del Sistema",
+            "labor": "Mano de obra",
+            "laborValue": "{{hours}}h x {{rate}}",
+            "laborCost": "Costo de mano de obra",
+            "factoryParts": "Piezas de fábrica",
+            "systemTotal": "Total del sistema"
+          },
+          "contractorInvoice": {
+            "title": "Factura del Contratista",
+            "reference": "Referencia",
+            "date": "Fecha",
+            "invoiceTotal": "Total de la factura"
+          },
+          "variance": {
+            "label": "Variación: {{amount}}",
+            "match": "La factura coincide con el cálculo del sistema.",
+            "mismatch": "La factura del contratista es {{direction}} en un {{percent}}%.",
+            "flagged": "Variación {{percent}}%",
+            "withinRange": "Dentro del rango {{percent}}%"
+          }
+        },
+        "ratingForm": {
+          "title": "Valorar a {{contractorName}}",
+          "dimensions": {
+            "speed": {
+              "label": "Rapidez",
+              "helper": "¿Con qué rapidez se completó la reparación?"
+            },
+            "quality": {
+              "label": "Calidad",
+              "helper": "¿Qué tan bien se realizó el trabajo?"
+            },
+            "professionalism": {
+              "label": "Profesionalismo",
+              "helper": "¿Qué tan profesional fue el equipo del contratista?"
+            },
+            "communication": {
+              "label": "Comunicación",
+              "helper": "¿Qué tan bien se comunicaron?"
+            }
+          },
+          "overallScore": "Puntuación general",
+          "notesPlaceholder": "Añadir comentarios detallados",
+          "submit": "Enviar Valoración",
+          "saving": "Guardando…",
+          "toasts": {
+            "success": "Valoración enviada",
+            "incomplete": "Por favor, valore las cuatro áreas antes de enviar.",
+            "failed": "No se pudo enviar la valoración"
+          }
+        },
+        "ratingQuickTags": {
+          "arrivedOnTime": "Llegó a tiempo",
+          "neatWorkmanship": "Trabajo prolijo",
+          "explainedIssueWell": "Explicó bien el problema",
+          "leftSiteClean": "Dejó el sitio limpio",
+          "requiredNoCallbacks": "No requirió reincidencias",
+          "professionalTeam": "Equipo profesional"
+        },
+        "followUpFlag": {
+          "label": "El mismo problema volvió a ocurrir dentro de los 30 días",
+          "placeholder": "Describa el problema recurrente"
+        },
+        "signOffForm": {
+          "reviewSummary": {
+            "title": "Resumen de Revisión",
+            "workDoneDescriptionPlaceholder": "Descripción del trabajo realizado",
+            "machineStatus": {
+              "operational": "Operativa",
+              "partially_operational": "Parcialmente Operativa",
+              "still_down": "Aún Detenida"
+            }
+          },
+          "totalCost": {
+            "title": "Costo Total",
+            "helper": "Costo de piezas utilizadas (de esta orden de trabajo) más el costo del proyecto que ingrese a continuación. Se registra en esta orden de trabajo, el historial de costos de la máquina y el análisis de costos de mantenimiento.",
+            "usedPartsCost": "Costo de Piezas Utilizadas (automático)",
+            "projectCost": "Costo del Proyecto",
+            "summary": "Costo total — piezas utilizadas {{partsCost}} + proyecto {{projectCost}}"
+          },
+          "rating": {
+            "title": "Valoración del Contratista",
+            "helper": "Valore las cuatro áreas — se requiere una valoración para firmar la conformidad, y aparecerá en el historial de trabajos de este contratista.",
+            "overallScore": "Puntuación general",
+            "dimensions": {
+              "speed": "Rapidez",
+              "quality": "Calidad",
+              "professionalism": "Profesionalismo",
+              "communication": "Comunicación"
+            }
+          },
+          "signature": {
+            "title": "Firma Digital",
+            "clear": "Borrar"
+          },
+          "concerns": {
+            "label": "Tengo dudas sobre la calidad de este trabajo",
+            "notesPlaceholder": "Notas de conformidad o notas de disputa"
+          },
+          "submit": "Firmar Conformidad y Completar",
+          "saving": "Guardando…",
+          "errors": {
+            "signatureRequired": "Se requiere una firma para dar conformidad a este trabajo.",
+            "invalidProjectCost": "Ingrese un costo de proyecto válido.",
+            "ratingRequired": "Valore las cuatro áreas antes de dar conformidad a este trabajo."
+          },
+          "toasts": {
+            "success": "Conformidad del trabajo firmada con éxito",
+            "failed": "No se pudo firmar la conformidad de este trabajo."
+          }
+        }
+      },
+      "documents": {
+        "expiryTimer": {},
+        "renewalModal": {
+          "title": "Renovar Documento",
+          "titleWithName": "Renovar {{name}}"
+        },
+        "criticalWarning": {
+          "message": "El contratista no puede ser asignado a nuevos trabajos hasta que se renueven los documentos vencidos."
+        },
+        "historyAccordion": {
+          "title": "Historial de {{documentType}}",
+          "version": "v{{version}}"
+        },
+        "statusBadge": {
+          "noExpiry": "Sin Vencimiento",
+          "blocksAssignment": "Bloquea asignación"
+        },
+        "card": {
+          "noExpiry": "Sin vencimiento",
+          "versionUploadedBy": "Versión {{version}} - Subido por {{name}}",
+          "issued": "Emitido: {{date}}",
+          "expiry": "Vencimiento: {{date}}",
+          "actions": {
+            "download": "Descargar",
+            "preview": "Vista Previa",
+            "renew": "Renovar"
+          }
+        },
+        "list": {
+          "title": "Documentos",
+          "subtitle": "Registros de cumplimiento vigentes, por vencer, vencidos y permanentes.",
+          "empty": "Aún no se han subido documentos.",
+          "actions": {
+            "upload": "Subir Documento"
+          },
+          "legend": {
+            "valid": "Verde: Vigente",
+            "expiringSoon": "Ámbar: Vence dentro de 30 días",
+            "expired": "Rojo: Vencido",
+            "noExpiry": "Gris: Sin vencimiento"
+          }
+        },
+        "uploadModal": {
+          "defaultTitle": "Subir Documento",
+          "fields": {
+            "documentName": "Nombre del documento",
+            "issueDate": "Fecha de emisión",
+            "expiryDate": "Fecha de vencimiento (dejar en blanco si es permanente)",
+            "notes": "Notas"
+          },
+          "fileArea": {
+            "uploadHint": "PDF, DOCX, JPG o PNG hasta 50 MB",
+            "renewalHint": "Opcional: reemplazar el archivo (se conserva el archivo actual si no se elige ninguno)"
+          },
+          "currentValidity": {
+            "label": "Vigencia actual:",
+            "expires": "vence el {{date}}",
+            "noExpiry": "sin vencimiento registrado",
+            "hint": "Establezca la nueva fecha de vencimiento a continuación para extender el contrato."
+          },
+          "actions": {
+            "close": "Cerrar",
+            "saving": "Guardando…",
+            "upload": "Subir",
+            "renew": "Renovar Documento"
+          },
+          "toasts": {
+            "uploaded": "Documento subido",
+            "renewed": "Documento renovado",
+            "renewedWithDate": "Documento renovado — vigente hasta {{date}}"
+          },
+          "errors": {
+            "missingContractor": "Falta la referencia del contratista. No se puede subir.",
+            "mustBeLoggedIn": "Debe iniciar sesión para subir documentos.",
+            "fileRequired": "Por favor, elija un archivo para subir.",
+            "expiryRequired": "Por favor, establezca la nueva fecha de vencimiento del documento renovado.",
+            "uploadFailed": "Error al subir"
+          }
+        }
+      },
+      "technicians": {
+        "designations": {
+          "engineer": "Ingeniero",
+          "senior_technician": "Técnico Senior",
+          "technician": "Técnico",
+          "helper": "Ayudante",
+          "other": "Otro"
+        },
+        "statuses": {
+          "active": "Activo",
+          "inactive": "Inactivo"
+        },
+        "accessLog": {
+          "empty": "No hay visitas registradas.",
+          "notRecorded": "-",
+          "arrivalDeparture": "Llegada {{arrival}} - Salida {{departure}}"
+        },
+        "grid": {
+          "empty": "No hay miembros del equipo registrados."
+        },
+        "card": {
+          "nicOrPassport": "Cédula/Pasaporte:",
+          "jobs": "Trabajos: {{count}}",
+          "lastVisit": "Última visita: {{date}}",
+          "never": "Nunca",
+          "actions": {
+            "view": "Ver",
+            "edit": "Editar"
+          }
+        },
+        "detailModal": {
+          "fields": {
+            "nicOrPassport": "Cédula/Pasaporte",
+            "contractor": "Contratista",
+            "phone": "Teléfono",
+            "email": "Correo electrónico",
+            "jobsAtThisFactory": "Trabajos en esta planta",
+            "lastVisit": "Última visita",
+            "specialization": "Especialización",
+            "certifications": "Certificaciones",
+            "certificationFiles": "Archivos de certificación"
+          },
+          "actions": {
+            "close": "Cerrar",
+            "view": "Ver",
+            "download": "Descargar"
+          }
+        },
+        "form": {
+          "fields": {
+            "fullName": "Nombre completo *",
+            "nicOrPassport": "Cédula/Pasaporte *",
+            "phone": "Teléfono",
+            "email": "Correo electrónico",
+            "specialization": "Especialización",
+            "certifications": "Certificaciones, separadas por comas",
+            "certificationAttachments": "Adjuntos de certificación"
+          },
+          "actions": {
+            "save": "Guardar Técnico",
+            "saving": "Guardando…",
+            "removeAttachment": "Quitar adjunto"
+          },
+          "toasts": {
+            "updated": "Técnico actualizado",
+            "added": "Técnico añadido"
+          },
+          "errors": {
+            "missingContractor": "Falta la referencia del contratista.",
+            "mustBeLoggedIn": "Debe iniciar sesión.",
+            "requiredFields": "El nombre completo y la cédula/pasaporte son obligatorios.",
+            "saveFailed": "No se pudo guardar el técnico"
+          }
+        }
+      },
+      "analytics": {
+        "blockedList": {
+          "title": "Vencidos y Bloqueando Asignación",
+          "expiredDaysAgo": "{{documentType}} venció hace {{days}} días"
+        },
+        "expiryAlerts": {
+          "title": "Vencen dentro de 30 días",
+          "empty": "No hay documentos por vencer próximamente."
+        },
+        "performanceDashboard": {
+          "loading": "Cargando desempeño de contratistas...",
+          "topPerformer": "Mejor Desempeño",
+          "needsReview": "Requiere Revisión",
+          "stats": {
+            "activeContractors": "Contratistas activos",
+            "jobsThisMonth": "Trabajos este mes",
+            "avgRating": "Valoración promedio",
+            "slaCompliance": "Cumplimiento de SLA"
+          },
+          "charts": {
+            "jobsByContractor": "Trabajos por Contratista",
+            "avgRatingComparison": "Comparación de Valoración Promedio",
+            "totalCostByContractor": "Costo Total por Contratista"
+          }
+        },
+        "complianceMatrix": {
+          "columns": {
+            "contractor": "Contratista"
+          },
+          "status": {
+            "notUploaded": "No subido",
+            "expired": "Vencido",
+            "expiring": "Por vencer",
+            "noExpiry": "Sin Vencimiento",
+            "valid": "Vigente"
+          }
+        },
+        "scoreboard": {
+          "columns": {
+            "rank": "Posición",
+            "contractor": "Contratista",
+            "rating": "Valoración",
+            "jobs": "Trabajos",
+            "mttr": "MTTR",
+            "sla": "SLA",
+            "invoice": "Factura",
+            "lastJob": "Último Trabajo"
+          },
+          "minutes": "{{count}} min",
+          "empty": "Aún no hay datos de desempeño de contratistas. {{amount}}"
+        }
+      },
+      "addContractorPage": {
+        "title": "Añadir Contratista",
+        "subtitle": "Cree un perfil de contratista externo. Los contratistas no reciben acceso de inicio de sesión a FirmiCore."
+      },
+      "editContractorPage": {
+        "title": "Editar Contratista",
+        "subtitle": "Actualice el perfil, los contactos, las capacidades y los campos financieros restringidos."
+      },
+      "addTechnicianPage": {
+        "title": "Añadir un miembro del equipo",
+        "subtitle": "Registre un técnico individual para la identificación en portería y el historial de trabajos."
+      },
+      "editTechnicianPage": {
+        "title": "Editar Técnico",
+        "subtitle": "Actualice los detalles y el estado del técnico del contratista."
+      },
+      "profilePage": {
+        "loading": "Cargando contratista...",
+        "notFound": "Contratista no encontrado.",
+        "tabs": {
+          "overview": "Resumen",
+          "documents": "Documentos",
+          "teamMembers": "Miembros del Equipo",
+          "jobHistory": "Historial de Trabajos",
+          "analytics": "Análisis"
+        }
+      },
+      "documentsPage": {
+        "title": "Documentos del Contratista",
+        "subtitle": "Documentos de cumplimiento, renovaciones y estado de bloqueo de asignación.",
+        "loading": "Cargando documentos..."
+      },
+      "techniciansPage": {
+        "title": "Miembros del Equipo del Contratista",
+        "registeredCount_one": "{{count}} miembro del equipo registrado.",
+        "registeredCount_other": "{{count}} miembros del equipo registrados.",
+        "loading": "Cargando miembros del equipo...",
+        "actions": {
+          "addTeamMember": "Añadir Miembro del Equipo"
+        }
+      },
+      "historyPage": {
+        "title": "Historial de Trabajos del Contratista",
+        "loading": "Cargando historial..."
+      },
+      "analyticsPage": {
+        "title": "Análisis de {{companyName}}",
+        "loading": "Cargando análisis...",
+        "notFound": "Contratista no encontrado."
+      },
+      "performanceDashboardPage": {
+        "title": "Desempeño de Contratistas",
+        "subtitle": "Cuadros de mando, tendencias de SLA, valoraciones, costos y precisión de facturación."
+      },
+      "compliancePage": {
+        "title": "Cumplimiento de Documentos",
+        "subtitle": "Vista de cumplimiento para RR. HH., supervisores y gerentes de planta.",
+        "loading": "Cargando cumplimiento...",
+        "stats": {
+          "totalContractors": "Total de contratistas",
+          "fullyValid": "Totalmente vigentes",
+          "expiringDocs": "Documentos por vencer",
+          "blocked": "Bloqueados"
+        }
+      },
+      "reportsHubPage": {
+        "title": "Informes de Contratistas",
+        "subtitle": "Genere exportaciones en PDF, Excel o Google Sheets para el Módulo 7.",
+        "reports": {
+          "performance": {
+            "title": "Informe de Desempeño de Contratistas",
+            "description": "Métricas, valoraciones y MTTR por contratista"
+          },
+          "invoiceComparison": {
+            "title": "Comparación de Facturas de Contratistas",
+            "description": "Facturas, variaciones y estado de aprobación"
+          },
+          "jobHistory": {
+            "title": "Informe de Historial de Trabajos",
+            "description": "Todos los trabajos filtrables por contratista, máquina y fecha"
+          },
+          "rating": {
+            "title": "Informe de Valoración de Contratistas",
+            "description": "Desglose de valoraciones y tendencias de comentarios"
+          },
+          "documentCompliance": {
+            "title": "Informe de Cumplimiento de Documentos",
+            "description": "Estado de los documentos entre contratistas"
+          }
+        },
+        "actions": {
+          "generatePdf": "Generar PDF",
+          "exportExcel": "Exportar a Excel",
+          "pushToSheets": "Enviar a Google Sheets"
+        }
+      },
+      "registry": {
+        "alertBanner": {
+          "blockedByDocument": "Asignación de trabajo bloqueada - {{documentName}} venció. Renueve para asignar trabajos.",
+          "blockedCount_one": "{{count}} contratista con documentos vencidos - asignación de trabajo bloqueada.",
+          "blockedCount_other": "{{count}} contratistas con documentos vencidos - asignación de trabajo bloqueada.",
+          "expiringCount_one": "{{count}} documento de contratista vence dentro de 30 días.",
+          "expiringCount_other": "{{count}} documentos de contratistas vencen dentro de 30 días.",
+          "complianceLink": "Cumplimiento"
+        },
+        "formStepper": {
+          "steps": {
+            "company": "Empresa",
+            "contacts": "Contactos",
+            "specializations": "Especializaciones",
+            "financial": "Financiero",
+            "documents": "Documentos"
+          }
+        },
+        "docStatusDot": {
+          "valid": "Documentos vigentes",
+          "expiring": "Por vencer pronto",
+          "expired": "Documentos vencidos"
+        },
+        "statusBadge": {
+          "active": "Activo",
+          "inactive": "Inactivo",
+          "blacklisted": "En lista negra"
+        },
+        "techniciansTab": {
+          "registeredCount_one": "{{count}} miembro del equipo registrado",
+          "registeredCount_other": "{{count}} miembros del equipo registrados",
+          "subtitle": "Personal individual del contratista para identificación en portería e historial de trabajos.",
+          "actions": {
+            "addTeamMember": "Añadir Miembro del Equipo"
+          }
+        },
+        "formSection1": {
+          "title": "Información de la Empresa",
+          "fields": {
+            "companyName": "Nombre de la Empresa *",
+            "tradeName": "Nombre Comercial",
+            "registrationNumber": "Número de Registro *",
+            "dateEstablished": "Año de fundación",
+            "city": "Ciudad *",
+            "district": "Distrito",
+            "country": "País *",
+            "website": "Sitio web",
+            "primaryAddress": "Dirección Principal *",
+            "notes": "Notas Internas"
+          },
+          "companyTypes": {
+            "private_ltd": "Sociedad Limitada Privada",
+            "sole_proprietor": "Empresa Unipersonal",
+            "partnership": "Sociedad",
+            "public_ltd": "Sociedad Limitada Pública",
+            "foreign": "Extranjera"
+          }
+        },
+        "formSection2": {
+          "title": "Datos de Contacto",
+          "primaryContact": "Contacto Principal",
+          "secondaryContact": "Contacto Secundario",
+          "other": "Otro",
+          "fields": {
+            "fullName": "Nombre Completo *",
+            "fullNameOptional": "Nombre Completo",
+            "designation": "Cargo",
+            "phone": "Teléfono *",
+            "phoneOptional": "Teléfono",
+            "email": "Correo electrónico *",
+            "emailOptional": "Correo electrónico",
+            "emergencyContact": "Contacto de Emergencia *",
+            "whatsappNumber": "Número de WhatsApp"
+          }
+        },
+        "formSection3": {
+          "title": "Especializaciones",
+          "specializationTags": "Etiquetas de Especialización *",
+          "fields": {
+            "machineTypesServiced": "Tipos de Máquina Atendidos",
+            "industriesServed": "Industrias Atendidas",
+            "geographicCoverage": "Cobertura Geográfica",
+            "emergencyResponseTime": "Tiempo de Respuesta de Emergencia",
+            "teamSizeAvailable": "Tamaño de Equipo Disponible",
+            "languagesSpoken": "Idiomas Hablados"
+          },
+          "serviceHours": {
+            "24_7": "24/7",
+            "business_hours": "Horario Comercial",
+            "on_call": "Bajo Llamada",
+            "custom": "Personalizado"
+          }
+        },
+        "formSection4": {
+          "title": "Finanzas y Facturación",
+          "restricted": "Los detalles financieros solo están disponibles para gerentes de planta y administradores.",
+          "paymentMethods": "Métodos de Pago",
+          "paymentMethodOptions": {
+            "bankTransfer": "Transferencia Bancaria",
+            "cheque": "Cheque",
+            "cash": "Efectivo",
+            "onlineWallet": "Billetera en Línea"
+          },
+          "bankDetails": "Datos Bancarios",
+          "completedProjects": "Proyectos Completados Anteriormente (con costos)",
+          "fields": {
+            "bankName": "Nombre del Banco",
+            "branch": "Sucursal",
+            "accountHolderName": "Nombre del Titular de la Cuenta",
+            "accountNumber": "Número de Cuenta",
+            "routingSwift": "Código de Ruta / SWIFT",
+            "tinNumber": "Número de Identificación Tributaria",
+            "projectClientName": "Nombre del Proyecto / Cliente",
+            "costLkr": "Costo (LKR)",
+            "ratingPlaceholder": "Valoración…",
+            "duration": "Duración (p. ej. 3 meses)",
+            "contractType": "Tipo de Contrato (p. ej. fijo, T&M)",
+            "forbiddenActions": "Acciones prohibidas cometidas / infracciones (opcional)"
+          },
+          "actions": {
+            "add": "Añadir",
+            "removeProject": "Eliminar proyecto"
+          }
+        },
+        "formSection5": {
+          "title": "Documentos Iniciales",
+          "alreadyUploaded": "Ya subido",
+          "view": "Ver",
+          "dropzone": "Arrastre archivos aquí o elija PDF, DOCX, JPG, PNG",
+          "newUploads": "Nuevas subidas",
+          "removeFile": "Quitar archivo",
+          "note": "Puede añadir más documentos desde el perfil del contratista más adelante."
+        },
+        "list": {
+          "title": "Registro de Contratistas",
+          "summary": "{{totalCount}} contratistas - {{activeCount}} activos - {{blockedCount}} bloqueados",
+          "loading": "Cargando contratistas...",
+          "empty": "No hay contratistas registrados. Añada su primer contratista.",
+          "actions": {
+            "addContractor": "Añadir Contratista"
+          }
+        },
+        "card": {
+          "jobCount_one": "{{count}} trabajo",
+          "jobCount_other": "{{count}} trabajos",
+          "viewProfile": "Ver Perfil"
+        },
+        "specializationTags": {
+          "electrical": "Eléctrico",
+          "mechanical": "Mecánico",
+          "hydraulic": "Hidráulico",
+          "pneumatic": "Neumático",
+          "welding": "Soldadura",
+          "plc_automation": "PLC / Automatización",
+          "hvac": "HVAC",
+          "civil": "Civil",
+          "oem_authorized": "Autorizado por Fabricante",
+          "calibration": "Calibración",
+          "inspection": "Inspección",
+          "pressure_vessel": "Recipiente a Presión",
+          "elevator": "Ascensor",
+          "fire_safety": "Seguridad contra Incendios",
+          "other": "Otro",
+          "moreCount_one": "+{{count}} más",
+          "moreCount_other": "+{{count}} más"
+        },
+        "analyticsTab": {
+          "jobsPerMonth": "Trabajos por Mes",
+          "ratingTrend": "Tendencia de Valoración",
+          "costPerJob": "Costo por Trabajo",
+          "jobTypeDistribution": "Distribución por Tipo de Trabajo",
+          "jobTypes": {
+            "breakdown": "Avería",
+            "preventive": "Preventivo",
+            "corrective": "Correctivo",
+            "installation": "Instalación",
+            "modification": "Modificación",
+            "inspection": "Inspección",
+            "other": "Otro"
+          }
+        },
+        "filterBar": {
+          "searchPlaceholder": "Buscar empresa, nombre comercial, registro",
+          "clear": "Limpiar",
+          "status": {
+            "all": "Todos los estados"
+          },
+          "rating": {
+            "any": "Cualquier valoración",
+            "fourPlus": "4 estrellas o más",
+            "threePlus": "3 estrellas o más"
+          },
+          "docs": {
+            "all": "Todos los documentos"
+          }
+        },
+        "listTable": {
+          "empty": "No hay contratistas registrados. Añada su primer contratista.",
+          "columns": {
+            "company": "Empresa",
+            "specializations": "Especializaciones",
+            "status": "Estado",
+            "rating": "Valoración",
+            "jobs": "Trabajos",
+            "lastJob": "Último Trabajo",
+            "documents": "Documentos",
+            "actions": "Acciones"
+          },
+          "lastJob": {
+            "never": "Nunca",
+            "today": "Hoy",
+            "yesterday": "Ayer",
+            "daysAgo_one": "Hace {{count}} día",
+            "daysAgo_other": "Hace {{count}} días"
+          },
+          "actions": {
+            "view": "Ver",
+            "edit": "Editar"
+          }
+        },
+        "profileHeader": {
+          "jobCount_one": "{{count}} trabajo",
+          "jobCount_other": "{{count}} trabajos",
+          "actions": {
+            "rate": "Valorar",
+            "edit": "Editar",
+            "moreActions": "Más acciones"
+          },
+          "rateModal": {
+            "title": "Valorar a {{companyName}}",
+            "starLabel": "{{count}} estrella",
+            "cancel": "Cancelar",
+            "saving": "Guardando…",
+            "saveRating": "Guardar Valoración",
+            "errors": {
+              "selectRating": "Seleccione una valoración de 1 a 5 estrellas.",
+              "updateFailed": "No se pudo actualizar la valoración."
+            }
+          }
+        },
+        "overviewTab": {
+          "companyInformation": {
+            "title": "Información de la Empresa",
+            "legalName": "Razón social",
+            "tradeName": "Nombre comercial",
+            "registration": "Registro",
+            "companyType": "Tipo de empresa",
+            "established": "Fundada",
+            "address": "Dirección",
+            "website": "Sitio web",
+            "notes": "Notas"
+          },
+          "contactDetails": {
+            "title": "Datos de Contacto",
+            "primaryContact": "Contacto principal",
+            "primaryPhone": "Teléfono principal",
+            "primaryEmail": "Correo electrónico principal",
+            "secondaryContact": "Contacto secundario",
+            "secondaryPhone": "Teléfono secundario",
+            "emergency": "Emergencia",
+            "whatsapp": "WhatsApp"
+          },
+          "serviceCapabilities": {
+            "title": "Capacidades de Servicio",
+            "specializations": "Especializaciones",
+            "machineTypes": "Tipos de máquina",
+            "industries": "Industrias",
+            "coverage": "Cobertura",
+            "serviceHours": "Horario de servicio",
+            "responseTime": "Tiempo de respuesta",
+            "teamSize": "Tamaño del equipo",
+            "languages": "Idiomas"
+          },
+          "financialDetails": {
+            "title": "Detalles Financieros",
+            "paymentMethods": "Métodos de pago",
+            "bank": "Banco",
+            "account": "Cuenta",
+            "taxRegistration": "Registro tributario"
+          },
+          "completedProjects": {
+            "title": "Proyectos Completados Anteriormente",
+            "untitledProject": "Proyecto sin título",
+            "cost": "Costo: {{cost}}",
+            "rating": "Valoración: {{rating}} ★",
+            "duration": "Duración: {{duration}}",
+            "type": "Tipo: {{type}}",
+            "violations": "Infracciones: {{violations}}"
+          },
+          "performanceSummary": {
+            "title": "Resumen de Desempeño",
+            "averageRating": "Valoración promedio",
+            "averageRatingValue": "{{rating}}/5 ({{count}} valoraciones)",
+            "totalJobs": "Total de trabajos",
+            "totalJobsValue": "{{total}} (Avería {{breakdown}} | PM {{pm}} | Instalación {{install}})",
+            "averageMttr": "MTTR promedio",
+            "minutesValue": "{{minutes}} min",
+            "slaCompliance": "Cumplimiento de SLA",
+            "avgJobCost": "Costo promedio por trabajo"
+          }
+        },
+        "jobHistoryTab": {
+          "stats": {
+            "totalJobs": "Total de trabajos",
+            "avgRating": "Valoración promedio",
+            "totalCost": "Costo total",
+            "slaJobs": "Trabajos dentro de SLA"
+          },
+          "techniciansNotLogged": "Técnicos no registrados",
+          "onSite": "En sitio: {{minutes}} min",
+          "usedPartsCost": "Costo de piezas utilizadas",
+          "projectCost": "Costo del proyecto",
+          "totalCost": "Costo total",
+          "jobRating": "Valoración del trabajo: {{score}} / 5",
+          "ratingBreakdown": {
+            "speed": "Rapidez: {{score}}",
+            "quality": "Calidad: {{score}}",
+            "professionalism": "Profesionalismo: {{score}}",
+            "communication": "Comunicación: {{score}}"
+          },
+          "ratedBy": "Valorado por {{name}}",
+          "ratedOn": " el {{date}}",
+          "unknown": "Desconocido",
+          "notRatedYet": "Aún no valorado.",
+          "started": "Iniciado: {{date}}",
+          "completed": "Completado: {{date}}",
+          "signedOff": "Conformidad firmada: {{date}}",
+          "waitedForParts": "Esperó piezas: {{minutes}} min",
+          "waitedForPermission": "Esperó autorización: {{minutes}} min",
+          "contractorWo": "OT del Contratista",
+          "empty": "Aún no hay historial de trabajos.",
+          "auditRatings": {
+            "title": "Valoraciones de Auditoría",
+            "subtitle": "Valoraciones por estrellas y notas por trabajo capturadas durante las Auditorías de Contratistas.",
+            "unlinkedJob": "Trabajo sin vincular",
+            "fromAudit": "De la auditoría de {{name}} el {{date}}"
+          },
+          "completedProjects": {
+            "title": "Proyectos Completados Anteriormente",
+            "subtitle": "Proyectos registrados antes de que el contratista fuera incorporado al sistema.",
+            "rating": "Valoración: {{rating}}",
+            "projectCost": "Costo del proyecto: {{cost}}",
+            "duration": "Duración: {{duration}}",
+            "forbiddenActions": "Acciones prohibidas: {{actions}}"
+          }
+        },
+        "formLayout": {
+          "loading": "Cargando contratista…",
+          "notFound": "Contratista no encontrado.",
+          "actions": {
+            "cancel": "Cancelar",
+            "saving": "Guardando…",
+            "saveAndAddDocuments": "Guardar y Añadir Documentos",
+            "saveContractor": "Guardar Contratista",
+            "updateContractor": "Actualizar Contratista"
+          },
+          "errors": {
+            "missingCompanyContext": "Falta el contexto de la empresa. Por favor, vuelva a iniciar sesión.",
+            "missingRequiredFields": "Por favor, complete todos los campos obligatorios (Nombre de la Empresa, Número de Registro, Contacto Principal).",
+            "saveFailed": "No se pudo guardar el contratista."
+          }
+        }
+      },
+      "shared": {
+        "assignmentBlocker": {
+          "title": "El contratista no puede ser asignado a nuevos trabajos.",
+          "defaultReason": "Un documento de cumplimiento crítico ha vencido.",
+          "renewPrompt": "Renueve el documento antes de asignar a este contratista."
+        },
+        "manualEntryFlag": {
+          "notRegistered": "{{contractorName}} no está registrado.",
+          "registerNow": "Registrar Ahora"
+        },
+        "invitationStatusBadge": {
+          "email": "Correo electrónico",
+          "whatsapp": "WhatsApp"
+        },
+        "searchDropdown": {
+          "companyNameLabel": "Nombre de la empresa contratista",
+          "manualNamePlaceholder": "Escriba el nombre del contratista manualmente",
+          "searchPlaceholder": "Buscar contratistas",
+          "blockedTitle": "Documento de cumplimiento crítico vencido. Renueve para habilitar la asignación.",
+          "lastJob": "Último trabajo: {{date}}",
+          "never": "Nunca",
+          "notRegisteredPrompt": "¿Contratista no registrado? Escriba el nombre del contratista manualmente"
+        }
+      }
     }
   },
   "triage": {

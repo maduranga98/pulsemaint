@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Phone } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Contractor, ContractorDocument } from '@/lib/contractors/contractorTypes';
 import { getContractorDocumentStatus } from '@/lib/contractors/documentExpiryHelper';
 import { useContractorJobStats } from '@/hooks/contractors/useContractorJobStats';
@@ -14,10 +15,11 @@ interface ContractorCardProps {
 }
 
 export function ContractorCard({ contractor, documents = [] }: ContractorCardProps) {
+  const { t } = useTranslation();
   // Live figures, same as the desktop table — see useContractorJobStats.
   const { stats } = useContractorJobStats();
   const docStatus = contractor.blocksAssignment
-    ? { status: 'expired' as const, label: 'Expired documents' }
+    ? { status: 'expired' as const, label: t('common.contractors.registry.docStatusDot.expired') }
     : getContractorDocumentStatus(documents);
 
   return (
@@ -38,7 +40,7 @@ export function ContractorCard({ contractor, documents = [] }: ContractorCardPro
           count={stats[contractor.id]?.ratingCount ?? contractor.ratingCount}
           compact
         />
-        <span className="text-slate-500">{stats[contractor.id]?.jobCount ?? contractor.totalJobsCount ?? 0} jobs</span>
+        <span className="text-slate-500">{t('common.contractors.registry.card.jobCount', { count: stats[contractor.id]?.jobCount ?? contractor.totalJobsCount ?? 0 })}</span>
       </div>
       <div className="mt-3">
         <ContractorDocStatusDot status={docStatus.status} label={docStatus.label} />
@@ -48,7 +50,7 @@ export function ContractorCard({ contractor, documents = [] }: ContractorCardPro
         {contractor.emergencyContact || contractor.primaryPhone}
       </a>
       <Link to={`/app/contractors/${contractor.id}`} className="mt-4 block rounded-md bg-blue-600 px-4 py-2.5 text-center text-sm font-semibold text-white">
-        View Profile
+        {t('common.contractors.registry.card.viewProfile')}
       </Link>
     </article>
   );

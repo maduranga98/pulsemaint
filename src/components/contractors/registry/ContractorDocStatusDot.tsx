@@ -1,4 +1,5 @@
 import { AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ContractorDocStatusDotProps {
   status: 'valid' | 'expiring' | 'expired';
@@ -6,10 +7,11 @@ interface ContractorDocStatusDotProps {
 }
 
 export function ContractorDocStatusDot({ status, label }: ContractorDocStatusDotProps) {
+  const { t } = useTranslation();
   const configs = {
-    valid: { Icon: CheckCircle2, className: 'text-emerald-600', text: 'Documents valid' },
-    expiring: { Icon: Clock, className: 'text-amber-600', text: 'Expiring soon' },
-    expired: { Icon: AlertCircle, className: 'text-red-600', text: 'Expired documents' },
+    valid: { Icon: CheckCircle2, className: 'text-emerald-600', text: t('common.contractors.registry.docStatusDot.valid') },
+    expiring: { Icon: Clock, className: 'text-amber-600', text: t('common.contractors.registry.docStatusDot.expiring') },
+    expired: { Icon: AlertCircle, className: 'text-red-600', text: t('common.contractors.registry.docStatusDot.expired') },
   };
   const config = configs[status] ?? configs.valid;
 

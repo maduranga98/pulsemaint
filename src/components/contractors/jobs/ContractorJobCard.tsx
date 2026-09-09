@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ContractorJob } from '@/lib/contractors/contractorTypes';
 import ContractorJobStatusBadge from './ContractorJobStatusBadge';
 
@@ -7,6 +8,7 @@ interface ContractorJobCardProps {
 }
 
 export function ContractorJobCard({ job }: ContractorJobCardProps) {
+  const { t } = useTranslation();
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -20,7 +22,7 @@ export function ContractorJobCard({ job }: ContractorJobCardProps) {
       <p className="text-xs text-slate-500">{job.machineLocation}</p>
       <div className="mt-4 flex items-center justify-between gap-3">
         <ContractorJobStatusBadge status={job.status} />
-        <Link to={`/app/contractors/jobs/${job.id}`} className="rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white">View Job</Link>
+        <Link to={`/app/contractors/jobs/${job.id}`} className="rounded-md bg-blue-600 px-3 py-2 text-xs font-semibold text-white">{t('common.contractors.jobs.jobList.viewJob')}</Link>
       </div>
     </article>
   );

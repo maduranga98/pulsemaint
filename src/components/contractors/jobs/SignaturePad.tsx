@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SignaturePadProps {
   onChange?: (dataUrl: string) => void;
 }
 
 export function SignaturePad({ onChange }: SignaturePadProps) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [drawing, setDrawing] = useState(false);
 
@@ -60,7 +62,7 @@ export function SignaturePad({ onChange }: SignaturePadProps) {
         onPointerLeave={end}
         className="h-44 w-full touch-none rounded-lg border border-slate-300 bg-white"
       />
-      <button type="button" onClick={clear} className="mt-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Clear</button>
+      <button type="button" onClick={clear} className="mt-2 rounded-md border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">{t('common.contractors.jobs.signOffForm.signature.clear')}</button>
     </div>
   );
 }

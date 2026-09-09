@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   SPECIALIZATION_LABELS,
   type ContractorSpecializationTag,
@@ -27,6 +28,7 @@ const TAG_STYLES: Record<ContractorSpecializationTag, string> = {
 };
 
 export function ContractorSpecializationTags({ tags, limit }: ContractorSpecializationTagsProps) {
+  const { t } = useTranslation();
   const visibleTags = typeof limit === 'number' ? tags.slice(0, limit) : tags;
   const remaining = typeof limit === 'number' ? tags.length - visibleTags.length : 0;
 
@@ -34,12 +36,12 @@ export function ContractorSpecializationTags({ tags, limit }: ContractorSpeciali
     <div className="flex flex-wrap gap-1.5">
       {visibleTags.map((tag) => (
         <span key={tag} className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${TAG_STYLES[tag]}`}>
-          {SPECIALIZATION_LABELS[tag]}
+          {t(`common.contractors.registry.specializationTags.${tag}`, SPECIALIZATION_LABELS[tag])}
         </span>
       ))}
       {remaining > 0 && (
         <span className="shrink-0 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500">
-          +{remaining} more
+          {t('common.contractors.registry.specializationTags.moreCount', { count: remaining })}
         </span>
       )}
     </div>

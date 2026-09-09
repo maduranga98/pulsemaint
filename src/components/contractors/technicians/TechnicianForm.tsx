@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc, Timestamp } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -19,6 +20,7 @@ import type {
 import type { TechnicianCertificationDoc } from '@/lib/contractors/contractorTypes';
 
 export function TechnicianForm() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { contractorId, techId } = useParams();
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -66,15 +68,15 @@ export function TechnicianForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!contractorId) {
-      toast.error('Missing contractor reference.');
+      toast.error(t('common.contractors.technicians.form.errors.missingContractor'));
       return;
     }
     if (!userProfile?.companyId) {
-      toast.error('You must be logged in.');
+      toast.error(t('common.contractors.technicians.form.errors.mustBeLoggedIn'));
       return;
     }
     if (fullName.trim().length === 0 || nicOrPassport.trim().length === 0) {
-      toast.error('Full name and NIC/Passport are required.');
+      toast.error(t('common.contractors.technicians.form.errors.requiredFields'));
       return;
     }
     setSaving(true);
@@ -121,7 +123,7 @@ export function TechnicianForm() {
 
       if (techId) {
         await updateDoc(doc(db, 'contractors', contractorId, 'technicians', techId), payload);
-        toast.success('Technician updated');
+        toast.success(t('common.contractors.technicians.form.toasts.updated'));
       } else {
         await addDoc(collection(db, 'contractors', contractorId, 'technicians'), {
           ...payload,
@@ -129,12 +131,12 @@ export function TechnicianForm() {
           lastVisitedAt: null,
           createdAt: serverTimestamp(),
         });
-        toast.success('Technician added');
+        toast.success(t('common.contractors.technicians.form.toasts.added'));
       }
       navigate(`/app/contractors/${contractorId}/technicians`);
     } catch (err) {
       console.error('Save technician failed', err);
-      toast.error(err instanceof Error ? err.message : 'Failed to save technician');
+      toast.error(err instanceof Error ? err.message : t('common.contractors.technicians.form.errors.saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -143,24 +145,24 @@ export function TechnicianForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-5 rounded-lg border border-slate-200 bg-white p-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <input placeholder="Full name *" value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <input placeholder="NIC/Passport *" value={nicOrPassport} onChange={(e) => setNicOrPassport(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input placeholder={t('common.contractors.technicians.form.fields.fullName')} value={fullName} onChange={(e) => setFullName(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input placeholder={t('common.contractors.technicians.form.fields.nicOrPassport')} value={nicOrPassport} onChange={(e) => setNicOrPassport(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
         <select value={designation} onChange={(e) => setDesignation(e.target.value as TechnicianDesignation)} className="h-10 rounded-md border border-slate-200 px-3 text-sm">
-          <option value="engineer">Engineer</option>
-          <option value="senior_technician">Senior Technician</option>
-          <option value="technician">Technician</option>
-          <option value="helper">Helper</option>
-          <option value="other">Other</option>
+          <option value="engineer">{t('common.contractors.technicians.designations.engineer')}</option>
+          <option value="senior_technician">{t('common.contractors.technicians.designations.senior_technician')}</option>
+          <option value="technician">{t('common.contractors.technicians.designations.technician')}</option>
+          <option value="helper">{t('common.contractors.technicians.designations.helper')}</option>
+          <option value="other">{t('common.contractors.technicians.designations.other')}</option>
         </select>
         <select value={status} onChange={(e) => setStatus(e.target.value as TechnicianStatus)} className="h-10 rounded-md border border-slate-200 px-3 text-sm">
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="active">{t('common.contractors.technicians.statuses.active')}</option>
+          <option value="inactive">{t('common.contractors.technicians.statuses.inactive')}</option>
         </select>
-        <input placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
-        <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input placeholder={t('common.contractors.technicians.form.fields.phone')} value={phone} onChange={(e) => setPhone(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
+        <input placeholder={t('common.contractors.technicians.form.fields.email')} value={email} onChange={(e) => setEmail(e.target.value)} className="h-10 rounded-md border border-slate-200 px-3 text-sm" />
       </div>
       <div>
-        <p className="mb-2 text-sm font-medium text-slate-700">Specialization</p>
+        <p className="mb-2 text-sm font-medium text-slate-700">{t('common.contractors.technicians.form.fields.specialization')}</p>
         <div className="flex flex-wrap gap-2">
           {CONTRACTOR_SPECIALIZATION_TAGS.map((tag) => {
             const checked = specialization.includes(tag);
@@ -172,16 +174,16 @@ export function TechnicianForm() {
           })}
         </div>
       </div>
-      <input placeholder="Certifications, comma separated" value={certifications} onChange={(e) => setCertifications(e.target.value)} className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm" />
+      <input placeholder={t('common.contractors.technicians.form.fields.certifications')} value={certifications} onChange={(e) => setCertifications(e.target.value)} className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm" />
 
       <div>
-        <p className="mb-1 text-sm font-medium text-slate-700">Certification attachments</p>
+        <p className="mb-1 text-sm font-medium text-slate-700">{t('common.contractors.technicians.form.fields.certificationAttachments')}</p>
         {existingCertDocs.length > 0 && (
           <ul className="mb-2 space-y-1">
             {existingCertDocs.map((d) => (
               <li key={d.id} className="flex items-center justify-between rounded-md bg-slate-50 px-2 py-1 text-xs text-slate-600">
                 <a href={d.url} target="_blank" rel="noreferrer" className="truncate text-blue-600 hover:underline">{d.name}</a>
-                <button type="button" onClick={() => setExistingCertDocs((prev) => prev.filter((x) => x.id !== d.id))} className="ml-2 text-slate-400 hover:text-red-500">✕</button>
+                <button type="button" onClick={() => setExistingCertDocs((prev) => prev.filter((x) => x.id !== d.id))} className="ml-2 text-slate-400 hover:text-red-500" aria-label={t('common.contractors.technicians.form.actions.removeAttachment')}>✕</button>
               </li>
             ))}
           </ul>
@@ -202,7 +204,7 @@ export function TechnicianForm() {
       </div>
 
       <button type="submit" disabled={saving} className="rounded-md bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
-        {saving ? 'Saving…' : 'Save Technician'}
+        {saving ? t('common.contractors.technicians.form.actions.saving') : t('common.contractors.technicians.form.actions.save')}
       </button>
     </form>
   );

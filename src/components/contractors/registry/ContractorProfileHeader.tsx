@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MoreVertical, Star, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Contractor } from '@/lib/contractors/contractorTypes';
@@ -15,6 +16,7 @@ interface ContractorProfileHeaderProps {
 }
 
 export function ContractorProfileHeader({ contractor }: ContractorProfileHeaderProps) {
+  const { t } = useTranslation();
   const access = useContractorAccess();
   // Same live figures as the registry list — otherwise a contractor listed
   // with 5 jobs opens a profile claiming 0.
@@ -37,7 +39,7 @@ export function ContractorProfileHeader({ contractor }: ContractorProfileHeaderP
               rating={live?.ratingCount ? live.avgRating : contractor.avgRating}
               count={live?.ratingCount ?? contractor.ratingCount}
             />
-            <span>{live?.jobCount ?? contractor.totalJobsCount ?? 0} jobs</span>
+            <span>{t('common.contractors.registry.profileHeader.jobCount', { count: live?.jobCount ?? contractor.totalJobsCount ?? 0 })}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -50,14 +52,14 @@ export function ContractorProfileHeader({ contractor }: ContractorProfileHeaderP
                 className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-100"
               >
                 <Star className="h-4 w-4" />
-                Rate
+                {t('common.contractors.registry.profileHeader.actions.rate')}
               </button>
               <Link to={`/app/contractors/${contractor.id}/edit`} className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
-                Edit
+                {t('common.contractors.registry.profileHeader.actions.edit')}
               </Link>
             </>
           )}
-          <button type="button" className="rounded-md border border-slate-200 p-2 text-slate-600" aria-label="More actions">
+          <button type="button" className="rounded-md border border-slate-200 p-2 text-slate-600" aria-label={t('common.contractors.registry.profileHeader.actions.moreActions')}>
             <MoreVertical className="h-4 w-4" />
           </button>
         </div>
@@ -72,6 +74,7 @@ export function ContractorProfileHeader({ contractor }: ContractorProfileHeaderP
  * PM-062 — Edit/Rate button to change a contractor's rating at any time.
  */
 function RateContractorModal({ contractor, onClose }: { contractor: Contractor; onClose: () => void }) {
+  const { t } = useTranslation();
   const [value, setValue] = useState(Math.round(contractor.avgRating) || 0);
   const [hover, setHover] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -79,7 +82,7 @@ function RateContractorModal({ contractor, onClose }: { contractor: Contractor; 
 
   async function save() {
     if (value < 1) {
-      setError('Select a rating from 1 to 5 stars.');
+      setError(t('common.contractors.registry.profileHeader.rateModal.errors.selectRating'));
       return;
     }
     setSaving(true);
@@ -91,7 +94,7 @@ function RateContractorModal({ contractor, onClose }: { contractor: Contractor; 
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update rating.');
+      setError(err instanceof Error ? err.message : t('common.contractors.registry.profileHeader.rateModal.errors.updateFailed'));
     } finally {
       setSaving(false);
     }
@@ -101,7 +104,7 @@ function RateContractorModal({ contractor, onClose }: { contractor: Contractor; 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
       <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-slate-900">Rate {contractor.companyName}</h3>
+          <h3 className="text-base font-semibold text-slate-900">{t('common.contractors.registry.profileHeader.rateModal.title', { companyName: contractor.companyName })}</h3>
           <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-700"><X className="h-4 w-4" /></button>
         </div>
         <div className="my-5 flex items-center justify-center gap-2">
@@ -112,7 +115,7 @@ function RateContractorModal({ contractor, onClose }: { contractor: Contractor; 
               onClick={() => setValue(star)}
               onMouseEnter={() => setHover(star)}
               onMouseLeave={() => setHover(0)}
-              aria-label={`${star} star`}
+              aria-label={t('common.contractors.registry.profileHeader.rateModal.starLabel', { count: star })}
             >
               <Star className={`h-8 w-8 ${(hover || value) >= star ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
             </button>
@@ -121,7 +124,7 @@ function RateContractorModal({ contractor, onClose }: { contractor: Contractor; 
         {error && <p className="mb-3 text-center text-xs text-red-600">{error}</p>}
         <div className="flex gap-2">
           <button type="button" onClick={onClose} className="flex-1 rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
-            Cancel
+            {t('common.contractors.registry.profileHeader.rateModal.cancel')}
           </button>
           <button
             type="button"
@@ -129,7 +132,7 @@ function RateContractorModal({ contractor, onClose }: { contractor: Contractor; 
             disabled={saving}
             className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
           >
-            {saving ? 'Saving…' : 'Save Rating'}
+            {saving ? t('common.contractors.registry.profileHeader.rateModal.saving') : t('common.contractors.registry.profileHeader.rateModal.saveRating')}
           </button>
         </div>
       </div>
