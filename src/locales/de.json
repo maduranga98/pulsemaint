@@ -6068,6 +6068,427 @@
         "close": "Schließen",
         "handOverToNext": "An die nächste Person übergeben"
       }
+    },
+    "shiftHandovers": {
+      "createPage": {
+        "title": "Schichtübergabe erstellen",
+        "subtitle": "Prüfen Sie die zusammengestellte Schichtzusammenfassung und übertragen Sie die Verantwortung an den übernehmenden Vorgesetzten."
+      },
+      "detailPage": {
+        "loading": "Übergabe wird geladen...",
+        "exportPdf": "PDF exportieren"
+      },
+      "historyPage": {
+        "title": "Schichtübergaben",
+        "subtitle": "Zeitgestempeltes Archiv der Verantwortungsübergaben zwischen Vorgesetzten für jede Schicht und jeden Benutzer.",
+        "shiftConfiguration": "Schichtkonfiguration",
+        "loading": "Wird geladen…",
+        "empty": "Keine Übergaben gefunden."
+      },
+      "filterBar": {
+        "searchNamePlaceholder": "Namen suchen…",
+        "allRoles": "Alle Rollen",
+        "allShifts": "Alle Schichten",
+        "allDepartments": "Alle Abteilungen",
+        "lateOnly": "Nur verspätet",
+        "roleLabels": {
+          "admin": "Admin",
+          "plant_manager": "Werksleiter",
+          "supervisor": "Vorgesetzter",
+          "technician": "Techniker",
+          "store_keeper": "Lagerhalter",
+          "hr_officer": "Personalreferent",
+          "trainee": "Auszubildender",
+          "floor_operator": "Maschinenbediener"
+        }
+      },
+      "historyCard": {
+        "shiftLog": "Schichtprotokoll",
+        "started": "Begonnen: {{time}}",
+        "late": "({{duration}} verspätet)",
+        "ended": "Beendet: {{time}}",
+        "ot": "Überstunden: {{value}}",
+        "watchFlags": "Beobachtungsmarkierungen: {{count}}",
+        "breakdownsDuringShift": "Störungen während der Schicht: {{count}}",
+        "wosDuringShift": "Arbeitsaufträge während der Schicht: {{count}}",
+        "viewArchive": "Archiv ansehen",
+        "export": "Exportieren"
+      },
+      "historyTable": {
+        "columns": {
+          "shiftName": "Schichtname",
+          "personAndRole": "Person & Rolle",
+          "department": "Abteilung",
+          "shiftStarted": "Schicht begonnen",
+          "lateBy": "Verspätung",
+          "shiftEnded": "Schicht beendet",
+          "ot": "Überstunden",
+          "breakdownsDuringShift": "Störungen während der Schicht",
+          "wosDuringShift": "Arbeitsaufträge während der Schicht",
+          "watchFlags": "Beobachtungsmarkierungen",
+          "action": "Aktion"
+        },
+        "onTime": "Pünktlich",
+        "late": "{{duration}} verspätet",
+        "none": "Keine",
+        "shiftLog": "Schichtprotokoll",
+        "view": "Ansehen",
+        "export": "Exportieren"
+      },
+      "statusBadge": {
+        "pendingAcceptance": "Annahme ausstehend",
+        "accepted": "Angenommen",
+        "archived": "Archiviert"
+      },
+      "timeline": {
+        "title": "Zeitverlauf",
+        "shiftStart": "Schichtbeginn",
+        "handoverSubmitted": "Übergabe eingereicht",
+        "handoverAccepted": "Übergabe angenommen"
+      },
+      "detailView": {
+        "titleSuffix": "Übergabe",
+        "assignedShift": "Zugewiesene Schicht",
+        "scheduledRange": "geplant {{start}}–{{end}}",
+        "shiftTakenFrom": "Schicht übernommen von",
+        "shiftHandedOverTo": "Schicht übergeben an",
+        "pendingAcceptance": "Annahme ausstehend",
+        "shiftStartTime": "Schichtbeginn",
+        "shiftEndTime": "Schichtende",
+        "overtime": "Überstunden (ÜS)",
+        "workedVsScheduled": "(gearbeitet {{worked}} vs. geplant {{scheduled}})",
+        "watchMachineFlags": "Beobachtete Maschinen",
+        "noWatchFlags": "Keine Beobachtungsmarkierungen gesetzt.",
+        "pendingWorkOrders": "Ausstehende Arbeitsaufträge",
+        "noPendingWOs": "Keine ausstehenden Arbeitsaufträge.",
+        "ongoingBreakdowns": "Laufende Störungen",
+        "noOngoingBreakdowns": "Keine laufenden Störungen.",
+        "generalNotesSafety": "Allgemeine Hinweise & Sicherheitsaspekte",
+        "safetyIncident": "Sicherheitsvorfall",
+        "safetyIncidentReportedNoDescription": "Vorfall gemeldet (keine Beschreibung angegeben).",
+        "noSafetyIncidents": "Keine Sicherheitsvorfälle gemeldet.",
+        "restrictedAreas": "Gesperrte Bereiche",
+        "temporaryRepairs": "Provisorische Reparaturen",
+        "generalNotes": "Allgemeine Hinweise"
+      },
+      "safetyCasesSection": {
+        "title": "Ihnen gemeldete Sicherheitsfälle",
+        "loading": "Sicherheitsfälle werden geladen...",
+        "empty": "Keine offenen Sicherheitsfälle, die Ihnen gemeldet wurden."
+      },
+      "pendingWoRow": {
+        "noDueDate": "Kein Fälligkeitsdatum",
+        "noNote": "Kein Hinweis",
+        "supervisorNotePlaceholder": "Hinweis des Vorgesetzten",
+        "carryForward": {
+          "continue": "In nächster Schicht fortsetzen",
+          "escalate": "An Manager eskalieren",
+          "on_hold": "Zurückgestellt"
+        }
+      },
+      "breakdownSnapshotRow": {
+        "minutesElapsed": "{{count}} Min. vergangen",
+        "noNote": "Kein Hinweis",
+        "notePlaceholder": "Störungshinweis",
+        "nextShiftPriority": {
+          "urgent": "Dringend - sofort beheben",
+          "continue": "Normal fortsetzen",
+          "monitor": "Nur überwachen"
+        }
+      },
+      "createForm": {
+        "endShiftFirst": "Beenden Sie zuerst Ihre Schicht, um die Übergabezusammenfassung zu erstellen.",
+        "steps": {
+          "stats": "Statistik",
+          "watch": "Beobachtung",
+          "wos": "Arbeitsaufträge",
+          "breakdowns": "Störungen",
+          "safety": "Sicherheit",
+          "notes": "Hinweise",
+          "signOff": "Abschluss"
+        },
+        "errors": {
+          "acknowledgeRequired": "Bitte bestätigen Sie den Abschluss vor dem Absenden.",
+          "statsNotCompiled": "Schichtzusammenfassung wurde noch nicht erstellt. Beenden Sie zuerst Ihre Schicht.",
+          "submitFailed": "Übergabe konnte nicht übermittelt werden"
+        },
+        "toasts": {
+          "submitSuccess": "Übergabe erfolgreich übermittelt"
+        },
+        "wizard": {
+          "back": "Zurück",
+          "next": "Weiter"
+        },
+        "section1AutoStats": {
+          "title": "Automatisch erstellte Schichtstatistik",
+          "subtitle": "Schreibgeschützte Zusammenfassung, erstellt aus Live-Firestore-Daten.",
+          "emptyState": "Schichtzusammenfassung erstellen, um Statistiken zu füllen."
+        },
+        "section2WatchFlags": {
+          "title": "Zu beobachtende Maschinen",
+          "subtitle": "Maschinen, die in der nächsten Schicht besondere Aufmerksamkeit benötigen.",
+          "addWatchFlag": "Beobachtungsmarkierung hinzufügen",
+          "empty": "Keine zu beobachtenden Maschinen hinzugefügt."
+        },
+        "section3PendingWOs": {
+          "title": "Ausstehende Arbeitsaufträge",
+          "subtitle": "Nur Übergabehinweise. Arbeitsaufträge werden hier nicht geändert.",
+          "empty": "Keine ausstehenden Arbeitsaufträge."
+        },
+        "section4OngoingBreakdowns": {
+          "title": "Laufende Störungen",
+          "subtitle": "Offene Störungen, die in der nächsten Schicht Aufmerksamkeit benötigen.",
+          "empty": "Keine laufenden Störungen."
+        },
+        "section5PartsNotes": {
+          "title": "Ersatzteil- & Bestandshinweise",
+          "subtitle": "Hinweise zu niedrigen Beständen und Ersatzteilanfragen für den nächsten Vorgesetzten.",
+          "lowStockAlerts": "Warnungen zu niedrigem Bestand",
+          "noAlerts": "Keine Warnungen zu niedrigem Bestand erstellt.",
+          "alertLine": "{{name}}: {{current}} / min. {{min}}",
+          "notesPlaceholder": "Hinweise zu Ersatzteilen und Bestand"
+        },
+        "section6SafetyIncidents": {
+          "title": "Sicherheit & Vorfälle",
+          "subtitle": "Sicherheitsvorfälle, gesperrte Bereiche und provisorische Reparaturen.",
+          "incidentQuestion": "Gab es während dieser Schicht einen Sicherheitsvorfall oder Beinahe-Unfall?",
+          "incidentDescriptionPlaceholder": "Vorfall beschreiben: beteiligte Maschinen, ergriffene Maßnahmen, erforderliche Nachverfolgung",
+          "restrictedAreasPlaceholder": "Gesperrte Bereiche",
+          "temporaryRepairsPlaceholder": "Provisorische Reparaturen"
+        },
+        "section7GeneralNotes": {
+          "title": "Allgemeine Hinweise",
+          "subtitle": "Freitexthinweise für den übernehmenden Vorgesetzten.",
+          "placeholder": "Alles, was oben nicht abgedeckt ist",
+          "charCount": "{{count}}/2000"
+        },
+        "section8SignOff": {
+          "title": "Abschluss des abgebenden Vorgesetzten",
+          "supervisor": "Vorgesetzter",
+          "shift": "Schicht",
+          "signOffTime": "Zeitpunkt des Abschlusses",
+          "confirmation": "Ich bestätige, dass die obigen Angaben korrekt und vollständig sind.",
+          "submitting": "Wird übermittelt...",
+          "submit": "Übergabe einreichen"
+        }
+      },
+      "briefingPage": {
+        "noPending": "Kein ausstehendes Schicht-Briefing.",
+        "returnToDashboard": "Zurück zum Dashboard"
+      },
+      "briefingHeader": {
+        "title": "Briefing für die übernehmende Schicht",
+        "handoverFrom": "Übergabe von {{name}} um {{time}}"
+      },
+      "briefingScreen": {
+        "watchMachines": "Zu beobachtende Maschinen",
+        "noWatchFlags": "Keine Beobachtungsmarkierungen.",
+        "activeBreakdowns": "Aktive Störungen",
+        "pendingWorkOrders": "Ausstehende Arbeitsaufträge",
+        "partsInventoryFlags": "Ersatzteil- & Bestandshinweise",
+        "partQtyLine": "{{name}}: {{current}} / min. {{min}}",
+        "noPartsNotes": "Keine Ersatzteilhinweise.",
+        "lastShiftStatistics": "Statistik der letzten Schicht",
+        "generalNotes": "Allgemeine Hinweise",
+        "noGeneralNotes": "Keine allgemeinen Hinweise."
+      },
+      "overlapBanner": {
+        "handedOver": "Schicht um {{time}} an {{name}} übergeben.",
+        "overlapInProgress": "Übergabe läuft - {{name}} übergibt {{shiftName}}.",
+        "reviewBriefing": "Briefing ansehen"
+      },
+      "statsGrid": {
+        "breakdowns": "Störungen",
+        "openWOs": "Offene Arbeitsaufträge",
+        "pmsDone": "Erledigte Wartungen",
+        "hoursLost": "Verlorene Stunden",
+        "partsIssued": "Ausgegebene Ersatzteile",
+        "wosCompleted": "Abgeschlossene Arbeitsaufträge",
+        "critical": "Kritisch",
+        "pmsMissed": "Verpasste Wartungen"
+      },
+      "acceptShiftButton": {
+        "confirmText": "Mit der Annahme bestätigen Sie, dass Sie das Schicht-Briefing geprüft haben und die Verantwortung für diese Schicht übernehmen.",
+        "cancel": "Abbrechen",
+        "accepting": "Wird angenommen...",
+        "confirmAcceptance": "Annahme bestätigen",
+        "acceptShift": "Schicht annehmen & Verantwortung übernehmen"
+      },
+      "endShiftConfirmModal": {
+        "title": "Schicht beenden",
+        "confirmQuestion": "Möchten Sie Ihre Schicht wirklich beenden?",
+        "closeAria": "Schließen",
+        "currentShift": "Aktuelle Schicht",
+        "currentShiftFallback": "Aktuelle Schicht",
+        "scheduled": "Geplant",
+        "currentTime": "Aktuelle Uhrzeit",
+        "duration": "Dauer",
+        "notStarted": "Nicht begonnen",
+        "cancel": "Abbrechen",
+        "generating": "Wird erstellt...",
+        "endShiftAndGenerateReport": "Schicht beenden & Bericht erstellen",
+        "endShift": "Schicht beenden"
+      },
+      "endShiftButton": {
+        "start": "Start",
+        "failedToStart": "Schicht konnte nicht gestartet werden",
+        "starting": "Wird gestartet…",
+        "startShift": "Schicht starten",
+        "endShift": "Schicht beenden"
+      },
+      "statusPanel": {
+        "since": "Seit {{time}}",
+        "sinceDay": "Seit {{day}} {{time}}",
+        "yesterday": "gestern",
+        "notStartedToday": "Heute noch nicht begonnen",
+        "ended": "Beendet {{time}}",
+        "working": "Im Dienst",
+        "notWorking": "Nicht im Dienst",
+        "workingCount": "Im Dienst ({{count}})",
+        "noOneScheduled": "Für diese Schicht ist noch niemand eingeteilt.",
+        "liveShiftStatus": "Live-Schichtstatus",
+        "summaryLine": "{{people}} derzeit im Dienst, über {{shifts}}",
+        "personCount_one": "{{count}} Person",
+        "personCount_other": "{{count}} Personen",
+        "shiftCount_one": "{{count}} Schicht",
+        "shiftCount_other": "{{count}} Schichten"
+      },
+      "watchFlagAddModal": {
+        "title": "Zu beobachtende Maschine hinzufügen",
+        "closeAria": "Schließen",
+        "machine": "Maschine",
+        "loadingMachines": "Maschinen werden geladen…",
+        "selectMachine": "Maschine auswählen",
+        "machineId": "Maschinen-ID",
+        "location": "Standort",
+        "department": "Abteilung",
+        "floor": "Etage",
+        "bay": "Bereich",
+        "station": "Station",
+        "criticalWatch": "Kritische Beobachtung",
+        "monitor": "Überwachen",
+        "infoOnly": "Nur Information",
+        "watchReason": "Beobachtungsgrund",
+        "recommendedAction": "Empfohlene Maßnahme",
+        "linkedBreakdownOptional": "Verknüpfte Störung (optional)",
+        "selectMachineFirst": "Zuerst eine Maschine auswählen",
+        "loadingBreakdowns": "Störungen werden geladen…",
+        "noOpenBreakdowns": "Keine offenen Störungen für diese Maschine",
+        "none": "Keine",
+        "addWatchFlag": "Beobachtungsmarkierung hinzufügen"
+      },
+      "watchFlagBadge": {
+        "criticalWatch": "Kritische Beobachtung",
+        "monitor": "Überwachen",
+        "infoOnly": "Nur Information"
+      },
+      "watchFlagCard": {
+        "carriedForward": "Übertragen",
+        "machineDetail": "Maschinendetail",
+        "recommended": "Empfohlen:",
+        "linkedBreakdown": "Verknüpfte Störung",
+        "resolveFlag": "Markierung auflösen"
+      },
+      "configPage": {
+        "backToShiftHandovers": "Zurück zu Schichtübergaben",
+        "title": "Schichtkonfiguration",
+        "subtitle": "Legen Sie die Schichtpläne Ihres Unternehmens fest und wer in welcher Schicht arbeitet.",
+        "seedDefaults": "Standardwerte einfügen",
+        "editingShift": "Bearbeiten: {{name}}",
+        "addNewShift": "Neue Schicht hinzufügen",
+        "cancelEdit": "Bearbeitung abbrechen",
+        "shiftPlans": "Schichtpläne",
+        "shiftPlansWithCount": "Schichtpläne ({{count}})",
+        "loadingShifts": "Schichten werden geladen…",
+        "noShiftsConfigured": "Noch keine Schichten konfiguriert.",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "individualAssignmentsHint": "Individuelle Zuweisungen können auch unter Einstellungen → Benutzer vorgenommen werden.",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "confirmDelete": "Diese Schichtkonfiguration löschen?",
+        "days": {
+          "Mon": "Mo",
+          "Tue": "Di",
+          "Wed": "Mi",
+          "Thu": "Do",
+          "Fri": "Fr",
+          "Sat": "Sa",
+          "Sun": "So"
+        }
+      },
+      "configForm": {
+        "shiftName": "Schichtname",
+        "shiftNamePlaceholder": "z. B. Frühschicht",
+        "from": "Von",
+        "to": "Bis",
+        "colour": "Farbe",
+        "status": "Status",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "assignShiftBy": "Schicht zuweisen nach",
+        "department": "Abteilung",
+        "rolesOnThisShift": "Rollen in dieser Schicht",
+        "employeesOnShift": "Mitarbeiter in dieser Schicht",
+        "employeesOnShiftWithCount": "Mitarbeiter in dieser Schicht ({{count}} ausgewählt)",
+        "clearSelection": "Auswahl aufheben",
+        "searchByNameOrRole": "Nach Name oder Rolle suchen…",
+        "loadingEmployees": "Mitarbeiter werden geladen…",
+        "noEmployeesYet": "Noch keine Mitarbeiter in diesem Unternehmen.",
+        "noEmployeesMatch": "Keine Mitarbeiter entsprechen dieser Suche.",
+        "individualAssignmentHint": "Eine Person kann auch individuell einer Schicht zugewiesen werden, indem unter <strong>Einstellungen → Benutzer</strong> eine Schicht ausgewählt wird – dies überschreibt für sie einen abteilungs- oder rollenweiten Plan. Zugewiesene Mitarbeiter werden bei Änderungen dieses Plans per E-Mail benachrichtigt und 2–3 Stunden vor Schichtbeginn erinnert.",
+        "shiftSaved": "Schicht gespeichert.",
+        "saving": "Wird gespeichert…",
+        "saveShift": "Schicht speichern",
+        "newDepartmentPlaceholder": "z. B. Bau, Sicherheit",
+        "add": "Hinzufügen",
+        "cancel": "Abbrechen",
+        "selectDepartment": "Abteilung auswählen…",
+        "addNewDepartment": "+ Neue Abteilung hinzufügen…",
+        "days": {
+          "Mon": "Mo",
+          "Tue": "Di",
+          "Wed": "Mi",
+          "Thu": "Do",
+          "Fri": "Fr",
+          "Sat": "Sa",
+          "Sun": "So"
+        },
+        "roles": {
+          "admin": "Admin",
+          "supervisor": "Vorgesetzter",
+          "technician": "Techniker",
+          "floorOperator": "Maschinenbediener",
+          "storeKeeper": "Lagerhalter",
+          "trainee": "Auszubildender",
+          "plantManager": "Werksleiter",
+          "hrOfficer": "Personalreferent",
+          "safetyOfficer": "Sicherheitsbeauftragter"
+        },
+        "assignBy": {
+          "department": {
+            "label": "Nach Abteilung",
+            "hint": "Alle Mitglieder der gewählten Abteilung arbeiten in dieser Schicht."
+          },
+          "role": {
+            "label": "Nach Rolle",
+            "hint": "Alle mit den gewählten Rollen arbeiten in dieser Schicht."
+          },
+          "employee": {
+            "label": "Nach Mitarbeiter",
+            "hint": "Nur die unten ausgewählten Personen arbeiten in dieser Schicht."
+          }
+        },
+        "errors": {
+          "shiftNameRequired": "Schichtname ist erforderlich.",
+          "invalidTimes": "Legen Sie gültige Von- und Bis-Zeiten für die Schicht fest.",
+          "departmentRequired": "Wählen oder erstellen Sie eine Abteilung für diese Schicht.",
+          "roleRequired": "Wählen Sie mindestens eine Rolle für diese Schicht.",
+          "employeeRequired": "Wählen Sie mindestens einen Mitarbeiter für diese Schicht.",
+          "activeDayRequired": "Wählen Sie mindestens einen aktiven Tag.",
+          "saveFailed": "Schicht konnte nicht gespeichert werden."
+        }
+      }
     }
   },
   "triage": {

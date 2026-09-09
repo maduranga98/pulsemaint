@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { HandoverHistoryFilters } from '@/types/handover.types';
 
 // The 8 roles this app has (src/types/auth.ts UserRole) — kept as a fixed
@@ -14,11 +15,8 @@ interface HandoverFilterBarProps {
   departmentOptions: string[];
 }
 
-function roleLabel(role: string): string {
-  return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
 export function HandoverFilterBar({ filters, onChange, shiftOptions, departmentOptions }: HandoverFilterBarProps) {
+  const { t } = useTranslation();
   return (
     <div className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-4 lg:grid-cols-7">
       <input type="date" value={filters.dateFrom ?? ''} onChange={(event) => onChange({ ...filters, dateFrom: event.target.value || null })} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm" />
@@ -26,23 +24,23 @@ export function HandoverFilterBar({ filters, onChange, shiftOptions, departmentO
       <input
         value={filters.personName}
         onChange={(event) => onChange({ ...filters, personName: event.target.value })}
-        placeholder="Search name…"
+        placeholder={t('common.shiftHandovers.filterBar.searchNamePlaceholder')}
         className="min-h-12 rounded-md border border-slate-200 px-3 text-sm"
       />
       <select value={filters.role} onChange={(event) => onChange({ ...filters, role: event.target.value })} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm">
-        <option value="">All roles</option>
+        <option value="">{t('common.shiftHandovers.filterBar.allRoles')}</option>
         {ROLE_OPTIONS.map((role) => (
-          <option key={role} value={role}>{roleLabel(role)}</option>
+          <option key={role} value={role}>{t(`common.shiftHandovers.filterBar.roleLabels.${role}`)}</option>
         ))}
       </select>
       <select value={filters.shiftName} onChange={(event) => onChange({ ...filters, shiftName: event.target.value })} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm">
-        <option value="">All shifts</option>
+        <option value="">{t('common.shiftHandovers.filterBar.allShifts')}</option>
         {shiftOptions.map((name) => (
           <option key={name} value={name}>{name}</option>
         ))}
       </select>
       <select value={filters.department} onChange={(event) => onChange({ ...filters, department: event.target.value })} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm">
-        <option value="">All departments</option>
+        <option value="">{t('common.shiftHandovers.filterBar.allDepartments')}</option>
         {departmentOptions.map((dept) => (
           <option key={dept} value={dept}>{dept}</option>
         ))}
@@ -54,7 +52,7 @@ export function HandoverFilterBar({ filters, onChange, shiftOptions, departmentO
           onChange={(event) => onChange({ ...filters, lateOnly: event.target.checked })}
           className="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500"
         />
-        Late only
+        {t('common.shiftHandovers.filterBar.lateOnly')}
       </label>
     </div>
   );

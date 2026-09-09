@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -33,6 +34,7 @@ type BreakdownOption = {
 const OPEN_BREAKDOWN_STATUSES = ['reported', 'acknowledged', 'triage_in_progress', 'assigned', 'en_route', 'repair_in_progress', 'on_hold_parts', 'on_hold_approval'];
 
 export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalProps) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId;
   const siteIds = userProfile?.siteIds;
@@ -156,20 +158,20 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
     <div className="fixed inset-0 z-50 flex items-end bg-slate-950/50 p-4 sm:items-center sm:justify-center">
       <div className="w-full max-w-xl rounded-lg bg-white p-5 shadow-xl">
         <div className="flex items-start justify-between">
-          <h2 className=" text-lg font-bold text-slate-950">Add Watch Machine</h2>
-          <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-md text-slate-500" aria-label="Close">
+          <h2 className=" text-lg font-bold text-slate-950">{t('common.shiftHandovers.watchFlagAddModal.title')}</h2>
+          <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-md text-slate-500" aria-label={t('common.shiftHandovers.watchFlagAddModal.closeAria')}>
             <X className="mx-auto h-5 w-5" />
           </button>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-slate-600">Machine</label>
+            <label className="mb-1 block text-xs font-medium text-slate-600">{t('common.shiftHandovers.watchFlagAddModal.machine')}</label>
             <select
               value={selectedMachineId}
               onChange={(event) => setSelectedMachineId(event.target.value)}
               className="min-h-12 w-full rounded-md border border-slate-200 px-3 text-sm"
             >
-              <option value="">{machinesLoading ? 'Loading machines…' : 'Select a machine'}</option>
+              <option value="">{machinesLoading ? t('common.shiftHandovers.watchFlagAddModal.loadingMachines') : t('common.shiftHandovers.watchFlagAddModal.selectMachine')}</option>
               {machines.map((m) => (
                 <option key={m.id} value={m.id}>
                   {m.name}
@@ -180,48 +182,48 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
           <input
             value={selected?.id ?? ''}
             readOnly
-            placeholder="Machine ID"
+            placeholder={t('common.shiftHandovers.watchFlagAddModal.machineId')}
             className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
           />
           <input
             value={selected?.location ?? ''}
             readOnly
-            placeholder="Location"
+            placeholder={t('common.shiftHandovers.watchFlagAddModal.location')}
             className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
           />
           <input
             value={selected?.department ?? ''}
             readOnly
-            placeholder="Department"
+            placeholder={t('common.shiftHandovers.watchFlagAddModal.department')}
             className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
           />
           <input
             value={selected?.floor ?? ''}
             readOnly
-            placeholder="Floor"
+            placeholder={t('common.shiftHandovers.watchFlagAddModal.floor')}
             className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
           />
           <input
             value={selected?.bay ?? ''}
             readOnly
-            placeholder="Bay"
+            placeholder={t('common.shiftHandovers.watchFlagAddModal.bay')}
             className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
           />
           <input
             value={selected?.station ?? ''}
             readOnly
-            placeholder="Station"
+            placeholder={t('common.shiftHandovers.watchFlagAddModal.station')}
             className="min-h-12 rounded-md border border-slate-200 bg-slate-50 px-3 text-sm text-slate-600"
           />
           <select value={watchLevel} onChange={(event) => setWatchLevel(event.target.value as WatchLevel)} className="min-h-12 rounded-md border border-slate-200 px-3 text-sm sm:col-span-2">
-            <option value="critical_watch">Critical Watch</option>
-            <option value="monitor">Monitor</option>
-            <option value="info_only">Info Only</option>
+            <option value="critical_watch">{t('common.shiftHandovers.watchFlagAddModal.criticalWatch')}</option>
+            <option value="monitor">{t('common.shiftHandovers.watchFlagAddModal.monitor')}</option>
+            <option value="info_only">{t('common.shiftHandovers.watchFlagAddModal.infoOnly')}</option>
           </select>
-          <textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Watch reason" className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-2" />
-          <textarea value={recommendedAction} onChange={(event) => setRecommendedAction(event.target.value)} placeholder="Recommended action" className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-2" />
+          <textarea value={reason} onChange={(event) => setReason(event.target.value)} placeholder={t('common.shiftHandovers.watchFlagAddModal.watchReason')} className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-2" />
+          <textarea value={recommendedAction} onChange={(event) => setRecommendedAction(event.target.value)} placeholder={t('common.shiftHandovers.watchFlagAddModal.recommendedAction')} className="min-h-24 rounded-md border border-slate-200 px-3 py-2 text-sm sm:col-span-2" />
           <div className="sm:col-span-2">
-            <label className="mb-1 block text-xs font-medium text-slate-600">Linked Breakdown (optional)</label>
+            <label className="mb-1 block text-xs font-medium text-slate-600">{t('common.shiftHandovers.watchFlagAddModal.linkedBreakdownOptional')}</label>
             <select
               value={linkedBreakdownId}
               onChange={(event) => setLinkedBreakdownId(event.target.value)}
@@ -230,12 +232,12 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
             >
               <option value="">
                 {!selectedMachineId
-                  ? 'Select a machine first'
+                  ? t('common.shiftHandovers.watchFlagAddModal.selectMachineFirst')
                   : breakdownsLoading
-                    ? 'Loading breakdowns…'
+                    ? t('common.shiftHandovers.watchFlagAddModal.loadingBreakdowns')
                     : breakdowns.length === 0
-                      ? 'No open breakdowns for this machine'
-                      : 'None'}
+                      ? t('common.shiftHandovers.watchFlagAddModal.noOpenBreakdowns')
+                      : t('common.shiftHandovers.watchFlagAddModal.none')}
               </option>
               {breakdowns.map((b) => (
                 <option key={b.id} value={b.id}>
@@ -251,7 +253,7 @@ export function WatchFlagAddModal({ open, onClose, onAdd }: WatchFlagAddModalPro
           disabled={!selected || !reason || !recommendedAction}
           className="mt-4 min-h-12 rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
         >
-          Add Watch Flag
+          {t('common.shiftHandovers.watchFlagAddModal.addWatchFlag')}
         </button>
       </div>
     </div>

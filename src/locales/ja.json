@@ -6064,6 +6064,427 @@
         "close": "閉じる",
         "handOverToNext": "次の担当者に引き継ぐ"
       }
+    },
+    "shiftHandovers": {
+      "createPage": {
+        "title": "シフト引き継ぎの作成",
+        "subtitle": "作成されたシフトサマリーを確認し、後任の監督者に責任を引き継ぎます。"
+      },
+      "detailPage": {
+        "loading": "引き継ぎ情報を読み込み中...",
+        "exportPdf": "PDFを書き出し"
+      },
+      "historyPage": {
+        "title": "シフト引き継ぎ",
+        "subtitle": "全シフト・全ユーザーにわたる監督者間の責任移管をタイムスタンプ付きで記録したアーカイブです。",
+        "shiftConfiguration": "シフト設定",
+        "loading": "読み込み中…",
+        "empty": "引き継ぎ記録が見つかりません。"
+      },
+      "filterBar": {
+        "searchNamePlaceholder": "氏名で検索…",
+        "allRoles": "すべての役割",
+        "allShifts": "すべてのシフト",
+        "allDepartments": "すべての部門",
+        "lateOnly": "遅延のみ",
+        "roleLabels": {
+          "admin": "管理者",
+          "plant_manager": "工場長",
+          "supervisor": "監督者",
+          "technician": "技術者",
+          "store_keeper": "倉庫管理者",
+          "hr_officer": "人事担当者",
+          "trainee": "研修生",
+          "floor_operator": "現場オペレーター"
+        }
+      },
+      "historyCard": {
+        "shiftLog": "シフト記録",
+        "started": "開始: {{time}}",
+        "late": "（{{duration}}遅延）",
+        "ended": "終了: {{time}}",
+        "ot": "残業: {{value}}",
+        "watchFlags": "監視フラグ: {{count}}件",
+        "breakdownsDuringShift": "シフト中の故障: {{count}}件",
+        "wosDuringShift": "シフト中の作業指示書: {{count}}件",
+        "viewArchive": "アーカイブを見る",
+        "export": "書き出し"
+      },
+      "historyTable": {
+        "columns": {
+          "shiftName": "シフト名",
+          "personAndRole": "担当者・役割",
+          "department": "部門",
+          "shiftStarted": "シフト開始",
+          "lateBy": "遅延時間",
+          "shiftEnded": "シフト終了",
+          "ot": "残業",
+          "breakdownsDuringShift": "シフト中の故障",
+          "wosDuringShift": "シフト中の作業指示書",
+          "watchFlags": "監視フラグ",
+          "action": "操作"
+        },
+        "onTime": "定刻通り",
+        "late": "{{duration}}遅延",
+        "none": "なし",
+        "shiftLog": "シフト記録",
+        "view": "表示",
+        "export": "書き出し"
+      },
+      "statusBadge": {
+        "pendingAcceptance": "承認待ち",
+        "accepted": "承認済み",
+        "archived": "アーカイブ済み"
+      },
+      "timeline": {
+        "title": "タイムライン",
+        "shiftStart": "シフト開始",
+        "handoverSubmitted": "引き継ぎ提出",
+        "handoverAccepted": "引き継ぎ承認"
+      },
+      "detailView": {
+        "titleSuffix": "引き継ぎ",
+        "assignedShift": "担当シフト",
+        "scheduledRange": "予定 {{start}}～{{end}}",
+        "shiftTakenFrom": "引き継ぎ元",
+        "shiftHandedOverTo": "引き継ぎ先",
+        "pendingAcceptance": "承認待ち",
+        "shiftStartTime": "シフト開始時刻",
+        "shiftEndTime": "シフト終了時刻",
+        "overtime": "残業（OT）",
+        "workedVsScheduled": "（実働 {{worked}} / 予定 {{scheduled}}）",
+        "watchMachineFlags": "監視対象機械フラグ",
+        "noWatchFlags": "監視フラグは登録されていません。",
+        "pendingWorkOrders": "保留中の作業指示書",
+        "noPendingWOs": "保留中の作業指示書はありません。",
+        "ongoingBreakdowns": "進行中の故障",
+        "noOngoingBreakdowns": "進行中の故障はありません。",
+        "generalNotesSafety": "一般メモ・安全上の留意事項",
+        "safetyIncident": "安全インシデント",
+        "safetyIncidentReportedNoDescription": "インシデントが報告されています（説明の記載なし）。",
+        "noSafetyIncidents": "安全インシデントの報告はありません。",
+        "restrictedAreas": "立入制限区域",
+        "temporaryRepairs": "応急修理",
+        "generalNotes": "一般メモ"
+      },
+      "safetyCasesSection": {
+        "title": "あなたに報告された安全案件",
+        "loading": "安全案件を読み込み中...",
+        "empty": "あなたに報告された未対応の安全案件はありません。"
+      },
+      "pendingWoRow": {
+        "noDueDate": "期限なし",
+        "noNote": "メモなし",
+        "supervisorNotePlaceholder": "監督者メモ",
+        "carryForward": {
+          "continue": "次シフトに継続",
+          "escalate": "マネージャーへエスカレーション",
+          "on_hold": "保留"
+        }
+      },
+      "breakdownSnapshotRow": {
+        "minutesElapsed": "経過 {{count}}分",
+        "noNote": "メモなし",
+        "notePlaceholder": "故障メモ",
+        "nextShiftPriority": {
+          "urgent": "緊急 - 直ちに対応",
+          "continue": "通常通り継続",
+          "monitor": "監視のみ"
+        }
+      },
+      "createForm": {
+        "endShiftFirst": "引き継ぎサマリーを作成するには、まずシフトを終了してください。",
+        "steps": {
+          "stats": "統計",
+          "watch": "監視",
+          "wos": "作業指示書",
+          "breakdowns": "故障",
+          "safety": "安全",
+          "notes": "メモ",
+          "signOff": "サインオフ"
+        },
+        "errors": {
+          "acknowledgeRequired": "提出する前にサインオフの確認をお願いします。",
+          "statsNotCompiled": "シフトサマリーがまだ作成されていません。先にシフトを終了してください。",
+          "submitFailed": "引き継ぎの提出に失敗しました"
+        },
+        "toasts": {
+          "submitSuccess": "引き継ぎを提出しました"
+        },
+        "wizard": {
+          "back": "戻る",
+          "next": "次へ"
+        },
+        "section1AutoStats": {
+          "title": "自動生成されたシフト統計",
+          "subtitle": "Firestoreのリアルタイムデータから作成された読み取り専用のサマリーです。",
+          "emptyState": "統計を表示するにはシフトサマリーを作成してください。"
+        },
+        "section2WatchFlags": {
+          "title": "監視対象機械",
+          "subtitle": "次のシフトで特別な注意が必要な機械です。",
+          "addWatchFlag": "監視フラグを追加",
+          "empty": "監視対象機械は登録されていません。"
+        },
+        "section3PendingWOs": {
+          "title": "保留中の作業指示書",
+          "subtitle": "引き継ぎメモのみです。ここで作業指示書自体は変更されません。",
+          "empty": "保留中の作業指示書はありません。"
+        },
+        "section4OngoingBreakdowns": {
+          "title": "進行中の故障",
+          "subtitle": "次のシフトで対応が必要な未解決の故障です。",
+          "empty": "進行中の故障はありません。"
+        },
+        "section5PartsNotes": {
+          "title": "部品・在庫メモ",
+          "subtitle": "次の監督者向けの在庫不足および部品発注に関する情報です。",
+          "lowStockAlerts": "在庫不足アラート",
+          "noAlerts": "在庫不足アラートはありません。",
+          "alertLine": "{{name}}: 現在 {{current}} / 最小 {{min}}",
+          "notesPlaceholder": "部品・在庫に関するメモ"
+        },
+        "section6SafetyIncidents": {
+          "title": "安全・インシデント",
+          "subtitle": "安全インシデント、立入制限区域、応急修理に関する情報です。",
+          "incidentQuestion": "このシフト中に安全インシデントまたはヒヤリハットはありましたか？",
+          "incidentDescriptionPlaceholder": "インシデントの内容、関連機械、実施した対応、今後必要な対応を記入してください",
+          "restrictedAreasPlaceholder": "立入制限区域",
+          "temporaryRepairsPlaceholder": "応急修理"
+        },
+        "section7GeneralNotes": {
+          "title": "一般メモ",
+          "subtitle": "後任の監督者へのフリーテキストメモです。",
+          "placeholder": "上記に含まれないその他の事項",
+          "charCount": "{{count}}/2000"
+        },
+        "section8SignOff": {
+          "title": "退勤監督者サインオフ",
+          "supervisor": "監督者",
+          "shift": "シフト",
+          "signOffTime": "サインオフ時刻",
+          "confirmation": "上記の内容が正確かつ完全であることを確認します。",
+          "submitting": "提出中...",
+          "submit": "引き継ぎを提出"
+        }
+      },
+      "briefingPage": {
+        "noPending": "保留中のシフト引き継ぎブリーフィングはありません。",
+        "returnToDashboard": "ダッシュボードに戻る"
+      },
+      "briefingHeader": {
+        "title": "着任シフトブリーフィング",
+        "handoverFrom": "{{time}}に{{name}}から引き継ぎ"
+      },
+      "briefingScreen": {
+        "watchMachines": "監視対象機械",
+        "noWatchFlags": "監視フラグはありません。",
+        "activeBreakdowns": "対応中の故障",
+        "pendingWorkOrders": "保留中の作業指示書",
+        "partsInventoryFlags": "部品・在庫アラート",
+        "partQtyLine": "{{name}}: 現在 {{current}} / 最小 {{min}}",
+        "noPartsNotes": "部品に関するメモはありません。",
+        "lastShiftStatistics": "前シフトの統計",
+        "generalNotes": "一般メモ",
+        "noGeneralNotes": "一般メモはありません。"
+      },
+      "overlapBanner": {
+        "handedOver": "{{time}}に{{name}}へシフトを引き継ぎました。",
+        "overlapInProgress": "引き継ぎ進行中 - {{name}}が{{shiftName}}を引き継いでいます。",
+        "reviewBriefing": "ブリーフィングを確認"
+      },
+      "statsGrid": {
+        "breakdowns": "故障件数",
+        "openWOs": "未処理の作業指示書",
+        "pmsDone": "実施済みPM",
+        "hoursLost": "損失時間",
+        "partsIssued": "払い出した部品",
+        "wosCompleted": "完了した作業指示書",
+        "critical": "重大",
+        "pmsMissed": "未実施PM"
+      },
+      "acceptShiftButton": {
+        "confirmText": "承認することで、シフトブリーフィングを確認し、このシフトの責任を引き受けることに同意したものとみなされます。",
+        "cancel": "キャンセル",
+        "accepting": "承認中...",
+        "confirmAcceptance": "承認を確定",
+        "acceptShift": "シフトを引き受けて責任を負う"
+      },
+      "endShiftConfirmModal": {
+        "title": "シフト終了",
+        "confirmQuestion": "シフトを終了してもよろしいですか？",
+        "closeAria": "閉じる",
+        "currentShift": "現在のシフト",
+        "currentShiftFallback": "現在のシフト",
+        "scheduled": "予定",
+        "currentTime": "現在時刻",
+        "duration": "所要時間",
+        "notStarted": "未開始",
+        "cancel": "キャンセル",
+        "generating": "生成中...",
+        "endShiftAndGenerateReport": "シフトを終了してレポートを生成",
+        "endShift": "シフト終了"
+      },
+      "endShiftButton": {
+        "start": "開始",
+        "failedToStart": "シフトの開始に失敗しました",
+        "starting": "開始中…",
+        "startShift": "シフト開始",
+        "endShift": "シフト終了"
+      },
+      "statusPanel": {
+        "since": "{{time}}から",
+        "sinceDay": "{{day}} {{time}}から",
+        "yesterday": "昨日",
+        "notStartedToday": "本日はまだ開始していません",
+        "ended": "{{time}}に終了",
+        "working": "勤務中",
+        "notWorking": "非勤務",
+        "workingCount": "勤務中（{{count}}名）",
+        "noOneScheduled": "このシフトにはまだ誰も割り当てられていません。",
+        "liveShiftStatus": "リアルタイムシフト状況",
+        "summaryLine": "現在{{shifts}}にわたり{{people}}名が勤務中",
+        "personCount_one": "{{count}}名",
+        "personCount_other": "{{count}}名",
+        "shiftCount_one": "{{count}}シフト",
+        "shiftCount_other": "{{count}}シフト"
+      },
+      "watchFlagAddModal": {
+        "title": "監視対象機械を追加",
+        "closeAria": "閉じる",
+        "machine": "機械",
+        "loadingMachines": "機械を読み込み中…",
+        "selectMachine": "機械を選択",
+        "machineId": "機械ID",
+        "location": "設置場所",
+        "department": "部門",
+        "floor": "フロア",
+        "bay": "ベイ",
+        "station": "ステーション",
+        "criticalWatch": "重点監視",
+        "monitor": "監視",
+        "infoOnly": "情報のみ",
+        "watchReason": "監視理由",
+        "recommendedAction": "推奨される対応",
+        "linkedBreakdownOptional": "関連する故障（任意）",
+        "selectMachineFirst": "先に機械を選択してください",
+        "loadingBreakdowns": "故障情報を読み込み中…",
+        "noOpenBreakdowns": "この機械に未解決の故障はありません",
+        "none": "なし",
+        "addWatchFlag": "監視フラグを追加"
+      },
+      "watchFlagBadge": {
+        "criticalWatch": "重点監視",
+        "monitor": "監視",
+        "infoOnly": "情報のみ"
+      },
+      "watchFlagCard": {
+        "carriedForward": "引き継ぎ済み",
+        "machineDetail": "機械の詳細",
+        "recommended": "推奨対応：",
+        "linkedBreakdown": "関連する故障",
+        "resolveFlag": "フラグを解除"
+      },
+      "configPage": {
+        "backToShiftHandovers": "シフト引き継ぎに戻る",
+        "title": "シフト設定",
+        "subtitle": "貴社が運用するシフトプランと、それぞれの担当者を設定します。",
+        "seedDefaults": "初期設定を投入",
+        "editingShift": "編集中: {{name}}",
+        "addNewShift": "新しいシフトを追加",
+        "cancelEdit": "編集をキャンセル",
+        "shiftPlans": "シフトプラン",
+        "shiftPlansWithCount": "シフトプラン（{{count}}件）",
+        "loadingShifts": "シフトを読み込み中…",
+        "noShiftsConfigured": "シフトはまだ設定されていません。",
+        "active": "有効",
+        "inactive": "無効",
+        "individualAssignmentsHint": "個別の割り当ては「設定 → ユーザー」からも行えます。",
+        "edit": "編集",
+        "delete": "削除",
+        "confirmDelete": "このシフト設定を削除しますか？",
+        "days": {
+          "Mon": "月",
+          "Tue": "火",
+          "Wed": "水",
+          "Thu": "木",
+          "Fri": "金",
+          "Sat": "土",
+          "Sun": "日"
+        }
+      },
+      "configForm": {
+        "shiftName": "シフト名",
+        "shiftNamePlaceholder": "例：日勤",
+        "from": "開始",
+        "to": "終了",
+        "colour": "カラー",
+        "status": "状態",
+        "active": "有効",
+        "inactive": "無効",
+        "assignShiftBy": "割り当て方法",
+        "department": "部門",
+        "rolesOnThisShift": "このシフトの対象役割",
+        "employeesOnShift": "このシフトの対象従業員",
+        "employeesOnShiftWithCount": "このシフトの対象従業員（{{count}}名選択中）",
+        "clearSelection": "選択を解除",
+        "searchByNameOrRole": "氏名または役割で検索…",
+        "loadingEmployees": "従業員を読み込み中…",
+        "noEmployeesYet": "この会社にはまだ従業員がいません。",
+        "noEmployeesMatch": "検索条件に一致する従業員がいません。",
+        "individualAssignmentHint": "<strong>設定 → ユーザー</strong>からシフトを選択することで、個人単位でシフトを割り当てることもできます。この場合、部門または役割単位のプランより優先されます。対象者にはこのプランが変更された際にメールが送信され、シフト開始の2～3時間前にもリマインドされます。",
+        "shiftSaved": "シフトを保存しました。",
+        "saving": "保存中…",
+        "saveShift": "シフトを保存",
+        "newDepartmentPlaceholder": "例：土木、安全管理",
+        "add": "追加",
+        "cancel": "キャンセル",
+        "selectDepartment": "部門を選択…",
+        "addNewDepartment": "+ 新しい部門を追加…",
+        "days": {
+          "Mon": "月",
+          "Tue": "火",
+          "Wed": "水",
+          "Thu": "木",
+          "Fri": "金",
+          "Sat": "土",
+          "Sun": "日"
+        },
+        "roles": {
+          "admin": "管理者",
+          "supervisor": "監督者",
+          "technician": "技術者",
+          "floorOperator": "現場オペレーター",
+          "storeKeeper": "倉庫管理者",
+          "trainee": "研修生",
+          "plantManager": "工場長",
+          "hrOfficer": "人事担当者",
+          "safetyOfficer": "安全管理者"
+        },
+        "assignBy": {
+          "department": {
+            "label": "部門で割り当て",
+            "hint": "選択した部門に所属する全員がこのシフトで勤務します。"
+          },
+          "role": {
+            "label": "役割で割り当て",
+            "hint": "選択した役割を持つ全員がこのシフトで勤務します。"
+          },
+          "employee": {
+            "label": "従業員で割り当て",
+            "hint": "以下で選択した従業員のみがこのシフトで勤務します。"
+          }
+        },
+        "errors": {
+          "shiftNameRequired": "シフト名を入力してください。",
+          "invalidTimes": "シフトの開始・終了時刻を正しく設定してください。",
+          "departmentRequired": "このシフトの部門を選択または新規作成してください。",
+          "roleRequired": "このシフトの役割を1つ以上選択してください。",
+          "employeeRequired": "このシフトの従業員を1人以上選択してください。",
+          "activeDayRequired": "稼働日を1つ以上選択してください。",
+          "saveFailed": "シフトの保存に失敗しました。"
+        }
+      }
     }
   },
   "triage": {

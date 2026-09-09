@@ -6068,6 +6068,427 @@
         "close": "Fermer",
         "handOverToNext": "Transmettre à la personne suivante"
       }
+    },
+    "shiftHandovers": {
+      "createPage": {
+        "title": "Créer une passation de service",
+        "subtitle": "Vérifiez le résumé de poste compilé et transférez la responsabilité au superviseur entrant."
+      },
+      "detailPage": {
+        "loading": "Chargement de la passation...",
+        "exportPdf": "Exporter en PDF"
+      },
+      "historyPage": {
+        "title": "Passations de service",
+        "subtitle": "Archive horodatée des transferts de responsabilité entre superviseurs, pour chaque poste et chaque utilisateur.",
+        "shiftConfiguration": "Configuration des postes",
+        "loading": "Chargement…",
+        "empty": "Aucune passation trouvée."
+      },
+      "filterBar": {
+        "searchNamePlaceholder": "Rechercher un nom…",
+        "allRoles": "Tous les rôles",
+        "allShifts": "Tous les postes",
+        "allDepartments": "Tous les départements",
+        "lateOnly": "En retard uniquement",
+        "roleLabels": {
+          "admin": "Administrateur",
+          "plant_manager": "Directeur d'usine",
+          "supervisor": "Superviseur",
+          "technician": "Technicien",
+          "store_keeper": "Magasinier",
+          "hr_officer": "Responsable RH",
+          "trainee": "Stagiaire",
+          "floor_operator": "Opérateur de production"
+        }
+      },
+      "historyCard": {
+        "shiftLog": "Journal de poste",
+        "started": "Débuté : {{time}}",
+        "late": "({{duration}} de retard)",
+        "ended": "Terminé : {{time}}",
+        "ot": "HS : {{value}}",
+        "watchFlags": "Signalements de surveillance : {{count}}",
+        "breakdownsDuringShift": "Pannes pendant le poste : {{count}}",
+        "wosDuringShift": "OT pendant le poste : {{count}}",
+        "viewArchive": "Voir l'archive",
+        "export": "Exporter"
+      },
+      "historyTable": {
+        "columns": {
+          "shiftName": "Nom du poste",
+          "personAndRole": "Personne et rôle",
+          "department": "Département",
+          "shiftStarted": "Poste débuté",
+          "lateBy": "Retard de",
+          "shiftEnded": "Poste terminé",
+          "ot": "HS",
+          "breakdownsDuringShift": "Pannes pendant le poste",
+          "wosDuringShift": "OT pendant le poste",
+          "watchFlags": "Signalements de surveillance",
+          "action": "Action"
+        },
+        "onTime": "À l'heure",
+        "late": "{{duration}} de retard",
+        "none": "Aucun",
+        "shiftLog": "Journal de poste",
+        "view": "Voir",
+        "export": "Exporter"
+      },
+      "statusBadge": {
+        "pendingAcceptance": "En attente d'acceptation",
+        "accepted": "Accepté",
+        "archived": "Archivé"
+      },
+      "timeline": {
+        "title": "Chronologie",
+        "shiftStart": "Début du poste",
+        "handoverSubmitted": "Passation soumise",
+        "handoverAccepted": "Passation acceptée"
+      },
+      "detailView": {
+        "titleSuffix": "Passation",
+        "assignedShift": "Poste assigné",
+        "scheduledRange": "prévu {{start}}–{{end}}",
+        "shiftTakenFrom": "Poste repris de",
+        "shiftHandedOverTo": "Poste transmis à",
+        "pendingAcceptance": "En attente d'acceptation",
+        "shiftStartTime": "Heure de début du poste",
+        "shiftEndTime": "Heure de fin du poste",
+        "overtime": "Heures supplémentaires (HS)",
+        "workedVsScheduled": "(effectué {{worked}} vs prévu {{scheduled}})",
+        "watchMachineFlags": "Machines sous surveillance",
+        "noWatchFlags": "Aucun signalement de surveillance.",
+        "pendingWorkOrders": "Ordres de travail en attente",
+        "noPendingWOs": "Aucun ordre de travail en attente.",
+        "ongoingBreakdowns": "Pannes en cours",
+        "noOngoingBreakdowns": "Aucune panne en cours.",
+        "generalNotesSafety": "Notes générales et considérations de sécurité",
+        "safetyIncident": "Incident de sécurité",
+        "safetyIncidentReportedNoDescription": "Incident signalé (aucune description fournie).",
+        "noSafetyIncidents": "Aucun incident de sécurité signalé.",
+        "restrictedAreas": "Zones restreintes",
+        "temporaryRepairs": "Réparations temporaires",
+        "generalNotes": "Notes générales"
+      },
+      "safetyCasesSection": {
+        "title": "Cas de sécurité qui vous ont été signalés",
+        "loading": "Chargement des cas de sécurité...",
+        "empty": "Aucun cas de sécurité ouvert ne vous a été signalé."
+      },
+      "pendingWoRow": {
+        "noDueDate": "Aucune échéance",
+        "noNote": "Aucune note",
+        "supervisorNotePlaceholder": "Note du superviseur",
+        "carryForward": {
+          "continue": "Poursuivre au poste suivant",
+          "escalate": "Escalader au responsable",
+          "on_hold": "En attente"
+        }
+      },
+      "breakdownSnapshotRow": {
+        "minutesElapsed": "{{count}} min écoulées",
+        "noNote": "Aucune note",
+        "notePlaceholder": "Note sur la panne",
+        "nextShiftPriority": {
+          "urgent": "Urgent - résoudre immédiatement",
+          "continue": "Poursuivre normalement",
+          "monitor": "Surveillance uniquement"
+        }
+      },
+      "createForm": {
+        "endShiftFirst": "Terminez d'abord votre poste pour compiler le résumé de passation.",
+        "steps": {
+          "stats": "Statistiques",
+          "watch": "Surveillance",
+          "wos": "OT",
+          "breakdowns": "Pannes",
+          "safety": "Sécurité",
+          "notes": "Notes",
+          "signOff": "Validation"
+        },
+        "errors": {
+          "acknowledgeRequired": "Veuillez confirmer la validation avant de soumettre.",
+          "statsNotCompiled": "Le résumé du poste n'est pas encore compilé. Terminez d'abord votre poste.",
+          "submitFailed": "Échec de la soumission de la passation"
+        },
+        "toasts": {
+          "submitSuccess": "Passation soumise avec succès"
+        },
+        "wizard": {
+          "back": "Retour",
+          "next": "Suivant"
+        },
+        "section1AutoStats": {
+          "title": "Statistiques de poste générées automatiquement",
+          "subtitle": "Résumé en lecture seule compilé à partir des données Firestore en direct.",
+          "emptyState": "Compilez le résumé du poste pour afficher les statistiques."
+        },
+        "section2WatchFlags": {
+          "title": "Machines à surveiller",
+          "subtitle": "Machines nécessitant une attention particulière au poste suivant.",
+          "addWatchFlag": "Ajouter un signalement de surveillance",
+          "empty": "Aucune machine à surveiller ajoutée."
+        },
+        "section3PendingWOs": {
+          "title": "Ordres de travail en attente",
+          "subtitle": "Notes de report uniquement. Les ordres de travail ne sont pas modifiés ici.",
+          "empty": "Aucun ordre de travail en attente."
+        },
+        "section4OngoingBreakdowns": {
+          "title": "Pannes en cours",
+          "subtitle": "Pannes ouvertes nécessitant l'attention du poste suivant.",
+          "empty": "Aucune panne en cours."
+        },
+        "section5PartsNotes": {
+          "title": "Notes sur les pièces et l'inventaire",
+          "subtitle": "Contexte sur le stock faible et les demandes de pièces pour le prochain superviseur.",
+          "lowStockAlerts": "Alertes de stock faible",
+          "noAlerts": "Aucune alerte de stock faible compilée.",
+          "alertLine": "{{name}} : {{current}} / min {{min}}",
+          "notesPlaceholder": "Notes sur les pièces et l'inventaire"
+        },
+        "section6SafetyIncidents": {
+          "title": "Sécurité et incidents",
+          "subtitle": "Incidents de sécurité, zones restreintes et réparations temporaires.",
+          "incidentQuestion": "Un incident de sécurité ou un presque-accident s'est-il produit pendant ce poste ?",
+          "incidentDescriptionPlaceholder": "Décrivez l'incident, les machines concernées, les actions prises, le suivi requis",
+          "restrictedAreasPlaceholder": "Zones restreintes",
+          "temporaryRepairsPlaceholder": "Réparations temporaires"
+        },
+        "section7GeneralNotes": {
+          "title": "Notes générales",
+          "subtitle": "Notes en texte libre pour le superviseur entrant.",
+          "placeholder": "Tout ce qui n'est pas couvert ci-dessus",
+          "charCount": "{{count}}/2000"
+        },
+        "section8SignOff": {
+          "title": "Validation du superviseur sortant",
+          "supervisor": "Superviseur",
+          "shift": "Poste",
+          "signOffTime": "Heure de validation",
+          "confirmation": "Je confirme que les informations ci-dessus sont exactes et complètes.",
+          "submitting": "Soumission en cours...",
+          "submit": "Soumettre la passation"
+        }
+      },
+      "briefingPage": {
+        "noPending": "Aucun briefing de poste en attente.",
+        "returnToDashboard": "Retourner au tableau de bord"
+      },
+      "briefingHeader": {
+        "title": "Briefing du poste entrant",
+        "handoverFrom": "Passation de {{name}} à {{time}}"
+      },
+      "briefingScreen": {
+        "watchMachines": "Machines à surveiller",
+        "noWatchFlags": "Aucun signalement de surveillance.",
+        "activeBreakdowns": "Pannes actives",
+        "pendingWorkOrders": "Ordres de travail en attente",
+        "partsInventoryFlags": "Alertes pièces et inventaire",
+        "partQtyLine": "{{name}} : {{current}} / min {{min}}",
+        "noPartsNotes": "Aucune note sur les pièces.",
+        "lastShiftStatistics": "Statistiques du poste précédent",
+        "generalNotes": "Notes générales",
+        "noGeneralNotes": "Aucune note générale."
+      },
+      "overlapBanner": {
+        "handedOver": "Poste transmis à {{name}} à {{time}}.",
+        "overlapInProgress": "Chevauchement en cours - {{name}} transmet le poste {{shiftName}}.",
+        "reviewBriefing": "Consulter le briefing"
+      },
+      "statsGrid": {
+        "breakdowns": "Pannes",
+        "openWOs": "OT ouverts",
+        "pmsDone": "MP effectuées",
+        "hoursLost": "Heures perdues",
+        "partsIssued": "Pièces distribuées",
+        "wosCompleted": "OT terminés",
+        "critical": "Critique",
+        "pmsMissed": "MP manquées"
+      },
+      "acceptShiftButton": {
+        "confirmText": "En acceptant, vous confirmez avoir consulté le briefing du poste et assumez la responsabilité de ce poste.",
+        "cancel": "Annuler",
+        "accepting": "Acceptation en cours...",
+        "confirmAcceptance": "Confirmer l'acceptation",
+        "acceptShift": "Accepter le poste et en assumer la responsabilité"
+      },
+      "endShiftConfirmModal": {
+        "title": "Terminer le poste",
+        "confirmQuestion": "Êtes-vous sûr de vouloir terminer votre poste ?",
+        "closeAria": "Fermer",
+        "currentShift": "Poste actuel",
+        "currentShiftFallback": "Poste actuel",
+        "scheduled": "Prévu",
+        "currentTime": "Heure actuelle",
+        "duration": "Durée",
+        "notStarted": "Non démarré",
+        "cancel": "Annuler",
+        "generating": "Génération en cours...",
+        "endShiftAndGenerateReport": "Terminer le poste et générer le rapport",
+        "endShift": "Terminer le poste"
+      },
+      "endShiftButton": {
+        "start": "Démarrer",
+        "failedToStart": "Échec du démarrage du poste",
+        "starting": "Démarrage…",
+        "startShift": "Démarrer le poste",
+        "endShift": "Terminer le poste"
+      },
+      "statusPanel": {
+        "since": "Depuis {{time}}",
+        "sinceDay": "Depuis {{day}} {{time}}",
+        "yesterday": "hier",
+        "notStartedToday": "Pas encore démarré aujourd'hui",
+        "ended": "Terminé à {{time}}",
+        "working": "En service",
+        "notWorking": "Hors service",
+        "workingCount": "En service ({{count}})",
+        "noOneScheduled": "Personne n'est encore planifié sur ce poste.",
+        "liveShiftStatus": "Statut des postes en direct",
+        "summaryLine": "{{people}} actuellement en service, répartis sur {{shifts}}",
+        "personCount_one": "{{count}} personne",
+        "personCount_other": "{{count}} personnes",
+        "shiftCount_one": "{{count}} poste",
+        "shiftCount_other": "{{count}} postes"
+      },
+      "watchFlagAddModal": {
+        "title": "Ajouter une machine à surveiller",
+        "closeAria": "Fermer",
+        "machine": "Machine",
+        "loadingMachines": "Chargement des machines…",
+        "selectMachine": "Sélectionner une machine",
+        "machineId": "ID de la machine",
+        "location": "Emplacement",
+        "department": "Département",
+        "floor": "Étage",
+        "bay": "Zone",
+        "station": "Poste",
+        "criticalWatch": "Surveillance critique",
+        "monitor": "À surveiller",
+        "infoOnly": "Information seulement",
+        "watchReason": "Motif de surveillance",
+        "recommendedAction": "Action recommandée",
+        "linkedBreakdownOptional": "Panne associée (optionnel)",
+        "selectMachineFirst": "Sélectionnez d'abord une machine",
+        "loadingBreakdowns": "Chargement des pannes…",
+        "noOpenBreakdowns": "Aucune panne ouverte pour cette machine",
+        "none": "Aucune",
+        "addWatchFlag": "Ajouter le signalement de surveillance"
+      },
+      "watchFlagBadge": {
+        "criticalWatch": "Surveillance critique",
+        "monitor": "À surveiller",
+        "infoOnly": "Information seulement"
+      },
+      "watchFlagCard": {
+        "carriedForward": "Reporté",
+        "machineDetail": "Détail de la machine",
+        "recommended": "Recommandé :",
+        "linkedBreakdown": "Panne associée",
+        "resolveFlag": "Résoudre le signalement"
+      },
+      "configPage": {
+        "backToShiftHandovers": "Retour aux passations de service",
+        "title": "Configuration des postes",
+        "subtitle": "Définissez les plans de poste utilisés par votre entreprise et qui travaille sur chacun.",
+        "seedDefaults": "Initialiser les valeurs par défaut",
+        "editingShift": "Modification : {{name}}",
+        "addNewShift": "Ajouter un nouveau poste",
+        "cancelEdit": "Annuler la modification",
+        "shiftPlans": "Plans de poste",
+        "shiftPlansWithCount": "Plans de poste ({{count}})",
+        "loadingShifts": "Chargement des postes…",
+        "noShiftsConfigured": "Aucun poste configuré pour l'instant.",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "individualAssignmentsHint": "Des affectations individuelles peuvent aussi être effectuées dans Paramètres → Utilisateurs.",
+        "edit": "Modifier",
+        "delete": "Supprimer",
+        "confirmDelete": "Supprimer cette configuration de poste ?",
+        "days": {
+          "Mon": "Lun",
+          "Tue": "Mar",
+          "Wed": "Mer",
+          "Thu": "Jeu",
+          "Fri": "Ven",
+          "Sat": "Sam",
+          "Sun": "Dim"
+        }
+      },
+      "configForm": {
+        "shiftName": "Nom du poste",
+        "shiftNamePlaceholder": "ex. Poste du matin",
+        "from": "De",
+        "to": "À",
+        "colour": "Couleur",
+        "status": "Statut",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "assignShiftBy": "Affecter le poste par",
+        "department": "Département",
+        "rolesOnThisShift": "Rôles sur ce poste",
+        "employeesOnShift": "Employés sur ce poste",
+        "employeesOnShiftWithCount": "Employés sur ce poste ({{count}} sélectionnés)",
+        "clearSelection": "Effacer la sélection",
+        "searchByNameOrRole": "Rechercher par nom ou rôle…",
+        "loadingEmployees": "Chargement des employés…",
+        "noEmployeesYet": "Aucun employé dans cette entreprise pour l'instant.",
+        "noEmployeesMatch": "Aucun employé ne correspond à cette recherche.",
+        "individualAssignmentHint": "Une personne peut aussi être affectée individuellement à un poste depuis <strong>Paramètres → Utilisateurs</strong> en y choisissant un poste, ce qui remplace pour elle un plan par département ou par rôle. Les membres affectés reçoivent un e-mail lorsque ce plan change et un rappel 2 à 3 heures avant le début du poste.",
+        "shiftSaved": "Poste enregistré.",
+        "saving": "Enregistrement…",
+        "saveShift": "Enregistrer le poste",
+        "newDepartmentPlaceholder": "ex. Génie civil, Sécurité",
+        "add": "Ajouter",
+        "cancel": "Annuler",
+        "selectDepartment": "Sélectionner un département…",
+        "addNewDepartment": "+ Ajouter un nouveau département…",
+        "days": {
+          "Mon": "Lun",
+          "Tue": "Mar",
+          "Wed": "Mer",
+          "Thu": "Jeu",
+          "Fri": "Ven",
+          "Sat": "Sam",
+          "Sun": "Dim"
+        },
+        "roles": {
+          "admin": "Administrateur",
+          "supervisor": "Superviseur",
+          "technician": "Technicien",
+          "floorOperator": "Opérateur de production",
+          "storeKeeper": "Magasinier",
+          "trainee": "Stagiaire",
+          "plantManager": "Directeur d'usine",
+          "hrOfficer": "Responsable RH",
+          "safetyOfficer": "Responsable sécurité"
+        },
+        "assignBy": {
+          "department": {
+            "label": "Par département",
+            "hint": "Tout le monde dans le département choisi travaille sur ce poste."
+          },
+          "role": {
+            "label": "Par rôle",
+            "hint": "Tout le monde ayant les rôles choisis travaille sur ce poste."
+          },
+          "employee": {
+            "label": "Par employé",
+            "hint": "Seules les personnes que vous sélectionnez ci-dessous travaillent sur ce poste."
+          }
+        },
+        "errors": {
+          "shiftNameRequired": "Le nom du poste est requis.",
+          "invalidTimes": "Définissez des heures De et À valides pour le poste.",
+          "departmentRequired": "Sélectionnez ou créez un département pour ce poste.",
+          "roleRequired": "Sélectionnez au moins un rôle pour ce poste.",
+          "employeeRequired": "Sélectionnez au moins un employé pour ce poste.",
+          "activeDayRequired": "Sélectionnez au moins un jour actif.",
+          "saveFailed": "Échec de l'enregistrement du poste."
+        }
+      }
     }
   },
   "triage": {

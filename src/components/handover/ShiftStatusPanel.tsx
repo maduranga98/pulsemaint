@@ -1,27 +1,29 @@
+import { useTranslation, type TFunction } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useLiveShiftStatus, type ShiftLiveStatus, type ShiftMemberStatus } from '@/hooks/useLiveShiftStatus';
 import { formatTimeRange } from '@/utils/handover.utils';
 
-function formatSince(date: Date | null): string {
+function formatSince(t: TFunction, date: Date | null): string {
   if (!date) return '';
   const today = new Date();
   const isToday = date.toDateString() === today.toDateString();
   const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (isToday) return `Since ${time}`;
+  if (isToday) return t('common.shiftHandovers.statusPanel.since', { time });
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
   const dayLabel = date.toDateString() === yesterday.toDateString()
-    ? 'yesterday'
+    ? t('common.shiftHandovers.statusPanel.yesterday')
     : date.toLocaleDateString([], { month: 'short', day: 'numeric' });
-  return `Since ${dayLabel} ${time}`;
+  return t('common.shiftHandovers.statusPanel.sinceDay', { day: dayLabel, time });
 }
 
-function formatEnded(date: Date | null): string {
-  if (!date) return 'Not started today';
-  return `Ended ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+function formatEnded(t: TFunction, date: Date | null): string {
+  if (!date) return t('common.shiftHandovers.statusPanel.notStartedToday');
+  return t('common.shiftHandovers.statusPanel.ended', { time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
 }
 
 function MemberRow({ member }: { member: ShiftMemberStatus }) {
+  const { t } = useTranslation();
   const working = member.status === 'working';
   return (
     <li className="flex items-center justify-between gap-3 py-1.5">
@@ -36,10 +38,10 @@ function MemberRow({ member }: { member: ShiftMemberStatus }) {
       </span>
       <span className="shrink-0 text-right">
         <span className={`block text-xs font-semibold ${working ? 'text-emerald-600' : 'text-slate-400'}`}>
-          {working ? 'Working' : 'Not Working'}
+          {working ? t('common.shiftHandovers.statusPanel.working') : t('common.shiftHandovers.statusPanel.notWorking')}
         </span>
         <span className="block text-[11px] text-slate-400">
-          {working ? formatSince(member.workingSince) : formatEnded(member.endedAt)}
+          {working ? formatSince(t, member.workingSince) : formatEnded(t, member.endedAt)}
         </span>
       </span>
     </li>
@@ -47,6 +49,7 @@ function MemberRow({ member }: { member: ShiftMemberStatus }) {
 }
 
 function ShiftCard({ row }: { row: ShiftLiveStatus }) {
+  const { t } = useTranslation();
   const isLive = row.status === 'working';
   return (
     <div className="rounded-lg border border-slate-200 bg-white">
@@ -61,7 +64,7 @@ function ShiftCard({ row }: { row: ShiftLiveStatus }) {
           }`}
         >
           <span className={`h-1.5 w-1.5 rounded-full ${isLive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
-          {isLive ? `Working (${row.workingCount})` : 'Not Working'}
+          {isLive ? t('common.shiftHandovers.statusPanel.workingCount', { count: row.workingCount }) : t('common.shiftHandovers.statusPanel.notWorking')}
         </span>
       </div>
       {row.members.length > 0 ? (
@@ -69,13 +72,14 @@ function ShiftCard({ row }: { row: ShiftLiveStatus }) {
           {row.members.map((m) => <MemberRow key={m.id} member={m} />)}
         </ul>
       ) : (
-        <p className="px-4 py-3 text-xs text-slate-400">No one scheduled on this shift yet.</p>
+        <p className="px-4 py-3 text-xs text-slate-400">{t('common.shiftHandovers.statusPanel.noOneScheduled')}</p>
       )}
     </div>
   );
 }
 
 export function ShiftStatusPanel() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
   const { rows, loading } = useLiveShiftStatus(companyId);
 
@@ -87,9 +91,12 @@ export function ShiftStatusPanel() {
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <h2 className=" text-base font-bold text-slate-950">Live Shift Status</h2>
+        <h2 className=" text-base font-bold text-slate-950">{t('common.shiftHandovers.statusPanel.liveShiftStatus')}</h2>
         <p className="text-xs text-slate-500">
-          {totalWorking} {totalWorking === 1 ? 'person' : 'people'} currently working, across {rows.length} {rows.length === 1 ? 'shift' : 'shifts'}
+          {t('common.shiftHandovers.statusPanel.summaryLine', {
+            people: t('common.shiftHandovers.statusPanel.personCount', { count: totalWorking }),
+            shifts: t('common.shiftHandovers.statusPanel.shiftCount', { count: rows.length }),
+          })}
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

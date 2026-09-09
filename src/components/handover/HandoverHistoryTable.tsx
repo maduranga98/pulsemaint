@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import type { ShiftHandover } from '@/types/handover.types';
 import { calculateLateStartMinutes, formatDuration } from '@/utils/handover.utils';
 import { exportHandoverPdf } from '@/utils/reports/pdf/handoverPdf';
@@ -41,22 +42,23 @@ function fmtDateTime(d: Date | null | undefined): string {
 }
 
 export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
+  const { t } = useTranslation();
   return (
     <div className="overflow-x-auto scrollbar-hide rounded-lg border border-slate-200 bg-white">
       <table className="w-full text-sm min-w-[1080px]">
         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
           <tr>
-            <th className="px-4 py-3">Shift Name</th>
-            <th className="px-4 py-3">Person &amp; Role</th>
-            <th className="px-4 py-3">Department</th>
-            <th className="px-4 py-3">Shift Started</th>
-            <th className="px-4 py-3">Late By</th>
-            <th className="px-4 py-3">Shift Ended</th>
-            <th className="px-4 py-3">OT</th>
-            <th className="px-4 py-3">Breakdowns during Shift</th>
-            <th className="px-4 py-3">WOs during Shift</th>
-            <th className="px-4 py-3">Watch Flags</th>
-            <th className="px-4 py-3">Action</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.shiftName')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.personAndRole')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.department')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.shiftStarted')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.lateBy')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.shiftEnded')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.ot')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.breakdownsDuringShift')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.wosDuringShift')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.watchFlags')}</th>
+            <th className="px-4 py-3">{t('common.shiftHandovers.historyTable.columns.action')}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -78,9 +80,9 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
                 <td className={`px-4 py-3 whitespace-nowrap ${isLate ? 'font-semibold text-red-600' : ''}`}>{fmtDateTime(row.start)}</td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {isLate ? (
-                    <span className="font-semibold text-red-600">{formatDuration(lateMinutes * 60000)} late</span>
+                    <span className="font-semibold text-red-600">{t('common.shiftHandovers.historyTable.late', { duration: formatDuration(lateMinutes * 60000) })}</span>
                   ) : (
-                    <span className="text-slate-400">On time</span>
+                    <span className="text-slate-400">{t('common.shiftHandovers.historyTable.onTime')}</span>
                   )}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">{fmtDateTime(row.end)}</td>
@@ -89,7 +91,7 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
                 </td>
                 <td className="px-4 py-3">
                   {row.ongoingBreakdowns.length === 0 ? (
-                    <span className="text-slate-400">None</span>
+                    <span className="text-slate-400">{t('common.shiftHandovers.historyTable.none')}</span>
                   ) : (
                     <ul className="space-y-0.5">
                       {row.ongoingBreakdowns.map((b) => (
@@ -103,7 +105,7 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
                 </td>
                 <td className="px-4 py-3">
                   {row.pendingWOs.length === 0 ? (
-                    <span className="text-slate-400">None</span>
+                    <span className="text-slate-400">{t('common.shiftHandovers.historyTable.none')}</span>
                   ) : (
                     <ul className="space-y-0.5">
                       {row.pendingWOs.map((w) => (
@@ -117,7 +119,7 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
                 </td>
                 <td className="px-4 py-3">
                   {row.watchFlags.length === 0 ? (
-                    <span className="text-slate-400">None</span>
+                    <span className="text-slate-400">{t('common.shiftHandovers.historyTable.none')}</span>
                   ) : (
                     <ul className="space-y-0.5">
                       {row.watchFlags.map((f) => (
@@ -132,11 +134,11 @@ export function HandoverHistoryTable({ rows }: HandoverHistoryTableProps) {
                 <td className="px-4 py-3 whitespace-nowrap">
                   {row.kind === 'handover' && row.handover ? (
                     <div className="flex gap-3">
-                      <Link to={`/app/shift/handover/${row.handover.id}`} className="text-xs font-bold text-blue-700">View</Link>
-                      <button type="button" onClick={() => exportHandoverPdf(row.handover!)} className="text-xs font-bold text-slate-600 hover:text-slate-900">Export</button>
+                      <Link to={`/app/shift/handover/${row.handover.id}`} className="text-xs font-bold text-blue-700">{t('common.shiftHandovers.historyTable.view')}</Link>
+                      <button type="button" onClick={() => exportHandoverPdf(row.handover!)} className="text-xs font-bold text-slate-600 hover:text-slate-900">{t('common.shiftHandovers.historyTable.export')}</button>
                     </div>
                   ) : (
-                    <span className="text-xs text-slate-400">Shift log</span>
+                    <span className="text-xs text-slate-400">{t('common.shiftHandovers.historyTable.shiftLog')}</span>
                   )}
                 </td>
               </tr>
