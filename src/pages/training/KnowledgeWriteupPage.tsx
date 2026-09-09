@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Loader2, Paperclip, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMyProgramme } from '@/hooks/traineeProgram/useMyProgramme';
 import { useMyAssignments } from '@/hooks/training/useMyAssignments';
@@ -17,12 +18,6 @@ function formatTs(ts: { toDate?: () => Date } | null | undefined): string {
   return ts.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-const REVIEW_LABEL: Record<string, string> = {
-  pending: 'Pending Review',
-  reviewed: 'Reviewed',
-  needs_revision: 'Needs Revision',
-};
-
 /**
  * Where a trainee writes up the knowledge they gathered during the first module
  * of their training programme, optionally attaching supporting files. This
@@ -31,6 +26,12 @@ const REVIEW_LABEL: Record<string, string> = {
  * knowledge note store.
  */
 export default function KnowledgeWriteupPage() {
+  const { t } = useTranslation();
+  const REVIEW_LABEL: Record<string, string> = {
+    pending: t('common.trainingShared.knowledgeWriteup.reviewStatus.pending'),
+    reviewed: t('common.trainingShared.knowledgeWriteup.reviewStatus.reviewed'),
+    needs_revision: t('common.trainingShared.knowledgeWriteup.reviewStatus.needsRevision'),
+  };
   const userProfile = useAuthStore((s) => s.userProfile);
   const { programme, loading: programmeLoading } = useMyProgramme();
   const { assignments } = useMyAssignments();
@@ -71,12 +72,12 @@ export default function KnowledgeWriteupPage() {
         files,
         uploadedByName: userProfile.fullName,
       });
-      toast.success('Knowledge write-up submitted.');
+      toast.success(t('common.trainingShared.knowledgeWriteup.toasts.submitted'));
       setSummaryText('');
       setModuleId('');
       setFiles([]);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to submit write-up');
+      toast.error(err instanceof Error ? err.message : t('common.trainingShared.knowledgeWriteup.toasts.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -93,9 +94,9 @@ export default function KnowledgeWriteupPage() {
   if (!programme) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">First Module Knowledge Write-up</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">{t('common.trainingShared.knowledgeWriteup.firstModuleTitle')}</h1>
         <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">
-          You need an active training programme before you can submit a knowledge write-up.
+          {t('common.trainingShared.knowledgeWriteup.noProgramme')}
         </div>
       </div>
     );
@@ -104,22 +105,22 @@ export default function KnowledgeWriteupPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Module Knowledge Write-up</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('common.trainingShared.knowledgeWriteup.title')}</h1>
         <p className="mt-1 text-slate-600">
-          Write up the knowledge you gathered from a module in your programme. Attachments are optional.
+          {t('common.trainingShared.knowledgeWriteup.subtitle')}
         </p>
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
         {programmeModules.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Module</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t('common.trainingShared.knowledgeWriteup.moduleLabel')}</label>
             <select
               value={moduleId}
               onChange={(e) => setModuleId(e.target.value)}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             >
-              <option value="">Select a module…</option>
+              <option value="">{t('common.trainingShared.knowledgeWriteup.selectModulePlaceholder')}</option>
               {programmeModules.map((m) => (
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}
@@ -127,18 +128,18 @@ export default function KnowledgeWriteupPage() {
           </div>
         )}
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">What you learned</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('common.trainingShared.knowledgeWriteup.whatYouLearned')}</label>
           <textarea
             value={summaryText}
             onChange={(e) => setSummaryText(e.target.value)}
             rows={7}
-            placeholder="Summarise the knowledge you gathered during the first module..."
+            placeholder={t('common.trainingShared.knowledgeWriteup.summaryPlaceholder')}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Attachments (optional)</label>
+          <label className="block text-sm font-medium text-slate-700 mb-1">{t('common.trainingShared.knowledgeWriteup.attachmentsLabel')}</label>
           <input
             type="file"
             multiple
@@ -164,22 +165,22 @@ export default function KnowledgeWriteupPage() {
           disabled={!canSubmit || submitting}
           className="px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50"
         >
-          {submitting ? 'Submitting…' : 'Submit Write-up'}
+          {submitting ? t('common.trainingShared.knowledgeWriteup.submitting') : t('common.trainingShared.knowledgeWriteup.submit')}
         </button>
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-slate-900 mb-3">Past Submissions</h2>
+        <h2 className="text-sm font-semibold text-slate-900 mb-3">{t('common.trainingShared.knowledgeWriteup.pastSubmissions')}</h2>
         {summariesLoading ? (
-          <p className="text-sm text-slate-500">Loading…</p>
+          <p className="text-sm text-slate-500">{t('common.trainingShared.knowledgeWriteup.loading')}</p>
         ) : summaries.length === 0 ? (
-          <p className="text-sm text-slate-500">No submissions yet.</p>
+          <p className="text-sm text-slate-500">{t('common.trainingShared.knowledgeWriteup.noSubmissions')}</p>
         ) : (
           <div className="space-y-2">
             {summaries.map((s) => (
               <div key={s.id} className="rounded-lg border border-slate-200 bg-white p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-800">{s.moduleName || 'Knowledge write-up'}</span>
+                  <span className="text-sm font-medium text-slate-800">{s.moduleName || t('common.trainingShared.knowledgeWriteup.untitledSubmission')}</span>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
                     s.reviewStatus === 'reviewed' ? 'bg-green-100 text-green-700'
                     : s.reviewStatus === 'needs_revision' ? 'bg-red-100 text-red-700'
@@ -189,7 +190,7 @@ export default function KnowledgeWriteupPage() {
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 mt-1 whitespace-pre-wrap">{s.summaryText}</p>
-                <p className="text-xs text-slate-500 mt-1">Submitted {formatTs(s.submittedAt)}</p>
+                <p className="text-xs text-slate-500 mt-1">{t('common.trainingShared.knowledgeWriteup.submittedOn', { date: formatTs(s.submittedAt) })}</p>
                 {s.attachments.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {s.attachments.map((att) => (

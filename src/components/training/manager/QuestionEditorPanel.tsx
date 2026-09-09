@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import type { QuizQuestion, QuestionType, QuizOption } from '@/lib/training/trainingTypes';
 import QuestionOptionBuilder from './QuestionOptionBuilder';
 
@@ -8,12 +9,6 @@ interface QuestionEditorPanelProps {
   onSave: (q: QuizQuestion) => void;
   onCancel: () => void;
 }
-
-const QUESTION_TYPES: { value: QuestionType; label: string; description: string }[] = [
-  { value: 'single_choice', label: 'Single Choice', description: 'One correct answer' },
-  { value: 'multiple_choice', label: 'Multiple Choice', description: 'Multiple correct answers' },
-  { value: 'true_false', label: 'True / False', description: 'True or false' },
-];
 
 function buildDefaultOptions(type: QuestionType): QuizOption[] {
   if (type === 'true_false') {
@@ -33,6 +28,12 @@ export default function QuestionEditorPanel({
   onSave,
   onCancel,
 }: QuestionEditorPanelProps) {
+  const { t } = useTranslation();
+  const QUESTION_TYPES: { value: QuestionType; label: string; description: string }[] = [
+    { value: 'single_choice', label: t('common.trainingShared.manager.questionEditors.types.singleChoice.label'), description: t('common.trainingShared.manager.questionEditors.types.singleChoice.description') },
+    { value: 'multiple_choice', label: t('common.trainingShared.manager.questionEditors.types.multipleChoice.label'), description: t('common.trainingShared.manager.questionEditors.types.multipleChoice.description') },
+    { value: 'true_false', label: t('common.trainingShared.manager.questionEditors.types.trueFalse.label'), description: t('common.trainingShared.manager.questionEditors.types.trueFalse.description') },
+  ];
   const [text, setText] = useState(question?.text ?? '');
   const [type, setType] = useState<QuestionType>(question?.type ?? 'single_choice');
   const [imageUrl, setImageUrl] = useState(question?.imageUrl ?? '');
@@ -53,11 +54,11 @@ export default function QuestionEditorPanel({
   function validate(): boolean {
     const nextErrors: Record<string, string> = {};
     if (!text.trim()) {
-      nextErrors.text = 'Question text is required.';
+      nextErrors.text = t('common.trainingShared.manager.questionEditors.textRequired');
     }
     const hasCorrect = options.some((o) => o.isCorrect);
     if (!hasCorrect) {
-      nextErrors.options = 'At least one correct answer is required.';
+      nextErrors.options = t('common.trainingShared.manager.questionEditors.correctAnswerRequired');
     }
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -84,20 +85,20 @@ export default function QuestionEditorPanel({
     <div className="flex flex-col gap-5 p-5 bg-white rounded-xl border border-gray-200">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-gray-800">
-          {question?.id ? 'Edit Question' : 'New Question'}
+          {question?.id ? t('common.trainingShared.manager.questionEditors.editTitle') : t('common.trainingShared.manager.questionEditors.newTitle')}
         </h3>
       </div>
 
       {/* Question Text */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">
-          Question Text <span className="text-red-500">*</span>
+          {t('common.trainingShared.manager.questionEditors.questionText')} <span className="text-red-500">*</span>
         </label>
         <textarea
           value={text}
           onChange={(e) => { setText(e.target.value); if (errors.text) setErrors((p) => ({ ...p, text: '' })); }}
           rows={3}
-          placeholder="Enter the question…"
+          placeholder={t('common.trainingShared.manager.questionEditors.questionTextPlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
         />
         {errors.text && <p className="text-xs text-red-500">{errors.text}</p>}
@@ -105,7 +106,7 @@ export default function QuestionEditorPanel({
 
       {/* Question Type */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">Question Type</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.questionEditors.questionType')}</label>
         <div className="flex flex-col sm:flex-row gap-2">
           {QUESTION_TYPES.map((qt) => (
             <label
@@ -135,7 +136,7 @@ export default function QuestionEditorPanel({
 
       {/* Image URL (optional) */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Image URL <span className="text-gray-400 font-normal">(optional)</span></label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.questionEditors.imageUrl')} <span className="text-gray-400 font-normal">{t('common.trainingShared.manager.assignWizard.optional')}</span></label>
         <input
           type="url"
           value={imageUrl}
@@ -147,7 +148,7 @@ export default function QuestionEditorPanel({
 
       {/* Points */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Points</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.questionEditors.points')}</label>
         <input
           type="number"
           min={1}
@@ -173,13 +174,13 @@ export default function QuestionEditorPanel({
       {/* Explanation */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">
-          Explanation <span className="text-gray-400 font-normal">(shown after submission)</span>
+          {t('common.trainingShared.manager.questionEditors.explanation')} <span className="text-gray-400 font-normal">{t('common.trainingShared.manager.questionEditors.explanationHint')}</span>
         </label>
         <textarea
           value={explanation}
           onChange={(e) => setExplanation(e.target.value)}
           rows={2}
-          placeholder="Explain the correct answer…"
+          placeholder={t('common.trainingShared.manager.questionEditors.explanationPlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
         />
       </div>
@@ -191,14 +192,14 @@ export default function QuestionEditorPanel({
           onClick={handleSave}
           className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg py-2 px-5 text-sm transition-colors"
         >
-          Save Question
+          {t('common.trainingShared.manager.questionEditors.saveQuestion')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="flex-1 sm:flex-none border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium rounded-lg py-2 px-5 text-sm transition-colors"
         >
-          Cancel
+          {t('common.trainingShared.manager.questionEditors.cancel')}
         </button>
       </div>
     </div>

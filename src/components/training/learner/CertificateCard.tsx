@@ -1,5 +1,6 @@
 import { Award, Download, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { buildTrainingCertificatePdf, certificateFileName } from '@/lib/training/certificatePdf';
 import type { TrainingCertificate } from '@/lib/training/trainingTypes';
@@ -25,6 +26,7 @@ function isExpiringSoon(ts: { seconds: number } | null): boolean {
 }
 
 export default function CertificateCard({ certificate }: CertificateCardProps) {
+  const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
   const expiry = certificate.expiryDate as unknown as { seconds: number } | null;
   const issuedAt = certificate.issuedAt as unknown as { seconds: number };
@@ -41,8 +43,8 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
         traineeName: certificate.traineeName,
         traineeDesignation: certificate.traineeDesignation || null,
         moduleName: certificate.moduleName,
-        subjectLabel: isExternal ? 'Provider' : 'Machine',
-        subjectValue: isExternal ? certificate.providerName || 'External' : certificate.machineName,
+        subjectLabel: isExternal ? t('common.trainingShared.certificateCard.provider') : t('common.trainingShared.certificateCard.machine'),
+        subjectValue: isExternal ? certificate.providerName || t('common.trainingShared.certificateCard.externalFallback') : certificate.machineName,
         quizScore: certificate.quizScore ?? 0,
         issuedAt: issuedAt ? new Date(issuedAt.seconds * 1000) : new Date(),
         expiryDate: expiry ? new Date(expiry.seconds * 1000) : null,
@@ -59,7 +61,7 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
       doc.save(certificateFileName(certificate.traineeName, certificate.certificateNumber));
     } catch (err) {
       console.error('Failed to build certificate PDF', err);
-      toast.error('Could not generate the certificate PDF.');
+      toast.error(t('common.trainingShared.certificateCard.toasts.pdfFailed'));
     }
   }
 
@@ -69,7 +71,7 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
       {certificate.isRevoked && (
         <div className="absolute inset-0 bg-red-900/80 flex items-center justify-center z-10 rounded-2xl">
           <span className="text-white font-bold text-2xl tracking-widest rotate-[-15deg] border-4 border-white px-4 py-2 rounded">
-            REVOKED
+            {t('common.trainingShared.certificateCard.revoked')}
           </span>
         </div>
       )}
@@ -78,14 +80,14 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
       <div className="bg-gradient-to-r from-green-700 to-emerald-600 px-4 py-3 flex items-center gap-2">
         <Award size={20} className="text-yellow-300" />
         <span className="text-white text-xs font-semibold tracking-widest uppercase">
-          Training Certificate
+          {t('common.trainingShared.certificateCard.heading')}
         </span>
       </div>
 
       {/* Body */}
       <div className="p-4 space-y-3">
         <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wide">Certificate No.</p>
+          <p className="text-xs text-slate-500 uppercase tracking-wide">{t('common.trainingShared.certificateCard.certificateNo')}</p>
           <p className="font-mono text-sm font-semibold text-slate-700">
             {certificate.certificateNumber}
           </p>
@@ -93,24 +95,24 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
 
         <div>
           <p className="text-xs text-slate-500">
-            {certificate.moduleCategory === 'offboard_external' ? 'Provider' : 'Machine'}
+            {certificate.moduleCategory === 'offboard_external' ? t('common.trainingShared.certificateCard.provider') : t('common.trainingShared.certificateCard.machine')}
           </p>
           <p className="font-bold text-green-700 text-lg leading-tight">
             {certificate.moduleCategory === 'offboard_external'
-              ? certificate.providerName || 'External'
+              ? certificate.providerName || t('common.trainingShared.certificateCard.externalFallback')
               : certificate.machineName}
           </p>
         </div>
 
         <div>
-          <p className="text-xs text-slate-500">Module</p>
+          <p className="text-xs text-slate-500">{t('common.trainingShared.certificateCard.module')}</p>
           <p className="text-sm text-slate-700 leading-snug">{certificate.moduleName}</p>
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
           <div className="flex items-center gap-1">
             <Calendar size={12} />
-            <span>Issued {formatDate(issuedAt)}</span>
+            <span>{t('common.trainingShared.certificateCard.issued', { date: formatDate(issuedAt) })}</span>
           </div>
           {expiry && (
             <div
@@ -124,7 +126,9 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
             >
               <Calendar size={12} />
               <span>
-                {certificate.isExpired ? 'Expired' : 'Expires'} {formatDate(expiry)}
+                {certificate.isExpired
+                  ? t('common.trainingShared.certificateCard.expiredOn', { date: formatDate(expiry) })
+                  : t('common.trainingShared.certificateCard.expiresOn', { date: formatDate(expiry) })}
               </span>
             </div>
           )}
@@ -132,17 +136,17 @@ export default function CertificateCard({ certificate }: CertificateCardProps) {
 
         <div className="flex items-center justify-between pt-1">
           <span className="text-xs text-slate-500">
-            Score: <strong className="text-slate-700">{certificate.quizScore}%</strong>
+            {t('common.trainingShared.certificateCard.score')} <strong className="text-slate-700">{certificate.quizScore}%</strong>
           </span>
           {!certificate.isRevoked && (
             <button
               type="button"
               onClick={handleDownload}
               className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-              aria-label="Download certificate as an A4 PDF"
+              aria-label={t('common.trainingShared.certificateCard.downloadAria')}
             >
               <Download size={14} />
-              Download A4 PDF
+              {t('common.trainingShared.certificateCard.downloadButton')}
             </button>
           )}
         </div>

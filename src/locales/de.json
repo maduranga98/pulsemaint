@@ -3577,6 +3577,794 @@
           "modeRequired": "Modus ist erforderlich"
         },
         "submit": "Modul Speichern"
+      },
+      "myModulesPage": {
+        "title": "Meine Schulungen",
+        "fallbackName": "zusammen",
+        "greetingPending_one": "Hallo, {{name}}. Sie haben {{count}} Modul abzuschließen.",
+        "greetingPending_other": "Hallo, {{name}}. Sie haben {{count}} Module abzuschließen.",
+        "greetingCaughtUp": "Hallo, {{name}}. Sie sind auf dem neuesten Stand!",
+        "loadError": "Ihre zugewiesenen Schulungen konnten nicht geladen werden: {{error}}"
+      },
+      "moduleLearningPage": {
+        "notFound": "Modul nicht gefunden.",
+        "goBack": "Zurück"
+      },
+      "quizPage": {
+        "notAvailable": "Für dieses Modul ist kein Quiz verfügbar.",
+        "backToModule": "Zurück zum Modul"
+      },
+      "myCertificatesPage": {
+        "title": "Meine Zertifikate",
+        "earnedCount_one": "{{count}} Zertifikat erworben",
+        "earnedCount_other": "{{count}} Zertifikate erworben",
+        "programmeCertificateHeading": "Programmzertifikat",
+        "programCertificatesHeading": "Programmzertifikate"
+      },
+      "knowledgeWriteup": {
+        "firstModuleTitle": "Wissensbericht zum ersten Modul",
+        "noProgramme": "Sie benötigen ein aktives Schulungsprogramm, bevor Sie einen Wissensbericht einreichen können.",
+        "title": "Wissensbericht zum Modul",
+        "subtitle": "Fassen Sie das Wissen zusammen, das Sie aus einem Modul Ihres Programms gewonnen haben. Anhänge sind optional.",
+        "moduleLabel": "Modul",
+        "selectModulePlaceholder": "Modul auswählen…",
+        "whatYouLearned": "Was Sie gelernt haben",
+        "summaryPlaceholder": "Fassen Sie das Wissen zusammen, das Sie im ersten Modul gewonnen haben...",
+        "attachmentsLabel": "Anhänge (optional)",
+        "submit": "Bericht einreichen",
+        "submitting": "Wird eingereicht…",
+        "pastSubmissions": "Frühere Einreichungen",
+        "loading": "Wird geladen…",
+        "noSubmissions": "Noch keine Einreichungen.",
+        "untitledSubmission": "Wissensbericht",
+        "submittedOn": "Eingereicht am {{date}}",
+        "reviewStatus": {
+          "pending": "Prüfung ausstehend",
+          "reviewed": "Geprüft",
+          "needsRevision": "Überarbeitung erforderlich"
+        },
+        "toasts": {
+          "submitted": "Wissensbericht eingereicht.",
+          "submitFailed": "Bericht konnte nicht eingereicht werden"
+        }
+      },
+      "certificateCard": {
+        "heading": "Schulungszertifikat",
+        "certificateNo": "Zertifikatsnr.",
+        "provider": "Anbieter",
+        "machine": "Maschine",
+        "externalFallback": "Extern",
+        "module": "Modul",
+        "issued": "Ausgestellt am {{date}}",
+        "expiredOn": "Abgelaufen am {{date}}",
+        "expiresOn": "Läuft ab am {{date}}",
+        "score": "Ergebnis:",
+        "revoked": "WIDERRUFEN",
+        "downloadAria": "Zertifikat als A4-PDF herunterladen",
+        "downloadButton": "A4-PDF herunterladen",
+        "toasts": {
+          "pdfFailed": "Das Zertifikats-PDF konnte nicht erstellt werden."
+        }
+      },
+      "certificatePreview": {
+        "awardedTo": "Verliehen an",
+        "providerLine": "Anbieter: {{name}}",
+        "machineLine": "Maschine: {{name}}",
+        "issuedLine": "Ausgestellt: {{date}}",
+        "expiresLine": "Läuft ab: {{date}}",
+        "expiredSuffix": "(Abgelaufen)",
+        "issuedBy": "Ausgestellt von: {{name}}",
+        "downloadPdfAria": "Zertifikats-PDF herunterladen",
+        "downloadPdf": "PDF herunterladen"
+      },
+      "lessonCompleteOverlay": {
+        "title": "Lektion abgeschlossen!",
+        "remaining_one": "{{count}} Lektion verbleibend",
+        "remaining_other": "{{count}} Lektionen verbleibend",
+        "allComplete": "Alle Lektionen abgeschlossen!",
+        "nextLesson": "Nächste Lektion",
+        "close": "Schließen"
+      },
+      "lessonList": {
+        "completeToUnlock": "Schließen Sie alle erforderlichen Lektionen ab, um das Quiz freizuschalten.",
+        "quizPassed": "Quiz bestanden",
+        "quizPassedWithScore": "Quiz mit {{score}}% bestanden"
+      },
+      "lessonListItem": {
+        "pages_one": "{{count}} Seite",
+        "pages_other": "{{count}} Seiten",
+        "reading": "Lektüre",
+        "slides_one": "{{count}} Folie",
+        "slides_other": "{{count}} Folien",
+        "gallery": "Galerie",
+        "ariaLocked": "Gesperrt: ",
+        "ariaCompleted": "Abgeschlossen: ",
+        "ariaCurrent": "Aktuelle Lektion: "
+      },
+      "lessonViewer": {
+        "closeAria": "Lektion schließen",
+        "documentAria": "Dokument: {{title}}"
+      },
+      "moduleCard": {
+        "due": "Fällig am {{date}}",
+        "days_one": "{{count}} Tag",
+        "days_other": "{{count}} Tage",
+        "lessonsCompleted": "{{completed}} von {{total}} Lektionen",
+        "marks": "Ergebnis: {{score}}%",
+        "openAria": "Schulungsmodul öffnen: {{name}}"
+      },
+      "moduleLearningScreen": {
+        "backAria": "Zurück zu meinen Modulen",
+        "lessonsCount": "{{completed}} von {{total}}",
+        "trainingCompleted": "Schulung abgeschlossen",
+        "saving": "Wird gespeichert…",
+        "markCompleteAcknowledge": "Als abgeschlossen markieren & bestätigen"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "Alle Lektionen abgeschlossen! Sie können jetzt das Quiz absolvieren.",
+        "passMark": "Bestehensgrenze: {{score}}%",
+        "attemptsRemaining_one": "{{count}} Versuch verbleibend",
+        "attemptsRemaining_other": "{{count}} Versuche verbleibend",
+        "noAttemptsRemaining": "Keine Versuche mehr verfügbar",
+        "startQuizAria": "Quiz starten",
+        "startQuiz": "Quiz starten"
+      },
+      "documentLesson": {
+        "downloadAria": "Dokument herunterladen",
+        "download": "Herunterladen",
+        "documentAria": "Dokument: {{title}}",
+        "markedRead": "Sie haben dies als gelesen markiert",
+        "markAsReadAria": "Dokument als gelesen markieren",
+        "markAsRead": "Als gelesen markieren"
+      },
+      "imageGalleryLesson": {
+        "noImages": "Dieser Lektion wurden keine Bilder hinzugefügt.",
+        "completed": "Abgeschlossen",
+        "markComplete": "Als abgeschlossen markieren",
+        "previousImage": "Vorheriges Bild",
+        "nextImage": "Nächstes Bild",
+        "counter": "{{current}} von {{total}}",
+        "goToImage": "Zu Bild {{index}} wechseln",
+        "viewAllHint": "Sehen Sie sich alle Bilder an, um diese Lektion abzuschließen"
+      },
+      "textLesson": {
+        "noContent": "Für diese Lektion sind keine Inhalte verfügbar.",
+        "markedRead": "Sie haben dies als gelesen markiert",
+        "markAsReadAria": "Lektion als gelesen markieren",
+        "markAsRead": "Als gelesen markieren",
+        "scrollToComplete": "Zum Ende scrollen, um abzuschließen"
+      },
+      "videoLesson": {
+        "buffering": "Wird gepuffert",
+        "seekBack": "-10s",
+        "seekForward": "+10s",
+        "pauseVideo": "Video pausieren",
+        "playVideo": "Video abspielen",
+        "seekAria": "Video-Position ändern",
+        "pause": "Pause",
+        "play": "Abspielen",
+        "disableSubtitles": "Untertitel deaktivieren",
+        "enableSubtitles": "Untertitel aktivieren",
+        "ccLabel": "UT",
+        "unmute": "Ton einschalten",
+        "mute": "Stummschalten",
+        "playbackSpeed": "Wiedergabegeschwindigkeit",
+        "exitFullscreen": "Vollbild beenden",
+        "enterFullscreen": "Vollbild aktivieren",
+        "lessonComplete": "Lektion abgeschlossen",
+        "markCompleteAria": "Videolektion als abgeschlossen markieren",
+        "markAsComplete": "Als abgeschlossen markieren",
+        "watchToComplete": "{{pct}}% ansehen, um abzuschließen"
+      },
+      "quiz": {
+        "answerReview": {
+          "title": "Antwortübersicht",
+          "questionLabel": "F{{number}}",
+          "correct": "Richtig",
+          "incorrect": "Falsch",
+          "points": "+{{earned}}/{{total}} Pkt.",
+          "yourAnswer": "Ihre Antwort:",
+          "noAnswerSelected": "Keine Antwort ausgewählt",
+          "correctAnswer": "Richtige Antwort:"
+        },
+        "preScreen": {
+          "questionsCount_one": "{{count}} Frage",
+          "questionsCount_other": "{{count}} Fragen",
+          "minutes_one": "{{count}} Minute",
+          "minutes_other": "{{count}} Minuten",
+          "noTimeLimit": "Kein Zeitlimit",
+          "passMark": "Bestehensgrenze: {{score}}%",
+          "unlimitedAttempts": "Unbegrenzte Versuche",
+          "noAttemptsRemaining": "Keine Versuche mehr verfügbar",
+          "attemptsRemaining_one": "{{count}} Versuch verbleibend",
+          "attemptsRemaining_other": "{{count}} Versuche verbleibend",
+          "instructionsHeading": "Anweisungen",
+          "startQuizAria": "Quiz starten",
+          "startQuiz": "Quiz starten",
+          "noAttemptsRemainingCta": "Keine Versuche mehr verfügbar"
+        },
+        "progressBar": {
+          "questionOf": "F {{current}} von {{total}}",
+          "answeredCount": "{{answered}}/{{total}}"
+        },
+        "question": {
+          "questionNumber": "Frage {{number}}",
+          "illustrationAlt": "Abbildung zur Frage",
+          "illustrationAltShort": "Frage",
+          "explanationLabel": "Erklärung:",
+          "invalidTrueFalse": "Ungültige Wahr/Falsch-Frage."
+        },
+        "results": {
+          "passedMessage": "✓ Herzlichen Glückwunsch! Sie haben bestanden.",
+          "failedMessage": "✗ Sie haben nicht bestanden. Erforderliches Ergebnis: {{score}}%.",
+          "correct": "Richtig",
+          "score": "Ergebnis",
+          "time": "Zeit",
+          "supervisorSignOff": "Ihr Vorgesetzter wird Ihre praktischen Fähigkeiten beobachten und abzeichnen.",
+          "continue": "Weiter",
+          "retryAvailableIn": "Erneuter Versuch möglich in",
+          "retryQuiz": "Quiz wiederholen",
+          "noAttemptsLeft": "Sie haben alle Quiz-Versuche aufgebraucht. Wenden Sie sich an Ihren Vorgesetzten.",
+          "backToModule": "Zurück zum Modul"
+        },
+        "review": {
+          "title": "Antworten überprüfen",
+          "answeredCount": "{{answered}} von {{total}} Fragen beantwortet",
+          "unansweredWarning_one": "{{count}} Frage nicht beantwortet.",
+          "unansweredWarning_other": "{{count}} Fragen nicht beantwortet.",
+          "answered": "Beantwortet",
+          "skipped": "Übersprungen",
+          "back": "Zurück",
+          "submitQuiz": "Quiz einreichen",
+          "confirmTitle": "Quiz einreichen?",
+          "confirmBody": "Sie können Ihre Antworten nach dem Einreichen nicht mehr ändern.",
+          "cancel": "Abbrechen",
+          "submitting": "Wird eingereicht…",
+          "submit": "Einreichen"
+        },
+        "runner": {
+          "reviewAndSubmit": "Überprüfen & Einreichen",
+          "previousAria": "Vorherige Frage",
+          "previous": "Zurück",
+          "nextAria": "Nächste Frage",
+          "next": "Weiter"
+        }
+      },
+      "moduleTypeBadge": {
+        "offboardAria": "Offboarding / Externe Schulung",
+        "offboardLabel": "Offboarding / Extern",
+        "machineAria": "Maschine: {{name}}"
+      },
+      "quizScoreBadge": {
+        "aria": "Quiz-Ergebnis: {{score}}% — {{status}}",
+        "passed": "Bestanden",
+        "failed": "Nicht bestanden"
+      },
+      "retrainingBadge": {
+        "aria": "Nachschulung erforderlich",
+        "label": "Nachschulung erforderlich"
+      },
+      "progressBar": {
+        "aria": "Fortschritt: {{percent}}%"
+      },
+      "manager": {
+        "dashboard": {
+          "title": "Schulungs-Dashboard",
+          "inviteTrainee": "Auszubildenden einladen",
+          "close": "Schließen",
+          "cancel": "Abbrechen",
+          "sending": "Wird gesendet…",
+          "sendInvitation": "Einladung senden",
+          "errors": {
+            "fullNameRequired": "Der vollständige Name ist erforderlich.",
+            "emailRequired": "Zum Versenden der Einladung ist eine E-Mail-Adresse erforderlich.",
+            "inviteFailed": "Auszubildender konnte nicht eingeladen werden."
+          },
+          "form": {
+            "fullNamePlaceholder": "Vollständiger Name *",
+            "emailPlaceholder": "E-Mail *",
+            "phonePlaceholder": "Telefon",
+            "departmentPlaceholder": "Abteilung",
+            "employeeIdPlaceholder": "Mitarbeiter-ID"
+          },
+          "alerts": {
+            "overdue_one": "{{count}} Zuweisung ist überfällig. Bitte prüfen und mit den Auszubildenden nachfassen.",
+            "overdue_other": "{{count}} Zuweisungen sind überfällig. Bitte prüfen und mit den Auszubildenden nachfassen.",
+            "retrainingRequired_one": "{{count}} Auszubildender benötigt eine Nachschulung.",
+            "retrainingRequired_other": "{{count}} Auszubildende benötigen eine Nachschulung."
+          },
+          "stats": {
+            "totalTrainees": "Auszubildende gesamt",
+            "activeAssignments": "Aktive Zuweisungen",
+            "certsThisMonth": "Zertifikate diesen Monat",
+            "overdue": "Überfällig",
+            "retrainingRequired": "Nachschulung erforderlich",
+            "modulesCreated": "Erstellte Module",
+            "offboardThisQuarter": "Offboarding-Schulungen dieses Quartal",
+            "pendingKnowledgeReports": "Ausstehende Wissensberichte"
+          },
+          "quickActions": {
+            "title": "Schnellaktionen",
+            "createModule": "Modul erstellen",
+            "viewCompliance": "Compliance anzeigen"
+          },
+          "recentActivity": "Letzte Aktivitäten"
+        },
+        "moduleLibrary": {
+          "title": "Schulung",
+          "createModule": "Schulungsmodul erstellen",
+          "tabs": {
+            "modules": "Module",
+            "assigned": "Zugewiesen"
+          }
+        },
+        "createModule": {
+          "untitledModule": "Unbenanntes Modul",
+          "savedToast": "Modul gespeichert. Sie können nun ein Quiz hinzufügen oder es zuweisen.",
+          "saveFailedToast": "Modul konnte nicht gespeichert werden. Bitte erneut versuchen.",
+          "back": "Zurück",
+          "title": "Schulungsmodul erstellen"
+        },
+        "editModule": {
+          "updatedToast": "Modul aktualisiert.",
+          "saveFailedToast": "Modul konnte nicht gespeichert werden. Bitte erneut versuchen.",
+          "notFound": "Modul nicht gefunden.",
+          "back": "Zurück",
+          "wrongLibrary": {
+            "title": "In dieser Bibliothek nicht gefunden.",
+            "description": "Dieses Modul gehört zur Bibliothek Auszubildendenverwaltung. Öffnen Sie es stattdessen dort."
+          },
+          "assign": "Zuweisen",
+          "quizBuilder": "Quiz-Editor"
+        },
+        "quizBuilder": {
+          "notFound": "Modul nicht gefunden.",
+          "back": "Zurück",
+          "backToEditor": "Zurück zum Modul-Editor",
+          "titleWithModule": "Quiz-Editor — {{moduleTitle}}",
+          "defaultQuizTitle": "{{moduleTitle}} Quiz",
+          "layout": {
+            "header": "Quiz-Editor",
+            "saveQuiz": "Quiz speichern",
+            "questionsTab": "Fragen",
+            "questionsTabWithCount": "Fragen ({{count}})",
+            "editorTab": "Editor",
+            "selectQuestionPrompt": "Wählen Sie eine Frage zum Bearbeiten aus",
+            "orAddNew": "oder fügen Sie eine neue Frage hinzu."
+          },
+          "settingsBar": {
+            "quizTitle": "Quiz-Titel",
+            "quizTitlePlaceholder": "z. B. Sicherheitsbeurteilung",
+            "passScore": "Bestehensgrenze",
+            "timeLimit": "Zeitlimit",
+            "minutesAbbrev": "Min.",
+            "maxAttempts": "Max. Versuche",
+            "saveSettings": "Einstellungen speichern"
+          }
+        },
+        "contentLibrary": {
+          "deleteConfirm": "Diesen Eintrag aus der Bibliothek löschen? Dies kann nicht rückgängig gemacht werden.",
+          "back": "Zurück",
+          "title": "Inhaltsbibliothek",
+          "hideUpload": "Upload ausblenden",
+          "uploadButton": "+ Hochladen",
+          "searchPlaceholder": "Dateien durchsuchen...",
+          "noneFound": "Keine Dateien gefunden.",
+          "select": "Auswählen",
+          "cannotDeleteInUse": "Kann nicht gelöscht werden — wird in Modulen verwendet",
+          "deleteAction": "Löschen",
+          "usedInModules_one": "Verwendet in {{count}} Modul",
+          "usedInModules_other": "Verwendet in {{count}} Modulen",
+          "types": {
+            "video": "Video",
+            "document": "Dokument",
+            "image": "Bild"
+          },
+          "filters": {
+            "all": "Alle"
+          },
+          "deleteModal": {
+            "title": "Datei löschen?",
+            "description": "Diese Datei wird dauerhaft gelöscht und kann nicht wiederhergestellt werden.",
+            "cancel": "Abbrechen",
+            "confirmButton": "Löschen"
+          },
+          "upload": {
+            "saveFailed": "Speichern fehlgeschlagen",
+            "dropHint": "Dateien hier ablegen oder <u>durchsuchen</u>",
+            "acceptedFormats": "MP4, MOV, AVI, PDF, DOCX, JPG, PNG, WEBP",
+            "uploadFailed": "Upload fehlgeschlagen"
+          }
+        },
+        "certificatesManager": {
+          "back": "Zurück",
+          "title": "Zertifikate",
+          "searchPlaceholder": "Auszubildenden oder Zertifikatsnr. suchen...",
+          "showRevoked": "Widerrufene anzeigen",
+          "noneFound": "Keine Zertifikate gefunden.",
+          "pdf": "PDF",
+          "revoke": "Widerrufen",
+          "filters": {
+            "all": "Alle Zertifikate",
+            "valid": "Nur gültige",
+            "expired": "Abgelaufen",
+            "expiringSoon": "Läuft bald ab"
+          },
+          "columns": {
+            "certNumber": "Zert.-Nr.",
+            "trainee": "Auszubildender",
+            "machine": "Maschine",
+            "module": "Modul",
+            "issued": "Ausgestellt",
+            "expiry": "Ablauf",
+            "score": "Ergebnis",
+            "status": "Status",
+            "actions": "Aktionen"
+          },
+          "status": {
+            "valid": "Gültig",
+            "revoked": "Widerrufen",
+            "expired": "Abgelaufen",
+            "expiringSoon": "Läuft bald ab"
+          },
+          "revokeModal": {
+            "title": "Zertifikat widerrufen",
+            "description": "Dadurch wird das Zertifikat dauerhaft widerrufen. Der Auszubildende muss erneut zugewiesen werden, um die Zertifizierung zu erlangen.",
+            "reasonLabel": "Grund",
+            "reasonPlaceholder": "Erläutern Sie, warum dieses Zertifikat widerrufen wird...",
+            "reasonRequired": "Bitte geben Sie einen Grund für den Widerruf an.",
+            "revocationFailed": "Widerruf fehlgeschlagen",
+            "cancel": "Abbrechen",
+            "confirmButton": "Zertifikat widerrufen"
+          }
+        },
+        "complianceReport": {
+          "back": "Zurück",
+          "title": "Compliance-Bericht",
+          "loadFailed": "Compliance-Daten konnten nicht geladen werden: {{error}}",
+          "export": "Exportieren",
+          "noData": "Keine Compliance-Daten verfügbar.",
+          "matrixTitle": "Compliance-Matrix",
+          "stats": {
+            "totalOperators": "Bediener gesamt",
+            "certified": "Zertifiziert",
+            "notCertified": "Nicht zertifiziert",
+            "expiringSoon": "Läuft bald ab",
+            "overdue": "Überfällig",
+            "retrainingPending": "Nachschulung ausstehend"
+          },
+          "columns": {
+            "trainee": "Auszubildender",
+            "department": "Abteilung"
+          },
+          "legend": {
+            "certified": "Zertifiziert",
+            "inProgress": "In Bearbeitung",
+            "other": "Sonstiges",
+            "expired": "Abgelaufen",
+            "notAssigned": "Nicht zugewiesen"
+          }
+        },
+        "assignWizard": {
+          "pageBack": "Zurück",
+          "pageTitle": "Schulung zuweisen",
+          "optional": "(optional)",
+          "createFailed": "Zuweisungen konnten nicht erstellt werden",
+          "steps": {
+            "selectTrainees": "Auszubildende auswählen",
+            "selectModules": "Module auswählen",
+            "settings": "Einstellungen",
+            "reviewConfirm": "Überprüfen & Bestätigen"
+          },
+          "notifications": {
+            "assignedMessage": "Ihnen wurde ein neues Schulungsmodul zugewiesen: {{moduleTitle}}",
+            "oversightMessage": "hat \"{{moduleTitle}}\" {{traineeName}} zugewiesen"
+          },
+          "done": {
+            "title": "Zuweisungen erstellt",
+            "createdCount_one": "{{count}} Zuweisung erfolgreich erstellt.",
+            "createdCount_other": "{{count}} Zuweisungen erfolgreich erstellt.",
+            "skippedCount_one": "{{count}} Duplikat übersprungen.",
+            "skippedCount_other": "{{count}} Duplikate übersprungen.",
+            "doneButton": "Fertig"
+          },
+          "selectTrainees": {
+            "searchPlaceholder": "Auszubildende suchen...",
+            "allDepartments": "Alle Abteilungen",
+            "departmentHint": "Zeigt Auszubildende in <strong>{{department}}</strong>. Verwenden Sie unten \"Alle auswählen\", um die gesamte Abteilung zuzuweisen, oder wählen Sie einzelne Auszubildende aus, um nur einen Benutzer zuzuweisen.",
+            "selectAll": "Alle auswählen ({{count}})",
+            "noneFound": "Keine Auszubildenden gefunden.",
+            "noDepartment": "Keine Abteilung",
+            "selectedCount_one": "{{count}} Auszubildender ausgewählt",
+            "selectedCount_other": "{{count}} Auszubildende ausgewählt",
+            "details": {
+              "name": "Name",
+              "employeeId": "Mitarbeiter-ID",
+              "role": "Rolle",
+              "department": "Abteilung"
+            }
+          },
+          "selectModules": {
+            "filterByCategory": "Nach Kategorie filtern",
+            "allCategories": "Alle Kategorien",
+            "noneFound": "Keine aktiven Module gefunden.",
+            "noneFoundForCategory": "Keine aktiven Module für diese Kategorie gefunden.",
+            "offboard": "Offboarding",
+            "externalProvider": "Externer Anbieter",
+            "durationDays_one": "{{count}} T",
+            "durationDays_other": "{{count}} T",
+            "lessonsCount_one": "{{count}} Lektion",
+            "lessonsCount_other": "{{count}} Lektionen",
+            "estimatedMinutes_one": "{{count}} Min.",
+            "estimatedMinutes_other": "{{count}} Min.",
+            "selectedCount_one": "{{count}} Modul ausgewählt",
+            "selectedCount_other": "{{count}} Module ausgewählt"
+          },
+          "settings": {
+            "dueDate": "Fälligkeitsdatum",
+            "notifyTrainee": "Auszubildenden benachrichtigen",
+            "notifyTraineeHint": "Benachrichtigung senden, wenn die Zuweisung erstellt wird"
+          },
+          "review": {
+            "summary": "Weist <strong>{{moduleCount}} Module</strong> <strong>{{traineeCount}} Auszubildenden</strong> zu ({{totalCount}} Zuweisungen insgesamt)",
+            "traineeColumn": "Auszubildender",
+            "moduleColumn": "Modul"
+          },
+          "nav": {
+            "cancel": "Abbrechen",
+            "back": "Zurück",
+            "next": "Weiter",
+            "confirmAssign": "Zuweisung bestätigen"
+          }
+        },
+        "lessonEditors": {
+          "titleRequired": "Der Lektionstitel ist erforderlich.",
+          "editTitle": "Lektion bearbeiten",
+          "newTitle": "Neue Lektion",
+          "lessonTitle": "Lektionstitel",
+          "lessonTitlePlaceholder": "z. B. Überblick über Maschinensicherheit",
+          "lessonType": "Lektionstyp",
+          "description": "Beschreibung",
+          "descriptionPlaceholder": "Kurze Beschreibung dieser Lektion…",
+          "requiredToComplete": "Zum Abschluss erforderlich",
+          "content": "Inhalt",
+          "saveLesson": "Lektion speichern",
+          "cancel": "Abbrechen",
+          "types": {
+            "video": "Video",
+            "document": "Dokument",
+            "gallery": "Galerie",
+            "text": "Text"
+          },
+          "list": {
+            "dragToReorder": "Zum Umsortieren ziehen",
+            "untitledLesson": "Unbenannte Lektion",
+            "required": "Erforderlich",
+            "editLesson": "Lektion bearbeiten",
+            "deleteLesson": "Lektion löschen",
+            "noneYet": "Noch keine Lektionen.",
+            "addFirst": "Fügen Sie Ihre erste Lektion hinzu.",
+            "addLesson": "Lektion hinzufügen"
+          },
+          "documentEditor": {
+            "companyNotFound": "Unternehmen nicht gefunden.",
+            "exceedsLimit": "Datei überschreitet das Limit von 100 MB.",
+            "uploadFailed": "Upload fehlgeschlagen: {{message}}",
+            "currentUploaded": "Aktuelles Dokument hochgeladen",
+            "replace": "Ersetzen",
+            "dropHint": "Dokument hier ablegen oder klicken zum Durchsuchen",
+            "acceptedFormats": "PDF, DOCX · Max. 100 MB",
+            "uploading": "Wird hochgeladen…",
+            "uploadedName": "Dokument hochgeladen: {{name}}"
+          },
+          "videoEditor": {
+            "companyNotFound": "Unternehmen nicht gefunden.",
+            "exceedsLimit": "Datei überschreitet das Limit von 500 MB.",
+            "uploadFailed": "Upload fehlgeschlagen: {{message}}",
+            "currentUploaded": "Aktuelles Video hochgeladen",
+            "replace": "Ersetzen",
+            "dropHint": "Video hier ablegen oder klicken zum Durchsuchen",
+            "acceptedFormats": "MP4, MOV, AVI · Max. 500 MB",
+            "uploading": "Wird hochgeladen…",
+            "uploadedName": "Video hochgeladen: {{name}}"
+          },
+          "galleryEditor": {
+            "fileExceedsLimit": "\"{{name}}\" überschreitet das Limit von 50 MB.",
+            "companyNotFound": "Unternehmen nicht gefunden.",
+            "maxImagesAllowed": "Maximal {{count}} Bilder zulässig.",
+            "addImages": "Bilder hinzufügen",
+            "imagesCount": "{{count}}/{{max}} Bilder",
+            "maxImagesReached": "Maximal {{count}} Bilder erreicht.",
+            "clickToAdd": "Klicken, um Bilder hinzuzufügen",
+            "formatHint": "JPG, PNG, WEBP · Max. 50 MB pro Datei · Bis zu {{count}} Bilder",
+            "imageAltFallback": "Bild {{number}}",
+            "removeImage": "Bild entfernen",
+            "captionPlaceholder": "Bildunterschrift hinzufügen…"
+          },
+          "textEditor": {
+            "toolbar": {
+              "bold": "Fett",
+              "italic": "Kursiv",
+              "heading2": "Überschrift 2",
+              "heading3": "Überschrift 3",
+              "bulletList": "Aufzählungsliste",
+              "numberedList": "Nummerierte Liste"
+            },
+            "editMode": "Bearbeiten",
+            "previewMode": "Vorschau",
+            "contentPlaceholder": "Schreiben Sie hier den Lektionsinhalt… Verwenden Sie die Symbolleiste zur Textformatierung oder schreiben Sie direkt HTML."
+          }
+        },
+        "questionEditors": {
+          "editTitle": "Frage bearbeiten",
+          "newTitle": "Neue Frage",
+          "questionText": "Fragetext",
+          "questionTextPlaceholder": "Geben Sie die Frage ein…",
+          "questionType": "Fragetyp",
+          "imageUrl": "Bild-URL",
+          "points": "Punkte",
+          "explanation": "Erklärung",
+          "explanationHint": "(wird nach dem Absenden angezeigt)",
+          "explanationPlaceholder": "Erklären Sie die richtige Antwort…",
+          "saveQuestion": "Frage speichern",
+          "cancel": "Abbrechen",
+          "textRequired": "Der Fragetext ist erforderlich.",
+          "correctAnswerRequired": "Mindestens eine richtige Antwort ist erforderlich.",
+          "types": {
+            "singleChoice": {
+              "label": "Einzelauswahl",
+              "description": "Eine richtige Antwort"
+            },
+            "multipleChoice": {
+              "label": "Mehrfachauswahl",
+              "description": "Mehrere richtige Antworten"
+            },
+            "trueFalse": {
+              "label": "Wahr / Falsch",
+              "description": "Wahr oder falsch"
+            }
+          },
+          "options": {
+            "answerOptions": "Antwortoptionen",
+            "true": "WAHR",
+            "false": "FALSCH",
+            "correct": "Richtig",
+            "explanationForPlaceholder": "Erklärung für {{label}}…",
+            "selectCorrectRequired": "Bitte wählen Sie die richtige Antwort aus.",
+            "optionsCount": "{{count}}/{{max}} Optionen",
+            "markCorrect": "Als richtige Antwort markieren",
+            "optionPlaceholder": "Option {{number}}",
+            "removeOption": "Option entfernen",
+            "explanationPlaceholder": "Erklärung (wird nach der Antwort angezeigt)…",
+            "markCorrectRequired": "Bitte markieren Sie mindestens eine richtige Antwort.",
+            "addOption": "Option hinzufügen"
+          },
+          "list": {
+            "dragToReorder": "Zum Umsortieren ziehen",
+            "untitledQuestion": "Unbenannte Frage",
+            "deleteQuestion": "Frage löschen",
+            "pointsAbbrev_one": "{{count}} Pkt.",
+            "pointsAbbrev_other": "{{count}} Pkt.",
+            "questionCount_one": "{{count}} Frage",
+            "questionCount_other": "{{count}} Fragen",
+            "pointsTotal": "{{count}} Pkt. gesamt",
+            "noneYet": "Noch keine Fragen.",
+            "addFirst": "Fügen Sie Ihre erste Frage hinzu.",
+            "addQuestion": "Frage hinzufügen",
+            "typeAbbrev": {
+              "single_choice": "Einzeln",
+              "multiple_choice": "Mehrfach",
+              "true_false": "W/F"
+            }
+          }
+        },
+        "trainingAssignedTab": {
+          "managerFallbackName": "Manager",
+          "noneOpen": "Niemand hat eine offene Schulungszuweisung.",
+          "modulesAssigned_one": "{{count}} Modul zugewiesen",
+          "modulesAssigned_other": "{{count}} Module zugewiesen",
+          "signOffAndClose": "Abzeichnen & Schließen",
+          "columns": {
+            "module": "Modul",
+            "type": "Typ",
+            "mode": "Modus",
+            "category": "Kategorie",
+            "progress": "Fortschritt",
+            "assigned": "Zugewiesen",
+            "dueDate": "Fälligkeitsdatum",
+            "status": "Status",
+            "action": "Aktion"
+          },
+          "categories": {
+            "machine": "Maschine",
+            "offboard": "Extern"
+          },
+          "signOffModal": {
+            "note": "Notiz",
+            "notePlaceholder": "Beobachtungen / Abzeichnungsnotiz...",
+            "cancel": "Abbrechen",
+            "signingOff": "Wird abgezeichnet…",
+            "confirmButton": "Abzeichnung bestätigen"
+          }
+        },
+        "assignmentsProgress": {
+          "title": "Schulungsfortschritt",
+          "noneAssigned": "Noch keine Module zugewiesen.",
+          "stats": {
+            "assignments": "Zuweisungen",
+            "inProgress": "In Bearbeitung",
+            "completed": "Abgeschlossen"
+          },
+          "columns": {
+            "module": "Modul",
+            "assignedTo": "Zugewiesen an",
+            "assignedBy": "Zugewiesen von",
+            "assigned": "Zugewiesen",
+            "completed": "Abgeschlossen",
+            "progress": "Fortschritt",
+            "marks": "Ergebnis",
+            "status": "Status"
+          }
+        },
+        "signOffPanel": {
+          "close": "Schließen",
+          "assignedBySuffix": " · zugewiesen von {{name}}",
+          "signedOffToast": "Schulung abgezeichnet.",
+          "failedToast": "Schulung als nicht bestanden markiert.",
+          "signOffFailedToast": "Abzeichnung fehlgeschlagen.",
+          "notifications": {
+            "aManager": "Ein Manager",
+            "passedMessage": "{{signerName}} hat Ihre Schulung abgezeichnet: {{moduleName}}",
+            "failedMessage": "Ihre Schulung {{moduleName}} hat die praktische Beurteilung nicht bestanden",
+            "passedOversight": "hat \"{{moduleName}}\" für {{traineeName}} abgezeichnet",
+            "failedOversight": "hat {{traineeName}} bei der praktischen Prüfung für \"{{moduleName}}\" nicht bestanden lassen"
+          }
+        },
+        "library": {
+          "defaultTitle": "Modulbibliothek",
+          "deleteConfirm": "Dieses Modul dauerhaft löschen? Dies kann nicht rückgängig gemacht werden.",
+          "loadingSamples": "Wird geladen…",
+          "loadSampleModules": "Beispielmodule laden",
+          "createModule": "Schulungsmodul erstellen",
+          "searchPlaceholder": "Module nach Titel suchen...",
+          "allModes": "Alle Modi",
+          "allTrainingTypes": "Alle Schulungsarten",
+          "allCategories": "Alle Kategorien",
+          "externalProvider": "Externer Anbieter",
+          "yes": "Ja",
+          "no": "Nein",
+          "completedCount_one": "{{count}} abgeschlossen",
+          "completedCount_other": "{{count}} abgeschlossen",
+          "assign": "Zuweisen",
+          "edit": "Bearbeiten",
+          "delete": "Löschen",
+          "lessonsCount_one": "{{count}} Lektion",
+          "lessonsCount_other": "{{count}} Lektionen",
+          "hasQuiz": "Hat Quiz",
+          "assignedCount_one": "{{count}} zugewiesen",
+          "assignedCount_other": "{{count}} zugewiesen",
+          "noneFound": "Keine Module gefunden.",
+          "categories": {
+            "machine": "Maschine",
+            "offboard": "Extern"
+          },
+          "moduleStatus": {
+            "draft": "Entwurf",
+            "active": "Aktiv",
+            "archived": "Archiviert"
+          },
+          "columns": {
+            "title": "Titel",
+            "trainingType": "Schulungsart",
+            "mode": "Modus",
+            "category": "Kategorie",
+            "lessons": "Lektionen",
+            "hasQuiz": "Hat Quiz",
+            "assigned": "Zugewiesen",
+            "status": "Status",
+            "actions": "Aktionen"
+          }
+        }
       }
     },
     "triage": {

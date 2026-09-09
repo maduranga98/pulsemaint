@@ -10,6 +10,7 @@ import {
   type Timestamp,
 } from 'firebase/firestore';
 import { ClipboardList, CheckCircle2 } from 'lucide-react';
+import { useTranslation, type TFunction } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryModules';
@@ -21,10 +22,9 @@ import {
 } from '@/lib/training/trainingTypes';
 import type { TrainingAssignment, TrainingModule } from '@/lib/training/trainingTypes';
 
-const CATEGORY_LABELS: Record<'machine' | 'offboard', string> = {
-  machine: 'Machine',
-  offboard: 'External',
-};
+function categoryLabel(category: 'machine' | 'offboard', t: TFunction): string {
+  return t(`common.trainingShared.manager.trainingAssignedTab.categories.${category}`);
+}
 
 function formatDate(ts: Timestamp | null | undefined): string {
   if (!ts) return '—';
@@ -41,9 +41,10 @@ function isReadyToSignOff(a: TrainingAssignment): boolean {
 }
 
 export default function TrainingAssignedTab() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
-  const userName = useAuthStore((s) => s.userProfile?.fullName) ?? 'Manager';
+  const userName = useAuthStore((s) => s.userProfile?.fullName) ?? t('common.trainingShared.manager.trainingAssignedTab.managerFallbackName');
   const { modules } = useTrainingLibraryModules();
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -123,7 +124,7 @@ export default function TrainingAssignedTab() {
     return (
       <div className="bg-white rounded-xl border border-gray-200 flex flex-col items-center py-12 text-gray-400">
         <ClipboardList className="w-8 h-8 mb-2" />
-        <p className="text-sm">No one has an open training assignment.</p>
+        <p className="text-sm">{t('common.trainingShared.manager.trainingAssignedTab.noneOpen')}</p>
       </div>
     );
   }
@@ -135,22 +136,22 @@ export default function TrainingAssignedTab() {
           <div className="px-5 py-3 bg-gray-50 border-b border-gray-100">
             <h3 className="text-sm font-semibold text-gray-800">{group.traineeName}</h3>
             <span className="text-xs text-gray-400">
-              {group.rows.length} module{group.rows.length !== 1 ? 's' : ''} assigned
+              {t('common.trainingShared.manager.trainingAssignedTab.modulesAssigned', { count: group.rows.length })}
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                 <tr>
-                  <th className="px-4 py-3 text-left">Module</th>
-                  <th className="px-4 py-3 text-left">Type</th>
-                  <th className="px-4 py-3 text-left">Mode</th>
-                  <th className="px-4 py-3 text-left">Category</th>
-                  <th className="px-4 py-3 text-left">Progress</th>
-                  <th className="px-4 py-3 text-left">Assigned</th>
-                  <th className="px-4 py-3 text-left">Due Date</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-right">Action</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.module')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.type')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.mode')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.category')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.progress')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.assigned')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.dueDate')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.trainingShared.manager.trainingAssignedTab.columns.status')}</th>
+                  <th className="px-4 py-3 text-right">{t('common.trainingShared.manager.trainingAssignedTab.columns.action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -165,7 +166,7 @@ export default function TrainingAssignedTab() {
                       <td className="px-4 py-3 text-gray-600">
                         {mod?.trainingMode ? TRAINING_DELIVERY_MODE_LABELS[mod.trainingMode] : '—'}
                       </td>
-                      <td className="px-4 py-3 text-gray-600">{CATEGORY_LABELS[getModuleCategory(mod)]}</td>
+                      <td className="px-4 py-3 text-gray-600">{categoryLabel(getModuleCategory(mod), t)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="h-1.5 w-16 bg-gray-200 rounded-full overflow-hidden">
@@ -186,7 +187,7 @@ export default function TrainingAssignedTab() {
                             onClick={() => setSigningOff(a)}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Sign Off &amp; Close
+                            <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.trainingShared.manager.trainingAssignedTab.signOffAndClose')}
                           </button>
                         )}
                       </td>
@@ -203,18 +204,18 @@ export default function TrainingAssignedTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4">
             <div>
-              <h3 className="text-base font-semibold text-gray-900">Sign Off &amp; Close</h3>
+              <h3 className="text-base font-semibold text-gray-900">{t('common.trainingShared.manager.trainingAssignedTab.signOffAndClose')}</h3>
               <p className="text-sm text-gray-500 mt-1">
                 {signingOff.traineeName} — {signingOff.moduleName}
               </p>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Note</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.trainingShared.manager.trainingAssignedTab.signOffModal.note')}</label>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={3}
-                placeholder="Observations / sign-off note..."
+                placeholder={t('common.trainingShared.manager.trainingAssignedTab.signOffModal.notePlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -227,14 +228,14 @@ export default function TrainingAssignedTab() {
                 disabled={saving}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                Cancel
+                {t('common.trainingShared.manager.trainingAssignedTab.signOffModal.cancel')}
               </button>
               <button
                 onClick={() => void handleConfirmSignOff()}
                 disabled={saving}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 rounded-lg transition-colors"
               >
-                {saving ? 'Signing off…' : 'Confirm Sign Off'}
+                {saving ? t('common.trainingShared.manager.trainingAssignedTab.signOffModal.signingOff') : t('common.trainingShared.manager.trainingAssignedTab.signOffModal.confirmButton')}
               </button>
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { Eye, Code } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TextLessonEditorProps {
   content?: string;
@@ -33,6 +34,7 @@ function ToolbarButton({ label, title, onClick }: ToolbarButtonProps) {
 }
 
 export default function TextLessonEditor({ content = '', onChange }: TextLessonEditorProps) {
+  const { t } = useTranslation();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isPreview, setIsPreview] = useState(false);
 
@@ -86,12 +88,12 @@ export default function TextLessonEditor({ content = '', onChange }: TextLessonE
       <div className="flex items-center gap-1 px-3 py-2 bg-gray-50 border-b border-gray-200 flex-wrap">
         {!isPreview && (
           <>
-            <ToolbarButton label="B" title="Bold" onClick={() => wrapSelection('<strong>', '</strong>')} />
-            <ToolbarButton label="I" title="Italic" onClick={() => wrapSelection('<em>', '</em>')} />
-            <ToolbarButton label="H2" title="Heading 2" onClick={() => insertBlock('<h2>Heading</h2>')} />
-            <ToolbarButton label="H3" title="Heading 3" onClick={() => insertBlock('<h3>Heading</h3>')} />
-            <ToolbarButton label="•" title="Bullet List" onClick={() => insertBlock('<ul>\n  <li>Item</li>\n</ul>')} />
-            <ToolbarButton label="1." title="Numbered List" onClick={() => insertBlock('<ol>\n  <li>Item</li>\n</ol>')} />
+            <ToolbarButton label="B" title={t('common.trainingShared.manager.lessonEditors.textEditor.toolbar.bold')} onClick={() => wrapSelection('<strong>', '</strong>')} />
+            <ToolbarButton label="I" title={t('common.trainingShared.manager.lessonEditors.textEditor.toolbar.italic')} onClick={() => wrapSelection('<em>', '</em>')} />
+            <ToolbarButton label="H2" title={t('common.trainingShared.manager.lessonEditors.textEditor.toolbar.heading2')} onClick={() => insertBlock('<h2>Heading</h2>')} />
+            <ToolbarButton label="H3" title={t('common.trainingShared.manager.lessonEditors.textEditor.toolbar.heading3')} onClick={() => insertBlock('<h3>Heading</h3>')} />
+            <ToolbarButton label="•" title={t('common.trainingShared.manager.lessonEditors.textEditor.toolbar.bulletList')} onClick={() => insertBlock('<ul>\n  <li>Item</li>\n</ul>')} />
+            <ToolbarButton label="1." title={t('common.trainingShared.manager.lessonEditors.textEditor.toolbar.numberedList')} onClick={() => insertBlock('<ol>\n  <li>Item</li>\n</ol>')} />
             <div className="w-px h-4 bg-gray-200 mx-1" />
           </>
         )}
@@ -107,12 +109,12 @@ export default function TextLessonEditor({ content = '', onChange }: TextLessonE
           {isPreview ? (
             <>
               <Code size={12} />
-              Edit
+              {t('common.trainingShared.manager.lessonEditors.textEditor.editMode')}
             </>
           ) : (
             <>
               <Eye size={12} />
-              Preview
+              {t('common.trainingShared.manager.lessonEditors.textEditor.previewMode')}
             </>
           )}
         </button>
@@ -129,7 +131,7 @@ export default function TextLessonEditor({ content = '', onChange }: TextLessonE
           ref={textareaRef}
           value={content}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Write lesson content here… Use the toolbar to format text, or write HTML directly."
+          placeholder={t('common.trainingShared.manager.lessonEditors.textEditor.contentPlaceholder')}
           className="p-4 text-sm text-gray-800 placeholder-gray-400 resize-y min-h-[200px] focus:outline-none font-mono"
           spellCheck={false}
         />

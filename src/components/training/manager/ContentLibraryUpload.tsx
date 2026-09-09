@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { Trans, useTranslation } from 'react-i18next';
 import { storage, db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { ContentLibraryItem } from '@/lib/training/trainingTypes';
@@ -56,6 +57,7 @@ function makeId() {
 export default function ContentLibraryUpload({
   onUploadComplete,
 }: ContentLibraryUploadProps) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
 
@@ -143,7 +145,7 @@ export default function ContentLibraryUpload({
             updateEntry(id, {
               status: 'error',
               errorMessage:
-                err instanceof Error ? err.message : 'Save failed',
+                err instanceof Error ? err.message : t('common.trainingShared.manager.contentLibrary.upload.saveFailed'),
             });
           }
         }
@@ -185,11 +187,13 @@ export default function ContentLibraryUpload({
         />
         <div className="text-center">
           <p className="text-sm font-medium text-gray-700">
-            Drop files here or{' '}
-            <span className="text-blue-600 underline">browse</span>
+            <Trans
+              i18nKey="common.trainingShared.manager.contentLibrary.upload.dropHint"
+              components={{ u: <span className="text-blue-600 underline" /> }}
+            />
           </p>
           <p className="text-xs text-gray-400 mt-1">
-            MP4, MOV, AVI, PDF, DOCX, JPG, PNG, WEBP
+            {t('common.trainingShared.manager.contentLibrary.upload.acceptedFormats')}
           </p>
         </div>
         <input
@@ -236,7 +240,7 @@ export default function ContentLibraryUpload({
 
                 {entry.status === 'error' && (
                   <p className="text-xs text-red-600 mt-0.5">
-                    {entry.errorMessage ?? 'Upload failed'}
+                    {entry.errorMessage ?? t('common.trainingShared.manager.contentLibrary.upload.uploadFailed')}
                   </p>
                 )}
               </div>

@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useMyAssignments } from '@/hooks/training/useMyAssignments';
 import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
@@ -6,6 +7,7 @@ import { isLearnerOutstanding } from '@/lib/training/assignmentStatus';
 import MyModulesList from '@/components/training/learner/MyModulesList';
 
 export default function MyModulesPage() {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const { assignments: allAssignments, loading, error } = useMyAssignments();
 
@@ -23,7 +25,7 @@ export default function MyModulesPage() {
     [allAssignments, traineeModuleIds],
   );
 
-  const name = userProfile?.fullName?.split(' ')[0] ?? 'there';
+  const name = userProfile?.fullName?.split(' ')[0] ?? t('common.trainingShared.myModulesPage.fallbackName');
   // Anything the learner still has to act on. A module waiting on a manager's
   // practical sign-off isn't one of those — it sits in the Completed tab, so
   // counting it here would tell the learner to complete something they can't.
@@ -32,18 +34,18 @@ export default function MyModulesPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">My Training</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('common.trainingShared.myModulesPage.title')}</h1>
         {!loading && (
           <p className="mt-1 text-slate-600">
             {pendingCount > 0
-              ? `Hello, ${name}. You have ${pendingCount} module${pendingCount > 1 ? 's' : ''} to complete.`
-              : `Hello, ${name}. You're all caught up!`}
+              ? t('common.trainingShared.myModulesPage.greetingPending', { name, count: pendingCount })
+              : t('common.trainingShared.myModulesPage.greetingCaughtUp', { name })}
           </p>
         )}
       </div>
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Could not load your assigned trainings: {error}
+          {t('common.trainingShared.myModulesPage.loadError', { error })}
         </div>
       )}
       <MyModulesList assignments={assignments} loading={loading} />

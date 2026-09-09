@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import type { ComplianceStats, ComplianceMatrixRow } from '@/hooks/training/useComplianceData';
 import type { AssignmentStatus } from '@/lib/training/trainingTypes';
 import {
@@ -105,6 +106,7 @@ export default function ComplianceReport({
   error,
   onExport,
 }: ComplianceReportProps) {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -117,44 +119,44 @@ export default function ComplianceReport({
     <div className="space-y-6">
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load compliance data: {error}
+          {t('common.trainingShared.manager.complianceReport.loadFailed', { error })}
         </div>
       )}
       {/* Stats + Export */}
       <div className="flex items-start justify-between gap-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 flex-1">
           <StatCard
-            label="Total Operators"
+            label={t('common.trainingShared.manager.complianceReport.stats.totalOperators')}
             value={stats.totalTrainees}
             icon={<Users className="w-5 h-5 text-blue-600" />}
             colorClass="bg-blue-50"
           />
           <StatCard
-            label="Certified"
+            label={t('common.trainingShared.manager.complianceReport.stats.certified')}
             value={stats.certified}
             icon={<Award className="w-5 h-5 text-green-600" />}
             colorClass="bg-green-50"
           />
           <StatCard
-            label="Not Certified"
+            label={t('common.trainingShared.manager.complianceReport.stats.notCertified')}
             value={stats.notCertified}
             icon={<XCircle className="w-5 h-5 text-red-500" />}
             colorClass="bg-red-50"
           />
           <StatCard
-            label="Expiring Soon"
+            label={t('common.trainingShared.manager.complianceReport.stats.expiringSoon')}
             value={stats.expiringSoon}
             icon={<Clock className="w-5 h-5 text-amber-600" />}
             colorClass="bg-amber-50"
           />
           <StatCard
-            label="Overdue"
+            label={t('common.trainingShared.manager.complianceReport.stats.overdue')}
             value={stats.overdueAssignments}
             icon={<AlertTriangle className="w-5 h-5 text-orange-600" />}
             colorClass="bg-orange-50"
           />
           <StatCard
-            label="Retraining Pending"
+            label={t('common.trainingShared.manager.complianceReport.stats.retrainingPending')}
             value={stats.retrainingRequired}
             icon={<RefreshCw className="w-5 h-5 text-purple-600" />}
             colorClass="bg-purple-50"
@@ -166,29 +168,29 @@ export default function ComplianceReport({
           className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors flex-shrink-0"
         >
           <Download className="w-4 h-4" />
-          Export
+          {t('common.trainingShared.manager.complianceReport.export')}
         </button>
       </div>
 
       {/* Compliance Matrix */}
       {matrixRows.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 py-16 text-center text-sm text-gray-400">
-          No compliance data available.
+          {t('common.trainingShared.manager.complianceReport.noData')}
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900">Compliance Matrix</h2>
+            <h2 className="font-semibold text-gray-900">{t('common.trainingShared.manager.complianceReport.matrixTitle')}</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="text-sm min-w-max">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="text-left px-4 py-3 font-medium text-gray-600 min-w-40 sticky left-0 bg-gray-50 z-10">
-                    Trainee
+                    {t('common.trainingShared.manager.complianceReport.columns.trainee')}
                   </th>
                   <th className="text-left px-4 py-3 font-medium text-gray-600 min-w-28 sticky left-40 bg-gray-50 z-10">
-                    Department
+                    {t('common.trainingShared.manager.complianceReport.columns.department')}
                   </th>
                   {moduleHeaders.map((h) => (
                     <th
@@ -240,19 +242,19 @@ export default function ComplianceReport({
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-xs text-gray-500">
         <span className="flex items-center gap-1">
-          <span className="text-green-600 font-bold">✓</span> Certified
+          <span className="text-green-600 font-bold">✓</span> {t('common.trainingShared.manager.complianceReport.legend.certified')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-blue-500 font-bold">⟳</span> In Progress
+          <span className="text-blue-500 font-bold">⟳</span> {t('common.trainingShared.manager.complianceReport.legend.inProgress')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-amber-500 font-bold">◌</span> Other
+          <span className="text-amber-500 font-bold">◌</span> {t('common.trainingShared.manager.complianceReport.legend.other')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-red-500 font-bold">×</span> Expired
+          <span className="text-red-500 font-bold">×</span> {t('common.trainingShared.manager.complianceReport.legend.expired')}
         </span>
         <span className="flex items-center gap-1">
-          <span className="text-gray-300 font-bold">–</span> Not Assigned
+          <span className="text-gray-300 font-bold">–</span> {t('common.trainingShared.manager.complianceReport.legend.notAssigned')}
         </span>
       </div>
     </div>

@@ -10,6 +10,7 @@ import {
   BarChart2,
 } from 'lucide-react';
 import { Globe2, FileClock } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { isOffboardAssignment } from '@/lib/training/offboardTraining';
@@ -57,6 +58,7 @@ export default function TrainingDashboard({
   allAssignments = [],
   recentActivity = [],
 }: TrainingDashboardProps) {
+  const { t } = useTranslation();
   const role = useAuthStore((s) => s.userProfile?.role);
   const canAuthor = !!role && CAN_AUTHOR_ROLES.includes(role);
 
@@ -78,7 +80,7 @@ export default function TrainingDashboard({
         <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-amber-800">
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm font-medium">
-            {stats.overdue} assignment{stats.overdue !== 1 ? 's are' : ' is'} overdue. Review and follow up with trainees.
+            {t('common.trainingShared.manager.dashboard.alerts.overdue', { count: stats.overdue })}
           </span>
         </div>
       )}
@@ -86,7 +88,7 @@ export default function TrainingDashboard({
         <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-red-800">
           <RefreshCw className="w-5 h-5 flex-shrink-0" />
           <span className="text-sm font-medium">
-            {stats.retrainingRequired} trainee{stats.retrainingRequired !== 1 ? 's require' : ' requires'} retraining.
+            {t('common.trainingShared.manager.dashboard.alerts.retrainingRequired', { count: stats.retrainingRequired })}
           </span>
         </div>
       )}
@@ -94,49 +96,49 @@ export default function TrainingDashboard({
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <StatCard
-          label="Total Trainees"
+          label={t('common.trainingShared.manager.dashboard.stats.totalTrainees')}
           value={stats.totalTrainees}
           icon={<Users className="w-6 h-6 text-blue-600" />}
           colorClass="bg-blue-50"
         />
         <StatCard
-          label="Active Assignments"
+          label={t('common.trainingShared.manager.dashboard.stats.activeAssignments')}
           value={stats.activeAssignments}
           icon={<BookOpen className="w-6 h-6 text-indigo-600" />}
           colorClass="bg-indigo-50"
         />
         <StatCard
-          label="Certs This Month"
+          label={t('common.trainingShared.manager.dashboard.stats.certsThisMonth')}
           value={stats.certsThisMonth}
           icon={<Award className="w-6 h-6 text-green-600" />}
           colorClass="bg-green-50"
         />
         <StatCard
-          label="Overdue"
+          label={t('common.trainingShared.manager.dashboard.stats.overdue')}
           value={stats.overdue}
           icon={<AlertTriangle className="w-6 h-6 text-amber-600" />}
           colorClass="bg-amber-50"
         />
         <StatCard
-          label="Retraining Required"
+          label={t('common.trainingShared.manager.dashboard.stats.retrainingRequired')}
           value={stats.retrainingRequired}
           icon={<RefreshCw className="w-6 h-6 text-red-600" />}
           colorClass="bg-red-50"
         />
         <StatCard
-          label="Modules Created"
+          label={t('common.trainingShared.manager.dashboard.stats.modulesCreated')}
           value={stats.modulesCreated}
           icon={<Layers className="w-6 h-6 text-purple-600" />}
           colorClass="bg-purple-50"
         />
         <StatCard
-          label="Offboard Trainings This Quarter"
+          label={t('common.trainingShared.manager.dashboard.stats.offboardThisQuarter')}
           value={offboardThisQuarter}
           icon={<Globe2 className="w-6 h-6 text-fuchsia-600" />}
           colorClass="bg-fuchsia-50"
         />
         <StatCard
-          label="Pending Knowledge Reports"
+          label={t('common.trainingShared.manager.dashboard.stats.pendingKnowledgeReports')}
           value={pendingKnowledgeReports}
           icon={<FileClock className="w-6 h-6 text-orange-600" />}
           colorClass="bg-orange-50"
@@ -147,7 +149,7 @@ export default function TrainingDashboard({
           (sign-off, assignment lists) lives in Trainee Management, not here,
           so this dashboard never links into that feature. */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h2 className="font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <h2 className="font-semibold text-gray-900 mb-4">{t('common.trainingShared.manager.dashboard.quickActions.title')}</h2>
         <div className="flex flex-wrap gap-3">
           {canAuthor && (
             <Link
@@ -155,7 +157,7 @@ export default function TrainingDashboard({
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Create Module
+              {t('common.trainingShared.manager.dashboard.quickActions.createModule')}
             </Link>
           )}
           <Link
@@ -163,7 +165,7 @@ export default function TrainingDashboard({
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
           >
             <BarChart2 className="w-4 h-4" />
-            View Compliance
+            {t('common.trainingShared.manager.dashboard.quickActions.viewCompliance')}
           </Link>
         </div>
       </div>
@@ -171,7 +173,7 @@ export default function TrainingDashboard({
       {/* Recent Activity */}
       {recentActivity.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 p-5">
-          <h2 className="font-semibold text-gray-900 mb-3">Recent Activity</h2>
+          <h2 className="font-semibold text-gray-900 mb-3">{t('common.trainingShared.manager.dashboard.recentActivity')}</h2>
           <ul className="space-y-2">
             {recentActivity.map((item, idx) => (
               <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">

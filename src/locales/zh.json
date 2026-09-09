@@ -3573,6 +3573,794 @@
           "modeRequired": "模式为必填项"
         },
         "submit": "保存模块"
+      },
+      "myModulesPage": {
+        "title": "我的培训",
+        "fallbackName": "您",
+        "greetingPending_one": "您好，{{name}}。您有 {{count}} 个模块待完成。",
+        "greetingPending_other": "您好，{{name}}。您有 {{count}} 个模块待完成。",
+        "greetingCaughtUp": "您好，{{name}}。您已全部完成！",
+        "loadError": "无法加载您的分配培训：{{error}}"
+      },
+      "moduleLearningPage": {
+        "notFound": "未找到该模块。",
+        "goBack": "返回"
+      },
+      "quizPage": {
+        "notAvailable": "该模块暂无可用测验。",
+        "backToModule": "返回模块"
+      },
+      "myCertificatesPage": {
+        "title": "我的证书",
+        "earnedCount_one": "已获得 {{count}} 张证书",
+        "earnedCount_other": "已获得 {{count}} 张证书",
+        "programmeCertificateHeading": "培训计划证书",
+        "programCertificatesHeading": "培训计划证书"
+      },
+      "knowledgeWriteup": {
+        "firstModuleTitle": "首个模块知识总结",
+        "noProgramme": "您需要有生效中的培训计划才能提交知识总结。",
+        "title": "模块知识总结",
+        "subtitle": "请总结您从培训计划中某个模块学到的知识，附件为可选项。",
+        "moduleLabel": "模块",
+        "selectModulePlaceholder": "选择模块…",
+        "whatYouLearned": "您学到了什么",
+        "summaryPlaceholder": "总结您在首个模块中所学到的知识……",
+        "attachmentsLabel": "附件（可选）",
+        "submit": "提交总结",
+        "submitting": "提交中…",
+        "pastSubmissions": "历史提交",
+        "loading": "加载中…",
+        "noSubmissions": "暂无提交记录。",
+        "untitledSubmission": "知识总结",
+        "submittedOn": "提交于 {{date}}",
+        "reviewStatus": {
+          "pending": "待审核",
+          "reviewed": "已审核",
+          "needsRevision": "需修改"
+        },
+        "toasts": {
+          "submitted": "知识总结已提交。",
+          "submitFailed": "提交总结失败"
+        }
+      },
+      "certificateCard": {
+        "heading": "培训证书",
+        "certificateNo": "证书编号",
+        "provider": "培训机构",
+        "machine": "设备",
+        "externalFallback": "外部",
+        "module": "模块",
+        "issued": "颁发于 {{date}}",
+        "expiredOn": "已于 {{date}} 过期",
+        "expiresOn": "有效期至 {{date}}",
+        "score": "分数：",
+        "revoked": "已吊销",
+        "downloadAria": "下载证书为 A4 PDF",
+        "downloadButton": "下载 A4 PDF",
+        "toasts": {
+          "pdfFailed": "生成证书 PDF 失败。"
+        }
+      },
+      "certificatePreview": {
+        "awardedTo": "颁发给",
+        "providerLine": "培训机构：{{name}}",
+        "machineLine": "设备：{{name}}",
+        "issuedLine": "颁发日期：{{date}}",
+        "expiresLine": "有效期至：{{date}}",
+        "expiredSuffix": "（已过期）",
+        "issuedBy": "颁发人：{{name}}",
+        "downloadPdfAria": "下载证书 PDF",
+        "downloadPdf": "下载 PDF"
+      },
+      "lessonCompleteOverlay": {
+        "title": "课程完成！",
+        "remaining_one": "还剩 {{count}} 节课程",
+        "remaining_other": "还剩 {{count}} 节课程",
+        "allComplete": "所有课程已完成！",
+        "nextLesson": "下一课程",
+        "close": "关闭"
+      },
+      "lessonList": {
+        "completeToUnlock": "完成所有必修课程以解锁测验。",
+        "quizPassed": "测验已通过",
+        "quizPassedWithScore": "测验已通过，得分 {{score}}%"
+      },
+      "lessonListItem": {
+        "pages_one": "{{count}} 页",
+        "pages_other": "{{count}} 页",
+        "reading": "阅读材料",
+        "slides_one": "{{count}} 张幻灯片",
+        "slides_other": "{{count}} 张幻灯片",
+        "gallery": "图集",
+        "ariaLocked": "已锁定：",
+        "ariaCompleted": "已完成：",
+        "ariaCurrent": "当前课程："
+      },
+      "lessonViewer": {
+        "closeAria": "关闭课程",
+        "documentAria": "文档：{{title}}"
+      },
+      "moduleCard": {
+        "due": "截止日期 {{date}}",
+        "days_one": "{{count}} 天",
+        "days_other": "{{count}} 天",
+        "lessonsCompleted": "已完成 {{completed}} / {{total}} 节课程",
+        "marks": "分数：{{score}}%",
+        "openAria": "打开培训模块：{{name}}"
+      },
+      "moduleLearningScreen": {
+        "backAria": "返回我的模块",
+        "lessonsCount": "{{completed}} / {{total}}",
+        "trainingCompleted": "培训已完成",
+        "saving": "保存中…",
+        "markCompleteAcknowledge": "标记完成并确认"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "所有课程已完成！您现在可以参加测验。",
+        "passMark": "及格分数：{{score}}%",
+        "attemptsRemaining_one": "剩余 {{count}} 次机会",
+        "attemptsRemaining_other": "剩余 {{count}} 次机会",
+        "noAttemptsRemaining": "已无剩余机会",
+        "startQuizAria": "开始测验",
+        "startQuiz": "开始测验"
+      },
+      "documentLesson": {
+        "downloadAria": "下载文档",
+        "download": "下载",
+        "documentAria": "文档：{{title}}",
+        "markedRead": "您已标记为已阅读",
+        "markAsReadAria": "将文档标记为已阅读",
+        "markAsRead": "标记为已阅读"
+      },
+      "imageGalleryLesson": {
+        "noImages": "此课程尚未添加图片。",
+        "completed": "已完成",
+        "markComplete": "标记为完成",
+        "previousImage": "上一张图片",
+        "nextImage": "下一张图片",
+        "counter": "第 {{current}} 张，共 {{total}} 张",
+        "goToImage": "跳转到第 {{index}} 张图片",
+        "viewAllHint": "查看全部图片以完成本课程"
+      },
+      "textLesson": {
+        "noContent": "此课程暂无内容。",
+        "markedRead": "您已标记为已阅读",
+        "markAsReadAria": "将课程标记为已阅读",
+        "markAsRead": "标记为已阅读",
+        "scrollToComplete": "滚动到底部以完成"
+      },
+      "videoLesson": {
+        "buffering": "缓冲中",
+        "seekBack": "-10秒",
+        "seekForward": "+10秒",
+        "pauseVideo": "暂停视频",
+        "playVideo": "播放视频",
+        "seekAria": "拖动视频进度",
+        "pause": "暂停",
+        "play": "播放",
+        "disableSubtitles": "关闭字幕",
+        "enableSubtitles": "开启字幕",
+        "ccLabel": "字幕",
+        "unmute": "取消静音",
+        "mute": "静音",
+        "playbackSpeed": "播放速度",
+        "exitFullscreen": "退出全屏",
+        "enterFullscreen": "进入全屏",
+        "lessonComplete": "课程已完成",
+        "markCompleteAria": "将视频课程标记为完成",
+        "markAsComplete": "标记为完成",
+        "watchToComplete": "观看 {{pct}}% 以完成"
+      },
+      "quiz": {
+        "answerReview": {
+          "title": "答题回顾",
+          "questionLabel": "第 {{number}} 题",
+          "correct": "正确",
+          "incorrect": "错误",
+          "points": "+{{earned}}/{{total}} 分",
+          "yourAnswer": "您的答案：",
+          "noAnswerSelected": "未选择答案",
+          "correctAnswer": "正确答案："
+        },
+        "preScreen": {
+          "questionsCount_one": "{{count}} 道题",
+          "questionsCount_other": "{{count}} 道题",
+          "minutes_one": "{{count}} 分钟",
+          "minutes_other": "{{count}} 分钟",
+          "noTimeLimit": "不限时",
+          "passMark": "及格分数：{{score}}%",
+          "unlimitedAttempts": "不限次数",
+          "noAttemptsRemaining": "已无剩余机会",
+          "attemptsRemaining_one": "剩余 {{count}} 次机会",
+          "attemptsRemaining_other": "剩余 {{count}} 次机会",
+          "instructionsHeading": "说明",
+          "startQuizAria": "开始测验",
+          "startQuiz": "开始测验",
+          "noAttemptsRemainingCta": "已无剩余机会"
+        },
+        "progressBar": {
+          "questionOf": "第 {{current}} / {{total}} 题",
+          "answeredCount": "{{answered}}/{{total}}"
+        },
+        "question": {
+          "questionNumber": "第 {{number}} 题",
+          "illustrationAlt": "题目插图",
+          "illustrationAltShort": "题目",
+          "explanationLabel": "解析：",
+          "invalidTrueFalse": "无效的判断题。"
+        },
+        "results": {
+          "passedMessage": "✓ 恭喜！您已通过。",
+          "failedMessage": "✗ 未通过。所需分数：{{score}}%。",
+          "correct": "正确",
+          "score": "得分",
+          "time": "用时",
+          "supervisorSignOff": "您的主管将现场观察并对您的实操技能进行签核。",
+          "continue": "继续",
+          "retryAvailableIn": "可重试时间",
+          "retryQuiz": "重新测验",
+          "noAttemptsLeft": "您已用完所有测验机会，请联系主管。",
+          "backToModule": "返回模块"
+        },
+        "review": {
+          "title": "检查您的答案",
+          "answeredCount": "已回答 {{answered}} / {{total}} 题",
+          "unansweredWarning_one": "有 {{count}} 道题未作答。",
+          "unansweredWarning_other": "有 {{count}} 道题未作答。",
+          "answered": "已回答",
+          "skipped": "已跳过",
+          "back": "返回",
+          "submitQuiz": "提交测验",
+          "confirmTitle": "确认提交测验？",
+          "confirmBody": "提交后将无法修改答案。",
+          "cancel": "取消",
+          "submitting": "提交中…",
+          "submit": "提交"
+        },
+        "runner": {
+          "reviewAndSubmit": "检查并提交",
+          "previousAria": "上一题",
+          "previous": "上一题",
+          "nextAria": "下一题",
+          "next": "下一题"
+        }
+      },
+      "moduleTypeBadge": {
+        "offboardAria": "离场 / 外部培训",
+        "offboardLabel": "离场 / 外部",
+        "machineAria": "设备：{{name}}"
+      },
+      "quizScoreBadge": {
+        "aria": "测验得分：{{score}}% — {{status}}",
+        "passed": "已通过",
+        "failed": "未通过"
+      },
+      "retrainingBadge": {
+        "aria": "需重新培训",
+        "label": "需重新培训"
+      },
+      "progressBar": {
+        "aria": "进度：{{percent}}%"
+      },
+      "manager": {
+        "dashboard": {
+          "title": "培训仪表板",
+          "inviteTrainee": "邀请学员",
+          "close": "关闭",
+          "cancel": "取消",
+          "sending": "发送中…",
+          "sendInvitation": "发送邀请",
+          "errors": {
+            "fullNameRequired": "姓名为必填项。",
+            "emailRequired": "发送邀请需填写邮箱。",
+            "inviteFailed": "邀请学员失败。"
+          },
+          "form": {
+            "fullNamePlaceholder": "姓名 *",
+            "emailPlaceholder": "邮箱 *",
+            "phonePlaceholder": "电话",
+            "departmentPlaceholder": "部门",
+            "employeeIdPlaceholder": "员工编号"
+          },
+          "alerts": {
+            "overdue_one": "有 {{count}} 项分配任务已逾期，请检查并跟进学员。",
+            "overdue_other": "有 {{count}} 项分配任务已逾期，请检查并跟进学员。",
+            "retrainingRequired_one": "有 {{count}} 名学员需要重新培训。",
+            "retrainingRequired_other": "有 {{count}} 名学员需要重新培训。"
+          },
+          "stats": {
+            "totalTrainees": "学员总数",
+            "activeAssignments": "进行中的分配",
+            "certsThisMonth": "本月新增证书",
+            "overdue": "已逾期",
+            "retrainingRequired": "需重新培训",
+            "modulesCreated": "已创建模块数",
+            "offboardThisQuarter": "本季度离场培训",
+            "pendingKnowledgeReports": "待审核知识总结"
+          },
+          "quickActions": {
+            "title": "快捷操作",
+            "createModule": "创建模块",
+            "viewCompliance": "查看合规情况"
+          },
+          "recentActivity": "近期动态"
+        },
+        "moduleLibrary": {
+          "title": "培训",
+          "createModule": "创建培训模块",
+          "tabs": {
+            "modules": "模块",
+            "assigned": "已分配"
+          }
+        },
+        "createModule": {
+          "untitledModule": "未命名模块",
+          "savedToast": "模块已保存，现在可以添加测验或进行分配。",
+          "saveFailedToast": "保存模块失败，请重试。",
+          "back": "返回",
+          "title": "创建培训模块"
+        },
+        "editModule": {
+          "updatedToast": "模块已更新。",
+          "saveFailedToast": "保存模块失败，请重试。",
+          "notFound": "未找到该模块。",
+          "back": "返回",
+          "wrongLibrary": {
+            "title": "在此库中未找到。",
+            "description": "该模块属于学员管理库，请从学员管理模块中打开。"
+          },
+          "assign": "分配",
+          "quizBuilder": "测验编辑器"
+        },
+        "quizBuilder": {
+          "notFound": "未找到该模块。",
+          "back": "返回",
+          "backToEditor": "返回模块编辑器",
+          "titleWithModule": "测验编辑器 — {{moduleTitle}}",
+          "defaultQuizTitle": "{{moduleTitle}} 测验",
+          "layout": {
+            "header": "测验编辑器",
+            "saveQuiz": "保存测验",
+            "questionsTab": "题目",
+            "questionsTabWithCount": "题目（{{count}}）",
+            "editorTab": "编辑器",
+            "selectQuestionPrompt": "选择一道题目进行编辑",
+            "orAddNew": "或添加一道新题目。"
+          },
+          "settingsBar": {
+            "quizTitle": "测验标题",
+            "quizTitlePlaceholder": "例如：安全评估",
+            "passScore": "及格分数",
+            "timeLimit": "时间限制",
+            "minutesAbbrev": "分钟",
+            "maxAttempts": "最大尝试次数",
+            "saveSettings": "保存设置"
+          }
+        },
+        "contentLibrary": {
+          "deleteConfirm": "确定要从库中删除此项吗？此操作无法撤销。",
+          "back": "返回",
+          "title": "内容库",
+          "hideUpload": "隐藏上传",
+          "uploadButton": "+ 上传",
+          "searchPlaceholder": "搜索文件...",
+          "noneFound": "未找到文件。",
+          "select": "选择",
+          "cannotDeleteInUse": "无法删除 — 正被模块使用",
+          "deleteAction": "删除",
+          "usedInModules_one": "已用于 {{count}} 个模块",
+          "usedInModules_other": "已用于 {{count}} 个模块",
+          "types": {
+            "video": "视频",
+            "document": "文档",
+            "image": "图片"
+          },
+          "filters": {
+            "all": "全部"
+          },
+          "deleteModal": {
+            "title": "删除文件？",
+            "description": "该文件将被永久删除且无法恢复。",
+            "cancel": "取消",
+            "confirmButton": "删除"
+          },
+          "upload": {
+            "saveFailed": "保存失败",
+            "dropHint": "将文件拖到此处，或<u>浏览</u>",
+            "acceptedFormats": "MP4、MOV、AVI、PDF、DOCX、JPG、PNG、WEBP",
+            "uploadFailed": "上传失败"
+          }
+        },
+        "certificatesManager": {
+          "back": "返回",
+          "title": "证书",
+          "searchPlaceholder": "搜索学员或证书编号...",
+          "showRevoked": "显示已吊销",
+          "noneFound": "未找到证书。",
+          "pdf": "PDF",
+          "revoke": "吊销",
+          "filters": {
+            "all": "全部证书",
+            "valid": "仅有效证书",
+            "expired": "已过期",
+            "expiringSoon": "即将过期"
+          },
+          "columns": {
+            "certNumber": "证书编号",
+            "trainee": "学员",
+            "machine": "设备",
+            "module": "模块",
+            "issued": "颁发日期",
+            "expiry": "有效期至",
+            "score": "分数",
+            "status": "状态",
+            "actions": "操作"
+          },
+          "status": {
+            "valid": "有效",
+            "revoked": "已吊销",
+            "expired": "已过期",
+            "expiringSoon": "即将过期"
+          },
+          "revokeModal": {
+            "title": "吊销证书",
+            "description": "此操作将永久吊销该证书，学员需要重新分配培训才能重新获得认证。",
+            "reasonLabel": "原因",
+            "reasonPlaceholder": "说明吊销此证书的原因...",
+            "reasonRequired": "请提供吊销原因。",
+            "revocationFailed": "吊销失败",
+            "cancel": "取消",
+            "confirmButton": "吊销证书"
+          }
+        },
+        "complianceReport": {
+          "back": "返回",
+          "title": "合规报告",
+          "loadFailed": "加载合规数据失败：{{error}}",
+          "export": "导出",
+          "noData": "暂无合规数据。",
+          "matrixTitle": "合规矩阵",
+          "stats": {
+            "totalOperators": "操作员总数",
+            "certified": "已认证",
+            "notCertified": "未认证",
+            "expiringSoon": "即将过期",
+            "overdue": "已逾期",
+            "retrainingPending": "待重新培训"
+          },
+          "columns": {
+            "trainee": "学员",
+            "department": "部门"
+          },
+          "legend": {
+            "certified": "已认证",
+            "inProgress": "进行中",
+            "other": "其他",
+            "expired": "已过期",
+            "notAssigned": "未分配"
+          }
+        },
+        "assignWizard": {
+          "pageBack": "返回",
+          "pageTitle": "分配培训",
+          "optional": "（可选）",
+          "createFailed": "创建分配失败",
+          "steps": {
+            "selectTrainees": "选择学员",
+            "selectModules": "选择模块",
+            "settings": "设置",
+            "reviewConfirm": "检查并确认"
+          },
+          "notifications": {
+            "assignedMessage": "您已被分配一个新培训模块：{{moduleTitle}}",
+            "oversightMessage": "已将“{{moduleTitle}}”分配给 {{traineeName}}"
+          },
+          "done": {
+            "title": "分配已创建",
+            "createdCount_one": "已成功创建 {{count}} 项分配。",
+            "createdCount_other": "已成功创建 {{count}} 项分配。",
+            "skippedCount_one": "已跳过 {{count}} 项重复分配。",
+            "skippedCount_other": "已跳过 {{count}} 项重复分配。",
+            "doneButton": "完成"
+          },
+          "selectTrainees": {
+            "searchPlaceholder": "搜索学员...",
+            "allDepartments": "所有部门",
+            "departmentHint": "正在显示 <strong>{{department}}</strong> 部门的学员。使用下方“全选”可分配整个部门，或勾选个别学员单独分配。",
+            "selectAll": "全选（{{count}}）",
+            "noneFound": "未找到学员。",
+            "noDepartment": "无部门",
+            "selectedCount_one": "已选择 {{count}} 名学员",
+            "selectedCount_other": "已选择 {{count}} 名学员",
+            "details": {
+              "name": "姓名",
+              "employeeId": "员工编号",
+              "role": "角色",
+              "department": "部门"
+            }
+          },
+          "selectModules": {
+            "filterByCategory": "按类别筛选",
+            "allCategories": "所有类别",
+            "noneFound": "未找到已启用的模块。",
+            "noneFoundForCategory": "该类别下未找到已启用的模块。",
+            "offboard": "离场",
+            "externalProvider": "外部培训机构",
+            "durationDays_one": "{{count}}天",
+            "durationDays_other": "{{count}}天",
+            "lessonsCount_one": "{{count}} 节课程",
+            "lessonsCount_other": "{{count}} 节课程",
+            "estimatedMinutes_one": "{{count}} 分钟",
+            "estimatedMinutes_other": "{{count}} 分钟",
+            "selectedCount_one": "已选择 {{count}} 个模块",
+            "selectedCount_other": "已选择 {{count}} 个模块"
+          },
+          "settings": {
+            "dueDate": "截止日期",
+            "notifyTrainee": "通知学员",
+            "notifyTraineeHint": "创建分配时发送通知"
+          },
+          "review": {
+            "summary": "将 <strong>{{moduleCount}} 个模块</strong>分配给 <strong>{{traineeCount}} 名学员</strong>（共 {{totalCount}} 项分配）",
+            "traineeColumn": "学员",
+            "moduleColumn": "模块"
+          },
+          "nav": {
+            "cancel": "取消",
+            "back": "返回",
+            "next": "下一步",
+            "confirmAssign": "确认分配"
+          }
+        },
+        "lessonEditors": {
+          "titleRequired": "课程标题为必填项。",
+          "editTitle": "编辑课程",
+          "newTitle": "新建课程",
+          "lessonTitle": "课程标题",
+          "lessonTitlePlaceholder": "例如：设备安全概览",
+          "lessonType": "课程类型",
+          "description": "描述",
+          "descriptionPlaceholder": "简要描述本课程内容…",
+          "requiredToComplete": "完成必修",
+          "content": "内容",
+          "saveLesson": "保存课程",
+          "cancel": "取消",
+          "types": {
+            "video": "视频",
+            "document": "文档",
+            "gallery": "图集",
+            "text": "文本"
+          },
+          "list": {
+            "dragToReorder": "拖动以调整顺序",
+            "untitledLesson": "未命名课程",
+            "required": "必修",
+            "editLesson": "编辑课程",
+            "deleteLesson": "删除课程",
+            "noneYet": "暂无课程。",
+            "addFirst": "添加您的第一节课程。",
+            "addLesson": "添加课程"
+          },
+          "documentEditor": {
+            "companyNotFound": "未找到公司信息。",
+            "exceedsLimit": "文件超过 100 MB 限制。",
+            "uploadFailed": "上传失败：{{message}}",
+            "currentUploaded": "当前文档已上传",
+            "replace": "替换",
+            "dropHint": "将文档拖到此处，或点击浏览",
+            "acceptedFormats": "PDF、DOCX · 最大 100 MB",
+            "uploading": "上传中…",
+            "uploadedName": "已上传文档：{{name}}"
+          },
+          "videoEditor": {
+            "companyNotFound": "未找到公司信息。",
+            "exceedsLimit": "文件超过 500 MB 限制。",
+            "uploadFailed": "上传失败：{{message}}",
+            "currentUploaded": "当前视频已上传",
+            "replace": "替换",
+            "dropHint": "将视频拖到此处，或点击浏览",
+            "acceptedFormats": "MP4、MOV、AVI · 最大 500 MB",
+            "uploading": "上传中…",
+            "uploadedName": "已上传视频：{{name}}"
+          },
+          "galleryEditor": {
+            "fileExceedsLimit": "“{{name}}”超过 50 MB 限制。",
+            "companyNotFound": "未找到公司信息。",
+            "maxImagesAllowed": "最多允许 {{count}} 张图片。",
+            "addImages": "添加图片",
+            "imagesCount": "{{count}}/{{max}} 张图片",
+            "maxImagesReached": "已达到 {{count}} 张图片上限。",
+            "clickToAdd": "点击添加图片",
+            "formatHint": "JPG、PNG、WEBP · 每张最大 50 MB · 最多 {{count}} 张",
+            "imageAltFallback": "图片 {{number}}",
+            "removeImage": "移除图片",
+            "captionPlaceholder": "添加说明文字…"
+          },
+          "textEditor": {
+            "toolbar": {
+              "bold": "加粗",
+              "italic": "斜体",
+              "heading2": "标题 2",
+              "heading3": "标题 3",
+              "bulletList": "项目符号列表",
+              "numberedList": "编号列表"
+            },
+            "editMode": "编辑",
+            "previewMode": "预览",
+            "contentPlaceholder": "在此编写课程内容……使用工具栏进行格式设置，或直接编写 HTML。"
+          }
+        },
+        "questionEditors": {
+          "editTitle": "编辑题目",
+          "newTitle": "新建题目",
+          "questionText": "题目内容",
+          "questionTextPlaceholder": "输入题目…",
+          "questionType": "题目类型",
+          "imageUrl": "图片地址",
+          "points": "分值",
+          "explanation": "解析",
+          "explanationHint": "（提交后显示）",
+          "explanationPlaceholder": "解释正确答案…",
+          "saveQuestion": "保存题目",
+          "cancel": "取消",
+          "textRequired": "题目内容为必填项。",
+          "correctAnswerRequired": "至少需要一个正确答案。",
+          "types": {
+            "singleChoice": {
+              "label": "单选题",
+              "description": "仅一个正确答案"
+            },
+            "multipleChoice": {
+              "label": "多选题",
+              "description": "多个正确答案"
+            },
+            "trueFalse": {
+              "label": "判断题",
+              "description": "判断对错"
+            }
+          },
+          "options": {
+            "answerOptions": "答案选项",
+            "true": "正确",
+            "false": "错误",
+            "correct": "正确",
+            "explanationForPlaceholder": "{{label}} 的解析…",
+            "selectCorrectRequired": "请选择正确答案。",
+            "optionsCount": "{{count}}/{{max}} 个选项",
+            "markCorrect": "标记为正确答案",
+            "optionPlaceholder": "选项 {{number}}",
+            "removeOption": "移除选项",
+            "explanationPlaceholder": "解析（作答后显示）…",
+            "markCorrectRequired": "请至少标记一个正确答案。",
+            "addOption": "添加选项"
+          },
+          "list": {
+            "dragToReorder": "拖动以调整顺序",
+            "untitledQuestion": "未命名题目",
+            "deleteQuestion": "删除题目",
+            "pointsAbbrev_one": "{{count}}分",
+            "pointsAbbrev_other": "{{count}}分",
+            "questionCount_one": "{{count}} 道题",
+            "questionCount_other": "{{count}} 道题",
+            "pointsTotal": "共 {{count}} 分",
+            "noneYet": "暂无题目。",
+            "addFirst": "添加您的第一道题目。",
+            "addQuestion": "添加题目",
+            "typeAbbrev": {
+              "single_choice": "单选",
+              "multiple_choice": "多选",
+              "true_false": "判断"
+            }
+          }
+        },
+        "trainingAssignedTab": {
+          "managerFallbackName": "管理者",
+          "noneOpen": "目前没有进行中的培训分配。",
+          "modulesAssigned_one": "已分配 {{count}} 个模块",
+          "modulesAssigned_other": "已分配 {{count}} 个模块",
+          "signOffAndClose": "签核并关闭",
+          "columns": {
+            "module": "模块",
+            "type": "类型",
+            "mode": "方式",
+            "category": "类别",
+            "progress": "进度",
+            "assigned": "分配日期",
+            "dueDate": "截止日期",
+            "status": "状态",
+            "action": "操作"
+          },
+          "categories": {
+            "machine": "设备",
+            "offboard": "外部"
+          },
+          "signOffModal": {
+            "note": "备注",
+            "notePlaceholder": "观察记录 / 签核备注...",
+            "cancel": "取消",
+            "signingOff": "签核中…",
+            "confirmButton": "确认签核"
+          }
+        },
+        "assignmentsProgress": {
+          "title": "培训进度",
+          "noneAssigned": "尚未分配任何模块。",
+          "stats": {
+            "assignments": "分配数",
+            "inProgress": "进行中",
+            "completed": "已完成"
+          },
+          "columns": {
+            "module": "模块",
+            "assignedTo": "分配给",
+            "assignedBy": "分配人",
+            "assigned": "分配日期",
+            "completed": "完成日期",
+            "progress": "进度",
+            "marks": "分数",
+            "status": "状态"
+          }
+        },
+        "signOffPanel": {
+          "close": "关闭",
+          "assignedBySuffix": " · 由 {{name}} 分配",
+          "signedOffToast": "培训已签核。",
+          "failedToast": "培训已标记为未通过。",
+          "signOffFailedToast": "签核失败。",
+          "notifications": {
+            "aManager": "一位管理者",
+            "passedMessage": "{{signerName}} 已为您的培训签核：{{moduleName}}",
+            "failedMessage": "您的培训「{{moduleName}}」未通过实操评估",
+            "passedOversight": "已为 {{traineeName}} 的“{{moduleName}}”签核",
+            "failedOversight": "在“{{moduleName}}”实操评估中判定 {{traineeName}} 未通过"
+          }
+        },
+        "library": {
+          "defaultTitle": "模块库",
+          "deleteConfirm": "确定要永久删除此模块吗？此操作无法撤销。",
+          "loadingSamples": "加载中…",
+          "loadSampleModules": "加载示例模块",
+          "createModule": "创建培训模块",
+          "searchPlaceholder": "按标题搜索模块...",
+          "allModes": "所有方式",
+          "allTrainingTypes": "所有培训类型",
+          "allCategories": "所有类别",
+          "externalProvider": "外部培训机构",
+          "yes": "是",
+          "no": "否",
+          "completedCount_one": "已完成 {{count}} 人",
+          "completedCount_other": "已完成 {{count}} 人",
+          "assign": "分配",
+          "edit": "编辑",
+          "delete": "删除",
+          "lessonsCount_one": "{{count}} 节课程",
+          "lessonsCount_other": "{{count}} 节课程",
+          "hasQuiz": "含测验",
+          "assignedCount_one": "已分配 {{count}} 人",
+          "assignedCount_other": "已分配 {{count}} 人",
+          "noneFound": "未找到模块。",
+          "categories": {
+            "machine": "设备",
+            "offboard": "外部"
+          },
+          "moduleStatus": {
+            "draft": "草稿",
+            "active": "已启用",
+            "archived": "已归档"
+          },
+          "columns": {
+            "title": "标题",
+            "trainingType": "培训类型",
+            "mode": "方式",
+            "category": "类别",
+            "lessons": "课程",
+            "hasQuiz": "含测验",
+            "assigned": "已分配",
+            "status": "状态",
+            "actions": "操作"
+          }
+        }
       }
     },
     "triage": {

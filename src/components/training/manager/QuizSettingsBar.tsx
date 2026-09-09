@@ -1,4 +1,5 @@
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingQuiz } from '@/lib/training/trainingTypes';
 
 interface QuizSettingsBarProps {
@@ -14,17 +15,18 @@ export default function QuizSettingsBar({
   onSave,
   isSaving = false,
 }: QuizSettingsBarProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-wrap">
         {/* Title */}
         <div className="flex-1 min-w-0 sm:min-w-[200px]">
-          <label className="text-xs font-medium text-gray-500 block mb-1">Quiz Title</label>
+          <label className="text-xs font-medium text-gray-500 block mb-1">{t('common.trainingShared.manager.quizBuilder.settingsBar.quizTitle')}</label>
           <input
             type="text"
             value={quiz.title ?? ''}
             onChange={(e) => onChange({ title: e.target.value })}
-            placeholder="e.g. Safety Assessment"
+            placeholder={t('common.trainingShared.manager.quizBuilder.settingsBar.quizTitlePlaceholder')}
             className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -32,7 +34,7 @@ export default function QuizSettingsBar({
         {/* Numeric fields */}
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-500">Pass Score</label>
+            <label className="text-xs font-medium text-gray-500">{t('common.trainingShared.manager.quizBuilder.settingsBar.passScore')}</label>
             <div className="flex items-center gap-1">
               <input
                 type="number"
@@ -47,7 +49,7 @@ export default function QuizSettingsBar({
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-500">Time Limit</label>
+            <label className="text-xs font-medium text-gray-500">{t('common.trainingShared.manager.quizBuilder.settingsBar.timeLimit')}</label>
             <div className="flex items-center gap-1">
               <input
                 type="number"
@@ -56,12 +58,12 @@ export default function QuizSettingsBar({
                 onChange={(e) => onChange({ timeLimit: Number(e.target.value) })}
                 className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <span className="text-xs text-gray-500 whitespace-nowrap">min</span>
+              <span className="text-xs text-gray-500 whitespace-nowrap">{t('common.trainingShared.manager.quizBuilder.settingsBar.minutesAbbrev')}</span>
             </div>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-gray-500">Max Attempts</label>
+            <label className="text-xs font-medium text-gray-500">{t('common.trainingShared.manager.quizBuilder.settingsBar.maxAttempts')}</label>
             <input
               type="number"
               min={0}
@@ -80,7 +82,7 @@ export default function QuizSettingsBar({
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg py-2 px-4 text-sm transition-colors whitespace-nowrap self-end sm:self-auto"
         >
           {isSaving && <Loader2 size={14} className="animate-spin" />}
-          Save Settings
+          {t('common.trainingShared.manager.quizBuilder.settingsBar.saveSettings')}
         </button>
       </div>
     </div>

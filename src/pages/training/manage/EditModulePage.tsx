@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, UserPlus } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useTrainingModule } from '@/hooks/training/useTrainingModule';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
@@ -15,6 +16,7 @@ import ModuleAssignForm from '@/components/training/manager/ModuleAssignForm';
  *  Trainee Management's library cannot be opened here — it has its own
  *  editor at training/manage/trainee-modules/:moduleId. */
 export default function EditModulePage() {
+  const { t } = useTranslation();
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
   const { module, loading, error } = useTrainingModule(moduleId ?? '');
@@ -29,11 +31,11 @@ export default function EditModulePage() {
         ...updates,
         updatedAt: serverTimestamp(),
       });
-      toast.success('Module updated.');
+      toast.success(t('common.trainingShared.manager.editModule.updatedToast'));
       return true;
     } catch (err) {
       console.error('Failed to update training module', err);
-      toast.error('Failed to save module. Please try again.');
+      toast.error(t('common.trainingShared.manager.editModule.saveFailedToast'));
       return false;
     } finally {
       setIsSaving(false);
@@ -66,9 +68,9 @@ export default function EditModulePage() {
   if (error || !module) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
-        <p className="font-medium">Module not found.</p>
+        <p className="font-medium">{t('common.trainingShared.manager.editModule.notFound')}</p>
         <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline text-sm">
-          Back
+          {t('common.trainingShared.manager.editModule.back')}
         </button>
       </div>
     );
@@ -80,12 +82,12 @@ export default function EditModulePage() {
   if (!isTrainingLibraryModule(module)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600 px-6 text-center">
-        <p className="font-medium">Not found in this library.</p>
+        <p className="font-medium">{t('common.trainingShared.manager.editModule.wrongLibrary.title')}</p>
         <p className="text-sm text-slate-500">
-          This module belongs to the Trainee Management library. Open it from Trainee Management instead.
+          {t('common.trainingShared.manager.editModule.wrongLibrary.description')}
         </p>
         <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline text-sm">
-          Back
+          {t('common.trainingShared.manager.editModule.back')}
         </button>
       </div>
     );
@@ -97,7 +99,7 @@ export default function EditModulePage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.trainingShared.manager.editModule.back')}
         >
           <ArrowLeft size={18} />
         </button>
@@ -107,14 +109,14 @@ export default function EditModulePage() {
             onClick={() => setAssigning(true)}
             className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors shrink-0"
           >
-            <UserPlus size={14} /> Assign
+            <UserPlus size={14} /> {t('common.trainingShared.manager.editModule.assign')}
           </button>
         )}
         <button
           onClick={() => navigate(`/app/training/manage/modules/${moduleId}/quiz`)}
           className="text-xs text-blue-600 hover:underline shrink-0"
         >
-          Quiz Builder
+          {t('common.trainingShared.manager.editModule.quizBuilder')}
         </button>
       </div>
       <ModuleEditorLayout

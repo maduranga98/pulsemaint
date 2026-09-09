@@ -1,4 +1,5 @@
 import { FileText, Clock, Target, RotateCcw, BookOpen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingQuiz } from '@/lib/training/trainingTypes';
 import { attemptsRemaining as computeAttemptsRemaining } from '@/lib/training/quizScorer';
 
@@ -17,6 +18,7 @@ export default function QuizPreScreen({
   attemptsUsed,
   onStart,
 }: QuizPreScreenProps) {
+  const { t } = useTranslation();
   // null = unlimited. See attemptsRemaining() for why both inputs are
   // defended against missing values.
   const attemptsRemaining = computeAttemptsRemaining(quiz.maxAttempts, attemptsUsed);
@@ -24,24 +26,26 @@ export default function QuizPreScreen({
   const infoCards = [
     {
       icon: <FileText size={20} className="text-blue-600" />,
-      label: `${quiz.questions.length} questions`,
+      label: t('common.trainingShared.quiz.preScreen.questionsCount', { count: quiz.questions.length }),
     },
     {
       icon: <Clock size={20} className="text-blue-600" />,
-      label: quiz.timeLimit > 0 ? `${quiz.timeLimit} minutes` : 'No time limit',
+      label: quiz.timeLimit > 0
+        ? t('common.trainingShared.quiz.preScreen.minutes', { count: quiz.timeLimit })
+        : t('common.trainingShared.quiz.preScreen.noTimeLimit'),
     },
     {
       icon: <Target size={20} className="text-blue-600" />,
-      label: `Pass mark: ${quiz.passingScore}%`,
+      label: t('common.trainingShared.quiz.preScreen.passMark', { score: quiz.passingScore }),
     },
     {
       icon: <RotateCcw size={20} className="text-blue-600" />,
       label:
         attemptsRemaining === null
-          ? 'Unlimited attempts'
+          ? t('common.trainingShared.quiz.preScreen.unlimitedAttempts')
           : attemptsRemaining === 0
-          ? 'No attempts remaining'
-          : `${attemptsRemaining} attempt${attemptsRemaining > 1 ? 's' : ''} remaining`,
+          ? t('common.trainingShared.quiz.preScreen.noAttemptsRemaining')
+          : t('common.trainingShared.quiz.preScreen.attemptsRemaining', { count: attemptsRemaining }),
     },
   ];
 
@@ -77,7 +81,7 @@ export default function QuizPreScreen({
       {/* Instructions */}
       {quiz.instructions && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800">
-          <p className="font-semibold mb-1">Instructions</p>
+          <p className="font-semibold mb-1">{t('common.trainingShared.quiz.preScreen.instructionsHeading')}</p>
           <p>{quiz.instructions}</p>
         </div>
       )}
@@ -91,9 +95,9 @@ export default function QuizPreScreen({
             ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
             : 'bg-slate-200 text-slate-400 cursor-not-allowed'
         }`}
-        aria-label="Start quiz"
+        aria-label={t('common.trainingShared.quiz.preScreen.startQuizAria')}
       >
-        {canStart ? 'Start Quiz' : 'No Attempts Remaining'}
+        {canStart ? t('common.trainingShared.quiz.preScreen.startQuiz') : t('common.trainingShared.quiz.preScreen.noAttemptsRemainingCta')}
       </button>
     </div>
   );

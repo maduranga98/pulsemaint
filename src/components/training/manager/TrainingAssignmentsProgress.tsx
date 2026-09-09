@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, where, type Timestamp } from 'firebase/firestore';
 import { ClipboardList } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTrainingLibraryModules } from '@/hooks/training/useTrainingLibraryModules';
@@ -31,6 +32,7 @@ function marks(a: TrainingAssignment): string {
  * scoped to its own library and to the trainee role.
  */
 export default function TrainingAssignmentsProgress() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const { modules } = useTrainingLibraryModules();
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
@@ -70,21 +72,21 @@ export default function TrainingAssignmentsProgress() {
     <div>
       <div className="mb-4 flex items-center gap-2">
         <ClipboardList className="h-6 w-6 text-blue-600" />
-        <h2 className="text-xl font-bold text-slate-900">Training Progress</h2>
+        <h2 className="text-xl font-bold text-slate-900">{t('common.trainingShared.manager.assignmentsProgress.title')}</h2>
       </div>
 
       <div className="mb-5 grid grid-cols-3 gap-3">
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
           <div className="text-2xl font-bold text-slate-900">{rows.length}</div>
-          <div className="text-xs text-slate-500">Assignments</div>
+          <div className="text-xs text-slate-500">{t('common.trainingShared.manager.assignmentsProgress.stats.assignments')}</div>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
           <div className="text-2xl font-bold text-slate-900">{inProgressCount}</div>
-          <div className="text-xs text-slate-500">In progress</div>
+          <div className="text-xs text-slate-500">{t('common.trainingShared.manager.assignmentsProgress.stats.inProgress')}</div>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-center">
           <div className="text-2xl font-bold text-slate-900">{completedCount}</div>
-          <div className="text-xs text-slate-500">Completed</div>
+          <div className="text-xs text-slate-500">{t('common.trainingShared.manager.assignmentsProgress.stats.completed')}</div>
         </div>
       </div>
 
@@ -92,21 +94,21 @@ export default function TrainingAssignmentsProgress() {
         {rows.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-slate-400">
             <ClipboardList className="w-8 h-8 mb-2" />
-            <p className="text-sm">No modules assigned yet.</p>
+            <p className="text-sm">{t('common.trainingShared.manager.assignmentsProgress.noneAssigned')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-left text-xs uppercase text-slate-400">
-                  <th className="px-4 py-3 font-medium">Module</th>
-                  <th className="px-4 py-3 font-medium">Assigned To</th>
-                  <th className="px-4 py-3 font-medium">Assigned By</th>
-                  <th className="px-4 py-3 font-medium">Assigned</th>
-                  <th className="px-4 py-3 font-medium">Completed</th>
-                  <th className="px-4 py-3 font-medium">Progress</th>
-                  <th className="px-4 py-3 font-medium">Marks</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.module')}</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.assignedTo')}</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.assignedBy')}</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.assigned')}</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.completed')}</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.progress')}</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.marks')}</th>
+                  <th className="px-4 py-3 font-medium">{t('common.trainingShared.manager.assignmentsProgress.columns.status')}</th>
                 </tr>
               </thead>
               <tbody>

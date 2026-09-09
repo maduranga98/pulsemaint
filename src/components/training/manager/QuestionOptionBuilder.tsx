@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid';
 import { Plus, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { QuizOption, QuestionType } from '@/lib/training/trainingTypes';
 
 interface QuestionOptionBuilderProps {
@@ -16,6 +17,7 @@ export default function QuestionOptionBuilder({
   questionType,
   onChange,
 }: QuestionOptionBuilderProps) {
+  const { t } = useTranslation();
   const hasCorrect = options.some((o) => o.isCorrect);
 
   function handleTextChange(id: string, text: string) {
@@ -59,9 +61,11 @@ export default function QuestionOptionBuilder({
 
     return (
       <div className="flex flex-col gap-3">
-        <label className="text-sm font-medium text-gray-700">Answer Options</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.questionEditors.options.answerOptions')}</label>
         {[trueOpt, falseOpt].filter(Boolean).map((opt, idx) => {
-          const label = idx === 0 ? 'TRUE' : 'FALSE';
+          const label = idx === 0
+            ? t('common.trainingShared.manager.questionEditors.options.true')
+            : t('common.trainingShared.manager.questionEditors.options.false');
           return (
             <div key={opt.id} className="flex flex-col gap-1.5">
               <div className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl bg-gray-50">
@@ -81,7 +85,7 @@ export default function QuestionOptionBuilder({
                 </span>
                 {opt.isCorrect && (
                   <span className="text-xs font-medium text-emerald-600 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
-                    Correct
+                    {t('common.trainingShared.manager.questionEditors.options.correct')}
                   </span>
                 )}
               </div>
@@ -89,14 +93,14 @@ export default function QuestionOptionBuilder({
                 type="text"
                 value={opt.explanation}
                 onChange={(e) => handleExplanationChange(opt.id, e.target.value)}
-                placeholder={`Explanation for ${label}…`}
+                placeholder={t('common.trainingShared.manager.questionEditors.options.explanationForPlaceholder', { label })}
                 className="border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
           );
         })}
         {!hasCorrect && (
-          <p className="text-xs text-red-500">Please select the correct answer.</p>
+          <p className="text-xs text-red-500">{t('common.trainingShared.manager.questionEditors.options.selectCorrectRequired')}</p>
         )}
       </div>
     );
@@ -106,8 +110,8 @@ export default function QuestionOptionBuilder({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-gray-700">Answer Options</label>
-        <span className="text-xs text-gray-400">{options.length}/{MAX_OPTIONS} options</span>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.questionEditors.options.answerOptions')}</label>
+        <span className="text-xs text-gray-400">{t('common.trainingShared.manager.questionEditors.options.optionsCount', { count: options.length, max: MAX_OPTIONS })}</span>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -121,7 +125,7 @@ export default function QuestionOptionBuilder({
                   name="correct-answer"
                   checked={opt.isCorrect}
                   onChange={() => handleCorrectChange(opt.id, true)}
-                  title="Mark as correct answer"
+                  title={t('common.trainingShared.manager.questionEditors.options.markCorrect')}
                   className="w-4 h-4 accent-blue-600 flex-shrink-0 cursor-pointer"
                 />
               ) : (
@@ -129,7 +133,7 @@ export default function QuestionOptionBuilder({
                   type="checkbox"
                   checked={opt.isCorrect}
                   onChange={(e) => handleCorrectChange(opt.id, e.target.checked)}
-                  title="Mark as correct answer"
+                  title={t('common.trainingShared.manager.questionEditors.options.markCorrect')}
                   className="w-4 h-4 accent-blue-600 flex-shrink-0 cursor-pointer"
                 />
               )}
@@ -139,7 +143,7 @@ export default function QuestionOptionBuilder({
                 type="text"
                 value={opt.text}
                 onChange={(e) => handleTextChange(opt.id, e.target.value)}
-                placeholder={`Option ${idx + 1}`}
+                placeholder={t('common.trainingShared.manager.questionEditors.options.optionPlaceholder', { number: idx + 1 })}
                 className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
 
@@ -149,7 +153,7 @@ export default function QuestionOptionBuilder({
                 onClick={() => handleRemoveOption(opt.id)}
                 disabled={options.length <= MIN_OPTIONS}
                 className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg transition-colors"
-                aria-label="Remove option"
+                aria-label={t('common.trainingShared.manager.questionEditors.options.removeOption')}
               >
                 <X size={15} />
               </button>
@@ -161,7 +165,7 @@ export default function QuestionOptionBuilder({
                 type="text"
                 value={opt.explanation}
                 onChange={(e) => handleExplanationChange(opt.id, e.target.value)}
-                placeholder="Explanation (shown after answer)…"
+                placeholder={t('common.trainingShared.manager.questionEditors.options.explanationPlaceholder')}
                 className="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -170,7 +174,7 @@ export default function QuestionOptionBuilder({
       </div>
 
       {!hasCorrect && options.length >= MIN_OPTIONS && (
-        <p className="text-xs text-red-500">Please mark at least one correct answer.</p>
+        <p className="text-xs text-red-500">{t('common.trainingShared.manager.questionEditors.options.markCorrectRequired')}</p>
       )}
 
       {options.length < MAX_OPTIONS && (
@@ -180,7 +184,7 @@ export default function QuestionOptionBuilder({
           className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 border border-dashed border-blue-300 hover:border-blue-400 hover:bg-blue-50 rounded-lg py-2 px-3 transition-colors"
         >
           <Plus size={14} />
-          Add Option
+          {t('common.trainingShared.manager.questionEditors.options.addOption')}
         </button>
       )}
     </div>

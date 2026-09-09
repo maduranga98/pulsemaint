@@ -9,6 +9,7 @@ import {
   Minimize,
   CheckCircle,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useLessonProgress } from '@/hooks/training/useLessonProgress';
 import type { LessonItem, LessonProgress } from '@/lib/training/trainingTypes';
 
@@ -31,6 +32,7 @@ const AUTO_COMPLETE_PCT = 80;
 const CONTROLS_HIDE_DELAY = 2500;
 
 export default function VideoLesson({ lesson, assignmentId, progress, onComplete }: VideoLessonProps) {
+  const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideControlsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -248,7 +250,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
       {/* Buffering spinner */}
       {isBuffering && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" aria-label="Buffering" />
+          <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin" aria-label={t('common.trainingShared.videoLesson.buffering')} />
         </div>
       )}
 
@@ -267,7 +269,9 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
           className={`absolute top-1/2 -translate-y-1/2 pointer-events-none ${seekFlash.side === 'left' ? 'left-6' : 'right-6'}`}
         >
           <div className="bg-black/60 text-white text-sm font-medium px-3 py-1.5 rounded-lg">
-            {seekFlash.side === 'left' ? '-10s' : '+10s'}
+            {seekFlash.side === 'left'
+              ? t('common.trainingShared.videoLesson.seekBack')
+              : t('common.trainingShared.videoLesson.seekForward')}
           </div>
         </div>
       )}
@@ -277,7 +281,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
         type="button"
         className="absolute inset-0 w-full h-full cursor-pointer"
         onClick={togglePlay}
-        aria-label={isPlaying ? 'Pause video' : 'Play video'}
+        aria-label={isPlaying ? t('common.trainingShared.videoLesson.pauseVideo') : t('common.trainingShared.videoLesson.playVideo')}
         style={{ background: 'transparent' }}
       />
 
@@ -297,7 +301,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
           onChange={handleSeek}
           onClick={(e) => e.stopPropagation()}
           className="w-full h-1 accent-blue-500 cursor-pointer mb-2"
-          aria-label="Seek video"
+          aria-label={t('common.trainingShared.videoLesson.seekAria')}
         />
 
         <div className="flex items-center gap-3">
@@ -306,7 +310,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
             type="button"
             onClick={(e) => { e.stopPropagation(); togglePlay(); }}
             className="text-white hover:text-blue-400 transition-colors shrink-0"
-            aria-label={isPlaying ? 'Pause' : 'Play'}
+            aria-label={isPlaying ? t('common.trainingShared.videoLesson.pause') : t('common.trainingShared.videoLesson.play')}
           >
             {isPlaying ? <Pause size={20} /> : <Play size={20} />}
           </button>
@@ -324,10 +328,10 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
               type="button"
               onClick={(e) => { e.stopPropagation(); toggleSubtitles(); }}
               className={`text-xs font-bold px-1.5 py-0.5 rounded border transition-colors ${subtitlesOn ? 'text-blue-400 border-blue-400' : 'text-white/70 border-white/40'}`}
-              aria-label={subtitlesOn ? 'Disable subtitles' : 'Enable subtitles'}
+              aria-label={subtitlesOn ? t('common.trainingShared.videoLesson.disableSubtitles') : t('common.trainingShared.videoLesson.enableSubtitles')}
               aria-pressed={subtitlesOn}
             >
-              CC
+              {t('common.trainingShared.videoLesson.ccLabel')}
             </button>
           )}
 
@@ -336,7 +340,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
             type="button"
             onClick={(e) => { e.stopPropagation(); toggleMute(); }}
             className="hidden sm:block text-white hover:text-blue-400 transition-colors"
-            aria-label={isMuted ? 'Unmute' : 'Mute'}
+            aria-label={isMuted ? t('common.trainingShared.videoLesson.unmute') : t('common.trainingShared.videoLesson.mute')}
           >
             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
@@ -347,7 +351,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
             onChange={(e) => { e.stopPropagation(); handleSpeedChange(Number(e.target.value)); }}
             onClick={(e) => e.stopPropagation()}
             className="bg-transparent text-white text-xs border border-white/40 rounded px-1 py-0.5 cursor-pointer"
-            aria-label="Playback speed"
+            aria-label={t('common.trainingShared.videoLesson.playbackSpeed')}
           >
             {SPEEDS.map((s) => (
               <option key={s} value={s} className="bg-gray-900">
@@ -361,7 +365,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
             type="button"
             onClick={(e) => { e.stopPropagation(); toggleFullscreen(); }}
             className="text-white hover:text-blue-400 transition-colors"
-            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            aria-label={isFullscreen ? t('common.trainingShared.videoLesson.exitFullscreen') : t('common.trainingShared.videoLesson.enterFullscreen')}
           >
             {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
           </button>
@@ -375,7 +379,7 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
         {isCompleted ? (
           <div className="flex items-center gap-2 text-green-600 font-medium">
             <CheckCircle size={18} aria-hidden="true" />
-            <span>Lesson complete</span>
+            <span>{t('common.trainingShared.videoLesson.lessonComplete')}</span>
           </div>
         ) : (
           <button
@@ -387,9 +391,11 @@ export default function VideoLesson({ lesson, assignmentId, progress, onComplete
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed'
             }`}
-            aria-label="Mark video lesson as complete"
+            aria-label={t('common.trainingShared.videoLesson.markCompleteAria')}
           >
-            {canComplete ? 'Mark as Complete' : `Watch ${AUTO_COMPLETE_PCT}% to complete`}
+            {canComplete
+              ? t('common.trainingShared.videoLesson.markAsComplete')
+              : t('common.trainingShared.videoLesson.watchToComplete', { pct: AUTO_COMPLETE_PCT })}
           </button>
         )}
       </div>

@@ -1,6 +1,7 @@
 import type { QuizQuestion as QuizQuestionType } from '@/lib/training/trainingTypes';
 import QuizOptionButton from './QuizOptionButton';
 import { CheckCircle, XCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface QuizQuestionProps {
   question: QuizQuestionType;
@@ -19,6 +20,7 @@ export default function QuizQuestion({
   isReadOnly = false,
   showResult = false,
 }: QuizQuestionProps) {
+  const { t } = useTranslation();
   if (question.type === 'true_false') {
     return (
       <TrueFalseQuestion
@@ -36,13 +38,13 @@ export default function QuizQuestion({
     <div className="space-y-4">
       <div className="space-y-2">
         <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
-          Question {questionNumber}
+          {t('common.trainingShared.quiz.question.questionNumber', { number: questionNumber })}
         </span>
         <p className="text-lg font-medium text-slate-900 leading-snug">{question.text}</p>
         {question.imageUrl && (
           <img
             src={question.imageUrl}
-            alt="Question illustration"
+            alt={t('common.trainingShared.quiz.question.illustrationAlt')}
             className="w-full rounded-xl object-cover max-h-60"
           />
         )}
@@ -99,7 +101,7 @@ export default function QuizQuestion({
 
       {showResult && question.explanation && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800">
-          <strong>Explanation:</strong> {question.explanation}
+          <strong>{t('common.trainingShared.quiz.question.explanationLabel')}</strong> {question.explanation}
         </div>
       )}
     </div>
@@ -114,11 +116,12 @@ function TrueFalseQuestion({
   isReadOnly,
   showResult,
 }: Omit<QuizQuestionProps, 'questionType'>) {
+  const { t } = useTranslation();
   const trueOption = question.options.find((o) => o.text.toLowerCase() === 'true');
   const falseOption = question.options.find((o) => o.text.toLowerCase() === 'false');
 
   if (!trueOption || !falseOption) {
-    return <div className="text-red-500 text-sm">Invalid true/false question.</div>;
+    return <div className="text-red-500 text-sm">{t('common.trainingShared.quiz.question.invalidTrueFalse')}</div>;
   }
 
   const getButtonClass = (option: typeof trueOption) => {
@@ -138,11 +141,11 @@ function TrueFalseQuestion({
     <div className="space-y-4">
       <div className="space-y-2">
         <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
-          Question {questionNumber}
+          {t('common.trainingShared.quiz.question.questionNumber', { number: questionNumber })}
         </span>
         <p className="text-lg font-medium text-slate-900 leading-snug">{question.text}</p>
         {question.imageUrl && (
-          <img src={question.imageUrl} alt="Question" className="w-full rounded-xl object-cover max-h-60" />
+          <img src={question.imageUrl} alt={t('common.trainingShared.quiz.question.illustrationAltShort')} className="w-full rounded-xl object-cover max-h-60" />
         )}
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -161,7 +164,7 @@ function TrueFalseQuestion({
       </div>
       {showResult && question.explanation && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-800">
-          <strong>Explanation:</strong> {question.explanation}
+          <strong>{t('common.trainingShared.quiz.question.explanationLabel')}</strong> {question.explanation}
         </div>
       )}
     </div>

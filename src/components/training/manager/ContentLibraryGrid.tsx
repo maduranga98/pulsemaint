@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation, type TFunction } from 'react-i18next';
 import type { ContentLibraryItem } from '@/lib/training/trainingTypes';
 import type { Timestamp } from 'firebase/firestore';
 import {
@@ -47,12 +48,17 @@ const TYPE_BADGE: Record<ContentLibraryItem['type'], string> = {
   image: 'bg-green-100 text-green-700',
 };
 
+function typeLabel(type: ContentLibraryItem['type'], t: TFunction): string {
+  return t(`common.trainingShared.manager.contentLibrary.types.${type}`);
+}
+
 export default function ContentLibraryGrid({
   items,
   loading,
   onDelete,
   onSelect,
 }: ContentLibraryGridProps) {
+  const { t } = useTranslation();
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
   const [search, setSearch] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -67,10 +73,10 @@ export default function ContentLibraryGrid({
   });
 
   const filterButtons: { label: string; value: TypeFilter }[] = [
-    { label: 'All', value: 'all' },
-    { label: 'Video', value: 'video' },
-    { label: 'Document', value: 'document' },
-    { label: 'Image', value: 'image' },
+    { label: t('common.trainingShared.manager.contentLibrary.filters.all'), value: 'all' },
+    { label: t('common.trainingShared.manager.contentLibrary.types.video'), value: 'video' },
+    { label: t('common.trainingShared.manager.contentLibrary.types.document'), value: 'document' },
+    { label: t('common.trainingShared.manager.contentLibrary.types.image'), value: 'image' },
   ];
 
   async function handleDelete(id: string) {
@@ -98,7 +104,7 @@ export default function ContentLibraryGrid({
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
-          placeholder="Search files..."
+          placeholder={t('common.trainingShared.manager.contentLibrary.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -124,7 +130,7 @@ export default function ContentLibraryGrid({
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center py-16 text-gray-400">
           <FileText className="w-10 h-10 mb-2" />
-          <p className="text-sm">No files found.</p>
+          <p className="text-sm">{t('common.trainingShared.manager.contentLibrary.noneFound')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -161,7 +167,7 @@ export default function ContentLibraryGrid({
                   <span
                     className={`inline-flex px-1.5 py-0.5 rounded text-xs font-medium capitalize ${TYPE_BADGE[item.type]}`}
                   >
-                    {item.type}
+                    {typeLabel(item.type, t)}
                   </span>
                   <span className="text-xs text-gray-400">
                     {formatBytes(item.fileSizeBytes)}
@@ -169,8 +175,7 @@ export default function ContentLibraryGrid({
                 </div>
 
                 <p className="text-xs text-gray-400">
-                  Used in {item.usedInModules.length} module
-                  {item.usedInModules.length !== 1 ? 's' : ''}
+                  {t('common.trainingShared.manager.contentLibrary.usedInModules', { count: item.usedInModules.length })}
                 </p>
                 <p className="text-xs text-gray-400">
                   {formatTs(item.uploadedAt)}
@@ -184,7 +189,7 @@ export default function ContentLibraryGrid({
                       className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
                     >
                       <MousePointerClick className="w-3 h-3" />
-                      Select
+                      {t('common.trainingShared.manager.contentLibrary.select')}
                     </button>
                   )}
                   {onDelete && (
@@ -194,8 +199,8 @@ export default function ContentLibraryGrid({
                       className="flex items-center justify-center gap-1 py-1.5 px-2 text-xs font-medium text-red-500 bg-red-50 rounded hover:bg-red-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                       title={
                         item.usedInModules.length > 0
-                          ? 'Cannot delete — used in modules'
-                          : 'Delete'
+                          ? t('common.trainingShared.manager.contentLibrary.cannotDeleteInUse')
+                          : t('common.trainingShared.manager.contentLibrary.deleteAction')
                       }
                     >
                       <Trash2 className="w-3 h-3" />
@@ -212,16 +217,16 @@ export default function ContentLibraryGrid({
       {confirmDeleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full mx-4 space-y-4">
-            <h3 className="font-semibold text-gray-900">Delete File?</h3>
+            <h3 className="font-semibold text-gray-900">{t('common.trainingShared.manager.contentLibrary.deleteModal.title')}</h3>
             <p className="text-sm text-gray-600">
-              This file will be permanently deleted and cannot be recovered.
+              {t('common.trainingShared.manager.contentLibrary.deleteModal.description')}
             </p>
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmDeleteId(null)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Cancel
+                {t('common.trainingShared.manager.contentLibrary.deleteModal.cancel')}
               </button>
               <button
                 onClick={() => handleDelete(confirmDeleteId)}
@@ -229,7 +234,7 @@ export default function ContentLibraryGrid({
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {deleting && <Loader2 className="w-3 h-3 animate-spin" />}
-                Delete
+                {t('common.trainingShared.manager.contentLibrary.deleteModal.confirmButton')}
               </button>
             </div>
           </div>

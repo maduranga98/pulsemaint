@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useContentLibrary } from '@/hooks/training/useContentLibrary';
 import ContentLibraryGrid from '@/components/training/manager/ContentLibraryGrid';
 import ContentLibraryUpload from '@/components/training/manager/ContentLibraryUpload';
 
 export default function ContentLibraryPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [showUpload, setShowUpload] = useState(false);
   const { items, loading, deleteItem } = useContentLibrary();
@@ -14,7 +16,7 @@ export default function ContentLibraryPage() {
   const canDelete = useAuthStore((s) => s.isAdmin);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete this item from the library? This cannot be undone.')) return;
+    if (!confirm(t('common.trainingShared.manager.contentLibrary.deleteConfirm'))) return;
     const item = items.find((i) => i.id === id);
     await deleteItem(id, item?.url);
   };
@@ -25,16 +27,16 @@ export default function ContentLibraryPage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.trainingShared.manager.contentLibrary.back')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm flex-1">Content Library</h1>
+        <h1 className="font-semibold text-slate-900 text-sm flex-1">{t('common.trainingShared.manager.contentLibrary.title')}</h1>
         <button
           onClick={() => setShowUpload((v) => !v)}
           className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
         >
-          {showUpload ? 'Hide Upload' : '+ Upload'}
+          {showUpload ? t('common.trainingShared.manager.contentLibrary.hideUpload') : t('common.trainingShared.manager.contentLibrary.uploadButton')}
         </button>
       </div>
 

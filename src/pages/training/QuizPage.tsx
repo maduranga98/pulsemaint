@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAssignment } from '@/hooks/training/useAssignment';
 import { attemptsRemaining as computeAttemptsRemaining } from '@/lib/training/quizScorer';
 import { useQuizSession } from '@/hooks/training/useQuizSession';
@@ -10,6 +11,7 @@ import QuizResultsScreen from '@/components/training/quiz/QuizResultsScreen';
 import QuizAnswerReview from '@/components/training/quiz/QuizAnswerReview';
 
 export default function QuizPage() {
+  const { t } = useTranslation();
   const { assignmentId } = useParams<{ assignmentId: string }>();
   const navigate = useNavigate();
   const { assignment, module, loading, error } = useAssignment(assignmentId ?? '');
@@ -32,12 +34,12 @@ export default function QuizPage() {
   if (error || !assignment || !module || !module.quiz) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
-        <p className="font-medium">Quiz not available for this module.</p>
+        <p className="font-medium">{t('common.trainingShared.quizPage.notAvailable')}</p>
         <button
           onClick={() => navigate(`/app/training/my-modules/${assignmentId}`)}
           className="text-blue-600 hover:underline text-sm"
         >
-          Back to Module
+          {t('common.trainingShared.quizPage.backToModule')}
         </button>
       </div>
     );

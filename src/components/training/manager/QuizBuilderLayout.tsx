@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
 import { Loader2, MessageSquare } from 'lucide-react';
+import { useTranslation, type TFunction } from 'react-i18next';
 import type { TrainingModule, TrainingQuiz, QuizQuestion } from '@/lib/training/trainingTypes';
 import QuizSettingsBar from './QuizSettingsBar';
 import QuestionListEditor from './QuestionListEditor';
@@ -12,11 +13,11 @@ interface QuizBuilderLayoutProps {
   isSaving?: boolean;
 }
 
-function buildInitialQuiz(module: TrainingModule): TrainingQuiz {
+function buildInitialQuiz(module: TrainingModule, t: TFunction): TrainingQuiz {
   if (module.quiz) return module.quiz;
   return {
     id: nanoid(),
-    title: `${module.title} Quiz`,
+    title: t('common.trainingShared.manager.quizBuilder.defaultQuizTitle', { moduleTitle: module.title }),
     instructions: '',
     timeLimit: 0,
     maxAttempts: 3,
@@ -34,7 +35,8 @@ export default function QuizBuilderLayout({
   onSaveQuiz,
   isSaving = false,
 }: QuizBuilderLayoutProps) {
-  const [quiz, setQuiz] = useState<TrainingQuiz>(() => buildInitialQuiz(module));
+  const { t } = useTranslation();
+  const [quiz, setQuiz] = useState<TrainingQuiz>(() => buildInitialQuiz(module, t));
   const [editingQuestion, setEditingQuestion] = useState<Partial<QuizQuestion> | null>(null);
   const [isNewQuestion, setIsNewQuestion] = useState(false);
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | undefined>(undefined);
@@ -109,7 +111,7 @@ export default function QuizBuilderLayout({
       <div className="bg-white border-b border-gray-200 px-4 lg:px-6 py-4 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-lg font-bold text-gray-900">{module.title}</h1>
-          <p className="text-xs text-gray-400">Quiz Builder</p>
+          <p className="text-xs text-gray-400">{t('common.trainingShared.manager.quizBuilder.layout.header')}</p>
         </div>
         <button
           type="button"
@@ -118,7 +120,7 @@ export default function QuizBuilderLayout({
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg py-2 px-4 text-sm transition-colors"
         >
           {isSaving && <Loader2 size={14} className="animate-spin" />}
-          Save Quiz
+          {t('common.trainingShared.manager.quizBuilder.layout.saveQuiz')}
         </button>
       </div>
 
@@ -142,7 +144,9 @@ export default function QuizBuilderLayout({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Questions {quiz.questions.length > 0 && `(${quiz.questions.length})`}
+            {quiz.questions.length > 0
+              ? t('common.trainingShared.manager.quizBuilder.layout.questionsTabWithCount', { count: quiz.questions.length })
+              : t('common.trainingShared.manager.quizBuilder.layout.questionsTab')}
           </button>
           <button
             type="button"
@@ -153,7 +157,7 @@ export default function QuizBuilderLayout({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Editor
+            {t('common.trainingShared.manager.quizBuilder.layout.editorTab')}
           </button>
         </div>
 
@@ -193,10 +197,10 @@ export default function QuizBuilderLayout({
               <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl border border-gray-200">
                 <MessageSquare size={36} className="text-gray-200 mb-3" />
                 <p className="text-sm font-medium text-gray-500">
-                  Select a question to edit
+                  {t('common.trainingShared.manager.quizBuilder.layout.selectQuestionPrompt')}
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  or add a new question.
+                  {t('common.trainingShared.manager.quizBuilder.layout.orAddNew')}
                 </p>
               </div>
             )}

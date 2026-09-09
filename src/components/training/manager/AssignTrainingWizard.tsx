@@ -7,6 +7,7 @@ import {
   where,
   getDocs,
 } from 'firebase/firestore';
+import { Trans, useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useDepartments } from '@/hooks/useDepartments';
@@ -53,19 +54,19 @@ const TRAINING_TYPE_OPTIONS = Object.entries(TRAINEE_TRAINING_TYPE_LABELS) as [
   string,
 ][];
 
-const STEPS = [
-  { label: 'Select Trainees', icon: Users },
-  { label: 'Select Modules', icon: BookOpen },
-  { label: 'Settings', icon: Settings },
-  { label: 'Review & Confirm', icon: CheckCircle },
-];
-
 export default function AssignTrainingWizard({
   defaultModuleId,
   defaultTraineeId,
   onComplete,
   onCancel,
 }: AssignTrainingWizardProps) {
+  const { t } = useTranslation();
+  const STEPS = [
+    { label: t('common.trainingShared.manager.assignWizard.steps.selectTrainees'), icon: Users },
+    { label: t('common.trainingShared.manager.assignWizard.steps.selectModules'), icon: BookOpen },
+    { label: t('common.trainingShared.manager.assignWizard.steps.settings'), icon: Settings },
+    { label: t('common.trainingShared.manager.assignWizard.steps.reviewConfirm'), icon: CheckCircle },
+  ];
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
 
@@ -289,8 +290,8 @@ export default function AssignTrainingWizard({
         if (settings.notifyTrainee) {
           void notifyUsers(companyId, [trainee.id], {
             type: 'training',
-            message: `You've been assigned a new training module: ${module.title}`,
-            oversightMessage: `assigned "${module.title}" to ${trainee.fullName}`,
+            message: t('common.trainingShared.manager.assignWizard.notifications.assignedMessage', { moduleTitle: module.title }),
+            oversightMessage: t('common.trainingShared.manager.assignWizard.notifications.oversightMessage', { moduleTitle: module.title, traineeName: trainee.fullName }),
             actorName: userProfile?.fullName ?? '',
             actorRole: userProfile?.role,
             actorUserId: userProfile?.id ?? null,
@@ -303,7 +304,7 @@ export default function AssignTrainingWizard({
       setDone(true);
     } catch (err) {
       setSubmitError(
-        err instanceof Error ? err.message : 'Failed to create assignments'
+        err instanceof Error ? err.message : t('common.trainingShared.manager.assignWizard.createFailed')
       );
     } finally {
       setSubmitting(false);
@@ -319,13 +320,13 @@ export default function AssignTrainingWizard({
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
         <h2 className="text-xl font-semibold text-gray-900">
-          Assignments Created
+          {t('common.trainingShared.manager.assignWizard.done.title')}
         </h2>
         <p className="text-gray-600">
-          {created} assignment{created !== 1 ? 's' : ''} created successfully.
+          {t('common.trainingShared.manager.assignWizard.done.createdCount', { count: created })}
           {skippedCount > 0 && (
             <span className="block text-sm text-amber-600 mt-1">
-              {skippedCount} duplicate{skippedCount !== 1 ? 's' : ''} skipped.
+              {t('common.trainingShared.manager.assignWizard.done.skippedCount', { count: skippedCount })}
             </span>
           )}
         </p>
@@ -333,7 +334,7 @@ export default function AssignTrainingWizard({
           onClick={onComplete}
           className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
         >
-          Done
+          {t('common.trainingShared.manager.assignWizard.done.doneButton')}
         </button>
       </div>
     );
@@ -375,7 +376,7 @@ export default function AssignTrainingWizard({
               <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search trainees..."
+                placeholder={t('common.trainingShared.manager.assignWizard.selectTrainees.searchPlaceholder')}
                 value={traineeSearch}
                 onChange={(e) => setTraineeSearch(e.target.value)}
                 className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -386,7 +387,7 @@ export default function AssignTrainingWizard({
               onChange={(e) => setTraineeDepartment(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-56"
             >
-              <option value="">All departments</option>
+              <option value="">{t('common.trainingShared.manager.assignWizard.selectTrainees.allDepartments')}</option>
               {departments.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
@@ -394,7 +395,11 @@ export default function AssignTrainingWizard({
           </div>
           {traineeDepartment && (
             <p className="text-xs text-gray-500">
-              Showing trainees in <strong>{traineeDepartment}</strong>. Use "Select All" below to assign the whole department, or check individual trainees to assign a single user.
+              <Trans
+                i18nKey="common.trainingShared.manager.assignWizard.selectTrainees.departmentHint"
+                values={{ department: traineeDepartment }}
+                components={{ strong: <strong /> }}
+              />
             </p>
           )}
 
@@ -415,13 +420,13 @@ export default function AssignTrainingWizard({
                   className="rounded"
                 />
                 <span className="text-sm font-medium text-gray-600">
-                  Select All ({trainees.length})
+                  {t('common.trainingShared.manager.assignWizard.selectTrainees.selectAll', { count: trainees.length })}
                 </span>
               </div>
               <div className="divide-y divide-gray-100 max-h-80 overflow-y-auto">
                 {trainees.length === 0 ? (
                   <p className="text-center py-8 text-sm text-gray-400">
-                    No trainees found.
+                    {t('common.trainingShared.manager.assignWizard.selectTrainees.noneFound')}
                   </p>
                 ) : (
                   trainees.map((trainee) => (
@@ -442,7 +447,7 @@ export default function AssignTrainingWizard({
                           {trainee.fullName}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {trainee.department ?? 'No department'} &middot;{' '}
+                          {trainee.department ?? t('common.trainingShared.manager.assignWizard.selectTrainees.noDepartment')} &middot;{' '}
                           {trainee.jobTitle ?? trainee.role}
                         </p>
                       </div>
@@ -454,19 +459,18 @@ export default function AssignTrainingWizard({
           )}
 
           <p className="text-sm text-gray-500">
-            {selectedTrainees.length} trainee
-            {selectedTrainees.length !== 1 ? 's' : ''} selected
+            {t('common.trainingShared.manager.assignWizard.selectTrainees.selectedCount', { count: selectedTrainees.length })}
           </p>
 
           {/* Auto-filled trainee details — no manual re-entry needed (Task 5). */}
           {selectedTrainees.length > 0 && (
             <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
-              {selectedTrainees.map((t) => (
-                <div key={t.id} className="px-4 py-2 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs">
-                  <div><span className="text-gray-400">Name:</span> <span className="text-gray-800 font-medium">{t.fullName}</span></div>
-                  <div><span className="text-gray-400">Employee ID:</span> <span className="text-gray-800">{t.employeeId ?? '—'}</span></div>
-                  <div><span className="text-gray-400">Role:</span> <span className="text-gray-800">{t.role}</span></div>
-                  <div><span className="text-gray-400">Department:</span> <span className="text-gray-800">{t.department ?? '—'}</span></div>
+              {selectedTrainees.map((trainee) => (
+                <div key={trainee.id} className="px-4 py-2 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs">
+                  <div><span className="text-gray-400">{t('common.trainingShared.manager.assignWizard.selectTrainees.details.name')}:</span> <span className="text-gray-800 font-medium">{trainee.fullName}</span></div>
+                  <div><span className="text-gray-400">{t('common.trainingShared.manager.assignWizard.selectTrainees.details.employeeId')}:</span> <span className="text-gray-800">{trainee.employeeId ?? '—'}</span></div>
+                  <div><span className="text-gray-400">{t('common.trainingShared.manager.assignWizard.selectTrainees.details.role')}:</span> <span className="text-gray-800">{trainee.role}</span></div>
+                  <div><span className="text-gray-400">{t('common.trainingShared.manager.assignWizard.selectTrainees.details.department')}:</span> <span className="text-gray-800">{trainee.department ?? '—'}</span></div>
                 </div>
               ))}
             </div>
@@ -479,14 +483,14 @@ export default function AssignTrainingWizard({
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Category <span className="text-gray-400 font-normal">(optional)</span>
+              {t('common.trainingShared.manager.assignWizard.selectModules.filterByCategory')} <span className="text-gray-400 font-normal">{t('common.trainingShared.manager.assignWizard.optional')}</span>
             </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value as TraineeTrainingType | '')}
               className="w-full sm:w-72 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">All categories</option>
+              <option value="">{t('common.trainingShared.manager.assignWizard.selectModules.allCategories')}</option>
               {TRAINING_TYPE_OPTIONS.map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
@@ -501,7 +505,9 @@ export default function AssignTrainingWizard({
             <div className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100 max-h-96 overflow-y-auto">
               {browsableModules.length === 0 ? (
                 <p className="text-center py-8 text-sm text-gray-400">
-                  No active modules found{selectedCategory ? ' for this category' : ''}.
+                  {selectedCategory
+                    ? t('common.trainingShared.manager.assignWizard.selectModules.noneFoundForCategory')
+                    : t('common.trainingShared.manager.assignWizard.selectModules.noneFound')}
                 </p>
               ) : (
                 browsableModules.map((mod) => {
@@ -525,18 +531,18 @@ export default function AssignTrainingWizard({
                         </p>
                         {getModuleCategory(mod) === 'offboard' ? (
                           <p className="text-xs text-gray-500 flex items-center gap-2">
-                            <span>{mod.offboardDetails?.country || 'Offboard'}</span>
+                            <span>{mod.offboardDetails?.country || t('common.trainingShared.manager.assignWizard.selectModules.offboard')}</span>
                             <span>&middot;</span>
-                            <span>{mod.offboardDetails?.thirdPartyCompany || 'External provider'}</span>
+                            <span>{mod.offboardDetails?.thirdPartyCompany || t('common.trainingShared.manager.assignWizard.selectModules.externalProvider')}</span>
                             <span>&middot;</span>
-                            <span>{mod.offboardDetails?.durationDays ?? 0}d</span>
+                            <span>{t('common.trainingShared.manager.assignWizard.selectModules.durationDays', { count: mod.offboardDetails?.durationDays ?? 0 })}</span>
                           </p>
                         ) : (
                           <p className="text-xs text-gray-500 flex items-center gap-2">
-                            <span>{mod.lessons.length} lessons</span>
+                            <span>{t('common.trainingShared.manager.assignWizard.selectModules.lessonsCount', { count: mod.lessons.length })}</span>
                             <span>&middot;</span>
                             <Clock className="w-3 h-3" />
-                            <span>{mod.estimatedMinutes} min</span>
+                            <span>{t('common.trainingShared.manager.assignWizard.selectModules.estimatedMinutes', { count: mod.estimatedMinutes })}</span>
                           </p>
                         )}
                       </div>
@@ -548,8 +554,7 @@ export default function AssignTrainingWizard({
           )}
 
           <p className="text-sm text-gray-500">
-            {selectedModules.length} module
-            {selectedModules.length !== 1 ? 's' : ''} selected
+            {t('common.trainingShared.manager.assignWizard.selectModules.selectedCount', { count: selectedModules.length })}
           </p>
         </div>
       )}
@@ -559,7 +564,7 @@ export default function AssignTrainingWizard({
         <div className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Due Date <span className="text-gray-400 font-normal">(optional)</span>
+              {t('common.trainingShared.manager.assignWizard.settings.dueDate')} <span className="text-gray-400 font-normal">{t('common.trainingShared.manager.assignWizard.optional')}</span>
             </label>
             <input
               type="date"
@@ -574,10 +579,10 @@ export default function AssignTrainingWizard({
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <div>
               <p className="text-sm font-medium text-gray-900">
-                Notify Trainee
+                {t('common.trainingShared.manager.assignWizard.settings.notifyTrainee')}
               </p>
               <p className="text-xs text-gray-500">
-                Send notification when assignment is created
+                {t('common.trainingShared.manager.assignWizard.settings.notifyTraineeHint')}
               </p>
             </div>
             <button
@@ -606,14 +611,15 @@ export default function AssignTrainingWizard({
       {step === 3 && (
         <div className="space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-blue-800 text-sm">
-            Assigning{' '}
-            <strong>{selectedModules.length} module{selectedModules.length !== 1 ? 's' : ''}</strong>{' '}
-            to{' '}
-            <strong>
-              {selectedTrainees.length} trainee{selectedTrainees.length !== 1 ? 's' : ''}
-            </strong>{' '}
-            ({selectedTrainees.length * selectedModules.length} total
-            assignments)
+            <Trans
+              i18nKey="common.trainingShared.manager.assignWizard.review.summary"
+              values={{
+                moduleCount: selectedModules.length,
+                traineeCount: selectedTrainees.length,
+                totalCount: selectedTrainees.length * selectedModules.length,
+              }}
+              components={{ strong: <strong /> }}
+            />
           </div>
 
           <div className="border border-gray-200 rounded-lg overflow-hidden max-h-80 overflow-y-auto">
@@ -621,10 +627,10 @@ export default function AssignTrainingWizard({
               <thead className="bg-gray-50 border-b border-gray-200 sticky top-0">
                 <tr>
                   <th className="text-left px-4 py-2 font-medium text-gray-600">
-                    Trainee
+                    {t('common.trainingShared.manager.assignWizard.review.traineeColumn')}
                   </th>
                   <th className="text-left px-4 py-2 font-medium text-gray-600">
-                    Module
+                    {t('common.trainingShared.manager.assignWizard.review.moduleColumn')}
                   </th>
                 </tr>
               </thead>
@@ -658,7 +664,7 @@ export default function AssignTrainingWizard({
           className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          {step === 0 ? 'Cancel' : 'Back'}
+          {step === 0 ? t('common.trainingShared.manager.assignWizard.nav.cancel') : t('common.trainingShared.manager.assignWizard.nav.back')}
         </button>
 
         {step < 3 ? (
@@ -670,7 +676,7 @@ export default function AssignTrainingWizard({
             }
             className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Next
+            {t('common.trainingShared.manager.assignWizard.nav.next')}
             <ChevronRight className="w-4 h-4" />
           </button>
         ) : (
@@ -680,7 +686,7 @@ export default function AssignTrainingWizard({
             className="flex items-center gap-2 px-5 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
           >
             {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-            Confirm Assign
+            {t('common.trainingShared.manager.assignWizard.nav.confirmAssign')}
           </button>
         )}
       </div>
