@@ -4575,6 +4575,442 @@
           }
         }
       }
+    },
+    "traineeManagement": {
+      "managementList": {
+        "searchPlaceholder": "Rechercher un stagiaire par nom, département ou matricule...",
+        "profilesHeading": "Profils des Stagiaires",
+        "noTrainees": "Aucun stagiaire trouvé.",
+        "stats": {
+          "trainings": "Formations",
+          "progress": "Progression",
+          "marks": "Notes"
+        },
+        "woCount_one": "{{count}} OT rejoint",
+        "woCount_other": "{{count}} OT rejoints",
+        "viewTrainings": "Voir les formations",
+        "hideTrainings": "Masquer les formations",
+        "trainingsHeading": "Formations",
+        "trainingsHeadingWithName": "Formations — {{name}}",
+        "selectTraineePrompt": "Sélectionnez un stagiaire ci-dessus pour voir ses formations assignées.",
+        "setupProgramme": "Configurer le Programme de Formation",
+        "noTrainingsAssigned": "Aucune formation assignée pour l'instant.",
+        "columns": {
+          "module": "Module",
+          "period": "Période",
+          "progress": "Progression",
+          "marks": "Notes",
+          "status": "Statut",
+          "actions": "Actions"
+        },
+        "periodMonths_one": "{{count}} mois",
+        "periodMonths_other": "{{count}} mois",
+        "notAvailable": "—",
+        "status": {
+          "not_started": "Non Commencé",
+          "in_progress": "En Cours",
+          "quiz_passed": "Quiz Réussi",
+          "quiz_failed": "Quiz Échoué",
+          "awaiting_practical": "En Attente de Validation",
+          "certified": "Certifié",
+          "expired": "Expiré",
+          "retraining_required": "Recyclage Requis"
+        },
+        "actions": {
+          "report": "Rapport"
+        }
+      },
+      "moduleSettingsForm": {
+        "sectionTitle": "Informations du Module Stagiaire",
+        "fields": {
+          "title": "Titre du Module",
+          "titlePlaceholder": "ex. Orientation Stagiaire Électricité",
+          "description": "Description",
+          "descriptionPlaceholder": "Décrivez brièvement ce que couvre ce module du programme…",
+          "trainingType": "Type de Formation",
+          "selectTrainingType": "Sélectionner un type de formation…",
+          "passingScore": "Score de Réussite",
+          "status": "Statut",
+          "tags": "Étiquettes",
+          "tagsPlaceholder": "électricité, stagiaire, sécurité  (séparées par des virgules)",
+          "tagsHint": "Séparez les étiquettes par des virgules"
+        },
+        "statuses": {
+          "draft": "Brouillon",
+          "active": "Actif",
+          "archived": "Archivé"
+        },
+        "errors": {
+          "titleRequired": "Le titre est requis",
+          "trainingTypeRequired": "Le type de formation est requis"
+        },
+        "submit": "Enregistrer le Module"
+      },
+      "library": {
+        "moduleLibrary": {
+          "titleDefault": "Bibliothèque des Modules Stagiaires",
+          "loadSamples": "Charger des Modules d'Exemple",
+          "loadingSamples": "Chargement…",
+          "createModule": "Créer un Module Stagiaire",
+          "searchPlaceholder": "Rechercher des modules stagiaires...",
+          "allTrainingTypes": "Tous les types de formation",
+          "statusFilters": {
+            "all": "Tous",
+            "draft": "Brouillon",
+            "active": "Actif",
+            "archived": "Archivé"
+          },
+          "columns": {
+            "title": "Titre",
+            "trainingType": "Type de Formation",
+            "lessons": "Leçons",
+            "hasQuiz": "Quiz",
+            "status": "Statut",
+            "actions": "Actions"
+          },
+          "yes": "Oui",
+          "no": "Non",
+          "notAvailable": "—",
+          "emptyState": "Aucun module stagiaire trouvé.",
+          "lessonsCount_one": "{{count}} leçon",
+          "lessonsCount_other": "{{count}} leçons",
+          "hasQuizLabel": "Avec quiz",
+          "actions": {
+            "edit": "Modifier",
+            "archive": "Archiver",
+            "delete": "Supprimer"
+          },
+          "confirm": {
+            "archive": "Archiver ce module ? Il ne pourra plus être assigné aux stagiaires.",
+            "delete": "Supprimer définitivement ce module ? Cette action est irréversible."
+          }
+        },
+        "offboardFields": {
+          "sectionTitle": "Détails de la Formation Externe / Prestataire",
+          "country": "Pays",
+          "countryPlaceholder": "Sélectionner un pays…",
+          "thirdPartyCompany": "Prestataire Externe",
+          "thirdPartyCompanyPlaceholder": "ex. Centre de Formation Siemens",
+          "contactName": "Nom du Contact",
+          "contactInfo": "Coordonnées",
+          "contactInfoPlaceholder": "e-mail / téléphone",
+          "mode": "Mode",
+          "modeOptions": {
+            "inPerson": "En présentiel",
+            "online": "En ligne",
+            "hybrid": "Hybride"
+          },
+          "startDate": "Date de Début",
+          "endDate": "Date de Fin",
+          "duration_one": "Durée : {{count}} jour",
+          "duration_other": "Durée : {{count}} jours",
+          "topic": "Sujet",
+          "topicPlaceholder": "ex. Programmation Avancée des Automates",
+          "assessmentQuestions": "Questions d'Évaluation",
+          "assessmentQuestionsHint": "Le stagiaire répondra à ces questions après avoir terminé la formation.",
+          "customQuestionPlaceholder": "Ajouter une question personnalisée…",
+          "addQuestion": "Ajouter"
+        },
+        "offboardReportViewer": {
+          "trainingDetails": "Détails de la Formation",
+          "trainee": "Stagiaire",
+          "provider": "Prestataire",
+          "country": "Pays",
+          "mode": "Mode",
+          "duration": "Durée",
+          "durationValue": "{{count}} jour(s)",
+          "dates": "Dates",
+          "notAvailable": "—",
+          "knowledgeGained": "Connaissances Acquises",
+          "assessmentQA": "Questions/Réponses d'Évaluation",
+          "attachments": "Pièces Jointes",
+          "downloadPdf": "Télécharger le Rapport PDF",
+          "pdfGenerating": "Le rapport PDF est en cours de génération.",
+          "notSubmitted": "Rapport de connaissances pas encore soumis par le stagiaire."
+        },
+        "practicalSignOff": {
+          "title": "Validation Pratique",
+          "quizScore": "Score du Quiz",
+          "observationsLabel": "Observations",
+          "observationsPlaceholder": "Décrivez ce qui a été observé pendant l'évaluation pratique (10 caractères min.)...",
+          "observationsCounter": "{{count}} / 10 caractères min.",
+          "assessmentResult": "Résultat de l'Évaluation",
+          "pass": "Réussi",
+          "fail": "Échoué",
+          "signature": "Signature d'autorisation",
+          "submit": "Valider",
+          "errors": {
+            "observationsTooShort": "Les observations doivent comporter au moins 10 caractères.",
+            "selectResult": "Veuillez sélectionner Réussi ou Échoué.",
+            "signatureRequired": "Veuillez ajouter votre signature pour autoriser le certificat.",
+            "signOffFailed": "Échec de la validation."
+          }
+        },
+        "programsTab": {
+          "heading": "Programmes",
+          "createProgram": "Créer un Programme",
+          "assignedToast": "Programme assigné avec succès.",
+          "emptyState": "Aucun programme créé pour l'instant.",
+          "columns": {
+            "title": "Titre",
+            "modules": "Modules",
+            "totalDuration": "Durée Totale",
+            "status": "Statut",
+            "actions": "Actions"
+          },
+          "durationDays": "{{count}} jours",
+          "status": {
+            "active": "Actif",
+            "archived": "Archivé"
+          },
+          "actions": {
+            "assign": "Assigner",
+            "delete": "Supprimer"
+          },
+          "confirm": {
+            "delete": "Supprimer ce programme ? Il sera définitivement retiré du catalogue et cette action est irréversible. Les stagiaires déjà assignés conservent leur progression."
+          }
+        },
+        "assignedProgramsTab": {
+          "emptyState": "Personne n'a d'affectation de programme en cours.",
+          "columns": {
+            "program": "Programme",
+            "trainee": "Stagiaire",
+            "assigned": "Assigné",
+            "dueDate": "Date d'Échéance",
+            "progress": "Progression",
+            "status": "Statut",
+            "action": "Action"
+          },
+          "status": {
+            "awaitingSignOff": "En Attente de Validation",
+            "inProgress": "En Cours"
+          },
+          "signOff": "Valider",
+          "notAvailable": "—",
+          "modal": {
+            "title": "Valider le Programme",
+            "subtitle": "{{traineeName}} — {{programName}}",
+            "noteLabel": "Note",
+            "notePlaceholder": "Note de validation...",
+            "signatureLabel": "Signature d'autorisation",
+            "cancel": "Annuler",
+            "confirm": "Confirmer la Validation",
+            "confirming": "Validation en cours…"
+          },
+          "toasts": {
+            "signatureRequired": "Veuillez ajouter votre signature pour autoriser le certificat."
+          }
+        },
+        "createProgramModal": {
+          "title": "Créer un Programme de Formation",
+          "programTitle": "Titre du Programme",
+          "programTitlePlaceholder": "ex. Programme Stagiaire Électricité",
+          "description": "Description",
+          "totalDuration": "Durée Totale du Programme",
+          "days": "jours",
+          "modulesLabel": "Modules",
+          "modulesHint": "(sélectionnez et définissez la durée d'échéance de chaque module)",
+          "modulesEmpty": "Aucun module pour l'instant — créez-en un dans l'onglet Modules d'abord.",
+          "dueDaysSuffix": "jours d'échéance",
+          "cancel": "Annuler",
+          "create": "Créer le Programme",
+          "creating": "Création en cours…",
+          "errors": {
+            "validation": "Ajoutez un titre et sélectionnez au moins un module.",
+            "failed": "Échec de la création du programme"
+          }
+        },
+        "assignProgramModal": {
+          "title": "Assigner le Programme",
+          "searchPlaceholder": "Rechercher des stagiaires...",
+          "emptyState": "Aucun stagiaire trouvé.",
+          "cancel": "Annuler",
+          "assign": "Assigner",
+          "assignTo": "Assigner à {{count}}",
+          "assigning": "Assignation en cours…",
+          "errors": {
+            "failed": "Échec de l'assignation du programme"
+          }
+        },
+        "offboardCompletionForm": {
+          "backLink": "← Retour à Ma Formation",
+          "provider": "Prestataire",
+          "country": "Pays",
+          "mode": "Mode",
+          "duration": "Durée",
+          "durationValue": "{{count}} jour(s)",
+          "start": "Début",
+          "end": "Fin",
+          "topic": "Sujet",
+          "notAvailable": "—",
+          "knowledgeGainedLabel": "Connaissances Acquises",
+          "knowledgeGainedPlaceholder": "Résumez ce que vous avez appris et comment vous l'appliquerez...",
+          "assessmentQuestions": "Questions d'Évaluation",
+          "attachments": "Pièces Jointes",
+          "uploadLink": "Téléverser la documentation / les manuels",
+          "uploading": "Téléversement en cours…",
+          "submit": "Soumettre le Rapport de Connaissances",
+          "success": {
+            "heading": "Rapport de Connaissances Soumis",
+            "message": "Merci — votre rapport de formation a été envoyé pour révision. Les RH vous recontacteront si un certificat ou une action supplémentaire est nécessaire.",
+            "backButton": "Retour à Ma Formation"
+          },
+          "errors": {
+            "fileTooLarge": "{{fileName}} dépasse la limite de 25 Mo.",
+            "uploadFailed": "Échec du téléversement de la pièce jointe",
+            "submitFailed": "Échec de la soumission du rapport"
+          }
+        },
+        "programCertificateCard": {
+          "heading": "Certificat d'Achèvement du Programme",
+          "certificateNo": "N° de Certificat",
+          "program": "Programme",
+          "modulesCompleted": "Modules Terminés",
+          "modulesCompleted_one": "{{count}} module",
+          "modulesCompleted_other": "{{count}} modules",
+          "issued": "Délivré le {{date}}",
+          "signedOffBy": "Validé par {{name}} ({{role}})",
+          "notAvailable": "—",
+          "downloadAria": "Télécharger le certificat de programme en PDF A4",
+          "downloadButton": "Télécharger le PDF A4",
+          "toasts": {
+            "pdfFailed": "Impossible de générer le PDF du certificat."
+          }
+        },
+        "programmeCertificateCard": {
+          "heading": "Certificat d'Achèvement du Programme",
+          "certificateNo": "N° de Certificat",
+          "programme": "Programme",
+          "programmeTitle": "Programme Stagiaire de {{count}} Mois",
+          "modulesCompleted_one": "{{count}} module sur {{months}} mois",
+          "modulesCompleted_other": "{{count}} modules sur {{months}} mois",
+          "issued": "Délivré le {{date}}",
+          "signedOffBy": "Validé par {{name}} ({{role}})",
+          "finalMark": "Note Finale : {{mark}}%",
+          "downloadAria": "Télécharger le PDF du certificat de programme",
+          "downloadButton": "Télécharger le PDF"
+        }
+      },
+      "assignmentsListPage": {
+        "title": "Gestion des Stagiaires",
+        "tabs": {
+          "assigned": "Assignés",
+          "programs": "Programmes",
+          "modules": "Modules"
+        }
+      },
+      "createModulePage": {
+        "toasts": {
+          "saved": "Module stagiaire enregistré."
+        },
+        "backAria": "Retour",
+        "title": "Créer un Module Stagiaire"
+      },
+      "editModulePage": {
+        "notFound": "Module introuvable.",
+        "back": "Retour",
+        "wrongLibrary": {
+          "title": "Introuvable dans cette bibliothèque.",
+          "description": "Ce module appartient à la bibliothèque Formation. Ouvrez-le depuis l'onglet Formation à la place."
+        },
+        "backAria": "Retour",
+        "quizBuilder": "Générateur de Quiz"
+      },
+      "traineeProfilePage": {
+        "backAria": "Retour",
+        "title": "Profil du Stagiaire",
+        "trainingProgramme": "Programme de Formation",
+        "awaitingSignOff": "En Attente de Validation Pratique",
+        "allAssignments_one": "Toutes les Affectations ({{count}})",
+        "allAssignments_other": "Toutes les Affectations ({{count}})",
+        "noAssignments": "Aucune affectation pour l'instant.",
+        "noOtherAssignments": "Aucune autre affectation — voir « En Attente de Validation Pratique » ci-dessus.",
+        "assignedLabel": "Assigné : {{date}}",
+        "dueLabel": "Échéance : {{date}}"
+      },
+      "traineeProgrammePage": {
+        "programmeStatuses": {
+          "active": "actif",
+          "completed": "terminé",
+          "discontinued": "interrompu"
+        },
+        "reviewStatuses": {
+          "pending": "en attente",
+          "reviewed": "révisé",
+          "needs_revision": "révision requise"
+        },
+        "errors": {
+          "pickEndDate": "Choisissez une date de fin pour une durée personnalisée.",
+          "endAfterStart": "La date de fin doit être postérieure à la date de début.",
+          "createFailed": "Échec de la création du programme",
+          "reviewFailed": "Échec de la révision du résumé",
+          "signatureRequired": "Veuillez ajouter votre signature pour autoriser le certificat.",
+          "issueCertificateFailed": "Échec de la délivrance du certificat"
+        },
+        "toasts": {
+          "created": "Programme de formation créé.",
+          "summaryReviewed": "Résumé révisé.",
+          "certificateIssued": "Certificat délivré."
+        },
+        "backAria": "Retour",
+        "headerTitle": "Programme de Formation — {{name}}",
+        "monthProgramme_one": "Programme de {{count}} Mois",
+        "monthProgramme_other": "Programme de {{count}} Mois",
+        "monthLabel": "Mois {{number}}",
+        "knowledgeWriteups": "Comptes-Rendus de Connaissances",
+        "noSubmissions": "Aucune soumission pour l'instant.",
+        "defaultWriteupName": "Compte-rendu de connaissances",
+        "actions": {
+          "markReviewed": "Marquer comme Révisé",
+          "needsRevision": "Révision Requise"
+        },
+        "defaultRevisionComment": "Veuillez ajouter plus de détails.",
+        "issueCertificate": {
+          "title": "Délivrer le Certificat d'Achèvement",
+          "mustCertifyAll": "Tous les modules doivent être certifiés avant qu'un certificat puisse être délivré.",
+          "recommendationPlaceholder": "Recommandation du responsable (superviseur / administrateur / directeur d'usine)...",
+          "authorizingSignature": "Signature d'autorisation ({{name}})",
+          "issuing": "Délivrance en cours…",
+          "issue": "Délivrer le Certificat"
+        },
+        "setup": {
+          "title": "Configurer le Programme de Formation",
+          "duration": "Durée",
+          "durationOptions": {
+            "sixMonths": "6 Mois",
+            "oneYear": "1 An",
+            "custom": "Plage personnalisée…"
+          },
+          "startDate": "Date de Début",
+          "endDate": "Date de Fin",
+          "customRangeSized_one": "Il s'agit d'un stage de {{count}} mois — le plan ci-dessous a été ajusté en conséquence.",
+          "customRangeSized_other": "Il s'agit d'un stage de {{count}} mois — le plan ci-dessous a été ajusté en conséquence.",
+          "monthFocusPlaceholder": "Objectif du mois (facultatif)",
+          "modules": "Modules",
+          "weekendTasksPlaceholder": "Tâches du week-end pour ce mois, une par ligne",
+          "creating": "Création en cours…",
+          "create": "Créer le Programme"
+        }
+      },
+      "myProgramPage": {
+        "assignedModules": {
+          "title": "Modules Stagiaires Assignés",
+          "noneOutstanding": "Aucun module stagiaire en attente — rien de nouveau n'a été assigné, ou tout ce qui a été assigné est déjà terminé.",
+          "assignedWithDue": "Assigné le {{assignedDate}} · échéance le {{dueDate}}",
+          "assigned": "Assigné le {{date}}"
+        },
+        "monthLabel": "Mois {{number}}",
+        "noModulesThisMonth": "Aucun module assigné pour ce mois pour l'instant.",
+        "title": "Mon Programme de Formation",
+        "noProgramme": "Aucun programme mensuel n'a encore été configuré pour vous — les modules stagiaires qui vous sont assignés figurent ci-dessous.",
+        "summary": "Programme de {{count}} mois · débuté le {{startDate}} · achèvement prévu le {{endDate}}",
+        "overallProgress": "Progression Globale",
+        "moduleCount": "{{completed}} / {{total}} modules",
+        "completedWithMark": "Programme terminé — note finale {{mark}}%.",
+        "completed": "Programme terminé.",
+        "downloadCertificate": "Télécharger le certificat"
+      }
     }
   },
   "triage": {

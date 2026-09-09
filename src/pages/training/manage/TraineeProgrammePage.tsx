@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { collection, doc, getDoc, onSnapshot, query, where } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation, type TFunction } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useTraineeLibraryModules } from '@/hooks/training/useTraineeLibraryModules';
@@ -38,7 +39,16 @@ function buildDefaultMonths(count: number): MonthDraft[] {
   }));
 }
 
+function programmeStatusLabel(status: string, t: TFunction): string {
+  return t(`common.traineeManagement.traineeProgrammePage.programmeStatuses.${status}`, { defaultValue: status });
+}
+
+function reviewStatusLabel(status: string, t: TFunction): string {
+  return t(`common.traineeManagement.traineeProgrammePage.reviewStatuses.${status}`, { defaultValue: status });
+}
+
 export default function TraineeProgrammePage() {
+  const { t } = useTranslation();
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
@@ -145,11 +155,11 @@ export default function TraineeProgrammePage() {
     const start = new Date(startDate);
     if (durationPreset === 'custom') {
       if (!customEndDate) {
-        toast.error('Pick an end date for a custom duration.');
+        toast.error(t('common.traineeManagement.traineeProgrammePage.errors.pickEndDate'));
         return;
       }
       if (!isValidDurationRange(start, new Date(customEndDate))) {
-        toast.error('End date must be after the start date.');
+        toast.error(t('common.traineeManagement.traineeProgrammePage.errors.endAfterStart'));
         return;
       }
     }
@@ -190,9 +200,9 @@ export default function TraineeProgrammePage() {
       );
 
       setProgrammeId(newProgrammeId);
-      toast.success('Training programme created.');
+      toast.success(t('common.traineeManagement.traineeProgrammePage.toasts.created'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to create programme');
+      toast.error(err instanceof Error ? err.message : t('common.traineeManagement.traineeProgrammePage.errors.createFailed'));
     } finally {
       setSaving(false);
     }
@@ -207,9 +217,9 @@ export default function TraineeProgrammePage() {
         reviewedBy: userProfile.id,
         reviewedByName: userProfile.fullName,
       });
-      toast.success('Summary reviewed.');
+      toast.success(t('common.traineeManagement.traineeProgrammePage.toasts.summaryReviewed'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to review summary');
+      toast.error(err instanceof Error ? err.message : t('common.traineeManagement.traineeProgrammePage.errors.reviewFailed'));
     }
   }
 
@@ -228,7 +238,7 @@ export default function TraineeProgrammePage() {
   async function handleIssueCertificate() {
     if (!programme || !trainee || !userProfile || !company || !recommendation.trim()) return;
     if (!signatureDataUrl) {
-      toast.error('Please add your signature to authorize the certificate.');
+      toast.error(t('common.traineeManagement.traineeProgrammePage.errors.signatureRequired'));
       return;
     }
     setIssuingCert(true);
@@ -264,9 +274,9 @@ export default function TraineeProgrammePage() {
         certificateId,
         certifiedAt: 'now',
       });
-      toast.success('Certificate issued.');
+      toast.success(t('common.traineeManagement.traineeProgrammePage.toasts.certificateIssued'));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to issue certificate');
+      toast.error(err instanceof Error ? err.message : t('common.traineeManagement.traineeProgrammePage.errors.issueCertificateFailed'));
     } finally {
       setIssuingCert(false);
     }
@@ -275,11 +285,11 @@ export default function TraineeProgrammePage() {
   return (
     <div className="min-h-full">
       <div className="sticky top-0 z-10 bg-white border-b border-slate-200 flex items-center gap-3 px-4 h-12">
-        <button onClick={() => navigate(-1)} className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600" aria-label="Back">
+        <button onClick={() => navigate(-1)} className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600" aria-label={t('common.traineeManagement.traineeProgrammePage.backAria')}>
           <ArrowLeft size={18} />
         </button>
         <h1 className="font-semibold text-slate-900 text-sm truncate flex-1">
-          Training Programme — {trainee?.fullName ?? userId}
+          {t('common.traineeManagement.traineeProgrammePage.headerTitle', { name: trainee?.fullName ?? userId })}
         </h1>
       </div>
 
@@ -292,13 +302,13 @@ export default function TraineeProgrammePage() {
           <>
             <div className="rounded-xl border border-slate-200 bg-white p-5">
               <h2 className="font-semibold text-slate-900 mb-2">
-                {programme.durationMonths}-Month Programme
-                <span className="ml-2 text-xs font-normal text-slate-500">{programme.status}</span>
+                {t('common.traineeManagement.traineeProgrammePage.monthProgramme', { count: programme.durationMonths })}
+                <span className="ml-2 text-xs font-normal text-slate-500">{programmeStatusLabel(programme.status, t)}</span>
               </h2>
               <div className="space-y-3 mt-3">
                 {programme.months.map((m) => (
                   <div key={m.month} className="border border-slate-100 rounded-lg p-3">
-                    <p className="text-sm font-medium text-slate-800 mb-1">Month {m.month}{m.title ? ` — ${m.title}` : ''}</p>
+                    <p className="text-sm font-medium text-slate-800 mb-1">{t('common.traineeManagement.traineeProgrammePage.monthLabel', { number: m.month })}{m.title ? ` — ${m.title}` : ''}</p>
                     <div className="flex flex-wrap gap-2">
                       {m.moduleIds.map((id) => {
                         const a = assignmentByModuleId.get(id);
@@ -316,16 +326,16 @@ export default function TraineeProgrammePage() {
             </div>
 
             <div className="rounded-xl border border-slate-200 bg-white p-5">
-              <h2 className="font-semibold text-slate-900 mb-3">Knowledge Write-ups</h2>
+              <h2 className="font-semibold text-slate-900 mb-3">{t('common.traineeManagement.traineeProgrammePage.knowledgeWriteups')}</h2>
               {summaries.length === 0 ? (
-                <p className="text-sm text-slate-500">No submissions yet.</p>
+                <p className="text-sm text-slate-500">{t('common.traineeManagement.traineeProgrammePage.noSubmissions')}</p>
               ) : (
                 <div className="space-y-3">
                   {summaries.map((s) => (
                     <div key={s.id} className="border border-slate-100 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-slate-800">{s.moduleName || 'Knowledge write-up'}</span>
-                        <span className="text-xs text-slate-500">{s.reviewStatus}</span>
+                        <span className="text-sm font-medium text-slate-800">{s.moduleName || t('common.traineeManagement.traineeProgrammePage.defaultWriteupName')}</span>
+                        <span className="text-xs text-slate-500">{reviewStatusLabel(s.reviewStatus, t)}</span>
                       </div>
                       <p className="text-sm text-slate-600 whitespace-pre-wrap">{s.summaryText}</p>
                       {s.attachments.length > 0 && (
@@ -343,13 +353,13 @@ export default function TraineeProgrammePage() {
                             onClick={() => void handleReview(s.id, 'reviewed', '')}
                             className="text-xs px-2 py-1 bg-green-600 text-white rounded-md"
                           >
-                            Mark Reviewed
+                            {t('common.traineeManagement.traineeProgrammePage.actions.markReviewed')}
                           </button>
                           <button
-                            onClick={() => void handleReview(s.id, 'needs_revision', 'Please add more detail.')}
+                            onClick={() => void handleReview(s.id, 'needs_revision', t('common.traineeManagement.traineeProgrammePage.defaultRevisionComment'))}
                             className="text-xs px-2 py-1 bg-amber-600 text-white rounded-md"
                           >
-                            Needs Revision
+                            {t('common.traineeManagement.traineeProgrammePage.actions.needsRevision')}
                           </button>
                         </div>
                       )}
@@ -361,21 +371,21 @@ export default function TraineeProgrammePage() {
 
             {programme.status === 'active' && (
               <div className="rounded-xl border border-slate-200 bg-white p-5">
-                <h2 className="font-semibold text-slate-900 mb-2">Issue Completion Certificate</h2>
+                <h2 className="font-semibold text-slate-900 mb-2">{t('common.traineeManagement.traineeProgrammePage.issueCertificate.title')}</h2>
                 {!allCertified ? (
-                  <p className="text-sm text-slate-500">All modules must be certified before a certificate can be issued.</p>
+                  <p className="text-sm text-slate-500">{t('common.traineeManagement.traineeProgrammePage.issueCertificate.mustCertifyAll')}</p>
                 ) : (
                   <>
                     <textarea
                       value={recommendation}
                       onChange={(e) => setRecommendation(e.target.value)}
                       rows={3}
-                      placeholder="Recommendation from the in-charge (supervisor / admin / plant manager)..."
+                      placeholder={t('common.traineeManagement.traineeProgrammePage.issueCertificate.recommendationPlaceholder')}
                       className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm mb-3"
                     />
                     <div className="mb-3">
                       <label className="block text-sm font-medium text-slate-700 mb-1">
-                        Authorizing signature ({userProfile?.fullName})
+                        {t('common.traineeManagement.traineeProgrammePage.issueCertificate.authorizingSignature', { name: userProfile?.fullName })}
                       </label>
                       <SignaturePad onChange={setSignatureDataUrl} />
                     </div>
@@ -384,7 +394,7 @@ export default function TraineeProgrammePage() {
                       disabled={issuingCert || !recommendation.trim() || !signatureDataUrl}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50"
                     >
-                      {issuingCert ? 'Issuing…' : 'Issue Certificate'}
+                      {issuingCert ? t('common.traineeManagement.traineeProgrammePage.issueCertificate.issuing') : t('common.traineeManagement.traineeProgrammePage.issueCertificate.issue')}
                     </button>
                   </>
                 )}
@@ -393,11 +403,11 @@ export default function TraineeProgrammePage() {
           </>
         ) : (
           <div className="rounded-xl border border-slate-200 bg-white p-5 space-y-4">
-            <h2 className="font-semibold text-slate-900">Set Up Training Programme</h2>
+            <h2 className="font-semibold text-slate-900">{t('common.traineeManagement.traineeProgrammePage.setup.title')}</h2>
 
             <div className="flex gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Duration</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('common.traineeManagement.traineeProgrammePage.setup.duration')}</label>
                 <select
                   value={durationPreset}
                   onChange={(e) => {
@@ -406,13 +416,13 @@ export default function TraineeProgrammePage() {
                   }}
                   className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
                 >
-                  <option value={6}>6 Months</option>
-                  <option value={12}>1 Year</option>
-                  <option value="custom">Custom range…</option>
+                  <option value={6}>{t('common.traineeManagement.traineeProgrammePage.setup.durationOptions.sixMonths')}</option>
+                  <option value={12}>{t('common.traineeManagement.traineeProgrammePage.setup.durationOptions.oneYear')}</option>
+                  <option value="custom">{t('common.traineeManagement.traineeProgrammePage.setup.durationOptions.custom')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t('common.traineeManagement.traineeProgrammePage.setup.startDate')}</label>
                 <input
                   type="date"
                   value={startDate}
@@ -422,7 +432,7 @@ export default function TraineeProgrammePage() {
               </div>
               {durationPreset === 'custom' && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">End Date</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">{t('common.traineeManagement.traineeProgrammePage.setup.endDate')}</label>
                   <input
                     type="date"
                     value={customEndDate}
@@ -435,24 +445,24 @@ export default function TraineeProgrammePage() {
             </div>
             {durationPreset === 'custom' && customMonthCount > 0 && (
               <p className="text-xs text-slate-500">
-                This is a {customMonthCount}-month placement — the plan below has been sized to match.
+                {t('common.traineeManagement.traineeProgrammePage.setup.customRangeSized', { count: customMonthCount })}
               </p>
             )}
 
             <div className="space-y-4">
               {months.map((m, idx) => (
                 <div key={m.month} className="border border-slate-100 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-slate-800 mb-2">Month {m.month}</p>
+                  <p className="text-sm font-semibold text-slate-800 mb-2">{t('common.traineeManagement.traineeProgrammePage.monthLabel', { number: m.month })}</p>
                   <input
                     type="text"
                     value={m.title}
                     onChange={(e) =>
                       setMonths((prev) => prev.map((x, i) => (i === idx ? { ...x, title: e.target.value } : x)))
                     }
-                    placeholder="Month focus (optional)"
+                    placeholder={t('common.traineeManagement.traineeProgrammePage.setup.monthFocusPlaceholder')}
                     className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm mb-2"
                   />
-                  <p className="text-xs font-medium text-slate-500 mb-1">Modules</p>
+                  <p className="text-xs font-medium text-slate-500 mb-1">{t('common.traineeManagement.traineeProgrammePage.setup.modules')}</p>
                   <div className="flex flex-wrap gap-2 mb-2">
                     {modules.map((mod) => (
                       <label key={mod.id} className="flex items-center gap-1 text-xs bg-slate-50 rounded-full px-2 py-1">
@@ -471,7 +481,7 @@ export default function TraineeProgrammePage() {
                       setMonths((prev) => prev.map((x, i) => (i === idx ? { ...x, weekendTasksText: e.target.value } : x)))
                     }
                     rows={2}
-                    placeholder="Weekend tasks for this month, one per line"
+                    placeholder={t('common.traineeManagement.traineeProgrammePage.setup.weekendTasksPlaceholder')}
                     className="w-full rounded-lg border border-slate-300 px-3 py-1.5 text-sm"
                   />
                 </div>
@@ -483,7 +493,7 @@ export default function TraineeProgrammePage() {
               disabled={saving}
               className="px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium disabled:opacity-50"
             >
-              {saving ? 'Creating…' : 'Create Programme'}
+              {saving ? t('common.traineeManagement.traineeProgrammePage.setup.creating') : t('common.traineeManagement.traineeProgrammePage.setup.create')}
             </button>
           </div>
         )}

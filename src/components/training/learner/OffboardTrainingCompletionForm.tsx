@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Loader2, Paperclip, X, CheckCircle2, Globe2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { db, storage } from '@/lib/firebase';
 import type { TrainingAssignment, TrainingModule } from '@/lib/training/trainingTypes';
 import { OFFBOARD_MODE_LABELS } from '@/lib/training/offboardTraining';
@@ -28,6 +29,7 @@ export default function OffboardTrainingCompletionForm({
   module,
   onBack,
 }: OffboardTrainingCompletionFormProps) {
+  const { t } = useTranslation();
   const details = module.offboardDetails ?? assignment.offboardDetails ?? null;
   const existing = assignment.offboardCompletion ?? null;
   const alreadySubmitted = !!existing?.reportSubmittedAt;
@@ -57,7 +59,7 @@ export default function OffboardTrainingCompletionForm({
       const urls: string[] = [];
       for (const file of files) {
         if (file.size > MAX_FILE_BYTES) {
-          throw new Error(`${file.name} exceeds the 25MB limit.`);
+          throw new Error(t('common.traineeManagement.library.offboardCompletionForm.errors.fileTooLarge', { fileName: file.name }));
         }
         const path = `companies/${assignment.companyId}/training/offboard-reports/${assignment.id}/${Date.now()}-${file.name}`;
         const storageRef = ref(storage, path);
@@ -67,7 +69,7 @@ export default function OffboardTrainingCompletionForm({
       }
       setAttachmentUrls((prev) => [...prev, ...urls]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to upload attachment');
+      setError(err instanceof Error ? err.message : t('common.traineeManagement.library.offboardCompletionForm.errors.uploadFailed'));
     } finally {
       setUploading(false);
     }
@@ -106,7 +108,7 @@ export default function OffboardTrainingCompletionForm({
       });
       setDone(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit report');
+      setError(err instanceof Error ? err.message : t('common.traineeManagement.library.offboardCompletionForm.errors.submitFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -118,16 +120,15 @@ export default function OffboardTrainingCompletionForm({
         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
           <CheckCircle2 className="w-8 h-8 text-green-600" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900">Knowledge Report Submitted</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('common.traineeManagement.library.offboardCompletionForm.success.heading')}</h2>
         <p className="text-gray-600 text-sm">
-          Thanks — your training report has been sent for review. HR will follow up if a
-          certificate or further action is required.
+          {t('common.traineeManagement.library.offboardCompletionForm.success.message')}
         </p>
         <button
           onClick={onBack}
           className="mt-2 px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
         >
-          Back to My Training
+          {t('common.traineeManagement.library.offboardCompletionForm.success.backButton')}
         </button>
       </div>
     );
@@ -136,7 +137,7 @@ export default function OffboardTrainingCompletionForm({
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-10">
       <button onClick={onBack} className="text-sm text-blue-600 hover:underline">
-        ← Back to My Training
+        {t('common.traineeManagement.library.offboardCompletionForm.backLink')}
       </button>
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
@@ -145,34 +146,34 @@ export default function OffboardTrainingCompletionForm({
           <h1 className="text-lg font-semibold text-gray-900">{module.title}</h1>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <div><span className="text-gray-400">Provider</span><p className="text-gray-800">{details?.thirdPartyCompany || '—'}</p></div>
-          <div><span className="text-gray-400">Country</span><p className="text-gray-800">{details?.country || '—'}</p></div>
-          <div><span className="text-gray-400">Mode</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : '—'}</p></div>
-          <div><span className="text-gray-400">Duration</span><p className="text-gray-800">{details?.durationDays ?? 0} day(s)</p></div>
-          <div><span className="text-gray-400">Start</span><p className="text-gray-800">{formatDate(details?.startDate)}</p></div>
-          <div><span className="text-gray-400">End</span><p className="text-gray-800">{formatDate(details?.endDate)}</p></div>
+          <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardCompletionForm.provider')}</span><p className="text-gray-800">{details?.thirdPartyCompany || t('common.traineeManagement.library.offboardCompletionForm.notAvailable')}</p></div>
+          <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardCompletionForm.country')}</span><p className="text-gray-800">{details?.country || t('common.traineeManagement.library.offboardCompletionForm.notAvailable')}</p></div>
+          <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardCompletionForm.mode')}</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : t('common.traineeManagement.library.offboardCompletionForm.notAvailable')}</p></div>
+          <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardCompletionForm.duration')}</span><p className="text-gray-800">{t('common.traineeManagement.library.offboardCompletionForm.durationValue', { count: details?.durationDays ?? 0 })}</p></div>
+          <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardCompletionForm.start')}</span><p className="text-gray-800">{formatDate(details?.startDate)}</p></div>
+          <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardCompletionForm.end')}</span><p className="text-gray-800">{formatDate(details?.endDate)}</p></div>
         </div>
         {details?.topic && (
-          <div className="text-sm"><span className="text-gray-400">Topic</span><p className="text-gray-800">{details.topic}</p></div>
+          <div className="text-sm"><span className="text-gray-400">{t('common.traineeManagement.library.offboardCompletionForm.topic')}</span><p className="text-gray-800">{details.topic}</p></div>
         )}
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-2">
         <label className="text-sm font-semibold text-gray-800">
-          Knowledge Gained <span className="text-red-500">*</span>
+          {t('common.traineeManagement.library.offboardCompletionForm.knowledgeGainedLabel')} <span className="text-red-500">*</span>
         </label>
         <textarea
           rows={5}
           value={knowledgeGained}
           onChange={(e) => setKnowledgeGained(e.target.value)}
-          placeholder="Summarize what you learned and how you'll apply it..."
+          placeholder={t('common.traineeManagement.library.offboardCompletionForm.knowledgeGainedPlaceholder')}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
       </div>
 
       {questions.length > 0 && (
         <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-gray-800">Assessment Questions</h2>
+          <h2 className="text-sm font-semibold text-gray-800">{t('common.traineeManagement.library.offboardCompletionForm.assessmentQuestions')}</h2>
           {questions.map((q) => (
             <div key={q} className="flex flex-col gap-1">
               <label className="text-sm text-gray-700">{q}</label>
@@ -188,15 +189,15 @@ export default function OffboardTrainingCompletionForm({
       )}
 
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-gray-800">Attachments</h2>
+        <h2 className="text-sm font-semibold text-gray-800">{t('common.traineeManagement.library.offboardCompletionForm.attachments')}</h2>
         <label className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 cursor-pointer w-fit">
           <Paperclip className="w-4 h-4" />
-          Upload documentation / manuals
+          {t('common.traineeManagement.library.offboardCompletionForm.uploadLink')}
           <input type="file" multiple className="hidden" onChange={handleFileChange} disabled={uploading} />
         </label>
         {uploading && (
           <p className="text-xs text-gray-500 flex items-center gap-1">
-            <Loader2 className="w-3 h-3 animate-spin" /> Uploading…
+            <Loader2 className="w-3 h-3 animate-spin" /> {t('common.traineeManagement.library.offboardCompletionForm.uploading')}
           </p>
         )}
         {attachmentUrls.length > 0 && (
@@ -227,7 +228,7 @@ export default function OffboardTrainingCompletionForm({
         className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-lg py-3 text-sm transition-colors"
       >
         {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-        Submit Knowledge Report
+        {t('common.traineeManagement.library.offboardCompletionForm.submit')}
       </button>
     </div>
   );

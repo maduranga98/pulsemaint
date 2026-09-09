@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import type {
   TrainingModule,
@@ -37,6 +38,7 @@ export default function TraineeModuleSettingsForm({
   onSubmit,
   isLoading = false,
 }: TraineeModuleSettingsFormProps) {
+    const { t } = useTranslation();
     const {
       register,
       handleSubmit,
@@ -88,41 +90,41 @@ export default function TraineeModuleSettingsForm({
     return (
       <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
-          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Trainee Module Info</h3>
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('common.traineeManagement.moduleSettingsForm.sectionTitle')}</h3>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
-            Module Title <span className="text-red-500">*</span>
+            {t('common.traineeManagement.moduleSettingsForm.fields.title')} <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            {...register('title', { required: 'Title is required' })}
-            placeholder="e.g. Electrical Trainee Orientation"
+            {...register('title', { required: t('common.traineeManagement.moduleSettingsForm.errors.titleRequired') })}
+            placeholder={t('common.traineeManagement.moduleSettingsForm.fields.titlePlaceholder')}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           {errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Description</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.moduleSettingsForm.fields.description')}</label>
           <textarea
             {...register('description')}
             rows={3}
-            placeholder="Briefly describe what this programme module covers…"
+            placeholder={t('common.traineeManagement.moduleSettingsForm.fields.descriptionPlaceholder')}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
-            Training Type <span className="text-red-500">*</span>
+            {t('common.traineeManagement.moduleSettingsForm.fields.trainingType')} <span className="text-red-500">*</span>
           </label>
           <select
-            {...register('trainingType', { required: 'Training type is required' })}
+            {...register('trainingType', { required: t('common.traineeManagement.moduleSettingsForm.errors.trainingTypeRequired') })}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           >
-            <option value="">Select training type…</option>
+            <option value="">{t('common.traineeManagement.moduleSettingsForm.fields.selectTrainingType')}</option>
             {Object.entries(TRAINEE_TRAINING_TYPE_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -133,7 +135,7 @@ export default function TraineeModuleSettingsForm({
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Passing Score</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.moduleSettingsForm.fields.passingScore')}</label>
           <div className="flex items-center gap-2 w-40">
             <input
               type="number"
@@ -147,26 +149,26 @@ export default function TraineeModuleSettingsForm({
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Status</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.moduleSettingsForm.fields.status')}</label>
           <select
             {...register('status')}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           >
-            <option value="draft">Draft</option>
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
+            <option value="draft">{t('common.traineeManagement.moduleSettingsForm.statuses.draft')}</option>
+            <option value="active">{t('common.traineeManagement.moduleSettingsForm.statuses.active')}</option>
+            <option value="archived">{t('common.traineeManagement.moduleSettingsForm.statuses.archived')}</option>
           </select>
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Tags</label>
+          <label className="text-sm font-medium text-gray-700">{t('common.traineeManagement.moduleSettingsForm.fields.tags')}</label>
           <input
             type="text"
             {...register('tags')}
-            placeholder="electrical, trainee, safety  (comma-separated)"
+            placeholder={t('common.traineeManagement.moduleSettingsForm.fields.tagsPlaceholder')}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <p className="text-xs text-gray-400">Separate tags with commas</p>
+          <p className="text-xs text-gray-400">{t('common.traineeManagement.moduleSettingsForm.fields.tagsHint')}</p>
         </div>
 
         {/* Real quiz settings (pass score, attempts, time limit, shuffle)
@@ -180,7 +182,7 @@ export default function TraineeModuleSettingsForm({
           className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold rounded-lg py-2.5 px-4 text-sm transition-colors"
         >
           {isLoading && <Loader2 size={16} className="animate-spin" />}
-          Save Module
+          {t('common.traineeManagement.moduleSettingsForm.submit')}
         </button>
       </form>
     );

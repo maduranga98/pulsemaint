@@ -4571,6 +4571,442 @@
           }
         }
       }
+    },
+    "traineeManagement": {
+      "managementList": {
+        "searchPlaceholder": "研修生を氏名、部署、社員IDで検索...",
+        "profilesHeading": "研修生プロフィール",
+        "noTrainees": "研修生が見つかりません。",
+        "stats": {
+          "trainings": "研修",
+          "progress": "進捗",
+          "marks": "評点"
+        },
+        "woCount_one": "作業指示書 {{count}} 件参加",
+        "woCount_other": "作業指示書 {{count}} 件参加",
+        "viewTrainings": "研修を表示",
+        "hideTrainings": "研修を非表示",
+        "trainingsHeading": "研修",
+        "trainingsHeadingWithName": "研修 — {{name}}",
+        "selectTraineePrompt": "上の一覧から研修生を選択すると、割り当てられた研修が表示されます。",
+        "setupProgramme": "研修プログラムを設定",
+        "noTrainingsAssigned": "まだ研修が割り当てられていません。",
+        "columns": {
+          "module": "モジュール",
+          "period": "期間",
+          "progress": "進捗",
+          "marks": "評点",
+          "status": "ステータス",
+          "actions": "操作"
+        },
+        "periodMonths_one": "{{count}} か月",
+        "periodMonths_other": "{{count}} か月",
+        "notAvailable": "—",
+        "status": {
+          "not_started": "未着手",
+          "in_progress": "進行中",
+          "quiz_passed": "テスト合格",
+          "quiz_failed": "テスト不合格",
+          "awaiting_practical": "サインオフ待ち",
+          "certified": "認定済み",
+          "expired": "期限切れ",
+          "retraining_required": "再研修が必要"
+        },
+        "actions": {
+          "report": "報告書"
+        }
+      },
+      "moduleSettingsForm": {
+        "sectionTitle": "研修生モジュール情報",
+        "fields": {
+          "title": "モジュールタイトル",
+          "titlePlaceholder": "例：電気系研修生オリエンテーション",
+          "description": "説明",
+          "descriptionPlaceholder": "このプログラムモジュールの内容を簡潔に説明してください…",
+          "trainingType": "研修種別",
+          "selectTrainingType": "研修種別を選択…",
+          "passingScore": "合格基準点",
+          "status": "ステータス",
+          "tags": "タグ",
+          "tagsPlaceholder": "電気, 研修生, 安全（カンマ区切り）",
+          "tagsHint": "タグはカンマで区切ってください"
+        },
+        "statuses": {
+          "draft": "下書き",
+          "active": "有効",
+          "archived": "アーカイブ済み"
+        },
+        "errors": {
+          "titleRequired": "タイトルは必須です",
+          "trainingTypeRequired": "研修種別は必須です"
+        },
+        "submit": "モジュールを保存"
+      },
+      "library": {
+        "moduleLibrary": {
+          "titleDefault": "研修生モジュールライブラリ",
+          "loadSamples": "サンプルモジュールを読み込む",
+          "loadingSamples": "読み込み中…",
+          "createModule": "研修生モジュールを作成",
+          "searchPlaceholder": "研修生モジュールを検索...",
+          "allTrainingTypes": "すべての研修種別",
+          "statusFilters": {
+            "all": "すべて",
+            "draft": "下書き",
+            "active": "有効",
+            "archived": "アーカイブ済み"
+          },
+          "columns": {
+            "title": "タイトル",
+            "trainingType": "研修種別",
+            "lessons": "レッスン",
+            "hasQuiz": "テストあり",
+            "status": "ステータス",
+            "actions": "操作"
+          },
+          "yes": "はい",
+          "no": "いいえ",
+          "notAvailable": "—",
+          "emptyState": "研修生モジュールが見つかりません。",
+          "lessonsCount_one": "{{count}} レッスン",
+          "lessonsCount_other": "{{count}} レッスン",
+          "hasQuizLabel": "テストあり",
+          "actions": {
+            "edit": "編集",
+            "archive": "アーカイブ",
+            "delete": "削除"
+          },
+          "confirm": {
+            "archive": "このモジュールをアーカイブしますか？研修生への割り当てができなくなります。",
+            "delete": "このモジュールを完全に削除しますか？この操作は元に戻せません。"
+          }
+        },
+        "offboardFields": {
+          "sectionTitle": "外部委託／社外研修の詳細",
+          "country": "国",
+          "countryPlaceholder": "国を選択…",
+          "thirdPartyCompany": "委託先企業",
+          "thirdPartyCompanyPlaceholder": "例：シーメンス・トレーニングセンター",
+          "contactName": "担当者名",
+          "contactInfo": "連絡先",
+          "contactInfoPlaceholder": "メール／電話番号",
+          "mode": "実施形式",
+          "modeOptions": {
+            "inPerson": "対面",
+            "online": "オンライン",
+            "hybrid": "ハイブリッド"
+          },
+          "startDate": "開始日",
+          "endDate": "終了日",
+          "duration_one": "期間：{{count}} 日",
+          "duration_other": "期間：{{count}} 日",
+          "topic": "テーマ",
+          "topicPlaceholder": "例：高度なPLCプログラミング",
+          "assessmentQuestions": "評価質問",
+          "assessmentQuestionsHint": "研修生は研修完了後にこれらの質問に回答します。",
+          "customQuestionPlaceholder": "カスタム質問を追加…",
+          "addQuestion": "追加"
+        },
+        "offboardReportViewer": {
+          "trainingDetails": "研修詳細",
+          "trainee": "研修生",
+          "provider": "提供元",
+          "country": "国",
+          "mode": "実施形式",
+          "duration": "期間",
+          "durationValue": "{{count}} 日",
+          "dates": "実施日",
+          "notAvailable": "—",
+          "knowledgeGained": "習得した知識",
+          "assessmentQA": "評価Q&A",
+          "attachments": "添付ファイル",
+          "downloadPdf": "PDF報告書をダウンロード",
+          "pdfGenerating": "PDF報告書を生成しています。",
+          "notSubmitted": "研修生からの知識報告書はまだ提出されていません。"
+        },
+        "practicalSignOff": {
+          "title": "実技サインオフ",
+          "quizScore": "テスト点数",
+          "observationsLabel": "観察所見",
+          "observationsPlaceholder": "実技評価で観察された内容を記入してください（最低10文字）...",
+          "observationsCounter": "{{count}} / 最低10文字",
+          "assessmentResult": "評価結果",
+          "pass": "合格",
+          "fail": "不合格",
+          "signature": "承認署名",
+          "submit": "サインオフ",
+          "errors": {
+            "observationsTooShort": "観察所見は10文字以上で入力してください。",
+            "selectResult": "合格または不合格を選択してください。",
+            "signatureRequired": "証明書を承認するには署名を追加してください。",
+            "signOffFailed": "サインオフに失敗しました。"
+          }
+        },
+        "programsTab": {
+          "heading": "プログラム",
+          "createProgram": "プログラムを作成",
+          "assignedToast": "プログラムを割り当てました。",
+          "emptyState": "まだプログラムが作成されていません。",
+          "columns": {
+            "title": "タイトル",
+            "modules": "モジュール",
+            "totalDuration": "総期間",
+            "status": "ステータス",
+            "actions": "操作"
+          },
+          "durationDays": "{{count}} 日",
+          "status": {
+            "active": "有効",
+            "archived": "アーカイブ済み"
+          },
+          "actions": {
+            "assign": "割り当て",
+            "delete": "削除"
+          },
+          "confirm": {
+            "delete": "このプログラムを削除しますか？カタログから完全に削除され、元に戻せません。既に割り当てられている研修生の進捗は保持されます。"
+          }
+        },
+        "assignedProgramsTab": {
+          "emptyState": "進行中のプログラム割り当てはありません。",
+          "columns": {
+            "program": "プログラム",
+            "trainee": "研修生",
+            "assigned": "割り当て日",
+            "dueDate": "期限",
+            "progress": "進捗",
+            "status": "ステータス",
+            "action": "操作"
+          },
+          "status": {
+            "awaitingSignOff": "サインオフ待ち",
+            "inProgress": "進行中"
+          },
+          "signOff": "サインオフ",
+          "notAvailable": "—",
+          "modal": {
+            "title": "プログラムのサインオフ",
+            "subtitle": "{{traineeName}} — {{programName}}",
+            "noteLabel": "メモ",
+            "notePlaceholder": "サインオフに関するメモ...",
+            "signatureLabel": "承認署名",
+            "cancel": "キャンセル",
+            "confirm": "サインオフを確定",
+            "confirming": "サインオフ中…"
+          },
+          "toasts": {
+            "signatureRequired": "証明書を承認するには署名を追加してください。"
+          }
+        },
+        "createProgramModal": {
+          "title": "研修プログラムを作成",
+          "programTitle": "プログラムタイトル",
+          "programTitlePlaceholder": "例：電気系研修生プログラム",
+          "description": "説明",
+          "totalDuration": "プログラム全体の期間",
+          "days": "日",
+          "modulesLabel": "モジュール",
+          "modulesHint": "（各モジュールを選択し、期限日数を設定してください）",
+          "modulesEmpty": "モジュールがまだありません — 先に「モジュール」タブで作成してください。",
+          "dueDaysSuffix": "日以内",
+          "cancel": "キャンセル",
+          "create": "プログラムを作成",
+          "creating": "作成中…",
+          "errors": {
+            "validation": "タイトルを入力し、モジュールを1つ以上選択してください。",
+            "failed": "プログラムの作成に失敗しました"
+          }
+        },
+        "assignProgramModal": {
+          "title": "プログラムを割り当て",
+          "searchPlaceholder": "研修生を検索...",
+          "emptyState": "研修生が見つかりません。",
+          "cancel": "キャンセル",
+          "assign": "割り当て",
+          "assignTo": "{{count}} 名に割り当て",
+          "assigning": "割り当て中…",
+          "errors": {
+            "failed": "プログラムの割り当てに失敗しました"
+          }
+        },
+        "offboardCompletionForm": {
+          "backLink": "← マイ研修に戻る",
+          "provider": "提供元",
+          "country": "国",
+          "mode": "実施形式",
+          "duration": "期間",
+          "durationValue": "{{count}} 日",
+          "start": "開始",
+          "end": "終了",
+          "topic": "テーマ",
+          "notAvailable": "—",
+          "knowledgeGainedLabel": "習得した知識",
+          "knowledgeGainedPlaceholder": "学んだ内容と、それをどのように活かすかをまとめてください...",
+          "assessmentQuestions": "評価質問",
+          "attachments": "添付ファイル",
+          "uploadLink": "資料／マニュアルをアップロード",
+          "uploading": "アップロード中…",
+          "submit": "知識報告書を提出",
+          "success": {
+            "heading": "知識報告書を提出しました",
+            "message": "ありがとうございます — 研修報告書は確認のため送信されました。証明書の発行や追加対応が必要な場合、人事担当より連絡があります。",
+            "backButton": "マイ研修に戻る"
+          },
+          "errors": {
+            "fileTooLarge": "{{fileName}} は25MBの上限を超えています。",
+            "uploadFailed": "添付ファイルのアップロードに失敗しました",
+            "submitFailed": "報告書の提出に失敗しました"
+          }
+        },
+        "programCertificateCard": {
+          "heading": "プログラム修了証明書",
+          "certificateNo": "証明書番号",
+          "program": "プログラム",
+          "modulesCompleted": "修了モジュール数",
+          "modulesCompleted_one": "{{count}} モジュール",
+          "modulesCompleted_other": "{{count}} モジュール",
+          "issued": "発行日 {{date}}",
+          "signedOffBy": "承認者：{{name}}（{{role}}）",
+          "notAvailable": "—",
+          "downloadAria": "プログラム証明書をA4 PDFでダウンロード",
+          "downloadButton": "A4 PDFをダウンロード",
+          "toasts": {
+            "pdfFailed": "証明書PDFを生成できませんでした。"
+          }
+        },
+        "programmeCertificateCard": {
+          "heading": "研修プログラム修了証明書",
+          "certificateNo": "証明書番号",
+          "programme": "プログラム",
+          "programmeTitle": "{{count}}か月研修プログラム",
+          "modulesCompleted_one": "{{months}}か月で {{count}} モジュール修了",
+          "modulesCompleted_other": "{{months}}か月で {{count}} モジュール修了",
+          "issued": "発行日 {{date}}",
+          "signedOffBy": "承認者：{{name}}（{{role}}）",
+          "finalMark": "最終評点：{{mark}}%",
+          "downloadAria": "プログラム証明書PDFをダウンロード",
+          "downloadButton": "PDFをダウンロード"
+        }
+      },
+      "assignmentsListPage": {
+        "title": "研修生管理",
+        "tabs": {
+          "assigned": "割り当て済み",
+          "programs": "プログラム",
+          "modules": "モジュール"
+        }
+      },
+      "createModulePage": {
+        "toasts": {
+          "saved": "研修生モジュールを保存しました。"
+        },
+        "backAria": "戻る",
+        "title": "研修生モジュールを作成"
+      },
+      "editModulePage": {
+        "notFound": "モジュールが見つかりません。",
+        "back": "戻る",
+        "wrongLibrary": {
+          "title": "このライブラリには見つかりません。",
+          "description": "このモジュールは研修ライブラリに属しています。「研修」タブから開いてください。"
+        },
+        "backAria": "戻る",
+        "quizBuilder": "テストビルダー"
+      },
+      "traineeProfilePage": {
+        "backAria": "戻る",
+        "title": "研修生プロフィール",
+        "trainingProgramme": "研修プログラム",
+        "awaitingSignOff": "実技サインオフ待ち",
+        "allAssignments_one": "すべての割り当て（{{count}}件）",
+        "allAssignments_other": "すべての割り当て（{{count}}件）",
+        "noAssignments": "まだ割り当てがありません。",
+        "noOtherAssignments": "他の割り当てはありません — 上の「実技サインオフ待ち」をご確認ください。",
+        "assignedLabel": "割り当て日：{{date}}",
+        "dueLabel": "期限：{{date}}"
+      },
+      "traineeProgrammePage": {
+        "programmeStatuses": {
+          "active": "進行中",
+          "completed": "完了",
+          "discontinued": "中止"
+        },
+        "reviewStatuses": {
+          "pending": "レビュー待ち",
+          "reviewed": "レビュー済み",
+          "needs_revision": "修正が必要"
+        },
+        "errors": {
+          "pickEndDate": "カスタム期間の終了日を選択してください。",
+          "endAfterStart": "終了日は開始日より後にしてください。",
+          "createFailed": "研修プログラムの作成に失敗しました",
+          "reviewFailed": "サマリーのレビューに失敗しました",
+          "signatureRequired": "証明書を承認するには署名を追加してください。",
+          "issueCertificateFailed": "証明書の発行に失敗しました"
+        },
+        "toasts": {
+          "created": "研修プログラムを作成しました。",
+          "summaryReviewed": "サマリーをレビューしました。",
+          "certificateIssued": "証明書を発行しました。"
+        },
+        "backAria": "戻る",
+        "headerTitle": "研修プログラム — {{name}}",
+        "monthProgramme_one": "{{count}}か月プログラム",
+        "monthProgramme_other": "{{count}}か月プログラム",
+        "monthLabel": "{{number}}か月目",
+        "knowledgeWriteups": "知識まとめ",
+        "noSubmissions": "まだ提出がありません。",
+        "defaultWriteupName": "知識まとめ",
+        "actions": {
+          "markReviewed": "レビュー済みにする",
+          "needsRevision": "修正が必要"
+        },
+        "defaultRevisionComment": "もう少し詳しく記載してください。",
+        "issueCertificate": {
+          "title": "修了証明書を発行",
+          "mustCertifyAll": "証明書を発行するには、すべてのモジュールが認定済みである必要があります。",
+          "recommendationPlaceholder": "担当者（監督者／管理者／プラントマネージャー）からの所見...",
+          "authorizingSignature": "承認署名（{{name}}）",
+          "issuing": "発行中…",
+          "issue": "証明書を発行"
+        },
+        "setup": {
+          "title": "研修プログラムを設定",
+          "duration": "期間",
+          "durationOptions": {
+            "sixMonths": "6か月",
+            "oneYear": "1年",
+            "custom": "カスタム期間…"
+          },
+          "startDate": "開始日",
+          "endDate": "終了日",
+          "customRangeSized_one": "これは {{count}} か月の配属です — 以下のプランはこれに合わせて調整されています。",
+          "customRangeSized_other": "これは {{count}} か月の配属です — 以下のプランはこれに合わせて調整されています。",
+          "monthFocusPlaceholder": "当月の重点項目（任意）",
+          "modules": "モジュール",
+          "weekendTasksPlaceholder": "当月の週末課題を1行に1つずつ入力",
+          "creating": "作成中…",
+          "create": "プログラムを作成"
+        }
+      },
+      "myProgramPage": {
+        "assignedModules": {
+          "title": "割り当てられた研修生モジュール",
+          "noneOutstanding": "未完了の研修生モジュールはありません — 新規の割り当てがないか、割り当て済みのものはすべて完了しています。",
+          "assignedWithDue": "割り当て日 {{assignedDate}} ・ 期限 {{dueDate}}",
+          "assigned": "割り当て日 {{date}}"
+        },
+        "monthLabel": "{{number}}か月目",
+        "noModulesThisMonth": "今月分のモジュールはまだ割り当てられていません。",
+        "title": "マイ研修プログラム",
+        "noProgramme": "月別の研修プログラムはまだ設定されていません — 割り当てられた研修生モジュールは以下のとおりです。",
+        "summary": "{{count}}か月プログラム ・ 開始日 {{startDate}} ・ 完了予定日 {{endDate}}",
+        "overallProgress": "全体進捗",
+        "moduleCount": "{{completed}} / {{total}} モジュール",
+        "completedWithMark": "プログラムが完了しました — 最終評点 {{mark}}%。",
+        "completed": "プログラムが完了しました。",
+        "downloadCertificate": "証明書をダウンロード"
+      }
     }
   },
   "triage": {

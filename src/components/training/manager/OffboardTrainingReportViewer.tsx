@@ -1,4 +1,5 @@
 import { X, Download, Globe2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { OFFBOARD_MODE_LABELS } from '@/lib/training/offboardTraining';
 
@@ -20,6 +21,7 @@ export default function OffboardTrainingReportViewer({
   assignment,
   onClose,
 }: OffboardTrainingReportViewerProps) {
+  const { t } = useTranslation();
   const details = assignment.offboardDetails;
   const completion = assignment.offboardCompletion;
 
@@ -38,32 +40,32 @@ export default function OffboardTrainingReportViewer({
 
         <div className="p-5 space-y-5 max-h-[75vh] overflow-y-auto">
           <div>
-            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Training Details</h3>
+            <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.traineeManagement.library.offboardReportViewer.trainingDetails')}</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div><span className="text-gray-400">Trainee</span><p className="text-gray-800">{assignment.traineeName}</p></div>
-              <div><span className="text-gray-400">Provider</span><p className="text-gray-800">{details?.thirdPartyCompany || '—'}</p></div>
-              <div><span className="text-gray-400">Country</span><p className="text-gray-800">{details?.country || '—'}</p></div>
-              <div><span className="text-gray-400">Mode</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : '—'}</p></div>
-              <div><span className="text-gray-400">Duration</span><p className="text-gray-800">{details?.durationDays ?? 0} day(s)</p></div>
-              <div><span className="text-gray-400">Dates</span><p className="text-gray-800">{formatDate(details?.startDate)} — {formatDate(details?.endDate)}</p></div>
+              <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardReportViewer.trainee')}</span><p className="text-gray-800">{assignment.traineeName}</p></div>
+              <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardReportViewer.provider')}</span><p className="text-gray-800">{details?.thirdPartyCompany || t('common.traineeManagement.library.offboardReportViewer.notAvailable')}</p></div>
+              <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardReportViewer.country')}</span><p className="text-gray-800">{details?.country || t('common.traineeManagement.library.offboardReportViewer.notAvailable')}</p></div>
+              <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardReportViewer.mode')}</span><p className="text-gray-800">{details?.mode ? OFFBOARD_MODE_LABELS[details.mode] : t('common.traineeManagement.library.offboardReportViewer.notAvailable')}</p></div>
+              <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardReportViewer.duration')}</span><p className="text-gray-800">{t('common.traineeManagement.library.offboardReportViewer.durationValue', { count: details?.durationDays ?? 0 })}</p></div>
+              <div><span className="text-gray-400">{t('common.traineeManagement.library.offboardReportViewer.dates')}</span><p className="text-gray-800">{formatDate(details?.startDate)} — {formatDate(details?.endDate)}</p></div>
             </div>
           </div>
 
           {completion?.reportSubmittedAt ? (
             <>
               <div>
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Knowledge Gained</h3>
+                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.traineeManagement.library.offboardReportViewer.knowledgeGained')}</h3>
                 <p className="text-sm text-gray-800 whitespace-pre-wrap">{completion.knowledgeGained}</p>
               </div>
 
               {completion.assessmentAnswers?.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Assessment Q&A</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.traineeManagement.library.offboardReportViewer.assessmentQA')}</h3>
                   <div className="space-y-3">
                     {completion.assessmentAnswers.map((qa, i) => (
                       <div key={i}>
                         <p className="text-sm font-medium text-gray-700">{qa.question}</p>
-                        <p className="text-sm text-gray-600">{qa.answer || '—'}</p>
+                        <p className="text-sm text-gray-600">{qa.answer || t('common.traineeManagement.library.offboardReportViewer.notAvailable')}</p>
                       </div>
                     ))}
                   </div>
@@ -72,7 +74,7 @@ export default function OffboardTrainingReportViewer({
 
               {(completion.attachmentUrls?.length ?? 0) > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Attachments</h3>
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('common.traineeManagement.library.offboardReportViewer.attachments')}</h3>
                   <ul className="space-y-1">
                     {completion.attachmentUrls.map((url) => (
                       <li key={url}>
@@ -92,15 +94,15 @@ export default function OffboardTrainingReportViewer({
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2"
                 >
-                  <Download className="w-4 h-4" /> Download PDF Report
+                  <Download className="w-4 h-4" /> {t('common.traineeManagement.library.offboardReportViewer.downloadPdf')}
                 </a>
               ) : (
-                <p className="text-xs text-gray-400">PDF report is being generated.</p>
+                <p className="text-xs text-gray-400">{t('common.traineeManagement.library.offboardReportViewer.pdfGenerating')}</p>
               )}
             </>
           ) : (
             <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-              Knowledge report not yet submitted by the trainee.
+              {t('common.traineeManagement.library.offboardReportViewer.notSubmitted')}
             </p>
           )}
         </div>

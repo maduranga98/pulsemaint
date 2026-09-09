@@ -4540,6 +4540,442 @@
         }
       }
     },
+    "traineeManagement": {
+      "managementList": {
+        "searchPlaceholder": "Search trainee by name, department, or employee ID...",
+        "profilesHeading": "Trainee Profiles",
+        "noTrainees": "No trainees found.",
+        "stats": {
+          "trainings": "Trainings",
+          "progress": "Progress",
+          "marks": "Marks"
+        },
+        "woCount_one": "{{count}} WO joined",
+        "woCount_other": "{{count}} WOs joined",
+        "viewTrainings": "View trainings",
+        "hideTrainings": "Hide trainings",
+        "trainingsHeading": "Trainings",
+        "trainingsHeadingWithName": "Trainings — {{name}}",
+        "selectTraineePrompt": "Select a trainee above to view their assigned trainings.",
+        "setupProgramme": "Set up Training Programme",
+        "noTrainingsAssigned": "No trainings assigned yet.",
+        "columns": {
+          "module": "Module",
+          "period": "Period",
+          "progress": "Progress",
+          "marks": "Marks",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "periodMonths_one": "{{count}} month",
+        "periodMonths_other": "{{count}} months",
+        "notAvailable": "—",
+        "status": {
+          "not_started": "Not Started",
+          "in_progress": "In Progress",
+          "quiz_passed": "Quiz Passed",
+          "quiz_failed": "Quiz Failed",
+          "awaiting_practical": "Awaiting Sign-Off",
+          "certified": "Certified",
+          "expired": "Expired",
+          "retraining_required": "Retraining"
+        },
+        "actions": {
+          "report": "Report"
+        }
+      },
+      "moduleSettingsForm": {
+        "sectionTitle": "Trainee Module Info",
+        "fields": {
+          "title": "Module Title",
+          "titlePlaceholder": "e.g. Electrical Trainee Orientation",
+          "description": "Description",
+          "descriptionPlaceholder": "Briefly describe what this programme module covers…",
+          "trainingType": "Training Type",
+          "selectTrainingType": "Select training type…",
+          "passingScore": "Passing Score",
+          "status": "Status",
+          "tags": "Tags",
+          "tagsPlaceholder": "electrical, trainee, safety  (comma-separated)",
+          "tagsHint": "Separate tags with commas"
+        },
+        "statuses": {
+          "draft": "Draft",
+          "active": "Active",
+          "archived": "Archived"
+        },
+        "errors": {
+          "titleRequired": "Title is required",
+          "trainingTypeRequired": "Training type is required"
+        },
+        "submit": "Save Module"
+      },
+      "library": {
+        "moduleLibrary": {
+          "titleDefault": "Trainee Module Library",
+          "loadSamples": "Load Sample Modules",
+          "loadingSamples": "Loading…",
+          "createModule": "Create Trainee Module",
+          "searchPlaceholder": "Search trainee modules...",
+          "allTrainingTypes": "All training types",
+          "statusFilters": {
+            "all": "All",
+            "draft": "Draft",
+            "active": "Active",
+            "archived": "Archived"
+          },
+          "columns": {
+            "title": "Title",
+            "trainingType": "Training Type",
+            "lessons": "Lessons",
+            "hasQuiz": "Has Quiz",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "yes": "Yes",
+          "no": "No",
+          "notAvailable": "—",
+          "emptyState": "No trainee modules found.",
+          "lessonsCount_one": "{{count}} lesson",
+          "lessonsCount_other": "{{count}} lessons",
+          "hasQuizLabel": "Has quiz",
+          "actions": {
+            "edit": "Edit",
+            "archive": "Archive",
+            "delete": "Delete"
+          },
+          "confirm": {
+            "archive": "Archive this module? It will no longer be assignable to trainees.",
+            "delete": "Delete this module permanently? This cannot be undone."
+          }
+        },
+        "offboardFields": {
+          "sectionTitle": "Offboard / External Training Details",
+          "country": "Country",
+          "countryPlaceholder": "Select country…",
+          "thirdPartyCompany": "Third-Party Company",
+          "thirdPartyCompanyPlaceholder": "e.g. Siemens Training Center",
+          "contactName": "Contact Name",
+          "contactInfo": "Contact Info",
+          "contactInfoPlaceholder": "email / phone",
+          "mode": "Mode",
+          "modeOptions": {
+            "inPerson": "In-person",
+            "online": "Online",
+            "hybrid": "Hybrid"
+          },
+          "startDate": "Start Date",
+          "endDate": "End Date",
+          "duration_one": "Duration: {{count}} day",
+          "duration_other": "Duration: {{count}} days",
+          "topic": "Topic",
+          "topicPlaceholder": "e.g. Advanced PLC Programming",
+          "assessmentQuestions": "Assessment Questions",
+          "assessmentQuestionsHint": "Trainee will answer these after completing the training.",
+          "customQuestionPlaceholder": "Add a custom question…",
+          "addQuestion": "Add"
+        },
+        "offboardReportViewer": {
+          "trainingDetails": "Training Details",
+          "trainee": "Trainee",
+          "provider": "Provider",
+          "country": "Country",
+          "mode": "Mode",
+          "duration": "Duration",
+          "durationValue": "{{count}} day(s)",
+          "dates": "Dates",
+          "notAvailable": "—",
+          "knowledgeGained": "Knowledge Gained",
+          "assessmentQA": "Assessment Q&A",
+          "attachments": "Attachments",
+          "downloadPdf": "Download PDF Report",
+          "pdfGenerating": "PDF report is being generated.",
+          "notSubmitted": "Knowledge report not yet submitted by the trainee."
+        },
+        "practicalSignOff": {
+          "title": "Practical Sign-Off",
+          "quizScore": "Quiz Score",
+          "observationsLabel": "Observations",
+          "observationsPlaceholder": "Describe what was observed during the practical assessment (min. 10 characters)...",
+          "observationsCounter": "{{count}} / 10 min characters",
+          "assessmentResult": "Assessment Result",
+          "pass": "Pass",
+          "fail": "Fail",
+          "signature": "Authorizing signature",
+          "submit": "Sign Off",
+          "errors": {
+            "observationsTooShort": "Observations must be at least 10 characters.",
+            "selectResult": "Please select Pass or Fail.",
+            "signatureRequired": "Please add your signature to authorize the certificate.",
+            "signOffFailed": "Sign-off failed."
+          }
+        },
+        "programsTab": {
+          "heading": "Programs",
+          "createProgram": "Create Program",
+          "assignedToast": "Program assigned successfully.",
+          "emptyState": "No programs created yet.",
+          "columns": {
+            "title": "Title",
+            "modules": "Modules",
+            "totalDuration": "Total Duration",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "durationDays": "{{count}} days",
+          "status": {
+            "active": "Active",
+            "archived": "Archived"
+          },
+          "actions": {
+            "assign": "Assign",
+            "delete": "Delete"
+          },
+          "confirm": {
+            "delete": "Delete this program? This permanently removes it from the catalog and cannot be undone. Trainees already assigned to it keep their progress."
+          }
+        },
+        "assignedProgramsTab": {
+          "emptyState": "No one has an open program assignment.",
+          "columns": {
+            "program": "Program",
+            "trainee": "Trainee",
+            "assigned": "Assigned",
+            "dueDate": "Due Date",
+            "progress": "Progress",
+            "status": "Status",
+            "action": "Action"
+          },
+          "status": {
+            "awaitingSignOff": "Awaiting Sign-Off",
+            "inProgress": "In Progress"
+          },
+          "signOff": "Sign Off",
+          "notAvailable": "—",
+          "modal": {
+            "title": "Sign Off Program",
+            "subtitle": "{{traineeName}} — {{programName}}",
+            "noteLabel": "Note",
+            "notePlaceholder": "Sign-off note...",
+            "signatureLabel": "Authorizing signature",
+            "cancel": "Cancel",
+            "confirm": "Confirm Sign Off",
+            "confirming": "Signing off…"
+          },
+          "toasts": {
+            "signatureRequired": "Please add your signature to authorize the certificate."
+          }
+        },
+        "createProgramModal": {
+          "title": "Create Training Program",
+          "programTitle": "Program Title",
+          "programTitlePlaceholder": "e.g. Electrical Trainee Program",
+          "description": "Description",
+          "totalDuration": "Total Program Duration",
+          "days": "days",
+          "modulesLabel": "Modules",
+          "modulesHint": "(select and set each module's due duration)",
+          "modulesEmpty": "No modules yet — create one in the Modules tab first.",
+          "dueDaysSuffix": "days due",
+          "cancel": "Cancel",
+          "create": "Create Program",
+          "creating": "Creating…",
+          "errors": {
+            "validation": "Add a title and select at least one module.",
+            "failed": "Failed to create program"
+          }
+        },
+        "assignProgramModal": {
+          "title": "Assign Program",
+          "searchPlaceholder": "Search trainees...",
+          "emptyState": "No trainees found.",
+          "cancel": "Cancel",
+          "assign": "Assign",
+          "assignTo": "Assign to {{count}}",
+          "assigning": "Assigning…",
+          "errors": {
+            "failed": "Failed to assign program"
+          }
+        },
+        "offboardCompletionForm": {
+          "backLink": "← Back to My Training",
+          "provider": "Provider",
+          "country": "Country",
+          "mode": "Mode",
+          "duration": "Duration",
+          "durationValue": "{{count}} day(s)",
+          "start": "Start",
+          "end": "End",
+          "topic": "Topic",
+          "notAvailable": "—",
+          "knowledgeGainedLabel": "Knowledge Gained",
+          "knowledgeGainedPlaceholder": "Summarize what you learned and how you'll apply it...",
+          "assessmentQuestions": "Assessment Questions",
+          "attachments": "Attachments",
+          "uploadLink": "Upload documentation / manuals",
+          "uploading": "Uploading…",
+          "submit": "Submit Knowledge Report",
+          "success": {
+            "heading": "Knowledge Report Submitted",
+            "message": "Thanks — your training report has been sent for review. HR will follow up if a certificate or further action is required.",
+            "backButton": "Back to My Training"
+          },
+          "errors": {
+            "fileTooLarge": "{{fileName}} exceeds the 25MB limit.",
+            "uploadFailed": "Failed to upload attachment",
+            "submitFailed": "Failed to submit report"
+          }
+        },
+        "programCertificateCard": {
+          "heading": "Program Completion Certificate",
+          "certificateNo": "Certificate No.",
+          "program": "Program",
+          "modulesCompleted": "Modules Completed",
+          "modulesCompleted_one": "{{count}} module",
+          "modulesCompleted_other": "{{count}} modules",
+          "issued": "Issued {{date}}",
+          "signedOffBy": "Signed off by {{name}} ({{role}})",
+          "notAvailable": "—",
+          "downloadAria": "Download program certificate as an A4 PDF",
+          "downloadButton": "Download A4 PDF",
+          "toasts": {
+            "pdfFailed": "Could not generate the certificate PDF."
+          }
+        },
+        "programmeCertificateCard": {
+          "heading": "Programme Completion Certificate",
+          "certificateNo": "Certificate No.",
+          "programme": "Programme",
+          "programmeTitle": "{{count}}-Month Trainee Programme",
+          "modulesCompleted_one": "{{count}} module across {{months}} months",
+          "modulesCompleted_other": "{{count}} modules across {{months}} months",
+          "issued": "Issued {{date}}",
+          "signedOffBy": "Signed off by {{name}} ({{role}})",
+          "finalMark": "Final Mark: {{mark}}%",
+          "downloadAria": "Download programme certificate PDF",
+          "downloadButton": "Download PDF"
+        }
+      },
+      "assignmentsListPage": {
+        "title": "Trainee Management",
+        "tabs": {
+          "assigned": "Assigned",
+          "programs": "Programs",
+          "modules": "Modules"
+        }
+      },
+      "createModulePage": {
+        "toasts": {
+          "saved": "Trainee module saved."
+        },
+        "backAria": "Back",
+        "title": "Create Trainee Module"
+      },
+      "editModulePage": {
+        "notFound": "Module not found.",
+        "back": "Back",
+        "wrongLibrary": {
+          "title": "Not found in this library.",
+          "description": "This module belongs to the Training library. Open it from the Training tab instead."
+        },
+        "backAria": "Back",
+        "quizBuilder": "Quiz Builder"
+      },
+      "traineeProfilePage": {
+        "backAria": "Back",
+        "title": "Trainee Profile",
+        "trainingProgramme": "Training Programme",
+        "awaitingSignOff": "Awaiting Practical Sign-Off",
+        "allAssignments_one": "All Assignments ({{count}})",
+        "allAssignments_other": "All Assignments ({{count}})",
+        "noAssignments": "No assignments yet.",
+        "noOtherAssignments": "No other assignments — see “Awaiting Practical Sign-Off” above.",
+        "assignedLabel": "Assigned: {{date}}",
+        "dueLabel": "Due: {{date}}"
+      },
+      "traineeProgrammePage": {
+        "programmeStatuses": {
+          "active": "active",
+          "completed": "completed",
+          "discontinued": "discontinued"
+        },
+        "reviewStatuses": {
+          "pending": "pending",
+          "reviewed": "reviewed",
+          "needs_revision": "needs_revision"
+        },
+        "errors": {
+          "pickEndDate": "Pick an end date for a custom duration.",
+          "endAfterStart": "End date must be after the start date.",
+          "createFailed": "Failed to create programme",
+          "reviewFailed": "Failed to review summary",
+          "signatureRequired": "Please add your signature to authorize the certificate.",
+          "issueCertificateFailed": "Failed to issue certificate"
+        },
+        "toasts": {
+          "created": "Training programme created.",
+          "summaryReviewed": "Summary reviewed.",
+          "certificateIssued": "Certificate issued."
+        },
+        "backAria": "Back",
+        "headerTitle": "Training Programme — {{name}}",
+        "monthProgramme_one": "{{count}}-Month Programme",
+        "monthProgramme_other": "{{count}}-Month Programme",
+        "monthLabel": "Month {{number}}",
+        "knowledgeWriteups": "Knowledge Write-ups",
+        "noSubmissions": "No submissions yet.",
+        "defaultWriteupName": "Knowledge write-up",
+        "actions": {
+          "markReviewed": "Mark Reviewed",
+          "needsRevision": "Needs Revision"
+        },
+        "defaultRevisionComment": "Please add more detail.",
+        "issueCertificate": {
+          "title": "Issue Completion Certificate",
+          "mustCertifyAll": "All modules must be certified before a certificate can be issued.",
+          "recommendationPlaceholder": "Recommendation from the in-charge (supervisor / admin / plant manager)...",
+          "authorizingSignature": "Authorizing signature ({{name}})",
+          "issuing": "Issuing…",
+          "issue": "Issue Certificate"
+        },
+        "setup": {
+          "title": "Set Up Training Programme",
+          "duration": "Duration",
+          "durationOptions": {
+            "sixMonths": "6 Months",
+            "oneYear": "1 Year",
+            "custom": "Custom range…"
+          },
+          "startDate": "Start Date",
+          "endDate": "End Date",
+          "customRangeSized_one": "This is a {{count}}-month placement — the plan below has been sized to match.",
+          "customRangeSized_other": "This is a {{count}}-month placement — the plan below has been sized to match.",
+          "monthFocusPlaceholder": "Month focus (optional)",
+          "modules": "Modules",
+          "weekendTasksPlaceholder": "Weekend tasks for this month, one per line",
+          "creating": "Creating…",
+          "create": "Create Programme"
+        }
+      },
+      "myProgramPage": {
+        "assignedModules": {
+          "title": "Assigned Trainee Modules",
+          "noneOutstanding": "No trainee modules outstanding — nothing new assigned, or everything assigned is already complete.",
+          "assignedWithDue": "Assigned {{assignedDate}} · due {{dueDate}}",
+          "assigned": "Assigned {{date}}"
+        },
+        "monthLabel": "Month {{number}}",
+        "noModulesThisMonth": "No modules assigned for this month yet.",
+        "title": "My Training Programme",
+        "noProgramme": "No month-by-month programme has been set up for you yet — the trainee modules assigned to you are below.",
+        "summary": "{{count}}-month programme · started {{startDate}} · expected completion {{endDate}}",
+        "overallProgress": "Overall Progress",
+        "moduleCount": "{{completed}} / {{total}} modules",
+        "completedWithMark": "Programme completed — final mark {{mark}}%.",
+        "completed": "Programme completed.",
+        "downloadCertificate": "Download certificate"
+      }
+    },
     "triage": {
       "knowledge": {
         "page": {

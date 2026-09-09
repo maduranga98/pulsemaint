@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import { CheckCircle, XCircle, Loader2, ClipboardCheck } from 'lucide-react';
 import { SignaturePad } from '@/components/settings/SignaturePad';
@@ -14,6 +15,7 @@ export default function PracticalSignOffCard({
   onSignOff,
   isLoading = false,
 }: PracticalSignOffCardProps) {
+  const { t } = useTranslation();
   const [observations, setObservations] = useState('');
   const [passed, setPassed] = useState<boolean | null>(null);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
@@ -24,15 +26,15 @@ export default function PracticalSignOffCard({
     setError(null);
 
     if (!observations.trim() || observations.trim().length < 10) {
-      setError('Observations must be at least 10 characters.');
+      setError(t('common.traineeManagement.library.practicalSignOff.errors.observationsTooShort'));
       return;
     }
     if (passed === null) {
-      setError('Please select Pass or Fail.');
+      setError(t('common.traineeManagement.library.practicalSignOff.errors.selectResult'));
       return;
     }
     if (passed && !signatureDataUrl) {
-      setError('Please add your signature to authorize the certificate.');
+      setError(t('common.traineeManagement.library.practicalSignOff.errors.signatureRequired'));
       return;
     }
 
@@ -40,7 +42,7 @@ export default function PracticalSignOffCard({
     try {
       await onSignOff({ passed, observations: observations.trim(), signatureDataUrl });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign-off failed.');
+      setError(err instanceof Error ? err.message : t('common.traineeManagement.library.practicalSignOff.errors.signOffFailed'));
     } finally {
       setSubmitting(false);
     }
@@ -54,7 +56,7 @@ export default function PracticalSignOffCard({
           <ClipboardCheck className="w-5 h-5 text-blue-600" />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900">Practical Sign-Off</h3>
+          <h3 className="font-semibold text-gray-900">{t('common.traineeManagement.library.practicalSignOff.title')}</h3>
           <p className="text-sm text-gray-500">
             {assignment.traineeName} &middot; {assignment.moduleName}
           </p>
@@ -63,7 +65,7 @@ export default function PracticalSignOffCard({
 
       {/* Quiz Score */}
       <div className="bg-gray-50 rounded-lg px-4 py-3 flex items-center justify-between">
-        <span className="text-sm text-gray-600">Quiz Score</span>
+        <span className="text-sm text-gray-600">{t('common.traineeManagement.library.practicalSignOff.quizScore')}</span>
         <span className="text-lg font-bold text-gray-900">
           {assignment.bestScore}%
         </span>
@@ -72,24 +74,24 @@ export default function PracticalSignOffCard({
       {/* Observations */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Observations <span className="text-red-500">*</span>
+          {t('common.traineeManagement.library.practicalSignOff.observationsLabel')} <span className="text-red-500">*</span>
         </label>
         <textarea
           rows={4}
           value={observations}
           onChange={(e) => setObservations(e.target.value)}
-          placeholder="Describe what was observed during the practical assessment (min. 10 characters)..."
+          placeholder={t('common.traineeManagement.library.practicalSignOff.observationsPlaceholder')}
           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
         <p className="text-xs text-gray-400 mt-1">
-          {observations.trim().length} / 10 min characters
+          {t('common.traineeManagement.library.practicalSignOff.observationsCounter', { count: observations.trim().length })}
         </p>
       </div>
 
       {/* Pass / Fail Selection */}
       <div>
         <p className="text-sm font-medium text-gray-700 mb-2">
-          Assessment Result <span className="text-red-500">*</span>
+          {t('common.traineeManagement.library.practicalSignOff.assessmentResult')} <span className="text-red-500">*</span>
         </p>
         <div className="flex gap-3">
           <button
@@ -102,7 +104,7 @@ export default function PracticalSignOffCard({
             }`}
           >
             <CheckCircle className="w-5 h-5" />
-            Pass
+            {t('common.traineeManagement.library.practicalSignOff.pass')}
           </button>
           <button
             type="button"
@@ -114,7 +116,7 @@ export default function PracticalSignOffCard({
             }`}
           >
             <XCircle className="w-5 h-5" />
-            Fail
+            {t('common.traineeManagement.library.practicalSignOff.fail')}
           </button>
         </div>
       </div>
@@ -123,7 +125,7 @@ export default function PracticalSignOffCard({
       {passed === true && (
         <div>
           <p className="text-sm font-medium text-gray-700 mb-2">
-            Authorizing signature <span className="text-red-500">*</span>
+            {t('common.traineeManagement.library.practicalSignOff.signature')} <span className="text-red-500">*</span>
           </p>
           <SignaturePad onChange={setSignatureDataUrl} />
         </div>
@@ -145,7 +147,7 @@ export default function PracticalSignOffCard({
         {(submitting || isLoading) && (
           <Loader2 className="w-4 h-4 animate-spin" />
         )}
-        Sign Off
+        {t('common.traineeManagement.library.practicalSignOff.submit')}
       </button>
     </div>
   );

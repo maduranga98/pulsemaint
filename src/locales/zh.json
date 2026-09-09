@@ -4571,6 +4571,442 @@
           }
         }
       }
+    },
+    "traineeManagement": {
+      "managementList": {
+        "searchPlaceholder": "按姓名、部门或员工编号搜索学员…",
+        "profilesHeading": "学员档案",
+        "noTrainees": "未找到学员。",
+        "stats": {
+          "trainings": "培训",
+          "progress": "进度",
+          "marks": "成绩"
+        },
+        "woCount_one": "已加入 {{count}} 个工单",
+        "woCount_other": "已加入 {{count}} 个工单",
+        "viewTrainings": "查看培训",
+        "hideTrainings": "隐藏培训",
+        "trainingsHeading": "培训",
+        "trainingsHeadingWithName": "培训 — {{name}}",
+        "selectTraineePrompt": "请在上方选择一名学员以查看其已分配的培训。",
+        "setupProgramme": "设置培训计划",
+        "noTrainingsAssigned": "尚未分配任何培训。",
+        "columns": {
+          "module": "模块",
+          "period": "周期",
+          "progress": "进度",
+          "marks": "成绩",
+          "status": "状态",
+          "actions": "操作"
+        },
+        "periodMonths_one": "{{count}} 个月",
+        "periodMonths_other": "{{count}} 个月",
+        "notAvailable": "—",
+        "status": {
+          "not_started": "未开始",
+          "in_progress": "进行中",
+          "quiz_passed": "测验已通过",
+          "quiz_failed": "测验未通过",
+          "awaiting_practical": "等待签核",
+          "certified": "已认证",
+          "expired": "已过期",
+          "retraining_required": "需要再培训"
+        },
+        "actions": {
+          "report": "报告"
+        }
+      },
+      "moduleSettingsForm": {
+        "sectionTitle": "学员模块信息",
+        "fields": {
+          "title": "模块标题",
+          "titlePlaceholder": "例如：电气学员入职培训",
+          "description": "描述",
+          "descriptionPlaceholder": "简要描述该培训计划模块所涵盖的内容…",
+          "trainingType": "培训类型",
+          "selectTrainingType": "选择培训类型…",
+          "passingScore": "及格分数",
+          "status": "状态",
+          "tags": "标签",
+          "tagsPlaceholder": "电气、学员、安全（以逗号分隔）",
+          "tagsHint": "使用逗号分隔多个标签"
+        },
+        "statuses": {
+          "draft": "草稿",
+          "active": "启用",
+          "archived": "已归档"
+        },
+        "errors": {
+          "titleRequired": "标题为必填项",
+          "trainingTypeRequired": "培训类型为必填项"
+        },
+        "submit": "保存模块"
+      },
+      "library": {
+        "moduleLibrary": {
+          "titleDefault": "学员模块库",
+          "loadSamples": "加载示例模块",
+          "loadingSamples": "加载中…",
+          "createModule": "创建学员模块",
+          "searchPlaceholder": "搜索学员模块…",
+          "allTrainingTypes": "所有培训类型",
+          "statusFilters": {
+            "all": "全部",
+            "draft": "草稿",
+            "active": "启用",
+            "archived": "已归档"
+          },
+          "columns": {
+            "title": "标题",
+            "trainingType": "培训类型",
+            "lessons": "课程",
+            "hasQuiz": "含测验",
+            "status": "状态",
+            "actions": "操作"
+          },
+          "yes": "是",
+          "no": "否",
+          "notAvailable": "—",
+          "emptyState": "未找到学员模块。",
+          "lessonsCount_one": "{{count}} 节课",
+          "lessonsCount_other": "{{count}} 节课",
+          "hasQuizLabel": "含测验",
+          "actions": {
+            "edit": "编辑",
+            "archive": "归档",
+            "delete": "删除"
+          },
+          "confirm": {
+            "archive": "归档此模块？归档后将无法再分配给学员。",
+            "delete": "永久删除此模块？此操作无法撤销。"
+          }
+        },
+        "offboardFields": {
+          "sectionTitle": "外部/第三方培训详情",
+          "country": "国家/地区",
+          "countryPlaceholder": "选择国家/地区…",
+          "thirdPartyCompany": "第三方机构",
+          "thirdPartyCompanyPlaceholder": "例如：西门子培训中心",
+          "contactName": "联系人姓名",
+          "contactInfo": "联系方式",
+          "contactInfoPlaceholder": "邮箱 / 电话",
+          "mode": "方式",
+          "modeOptions": {
+            "inPerson": "现场",
+            "online": "线上",
+            "hybrid": "混合"
+          },
+          "startDate": "开始日期",
+          "endDate": "结束日期",
+          "duration_one": "时长：{{count}} 天",
+          "duration_other": "时长：{{count}} 天",
+          "topic": "主题",
+          "topicPlaceholder": "例如：PLC 高级编程",
+          "assessmentQuestions": "评估问题",
+          "assessmentQuestionsHint": "学员将在完成培训后回答这些问题。",
+          "customQuestionPlaceholder": "添加自定义问题…",
+          "addQuestion": "添加"
+        },
+        "offboardReportViewer": {
+          "trainingDetails": "培训详情",
+          "trainee": "学员",
+          "provider": "培训机构",
+          "country": "国家/地区",
+          "mode": "方式",
+          "duration": "时长",
+          "durationValue": "{{count}} 天",
+          "dates": "日期",
+          "notAvailable": "—",
+          "knowledgeGained": "所获知识",
+          "assessmentQA": "评估问答",
+          "attachments": "附件",
+          "downloadPdf": "下载 PDF 报告",
+          "pdfGenerating": "PDF 报告正在生成中。",
+          "notSubmitted": "学员尚未提交知识报告。"
+        },
+        "practicalSignOff": {
+          "title": "实操签核",
+          "quizScore": "测验成绩",
+          "observationsLabel": "观察记录",
+          "observationsPlaceholder": "描述在实操评估中观察到的情况（至少 10 个字符）…",
+          "observationsCounter": "{{count}} / 最少 10 个字符",
+          "assessmentResult": "评估结果",
+          "pass": "通过",
+          "fail": "未通过",
+          "signature": "授权签名",
+          "submit": "签核",
+          "errors": {
+            "observationsTooShort": "观察记录至少需要 10 个字符。",
+            "selectResult": "请选择通过或未通过。",
+            "signatureRequired": "请添加签名以授权证书。",
+            "signOffFailed": "签核失败。"
+          }
+        },
+        "programsTab": {
+          "heading": "培训计划",
+          "createProgram": "创建计划",
+          "assignedToast": "计划分配成功。",
+          "emptyState": "尚未创建任何计划。",
+          "columns": {
+            "title": "标题",
+            "modules": "模块",
+            "totalDuration": "总时长",
+            "status": "状态",
+            "actions": "操作"
+          },
+          "durationDays": "{{count}} 天",
+          "status": {
+            "active": "启用",
+            "archived": "已归档"
+          },
+          "actions": {
+            "assign": "分配",
+            "delete": "删除"
+          },
+          "confirm": {
+            "delete": "删除此计划？该操作会将其从目录中永久移除，且无法撤销。已分配该计划的学员将保留其进度。"
+          }
+        },
+        "assignedProgramsTab": {
+          "emptyState": "目前没有人有待完成的计划分配。",
+          "columns": {
+            "program": "计划",
+            "trainee": "学员",
+            "assigned": "分配日期",
+            "dueDate": "截止日期",
+            "progress": "进度",
+            "status": "状态",
+            "action": "操作"
+          },
+          "status": {
+            "awaitingSignOff": "等待签核",
+            "inProgress": "进行中"
+          },
+          "signOff": "签核",
+          "notAvailable": "—",
+          "modal": {
+            "title": "计划签核",
+            "subtitle": "{{traineeName}} — {{programName}}",
+            "noteLabel": "备注",
+            "notePlaceholder": "签核备注…",
+            "signatureLabel": "授权签名",
+            "cancel": "取消",
+            "confirm": "确认签核",
+            "confirming": "正在签核…"
+          },
+          "toasts": {
+            "signatureRequired": "请添加签名以授权证书。"
+          }
+        },
+        "createProgramModal": {
+          "title": "创建培训计划",
+          "programTitle": "计划标题",
+          "programTitlePlaceholder": "例如：电气学员计划",
+          "description": "描述",
+          "totalDuration": "计划总时长",
+          "days": "天",
+          "modulesLabel": "模块",
+          "modulesHint": "（选择模块并设置各模块的到期时长）",
+          "modulesEmpty": "尚无模块 — 请先在“模块”标签页中创建一个。",
+          "dueDaysSuffix": "天到期",
+          "cancel": "取消",
+          "create": "创建计划",
+          "creating": "创建中…",
+          "errors": {
+            "validation": "请添加标题并至少选择一个模块。",
+            "failed": "创建计划失败"
+          }
+        },
+        "assignProgramModal": {
+          "title": "分配计划",
+          "searchPlaceholder": "搜索学员…",
+          "emptyState": "未找到学员。",
+          "cancel": "取消",
+          "assign": "分配",
+          "assignTo": "分配给 {{count}} 人",
+          "assigning": "分配中…",
+          "errors": {
+            "failed": "分配计划失败"
+          }
+        },
+        "offboardCompletionForm": {
+          "backLink": "← 返回我的培训",
+          "provider": "培训机构",
+          "country": "国家/地区",
+          "mode": "方式",
+          "duration": "时长",
+          "durationValue": "{{count}} 天",
+          "start": "开始",
+          "end": "结束",
+          "topic": "主题",
+          "notAvailable": "—",
+          "knowledgeGainedLabel": "所获知识",
+          "knowledgeGainedPlaceholder": "总结你所学到的内容以及将如何应用…",
+          "assessmentQuestions": "评估问题",
+          "attachments": "附件",
+          "uploadLink": "上传文档 / 说明书",
+          "uploading": "上传中…",
+          "submit": "提交知识报告",
+          "success": {
+            "heading": "知识报告已提交",
+            "message": "感谢提交 — 您的培训报告已发送审核。如需颁发证书或采取进一步行动，人力资源部门将与您联系。",
+            "backButton": "返回我的培训"
+          },
+          "errors": {
+            "fileTooLarge": "{{fileName}} 超过 25MB 大小限制。",
+            "uploadFailed": "附件上传失败",
+            "submitFailed": "报告提交失败"
+          }
+        },
+        "programCertificateCard": {
+          "heading": "计划完成证书",
+          "certificateNo": "证书编号",
+          "program": "计划",
+          "modulesCompleted": "已完成模块",
+          "modulesCompleted_one": "{{count}} 个模块",
+          "modulesCompleted_other": "{{count}} 个模块",
+          "issued": "颁发于 {{date}}",
+          "signedOffBy": "签核人：{{name}}（{{role}}）",
+          "notAvailable": "—",
+          "downloadAria": "下载 A4 尺寸 PDF 格式的计划证书",
+          "downloadButton": "下载 A4 PDF",
+          "toasts": {
+            "pdfFailed": "无法生成证书 PDF。"
+          }
+        },
+        "programmeCertificateCard": {
+          "heading": "培训计划完成证书",
+          "certificateNo": "证书编号",
+          "programme": "培训计划",
+          "programmeTitle": "{{count}} 个月学员培训计划",
+          "modulesCompleted_one": "{{months}} 个月内完成 {{count}} 个模块",
+          "modulesCompleted_other": "{{months}} 个月内完成 {{count}} 个模块",
+          "issued": "颁发于 {{date}}",
+          "signedOffBy": "签核人：{{name}}（{{role}}）",
+          "finalMark": "最终成绩：{{mark}}%",
+          "downloadAria": "下载培训计划证书 PDF",
+          "downloadButton": "下载 PDF"
+        }
+      },
+      "assignmentsListPage": {
+        "title": "学员管理",
+        "tabs": {
+          "assigned": "已分配",
+          "programs": "计划",
+          "modules": "模块"
+        }
+      },
+      "createModulePage": {
+        "toasts": {
+          "saved": "学员模块已保存。"
+        },
+        "backAria": "返回",
+        "title": "创建学员模块"
+      },
+      "editModulePage": {
+        "notFound": "未找到该模块。",
+        "back": "返回",
+        "wrongLibrary": {
+          "title": "该资源库中未找到此内容。",
+          "description": "此模块属于培训资源库。请改为从“培训”标签页打开。"
+        },
+        "backAria": "返回",
+        "quizBuilder": "测验构建器"
+      },
+      "traineeProfilePage": {
+        "backAria": "返回",
+        "title": "学员档案",
+        "trainingProgramme": "培训计划",
+        "awaitingSignOff": "等待实操签核",
+        "allAssignments_one": "全部分配（{{count}}）",
+        "allAssignments_other": "全部分配（{{count}}）",
+        "noAssignments": "尚无分配。",
+        "noOtherAssignments": "没有其他分配 — 请参见上方的“等待实操签核”。",
+        "assignedLabel": "分配日期：{{date}}",
+        "dueLabel": "截止日期：{{date}}"
+      },
+      "traineeProgrammePage": {
+        "programmeStatuses": {
+          "active": "进行中",
+          "completed": "已完成",
+          "discontinued": "已终止"
+        },
+        "reviewStatuses": {
+          "pending": "待审核",
+          "reviewed": "已审核",
+          "needs_revision": "需修改"
+        },
+        "errors": {
+          "pickEndDate": "请为自定义时长选择结束日期。",
+          "endAfterStart": "结束日期必须晚于开始日期。",
+          "createFailed": "创建培训计划失败",
+          "reviewFailed": "审核总结失败",
+          "signatureRequired": "请添加签名以授权证书。",
+          "issueCertificateFailed": "颁发证书失败"
+        },
+        "toasts": {
+          "created": "培训计划已创建。",
+          "summaryReviewed": "总结已审核。",
+          "certificateIssued": "证书已颁发。"
+        },
+        "backAria": "返回",
+        "headerTitle": "培训计划 — {{name}}",
+        "monthProgramme_one": "{{count}} 个月计划",
+        "monthProgramme_other": "{{count}} 个月计划",
+        "monthLabel": "第 {{number}} 个月",
+        "knowledgeWriteups": "知识总结",
+        "noSubmissions": "尚无提交。",
+        "defaultWriteupName": "知识总结",
+        "actions": {
+          "markReviewed": "标记为已审核",
+          "needsRevision": "需要修改"
+        },
+        "defaultRevisionComment": "请补充更多细节。",
+        "issueCertificate": {
+          "title": "颁发结业证书",
+          "mustCertifyAll": "必须先认证所有模块，才能颁发证书。",
+          "recommendationPlaceholder": "负责人（主管 / 管理员 / 厂长）的推荐意见…",
+          "authorizingSignature": "授权签名（{{name}}）",
+          "issuing": "颁发中…",
+          "issue": "颁发证书"
+        },
+        "setup": {
+          "title": "设置培训计划",
+          "duration": "时长",
+          "durationOptions": {
+            "sixMonths": "6 个月",
+            "oneYear": "1 年",
+            "custom": "自定义范围…"
+          },
+          "startDate": "开始日期",
+          "endDate": "结束日期",
+          "customRangeSized_one": "这是一个 {{count}} 个月的实习安排 — 下方计划已按此调整。",
+          "customRangeSized_other": "这是一个 {{count}} 个月的实习安排 — 下方计划已按此调整。",
+          "monthFocusPlaceholder": "本月重点（可选）",
+          "modules": "模块",
+          "weekendTasksPlaceholder": "本月的周末任务，每行一项",
+          "creating": "创建中…",
+          "create": "创建计划"
+        }
+      },
+      "myProgramPage": {
+        "assignedModules": {
+          "title": "已分配的学员模块",
+          "noneOutstanding": "没有待完成的学员模块 — 或是尚未分配新模块，或是已分配的模块均已完成。",
+          "assignedWithDue": "分配于 {{assignedDate}} · 截止于 {{dueDate}}",
+          "assigned": "分配于 {{date}}"
+        },
+        "monthLabel": "第 {{number}} 个月",
+        "noModulesThisMonth": "本月尚未分配任何模块。",
+        "title": "我的培训计划",
+        "noProgramme": "尚未为您设置按月安排的培训计划 — 以下是分配给您的学员模块。",
+        "summary": "{{count}} 个月计划 · 开始于 {{startDate}} · 预计完成于 {{endDate}}",
+        "overallProgress": "总体进度",
+        "moduleCount": "{{completed}} / {{total}} 个模块",
+        "completedWithMark": "计划已完成 — 最终成绩 {{mark}}%。",
+        "completed": "计划已完成。",
+        "downloadCertificate": "下载证书"
+      }
     }
   },
   "triage": {

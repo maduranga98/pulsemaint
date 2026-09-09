@@ -1,5 +1,6 @@
 import { Award, Download, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { buildProgramCertificatePdf, buildProgramCertificateNumber, programCertificateFileName } from '@/lib/training/programCertificatePdf';
 import { resolveCompanyLogoDataUrl } from '@/lib/pdf/logoUtils';
@@ -25,6 +26,7 @@ function formatDate(ts: { seconds: number } | null | undefined): string {
  * captured digital signature already embedded.
  */
 export default function ProgramCertificateCard({ programAssignment: pa }: ProgramCertificateCardProps) {
+  const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
   const cert = pa.certificate;
   const issuedAt = cert?.issuedAt as unknown as { seconds: number } | undefined;
@@ -57,7 +59,7 @@ export default function ProgramCertificateCard({ programAssignment: pa }: Progra
       doc.save(programCertificateFileName(pa.traineeName, certificateNumber));
     } catch (err) {
       console.error('Failed to build program certificate PDF', err);
-      toast.error('Could not generate the certificate PDF.');
+      toast.error(t('common.traineeManagement.library.programCertificateCard.toasts.pdfFailed'));
     }
   }
 
@@ -68,39 +70,41 @@ export default function ProgramCertificateCard({ programAssignment: pa }: Progra
       <div className="bg-gradient-to-r from-blue-700 to-indigo-600 px-4 py-3 flex items-center gap-2">
         <Award size={20} className="text-yellow-300" />
         <span className="text-white text-xs font-semibold tracking-widest uppercase">
-          Program Completion Certificate
+          {t('common.traineeManagement.library.programCertificateCard.heading')}
         </span>
       </div>
 
       <div className="p-4 space-y-3">
         <div>
-          <p className="text-xs text-slate-500 uppercase tracking-wide">Certificate No.</p>
-          <p className="font-mono text-sm font-semibold text-slate-700">{cert.certificateNumber || '—'}</p>
+          <p className="text-xs text-slate-500 uppercase tracking-wide">{t('common.traineeManagement.library.programCertificateCard.certificateNo')}</p>
+          <p className="font-mono text-sm font-semibold text-slate-700">{cert.certificateNumber || t('common.traineeManagement.library.programCertificateCard.notAvailable')}</p>
         </div>
 
         <div>
-          <p className="text-xs text-slate-500">Program</p>
+          <p className="text-xs text-slate-500">{t('common.traineeManagement.library.programCertificateCard.program')}</p>
           <p className="font-bold text-blue-700 text-lg leading-tight">{pa.programName}</p>
         </div>
 
         <div>
-          <p className="text-xs text-slate-500">Modules Completed</p>
+          <p className="text-xs text-slate-500">{t('common.traineeManagement.library.programCertificateCard.modulesCompleted')}</p>
           <p className="text-sm text-slate-700 leading-snug">
-            {cert.moduleResults.length} module{cert.moduleResults.length === 1 ? '' : 's'}
+            {t('common.traineeManagement.library.programCertificateCard.modulesCompleted', { count: cert.moduleResults.length })}
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
           <div className="flex items-center gap-1">
             <Calendar size={12} />
-            <span>Issued {formatDate(issuedAt)}</span>
+            <span>{t('common.traineeManagement.library.programCertificateCard.issued', { date: formatDate(issuedAt) })}</span>
           </div>
         </div>
 
         {pa.signOff && (
           <div className="text-xs text-slate-600">
-            Signed off by <strong className="text-slate-700">{pa.signOff.signedOffByName}</strong>{' '}
-            ({pa.signOff.signedOffByRole.replace(/_/g, ' ')})
+            {t('common.traineeManagement.library.programCertificateCard.signedOffBy', {
+              name: pa.signOff.signedOffByName,
+              role: pa.signOff.signedOffByRole.replace(/_/g, ' '),
+            })}
           </div>
         )}
 
@@ -109,10 +113,10 @@ export default function ProgramCertificateCard({ programAssignment: pa }: Progra
             type="button"
             onClick={handleDownload}
             className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            aria-label="Download program certificate as an A4 PDF"
+            aria-label={t('common.traineeManagement.library.programCertificateCard.downloadAria')}
           >
             <Download size={14} />
-            Download A4 PDF
+            {t('common.traineeManagement.library.programCertificateCard.downloadButton')}
           </button>
         </div>
       </div>

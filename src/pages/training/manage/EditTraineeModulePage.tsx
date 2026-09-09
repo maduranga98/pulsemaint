@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useTrainingModule } from '@/hooks/training/useTrainingModule';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
@@ -13,6 +14,7 @@ import TraineeModuleSettingsForm from '@/components/training/manager/TraineeModu
  *  cannot be opened here — it has its own editor at
  *  training/manage/modules/:moduleId. */
 export default function EditTraineeModulePage() {
+  const { t } = useTranslation();
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
   const { module, loading, error } = useTrainingModule(moduleId ?? '');
@@ -43,9 +45,9 @@ export default function EditTraineeModulePage() {
   if (error || !module) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
-        <p className="font-medium">Module not found.</p>
+        <p className="font-medium">{t('common.traineeManagement.editModulePage.notFound')}</p>
         <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline text-sm">
-          Back
+          {t('common.traineeManagement.editModulePage.back')}
         </button>
       </div>
     );
@@ -55,12 +57,12 @@ export default function EditTraineeModulePage() {
   if (!isTraineeLibraryModule(module)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600 px-6 text-center">
-        <p className="font-medium">Not found in this library.</p>
+        <p className="font-medium">{t('common.traineeManagement.editModulePage.wrongLibrary.title')}</p>
         <p className="text-sm text-slate-500">
-          This module belongs to the Training library. Open it from the Training tab instead.
+          {t('common.traineeManagement.editModulePage.wrongLibrary.description')}
         </p>
         <button onClick={() => navigate(-1)} className="text-blue-600 hover:underline text-sm">
-          Back
+          {t('common.traineeManagement.editModulePage.back')}
         </button>
       </div>
     );
@@ -72,7 +74,7 @@ export default function EditTraineeModulePage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.traineeManagement.editModulePage.backAria')}
         >
           <ArrowLeft size={18} />
         </button>
@@ -81,7 +83,7 @@ export default function EditTraineeModulePage() {
           onClick={() => navigate(`/app/training/manage/trainee-modules/${moduleId}/quiz`)}
           className="text-xs text-blue-600 hover:underline shrink-0"
         >
-          Quiz Builder
+          {t('common.traineeManagement.editModulePage.quizBuilder')}
         </button>
       </div>
       <ModuleEditorLayout

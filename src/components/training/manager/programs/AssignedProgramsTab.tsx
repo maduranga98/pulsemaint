@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { CheckCircle2, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '@/store/authStore';
 import { useProgramAssignments } from '@/hooks/training/useProgramAssignments';
@@ -18,6 +19,7 @@ function formatDate(ts: Timestamp | null | undefined): string {
 }
 
 export default function AssignedProgramsTab() {
+  const { t } = useTranslation();
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
@@ -45,7 +47,7 @@ export default function AssignedProgramsTab() {
   const handleConfirmSignOff = async () => {
     if (!signingOff) return;
     if (!signatureDataUrl) {
-      toast.error('Please add your signature to authorize the certificate.');
+      toast.error(t('common.traineeManagement.library.assignedProgramsTab.toasts.signatureRequired'));
       return;
     }
     const row = rows.find((r) => r.pa.id === signingOff.id);
@@ -77,20 +79,20 @@ export default function AssignedProgramsTab() {
         {openRows.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-gray-400">
             <ClipboardList className="w-8 h-8 mb-2" />
-            <p className="text-sm">No one has an open program assignment.</p>
+            <p className="text-sm">{t('common.traineeManagement.library.assignedProgramsTab.emptyState')}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-gray-50 text-xs uppercase text-gray-500">
                 <tr>
-                  <th className="px-4 py-3 text-left">Program</th>
-                  <th className="px-4 py-3 text-left">Trainee</th>
-                  <th className="px-4 py-3 text-left">Assigned</th>
-                  <th className="px-4 py-3 text-left">Due Date</th>
-                  <th className="px-4 py-3 text-left">Progress</th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-right">Action</th>
+                  <th className="px-4 py-3 text-left">{t('common.traineeManagement.library.assignedProgramsTab.columns.program')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.traineeManagement.library.assignedProgramsTab.columns.trainee')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.traineeManagement.library.assignedProgramsTab.columns.assigned')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.traineeManagement.library.assignedProgramsTab.columns.dueDate')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.traineeManagement.library.assignedProgramsTab.columns.progress')}</th>
+                  <th className="px-4 py-3 text-left">{t('common.traineeManagement.library.assignedProgramsTab.columns.status')}</th>
+                  <th className="px-4 py-3 text-right">{t('common.traineeManagement.library.assignedProgramsTab.columns.action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -117,7 +119,9 @@ export default function AssignedProgramsTab() {
                           allDone ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'
                         }`}
                       >
-                        {allDone ? 'Awaiting Sign-Off' : 'In Progress'}
+                        {allDone
+                          ? t('common.traineeManagement.library.assignedProgramsTab.status.awaitingSignOff')
+                          : t('common.traineeManagement.library.assignedProgramsTab.status.inProgress')}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -126,7 +130,7 @@ export default function AssignedProgramsTab() {
                           onClick={() => setSigningOff(pa)}
                           className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Sign Off
+                          <CheckCircle2 className="w-3.5 h-3.5" /> {t('common.traineeManagement.library.assignedProgramsTab.signOff')}
                         </button>
                       )}
                     </td>
@@ -142,24 +146,24 @@ export default function AssignedProgramsTab() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 space-y-4">
             <div>
-              <h3 className="text-base font-semibold text-gray-900">Sign Off Program</h3>
+              <h3 className="text-base font-semibold text-gray-900">{t('common.traineeManagement.library.assignedProgramsTab.modal.title')}</h3>
               <p className="text-sm text-gray-500 mt-1">
-                {signingOff.traineeName} — {signingOff.programName}
+                {t('common.traineeManagement.library.assignedProgramsTab.modal.subtitle', { traineeName: signingOff.traineeName, programName: signingOff.programName })}
               </p>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Note</label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">{t('common.traineeManagement.library.assignedProgramsTab.modal.noteLabel')}</label>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={3}
-                placeholder="Sign-off note..."
+                placeholder={t('common.traineeManagement.library.assignedProgramsTab.modal.notePlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
-                Authorizing signature <span className="text-red-500">*</span>
+                {t('common.traineeManagement.library.assignedProgramsTab.modal.signatureLabel')} <span className="text-red-500">*</span>
               </label>
               <SignaturePad onChange={setSignatureDataUrl} />
             </div>
@@ -173,14 +177,16 @@ export default function AssignedProgramsTab() {
                 disabled={saving}
                 className="px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
-                Cancel
+                {t('common.traineeManagement.library.assignedProgramsTab.modal.cancel')}
               </button>
               <button
                 onClick={() => void handleConfirmSignOff()}
                 disabled={saving || !signatureDataUrl}
                 className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-60 rounded-lg transition-colors"
               >
-                {saving ? 'Signing off…' : 'Confirm Sign Off'}
+                {saving
+                  ? t('common.traineeManagement.library.assignedProgramsTab.modal.confirming')
+                  : t('common.traineeManagement.library.assignedProgramsTab.modal.confirm')}
               </button>
             </div>
           </div>
