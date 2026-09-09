@@ -1,4 +1,5 @@
 import { X, Clock, TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ShiftSession } from '@/types/handover.types';
 import { formatDuration, formatTimeRange } from '@/utils/handover.utils';
 
@@ -23,6 +24,7 @@ function formatDateTime(d: Date): string {
 }
 
 export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToHandover }: ShiftSummaryModalProps) {
+  const { t } = useTranslation();
   if (!session) return null;
   const totalMinutes = session.totalMinutes ?? 0;
   const otMinutes = session.otMinutes ?? 0;
@@ -32,36 +34,36 @@ export function ShiftSummaryModal({ session, canHandover, onClose, onContinueToH
       <div className="w-full max-w-md rounded-lg border border-slate-700 bg-slate-900 p-5 shadow-xl">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className=" text-lg font-bold text-white">Shift Ended</h2>
+            <h2 className=" text-lg font-bold text-white">{t('common.myShift.summaryModal.title')}</h2>
             <p className="mt-1 text-sm text-slate-300">{session.shiftName} · {session.shiftDate}</p>
           </div>
-          <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-md text-slate-400 hover:text-white" aria-label="Close">
+          <button type="button" onClick={onClose} className="min-h-12 min-w-12 rounded-md text-slate-400 hover:text-white" aria-label={t('common.myShift.summaryModal.closeAria')}>
             <X className="mx-auto h-5 w-5" />
           </button>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 p-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-cyan-300"><Clock className="h-4 w-4" /> Total Hours</div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-cyan-300"><Clock className="h-4 w-4" /> {t('common.myShift.summaryModal.totalHours')}</div>
             <p className="mt-1 text-2xl font-bold text-cyan-100">{formatDuration(totalMinutes * 60000)}</p>
           </div>
           <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
-            <div className="flex items-center gap-2 text-xs font-semibold text-amber-300"><TrendingUp className="h-4 w-4" /> Overtime</div>
-            <p className="mt-1 text-2xl font-bold text-amber-100">{otMinutes > 0 ? formatDuration(otMinutes * 60000) : 'None'}</p>
+            <div className="flex items-center gap-2 text-xs font-semibold text-amber-300"><TrendingUp className="h-4 w-4" /> {t('common.myShift.summaryModal.overtime')}</div>
+            <p className="mt-1 text-2xl font-bold text-amber-100">{otMinutes > 0 ? formatDuration(otMinutes * 60000) : t('common.myShift.summaryModal.none')}</p>
           </div>
         </div>
 
         <dl className="mt-3 grid gap-2 rounded-lg border border-slate-700 bg-slate-800 p-4 text-sm">
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">Scheduled</dt><dd className="text-slate-100">{formatTimeRange(session.scheduledStart, session.scheduledEnd)} ({formatDuration(session.scheduledMinutes * 60000)})</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">Started</dt><dd className="text-slate-100">{formatDateTime(session.actualStart)}</dd></div>
-          <div className="flex justify-between gap-3"><dt className="text-slate-300">Ended</dt><dd className="text-slate-100">{session.actualEnd ? formatDateTime(session.actualEnd) : '-'}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-slate-300">{t('common.myShift.summaryModal.scheduled')}</dt><dd className="text-slate-100">{formatTimeRange(session.scheduledStart, session.scheduledEnd)} ({formatDuration(session.scheduledMinutes * 60000)})</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-slate-300">{t('common.myShift.summaryModal.started')}</dt><dd className="text-slate-100">{formatDateTime(session.actualStart)}</dd></div>
+          <div className="flex justify-between gap-3"><dt className="text-slate-300">{t('common.myShift.summaryModal.ended')}</dt><dd className="text-slate-100">{session.actualEnd ? formatDateTime(session.actualEnd) : '-'}</dd></div>
         </dl>
 
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
-          <button type="button" onClick={onClose} className="min-h-12 rounded-md border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800">Close</button>
+          <button type="button" onClick={onClose} className="min-h-12 rounded-md border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-800">{t('common.myShift.summaryModal.close')}</button>
           {canHandover && (
             <button type="button" onClick={onContinueToHandover} className="min-h-12 rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white">
-              Hand Over to Next Person
+              {t('common.myShift.summaryModal.handOverToNext')}
             </button>
           )}
         </div>

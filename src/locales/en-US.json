@@ -6187,6 +6187,60 @@
           }
         }
       }
+    },
+    "myShift": {
+      "title": "My Shift",
+      "subtitle": "Your shift plans, current shift, and worked hours.",
+      "errors": {
+        "loadRecentFailed": "Failed to load recent shifts",
+        "startFailed": "Failed to start shift",
+        "endFailed": "Failed to end shift"
+      },
+      "currentShift": {
+        "title": "Current Shift",
+        "scheduledStarted": "Scheduled {{range}} · Started {{time}}",
+        "onShiftFor": "On shift for {{duration}}",
+        "otBadge": "OT {{duration}}",
+        "ending": "Ending…",
+        "endShift": "End Shift",
+        "happeningNow": "{{range}} · happening now",
+        "starting": "Starting…",
+        "startShift": "Start Shift",
+        "noPlansAssigned": "You are not scheduled on any shift plan yet. Ask an admin to assign you in Settings → Shifts or Settings → Users.",
+        "noPlanRunning": "None of your shift plans is running right now. You can start your next shift from the list below."
+      },
+      "plans": {
+        "title": "My Shift Plans",
+        "loading": "Loading shift plans…",
+        "noneAssigned": "No shift plans assigned to you.",
+        "noneActive": "None of your shift plans is active right now.",
+        "allDepartments": "All departments",
+        "activeNow": "Active now",
+        "startThisShift": "Start this shift"
+      },
+      "recent": {
+        "title": "Recent Shifts",
+        "empty": "No completed shifts yet.",
+        "columns": {
+          "shift": "Shift",
+          "started": "Started",
+          "ended": "Ended",
+          "totalHours": "Total Hours",
+          "ot": "OT"
+        }
+      },
+      "summaryModal": {
+        "title": "Shift Ended",
+        "closeAria": "Close",
+        "totalHours": "Total Hours",
+        "overtime": "Overtime",
+        "none": "None",
+        "scheduled": "Scheduled",
+        "started": "Started",
+        "ended": "Ended",
+        "close": "Close",
+        "handOverToNext": "Hand Over to Next Person"
+      }
     }
   }
 }

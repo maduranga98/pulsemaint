@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CalendarDays, Clock, Play, Square, TrendingUp } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useHandoverStore } from '@/store/handover.store';
@@ -27,6 +28,7 @@ function formatDateTime(d: Date | null | undefined): string {
 }
 
 export function MyShiftPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const profile = useAuthStore((state) => state.userProfile);
   const isShiftActive = useHandoverStore((state) => state.isShiftActive);
@@ -88,7 +90,7 @@ export function MyShiftPage() {
         const sessions = await fetchMyRecentSessions(profile.companyId, profile.id);
         if (!cancelled) setRecent(sessions);
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load recent shifts');
+        if (!cancelled) setError(err instanceof Error ? err.message : t('common.myShift.errors.loadRecentFailed'));
       }
     })();
     return () => { cancelled = true; };
@@ -107,7 +109,7 @@ export function MyShiftPage() {
     try {
       await startShift(shiftConfigId);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to start shift');
+      setError(err instanceof Error ? err.message : t('common.myShift.errors.startFailed'));
     } finally {
       setBusy(false);
     }
@@ -126,7 +128,7 @@ export function MyShiftPage() {
       }
       setSummarySession(completed);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to end shift');
+      setError(err instanceof Error ? err.message : t('common.myShift.errors.endFailed'));
     } finally {
       setBusy(false);
     }
@@ -137,28 +139,31 @@ export function MyShiftPage() {
   return (
     <div className="space-y-5 p-4 lg:p-6">
       <div>
-        <h1 className=" text-2xl font-bold text-slate-950">My Shift</h1>
-        <p className="mt-1 text-sm text-slate-500">Your shift plans, current shift, and worked hours.</p>
+        <h1 className=" text-2xl font-bold text-slate-950">{t('common.myShift.title')}</h1>
+        <p className="mt-1 text-sm text-slate-500">{t('common.myShift.subtitle')}</p>
       </div>
 
       {error && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
 
       {/* Current / active shift */}
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className=" text-sm font-bold text-slate-700">Current Shift</h2>
+        <h2 className=" text-sm font-bold text-slate-700">{t('common.myShift.currentShift.title')}</h2>
         {isShiftActive && activeSession ? (
           <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className=" text-lg font-bold text-slate-950">{activeSession.shiftName}</p>
               <p className="text-sm text-slate-500">
-                Scheduled {formatTimeRange(activeSession.scheduledStart, activeSession.scheduledEnd)} · Started {activeSession.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {t('common.myShift.currentShift.scheduledStarted', {
+                  range: formatTimeRange(activeSession.scheduledStart, activeSession.scheduledEnd),
+                  time: activeSession.actualStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                })}
               </p>
               <p className="mt-2 inline-flex items-center gap-2 rounded-md bg-emerald-50 px-3 py-1.5 text-sm font-bold text-emerald-700">
                 <Clock className="h-4 w-4" />
-                On shift for {shiftStartTime ? formatDuration(now.getTime() - shiftStartTime.getTime()) : '-'}
+                {t('common.myShift.currentShift.onShiftFor', { duration: shiftStartTime ? formatDuration(now.getTime() - shiftStartTime.getTime()) : '-' })}
                 {shiftStartTime && (now.getTime() - shiftStartTime.getTime()) > activeSession.scheduledMinutes * 60000 && (
                   <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-bold text-amber-700">
-                    OT {formatDuration(now.getTime() - shiftStartTime.getTime() - activeSession.scheduledMinutes * 60000)}
+                    {t('common.myShift.currentShift.otBadge', { duration: formatDuration(now.getTime() - shiftStartTime.getTime() - activeSession.scheduledMinutes * 60000) })}
                   </span>
                 )}
               </p>
@@ -169,14 +174,14 @@ export function MyShiftPage() {
               disabled={busy}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-amber-500 px-5 text-sm font-bold text-white disabled:opacity-60"
             >
-              <Square className="h-4 w-4" /> {busy ? 'Ending…' : 'End Shift'}
+              <Square className="h-4 w-4" /> {busy ? t('common.myShift.currentShift.ending') : t('common.myShift.currentShift.endShift')}
             </button>
           </div>
         ) : currentPlan ? (
           <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className=" text-lg font-bold text-slate-950">{currentPlan.shiftName}</p>
-              <p className="text-sm text-slate-500">{formatTimeRange(currentPlan.startTime, currentPlan.endTime)} · happening now</p>
+              <p className="text-sm text-slate-500">{t('common.myShift.currentShift.happeningNow', { range: formatTimeRange(currentPlan.startTime, currentPlan.endTime) })}</p>
             </div>
             <button
               type="button"
@@ -184,28 +189,28 @@ export function MyShiftPage() {
               disabled={busy}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-emerald-600 px-5 text-sm font-bold text-white disabled:opacity-60"
             >
-              <Play className="h-4 w-4" /> {busy ? 'Starting…' : 'Start Shift'}
+              <Play className="h-4 w-4" /> {busy ? t('common.myShift.currentShift.starting') : t('common.myShift.currentShift.startShift')}
             </button>
           </div>
         ) : (
           <p className="mt-3 text-sm text-slate-500">
             {plans.length === 0
-              ? 'You are not scheduled on any shift plan yet. Ask an admin to assign you in Settings → Shifts or Settings → Users.'
-              : 'None of your shift plans is running right now. You can start your next shift from the list below.'}
+              ? t('common.myShift.currentShift.noPlansAssigned')
+              : t('common.myShift.currentShift.noPlanRunning')}
           </p>
         )}
       </section>
 
       {/* Available shift plans */}
       <section>
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700"><CalendarDays className="h-4 w-4" /> My Shift Plans</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700"><CalendarDays className="h-4 w-4" /> {t('common.myShift.plans.title')}</h2>
         {loading ? (
-          <p className="text-sm text-slate-500">Loading shift plans…</p>
+          <p className="text-sm text-slate-500">{t('common.myShift.plans.loading')}</p>
         ) : activePlans.length === 0 ? (
           <p className="text-sm text-slate-500">
             {plans.length === 0
-              ? 'No shift plans assigned to you.'
-              : 'None of your shift plans is active right now.'}
+              ? t('common.myShift.plans.noneAssigned')
+              : t('common.myShift.plans.noneActive')}
           </p>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -219,9 +224,9 @@ export function MyShiftPage() {
                   <span className="h-4 w-4 rounded-full" style={{ backgroundColor: plan.color }} />
                 </div>
                 <p className="mt-2 text-xs text-slate-500">{plan.activeDays.join(', ')}</p>
-                <p className="text-xs text-slate-500">{plan.department || 'All departments'}</p>
+                <p className="text-xs text-slate-500">{plan.department || t('common.myShift.plans.allDepartments')}</p>
                 <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
-                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">Active now</span>
+                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">{t('common.myShift.plans.activeNow')}</span>
                   {!isShiftActive && (
                     <button
                       type="button"
@@ -229,7 +234,7 @@ export function MyShiftPage() {
                       disabled={busy}
                       className="text-sm font-bold text-emerald-700 hover:text-emerald-900 disabled:opacity-60"
                     >
-                      Start this shift
+                      {t('common.myShift.plans.startThisShift')}
                     </button>
                   )}
                 </div>
@@ -241,9 +246,9 @@ export function MyShiftPage() {
 
       {/* Recent worked shifts */}
       <section>
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700"><TrendingUp className="h-4 w-4" /> Recent Shifts</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold text-slate-700"><TrendingUp className="h-4 w-4" /> {t('common.myShift.recent.title')}</h2>
         {recent.filter((session) => session.status === 'completed').length === 0 ? (
-          <p className="text-sm text-slate-500">No completed shifts yet.</p>
+          <p className="text-sm text-slate-500">{t('common.myShift.recent.empty')}</p>
         ) : (
           <>
             {/* Card view on mobile — a wide table forces horizontal scrolling
@@ -255,19 +260,19 @@ export function MyShiftPage() {
                   <p className=" font-bold text-slate-950">{session.shiftName}</p>
                   <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
                     <div>
-                      <dt className="text-xs font-semibold text-slate-500">Started</dt>
+                      <dt className="text-xs font-semibold text-slate-500">{t('common.myShift.recent.columns.started')}</dt>
                       <dd className="text-slate-700">{formatDateTime(session.actualStart)}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs font-semibold text-slate-500">Ended</dt>
+                      <dt className="text-xs font-semibold text-slate-500">{t('common.myShift.recent.columns.ended')}</dt>
                       <dd className="text-slate-700">{formatDateTime(session.actualEnd)}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs font-semibold text-slate-500">Total Hours</dt>
+                      <dt className="text-xs font-semibold text-slate-500">{t('common.myShift.recent.columns.totalHours')}</dt>
                       <dd className="font-semibold text-cyan-700">{session.totalMinutes != null ? formatDuration(session.totalMinutes * 60000) : '-'}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs font-semibold text-slate-500">OT</dt>
+                      <dt className="text-xs font-semibold text-slate-500">{t('common.myShift.recent.columns.ot')}</dt>
                       <dd className="font-semibold text-amber-700">{session.otMinutes ? formatDuration(session.otMinutes * 60000) : '-'}</dd>
                     </div>
                   </dl>
@@ -279,11 +284,11 @@ export function MyShiftPage() {
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 text-left text-xs font-semibold text-slate-500">
-                    <th className="px-4 py-3">Shift</th>
-                    <th className="px-4 py-3">Started</th>
-                    <th className="px-4 py-3">Ended</th>
-                    <th className="px-4 py-3">Total Hours</th>
-                    <th className="px-4 py-3">OT</th>
+                    <th className="px-4 py-3">{t('common.myShift.recent.columns.shift')}</th>
+                    <th className="px-4 py-3">{t('common.myShift.recent.columns.started')}</th>
+                    <th className="px-4 py-3">{t('common.myShift.recent.columns.ended')}</th>
+                    <th className="px-4 py-3">{t('common.myShift.recent.columns.totalHours')}</th>
+                    <th className="px-4 py-3">{t('common.myShift.recent.columns.ot')}</th>
                   </tr>
                 </thead>
                 <tbody>

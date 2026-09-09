@@ -6014,6 +6014,60 @@
           "notRegisteredPrompt": "¿Contratista no registrado? Escriba el nombre del contratista manualmente"
         }
       }
+    },
+    "myShift": {
+      "title": "Mi turno",
+      "subtitle": "Sus planes de turno, turno actual y horas trabajadas.",
+      "errors": {
+        "loadRecentFailed": "Error al cargar los turnos recientes",
+        "startFailed": "Error al iniciar el turno",
+        "endFailed": "Error al finalizar el turno"
+      },
+      "currentShift": {
+        "title": "Turno actual",
+        "scheduledStarted": "Programado {{range}} · Iniciado {{time}}",
+        "onShiftFor": "En turno desde hace {{duration}}",
+        "otBadge": "Horas extra {{duration}}",
+        "ending": "Finalizando…",
+        "endShift": "Finalizar turno",
+        "happeningNow": "{{range}} · en curso ahora",
+        "starting": "Iniciando…",
+        "startShift": "Iniciar turno",
+        "noPlansAssigned": "Aún no tiene ningún plan de turno asignado. Pida a un administrador que lo asigne en Configuración → Turnos o Configuración → Usuarios.",
+        "noPlanRunning": "Ninguno de sus planes de turno está activo en este momento. Puede iniciar su próximo turno desde la lista a continuación."
+      },
+      "plans": {
+        "title": "Mis planes de turno",
+        "loading": "Cargando planes de turno…",
+        "noneAssigned": "No tiene planes de turno asignados.",
+        "noneActive": "Ninguno de sus planes de turno está activo en este momento.",
+        "allDepartments": "Todos los departamentos",
+        "activeNow": "Activo ahora",
+        "startThisShift": "Iniciar este turno"
+      },
+      "recent": {
+        "title": "Turnos recientes",
+        "empty": "Aún no hay turnos completados.",
+        "columns": {
+          "shift": "Turno",
+          "started": "Inicio",
+          "ended": "Fin",
+          "totalHours": "Horas totales",
+          "ot": "Horas extra"
+        }
+      },
+      "summaryModal": {
+        "title": "Turno finalizado",
+        "closeAria": "Cerrar",
+        "totalHours": "Horas totales",
+        "overtime": "Horas extra",
+        "none": "Ninguna",
+        "scheduled": "Programado",
+        "started": "Inicio",
+        "ended": "Fin",
+        "close": "Cerrar",
+        "handOverToNext": "Entregar turno a la siguiente persona"
+      }
     }
   },
   "triage": {

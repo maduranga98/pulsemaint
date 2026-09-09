@@ -6014,6 +6014,60 @@
           "notRegisteredPrompt": "Sous-traitant non enregistré ? Saisissez son nom manuellement"
         }
       }
+    },
+    "myShift": {
+      "title": "Mon poste",
+      "subtitle": "Vos plans de poste, poste actuel et heures travaillées.",
+      "errors": {
+        "loadRecentFailed": "Échec du chargement des postes récents",
+        "startFailed": "Échec du démarrage du poste",
+        "endFailed": "Échec de la fin du poste"
+      },
+      "currentShift": {
+        "title": "Poste actuel",
+        "scheduledStarted": "Prévu {{range}} · Démarré {{time}}",
+        "onShiftFor": "En poste depuis {{duration}}",
+        "otBadge": "HS {{duration}}",
+        "ending": "Fin en cours…",
+        "endShift": "Terminer le poste",
+        "happeningNow": "{{range}} · en cours maintenant",
+        "starting": "Démarrage…",
+        "startShift": "Démarrer le poste",
+        "noPlansAssigned": "Vous n'êtes affecté à aucun plan de poste pour le moment. Demandez à un administrateur de vous affecter dans Paramètres → Postes ou Paramètres → Utilisateurs.",
+        "noPlanRunning": "Aucun de vos plans de poste n'est en cours actuellement. Vous pouvez démarrer votre prochain poste depuis la liste ci-dessous."
+      },
+      "plans": {
+        "title": "Mes plans de poste",
+        "loading": "Chargement des plans de poste…",
+        "noneAssigned": "Aucun plan de poste ne vous est affecté.",
+        "noneActive": "Aucun de vos plans de poste n'est actif actuellement.",
+        "allDepartments": "Tous les services",
+        "activeNow": "Actif maintenant",
+        "startThisShift": "Démarrer ce poste"
+      },
+      "recent": {
+        "title": "Postes récents",
+        "empty": "Aucun poste terminé pour le moment.",
+        "columns": {
+          "shift": "Poste",
+          "started": "Début",
+          "ended": "Fin",
+          "totalHours": "Heures totales",
+          "ot": "HS"
+        }
+      },
+      "summaryModal": {
+        "title": "Poste terminé",
+        "closeAria": "Fermer",
+        "totalHours": "Heures totales",
+        "overtime": "Heures supplémentaires",
+        "none": "Aucune",
+        "scheduled": "Prévu",
+        "started": "Début",
+        "ended": "Fin",
+        "close": "Fermer",
+        "handOverToNext": "Transmettre à la personne suivante"
+      }
     }
   },
   "triage": {
