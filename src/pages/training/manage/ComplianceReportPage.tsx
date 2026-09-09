@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useComplianceData } from '@/hooks/training/useComplianceData';
 import { generateComplianceReportPdf } from '@/lib/training/certificateGenerator';
 import { useAuthStore } from '@/store/authStore';
 import ComplianceReport from '@/components/training/manager/ComplianceReport';
 
 export default function ComplianceReportPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [isExporting, setIsExporting] = useState(false);
@@ -28,11 +30,11 @@ export default function ComplianceReportPage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.trainingShared.manager.complianceReport.back')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm">Compliance Report</h1>
+        <h1 className="font-semibold text-slate-900 text-sm">{t('common.trainingShared.manager.complianceReport.title')}</h1>
       </div>
       <div className="p-4 sm:p-6 max-w-6xl mx-auto">
         <ComplianceReport

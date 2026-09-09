@@ -4,6 +4,7 @@ import { storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { nanoid } from 'nanoid';
 import { Images, Upload, X, Plus, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface GalleryImage {
   url: string;
@@ -26,6 +27,7 @@ const MAX_IMAGES = 20;
 const ACCEPTED = '.jpg,.jpeg,.png,.webp';
 
 export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLessonEditorProps) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +37,7 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
   async function uploadSingleFile(file: File, _currentImages: GalleryImage[]): Promise<GalleryImage | null> {
     if (!companyId) return null;
     if (file.size > MAX_BYTES) {
-      setError(`"${file.name}" exceeds 50 MB limit.`);
+      setError(t('common.trainingShared.manager.lessonEditors.galleryEditor.fileExceedsLimit', { name: file.name }));
       return null;
     }
 
@@ -72,13 +74,13 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
   async function handleFileSelect(files: FileList | null) {
     if (!files || files.length === 0) return;
     if (!companyId) {
-      setError('Company not found.');
+      setError(t('common.trainingShared.manager.lessonEditors.galleryEditor.companyNotFound'));
       return;
     }
 
     const remaining = MAX_IMAGES - images.length;
     if (remaining <= 0) {
-      setError(`Maximum ${MAX_IMAGES} images allowed.`);
+      setError(t('common.trainingShared.manager.lessonEditors.galleryEditor.maxImagesAllowed', { count: MAX_IMAGES }));
       return;
     }
 
@@ -111,9 +113,9 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
           className="flex items-center gap-2 border border-blue-300 text-blue-600 hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg px-4 py-2 text-sm font-medium transition-colors"
         >
           <Plus size={16} />
-          Add Images
+          {t('common.trainingShared.manager.lessonEditors.galleryEditor.addImages')}
         </button>
-        <span className="text-xs text-gray-400">{images.length}/{MAX_IMAGES} images</span>
+        <span className="text-xs text-gray-400">{t('common.trainingShared.manager.lessonEditors.galleryEditor.imagesCount', { count: images.length, max: MAX_IMAGES })}</span>
         <input
           ref={inputRef}
           type="file"
@@ -127,7 +129,7 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
       {images.length >= MAX_IMAGES && (
         <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
           <AlertCircle size={14} />
-          Maximum {MAX_IMAGES} images reached.
+          {t('common.trainingShared.manager.lessonEditors.galleryEditor.maxImagesReached', { count: MAX_IMAGES })}
         </div>
       )}
 
@@ -165,8 +167,8 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
           className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition-colors"
         >
           <Images size={32} className="text-gray-300 mb-2" />
-          <p className="text-sm font-medium text-gray-500">Click to add images</p>
-          <p className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP · Max 50 MB each · Up to {MAX_IMAGES} images</p>
+          <p className="text-sm font-medium text-gray-500">{t('common.trainingShared.manager.lessonEditors.galleryEditor.clickToAdd')}</p>
+          <p className="text-xs text-gray-400 mt-1">{t('common.trainingShared.manager.lessonEditors.galleryEditor.formatHint', { count: MAX_IMAGES })}</p>
         </div>
       )}
 
@@ -178,14 +180,14 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
               <div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
                 <img
                   src={img.url}
-                  alt={img.caption || `Image ${index + 1}`}
+                  alt={img.caption || t('common.trainingShared.manager.lessonEditors.galleryEditor.imageAltFallback', { number: index + 1 })}
                   className="w-full h-full object-cover"
                 />
                 <button
                   type="button"
                   onClick={() => handleRemove(index)}
                   className="absolute top-1.5 right-1.5 p-1 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  aria-label="Remove image"
+                  aria-label={t('common.trainingShared.manager.lessonEditors.galleryEditor.removeImage')}
                 >
                   <X size={12} />
                 </button>
@@ -194,7 +196,7 @@ export default function GalleryLessonEditor({ images = [], onUpdate }: GalleryLe
                 type="text"
                 value={img.caption}
                 onChange={(e) => handleCaptionChange(index, e.target.value)}
-                placeholder="Add caption…"
+                placeholder={t('common.trainingShared.manager.lessonEditors.galleryEditor.captionPlaceholder')}
                 className="border border-gray-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>

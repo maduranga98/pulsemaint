@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { LessonItem, LessonProgress } from '@/lib/training/trainingTypes';
 import VideoLesson from './lesson-types/VideoLesson';
 import DocumentLesson from './lesson-types/DocumentLesson';
@@ -20,6 +21,7 @@ export default function LessonViewer({
   onComplete,
   onClose,
 }: LessonViewerProps) {
+  const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 bg-white flex flex-col">
       {/* Header */}
@@ -27,7 +29,7 @@ export default function LessonViewer({
         <button
           onClick={onClose}
           className="p-2 -ml-2 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Close lesson"
+          aria-label={t('common.trainingShared.lessonViewer.closeAria')}
         >
           <X size={20} />
         </button>
@@ -38,7 +40,7 @@ export default function LessonViewer({
           {lesson.type === 'video' && lesson.durationSeconds > 0
             ? formatTime(lesson.durationSeconds)
             : lesson.type === 'document' && lesson.pageCount > 0
-            ? `${lesson.pageCount} pages`
+            ? t('common.trainingShared.lessonListItem.pages', { count: lesson.pageCount })
             : null}
         </span>
       </div>

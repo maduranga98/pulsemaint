@@ -1,4 +1,5 @@
 import { Layers } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /** Loading spinner shown while a module library query is in flight. */
 export function LibraryLoading() {
@@ -10,11 +11,12 @@ export function LibraryLoading() {
 }
 
 /** Empty state for a module library with no matching modules. */
-export function LibraryEmpty({ message = 'No modules found.' }: { message?: string }) {
+export function LibraryEmpty({ message }: { message?: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center py-16 text-gray-400">
       <Layers className="w-10 h-10 mb-2" />
-      <p className="text-sm">{message}</p>
+      <p className="text-sm">{message ?? t('common.trainingShared.manager.library.noneFound')}</p>
     </div>
   );
 }

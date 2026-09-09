@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Clock, BookOpen, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingAssignment, TrainingModule, LessonItem } from '@/lib/training/trainingTypes';
 import { areAllRequiredLessonsComplete, getNextLesson, formatMinutes } from '@/lib/training/progressCalculator';
 import { useLessonProgress } from '@/hooks/training/useLessonProgress';
@@ -22,6 +23,7 @@ export default function ModuleLearningScreen({
   onBack,
   onStartQuiz,
 }: ModuleLearningScreenProps) {
+  const { t } = useTranslation();
   const [activeLesson, setActiveLesson] = useState<LessonItem | null>(null);
   const [completedLessonId, setCompletedLessonId] = useState<string | null>(null);
   const [finalizing, setFinalizing] = useState(false);
@@ -108,7 +110,7 @@ export default function ModuleLearningScreen({
         <button
           onClick={onBack}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back to my modules"
+          aria-label={t('common.trainingShared.moduleLearningScreen.backAria')}
         >
           <ArrowLeft size={18} />
         </button>
@@ -116,7 +118,10 @@ export default function ModuleLearningScreen({
           {module.title}
         </h1>
         <span className="text-xs text-slate-500 shrink-0">
-          {completedCount} of {lessons.length}
+          {t('common.trainingShared.moduleLearningScreen.lessonsCount', {
+            completed: completedCount,
+            total: lessons.length,
+          })}
         </span>
       </div>
 
@@ -167,7 +172,7 @@ export default function ModuleLearningScreen({
           {isCertified ? (
             <div className="flex items-center justify-center gap-2 text-emerald-700 text-sm font-medium">
               <CheckCircle2 size={18} />
-              Training completed
+              {t('common.trainingShared.moduleLearningScreen.trainingCompleted')}
             </div>
           ) : (
             <button
@@ -176,7 +181,9 @@ export default function ModuleLearningScreen({
               className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 text-white text-sm font-semibold rounded-lg py-2.5 hover:bg-emerald-700 transition-colors disabled:opacity-60"
             >
               <CheckCircle2 size={18} />
-              {finalizing ? 'Saving…' : 'Mark Complete & Acknowledge'}
+              {finalizing
+                ? t('common.trainingShared.moduleLearningScreen.saving')
+                : t('common.trainingShared.moduleLearningScreen.markCompleteAcknowledge')}
             </button>
           )}
         </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import type { TrainingModule } from '@/lib/training/trainingTypes';
@@ -11,6 +12,7 @@ import ModuleSettingsForm from '@/components/training/manager/ModuleSettingsForm
 
 /** Authors a module into the Training tab's library (libraryScope 'training'). */
 export default function CreateModulePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const userId = useAuthStore((s) => s.userProfile?.id);
@@ -30,7 +32,7 @@ export default function CreateModulePage() {
         ...updates,
         // A lesson can be added (see ModuleEditorLayout) before the Settings
         // form is ever submitted, creating the module with no title yet.
-        title: updates.title || 'Untitled Module',
+        title: updates.title || t('common.trainingShared.manager.createModule.untitledModule'),
         companyId,
         createdBy: userId,
         // This page only ever writes into the Training tab's library —
@@ -46,11 +48,11 @@ export default function CreateModulePage() {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      toast.success('Module saved. You can now add a quiz or assign it.');
+      toast.success(t('common.trainingShared.manager.createModule.savedToast'));
       navigate(`/app/training/manage/modules/${ref.id}`, { replace: true });
     } catch (err) {
       console.error('Failed to save training module', err);
-      toast.error('Failed to save module. Please try again.');
+      toast.error(t('common.trainingShared.manager.createModule.saveFailedToast'));
       setIsSaving(false);
     }
   };
@@ -61,11 +63,11 @@ export default function CreateModulePage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.trainingShared.manager.createModule.back')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm flex-1">Create Training Module</h1>
+        <h1 className="font-semibold text-slate-900 text-sm flex-1">{t('common.trainingShared.manager.createModule.title')}</h1>
       </div>
       <ModuleEditorLayout
         module={undefined}

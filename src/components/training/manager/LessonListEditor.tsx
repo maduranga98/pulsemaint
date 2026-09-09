@@ -23,6 +23,7 @@ import {
   Trash2,
   Plus,
 } from 'lucide-react';
+import { useTranslation, type TFunction } from 'react-i18next';
 import type { LessonItem, LessonType } from '@/lib/training/trainingTypes';
 
 interface LessonListEditorProps {
@@ -41,21 +42,19 @@ const TYPE_ICONS: Record<LessonType, React.ReactNode> = {
   text: <AlignLeft size={16} className="text-orange-500" />,
 };
 
-const TYPE_LABELS: Record<LessonType, string> = {
-  video: 'Video',
-  document: 'Document',
-  image_gallery: 'Gallery',
-  text: 'Text',
-};
+function typeLabel(type: LessonType, t: TFunction): string {
+  return t(`common.trainingShared.manager.lessonEditors.types.${type === 'image_gallery' ? 'gallery' : type}`);
+}
 
 interface SortableRowProps {
   lesson: LessonItem;
   isSelected: boolean;
   onEdit: (lesson: LessonItem) => void;
   onDelete: (id: string) => void;
+  t: TFunction;
 }
 
-function SortableRow({ lesson, isSelected, onEdit, onDelete }: SortableRowProps) {
+function SortableRow({ lesson, isSelected, onEdit, onDelete, t }: SortableRowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: lesson.id,
   });
@@ -90,7 +89,7 @@ function SortableRow({ lesson, isSelected, onEdit, onDelete }: SortableRowProps)
         {...attributes}
         {...listeners}
         className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0"
-        aria-label="Drag to reorder"
+        aria-label={t('common.trainingShared.manager.lessonEditors.list.dragToReorder')}
       >
         <GripVertical size={18} />
       </button>
@@ -100,9 +99,9 @@ function SortableRow({ lesson, isSelected, onEdit, onDelete }: SortableRowProps)
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-800 truncate">{lesson.title || 'Untitled lesson'}</p>
+        <p className="text-sm font-semibold text-gray-800 truncate">{lesson.title || t('common.trainingShared.manager.lessonEditors.list.untitledLesson')}</p>
         <p className="text-xs text-gray-400 truncate">
-          {TYPE_LABELS[lesson.type]}
+          {typeLabel(lesson.type, t)}
           {lesson.durationSeconds ? ` · ${formatDuration(lesson.durationSeconds)}` : ''}
           {lesson.description ? ` · ${lesson.description}` : ''}
         </p>
@@ -111,7 +110,7 @@ function SortableRow({ lesson, isSelected, onEdit, onDelete }: SortableRowProps)
       {/* Required badge */}
       {lesson.isRequired && (
         <span className="text-xs font-medium text-orange-600 bg-orange-50 border border-orange-200 rounded-full px-2 py-0.5 flex-shrink-0">
-          Required
+          {t('common.trainingShared.manager.lessonEditors.list.required')}
         </span>
       )}
 
@@ -121,7 +120,7 @@ function SortableRow({ lesson, isSelected, onEdit, onDelete }: SortableRowProps)
           type="button"
           onClick={() => onEdit(lesson)}
           className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-          aria-label="Edit lesson"
+          aria-label={t('common.trainingShared.manager.lessonEditors.list.editLesson')}
         >
           <Pencil size={15} />
         </button>
@@ -129,7 +128,7 @@ function SortableRow({ lesson, isSelected, onEdit, onDelete }: SortableRowProps)
           type="button"
           onClick={() => onDelete(lesson.id)}
           className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          aria-label="Delete lesson"
+          aria-label={t('common.trainingShared.manager.lessonEditors.list.deleteLesson')}
         >
           <Trash2 size={15} />
         </button>
@@ -146,6 +145,7 @@ export default function LessonListEditor({
   onAddLesson,
   selectedLessonId,
 }: LessonListEditorProps) {
+  const { t } = useTranslation();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
@@ -168,8 +168,8 @@ export default function LessonListEditor({
       {lessons.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-gray-200 rounded-xl text-center">
           <AlignLeft size={32} className="text-gray-300 mb-3" />
-          <p className="text-sm font-medium text-gray-500">No lessons yet.</p>
-          <p className="text-xs text-gray-400">Add your first lesson.</p>
+          <p className="text-sm font-medium text-gray-500">{t('common.trainingShared.manager.lessonEditors.list.noneYet')}</p>
+          <p className="text-xs text-gray-400">{t('common.trainingShared.manager.lessonEditors.list.addFirst')}</p>
         </div>
       ) : (
         <DndContext
@@ -189,6 +189,7 @@ export default function LessonListEditor({
                   isSelected={selectedLessonId === lesson.id}
                   onEdit={onEditLesson}
                   onDelete={onDeleteLesson}
+                  t={t}
                 />
               ))}
             </div>
@@ -202,7 +203,7 @@ export default function LessonListEditor({
         className="flex items-center justify-center gap-2 border-2 border-dashed border-blue-300 text-blue-600 hover:border-blue-400 hover:bg-blue-50 rounded-xl py-3 text-sm font-medium transition-colors"
       >
         <Plus size={16} />
-        Add Lesson
+        {t('common.trainingShared.manager.lessonEditors.list.addLesson')}
       </button>
     </div>
   );

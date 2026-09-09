@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { useTrainingCertificates } from '@/hooks/training/useTrainingCertificates';
 import { useMyProgramme } from '@/hooks/traineeProgram/useMyProgramme';
@@ -8,6 +9,7 @@ import ProgrammeCertificateCard from '@/components/training/learner/ProgrammeCer
 import ProgramCertificateCard from '@/components/training/learner/ProgramCertificateCard';
 
 export default function MyCertificatesPage() {
+  const { t } = useTranslation();
   const userId = useAuthStore((s) => s.userProfile?.id);
   const { certificates, loading } = useTrainingCertificates({ traineeId: userId });
   // A trainee programme's completion certificate — separate from individual
@@ -22,15 +24,19 @@ export default function MyCertificatesPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">My Certificates</h1>
+        <h1 className="text-2xl font-bold text-slate-900">{t('common.trainingShared.myCertificatesPage.title')}</h1>
         {!loading && certificates.length > 0 && (
-          <p className="mt-1 text-slate-600">{certificates.length} certificate{certificates.length > 1 ? 's' : ''} earned</p>
+          <p className="mt-1 text-slate-600">
+            {t('common.trainingShared.myCertificatesPage.earnedCount', { count: certificates.length })}
+          </p>
         )}
       </div>
 
       {programmeCertificate && (
         <div className="mb-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-3">Programme Certificate</h2>
+          <h2 className="text-sm font-semibold text-slate-700 mb-3">
+            {t('common.trainingShared.myCertificatesPage.programmeCertificateHeading')}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <ProgrammeCertificateCard certificate={programmeCertificate} />
           </div>
@@ -39,7 +45,9 @@ export default function MyCertificatesPage() {
 
       {programCertificates.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-sm font-semibold text-slate-700 mb-3">Program Certificates</h2>
+          <h2 className="text-sm font-semibold text-slate-700 mb-3">
+            {t('common.trainingShared.myCertificatesPage.programCertificatesHeading')}
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {programCertificates.map((pa) => (
               <ProgramCertificateCard key={pa.id} programAssignment={pa} />

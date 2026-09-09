@@ -3462,16 +3462,16 @@
     },
     "trainingShared": {
       "statusBadge": {
-        "ariaLabel": "ステータス：{{label}}",
+        "ariaLabel": "ステータス: {{label}}",
         "statuses": {
           "not_started": "未開始",
-          "in_progress": "対応中",
-          "quiz_passed": "クイズ合格",
-          "quiz_failed": "不合格 — 再挑戦",
+          "in_progress": "進行中",
+          "quiz_passed": "テスト合格",
+          "quiz_failed": "不合格 — 再受験",
           "awaiting_practical": "サインオフ待ち",
           "certified": "認定済み ✓",
           "expired": "期限切れ",
-          "retraining_required": "再研修が必要"
+          "retraining_required": "再教育が必要"
         }
       },
       "assignForm": {
@@ -3484,24 +3484,24 @@
         },
         "searchPlaceholder": "ユーザーを検索…",
         "invitePending": "招待保留中",
-        "noDepartments": "まだ部門が設定されていません。",
-        "willBeAssigned_one": "{{count}} 人に割り当てられます",
-        "willBeAssigned_other": "{{count}} 人に割り当てられます",
+        "noDepartments": "部門がまだ設定されていません。",
+        "willBeAssigned_one": "{{count}}名に割り当てられます",
+        "willBeAssigned_other": "{{count}}名に割り当てられます",
         "dueDate": "期限日",
         "optional": "（任意）",
-        "notifyAssignees": "割り当て対象者に通知",
+        "notifyAssignees": "割り当て対象者に通知する",
         "cancel": "キャンセル",
         "assign": "割り当て",
         "result": {
-          "assignedTo_one": "{{count}} 人に割り当てました。",
-          "assignedTo_other": "{{count}} 人に割り当てました。",
-          "skipped": " このモジュールにすでに有効な割り当てがある {{count}} 人はスキップされました。",
+          "assignedTo_one": "{{count}}名に割り当てました。",
+          "assignedTo_other": "{{count}}名に割り当てました。",
+          "skipped": " {{count}}名はこのモジュールに既存の有効な割り当てがあるためスキップされました。",
           "done": "完了"
         },
         "roleLabels": {
           "admin": "管理者",
           "plant_manager": "工場長",
-          "supervisor": "スーパーバイザー",
+          "supervisor": "監督者",
           "technician": "技術者",
           "store_keeper": "倉庫管理者",
           "hr_officer": "人事担当者",
@@ -3510,56 +3510,56 @@
           "safety_officer": "安全管理者"
         },
         "errors": {
-          "failed": "研修の割り当てに失敗しました。"
+          "failed": "トレーニングの割り当てに失敗しました。"
         },
         "notification": {
-          "message": "新しい研修モジュールが割り当てられました：{{title}}",
-          "oversightMessage": "「{{title}}」を {{name}} に割り当てました"
+          "message": "新しいトレーニングモジュールが割り当てられました: {{title}}",
+          "oversightMessage": "「{{title}}」を{{name}}に割り当てました"
         }
       },
       "editorLayout": {
         "tabs": {
           "settings": "設定",
-          "lessons_one": "レッスン（{{count}}）",
-          "lessons_other": "レッスン（{{count}}）",
+          "lessons_one": "レッスン ({{count}})",
+          "lessons_other": "レッスン ({{count}})",
           "lessonsNoCount": "レッスン"
         },
         "newModule": "新規モジュール",
         "lessonsSection": {
           "title": "レッスン",
-          "count_one": "{{count}} レッスン",
-          "count_other": "{{count}} レッスン"
+          "count_one": "{{count}}レッスン",
+          "count_other": "{{count}}レッスン"
         },
         "quiz": {
-          "title": "クイズ",
-          "untitled": "無題のクイズ",
-          "questions_one": "{{count}} 問",
-          "questions_other": "{{count}} 問",
+          "title": "テスト",
+          "untitled": "無題のテスト",
+          "questions_one": "{{count}}問",
+          "questions_other": "{{count}}問",
           "passLabel": "合格ライン {{score}}%",
-          "editQuiz": "クイズを編集",
-          "noQuiz": "まだクイズがありません",
-          "noQuizHint": "受講者の理解度を評価するクイズを追加してください。",
-          "addQuiz": "クイズを追加"
+          "editQuiz": "テストを編集",
+          "noQuiz": "テストはまだありません",
+          "noQuizHint": "受講者の理解度を評価するためのテストを追加してください。",
+          "addQuiz": "テストを追加"
         }
       },
       "settingsForm": {
         "sectionTitle": "モジュール情報",
         "fields": {
           "title": "モジュールタイトル",
-          "titlePlaceholder": "例：CNC設備安全研修",
+          "titlePlaceholder": "例: CNC機械安全トレーニング",
           "description": "説明",
           "descriptionPlaceholder": "このモジュールの内容を簡単に説明してください…",
-          "trainingType": "研修タイプ",
-          "trainingTypePlaceholder": "例：フォークリフト資格",
+          "trainingType": "トレーニング種別",
+          "trainingTypePlaceholder": "例: フォークリフト認定",
           "chooseFromList": "リストから選択",
-          "selectTrainingType": "研修タイプを選択…",
-          "addNewType": "+ 新しいタイプを追加…",
+          "selectTrainingType": "トレーニング種別を選択…",
+          "addNewType": "+ 新しい種別を追加…",
           "mode": "モード",
           "selectMode": "モードを選択…",
           "passingScore": "合格点",
           "status": "ステータス",
           "tags": "タグ",
-          "tagsPlaceholder": "安全, cnc, レベル1（カンマ区切り）",
+          "tagsPlaceholder": "safety, cnc, level-1（カンマ区切り）",
           "tagsHint": "タグはカンマで区切ってください"
         },
         "statuses": {
@@ -3569,10 +3569,798 @@
         },
         "errors": {
           "titleRequired": "タイトルは必須です",
-          "trainingTypeRequired": "研修タイプは必須です",
+          "trainingTypeRequired": "トレーニング種別は必須です",
           "modeRequired": "モードは必須です"
         },
         "submit": "モジュールを保存"
+      },
+      "myModulesPage": {
+        "title": "マイトレーニング",
+        "fallbackName": "こんにちは",
+        "greetingPending_one": "こんにちは、{{name}}さん。完了すべきモジュールが{{count}}件あります。",
+        "greetingPending_other": "こんにちは、{{name}}さん。完了すべきモジュールが{{count}}件あります。",
+        "greetingCaughtUp": "こんにちは、{{name}}さん。すべて完了しています！",
+        "loadError": "割り当てられたトレーニングを読み込めませんでした: {{error}}"
+      },
+      "moduleLearningPage": {
+        "notFound": "モジュールが見つかりません。",
+        "goBack": "戻る"
+      },
+      "quizPage": {
+        "notAvailable": "このモジュールにはテストがありません。",
+        "backToModule": "モジュールに戻る"
+      },
+      "myCertificatesPage": {
+        "title": "マイ修了証",
+        "earnedCount_one": "{{count}}件の修了証を取得済み",
+        "earnedCount_other": "{{count}}件の修了証を取得済み",
+        "programmeCertificateHeading": "プログラム修了証",
+        "programCertificatesHeading": "プログラム修了証"
+      },
+      "knowledgeWriteup": {
+        "firstModuleTitle": "初回モジュール知識レポート",
+        "noProgramme": "知識レポートを提出するには、有効なトレーニングプログラムが必要です。",
+        "title": "モジュール知識レポート",
+        "subtitle": "プログラム内のモジュールで得た知識をまとめてください。添付ファイルは任意です。",
+        "moduleLabel": "モジュール",
+        "selectModulePlaceholder": "モジュールを選択…",
+        "whatYouLearned": "学んだこと",
+        "summaryPlaceholder": "初回モジュールで得た知識をまとめてください…",
+        "attachmentsLabel": "添付ファイル（任意）",
+        "submit": "レポートを提出",
+        "submitting": "送信中…",
+        "pastSubmissions": "過去の提出",
+        "loading": "読み込み中…",
+        "noSubmissions": "提出はまだありません。",
+        "untitledSubmission": "知識レポート",
+        "submittedOn": "{{date}}に提出",
+        "reviewStatus": {
+          "pending": "レビュー待ち",
+          "reviewed": "レビュー済み",
+          "needsRevision": "要修正"
+        },
+        "toasts": {
+          "submitted": "知識レポートを提出しました。",
+          "submitFailed": "レポートの提出に失敗しました"
+        }
+      },
+      "certificateCard": {
+        "heading": "トレーニング修了証",
+        "certificateNo": "証明書番号",
+        "provider": "発行元",
+        "machine": "機械",
+        "externalFallback": "外部",
+        "module": "モジュール",
+        "issued": "{{date}}発行",
+        "expiredOn": "{{date}}に期限切れ",
+        "expiresOn": "{{date}}に期限切れ予定",
+        "score": "スコア:",
+        "revoked": "無効",
+        "downloadAria": "修了証をA4 PDFとしてダウンロード",
+        "downloadButton": "A4 PDFをダウンロード",
+        "toasts": {
+          "pdfFailed": "修了証PDFを生成できませんでした。"
+        }
+      },
+      "certificatePreview": {
+        "awardedTo": "授与対象",
+        "providerLine": "発行元: {{name}}",
+        "machineLine": "機械: {{name}}",
+        "issuedLine": "発行日: {{date}}",
+        "expiresLine": "有効期限: {{date}}",
+        "expiredSuffix": "（期限切れ）",
+        "issuedBy": "発行者: {{name}}",
+        "downloadPdfAria": "修了証PDFをダウンロード",
+        "downloadPdf": "PDFをダウンロード"
+      },
+      "lessonCompleteOverlay": {
+        "title": "レッスン完了！",
+        "remaining_one": "残り{{count}}レッスン",
+        "remaining_other": "残り{{count}}レッスン",
+        "allComplete": "すべてのレッスンが完了しました！",
+        "nextLesson": "次のレッスン",
+        "close": "閉じる"
+      },
+      "lessonList": {
+        "completeToUnlock": "テストを解放するには必須レッスンをすべて完了してください。",
+        "quizPassed": "テストに合格しました",
+        "quizPassedWithScore": "スコア{{score}}%でテストに合格しました"
+      },
+      "lessonListItem": {
+        "pages_one": "{{count}}ページ",
+        "pages_other": "{{count}}ページ",
+        "reading": "読み物",
+        "slides_one": "{{count}}枚",
+        "slides_other": "{{count}}枚",
+        "gallery": "ギャラリー",
+        "ariaLocked": "ロック中: ",
+        "ariaCompleted": "完了済み: ",
+        "ariaCurrent": "現在のレッスン: "
+      },
+      "lessonViewer": {
+        "closeAria": "レッスンを閉じる",
+        "documentAria": "ドキュメント: {{title}}"
+      },
+      "moduleCard": {
+        "due": "期限 {{date}}",
+        "days_one": "{{count}}日",
+        "days_other": "{{count}}日",
+        "lessonsCompleted": "{{total}}件中{{completed}}件のレッスン",
+        "marks": "得点: {{score}}%",
+        "openAria": "トレーニングモジュールを開く: {{name}}"
+      },
+      "moduleLearningScreen": {
+        "backAria": "マイモジュールに戻る",
+        "lessonsCount": "{{total}}件中{{completed}}件",
+        "trainingCompleted": "トレーニング完了",
+        "saving": "保存中…",
+        "markCompleteAcknowledge": "完了として確認する"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "すべてのレッスンが完了しました！テストを受験できます。",
+        "passMark": "合格ライン: {{score}}%",
+        "attemptsRemaining_one": "残り{{count}}回",
+        "attemptsRemaining_other": "残り{{count}}回",
+        "noAttemptsRemaining": "受験回数が残っていません",
+        "startQuizAria": "テストを開始",
+        "startQuiz": "テストを開始"
+      },
+      "documentLesson": {
+        "downloadAria": "ドキュメントをダウンロード",
+        "download": "ダウンロード",
+        "documentAria": "ドキュメント: {{title}}",
+        "markedRead": "既読としてマークしました",
+        "markAsReadAria": "ドキュメントを既読にする",
+        "markAsRead": "既読にする"
+      },
+      "imageGalleryLesson": {
+        "noImages": "このレッスンには画像が追加されていません。",
+        "completed": "完了",
+        "markComplete": "完了としてマーク",
+        "previousImage": "前の画像",
+        "nextImage": "次の画像",
+        "counter": "{{total}}件中{{current}}件",
+        "goToImage": "画像{{index}}に移動",
+        "viewAllHint": "すべての画像を閲覧するとこのレッスンが完了します"
+      },
+      "textLesson": {
+        "noContent": "このレッスンにはコンテンツがありません。",
+        "markedRead": "既読としてマークしました",
+        "markAsReadAria": "レッスンを既読にする",
+        "markAsRead": "既読にする",
+        "scrollToComplete": "最後までスクロールすると完了します"
+      },
+      "videoLesson": {
+        "buffering": "バッファリング中",
+        "seekBack": "-10秒",
+        "seekForward": "+10秒",
+        "pauseVideo": "動画を一時停止",
+        "playVideo": "動画を再生",
+        "seekAria": "動画をシーク",
+        "pause": "一時停止",
+        "play": "再生",
+        "disableSubtitles": "字幕を無効にする",
+        "enableSubtitles": "字幕を有効にする",
+        "ccLabel": "CC",
+        "unmute": "ミュート解除",
+        "mute": "ミュート",
+        "playbackSpeed": "再生速度",
+        "exitFullscreen": "全画面表示を終了",
+        "enterFullscreen": "全画面表示にする",
+        "lessonComplete": "レッスン完了",
+        "markCompleteAria": "動画レッスンを完了としてマーク",
+        "markAsComplete": "完了としてマーク",
+        "watchToComplete": "{{pct}}%視聴すると完了します"
+      },
+      "quiz": {
+        "answerReview": {
+          "title": "回答の確認",
+          "questionLabel": "問{{number}}",
+          "correct": "正解",
+          "incorrect": "不正解",
+          "points": "+{{earned}}/{{total}}点",
+          "yourAnswer": "あなたの回答:",
+          "noAnswerSelected": "回答が選択されていません",
+          "correctAnswer": "正解:"
+        },
+        "preScreen": {
+          "questionsCount_one": "{{count}}問",
+          "questionsCount_other": "{{count}}問",
+          "minutes_one": "{{count}}分",
+          "minutes_other": "{{count}}分",
+          "noTimeLimit": "制限時間なし",
+          "passMark": "合格ライン: {{score}}%",
+          "unlimitedAttempts": "受験回数無制限",
+          "noAttemptsRemaining": "受験回数が残っていません",
+          "attemptsRemaining_one": "残り{{count}}回",
+          "attemptsRemaining_other": "残り{{count}}回",
+          "instructionsHeading": "注意事項",
+          "startQuizAria": "テストを開始",
+          "startQuiz": "テストを開始",
+          "noAttemptsRemainingCta": "受験回数なし"
+        },
+        "progressBar": {
+          "questionOf": "問 {{current}} / {{total}}",
+          "answeredCount": "{{answered}}/{{total}}"
+        },
+        "question": {
+          "questionNumber": "問題 {{number}}",
+          "illustrationAlt": "問題の図",
+          "illustrationAltShort": "問題",
+          "explanationLabel": "解説:",
+          "invalidTrueFalse": "無効な正誤問題です。"
+        },
+        "results": {
+          "passedMessage": "✓ おめでとうございます！合格しました。",
+          "failedMessage": "✗ 不合格です。必要な得点: {{score}}%。",
+          "correct": "正解",
+          "score": "スコア",
+          "time": "所要時間",
+          "supervisorSignOff": "監督者が実技を確認し、サインオフを行います。",
+          "continue": "続ける",
+          "retryAvailableIn": "再受験可能まで",
+          "retryQuiz": "テストを再受験",
+          "noAttemptsLeft": "テストの受験回数を使い切りました。監督者にお問い合わせください。",
+          "backToModule": "モジュールに戻る"
+        },
+        "review": {
+          "title": "回答内容の確認",
+          "answeredCount": "{{total}}問中{{answered}}問に回答済み",
+          "unansweredWarning_one": "{{count}}問が未回答です。",
+          "unansweredWarning_other": "{{count}}問が未回答です。",
+          "answered": "回答済み",
+          "skipped": "未回答",
+          "back": "戻る",
+          "submitQuiz": "テストを提出",
+          "confirmTitle": "テストを提出しますか？",
+          "confirmBody": "提出後は回答を変更できません。",
+          "cancel": "キャンセル",
+          "submitting": "送信中…",
+          "submit": "提出"
+        },
+        "runner": {
+          "reviewAndSubmit": "確認して提出",
+          "previousAria": "前の問題",
+          "previous": "前へ",
+          "nextAria": "次の問題",
+          "next": "次へ"
+        }
+      },
+      "moduleTypeBadge": {
+        "offboardAria": "オフボード／外部トレーニング",
+        "offboardLabel": "オフボード／外部",
+        "machineAria": "機械: {{name}}"
+      },
+      "quizScoreBadge": {
+        "aria": "テストスコア: {{score}}% — {{status}}",
+        "passed": "合格",
+        "failed": "不合格"
+      },
+      "retrainingBadge": {
+        "aria": "再教育が必要",
+        "label": "再教育が必要"
+      },
+      "progressBar": {
+        "aria": "進捗: {{percent}}%"
+      },
+      "manager": {
+        "dashboard": {
+          "title": "トレーニングダッシュボード",
+          "inviteTrainee": "研修生を招待",
+          "close": "閉じる",
+          "cancel": "キャンセル",
+          "sending": "送信中…",
+          "sendInvitation": "招待を送信",
+          "errors": {
+            "fullNameRequired": "氏名は必須です。",
+            "emailRequired": "招待を送信するにはメールアドレスが必要です。",
+            "inviteFailed": "研修生の招待に失敗しました。"
+          },
+          "form": {
+            "fullNamePlaceholder": "氏名 *",
+            "emailPlaceholder": "メールアドレス *",
+            "phonePlaceholder": "電話番号",
+            "departmentPlaceholder": "部門",
+            "employeeIdPlaceholder": "従業員ID"
+          },
+          "alerts": {
+            "overdue_one": "{{count}}件の割り当てが期限超過です。確認し研修生にフォローアップしてください。",
+            "overdue_other": "{{count}}件の割り当てが期限超過です。確認し研修生にフォローアップしてください。",
+            "retrainingRequired_one": "{{count}}名の研修生に再教育が必要です。",
+            "retrainingRequired_other": "{{count}}名の研修生に再教育が必要です。"
+          },
+          "stats": {
+            "totalTrainees": "研修生総数",
+            "activeAssignments": "有効な割り当て",
+            "certsThisMonth": "今月の修了証",
+            "overdue": "期限超過",
+            "retrainingRequired": "再教育が必要",
+            "modulesCreated": "作成済みモジュール",
+            "offboardThisQuarter": "今四半期の外部トレーニング",
+            "pendingKnowledgeReports": "保留中の知識レポート"
+          },
+          "quickActions": {
+            "title": "クイックアクション",
+            "createModule": "モジュールを作成",
+            "viewCompliance": "コンプライアンスを表示"
+          },
+          "recentActivity": "最近のアクティビティ"
+        },
+        "moduleLibrary": {
+          "title": "トレーニング",
+          "createModule": "トレーニングモジュールを作成",
+          "tabs": {
+            "modules": "モジュール",
+            "assigned": "割り当て済み"
+          }
+        },
+        "createModule": {
+          "untitledModule": "無題のモジュール",
+          "savedToast": "モジュールを保存しました。テストの追加や割り当てが行えます。",
+          "saveFailedToast": "モジュールの保存に失敗しました。もう一度お試しください。",
+          "back": "戻る",
+          "title": "トレーニングモジュールを作成"
+        },
+        "editModule": {
+          "updatedToast": "モジュールを更新しました。",
+          "saveFailedToast": "モジュールの保存に失敗しました。もう一度お試しください。",
+          "notFound": "モジュールが見つかりません。",
+          "back": "戻る",
+          "wrongLibrary": {
+            "title": "このライブラリでは見つかりません。",
+            "description": "このモジュールは研修生管理ライブラリに属しています。研修生管理から開いてください。"
+          },
+          "assign": "割り当て",
+          "quizBuilder": "テストビルダー"
+        },
+        "quizBuilder": {
+          "notFound": "モジュールが見つかりません。",
+          "back": "戻る",
+          "backToEditor": "モジュールエディタに戻る",
+          "titleWithModule": "テストビルダー — {{moduleTitle}}",
+          "defaultQuizTitle": "{{moduleTitle}} テスト",
+          "layout": {
+            "header": "テストビルダー",
+            "saveQuiz": "テストを保存",
+            "questionsTab": "問題",
+            "questionsTabWithCount": "問題 ({{count}})",
+            "editorTab": "エディタ",
+            "selectQuestionPrompt": "編集する問題を選択してください",
+            "orAddNew": "または新しい問題を追加してください。"
+          },
+          "settingsBar": {
+            "quizTitle": "テストタイトル",
+            "quizTitlePlaceholder": "例: 安全評価テスト",
+            "passScore": "合格点",
+            "timeLimit": "制限時間",
+            "minutesAbbrev": "分",
+            "maxAttempts": "最大受験回数",
+            "saveSettings": "設定を保存"
+          }
+        },
+        "contentLibrary": {
+          "deleteConfirm": "このアイテムをライブラリから削除しますか？この操作は元に戻せません。",
+          "back": "戻る",
+          "title": "コンテンツライブラリ",
+          "hideUpload": "アップロードを非表示",
+          "uploadButton": "+ アップロード",
+          "searchPlaceholder": "ファイルを検索…",
+          "noneFound": "ファイルが見つかりません。",
+          "select": "選択",
+          "cannotDeleteInUse": "削除できません — モジュールで使用中",
+          "deleteAction": "削除",
+          "usedInModules_one": "{{count}}件のモジュールで使用中",
+          "usedInModules_other": "{{count}}件のモジュールで使用中",
+          "types": {
+            "video": "動画",
+            "document": "ドキュメント",
+            "image": "画像"
+          },
+          "filters": {
+            "all": "すべて"
+          },
+          "deleteModal": {
+            "title": "ファイルを削除しますか？",
+            "description": "このファイルは完全に削除され、復元できません。",
+            "cancel": "キャンセル",
+            "confirmButton": "削除"
+          },
+          "upload": {
+            "saveFailed": "保存に失敗しました",
+            "dropHint": "ここにファイルをドロップするか<u>参照</u>してください",
+            "acceptedFormats": "MP4, MOV, AVI, PDF, DOCX, JPG, PNG, WEBP",
+            "uploadFailed": "アップロードに失敗しました"
+          }
+        },
+        "certificatesManager": {
+          "back": "戻る",
+          "title": "修了証",
+          "searchPlaceholder": "研修生または証明書番号を検索…",
+          "showRevoked": "無効化済みを表示",
+          "noneFound": "修了証が見つかりません。",
+          "pdf": "PDF",
+          "revoke": "無効化",
+          "filters": {
+            "all": "すべての修了証",
+            "valid": "有効のみ",
+            "expired": "期限切れ",
+            "expiringSoon": "まもなく期限切れ"
+          },
+          "columns": {
+            "certNumber": "証明書番号",
+            "trainee": "研修生",
+            "machine": "機械",
+            "module": "モジュール",
+            "issued": "発行日",
+            "expiry": "有効期限",
+            "score": "スコア",
+            "status": "ステータス",
+            "actions": "操作"
+          },
+          "status": {
+            "valid": "有効",
+            "revoked": "無効化済み",
+            "expired": "期限切れ",
+            "expiringSoon": "まもなく期限切れ"
+          },
+          "revokeModal": {
+            "title": "修了証を無効化",
+            "description": "この操作は修了証を完全に無効化します。認定を回復するには研修生を再度割り当てる必要があります。",
+            "reasonLabel": "理由",
+            "reasonPlaceholder": "この修了証を無効化する理由を説明してください…",
+            "reasonRequired": "無効化の理由を入力してください。",
+            "revocationFailed": "無効化に失敗しました",
+            "cancel": "キャンセル",
+            "confirmButton": "修了証を無効化"
+          }
+        },
+        "complianceReport": {
+          "back": "戻る",
+          "title": "コンプライアンスレポート",
+          "loadFailed": "コンプライアンスデータの読み込みに失敗しました: {{error}}",
+          "export": "エクスポート",
+          "noData": "利用可能なコンプライアンスデータがありません。",
+          "matrixTitle": "コンプライアンスマトリクス",
+          "stats": {
+            "totalOperators": "オペレーター総数",
+            "certified": "認定済み",
+            "notCertified": "未認定",
+            "expiringSoon": "まもなく期限切れ",
+            "overdue": "期限超過",
+            "retrainingPending": "再教育待ち"
+          },
+          "columns": {
+            "trainee": "研修生",
+            "department": "部門"
+          },
+          "legend": {
+            "certified": "認定済み",
+            "inProgress": "進行中",
+            "other": "その他",
+            "expired": "期限切れ",
+            "notAssigned": "未割り当て"
+          }
+        },
+        "assignWizard": {
+          "pageBack": "戻る",
+          "pageTitle": "トレーニングを割り当て",
+          "optional": "（任意）",
+          "createFailed": "割り当ての作成に失敗しました",
+          "steps": {
+            "selectTrainees": "研修生を選択",
+            "selectModules": "モジュールを選択",
+            "settings": "設定",
+            "reviewConfirm": "確認して確定"
+          },
+          "notifications": {
+            "assignedMessage": "新しいトレーニングモジュールが割り当てられました: {{moduleTitle}}",
+            "oversightMessage": "「{{moduleTitle}}」を{{traineeName}}に割り当てました"
+          },
+          "done": {
+            "title": "割り当てを作成しました",
+            "createdCount_one": "{{count}}件の割り当てを作成しました。",
+            "createdCount_other": "{{count}}件の割り当てを作成しました。",
+            "skippedCount_one": "重複していた{{count}}件をスキップしました。",
+            "skippedCount_other": "重複していた{{count}}件をスキップしました。",
+            "doneButton": "完了"
+          },
+          "selectTrainees": {
+            "searchPlaceholder": "研修生を検索…",
+            "allDepartments": "全部門",
+            "departmentHint": "<strong>{{department}}</strong>の研修生を表示しています。下の「全選択」で部門全体を割り当てるか、個別に研修生を選択してください。",
+            "selectAll": "全選択 ({{count}})",
+            "noneFound": "研修生が見つかりません。",
+            "noDepartment": "部門なし",
+            "selectedCount_one": "{{count}}名選択中",
+            "selectedCount_other": "{{count}}名選択中",
+            "details": {
+              "name": "氏名",
+              "employeeId": "従業員ID",
+              "role": "役割",
+              "department": "部門"
+            }
+          },
+          "selectModules": {
+            "filterByCategory": "カテゴリで絞り込み",
+            "allCategories": "全カテゴリ",
+            "noneFound": "有効なモジュールが見つかりません。",
+            "noneFoundForCategory": "このカテゴリには有効なモジュールが見つかりません。",
+            "offboard": "オフボード",
+            "externalProvider": "外部提供者",
+            "durationDays_one": "{{count}}日",
+            "durationDays_other": "{{count}}日",
+            "lessonsCount_one": "{{count}}レッスン",
+            "lessonsCount_other": "{{count}}レッスン",
+            "estimatedMinutes_one": "{{count}}分",
+            "estimatedMinutes_other": "{{count}}分",
+            "selectedCount_one": "{{count}}件選択中",
+            "selectedCount_other": "{{count}}件選択中"
+          },
+          "settings": {
+            "dueDate": "期限日",
+            "notifyTrainee": "研修生に通知する",
+            "notifyTraineeHint": "割り当て作成時に通知を送信します"
+          },
+          "review": {
+            "summary": "<strong>{{moduleCount}}件のモジュール</strong>を<strong>{{traineeCount}}名の研修生</strong>に割り当てます（合計{{totalCount}}件の割り当て）",
+            "traineeColumn": "研修生",
+            "moduleColumn": "モジュール"
+          },
+          "nav": {
+            "cancel": "キャンセル",
+            "back": "戻る",
+            "next": "次へ",
+            "confirmAssign": "割り当てを確定"
+          }
+        },
+        "lessonEditors": {
+          "titleRequired": "レッスンタイトルは必須です。",
+          "editTitle": "レッスンを編集",
+          "newTitle": "新規レッスン",
+          "lessonTitle": "レッスンタイトル",
+          "lessonTitlePlaceholder": "例: 機械安全概要",
+          "lessonType": "レッスン種別",
+          "description": "説明",
+          "descriptionPlaceholder": "このレッスンの概要…",
+          "requiredToComplete": "完了に必須",
+          "content": "コンテンツ",
+          "saveLesson": "レッスンを保存",
+          "cancel": "キャンセル",
+          "types": {
+            "video": "動画",
+            "document": "ドキュメント",
+            "gallery": "ギャラリー",
+            "text": "テキスト"
+          },
+          "list": {
+            "dragToReorder": "ドラッグして並べ替え",
+            "untitledLesson": "無題のレッスン",
+            "required": "必須",
+            "editLesson": "レッスンを編集",
+            "deleteLesson": "レッスンを削除",
+            "noneYet": "レッスンがまだありません。",
+            "addFirst": "最初のレッスンを追加してください。",
+            "addLesson": "レッスンを追加"
+          },
+          "documentEditor": {
+            "companyNotFound": "会社が見つかりません。",
+            "exceedsLimit": "ファイルが100MBの上限を超えています。",
+            "uploadFailed": "アップロードに失敗しました: {{message}}",
+            "currentUploaded": "現在アップロードされているドキュメント",
+            "replace": "差し替え",
+            "dropHint": "ここにドキュメントをドロップするかクリックして参照",
+            "acceptedFormats": "PDF, DOCX ・ 最大100MB",
+            "uploading": "アップロード中…",
+            "uploadedName": "ドキュメントをアップロードしました: {{name}}"
+          },
+          "videoEditor": {
+            "companyNotFound": "会社が見つかりません。",
+            "exceedsLimit": "ファイルが500MBの上限を超えています。",
+            "uploadFailed": "アップロードに失敗しました: {{message}}",
+            "currentUploaded": "現在アップロードされている動画",
+            "replace": "差し替え",
+            "dropHint": "ここに動画をドロップするかクリックして参照",
+            "acceptedFormats": "MP4, MOV, AVI ・ 最大500MB",
+            "uploading": "アップロード中…",
+            "uploadedName": "動画をアップロードしました: {{name}}"
+          },
+          "galleryEditor": {
+            "fileExceedsLimit": "「{{name}}」が50MBの上限を超えています。",
+            "companyNotFound": "会社が見つかりません。",
+            "maxImagesAllowed": "画像は最大{{count}}枚までです。",
+            "addImages": "画像を追加",
+            "imagesCount": "{{max}}枚中{{count}}枚",
+            "maxImagesReached": "画像の上限{{count}}枚に達しました。",
+            "clickToAdd": "クリックして画像を追加",
+            "formatHint": "JPG, PNG, WEBP ・ 各最大50MB ・ 最大{{count}}枚",
+            "imageAltFallback": "画像 {{number}}",
+            "removeImage": "画像を削除",
+            "captionPlaceholder": "キャプションを追加…"
+          },
+          "textEditor": {
+            "toolbar": {
+              "bold": "太字",
+              "italic": "斜体",
+              "heading2": "見出し2",
+              "heading3": "見出し3",
+              "bulletList": "箇条書き",
+              "numberedList": "番号付きリスト"
+            },
+            "editMode": "編集",
+            "previewMode": "プレビュー",
+            "contentPlaceholder": "ここにレッスンの内容を入力してください… ツールバーで書式設定するか、HTMLを直接記述できます。"
+          }
+        },
+        "questionEditors": {
+          "editTitle": "問題を編集",
+          "newTitle": "新規問題",
+          "questionText": "問題文",
+          "questionTextPlaceholder": "問題を入力してください…",
+          "questionType": "問題の種類",
+          "imageUrl": "画像URL",
+          "points": "配点",
+          "explanation": "解説",
+          "explanationHint": "（提出後に表示されます）",
+          "explanationPlaceholder": "正解の理由を説明してください…",
+          "saveQuestion": "問題を保存",
+          "cancel": "キャンセル",
+          "textRequired": "問題文は必須です。",
+          "correctAnswerRequired": "少なくとも1つの正解が必要です。",
+          "types": {
+            "singleChoice": {
+              "label": "単一選択",
+              "description": "正解は1つ"
+            },
+            "multipleChoice": {
+              "label": "複数選択",
+              "description": "正解は複数"
+            },
+            "trueFalse": {
+              "label": "正誤問題",
+              "description": "正しいか誤りか"
+            }
+          },
+          "options": {
+            "answerOptions": "選択肢",
+            "true": "正",
+            "false": "誤",
+            "correct": "正解",
+            "explanationForPlaceholder": "{{label}}の解説…",
+            "selectCorrectRequired": "正解を選択してください。",
+            "optionsCount": "{{max}}件中{{count}}件",
+            "markCorrect": "正解としてマーク",
+            "optionPlaceholder": "選択肢 {{number}}",
+            "removeOption": "選択肢を削除",
+            "explanationPlaceholder": "解説（回答後に表示されます）…",
+            "markCorrectRequired": "少なくとも1つの正解をマークしてください。",
+            "addOption": "選択肢を追加"
+          },
+          "list": {
+            "dragToReorder": "ドラッグして並べ替え",
+            "untitledQuestion": "無題の問題",
+            "deleteQuestion": "問題を削除",
+            "pointsAbbrev_one": "{{count}}点",
+            "pointsAbbrev_other": "{{count}}点",
+            "questionCount_one": "{{count}}問",
+            "questionCount_other": "{{count}}問",
+            "pointsTotal": "合計{{count}}点",
+            "noneYet": "問題がまだありません。",
+            "addFirst": "最初の問題を追加してください。",
+            "addQuestion": "問題を追加",
+            "typeAbbrev": {
+              "single_choice": "単一",
+              "multiple_choice": "複数",
+              "true_false": "正誤"
+            }
+          }
+        },
+        "trainingAssignedTab": {
+          "managerFallbackName": "マネージャー",
+          "noneOpen": "現在進行中のトレーニング割り当てはありません。",
+          "modulesAssigned_one": "{{count}}件のモジュールが割り当て済み",
+          "modulesAssigned_other": "{{count}}件のモジュールが割り当て済み",
+          "signOffAndClose": "サインオフして完了",
+          "columns": {
+            "module": "モジュール",
+            "type": "種別",
+            "mode": "モード",
+            "category": "カテゴリ",
+            "progress": "進捗",
+            "assigned": "割り当て日",
+            "dueDate": "期限日",
+            "status": "ステータス",
+            "action": "操作"
+          },
+          "categories": {
+            "machine": "機械",
+            "offboard": "外部"
+          },
+          "signOffModal": {
+            "note": "メモ",
+            "notePlaceholder": "観察内容／サインオフメモ…",
+            "cancel": "キャンセル",
+            "signingOff": "サインオフ中…",
+            "confirmButton": "サインオフを確定"
+          }
+        },
+        "assignmentsProgress": {
+          "title": "トレーニング進捗",
+          "noneAssigned": "まだモジュールが割り当てられていません。",
+          "stats": {
+            "assignments": "割り当て",
+            "inProgress": "進行中",
+            "completed": "完了"
+          },
+          "columns": {
+            "module": "モジュール",
+            "assignedTo": "割り当て先",
+            "assignedBy": "割り当て者",
+            "assigned": "割り当て日",
+            "completed": "完了日",
+            "progress": "進捗",
+            "marks": "得点",
+            "status": "ステータス"
+          }
+        },
+        "signOffPanel": {
+          "close": "閉じる",
+          "assignedBySuffix": " ・ 割り当て者: {{name}}",
+          "signedOffToast": "トレーニングをサインオフしました。",
+          "failedToast": "トレーニングは不合格としてマークされました。",
+          "signOffFailedToast": "サインオフに失敗しました。",
+          "notifications": {
+            "aManager": "マネージャー",
+            "passedMessage": "{{signerName}}があなたのトレーニングをサインオフしました: {{moduleName}}",
+            "failedMessage": "実技評価でトレーニング「{{moduleName}}」が不合格になりました",
+            "passedOversight": "「{{moduleName}}」を{{traineeName}}についてサインオフしました",
+            "failedOversight": "「{{moduleName}}」の実技で{{traineeName}}を不合格にしました"
+          }
+        },
+        "library": {
+          "defaultTitle": "モジュールライブラリ",
+          "deleteConfirm": "このモジュールを完全に削除しますか？この操作は元に戻せません。",
+          "loadingSamples": "読み込み中…",
+          "loadSampleModules": "サンプルモジュールを読み込む",
+          "createModule": "トレーニングモジュールを作成",
+          "searchPlaceholder": "タイトルでモジュールを検索…",
+          "allModes": "全モード",
+          "allTrainingTypes": "全トレーニング種別",
+          "allCategories": "全カテゴリ",
+          "externalProvider": "外部提供者",
+          "yes": "はい",
+          "no": "いいえ",
+          "completedCount_one": "{{count}}件完了",
+          "completedCount_other": "{{count}}件完了",
+          "assign": "割り当て",
+          "edit": "編集",
+          "delete": "削除",
+          "lessonsCount_one": "{{count}}レッスン",
+          "lessonsCount_other": "{{count}}レッスン",
+          "hasQuiz": "テストあり",
+          "assignedCount_one": "{{count}}件割り当て済み",
+          "assignedCount_other": "{{count}}件割り当て済み",
+          "noneFound": "モジュールが見つかりません。",
+          "categories": {
+            "machine": "機械",
+            "offboard": "外部"
+          },
+          "moduleStatus": {
+            "draft": "下書き",
+            "active": "有効",
+            "archived": "アーカイブ済み"
+          },
+          "columns": {
+            "title": "タイトル",
+            "trainingType": "トレーニング種別",
+            "mode": "モード",
+            "category": "カテゴリ",
+            "lessons": "レッスン",
+            "hasQuiz": "テストあり",
+            "assigned": "割り当て済み",
+            "status": "ステータス",
+            "actions": "操作"
+          }
+        }
       }
     },
     "triage": {

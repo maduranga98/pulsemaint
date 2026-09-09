@@ -3750,6 +3750,794 @@
           "modeRequired": "Mode is required"
         },
         "submit": "Save Module"
+      },
+      "myModulesPage": {
+        "title": "My Training",
+        "fallbackName": "there",
+        "greetingPending_one": "Hello, {{name}}. You have {{count}} module to complete.",
+        "greetingPending_other": "Hello, {{name}}. You have {{count}} modules to complete.",
+        "greetingCaughtUp": "Hello, {{name}}. You're all caught up!",
+        "loadError": "Could not load your assigned trainings: {{error}}"
+      },
+      "moduleLearningPage": {
+        "notFound": "Module not found.",
+        "goBack": "Go Back"
+      },
+      "quizPage": {
+        "notAvailable": "Quiz not available for this module.",
+        "backToModule": "Back to Module"
+      },
+      "myCertificatesPage": {
+        "title": "My Certificates",
+        "earnedCount_one": "{{count}} certificate earned",
+        "earnedCount_other": "{{count}} certificates earned",
+        "programmeCertificateHeading": "Programme Certificate",
+        "programCertificatesHeading": "Program Certificates"
+      },
+      "knowledgeWriteup": {
+        "firstModuleTitle": "First Module Knowledge Write-up",
+        "noProgramme": "You need an active training programme before you can submit a knowledge write-up.",
+        "title": "Module Knowledge Write-up",
+        "subtitle": "Write up the knowledge you gathered from a module in your programme. Attachments are optional.",
+        "moduleLabel": "Module",
+        "selectModulePlaceholder": "Select a module…",
+        "whatYouLearned": "What you learned",
+        "summaryPlaceholder": "Summarise the knowledge you gathered during the first module...",
+        "attachmentsLabel": "Attachments (optional)",
+        "submit": "Submit Write-up",
+        "submitting": "Submitting…",
+        "pastSubmissions": "Past Submissions",
+        "loading": "Loading…",
+        "noSubmissions": "No submissions yet.",
+        "untitledSubmission": "Knowledge write-up",
+        "submittedOn": "Submitted {{date}}",
+        "reviewStatus": {
+          "pending": "Pending Review",
+          "reviewed": "Reviewed",
+          "needsRevision": "Needs Revision"
+        },
+        "toasts": {
+          "submitted": "Knowledge write-up submitted.",
+          "submitFailed": "Failed to submit write-up"
+        }
+      },
+      "certificateCard": {
+        "heading": "Training Certificate",
+        "certificateNo": "Certificate No.",
+        "provider": "Provider",
+        "machine": "Machine",
+        "externalFallback": "External",
+        "module": "Module",
+        "issued": "Issued {{date}}",
+        "expiredOn": "Expired {{date}}",
+        "expiresOn": "Expires {{date}}",
+        "score": "Score:",
+        "revoked": "REVOKED",
+        "downloadAria": "Download certificate as an A4 PDF",
+        "downloadButton": "Download A4 PDF",
+        "toasts": {
+          "pdfFailed": "Could not generate the certificate PDF."
+        }
+      },
+      "certificatePreview": {
+        "awardedTo": "Awarded to",
+        "providerLine": "Provider: {{name}}",
+        "machineLine": "Machine: {{name}}",
+        "issuedLine": "Issued: {{date}}",
+        "expiresLine": "Expires: {{date}}",
+        "expiredSuffix": "(Expired)",
+        "issuedBy": "Issued by: {{name}}",
+        "downloadPdfAria": "Download certificate PDF",
+        "downloadPdf": "Download PDF"
+      },
+      "lessonCompleteOverlay": {
+        "title": "Lesson complete!",
+        "remaining_one": "{{count}} lesson remaining",
+        "remaining_other": "{{count}} lessons remaining",
+        "allComplete": "All lessons complete!",
+        "nextLesson": "Next Lesson",
+        "close": "Close"
+      },
+      "lessonList": {
+        "completeToUnlock": "Complete all required lessons to unlock the quiz.",
+        "quizPassed": "Quiz passed",
+        "quizPassedWithScore": "Quiz passed with {{score}}%"
+      },
+      "lessonListItem": {
+        "pages_one": "{{count}} page",
+        "pages_other": "{{count}} pages",
+        "reading": "Reading",
+        "slides_one": "{{count}} slide",
+        "slides_other": "{{count}} slides",
+        "gallery": "Gallery",
+        "ariaLocked": "Locked: ",
+        "ariaCompleted": "Completed: ",
+        "ariaCurrent": "Current lesson: "
+      },
+      "lessonViewer": {
+        "closeAria": "Close lesson",
+        "documentAria": "Document: {{title}}"
+      },
+      "moduleCard": {
+        "due": "Due {{date}}",
+        "days_one": "{{count}} day",
+        "days_other": "{{count}} days",
+        "lessonsCompleted": "{{completed}} of {{total}} lessons",
+        "marks": "Marks: {{score}}%",
+        "openAria": "Open training module: {{name}}"
+      },
+      "moduleLearningScreen": {
+        "backAria": "Back to my modules",
+        "lessonsCount": "{{completed}} of {{total}}",
+        "trainingCompleted": "Training completed",
+        "saving": "Saving…",
+        "markCompleteAcknowledge": "Mark Complete & Acknowledge"
+      },
+      "quizUnlockBanner": {
+        "allLessonsComplete": "All lessons complete! You can now take the quiz.",
+        "passMark": "Pass mark: {{score}}%",
+        "attemptsRemaining_one": "{{count}} attempt remaining",
+        "attemptsRemaining_other": "{{count}} attempts remaining",
+        "noAttemptsRemaining": "No attempts remaining",
+        "startQuizAria": "Start quiz",
+        "startQuiz": "Start Quiz"
+      },
+      "documentLesson": {
+        "downloadAria": "Download document",
+        "download": "Download",
+        "documentAria": "Document: {{title}}",
+        "markedRead": "You have marked this as read",
+        "markAsReadAria": "Mark document as read",
+        "markAsRead": "Mark as Read"
+      },
+      "imageGalleryLesson": {
+        "noImages": "No images have been added to this lesson.",
+        "completed": "Completed",
+        "markComplete": "Mark as Complete",
+        "previousImage": "Previous image",
+        "nextImage": "Next image",
+        "counter": "{{current}} of {{total}}",
+        "goToImage": "Go to image {{index}}",
+        "viewAllHint": "View all images to complete this lesson"
+      },
+      "textLesson": {
+        "noContent": "No content available for this lesson.",
+        "markedRead": "You've marked this as read",
+        "markAsReadAria": "Mark lesson as read",
+        "markAsRead": "Mark as Read",
+        "scrollToComplete": "Scroll to bottom to complete"
+      },
+      "videoLesson": {
+        "buffering": "Buffering",
+        "seekBack": "-10s",
+        "seekForward": "+10s",
+        "pauseVideo": "Pause video",
+        "playVideo": "Play video",
+        "seekAria": "Seek video",
+        "pause": "Pause",
+        "play": "Play",
+        "disableSubtitles": "Disable subtitles",
+        "enableSubtitles": "Enable subtitles",
+        "ccLabel": "CC",
+        "unmute": "Unmute",
+        "mute": "Mute",
+        "playbackSpeed": "Playback speed",
+        "exitFullscreen": "Exit fullscreen",
+        "enterFullscreen": "Enter fullscreen",
+        "lessonComplete": "Lesson complete",
+        "markCompleteAria": "Mark video lesson as complete",
+        "markAsComplete": "Mark as Complete",
+        "watchToComplete": "Watch {{pct}}% to complete"
+      },
+      "quiz": {
+        "answerReview": {
+          "title": "Answer Review",
+          "questionLabel": "Q{{number}}",
+          "correct": "Correct",
+          "incorrect": "Incorrect",
+          "points": "+{{earned}}/{{total}}pts",
+          "yourAnswer": "Your answer:",
+          "noAnswerSelected": "No answer selected",
+          "correctAnswer": "Correct answer:"
+        },
+        "preScreen": {
+          "questionsCount_one": "{{count}} question",
+          "questionsCount_other": "{{count}} questions",
+          "minutes_one": "{{count}} minute",
+          "minutes_other": "{{count}} minutes",
+          "noTimeLimit": "No time limit",
+          "passMark": "Pass mark: {{score}}%",
+          "unlimitedAttempts": "Unlimited attempts",
+          "noAttemptsRemaining": "No attempts remaining",
+          "attemptsRemaining_one": "{{count}} attempt remaining",
+          "attemptsRemaining_other": "{{count}} attempts remaining",
+          "instructionsHeading": "Instructions",
+          "startQuizAria": "Start quiz",
+          "startQuiz": "Start Quiz",
+          "noAttemptsRemainingCta": "No Attempts Remaining"
+        },
+        "progressBar": {
+          "questionOf": "Q {{current}} of {{total}}",
+          "answeredCount": "{{answered}}/{{total}}"
+        },
+        "question": {
+          "questionNumber": "Question {{number}}",
+          "illustrationAlt": "Question illustration",
+          "illustrationAltShort": "Question",
+          "explanationLabel": "Explanation:",
+          "invalidTrueFalse": "Invalid true/false question."
+        },
+        "results": {
+          "passedMessage": "✓ Congratulations! You passed.",
+          "failedMessage": "✗ You did not pass. Score needed: {{score}}%.",
+          "correct": "Correct",
+          "score": "Score",
+          "time": "Time",
+          "supervisorSignOff": "Your supervisor will observe and sign off your practical skills.",
+          "continue": "Continue",
+          "retryAvailableIn": "Retry available in",
+          "retryQuiz": "Retry Quiz",
+          "noAttemptsLeft": "You have used all quiz attempts. Contact your supervisor.",
+          "backToModule": "Back to Module"
+        },
+        "review": {
+          "title": "Review Your Answers",
+          "answeredCount": "{{answered}} of {{total}} questions answered",
+          "unansweredWarning_one": "{{count}} question not answered.",
+          "unansweredWarning_other": "{{count}} questions not answered.",
+          "answered": "Answered",
+          "skipped": "Skipped",
+          "back": "Back",
+          "submitQuiz": "Submit Quiz",
+          "confirmTitle": "Submit quiz?",
+          "confirmBody": "You cannot change your answers after submission.",
+          "cancel": "Cancel",
+          "submitting": "Submitting…",
+          "submit": "Submit"
+        },
+        "runner": {
+          "reviewAndSubmit": "Review & Submit",
+          "previousAria": "Previous question",
+          "previous": "Previous",
+          "nextAria": "Next question",
+          "next": "Next"
+        }
+      },
+      "moduleTypeBadge": {
+        "offboardAria": "Offboard / External training",
+        "offboardLabel": "Offboard / External",
+        "machineAria": "Machine: {{name}}"
+      },
+      "quizScoreBadge": {
+        "aria": "Quiz score: {{score}}% — {{status}}",
+        "passed": "Passed",
+        "failed": "Failed"
+      },
+      "retrainingBadge": {
+        "aria": "Retraining required",
+        "label": "Retraining Required"
+      },
+      "progressBar": {
+        "aria": "Progress: {{percent}}%"
+      },
+      "manager": {
+        "dashboard": {
+          "title": "Training Dashboard",
+          "inviteTrainee": "Invite Trainee",
+          "close": "Close",
+          "cancel": "Cancel",
+          "sending": "Sending…",
+          "sendInvitation": "Send Invitation",
+          "errors": {
+            "fullNameRequired": "Full name is required.",
+            "emailRequired": "Email is required to send the invitation.",
+            "inviteFailed": "Failed to invite trainee."
+          },
+          "form": {
+            "fullNamePlaceholder": "Full Name *",
+            "emailPlaceholder": "Email *",
+            "phonePlaceholder": "Phone",
+            "departmentPlaceholder": "Department",
+            "employeeIdPlaceholder": "Employee ID"
+          },
+          "alerts": {
+            "overdue_one": "{{count}} assignment is overdue. Review and follow up with trainees.",
+            "overdue_other": "{{count}} assignments are overdue. Review and follow up with trainees.",
+            "retrainingRequired_one": "{{count}} trainee requires retraining.",
+            "retrainingRequired_other": "{{count}} trainees require retraining."
+          },
+          "stats": {
+            "totalTrainees": "Total Trainees",
+            "activeAssignments": "Active Assignments",
+            "certsThisMonth": "Certs This Month",
+            "overdue": "Overdue",
+            "retrainingRequired": "Retraining Required",
+            "modulesCreated": "Modules Created",
+            "offboardThisQuarter": "Offboard Trainings This Quarter",
+            "pendingKnowledgeReports": "Pending Knowledge Reports"
+          },
+          "quickActions": {
+            "title": "Quick Actions",
+            "createModule": "Create Module",
+            "viewCompliance": "View Compliance"
+          },
+          "recentActivity": "Recent Activity"
+        },
+        "moduleLibrary": {
+          "title": "Training",
+          "createModule": "Create Training Module",
+          "tabs": {
+            "modules": "Modules",
+            "assigned": "Assigned"
+          }
+        },
+        "createModule": {
+          "untitledModule": "Untitled Module",
+          "savedToast": "Module saved. You can now add a quiz or assign it.",
+          "saveFailedToast": "Failed to save module. Please try again.",
+          "back": "Back",
+          "title": "Create Training Module"
+        },
+        "editModule": {
+          "updatedToast": "Module updated.",
+          "saveFailedToast": "Failed to save module. Please try again.",
+          "notFound": "Module not found.",
+          "back": "Back",
+          "wrongLibrary": {
+            "title": "Not found in this library.",
+            "description": "This module belongs to the Trainee Management library. Open it from Trainee Management instead."
+          },
+          "assign": "Assign",
+          "quizBuilder": "Quiz Builder"
+        },
+        "quizBuilder": {
+          "notFound": "Module not found.",
+          "back": "Back",
+          "backToEditor": "Back to module editor",
+          "titleWithModule": "Quiz Builder — {{moduleTitle}}",
+          "defaultQuizTitle": "{{moduleTitle}} Quiz",
+          "layout": {
+            "header": "Quiz Builder",
+            "saveQuiz": "Save Quiz",
+            "questionsTab": "Questions",
+            "questionsTabWithCount": "Questions ({{count}})",
+            "editorTab": "Editor",
+            "selectQuestionPrompt": "Select a question to edit",
+            "orAddNew": "or add a new question."
+          },
+          "settingsBar": {
+            "quizTitle": "Quiz Title",
+            "quizTitlePlaceholder": "e.g. Safety Assessment",
+            "passScore": "Pass Score",
+            "timeLimit": "Time Limit",
+            "minutesAbbrev": "min",
+            "maxAttempts": "Max Attempts",
+            "saveSettings": "Save Settings"
+          }
+        },
+        "contentLibrary": {
+          "deleteConfirm": "Delete this item from the library? This cannot be undone.",
+          "back": "Back",
+          "title": "Content Library",
+          "hideUpload": "Hide Upload",
+          "uploadButton": "+ Upload",
+          "searchPlaceholder": "Search files...",
+          "noneFound": "No files found.",
+          "select": "Select",
+          "cannotDeleteInUse": "Cannot delete — used in modules",
+          "deleteAction": "Delete",
+          "usedInModules_one": "Used in {{count}} module",
+          "usedInModules_other": "Used in {{count}} modules",
+          "types": {
+            "video": "Video",
+            "document": "Document",
+            "image": "Image"
+          },
+          "filters": {
+            "all": "All"
+          },
+          "deleteModal": {
+            "title": "Delete File?",
+            "description": "This file will be permanently deleted and cannot be recovered.",
+            "cancel": "Cancel",
+            "confirmButton": "Delete"
+          },
+          "upload": {
+            "saveFailed": "Save failed",
+            "dropHint": "Drop files here or <u>browse</u>",
+            "acceptedFormats": "MP4, MOV, AVI, PDF, DOCX, JPG, PNG, WEBP",
+            "uploadFailed": "Upload failed"
+          }
+        },
+        "certificatesManager": {
+          "back": "Back",
+          "title": "Certificates",
+          "searchPlaceholder": "Search trainee or cert #...",
+          "showRevoked": "Show Revoked",
+          "noneFound": "No certificates found.",
+          "pdf": "PDF",
+          "revoke": "Revoke",
+          "filters": {
+            "all": "All Certificates",
+            "valid": "Valid Only",
+            "expired": "Expired",
+            "expiringSoon": "Expiring Soon"
+          },
+          "columns": {
+            "certNumber": "Cert #",
+            "trainee": "Trainee",
+            "machine": "Machine",
+            "module": "Module",
+            "issued": "Issued",
+            "expiry": "Expiry",
+            "score": "Score",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "status": {
+            "valid": "Valid",
+            "revoked": "Revoked",
+            "expired": "Expired",
+            "expiringSoon": "Expiring Soon"
+          },
+          "revokeModal": {
+            "title": "Revoke Certificate",
+            "description": "This will permanently revoke the certificate. The trainee will need to be reassigned to regain certification.",
+            "reasonLabel": "Reason",
+            "reasonPlaceholder": "Explain why this certificate is being revoked...",
+            "reasonRequired": "Please provide a reason for revocation.",
+            "revocationFailed": "Revocation failed",
+            "cancel": "Cancel",
+            "confirmButton": "Revoke Certificate"
+          }
+        },
+        "complianceReport": {
+          "back": "Back",
+          "title": "Compliance Report",
+          "loadFailed": "Failed to load compliance data: {{error}}",
+          "export": "Export",
+          "noData": "No compliance data available.",
+          "matrixTitle": "Compliance Matrix",
+          "stats": {
+            "totalOperators": "Total Operators",
+            "certified": "Certified",
+            "notCertified": "Not Certified",
+            "expiringSoon": "Expiring Soon",
+            "overdue": "Overdue",
+            "retrainingPending": "Retraining Pending"
+          },
+          "columns": {
+            "trainee": "Trainee",
+            "department": "Department"
+          },
+          "legend": {
+            "certified": "Certified",
+            "inProgress": "In Progress",
+            "other": "Other",
+            "expired": "Expired",
+            "notAssigned": "Not Assigned"
+          }
+        },
+        "assignWizard": {
+          "pageBack": "Back",
+          "pageTitle": "Assign Training",
+          "optional": "(optional)",
+          "createFailed": "Failed to create assignments",
+          "steps": {
+            "selectTrainees": "Select Trainees",
+            "selectModules": "Select Modules",
+            "settings": "Settings",
+            "reviewConfirm": "Review & Confirm"
+          },
+          "notifications": {
+            "assignedMessage": "You've been assigned a new training module: {{moduleTitle}}",
+            "oversightMessage": "assigned \"{{moduleTitle}}\" to {{traineeName}}"
+          },
+          "done": {
+            "title": "Assignments Created",
+            "createdCount_one": "{{count}} assignment created successfully.",
+            "createdCount_other": "{{count}} assignments created successfully.",
+            "skippedCount_one": "{{count}} duplicate skipped.",
+            "skippedCount_other": "{{count}} duplicates skipped.",
+            "doneButton": "Done"
+          },
+          "selectTrainees": {
+            "searchPlaceholder": "Search trainees...",
+            "allDepartments": "All departments",
+            "departmentHint": "Showing trainees in <strong>{{department}}</strong>. Use \"Select All\" below to assign the whole department, or check individual trainees to assign a single user.",
+            "selectAll": "Select All ({{count}})",
+            "noneFound": "No trainees found.",
+            "noDepartment": "No department",
+            "selectedCount_one": "{{count}} trainee selected",
+            "selectedCount_other": "{{count}} trainees selected",
+            "details": {
+              "name": "Name",
+              "employeeId": "Employee ID",
+              "role": "Role",
+              "department": "Department"
+            }
+          },
+          "selectModules": {
+            "filterByCategory": "Filter by Category",
+            "allCategories": "All categories",
+            "noneFound": "No active modules found.",
+            "noneFoundForCategory": "No active modules found for this category.",
+            "offboard": "Offboard",
+            "externalProvider": "External provider",
+            "durationDays_one": "{{count}}d",
+            "durationDays_other": "{{count}}d",
+            "lessonsCount_one": "{{count}} lesson",
+            "lessonsCount_other": "{{count}} lessons",
+            "estimatedMinutes_one": "{{count}} min",
+            "estimatedMinutes_other": "{{count}} min",
+            "selectedCount_one": "{{count}} module selected",
+            "selectedCount_other": "{{count}} modules selected"
+          },
+          "settings": {
+            "dueDate": "Due Date",
+            "notifyTrainee": "Notify Trainee",
+            "notifyTraineeHint": "Send notification when assignment is created"
+          },
+          "review": {
+            "summary": "Assigning <strong>{{moduleCount}} modules</strong> to <strong>{{traineeCount}} trainees</strong> ({{totalCount}} total assignments)",
+            "traineeColumn": "Trainee",
+            "moduleColumn": "Module"
+          },
+          "nav": {
+            "cancel": "Cancel",
+            "back": "Back",
+            "next": "Next",
+            "confirmAssign": "Confirm Assign"
+          }
+        },
+        "lessonEditors": {
+          "titleRequired": "Lesson title is required.",
+          "editTitle": "Edit Lesson",
+          "newTitle": "New Lesson",
+          "lessonTitle": "Lesson Title",
+          "lessonTitlePlaceholder": "e.g. Machine Safety Overview",
+          "lessonType": "Lesson Type",
+          "description": "Description",
+          "descriptionPlaceholder": "Brief description of this lesson…",
+          "requiredToComplete": "Required to complete",
+          "content": "Content",
+          "saveLesson": "Save Lesson",
+          "cancel": "Cancel",
+          "types": {
+            "video": "Video",
+            "document": "Document",
+            "gallery": "Gallery",
+            "text": "Text"
+          },
+          "list": {
+            "dragToReorder": "Drag to reorder",
+            "untitledLesson": "Untitled lesson",
+            "required": "Required",
+            "editLesson": "Edit lesson",
+            "deleteLesson": "Delete lesson",
+            "noneYet": "No lessons yet.",
+            "addFirst": "Add your first lesson.",
+            "addLesson": "Add Lesson"
+          },
+          "documentEditor": {
+            "companyNotFound": "Company not found.",
+            "exceedsLimit": "File exceeds 100 MB limit.",
+            "uploadFailed": "Upload failed: {{message}}",
+            "currentUploaded": "Current document uploaded",
+            "replace": "Replace",
+            "dropHint": "Drop a document here or click to browse",
+            "acceptedFormats": "PDF, DOCX · Max 100 MB",
+            "uploading": "Uploading…",
+            "uploadedName": "Document uploaded: {{name}}"
+          },
+          "videoEditor": {
+            "companyNotFound": "Company not found.",
+            "exceedsLimit": "File exceeds 500 MB limit.",
+            "uploadFailed": "Upload failed: {{message}}",
+            "currentUploaded": "Current video uploaded",
+            "replace": "Replace",
+            "dropHint": "Drop a video here or click to browse",
+            "acceptedFormats": "MP4, MOV, AVI · Max 500 MB",
+            "uploading": "Uploading…",
+            "uploadedName": "Video uploaded: {{name}}"
+          },
+          "galleryEditor": {
+            "fileExceedsLimit": "\"{{name}}\" exceeds 50 MB limit.",
+            "companyNotFound": "Company not found.",
+            "maxImagesAllowed": "Maximum {{count}} images allowed.",
+            "addImages": "Add Images",
+            "imagesCount": "{{count}}/{{max}} images",
+            "maxImagesReached": "Maximum {{count}} images reached.",
+            "clickToAdd": "Click to add images",
+            "formatHint": "JPG, PNG, WEBP · Max 50 MB each · Up to {{count}} images",
+            "imageAltFallback": "Image {{number}}",
+            "removeImage": "Remove image",
+            "captionPlaceholder": "Add caption…"
+          },
+          "textEditor": {
+            "toolbar": {
+              "bold": "Bold",
+              "italic": "Italic",
+              "heading2": "Heading 2",
+              "heading3": "Heading 3",
+              "bulletList": "Bullet List",
+              "numberedList": "Numbered List"
+            },
+            "editMode": "Edit",
+            "previewMode": "Preview",
+            "contentPlaceholder": "Write lesson content here… Use the toolbar to format text, or write HTML directly."
+          }
+        },
+        "questionEditors": {
+          "editTitle": "Edit Question",
+          "newTitle": "New Question",
+          "questionText": "Question Text",
+          "questionTextPlaceholder": "Enter the question…",
+          "questionType": "Question Type",
+          "imageUrl": "Image URL",
+          "points": "Points",
+          "explanation": "Explanation",
+          "explanationHint": "(shown after submission)",
+          "explanationPlaceholder": "Explain the correct answer…",
+          "saveQuestion": "Save Question",
+          "cancel": "Cancel",
+          "textRequired": "Question text is required.",
+          "correctAnswerRequired": "At least one correct answer is required.",
+          "types": {
+            "singleChoice": {
+              "label": "Single Choice",
+              "description": "One correct answer"
+            },
+            "multipleChoice": {
+              "label": "Multiple Choice",
+              "description": "Multiple correct answers"
+            },
+            "trueFalse": {
+              "label": "True / False",
+              "description": "True or false"
+            }
+          },
+          "options": {
+            "answerOptions": "Answer Options",
+            "true": "TRUE",
+            "false": "FALSE",
+            "correct": "Correct",
+            "explanationForPlaceholder": "Explanation for {{label}}…",
+            "selectCorrectRequired": "Please select the correct answer.",
+            "optionsCount": "{{count}}/{{max}} options",
+            "markCorrect": "Mark as correct answer",
+            "optionPlaceholder": "Option {{number}}",
+            "removeOption": "Remove option",
+            "explanationPlaceholder": "Explanation (shown after answer)…",
+            "markCorrectRequired": "Please mark at least one correct answer.",
+            "addOption": "Add Option"
+          },
+          "list": {
+            "dragToReorder": "Drag to reorder",
+            "untitledQuestion": "Untitled question",
+            "deleteQuestion": "Delete question",
+            "pointsAbbrev_one": "{{count}}pt",
+            "pointsAbbrev_other": "{{count}}pt",
+            "questionCount_one": "{{count}} question",
+            "questionCount_other": "{{count}} questions",
+            "pointsTotal": "{{count}} pts total",
+            "noneYet": "No questions yet.",
+            "addFirst": "Add your first question.",
+            "addQuestion": "Add Question",
+            "typeAbbrev": {
+              "single_choice": "Single",
+              "multiple_choice": "Multiple",
+              "true_false": "T/F"
+            }
+          }
+        },
+        "trainingAssignedTab": {
+          "managerFallbackName": "Manager",
+          "noneOpen": "No one has an open training assignment.",
+          "modulesAssigned_one": "{{count}} module assigned",
+          "modulesAssigned_other": "{{count}} modules assigned",
+          "signOffAndClose": "Sign Off & Close",
+          "columns": {
+            "module": "Module",
+            "type": "Type",
+            "mode": "Mode",
+            "category": "Category",
+            "progress": "Progress",
+            "assigned": "Assigned",
+            "dueDate": "Due Date",
+            "status": "Status",
+            "action": "Action"
+          },
+          "categories": {
+            "machine": "Machine",
+            "offboard": "External"
+          },
+          "signOffModal": {
+            "note": "Note",
+            "notePlaceholder": "Observations / sign-off note...",
+            "cancel": "Cancel",
+            "signingOff": "Signing off…",
+            "confirmButton": "Confirm Sign Off"
+          }
+        },
+        "assignmentsProgress": {
+          "title": "Training Progress",
+          "noneAssigned": "No modules assigned yet.",
+          "stats": {
+            "assignments": "Assignments",
+            "inProgress": "In progress",
+            "completed": "Completed"
+          },
+          "columns": {
+            "module": "Module",
+            "assignedTo": "Assigned To",
+            "assignedBy": "Assigned By",
+            "assigned": "Assigned",
+            "completed": "Completed",
+            "progress": "Progress",
+            "marks": "Marks",
+            "status": "Status"
+          }
+        },
+        "signOffPanel": {
+          "close": "Close",
+          "assignedBySuffix": " · assigned by {{name}}",
+          "signedOffToast": "Training signed off.",
+          "failedToast": "Training marked as failed.",
+          "signOffFailedToast": "Sign-off failed.",
+          "notifications": {
+            "aManager": "A manager",
+            "passedMessage": "{{signerName}} signed off your training: {{moduleName}}",
+            "failedMessage": "Your training {{moduleName}} did not pass the practical assessment",
+            "passedOversight": "signed off \"{{moduleName}}\" for {{traineeName}}",
+            "failedOversight": "failed {{traineeName}} on the practical for \"{{moduleName}}\""
+          }
+        },
+        "library": {
+          "defaultTitle": "Module Library",
+          "deleteConfirm": "Delete this module permanently? This cannot be undone.",
+          "loadingSamples": "Loading…",
+          "loadSampleModules": "Load Sample Modules",
+          "createModule": "Create Training Module",
+          "searchPlaceholder": "Search modules by title...",
+          "allModes": "All modes",
+          "allTrainingTypes": "All training types",
+          "allCategories": "All categories",
+          "externalProvider": "External provider",
+          "yes": "Yes",
+          "no": "No",
+          "completedCount_one": "{{count}} completed",
+          "completedCount_other": "{{count}} completed",
+          "assign": "Assign",
+          "edit": "Edit",
+          "delete": "Delete",
+          "lessonsCount_one": "{{count}} lesson",
+          "lessonsCount_other": "{{count}} lessons",
+          "hasQuiz": "Has quiz",
+          "assignedCount_one": "{{count}} assigned",
+          "assignedCount_other": "{{count}} assigned",
+          "noneFound": "No modules found.",
+          "categories": {
+            "machine": "Machine",
+            "offboard": "External"
+          },
+          "moduleStatus": {
+            "draft": "Draft",
+            "active": "Active",
+            "archived": "Archived"
+          },
+          "columns": {
+            "title": "Title",
+            "trainingType": "Training Type",
+            "mode": "Mode",
+            "category": "Category",
+            "lessons": "Lessons",
+            "hasQuiz": "Has Quiz",
+            "assigned": "Assigned",
+            "status": "Status",
+            "actions": "Actions"
+          }
+        }
       }
     },
     "triage": {

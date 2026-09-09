@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { TrainingCertificate } from '@/lib/training/trainingTypes';
 import type { Timestamp } from 'firebase/firestore';
 import {
@@ -48,6 +49,7 @@ export default function CertificatesManager({
   loading,
   onRevoke,
 }: CertificatesManagerProps) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [expiryFilter, setExpiryFilter] = useState<ExpiryFilter>('all');
   const [showRevoked, setShowRevoked] = useState(false);
@@ -79,7 +81,7 @@ export default function CertificatesManager({
   async function handleRevoke() {
     if (!revokeTargetId) return;
     if (!revokeReason.trim()) {
-      setRevokeError('Please provide a reason for revocation.');
+      setRevokeError(t('common.trainingShared.manager.certificatesManager.revokeModal.reasonRequired'));
       return;
     }
     setRevoking(true);
@@ -90,7 +92,7 @@ export default function CertificatesManager({
       setRevokeReason('');
     } catch (err) {
       setRevokeError(
-        err instanceof Error ? err.message : 'Revocation failed'
+        err instanceof Error ? err.message : t('common.trainingShared.manager.certificatesManager.revokeModal.revocationFailed')
       );
     } finally {
       setRevoking(false);
@@ -111,7 +113,7 @@ export default function CertificatesManager({
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <input
           type="text"
-          placeholder="Search trainee or cert #..."
+          placeholder={t('common.trainingShared.manager.certificatesManager.searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -121,10 +123,10 @@ export default function CertificatesManager({
           onChange={(e) => setExpiryFilter(e.target.value as ExpiryFilter)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="all">All Certificates</option>
-          <option value="valid">Valid Only</option>
-          <option value="expired">Expired</option>
-          <option value="expiring-soon">Expiring Soon</option>
+          <option value="all">{t('common.trainingShared.manager.certificatesManager.filters.all')}</option>
+          <option value="valid">{t('common.trainingShared.manager.certificatesManager.filters.valid')}</option>
+          <option value="expired">{t('common.trainingShared.manager.certificatesManager.filters.expired')}</option>
+          <option value="expiring-soon">{t('common.trainingShared.manager.certificatesManager.filters.expiringSoon')}</option>
         </select>
         <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
           <input
@@ -133,7 +135,7 @@ export default function CertificatesManager({
             onChange={(e) => setShowRevoked(e.target.checked)}
             className="rounded"
           />
-          Show Revoked
+          {t('common.trainingShared.manager.certificatesManager.showRevoked')}
         </label>
       </div>
 
@@ -141,22 +143,22 @@ export default function CertificatesManager({
       {filtered.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 py-12 flex flex-col items-center text-gray-400 gap-2">
           <Award className="w-10 h-10" />
-          <p className="text-sm">No certificates found.</p>
+          <p className="text-sm">{t('common.trainingShared.manager.certificatesManager.noneFound')}</p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden overflow-x-auto">
           <table className="w-full text-sm min-w-max">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Cert #</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Trainee</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Machine</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Module</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Issued</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Expiry</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Score</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Actions</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.certNumber')}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.trainee')}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.machine')}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.module')}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.issued')}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.expiry')}</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.score')}</th>
+                <th className="text-center px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.status')}</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-600">{t('common.trainingShared.manager.certificatesManager.columns.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -164,16 +166,16 @@ export default function CertificatesManager({
                 const expired = cert.isExpired || isExpired(cert.expiryDate);
                 const expiringSoon = !expired && isExpiringSoon(cert.expiryDate);
 
-                let statusLabel = 'Valid';
+                let statusLabel = t('common.trainingShared.manager.certificatesManager.status.valid');
                 let statusClass = 'bg-green-100 text-green-700';
                 if (cert.isRevoked) {
-                  statusLabel = 'Revoked';
+                  statusLabel = t('common.trainingShared.manager.certificatesManager.status.revoked');
                   statusClass = 'bg-gray-200 text-gray-600';
                 } else if (expired) {
-                  statusLabel = 'Expired';
+                  statusLabel = t('common.trainingShared.manager.certificatesManager.status.expired');
                   statusClass = 'bg-red-100 text-red-700';
                 } else if (expiringSoon) {
-                  statusLabel = 'Expiring Soon';
+                  statusLabel = t('common.trainingShared.manager.certificatesManager.status.expiringSoon');
                   statusClass = 'bg-amber-100 text-amber-700';
                 }
 
@@ -218,7 +220,7 @@ export default function CertificatesManager({
                             className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
                           >
                             <ExternalLink className="w-3 h-3" />
-                            PDF
+                            {t('common.trainingShared.manager.certificatesManager.pdf')}
                           </a>
                         )}
                         {!cert.isRevoked && (
@@ -231,7 +233,7 @@ export default function CertificatesManager({
                             className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors"
                           >
                             <ShieldOff className="w-3 h-3" />
-                            Revoke
+                            {t('common.trainingShared.manager.certificatesManager.revoke')}
                           </button>
                         )}
                       </div>
@@ -250,7 +252,7 @@ export default function CertificatesManager({
           <div className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">
-                Revoke Certificate
+                {t('common.trainingShared.manager.certificatesManager.revokeModal.title')}
               </h3>
               <button
                 onClick={() => setRevokeTargetId(null)}
@@ -261,19 +263,18 @@ export default function CertificatesManager({
             </div>
 
             <p className="text-sm text-gray-600">
-              This will permanently revoke the certificate. The trainee will
-              need to be reassigned to regain certification.
+              {t('common.trainingShared.manager.certificatesManager.revokeModal.description')}
             </p>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reason <span className="text-red-500">*</span>
+                {t('common.trainingShared.manager.certificatesManager.revokeModal.reasonLabel')} <span className="text-red-500">*</span>
               </label>
               <textarea
                 rows={3}
                 value={revokeReason}
                 onChange={(e) => setRevokeReason(e.target.value)}
-                placeholder="Explain why this certificate is being revoked..."
+                placeholder={t('common.trainingShared.manager.certificatesManager.revokeModal.reasonPlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
               />
             </div>
@@ -287,7 +288,7 @@ export default function CertificatesManager({
                 onClick={() => setRevokeTargetId(null)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Cancel
+                {t('common.trainingShared.manager.certificatesManager.revokeModal.cancel')}
               </button>
               <button
                 onClick={handleRevoke}
@@ -295,7 +296,7 @@ export default function CertificatesManager({
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
                 {revoking && <Loader2 className="w-3 h-3 animate-spin" />}
-                Revoke Certificate
+                {t('common.trainingShared.manager.certificatesManager.revokeModal.confirmButton')}
               </button>
             </div>
           </div>

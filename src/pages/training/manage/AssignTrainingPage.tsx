@@ -1,8 +1,10 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AssignTrainingWizard from '@/components/training/manager/AssignTrainingWizard';
 
 export default function AssignTrainingPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultModuleId = searchParams.get('moduleId') ?? undefined;
@@ -14,11 +16,11 @@ export default function AssignTrainingPage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.trainingShared.manager.assignWizard.pageBack')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm">Assign Training</h1>
+        <h1 className="font-semibold text-slate-900 text-sm">{t('common.trainingShared.manager.assignWizard.pageTitle')}</h1>
       </div>
       <div className="p-4 sm:p-6 max-w-3xl mx-auto">
         <AssignTrainingWizard

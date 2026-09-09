@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { X } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { canSignOffTraining } from '@/lib/training/trainingSignOff';
@@ -21,6 +22,7 @@ interface TrainingSignOffPanelProps {
  * training certified here is indistinguishable from one certified there.
  */
 export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSignOffPanelProps) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
   const [saving, setSaving] = useState(false);
@@ -62,21 +64,24 @@ export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSi
       void notifyUsers(assignment.companyId, [assignment.traineeId], {
         type: 'training',
         message: data.passed
-          ? `${userProfile.fullName ?? 'A manager'} signed off your training: ${assignment.moduleName}`
-          : `Your training ${assignment.moduleName} did not pass the practical assessment`,
+          ? t('common.trainingShared.manager.signOffPanel.notifications.passedMessage', {
+              signerName: userProfile.fullName ?? t('common.trainingShared.manager.signOffPanel.notifications.aManager'),
+              moduleName: assignment.moduleName,
+            })
+          : t('common.trainingShared.manager.signOffPanel.notifications.failedMessage', { moduleName: assignment.moduleName }),
         oversightMessage: data.passed
-          ? `signed off "${assignment.moduleName}" for ${assignment.traineeName}`
-          : `failed ${assignment.traineeName} on the practical for "${assignment.moduleName}"`,
+          ? t('common.trainingShared.manager.signOffPanel.notifications.passedOversight', { moduleName: assignment.moduleName, traineeName: assignment.traineeName })
+          : t('common.trainingShared.manager.signOffPanel.notifications.failedOversight', { traineeName: assignment.traineeName, moduleName: assignment.moduleName }),
         actorName: userProfile.fullName ?? '',
         actorRole: userProfile.role,
         actorUserId: userProfile.id,
         linkTo: '/app/training/my-modules',
       });
 
-      toast.success(data.passed ? 'Training signed off.' : 'Training marked as failed.');
+      toast.success(data.passed ? t('common.trainingShared.manager.signOffPanel.signedOffToast') : t('common.trainingShared.manager.signOffPanel.failedToast'));
       onClose();
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Sign-off failed.';
+      const message = err instanceof Error ? err.message : t('common.trainingShared.manager.signOffPanel.signOffFailedToast');
       toast.error(message);
       throw err;
     } finally {
@@ -93,10 +98,10 @@ export default function TrainingSignOffPanel({ assignment, onClose }: TrainingSi
             <p className="text-lg font-bold text-gray-900">{assignment.moduleName}</p>
             <p className="mt-0.5 text-sm text-gray-500">
               {assignment.traineeName}
-              {assignment.assignedByName ? ` · assigned by ${assignment.assignedByName}` : ''}
+              {assignment.assignedByName ? t('common.trainingShared.manager.signOffPanel.assignedBySuffix', { name: assignment.assignedByName }) : ''}
             </p>
           </div>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100" aria-label="Close">
+          <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100" aria-label={t('common.trainingShared.manager.signOffPanel.close')}>
             <X className="h-5 w-5" />
           </button>
         </div>

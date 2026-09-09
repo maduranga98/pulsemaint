@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useTrainingCertificates, revokeCertificate } from '@/hooks/training/useTrainingCertificates';
 import { useAuthStore } from '@/store/authStore';
 import CertificatesManager from '@/components/training/manager/CertificatesManager';
 
 export default function CertificatesManagerPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const userId = useAuthStore((s) => s.userProfile?.id);
   const { certificates, loading } = useTrainingCertificates({ includeRevoked: true });
@@ -20,11 +22,11 @@ export default function CertificatesManagerPage() {
         <button
           onClick={() => navigate(-1)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back"
+          aria-label={t('common.trainingShared.manager.certificatesManager.back')}
         >
           <ArrowLeft size={18} />
         </button>
-        <h1 className="font-semibold text-slate-900 text-sm">Certificates</h1>
+        <h1 className="font-semibold text-slate-900 text-sm">{t('common.trainingShared.manager.certificatesManager.title')}</h1>
       </div>
       <div className="p-4 sm:p-6 max-w-5xl mx-auto">
         <CertificatesManager

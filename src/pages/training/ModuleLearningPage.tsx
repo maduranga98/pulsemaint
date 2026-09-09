@@ -1,10 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAssignment } from '@/hooks/training/useAssignment';
 import { isOffboardAssignment } from '@/lib/training/offboardTraining';
 import ModuleLearningScreen from '@/components/training/learner/ModuleLearningScreen';
 import OffboardTrainingCompletionForm from '@/components/training/learner/OffboardTrainingCompletionForm';
 
 export default function ModuleLearningPage() {
+  const { t } = useTranslation();
   const { assignmentId } = useParams<{ assignmentId: string }>();
   const navigate = useNavigate();
   const { assignment, module, loading, error } = useAssignment(assignmentId ?? '');
@@ -27,9 +29,9 @@ export default function ModuleLearningPage() {
   if (error || !assignment || !module) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
-        <p className="text-lg font-medium">Module not found.</p>
+        <p className="text-lg font-medium">{t('common.trainingShared.moduleLearningPage.notFound')}</p>
         <button onClick={goBack} className="text-blue-600 hover:underline text-sm">
-          Go Back
+          {t('common.trainingShared.moduleLearningPage.goBack')}
         </button>
       </div>
     );

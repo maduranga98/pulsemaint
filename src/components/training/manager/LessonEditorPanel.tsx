@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import { Video, FileText, Images, AlignLeft } from 'lucide-react';
 import type { LessonItem, LessonType } from '@/lib/training/trainingTypes';
 import VideoLessonEditor from './lesson-editors/VideoLessonEditor';
@@ -12,13 +13,6 @@ interface LessonEditorPanelProps {
   onSave: (lesson: Partial<LessonItem>) => void;
   onCancel: () => void;
 }
-
-const TYPE_OPTIONS: { value: LessonType; label: string; icon: React.ReactNode }[] = [
-  { value: 'video', label: 'Video', icon: <Video size={15} /> },
-  { value: 'document', label: 'Document', icon: <FileText size={15} /> },
-  { value: 'image_gallery', label: 'Gallery', icon: <Images size={15} /> },
-  { value: 'text', label: 'Text', icon: <AlignLeft size={15} /> },
-];
 
 function ToggleSwitch({
   checked,
@@ -52,6 +46,13 @@ function ToggleSwitch({
 }
 
 export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEditorPanelProps) {
+  const { t } = useTranslation();
+  const TYPE_OPTIONS: { value: LessonType; label: string; icon: React.ReactNode }[] = [
+    { value: 'video', label: t('common.trainingShared.manager.lessonEditors.types.video'), icon: <Video size={15} /> },
+    { value: 'document', label: t('common.trainingShared.manager.lessonEditors.types.document'), icon: <FileText size={15} /> },
+    { value: 'image_gallery', label: t('common.trainingShared.manager.lessonEditors.types.gallery'), icon: <Images size={15} /> },
+    { value: 'text', label: t('common.trainingShared.manager.lessonEditors.types.text'), icon: <AlignLeft size={15} /> },
+  ];
   const [title, setTitle] = useState(lesson?.title ?? '');
   const [type, setType] = useState<LessonType>(lesson?.type ?? 'video');
   const [description, setDescription] = useState(lesson?.description ?? '');
@@ -76,7 +77,7 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
 
   function handleSave() {
     if (!title.trim()) {
-      setTitleError('Lesson title is required.');
+      setTitleError(t('common.trainingShared.manager.lessonEditors.titleRequired'));
       return;
     }
     setTitleError('');
@@ -122,20 +123,20 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
     <div className="flex flex-col gap-5 p-5 bg-white rounded-xl border border-gray-200">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-gray-800">
-          {lesson?.id ? 'Edit Lesson' : 'New Lesson'}
+          {lesson?.id ? t('common.trainingShared.manager.lessonEditors.editTitle') : t('common.trainingShared.manager.lessonEditors.newTitle')}
         </h3>
       </div>
 
       {/* Title */}
       <div className="flex flex-col gap-1">
         <label className="text-sm font-medium text-gray-700">
-          Lesson Title <span className="text-red-500">*</span>
+          {t('common.trainingShared.manager.lessonEditors.lessonTitle')} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
           value={title}
           onChange={(e) => { setTitle(e.target.value); if (titleError) setTitleError(''); }}
-          placeholder="e.g. Machine Safety Overview"
+          placeholder={t('common.trainingShared.manager.lessonEditors.lessonTitlePlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
         {titleError && <p className="text-xs text-red-500">{titleError}</p>}
@@ -143,7 +144,7 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
 
       {/* Type segmented control */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">Lesson Type</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.lessonEditors.lessonType')}</label>
         <div className="flex gap-1 p-1 bg-gray-100 rounded-xl">
           {TYPE_OPTIONS.map((opt) => (
             <button
@@ -165,12 +166,12 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
 
       {/* Description */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Description</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.lessonEditors.description')}</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
-          placeholder="Brief description of this lesson…"
+          placeholder={t('common.trainingShared.manager.lessonEditors.descriptionPlaceholder')}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
         />
       </div>
@@ -179,12 +180,12 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
       <ToggleSwitch
         checked={isRequired}
         onChange={setIsRequired}
-        label="Required to complete"
+        label={t('common.trainingShared.manager.lessonEditors.requiredToComplete')}
       />
 
       {/* Content upload section */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">Content</label>
+        <label className="text-sm font-medium text-gray-700">{t('common.trainingShared.manager.lessonEditors.content')}</label>
 
         {type === 'video' && (
           <VideoLessonEditor
@@ -229,14 +230,14 @@ export default function LessonEditorPanel({ lesson, onSave, onCancel }: LessonEd
           onClick={handleSave}
           className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg py-2 px-5 text-sm transition-colors"
         >
-          Save Lesson
+          {t('common.trainingShared.manager.lessonEditors.saveLesson')}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="flex-1 sm:flex-none border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium rounded-lg py-2 px-5 text-sm transition-colors"
         >
-          Cancel
+          {t('common.trainingShared.manager.lessonEditors.cancel')}
         </button>
       </div>
     </div>

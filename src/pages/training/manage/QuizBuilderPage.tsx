@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useTrainingModule } from '@/hooks/training/useTrainingModule';
 import type { TrainingQuiz } from '@/lib/training/trainingTypes';
 import QuizBuilderLayout from '@/components/training/manager/QuizBuilderLayout';
 
 export default function QuizBuilderPage() {
+  const { t } = useTranslation();
   const { moduleId } = useParams<{ moduleId: string }>();
   const navigate = useNavigate();
   const { module, loading, error } = useTrainingModule(moduleId ?? '');
@@ -37,12 +39,12 @@ export default function QuizBuilderPage() {
   if (error || !module) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-3 text-slate-600">
-        <p className="font-medium">Module not found.</p>
+        <p className="font-medium">{t('common.trainingShared.manager.quizBuilder.notFound')}</p>
         <button
           onClick={() => navigate(-1)}
           className="text-blue-600 hover:underline text-sm"
         >
-          Back
+          {t('common.trainingShared.manager.quizBuilder.back')}
         </button>
       </div>
     );
@@ -54,12 +56,12 @@ export default function QuizBuilderPage() {
         <button
           onClick={() => navigate(`/app/training/manage/modules/${moduleId}`)}
           className="p-1.5 -ml-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors"
-          aria-label="Back to module editor"
+          aria-label={t('common.trainingShared.manager.quizBuilder.backToEditor')}
         >
           <ArrowLeft size={18} />
         </button>
         <h1 className="font-semibold text-slate-900 text-sm truncate flex-1">
-          Quiz Builder — {module.title}
+          {t('common.trainingShared.manager.quizBuilder.titleWithModule', { moduleTitle: module.title })}
         </h1>
       </div>
       <QuizBuilderLayout module={module} onSaveQuiz={handleSaveQuiz} isSaving={isSaving} />

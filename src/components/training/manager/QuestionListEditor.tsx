@@ -21,6 +21,7 @@ import {
   Trash2,
   Plus,
 } from 'lucide-react';
+import { useTranslation, type TFunction } from 'react-i18next';
 import type { QuizQuestion, QuestionType } from '@/lib/training/trainingTypes';
 
 interface QuestionListEditorProps {
@@ -38,11 +39,9 @@ const TYPE_ICONS: Record<QuestionType, React.ReactNode> = {
   true_false: <AlignLeft size={14} className="text-emerald-500" />,
 };
 
-const TYPE_LABELS: Record<QuestionType, string> = {
-  single_choice: 'Single',
-  multiple_choice: 'Multiple',
-  true_false: 'T/F',
-};
+function typeLabel(type: QuestionType, t: TFunction): string {
+  return t(`common.trainingShared.manager.questionEditors.list.typeAbbrev.${type}`);
+}
 
 interface SortableQuestionRowProps {
   question: QuizQuestion;
@@ -50,6 +49,7 @@ interface SortableQuestionRowProps {
   isSelected: boolean;
   onSelect: (q: QuizQuestion) => void;
   onDelete: (id: string) => void;
+  t: TFunction;
 }
 
 function SortableQuestionRow({
@@ -58,6 +58,7 @@ function SortableQuestionRow({
   isSelected,
   onSelect,
   onDelete,
+  t,
 }: SortableQuestionRowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: question.id,
@@ -91,7 +92,7 @@ function SortableQuestionRow({
         {...listeners}
         onClick={(e) => e.stopPropagation()}
         className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing flex-shrink-0"
-        aria-label="Drag to reorder"
+        aria-label={t('common.trainingShared.manager.questionEditors.list.dragToReorder')}
       >
         <GripVertical size={16} />
       </button>
@@ -102,18 +103,18 @@ function SortableQuestionRow({
       </span>
 
       {/* Type icon */}
-      <span className="flex-shrink-0" title={TYPE_LABELS[question.type]}>
+      <span className="flex-shrink-0" title={typeLabel(question.type, t)}>
         {TYPE_ICONS[question.type]}
       </span>
 
       {/* Preview text */}
       <p className="flex-1 text-sm text-gray-700 truncate min-w-0">
-        {previewText || <span className="text-gray-400 italic">Untitled question</span>}
+        {previewText || <span className="text-gray-400 italic">{t('common.trainingShared.manager.questionEditors.list.untitledQuestion')}</span>}
       </p>
 
       {/* Points badge */}
       <span className="text-xs font-medium text-gray-500 bg-gray-100 rounded-full px-2 py-0.5 flex-shrink-0">
-        {question.points}pt
+        {t('common.trainingShared.manager.questionEditors.list.pointsAbbrev', { count: question.points })}
       </span>
 
       {/* Delete */}
@@ -124,7 +125,7 @@ function SortableQuestionRow({
           onDelete(question.id);
         }}
         className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
-        aria-label="Delete question"
+        aria-label={t('common.trainingShared.manager.questionEditors.list.deleteQuestion')}
       >
         <Trash2 size={13} />
       </button>
@@ -140,6 +141,7 @@ export default function QuestionListEditor({
   onDeleteQuestion,
   onAddQuestion,
 }: QuestionListEditorProps) {
+  const { t } = useTranslation();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
@@ -164,17 +166,17 @@ export default function QuestionListEditor({
       {questions.length > 0 && (
         <div className="flex items-center justify-between px-1">
           <span className="text-xs text-gray-400">
-            {questions.length} question{questions.length !== 1 ? 's' : ''}
+            {t('common.trainingShared.manager.questionEditors.list.questionCount', { count: questions.length })}
           </span>
-          <span className="text-xs text-gray-400">{totalPoints} pts total</span>
+          <span className="text-xs text-gray-400">{t('common.trainingShared.manager.questionEditors.list.pointsTotal', { count: totalPoints })}</span>
         </div>
       )}
 
       {questions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-10 border-2 border-dashed border-gray-200 rounded-xl text-center">
           <CheckSquare size={28} className="text-gray-300 mb-2" />
-          <p className="text-sm font-medium text-gray-500">No questions yet.</p>
-          <p className="text-xs text-gray-400">Add your first question.</p>
+          <p className="text-sm font-medium text-gray-500">{t('common.trainingShared.manager.questionEditors.list.noneYet')}</p>
+          <p className="text-xs text-gray-400">{t('common.trainingShared.manager.questionEditors.list.addFirst')}</p>
         </div>
       ) : (
         <DndContext
@@ -195,6 +197,7 @@ export default function QuestionListEditor({
                   isSelected={selectedQuestionId === question.id}
                   onSelect={onSelectQuestion}
                   onDelete={onDeleteQuestion}
+                  t={t}
                 />
               ))}
             </div>
@@ -208,7 +211,7 @@ export default function QuestionListEditor({
         className="flex items-center justify-center gap-2 border-2 border-dashed border-blue-300 text-blue-600 hover:border-blue-400 hover:bg-blue-50 rounded-xl py-3 text-sm font-medium transition-colors"
       >
         <Plus size={16} />
-        Add Question
+        {t('common.trainingShared.manager.questionEditors.list.addQuestion')}
       </button>
     </div>
   );
