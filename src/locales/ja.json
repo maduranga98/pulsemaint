@@ -6594,6 +6594,43 @@
           "machine": "設備"
         }
       }
+    },
+    "moe": {
+      "filter": {
+        "allMachines": "すべての設備",
+        "presets": {
+          "sevenDays": "7日",
+          "thirtyDays": "30日",
+          "quarter": "四半期",
+          "year": "年",
+          "custom": "カスタム"
+        },
+        "to": "〜"
+      },
+      "rangeLabels": {
+        "last7Days": "過去7日間",
+        "last30Days": "過去30日間",
+        "lastQuarter": "前四半期",
+        "lastYear": "過去1年間",
+        "customRange": "カスタム期間"
+      },
+      "dashboard": {
+        "title": "MOE（設備総合効率）",
+        "subtitle": "システム内の可用性、保全遵守率、信頼性、状態データから算出される総合スコアです。",
+        "calculating": "MOEを計算中…",
+        "plantAverageMoe": "工場平均MOE",
+        "vsPrevious": "前回比 {{value}}",
+        "criticalityWeighted": "重要度で加重、{{range}}",
+        "criticalMachines": "重要設備",
+        "criticalThresholdNote": "重要度4〜5かつしきい値未満",
+        "machinesTracked": "追跡中の設備",
+        "excellent": "優秀（85以上）",
+        "topBestMachines": "上位10台の最良設備",
+        "topWorstMachines": "上位10台の最悪設備",
+        "noDataYet": "まだデータがありません。",
+        "departmentCriticality": "{{department}} ・ 重要度 {{criticality}}",
+        "criticalBadge": "重要"
+      }
     }
   },
   "triage": {
