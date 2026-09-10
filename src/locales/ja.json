@@ -7172,6 +7172,29 @@
           "raisedAt": "日付",
           "receivedAt": "受領日"
         }
+      },
+      "pdf": {
+        "machineProfile": "機械プロファイル",
+        "noRecords": "このレポート設定に一致する記録はありません。",
+        "dateRange": "日付範囲：{{range}}",
+        "generatedSummary": "生成日時：{{generatedAt}}  ·  {{count}} 件の記録",
+        "ticketLabel": "チケット {{number}}",
+        "unknownMachine": "不明な機械",
+        "emptyCell": "—",
+        "charts": {
+          "distribution": "{{column}}の分布",
+          "breakdownByType": "種類別の故障件数",
+          "topMachinesByHealth": "健全性スコア上位5台の機械",
+          "totalCostVsWoType": "総コスト vs 作業指示タイプ",
+          "contractorVsRating": "業者 vs 評価",
+          "stockStatus": "在庫状況（少ない / 欠品 / 在庫あり）",
+          "lowStockByMonth": "月別の在庫少アラート",
+          "trainingsByRole": "役割別の完了トレーニング",
+          "lateVsOnTime": "遅刻 vs 定刻（人数）",
+          "downtimeByWeekday": "曜日別ダウンタイム",
+          "auditsByCategory": "カテゴリー別の完了監査",
+          "topEmployeesByMarks": "全パフォーマンス合計点上位5名の従業員"
+        }
       }
     }
   },
