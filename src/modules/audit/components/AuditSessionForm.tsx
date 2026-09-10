@@ -8,6 +8,7 @@ import {
   FileCheck,
 } from 'lucide-react';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../../store/authStore';
 import { useContractorJobs } from '../../../hooks/contractors/useContractorJobs';
 import { RatingStarSelector } from '../../../components/contractors/jobs/RatingStarSelector';
@@ -54,6 +55,7 @@ function ContractorJobHistoryPanel({
   onRateJob: (job: { id: string; workOrderNumber: string; contractorId?: string; contractorName: string }, rating: number) => void;
   onNoteJob: (job: { id: string; workOrderNumber: string; contractorId?: string; contractorName: string }, notes: string) => void;
 }) {
+  const { t } = useTranslation();
   const { jobs: activeJobs, loading: loadingActive } = useContractorJobs({
     contractorId: contractor.id,
     status: 'active',
@@ -66,9 +68,9 @@ function ContractorJobHistoryPanel({
   const renderJobRow = (job: (typeof activeJobs)[number]) => {
     const jobRating = ratings[job.id];
     const dateLabel = job.workCompletedAt
-      ? `Completed ${job.workCompletedAt.toDate().toLocaleDateString()}`
+      ? t('common.audit.sessionForm.contractorJobHistory.completedOn', 'Completed {{date}}', { date: job.workCompletedAt.toDate().toLocaleDateString() })
       : job.workStartedAt
-        ? `Started ${job.workStartedAt.toDate().toLocaleDateString()}`
+        ? t('common.audit.sessionForm.contractorJobHistory.startedOn', 'Started {{date}}', { date: job.workStartedAt.toDate().toLocaleDateString() })
         : '';
     return (
       <div key={job.id} className="p-2.5 bg-slate-900/60 border border-slate-700 rounded-lg space-y-2">
@@ -88,7 +90,7 @@ function ContractorJobHistoryPanel({
           <input
             value={jobRating?.notes ?? ''}
             onChange={(e) => onNoteJob(job, e.target.value)}
-            placeholder="Special notes (optional)…"
+            placeholder={t('common.audit.sessionForm.contractorJobHistory.notesPlaceholder', 'Special notes (optional)…')}
             className="flex-1 min-w-[10rem] px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-md text-xs text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
           />
         </div>
@@ -98,30 +100,32 @@ function ContractorJobHistoryPanel({
 
   return (
     <div className="mt-3 p-3 bg-slate-900/40 border border-slate-700/70 rounded-lg">
-      <p className="text-xs font-semibold text-slate-300 mb-2">{contractor.name} — Work Orders</p>
+      <p className="text-xs font-semibold text-slate-300 mb-2">
+        {t('common.audit.sessionForm.contractorJobHistory.title', '{{name}} — Work Orders', { name: contractor.name })}
+      </p>
       <div className="space-y-3">
         <div>
           <p className="text-[11px] font-semibold text-amber-400 uppercase tracking-wide mb-1.5">
-            Not Completed
+            {t('common.audit.sessionForm.contractorJobHistory.notCompleted', 'Not Completed')}
           </p>
           {loadingActive ? (
-            <p className="text-xs text-slate-500">Loading…</p>
+            <p className="text-xs text-slate-500">{t('common.audit.sessionForm.contractorJobHistory.loading', 'Loading…')}</p>
           ) : activeJobs.length ? (
             <div className="space-y-2">{activeJobs.map(renderJobRow)}</div>
           ) : (
-            <p className="text-xs text-slate-500">No active jobs.</p>
+            <p className="text-xs text-slate-500">{t('common.audit.sessionForm.contractorJobHistory.noActiveJobs', 'No active jobs.')}</p>
           )}
         </div>
         <div>
           <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wide mb-1.5">
-            Previously Completed
+            {t('common.audit.sessionForm.contractorJobHistory.previouslyCompleted', 'Previously Completed')}
           </p>
           {loadingCompleted ? (
-            <p className="text-xs text-slate-500">Loading…</p>
+            <p className="text-xs text-slate-500">{t('common.audit.sessionForm.contractorJobHistory.loading', 'Loading…')}</p>
           ) : completedJobs.length ? (
             <div className="space-y-2">{completedJobs.map(renderJobRow)}</div>
           ) : (
-            <p className="text-xs text-slate-500">No completed jobs yet.</p>
+            <p className="text-xs text-slate-500">{t('common.audit.sessionForm.contractorJobHistory.noCompletedJobs', 'No completed jobs yet.')}</p>
           )}
         </div>
       </div>
@@ -148,6 +152,7 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 );
 
 export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, initialDraft }: Props) {
+  const { t } = useTranslation();
   const template = useMemo(() => normalizeTemplate(rawTemplate), [rawTemplate]);
   const profile = useAuthStore((s) => s.userProfile);
   const plantId = profile?.companyId ?? '';
@@ -350,7 +355,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
   const handleSubmit = async () => {
     setError(null);
     if (answerList.length === 0) {
-      setError('Answer at least one task before submitting.');
+      setError(t('common.audit.sessionForm.errors.answerRequired', 'Answer at least one task before submitting.'));
       return;
     }
     setSubmitting(true);
@@ -398,9 +403,13 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
           <CheckCircle2 className="h-8 w-8 text-emerald-400" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-white font-sora">Audit Submitted</h2>
+          <h2 className="text-xl font-bold text-white font-sora">{t('common.audit.sessionForm.success.title', 'Audit Submitted')}</h2>
           <p className="text-sm text-slate-400 mt-1">
-            Score {result.score}% · {result.passedTasks}/{result.totalTasks} tasks passed
+            {t('common.audit.sessionForm.success.scoreSummary', 'Score {{score}}% · {{passed}}/{{total}} tasks passed', {
+              score: result.score,
+              passed: result.passedTasks,
+              total: result.totalTasks,
+            })}
           </p>
         </div>
         <div className="flex items-center justify-center gap-3">
@@ -411,18 +420,18 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
               rel="noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
             >
-              <FileCheck className="h-4 w-4" /> View PDF Report
+              <FileCheck className="h-4 w-4" /> {t('common.audit.sessionForm.success.viewPdf', 'View PDF Report')}
             </a>
           ) : (
             <button
-              onClick={() => downloadAuditPdf(result)}
+              onClick={() => downloadAuditPdf(result, t)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
             >
-              <Download className="h-4 w-4" /> Download PDF Report
+              <Download className="h-4 w-4" /> {t('common.audit.sessionForm.success.downloadPdf', 'Download PDF Report')}
             </button>
           )}
           <button onClick={onDone} className="px-4 py-2 text-sm text-slate-300 hover:text-white">
-            Done
+            {t('common.audit.sessionForm.success.done', 'Done')}
           </button>
         </div>
         {result.aiSuggestions.length > 0 && (
@@ -440,7 +449,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold text-white font-sora">
-            {getCategoryLabel(template.category, template.name)}
+            {getCategoryLabel(template.category, template.name, t)}
           </h2>
           <p className="text-xs text-slate-400">{template.name}</p>
         </div>
@@ -448,7 +457,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
           onClick={onConfigure}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg"
         >
-          <Settings2 className="h-3.5 w-3.5" /> Configure Tasks
+          <Settings2 className="h-3.5 w-3.5" /> {t('common.audit.sessionForm.configureTasks', 'Configure Tasks')}
         </button>
       </div>
 
@@ -456,8 +465,8 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
       <div className="flex items-center gap-3 p-3 bg-slate-800/60 border border-slate-700 rounded-xl">
         <UserCheck className="h-5 w-5 text-emerald-400" />
         <div className="text-sm">
-          <span className="text-slate-400">Conducted by </span>
-          <span className="text-white font-semibold">{profile?.fullName ?? 'Unknown'}</span>
+          <span className="text-slate-400">{t('common.audit.sessionForm.conductedBy', 'Conducted by')} </span>
+          <span className="text-white font-semibold">{profile?.fullName ?? t('common.audit.sessionForm.unknownAuditor', 'Unknown')}</span>
           <span className="text-slate-500">
             {' '}· {profile?.role}{profile?.employeeId ? ` · #${profile.employeeId}` : ''}
           </span>
@@ -466,10 +475,10 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
 
       {/* Scope */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
-        <SectionTitle>Scope</SectionTitle>
+        <SectionTitle>{t('common.audit.sessionForm.scope.title', 'Scope')}</SectionTitle>
         {scope === 'contractors' && (
           <>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Contractors</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">{t('common.audit.sessionForm.scope.contractors', 'Contractors')}</label>
             <ContractorMultiSelect selected={selectedContractors} onChange={setSelectedContractors} />
 
             {selectedContractors.map((contractor) => (
@@ -486,21 +495,21 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
 
         {scope === 'inventory' && (
           <>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Inventory / Parts</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">{t('common.audit.sessionForm.scope.inventory', 'Inventory / Parts')}</label>
             <InventoryMultiSelect selected={selectedInventoryItems} onChange={setSelectedInventoryItems} />
           </>
         )}
 
         {scope === 'workOrders' && (
           <>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Work Orders</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">{t('common.audit.sessionForm.scope.workOrders', 'Work Orders')}</label>
             <WorkOrderMultiSelect selected={selectedWorkOrders} onChange={setSelectedWorkOrders} />
           </>
         )}
 
         {scope === 'machines' && (
           <>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Machines</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">{t('common.audit.sessionForm.scope.machines', 'Machines')}</label>
             <MachineMultiSelect machines={machines} selected={selectedMachines} onChange={setSelectedMachines} />
           </>
         )}
@@ -510,20 +519,20 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
         {scope !== 'contractors' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 mb-1">Department</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">{t('common.audit.sessionForm.scope.department', 'Department')}</label>
               <input
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                placeholder="e.g. Production, Maintenance, Quality"
+                placeholder={t('common.audit.sessionForm.scope.departmentPlaceholder', 'e.g. Production, Maintenance, Quality')}
                 className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-400 mb-1">
-                Location / Zone
+                {t('common.audit.sessionForm.scope.locationZone', 'Location / Zone')}
                 {locationAutoFilled && (
                   <span className="ml-1.5 text-[10px] font-normal text-emerald-400">
-                    auto-filled from machine · editable
+                    {t('common.audit.sessionForm.scope.locationAutoFilled', 'auto-filled from machine · editable')}
                   </span>
                 )}
               </label>
@@ -533,7 +542,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
                   setLocation(e.target.value);
                   setLocationAutoFilled(false);
                 }}
-                placeholder="e.g. Factory Floor A, Bay 3, Compressor Room"
+                placeholder={t('common.audit.sessionForm.scope.locationPlaceholder', 'e.g. Factory Floor A, Bay 3, Compressor Room')}
                 className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
             </div>
@@ -543,13 +552,13 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
 
       {/* Participants */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
-        <SectionTitle>Participants</SectionTitle>
+        <SectionTitle>{t('common.audit.sessionForm.participants.title', 'Participants')}</SectionTitle>
         <ParticipantSelector users={users} selected={participants} onChange={setParticipants} />
       </div>
 
       {/* Tasks */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
-        <SectionTitle>Checklist</SectionTitle>
+        <SectionTitle>{t('common.audit.sessionForm.checklist.title', 'Checklist')}</SectionTitle>
         <div className="space-y-4">
           {template.tasks.map((task, i) => {
             const ans = answers[task.id];
@@ -558,7 +567,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
                 <p className="text-sm text-white mb-2">
                   <span className="text-slate-500 mr-1.5">{i + 1}.</span>
                   {task.text}
-                  {task.critical && <span className="ml-1.5 text-[10px] text-amber-400">(critical)</span>}
+                  {task.critical && <span className="ml-1.5 text-[10px] text-amber-400">{t('common.audit.sessionForm.checklist.critical', '(critical)')}</span>}
                 </p>
 
                 {task.answerType === 'yes_no' && (
@@ -576,7 +585,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
                             : 'bg-slate-900 border-slate-700 text-slate-300 hover:bg-slate-800'
                         }`}
                       >
-                        {v === 'yes' ? 'Yes' : 'No'}
+                        {v === 'yes' ? t('common.audit.answers.yes', 'Yes') : t('common.audit.answers.no', 'No')}
                       </button>
                     ))}
                   </div>
@@ -606,7 +615,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
                     value={ans?.value ?? ''}
                     onChange={(e) => setAnswer(task.id, task.text, 'text', e.target.value)}
                     rows={2}
-                    placeholder="Enter response…"
+                    placeholder={t('common.audit.sessionForm.checklist.responsePlaceholder', 'Enter response…')}
                     className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none resize-none"
                   />
                 )}
@@ -615,7 +624,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
                   <input
                     value={ans?.notes ?? ''}
                     onChange={(e) => setNotes(task.id, task.text, task.answerType, e.target.value)}
-                    placeholder="Note the reason for this non-conformance…"
+                    placeholder={t('common.audit.sessionForm.checklist.nonConformancePlaceholder', 'Note the reason for this non-conformance…')}
                     className="mt-2 w-full px-3 py-2 bg-red-950/30 border border-red-900/50 rounded-lg text-sm text-white placeholder-red-300/40 focus:border-red-500 focus:outline-none"
                   />
                 )}
@@ -629,14 +638,14 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
           allowed" in the custom category builder) to allow at least one kind. */}
       {template.enabledFindingKinds.length > 0 && (
         <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
-          <SectionTitle>Losses, Breakdowns, Safety &amp; Maintenance Findings</SectionTitle>
+          <SectionTitle>{t('common.audit.sessionForm.findings.title', 'Losses, Breakdowns, Safety & Maintenance Findings')}</SectionTitle>
           <FindingsSection findings={findings} onChange={setFindings} allowedKinds={template.enabledFindingKinds} />
         </div>
       )}
 
       {/* Attachments */}
       <div className="bg-slate-800/40 border border-slate-700 rounded-xl p-4">
-        <SectionTitle>Evidence &amp; Attachments</SectionTitle>
+        <SectionTitle>{t('common.audit.sessionForm.attachments.title', 'Evidence & Attachments')}</SectionTitle>
         <AttachmentUploader
           plantId={plantId}
           sessionKey={sessionKey}
@@ -647,15 +656,15 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
 
       {/* AI preview */}
       <div className="bg-slate-800/40 border border-emerald-900/30 rounded-xl p-4">
-        <SectionTitle>AI Root-Cause Analysis (preview)</SectionTitle>
+        <SectionTitle>{t('common.audit.sessionForm.aiPreview.title', 'AI Root-Cause Analysis (preview)')}</SectionTitle>
         <AIRootCausePanel suggestions={aiPreview} />
       </div>
 
       {/* Submit bar */}
       <div className="sticky bottom-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 -mx-4 px-4 py-3 flex items-center justify-between">
         <div className="text-sm text-slate-300">
-          Score: <span className="font-bold text-white">{scoring.score}%</span>
-          <span className="text-slate-500"> · {scoring.passedTasks}/{scoring.totalTasks} passed</span>
+          {t('common.audit.sessionForm.submitBar.scoreLabel', 'Score:')} <span className="font-bold text-white">{scoring.score}%</span>
+          <span className="text-slate-500"> · {t('common.audit.sessionForm.submitBar.passedSummary', '{{passed}}/{{total}} passed', { passed: scoring.passedTasks, total: scoring.totalTasks })}</span>
         </div>
         <div className="flex items-center gap-3">
           {error && <span className="text-xs text-red-400">{error}</span>}
@@ -665,7 +674,7 @@ export function AuditSessionForm({ template: rawTemplate, onConfigure, onDone, i
             className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-50"
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileCheck className="h-4 w-4" />}
-            Submit &amp; Generate PDF
+            {t('common.audit.sessionForm.submitBar.submit', 'Submit & Generate PDF')}
           </button>
         </div>
       </div>

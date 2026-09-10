@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { FileText, Image as ImageIcon, Video, X, Loader2, Paperclip } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { uploadAttachment } from '../services/audit.service';
 import type { AuditAttachment, AttachmentType } from '../types/audit.types';
 
@@ -16,13 +17,14 @@ const ACCEPT: Record<AttachmentType, string> = {
   video: 'video/*,.mp4,.mov,.avi',
 };
 
-const TYPE_META: Record<AttachmentType, { label: string; icon: typeof FileText }> = {
-  document: { label: 'Document', icon: FileText },
-  image: { label: 'Image', icon: ImageIcon },
-  video: { label: 'Video', icon: Video },
+const TYPE_META: Record<AttachmentType, { labelKey: string; label: string; icon: typeof FileText }> = {
+  document: { labelKey: 'common.audit.attachments.types.document', label: 'Document', icon: FileText },
+  image: { labelKey: 'common.audit.attachments.types.image', label: 'Image', icon: ImageIcon },
+  video: { labelKey: 'common.audit.attachments.types.video', label: 'Video', icon: Video },
 };
 
 export function AttachmentUploader({ plantId, sessionKey, attachments, onChange }: Props) {
+  const { t } = useTranslation();
   const [uploading, setUploading] = useState<AttachmentType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const inputs = {
@@ -75,7 +77,7 @@ export function AttachmentUploader({ plantId, sessionKey, attachments, onChange 
                 ) : (
                   <Icon className="h-4 w-4" />
                 )}
-                Add {Meta.label}
+                {t('common.audit.attachments.addButton', 'Add {{type}}', { type: t(Meta.labelKey, { defaultValue: Meta.label }) })}
               </button>
             </div>
           );
@@ -86,7 +88,7 @@ export function AttachmentUploader({ plantId, sessionKey, attachments, onChange 
 
       {attachments.length === 0 ? (
         <p className="inline-flex items-center gap-1.5 text-xs text-slate-500">
-          <Paperclip className="h-3.5 w-3.5" /> No supporting files attached
+          <Paperclip className="h-3.5 w-3.5" /> {t('common.audit.attachments.empty', 'No supporting files attached')}
         </p>
       ) : (
         <ul className="space-y-1.5">

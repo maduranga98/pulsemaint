@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search, X, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useInventoryParts } from '../../../hooks/inventory/useInventoryParts';
 import type { InventoryItemRef } from '../types/audit.types';
 
@@ -10,6 +11,7 @@ interface Props {
 
 /** Searchable, multi-select inventory-part picker for Inventory-scoped audits. */
 export function InventoryMultiSelect({ selected, onChange }: Props) {
+  const { t } = useTranslation();
   const { parts } = useInventoryParts();
   const [search, setSearch] = useState('');
   const selectedIds = useMemo(() => new Set(selected.map((p) => p.id)), [selected]);
@@ -53,7 +55,7 @@ export function InventoryMultiSelect({ selected, onChange }: Props) {
           </span>
         ))}
         {selected.length === 0 && (
-          <span className="text-xs text-slate-500">No parts linked yet</span>
+          <span className="text-xs text-slate-500">{t('common.audit.inventorySelect.empty', 'No parts linked yet')}</span>
         )}
       </div>
 
@@ -62,14 +64,14 @@ export function InventoryMultiSelect({ selected, onChange }: Props) {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search parts by name or part number…"
+          placeholder={t('common.audit.inventorySelect.searchPlaceholder', 'Search parts by name or part number…')}
           className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
         />
       </div>
 
       <div className="max-h-44 overflow-y-auto border border-slate-700 rounded-lg divide-y divide-slate-800">
         {filtered.length === 0 && (
-          <p className="px-3 py-3 text-xs text-slate-500">No parts found.</p>
+          <p className="px-3 py-3 text-xs text-slate-500">{t('common.audit.inventorySelect.noneFound', 'No parts found.')}</p>
         )}
         {filtered.map((p) => {
           const isSel = selectedIds.has(p.id);

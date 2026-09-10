@@ -7200,6 +7200,259 @@
           "topEmployeesByMarks": "Los 5 empleados con más puntos totales de todos los desempeños"
         }
       }
+    },
+    "audit": {
+      "categories": {
+        "tpm": "Auditoría TPM",
+        "fives": "Auditoría 5S",
+        "moe": "Auditoría MOE",
+        "contractor": "Auditoría de Contratistas"
+      },
+      "answerTypes": {
+        "yesNo": "Sí / No",
+        "scale": "Escala (0–5)",
+        "text": "Texto"
+      },
+      "scopes": {
+        "machines": "Máquinas",
+        "contractors": "Contratistas",
+        "inventory": "Inventario / Repuestos",
+        "workOrders": "Órdenes de Trabajo",
+        "departments": "Departamentos"
+      },
+      "findingKinds": {
+        "loss": "Pérdida de Producción",
+        "breakdown": "Avería",
+        "safety": "Problema de Seguridad",
+        "maintenance": "Problema de Mantenimiento"
+      },
+      "answers": {
+        "yes": "Sí",
+        "no": "No"
+      },
+      "aiRootCause": {
+        "empty": "No se detectaron problemas — la IA no encontró nada que requiera análisis de causa raíz.",
+        "summary": "La IA analizó {{count}} hallazgo(s) y sugiere:",
+        "unlabeledFinding": "(hallazgo sin etiqueta)",
+        "probableCauses": "Causas probables",
+        "recommendedActions": "Acciones recomendadas"
+      },
+      "attachments": {
+        "types": {
+          "document": "Documento",
+          "image": "Imagen",
+          "video": "Video"
+        },
+        "addButton": "Agregar {{type}}",
+        "empty": "No hay archivos de respaldo adjuntos"
+      },
+      "detail": {
+        "backToHistory": "Volver al historial",
+        "pdfReport": "Informe PDF",
+        "downloadPdf": "Descargar PDF",
+        "conductedBy": "Realizado por",
+        "department": "Departamento",
+        "locationZone": "Ubicación / Zona",
+        "contractors": "Contratistas",
+        "machines": "Máquinas",
+        "participants": "Participantes",
+        "checklistResponses": "Respuestas de la Lista de Verificación",
+        "findings": "Hallazgos",
+        "reason": "Motivo:",
+        "solution": "Solución:",
+        "attachments": "Adjuntos",
+        "aiRootCauseAnalysis": "Análisis de Causa Raíz con IA"
+      },
+      "taskConfigurator": {
+        "errors": {
+          "nameRequired": "Asigne un nombre a la nueva categoría.",
+          "taskRequired": "Agregue al menos una tarea/pregunta."
+        },
+        "categoryNameLabel": "Nombre de categoría / formulario",
+        "templateNameLabel": "Nombre de la plantilla",
+        "categoryNamePlaceholder": "p. ej. Auditoría de Seguridad del Almacén",
+        "findingTypesAllowed": "Tipos de hallazgos permitidos",
+        "findingTypesHint": "Ninguno está habilitado por defecto — marque los tipos de hallazgos que debe ofrecer este formulario.",
+        "taskPlaceholder": "Tarea {{number}} — pregunta / verificación",
+        "criticalLabel": "Crítico (el incumplimiento requiere motivo y solución)",
+        "addTask": "Agregar Tarea",
+        "createCategory": "Crear Categoría",
+        "saveConfiguration": "Guardar Configuración",
+        "cancel": "Cancelar"
+      },
+      "contractorSelect": {
+        "empty": "Aún no hay contratistas vinculados",
+        "searchPlaceholder": "Buscar contratistas por empresa o especialidad…",
+        "noneFound": "No se encontraron contratistas."
+      },
+      "machineSelect": {
+        "empty": "Aún no hay máquinas vinculadas",
+        "searchPlaceholder": "Buscar máquinas por nombre, número de serie, departamento…",
+        "noneFound": "No se encontraron máquinas."
+      },
+      "inventorySelect": {
+        "empty": "Aún no hay repuestos vinculados",
+        "searchPlaceholder": "Buscar repuestos por nombre o número de parte…",
+        "noneFound": "No se encontraron repuestos."
+      },
+      "workOrderSelect": {
+        "empty": "Aún no hay órdenes de trabajo vinculadas",
+        "searchPlaceholder": "Buscar órdenes de trabajo por número o máquina…",
+        "noneFound": "No se encontraron órdenes de trabajo."
+      },
+      "participantSelector": {
+        "empty": "No hay participantes etiquetados",
+        "searchPlaceholder": "Buscar por nombre o rol (Electricista, Técnico, Supervisor…)",
+        "noneFound": "No se encontraron usuarios.",
+        "roles": {
+          "admin": "Administrador",
+          "plantManager": "Gerente de Planta",
+          "supervisor": "Supervisor",
+          "technician": "Técnico",
+          "storeKeeper": "Encargado de Almacén",
+          "hrOfficer": "Oficial de RR. HH.",
+          "floorOperator": "Operador",
+          "trainee": "Aprendiz"
+        }
+      },
+      "findings": {
+        "empty": "Agregue cualquier pérdida, avería, o problema de seguridad o mantenimiento encontrado.",
+        "descriptionPlaceholder": "¿Qué sucedió? (descripción)",
+        "reasonPlaceholder": "Motivo / causa raíz",
+        "solutionPlaceholder": "Solución / acción correctiva tomada"
+      },
+      "sessionForm": {
+        "configureTasks": "Configurar Tareas",
+        "conductedBy": "Realizado por",
+        "unknownAuditor": "Desconocido",
+        "errors": {
+          "answerRequired": "Responda al menos una tarea antes de enviar."
+        },
+        "success": {
+          "title": "Auditoría Enviada",
+          "scoreSummary": "Puntaje {{score}}% · {{passed}}/{{total}} tareas aprobadas",
+          "viewPdf": "Ver Informe PDF",
+          "downloadPdf": "Descargar Informe PDF",
+          "done": "Listo"
+        },
+        "scope": {
+          "title": "Alcance",
+          "contractors": "Contratistas",
+          "inventory": "Inventario / Repuestos",
+          "workOrders": "Órdenes de Trabajo",
+          "machines": "Máquinas",
+          "department": "Departamento",
+          "departmentPlaceholder": "p. ej. Producción, Mantenimiento, Calidad",
+          "locationZone": "Ubicación / Zona",
+          "locationAutoFilled": "autocompletado desde la máquina · editable",
+          "locationPlaceholder": "p. ej. Planta A, Bahía 3, Sala de Compresores"
+        },
+        "participants": {
+          "title": "Participantes"
+        },
+        "checklist": {
+          "title": "Lista de Verificación",
+          "critical": "(crítico)",
+          "responsePlaceholder": "Ingrese respuesta…",
+          "nonConformancePlaceholder": "Indique el motivo de esta no conformidad…"
+        },
+        "findings": {
+          "title": "Hallazgos de Pérdidas, Averías, Seguridad y Mantenimiento"
+        },
+        "attachments": {
+          "title": "Evidencia y Adjuntos"
+        },
+        "aiPreview": {
+          "title": "Análisis de Causa Raíz con IA (vista previa)"
+        },
+        "submitBar": {
+          "scoreLabel": "Puntaje:",
+          "passedSummary": "{{passed}}/{{total}} aprobadas",
+          "submit": "Enviar y Generar PDF"
+        },
+        "contractorJobHistory": {
+          "completedOn": "Completado el {{date}}",
+          "startedOn": "Iniciado el {{date}}",
+          "notesPlaceholder": "Notas especiales (opcional)…",
+          "title": "{{name}} — Órdenes de Trabajo",
+          "notCompleted": "No Completado",
+          "loading": "Cargando…",
+          "noActiveJobs": "No hay trabajos activos.",
+          "previouslyCompleted": "Completado Anteriormente",
+          "noCompletedJobs": "Aún no hay trabajos completados."
+        }
+      },
+      "page": {
+        "title": "Auditorías",
+        "subtitle": "Auditorías TPM · 5S · MOE · Contratistas con análisis de causa raíz mediante IA",
+        "loading": "Cargando…",
+        "tabs": {
+          "inProgress": "En Progreso",
+          "library": "Biblioteca de Auditorías",
+          "completed": "Completadas"
+        },
+        "inProgress": {
+          "empty": "No hay auditorías en progreso.",
+          "lastSaved": "Guardado por última vez {{when}}",
+          "resumeAudit": "Reanudar Auditoría",
+          "inProgressBy": "En progreso por {{name}}"
+        },
+        "newCategory": "Nueva Categoría de Auditoría",
+        "loadingTemplates": "Cargando plantillas de auditoría…",
+        "taskCount": "{{count}} tareas",
+        "startAudit": "Iniciar Auditoría",
+        "completed": {
+          "empty": "Aún no hay auditorías completadas."
+        },
+        "accessRestricted": {
+          "title": "Acceso Restringido",
+          "description": "El módulo de Auditorías está disponible para supervisores, gerentes de planta, administradores, oficiales de RR. HH. y oficiales de seguridad."
+        },
+        "configureTitle": "Configurar {{category}}",
+        "configureDescription": "Agregue o elimine tareas y elija el tipo de respuesta (Sí/No, Escala, Texto) para cada una.",
+        "createTitle": "Nueva Categoría de Auditoría",
+        "createDescription": "Cree una categoría de auditoría personalizada con su propia lista de verificación. Aparecerá en la página principal de Auditorías para todos los que tengan acceso a auditorías; solo los administradores pueden editar sus tareas después.",
+        "categoryDescriptions": {
+          "tpm": "Verificaciones de Mantenimiento Productivo Total",
+          "fives": "Auditoría de organización 5S del lugar de trabajo",
+          "moe": "Pérdidas de disponibilidad, rendimiento y calidad",
+          "contractor": "Auditoría de seguridad y calidad de trabajo de contratistas",
+          "custom": "Lista de verificación de auditoría personalizada"
+        }
+      },
+      "pdf": {
+        "reportTitle": "Informe de {{category}}",
+        "template": "Plantilla: {{name}}",
+        "dateScoreSummary": "Fecha: {{date}}    Puntaje: {{score}}%    ({{passed}}/{{total}} aprobadas)",
+        "conductedBy": "Realizado por",
+        "department": "Departamento",
+        "locationZone": "Ubicación / Zona",
+        "contractors": "Contratistas",
+        "machines": "Máquinas",
+        "participants": "Participantes",
+        "checklistResponses": "Respuestas de la Lista de Verificación",
+        "resultFail": "FALLA",
+        "resultOk": "OK",
+        "findingsTitle": "Hallazgos — Motivos y Soluciones",
+        "aiRootCauseTitle": "Análisis de Causa Raíz con IA",
+        "attachmentsTitle": "Adjuntos",
+        "columns": {
+          "number": "#",
+          "task": "Tarea",
+          "answer": "Respuesta",
+          "result": "Resultado",
+          "notes": "Notas",
+          "type": "Tipo",
+          "description": "Descripción",
+          "reason": "Motivo",
+          "solution": "Solución",
+          "finding": "Hallazgo",
+          "priority": "Prioridad",
+          "probableCauses": "Causas Probables",
+          "recommendedActions": "Acciones Recomendadas",
+          "file": "Archivo"
+        }
+      }
     }
   },
   "triage": {

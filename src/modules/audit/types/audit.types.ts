@@ -1,4 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
+import type { TFunction } from 'i18next';
 
 // ─── Categories & Answer Types ──────────────────────────────────────────────
 
@@ -20,9 +21,19 @@ export const AUDIT_CATEGORY_LABELS: Record<BuiltinAuditCategory, string> = {
   contractor: 'Contractor Audit',
 };
 
+const AUDIT_CATEGORY_LABEL_KEYS: Record<BuiltinAuditCategory, string> = {
+  tpm: 'common.audit.categories.tpm',
+  fives: 'common.audit.categories.fives',
+  moe: 'common.audit.categories.moe',
+  contractor: 'common.audit.categories.contractor',
+};
+
 /** Human-readable label for a category: built-in label if known, otherwise the template/fallback name. */
-export function getCategoryLabel(category: AuditCategory, fallbackName?: string): string {
-  return (AUDIT_CATEGORY_LABELS as Record<string, string>)[category] ?? fallbackName ?? category;
+export function getCategoryLabel(category: AuditCategory, fallbackName?: string, t?: TFunction): string {
+  const englishLabel = (AUDIT_CATEGORY_LABELS as Record<string, string>)[category] ?? fallbackName ?? category;
+  const key = (AUDIT_CATEGORY_LABEL_KEYS as Record<string, string>)[category];
+  if (t && key) return t(key, { defaultValue: englishLabel });
+  return englishLabel;
 }
 
 export function isBuiltinCategory(category: string): category is BuiltinAuditCategory {
@@ -57,6 +68,18 @@ export const ANSWER_TYPE_LABELS: Record<AnswerType, string> = {
   text: 'Text',
 };
 
+const ANSWER_TYPE_LABEL_KEYS: Record<AnswerType, string> = {
+  yes_no: 'common.audit.answerTypes.yesNo',
+  scale: 'common.audit.answerTypes.scale',
+  text: 'common.audit.answerTypes.text',
+};
+
+/** Same optional-`t` pattern as `getCategoryLabel`. */
+export function getAnswerTypeLabel(answerType: AnswerType, t?: TFunction): string {
+  const englishLabel = ANSWER_TYPE_LABELS[answerType];
+  return t ? t(ANSWER_TYPE_LABEL_KEYS[answerType], { defaultValue: englishLabel }) : englishLabel;
+}
+
 export type AuditStatus = 'draft' | 'submitted';
 
 /**
@@ -75,6 +98,20 @@ export const AUDIT_SCOPE_LABELS: Record<AuditScope, string> = {
   departments: 'Departments',
 };
 
+const AUDIT_SCOPE_LABEL_KEYS: Record<AuditScope, string> = {
+  machines: 'common.audit.scopes.machines',
+  contractors: 'common.audit.scopes.contractors',
+  inventory: 'common.audit.scopes.inventory',
+  workOrders: 'common.audit.scopes.workOrders',
+  departments: 'common.audit.scopes.departments',
+};
+
+/** Same optional-`t` pattern as `getCategoryLabel`. */
+export function getScopeLabel(scope: AuditScope, t?: TFunction): string {
+  const englishLabel = AUDIT_SCOPE_LABELS[scope];
+  return t ? t(AUDIT_SCOPE_LABEL_KEYS[scope], { defaultValue: englishLabel }) : englishLabel;
+}
+
 /** Finding kinds that always prompt for a reason + corrective solution. */
 export type FindingKind = 'loss' | 'breakdown' | 'safety' | 'maintenance';
 
@@ -84,6 +121,19 @@ export const FINDING_KIND_LABELS: Record<FindingKind, string> = {
   safety: 'Safety Issue',
   maintenance: 'Maintenance Issue',
 };
+
+const FINDING_KIND_LABEL_KEYS: Record<FindingKind, string> = {
+  loss: 'common.audit.findingKinds.loss',
+  breakdown: 'common.audit.findingKinds.breakdown',
+  safety: 'common.audit.findingKinds.safety',
+  maintenance: 'common.audit.findingKinds.maintenance',
+};
+
+/** Same optional-`t` pattern as `getCategoryLabel`. */
+export function getFindingKindLabel(kind: FindingKind, t?: TFunction): string {
+  const englishLabel = FINDING_KIND_LABELS[kind];
+  return t ? t(FINDING_KIND_LABEL_KEYS[kind], { defaultValue: englishLabel }) : englishLabel;
+}
 
 // ─── Template / Configurable Tasks ──────────────────────────────────────────
 

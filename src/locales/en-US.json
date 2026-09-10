@@ -7373,6 +7373,259 @@
           "topEmployeesByMarks": "Top 5 Employees vs Total Marks of All Performances"
         }
       }
+    },
+    "audit": {
+      "categories": {
+        "tpm": "TPM Audit",
+        "fives": "5S Audit",
+        "moe": "MOE Audit",
+        "contractor": "Contractor Audit"
+      },
+      "answerTypes": {
+        "yesNo": "Yes / No",
+        "scale": "Scale (0–5)",
+        "text": "Text"
+      },
+      "scopes": {
+        "machines": "Machines",
+        "contractors": "Contractors",
+        "inventory": "Inventory / Parts",
+        "workOrders": "Work Orders",
+        "departments": "Departments"
+      },
+      "findingKinds": {
+        "loss": "Production Loss",
+        "breakdown": "Breakdown",
+        "safety": "Safety Issue",
+        "maintenance": "Maintenance Issue"
+      },
+      "answers": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "aiRootCause": {
+        "empty": "No issues detected — AI found nothing requiring root-cause analysis.",
+        "summary": "AI analyzed {{count}} finding(s) and suggests:",
+        "unlabeledFinding": "(unlabeled finding)",
+        "probableCauses": "Probable causes",
+        "recommendedActions": "Recommended actions"
+      },
+      "attachments": {
+        "types": {
+          "document": "Document",
+          "image": "Image",
+          "video": "Video"
+        },
+        "addButton": "Add {{type}}",
+        "empty": "No supporting files attached"
+      },
+      "detail": {
+        "backToHistory": "Back to history",
+        "pdfReport": "PDF Report",
+        "downloadPdf": "Download PDF",
+        "conductedBy": "Conducted by",
+        "department": "Department",
+        "locationZone": "Location / Zone",
+        "contractors": "Contractors",
+        "machines": "Machines",
+        "participants": "Participants",
+        "checklistResponses": "Checklist Responses",
+        "findings": "Findings",
+        "reason": "Reason:",
+        "solution": "Solution:",
+        "attachments": "Attachments",
+        "aiRootCauseAnalysis": "AI Root-Cause Analysis"
+      },
+      "taskConfigurator": {
+        "errors": {
+          "nameRequired": "Give the new category a name.",
+          "taskRequired": "Add at least one task/question."
+        },
+        "categoryNameLabel": "Category / form name",
+        "templateNameLabel": "Template name",
+        "categoryNamePlaceholder": "e.g. Warehouse Safety Audit",
+        "findingTypesAllowed": "Finding types allowed",
+        "findingTypesHint": "None are enabled by default — check off which finding types this form should offer.",
+        "taskPlaceholder": "Task {{number}} — question / check",
+        "criticalLabel": "Critical (failure requires reason & solution)",
+        "addTask": "Add Task",
+        "createCategory": "Create Category",
+        "saveConfiguration": "Save Configuration",
+        "cancel": "Cancel"
+      },
+      "contractorSelect": {
+        "empty": "No contractors linked yet",
+        "searchPlaceholder": "Search contractors by company or trade name…",
+        "noneFound": "No contractors found."
+      },
+      "machineSelect": {
+        "empty": "No machines linked yet",
+        "searchPlaceholder": "Search machines by name, serial, department…",
+        "noneFound": "No machines found."
+      },
+      "inventorySelect": {
+        "empty": "No parts linked yet",
+        "searchPlaceholder": "Search parts by name or part number…",
+        "noneFound": "No parts found."
+      },
+      "workOrderSelect": {
+        "empty": "No work orders linked yet",
+        "searchPlaceholder": "Search work orders by number or machine…",
+        "noneFound": "No work orders found."
+      },
+      "participantSelector": {
+        "empty": "No participants tagged",
+        "searchPlaceholder": "Search by name or role (Electrician, Technician, Supervisor…)",
+        "noneFound": "No users found.",
+        "roles": {
+          "admin": "Administrator",
+          "plantManager": "Plant Manager",
+          "supervisor": "Supervisor",
+          "technician": "Technician",
+          "storeKeeper": "Store Keeper",
+          "hrOfficer": "HR Officer",
+          "floorOperator": "Operator",
+          "trainee": "Trainee"
+        }
+      },
+      "findings": {
+        "empty": "Add any losses, breakdowns, safety or maintenance issues found.",
+        "descriptionPlaceholder": "What happened? (description)",
+        "reasonPlaceholder": "Reason / root cause",
+        "solutionPlaceholder": "Solution / corrective action taken"
+      },
+      "sessionForm": {
+        "configureTasks": "Configure Tasks",
+        "conductedBy": "Conducted by",
+        "unknownAuditor": "Unknown",
+        "errors": {
+          "answerRequired": "Answer at least one task before submitting."
+        },
+        "success": {
+          "title": "Audit Submitted",
+          "scoreSummary": "Score {{score}}% · {{passed}}/{{total}} tasks passed",
+          "viewPdf": "View PDF Report",
+          "downloadPdf": "Download PDF Report",
+          "done": "Done"
+        },
+        "scope": {
+          "title": "Scope",
+          "contractors": "Contractors",
+          "inventory": "Inventory / Parts",
+          "workOrders": "Work Orders",
+          "machines": "Machines",
+          "department": "Department",
+          "departmentPlaceholder": "e.g. Production, Maintenance, Quality",
+          "locationZone": "Location / Zone",
+          "locationAutoFilled": "auto-filled from machine · editable",
+          "locationPlaceholder": "e.g. Factory Floor A, Bay 3, Compressor Room"
+        },
+        "participants": {
+          "title": "Participants"
+        },
+        "checklist": {
+          "title": "Checklist",
+          "critical": "(critical)",
+          "responsePlaceholder": "Enter response…",
+          "nonConformancePlaceholder": "Note the reason for this non-conformance…"
+        },
+        "findings": {
+          "title": "Losses, Breakdowns, Safety & Maintenance Findings"
+        },
+        "attachments": {
+          "title": "Evidence & Attachments"
+        },
+        "aiPreview": {
+          "title": "AI Root-Cause Analysis (preview)"
+        },
+        "submitBar": {
+          "scoreLabel": "Score:",
+          "passedSummary": "{{passed}}/{{total}} passed",
+          "submit": "Submit & Generate PDF"
+        },
+        "contractorJobHistory": {
+          "completedOn": "Completed {{date}}",
+          "startedOn": "Started {{date}}",
+          "notesPlaceholder": "Special notes (optional)…",
+          "title": "{{name}} — Work Orders",
+          "notCompleted": "Not Completed",
+          "loading": "Loading…",
+          "noActiveJobs": "No active jobs.",
+          "previouslyCompleted": "Previously Completed",
+          "noCompletedJobs": "No completed jobs yet."
+        }
+      },
+      "page": {
+        "title": "Audits",
+        "subtitle": "TPM · 5S · MOE · Contractor audits with AI root-cause analysis",
+        "loading": "Loading…",
+        "tabs": {
+          "inProgress": "In Progress",
+          "library": "Audit Library",
+          "completed": "Completed"
+        },
+        "inProgress": {
+          "empty": "No audits in progress.",
+          "lastSaved": "Last saved {{when}}",
+          "resumeAudit": "Resume Audit",
+          "inProgressBy": "In progress by {{name}}"
+        },
+        "newCategory": "New Audit Category",
+        "loadingTemplates": "Loading audit templates…",
+        "taskCount": "{{count}} tasks",
+        "startAudit": "Start Audit",
+        "completed": {
+          "empty": "No completed audits yet."
+        },
+        "accessRestricted": {
+          "title": "Access Restricted",
+          "description": "The Audit module is available to supervisors, plant managers, administrators, HR officers, and safety officers."
+        },
+        "configureTitle": "Configure {{category}}",
+        "configureDescription": "Add or remove tasks and choose the answer type (Yes/No, Scale, Text) for each.",
+        "createTitle": "New Audit Category",
+        "createDescription": "Create a custom audit category with its own checklist. It will appear on the Audit home page for everyone with audit access; only admins can edit its tasks afterward.",
+        "categoryDescriptions": {
+          "tpm": "Total Productive Maintenance checks",
+          "fives": "Workplace 5S organisation audit",
+          "moe": "Availability, performance & quality losses",
+          "contractor": "Contractor safety & work-quality audit",
+          "custom": "Custom audit checklist"
+        }
+      },
+      "pdf": {
+        "reportTitle": "{{category}} Report",
+        "template": "Template: {{name}}",
+        "dateScoreSummary": "Date: {{date}}    Score: {{score}}%    ({{passed}}/{{total}} passed)",
+        "conductedBy": "Conducted by",
+        "department": "Department",
+        "locationZone": "Location / Zone",
+        "contractors": "Contractors",
+        "machines": "Machines",
+        "participants": "Participants",
+        "checklistResponses": "Checklist Responses",
+        "resultFail": "FAIL",
+        "resultOk": "OK",
+        "findingsTitle": "Findings — Reasons & Solutions",
+        "aiRootCauseTitle": "AI Root-Cause Analysis",
+        "attachmentsTitle": "Attachments",
+        "columns": {
+          "number": "#",
+          "task": "Task",
+          "answer": "Answer",
+          "result": "Result",
+          "notes": "Notes",
+          "type": "Type",
+          "description": "Description",
+          "reason": "Reason",
+          "solution": "Solution",
+          "finding": "Finding",
+          "priority": "Priority",
+          "probableCauses": "Probable Causes",
+          "recommendedActions": "Recommended Actions",
+          "file": "File"
+        }
+      }
     }
   }
 }
