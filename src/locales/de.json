@@ -7176,29 +7176,6 @@
           "raisedAt": "Datum",
           "receivedAt": "Erhaltungsdatum"
         }
-      },
-      "pdf": {
-        "machineProfile": "Maschinenprofil",
-        "noRecords": "Keine Datensätze entsprechen dieser Berichtskonfiguration.",
-        "dateRange": "Zeitraum: {{range}}",
-        "generatedSummary": "Erstellt: {{generatedAt}}  ·  {{count}} Datensatz/Datensätze",
-        "ticketLabel": "Ticket {{number}}",
-        "unknownMachine": "Unbekannte Maschine",
-        "emptyCell": "—",
-        "charts": {
-          "distribution": "{{column}}-Verteilung",
-          "breakdownByType": "Störungen nach Typ",
-          "topMachinesByHealth": "Top 5 Maschinen nach Zustandswert",
-          "totalCostVsWoType": "Gesamtkosten vs. Arbeitsauftragstyp",
-          "contractorVsRating": "Auftragnehmer vs. Bewertung",
-          "stockStatus": "Lagerstatus (Niedrig / Ausverkauft / Auf Lager)",
-          "lowStockByMonth": "Niedrigbestandswarnungen pro Monat",
-          "trainingsByRole": "Abgeschlossene Schulungen nach Rolle",
-          "lateVsOnTime": "Verspätet vs. pünktlich (Personenanzahl)",
-          "downtimeByWeekday": "Ausfallzeit nach Wochentag",
-          "auditsByCategory": "Abgeschlossene Audits nach Kategorie",
-          "topEmployeesByMarks": "Top 5 Mitarbeiter nach Gesamtpunktzahl aller Leistungen"
-        }
       }
     }
   },

@@ -7172,29 +7172,6 @@
           "raisedAt": "日期",
           "receivedAt": "收货日期"
         }
-      },
-      "pdf": {
-        "machineProfile": "机器概况",
-        "noRecords": "没有符合此报表配置的记录。",
-        "dateRange": "日期范围：{{range}}",
-        "generatedSummary": "生成时间：{{generatedAt}}  ·  {{count}} 条记录",
-        "ticketLabel": "工单 {{number}}",
-        "unknownMachine": "未知机器",
-        "emptyCell": "—",
-        "charts": {
-          "distribution": "{{column}}分布",
-          "breakdownByType": "按类型统计的故障数量",
-          "topMachinesByHealth": "健康评分前5的机器",
-          "totalCostVsWoType": "总成本 vs 工单类型",
-          "contractorVsRating": "承包商 vs 评分",
-          "stockStatus": "库存状态（低库存 / 缺货 / 有库存）",
-          "lowStockByMonth": "每月低库存提醒",
-          "trainingsByRole": "按角色统计的已完成培训",
-          "lateVsOnTime": "迟到 vs 准时（人数）",
-          "downtimeByWeekday": "按星期统计的停机时间",
-          "auditsByCategory": "按类别统计的已完成审核",
-          "topEmployeesByMarks": "所有绩效总分前5的员工"
-        }
       }
     }
   },

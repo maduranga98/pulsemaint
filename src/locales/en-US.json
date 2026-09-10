@@ -7349,29 +7349,6 @@
           "raisedAt": "Date",
           "receivedAt": "Received Date"
         }
-      },
-      "pdf": {
-        "machineProfile": "Machine Profile",
-        "noRecords": "No records matched this report configuration.",
-        "dateRange": "Date range: {{range}}",
-        "generatedSummary": "Generated: {{generatedAt}}  ·  {{count}} record(s)",
-        "ticketLabel": "Ticket {{number}}",
-        "unknownMachine": "Unknown Machine",
-        "emptyCell": "—",
-        "charts": {
-          "distribution": "{{column}} distribution",
-          "breakdownByType": "Breakdown counts by type",
-          "topMachinesByHealth": "Top 5 Machines by Health Score",
-          "totalCostVsWoType": "Total Cost vs WO Type",
-          "contractorVsRating": "Contractor vs Rating",
-          "stockStatus": "Stock Status (Low / Out / In Stock)",
-          "lowStockByMonth": "Low Stock Alerts by Month",
-          "trainingsByRole": "Trainings Completed by Role",
-          "lateVsOnTime": "Late vs On-Time (count of people)",
-          "downtimeByWeekday": "Downtime vs Day of Week",
-          "auditsByCategory": "Completed Audits by Category",
-          "topEmployeesByMarks": "Top 5 Employees vs Total Marks of All Performances"
-        }
       }
     }
   }
