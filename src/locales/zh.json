@@ -7449,6 +7449,428 @@
           "file": "文件"
         }
       }
+    },
+    "evaluation": {
+      "roles": {
+        "operator": "操作员",
+        "technician": "技术员",
+        "supervisor": "主管",
+        "plantManager": "厂长",
+        "hrOfficer": "人力资源专员",
+        "safetyOfficer": "安全专员",
+        "trainee": "实习员工",
+        "other": "其他"
+      },
+      "criteria": {
+        "operator": {
+          "machineCompliance": {
+            "label": "机器操作合规性",
+            "description": "遵守所负责机器的标准作业程序（SOP）和安全操作规程的情况。"
+          },
+          "oeeContribution": {
+            "label": "OEE 贡献度",
+            "description": "在班次期间对设备综合效率（OEE）指标的贡献。"
+          },
+          "shiftReporting": {
+            "label": "班次生产报告准确性",
+            "description": "班次生产记录和报告的准确性与及时性。"
+          },
+          "downtimeReporting": {
+            "label": "停机事件报告",
+            "description": "报告机器停机和事件的及时性和准确性。"
+          },
+          "safetyAdherence": {
+            "label": "安全规范遵守",
+            "description": "持续遵守安全规程、正确使用个人防护装备（PPE）以及危险意识。"
+          }
+        },
+        "technician": {
+          "technicalSkill": {
+            "label": "技术能力水平",
+            "description": "在负责设备的维护和维修工作中展现的专业能力。"
+          },
+          "woQuality": {
+            "label": "工单完成质量",
+            "description": "所负责工单工作的质量和完整性。"
+          },
+          "breakdownResponse": {
+            "label": "故障响应时间",
+            "description": "对机器故障响应的速度和有效性。"
+          },
+          "safetyProtocol": {
+            "label": "安全规程遵守",
+            "description": "在维护工作中遵循挂牌上锁（LOTO）、PPE 及所有安全程序。"
+          },
+          "toolHandling": {
+            "label": "工具与设备管理",
+            "description": "对工具和维护设备的妥善保养、存放与使用。"
+          }
+        },
+        "supervisor": {
+          "teamLeadership": {
+            "label": "团队领导力",
+            "description": "有效领导、激励和培养团队成员的能力。"
+          },
+          "taskDelegation": {
+            "label": "任务分配有效性",
+            "description": "根据技能和工作负荷合理分配任务的能力。"
+          },
+          "safetyEnforcement": {
+            "label": "安全监督执行",
+            "description": "持续执行安全规定并主动识别隐患。"
+          },
+          "shiftHandover": {
+            "label": "交接班质量",
+            "description": "交接班文档记录与沟通的完整性和清晰度。"
+          },
+          "kpiMonitoring": {
+            "label": "关键绩效指标监控",
+            "description": "跟踪并针对班次的关键绩效指标采取行动。"
+          },
+          "escalationHandling": {
+            "label": "问题上报处理",
+            "description": "将问题有效上报管理层并协调解决的能力。"
+          }
+        },
+        "plantManager": {
+          "plantEfficiency": {
+            "label": "工厂整体效率",
+            "description": "实现工厂层面的产量、吞吐量及效率目标的情况。"
+          },
+          "downtimeReduction": {
+            "label": "停机时间削减成效",
+            "description": "在减少计划外停机方面取得的可衡量改进。"
+          },
+          "budgetAdherence": {
+            "label": "维护预算控制",
+            "description": "在维护预算范围内运营或对预算进行优化。"
+          },
+          "teamDevelopment": {
+            "label": "团队发展建设",
+            "description": "在培训、指导和培养员工方面的投入。"
+          },
+          "regulatoryCompliance": {
+            "label": "法规合规性",
+            "description": "确保所有运营符合法律、安全及监管标准。"
+          },
+          "oeeTracking": {
+            "label": "OEE 目标跟踪",
+            "description": "监控 OEE 与目标的对比情况并推动改进计划。"
+          }
+        },
+        "trainee": {
+          "learningProgress": {
+            "label": "学习进度",
+            "description": "完成所分配培训模块和材料的进度。"
+          },
+          "practicalSkills": {
+            "label": "实操技能发展",
+            "description": "在实际场景中应用理论知识的能力。"
+          },
+          "attendance": {
+            "label": "出勤与守时",
+            "description": "培训期间的出勤率和守时表现。"
+          },
+          "attitude": {
+            "label": "态度与投入度",
+            "description": "在培训中的积极性、热情和主动参与程度。"
+          },
+          "safetyAwareness": {
+            "label": "安全意识",
+            "description": "对职场安全规范的理解和实践表现。"
+          }
+        },
+        "hrOfficer": {
+          "recruitmentOnboarding": {
+            "label": "招聘与入职",
+            "description": "招聘、入职引导及人力规划支持的有效性。"
+          },
+          "trainingCompliance": {
+            "label": "培训与合规管理",
+            "description": "对培训完成情况、资质证书及合规率的跟踪管理。"
+          },
+          "recordsAccuracy": {
+            "label": "档案与文件准确性",
+            "description": "员工档案、合同及人力资源文件的准确性与维护情况。"
+          },
+          "employeeRelations": {
+            "label": "员工关系与申诉处理",
+            "description": "公正、及时地处理申诉、员工关怀及福利事务。"
+          },
+          "policyAdherence": {
+            "label": "政策与法规遵循",
+            "description": "确保人力资源政策及劳动法规要求得到落实。"
+          }
+        },
+        "safetyOfficer": {
+          "incidentManagement": {
+            "label": "事故与未遂事件管理",
+            "description": "及时记录、调查事件并跟进纠正措施的落实情况。"
+          },
+          "inspectionsAudits": {
+            "label": "安全检查与审核",
+            "description": "计划安全检查和审核的完成情况及质量。"
+          },
+          "hazardRisk": {
+            "label": "隐患识别与风险评估",
+            "description": "主动识别隐患的能力以及风险评估的严谨程度。"
+          },
+          "permitCompliance": {
+            "label": "作业许可合规性",
+            "description": "正确签发、审核及关闭作业许可证（动火作业、有限空间、挂牌上锁等）。"
+          },
+          "trainingAwareness": {
+            "label": "安全培训与意识推广",
+            "description": "开展班前安全讲话并营造积极的安全文化。"
+          }
+        },
+        "other": {
+          "jobKnowledge": {
+            "label": "岗位知识",
+            "description": "对岗位相关职责和任务的掌握程度。"
+          },
+          "qualityOfWork": {
+            "label": "工作质量",
+            "description": "工作产出的准确性、细致度和可靠性。"
+          },
+          "teamwork": {
+            "label": "团队协作",
+            "description": "对团队目标的配合与贡献。"
+          },
+          "safetyCompliance": {
+            "label": "安全合规",
+            "description": "遵守安全规定和安全作业规范。"
+          },
+          "initiative": {
+            "label": "主动性与问题解决",
+            "description": "主动发现并解决问题的能力。"
+          }
+        },
+        "department": {
+          "deptOutput": {
+            "label": "产出与生产效率",
+            "description": "部门在该周期内是否达成生产/产出目标。"
+          },
+          "deptSafety": {
+            "label": "安全记录",
+            "description": "全部门无事故运行并遵守安全规程的情况。"
+          },
+          "deptQuality": {
+            "label": "质量标准",
+            "description": "持续达成质量标准并减少缺陷/返工的情况。"
+          },
+          "deptCoordination": {
+            "label": "跨部门协作",
+            "description": "与其他部门及班次协调配合的有效性。"
+          },
+          "deptCompliance": {
+            "label": "流程与合规遵守",
+            "description": "遵守标准作业程序、审核及监管要求的情况。"
+          }
+        }
+      },
+      "scoreLabels": {
+        "1": "1 — 不合格",
+        "2": "2 — 有待改进",
+        "3": "3 — 符合预期",
+        "4": "4 — 超出预期",
+        "5": "5 — 卓越"
+      },
+      "page": {
+        "title": "绩效考核",
+        "subtitle": "对所有岗位角色进行正式的绩效评估。",
+        "customFormsButton": "自定义表单",
+        "hint": "点击下方类别以开始对应的考核。",
+        "loadError": "加载考核失败：{{message}}",
+        "loadErrorFallback": "加载考核失败。",
+        "tabs": {
+          "byRole": "按角色",
+          "byDepartment": "按部门",
+          "completed": "已完成"
+        },
+        "empty": {
+          "noCompleted": "暂无已完成的考核。",
+          "noDepartments": "尚未设置部门 — 在创建部门考核时可从部门选择器中新增一个。"
+        },
+        "all": "全部",
+        "allDepartments": "所有部门",
+        "evaluationCount": "{{count}} 项考核",
+        "evaluationCount_plural": "{{count}} 项考核",
+        "department": "部门",
+        "close": "关闭",
+        "overallScore": "综合评分",
+        "overallComments": "总体评语",
+        "developmentPlan": "发展计划",
+        "attachments": "附件",
+        "exportPdf": "导出 PDF",
+        "evaluatedBy": "考核人：{{name}}"
+      },
+      "form": {
+        "steps": {
+          "info": "员工信息",
+          "criteria": "评分",
+          "summary": "总结"
+        },
+        "departmentLabel": "部门 *",
+        "selectDepartmentPlaceholder": "— 请选择部门 —",
+        "evaluationDateLabel": "考核日期",
+        "peopleInDepartment": "{{department}} 部门人员",
+        "noUsersInDepartment": "未在该部门下找到已注册用户。",
+        "nextScoring": "下一步：评分 →",
+        "selectEmployeeLabel": "选择员工 *",
+        "selectEmployeePlaceholder": "— 请选择已注册员工 —",
+        "noUsersForRole": "未找到 {{role}} 角色下的已注册用户。您仍可在下方手动填写相关字段。",
+        "onlyRegisteredUsersHint": "此处仅列出该角色下已注册的员工。选择其中一位将自动填入其信息 — 您仍可调整下方字段。",
+        "employeeNameLabel": "员工姓名 *",
+        "employeeNamePlaceholder": "请输入全名",
+        "employeeIdLabel": "员工编号",
+        "employeeIdPlaceholder": "例如：EMP-001",
+        "roleLabel": "角色 *",
+        "evaluationFormLabel": "考核表单",
+        "defaultCriteria": "默认 — {{role}} 评分标准",
+        "customSuffix": "（自定义）",
+        "jobTitleLabel": "职位名称",
+        "jobTitlePlaceholder": "例如：高级技术员",
+        "customRoleLabel": "自定义角色名称",
+        "customRolePlaceholder": "例如：质检员、电工",
+        "evaluatingDepartment": "正在考核 {{name}} 部门",
+        "evaluatingAs": "正在以 {{role}} 身份考核 {{name}}",
+        "weight": "权重：{{weight}}%",
+        "commentsPlaceholder": "选填评语……",
+        "back": "← 返回",
+        "nextSummary": "下一步：总结 →",
+        "summary": {
+          "overallScore": "综合评分",
+          "outstanding": "卓越",
+          "satisfactory": "合格",
+          "needsImprovement": "有待改进",
+          "unsatisfactory": "不合格",
+          "overallCommentsLabel": "总体评语",
+          "overallCommentsPlaceholder": "整体绩效总结……",
+          "developmentPlanLabel": "发展计划",
+          "developmentPlanPlaceholder": "建议的发展措施、培训或目标……",
+          "attachmentsLabel": "附件",
+          "attachmentsHint": "上传支持性证明材料：文档（PDF/DOCX）、图片或视频。",
+          "attachmentSizeKb": "{{size}} KB",
+          "addAttachment": "添加附件",
+          "uploading": "正在上传……",
+          "cancel": "取消",
+          "saveDraft": "保存为草稿（进行中）",
+          "savingDraft": "正在保存……",
+          "exportPdf": "导出 PDF",
+          "submit": "提交考核",
+          "submitting": "正在提交……"
+        },
+        "errors": {
+          "uploadFailed": "附件上传失败。",
+          "nameRequired": "请填写被考核人姓名。",
+          "allCriteriaRequired": "请在提交前对所有评分项进行评分。",
+          "submitFailed": "考核提交失败。",
+          "saveDraftFailed": "草稿保存失败。"
+        }
+      },
+      "templateBuilder": {
+        "title": "自定义考核表单构建器",
+        "subtitle": "为各角色或临时考核创建自定义评分标准。",
+        "newTemplate": "新建自定义模板",
+        "sampleTemplatesTitle": "基于角色的示例模板",
+        "sampleTemplateName": "{{role}} 考核（示例）",
+        "sampleTemplateMeta": "{{role}} · {{count}} 项标准 · 内置",
+        "customize": "自定义",
+        "customTemplatesTitle": "自定义模板",
+        "noCustomTemplates": "暂无自定义模板。",
+        "templateMeta": "{{role}} · {{count}} 项标准",
+        "customRoleOption": "自定义（无特定角色）",
+        "customRoleFallback": "自定义",
+        "confirmDelete": "确定要删除此考核模板吗？",
+        "templateNameLabel": "模板名称 *",
+        "templateNamePlaceholder": "例如：质检员考核",
+        "appliesToRoleLabel": "适用角色",
+        "criteriaLabel": "评分标准",
+        "totalWeight": "总权重：{{weight}}%",
+        "totalWeightHint": "（应合计为 100%）",
+        "criterionLabelPlaceholder": "评分项标签",
+        "criterionDescriptionPlaceholder": "向考核人展示的说明（选填）",
+        "addCriterion": "添加评分项",
+        "back": "← 返回",
+        "saving": "正在保存……",
+        "saveChanges": "保存更改",
+        "createTemplate": "创建模板",
+        "errors": {
+          "nameRequired": "请填写模板名称。",
+          "criterionRequired": "请至少添加一项评分标准。",
+          "saveFailed": "模板保存失败。"
+        }
+      },
+      "service": {
+        "submittedNotification": "{{evaluator}} 提交了对 {{evaluatee}} 的新考核",
+        "submittedOversightNotification": "提交了对 {{evaluatee}} 的考核"
+      },
+      "pdf": {
+        "titleForRole": "{{role}} 绩效考核报告",
+        "titleForDepartment": "{{department}} 部门 — 绩效考核报告",
+        "subtitleDepartment": "部门：{{department}}",
+        "subtitleIndividual": "{{name}} · {{role}}",
+        "subtitleIndividualWithJob": "{{name}} · {{role}} · {{jobTitle}}",
+        "overallScoreBadge": "综合评分",
+        "sections": {
+          "details": "考核详情",
+          "criteriaScores": "评分明细",
+          "overallComments": "总体评语",
+          "developmentPlan": "发展计划",
+          "actionsTaken": "已采取的措施",
+          "attachments": "附件"
+        },
+        "fields": {
+          "evaluationDate": "考核日期",
+          "status": "状态",
+          "evaluator": "考核人",
+          "employeeId": "员工编号",
+          "formTemplate": "表单/模板"
+        },
+        "status": {
+          "completed": "已完成",
+          "ongoingDraft": "进行中（草稿）"
+        },
+        "emptyValue": "—",
+        "columns": {
+          "criterion": "评分项",
+          "score": "分数",
+          "comments": "评语",
+          "action": "措施",
+          "note": "备注",
+          "by": "操作人",
+          "type": "类型",
+          "file": "文件",
+          "name": "姓名",
+          "category": "类别",
+          "date": "日期",
+          "evaluator": "考核人",
+          "score2": "分数"
+        },
+        "actionTypes": {
+          "trainingAssigned": "已安排培训",
+          "positionUpgraded": "职位晋升",
+          "positionDegraded": "职位降级"
+        },
+        "footer": {
+          "generated": "生成于 {{date}}",
+          "page": "第 {{page}} 页，共 {{total}} 页"
+        },
+        "scoreDisplay": "{{score}} / 5",
+        "summary": {
+          "title": "绩效考核汇总",
+          "generated": "生成于 {{date}} · {{count}} 项考核",
+          "generated_plural": "生成于 {{date}} · {{count}} 项考核",
+          "departmentCategory": "部门"
+        }
+      },
+      "fallbacks": {
+        "unknownUser": "未知",
+        "evaluation": "考核",
+        "audit": "审核",
+        "other": "其他"
+      }
     }
   },
   "triage": {

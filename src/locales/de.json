@@ -7453,6 +7453,428 @@
           "file": "Datei"
         }
       }
+    },
+    "evaluation": {
+      "roles": {
+        "operator": "Bediener",
+        "technician": "Techniker",
+        "supervisor": "Vorgesetzter",
+        "plantManager": "Werksleiter",
+        "hrOfficer": "Personalreferent",
+        "safetyOfficer": "Sicherheitsbeauftragter",
+        "trainee": "Auszubildender",
+        "other": "Sonstige"
+      },
+      "criteria": {
+        "operator": {
+          "machineCompliance": {
+            "label": "Einhaltung der Maschinenbedienung",
+            "description": "Einhaltung der Standardarbeitsanweisungen und sicherer Bedienverfahren für zugewiesene Maschinen."
+          },
+          "oeeContribution": {
+            "label": "OEE-Beitrag",
+            "description": "Beitrag zu den Kennzahlen der Gesamtanlageneffektivität (OEE) während der Schichten."
+          },
+          "shiftReporting": {
+            "label": "Genauigkeit der Schichtproduktionsberichte",
+            "description": "Genauigkeit und Pünktlichkeit der Schichtproduktionsprotokolle und -berichte."
+          },
+          "downtimeReporting": {
+            "label": "Meldung von Stillstandsvorfällen",
+            "description": "Schnelligkeit und Genauigkeit bei der Meldung von Maschinenstillständen und Vorfällen."
+          },
+          "safetyAdherence": {
+            "label": "Einhaltung der Sicherheitsvorschriften",
+            "description": "Konsequente Einhaltung der Sicherheitsprotokolle, PSA-Nutzung und Gefahrenbewusstsein."
+          }
+        },
+        "technician": {
+          "technicalSkill": {
+            "label": "Technische Fachkompetenz",
+            "description": "Nachgewiesene Kompetenz bei Wartungs- und Reparaturaufgaben an den zugewiesenen Anlagen."
+          },
+          "woQuality": {
+            "label": "Qualität der Arbeitsauftragserledigung",
+            "description": "Qualität und Vollständigkeit der Arbeit an zugewiesenen Arbeitsaufträgen."
+          },
+          "breakdownResponse": {
+            "label": "Reaktionszeit bei Störungen",
+            "description": "Geschwindigkeit und Wirksamkeit der Reaktion auf Maschinenstörungen."
+          },
+          "safetyProtocol": {
+            "label": "Einhaltung der Sicherheitsprotokolle",
+            "description": "Einhaltung von LOTO, PSA und allen Sicherheitsverfahren bei Wartungsarbeiten."
+          },
+          "toolHandling": {
+            "label": "Umgang mit Werkzeugen & Ausrüstung",
+            "description": "Sachgerechte Pflege, Lagerung und Nutzung von Werkzeugen und Wartungsausrüstung."
+          }
+        },
+        "supervisor": {
+          "teamLeadership": {
+            "label": "Teamführung",
+            "description": "Fähigkeit, Teammitglieder wirksam zu führen, zu motivieren und weiterzuentwickeln."
+          },
+          "taskDelegation": {
+            "label": "Wirksamkeit der Aufgabendelegation",
+            "description": "Angemessene Zuweisung von Aufgaben auf Basis von Fähigkeiten und Arbeitslastverteilung."
+          },
+          "safetyEnforcement": {
+            "label": "Durchsetzung von Sicherheitsvorschriften",
+            "description": "Konsequente Durchsetzung der Sicherheitsregeln und proaktive Gefahrenerkennung."
+          },
+          "shiftHandover": {
+            "label": "Qualität der Schichtübergabe",
+            "description": "Vollständigkeit und Klarheit der Schichtübergabedokumentation und -kommunikation."
+          },
+          "kpiMonitoring": {
+            "label": "KPI-Überwachung",
+            "description": "Verfolgung und Umsetzung von Maßnahmen anhand der Leistungskennzahlen für die Schicht."
+          },
+          "escalationHandling": {
+            "label": "Umgang mit Eskalationen",
+            "description": "Wirksame Eskalation von Problemen an das Management und Koordination der Lösung."
+          }
+        },
+        "plantManager": {
+          "plantEfficiency": {
+            "label": "Gesamteffizienz des Werks",
+            "description": "Erreichung der Werksziele für Ausstoß, Durchsatz und Effizienz."
+          },
+          "downtimeReduction": {
+            "label": "Erfolge bei der Stillstandsreduzierung",
+            "description": "Messbare Verbesserungen bei der Reduzierung ungeplanter Stillstände."
+          },
+          "budgetAdherence": {
+            "label": "Einhaltung des Wartungsbudgets",
+            "description": "Einhaltung bzw. Optimierung des Wartungsbudgets."
+          },
+          "teamDevelopment": {
+            "label": "Teamentwicklung",
+            "description": "Investition in Schulung, Mentoring und Weiterentwicklung des Personals."
+          },
+          "regulatoryCompliance": {
+            "label": "Einhaltung gesetzlicher Vorschriften",
+            "description": "Sicherstellung, dass alle Abläufe gesetzliche, sicherheitstechnische und regulatorische Standards erfüllen."
+          },
+          "oeeTracking": {
+            "label": "Verfolgung der OEE-Ziele",
+            "description": "Überwachung der OEE gegenüber den Zielvorgaben und Vorantreiben von Verbesserungsinitiativen."
+          }
+        },
+        "trainee": {
+          "learningProgress": {
+            "label": "Lernfortschritt",
+            "description": "Fortschrittsrate bei den zugewiesenen Schulungsmodulen und -materialien."
+          },
+          "practicalSkills": {
+            "label": "Entwicklung praktischer Fähigkeiten",
+            "description": "Anwendung theoretischen Wissens in der Praxis."
+          },
+          "attendance": {
+            "label": "Anwesenheit & Pünktlichkeit",
+            "description": "Anwesenheitsquote und Pünktlichkeit bei Schulungen."
+          },
+          "attitude": {
+            "label": "Einstellung & Engagement",
+            "description": "Motivation, Begeisterung und aktive Teilnahme an der Schulung."
+          },
+          "safetyAwareness": {
+            "label": "Sicherheitsbewusstsein",
+            "description": "Verständnis und Umsetzung der Sicherheitspraktiken am Arbeitsplatz."
+          }
+        },
+        "hrOfficer": {
+          "recruitmentOnboarding": {
+            "label": "Rekrutierung & Einarbeitung",
+            "description": "Wirksamkeit der Unterstützung bei Einstellung, Einarbeitung und Personalplanung."
+          },
+          "trainingCompliance": {
+            "label": "Schulungs- & Compliance-Management",
+            "description": "Nachverfolgung von Schulungsabschlüssen, Zertifizierungen und Compliance-Quoten."
+          },
+          "recordsAccuracy": {
+            "label": "Genauigkeit von Akten & Dokumentation",
+            "description": "Genauigkeit und Pflege von Personalakten, Verträgen und HR-Dokumentation."
+          },
+          "employeeRelations": {
+            "label": "Mitarbeiterbeziehungen & Beschwerdemanagement",
+            "description": "Faire und zeitnahe Bearbeitung von Beschwerden, Mitarbeiterengagement und -wohlbefinden."
+          },
+          "policyAdherence": {
+            "label": "Einhaltung von Richtlinien & Vorschriften",
+            "description": "Sicherstellung der Einhaltung von HR-Richtlinien und arbeitsrechtlichen/regulatorischen Anforderungen."
+          }
+        },
+        "safetyOfficer": {
+          "incidentManagement": {
+            "label": "Vorfall- & Beinahunfall-Management",
+            "description": "Zeitnahe Erfassung, Untersuchung und konsequente Nachverfolgung von Korrekturmaßnahmen bei Vorfällen."
+          },
+          "inspectionsAudits": {
+            "label": "Sicherheitsinspektionen & Audits",
+            "description": "Durchführung und Qualität der geplanten Sicherheitsinspektionen und Audits."
+          },
+          "hazardRisk": {
+            "label": "Gefahrenerkennung & Risikobewertung",
+            "description": "Proaktive Identifikation von Gefahren und Sorgfalt bei Risikobewertungen."
+          },
+          "permitCompliance": {
+            "label": "Einhaltung von Arbeitserlaubnissen",
+            "description": "Korrekte Ausstellung, Prüfung und Abschluss von Arbeitserlaubnissen (Heißarbeiten, enge Räume, LOTO)."
+          },
+          "trainingAwareness": {
+            "label": "Sicherheitsschulung & -bewusstsein",
+            "description": "Durchführung von Toolbox-Talks und Förderung einer positiven Sicherheitskultur."
+          }
+        },
+        "other": {
+          "jobKnowledge": {
+            "label": "Fachkenntnisse",
+            "description": "Kenntnis der rollenspezifischen Aufgaben und Zuständigkeiten."
+          },
+          "qualityOfWork": {
+            "label": "Arbeitsqualität",
+            "description": "Genauigkeit, Gründlichkeit und Zuverlässigkeit der Arbeitsergebnisse."
+          },
+          "teamwork": {
+            "label": "Teamarbeit & Zusammenarbeit",
+            "description": "Kooperation und Beitrag zu den Teamzielen."
+          },
+          "safetyCompliance": {
+            "label": "Sicherheitskonformität",
+            "description": "Einhaltung der Sicherheitsregeln und sicherer Arbeitspraktiken."
+          },
+          "initiative": {
+            "label": "Eigeninitiative & Problemlösung",
+            "description": "Proaktive Identifikation und Lösung von Problemen."
+          }
+        },
+        "department": {
+          "deptOutput": {
+            "label": "Leistung & Produktivität",
+            "description": "Abteilung hat die Produktions-/Leistungsziele für den Zeitraum erreicht."
+          },
+          "deptSafety": {
+            "label": "Sicherheitsbilanz",
+            "description": "Unfallfreier Betrieb und Einhaltung der Sicherheitsprotokolle in der gesamten Abteilung."
+          },
+          "deptQuality": {
+            "label": "Qualitätsstandards",
+            "description": "Beständige Einhaltung der Qualitätsstandards und Reduzierung von Fehlern/Nacharbeit."
+          },
+          "deptCoordination": {
+            "label": "Abteilungsübergreifende Koordination",
+            "description": "Wirksamkeit der Koordination mit anderen Abteilungen und Schichten."
+          },
+          "deptCompliance": {
+            "label": "Prozess- & Compliance-Einhaltung",
+            "description": "Einhaltung von Standardarbeitsanweisungen, Audits und regulatorischen Anforderungen."
+          }
+        }
+      },
+      "scoreLabels": {
+        "1": "1 – Nicht zufriedenstellend",
+        "2": "2 – Verbesserungsbedürftig",
+        "3": "3 – Erfüllt Erwartungen",
+        "4": "4 – Übertrifft Erwartungen",
+        "5": "5 – Herausragend"
+      },
+      "page": {
+        "title": "Leistungsbeurteilungen",
+        "subtitle": "Führen Sie formelle Leistungsbeurteilungen für alle Rollen durch.",
+        "customFormsButton": "Benutzerdefinierte Formulare",
+        "hint": "Klicken Sie unten auf eine Kategorie, um eine Beurteilung dafür zu starten.",
+        "loadError": "Beurteilungen konnten nicht geladen werden: {{message}}",
+        "loadErrorFallback": "Beurteilungen konnten nicht geladen werden.",
+        "tabs": {
+          "byRole": "Nach Rolle",
+          "byDepartment": "Nach Abteilung",
+          "completed": "Abgeschlossen"
+        },
+        "empty": {
+          "noCompleted": "Noch keine abgeschlossenen Beurteilungen.",
+          "noDepartments": "Noch keine Abteilungen eingerichtet — fügen Sie beim Erstellen einer Abteilungsbeurteilung eine über die Abteilungsauswahl hinzu."
+        },
+        "all": "Alle",
+        "allDepartments": "Alle Abteilungen",
+        "evaluationCount": "{{count}} Beurteilung",
+        "evaluationCount_plural": "{{count}} Beurteilungen",
+        "department": "Abteilung",
+        "close": "Schließen",
+        "overallScore": "Gesamtbewertung",
+        "overallComments": "Allgemeine Anmerkungen",
+        "developmentPlan": "Entwicklungsplan",
+        "attachments": "Anhänge",
+        "exportPdf": "PDF exportieren",
+        "evaluatedBy": "Beurteilt von {{name}}"
+      },
+      "form": {
+        "steps": {
+          "info": "Mitarbeiterdaten",
+          "criteria": "Bewertung",
+          "summary": "Zusammenfassung"
+        },
+        "departmentLabel": "Abteilung *",
+        "selectDepartmentPlaceholder": "— Abteilung auswählen —",
+        "evaluationDateLabel": "Beurteilungsdatum",
+        "peopleInDepartment": "Personen in {{department}}",
+        "noUsersInDepartment": "Keine registrierten Benutzer in dieser Abteilung gefunden.",
+        "nextScoring": "Weiter: Bewertung →",
+        "selectEmployeeLabel": "Mitarbeiter auswählen *",
+        "selectEmployeePlaceholder": "— Registrierten Mitarbeiter auswählen —",
+        "noUsersForRole": "Keine registrierten Benutzer für {{role}} gefunden. Sie können die Felder unten weiterhin manuell ausfüllen.",
+        "onlyRegisteredUsersHint": "Es werden nur Mitarbeiter aufgelistet, die dieser Rolle zugeordnet sind. Bei Auswahl werden deren Daten automatisch ausgefüllt — Sie können die Felder unten trotzdem anpassen.",
+        "employeeNameLabel": "Mitarbeitername *",
+        "employeeNamePlaceholder": "Vollständiger Name",
+        "employeeIdLabel": "Mitarbeiter-ID",
+        "employeeIdPlaceholder": "z. B. EMP-001",
+        "roleLabel": "Rolle *",
+        "evaluationFormLabel": "Beurteilungsformular",
+        "defaultCriteria": "Standard — Kriterien für {{role}}",
+        "customSuffix": " (benutzerdefiniert)",
+        "jobTitleLabel": "Berufsbezeichnung",
+        "jobTitlePlaceholder": "z. B. Senior-Techniker",
+        "customRoleLabel": "Benutzerdefinierte Rollenbezeichnung",
+        "customRolePlaceholder": "z. B. QS-Prüfer, Elektriker",
+        "evaluatingDepartment": "Beurteilung der Abteilung {{name}}",
+        "evaluatingAs": "Beurteilung von {{name}} als {{role}}",
+        "weight": "Gewichtung: {{weight}}%",
+        "commentsPlaceholder": "Optionale Anmerkungen…",
+        "back": "← Zurück",
+        "nextSummary": "Weiter: Zusammenfassung →",
+        "summary": {
+          "overallScore": "Gesamtbewertung",
+          "outstanding": "Herausragend",
+          "satisfactory": "Zufriedenstellend",
+          "needsImprovement": "Verbesserungsbedürftig",
+          "unsatisfactory": "Nicht zufriedenstellend",
+          "overallCommentsLabel": "Allgemeine Anmerkungen",
+          "overallCommentsPlaceholder": "Zusammenfassung der Gesamtleistung…",
+          "developmentPlanLabel": "Entwicklungsplan",
+          "developmentPlanPlaceholder": "Empfohlene Entwicklungsmaßnahmen, Schulungen oder Ziele…",
+          "attachmentsLabel": "Anhänge",
+          "attachmentsHint": "Laden Sie unterstützende Nachweise hoch: Dokumente (PDF/DOCX), Bilder oder Videos.",
+          "attachmentSizeKb": "{{size}} KB",
+          "addAttachment": "Anhang hinzufügen",
+          "uploading": "Wird hochgeladen…",
+          "cancel": "Abbrechen",
+          "saveDraft": "Als Entwurf speichern (laufend)",
+          "savingDraft": "Wird gespeichert…",
+          "exportPdf": "PDF exportieren",
+          "submit": "Beurteilung einreichen",
+          "submitting": "Wird eingereicht…"
+        },
+        "errors": {
+          "uploadFailed": "Anhang konnte nicht hochgeladen werden.",
+          "nameRequired": "Der Name des Beurteilten ist erforderlich.",
+          "allCriteriaRequired": "Bitte bewerten Sie alle Kriterien vor dem Einreichen.",
+          "submitFailed": "Beurteilung konnte nicht eingereicht werden.",
+          "saveDraftFailed": "Entwurf konnte nicht gespeichert werden."
+        }
+      },
+      "templateBuilder": {
+        "title": "Editor für benutzerdefinierte Beurteilungsformulare",
+        "subtitle": "Erstellen Sie benutzerdefinierte Bewertungskriterien für Rollen oder Ad-hoc-Beurteilungen.",
+        "newTemplate": "Neue benutzerdefinierte Vorlage",
+        "sampleTemplatesTitle": "Rollenbasierte Beispielvorlagen",
+        "sampleTemplateName": "{{role}}-Beurteilung (Beispiel)",
+        "sampleTemplateMeta": "{{role}} · {{count}} Kriterien · integriert",
+        "customize": "Anpassen",
+        "customTemplatesTitle": "Benutzerdefinierte Vorlagen",
+        "noCustomTemplates": "Noch keine benutzerdefinierten Vorlagen.",
+        "templateMeta": "{{role}} · {{count}} Kriterien",
+        "customRoleOption": "Benutzerdefiniert (keine bestimmte Rolle)",
+        "customRoleFallback": "Benutzerdefiniert",
+        "confirmDelete": "Diese Beurteilungsvorlage löschen?",
+        "templateNameLabel": "Vorlagenname *",
+        "templateNamePlaceholder": "z. B. QS-Prüfer-Beurteilung",
+        "appliesToRoleLabel": "Gilt für Rolle",
+        "criteriaLabel": "Kriterien",
+        "totalWeight": "Gesamtgewichtung: {{weight}}%",
+        "totalWeightHint": " (sollte 100 % ergeben)",
+        "criterionLabelPlaceholder": "Kriterienbezeichnung",
+        "criterionDescriptionPlaceholder": "Beschreibung für den Beurteiler (optional)",
+        "addCriterion": "Kriterium hinzufügen",
+        "back": "← Zurück",
+        "saving": "Wird gespeichert…",
+        "saveChanges": "Änderungen speichern",
+        "createTemplate": "Vorlage erstellen",
+        "errors": {
+          "nameRequired": "Der Vorlagenname ist erforderlich.",
+          "criterionRequired": "Fügen Sie mindestens ein Kriterium hinzu.",
+          "saveFailed": "Vorlage konnte nicht gespeichert werden."
+        }
+      },
+      "service": {
+        "submittedNotification": "Neue Beurteilung für {{evaluatee}} eingereicht von {{evaluator}}",
+        "submittedOversightNotification": "hat eine Beurteilung für {{evaluatee}} eingereicht"
+      },
+      "pdf": {
+        "titleForRole": "Leistungsbeurteilungsbericht — {{role}}",
+        "titleForDepartment": "Abteilung {{department}} — Leistungsbeurteilungsbericht",
+        "subtitleDepartment": "Abteilung: {{department}}",
+        "subtitleIndividual": "{{name}} · {{role}}",
+        "subtitleIndividualWithJob": "{{name}} · {{role}} · {{jobTitle}}",
+        "overallScoreBadge": "GESAMTBEWERTUNG",
+        "sections": {
+          "details": "Beurteilungsdetails",
+          "criteriaScores": "Kriterienbewertungen",
+          "overallComments": "Allgemeine Anmerkungen",
+          "developmentPlan": "Entwicklungsplan",
+          "actionsTaken": "Ergriffene Maßnahmen",
+          "attachments": "Anhänge"
+        },
+        "fields": {
+          "evaluationDate": "Beurteilungsdatum",
+          "status": "Status",
+          "evaluator": "Beurteiler",
+          "employeeId": "Mitarbeiter-ID",
+          "formTemplate": "Formular / Vorlage"
+        },
+        "status": {
+          "completed": "Abgeschlossen",
+          "ongoingDraft": "Laufend (Entwurf)"
+        },
+        "emptyValue": "—",
+        "columns": {
+          "criterion": "Kriterium",
+          "score": "Bewertung",
+          "comments": "Anmerkungen",
+          "action": "Maßnahme",
+          "note": "Notiz",
+          "by": "Von",
+          "type": "Typ",
+          "file": "Datei",
+          "name": "Name",
+          "category": "Kategorie",
+          "date": "Datum",
+          "evaluator": "Beurteiler",
+          "score2": "Bewertung"
+        },
+        "actionTypes": {
+          "trainingAssigned": "Schulung zugewiesen",
+          "positionUpgraded": "Position hochgestuft",
+          "positionDegraded": "Position herabgestuft"
+        },
+        "footer": {
+          "generated": "Erstellt am {{date}}",
+          "page": "Seite {{page}} von {{total}}"
+        },
+        "scoreDisplay": "{{score}} / 5",
+        "summary": {
+          "title": "Zusammenfassung der Leistungsbeurteilungen",
+          "generated": "Erstellt am {{date}} · {{count}} Beurteilung",
+          "generated_plural": "Erstellt am {{date}} · {{count}} Beurteilungen",
+          "departmentCategory": "Abteilung"
+        }
+      },
+      "fallbacks": {
+        "unknownUser": "Unbekannt",
+        "evaluation": "Beurteilung",
+        "audit": "Audit",
+        "other": "Sonstige"
+      }
     }
   },
   "triage": {

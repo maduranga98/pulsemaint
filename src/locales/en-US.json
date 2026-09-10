@@ -7626,6 +7626,428 @@
           "file": "File"
         }
       }
+    },
+    "evaluation": {
+      "roles": {
+        "operator": "Operator",
+        "technician": "Technician",
+        "supervisor": "Supervisor",
+        "plantManager": "Plant Manager",
+        "hrOfficer": "HR Officer",
+        "safetyOfficer": "Safety Officer",
+        "trainee": "Trainee",
+        "other": "Other"
+      },
+      "criteria": {
+        "operator": {
+          "machineCompliance": {
+            "label": "Machine Operation Compliance",
+            "description": "Adherence to SOPs and safe operating procedures for assigned machines."
+          },
+          "oeeContribution": {
+            "label": "OEE Contribution",
+            "description": "Contribution to Overall Equipment Effectiveness metrics during shifts."
+          },
+          "shiftReporting": {
+            "label": "Shift Production Reporting Accuracy",
+            "description": "Accuracy and timeliness of shift production logs and reports."
+          },
+          "downtimeReporting": {
+            "label": "Downtime Incident Reporting",
+            "description": "Promptness and accuracy in reporting machine downtime and incidents."
+          },
+          "safetyAdherence": {
+            "label": "Safety Adherence",
+            "description": "Consistent compliance with safety protocols, PPE usage, and hazard awareness."
+          }
+        },
+        "technician": {
+          "technicalSkill": {
+            "label": "Technical Skill Competency",
+            "description": "Demonstrated proficiency in maintenance and repair tasks relevant to assigned equipment."
+          },
+          "woQuality": {
+            "label": "Work Order Completion Quality",
+            "description": "Quality and completeness of work performed on assigned work orders."
+          },
+          "breakdownResponse": {
+            "label": "Breakdown Response Time",
+            "description": "Speed and effectiveness of response to machine breakdowns."
+          },
+          "safetyProtocol": {
+            "label": "Safety Protocol Adherence",
+            "description": "Following LOTO, PPE, and all safety procedures during maintenance work."
+          },
+          "toolHandling": {
+            "label": "Tool & Equipment Handling",
+            "description": "Proper care, storage, and usage of tools and maintenance equipment."
+          }
+        },
+        "supervisor": {
+          "teamLeadership": {
+            "label": "Team Leadership",
+            "description": "Ability to lead, motivate, and develop team members effectively."
+          },
+          "taskDelegation": {
+            "label": "Task Delegation Effectiveness",
+            "description": "Appropriate assignment of tasks based on skills and workload balancing."
+          },
+          "safetyEnforcement": {
+            "label": "Safety Enforcement",
+            "description": "Consistent enforcement of safety rules and proactive hazard identification."
+          },
+          "shiftHandover": {
+            "label": "Shift Handover Quality",
+            "description": "Completeness and clarity of shift handover documentation and communication."
+          },
+          "kpiMonitoring": {
+            "label": "KPI Monitoring",
+            "description": "Tracking and acting on key performance indicators for the shift."
+          },
+          "escalationHandling": {
+            "label": "Escalation Handling",
+            "description": "Effective escalation of issues to management and resolution coordination."
+          }
+        },
+        "plantManager": {
+          "plantEfficiency": {
+            "label": "Overall Plant Efficiency",
+            "description": "Achievement of plant-level output, throughput, and efficiency targets."
+          },
+          "downtimeReduction": {
+            "label": "Downtime Reduction Achievements",
+            "description": "Measurable improvements in reducing unplanned downtime."
+          },
+          "budgetAdherence": {
+            "label": "Maintenance Budget Adherence",
+            "description": "Operating within or optimising the maintenance budget."
+          },
+          "teamDevelopment": {
+            "label": "Team Development",
+            "description": "Investment in training, mentoring, and developing personnel."
+          },
+          "regulatoryCompliance": {
+            "label": "Regulatory Compliance",
+            "description": "Ensuring all operations meet legal, safety, and regulatory standards."
+          },
+          "oeeTracking": {
+            "label": "OEE Target Tracking",
+            "description": "Monitoring OEE against targets and driving improvement initiatives."
+          }
+        },
+        "trainee": {
+          "learningProgress": {
+            "label": "Learning Progress",
+            "description": "Rate of progress through assigned training modules and materials."
+          },
+          "practicalSkills": {
+            "label": "Practical Skill Development",
+            "description": "Application of theoretical knowledge in practical settings."
+          },
+          "attendance": {
+            "label": "Attendance & Punctuality",
+            "description": "Attendance rate and punctuality during training sessions."
+          },
+          "attitude": {
+            "label": "Attitude & Engagement",
+            "description": "Motivation, enthusiasm, and active participation in training."
+          },
+          "safetyAwareness": {
+            "label": "Safety Awareness",
+            "description": "Understanding and demonstration of workplace safety practices."
+          }
+        },
+        "hrOfficer": {
+          "recruitmentOnboarding": {
+            "label": "Recruitment & Onboarding",
+            "description": "Effectiveness of hiring, onboarding, and workforce planning support."
+          },
+          "trainingCompliance": {
+            "label": "Training & Compliance Management",
+            "description": "Tracking of training completion, certifications, and compliance rates."
+          },
+          "recordsAccuracy": {
+            "label": "Records & Documentation Accuracy",
+            "description": "Accuracy and upkeep of employee records, contracts, and HR documentation."
+          },
+          "employeeRelations": {
+            "label": "Employee Relations & Grievance Handling",
+            "description": "Handling of grievances, engagement, and staff welfare fairly and promptly."
+          },
+          "policyAdherence": {
+            "label": "Policy & Regulatory Adherence",
+            "description": "Ensuring HR policies and labour/regulatory requirements are followed."
+          }
+        },
+        "safetyOfficer": {
+          "incidentManagement": {
+            "label": "Incident & Near-Miss Management",
+            "description": "Timely logging, investigation, and corrective-action follow-through on incidents."
+          },
+          "inspectionsAudits": {
+            "label": "Safety Inspections & Audits",
+            "description": "Completion and quality of scheduled safety inspections and audits."
+          },
+          "hazardRisk": {
+            "label": "Hazard Identification & Risk Assessment",
+            "description": "Proactive identification of hazards and rigor of risk assessments."
+          },
+          "permitCompliance": {
+            "label": "Permit-to-Work Compliance",
+            "description": "Correct issuing, review, and closure of work permits (hot work, confined space, LOTO)."
+          },
+          "trainingAwareness": {
+            "label": "Safety Training & Awareness",
+            "description": "Delivery of toolbox talks and driving of a positive safety culture."
+          }
+        },
+        "other": {
+          "jobKnowledge": {
+            "label": "Job Knowledge",
+            "description": "Knowledge of role-specific duties and responsibilities."
+          },
+          "qualityOfWork": {
+            "label": "Quality of Work",
+            "description": "Accuracy, thoroughness, and reliability of work output."
+          },
+          "teamwork": {
+            "label": "Teamwork & Collaboration",
+            "description": "Cooperation and contribution to team goals."
+          },
+          "safetyCompliance": {
+            "label": "Safety Compliance",
+            "description": "Adherence to safety rules and safe work practices."
+          },
+          "initiative": {
+            "label": "Initiative & Problem Solving",
+            "description": "Proactive identification and resolution of issues."
+          }
+        },
+        "department": {
+          "deptOutput": {
+            "label": "Output & Productivity",
+            "description": "Department met production/output targets for the period."
+          },
+          "deptSafety": {
+            "label": "Safety Record",
+            "description": "Incident-free operation and adherence to safety protocols across the department."
+          },
+          "deptQuality": {
+            "label": "Quality Standards",
+            "description": "Consistency in meeting quality standards and reducing defects/rework."
+          },
+          "deptCoordination": {
+            "label": "Cross-Team Coordination",
+            "description": "Effectiveness of coordination with other departments and shifts."
+          },
+          "deptCompliance": {
+            "label": "Process & Compliance Adherence",
+            "description": "Adherence to SOPs, audits, and regulatory requirements."
+          }
+        }
+      },
+      "scoreLabels": {
+        "1": "1 – Unsatisfactory",
+        "2": "2 – Needs Improvement",
+        "3": "3 – Meets Expectations",
+        "4": "4 – Exceeds Expectations",
+        "5": "5 – Outstanding"
+      },
+      "page": {
+        "title": "Performance Evaluations",
+        "subtitle": "Conduct formal performance assessments for all roles.",
+        "customFormsButton": "Custom Forms",
+        "hint": "Click a category below to start an evaluation for it.",
+        "loadError": "Failed to load evaluations: {{message}}",
+        "loadErrorFallback": "Failed to load evaluations.",
+        "tabs": {
+          "byRole": "By Role",
+          "byDepartment": "By Department",
+          "completed": "Completed"
+        },
+        "empty": {
+          "noCompleted": "No completed evaluations yet.",
+          "noDepartments": "No departments set up yet — add one from the department picker when creating a department evaluation."
+        },
+        "all": "All",
+        "allDepartments": "All Departments",
+        "evaluationCount": "{{count}} evaluation",
+        "evaluationCount_plural": "{{count}} evaluations",
+        "department": "Department",
+        "close": "Close",
+        "overallScore": "Overall Score",
+        "overallComments": "Overall Comments",
+        "developmentPlan": "Development Plan",
+        "attachments": "Attachments",
+        "exportPdf": "Export PDF",
+        "evaluatedBy": "Evaluated by {{name}}"
+      },
+      "form": {
+        "steps": {
+          "info": "Employee Info",
+          "criteria": "Scoring",
+          "summary": "Summary"
+        },
+        "departmentLabel": "Department *",
+        "selectDepartmentPlaceholder": "— Select a department —",
+        "evaluationDateLabel": "Evaluation Date",
+        "peopleInDepartment": "People in {{department}}",
+        "noUsersInDepartment": "No registered users found under this department.",
+        "nextScoring": "Next: Scoring →",
+        "selectEmployeeLabel": "Select Employee *",
+        "selectEmployeePlaceholder": "— Select a registered employee —",
+        "noUsersForRole": "No registered users found for {{role}}. You can still fill in the fields below manually.",
+        "onlyRegisteredUsersHint": "Only employees registered under this role are listed. Picking one auto-fills their details — you can still adjust the fields below.",
+        "employeeNameLabel": "Employee Name *",
+        "employeeNamePlaceholder": "Full name",
+        "employeeIdLabel": "Employee ID",
+        "employeeIdPlaceholder": "e.g. EMP-001",
+        "roleLabel": "Role *",
+        "evaluationFormLabel": "Evaluation Form",
+        "defaultCriteria": "Default — {{role}} criteria",
+        "customSuffix": " (custom)",
+        "jobTitleLabel": "Job Title",
+        "jobTitlePlaceholder": "e.g. Senior Technician",
+        "customRoleLabel": "Custom Role Name",
+        "customRolePlaceholder": "e.g. QC Inspector, Electrician",
+        "evaluatingDepartment": "Evaluating {{name}} department",
+        "evaluatingAs": "Evaluating {{name}} as {{role}}",
+        "weight": "Weight: {{weight}}%",
+        "commentsPlaceholder": "Optional comments…",
+        "back": "← Back",
+        "nextSummary": "Next: Summary →",
+        "summary": {
+          "overallScore": "Overall Score",
+          "outstanding": "Outstanding",
+          "satisfactory": "Satisfactory",
+          "needsImprovement": "Needs Improvement",
+          "unsatisfactory": "Unsatisfactory",
+          "overallCommentsLabel": "Overall Comments",
+          "overallCommentsPlaceholder": "Overall performance summary…",
+          "developmentPlanLabel": "Development Plan",
+          "developmentPlanPlaceholder": "Recommended development actions, training, or goals…",
+          "attachmentsLabel": "Attachments",
+          "attachmentsHint": "Upload supporting evidence: documents (PDF/DOCX), images, or videos.",
+          "attachmentSizeKb": "{{size}} KB",
+          "addAttachment": "Add attachment",
+          "uploading": "Uploading…",
+          "cancel": "Cancel",
+          "saveDraft": "Save as Draft (Ongoing)",
+          "savingDraft": "Saving…",
+          "exportPdf": "Export PDF",
+          "submit": "Submit Evaluation",
+          "submitting": "Submitting…"
+        },
+        "errors": {
+          "uploadFailed": "Failed to upload attachment.",
+          "nameRequired": "Evaluatee name is required.",
+          "allCriteriaRequired": "Please score all criteria before submitting.",
+          "submitFailed": "Failed to submit evaluation.",
+          "saveDraftFailed": "Failed to save draft."
+        }
+      },
+      "templateBuilder": {
+        "title": "Custom Evaluation Form Builder",
+        "subtitle": "Create custom scoring criteria for roles or ad-hoc evaluations.",
+        "newTemplate": "New Custom Template",
+        "sampleTemplatesTitle": "Role-Based Sample Templates",
+        "sampleTemplateName": "{{role}} Evaluation (Sample)",
+        "sampleTemplateMeta": "{{role}} · {{count}} criteria · built-in",
+        "customize": "Customize",
+        "customTemplatesTitle": "Custom Templates",
+        "noCustomTemplates": "No custom templates yet.",
+        "templateMeta": "{{role}} · {{count}} criteria",
+        "customRoleOption": "Custom (no specific role)",
+        "customRoleFallback": "Custom",
+        "confirmDelete": "Delete this evaluation template?",
+        "templateNameLabel": "Template Name *",
+        "templateNamePlaceholder": "e.g. QC Inspector Evaluation",
+        "appliesToRoleLabel": "Applies to Role",
+        "criteriaLabel": "Criteria",
+        "totalWeight": "Total weight: {{weight}}%",
+        "totalWeightHint": " (should sum to 100%)",
+        "criterionLabelPlaceholder": "Criterion label",
+        "criterionDescriptionPlaceholder": "Description shown to the evaluator (optional)",
+        "addCriterion": "Add Criterion",
+        "back": "← Back",
+        "saving": "Saving…",
+        "saveChanges": "Save Changes",
+        "createTemplate": "Create Template",
+        "errors": {
+          "nameRequired": "Template name is required.",
+          "criterionRequired": "Add at least one criterion.",
+          "saveFailed": "Failed to save template."
+        }
+      },
+      "service": {
+        "submittedNotification": "New evaluation submitted for {{evaluatee}} by {{evaluator}}",
+        "submittedOversightNotification": "submitted an evaluation for {{evaluatee}}"
+      },
+      "pdf": {
+        "titleForRole": "{{role}} Performance Evaluation Report",
+        "titleForDepartment": "{{department}} Department — Performance Evaluation Report",
+        "subtitleDepartment": "Department: {{department}}",
+        "subtitleIndividual": "{{name}} · {{role}}",
+        "subtitleIndividualWithJob": "{{name}} · {{role}} · {{jobTitle}}",
+        "overallScoreBadge": "OVERALL SCORE",
+        "sections": {
+          "details": "Evaluation Details",
+          "criteriaScores": "Criteria Scores",
+          "overallComments": "Overall Comments",
+          "developmentPlan": "Development Plan",
+          "actionsTaken": "Actions Taken",
+          "attachments": "Attachments"
+        },
+        "fields": {
+          "evaluationDate": "Evaluation Date",
+          "status": "Status",
+          "evaluator": "Evaluator",
+          "employeeId": "Employee ID",
+          "formTemplate": "Form / Template"
+        },
+        "status": {
+          "completed": "Completed",
+          "ongoingDraft": "Ongoing (Draft)"
+        },
+        "emptyValue": "—",
+        "columns": {
+          "criterion": "Criterion",
+          "score": "Score",
+          "comments": "Comments",
+          "action": "Action",
+          "note": "Note",
+          "by": "By",
+          "type": "Type",
+          "file": "File",
+          "name": "Name",
+          "category": "Category",
+          "date": "Date",
+          "evaluator": "Evaluator",
+          "score2": "Score"
+        },
+        "actionTypes": {
+          "trainingAssigned": "Training Assigned",
+          "positionUpgraded": "Position Upgraded",
+          "positionDegraded": "Position Degraded"
+        },
+        "footer": {
+          "generated": "Generated {{date}}",
+          "page": "Page {{page}} of {{total}}"
+        },
+        "scoreDisplay": "{{score}} / 5",
+        "summary": {
+          "title": "Performance Evaluations Summary",
+          "generated": "Generated {{date}} · {{count}} evaluation",
+          "generated_plural": "Generated {{date}} · {{count}} evaluations",
+          "departmentCategory": "Department"
+        }
+      },
+      "fallbacks": {
+        "unknownUser": "Unknown",
+        "evaluation": "Evaluation",
+        "audit": "Audit",
+        "other": "Other"
+      }
     }
   }
 }

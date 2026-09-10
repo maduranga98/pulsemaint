@@ -17,6 +17,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage';
+import type { TFunction } from 'i18next';
 import { db } from '@/lib/firebase';
 import { notifyRoles } from '@/services/notifications.service';
 import { nanoid } from 'nanoid';
@@ -69,6 +70,7 @@ export function subscribeEvaluations(
 
 export async function submitEvaluation(
   session: Omit<EvaluationSession, 'id' | 'createdAt' | 'submittedAt'>,
+  t?: TFunction,
 ): Promise<string> {
   const docRef = await addDoc(collection(db, COL), {
     ...session,
@@ -76,10 +78,21 @@ export async function submitEvaluation(
     createdAt: serverTimestamp(),
     submittedAt: serverTimestamp(),
   });
+  const message = t
+    ? t('common.evaluation.service.submittedNotification', 'New evaluation submitted for {{evaluatee}} by {{evaluator}}', {
+        evaluatee: session.evaluateeName,
+        evaluator: session.evaluatorName,
+      })
+    : `New evaluation submitted for ${session.evaluateeName} by ${session.evaluatorName}`;
+  const oversightMessage = t
+    ? t('common.evaluation.service.submittedOversightNotification', 'submitted an evaluation for {{evaluatee}}', {
+        evaluatee: session.evaluateeName,
+      })
+    : `submitted an evaluation for ${session.evaluateeName}`;
   void notifyRoles(session.companyId, ['hr_officer', 'plant_manager'], {
     type: 'evaluation',
-    message: `New evaluation submitted for ${session.evaluateeName} by ${session.evaluatorName}`,
-    oversightMessage: `submitted an evaluation for ${session.evaluateeName}`,
+    message,
+    oversightMessage,
     actorName: session.evaluatorName ?? '',
     actorUserId: session.evaluatorId ?? null,
     linkTo: '/app/evaluations',

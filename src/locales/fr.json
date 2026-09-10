@@ -7453,6 +7453,428 @@
           "file": "Fichier"
         }
       }
+    },
+    "evaluation": {
+      "roles": {
+        "operator": "Opérateur",
+        "technician": "Technicien",
+        "supervisor": "Superviseur",
+        "plantManager": "Directeur d'usine",
+        "hrOfficer": "Responsable RH",
+        "safetyOfficer": "Responsable sécurité",
+        "trainee": "Stagiaire",
+        "other": "Autre"
+      },
+      "criteria": {
+        "operator": {
+          "machineCompliance": {
+            "label": "Conformité d'utilisation des machines",
+            "description": "Respect des procédures opératoires normalisées (SOP) et des consignes de sécurité pour les machines assignées."
+          },
+          "oeeContribution": {
+            "label": "Contribution au TRS",
+            "description": "Contribution aux indicateurs de Taux de Rendement Synthétique (TRS) pendant les postes."
+          },
+          "shiftReporting": {
+            "label": "Précision des rapports de production de poste",
+            "description": "Exactitude et rapidité des journaux et rapports de production de poste."
+          },
+          "downtimeReporting": {
+            "label": "Signalement des arrêts machine",
+            "description": "Rapidité et exactitude du signalement des arrêts machine et des incidents."
+          },
+          "safetyAdherence": {
+            "label": "Respect de la sécurité",
+            "description": "Conformité constante aux protocoles de sécurité, à l'usage des EPI et à la vigilance face aux dangers."
+          }
+        },
+        "technician": {
+          "technicalSkill": {
+            "label": "Compétence technique",
+            "description": "Maîtrise démontrée des tâches de maintenance et de réparation liées aux équipements assignés."
+          },
+          "woQuality": {
+            "label": "Qualité d'exécution des ordres de travail",
+            "description": "Qualité et exhaustivité du travail effectué sur les ordres de travail assignés."
+          },
+          "breakdownResponse": {
+            "label": "Délai de réponse aux pannes",
+            "description": "Rapidité et efficacité de la réponse aux pannes machine."
+          },
+          "safetyProtocol": {
+            "label": "Respect des protocoles de sécurité",
+            "description": "Application des procédures LOTO, des EPI et de toutes les consignes de sécurité lors des interventions de maintenance."
+          },
+          "toolHandling": {
+            "label": "Manipulation des outils et équipements",
+            "description": "Bon entretien, rangement et usage des outils et équipements de maintenance."
+          }
+        },
+        "supervisor": {
+          "teamLeadership": {
+            "label": "Leadership d'équipe",
+            "description": "Capacité à diriger, motiver et faire progresser les membres de l'équipe efficacement."
+          },
+          "taskDelegation": {
+            "label": "Efficacité de la délégation des tâches",
+            "description": "Attribution appropriée des tâches en fonction des compétences et de l'équilibrage de la charge de travail."
+          },
+          "safetyEnforcement": {
+            "label": "Application de la sécurité",
+            "description": "Application constante des règles de sécurité et identification proactive des dangers."
+          },
+          "shiftHandover": {
+            "label": "Qualité de la passation de poste",
+            "description": "Exhaustivité et clarté de la documentation et de la communication lors des passations de poste."
+          },
+          "kpiMonitoring": {
+            "label": "Suivi des indicateurs clés",
+            "description": "Suivi et action sur les indicateurs clés de performance du poste."
+          },
+          "escalationHandling": {
+            "label": "Gestion des escalades",
+            "description": "Escalade efficace des problèmes vers la direction et coordination de leur résolution."
+          }
+        },
+        "plantManager": {
+          "plantEfficiency": {
+            "label": "Efficacité globale de l'usine",
+            "description": "Atteinte des objectifs de production, de débit et d'efficacité au niveau de l'usine."
+          },
+          "downtimeReduction": {
+            "label": "Réduction des arrêts",
+            "description": "Améliorations mesurables dans la réduction des arrêts non planifiés."
+          },
+          "budgetAdherence": {
+            "label": "Respect du budget de maintenance",
+            "description": "Maintien dans le budget de maintenance ou optimisation de celui-ci."
+          },
+          "teamDevelopment": {
+            "label": "Développement des équipes",
+            "description": "Investissement dans la formation, le mentorat et le développement du personnel."
+          },
+          "regulatoryCompliance": {
+            "label": "Conformité réglementaire",
+            "description": "Garantir que toutes les opérations respectent les normes légales, de sécurité et réglementaires."
+          },
+          "oeeTracking": {
+            "label": "Suivi des objectifs de TRS",
+            "description": "Suivi du TRS par rapport aux objectifs et pilotage des initiatives d'amélioration."
+          }
+        },
+        "trainee": {
+          "learningProgress": {
+            "label": "Progression de l'apprentissage",
+            "description": "Rythme de progression dans les modules et supports de formation assignés."
+          },
+          "practicalSkills": {
+            "label": "Développement des compétences pratiques",
+            "description": "Application des connaissances théoriques dans des situations pratiques."
+          },
+          "attendance": {
+            "label": "Assiduité et ponctualité",
+            "description": "Taux de présence et ponctualité pendant les sessions de formation."
+          },
+          "attitude": {
+            "label": "Attitude et engagement",
+            "description": "Motivation, enthousiasme et participation active à la formation."
+          },
+          "safetyAwareness": {
+            "label": "Sensibilisation à la sécurité",
+            "description": "Compréhension et mise en pratique des règles de sécurité au travail."
+          }
+        },
+        "hrOfficer": {
+          "recruitmentOnboarding": {
+            "label": "Recrutement et intégration",
+            "description": "Efficacité du recrutement, de l'intégration et du soutien à la planification des effectifs."
+          },
+          "trainingCompliance": {
+            "label": "Gestion de la formation et de la conformité",
+            "description": "Suivi des taux d'achèvement des formations, des certifications et de la conformité."
+          },
+          "recordsAccuracy": {
+            "label": "Exactitude des dossiers et de la documentation",
+            "description": "Exactitude et tenue à jour des dossiers du personnel, des contrats et de la documentation RH."
+          },
+          "employeeRelations": {
+            "label": "Relations avec le personnel et gestion des griefs",
+            "description": "Traitement des griefs, de l'engagement et du bien-être du personnel de manière équitable et rapide."
+          },
+          "policyAdherence": {
+            "label": "Respect des politiques et de la réglementation",
+            "description": "Veiller au respect des politiques RH et des exigences légales/réglementaires du travail."
+          }
+        },
+        "safetyOfficer": {
+          "incidentManagement": {
+            "label": "Gestion des incidents et des quasi-accidents",
+            "description": "Enregistrement, investigation et suivi des actions correctives en temps voulu sur les incidents."
+          },
+          "inspectionsAudits": {
+            "label": "Inspections et audits de sécurité",
+            "description": "Réalisation et qualité des inspections et audits de sécurité programmés."
+          },
+          "hazardRisk": {
+            "label": "Identification des dangers et évaluation des risques",
+            "description": "Identification proactive des dangers et rigueur des évaluations des risques."
+          },
+          "permitCompliance": {
+            "label": "Conformité des permis de travail",
+            "description": "Émission, révision et clôture correctes des permis de travail (travail à chaud, espace confiné, LOTO)."
+          },
+          "trainingAwareness": {
+            "label": "Formation et sensibilisation à la sécurité",
+            "description": "Animation des quarts d'heure sécurité et promotion d'une culture de sécurité positive."
+          }
+        },
+        "other": {
+          "jobKnowledge": {
+            "label": "Connaissance du poste",
+            "description": "Connaissance des tâches et responsabilités propres au poste."
+          },
+          "qualityOfWork": {
+            "label": "Qualité du travail",
+            "description": "Exactitude, minutie et fiabilité du travail produit."
+          },
+          "teamwork": {
+            "label": "Travail d'équipe et collaboration",
+            "description": "Coopération et contribution aux objectifs de l'équipe."
+          },
+          "safetyCompliance": {
+            "label": "Conformité en matière de sécurité",
+            "description": "Respect des règles de sécurité et des pratiques de travail sûres."
+          },
+          "initiative": {
+            "label": "Initiative et résolution de problèmes",
+            "description": "Identification et résolution proactives des problèmes."
+          }
+        },
+        "department": {
+          "deptOutput": {
+            "label": "Production et productivité",
+            "description": "Le département a atteint les objectifs de production pour la période."
+          },
+          "deptSafety": {
+            "label": "Bilan sécurité",
+            "description": "Fonctionnement sans incident et respect des protocoles de sécurité dans tout le département."
+          },
+          "deptQuality": {
+            "label": "Normes de qualité",
+            "description": "Constance dans le respect des normes de qualité et la réduction des défauts/reprises."
+          },
+          "deptCoordination": {
+            "label": "Coordination inter-équipes",
+            "description": "Efficacité de la coordination avec les autres départements et postes."
+          },
+          "deptCompliance": {
+            "label": "Respect des processus et de la conformité",
+            "description": "Respect des SOP, des audits et des exigences réglementaires."
+          }
+        }
+      },
+      "scoreLabels": {
+        "1": "1 – Insatisfaisant",
+        "2": "2 – À améliorer",
+        "3": "3 – Répond aux attentes",
+        "4": "4 – Dépasse les attentes",
+        "5": "5 – Exceptionnel"
+      },
+      "page": {
+        "title": "Évaluations de performance",
+        "subtitle": "Réalisez des évaluations de performance formelles pour tous les rôles.",
+        "customFormsButton": "Formulaires personnalisés",
+        "hint": "Cliquez sur une catégorie ci-dessous pour démarrer une évaluation.",
+        "loadError": "Échec du chargement des évaluations : {{message}}",
+        "loadErrorFallback": "Échec du chargement des évaluations.",
+        "tabs": {
+          "byRole": "Par rôle",
+          "byDepartment": "Par département",
+          "completed": "Terminées"
+        },
+        "empty": {
+          "noCompleted": "Aucune évaluation terminée pour le moment.",
+          "noDepartments": "Aucun département configuré pour le moment — ajoutez-en un depuis le sélecteur de département lors de la création d'une évaluation de département."
+        },
+        "all": "Tous",
+        "allDepartments": "Tous les départements",
+        "evaluationCount": "{{count}} évaluation",
+        "evaluationCount_plural": "{{count}} évaluations",
+        "department": "Département",
+        "close": "Fermer",
+        "overallScore": "Score global",
+        "overallComments": "Commentaires généraux",
+        "developmentPlan": "Plan de développement",
+        "attachments": "Pièces jointes",
+        "exportPdf": "Exporter en PDF",
+        "evaluatedBy": "Évalué par {{name}}"
+      },
+      "form": {
+        "steps": {
+          "info": "Informations sur l'employé",
+          "criteria": "Notation",
+          "summary": "Résumé"
+        },
+        "departmentLabel": "Département *",
+        "selectDepartmentPlaceholder": "— Sélectionner un département —",
+        "evaluationDateLabel": "Date d'évaluation",
+        "peopleInDepartment": "Personnes dans {{department}}",
+        "noUsersInDepartment": "Aucun utilisateur enregistré trouvé dans ce département.",
+        "nextScoring": "Suivant : Notation →",
+        "selectEmployeeLabel": "Sélectionner un employé *",
+        "selectEmployeePlaceholder": "— Sélectionner un employé enregistré —",
+        "noUsersForRole": "Aucun utilisateur enregistré trouvé pour {{role}}. Vous pouvez toujours remplir les champs ci-dessous manuellement.",
+        "onlyRegisteredUsersHint": "Seuls les employés enregistrés sous ce rôle sont listés. En sélectionner un remplit automatiquement leurs informations — vous pouvez toujours ajuster les champs ci-dessous.",
+        "employeeNameLabel": "Nom de l'employé *",
+        "employeeNamePlaceholder": "Nom complet",
+        "employeeIdLabel": "ID employé",
+        "employeeIdPlaceholder": "ex. EMP-001",
+        "roleLabel": "Rôle *",
+        "evaluationFormLabel": "Formulaire d'évaluation",
+        "defaultCriteria": "Par défaut — critères {{role}}",
+        "customSuffix": " (personnalisé)",
+        "jobTitleLabel": "Intitulé du poste",
+        "jobTitlePlaceholder": "ex. Technicien senior",
+        "customRoleLabel": "Nom de rôle personnalisé",
+        "customRolePlaceholder": "ex. Inspecteur QC, Électricien",
+        "evaluatingDepartment": "Évaluation du département {{name}}",
+        "evaluatingAs": "Évaluation de {{name}} en tant que {{role}}",
+        "weight": "Pondération : {{weight}}%",
+        "commentsPlaceholder": "Commentaires facultatifs…",
+        "back": "← Retour",
+        "nextSummary": "Suivant : Résumé →",
+        "summary": {
+          "overallScore": "Score global",
+          "outstanding": "Exceptionnel",
+          "satisfactory": "Satisfaisant",
+          "needsImprovement": "À améliorer",
+          "unsatisfactory": "Insatisfaisant",
+          "overallCommentsLabel": "Commentaires généraux",
+          "overallCommentsPlaceholder": "Résumé de la performance globale…",
+          "developmentPlanLabel": "Plan de développement",
+          "developmentPlanPlaceholder": "Actions de développement, formations ou objectifs recommandés…",
+          "attachmentsLabel": "Pièces jointes",
+          "attachmentsHint": "Téléversez des pièces justificatives : documents (PDF/DOCX), images ou vidéos.",
+          "attachmentSizeKb": "{{size}} Ko",
+          "addAttachment": "Ajouter une pièce jointe",
+          "uploading": "Téléversement…",
+          "cancel": "Annuler",
+          "saveDraft": "Enregistrer comme brouillon (en cours)",
+          "savingDraft": "Enregistrement…",
+          "exportPdf": "Exporter en PDF",
+          "submit": "Soumettre l'évaluation",
+          "submitting": "Soumission…"
+        },
+        "errors": {
+          "uploadFailed": "Échec du téléversement de la pièce jointe.",
+          "nameRequired": "Le nom de la personne évaluée est requis.",
+          "allCriteriaRequired": "Veuillez noter tous les critères avant de soumettre.",
+          "submitFailed": "Échec de la soumission de l'évaluation.",
+          "saveDraftFailed": "Échec de l'enregistrement du brouillon."
+        }
+      },
+      "templateBuilder": {
+        "title": "Créateur de formulaire d'évaluation personnalisé",
+        "subtitle": "Créez des critères de notation personnalisés pour des rôles ou des évaluations ponctuelles.",
+        "newTemplate": "Nouveau modèle personnalisé",
+        "sampleTemplatesTitle": "Modèles types par rôle",
+        "sampleTemplateName": "Évaluation {{role}} (exemple)",
+        "sampleTemplateMeta": "{{role}} · {{count}} critères · intégré",
+        "customize": "Personnaliser",
+        "customTemplatesTitle": "Modèles personnalisés",
+        "noCustomTemplates": "Aucun modèle personnalisé pour le moment.",
+        "templateMeta": "{{role}} · {{count}} critères",
+        "customRoleOption": "Personnalisé (aucun rôle spécifique)",
+        "customRoleFallback": "Personnalisé",
+        "confirmDelete": "Supprimer ce modèle d'évaluation ?",
+        "templateNameLabel": "Nom du modèle *",
+        "templateNamePlaceholder": "ex. Évaluation Inspecteur QC",
+        "appliesToRoleLabel": "S'applique au rôle",
+        "criteriaLabel": "Critères",
+        "totalWeight": "Pondération totale : {{weight}}%",
+        "totalWeightHint": " (devrait totaliser 100 %)",
+        "criterionLabelPlaceholder": "Libellé du critère",
+        "criterionDescriptionPlaceholder": "Description affichée à l'évaluateur (facultatif)",
+        "addCriterion": "Ajouter un critère",
+        "back": "← Retour",
+        "saving": "Enregistrement…",
+        "saveChanges": "Enregistrer les modifications",
+        "createTemplate": "Créer le modèle",
+        "errors": {
+          "nameRequired": "Le nom du modèle est requis.",
+          "criterionRequired": "Ajoutez au moins un critère.",
+          "saveFailed": "Échec de l'enregistrement du modèle."
+        }
+      },
+      "service": {
+        "submittedNotification": "Nouvelle évaluation soumise pour {{evaluatee}} par {{evaluator}}",
+        "submittedOversightNotification": "a soumis une évaluation pour {{evaluatee}}"
+      },
+      "pdf": {
+        "titleForRole": "Rapport d'évaluation de performance — {{role}}",
+        "titleForDepartment": "Département {{department}} — Rapport d'évaluation de performance",
+        "subtitleDepartment": "Département : {{department}}",
+        "subtitleIndividual": "{{name}} · {{role}}",
+        "subtitleIndividualWithJob": "{{name}} · {{role}} · {{jobTitle}}",
+        "overallScoreBadge": "SCORE GLOBAL",
+        "sections": {
+          "details": "Détails de l'évaluation",
+          "criteriaScores": "Scores par critère",
+          "overallComments": "Commentaires généraux",
+          "developmentPlan": "Plan de développement",
+          "actionsTaken": "Actions entreprises",
+          "attachments": "Pièces jointes"
+        },
+        "fields": {
+          "evaluationDate": "Date d'évaluation",
+          "status": "Statut",
+          "evaluator": "Évaluateur",
+          "employeeId": "ID employé",
+          "formTemplate": "Formulaire / Modèle"
+        },
+        "status": {
+          "completed": "Terminée",
+          "ongoingDraft": "En cours (brouillon)"
+        },
+        "emptyValue": "—",
+        "columns": {
+          "criterion": "Critère",
+          "score": "Score",
+          "comments": "Commentaires",
+          "action": "Action",
+          "note": "Remarque",
+          "by": "Par",
+          "type": "Type",
+          "file": "Fichier",
+          "name": "Nom",
+          "category": "Catégorie",
+          "date": "Date",
+          "evaluator": "Évaluateur",
+          "score2": "Score"
+        },
+        "actionTypes": {
+          "trainingAssigned": "Formation assignée",
+          "positionUpgraded": "Poste revalorisé",
+          "positionDegraded": "Poste rétrogradé"
+        },
+        "footer": {
+          "generated": "Généré le {{date}}",
+          "page": "Page {{page}} sur {{total}}"
+        },
+        "scoreDisplay": "{{score}} / 5",
+        "summary": {
+          "title": "Résumé des évaluations de performance",
+          "generated": "Généré le {{date}} · {{count}} évaluation",
+          "generated_plural": "Généré le {{date}} · {{count}} évaluations",
+          "departmentCategory": "Département"
+        }
+      },
+      "fallbacks": {
+        "unknownUser": "Inconnu",
+        "evaluation": "Évaluation",
+        "audit": "Audit",
+        "other": "Autre"
+      }
     }
   },
   "triage": {

@@ -1,4 +1,5 @@
 import { collection, query, where, getDocs, type QuerySnapshot, type DocumentData } from 'firebase/firestore';
+import type { TFunction } from 'i18next';
 import { db } from '../lib/firebase';
 import { TRAINEE_TRAINING_TYPE_LABELS, type TraineeTrainingType } from '../lib/training/trainingTypes';
 
@@ -228,6 +229,7 @@ export async function fetchTeamPerformanceByRole(
 export async function fetchTeamPerformanceByUser(
   companyId: string,
   dateRange?: DateRange | null,
+  t?: TFunction,
 ): Promise<UserPerformanceSummary[]> {
   const [evals, audits, users, assignments, quizResults, safetyCases] = await Promise.all([
     safeDocs(getDocs(
@@ -332,7 +334,7 @@ export async function fetchTeamPerformanceByUser(
       const auditEntry = latestAudit.get(userId);
       return {
         userId,
-        name: String(u.fullName ?? u.name ?? 'Unknown'),
+        name: String(u.fullName ?? u.name ?? (t ? t('common.evaluation.fallbacks.unknownUser', 'Unknown') : 'Unknown')),
         role: String(u.role ?? 'other'),
         evaluationScore: evalEntry?.score ?? 0,
         hasEvaluation: Boolean(evalEntry),
@@ -361,6 +363,7 @@ export interface OngoingActivityRow {
 
 export async function fetchOngoingEvaluationsAndAudits(
   companyId: string,
+  t?: TFunction,
 ): Promise<{ evaluations: OngoingActivityRow[]; audits: OngoingActivityRow[] }> {
   const [draftEvals, draftAudits] = await Promise.all([
     safeDocs(getDocs(
@@ -380,7 +383,7 @@ export async function fetchOngoingEvaluationsAndAudits(
     evaluations: draftEvals
       .map((row) => ({
         id: String(row.id),
-        name: String(row.evaluateeName ?? row.templateName ?? 'Evaluation'),
+        name: String(row.evaluateeName ?? row.templateName ?? (t ? t('common.evaluation.fallbacks.evaluation', 'Evaluation') : 'Evaluation')),
         role: String(row.evaluateeRole ?? 'other'),
         startedAt: asMillis(row.createdAt),
       }))
@@ -388,7 +391,7 @@ export async function fetchOngoingEvaluationsAndAudits(
     audits: draftAudits
       .map((row) => ({
         id: String(row.id),
-        name: String(row.userName ?? row.templateName ?? 'Audit'),
+        name: String(row.userName ?? row.templateName ?? (t ? t('common.evaluation.fallbacks.audit', 'Audit') : 'Audit')),
         role: String(row.category ?? 'other'),
         startedAt: asMillis(row.startedAt ?? row.lastSaved),
       }))
@@ -496,6 +499,7 @@ export async function fetchAuditsByCategoryStatus(
 export async function fetchEvaluationsByCategoryStatus(
   companyId: string,
   dateRange?: DateRange | null,
+  t?: TFunction,
 ): Promise<CategoryStatusRow[]> {
   const evals = await safeDocs(getDocs(
     query(collection(db, 'evaluations'), where('companyId', '==', companyId)),
@@ -507,7 +511,7 @@ export async function fetchEvaluationsByCategoryStatus(
     if (!isCompleted && row.status !== 'draft') return;
     const at = asMillis(row.submittedAt ?? row.createdAt);
     if (!inRange(at, dateRange)) return;
-    const category = String(row.templateName ?? row.evaluateeRole ?? 'Other');
+    const category = String(row.templateName ?? row.evaluateeRole ?? (t ? t('common.evaluation.fallbacks.other', 'Other') : 'Other'));
     bumpStatus(counts, category, isCompleted);
   });
 
