@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import TopPerformersWidget from '../../components/dashboard/manager/TopPerformersWidget';
 import StaffByRoleChart from '../../components/dashboard/training/StaffByRoleChart';
@@ -13,30 +14,32 @@ import {
 
 type TabId = 'top-performers' | 'staff-headcount' | 'training-categories' | 'audits' | 'evaluations';
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'top-performers', label: 'Top 10 Performers' },
-  { id: 'staff-headcount', label: 'Employees by Role' },
-  { id: 'training-categories', label: 'Trainings' },
-  { id: 'audits', label: 'Audits' },
-  { id: 'evaluations', label: 'Evaluations' },
-];
-
 // HR officer's Analytics tab — restructured into on-demand tabs so only the
 // selected report is fetched/rendered at a time. The date-range filter is a
 // common control above the tabs (not part of any one tab) and applies to
 // whichever report is currently showing; the first tab loads by default so
 // there's always a report on screen.
 export default function HrAnalyticsPage() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const [activeTab, setActiveTab] = useState<TabId>(TABS[0].id);
+
+  const TABS: { id: TabId; label: string }[] = [
+    { id: 'top-performers', label: t('common.analytics.hrPage.tabs.topPerformers') },
+    { id: 'staff-headcount', label: t('common.analytics.hrPage.tabs.staffHeadcount') },
+    { id: 'training-categories', label: t('common.analytics.hrPage.tabs.trainingCategories') },
+    { id: 'audits', label: t('common.analytics.hrPage.tabs.audits') },
+    { id: 'evaluations', label: t('common.analytics.hrPage.tabs.evaluations') },
+  ];
+
+  const [activeTab, setActiveTab] = useState<TabId>('top-performers');
   const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
 
   return (
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8">
-        <h1 className="text-xl font-bold text-[#F0F4F8]">HR Analytics</h1>
+        <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.analytics.hrPage.title')}</h1>
         <p className="text-sm text-[#8BA3BF] mt-0.5">
-          Team performance, training activity, and staff progress.
+          {t('common.analytics.hrPage.subtitle')}
         </p>
       </div>
 
@@ -66,8 +69,8 @@ export default function HrAnalyticsPage() {
         {activeTab === 'training-categories' && (
           <CategoryStatusChart
             companyId={companyId}
-            title="Trainings"
-            emptyMessage="No training activity yet"
+            title={t('common.analytics.hrPage.tabs.trainingCategories')}
+            emptyMessage={t('common.analytics.hrPage.empty.trainings')}
             fetcher={fetchTrainingCategoryStatus}
             dateRange={dateRange}
           />
@@ -76,8 +79,8 @@ export default function HrAnalyticsPage() {
         {activeTab === 'audits' && (
           <CategoryStatusChart
             companyId={companyId}
-            title="Audits"
-            emptyMessage="No audit activity yet"
+            title={t('common.analytics.hrPage.tabs.audits')}
+            emptyMessage={t('common.analytics.hrPage.empty.audits')}
             fetcher={fetchAuditsByCategoryStatus}
             dateRange={dateRange}
           />
@@ -86,8 +89,8 @@ export default function HrAnalyticsPage() {
         {activeTab === 'evaluations' && (
           <CategoryStatusChart
             companyId={companyId}
-            title="Evaluations"
-            emptyMessage="No evaluation activity yet"
+            title={t('common.analytics.hrPage.tabs.evaluations')}
+            emptyMessage={t('common.analytics.hrPage.empty.evaluations')}
             fetcher={fetchEvaluationsByCategoryStatus}
             dateRange={dateRange}
           />

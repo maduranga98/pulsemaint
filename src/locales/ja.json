@@ -1650,6 +1650,25 @@
         "running": "進行中（{{count}}）",
         "title": "作業指示書",
         "today": "本日（{{count}}）"
+      },
+      "kpiCard": {
+        "trendVsLastPeriod": "前期比 {{trend}}%"
+      },
+      "safetyBlacklistWidget": {
+        "title": "ブラックリスト（安全案件{{threshold}}ポイント以上）",
+        "empty": "現在ブラックリストに登録されている人はいません",
+        "columns": {
+          "name": "名前",
+          "type": "種類",
+          "points": "ポイント",
+          "cases": "案件"
+        },
+        "entityTypes": {
+          "technician": "技術員",
+          "contractor": "請負業者",
+          "operator": "オペレーター",
+          "machine": "設備"
+        }
       }
     },
     "machines": {
@@ -6483,6 +6502,96 @@
           "employeeRequired": "このシフトの従業員を1人以上選択してください。",
           "activeDayRequired": "稼働日を1つ以上選択してください。",
           "saveFailed": "シフトの保存に失敗しました。"
+        }
+      }
+    },
+    "analytics": {
+      "durationOptions": {
+        "days_one": "{{count}}日",
+        "days_other": "{{count}}日"
+      },
+      "mainPage": {
+        "title": "分析",
+        "subtitle": "設備全体の運用実績、信頼性、コストの傾向。",
+        "kpis": {
+          "totalBreakdowns": "故障総数",
+          "maintenanceCost": "保全コスト",
+          "hoursLost": "損失時間",
+          "safetyCases": "安全案件"
+        },
+        "tabs": {
+          "breakdowns": "故障",
+          "pm": "予防保全",
+          "workorders": "作業指示書",
+          "machines": "設備",
+          "safety": "安全",
+          "team": "チーム実績"
+        }
+      },
+      "inventoryPage": {
+        "title": "在庫分析",
+        "subtitle": "選択した期間の在庫状況、部品申請理由、移動状況、およびサプライヤー/発注書の活動。",
+        "tabs": {
+          "lowStock": "在庫不足の部品",
+          "reasons": "理由別の部品申請",
+          "mostMoved": "移動が最も多い部品",
+          "suppliers": "サプライヤー別発注書",
+          "receiptQuality": "受領部品：良品 vs 不良品/破損"
+        }
+      },
+      "hrPage": {
+        "title": "人事分析",
+        "subtitle": "チーム実績、研修活動、従業員の進捗状況。",
+        "tabs": {
+          "topPerformers": "トップ10パフォーマー",
+          "staffHeadcount": "役職別従業員数",
+          "trainingCategories": "研修",
+          "audits": "監査",
+          "evaluations": "評価"
+        },
+        "empty": {
+          "trainings": "まだ研修活動がありません",
+          "audits": "まだ監査活動がありません",
+          "evaluations": "まだ評価活動がありません"
+        }
+      },
+      "safetyPage": {
+        "title": "安全分析",
+        "subtitle": "工場全体のインシデントの傾向、種類、重大度、関与状況。",
+        "kpis": {
+          "notClosed": "未クローズ",
+          "open": "オープン",
+          "investigating": "調査中"
+        },
+        "tabs": {
+          "severity": "重大度別案件",
+          "type": "種類別案件",
+          "technicians": "上位5名の技術員",
+          "machines": "上位5台の設備",
+          "blacklist": "ブラックリスト"
+        },
+        "charts": {
+          "topTechnicians": "安全案件数上位5名の技術員",
+          "topMachines": "安全案件数上位5台の設備",
+          "blacklisted": "ブラックリスト（{{threshold}}ポイント以上）",
+          "safetyCasesSeriesName": "安全案件"
+        },
+        "empty": {
+          "noTechnicianCases": "技術員に関連する案件はまだありません",
+          "noMachineCases": "設備に関連する案件はまだありません",
+          "noOneBlacklisted": "現在ブラックリストに登録されている人はいません"
+        },
+        "table": {
+          "name": "名前",
+          "type": "種類",
+          "points": "ポイント",
+          "cases": "案件"
+        },
+        "entityTypes": {
+          "technician": "技術員",
+          "contractor": "請負業者",
+          "operator": "オペレーター",
+          "machine": "設備"
         }
       }
     }

@@ -1,4 +1,5 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { KpiCardData } from '../../../types/analytics.types';
 
 const COLOR_MAP: Record<string, { border: string; text: string; glow?: string }> = {
@@ -15,6 +16,7 @@ interface KpiCardProps {
 }
 
 export default function KpiCard({ data, onClick }: KpiCardProps) {
+  const { t } = useTranslation();
   const colors = COLOR_MAP[data.color] ?? COLOR_MAP.blue;
   const isPositiveTrend = data.trendPositive !== false;
   const trendColor =
@@ -53,7 +55,7 @@ export default function KpiCard({ data, onClick }: KpiCardProps) {
           ) : (
             <Minus className="w-3.5 h-3.5" />
           )}
-          <span>{Math.abs(data.trend)}% vs last period</span>
+          <span>{t('common.widgets.kpiCard.trendVsLastPeriod', { trend: Math.abs(data.trend) })}</span>
         </div>
       )}
     </div>
