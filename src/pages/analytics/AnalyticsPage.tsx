@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { useDashboardStore } from '../../store/dashboard.store';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
@@ -29,16 +30,17 @@ import {
 
 type Tab = 'breakdowns' | 'pm' | 'workorders' | 'machines' | 'safety' | 'team';
 
-const TABS: { value: Tab; label: string }[] = [
-  { value: 'breakdowns', label: 'Breakdowns' },
-  { value: 'pm', label: 'Preventive Maintenance' },
-  { value: 'workorders', label: 'Work Orders' },
-  { value: 'machines', label: 'Machines' },
-  { value: 'safety', label: 'Safety' },
-  { value: 'team', label: 'Team Performance' },
-];
-
 export default function AnalyticsPage() {
+  const { t } = useTranslation();
+
+  const TABS: { value: Tab; label: string }[] = [
+    { value: 'breakdowns', label: t('common.analytics.mainPage.tabs.breakdowns') },
+    { value: 'pm', label: t('common.analytics.mainPage.tabs.pm') },
+    { value: 'workorders', label: t('common.analytics.mainPage.tabs.workorders') },
+    { value: 'machines', label: t('common.analytics.mainPage.tabs.machines') },
+    { value: 'safety', label: t('common.analytics.mainPage.tabs.safety') },
+    { value: 'team', label: t('common.analytics.mainPage.tabs.team') },
+  ];
   // workOrders (and the charts fed from it — Work Order distribution,
   // Maintenance Cost Overview) are scoped by siteId, not companyId; for a
   // multi-site user those differ, so resolve the scope the same way the rest
@@ -70,23 +72,23 @@ export default function AnalyticsPage() {
 
   const kpis = [
     {
-      label: 'Total Breakdowns',
+      label: t('common.analytics.mainPage.kpis.totalBreakdowns'),
       value: monthly?.totalBreakdowns ?? 0,
       color: 'blue' as const,
     },
     {
-      label: 'Maintenance Cost',
+      label: t('common.analytics.mainPage.kpis.maintenanceCost'),
       value: `LKR ${((monthly?.totalMaintenanceCost ?? 0) / 1000).toFixed(0)}K`,
       color: 'amber' as const,
     },
     {
-      label: 'Hours Lost',
+      label: t('common.analytics.mainPage.kpis.hoursLost'),
       value: (monthly?.totalProductionHoursLost ?? 0).toFixed(0),
       unit: 'h',
       color: 'red' as const,
     },
     {
-      label: 'Safety Cases',
+      label: t('common.analytics.mainPage.kpis.safetyCases'),
       value: safetyKpis.totalCases,
       color: (safetyKpis.openCases > 0 ? 'amber' : 'green') as 'amber' | 'green',
     },
@@ -104,9 +106,9 @@ export default function AnalyticsPage() {
     <div className="min-h-full bg-[#0A1628] text-[#F0F4F8]">
       <div className="px-4 py-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-[#F0F4F8]">Analytics</h1>
+          <h1 className="text-xl font-bold text-[#F0F4F8]">{t('common.analytics.mainPage.title')}</h1>
           <p className="text-sm text-[#8BA3BF] mt-0.5">
-            Operational performance, reliability, and cost trends across your fleet.
+            {t('common.analytics.mainPage.subtitle')}
           </p>
         </div>
         <div className="inline-flex rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-1 text-xs">

@@ -4,6 +4,7 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts';
 import { ShieldAlert, Ban } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
 import EmptyState from '@/components/dashboard/shared/EmptyState';
@@ -16,31 +17,32 @@ const SEV_COLORS: Record<string, string> = { low: '#10B981', medium: '#EAB308', 
 const AXIS = { stroke: '#8BA3BF', fontSize: 11 };
 const TOOLTIP_STYLE = { background: '#0F1E35', border: '1px solid #1E3A5F', color: '#F0F4F8' };
 
-const ENTITY_LABEL: Record<BlacklistEntityType, string> = {
-  technician: 'Technician',
-  contractor: 'Contractor',
-  operator: 'Operator',
-  machine: 'Machine',
-};
-
 type TabId = 'severity' | 'type' | 'technicians' | 'machines' | 'blacklist';
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'severity', label: 'Cases by Severity' },
-  { id: 'type', label: 'Cases by Type' },
-  { id: 'technicians', label: 'Top 5 Technicians' },
-  { id: 'machines', label: 'Top 5 Machines' },
-  { id: 'blacklist', label: 'Blacklisted' },
-];
-
-const DURATION_OPTIONS = [
-  { label: '7 Days', days: 7 },
-  { label: '30 Days', days: 30 },
-  { label: '90 Days', days: 90 },
-] as const;
-
 export default function SafetyAnalyticsPage() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
+
+  const ENTITY_LABEL: Record<BlacklistEntityType, string> = {
+    technician: t('common.analytics.safetyPage.entityTypes.technician'),
+    contractor: t('common.analytics.safetyPage.entityTypes.contractor'),
+    operator: t('common.analytics.safetyPage.entityTypes.operator'),
+    machine: t('common.analytics.safetyPage.entityTypes.machine'),
+  };
+
+  const TABS: { id: TabId; label: string }[] = [
+    { id: 'severity', label: t('common.analytics.safetyPage.tabs.severity') },
+    { id: 'type', label: t('common.analytics.safetyPage.tabs.type') },
+    { id: 'technicians', label: t('common.analytics.safetyPage.tabs.technicians') },
+    { id: 'machines', label: t('common.analytics.safetyPage.tabs.machines') },
+    { id: 'blacklist', label: t('common.analytics.safetyPage.tabs.blacklist') },
+  ];
+
+  const DURATION_OPTIONS = [
+    { label: t('common.analytics.durationOptions.days', { count: 7 }), days: 7 },
+    { label: t('common.analytics.durationOptions.days', { count: 30 }), days: 30 },
+    { label: t('common.analytics.durationOptions.days', { count: 90 }), days: 90 },
+  ] as const;
   const { cases: allCases, loading } = useSafetyCases(companyId);
   const { entries: blacklistEntries, loading: blacklistLoading } = useSafetyBlacklist(companyId);
   const blacklisted = useMemo(() => blacklistEntries.filter((e) => e.isBlacklisted), [blacklistEntries]);
@@ -111,9 +113,9 @@ export default function SafetyAnalyticsPage() {
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="mb-1 flex items-center gap-2 text-xl font-bold">
-            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> Safety Analytics
+            <ShieldAlert className="h-5 w-5 text-[#F59E0B]" /> {t('common.analytics.safetyPage.title')}
           </h1>
-          <p className="text-sm text-[#8BA3BF]">Incident trends, types, severity, and involvement across the factory.</p>
+          <p className="text-sm text-[#8BA3BF]">{t('common.analytics.safetyPage.subtitle')}</p>
         </div>
         <div className="inline-flex rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-1 text-xs">
           {DURATION_OPTIONS.map((opt) => (
@@ -133,9 +135,9 @@ export default function SafetyAnalyticsPage() {
 
       {/* Not-closed cases, with current status breakdown — a live count, not a tab. */}
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
-        <KpiCard data={{ label: 'Not Closed', value: openCases.length, color: (openCases.length > 0 ? 'amber' : 'green') }} />
-        <KpiCard data={{ label: 'Open', value: openByStatus.get('open') ?? 0, color: 'amber' }} />
-        <KpiCard data={{ label: 'Investigating', value: openByStatus.get('investigating') ?? 0, color: 'blue' }} />
+        <KpiCard data={{ label: t('common.analytics.safetyPage.kpis.notClosed'), value: openCases.length, color: (openCases.length > 0 ? 'amber' : 'green') }} />
+        <KpiCard data={{ label: t('common.analytics.safetyPage.kpis.open'), value: openByStatus.get('open') ?? 0, color: 'amber' }} />
+        <KpiCard data={{ label: t('common.analytics.safetyPage.kpis.investigating'), value: openByStatus.get('investigating') ?? 0, color: 'blue' }} />
       </div>
 
       <div className="mb-6 flex flex-wrap gap-1 border-b border-[#1E3A5F]">
@@ -156,8 +158,8 @@ export default function SafetyAnalyticsPage() {
       </div>
 
       {activeTab === 'severity' && (
-        <DashboardWidget title="Cases by Severity" loading={loading}>
-          {bySeverity.length === 0 ? <EmptyState message="No data" /> : (
+        <DashboardWidget title={t('common.analytics.safetyPage.tabs.severity')} loading={loading}>
+          {bySeverity.length === 0 ? <EmptyState message={t('common.widgets.common.noData')} /> : (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -173,8 +175,8 @@ export default function SafetyAnalyticsPage() {
       )}
 
       {activeTab === 'type' && (
-        <DashboardWidget title="Cases by Type" loading={loading}>
-          {byType.length === 0 ? <EmptyState message="No data" /> : (
+        <DashboardWidget title={t('common.analytics.safetyPage.tabs.type')} loading={loading}>
+          {byType.length === 0 ? <EmptyState message={t('common.widgets.common.noData')} /> : (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={byType}>
@@ -191,8 +193,8 @@ export default function SafetyAnalyticsPage() {
       )}
 
       {activeTab === 'technicians' && (
-        <DashboardWidget title="Top 5 Technicians by Safety Cases" loading={loading}>
-          {topTechnicians.length === 0 ? <EmptyState message="No technician-linked cases yet" /> : (
+        <DashboardWidget title={t('common.analytics.safetyPage.charts.topTechnicians')} loading={loading}>
+          {topTechnicians.length === 0 ? <EmptyState message={t('common.analytics.safetyPage.empty.noTechnicianCases')} /> : (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topTechnicians} layout="vertical" margin={{ left: 0, right: 24 }}>
@@ -200,7 +202,7 @@ export default function SafetyAnalyticsPage() {
                   <XAxis type="number" allowDecimals={false} {...AXIS} />
                   <YAxis dataKey="name" type="category" width={140} {...AXIS} />
                   <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: '#1E3A5F33' }} />
-                  <Bar dataKey="count" name="Safety cases" fill="#F59E0B" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="count" name={t('common.analytics.safetyPage.charts.safetyCasesSeriesName')} fill="#F59E0B" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -209,8 +211,8 @@ export default function SafetyAnalyticsPage() {
       )}
 
       {activeTab === 'machines' && (
-        <DashboardWidget title="Top 5 Machines by Safety Cases" loading={loading}>
-          {topMachines.length === 0 ? <EmptyState message="No machine-linked cases yet" /> : (
+        <DashboardWidget title={t('common.analytics.safetyPage.charts.topMachines')} loading={loading}>
+          {topMachines.length === 0 ? <EmptyState message={t('common.analytics.safetyPage.empty.noMachineCases')} /> : (
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={topMachines} layout="vertical" margin={{ left: 0, right: 24 }}>
@@ -218,7 +220,7 @@ export default function SafetyAnalyticsPage() {
                   <XAxis type="number" allowDecimals={false} {...AXIS} />
                   <YAxis dataKey="name" type="category" width={140} {...AXIS} />
                   <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: '#1E3A5F33' }} />
-                  <Bar dataKey="count" name="Safety cases" fill="#EF4444" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="count" name={t('common.analytics.safetyPage.charts.safetyCasesSeriesName')} fill="#EF4444" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -227,16 +229,19 @@ export default function SafetyAnalyticsPage() {
       )}
 
       {activeTab === 'blacklist' && (
-        <DashboardWidget title={`Blacklisted (${BLACKLIST_THRESHOLD}+ points)`} loading={blacklistLoading}>
-          {blacklisted.length === 0 ? <EmptyState message="No one is currently blacklisted" /> : (
+        <DashboardWidget
+          title={t('common.analytics.safetyPage.charts.blacklisted', { threshold: BLACKLIST_THRESHOLD })}
+          loading={blacklistLoading}
+        >
+          {blacklisted.length === 0 ? <EmptyState message={t('common.analytics.safetyPage.empty.noOneBlacklisted')} /> : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[520px] text-sm">
                 <thead>
                   <tr className="border-b border-[#1E3A5F] text-left text-xs uppercase text-[#8BA3BF]">
-                    <th className="py-2 pr-3 font-medium">Name</th>
-                    <th className="py-2 pr-3 font-medium">Type</th>
-                    <th className="py-2 pr-3 font-medium">Points</th>
-                    <th className="py-2 pr-3 font-medium">Cases</th>
+                    <th className="py-2 pr-3 font-medium">{t('common.analytics.safetyPage.table.name')}</th>
+                    <th className="py-2 pr-3 font-medium">{t('common.analytics.safetyPage.table.type')}</th>
+                    <th className="py-2 pr-3 font-medium">{t('common.analytics.safetyPage.table.points')}</th>
+                    <th className="py-2 pr-3 font-medium">{t('common.analytics.safetyPage.table.cases')}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -1650,6 +1650,25 @@
         "running": "进行中（{{count}}）",
         "title": "工单",
         "today": "今天（{{count}}）"
+      },
+      "kpiCard": {
+        "trendVsLastPeriod": "较上期 {{trend}}%"
+      },
+      "safetyBlacklistWidget": {
+        "title": "已列入黑名单（{{threshold}}+ 安全案例积分）",
+        "empty": "目前没有人被列入黑名单",
+        "columns": {
+          "name": "姓名",
+          "type": "类型",
+          "points": "积分",
+          "cases": "案例"
+        },
+        "entityTypes": {
+          "technician": "技术员",
+          "contractor": "承包商",
+          "operator": "操作员",
+          "machine": "设备"
+        }
       }
     },
     "machines": {
@@ -6483,6 +6502,96 @@
           "employeeRequired": "请至少为此班次选择一名员工。",
           "activeDayRequired": "请至少选择一个有效工作日。",
           "saveFailed": "保存班次失败。"
+        }
+      }
+    },
+    "analytics": {
+      "durationOptions": {
+        "days_one": "{{count}} 天",
+        "days_other": "{{count}} 天"
+      },
+      "mainPage": {
+        "title": "分析",
+        "subtitle": "整个机队的运营绩效、可靠性和成本趋势。",
+        "kpis": {
+          "totalBreakdowns": "故障总数",
+          "maintenanceCost": "维护成本",
+          "hoursLost": "损失工时",
+          "safetyCases": "安全案例"
+        },
+        "tabs": {
+          "breakdowns": "故障",
+          "pm": "预防性维护",
+          "workorders": "工单",
+          "machines": "设备",
+          "safety": "安全",
+          "team": "团队绩效"
+        }
+      },
+      "inventoryPage": {
+        "title": "库存分析",
+        "subtitle": "所选期间的库存状况、备件申请原因、移动情况以及供应商/采购单活动。",
+        "tabs": {
+          "lowStock": "低库存备件",
+          "reasons": "按原因申请的备件",
+          "mostMoved": "移动最频繁的备件",
+          "suppliers": "按供应商划分的采购单",
+          "receiptQuality": "已收备件：良好 vs 拒收/损坏"
+        }
+      },
+      "hrPage": {
+        "title": "人力资源分析",
+        "subtitle": "团队绩效、培训活动和员工进度。",
+        "tabs": {
+          "topPerformers": "前10名绩效人员",
+          "staffHeadcount": "按职位划分的员工",
+          "trainingCategories": "培训",
+          "audits": "审核",
+          "evaluations": "评估"
+        },
+        "empty": {
+          "trainings": "暂无培训活动",
+          "audits": "暂无审核活动",
+          "evaluations": "暂无评估活动"
+        }
+      },
+      "safetyPage": {
+        "title": "安全分析",
+        "subtitle": "全厂事故趋势、类型、严重程度和涉及情况。",
+        "kpis": {
+          "notClosed": "未结案",
+          "open": "待处理",
+          "investigating": "调查中"
+        },
+        "tabs": {
+          "severity": "按严重程度分类的案例",
+          "type": "按类型分类的案例",
+          "technicians": "前5名技术员",
+          "machines": "前5台设备",
+          "blacklist": "黑名单"
+        },
+        "charts": {
+          "topTechnicians": "按安全案例排名前5的技术员",
+          "topMachines": "按安全案例排名前5的设备",
+          "blacklisted": "已列入黑名单（{{threshold}}+ 分）",
+          "safetyCasesSeriesName": "安全案例"
+        },
+        "empty": {
+          "noTechnicianCases": "暂无与技术员相关的案例",
+          "noMachineCases": "暂无与设备相关的案例",
+          "noOneBlacklisted": "目前没有人被列入黑名单"
+        },
+        "table": {
+          "name": "姓名",
+          "type": "类型",
+          "points": "积分",
+          "cases": "案例"
+        },
+        "entityTypes": {
+          "technician": "技术员",
+          "contractor": "承包商",
+          "operator": "操作员",
+          "machine": "设备"
         }
       }
     }

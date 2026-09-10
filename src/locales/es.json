@@ -1654,6 +1654,25 @@
         "running": "En curso ({{count}})",
         "title": "Órdenes de trabajo",
         "today": "Hoy ({{count}})"
+      },
+      "kpiCard": {
+        "trendVsLastPeriod": "{{trend}}% frente al período anterior"
+      },
+      "safetyBlacklistWidget": {
+        "title": "En lista negra ({{threshold}}+ puntos de casos de seguridad)",
+        "empty": "Nadie está en la lista negra actualmente",
+        "columns": {
+          "name": "Nombre",
+          "type": "Tipo",
+          "points": "Puntos",
+          "cases": "Casos"
+        },
+        "entityTypes": {
+          "technician": "Técnico",
+          "contractor": "Contratista",
+          "operator": "Operador",
+          "machine": "Máquina"
+        }
       }
     },
     "machines": {
@@ -6487,6 +6506,96 @@
           "employeeRequired": "Seleccione al menos un empleado para este turno.",
           "activeDayRequired": "Seleccione al menos un día activo.",
           "saveFailed": "No se pudo guardar el turno."
+        }
+      }
+    },
+    "analytics": {
+      "durationOptions": {
+        "days_one": "{{count}} día",
+        "days_other": "{{count}} días"
+      },
+      "mainPage": {
+        "title": "Analítica",
+        "subtitle": "Rendimiento operativo, fiabilidad y tendencias de costos en toda su flota.",
+        "kpis": {
+          "totalBreakdowns": "Total de averías",
+          "maintenanceCost": "Costo de mantenimiento",
+          "hoursLost": "Horas perdidas",
+          "safetyCases": "Casos de seguridad"
+        },
+        "tabs": {
+          "breakdowns": "Averías",
+          "pm": "Mantenimiento preventivo",
+          "workorders": "Órdenes de trabajo",
+          "machines": "Máquinas",
+          "safety": "Seguridad",
+          "team": "Desempeño del equipo"
+        }
+      },
+      "inventoryPage": {
+        "title": "Analítica de inventario",
+        "subtitle": "Salud del stock, motivos de solicitud de repuestos, movimiento y actividad de proveedores/OC durante el período seleccionado.",
+        "tabs": {
+          "lowStock": "Repuestos con stock bajo",
+          "reasons": "Repuestos solicitados por motivo",
+          "mostMoved": "Repuestos más movidos",
+          "suppliers": "Órdenes de compra por proveedor",
+          "receiptQuality": "Repuestos recibidos: buenos vs. rechazados/dañados"
+        }
+      },
+      "hrPage": {
+        "title": "Analítica de RR. HH.",
+        "subtitle": "Desempeño del equipo, actividad de capacitación y progreso del personal.",
+        "tabs": {
+          "topPerformers": "Los 10 mejores",
+          "staffHeadcount": "Empleados por cargo",
+          "trainingCategories": "Capacitaciones",
+          "audits": "Auditorías",
+          "evaluations": "Evaluaciones"
+        },
+        "empty": {
+          "trainings": "Aún no hay actividad de capacitación",
+          "audits": "Aún no hay actividad de auditoría",
+          "evaluations": "Aún no hay actividad de evaluación"
+        }
+      },
+      "safetyPage": {
+        "title": "Analítica de seguridad",
+        "subtitle": "Tendencias, tipos, gravedad e implicados en incidentes en toda la planta.",
+        "kpis": {
+          "notClosed": "No cerrados",
+          "open": "Abiertos",
+          "investigating": "En investigación"
+        },
+        "tabs": {
+          "severity": "Casos por gravedad",
+          "type": "Casos por tipo",
+          "technicians": "Los 5 mejores técnicos",
+          "machines": "Las 5 principales máquinas",
+          "blacklist": "Lista negra"
+        },
+        "charts": {
+          "topTechnicians": "Los 5 técnicos principales por casos de seguridad",
+          "topMachines": "Las 5 máquinas principales por casos de seguridad",
+          "blacklisted": "En lista negra ({{threshold}}+ puntos)",
+          "safetyCasesSeriesName": "Casos de seguridad"
+        },
+        "empty": {
+          "noTechnicianCases": "Aún no hay casos vinculados a técnicos",
+          "noMachineCases": "Aún no hay casos vinculados a máquinas",
+          "noOneBlacklisted": "Nadie está en la lista negra actualmente"
+        },
+        "table": {
+          "name": "Nombre",
+          "type": "Tipo",
+          "points": "Puntos",
+          "cases": "Casos"
+        },
+        "entityTypes": {
+          "technician": "Técnico",
+          "contractor": "Contratista",
+          "operator": "Operador",
+          "machine": "Máquina"
         }
       }
     }

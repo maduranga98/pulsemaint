@@ -2830,6 +2830,25 @@
         "running": "Running ({{count}})",
         "title": "Work Orders",
         "today": "Today ({{count}})"
+      },
+      "kpiCard": {
+        "trendVsLastPeriod": "{{trend}}% vs last period"
+      },
+      "safetyBlacklistWidget": {
+        "title": "Blacklisted ({{threshold}}+ safety-case points)",
+        "empty": "No one is currently blacklisted",
+        "columns": {
+          "name": "Name",
+          "type": "Type",
+          "points": "Points",
+          "cases": "Cases"
+        },
+        "entityTypes": {
+          "technician": "Technician",
+          "contractor": "Contractor",
+          "operator": "Operator",
+          "machine": "Machine"
+        }
       }
     },
     "machines": {
@@ -6660,6 +6679,96 @@
           "employeeRequired": "Select at least one employee for this shift.",
           "activeDayRequired": "Select at least one active day.",
           "saveFailed": "Failed to save shift."
+        }
+      }
+    },
+    "analytics": {
+      "durationOptions": {
+        "days_one": "{{count}} Day",
+        "days_other": "{{count}} Days"
+      },
+      "mainPage": {
+        "title": "Analytics",
+        "subtitle": "Operational performance, reliability, and cost trends across your fleet.",
+        "kpis": {
+          "totalBreakdowns": "Total Breakdowns",
+          "maintenanceCost": "Maintenance Cost",
+          "hoursLost": "Hours Lost",
+          "safetyCases": "Safety Cases"
+        },
+        "tabs": {
+          "breakdowns": "Breakdowns",
+          "pm": "Preventive Maintenance",
+          "workorders": "Work Orders",
+          "machines": "Machines",
+          "safety": "Safety",
+          "team": "Team Performance"
+        }
+      },
+      "inventoryPage": {
+        "title": "Inventory Analytics",
+        "subtitle": "Stock health, parts request reasons, movement, and supplier/PO activity over the selected period.",
+        "tabs": {
+          "lowStock": "Low Stock Parts",
+          "reasons": "Parts Requested By Reason",
+          "mostMoved": "Most Moved Parts",
+          "suppliers": "Purchase Orders By Supplier",
+          "receiptQuality": "Parts Received: Good vs Rejected/Damaged"
+        }
+      },
+      "hrPage": {
+        "title": "HR Analytics",
+        "subtitle": "Team performance, training activity, and staff progress.",
+        "tabs": {
+          "topPerformers": "Top 10 Performers",
+          "staffHeadcount": "Employees by Role",
+          "trainingCategories": "Trainings",
+          "audits": "Audits",
+          "evaluations": "Evaluations"
+        },
+        "empty": {
+          "trainings": "No training activity yet",
+          "audits": "No audit activity yet",
+          "evaluations": "No evaluation activity yet"
+        }
+      },
+      "safetyPage": {
+        "title": "Safety Analytics",
+        "subtitle": "Incident trends, types, severity, and involvement across the factory.",
+        "kpis": {
+          "notClosed": "Not Closed",
+          "open": "Open",
+          "investigating": "Investigating"
+        },
+        "tabs": {
+          "severity": "Cases by Severity",
+          "type": "Cases by Type",
+          "technicians": "Top 5 Technicians",
+          "machines": "Top 5 Machines",
+          "blacklist": "Blacklisted"
+        },
+        "charts": {
+          "topTechnicians": "Top 5 Technicians by Safety Cases",
+          "topMachines": "Top 5 Machines by Safety Cases",
+          "blacklisted": "Blacklisted ({{threshold}}+ points)",
+          "safetyCasesSeriesName": "Safety cases"
+        },
+        "empty": {
+          "noTechnicianCases": "No technician-linked cases yet",
+          "noMachineCases": "No machine-linked cases yet",
+          "noOneBlacklisted": "No one is currently blacklisted"
+        },
+        "table": {
+          "name": "Name",
+          "type": "Type",
+          "points": "Points",
+          "cases": "Cases"
+        },
+        "entityTypes": {
+          "technician": "Technician",
+          "contractor": "Contractor",
+          "operator": "Operator",
+          "machine": "Machine"
         }
       }
     }

@@ -1,35 +1,40 @@
 import { useMemo } from 'react';
 import { Ban } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useSafetyBlacklist } from '@/hooks/safety/useSafety';
 import { BLACKLIST_THRESHOLD, type BlacklistEntityType } from '@/lib/safety/blacklist';
 
-const ENTITY_LABEL: Record<BlacklistEntityType, string> = {
-  technician: 'Technician',
-  contractor: 'Contractor',
-  operator: 'Operator',
-  machine: 'Machine',
-};
-
 /** Admin/Plant Manager Analytics → Safety tab: who/what is currently blacklisted from WO assignment. */
 export default function SafetyBlacklistWidget({ companyId }: { companyId: string }) {
+  const { t } = useTranslation();
   const { entries, loading } = useSafetyBlacklist(companyId);
   const blacklisted = useMemo(() => entries.filter((e) => e.isBlacklisted), [entries]);
 
+  const ENTITY_LABEL: Record<BlacklistEntityType, string> = {
+    technician: t('common.widgets.safetyBlacklistWidget.entityTypes.technician'),
+    contractor: t('common.widgets.safetyBlacklistWidget.entityTypes.contractor'),
+    operator: t('common.widgets.safetyBlacklistWidget.entityTypes.operator'),
+    machine: t('common.widgets.safetyBlacklistWidget.entityTypes.machine'),
+  };
+
   return (
-    <DashboardWidget title={`Blacklisted (${BLACKLIST_THRESHOLD}+ safety-case points)`} loading={loading}>
+    <DashboardWidget
+      title={t('common.widgets.safetyBlacklistWidget.title', { threshold: BLACKLIST_THRESHOLD })}
+      loading={loading}
+    >
       {blacklisted.length === 0 ? (
-        <EmptyState message="No one is currently blacklisted" />
+        <EmptyState message={t('common.widgets.safetyBlacklistWidget.empty')} />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] text-sm">
             <thead>
               <tr className="border-b border-gray-100 text-left text-xs uppercase text-gray-400">
-                <th className="py-2 pr-3 font-medium">Name</th>
-                <th className="py-2 pr-3 font-medium">Type</th>
-                <th className="py-2 pr-3 font-medium">Points</th>
-                <th className="py-2 pr-3 font-medium">Cases</th>
+                <th className="py-2 pr-3 font-medium">{t('common.widgets.safetyBlacklistWidget.columns.name')}</th>
+                <th className="py-2 pr-3 font-medium">{t('common.widgets.safetyBlacklistWidget.columns.type')}</th>
+                <th className="py-2 pr-3 font-medium">{t('common.widgets.safetyBlacklistWidget.columns.points')}</th>
+                <th className="py-2 pr-3 font-medium">{t('common.widgets.safetyBlacklistWidget.columns.cases')}</th>
               </tr>
             </thead>
             <tbody>
