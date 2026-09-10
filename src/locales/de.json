@@ -7200,6 +7200,259 @@
           "topEmployeesByMarks": "Top 5 Mitarbeiter nach Gesamtpunktzahl aller Leistungen"
         }
       }
+    },
+    "audit": {
+      "categories": {
+        "tpm": "TPM-Audit",
+        "fives": "5S-Audit",
+        "moe": "MOE-Audit",
+        "contractor": "Fremdfirmen-Audit"
+      },
+      "answerTypes": {
+        "yesNo": "Ja / Nein",
+        "scale": "Skala (0–5)",
+        "text": "Text"
+      },
+      "scopes": {
+        "machines": "Maschinen",
+        "contractors": "Fremdfirmen",
+        "inventory": "Lager / Ersatzteile",
+        "workOrders": "Arbeitsaufträge",
+        "departments": "Abteilungen"
+      },
+      "findingKinds": {
+        "loss": "Produktionsverlust",
+        "breakdown": "Störung",
+        "safety": "Sicherheitsproblem",
+        "maintenance": "Instandhaltungsproblem"
+      },
+      "answers": {
+        "yes": "Ja",
+        "no": "Nein"
+      },
+      "aiRootCause": {
+        "empty": "Keine Probleme erkannt — die KI hat nichts gefunden, das eine Ursachenanalyse erfordert.",
+        "summary": "Die KI hat {{count}} Befund(e) analysiert und schlägt vor:",
+        "unlabeledFinding": "(unbenannter Befund)",
+        "probableCauses": "Wahrscheinliche Ursachen",
+        "recommendedActions": "Empfohlene Maßnahmen"
+      },
+      "attachments": {
+        "types": {
+          "document": "Dokument",
+          "image": "Bild",
+          "video": "Video"
+        },
+        "addButton": "{{type}} hinzufügen",
+        "empty": "Keine Belegdateien angehängt"
+      },
+      "detail": {
+        "backToHistory": "Zurück zum Verlauf",
+        "pdfReport": "PDF-Bericht",
+        "downloadPdf": "PDF herunterladen",
+        "conductedBy": "Durchgeführt von",
+        "department": "Abteilung",
+        "locationZone": "Standort / Zone",
+        "contractors": "Fremdfirmen",
+        "machines": "Maschinen",
+        "participants": "Teilnehmer",
+        "checklistResponses": "Checklisten-Antworten",
+        "findings": "Befunde",
+        "reason": "Grund:",
+        "solution": "Lösung:",
+        "attachments": "Anhänge",
+        "aiRootCauseAnalysis": "KI-Ursachenanalyse"
+      },
+      "taskConfigurator": {
+        "errors": {
+          "nameRequired": "Geben Sie der neuen Kategorie einen Namen.",
+          "taskRequired": "Fügen Sie mindestens eine Aufgabe/Frage hinzu."
+        },
+        "categoryNameLabel": "Kategorie-/Formularname",
+        "templateNameLabel": "Vorlagenname",
+        "categoryNamePlaceholder": "z. B. Lagersicherheits-Audit",
+        "findingTypesAllowed": "Zulässige Befundtypen",
+        "findingTypesHint": "Standardmäßig ist keiner aktiviert — wählen Sie aus, welche Befundtypen dieses Formular anbieten soll.",
+        "taskPlaceholder": "Aufgabe {{number}} — Frage / Prüfpunkt",
+        "criticalLabel": "Kritisch (bei Nichterfüllung sind Grund & Lösung erforderlich)",
+        "addTask": "Aufgabe hinzufügen",
+        "createCategory": "Kategorie erstellen",
+        "saveConfiguration": "Konfiguration speichern",
+        "cancel": "Abbrechen"
+      },
+      "contractorSelect": {
+        "empty": "Noch keine Fremdfirmen verknüpft",
+        "searchPlaceholder": "Fremdfirmen nach Firma oder Gewerk suchen…",
+        "noneFound": "Keine Fremdfirmen gefunden."
+      },
+      "machineSelect": {
+        "empty": "Noch keine Maschinen verknüpft",
+        "searchPlaceholder": "Maschinen nach Name, Seriennummer, Abteilung suchen…",
+        "noneFound": "Keine Maschinen gefunden."
+      },
+      "inventorySelect": {
+        "empty": "Noch keine Teile verknüpft",
+        "searchPlaceholder": "Teile nach Name oder Teilenummer suchen…",
+        "noneFound": "Keine Teile gefunden."
+      },
+      "workOrderSelect": {
+        "empty": "Noch keine Arbeitsaufträge verknüpft",
+        "searchPlaceholder": "Arbeitsaufträge nach Nummer oder Maschine suchen…",
+        "noneFound": "Keine Arbeitsaufträge gefunden."
+      },
+      "participantSelector": {
+        "empty": "Keine Teilnehmer markiert",
+        "searchPlaceholder": "Nach Name oder Rolle suchen (Elektriker, Techniker, Supervisor…)",
+        "noneFound": "Keine Benutzer gefunden.",
+        "roles": {
+          "admin": "Administrator",
+          "plantManager": "Werksleiter",
+          "supervisor": "Supervisor",
+          "technician": "Techniker",
+          "storeKeeper": "Lagerverwalter",
+          "hrOfficer": "Personalreferent",
+          "floorOperator": "Maschinenbediener",
+          "trainee": "Auszubildender"
+        }
+      },
+      "findings": {
+        "empty": "Fügen Sie festgestellte Verluste, Störungen, Sicherheits- oder Instandhaltungsprobleme hinzu.",
+        "descriptionPlaceholder": "Was ist passiert? (Beschreibung)",
+        "reasonPlaceholder": "Grund / Ursache",
+        "solutionPlaceholder": "Lösung / durchgeführte Korrekturmaßnahme"
+      },
+      "sessionForm": {
+        "configureTasks": "Aufgaben konfigurieren",
+        "conductedBy": "Durchgeführt von",
+        "unknownAuditor": "Unbekannt",
+        "errors": {
+          "answerRequired": "Beantworten Sie mindestens eine Aufgabe, bevor Sie absenden."
+        },
+        "success": {
+          "title": "Audit übermittelt",
+          "scoreSummary": "Punktzahl {{score}}% · {{passed}}/{{total}} Aufgaben bestanden",
+          "viewPdf": "PDF-Bericht anzeigen",
+          "downloadPdf": "PDF-Bericht herunterladen",
+          "done": "Fertig"
+        },
+        "scope": {
+          "title": "Umfang",
+          "contractors": "Fremdfirmen",
+          "inventory": "Lager / Ersatzteile",
+          "workOrders": "Arbeitsaufträge",
+          "machines": "Maschinen",
+          "department": "Abteilung",
+          "departmentPlaceholder": "z. B. Produktion, Instandhaltung, Qualität",
+          "locationZone": "Standort / Zone",
+          "locationAutoFilled": "automatisch aus Maschine übernommen · bearbeitbar",
+          "locationPlaceholder": "z. B. Fabrikhalle A, Halle 3, Kompressorraum"
+        },
+        "participants": {
+          "title": "Teilnehmer"
+        },
+        "checklist": {
+          "title": "Checkliste",
+          "critical": "(kritisch)",
+          "responsePlaceholder": "Antwort eingeben…",
+          "nonConformancePlaceholder": "Grund für diese Abweichung angeben…"
+        },
+        "findings": {
+          "title": "Verluste, Störungen, Sicherheits- & Instandhaltungsbefunde"
+        },
+        "attachments": {
+          "title": "Nachweise & Anhänge"
+        },
+        "aiPreview": {
+          "title": "KI-Ursachenanalyse (Vorschau)"
+        },
+        "submitBar": {
+          "scoreLabel": "Punktzahl:",
+          "passedSummary": "{{passed}}/{{total}} bestanden",
+          "submit": "Absenden & PDF erstellen"
+        },
+        "contractorJobHistory": {
+          "completedOn": "Abgeschlossen am {{date}}",
+          "startedOn": "Begonnen am {{date}}",
+          "notesPlaceholder": "Besondere Hinweise (optional)…",
+          "title": "{{name}} — Arbeitsaufträge",
+          "notCompleted": "Nicht abgeschlossen",
+          "loading": "Wird geladen…",
+          "noActiveJobs": "Keine aktiven Aufträge.",
+          "previouslyCompleted": "Bereits abgeschlossen",
+          "noCompletedJobs": "Noch keine abgeschlossenen Aufträge."
+        }
+      },
+      "page": {
+        "title": "Audits",
+        "subtitle": "TPM- · 5S- · MOE- · Fremdfirmen-Audits mit KI-Ursachenanalyse",
+        "loading": "Wird geladen…",
+        "tabs": {
+          "inProgress": "In Bearbeitung",
+          "library": "Audit-Bibliothek",
+          "completed": "Abgeschlossen"
+        },
+        "inProgress": {
+          "empty": "Keine laufenden Audits.",
+          "lastSaved": "Zuletzt gespeichert {{when}}",
+          "resumeAudit": "Audit fortsetzen",
+          "inProgressBy": "In Bearbeitung von {{name}}"
+        },
+        "newCategory": "Neue Audit-Kategorie",
+        "loadingTemplates": "Audit-Vorlagen werden geladen…",
+        "taskCount": "{{count}} Aufgaben",
+        "startAudit": "Audit starten",
+        "completed": {
+          "empty": "Noch keine abgeschlossenen Audits."
+        },
+        "accessRestricted": {
+          "title": "Zugriff eingeschränkt",
+          "description": "Das Audit-Modul steht Supervisorn, Werksleitern, Administratoren, Personalreferenten und Sicherheitsbeauftragten zur Verfügung."
+        },
+        "configureTitle": "{{category}} konfigurieren",
+        "configureDescription": "Aufgaben hinzufügen oder entfernen und für jede den Antworttyp (Ja/Nein, Skala, Text) wählen.",
+        "createTitle": "Neue Audit-Kategorie",
+        "createDescription": "Erstellen Sie eine benutzerdefinierte Audit-Kategorie mit eigener Checkliste. Sie erscheint auf der Audit-Startseite für alle mit Audit-Zugriff; nur Administratoren können ihre Aufgaben nachträglich bearbeiten.",
+        "categoryDescriptions": {
+          "tpm": "Prüfungen zur Total Productive Maintenance",
+          "fives": "5S-Audit zur Arbeitsplatzorganisation",
+          "moe": "Verfügbarkeits-, Leistungs- & Qualitätsverluste",
+          "contractor": "Sicherheits- und Arbeitsqualitätsaudit für Fremdfirmen",
+          "custom": "Benutzerdefinierte Audit-Checkliste"
+        }
+      },
+      "pdf": {
+        "reportTitle": "{{category}} Bericht",
+        "template": "Vorlage: {{name}}",
+        "dateScoreSummary": "Datum: {{date}}    Punktzahl: {{score}}%    ({{passed}}/{{total}} bestanden)",
+        "conductedBy": "Durchgeführt von",
+        "department": "Abteilung",
+        "locationZone": "Standort / Zone",
+        "contractors": "Fremdfirmen",
+        "machines": "Maschinen",
+        "participants": "Teilnehmer",
+        "checklistResponses": "Checklisten-Antworten",
+        "resultFail": "NICHT BESTANDEN",
+        "resultOk": "OK",
+        "findingsTitle": "Befunde — Gründe & Lösungen",
+        "aiRootCauseTitle": "KI-Ursachenanalyse",
+        "attachmentsTitle": "Anhänge",
+        "columns": {
+          "number": "#",
+          "task": "Aufgabe",
+          "answer": "Antwort",
+          "result": "Ergebnis",
+          "notes": "Notizen",
+          "type": "Typ",
+          "description": "Beschreibung",
+          "reason": "Grund",
+          "solution": "Lösung",
+          "finding": "Befund",
+          "priority": "Priorität",
+          "probableCauses": "Wahrscheinliche Ursachen",
+          "recommendedActions": "Empfohlene Maßnahmen",
+          "file": "Datei"
+        }
+      }
     }
   },
   "triage": {

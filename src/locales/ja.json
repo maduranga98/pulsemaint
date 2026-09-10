@@ -7196,6 +7196,259 @@
           "topEmployeesByMarks": "全パフォーマンス合計点上位5名の従業員"
         }
       }
+    },
+    "audit": {
+      "categories": {
+        "tpm": "TPM監査",
+        "fives": "5S監査",
+        "moe": "MOE監査",
+        "contractor": "協力会社監査"
+      },
+      "answerTypes": {
+        "yesNo": "はい / いいえ",
+        "scale": "評価(0〜5)",
+        "text": "テキスト"
+      },
+      "scopes": {
+        "machines": "設備",
+        "contractors": "協力会社",
+        "inventory": "在庫 / 部品",
+        "workOrders": "作業指示",
+        "departments": "部門"
+      },
+      "findingKinds": {
+        "loss": "生産ロス",
+        "breakdown": "故障",
+        "safety": "安全上の問題",
+        "maintenance": "保全上の問題"
+      },
+      "answers": {
+        "yes": "はい",
+        "no": "いいえ"
+      },
+      "aiRootCause": {
+        "empty": "問題は検出されませんでした — AIによる根本原因分析が必要な項目はありません。",
+        "summary": "AIが{{count}}件の指摘事項を分析し、以下を提案しています:",
+        "unlabeledFinding": "(名称未設定の指摘事項)",
+        "probableCauses": "推定される原因",
+        "recommendedActions": "推奨される対策"
+      },
+      "attachments": {
+        "types": {
+          "document": "書類",
+          "image": "画像",
+          "video": "動画"
+        },
+        "addButton": "{{type}}を追加",
+        "empty": "添付されている資料はありません"
+      },
+      "detail": {
+        "backToHistory": "履歴に戻る",
+        "pdfReport": "PDFレポート",
+        "downloadPdf": "PDFをダウンロード",
+        "conductedBy": "実施者",
+        "department": "部門",
+        "locationZone": "場所 / エリア",
+        "contractors": "協力会社",
+        "machines": "設備",
+        "participants": "参加者",
+        "checklistResponses": "チェックリスト回答",
+        "findings": "指摘事項",
+        "reason": "理由:",
+        "solution": "対策:",
+        "attachments": "添付資料",
+        "aiRootCauseAnalysis": "AIによる根本原因分析"
+      },
+      "taskConfigurator": {
+        "errors": {
+          "nameRequired": "新しいカテゴリの名前を入力してください。",
+          "taskRequired": "タスク・質問を1つ以上追加してください。"
+        },
+        "categoryNameLabel": "カテゴリ / フォーム名",
+        "templateNameLabel": "テンプレート名",
+        "categoryNamePlaceholder": "例: 倉庫安全監査",
+        "findingTypesAllowed": "許可する指摘事項の種類",
+        "findingTypesHint": "初期状態ではすべて無効です。このフォームで扱う指摘事項の種類にチェックを入れてください。",
+        "taskPlaceholder": "タスク{{number}} — 質問 / 確認項目",
+        "criticalLabel": "重要項目(不合格の場合は理由と対策が必須)",
+        "addTask": "タスクを追加",
+        "createCategory": "カテゴリを作成",
+        "saveConfiguration": "設定を保存",
+        "cancel": "キャンセル"
+      },
+      "contractorSelect": {
+        "empty": "紐づけられた協力会社はまだありません",
+        "searchPlaceholder": "会社名または職種で協力会社を検索…",
+        "noneFound": "協力会社が見つかりませんでした。"
+      },
+      "machineSelect": {
+        "empty": "紐づけられた設備はまだありません",
+        "searchPlaceholder": "名称・シリアル番号・部門で設備を検索…",
+        "noneFound": "設備が見つかりませんでした。"
+      },
+      "inventorySelect": {
+        "empty": "紐づけられた部品はまだありません",
+        "searchPlaceholder": "名称または部品番号で検索…",
+        "noneFound": "部品が見つかりませんでした。"
+      },
+      "workOrderSelect": {
+        "empty": "紐づけられた作業指示はまだありません",
+        "searchPlaceholder": "番号または設備で作業指示を検索…",
+        "noneFound": "作業指示が見つかりませんでした。"
+      },
+      "participantSelector": {
+        "empty": "参加者がタグ付けされていません",
+        "searchPlaceholder": "名前または役割で検索(電気技術者、技術者、監督者など)",
+        "noneFound": "ユーザーが見つかりませんでした。",
+        "roles": {
+          "admin": "管理者",
+          "plantManager": "工場長",
+          "supervisor": "監督者",
+          "technician": "技術者",
+          "storeKeeper": "倉庫担当者",
+          "hrOfficer": "人事担当者",
+          "floorOperator": "オペレーター",
+          "trainee": "研修生"
+        }
+      },
+      "findings": {
+        "empty": "発見したロス・故障・安全上または保全上の問題を追加してください。",
+        "descriptionPlaceholder": "何が起きましたか?(内容)",
+        "reasonPlaceholder": "理由 / 根本原因",
+        "solutionPlaceholder": "対策 / 実施した是正処置"
+      },
+      "sessionForm": {
+        "configureTasks": "タスクを設定",
+        "conductedBy": "実施者",
+        "unknownAuditor": "不明",
+        "errors": {
+          "answerRequired": "提出する前に少なくとも1つのタスクに回答してください。"
+        },
+        "success": {
+          "title": "監査を提出しました",
+          "scoreSummary": "スコア{{score}}% · {{passed}}/{{total}}件が合格",
+          "viewPdf": "PDFレポートを表示",
+          "downloadPdf": "PDFレポートをダウンロード",
+          "done": "完了"
+        },
+        "scope": {
+          "title": "対象範囲",
+          "contractors": "協力会社",
+          "inventory": "在庫 / 部品",
+          "workOrders": "作業指示",
+          "machines": "設備",
+          "department": "部門",
+          "departmentPlaceholder": "例: 生産、保全、品質",
+          "locationZone": "場所 / エリア",
+          "locationAutoFilled": "設備から自動入力・編集可能",
+          "locationPlaceholder": "例: 工場フロアA、ベイ3、コンプレッサー室"
+        },
+        "participants": {
+          "title": "参加者"
+        },
+        "checklist": {
+          "title": "チェックリスト",
+          "critical": "(重要項目)",
+          "responsePlaceholder": "回答を入力…",
+          "nonConformancePlaceholder": "この不適合の理由を記入…"
+        },
+        "findings": {
+          "title": "ロス・故障・安全・保全に関する指摘事項"
+        },
+        "attachments": {
+          "title": "証拠資料・添付ファイル"
+        },
+        "aiPreview": {
+          "title": "AIによる根本原因分析(プレビュー)"
+        },
+        "submitBar": {
+          "scoreLabel": "スコア:",
+          "passedSummary": "{{passed}}/{{total}}件合格",
+          "submit": "提出してPDFを生成"
+        },
+        "contractorJobHistory": {
+          "completedOn": "{{date}}に完了",
+          "startedOn": "{{date}}に開始",
+          "notesPlaceholder": "特記事項(任意)…",
+          "title": "{{name}} — 作業指示",
+          "notCompleted": "未完了",
+          "loading": "読み込み中…",
+          "noActiveJobs": "進行中の作業はありません。",
+          "previouslyCompleted": "完了済み",
+          "noCompletedJobs": "完了した作業はまだありません。"
+        }
+      },
+      "page": {
+        "title": "監査",
+        "subtitle": "AIによる根本原因分析を備えたTPM・5S・MOE・協力会社監査",
+        "loading": "読み込み中…",
+        "tabs": {
+          "inProgress": "実施中",
+          "library": "監査ライブラリ",
+          "completed": "完了済み"
+        },
+        "inProgress": {
+          "empty": "実施中の監査はありません。",
+          "lastSaved": "最終保存: {{when}}",
+          "resumeAudit": "監査を再開",
+          "inProgressBy": "{{name}}が実施中"
+        },
+        "newCategory": "新しい監査カテゴリ",
+        "loadingTemplates": "監査テンプレートを読み込み中…",
+        "taskCount": "{{count}}件のタスク",
+        "startAudit": "監査を開始",
+        "completed": {
+          "empty": "完了済みの監査はまだありません。"
+        },
+        "accessRestricted": {
+          "title": "アクセスが制限されています",
+          "description": "監査モジュールは監督者、工場長、管理者、人事担当者、安全担当者が利用できます。"
+        },
+        "configureTitle": "{{category}}を設定",
+        "configureDescription": "タスクを追加・削除し、それぞれの回答タイプ(はい/いいえ、評価、テキスト)を選択してください。",
+        "createTitle": "新しい監査カテゴリ",
+        "createDescription": "独自のチェックリストを持つカスタム監査カテゴリを作成します。監査へのアクセス権を持つすべてのユーザーの監査ホーム画面に表示されます。作成後にタスクを編集できるのは管理者のみです。",
+        "categoryDescriptions": {
+          "tpm": "TPM(総合生産保全)の確認項目",
+          "fives": "職場の5S整理整頓監査",
+          "moe": "稼働率・性能・品質ロスの確認",
+          "contractor": "協力会社の安全・作業品質監査",
+          "custom": "カスタム監査チェックリスト"
+        }
+      },
+      "pdf": {
+        "reportTitle": "{{category}}レポート",
+        "template": "テンプレート: {{name}}",
+        "dateScoreSummary": "日付: {{date}}    スコア: {{score}}%    ({{passed}}/{{total}}件合格)",
+        "conductedBy": "実施者",
+        "department": "部門",
+        "locationZone": "場所 / エリア",
+        "contractors": "協力会社",
+        "machines": "設備",
+        "participants": "参加者",
+        "checklistResponses": "チェックリスト回答",
+        "resultFail": "不合格",
+        "resultOk": "合格",
+        "findingsTitle": "指摘事項 — 理由と対策",
+        "aiRootCauseTitle": "AIによる根本原因分析",
+        "attachmentsTitle": "添付資料",
+        "columns": {
+          "number": "#",
+          "task": "タスク",
+          "answer": "回答",
+          "result": "結果",
+          "notes": "備考",
+          "type": "種類",
+          "description": "内容",
+          "reason": "理由",
+          "solution": "対策",
+          "finding": "指摘事項",
+          "priority": "優先度",
+          "probableCauses": "推定される原因",
+          "recommendedActions": "推奨される対策",
+          "file": "ファイル"
+        }
+      }
     }
   },
   "triage": {
