@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { ExportFormat } from '../../../types/reports.types';
 
 interface ReportFormatChipProps {
@@ -12,17 +13,11 @@ const styleMap: Record<ExportFormat, string> = {
   csv: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
 };
 
-const labelMap: Record<ExportFormat, string> = {
-  pdf: 'PDF',
-  excel: 'Excel',
-  google_sheets: 'Sheets',
-  csv: 'CSV',
-};
-
 export default function ReportFormatChip({ format, label }: ReportFormatChipProps) {
+  const { t } = useTranslation();
   return (
     <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${styleMap[format]}`}>
-      {label ?? labelMap[format]}
+      {label ?? t(`common.reports.shared.formatChip.${format}`)}
     </span>
   );
 }

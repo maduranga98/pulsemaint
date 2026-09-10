@@ -1,4 +1,5 @@
 import { useMemo, useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown, Search, X } from 'lucide-react';
 
 export interface SelectOption {
@@ -27,6 +28,7 @@ export default function SearchableMultiSelect({
   placeholder?: string;
   loading?: boolean;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const rootRef = useRef<HTMLDivElement>(null);
@@ -67,8 +69,8 @@ export default function SearchableMultiSelect({
       >
         <span className={values.length === 0 ? 'text-[#8BA3BF]' : ''}>
           {values.length === 0
-            ? `All (no ${label.toLowerCase()} filter)`
-            : `${values.length} selected`}
+            ? t('common.reports.config.searchableMultiSelect.allNoFilter', { label: label.toLowerCase() })
+            : t('common.reports.config.searchableMultiSelect.selectedCount', { count: values.length })}
         </span>
         <ChevronDown className="h-4 w-4 shrink-0 text-[#8BA3BF]" />
       </button>
@@ -84,7 +86,7 @@ export default function SearchableMultiSelect({
               <button
                 type="button"
                 onClick={() => toggle(value)}
-                aria-label={`Remove ${labelFor(value)}`}
+                aria-label={t('common.reports.config.searchableMultiSelect.removeAriaLabel', { label: labelFor(value) })}
                 className="text-[#8BA3BF] hover:text-red-400"
               >
                 <X className="h-3 w-3" />
@@ -108,9 +110,9 @@ export default function SearchableMultiSelect({
               />
             </div>
             <ul className="max-h-56 overflow-y-auto p-1">
-              {loading && <li className="px-3 py-2 text-sm text-[#8BA3BF]">Loading…</li>}
+              {loading && <li className="px-3 py-2 text-sm text-[#8BA3BF]">{t('common.reports.config.searchableMultiSelect.loading')}</li>}
               {!loading && filtered.length === 0 && (
-                <li className="px-3 py-2 text-sm text-[#8BA3BF]">No matches found.</li>
+                <li className="px-3 py-2 text-sm text-[#8BA3BF]">{t('common.reports.config.searchableMultiSelect.noMatches')}</li>
               )}
               {!loading &&
                 filtered.map((option) => {

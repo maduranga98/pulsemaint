@@ -1,10 +1,13 @@
+import type { TFunction } from 'i18next';
 import type { ReportDefinition, ReportType } from '../../types/reports.types';
 
 export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   breakdown_summary: {
     type: 'breakdown_summary',
     name: 'Breakdown Summary Report',
+    nameKey: 'common.reports.definitions.breakdown_summary.name',
     description: 'Frequency, severity, MTTR, hours lost, and SLA performance for breakdowns.',
+    descriptionKey: 'common.reports.definitions.breakdown_summary.description',
     category: 'breakdowns',
     icon: 'AlertTriangle',
     supportsPdf: true,
@@ -16,7 +19,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   work_order_detail: {
     type: 'work_order_detail',
     name: 'Work Order Detail Report',
+    nameKey: 'common.reports.definitions.work_order_detail.name',
     description: 'Full work order register with type, priority, assignments, parts, cost, and status.',
+    descriptionKey: 'common.reports.definitions.work_order_detail.description',
     category: 'work_orders',
     icon: 'ClipboardList',
     supportsPdf: true,
@@ -28,7 +33,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   machine_history: {
     type: 'machine_history',
     name: 'Machine History Report',
+    nameKey: 'common.reports.definitions.machine_history.name',
     description: "A machine's full work-order history with types, dates, status, and durations.",
+    descriptionKey: 'common.reports.definitions.machine_history.description',
     category: 'machines',
     icon: 'Factory',
     supportsPdf: true,
@@ -42,7 +49,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   machine_health_score: {
     type: 'machine_health_score',
     name: 'Machine Health Score Report',
+    nameKey: 'common.reports.definitions.machine_health_score.name',
     description: 'Fleet health scores, risk distribution, department split, and six-month trends.',
+    descriptionKey: 'common.reports.definitions.machine_health_score.description',
     category: 'machines',
     icon: 'Activity',
     supportsPdf: true,
@@ -56,7 +65,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   maintenance_cost: {
     type: 'maintenance_cost',
     name: 'Maintenance Cost Report',
+    nameKey: 'common.reports.definitions.maintenance_cost.name',
     description: 'Parts, labor, contractor spend, cost by department, and expensive machines.',
+    descriptionKey: 'common.reports.definitions.maintenance_cost.description',
     category: 'financial',
     icon: 'CircleDollarSign',
     supportsPdf: true,
@@ -68,7 +79,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   technician_performance: {
     type: 'technician_performance',
     name: 'Team Performance Report',
+    nameKey: 'common.reports.definitions.technician_performance.name',
     description: 'Per-role performance aggregated from Evaluations, Quick Assessment marks, and Training completions.',
+    descriptionKey: 'common.reports.definitions.technician_performance.description',
     category: 'people',
     icon: 'UsersRound',
     supportsPdf: true,
@@ -82,7 +95,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   contractor_performance: {
     type: 'contractor_performance',
     name: 'Contractor Performance Report',
+    nameKey: 'common.reports.definitions.contractor_performance.name',
     description: 'Contractor scoreboard, SLA compliance, first-fix rate, ratings, cost, and invoices.',
+    descriptionKey: 'common.reports.definitions.contractor_performance.description',
     category: 'people',
     icon: 'HardHat',
     supportsPdf: true,
@@ -94,7 +109,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   inventory_usage: {
     type: 'inventory_usage',
     name: 'Inventory Usage Report',
+    nameKey: 'common.reports.definitions.inventory_usage.name',
     description: 'Issued parts, values, category mix, daily trends, work orders, and technicians.',
+    descriptionKey: 'common.reports.definitions.inventory_usage.description',
     category: 'inventory',
     icon: 'PackageOpen',
     supportsPdf: true,
@@ -106,7 +123,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   low_stock_alert: {
     type: 'low_stock_alert',
     name: 'Low Stock Alert Report',
+    nameKey: 'common.reports.definitions.low_stock_alert.name',
     description: 'Parts below minimum level, out-of-stock items, supplier lead times, and deficits.',
+    descriptionKey: 'common.reports.definitions.low_stock_alert.description',
     category: 'inventory',
     icon: 'BellRing',
     supportsPdf: true,
@@ -120,7 +139,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   inventory_listing: {
     type: 'inventory_listing',
     name: 'Inventory Listing Report',
+    nameKey: 'common.reports.definitions.inventory_listing.name',
     description: 'All current inventory items with stock levels, cost, supplier, and location details.',
+    descriptionKey: 'common.reports.definitions.inventory_listing.description',
     category: 'inventory',
     icon: 'Package',
     supportsPdf: true,
@@ -134,7 +155,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   pm_compliance: {
     type: 'pm_compliance',
     name: 'PM Compliance Report',
+    nameKey: 'common.reports.definitions.pm_compliance.name',
     description: 'Scheduled PM completion, missed tasks, machine and technician compliance pivots.',
+    descriptionKey: 'common.reports.definitions.pm_compliance.description',
     category: 'compliance',
     icon: 'CalendarCheck2',
     supportsPdf: true,
@@ -146,7 +169,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   training_compliance: {
     type: 'training_compliance',
     name: 'Training Compliance Report',
+    nameKey: 'common.reports.definitions.training_compliance.name',
     description: 'Per-person training coverage across employee and trainee-programme training, with marks.',
+    descriptionKey: 'common.reports.definitions.training_compliance.description',
     category: 'compliance',
     icon: 'GraduationCap',
     supportsPdf: true,
@@ -160,7 +185,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   sla_compliance: {
     type: 'sla_compliance',
     name: 'SLA Compliance Report',
+    nameKey: 'common.reports.definitions.sla_compliance.name',
     description: 'SLA performance by severity, trends, breach detail, department and machine pivots.',
+    descriptionKey: 'common.reports.definitions.sla_compliance.description',
     category: 'compliance',
     icon: 'TimerReset',
     supportsPdf: true,
@@ -172,7 +199,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   shift_handover_summary: {
     type: 'shift_handover_summary',
     name: 'Shift Handover Summary',
+    nameKey: 'common.reports.definitions.shift_handover_summary.name',
     description: 'Shift acceptance, overlap, watch flags, open work, safety incidents, and notes.',
+    descriptionKey: 'common.reports.definitions.shift_handover_summary.description',
     category: 'work_orders',
     icon: 'RefreshCw',
     supportsPdf: true,
@@ -184,7 +213,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   downtime_analysis: {
     type: 'downtime_analysis',
     name: 'Downtime Analysis Report',
+    nameKey: 'common.reports.definitions.downtime_analysis.name',
     description: 'Per-WO downtime (created to signed off) by machine, location, and day of the week.',
+    descriptionKey: 'common.reports.definitions.downtime_analysis.description',
     category: 'breakdowns',
     icon: 'TrendingDown',
     supportsPdf: true,
@@ -196,7 +227,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   executive_monthly: {
     type: 'executive_monthly',
     name: 'Executive Monthly Report',
+    nameKey: 'common.reports.definitions.executive_monthly.name',
     description: 'Board-ready monthly maintenance narrative, KPI trends, costs, risks, and actions.',
+    descriptionKey: 'common.reports.definitions.executive_monthly.description',
     category: 'executive',
     icon: 'Presentation',
     supportsPdf: true,
@@ -208,7 +241,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   audit_trail: {
     type: 'audit_trail',
     name: 'Audit Trail Report',
+    nameKey: 'common.reports.definitions.audit_trail.name',
     description: 'Completed Audit module sessions with category, scope, participants, and marks.',
+    descriptionKey: 'common.reports.definitions.audit_trail.description',
     category: 'compliance',
     icon: 'FileClock',
     supportsPdf: true,
@@ -220,7 +255,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   po_history: {
     type: 'po_history',
     name: 'PO History Report',
+    nameKey: 'common.reports.definitions.po_history.name',
     description: 'Purchase order register with supplier, parts, invoice-final pricing, dates, and progress.',
+    descriptionKey: 'common.reports.definitions.po_history.description',
     category: 'inventory',
     icon: 'ReceiptText',
     supportsPdf: true,
@@ -232,7 +269,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   safety_incidents: {
     type: 'safety_incidents',
     name: 'Safety Incidents Report',
+    nameKey: 'common.reports.definitions.safety_incidents.name',
     description: 'Register of safety cases — incidents, near-misses, hazards and unsafe acts reported across the plant.',
+    descriptionKey: 'common.reports.definitions.safety_incidents.description',
     category: 'compliance',
     icon: 'ShieldAlert',
     supportsPdf: true,
@@ -244,7 +283,9 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
   work_permit_history: {
     type: 'work_permit_history',
     name: 'Work Permit History Report',
+    nameKey: 'common.reports.definitions.work_permit_history.name',
     description: 'Permit-to-Work register — category, validity window, precautions, sign-off outcome and who issued each permit.',
+    descriptionKey: 'common.reports.definitions.work_permit_history.description',
     category: 'compliance',
     icon: 'HardHat',
     supportsPdf: true,
@@ -261,3 +302,19 @@ export const REPORT_DEFINITIONS: Record<ReportType, ReportDefinition> = {
 export const REPORT_LIST = Object.values(REPORT_DEFINITIONS).filter(
   (r) => r.type !== 'executive_monthly',
 );
+
+/**
+ * Resolves a report's display name. Pass `t` (from `useTranslation()`) to
+ * get the translated name; omit it (non-component callers with no `t` on
+ * hand, e.g. deep export/service helpers) to fall back to the English
+ * `name` text — same optional-`t` shape as `buildRange` in
+ * MoeMachineFilter.tsx.
+ */
+export function getReportName(def: ReportDefinition, t?: TFunction): string {
+  return t ? t(def.nameKey, { defaultValue: def.name }) : def.name;
+}
+
+/** Same as `getReportName`, for the report's description. */
+export function getReportDescription(def: ReportDefinition, t?: TFunction): string {
+  return t ? t(def.descriptionKey, { defaultValue: def.description }) : def.description;
+}

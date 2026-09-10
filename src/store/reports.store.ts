@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { TFunction } from 'i18next';
 import { useAuthStore } from './authStore';
 import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
 import { resolveQuickDateRange } from '../utils/reports/dateRangeUtils';
@@ -59,8 +60,8 @@ interface ReportsStore {
   closeConfigPanel: () => void;
   updateConfig: (updates: Partial<ReportConfig>) => void;
   resetConfig: () => void;
-  generatePdf: () => Promise<void>;
-  exportExcel: () => Promise<void>;
+  generatePdf: (t?: TFunction) => Promise<void>;
+  exportExcel: (t?: TFunction) => Promise<void>;
   fetchReportHistory: () => Promise<void>;
   deleteReportHistory: (reportId: string) => Promise<void>;
   updateHistoryFilters: (updates: Partial<ReportHistoryFilters>) => void;
@@ -107,7 +108,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
   resetConfig: () => set({ config: defaultConfig }),
   updateHistoryFilters: (updates) => set((state) => ({ historyFilters: { ...state.historyFilters, ...updates } })),
 
-  generatePdf: async () => {
+  generatePdf: async (t) => {
     const { selectedReportType, config } = get();
     const { companyId, userId } = getAuthContext();
     if (!selectedReportType || !companyId) {
@@ -132,7 +133,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
       const { userName } = getAuthContext();
       set({ generationStatus: 'building', generationProgress: 60 });
       // Generate the PDF entirely on the client and trigger the download.
-      const rowCount = await exportGenericReportPdf(selectedReportType, companyId, config);
+      const rowCount = await exportGenericReportPdf(selectedReportType, companyId, config, t);
       set({ generationStatus: 'finalizing', generationProgress: 85 });
       const reportId = await createReportHistory({
         companyId,
@@ -142,7 +143,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
         format: 'pdf',
         config,
         rowCount,
-      });
+      }, t);
       set({
         generationStatus: 'ready',
         generationProgress: 100,
@@ -157,7 +158,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
     }
   },
 
-  exportExcel: async () => {
+  exportExcel: async (t) => {
     const { selectedReportType, config } = get();
     const { companyId, userId, userName } = getAuthContext();
     if (!selectedReportType || !companyId) return;
@@ -168,7 +169,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
 
     set({ generationStatus: 'fetching_data', generationProgress: 30, generationError: null });
     try {
-      const rowCount = await exportGenericReportExcel(selectedReportType, companyId, config);
+      const rowCount = await exportGenericReportExcel(selectedReportType, companyId, config, t);
       const reportId = await createReportHistory({
         companyId,
         reportType: selectedReportType,
@@ -177,7 +178,7 @@ export const useReportsStore = create<ReportsStore>((set, get) => ({
         format: 'excel',
         config,
         rowCount,
-      });
+      }, t);
       set({
         generationStatus: 'ready',
         generationProgress: 100,

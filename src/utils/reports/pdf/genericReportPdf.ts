@@ -4,7 +4,8 @@ import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
 import { imageFormatFromDataUrl, resolveCompanyLogoDataUrl } from '../../../lib/pdf/logoUtils';
-import { REPORT_DEFINITIONS } from '../reportDefinitions';
+import type { TFunction } from 'i18next';
+import { REPORT_DEFINITIONS, getReportName } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
 import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '../../../services/reports.service';
 import type { ReportConfig, ReportType } from '../../../types/reports.types';
@@ -119,8 +120,10 @@ export async function exportGenericReportPdf(
   reportType: ReportType,
   companyId: string,
   config: ReportConfig,
+  t?: TFunction,
 ): Promise<number> {
   const definition = REPORT_DEFINITIONS[reportType];
+  const reportName = getReportName(definition, t);
   const rows = await fetchReportRows(reportType, companyId, config);
 
   // Machine History leads with the machine's profile, so pull it up-front.
@@ -170,7 +173,7 @@ export async function exportGenericReportPdf(
 
   const titleY = headerRuleY + 24;
   doc.setFontSize(16);
-  doc.text(definition.name, 40, titleY);
+  doc.text(reportName, 40, titleY);
   doc.setFontSize(10);
   doc.setTextColor(120);
   doc.text(`Date range: ${dateRangeLabel(config.dateFrom, config.dateTo)}`, 40, titleY + 18);
@@ -222,7 +225,7 @@ export async function exportGenericReportPdf(
     doc.setFontSize(12);
     doc.text('No records matched this report configuration.', 40, cursorY + 20);
   } else {
-    const allColumns = resolveColumns(reportType, rows);
+    const allColumns = resolveColumns(reportType, rows, t);
 
     // Optional charts. A few reports get purpose-built charts; everything else
     // falls back to the single best-fit categorical distribution.
@@ -409,7 +412,7 @@ export async function exportGenericReportPdf(
     }
   }
 
-  const filename = `FirmiCore_${definition.name}_${dateRangeLabel(config.dateFrom, config.dateTo)}.pdf`.replace(
+  const filename = `FirmiCore_${reportName}_${dateRangeLabel(config.dateFrom, config.dateTo)}.pdf`.replace(
     /[^a-zA-Z0-9_.-]/g,
     '_',
   );

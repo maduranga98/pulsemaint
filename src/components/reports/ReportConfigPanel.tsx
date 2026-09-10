@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { FileSpreadsheet, FileText, X } from 'lucide-react';
-import { REPORT_DEFINITIONS } from '../../utils/reports/reportDefinitions';
+import { REPORT_DEFINITIONS, getReportName } from '../../utils/reports/reportDefinitions';
 import { useReportGeneration } from '../../hooks/reports/useReportGeneration';
 import { useReportsStore } from '../../store/reports.store';
 import DateRangeSelector from './config/DateRangeSelector';
@@ -14,6 +15,7 @@ import ReportPreview from './ReportPreview';
 import { useAuthStore } from '../../store/authStore';
 
 export default function ReportConfigPanel() {
+  const { t } = useTranslation();
   const selectedReportType = useReportsStore((state) => state.selectedReportType);
   const isOpen = useReportsStore((state) => state.isConfigPanelOpen);
   const close = useReportsStore((state) => state.closeConfigPanel);
@@ -29,8 +31,8 @@ export default function ReportConfigPanel() {
   // the footer must act on that single selection instead of listing the
   // same PDF/Excel options again as separate buttons.
   const formatSupported = config.outputFormat === 'pdf' ? report.supportsPdf : report.supportsExcel;
-  const generateForSelectedFormat = config.outputFormat === 'pdf' ? generatePdf : exportExcel;
-  const formatLabel = config.outputFormat === 'pdf' ? 'PDF' : 'Excel';
+  const generateForSelectedFormat = () => (config.outputFormat === 'pdf' ? generatePdf(t) : exportExcel(t));
+  const formatLabel = config.outputFormat === 'pdf' ? t('common.reports.config.outputFormatToggle.pdf') : t('common.reports.config.outputFormatToggle.excel');
   const FormatIcon = config.outputFormat === 'pdf' ? FileText : FileSpreadsheet;
 
   return (
@@ -39,10 +41,10 @@ export default function ReportConfigPanel() {
         <div className="mx-auto mt-3 h-1.5 w-12 rounded-full bg-[#1E3A5F] sm:hidden" />
         <header className="flex items-start justify-between gap-3 border-b border-[#1E3A5F] p-5">
           <div>
-            <h2 className=" text-lg font-bold text-[#F0F4F8]">{report.name}</h2>
-            <p className="mt-1 text-sm text-[#8BA3BF]">Estimated generation: {report.estimatedGenerationSecs}s</p>
+            <h2 className=" text-lg font-bold text-[#F0F4F8]">{getReportName(report, t)}</h2>
+            <p className="mt-1 text-sm text-[#8BA3BF]">{t('common.reports.configPanel.estimatedGeneration', { seconds: report.estimatedGenerationSecs })}</p>
           </div>
-          <button type="button" onClick={close} className="flex h-11 w-11 items-center justify-center rounded-lg text-[#8BA3BF] hover:bg-[#0A1628] hover:text-[#F0F4F8]" aria-label="Close report panel">
+          <button type="button" onClick={close} className="flex h-11 w-11 items-center justify-center rounded-lg text-[#8BA3BF] hover:bg-[#0A1628] hover:text-[#F0F4F8]" aria-label={t('common.reports.configPanel.closeAriaLabel')}>
             <X className="h-5 w-5" />
           </button>
         </header>
@@ -50,9 +52,9 @@ export default function ReportConfigPanel() {
         <div className="flex-1 space-y-5 overflow-y-auto p-5">
           {report.supportsDateRange === false ? (
             <section className="space-y-1 border-b border-[#1E3A5F] pb-5">
-              <h3 className=" text-sm font-semibold text-[#F0F4F8]">Date Range</h3>
+              <h3 className=" text-sm font-semibold text-[#F0F4F8]">{t('common.reports.configPanel.dateRangeTitle')}</h3>
               <p className="text-xs text-[#8BA3BF]">
-                This report reflects current data, not a date window — the date range filter doesn't apply here.
+                {t('common.reports.configPanel.dateRangeUnsupportedNote')}
               </p>
             </section>
           ) : (
@@ -80,7 +82,7 @@ export default function ReportConfigPanel() {
             className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#1A56DB] px-3 text-sm font-semibold text-white transition hover:bg-[#1D64F2] disabled:opacity-50"
           >
             <FormatIcon className="h-4 w-4" />
-            {isGenerating ? 'Generating…' : `Generate ${formatLabel}`}
+            {isGenerating ? t('common.reports.configPanel.actions.generating') : t('common.reports.configPanel.actions.generateFormat', { format: formatLabel })}
           </button>
         </footer>
       </aside>

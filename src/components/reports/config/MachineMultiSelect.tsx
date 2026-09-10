@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
@@ -10,6 +11,7 @@ import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelec
  * scoped by siteId (which falls back to companyId for single-site tenants).
  */
 export default function MachineMultiSelect({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,11 +56,11 @@ export default function MachineMultiSelect({ values, onChange }: { values: strin
 
   return (
     <SearchableMultiSelect
-      label="Machine"
+      label={t('common.reports.config.machineMultiSelect.label')}
       options={options}
       values={values}
       onChange={onChange}
-      placeholder="Search machines…"
+      placeholder={t('common.reports.config.machineMultiSelect.placeholder')}
       loading={loading}
     />
   );

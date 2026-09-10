@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useContractors } from '../../../hooks/contractors/useContractors';
 import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelect';
 
@@ -8,6 +9,7 @@ import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelec
  * instead of free-typed company names.
  */
 export default function ContractorMultiSelect({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
+  const { t } = useTranslation();
   const { contractors, loading } = useContractors();
 
   const options: SelectOption[] = useMemo(
@@ -24,11 +26,11 @@ export default function ContractorMultiSelect({ values, onChange }: { values: st
 
   return (
     <SearchableMultiSelect
-      label="Contractor"
+      label={t('common.reports.config.contractorMultiSelect.label')}
       options={options}
       values={values}
       onChange={onChange}
-      placeholder="Search contractors…"
+      placeholder={t('common.reports.config.contractorMultiSelect.placeholder')}
       loading={loading}
     />
   );

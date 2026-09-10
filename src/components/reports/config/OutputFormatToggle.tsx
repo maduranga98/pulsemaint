@@ -1,9 +1,5 @@
+import { useTranslation } from 'react-i18next';
 import type { ExportFormat, ReportDefinition, ReportConfig } from '../../../types/reports.types';
-
-const options: { value: ExportFormat; label: string }[] = [
-  { value: 'pdf', label: 'PDF' },
-  { value: 'excel', label: 'Excel (.xlsx)' },
-];
 
 export default function OutputFormatToggle({
   report,
@@ -14,12 +10,17 @@ export default function OutputFormatToggle({
   config: ReportConfig;
   onChange: (updates: Partial<ReportConfig>) => void;
 }) {
+  const { t } = useTranslation();
+  const options: { value: ExportFormat; label: string }[] = [
+    { value: 'pdf', label: t('common.reports.config.outputFormatToggle.pdf') },
+    { value: 'excel', label: t('common.reports.config.outputFormatToggle.excel') },
+  ];
   const supported = (format: ExportFormat) =>
     format === 'pdf' ? report.supportsPdf : report.supportsExcel;
 
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">
-      <h3 className=" text-sm font-semibold text-[#F0F4F8]">Output Format</h3>
+      <h3 className=" text-sm font-semibold text-[#F0F4F8]">{t('common.reports.config.outputFormatToggle.title')}</h3>
       <div className="grid gap-2">
         {options.map((option) => (
           <button
