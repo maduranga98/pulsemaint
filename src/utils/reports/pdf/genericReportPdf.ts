@@ -5,14 +5,14 @@ import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
 import { imageFormatFromDataUrl, resolveCompanyLogoDataUrl } from '../../../lib/pdf/logoUtils';
 import type { TFunction } from 'i18next';
-import { REPORT_DEFINITIONS } from '../reportDefinitions';
+import { REPORT_DEFINITIONS, getReportName } from '../reportDefinitions';
 import { dateRangeLabel } from '../dateRangeUtils';
 import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '../../../services/reports.service';
 import type { ReportConfig, ReportType } from '../../../types/reports.types';
 import { resolveColumns, formatCell } from '../reportColumns';
 import type { ReportColumn } from '../reportColumns';
 import { renderBarChart, type ChartDatum } from './chartRenderer';
-import { registerUnicodeFont } from './pdfFonts';
+import { registerUnicodeFont, pdfSafeText } from './pdfFonts';
 import {
   topHealthScores,
   totalCostByWoType,
@@ -35,6 +35,7 @@ const CATEGORY_KEYS = [
 function buildChartData(
   columns: ReportColumn[],
   rows: Record<string, unknown>[],
+  t?: TFunction,
 ): { title: string; data: ChartDatum[] } | null {
   const candidates = columns.filter(
     (c) => CATEGORY_KEYS.includes(c.key) && (!c.format || c.format === 'text'),
@@ -52,7 +53,16 @@ function buildChartData(
         .map(([label, value]) => ({ label, value }))
         .sort((a, b) => b.value - a.value)
         .slice(0, 8);
-      return { title: `${col.label} distribution`, data };
+      const fallbackTemplate = '{{column}} distribution';
+      // Interpolated by hand (not via i18next options) so a `{{column}}`
+      // placeholder is always filled in even on a raw/defaultValue string —
+      // see the `tr` helper in exportGenericReportPdf for why.
+      const interpolate = (template: string) => template.replace('{{column}}', col.label);
+      const translated = t
+        ? t('common.reports.pdf.charts.distribution', { defaultValue: fallbackTemplate })
+        : fallbackTemplate;
+      const title = pdfSafeText(interpolate(translated), interpolate(fallbackTemplate));
+      return { title, data };
     }
   }
   return null;
@@ -121,23 +131,28 @@ export async function exportGenericReportPdf(
   reportType: ReportType,
   companyId: string,
   config: ReportConfig,
-  // Accepted for signature compatibility with callers that pass the current
-  // i18next TFunction, but deliberately unused for the PDF's own text: the
-  // exported file always renders in English regardless of the active app
-  // language — see `tr` below for why.
-  _t?: TFunction,
+  t?: TFunction,
 ): Promise<number> {
   const definition = REPORT_DEFINITIONS[reportType];
-  const reportName = definition.name;
+  const reportNameRaw = getReportName(definition, t);
+  const reportName = pdfSafeText(reportNameRaw, definition.name);
   const rows = await fetchReportRows(reportType, companyId, config);
 
-  // The PDF is a fixed, downloadable/printable artifact that gets shared and
-  // archived outside the app — unlike the live UI, it always renders in
-  // English regardless of the viewer's selected language, so its content
-  // stays consistent and legible no matter who opens it later. `fallback`
-  // may contain `{{name}}`-style placeholders, filled in from `vars`.
-  const tr = (fallback: string, vars?: Record<string, unknown>): string =>
-    vars ? fallback.replace(/\{\{(\w+)\}\}/g, (_m, key: string) => String(vars[key] ?? '')) : fallback;
+  // `{{var}}`-style placeholders are always filled in by hand here — never
+  // handed to i18next as translation options. i18next treats a `count`
+  // option as a plural-form selector, which silently breaks defaultValue
+  // interpolation for a key like `generatedSummary` below; substituting the
+  // vars ourselves, on both the translated string and the fallback, sidesteps
+  // that entirely and guarantees the placeholder is filled either way.
+  // `pdfSafeText` then falls back to the (now also interpolated) English text
+  // if the translation contains glyphs the embedded PDF font can't render
+  // (e.g. CJK) — see pdfFonts.ts.
+  const interpolate = (template: string, vars?: Record<string, unknown>): string =>
+    vars ? template.replace(/\{\{(\w+)\}\}/g, (_m, key: string) => String(vars[key] ?? '')) : template;
+  const tr = (key: string, fallback: string, vars?: Record<string, unknown>): string => {
+    const translated = t ? t(key, { defaultValue: fallback }) : fallback;
+    return pdfSafeText(interpolate(translated, vars), interpolate(fallback, vars));
+  };
 
   // Machine History leads with the machine's profile, so pull it up-front.
   const machineProfile =
@@ -191,12 +206,12 @@ export async function exportGenericReportPdf(
   doc.setFontSize(10);
   doc.setTextColor(120);
   doc.text(
-    tr('Date range: {{range}}', { range: dateRangeLabel(config.dateFrom, config.dateTo) }),
+    tr('common.reports.pdf.dateRange', 'Date range: {{range}}', { range: dateRangeLabel(config.dateFrom, config.dateTo) }),
     40,
     titleY + 18,
   );
   doc.text(
-    tr('Generated: {{generatedAt}}  ·  {{count}} record(s)', {
+    tr('common.reports.pdf.generatedSummary', 'Generated: {{generatedAt}}  ·  {{count}} record(s)', {
       generatedAt: new Date().toLocaleString(),
       count: rows.length,
     }),
@@ -210,7 +225,7 @@ export async function exportGenericReportPdf(
   // Renders the machine profile as a two-column key/value block.
   const renderProfile = (profile: MachineProfileField[]) => {
     doc.setFontSize(12);
-    doc.text(tr('Machine Profile'), 40, cursorY);
+    doc.text(tr('common.reports.pdf.machineProfile', 'Machine Profile'), 40, cursorY);
     cursorY += 8;
     autoTable(doc, {
       body: profile.map((f) => [f.label, f.value]),
@@ -249,19 +264,19 @@ export async function exportGenericReportPdf(
   if (rows.length === 0) {
     doc.setFontSize(12);
     doc.text(
-      tr('No records matched this report configuration.'),
+      tr('common.reports.pdf.noRecords', 'No records matched this report configuration.'),
       40,
       cursorY + 20,
     );
   } else {
-    const allColumns = resolveColumns(reportType, rows);
+    const allColumns = resolveColumns(reportType, rows, t);
 
     // Optional charts. A few reports get purpose-built charts; everything else
     // falls back to the single best-fit categorical distribution.
     if (config.includeCharts) {
       if (reportType === 'breakdown_summary') {
         // Breakdown counts by type.
-        renderChart(tr('Breakdown counts by type'), countBy(rows, 'type'));
+        renderChart(tr('common.reports.pdf.charts.breakdownByType', 'Breakdown counts by type'), countBy(rows, 'type'));
       } else if (reportType === 'machine_history') {
         // Machine History is table/details only — no chart for this report.
       } else if (reportType === 'machine_health_score') {
@@ -270,24 +285,24 @@ export async function exportGenericReportPdf(
           rows.map((r) => ({ machineName: String(r.machineName ?? ''), healthScore: Number(r.healthScore ?? 0) })),
           5,
         );
-        renderChart(tr('Top 5 Machines by Health Score'), top5, true);
+        renderChart(tr('common.reports.pdf.charts.topMachinesByHealth', 'Top 5 Machines by Health Score'), top5, true);
       } else if (reportType === 'maintenance_cost') {
         // Total cost summed by WO type.
-        renderChart(tr('Total Cost vs WO Type'), totalCostByWoType(rows), true);
+        renderChart(tr('common.reports.pdf.charts.totalCostVsWoType', 'Total Cost vs WO Type'), totalCostByWoType(rows), true);
       } else if (reportType === 'contractor_performance') {
         // Contractor vs Rating.
         const data = rows
           .filter((r) => r.rating != null && r.rating !== '')
           .map((r) => ({ label: String(r.contractorName ?? ''), value: Number(r.rating ?? 0) }));
-        renderChart(tr('Contractor vs Rating'), data, true);
+        renderChart(tr('common.reports.pdf.charts.contractorVsRating', 'Contractor vs Rating'), data, true);
       } else if (reportType === 'inventory_usage') {
         // Stock-status snapshot of the current parts catalogue (not derived
         // from the movement rows themselves — see fetchInventoryStockStatusChart).
         const data = await fetchInventoryStockStatusChart(companyId);
-        renderChart(tr('Stock Status (Low / Out / In Stock)'), data, true);
+        renderChart(tr('common.reports.pdf.charts.stockStatus', 'Stock Status (Low / Out / In Stock)'), data, true);
       } else if (reportType === 'inventory_listing') {
         renderChart(
-          tr('Stock Status (Low / Out / In Stock)'),
+          tr('common.reports.pdf.charts.stockStatus', 'Stock Status (Low / Out / In Stock)'),
           computeStockStatusBuckets(rows as unknown as { isLowStock?: boolean; currentStock?: number }[]),
           true,
         );
@@ -307,15 +322,15 @@ export async function exportGenericReportPdf(
           byMonth.set(key, (byMonth.get(key) ?? 0) + 1);
         });
         const data = Array.from(byMonth.entries()).map(([label, value]) => ({ label, value }));
-        renderChart(tr('Low Stock Alerts by Month'), data);
+        renderChart(tr('common.reports.pdf.charts.lowStockByMonth', 'Low Stock Alerts by Month'), data);
       } else if (reportType === 'training_compliance') {
-        renderChart(tr('Trainings Completed by Role'), sumByKey(rows, 'role', 'trainingsCompleted'), true);
+        renderChart(tr('common.reports.pdf.charts.trainingsByRole', 'Trainings Completed by Role'), sumByKey(rows, 'role', 'trainingsCompleted'), true);
       } else if (reportType === 'shift_handover_summary') {
         // One chart: how many people were late vs on time. The minute-bucket
         // breakdown was dropped — the report is asked "how many were late",
         // not "how late were they".
         const lateRows = rows.map((r) => ({ lateMinutes: Number(r.lateByMinutes ?? 0) }));
-        renderChart(tr('Late vs On-Time (count of people)'), lateVsOnTimeCounts(lateRows), true);
+        renderChart(tr('common.reports.pdf.charts.lateVsOnTime', 'Late vs On-Time (count of people)'), lateVsOnTimeCounts(lateRows), true);
       } else if (reportType === 'downtime_analysis') {
         const data = downtimeByWeekday(
           rows.map((r) => ({
@@ -325,9 +340,9 @@ export async function exportGenericReportPdf(
             downtimeMinutes: Number(r.downtimeMinutes ?? 0),
           })),
         );
-        renderChart(tr('Downtime vs Day of Week'), data, true);
+        renderChart(tr('common.reports.pdf.charts.downtimeByWeekday', 'Downtime vs Day of Week'), data, true);
       } else if (reportType === 'audit_trail') {
-        renderChart(tr('Completed Audits by Category'), countBy(rows, 'categoryLabel'));
+        renderChart(tr('common.reports.pdf.charts.auditsByCategory', 'Completed Audits by Category'), countBy(rows, 'categoryLabel'));
       } else if (reportType === 'technician_performance') {
         // Top 5 Employees vs Total Marks of all performances (Evaluation
         // Score + Audit Score + Quizzes Passed — see topByTotalMarks).
@@ -340,9 +355,9 @@ export async function exportGenericReportPdf(
           })),
           5,
         );
-        renderChart(tr('Top 5 Employees vs Total Marks of All Performances'), top5, true);
+        renderChart(tr('common.reports.pdf.charts.topEmployeesByMarks', 'Top 5 Employees vs Total Marks of All Performances'), top5, true);
       } else {
-        const chart = buildChartData(allColumns, rows);
+        const chart = buildChartData(allColumns, rows, t);
         if (chart) renderChart(chart.title, chart.data);
       }
     }
@@ -372,7 +387,7 @@ export async function exportGenericReportPdf(
       );
       const groups: { machineName: string; department: string; rows: Record<string, unknown>[] }[] = [];
       for (const row of rows) {
-        const machineName = String(row.machineName ?? tr('Unknown Machine'));
+        const machineName = String(row.machineName ?? tr('common.reports.pdf.unknownMachine', 'Unknown Machine'));
         const last = groups[groups.length - 1];
         if (last && last.machineName === machineName) {
           last.rows.push(row);
@@ -405,14 +420,14 @@ export async function exportGenericReportPdf(
           doc.setFontSize(10);
           doc.setTextColor(30, 64, 175);
           doc.text(
-            tr('Ticket {{number}}', { number: String(row.ticketNumber ?? '') }),
+            tr('common.reports.pdf.ticketLabel', 'Ticket {{number}}', { number: String(row.ticketNumber ?? '') }),
             50,
             cursorY,
           );
           doc.setTextColor(0);
           cursorY += 6;
 
-          const emptyCellPlaceholder = tr('—');
+          const emptyCellPlaceholder = tr('common.reports.pdf.emptyCell', '—');
           const body = perTicketColumns.map((c) => [c.label, String(formatCell(row[c.key], c.format) || emptyCellPlaceholder)]);
           autoTable(doc, {
             body,
