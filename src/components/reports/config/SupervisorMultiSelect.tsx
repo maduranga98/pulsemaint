@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
@@ -9,6 +10,7 @@ import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelec
  * (companies/{companyId}/users), instead of free-typed names.
  */
 export default function SupervisorMultiSelect({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,11 +50,11 @@ export default function SupervisorMultiSelect({ values, onChange }: { values: st
 
   return (
     <SearchableMultiSelect
-      label="Supervisor"
+      label={t('common.reports.config.supervisorMultiSelect.label')}
       options={options}
       values={values}
       onChange={onChange}
-      placeholder="Search supervisors…"
+      placeholder={t('common.reports.config.supervisorMultiSelect.placeholder')}
       loading={loading}
     />
   );

@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle } from 'lucide-react';
 
 export default function GenerationErrorState({ message, onRetry }: { message: string | null; onRetry: () => void }) {
+  const { t } = useTranslation();
   if (!message) return null;
 
   return (
@@ -10,7 +12,7 @@ export default function GenerationErrorState({ message, onRetry }: { message: st
         <div className="flex-1">
           <p className="text-sm font-semibold text-[#FCA5A5]">{message}</p>
           <button type="button" onClick={onRetry} className="mt-2 min-h-10 rounded-lg border border-[#EF4444]/40 px-3 text-xs font-semibold text-[#FECACA]">
-            Retry
+            {t('common.reports.generation.errorState.retry')}
           </button>
         </div>
       </div>

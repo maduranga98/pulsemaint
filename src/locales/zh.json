@@ -6631,6 +6631,548 @@
         "departmentCriticality": "{{department}} · 关键度 {{criticality}}",
         "criticalBadge": "关键"
       }
+    },
+    "reports": {
+      "hubPage": {
+        "title": "报表",
+        "subtitle": "生成、导出和安排运营报表",
+        "noResults": "没有与搜索条件匹配的报表。"
+      },
+      "historyPage": {
+        "backToReports": "返回报表",
+        "title": "报表历史",
+        "subtitle": "下载、分享和管理已生成的报表记录",
+        "loading": "正在加载报表历史...",
+        "empty": "暂无已生成的报表。"
+      },
+      "categoryTabs": {
+        "all": "全部",
+        "breakdowns": "故障",
+        "work_orders": "工单",
+        "machines": "设备",
+        "inventory": "库存",
+        "people": "人员",
+        "compliance": "合规",
+        "financial": "财务",
+        "executive": "管理层"
+      },
+      "card": {
+        "actions": {
+          "generate": "生成"
+        }
+      },
+      "searchBar": {
+        "placeholder": "搜索报表"
+      },
+      "configPanel": {
+        "estimatedGeneration": "预计生成时间：{{seconds}} 秒",
+        "closeAriaLabel": "关闭报表面板",
+        "dateRangeTitle": "日期范围",
+        "dateRangeUnsupportedNote": "此报表反映的是当前数据，而非某个时间段的数据——日期范围筛选在此不适用。",
+        "actions": {
+          "generating": "正在生成…",
+          "generateFormat": "生成 {{format}}"
+        }
+      },
+      "preview": {
+        "title": "报表预览",
+        "recordCount_one": "{{count}} 条记录",
+        "recordCount_other": "{{count}} 条记录",
+        "loading": "正在加载预览…",
+        "errors": {
+          "loadFailed": "预览加载失败"
+        },
+        "empty": "没有符合所选筛选条件的记录。",
+        "showingFirst": "显示前 {{shown}} 条，共 {{total}} 条记录。导出以查看全部。"
+      },
+      "config": {
+        "enums": {
+          "severity": {
+            "critical": "严重",
+            "high": "高",
+            "medium": "中",
+            "low": "低"
+          },
+          "shift": {
+            "morning": "早班",
+            "afternoon": "中班",
+            "night": "夜班"
+          },
+          "trainingStatus": {
+            "certified": "已认证",
+            "expiring": "即将过期",
+            "expired": "已过期",
+            "inProgress": "进行中"
+          },
+          "trainingType": {
+            "safetyTraining": "安全培训",
+            "generalTraining": "通用培训"
+          },
+          "slaStatus": {
+            "within": "在SLA内",
+            "atRisk": "有风险",
+            "breached": "已违反"
+          },
+          "woType": {
+            "breakdown": "故障",
+            "corrective": "纠正性",
+            "preventive": "预防性",
+            "installation": "安装",
+            "modification": "改造",
+            "inspection": "检查",
+            "contractor": "承包商",
+            "other": "其他"
+          },
+          "breakdownType": {
+            "mechanical": "机械",
+            "electrical": "电气",
+            "hydraulic": "液压",
+            "pneumatic": "气动",
+            "software": "软件",
+            "other": "其他"
+          },
+          "partCategory": {
+            "electrical": "电气",
+            "mechanical": "机械",
+            "hydraulic": "液压",
+            "pneumatic": "气动",
+            "automation": "自动化",
+            "civil": "土建"
+          }
+        },
+        "dateRangeSelector": {
+          "title": "日期范围",
+          "from": "从",
+          "to": "到",
+          "ranges": {
+            "today": "今天",
+            "yesterday": "昨天",
+            "this_week": "本周",
+            "last_week": "上周",
+            "this_month": "本月",
+            "last_month": "上月",
+            "last_3_months": "近3个月",
+            "last_6_months": "近6个月",
+            "this_year": "今年",
+            "custom": "自定义"
+          }
+        },
+        "outputFormatToggle": {
+          "title": "输出格式",
+          "pdf": "PDF",
+          "excel": "Excel（.xlsx）"
+        },
+        "pdfOptionsSection": {
+          "title": "PDF 选项",
+          "includeCharts": "包含图表",
+          "includeDataTable": "包含原始数据表",
+          "paperSize": "纸张大小",
+          "orientation": "方向",
+          "portrait": "纵向",
+          "landscape": "横向"
+        },
+        "reportFilterSection": {
+          "title": "报表筛选条件",
+          "machineHistoryWarning": "设备历史报表需要恰好选择一台设备。",
+          "noFilters": "此报表仅使用日期范围和访问范围筛选。",
+          "labels": {
+            "woType": "工单类型",
+            "breakdownType": "故障类型",
+            "partCategory": "备件类别",
+            "priority": "优先级",
+            "trainingStatus": "培训状态",
+            "trainingType": "培训类型",
+            "slaStatus": "SLA 状态"
+          },
+          "placeholders": {
+            "woType": "搜索工单类型…",
+            "breakdownType": "搜索故障类型…",
+            "partCategory": "搜索备件类别…"
+          }
+        },
+        "searchableMultiSelect": {
+          "allNoFilter": "全部（不筛选{{label}}）",
+          "selectedCount_one": "已选 {{count}} 项",
+          "selectedCount_other": "已选 {{count}} 项",
+          "removeAriaLabel": "移除 {{label}}",
+          "loading": "加载中…",
+          "noMatches": "未找到匹配项。"
+        },
+        "severityCheckboxGroup": {
+          "label": "严重程度"
+        },
+        "shiftCheckboxGroup": {
+          "label": "班次"
+        },
+        "contractorMultiSelect": {
+          "label": "承包商",
+          "placeholder": "搜索承包商…"
+        },
+        "departmentMultiSelect": {
+          "label": "部门",
+          "placeholder": "搜索部门…"
+        },
+        "machineMultiSelect": {
+          "label": "设备",
+          "placeholder": "搜索设备…"
+        },
+        "supervisorMultiSelect": {
+          "label": "主管",
+          "placeholder": "搜索主管…"
+        },
+        "technicianMultiSelect": {
+          "label": "技术员",
+          "placeholder": "搜索技术员…"
+        }
+      },
+      "generation": {
+        "errorState": {
+          "retry": "重试"
+        },
+        "statusMessage": {
+          "idle": "配置报表并选择导出操作。",
+          "fetching_data": "正在获取数据...",
+          "building": "正在生成报表...",
+          "finalizing": "正在完成 PDF...",
+          "ready": "可供下载",
+          "error": "报表生成失败"
+        },
+        "readyActions": {
+          "downloadPdf": "下载 PDF"
+        }
+      },
+      "history": {
+        "formatBadge": {},
+        "card": {
+          "generatedBy": "由 {{name}} 生成 · {{date}}",
+          "open": "打开",
+          "deleteAriaLabel": "删除历史记录条目"
+        },
+        "filterBar": {
+          "allReports": "全部报表",
+          "allFormats": "全部格式",
+          "pdf": "PDF",
+          "excel": "Excel",
+          "sheets": "Sheets",
+          "generatedByPlaceholder": "生成人"
+        },
+        "table": {
+          "columns": {
+            "reportName": "报表名称",
+            "format": "格式",
+            "generatedBy": "生成人",
+            "dateTime": "日期与时间",
+            "dateRange": "日期范围",
+            "fileSize": "文件大小",
+            "actions": "操作"
+          },
+          "dateRangeValue": "{{from}} 至 {{to}}",
+          "fileSizeMb": "{{size}} MB",
+          "noFileSize": "-",
+          "downloadAriaLabel": "下载报表",
+          "copyLinkAriaLabel": "复制分享链接",
+          "deleteAriaLabel": "删除历史记录条目"
+        },
+        "storageUsageIndicator": {
+          "summary_one": "已保存 <strong>{{count}}</strong> 份报表 · 已用 <strong>{{mb}} MB</strong>",
+          "summary_other": "已保存 <strong>{{count}}</strong> 份报表 · 已用 <strong>{{mb}} MB</strong>"
+        }
+      },
+      "shared": {
+        "formatChip": {
+          "pdf": "PDF",
+          "excel": "Excel",
+          "google_sheets": "Sheets",
+          "csv": "CSV"
+        }
+      },
+      "definitions": {
+        "breakdown_summary": {
+          "name": "故障汇总报表",
+          "description": "故障的发生频率、严重程度、MTTR、停机时长及SLA达成情况。"
+        },
+        "work_order_detail": {
+          "name": "工单明细报表",
+          "description": "完整的工单登记，包含类型、优先级、分配人员、备件、成本及状态。"
+        },
+        "machine_history": {
+          "name": "设备历史报表",
+          "description": "单台设备的完整工单历史，包含类型、日期、状态和耗时。"
+        },
+        "machine_health_score": {
+          "name": "设备健康评分报表",
+          "description": "设备群健康评分、风险分布、部门分布及六个月趋势。"
+        },
+        "maintenance_cost": {
+          "name": "维护成本报表",
+          "description": "备件、人工、承包商支出，按部门划分的成本及高成本设备。"
+        },
+        "technician_performance": {
+          "name": "团队绩效报表",
+          "description": "根据评估、快速评核成绩和培训完成情况汇总的各角色绩效。"
+        },
+        "contractor_performance": {
+          "name": "承包商绩效报表",
+          "description": "承包商积分榜、SLA达成率、一次修复率、评分、成本及发票。"
+        },
+        "inventory_usage": {
+          "name": "库存使用报表",
+          "description": "已发放备件、金额、类别构成、每日趋势、关联工单及技术员。"
+        },
+        "low_stock_alert": {
+          "name": "低库存预警报表",
+          "description": "低于最低库存水平的备件、缺货项目、供应商交货周期及缺口。"
+        },
+        "inventory_listing": {
+          "name": "库存清单报表",
+          "description": "全部当前库存项目及其库存水平、成本、供应商和存放位置。"
+        },
+        "pm_compliance": {
+          "name": "预防性维护合规报表",
+          "description": "计划性PM完成情况、漏做任务、设备及技术员合规透视表。"
+        },
+        "training_compliance": {
+          "name": "培训合规报表",
+          "description": "员工及学员培训项目中每人的培训覆盖情况及成绩。"
+        },
+        "sla_compliance": {
+          "name": "SLA 合规报表",
+          "description": "按严重程度划分的SLA达成情况、趋势、违反明细及部门/设备透视表。"
+        },
+        "shift_handover_summary": {
+          "name": "交接班汇总报表",
+          "description": "交接确认、交叠情况、关注标记、未完成工作、安全事件及备注。"
+        },
+        "downtime_analysis": {
+          "name": "停机分析报表",
+          "description": "按设备、位置及星期几统计的各工单停机时长（从创建到签核）。"
+        },
+        "executive_monthly": {
+          "name": "管理层月度报表",
+          "description": "面向董事会的月度维护叙述报告，包含关键指标趋势、成本、风险及行动计划。"
+        },
+        "audit_trail": {
+          "name": "审计追踪报表",
+          "description": "已完成的审计模块会话，包含类别、范围、参与人员及成绩。"
+        },
+        "po_history": {
+          "name": "采购单历史报表",
+          "description": "采购单登记，包含供应商、备件、发票最终价格、日期及进度。"
+        },
+        "safety_incidents": {
+          "name": "安全事件报表",
+          "description": "全厂范围内上报的安全事件登记——事故、险情、隐患和不安全行为。"
+        },
+        "work_permit_history": {
+          "name": "作业许可历史报表",
+          "description": "作业许可（Permit-to-Work）登记——类别、有效期、防护措施、签核结果及签发人。"
+        }
+      },
+      "columns": {
+        "safety_incidents": {
+          "reportedAt": "上报时间",
+          "type": "类型",
+          "title": "案例",
+          "severity": "严重程度",
+          "status": "状态",
+          "location": "位置",
+          "reportedByName": "上报人"
+        },
+        "work_permit_history": {
+          "permitNumber": "许可编号",
+          "category": "类别",
+          "title": "标题",
+          "status": "状态",
+          "validFrom": "生效日期",
+          "validTo": "失效日期",
+          "location": "位置",
+          "requestedByName": "创建人",
+          "completion": "完成情况",
+          "signedOffByName": "签核人",
+          "signedOffAt": "签核时间"
+        },
+        "breakdown_summary": {
+          "ticketNumber": "工单号",
+          "severity": "严重程度",
+          "description": "发生情况（上报）",
+          "attemptedFixes": "已尝试的修复措施",
+          "technicianFindings": "发生情况（技术员/学员）",
+          "assignedTechnicianNames": "指派技术员",
+          "woNumber": "工单编号",
+          "woAssignedTechnicianNames": "工单指派技术员",
+          "woChecklist": "检查清单（主管）",
+          "woRootCause": "根本原因分析",
+          "woPartsUsed": "已使用备件",
+          "woSignOffNotes": "签核备注",
+          "woSignedOffAt": "签核时间（工单）"
+        },
+        "sla_compliance": {
+          "ticketNumber": "工单号",
+          "machineName": "设备",
+          "severity": "严重程度",
+          "status": "状态",
+          "slaDeadline": "SLA 截止时间",
+          "slaBreached": "已违反",
+          "reportedAt": "上报时间",
+          "resolvedAt": "解决时间"
+        },
+        "downtime_analysis": {
+          "woTicket": "工单号",
+          "machineName": "设备名称",
+          "location": "位置",
+          "woType": "工单类型",
+          "createdAt": "创建日期",
+          "downtimeMinutes": "停机时长（分钟）"
+        },
+        "work_order_detail": {
+          "woNumber": "工单号",
+          "woType": "类型",
+          "priority": "优先级",
+          "status": "状态",
+          "machineName": "设备",
+          "machineDepartment": "部门",
+          "participants": "参与人员",
+          "createdByName": "创建人",
+          "supervisorSignOffByName": "签核人",
+          "createdAt": "创建时间",
+          "actualEndTime": "完成时间",
+          "supervisorSignOffAt": "签核时间"
+        },
+        "maintenance_cost": {
+          "woTicket": "工单号",
+          "woType": "工单类型",
+          "machineName": "设备",
+          "machineDepartment": "部门",
+          "totalCost": "总成本",
+          "signedOffDate": "签核日期"
+        },
+        "technician_performance": {
+          "name": "姓名",
+          "role": "角色",
+          "evaluationScore": "评估分数",
+          "auditScore": "审计分数",
+          "trainingsCompleted": "已完成培训数",
+          "quizzesPassed": "已通过测验数"
+        },
+        "contractor_performance": {
+          "contractorName": "名称",
+          "wosCompleted": "已完成工单数",
+          "rating": "评分",
+          "signedOffDate": "签核日期",
+          "signedOffByName": "签核人",
+          "totalProjectCost": "项目总成本"
+        },
+        "inventory_usage": {
+          "partNumber": "备件编号",
+          "partName": "备件",
+          "movementType": "出入库类型",
+          "quantityChange": "数量变动",
+          "quantityAfter": "变动后数量",
+          "totalCostImpact": "成本影响",
+          "workOrderNumber": "关联工单",
+          "isReturnable": "可退回",
+          "returnStatus": "退回状态",
+          "performedByName": "操作人",
+          "performedAt": "日期"
+        },
+        "low_stock_alert": {
+          "name": "备件名称",
+          "lowStockAlertDate": "收到低库存预警日期",
+          "poStatus": "状态",
+          "refilledDate": "补货日期"
+        },
+        "inventory_listing": {
+          "partNumber": "备件编号",
+          "name": "备件名称",
+          "storeLocation": "位置",
+          "category": "类别",
+          "criticality": "关键程度",
+          "status": "状态",
+          "minStockLevel": "最低库存水平",
+          "availableStock": "可用库存",
+          "unitCost": "单位成本",
+          "totalCost": "总成本"
+        },
+        "pm_compliance": {
+          "scheduleName": "计划",
+          "machineName": "设备",
+          "dueDate": "到期日",
+          "completedDate": "完成日期",
+          "status": "状态",
+          "daysOverdue": "逾期天数",
+          "technicianNames": "技术员"
+        },
+        "machine_health_score": {
+          "machineName": "设备",
+          "machineIdCode": "资产编码",
+          "department": "部门",
+          "currentStatus": "状态",
+          "healthScore": "健康评分",
+          "watchFlagLevel": "关注等级",
+          "mtbfDays": "MTBF（天）",
+          "mttrHours": "MTTR（小时）",
+          "openBreakdownCount": "未结故障数",
+          "openWoCount": "未结工单数",
+          "maintenanceCostMTD": "本月至今成本",
+          "lastServiceDate": "上次维护日期",
+          "nextPmDue": "下次PM到期"
+        },
+        "shift_handover_summary": {
+          "shiftName": "班次名称",
+          "personName": "人员",
+          "personRole": "角色",
+          "department": "部门",
+          "shiftActualStart": "实际开班时间",
+          "lateByMinutes": "迟到时长（分钟）",
+          "shiftActualEnd": "实际下班时间",
+          "otMinutes": "加班时长（分钟）",
+          "breakdownsOpened": "班内新增故障",
+          "wosOpened": "班内新增工单",
+          "watchFlagsCount": "关注标记数"
+        },
+        "training_compliance": {
+          "name": "姓名",
+          "role": "角色",
+          "trainingsAssigned": "已分配培训数",
+          "trainingsCompleted": "已完成培训数",
+          "totalMarks": "总成绩"
+        },
+        "machine_history": {
+          "machineName": "设备名称",
+          "machineType": "类型",
+          "purchaseDate": "采购日期",
+          "installationDate": "安装日期",
+          "department": "部门",
+          "location": "位置",
+          "lastServiceDate": "上次维护日期",
+          "lastServiceType": "上次维护类型",
+          "nextPmDue": "下次PM日期"
+        },
+        "executive_monthly": {
+          "metric": "指标",
+          "value": "数值"
+        },
+        "audit_trail": {
+          "date": "日期",
+          "categoryLabel": "类别",
+          "scopeDetails": "范围详情",
+          "doneBy": "执行人",
+          "participants": "参与人员",
+          "marks": "成绩"
+        },
+        "po_history": {
+          "poNumber": "采购单编号",
+          "supplierName": "供应商",
+          "itemName": "项目",
+          "quantity": "数量",
+          "unitPrice": "单价",
+          "lineTotal": "总计",
+          "status": "状态",
+          "raisedByName": "创建人",
+          "raisedAt": "日期",
+          "receivedAt": "收货日期"
+        }
+      }
     }
   },
   "triage": {

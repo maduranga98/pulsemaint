@@ -19,7 +19,8 @@ import { computeMonthlyAnalytics, computeMachineHealth } from './analyticsAggreg
 import { fetchTeamPerformanceByUser } from './teamPerformance.service';
 import { computeWoTotalCost, flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
 import { getCategoryLabel } from '../modules/audit/types/audit.types';
-import { REPORT_DEFINITIONS } from '../utils/reports/reportDefinitions';
+import type { TFunction } from 'i18next';
+import { REPORT_DEFINITIONS, getReportName } from '../utils/reports/reportDefinitions';
 import { logAuditEvent } from '../utils/reports/auditLogger';
 import type {
   AuditLog,
@@ -1130,14 +1131,15 @@ export async function createReportHistory(input: {
   rowCount?: number | null;
   googleSheetsUrl?: string | null;
   downloadUrl?: string | null;
-}): Promise<string> {
+}, t?: TFunction): Promise<string> {
   const definition = REPORT_DEFINITIONS[input.reportType];
+  const reportName = getReportName(definition, t);
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 30);
   const ref = await addDoc(collection(db, 'report_history'), {
     companyId: input.companyId,
     reportType: input.reportType,
-    reportName: definition.name,
+    reportName,
     generatedBy: input.generatedBy,
     generatedByName: input.generatedByName,
     generatedAt: serverTimestamp(),
@@ -1168,7 +1170,7 @@ export async function createReportHistory(input: {
       action: 'EXPORT',
       entityType: 'report',
       entityId: ref.id,
-      entityName: definition.name,
+      entityName: reportName,
     });
   } catch {
     /* non-blocking */

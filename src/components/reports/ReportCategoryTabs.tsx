@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import {
   LayoutGrid,
   AlertTriangle,
@@ -14,17 +16,19 @@ import type { ReportCategory } from '../../types/reports.types';
 
 export type ReportCategoryTab = ReportCategory | 'all';
 
-const tabs: { value: ReportCategoryTab; label: string; icon: LucideIcon }[] = [
-  { value: 'all', label: 'All', icon: LayoutGrid },
-  { value: 'breakdowns', label: 'Breakdowns', icon: AlertTriangle },
-  { value: 'work_orders', label: 'Work Orders', icon: ClipboardList },
-  { value: 'machines', label: 'Machines', icon: Factory },
-  { value: 'inventory', label: 'Inventory', icon: Package },
-  { value: 'people', label: 'People', icon: UsersRound },
-  { value: 'compliance', label: 'Compliance', icon: ShieldCheck },
-  { value: 'financial', label: 'Financial', icon: CircleDollarSign },
-  { value: 'executive', label: 'Executive', icon: Presentation },
-];
+function buildTabs(t: TFunction): { value: ReportCategoryTab; label: string; icon: LucideIcon }[] {
+  return [
+    { value: 'all', label: t('common.reports.categoryTabs.all'), icon: LayoutGrid },
+    { value: 'breakdowns', label: t('common.reports.categoryTabs.breakdowns'), icon: AlertTriangle },
+    { value: 'work_orders', label: t('common.reports.categoryTabs.work_orders'), icon: ClipboardList },
+    { value: 'machines', label: t('common.reports.categoryTabs.machines'), icon: Factory },
+    { value: 'inventory', label: t('common.reports.categoryTabs.inventory'), icon: Package },
+    { value: 'people', label: t('common.reports.categoryTabs.people'), icon: UsersRound },
+    { value: 'compliance', label: t('common.reports.categoryTabs.compliance'), icon: ShieldCheck },
+    { value: 'financial', label: t('common.reports.categoryTabs.financial'), icon: CircleDollarSign },
+    { value: 'executive', label: t('common.reports.categoryTabs.executive'), icon: Presentation },
+  ];
+}
 
 export default function ReportCategoryTabs({
   active,
@@ -38,6 +42,8 @@ export default function ReportCategoryTabs({
    *  exists in the hub overall. Omit to show the full fixed list. */
   availableCategories?: ReportCategory[];
 }) {
+  const { t } = useTranslation();
+  const tabs = buildTabs(t);
   const visibleTabs = availableCategories
     ? tabs.filter((t) => t.value === 'all' || availableCategories.includes(t.value as ReportCategory))
     : tabs;

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fetchReportRows } from '../../services/reports.service';
 import { resolveColumns, formatCell } from '../../utils/reports/reportColumns';
 import type { ReportConfig, ReportType } from '../../types/reports.types';
@@ -10,6 +11,7 @@ interface ReportPreviewProps {
 }
 
 export default function ReportPreview({ reportType, config, companyId }: ReportPreviewProps) {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +30,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
           setRows(data.slice(0, 8));
         })
         .catch((err) => {
-          if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load preview');
+          if (!cancelled) setError(err instanceof Error ? err.message : t('common.reports.preview.errors.loadFailed'));
         })
         .finally(() => {
           if (!cancelled) setLoading(false);
@@ -40,18 +42,18 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
     };
   }, [reportType, companyId, config]);
 
-  const columns = rows[0] ? resolveColumns(reportType, rows).slice(0, 6) : [];
+  const columns = rows[0] ? resolveColumns(reportType, rows, t).slice(0, 6) : [];
 
   return (
     <section className="space-y-2 border-b border-[#1E3A5F] pb-5">
       <div className="flex items-center justify-between">
-        <h3 className=" text-sm font-semibold text-[#F0F4F8]">Report Preview</h3>
-        {!loading && !error && <span className="text-xs text-[#8BA3BF]">{total} record(s)</span>}
+        <h3 className=" text-sm font-semibold text-[#F0F4F8]">{t('common.reports.preview.title')}</h3>
+        {!loading && !error && <span className="text-xs text-[#8BA3BF]">{t('common.reports.preview.recordCount', { count: total })}</span>}
       </div>
 
       {loading ? (
         <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-[#1E3A5F] bg-[#0A1628] text-xs text-[#8BA3BF]">
-          Loading preview…
+          {t('common.reports.preview.loading')}
         </div>
       ) : error ? (
         <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-red-500/40 bg-[#0A1628] px-3 text-center text-xs text-red-300">
@@ -59,7 +61,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
         </div>
       ) : rows.length === 0 ? (
         <div className="flex h-36 items-center justify-center rounded-lg border border-dashed border-[#1E3A5F] bg-[#0A1628] text-xs text-[#8BA3BF]">
-          No records match the selected filters.
+          {t('common.reports.preview.empty')}
         </div>
       ) : (
         <div className="overflow-x-auto rounded-lg border border-[#1E3A5F] bg-[#0A1628]">
@@ -83,7 +85,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
           </table>
           {total > rows.length && (
             <p className="px-2 py-1.5 text-[10px] text-[#8BA3BF]">
-              Showing first {rows.length} of {total} records. Export to see all.
+              {t('common.reports.preview.showingFirst', { shown: rows.length, total })}
             </p>
           )}
         </div>

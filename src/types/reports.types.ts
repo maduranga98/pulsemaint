@@ -62,8 +62,14 @@ export type FilterType =
 
 export interface ReportDefinition {
   type: ReportType;
+  /** English fallback name — used verbatim when no `t` is supplied to `getReportName`. */
   name: string;
+  /** i18n key resolved via `getReportName` when a `t` is available. */
+  nameKey: string;
+  /** English fallback description — used verbatim when no `t` is supplied to `getReportDescription`. */
   description: string;
+  /** i18n key resolved via `getReportDescription` when a `t` is available. */
+  descriptionKey: string;
   category: ReportCategory;
   icon: string;
   supportsPdf: boolean;

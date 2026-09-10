@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../../lib/firebase';
 import { useAuthStore } from '../../../store/authStore';
@@ -10,6 +11,7 @@ import SearchableMultiSelect, { type SelectOption } from './SearchableMultiSelec
  * match what work order / breakdown documents store as assignee.
  */
 export default function TechnicianMultiSelect({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
   const [options, setOptions] = useState<SelectOption[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,11 +51,11 @@ export default function TechnicianMultiSelect({ values, onChange }: { values: st
 
   return (
     <SearchableMultiSelect
-      label="Technician"
+      label={t('common.reports.config.technicianMultiSelect.label')}
       options={options}
       values={values}
       onChange={onChange}
-      placeholder="Search technicians…"
+      placeholder={t('common.reports.config.technicianMultiSelect.placeholder')}
       loading={loading}
     />
   );

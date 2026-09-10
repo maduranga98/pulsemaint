@@ -1,18 +1,22 @@
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { resolveQuickDateRange } from '../../../utils/reports/dateRangeUtils';
 import type { QuickDateRange, ReportConfig } from '../../../types/reports.types';
 
-const ranges: { value: QuickDateRange; label: string }[] = [
-  { value: 'today', label: 'Today' },
-  { value: 'yesterday', label: 'Yesterday' },
-  { value: 'this_week', label: 'This Week' },
-  { value: 'last_week', label: 'Last Week' },
-  { value: 'this_month', label: 'This Month' },
-  { value: 'last_month', label: 'Last Month' },
-  { value: 'last_3_months', label: 'Last 3 Months' },
-  { value: 'last_6_months', label: 'Last 6 Months' },
-  { value: 'this_year', label: 'This Year' },
-  { value: 'custom', label: 'Custom' },
-];
+function buildRanges(t: TFunction): { value: QuickDateRange; label: string }[] {
+  return [
+    { value: 'today', label: t('common.reports.config.dateRangeSelector.ranges.today') },
+    { value: 'yesterday', label: t('common.reports.config.dateRangeSelector.ranges.yesterday') },
+    { value: 'this_week', label: t('common.reports.config.dateRangeSelector.ranges.this_week') },
+    { value: 'last_week', label: t('common.reports.config.dateRangeSelector.ranges.last_week') },
+    { value: 'this_month', label: t('common.reports.config.dateRangeSelector.ranges.this_month') },
+    { value: 'last_month', label: t('common.reports.config.dateRangeSelector.ranges.last_month') },
+    { value: 'last_3_months', label: t('common.reports.config.dateRangeSelector.ranges.last_3_months') },
+    { value: 'last_6_months', label: t('common.reports.config.dateRangeSelector.ranges.last_6_months') },
+    { value: 'this_year', label: t('common.reports.config.dateRangeSelector.ranges.this_year') },
+    { value: 'custom', label: t('common.reports.config.dateRangeSelector.ranges.custom') },
+  ];
+}
 
 export default function DateRangeSelector({
   config,
@@ -21,9 +25,11 @@ export default function DateRangeSelector({
   config: ReportConfig;
   onChange: (updates: Partial<ReportConfig>) => void;
 }) {
+  const { t } = useTranslation();
+  const ranges = buildRanges(t);
   return (
     <section className="space-y-3 border-b border-[#1E3A5F] pb-5">
-      <h3 className=" text-sm font-semibold text-[#F0F4F8]">Date Range</h3>
+      <h3 className=" text-sm font-semibold text-[#F0F4F8]">{t('common.reports.config.dateRangeSelector.title')}</h3>
       <div className="flex flex-wrap gap-2">
         {ranges.map((range) => (
           <button
@@ -45,7 +51,7 @@ export default function DateRangeSelector({
       </div>
       <div className="grid grid-cols-2 gap-3">
         <label className="space-y-1 text-xs text-[#8BA3BF]">
-          From
+          {t('common.reports.config.dateRangeSelector.from')}
           <input
             type="date"
             value={config.dateFrom}
@@ -54,7 +60,7 @@ export default function DateRangeSelector({
           />
         </label>
         <label className="space-y-1 text-xs text-[#8BA3BF]">
-          To
+          {t('common.reports.config.dateRangeSelector.to')}
           <input
             type="date"
             value={config.dateTo}

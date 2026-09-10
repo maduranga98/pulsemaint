@@ -6631,6 +6631,548 @@
         "departmentCriticality": "{{department}} ・ 重要度 {{criticality}}",
         "criticalBadge": "重要"
       }
+    },
+    "reports": {
+      "hubPage": {
+        "title": "レポート",
+        "subtitle": "運用レポートの生成、エクスポート、スケジュール設定を行います",
+        "noResults": "検索条件に一致するレポートがありません。"
+      },
+      "historyPage": {
+        "backToReports": "レポートに戻る",
+        "title": "レポート履歴",
+        "subtitle": "生成済みレポートのダウンロード、共有、管理を行います",
+        "loading": "レポート履歴を読み込んでいます...",
+        "empty": "生成されたレポートはまだありません。"
+      },
+      "categoryTabs": {
+        "all": "すべて",
+        "breakdowns": "故障",
+        "work_orders": "作業指示書",
+        "machines": "設備",
+        "inventory": "在庫",
+        "people": "人員",
+        "compliance": "コンプライアンス",
+        "financial": "財務",
+        "executive": "経営"
+      },
+      "card": {
+        "actions": {
+          "generate": "生成"
+        }
+      },
+      "searchBar": {
+        "placeholder": "レポートを検索"
+      },
+      "configPanel": {
+        "estimatedGeneration": "推定生成時間: {{seconds}}秒",
+        "closeAriaLabel": "レポートパネルを閉じる",
+        "dateRangeTitle": "期間",
+        "dateRangeUnsupportedNote": "このレポートは現在のデータを反映するもので、期間指定の対象ではありません — 期間フィルターはここでは適用されません。",
+        "actions": {
+          "generating": "生成中…",
+          "generateFormat": "{{format}} を生成"
+        }
+      },
+      "preview": {
+        "title": "レポートプレビュー",
+        "recordCount_one": "{{count}} 件のレコード",
+        "recordCount_other": "{{count}} 件のレコード",
+        "loading": "プレビューを読み込んでいます…",
+        "errors": {
+          "loadFailed": "プレビューの読み込みに失敗しました"
+        },
+        "empty": "選択したフィルターに一致するレコードがありません。",
+        "showingFirst": "{{total}} 件中 最初の {{shown}} 件を表示しています。すべて表示するにはエクスポートしてください。"
+      },
+      "config": {
+        "enums": {
+          "severity": {
+            "critical": "重大",
+            "high": "高",
+            "medium": "中",
+            "low": "低"
+          },
+          "shift": {
+            "morning": "朝勤",
+            "afternoon": "昼勤",
+            "night": "夜勤"
+          },
+          "trainingStatus": {
+            "certified": "認定済み",
+            "expiring": "期限間近",
+            "expired": "期限切れ",
+            "inProgress": "進行中"
+          },
+          "trainingType": {
+            "safetyTraining": "安全教育",
+            "generalTraining": "一般研修"
+          },
+          "slaStatus": {
+            "within": "SLA内",
+            "atRisk": "リスクあり",
+            "breached": "SLA違反"
+          },
+          "woType": {
+            "breakdown": "故障修理",
+            "corrective": "是正保全",
+            "preventive": "予防保全",
+            "installation": "設置",
+            "modification": "改造・アップグレード",
+            "inspection": "点検",
+            "contractor": "外注業務",
+            "other": "その他"
+          },
+          "breakdownType": {
+            "mechanical": "機械",
+            "electrical": "電気",
+            "hydraulic": "油圧",
+            "pneumatic": "空圧",
+            "software": "ソフトウェア",
+            "other": "その他"
+          },
+          "partCategory": {
+            "electrical": "電気",
+            "mechanical": "機械",
+            "hydraulic": "油圧",
+            "pneumatic": "空圧",
+            "automation": "自動化",
+            "civil": "土木"
+          }
+        },
+        "dateRangeSelector": {
+          "title": "期間",
+          "from": "開始日",
+          "to": "終了日",
+          "ranges": {
+            "today": "今日",
+            "yesterday": "昨日",
+            "this_week": "今週",
+            "last_week": "先週",
+            "this_month": "今月",
+            "last_month": "先月",
+            "last_3_months": "過去3か月",
+            "last_6_months": "過去6か月",
+            "this_year": "今年",
+            "custom": "カスタム"
+          }
+        },
+        "outputFormatToggle": {
+          "title": "出力形式",
+          "pdf": "PDF",
+          "excel": "Excel (.xlsx)"
+        },
+        "pdfOptionsSection": {
+          "title": "PDFオプション",
+          "includeCharts": "グラフを含める",
+          "includeDataTable": "生データ表を含める",
+          "paperSize": "用紙サイズ",
+          "orientation": "向き",
+          "portrait": "縦",
+          "landscape": "横"
+        },
+        "reportFilterSection": {
+          "title": "レポートフィルター",
+          "machineHistoryWarning": "設備履歴レポートには設備を1台だけ選択する必要があります。",
+          "noFilters": "このレポートは期間とアクセス範囲のみを使用します。",
+          "labels": {
+            "woType": "作業指示書タイプ",
+            "breakdownType": "故障タイプ",
+            "partCategory": "部品カテゴリー",
+            "priority": "優先度",
+            "trainingStatus": "研修ステータス",
+            "trainingType": "研修タイプ",
+            "slaStatus": "SLAステータス"
+          },
+          "placeholders": {
+            "woType": "作業指示書タイプを検索…",
+            "breakdownType": "故障タイプを検索…",
+            "partCategory": "部品カテゴリーを検索…"
+          }
+        },
+        "searchableMultiSelect": {
+          "allNoFilter": "すべて（{{label}}フィルターなし）",
+          "selectedCount_one": "{{count}} 件選択中",
+          "selectedCount_other": "{{count}} 件選択中",
+          "removeAriaLabel": "{{label}} を削除",
+          "loading": "読み込み中…",
+          "noMatches": "一致する項目が見つかりません。"
+        },
+        "severityCheckboxGroup": {
+          "label": "重大度"
+        },
+        "shiftCheckboxGroup": {
+          "label": "シフト"
+        },
+        "contractorMultiSelect": {
+          "label": "協力業者",
+          "placeholder": "協力業者を検索…"
+        },
+        "departmentMultiSelect": {
+          "label": "部門",
+          "placeholder": "部門を検索…"
+        },
+        "machineMultiSelect": {
+          "label": "設備",
+          "placeholder": "設備を検索…"
+        },
+        "supervisorMultiSelect": {
+          "label": "監督者",
+          "placeholder": "監督者を検索…"
+        },
+        "technicianMultiSelect": {
+          "label": "技術者",
+          "placeholder": "技術者を検索…"
+        }
+      },
+      "generation": {
+        "errorState": {
+          "retry": "再試行"
+        },
+        "statusMessage": {
+          "idle": "レポートを設定し、エクスポート操作を選択してください。",
+          "fetching_data": "データを取得しています...",
+          "building": "レポートを作成しています...",
+          "finalizing": "PDFを最終処理しています...",
+          "ready": "ダウンロードの準備ができました",
+          "error": "レポートの生成に失敗しました"
+        },
+        "readyActions": {
+          "downloadPdf": "PDFをダウンロード"
+        }
+      },
+      "history": {
+        "formatBadge": {},
+        "card": {
+          "generatedBy": "{{name}} が生成 · {{date}}",
+          "open": "開く",
+          "deleteAriaLabel": "履歴レコードを削除"
+        },
+        "filterBar": {
+          "allReports": "すべてのレポート",
+          "allFormats": "すべての形式",
+          "pdf": "PDF",
+          "excel": "Excel",
+          "sheets": "スプレッドシート",
+          "generatedByPlaceholder": "生成者"
+        },
+        "table": {
+          "columns": {
+            "reportName": "レポート名",
+            "format": "形式",
+            "generatedBy": "生成者",
+            "dateTime": "日時",
+            "dateRange": "期間",
+            "fileSize": "ファイルサイズ",
+            "actions": "操作"
+          },
+          "dateRangeValue": "{{from}} 〜 {{to}}",
+          "fileSizeMb": "{{size}} MB",
+          "noFileSize": "-",
+          "downloadAriaLabel": "レポートをダウンロード",
+          "copyLinkAriaLabel": "共有リンクをコピー",
+          "deleteAriaLabel": "履歴レコードを削除"
+        },
+        "storageUsageIndicator": {
+          "summary_one": "<strong>{{count}}</strong> 件のレポートを保存済み · <strong>{{mb}} MB</strong> 使用中",
+          "summary_other": "<strong>{{count}}</strong> 件のレポートを保存済み · <strong>{{mb}} MB</strong> 使用中"
+        }
+      },
+      "shared": {
+        "formatChip": {
+          "pdf": "PDF",
+          "excel": "Excel",
+          "google_sheets": "スプレッドシート",
+          "csv": "CSV"
+        }
+      },
+      "definitions": {
+        "breakdown_summary": {
+          "name": "故障サマリーレポート",
+          "description": "故障の発生頻度、重大度、MTTR、損失時間、SLA達成状況をまとめます。"
+        },
+        "work_order_detail": {
+          "name": "作業指示書詳細レポート",
+          "description": "タイプ、優先度、担当者、部品、コスト、ステータスを含む作業指示書の完全な台帳です。"
+        },
+        "machine_history": {
+          "name": "設備履歴レポート",
+          "description": "設備ごとの作業指示書履歴を、タイプ・日付・ステータス・所要時間とともにまとめます。"
+        },
+        "machine_health_score": {
+          "name": "設備健全性スコアレポート",
+          "description": "全設備の健全性スコア、リスク分布、部門別内訳、過去6か月の推移をまとめます。"
+        },
+        "maintenance_cost": {
+          "name": "保全コストレポート",
+          "description": "部品費、人件費、協力業者費用、部門別コスト、コストの高い設備をまとめます。"
+        },
+        "technician_performance": {
+          "name": "チームパフォーマンスレポート",
+          "description": "評価、簡易査定の評点、研修の完了状況を集計した役職別パフォーマンスです。"
+        },
+        "contractor_performance": {
+          "name": "協力業者パフォーマンスレポート",
+          "description": "協力業者のスコアボード、SLA遵守率、初回修理成功率、評価、コスト、請求書をまとめます。"
+        },
+        "inventory_usage": {
+          "name": "在庫使用状況レポート",
+          "description": "払い出した部品、金額、カテゴリー別内訳、日次推移、関連作業指示書、担当技術者をまとめます。"
+        },
+        "low_stock_alert": {
+          "name": "在庫不足アラートレポート",
+          "description": "最小在庫水準を下回った部品、在庫切れ品目、サプライヤーのリードタイム、不足数をまとめます。"
+        },
+        "inventory_listing": {
+          "name": "在庫一覧レポート",
+          "description": "在庫水準、コスト、サプライヤー、保管場所を含む現在の全在庫品目の一覧です。"
+        },
+        "pm_compliance": {
+          "name": "PM遵守率レポート",
+          "description": "予防保全の実施率、未実施項目、設備別・技術者別の遵守状況をまとめます。"
+        },
+        "training_compliance": {
+          "name": "研修遵守率レポート",
+          "description": "従業員研修とトレーニープログラム研修を横断した、個人ごとの研修受講状況を評点とともにまとめます。"
+        },
+        "sla_compliance": {
+          "name": "SLA遵守率レポート",
+          "description": "重大度別のSLA達成状況、推移、違反の詳細、部門別・設備別の内訳をまとめます。"
+        },
+        "shift_handover_summary": {
+          "name": "シフト引き継ぎサマリー",
+          "description": "シフトの受け入れ状況、重複時間、注意フラグ、未対応業務、安全インシデント、備考をまとめます。"
+        },
+        "downtime_analysis": {
+          "name": "ダウンタイム分析レポート",
+          "description": "作業指示書ごとのダウンタイム（作成からサインオフまで）を設備、場所、曜日別にまとめます。"
+        },
+        "executive_monthly": {
+          "name": "月次経営レポート",
+          "description": "経営会議向けの月次保全サマリー、KPI推移、コスト、リスク、対応策をまとめます。"
+        },
+        "audit_trail": {
+          "name": "監査記録レポート",
+          "description": "監査モジュールで完了したセッションを、カテゴリー、対象範囲、参加者、評点とともにまとめます。"
+        },
+        "po_history": {
+          "name": "発注履歴レポート",
+          "description": "サプライヤー、部品、請求確定価格、日付、進捗状況を含む発注台帳です。"
+        },
+        "safety_incidents": {
+          "name": "安全インシデントレポート",
+          "description": "工場全体で報告された安全ケース（インシデント、ニアミス、危険源、不安全行動）の記録です。"
+        },
+        "work_permit_history": {
+          "name": "作業許可証履歴レポート",
+          "description": "作業許可証（Permit-to-Work）台帳 — カテゴリー、有効期間、安全対策、サインオフ結果、発行者をまとめます。"
+        }
+      },
+      "columns": {
+        "safety_incidents": {
+          "reportedAt": "報告日時",
+          "type": "種別",
+          "title": "ケース",
+          "severity": "重大度",
+          "status": "ステータス",
+          "location": "場所",
+          "reportedByName": "報告者"
+        },
+        "work_permit_history": {
+          "permitNumber": "許可証番号",
+          "category": "カテゴリー",
+          "title": "件名",
+          "status": "ステータス",
+          "validFrom": "有効開始日",
+          "validTo": "有効終了日",
+          "location": "場所",
+          "requestedByName": "作成者",
+          "completion": "完了状況",
+          "signedOffByName": "サインオフ者",
+          "signedOffAt": "サインオフ日時"
+        },
+        "breakdown_summary": {
+          "ticketNumber": "チケット番号",
+          "severity": "重大度",
+          "description": "発生内容（報告時）",
+          "attemptedFixes": "試みた対応",
+          "technicianFindings": "発生内容（技術者・トレーニー）",
+          "assignedTechnicianNames": "担当技術者",
+          "woNumber": "作業指示書番号",
+          "woAssignedTechnicianNames": "作業指示書担当技術者",
+          "woChecklist": "チェックリスト（監督者）",
+          "woRootCause": "根本原因分析",
+          "woPartsUsed": "使用部品",
+          "woSignOffNotes": "サインオフ備考",
+          "woSignedOffAt": "サインオフ日時（作業指示書）"
+        },
+        "sla_compliance": {
+          "ticketNumber": "チケット番号",
+          "machineName": "設備",
+          "severity": "重大度",
+          "status": "ステータス",
+          "slaDeadline": "SLA期限",
+          "slaBreached": "違反",
+          "reportedAt": "報告日時",
+          "resolvedAt": "解決日時"
+        },
+        "downtime_analysis": {
+          "woTicket": "作業指示書チケット",
+          "machineName": "設備名",
+          "location": "場所",
+          "woType": "作業指示書タイプ",
+          "createdAt": "作成日",
+          "downtimeMinutes": "ダウンタイム（分）"
+        },
+        "work_order_detail": {
+          "woNumber": "作業指示書番号",
+          "woType": "タイプ",
+          "priority": "優先度",
+          "status": "ステータス",
+          "machineName": "設備",
+          "machineDepartment": "部門",
+          "participants": "参加者",
+          "createdByName": "作成者",
+          "supervisorSignOffByName": "サインオフ者",
+          "createdAt": "作成日",
+          "actualEndTime": "完了日",
+          "supervisorSignOffAt": "サインオフ日"
+        },
+        "maintenance_cost": {
+          "woTicket": "作業指示書チケット",
+          "woType": "作業指示書タイプ",
+          "machineName": "設備",
+          "machineDepartment": "部門",
+          "totalCost": "総コスト",
+          "signedOffDate": "サインオフ日"
+        },
+        "technician_performance": {
+          "name": "氏名",
+          "role": "役職",
+          "evaluationScore": "評価スコア",
+          "auditScore": "監査スコア",
+          "trainingsCompleted": "研修完了数",
+          "quizzesPassed": "クイズ合格数"
+        },
+        "contractor_performance": {
+          "contractorName": "名称",
+          "wosCompleted": "完了作業指示書数",
+          "rating": "評価",
+          "signedOffDate": "サインオフ日",
+          "signedOffByName": "サインオフ者",
+          "totalProjectCost": "プロジェクト総コスト"
+        },
+        "inventory_usage": {
+          "partNumber": "部品番号",
+          "partName": "部品",
+          "movementType": "入出庫区分",
+          "quantityChange": "数量変動",
+          "quantityAfter": "変動後数量",
+          "totalCostImpact": "コスト影響額",
+          "workOrderNumber": "関連作業指示書",
+          "isReturnable": "返却可否",
+          "returnStatus": "返却ステータス",
+          "performedByName": "実施者",
+          "performedAt": "実施日"
+        },
+        "low_stock_alert": {
+          "name": "部品名",
+          "lowStockAlertDate": "在庫不足アラート受信日",
+          "poStatus": "ステータス",
+          "refilledDate": "補充日"
+        },
+        "inventory_listing": {
+          "partNumber": "部品番号",
+          "name": "部品名",
+          "storeLocation": "保管場所",
+          "category": "カテゴリー",
+          "criticality": "重要度",
+          "status": "ステータス",
+          "minStockLevel": "最小在庫水準",
+          "availableStock": "利用可能在庫",
+          "unitCost": "単価",
+          "totalCost": "総コスト"
+        },
+        "pm_compliance": {
+          "scheduleName": "スケジュール",
+          "machineName": "設備",
+          "dueDate": "期限日",
+          "completedDate": "完了日",
+          "status": "ステータス",
+          "daysOverdue": "遅延日数",
+          "technicianNames": "技術者"
+        },
+        "machine_health_score": {
+          "machineName": "設備",
+          "machineIdCode": "資産コード",
+          "department": "部門",
+          "currentStatus": "ステータス",
+          "healthScore": "健全性スコア",
+          "watchFlagLevel": "注意レベル",
+          "mtbfDays": "MTBF（日）",
+          "mttrHours": "MTTR（時間）",
+          "openBreakdownCount": "未解決の故障件数",
+          "openWoCount": "未対応の作業指示書数",
+          "maintenanceCostMTD": "当月累計コスト",
+          "lastServiceDate": "前回整備日",
+          "nextPmDue": "次回PM予定日"
+        },
+        "shift_handover_summary": {
+          "shiftName": "シフト名",
+          "personName": "担当者",
+          "personRole": "役職",
+          "department": "部門",
+          "shiftActualStart": "シフト開始時刻",
+          "lateByMinutes": "遅刻時間（分）",
+          "shiftActualEnd": "シフト終了時刻",
+          "otMinutes": "残業時間（分）",
+          "breakdownsOpened": "シフト中の故障件数",
+          "wosOpened": "シフト中の作業指示書件数",
+          "watchFlagsCount": "注意フラグ数"
+        },
+        "training_compliance": {
+          "name": "氏名",
+          "role": "役職",
+          "trainingsAssigned": "割当研修数",
+          "trainingsCompleted": "完了研修数",
+          "totalMarks": "合計評点"
+        },
+        "machine_history": {
+          "machineName": "設備名",
+          "machineType": "タイプ",
+          "purchaseDate": "購入日",
+          "installationDate": "設置日",
+          "department": "部門",
+          "location": "場所",
+          "lastServiceDate": "前回整備日",
+          "lastServiceType": "前回整備タイプ",
+          "nextPmDue": "次回PM予定日"
+        },
+        "executive_monthly": {
+          "metric": "指標",
+          "value": "値"
+        },
+        "audit_trail": {
+          "date": "日付",
+          "categoryLabel": "カテゴリー",
+          "scopeDetails": "対象範囲の詳細",
+          "doneBy": "実施者",
+          "participants": "参加者",
+          "marks": "評点"
+        },
+        "po_history": {
+          "poNumber": "発注コード",
+          "supplierName": "サプライヤー",
+          "itemName": "品目",
+          "quantity": "数量",
+          "unitPrice": "単価",
+          "lineTotal": "合計",
+          "status": "ステータス",
+          "raisedByName": "起票者",
+          "raisedAt": "日付",
+          "receivedAt": "受領日"
+        }
+      }
     }
   },
   "triage": {

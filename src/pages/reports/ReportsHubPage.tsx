@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import ReportCard from '../../components/reports/ReportCard';
 import ReportCategoryTabs, { type ReportCategoryTab } from '../../components/reports/ReportCategoryTabs';
@@ -6,10 +7,11 @@ import ReportConfigPanel from '../../components/reports/ReportConfigPanel';
 import ReportSearchBar from '../../components/reports/ReportSearchBar';
 import { useAuthStore } from '../../store/authStore';
 import { useReportsStore } from '../../store/reports.store';
-import { REPORT_LIST } from '../../utils/reports/reportDefinitions';
+import { REPORT_LIST, getReportName } from '../../utils/reports/reportDefinitions';
 import { filterReportTypesForRole } from '../../utils/reports/reportAccess';
 
 export default function ReportsHubPage() {
+  const { t } = useTranslation();
   const canAccess = useAuthStore((state) => state.canAccess(['safety_officer', 'supervisor', 'plant_manager', 'store_keeper', 'hr_officer', 'admin']));
   const role = useAuthStore((state) => state.userProfile?.role);
   const openConfigPanel = useReportsStore((state) => state.openConfigPanel);
@@ -35,11 +37,11 @@ export default function ReportsHubPage() {
 
   const reports = useMemo(() => {
     return allowedReports.filter((report) => {
-      const matchesSearch = report.name.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = getReportName(report, t).toLowerCase().includes(search.toLowerCase());
       const matchesCategory = category === 'all' || report.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [allowedReports, category, search]);
+  }, [allowedReports, category, search, t]);
 
   if (!canAccess) return <Navigate to="/app/dashboard" replace />;
 
@@ -48,8 +50,8 @@ export default function ReportsHubPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className=" text-[28px] font-bold text-[#F0F4F8]">Reports</h1>
-            <p className="mt-1 text-sm text-[#8BA3BF]">Generate, export, and schedule operational reports</p>
+            <h1 className=" text-[28px] font-bold text-[#F0F4F8]">{t('common.reports.hubPage.title')}</h1>
+            <p className="mt-1 text-sm text-[#8BA3BF]">{t('common.reports.hubPage.subtitle')}</p>
           </div>
         </header>
 
@@ -66,7 +68,7 @@ export default function ReportsHubPage() {
 
         {reports.length === 0 && (
           <div className="rounded-xl border border-[#1E3A5F] bg-[#0F1E35] p-10 text-center text-sm text-[#8BA3BF]">
-            No reports match your search.
+            {t('common.reports.hubPage.noResults')}
           </div>
         )}
       </div>

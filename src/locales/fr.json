@@ -6635,6 +6635,548 @@
         "departmentCriticality": "{{department}} · Criticité {{criticality}}",
         "criticalBadge": "CRITIQUE"
       }
+    },
+    "reports": {
+      "hubPage": {
+        "title": "Rapports",
+        "subtitle": "Générer, exporter et planifier des rapports opérationnels",
+        "noResults": "Aucun rapport ne correspond à votre recherche."
+      },
+      "historyPage": {
+        "backToReports": "Retour aux rapports",
+        "title": "Historique des rapports",
+        "subtitle": "Télécharger, partager et gérer les rapports générés",
+        "loading": "Chargement de l'historique des rapports...",
+        "empty": "Aucun rapport généré pour le moment."
+      },
+      "categoryTabs": {
+        "all": "Tous",
+        "breakdowns": "Pannes",
+        "work_orders": "Ordres de travail",
+        "machines": "Machines",
+        "inventory": "Inventaire",
+        "people": "Personnel",
+        "compliance": "Conformité",
+        "financial": "Financier",
+        "executive": "Direction"
+      },
+      "card": {
+        "actions": {
+          "generate": "Générer"
+        }
+      },
+      "searchBar": {
+        "placeholder": "Rechercher des rapports"
+      },
+      "configPanel": {
+        "estimatedGeneration": "Génération estimée : {{seconds}} s",
+        "closeAriaLabel": "Fermer le panneau de rapport",
+        "dateRangeTitle": "Période",
+        "dateRangeUnsupportedNote": "Ce rapport reflète les données actuelles et non une période donnée — le filtre de période ne s'applique pas ici.",
+        "actions": {
+          "generating": "Génération en cours…",
+          "generateFormat": "Générer {{format}}"
+        }
+      },
+      "preview": {
+        "title": "Aperçu du rapport",
+        "recordCount_one": "{{count}} enregistrement",
+        "recordCount_other": "{{count}} enregistrements",
+        "loading": "Chargement de l'aperçu…",
+        "errors": {
+          "loadFailed": "Échec du chargement de l'aperçu"
+        },
+        "empty": "Aucun enregistrement ne correspond aux filtres sélectionnés.",
+        "showingFirst": "Affichage des {{shown}} premiers sur {{total}} enregistrements. Exportez pour tout voir."
+      },
+      "config": {
+        "enums": {
+          "severity": {
+            "critical": "Critique",
+            "high": "Élevée",
+            "medium": "Moyenne",
+            "low": "Faible"
+          },
+          "shift": {
+            "morning": "Matin",
+            "afternoon": "Après-midi",
+            "night": "Nuit"
+          },
+          "trainingStatus": {
+            "certified": "Certifié",
+            "expiring": "Expire bientôt",
+            "expired": "Expiré",
+            "inProgress": "En cours"
+          },
+          "trainingType": {
+            "safetyTraining": "Formation sécurité",
+            "generalTraining": "Formation générale"
+          },
+          "slaStatus": {
+            "within": "Dans les délais",
+            "atRisk": "À risque",
+            "breached": "Dépassé"
+          },
+          "woType": {
+            "breakdown": "Panne",
+            "corrective": "Corrective",
+            "preventive": "Préventive",
+            "installation": "Installation",
+            "modification": "Modification",
+            "inspection": "Inspection",
+            "contractor": "Sous-traitant",
+            "other": "Autre"
+          },
+          "breakdownType": {
+            "mechanical": "Mécanique",
+            "electrical": "Électrique",
+            "hydraulic": "Hydraulique",
+            "pneumatic": "Pneumatique",
+            "software": "Logiciel",
+            "other": "Autre"
+          },
+          "partCategory": {
+            "electrical": "Électrique",
+            "mechanical": "Mécanique",
+            "hydraulic": "Hydraulique",
+            "pneumatic": "Pneumatique",
+            "automation": "Automatisation",
+            "civil": "Génie civil"
+          }
+        },
+        "dateRangeSelector": {
+          "title": "Période",
+          "from": "Du",
+          "to": "Au",
+          "ranges": {
+            "today": "Aujourd'hui",
+            "yesterday": "Hier",
+            "this_week": "Cette semaine",
+            "last_week": "Semaine dernière",
+            "this_month": "Ce mois-ci",
+            "last_month": "Mois dernier",
+            "last_3_months": "3 derniers mois",
+            "last_6_months": "6 derniers mois",
+            "this_year": "Cette année",
+            "custom": "Personnalisée"
+          }
+        },
+        "outputFormatToggle": {
+          "title": "Format de sortie",
+          "pdf": "PDF",
+          "excel": "Excel (.xlsx)"
+        },
+        "pdfOptionsSection": {
+          "title": "Options PDF",
+          "includeCharts": "Inclure les graphiques",
+          "includeDataTable": "Inclure le tableau de données brutes",
+          "paperSize": "Format papier",
+          "orientation": "Orientation",
+          "portrait": "Portrait",
+          "landscape": "Paysage"
+        },
+        "reportFilterSection": {
+          "title": "Filtres du rapport",
+          "machineHistoryWarning": "L'historique machine nécessite exactement une machine.",
+          "noFilters": "Ce rapport n'utilise que la période et la portée d'accès.",
+          "labels": {
+            "woType": "Type d'OT",
+            "breakdownType": "Type de panne",
+            "partCategory": "Catégorie de pièce",
+            "priority": "Priorité",
+            "trainingStatus": "Statut de formation",
+            "trainingType": "Type de formation",
+            "slaStatus": "Statut SLA"
+          },
+          "placeholders": {
+            "woType": "Rechercher des types d'ordre de travail…",
+            "breakdownType": "Rechercher des types de panne…",
+            "partCategory": "Rechercher des catégories de pièces…"
+          }
+        },
+        "searchableMultiSelect": {
+          "allNoFilter": "Tous (aucun filtre {{label}})",
+          "selectedCount_one": "{{count}} sélectionné",
+          "selectedCount_other": "{{count}} sélectionnés",
+          "removeAriaLabel": "Retirer {{label}}",
+          "loading": "Chargement…",
+          "noMatches": "Aucun résultat trouvé."
+        },
+        "severityCheckboxGroup": {
+          "label": "Gravité"
+        },
+        "shiftCheckboxGroup": {
+          "label": "Équipe"
+        },
+        "contractorMultiSelect": {
+          "label": "Sous-traitant",
+          "placeholder": "Rechercher des sous-traitants…"
+        },
+        "departmentMultiSelect": {
+          "label": "Département",
+          "placeholder": "Rechercher des départements…"
+        },
+        "machineMultiSelect": {
+          "label": "Machine",
+          "placeholder": "Rechercher des machines…"
+        },
+        "supervisorMultiSelect": {
+          "label": "Superviseur",
+          "placeholder": "Rechercher des superviseurs…"
+        },
+        "technicianMultiSelect": {
+          "label": "Technicien",
+          "placeholder": "Rechercher des techniciens…"
+        }
+      },
+      "generation": {
+        "errorState": {
+          "retry": "Réessayer"
+        },
+        "statusMessage": {
+          "idle": "Configurez le rapport et choisissez une action d'export.",
+          "fetching_data": "Récupération des données...",
+          "building": "Génération du rapport...",
+          "finalizing": "Finalisation du PDF...",
+          "ready": "Prêt à télécharger",
+          "error": "Échec de la génération du rapport"
+        },
+        "readyActions": {
+          "downloadPdf": "Télécharger le PDF"
+        }
+      },
+      "history": {
+        "formatBadge": {},
+        "card": {
+          "generatedBy": "Généré par {{name}} · {{date}}",
+          "open": "Ouvrir",
+          "deleteAriaLabel": "Supprimer l'entrée de l'historique"
+        },
+        "filterBar": {
+          "allReports": "Tous les rapports",
+          "allFormats": "Tous les formats",
+          "pdf": "PDF",
+          "excel": "Excel",
+          "sheets": "Sheets",
+          "generatedByPlaceholder": "Généré par"
+        },
+        "table": {
+          "columns": {
+            "reportName": "Nom du rapport",
+            "format": "Format",
+            "generatedBy": "Généré par",
+            "dateTime": "Date et heure",
+            "dateRange": "Période",
+            "fileSize": "Taille du fichier",
+            "actions": "Actions"
+          },
+          "dateRangeValue": "{{from}} au {{to}}",
+          "fileSizeMb": "{{size}} Mo",
+          "noFileSize": "-",
+          "downloadAriaLabel": "Télécharger le rapport",
+          "copyLinkAriaLabel": "Copier le lien de partage",
+          "deleteAriaLabel": "Supprimer l'entrée de l'historique"
+        },
+        "storageUsageIndicator": {
+          "summary_one": "<strong>{{count}}</strong> rapport enregistré · <strong>{{mb}} Mo</strong> utilisés",
+          "summary_other": "<strong>{{count}}</strong> rapports enregistrés · <strong>{{mb}} Mo</strong> utilisés"
+        }
+      },
+      "shared": {
+        "formatChip": {
+          "pdf": "PDF",
+          "excel": "Excel",
+          "google_sheets": "Sheets",
+          "csv": "CSV"
+        }
+      },
+      "definitions": {
+        "breakdown_summary": {
+          "name": "Rapport de synthèse des pannes",
+          "description": "Fréquence, gravité, MTTR, heures perdues et performance SLA des pannes."
+        },
+        "work_order_detail": {
+          "name": "Rapport détaillé des ordres de travail",
+          "description": "Registre complet des ordres de travail avec type, priorité, affectations, pièces, coût et statut."
+        },
+        "machine_history": {
+          "name": "Rapport d'historique machine",
+          "description": "Historique complet des ordres de travail d'une machine avec types, dates, statut et durées."
+        },
+        "machine_health_score": {
+          "name": "Rapport d'indice de santé des machines",
+          "description": "Indices de santé du parc, répartition des risques, répartition par département et tendances sur six mois."
+        },
+        "maintenance_cost": {
+          "name": "Rapport des coûts de maintenance",
+          "description": "Pièces, main-d'œuvre, dépenses sous-traitance, coût par département et machines les plus coûteuses."
+        },
+        "technician_performance": {
+          "name": "Rapport de performance d'équipe",
+          "description": "Performance par rôle agrégée à partir des évaluations, des notes d'évaluation rapide et des formations complétées."
+        },
+        "contractor_performance": {
+          "name": "Rapport de performance des sous-traitants",
+          "description": "Classement des sous-traitants, conformité SLA, taux de réparation au premier passage, notes, coûts et factures."
+        },
+        "inventory_usage": {
+          "name": "Rapport d'utilisation de l'inventaire",
+          "description": "Pièces sorties, valeurs, répartition par catégorie, tendances quotidiennes, ordres de travail et techniciens."
+        },
+        "low_stock_alert": {
+          "name": "Rapport d'alerte de stock bas",
+          "description": "Pièces sous le seuil minimum, articles en rupture, délais de livraison des fournisseurs et déficits."
+        },
+        "inventory_listing": {
+          "name": "Rapport de liste d'inventaire",
+          "description": "Tous les articles d'inventaire actuels avec niveaux de stock, coût, fournisseur et détails d'emplacement."
+        },
+        "pm_compliance": {
+          "name": "Rapport de conformité PM",
+          "description": "Réalisation des maintenances préventives planifiées, tâches manquées, tableaux croisés de conformité machine et technicien."
+        },
+        "training_compliance": {
+          "name": "Rapport de conformité des formations",
+          "description": "Couverture de formation par personne pour les programmes employés et stagiaires, avec notes."
+        },
+        "sla_compliance": {
+          "name": "Rapport de conformité SLA",
+          "description": "Performance SLA par gravité, tendances, détail des dépassements, tableaux croisés par département et machine."
+        },
+        "shift_handover_summary": {
+          "name": "Synthèse des passations de quart",
+          "description": "Acceptation des quarts, chevauchement, signaux de vigilance, travaux en cours, incidents de sécurité et notes."
+        },
+        "downtime_analysis": {
+          "name": "Rapport d'analyse des arrêts",
+          "description": "Temps d'arrêt par OT (de la création à la clôture) par machine, emplacement et jour de la semaine."
+        },
+        "executive_monthly": {
+          "name": "Rapport mensuel de direction",
+          "description": "Synthèse mensuelle de maintenance prête pour le conseil, tendances des indicateurs clés, coûts, risques et actions."
+        },
+        "audit_trail": {
+          "name": "Rapport de piste d'audit",
+          "description": "Sessions du module Audit terminées avec catégorie, portée, participants et notes."
+        },
+        "po_history": {
+          "name": "Rapport d'historique des bons de commande",
+          "description": "Registre des bons de commande avec fournisseur, pièces, tarification finale sur facture, dates et avancement."
+        },
+        "safety_incidents": {
+          "name": "Rapport des incidents de sécurité",
+          "description": "Registre des cas de sécurité — incidents, presque-accidents, dangers et actes dangereux signalés dans l'usine."
+        },
+        "work_permit_history": {
+          "name": "Rapport d'historique des permis de travail",
+          "description": "Registre des permis de travail — catégorie, fenêtre de validité, précautions, résultat de la validation et émetteur de chaque permis."
+        }
+      },
+      "columns": {
+        "safety_incidents": {
+          "reportedAt": "Signalé le",
+          "type": "Type",
+          "title": "Cas",
+          "severity": "Gravité",
+          "status": "Statut",
+          "location": "Emplacement",
+          "reportedByName": "Signalé par"
+        },
+        "work_permit_history": {
+          "permitNumber": "N° de permis",
+          "category": "Catégorie",
+          "title": "Titre",
+          "status": "Statut",
+          "validFrom": "Valide à partir de",
+          "validTo": "Valide jusqu'à",
+          "location": "Emplacement",
+          "requestedByName": "Créé par",
+          "completion": "Achèvement",
+          "signedOffByName": "Validé par",
+          "signedOffAt": "Validé le"
+        },
+        "breakdown_summary": {
+          "ticketNumber": "Ticket",
+          "severity": "Gravité",
+          "description": "Ce qui s'est passé (signalé)",
+          "attemptedFixes": "Réparations tentées",
+          "technicianFindings": "Ce qui s'est passé (technicien/stagiaire)",
+          "assignedTechnicianNames": "Techniciens assignés",
+          "woNumber": "OT n°",
+          "woAssignedTechnicianNames": "Techniciens assignés (OT)",
+          "woChecklist": "Liste de contrôle (superviseur)",
+          "woRootCause": "Analyse des causes racines",
+          "woPartsUsed": "Pièces utilisées",
+          "woSignOffNotes": "Note de validation",
+          "woSignedOffAt": "Heure de validation (OT)"
+        },
+        "sla_compliance": {
+          "ticketNumber": "Ticket",
+          "machineName": "Machine",
+          "severity": "Gravité",
+          "status": "Statut",
+          "slaDeadline": "Échéance SLA",
+          "slaBreached": "Dépassé",
+          "reportedAt": "Signalé",
+          "resolvedAt": "Résolu"
+        },
+        "downtime_analysis": {
+          "woTicket": "Ticket OT",
+          "machineName": "Nom de la machine",
+          "location": "Emplacement",
+          "woType": "Type d'OT",
+          "createdAt": "Date de création",
+          "downtimeMinutes": "Arrêt (min)"
+        },
+        "work_order_detail": {
+          "woNumber": "OT n°",
+          "woType": "Type",
+          "priority": "Priorité",
+          "status": "Statut",
+          "machineName": "Machine",
+          "machineDepartment": "Département",
+          "participants": "Participants",
+          "createdByName": "Créé par",
+          "supervisorSignOffByName": "Validé par",
+          "createdAt": "Créé",
+          "actualEndTime": "Terminé",
+          "supervisorSignOffAt": "Validé"
+        },
+        "maintenance_cost": {
+          "woTicket": "Ticket OT",
+          "woType": "Type d'OT",
+          "machineName": "Machine",
+          "machineDepartment": "Département",
+          "totalCost": "Coût total",
+          "signedOffDate": "Date de validation"
+        },
+        "technician_performance": {
+          "name": "Nom",
+          "role": "Rôle",
+          "evaluationScore": "Score d'évaluation",
+          "auditScore": "Score d'audit",
+          "trainingsCompleted": "Formations complétées",
+          "quizzesPassed": "Quiz réussis"
+        },
+        "contractor_performance": {
+          "contractorName": "Nom",
+          "wosCompleted": "OT complétés",
+          "rating": "Note",
+          "signedOffDate": "Date de validation",
+          "signedOffByName": "Validé par",
+          "totalProjectCost": "Coût total du projet"
+        },
+        "inventory_usage": {
+          "partNumber": "N° de pièce",
+          "partName": "Pièce",
+          "movementType": "Mouvement",
+          "quantityChange": "Variation de quantité",
+          "quantityAfter": "Quantité après",
+          "totalCostImpact": "Impact sur le coût",
+          "workOrderNumber": "OT lié",
+          "isReturnable": "Retournable",
+          "returnStatus": "Statut de retour",
+          "performedByName": "Par",
+          "performedAt": "Date"
+        },
+        "low_stock_alert": {
+          "name": "Nom de la pièce",
+          "lowStockAlertDate": "Date de l'alerte de stock bas",
+          "poStatus": "Statut",
+          "refilledDate": "Date de réapprovisionnement"
+        },
+        "inventory_listing": {
+          "partNumber": "Numéro de pièce",
+          "name": "Nom de la pièce",
+          "storeLocation": "Emplacement",
+          "category": "Catégorie",
+          "criticality": "Criticité",
+          "status": "Statut",
+          "minStockLevel": "Niveau de stock minimum",
+          "availableStock": "Stock disponible",
+          "unitCost": "Coût unitaire",
+          "totalCost": "Coût total"
+        },
+        "pm_compliance": {
+          "scheduleName": "Programme",
+          "machineName": "Machine",
+          "dueDate": "Échéance",
+          "completedDate": "Terminé le",
+          "status": "Statut",
+          "daysOverdue": "Jours de retard",
+          "technicianNames": "Techniciens"
+        },
+        "machine_health_score": {
+          "machineName": "Machine",
+          "machineIdCode": "Code d'actif",
+          "department": "Département",
+          "currentStatus": "Statut",
+          "healthScore": "Indice de santé",
+          "watchFlagLevel": "Niveau de vigilance",
+          "mtbfDays": "MTBF (jours)",
+          "mttrHours": "MTTR (heures)",
+          "openBreakdownCount": "Pannes ouvertes",
+          "openWoCount": "OT ouverts",
+          "maintenanceCostMTD": "Coût cumulé du mois",
+          "lastServiceDate": "Dernier entretien",
+          "nextPmDue": "Prochaine PM"
+        },
+        "shift_handover_summary": {
+          "shiftName": "Nom du quart",
+          "personName": "Personne",
+          "personRole": "Rôle",
+          "department": "Département",
+          "shiftActualStart": "Début du quart",
+          "lateByMinutes": "Retard (min)",
+          "shiftActualEnd": "Fin du quart",
+          "otMinutes": "Heures sup. (min)",
+          "breakdownsOpened": "Pannes pendant le quart",
+          "wosOpened": "OT pendant le quart",
+          "watchFlagsCount": "Signaux de vigilance"
+        },
+        "training_compliance": {
+          "name": "Nom",
+          "role": "Rôle",
+          "trainingsAssigned": "Nb de formations assignées",
+          "trainingsCompleted": "Nb de formations complétées",
+          "totalMarks": "Total des notes"
+        },
+        "machine_history": {
+          "machineName": "Nom de la machine",
+          "machineType": "Type",
+          "purchaseDate": "Date d'achat",
+          "installationDate": "Date d'installation",
+          "department": "Département",
+          "location": "Emplacement",
+          "lastServiceDate": "Date du dernier entretien",
+          "lastServiceType": "Type du dernier entretien",
+          "nextPmDue": "Date de la prochaine PM"
+        },
+        "executive_monthly": {
+          "metric": "Indicateur",
+          "value": "Valeur"
+        },
+        "audit_trail": {
+          "date": "Date",
+          "categoryLabel": "Catégorie",
+          "scopeDetails": "Détails de la portée",
+          "doneBy": "Réalisé par",
+          "participants": "Participants",
+          "marks": "Notes"
+        },
+        "po_history": {
+          "poNumber": "Code BC",
+          "supplierName": "Fournisseur",
+          "itemName": "Article",
+          "quantity": "Quantité",
+          "unitPrice": "Prix unitaire",
+          "lineTotal": "Total",
+          "status": "Statut",
+          "raisedByName": "Émis par",
+          "raisedAt": "Date",
+          "receivedAt": "Date de réception"
+        }
+      }
     }
   },
   "triage": {

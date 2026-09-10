@@ -6635,6 +6635,548 @@
         "departmentCriticality": "{{department}} · Kritikalität {{criticality}}",
         "criticalBadge": "KRITISCH"
       }
+    },
+    "reports": {
+      "hubPage": {
+        "title": "Berichte",
+        "subtitle": "Betriebsberichte erstellen, exportieren und planen",
+        "noResults": "Keine Berichte entsprechen Ihrer Suche."
+      },
+      "historyPage": {
+        "backToReports": "Zurück zu Berichten",
+        "title": "Berichtsverlauf",
+        "subtitle": "Erstellte Berichte herunterladen, teilen und verwalten",
+        "loading": "Berichtsverlauf wird geladen...",
+        "empty": "Noch keine erstellten Berichte."
+      },
+      "categoryTabs": {
+        "all": "Alle",
+        "breakdowns": "Störungen",
+        "work_orders": "Arbeitsaufträge",
+        "machines": "Maschinen",
+        "inventory": "Lager",
+        "people": "Personal",
+        "compliance": "Compliance",
+        "financial": "Finanzen",
+        "executive": "Führungsebene"
+      },
+      "card": {
+        "actions": {
+          "generate": "Erstellen"
+        }
+      },
+      "searchBar": {
+        "placeholder": "Berichte durchsuchen"
+      },
+      "configPanel": {
+        "estimatedGeneration": "Geschätzte Erstellungszeit: {{seconds}} s",
+        "closeAriaLabel": "Berichtsbereich schließen",
+        "dateRangeTitle": "Zeitraum",
+        "dateRangeUnsupportedNote": "Dieser Bericht spiegelt aktuelle Daten wider, keinen Zeitraum — der Zeitraumfilter gilt hier nicht.",
+        "actions": {
+          "generating": "Wird erstellt…",
+          "generateFormat": "{{format}} Erstellen"
+        }
+      },
+      "preview": {
+        "title": "Berichtsvorschau",
+        "recordCount_one": "{{count}} Datensatz",
+        "recordCount_other": "{{count}} Datensätze",
+        "loading": "Vorschau wird geladen…",
+        "errors": {
+          "loadFailed": "Vorschau konnte nicht geladen werden"
+        },
+        "empty": "Keine Datensätze entsprechen den gewählten Filtern.",
+        "showingFirst": "Die ersten {{shown}} von {{total}} Datensätzen werden angezeigt. Exportieren Sie, um alle zu sehen."
+      },
+      "config": {
+        "enums": {
+          "severity": {
+            "critical": "Kritisch",
+            "high": "Hoch",
+            "medium": "Mittel",
+            "low": "Niedrig"
+          },
+          "shift": {
+            "morning": "Frühschicht",
+            "afternoon": "Spätschicht",
+            "night": "Nachtschicht"
+          },
+          "trainingStatus": {
+            "certified": "Zertifiziert",
+            "expiring": "Läuft ab",
+            "expired": "Abgelaufen",
+            "inProgress": "In Bearbeitung"
+          },
+          "trainingType": {
+            "safetyTraining": "Sicherheitsschulung",
+            "generalTraining": "Allgemeine Schulung"
+          },
+          "slaStatus": {
+            "within": "Eingehalten",
+            "atRisk": "Gefährdet",
+            "breached": "Verletzt"
+          },
+          "woType": {
+            "breakdown": "Störungsreparatur",
+            "corrective": "Korrektiv",
+            "preventive": "Vorbeugend",
+            "installation": "Installation",
+            "modification": "Änderung",
+            "inspection": "Inspektion",
+            "contractor": "Auftragnehmer",
+            "other": "Sonstiges"
+          },
+          "breakdownType": {
+            "mechanical": "Mechanisch",
+            "electrical": "Elektrisch",
+            "hydraulic": "Hydraulisch",
+            "pneumatic": "Pneumatisch",
+            "software": "Software",
+            "other": "Sonstiges"
+          },
+          "partCategory": {
+            "electrical": "Elektrisch",
+            "mechanical": "Mechanisch",
+            "hydraulic": "Hydraulisch",
+            "pneumatic": "Pneumatisch",
+            "automation": "Automatisierung",
+            "civil": "Bauwesen"
+          }
+        },
+        "dateRangeSelector": {
+          "title": "Zeitraum",
+          "from": "Von",
+          "to": "Bis",
+          "ranges": {
+            "today": "Heute",
+            "yesterday": "Gestern",
+            "this_week": "Diese Woche",
+            "last_week": "Letzte Woche",
+            "this_month": "Dieser Monat",
+            "last_month": "Letzter Monat",
+            "last_3_months": "Letzte 3 Monate",
+            "last_6_months": "Letzte 6 Monate",
+            "this_year": "Dieses Jahr",
+            "custom": "Benutzerdefiniert"
+          }
+        },
+        "outputFormatToggle": {
+          "title": "Ausgabeformat",
+          "pdf": "PDF",
+          "excel": "Excel (.xlsx)"
+        },
+        "pdfOptionsSection": {
+          "title": "PDF-Optionen",
+          "includeCharts": "Diagramme einschließen",
+          "includeDataTable": "Rohdatentabelle einschließen",
+          "paperSize": "Papiergröße",
+          "orientation": "Ausrichtung",
+          "portrait": "Hochformat",
+          "landscape": "Querformat"
+        },
+        "reportFilterSection": {
+          "title": "Berichtsfilter",
+          "machineHistoryWarning": "Für den Bericht „Wartungshistorie“ ist genau eine Maschine erforderlich.",
+          "noFilters": "Dieser Bericht verwendet nur Zeitraum und Zugriffsbereich.",
+          "labels": {
+            "woType": "AA-Typ",
+            "breakdownType": "Störungsart",
+            "partCategory": "Teilekategorie",
+            "priority": "Priorität",
+            "trainingStatus": "Schulungsstatus",
+            "trainingType": "Schulungsart",
+            "slaStatus": "SLA-Status"
+          },
+          "placeholders": {
+            "woType": "Arbeitsauftragstypen suchen…",
+            "breakdownType": "Störungsarten suchen…",
+            "partCategory": "Teilekategorien suchen…"
+          }
+        },
+        "searchableMultiSelect": {
+          "allNoFilter": "Alle (kein {{label}}-Filter)",
+          "selectedCount_one": "{{count}} ausgewählt",
+          "selectedCount_other": "{{count}} ausgewählt",
+          "removeAriaLabel": "{{label}} entfernen",
+          "loading": "Wird geladen…",
+          "noMatches": "Keine Treffer gefunden."
+        },
+        "severityCheckboxGroup": {
+          "label": "Schweregrad"
+        },
+        "shiftCheckboxGroup": {
+          "label": "Schicht"
+        },
+        "contractorMultiSelect": {
+          "label": "Auftragnehmer",
+          "placeholder": "Auftragnehmer suchen…"
+        },
+        "departmentMultiSelect": {
+          "label": "Abteilung",
+          "placeholder": "Abteilungen suchen…"
+        },
+        "machineMultiSelect": {
+          "label": "Maschine",
+          "placeholder": "Maschinen suchen…"
+        },
+        "supervisorMultiSelect": {
+          "label": "Vorgesetzter",
+          "placeholder": "Vorgesetzte suchen…"
+        },
+        "technicianMultiSelect": {
+          "label": "Techniker",
+          "placeholder": "Techniker suchen…"
+        }
+      },
+      "generation": {
+        "errorState": {
+          "retry": "Erneut Versuchen"
+        },
+        "statusMessage": {
+          "idle": "Konfigurieren Sie den Bericht und wählen Sie eine Exportaktion.",
+          "fetching_data": "Daten werden abgerufen...",
+          "building": "Bericht wird erstellt...",
+          "finalizing": "PDF wird finalisiert...",
+          "ready": "Bereit zum Herunterladen",
+          "error": "Berichtserstellung fehlgeschlagen"
+        },
+        "readyActions": {
+          "downloadPdf": "PDF Herunterladen"
+        }
+      },
+      "history": {
+        "formatBadge": {},
+        "card": {
+          "generatedBy": "Erstellt von {{name}} · {{date}}",
+          "open": "Öffnen",
+          "deleteAriaLabel": "Verlaufseintrag löschen"
+        },
+        "filterBar": {
+          "allReports": "Alle Berichte",
+          "allFormats": "Alle Formate",
+          "pdf": "PDF",
+          "excel": "Excel",
+          "sheets": "Sheets",
+          "generatedByPlaceholder": "Erstellt von"
+        },
+        "table": {
+          "columns": {
+            "reportName": "Berichtsname",
+            "format": "Format",
+            "generatedBy": "Erstellt Von",
+            "dateTime": "Datum & Uhrzeit",
+            "dateRange": "Zeitraum",
+            "fileSize": "Dateigröße",
+            "actions": "Aktionen"
+          },
+          "dateRangeValue": "{{from}} bis {{to}}",
+          "fileSizeMb": "{{size}} MB",
+          "noFileSize": "-",
+          "downloadAriaLabel": "Bericht herunterladen",
+          "copyLinkAriaLabel": "Freigabelink kopieren",
+          "deleteAriaLabel": "Verlaufseintrag löschen"
+        },
+        "storageUsageIndicator": {
+          "summary_one": "<strong>{{count}}</strong> Bericht gespeichert · <strong>{{mb}} MB</strong> belegt",
+          "summary_other": "<strong>{{count}}</strong> Berichte gespeichert · <strong>{{mb}} MB</strong> belegt"
+        }
+      },
+      "shared": {
+        "formatChip": {
+          "pdf": "PDF",
+          "excel": "Excel",
+          "google_sheets": "Sheets",
+          "csv": "CSV"
+        }
+      },
+      "definitions": {
+        "breakdown_summary": {
+          "name": "Störungsübersichtsbericht",
+          "description": "Häufigkeit, Schweregrad, MTTR, Ausfallstunden und SLA-Leistung bei Störungen."
+        },
+        "work_order_detail": {
+          "name": "Arbeitsauftrags-Detailbericht",
+          "description": "Vollständiges Arbeitsauftragsregister mit Typ, Priorität, Zuweisungen, Teilen, Kosten und Status."
+        },
+        "machine_history": {
+          "name": "Maschinen-Wartungshistorie",
+          "description": "Vollständige Arbeitsauftragshistorie einer Maschine mit Typen, Daten, Status und Dauer."
+        },
+        "machine_health_score": {
+          "name": "Maschinenzustandsbericht",
+          "description": "Zustandswerte des Maschinenparks, Risikoverteilung, Aufteilung nach Abteilung und Sechs-Monats-Trends."
+        },
+        "maintenance_cost": {
+          "name": "Wartungskostenbericht",
+          "description": "Teile-, Lohn- und Auftragnehmerkosten, Kosten nach Abteilung und kostenintensivste Maschinen."
+        },
+        "technician_performance": {
+          "name": "Teamleistungsbericht",
+          "description": "Leistungsübersicht je Rolle, zusammengeführt aus Bewertungen, Kurzbeurteilungen und abgeschlossenen Schulungen."
+        },
+        "contractor_performance": {
+          "name": "Auftragnehmerleistungsbericht",
+          "description": "Auftragnehmer-Rangliste, SLA-Einhaltung, Erstreparaturquote, Bewertungen, Kosten und Rechnungen."
+        },
+        "inventory_usage": {
+          "name": "Lagerverbrauchsbericht",
+          "description": "Ausgegebene Teile, Werte, Kategorienmix, Tagestrends, Arbeitsaufträge und Techniker."
+        },
+        "low_stock_alert": {
+          "name": "Mindestbestandsbericht",
+          "description": "Teile unter dem Mindestbestand, nicht vorrätige Artikel, Lieferzeiten und Fehlmengen."
+        },
+        "inventory_listing": {
+          "name": "Lagerbestandsbericht",
+          "description": "Alle aktuellen Lagerartikel mit Bestandsmengen, Kosten, Lieferant und Standortangaben."
+        },
+        "pm_compliance": {
+          "name": "PM-Einhaltungsbericht",
+          "description": "Abschluss geplanter vorbeugender Wartung, versäumte Aufgaben, Auswertungen nach Maschine und Techniker."
+        },
+        "training_compliance": {
+          "name": "Schulungs-Compliance-Bericht",
+          "description": "Schulungsabdeckung je Person über Mitarbeiter- und Auszubildendenprogramme hinweg, inklusive Bewertungen."
+        },
+        "sla_compliance": {
+          "name": "SLA-Einhaltungsbericht",
+          "description": "SLA-Leistung nach Schweregrad, Trends, Verletzungsdetails, Auswertungen nach Abteilung und Maschine."
+        },
+        "shift_handover_summary": {
+          "name": "Schichtübergabe-Zusammenfassung",
+          "description": "Schichtannahme, Überlappung, Beobachtungsmarkierungen, offene Arbeiten, Sicherheitsvorfälle und Notizen."
+        },
+        "downtime_analysis": {
+          "name": "Stillstandsanalysebericht",
+          "description": "Stillstandszeit je Arbeitsauftrag (von Erstellung bis Abzeichnung) nach Maschine, Standort und Wochentag."
+        },
+        "executive_monthly": {
+          "name": "Monatsbericht für die Geschäftsleitung",
+          "description": "Vorstandstauglicher monatlicher Wartungsbericht mit KPI-Trends, Kosten, Risiken und Maßnahmen."
+        },
+        "audit_trail": {
+          "name": "Audit-Protokollbericht",
+          "description": "Abgeschlossene Sitzungen des Audit-Moduls mit Kategorie, Umfang, Teilnehmern und Bewertungen."
+        },
+        "po_history": {
+          "name": "Bestellhistorie-Bericht",
+          "description": "Bestellregister mit Lieferant, Teilen, endgültiger Rechnungspreisgestaltung, Terminen und Fortschritt."
+        },
+        "safety_incidents": {
+          "name": "Sicherheitsvorfallbericht",
+          "description": "Register der Sicherheitsfälle — im Werk gemeldete Vorfälle, Beinaheunfälle, Gefahren und unsichere Handlungen."
+        },
+        "work_permit_history": {
+          "name": "Arbeitserlaubnis-Historienbericht",
+          "description": "Register der Arbeitserlaubnisse — Kategorie, Gültigkeitszeitraum, Vorsichtsmaßnahmen, Abzeichnungsergebnis und Aussteller jeder Erlaubnis."
+        }
+      },
+      "columns": {
+        "safety_incidents": {
+          "reportedAt": "Gemeldet",
+          "type": "Typ",
+          "title": "Fall",
+          "severity": "Schweregrad",
+          "status": "Status",
+          "location": "Standort",
+          "reportedByName": "Gemeldet Von"
+        },
+        "work_permit_history": {
+          "permitNumber": "Erlaubnis-Nr.",
+          "category": "Kategorie",
+          "title": "Titel",
+          "status": "Status",
+          "validFrom": "Gültig Ab",
+          "validTo": "Gültig Bis",
+          "location": "Standort",
+          "requestedByName": "Erstellt Von",
+          "completion": "Abschluss",
+          "signedOffByName": "Abgezeichnet Von",
+          "signedOffAt": "Abgezeichnet"
+        },
+        "breakdown_summary": {
+          "ticketNumber": "Ticket",
+          "severity": "Schweregrad",
+          "description": "Was Ist Passiert (Gemeldet)",
+          "attemptedFixes": "Versuchte Reparaturen",
+          "technicianFindings": "Was Ist Passiert (Techniker/Auszubildender)",
+          "assignedTechnicianNames": "Zugewiesene Techniker",
+          "woNumber": "Arbeitsauftrag Nr.",
+          "woAssignedTechnicianNames": "AA Zugewiesene Techniker",
+          "woChecklist": "Aufgabenliste (Vorgesetzter)",
+          "woRootCause": "Ursachenanalyse",
+          "woPartsUsed": "Verwendete Teile",
+          "woSignOffNotes": "Abzeichnungsnotiz",
+          "woSignedOffAt": "Abzeichnungszeit (AA)"
+        },
+        "sla_compliance": {
+          "ticketNumber": "Ticket",
+          "machineName": "Maschine",
+          "severity": "Schweregrad",
+          "status": "Status",
+          "slaDeadline": "SLA-Frist",
+          "slaBreached": "Verletzt",
+          "reportedAt": "Gemeldet",
+          "resolvedAt": "Behoben"
+        },
+        "downtime_analysis": {
+          "woTicket": "AA-Ticket",
+          "machineName": "Maschinenname",
+          "location": "Standort",
+          "woType": "AA-Typ",
+          "createdAt": "Erstellungsdatum",
+          "downtimeMinutes": "Stillstand (Min.)"
+        },
+        "work_order_detail": {
+          "woNumber": "AA-Nr.",
+          "woType": "Typ",
+          "priority": "Priorität",
+          "status": "Status",
+          "machineName": "Maschine",
+          "machineDepartment": "Abteilung",
+          "participants": "Teilnehmer",
+          "createdByName": "Erstellt Von",
+          "supervisorSignOffByName": "Abgezeichnet Von",
+          "createdAt": "Erstellt",
+          "actualEndTime": "Abgeschlossen",
+          "supervisorSignOffAt": "Abgezeichnet"
+        },
+        "maintenance_cost": {
+          "woTicket": "AA-Ticket",
+          "woType": "AA-Typ",
+          "machineName": "Maschine",
+          "machineDepartment": "Abteilung",
+          "totalCost": "Gesamtkosten",
+          "signedOffDate": "Abzeichnungsdatum"
+        },
+        "technician_performance": {
+          "name": "Name",
+          "role": "Rolle",
+          "evaluationScore": "Bewertungspunktzahl",
+          "auditScore": "Audit-Punktzahl",
+          "trainingsCompleted": "Abgeschlossene Schulungen",
+          "quizzesPassed": "Bestandene Tests"
+        },
+        "contractor_performance": {
+          "contractorName": "Name",
+          "wosCompleted": "Abgeschlossene AA",
+          "rating": "Bewertung",
+          "signedOffDate": "Abzeichnungsdatum",
+          "signedOffByName": "Abgezeichnet Von",
+          "totalProjectCost": "Gesamtprojektkosten"
+        },
+        "inventory_usage": {
+          "partNumber": "Teilenummer",
+          "partName": "Teil",
+          "movementType": "Bewegung",
+          "quantityChange": "Mengenänderung",
+          "quantityAfter": "Menge Danach",
+          "totalCostImpact": "Kostenauswirkung",
+          "workOrderNumber": "Verknüpfter AA",
+          "isReturnable": "Rückgabefähig",
+          "returnStatus": "Rückgabestatus",
+          "performedByName": "Von",
+          "performedAt": "Datum"
+        },
+        "low_stock_alert": {
+          "name": "Teilename",
+          "lowStockAlertDate": "Datum der Mindestbestandswarnung",
+          "poStatus": "Status",
+          "refilledDate": "Datum der Auffüllung"
+        },
+        "inventory_listing": {
+          "partNumber": "Teilenummer",
+          "name": "Teilename",
+          "storeLocation": "Standort",
+          "category": "Kategorie",
+          "criticality": "Kritikalität",
+          "status": "Status",
+          "minStockLevel": "Mindestbestand",
+          "availableStock": "Verfügbarer Bestand",
+          "unitCost": "Stückkosten",
+          "totalCost": "Gesamtkosten"
+        },
+        "pm_compliance": {
+          "scheduleName": "Zeitplan",
+          "machineName": "Maschine",
+          "dueDate": "Fällig",
+          "completedDate": "Abgeschlossen",
+          "status": "Status",
+          "daysOverdue": "Tage Überfällig",
+          "technicianNames": "Techniker"
+        },
+        "machine_health_score": {
+          "machineName": "Maschine",
+          "machineIdCode": "Anlagencode",
+          "department": "Abteilung",
+          "currentStatus": "Status",
+          "healthScore": "Zustandswert",
+          "watchFlagLevel": "Beobachtungsstufe",
+          "mtbfDays": "MTBF (Tage)",
+          "mttrHours": "MTTR (Stunden)",
+          "openBreakdownCount": "Offene Störungen",
+          "openWoCount": "Offene AA",
+          "maintenanceCostMTD": "Kosten (Laufender Monat)",
+          "lastServiceDate": "Letzter Service",
+          "nextPmDue": "Nächste PM"
+        },
+        "shift_handover_summary": {
+          "shiftName": "Schichtname",
+          "personName": "Person",
+          "personRole": "Rolle",
+          "department": "Abteilung",
+          "shiftActualStart": "Schicht Begonnen",
+          "lateByMinutes": "Verspätung (Min.)",
+          "shiftActualEnd": "Schicht Beendet",
+          "otMinutes": "Überstunden (Min.)",
+          "breakdownsOpened": "Störungen Während Der Schicht",
+          "wosOpened": "AA Während Der Schicht",
+          "watchFlagsCount": "Beobachtungsmarkierungen"
+        },
+        "training_compliance": {
+          "name": "Name",
+          "role": "Rolle",
+          "trainingsAssigned": "Anzahl Zugewiesener Schulungen",
+          "trainingsCompleted": "Anzahl Abgeschlossener Schulungen",
+          "totalMarks": "Gesamtpunktzahl"
+        },
+        "machine_history": {
+          "machineName": "Maschinenname",
+          "machineType": "Typ",
+          "purchaseDate": "Kaufdatum",
+          "installationDate": "Installationsdatum",
+          "department": "Abteilung",
+          "location": "Standort",
+          "lastServiceDate": "Datum Des Letzten Service",
+          "lastServiceType": "Art Des Letzten Service",
+          "nextPmDue": "Nächstes PM-Datum"
+        },
+        "executive_monthly": {
+          "metric": "Kennzahl",
+          "value": "Wert"
+        },
+        "audit_trail": {
+          "date": "Datum",
+          "categoryLabel": "Kategorie",
+          "scopeDetails": "Umfangsdetails",
+          "doneBy": "Durchgeführt Von",
+          "participants": "Teilnehmer",
+          "marks": "Punkte"
+        },
+        "po_history": {
+          "poNumber": "Bestellcode",
+          "supplierName": "Lieferant",
+          "itemName": "Artikel",
+          "quantity": "Menge",
+          "unitPrice": "Stückpreis",
+          "lineTotal": "Gesamt",
+          "status": "Status",
+          "raisedByName": "Erstellt Von",
+          "raisedAt": "Datum",
+          "receivedAt": "Erhaltungsdatum"
+        }
+      }
     }
   },
   "triage": {

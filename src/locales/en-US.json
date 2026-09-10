@@ -6808,6 +6808,548 @@
         "departmentCriticality": "{{department}} · Criticality {{criticality}}",
         "criticalBadge": "CRITICAL"
       }
+    },
+    "reports": {
+      "hubPage": {
+        "title": "Reports",
+        "subtitle": "Generate, export, and schedule operational reports",
+        "noResults": "No reports match your search."
+      },
+      "historyPage": {
+        "backToReports": "Back to Reports",
+        "title": "Report History",
+        "subtitle": "Download, share, and manage generated report records",
+        "loading": "Loading report history...",
+        "empty": "No generated reports yet."
+      },
+      "categoryTabs": {
+        "all": "All",
+        "breakdowns": "Breakdowns",
+        "work_orders": "Work Orders",
+        "machines": "Machines",
+        "inventory": "Inventory",
+        "people": "People",
+        "compliance": "Compliance",
+        "financial": "Financial",
+        "executive": "Executive"
+      },
+      "card": {
+        "actions": {
+          "generate": "Generate"
+        }
+      },
+      "searchBar": {
+        "placeholder": "Search reports"
+      },
+      "configPanel": {
+        "estimatedGeneration": "Estimated generation: {{seconds}}s",
+        "closeAriaLabel": "Close report panel",
+        "dateRangeTitle": "Date Range",
+        "dateRangeUnsupportedNote": "This report reflects current data, not a date window — the date range filter doesn't apply here.",
+        "actions": {
+          "generating": "Generating…",
+          "generateFormat": "Generate {{format}}"
+        }
+      },
+      "preview": {
+        "title": "Report Preview",
+        "recordCount_one": "{{count}} record",
+        "recordCount_other": "{{count}} records",
+        "loading": "Loading preview…",
+        "errors": {
+          "loadFailed": "Failed to load preview"
+        },
+        "empty": "No records match the selected filters.",
+        "showingFirst": "Showing first {{shown}} of {{total}} records. Export to see all."
+      },
+      "config": {
+        "enums": {
+          "severity": {
+            "critical": "Critical",
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low"
+          },
+          "shift": {
+            "morning": "Morning",
+            "afternoon": "Afternoon",
+            "night": "Night"
+          },
+          "trainingStatus": {
+            "certified": "Certified",
+            "expiring": "Expiring",
+            "expired": "Expired",
+            "inProgress": "In Progress"
+          },
+          "trainingType": {
+            "safetyTraining": "Safety Training",
+            "generalTraining": "General Training"
+          },
+          "slaStatus": {
+            "within": "Within",
+            "atRisk": "At Risk",
+            "breached": "Breached"
+          },
+          "woType": {
+            "breakdown": "Breakdown",
+            "corrective": "Corrective",
+            "preventive": "Preventive",
+            "installation": "Installation",
+            "modification": "Modification",
+            "inspection": "Inspection",
+            "contractor": "Contractor",
+            "other": "Other"
+          },
+          "breakdownType": {
+            "mechanical": "Mechanical",
+            "electrical": "Electrical",
+            "hydraulic": "Hydraulic",
+            "pneumatic": "Pneumatic",
+            "software": "Software",
+            "other": "Other"
+          },
+          "partCategory": {
+            "electrical": "Electrical",
+            "mechanical": "Mechanical",
+            "hydraulic": "Hydraulic",
+            "pneumatic": "Pneumatic",
+            "automation": "Automation",
+            "civil": "Civil"
+          }
+        },
+        "dateRangeSelector": {
+          "title": "Date Range",
+          "from": "From",
+          "to": "To",
+          "ranges": {
+            "today": "Today",
+            "yesterday": "Yesterday",
+            "this_week": "This Week",
+            "last_week": "Last Week",
+            "this_month": "This Month",
+            "last_month": "Last Month",
+            "last_3_months": "Last 3 Months",
+            "last_6_months": "Last 6 Months",
+            "this_year": "This Year",
+            "custom": "Custom"
+          }
+        },
+        "outputFormatToggle": {
+          "title": "Output Format",
+          "pdf": "PDF",
+          "excel": "Excel (.xlsx)"
+        },
+        "pdfOptionsSection": {
+          "title": "PDF Options",
+          "includeCharts": "Include charts",
+          "includeDataTable": "Include raw data table",
+          "paperSize": "Paper size",
+          "orientation": "Orientation",
+          "portrait": "Portrait",
+          "landscape": "Landscape"
+        },
+        "reportFilterSection": {
+          "title": "Report Filters",
+          "machineHistoryWarning": "Machine History requires exactly one machine.",
+          "noFilters": "This report uses date range and access scope only.",
+          "labels": {
+            "woType": "WO Type",
+            "breakdownType": "Breakdown Type",
+            "partCategory": "Part Category",
+            "priority": "Priority",
+            "trainingStatus": "Training Status",
+            "trainingType": "Training Type",
+            "slaStatus": "SLA Status"
+          },
+          "placeholders": {
+            "woType": "Search work order types…",
+            "breakdownType": "Search breakdown types…",
+            "partCategory": "Search part categories…"
+          }
+        },
+        "searchableMultiSelect": {
+          "allNoFilter": "All (no {{label}} filter)",
+          "selectedCount_one": "{{count}} selected",
+          "selectedCount_other": "{{count}} selected",
+          "removeAriaLabel": "Remove {{label}}",
+          "loading": "Loading…",
+          "noMatches": "No matches found."
+        },
+        "severityCheckboxGroup": {
+          "label": "Severity"
+        },
+        "shiftCheckboxGroup": {
+          "label": "Shift"
+        },
+        "contractorMultiSelect": {
+          "label": "Contractor",
+          "placeholder": "Search contractors…"
+        },
+        "departmentMultiSelect": {
+          "label": "Department",
+          "placeholder": "Search departments…"
+        },
+        "machineMultiSelect": {
+          "label": "Machine",
+          "placeholder": "Search machines…"
+        },
+        "supervisorMultiSelect": {
+          "label": "Supervisor",
+          "placeholder": "Search supervisors…"
+        },
+        "technicianMultiSelect": {
+          "label": "Technician",
+          "placeholder": "Search technicians…"
+        }
+      },
+      "generation": {
+        "errorState": {
+          "retry": "Retry"
+        },
+        "statusMessage": {
+          "idle": "Configure the report and choose an export action.",
+          "fetching_data": "Fetching data...",
+          "building": "Building report...",
+          "finalizing": "Finalizing PDF...",
+          "ready": "Ready to download",
+          "error": "Report generation failed"
+        },
+        "readyActions": {
+          "downloadPdf": "Download PDF"
+        }
+      },
+      "history": {
+        "formatBadge": {},
+        "card": {
+          "generatedBy": "Generated by {{name}} · {{date}}",
+          "open": "Open",
+          "deleteAriaLabel": "Delete history entry"
+        },
+        "filterBar": {
+          "allReports": "All reports",
+          "allFormats": "All formats",
+          "pdf": "PDF",
+          "excel": "Excel",
+          "sheets": "Sheets",
+          "generatedByPlaceholder": "Generated by"
+        },
+        "table": {
+          "columns": {
+            "reportName": "Report Name",
+            "format": "Format",
+            "generatedBy": "Generated By",
+            "dateTime": "Date & Time",
+            "dateRange": "Date Range",
+            "fileSize": "File Size",
+            "actions": "Actions"
+          },
+          "dateRangeValue": "{{from}} to {{to}}",
+          "fileSizeMb": "{{size}} MB",
+          "noFileSize": "-",
+          "downloadAriaLabel": "Download report",
+          "copyLinkAriaLabel": "Copy share link",
+          "deleteAriaLabel": "Delete history entry"
+        },
+        "storageUsageIndicator": {
+          "summary_one": "<strong>{{count}}</strong> report saved · <strong>{{mb}} MB</strong> used",
+          "summary_other": "<strong>{{count}}</strong> reports saved · <strong>{{mb}} MB</strong> used"
+        }
+      },
+      "shared": {
+        "formatChip": {
+          "pdf": "PDF",
+          "excel": "Excel",
+          "google_sheets": "Sheets",
+          "csv": "CSV"
+        }
+      },
+      "definitions": {
+        "breakdown_summary": {
+          "name": "Breakdown Summary Report",
+          "description": "Frequency, severity, MTTR, hours lost, and SLA performance for breakdowns."
+        },
+        "work_order_detail": {
+          "name": "Work Order Detail Report",
+          "description": "Full work order register with type, priority, assignments, parts, cost, and status."
+        },
+        "machine_history": {
+          "name": "Machine History Report",
+          "description": "A machine's full work-order history with types, dates, status, and durations."
+        },
+        "machine_health_score": {
+          "name": "Machine Health Score Report",
+          "description": "Fleet health scores, risk distribution, department split, and six-month trends."
+        },
+        "maintenance_cost": {
+          "name": "Maintenance Cost Report",
+          "description": "Parts, labor, contractor spend, cost by department, and expensive machines."
+        },
+        "technician_performance": {
+          "name": "Team Performance Report",
+          "description": "Per-role performance aggregated from Evaluations, Quick Assessment marks, and Training completions."
+        },
+        "contractor_performance": {
+          "name": "Contractor Performance Report",
+          "description": "Contractor scoreboard, SLA compliance, first-fix rate, ratings, cost, and invoices."
+        },
+        "inventory_usage": {
+          "name": "Inventory Usage Report",
+          "description": "Issued parts, values, category mix, daily trends, work orders, and technicians."
+        },
+        "low_stock_alert": {
+          "name": "Low Stock Alert Report",
+          "description": "Parts below minimum level, out-of-stock items, supplier lead times, and deficits."
+        },
+        "inventory_listing": {
+          "name": "Inventory Listing Report",
+          "description": "All current inventory items with stock levels, cost, supplier, and location details."
+        },
+        "pm_compliance": {
+          "name": "PM Compliance Report",
+          "description": "Scheduled PM completion, missed tasks, machine and technician compliance pivots."
+        },
+        "training_compliance": {
+          "name": "Training Compliance Report",
+          "description": "Per-person training coverage across employee and trainee-programme training, with marks."
+        },
+        "sla_compliance": {
+          "name": "SLA Compliance Report",
+          "description": "SLA performance by severity, trends, breach detail, department and machine pivots."
+        },
+        "shift_handover_summary": {
+          "name": "Shift Handover Summary",
+          "description": "Shift acceptance, overlap, watch flags, open work, safety incidents, and notes."
+        },
+        "downtime_analysis": {
+          "name": "Downtime Analysis Report",
+          "description": "Per-WO downtime (created to signed off) by machine, location, and day of the week."
+        },
+        "executive_monthly": {
+          "name": "Executive Monthly Report",
+          "description": "Board-ready monthly maintenance narrative, KPI trends, costs, risks, and actions."
+        },
+        "audit_trail": {
+          "name": "Audit Trail Report",
+          "description": "Completed Audit module sessions with category, scope, participants, and marks."
+        },
+        "po_history": {
+          "name": "PO History Report",
+          "description": "Purchase order register with supplier, parts, invoice-final pricing, dates, and progress."
+        },
+        "safety_incidents": {
+          "name": "Safety Incidents Report",
+          "description": "Register of safety cases — incidents, near-misses, hazards and unsafe acts reported across the plant."
+        },
+        "work_permit_history": {
+          "name": "Work Permit History Report",
+          "description": "Permit-to-Work register — category, validity window, precautions, sign-off outcome and who issued each permit."
+        }
+      },
+      "columns": {
+        "safety_incidents": {
+          "reportedAt": "Reported",
+          "type": "Type",
+          "title": "Case",
+          "severity": "Severity",
+          "status": "Status",
+          "location": "Location",
+          "reportedByName": "Reported By"
+        },
+        "work_permit_history": {
+          "permitNumber": "Permit #",
+          "category": "Category",
+          "title": "Title",
+          "status": "Status",
+          "validFrom": "Valid From",
+          "validTo": "Valid To",
+          "location": "Location",
+          "requestedByName": "Created By",
+          "completion": "Completion",
+          "signedOffByName": "Signed Off By",
+          "signedOffAt": "Signed Off"
+        },
+        "breakdown_summary": {
+          "ticketNumber": "Ticket",
+          "severity": "Severity",
+          "description": "What Happened (Reported)",
+          "attemptedFixes": "Attempted Fixes",
+          "technicianFindings": "What Happened (Technician/Trainee)",
+          "assignedTechnicianNames": "Assigned Technicians",
+          "woNumber": "Work Order #",
+          "woAssignedTechnicianNames": "WO Assigned Technicians",
+          "woChecklist": "Checklist (Supervisor)",
+          "woRootCause": "Root Cause Analysis",
+          "woPartsUsed": "Used Parts",
+          "woSignOffNotes": "Signed-Off Note",
+          "woSignedOffAt": "Sign-Off Time (WO)"
+        },
+        "sla_compliance": {
+          "ticketNumber": "Ticket",
+          "machineName": "Machine",
+          "severity": "Severity",
+          "status": "Status",
+          "slaDeadline": "SLA Deadline",
+          "slaBreached": "Breached",
+          "reportedAt": "Reported",
+          "resolvedAt": "Resolved"
+        },
+        "downtime_analysis": {
+          "woTicket": "WO Ticket",
+          "machineName": "Machine Name",
+          "location": "Location",
+          "woType": "WO Type",
+          "createdAt": "Date of Created",
+          "downtimeMinutes": "Downtime (min)"
+        },
+        "work_order_detail": {
+          "woNumber": "WO #",
+          "woType": "Type",
+          "priority": "Priority",
+          "status": "Status",
+          "machineName": "Machine",
+          "machineDepartment": "Department",
+          "participants": "Participants",
+          "createdByName": "Created By",
+          "supervisorSignOffByName": "Signed Off By",
+          "createdAt": "Created",
+          "actualEndTime": "Completed",
+          "supervisorSignOffAt": "Signed Off"
+        },
+        "maintenance_cost": {
+          "woTicket": "WO Ticket",
+          "woType": "WO Type",
+          "machineName": "Machine",
+          "machineDepartment": "Department",
+          "totalCost": "Total Cost",
+          "signedOffDate": "Signed Off Date"
+        },
+        "technician_performance": {
+          "name": "Name",
+          "role": "Role",
+          "evaluationScore": "Evaluation Score",
+          "auditScore": "Audit Score",
+          "trainingsCompleted": "Trainings Completed",
+          "quizzesPassed": "Quizzes Passed"
+        },
+        "contractor_performance": {
+          "contractorName": "Name",
+          "wosCompleted": "WOs Completed",
+          "rating": "Rating",
+          "signedOffDate": "Signed Off Date",
+          "signedOffByName": "Signed Off By",
+          "totalProjectCost": "Total Project Cost"
+        },
+        "inventory_usage": {
+          "partNumber": "Part #",
+          "partName": "Part",
+          "movementType": "Movement",
+          "quantityChange": "Qty Change",
+          "quantityAfter": "Qty After",
+          "totalCostImpact": "Cost Impact",
+          "workOrderNumber": "Linked WO",
+          "isReturnable": "Returnable",
+          "returnStatus": "Return Status",
+          "performedByName": "By",
+          "performedAt": "Date"
+        },
+        "low_stock_alert": {
+          "name": "Part Name",
+          "lowStockAlertDate": "Date of Received Low Stock Alert",
+          "poStatus": "Status",
+          "refilledDate": "Refilled Date"
+        },
+        "inventory_listing": {
+          "partNumber": "Part Number",
+          "name": "Part Name",
+          "storeLocation": "Location",
+          "category": "Category",
+          "criticality": "Criticality",
+          "status": "Status",
+          "minStockLevel": "Min Stock Level",
+          "availableStock": "Available Stock",
+          "unitCost": "Unit Cost",
+          "totalCost": "Total Cost"
+        },
+        "pm_compliance": {
+          "scheduleName": "Schedule",
+          "machineName": "Machine",
+          "dueDate": "Due",
+          "completedDate": "Completed",
+          "status": "Status",
+          "daysOverdue": "Days Overdue",
+          "technicianNames": "Technicians"
+        },
+        "machine_health_score": {
+          "machineName": "Machine",
+          "machineIdCode": "Asset Code",
+          "department": "Department",
+          "currentStatus": "Status",
+          "healthScore": "Health Score",
+          "watchFlagLevel": "Watch Level",
+          "mtbfDays": "MTBF (days)",
+          "mttrHours": "MTTR (hours)",
+          "openBreakdownCount": "Open Breakdowns",
+          "openWoCount": "Open WOs",
+          "maintenanceCostMTD": "Cost MTD",
+          "lastServiceDate": "Last Service",
+          "nextPmDue": "Next PM"
+        },
+        "shift_handover_summary": {
+          "shiftName": "Shift Name",
+          "personName": "Person",
+          "personRole": "Role",
+          "department": "Department",
+          "shiftActualStart": "Shift Started",
+          "lateByMinutes": "Late By (min)",
+          "shiftActualEnd": "Shift Ended",
+          "otMinutes": "OT (min)",
+          "breakdownsOpened": "Breakdowns during Shift",
+          "wosOpened": "WOs during Shift",
+          "watchFlagsCount": "Watch Flags"
+        },
+        "training_compliance": {
+          "name": "Name",
+          "role": "Role",
+          "trainingsAssigned": "No. of Trainings Assigned",
+          "trainingsCompleted": "No. of Trainings Completed",
+          "totalMarks": "Total Marks"
+        },
+        "machine_history": {
+          "machineName": "Machine Name",
+          "machineType": "Type",
+          "purchaseDate": "Purchased Date",
+          "installationDate": "Installed Date",
+          "department": "Department",
+          "location": "Location",
+          "lastServiceDate": "Last Service Date",
+          "lastServiceType": "Last Service Type",
+          "nextPmDue": "Next PM Date"
+        },
+        "executive_monthly": {
+          "metric": "Metric",
+          "value": "Value"
+        },
+        "audit_trail": {
+          "date": "Date",
+          "categoryLabel": "Category",
+          "scopeDetails": "Scope Details",
+          "doneBy": "Done By",
+          "participants": "Participants",
+          "marks": "Marks"
+        },
+        "po_history": {
+          "poNumber": "PO Code",
+          "supplierName": "Supplier",
+          "itemName": "Item",
+          "quantity": "Quantity",
+          "unitPrice": "Unit Price",
+          "lineTotal": "Total",
+          "status": "Status",
+          "raisedByName": "Raised By",
+          "raisedAt": "Date",
+          "receivedAt": "Received Date"
+        }
+      }
     }
   }
 }
