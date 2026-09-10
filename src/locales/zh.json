@@ -7196,6 +7196,259 @@
           "topEmployeesByMarks": "所有绩效总分前5的员工"
         }
       }
+    },
+    "audit": {
+      "categories": {
+        "tpm": "TPM 审核",
+        "fives": "5S 审核",
+        "moe": "MOE 审核",
+        "contractor": "承包商审核"
+      },
+      "answerTypes": {
+        "yesNo": "是 / 否",
+        "scale": "评分（0–5）",
+        "text": "文本"
+      },
+      "scopes": {
+        "machines": "设备",
+        "contractors": "承包商",
+        "inventory": "库存 / 备件",
+        "workOrders": "工单",
+        "departments": "部门"
+      },
+      "findingKinds": {
+        "loss": "生产损失",
+        "breakdown": "故障",
+        "safety": "安全问题",
+        "maintenance": "维护问题"
+      },
+      "answers": {
+        "yes": "是",
+        "no": "否"
+      },
+      "aiRootCause": {
+        "empty": "未发现问题 — AI 未发现需要进行根本原因分析的内容。",
+        "summary": "AI 已分析 {{count}} 项发现，并给出以下建议：",
+        "unlabeledFinding": "（未命名发现）",
+        "probableCauses": "可能原因",
+        "recommendedActions": "建议措施"
+      },
+      "attachments": {
+        "types": {
+          "document": "文档",
+          "image": "图片",
+          "video": "视频"
+        },
+        "addButton": "添加{{type}}",
+        "empty": "未附加支持性文件"
+      },
+      "detail": {
+        "backToHistory": "返回历史记录",
+        "pdfReport": "PDF 报告",
+        "downloadPdf": "下载 PDF",
+        "conductedBy": "审核人",
+        "department": "部门",
+        "locationZone": "位置 / 区域",
+        "contractors": "承包商",
+        "machines": "设备",
+        "participants": "参与人员",
+        "checklistResponses": "检查表填写结果",
+        "findings": "发现项",
+        "reason": "原因：",
+        "solution": "解决方案：",
+        "attachments": "附件",
+        "aiRootCauseAnalysis": "AI 根本原因分析"
+      },
+      "taskConfigurator": {
+        "errors": {
+          "nameRequired": "请为新分类命名。",
+          "taskRequired": "请至少添加一项任务/问题。"
+        },
+        "categoryNameLabel": "分类 / 表单名称",
+        "templateNameLabel": "模板名称",
+        "categoryNamePlaceholder": "例如：仓库安全审核",
+        "findingTypesAllowed": "允许的发现类型",
+        "findingTypesHint": "默认不启用任何类型 — 请勾选此表单应提供的发现类型。",
+        "taskPlaceholder": "任务 {{number}} — 问题 / 检查项",
+        "criticalLabel": "关键项（未通过时需填写原因和解决方案）",
+        "addTask": "添加任务",
+        "createCategory": "创建分类",
+        "saveConfiguration": "保存配置",
+        "cancel": "取消"
+      },
+      "contractorSelect": {
+        "empty": "尚未关联任何承包商",
+        "searchPlaceholder": "按公司或工种名称搜索承包商…",
+        "noneFound": "未找到承包商。"
+      },
+      "machineSelect": {
+        "empty": "尚未关联任何设备",
+        "searchPlaceholder": "按名称、序列号、部门搜索设备…",
+        "noneFound": "未找到设备。"
+      },
+      "inventorySelect": {
+        "empty": "尚未关联任何备件",
+        "searchPlaceholder": "按名称或备件编号搜索备件…",
+        "noneFound": "未找到备件。"
+      },
+      "workOrderSelect": {
+        "empty": "尚未关联任何工单",
+        "searchPlaceholder": "按编号或设备搜索工单…",
+        "noneFound": "未找到工单。"
+      },
+      "participantSelector": {
+        "empty": "尚未标记参与人员",
+        "searchPlaceholder": "按姓名或角色搜索（电工、技术员、主管…）",
+        "noneFound": "未找到用户。",
+        "roles": {
+          "admin": "管理员",
+          "plantManager": "厂长",
+          "supervisor": "主管",
+          "technician": "技术员",
+          "storeKeeper": "仓库管理员",
+          "hrOfficer": "人力资源专员",
+          "floorOperator": "操作员",
+          "trainee": "实习学员"
+        }
+      },
+      "findings": {
+        "empty": "添加发现的任何生产损失、故障、安全或维护问题。",
+        "descriptionPlaceholder": "发生了什么？（描述）",
+        "reasonPlaceholder": "原因 / 根本原因",
+        "solutionPlaceholder": "解决方案 / 已采取的纠正措施"
+      },
+      "sessionForm": {
+        "configureTasks": "配置任务",
+        "conductedBy": "审核人",
+        "unknownAuditor": "未知",
+        "errors": {
+          "answerRequired": "提交前请至少回答一项任务。"
+        },
+        "success": {
+          "title": "审核已提交",
+          "scoreSummary": "得分 {{score}}% · {{passed}}/{{total}} 项通过",
+          "viewPdf": "查看 PDF 报告",
+          "downloadPdf": "下载 PDF 报告",
+          "done": "完成"
+        },
+        "scope": {
+          "title": "范围",
+          "contractors": "承包商",
+          "inventory": "库存 / 备件",
+          "workOrders": "工单",
+          "machines": "设备",
+          "department": "部门",
+          "departmentPlaceholder": "例如：生产部、维护部、质量部",
+          "locationZone": "位置 / 区域",
+          "locationAutoFilled": "根据设备自动填写 · 可编辑",
+          "locationPlaceholder": "例如：A 车间、3 号工位、空压机房"
+        },
+        "participants": {
+          "title": "参与人员"
+        },
+        "checklist": {
+          "title": "检查表",
+          "critical": "（关键项）",
+          "responsePlaceholder": "输入回复…",
+          "nonConformancePlaceholder": "请注明此不合格项的原因…"
+        },
+        "findings": {
+          "title": "生产损失、故障、安全与维护发现项"
+        },
+        "attachments": {
+          "title": "证据与附件"
+        },
+        "aiPreview": {
+          "title": "AI 根本原因分析（预览）"
+        },
+        "submitBar": {
+          "scoreLabel": "得分：",
+          "passedSummary": "{{passed}}/{{total}} 项通过",
+          "submit": "提交并生成 PDF"
+        },
+        "contractorJobHistory": {
+          "completedOn": "完成于 {{date}}",
+          "startedOn": "开始于 {{date}}",
+          "notesPlaceholder": "特殊备注（选填）…",
+          "title": "{{name}} — 工单",
+          "notCompleted": "未完成",
+          "loading": "加载中…",
+          "noActiveJobs": "暂无进行中的工作。",
+          "previouslyCompleted": "已完成",
+          "noCompletedJobs": "暂无已完成的工作。"
+        }
+      },
+      "page": {
+        "title": "审核",
+        "subtitle": "TPM · 5S · MOE · 承包商审核，含 AI 根本原因分析",
+        "loading": "加载中…",
+        "tabs": {
+          "inProgress": "进行中",
+          "library": "审核库",
+          "completed": "已完成"
+        },
+        "inProgress": {
+          "empty": "暂无进行中的审核。",
+          "lastSaved": "最后保存于 {{when}}",
+          "resumeAudit": "继续审核",
+          "inProgressBy": "由 {{name}} 进行中"
+        },
+        "newCategory": "新建审核分类",
+        "loadingTemplates": "正在加载审核模板…",
+        "taskCount": "{{count}} 项任务",
+        "startAudit": "开始审核",
+        "completed": {
+          "empty": "暂无已完成的审核。"
+        },
+        "accessRestricted": {
+          "title": "访问受限",
+          "description": "审核模块仅对主管、厂长、管理员、人力资源专员及安全专员开放。"
+        },
+        "configureTitle": "配置{{category}}",
+        "configureDescription": "添加或移除任务，并为每项任务选择答案类型（是/否、评分、文本）。",
+        "createTitle": "新建审核分类",
+        "createDescription": "创建一个带有自定义检查表的审核分类。它将出现在所有拥有审核权限的人员的审核主页上；此后仅管理员可以编辑其任务。",
+        "categoryDescriptions": {
+          "tpm": "全员生产维护检查",
+          "fives": "工作现场 5S 整理审核",
+          "moe": "可用率、性能与质量损失",
+          "contractor": "承包商安全与工作质量审核",
+          "custom": "自定义审核检查表"
+        }
+      },
+      "pdf": {
+        "reportTitle": "{{category}}报告",
+        "template": "模板：{{name}}",
+        "dateScoreSummary": "日期：{{date}}    得分：{{score}}%    （{{passed}}/{{total}} 项通过）",
+        "conductedBy": "审核人",
+        "department": "部门",
+        "locationZone": "位置 / 区域",
+        "contractors": "承包商",
+        "machines": "设备",
+        "participants": "参与人员",
+        "checklistResponses": "检查表填写结果",
+        "resultFail": "未通过",
+        "resultOk": "通过",
+        "findingsTitle": "发现项 — 原因与解决方案",
+        "aiRootCauseTitle": "AI 根本原因分析",
+        "attachmentsTitle": "附件",
+        "columns": {
+          "number": "#",
+          "task": "任务",
+          "answer": "答案",
+          "result": "结果",
+          "notes": "备注",
+          "type": "类型",
+          "description": "描述",
+          "reason": "原因",
+          "solution": "解决方案",
+          "finding": "发现项",
+          "priority": "优先级",
+          "probableCauses": "可能原因",
+          "recommendedActions": "建议措施",
+          "file": "文件"
+        }
+      }
     }
   },
   "triage": {

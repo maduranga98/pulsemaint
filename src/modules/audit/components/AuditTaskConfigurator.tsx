@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Plus, Trash2, Save, Loader2, GripVertical } from 'lucide-react';
 import { nanoid } from 'nanoid';
+import { useTranslation } from 'react-i18next';
 import {
-  ANSWER_TYPE_LABELS,
-  FINDING_KIND_LABELS,
+  getAnswerTypeLabel,
+  getFindingKindLabel,
+  ALL_FINDING_KINDS,
   type AnswerType,
   type AuditTemplate,
   type AuditTask,
@@ -21,8 +23,11 @@ interface Props {
   onClose: () => void;
 }
 
+const ANSWER_TYPES: AnswerType[] = ['yes_no', 'scale', 'text'];
+
 /** Lets users customize the checklist tasks and answer types per category, or build a brand-new custom category from scratch. */
 export function AuditTaskConfigurator({ plantId, template, createNew = false, onSaved, onClose }: Props) {
+  const { t } = useTranslation();
   const [name, setName] = useState(template?.name ?? '');
   const [tasks, setTasks] = useState<AuditTask[]>(template?.tasks ?? []);
   // Custom categories are filled in manually (Department/Location free text, no
@@ -50,11 +55,11 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
     const cleanTasks = tasks.filter((t) => t.text.trim());
     if (createNew) {
       if (!name.trim()) {
-        setError('Give the new category a name.');
+        setError(t('common.audit.taskConfigurator.errors.nameRequired', 'Give the new category a name.'));
         return;
       }
       if (cleanTasks.length === 0) {
-        setError('Add at least one task/question.');
+        setError(t('common.audit.taskConfigurator.errors.taskRequired', 'Add at least one task/question.'));
         return;
       }
     }
@@ -87,12 +92,14 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
     <div className="space-y-4">
       <div>
         <label className="block text-xs font-semibold text-slate-400 mb-1">
-          {createNew ? 'Category / form name' : 'Template name'}
+          {createNew
+            ? t('common.audit.taskConfigurator.categoryNameLabel', 'Category / form name')
+            : t('common.audit.taskConfigurator.templateNameLabel', 'Template name')}
         </label>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder={createNew ? 'e.g. Warehouse Safety Audit' : undefined}
+          placeholder={createNew ? t('common.audit.taskConfigurator.categoryNamePlaceholder', 'e.g. Warehouse Safety Audit') : undefined}
           className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
         />
       </div>
@@ -100,13 +107,13 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
       {createNew && (
         <div>
           <label className="block text-xs font-semibold text-slate-400 mb-1.5">
-            Finding types allowed
+            {t('common.audit.taskConfigurator.findingTypesAllowed', 'Finding types allowed')}
           </label>
           <p className="mb-1.5 text-[11px] text-slate-500">
-            None are enabled by default — check off which finding types this form should offer.
+            {t('common.audit.taskConfigurator.findingTypesHint', 'None are enabled by default — check off which finding types this form should offer.')}
           </p>
           <div className="flex flex-wrap gap-3">
-            {(Object.keys(FINDING_KIND_LABELS) as FindingKind[]).map((kind) => (
+            {ALL_FINDING_KINDS.map((kind) => (
               <label key={kind} className="flex items-center gap-1.5 text-xs text-slate-300">
                 <input
                   type="checkbox"
@@ -114,7 +121,7 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
                   onChange={() => toggleFindingKind(kind)}
                   className="accent-blue-500"
                 />
-                {FINDING_KIND_LABELS[kind]}
+                {getFindingKindLabel(kind, t)}
               </label>
             ))}
           </div>
@@ -129,7 +136,7 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
               <input
                 value={task.text}
                 onChange={(e) => update(task.id, { text: e.target.value })}
-                placeholder={`Task ${i + 1} — question / check`}
+                placeholder={t('common.audit.taskConfigurator.taskPlaceholder', 'Task {{number}} — question / check', { number: i + 1 })}
                 className="w-full px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
               />
               <div className="flex flex-wrap items-center gap-3">
@@ -138,8 +145,8 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
                   onChange={(e) => update(task.id, { answerType: e.target.value as AnswerType })}
                   className="px-2 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:border-blue-500 focus:outline-none"
                 >
-                  {(Object.keys(ANSWER_TYPE_LABELS) as AnswerType[]).map((at) => (
-                    <option key={at} value={at}>{ANSWER_TYPE_LABELS[at]}</option>
+                  {ANSWER_TYPES.map((at) => (
+                    <option key={at} value={at}>{getAnswerTypeLabel(at, t)}</option>
                   ))}
                 </select>
                 <label className="flex items-center gap-1.5 text-xs text-slate-400">
@@ -149,7 +156,7 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
                     onChange={(e) => update(task.id, { critical: e.target.checked })}
                     className="accent-blue-500"
                   />
-                  Critical (failure requires reason &amp; solution)
+                  {t('common.audit.taskConfigurator.criticalLabel', 'Critical (failure requires reason & solution)')}
                 </label>
               </div>
             </div>
@@ -169,7 +176,7 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
         onClick={addTask}
         className="inline-flex items-center gap-1.5 px-3 py-2 text-sm bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg"
       >
-        <Plus className="h-4 w-4" /> Add Task
+        <Plus className="h-4 w-4" /> {t('common.audit.taskConfigurator.addTask', 'Add Task')}
       </button>
 
       {error && <p className="text-xs text-red-400">{error}</p>}
@@ -182,14 +189,16 @@ export function AuditTaskConfigurator({ plantId, template, createNew = false, on
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white rounded-lg disabled:opacity-50"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          {createNew ? 'Create Category' : 'Save Configuration'}
+          {createNew
+            ? t('common.audit.taskConfigurator.createCategory', 'Create Category')
+            : t('common.audit.taskConfigurator.saveConfiguration', 'Save Configuration')}
         </button>
         <button
           type="button"
           onClick={onClose}
           className="px-4 py-2 text-sm text-slate-300 hover:text-white"
         >
-          Cancel
+          {t('common.audit.taskConfigurator.cancel', 'Cancel')}
         </button>
       </div>
     </div>

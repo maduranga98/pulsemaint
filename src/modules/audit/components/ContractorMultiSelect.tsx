@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search, X, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useContractors } from '../../../hooks/contractors/useContractors';
 import type { ContractorRef } from '../types/audit.types';
 
@@ -10,6 +11,7 @@ interface Props {
 
 /** Searchable, multi-select contractor picker for the Contractor Audit scope. */
 export function ContractorMultiSelect({ selected, onChange }: Props) {
+  const { t } = useTranslation();
   const { contractors } = useContractors();
   const [search, setSearch] = useState('');
   const selectedIds = useMemo(() => new Set(selected.map((c) => c.id)), [selected]);
@@ -53,7 +55,7 @@ export function ContractorMultiSelect({ selected, onChange }: Props) {
           </span>
         ))}
         {selected.length === 0 && (
-          <span className="text-xs text-slate-500">No contractors linked yet</span>
+          <span className="text-xs text-slate-500">{t('common.audit.contractorSelect.empty', 'No contractors linked yet')}</span>
         )}
       </div>
 
@@ -62,14 +64,14 @@ export function ContractorMultiSelect({ selected, onChange }: Props) {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search contractors by company or trade name…"
+          placeholder={t('common.audit.contractorSelect.searchPlaceholder', 'Search contractors by company or trade name…')}
           className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none"
         />
       </div>
 
       <div className="max-h-44 overflow-y-auto border border-slate-700 rounded-lg divide-y divide-slate-800">
         {filtered.length === 0 && (
-          <p className="px-3 py-3 text-xs text-slate-500">No contractors found.</p>
+          <p className="px-3 py-3 text-xs text-slate-500">{t('common.audit.contractorSelect.noneFound', 'No contractors found.')}</p>
         )}
         {filtered.map((c) => {
           const isSel = selectedIds.has(c.id);

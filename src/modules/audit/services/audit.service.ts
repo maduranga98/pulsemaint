@@ -239,7 +239,7 @@ export async function submitAudit(
 
   // Auto-generate the PDF report and attach it.
   try {
-    const blob = auditPdfBlob(session);
+    const blob = await auditPdfBlob(session);
     const path = `audit_reports/${plantId}/${docRef.id}.pdf`;
     const storageRef = ref(storage, path);
     await uploadBytes(storageRef, blob, { contentType: 'application/pdf' });

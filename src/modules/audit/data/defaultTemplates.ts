@@ -10,8 +10,15 @@ const t = (text: string, answerType: AuditTask['answerType'], critical = false):
 
 /**
  * Built-in starter tasks per audit category. These are cloned into an editable
- * template the first time a plant opens a category, so auditors can add/remove
- * tasks and change answer types freely afterwards.
+ * template the first time a plant opens a category (see `ensureDefaultTemplates`
+ * in audit.service.ts) — the clone becomes a plain per-plant Firestore document
+ * whose `text` fields auditors can freely rename/add/remove from then on. Since
+ * the persisted, editable copy (not this seed data) is what's actually shown
+ * and edited in the UI, and it diverges from this file the moment any plant
+ * customizes it, these seed strings are intentionally left as plain English —
+ * translating them here would only ever affect a template nobody has touched
+ * yet, and the checklist UI itself (AuditSessionForm/AuditTaskConfigurator) is
+ * already fully migrated to render whatever `text` a template holds.
  */
 export const DEFAULT_TASKS: Record<BuiltinAuditCategory, AuditTask[]> = {
   tpm: [
