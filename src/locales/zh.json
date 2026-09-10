@@ -6594,6 +6594,43 @@
           "machine": "设备"
         }
       }
+    },
+    "moe": {
+      "filter": {
+        "allMachines": "所有设备",
+        "presets": {
+          "sevenDays": "7天",
+          "thirtyDays": "30天",
+          "quarter": "季度",
+          "year": "年度",
+          "custom": "自定义"
+        },
+        "to": "至"
+      },
+      "rangeLabels": {
+        "last7Days": "最近7天",
+        "last30Days": "最近30天",
+        "lastQuarter": "上一季度",
+        "lastYear": "去年",
+        "customRange": "自定义范围"
+      },
+      "dashboard": {
+        "title": "MOE（设备综合效率）",
+        "subtitle": "根据系统中已有的可用性、维护合规性、可靠性和健康数据计算的综合得分。",
+        "calculating": "正在计算 MOE…",
+        "plantAverageMoe": "工厂平均 MOE",
+        "vsPrevious": "较 {{value}}",
+        "criticalityWeighted": "按关键度加权，{{range}}",
+        "criticalMachines": "关键设备",
+        "criticalThresholdNote": "关键度4–5且低于阈值",
+        "machinesTracked": "已追踪设备",
+        "excellent": "优秀（≥85）",
+        "topBestMachines": "前10名最佳设备",
+        "topWorstMachines": "前10名最差设备",
+        "noDataYet": "暂无数据。",
+        "departmentCriticality": "{{department}} · 关键度 {{criticality}}",
+        "criticalBadge": "关键"
+      }
     }
   },
   "triage": {

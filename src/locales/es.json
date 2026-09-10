@@ -6598,6 +6598,43 @@
           "machine": "Máquina"
         }
       }
+    },
+    "moe": {
+      "filter": {
+        "allMachines": "Todas las máquinas",
+        "presets": {
+          "sevenDays": "7D",
+          "thirtyDays": "30D",
+          "quarter": "Trimestre",
+          "year": "Año",
+          "custom": "Personalizado"
+        },
+        "to": "hasta"
+      },
+      "rangeLabels": {
+        "last7Days": "Últimos 7 días",
+        "last30Days": "Últimos 30 días",
+        "lastQuarter": "Último trimestre",
+        "lastYear": "Último año",
+        "customRange": "Rango personalizado"
+      },
+      "dashboard": {
+        "title": "MOE (Efectividad general de la máquina)",
+        "subtitle": "Puntuación compuesta a partir de la disponibilidad, el cumplimiento de mantenimiento, la fiabilidad y los datos de estado ya presentes en el sistema.",
+        "calculating": "Calculando MOE…",
+        "plantAverageMoe": "MOE promedio de la planta",
+        "vsPrevious": "vs {{value}}",
+        "criticalityWeighted": "Ponderado por criticidad, {{range}}",
+        "criticalMachines": "Máquinas críticas",
+        "criticalThresholdNote": "Criticidad 4–5 y por debajo del umbral",
+        "machinesTracked": "Máquinas monitoreadas",
+        "excellent": "Excelente (≥85)",
+        "topBestMachines": "Las 10 mejores máquinas",
+        "topWorstMachines": "Las 10 peores máquinas",
+        "noDataYet": "Aún no hay datos.",
+        "departmentCriticality": "{{department}} · Criticidad {{criticality}}",
+        "criticalBadge": "CRÍTICO"
+      }
     }
   },
   "triage": {
