@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ClipboardList, Settings2,
   HardHat, Wrench, ShieldCheck, Building2, GraduationCap as CapIcon, Users, Layers,
@@ -11,7 +12,7 @@ import EvaluationTemplateBuilder from '../components/EvaluationTemplateBuilder';
 import { fetchEvaluations, subscribeEvaluations, submitEvaluation, saveDraftEvaluation } from '../services/evaluation.service';
 import { downloadEvaluationPdf } from '../utils/evaluationPdf';
 import type { EvaluationSession, EvaluationRole, EvaluationTargetType } from '../types/evaluation.types';
-import { EVALUATION_ROLE_LABELS } from '../types/evaluation.types';
+import { getRoleLabel } from '../types/evaluation.types';
 
 const CAN_MANAGE_TEMPLATES_ROLES = ['plant_manager', 'admin', 'hr_officer'];
 
@@ -30,6 +31,7 @@ const ROLE_ICON: Record<EvaluationRole, typeof HardHat> = {
 };
 
 export default function EvaluationsPage() {
+  const { t } = useTranslation();
   const userProfile = useAuthStore((s) => s.userProfile);
   const companyId = userProfile?.companyId ?? '';
   const role = userProfile?.role;
@@ -59,7 +61,7 @@ export default function EvaluationsPage() {
     } catch (err) {
       // Surface the failure — a silently swallowed error here made finished
       // evaluations look like they were never saved.
-      setLoadError(err instanceof Error ? err.message : 'Failed to load evaluations.');
+      setLoadError(err instanceof Error ? err.message : t('common.evaluation.page.loadErrorFallback', 'Failed to load evaluations.'));
     } finally {
       setLoading(false);
     }
@@ -102,7 +104,7 @@ export default function EvaluationsPage() {
   }
 
   async function handleSubmit(data: FormData) {
-    await submitEvaluation({ ...buildSessionPayload(data), status: 'submitted' });
+    await submitEvaluation({ ...buildSessionPayload(data), status: 'submitted' }, t);
     setShowForm(false);
     void load();
   }
@@ -141,8 +143,8 @@ export default function EvaluationsPage() {
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Performance Evaluations</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Conduct formal performance assessments for all roles.</p>
+          <h1 className="text-xl font-bold text-slate-900">{t('common.evaluation.page.title', 'Performance Evaluations')}</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{t('common.evaluation.page.subtitle', 'Conduct formal performance assessments for all roles.')}</p>
         </div>
         <div className="flex items-center gap-2">
           {canManageTemplates && (
@@ -152,18 +154,18 @@ export default function EvaluationsPage() {
               className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
             >
               <Settings2 className="h-4 w-4" />
-              Custom Forms
+              {t('common.evaluation.page.customFormsButton', 'Custom Forms')}
             </button>
           )}
         </div>
       </div>
       <p className="mb-4 -mt-4 text-xs text-gray-400">
-        Click a category below to start an evaluation for it.
+        {t('common.evaluation.page.hint', 'Click a category below to start an evaluation for it.')}
       </p>
 
       {loadError && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          Failed to load evaluations: {loadError}
+          {t('common.evaluation.page.loadError', 'Failed to load evaluations: {{message}}', { message: loadError })}
         </div>
       )}
 
@@ -172,9 +174,9 @@ export default function EvaluationsPage() {
           submitted, including this tab. */}
       <div className="mb-3 flex items-center gap-1 bg-gray-100 p-1 rounded-lg w-fit">
         {([
-          { id: 'role' as const, label: 'By Role' },
-          { id: 'department' as const, label: 'By Department' },
-          ...(role === 'admin' ? [{ id: 'completed' as const, label: 'Completed' }] : []),
+          { id: 'role' as const, label: t('common.evaluation.page.tabs.byRole', 'By Role') },
+          { id: 'department' as const, label: t('common.evaluation.page.tabs.byDepartment', 'By Department') },
+          ...(role === 'admin' ? [{ id: 'completed' as const, label: t('common.evaluation.page.tabs.completed', 'Completed') }] : []),
         ]).map((tab) => (
           <button
             key={tab.id}
@@ -193,7 +195,7 @@ export default function EvaluationsPage() {
       {viewMode === 'completed' && role === 'admin' ? (
         <div className="mb-6 space-y-3">
           {completedSessions.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-500">No completed evaluations yet.</p>
+            <p className="py-8 text-center text-sm text-gray-500">{t('common.evaluation.page.empty.noCompleted', 'No completed evaluations yet.')}</p>
           ) : (
             <div className="rounded-xl border border-gray-200 divide-y divide-gray-100 overflow-hidden bg-white">
               {completedSessions.map((s) => (
@@ -208,7 +210,7 @@ export default function EvaluationsPage() {
                   <div>
                     <p className="text-sm font-semibold text-gray-900">{s.evaluateeName}</p>
                     <p className="text-xs text-gray-500">
-                      {(s.targetType ?? 'individual') === 'department' ? 'Department' : EVALUATION_ROLE_LABELS[s.evaluateeRole]}
+                      {(s.targetType ?? 'individual') === 'department' ? t('common.evaluation.page.department', 'Department') : getRoleLabel(s.evaluateeRole, t)}
                       {' · '}{s.evaluationDate}
                     </p>
                   </div>
@@ -225,10 +227,10 @@ export default function EvaluationsPage() {
                   <h2 className="text-base font-bold text-gray-900">{viewingSession.evaluateeName}</h2>
                   <p className="text-xs text-gray-500">
                     {(viewingSession.targetType ?? 'individual') === 'department'
-                      ? 'Department'
-                      : EVALUATION_ROLE_LABELS[viewingSession.evaluateeRole]}
+                      ? t('common.evaluation.page.department', 'Department')
+                      : getRoleLabel(viewingSession.evaluateeRole, t)}
                     {' · '}{viewingSession.evaluationDate}
-                    {' · '}Evaluated by {viewingSession.evaluatorName}
+                    {' · '}{t('common.evaluation.page.evaluatedBy', 'Evaluated by {{name}}', { name: viewingSession.evaluatorName })}
                   </p>
                 </div>
                 <button
@@ -236,12 +238,12 @@ export default function EvaluationsPage() {
                   onClick={() => setViewingSession(null)}
                   className="text-sm text-gray-500 hover:text-gray-700"
                 >
-                  Close
+                  {t('common.evaluation.page.close', 'Close')}
                 </button>
               </div>
 
               <div className="rounded-lg bg-gray-50 p-4 text-center">
-                <p className="text-xs font-medium text-gray-500">Overall Score</p>
+                <p className="text-xs font-medium text-gray-500">{t('common.evaluation.page.overallScore', 'Overall Score')}</p>
                 <p className="text-3xl font-bold text-blue-700">{viewingSession.overallScore}%</p>
               </div>
 
@@ -256,21 +258,21 @@ export default function EvaluationsPage() {
 
               {viewingSession.overallComments && (
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Overall Comments</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('common.evaluation.page.overallComments', 'Overall Comments')}</h3>
                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{viewingSession.overallComments}</p>
                 </div>
               )}
 
               {viewingSession.developmentPlan && (
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Development Plan</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('common.evaluation.page.developmentPlan', 'Development Plan')}</h3>
                   <p className="text-sm text-gray-700 whitespace-pre-wrap">{viewingSession.developmentPlan}</p>
                 </div>
               )}
 
               {viewingSession.attachments.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Attachments</h3>
+                  <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{t('common.evaluation.page.attachments', 'Attachments')}</h3>
                   <ul className="space-y-1">
                     {viewingSession.attachments.map((a) => (
                       <li key={a.id}>
@@ -286,10 +288,10 @@ export default function EvaluationsPage() {
               <div className="flex justify-end pt-2 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => downloadEvaluationPdf(viewingSession)}
+                  onClick={() => void downloadEvaluationPdf(viewingSession, t)}
                   className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
                 >
-                  Export PDF
+                  {t('common.evaluation.page.exportPdf', 'Export PDF')}
                 </button>
               </div>
             </div>
@@ -305,10 +307,11 @@ export default function EvaluationsPage() {
             }`}
           >
             <ClipboardList className={`h-5 w-5 mb-2 ${roleFilter === null ? 'text-blue-600' : 'text-gray-400'}`} />
-            <p className="text-sm font-semibold text-gray-900">All</p>
+            <p className="text-sm font-semibold text-gray-900">{t('common.evaluation.page.all', 'All')}</p>
             <p className="text-xs text-gray-500 mt-0.5">
-              {sessions.filter((s) => (s.targetType ?? 'individual') !== 'department').length} evaluation
-              {sessions.length !== 1 ? 's' : ''}
+              {t('common.evaluation.page.evaluationCount', '{{count}} evaluation', {
+                count: sessions.filter((s) => (s.targetType ?? 'individual') !== 'department').length,
+              })}
             </p>
           </button>
           {visibleRoleOrder.map((r) => {
@@ -329,8 +332,8 @@ export default function EvaluationsPage() {
                 }`}
               >
                 <RoleIcon className={`h-5 w-5 mb-2 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
-                <p className="text-sm font-semibold text-gray-900">{EVALUATION_ROLE_LABELS[r]}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{count} evaluation{count !== 1 ? 's' : ''}</p>
+                <p className="text-sm font-semibold text-gray-900">{getRoleLabel(r, t)}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('common.evaluation.page.evaluationCount', '{{count}} evaluation', { count })}</p>
               </button>
             );
           })}
@@ -345,15 +348,16 @@ export default function EvaluationsPage() {
             }`}
           >
             <Layers className={`h-5 w-5 mb-2 ${deptFilter === null ? 'text-blue-600' : 'text-gray-400'}`} />
-            <p className="text-sm font-semibold text-gray-900">All Departments</p>
+            <p className="text-sm font-semibold text-gray-900">{t('common.evaluation.page.allDepartments', 'All Departments')}</p>
             <p className="text-xs text-gray-500 mt-0.5">
-              {sessions.filter((s) => s.targetType === 'department').length} evaluation
-              {sessions.length !== 1 ? 's' : ''}
+              {t('common.evaluation.page.evaluationCount', '{{count}} evaluation', {
+                count: sessions.filter((s) => s.targetType === 'department').length,
+              })}
             </p>
           </button>
           {departments.length === 0 ? (
             <p className="col-span-full text-sm text-gray-500 py-2">
-              No departments set up yet — add one from the department picker when creating a department evaluation.
+              {t('common.evaluation.page.empty.noDepartments', 'No departments set up yet — add one from the department picker when creating a department evaluation.')}
             </p>
           ) : (
             departments.map((d) => {
@@ -372,7 +376,7 @@ export default function EvaluationsPage() {
                 >
                   <Building2 className={`h-5 w-5 mb-2 ${active ? 'text-blue-600' : 'text-gray-400'}`} />
                   <p className="text-sm font-semibold text-gray-900">{d}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{count} evaluation{count !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{t('common.evaluation.page.evaluationCount', '{{count}} evaluation', { count })}</p>
                 </button>
               );
             })

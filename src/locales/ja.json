@@ -7449,6 +7449,428 @@
           "file": "ファイル"
         }
       }
+    },
+    "evaluation": {
+      "roles": {
+        "operator": "オペレーター",
+        "technician": "技術員",
+        "supervisor": "スーパーバイザー",
+        "plantManager": "工場長",
+        "hrOfficer": "人事担当者",
+        "safetyOfficer": "安全管理者",
+        "trainee": "研修生",
+        "other": "その他"
+      },
+      "criteria": {
+        "operator": {
+          "machineCompliance": {
+            "label": "機械操作遵守",
+            "description": "担当機械のSOPおよび安全操作手順の遵守状況。"
+          },
+          "oeeContribution": {
+            "label": "OEEへの貢献",
+            "description": "シフト中の設備総合効率（OEE)指標への貢献度。"
+          },
+          "shiftReporting": {
+            "label": "シフト生産報告の正確性",
+            "description": "シフト生産日誌・報告書の正確性と適時性。"
+          },
+          "downtimeReporting": {
+            "label": "ダウンタイム報告",
+            "description": "機械停止・インシデント報告の迅速性と正確性。"
+          },
+          "safetyAdherence": {
+            "label": "安全遵守",
+            "description": "安全プロトコルの一貫した遵守、PPEの使用、危険認識。"
+          }
+        },
+        "technician": {
+          "technicalSkill": {
+            "label": "技術力",
+            "description": "担当設備に関連する保全・修理業務における実証された習熟度。"
+          },
+          "woQuality": {
+            "label": "作業指示完了品質",
+            "description": "担当作業指示に対する作業の質と完全性。"
+          },
+          "breakdownResponse": {
+            "label": "故障対応時間",
+            "description": "機械故障への対応の迅速さと有効性。"
+          },
+          "safetyProtocol": {
+            "label": "安全プロトコル遵守",
+            "description": "保全作業中のLOTO、PPE、すべての安全手順の遵守。"
+          },
+          "toolHandling": {
+            "label": "工具・設備の取り扱い",
+            "description": "工具および保全設備の適切な管理、保管、使用。"
+          }
+        },
+        "supervisor": {
+          "teamLeadership": {
+            "label": "チームリーダーシップ",
+            "description": "チームメンバーを効果的に率い、動機づけ、育成する能力。"
+          },
+          "taskDelegation": {
+            "label": "業務委任の有効性",
+            "description": "スキルと業務量のバランスに基づく適切なタスク配分。"
+          },
+          "safetyEnforcement": {
+            "label": "安全規則の徹底",
+            "description": "安全規則の一貫した徹底と危険の予防的特定。"
+          },
+          "shiftHandover": {
+            "label": "シフト引き継ぎ品質",
+            "description": "シフト引き継ぎ文書とコミュニケーションの完全性と明確性。"
+          },
+          "kpiMonitoring": {
+            "label": "KPIモニタリング",
+            "description": "シフトの主要業績評価指標の追跡と対応。"
+          },
+          "escalationHandling": {
+            "label": "エスカレーション対応",
+            "description": "経営層への問題の効果的なエスカレーションと解決調整。"
+          }
+        },
+        "plantManager": {
+          "plantEfficiency": {
+            "label": "工場全体の効率性",
+            "description": "工場レベルの生産量、スループット、効率目標の達成。"
+          },
+          "downtimeReduction": {
+            "label": "ダウンタイム削減の実績",
+            "description": "計画外停止時間の削減における測定可能な改善。"
+          },
+          "budgetAdherence": {
+            "label": "保全予算の遵守",
+            "description": "保全予算内での運営、または予算の最適化。"
+          },
+          "teamDevelopment": {
+            "label": "人材育成",
+            "description": "人材の研修、指導、育成への投資。"
+          },
+          "regulatoryCompliance": {
+            "label": "法令遵守",
+            "description": "すべての業務が法令、安全、規制基準を満たしていることの確保。"
+          },
+          "oeeTracking": {
+            "label": "OEE目標の追跡",
+            "description": "OEEを目標値と照らして監視し、改善施策を推進すること。"
+          }
+        },
+        "trainee": {
+          "learningProgress": {
+            "label": "学習進捗",
+            "description": "割り当てられた研修モジュールおよび教材の進捗状況。"
+          },
+          "practicalSkills": {
+            "label": "実践スキルの習得",
+            "description": "理論知識の実践現場への応用。"
+          },
+          "attendance": {
+            "label": "出席・時間厳守",
+            "description": "研修セッションにおける出席率と時間厳守。"
+          },
+          "attitude": {
+            "label": "姿勢・積極性",
+            "description": "研修における意欲、熱意、積極的な参加。"
+          },
+          "safetyAwareness": {
+            "label": "安全意識",
+            "description": "職場の安全慣行に対する理解と実践。"
+          }
+        },
+        "hrOfficer": {
+          "recruitmentOnboarding": {
+            "label": "採用・オンボーディング",
+            "description": "採用、オンボーディング、人員計画支援の有効性。"
+          },
+          "trainingCompliance": {
+            "label": "研修・コンプライアンス管理",
+            "description": "研修修了、資格認定、コンプライアンス達成率の追跡管理。"
+          },
+          "recordsAccuracy": {
+            "label": "記録・文書の正確性",
+            "description": "従業員記録、契約書、人事文書の正確性と維持管理。"
+          },
+          "employeeRelations": {
+            "label": "従業員対応・苦情処理",
+            "description": "苦情対応、エンゲージメント、従業員福祉への公正かつ迅速な対応。"
+          },
+          "policyAdherence": {
+            "label": "方針・法令遵守",
+            "description": "人事方針および労働・法令要件の遵守の確保。"
+          }
+        },
+        "safetyOfficer": {
+          "incidentManagement": {
+            "label": "インシデント・ヒヤリハット管理",
+            "description": "インシデントの適時記録、調査、是正措置のフォローアップ。"
+          },
+          "inspectionsAudits": {
+            "label": "安全点検・監査",
+            "description": "予定された安全点検・監査の実施状況と品質。"
+          },
+          "hazardRisk": {
+            "label": "危険特定・リスクアセスメント",
+            "description": "危険の予防的特定とリスクアセスメントの徹底度。"
+          },
+          "permitCompliance": {
+            "label": "作業許可証（PTW)遵守",
+            "description": "作業許可証（火気作業、閉所作業、LOTO)の適切な発行・確認・終了処理。"
+          },
+          "trainingAwareness": {
+            "label": "安全研修・意識向上",
+            "description": "ツールボックスミーティングの実施と前向きな安全文化の醸成。"
+          }
+        },
+        "other": {
+          "jobKnowledge": {
+            "label": "業務知識",
+            "description": "職務固有の任務と責任に関する知識。"
+          },
+          "qualityOfWork": {
+            "label": "業務品質",
+            "description": "業務成果物の正確性、丁寧さ、信頼性。"
+          },
+          "teamwork": {
+            "label": "チームワーク・協働",
+            "description": "チーム目標への協力と貢献。"
+          },
+          "safetyCompliance": {
+            "label": "安全遵守",
+            "description": "安全規則および安全な作業慣行の遵守。"
+          },
+          "initiative": {
+            "label": "主体性・問題解決",
+            "description": "課題の予防的特定と解決。"
+          }
+        },
+        "department": {
+          "deptOutput": {
+            "label": "生産量・生産性",
+            "description": "期間中の部門の生産・出力目標の達成。"
+          },
+          "deptSafety": {
+            "label": "安全実績",
+            "description": "部門全体での無事故運営と安全プロトコルの遵守。"
+          },
+          "deptQuality": {
+            "label": "品質基準",
+            "description": "品質基準の一貫した達成と不良・手直しの削減。"
+          },
+          "deptCoordination": {
+            "label": "部門間連携",
+            "description": "他部門・他シフトとの連携の有効性。"
+          },
+          "deptCompliance": {
+            "label": "プロセス・コンプライアンス遵守",
+            "description": "SOP、監査、法規制要件の遵守。"
+          }
+        }
+      },
+      "scoreLabels": {
+        "1": "1 – 不満足",
+        "2": "2 – 要改善",
+        "3": "3 – 期待通り",
+        "4": "4 – 期待以上",
+        "5": "5 – 卓越"
+      },
+      "page": {
+        "title": "人事評価",
+        "subtitle": "すべての職務区分に対して正式な業績評価を実施します。",
+        "customFormsButton": "カスタムフォーム",
+        "hint": "以下のカテゴリーをクリックして評価を開始してください。",
+        "loadError": "評価の読み込みに失敗しました: {{message}}",
+        "loadErrorFallback": "評価の読み込みに失敗しました。",
+        "tabs": {
+          "byRole": "職務別",
+          "byDepartment": "部門別",
+          "completed": "完了済み"
+        },
+        "empty": {
+          "noCompleted": "完了した評価はまだありません。",
+          "noDepartments": "部門がまだ設定されていません — 部門評価を作成する際に部門選択から追加してください。"
+        },
+        "all": "すべて",
+        "allDepartments": "すべての部門",
+        "evaluationCount": "{{count}} 件の評価",
+        "evaluationCount_plural": "{{count}} 件の評価",
+        "department": "部門",
+        "close": "閉じる",
+        "overallScore": "総合スコア",
+        "overallComments": "総合コメント",
+        "developmentPlan": "育成計画",
+        "attachments": "添付ファイル",
+        "exportPdf": "PDFをエクスポート",
+        "evaluatedBy": "評価者: {{name}}"
+      },
+      "form": {
+        "steps": {
+          "info": "従業員情報",
+          "criteria": "採点",
+          "summary": "まとめ"
+        },
+        "departmentLabel": "部門 *",
+        "selectDepartmentPlaceholder": "— 部門を選択 —",
+        "evaluationDateLabel": "評価日",
+        "peopleInDepartment": "{{department}}の従業員",
+        "noUsersInDepartment": "この部門に登録されたユーザーが見つかりません。",
+        "nextScoring": "次へ：採点 →",
+        "selectEmployeeLabel": "従業員を選択 *",
+        "selectEmployeePlaceholder": "— 登録済みの従業員を選択 —",
+        "noUsersForRole": "{{role}}に登録されたユーザーが見つかりません。以下のフィールドを手動で入力することもできます。",
+        "onlyRegisteredUsersHint": "この職務区分に登録されている従業員のみが表示されます。選択すると詳細が自動入力されますが、以下のフィールドは調整可能です。",
+        "employeeNameLabel": "従業員名 *",
+        "employeeNamePlaceholder": "氏名",
+        "employeeIdLabel": "従業員ID",
+        "employeeIdPlaceholder": "例：EMP-001",
+        "roleLabel": "職務区分 *",
+        "evaluationFormLabel": "評価フォーム",
+        "defaultCriteria": "デフォルト — {{role}}の評価基準",
+        "customSuffix": "（カスタム）",
+        "jobTitleLabel": "役職名",
+        "jobTitlePlaceholder": "例：上級技術員",
+        "customRoleLabel": "カスタム職務区分名",
+        "customRolePlaceholder": "例：QC検査員、電気技術者",
+        "evaluatingDepartment": "{{name}}部門を評価中",
+        "evaluatingAs": "{{name}}を{{role}}として評価中",
+        "weight": "重み: {{weight}}%",
+        "commentsPlaceholder": "コメント（任意）…",
+        "back": "← 戻る",
+        "nextSummary": "次へ：まとめ →",
+        "summary": {
+          "overallScore": "総合スコア",
+          "outstanding": "卓越",
+          "satisfactory": "満足",
+          "needsImprovement": "要改善",
+          "unsatisfactory": "不満足",
+          "overallCommentsLabel": "総合コメント",
+          "overallCommentsPlaceholder": "全体的な業績のまとめ…",
+          "developmentPlanLabel": "育成計画",
+          "developmentPlanPlaceholder": "推奨される育成施策、研修、目標…",
+          "attachmentsLabel": "添付ファイル",
+          "attachmentsHint": "裏付けとなる資料をアップロード：文書（PDF/DOCX）、画像、動画。",
+          "attachmentSizeKb": "{{size}} KB",
+          "addAttachment": "添付ファイルを追加",
+          "uploading": "アップロード中…",
+          "cancel": "キャンセル",
+          "saveDraft": "下書きとして保存（進行中）",
+          "savingDraft": "保存中…",
+          "exportPdf": "PDFをエクスポート",
+          "submit": "評価を提出",
+          "submitting": "提出中…"
+        },
+        "errors": {
+          "uploadFailed": "添付ファイルのアップロードに失敗しました。",
+          "nameRequired": "被評価者名を入力してください。",
+          "allCriteriaRequired": "提出前にすべての評価項目を採点してください。",
+          "submitFailed": "評価の提出に失敗しました。",
+          "saveDraftFailed": "下書きの保存に失敗しました。"
+        }
+      },
+      "templateBuilder": {
+        "title": "カスタム評価フォームビルダー",
+        "subtitle": "職務区分または臨時評価のためのカスタム採点基準を作成します。",
+        "newTemplate": "新しいカスタムテンプレート",
+        "sampleTemplatesTitle": "職務区分別サンプルテンプレート",
+        "sampleTemplateName": "{{role}}評価（サンプル）",
+        "sampleTemplateMeta": "{{role}} ・ {{count}}項目 ・ 標準搭載",
+        "customize": "カスタマイズ",
+        "customTemplatesTitle": "カスタムテンプレート",
+        "noCustomTemplates": "カスタムテンプレートはまだありません。",
+        "templateMeta": "{{role}} ・ {{count}}項目",
+        "customRoleOption": "カスタム（特定の職務区分なし）",
+        "customRoleFallback": "カスタム",
+        "confirmDelete": "この評価テンプレートを削除しますか？",
+        "templateNameLabel": "テンプレート名 *",
+        "templateNamePlaceholder": "例：QC検査員評価",
+        "appliesToRoleLabel": "適用する職務区分",
+        "criteriaLabel": "評価項目",
+        "totalWeight": "合計の重み: {{weight}}%",
+        "totalWeightHint": "（合計100%になる必要があります）",
+        "criterionLabelPlaceholder": "評価項目名",
+        "criterionDescriptionPlaceholder": "評価者に表示される説明（任意）",
+        "addCriterion": "評価項目を追加",
+        "back": "← 戻る",
+        "saving": "保存中…",
+        "saveChanges": "変更を保存",
+        "createTemplate": "テンプレートを作成",
+        "errors": {
+          "nameRequired": "テンプレート名を入力してください。",
+          "criterionRequired": "少なくとも1つの評価項目を追加してください。",
+          "saveFailed": "テンプレートの保存に失敗しました。"
+        }
+      },
+      "service": {
+        "submittedNotification": "{{evaluator}}が{{evaluatee}}の新しい評価を提出しました",
+        "submittedOversightNotification": "{{evaluatee}}の評価を提出しました"
+      },
+      "pdf": {
+        "titleForRole": "{{role}} 人事評価レポート",
+        "titleForDepartment": "{{department}}部門 — 人事評価レポート",
+        "subtitleDepartment": "部門: {{department}}",
+        "subtitleIndividual": "{{name}} ・ {{role}}",
+        "subtitleIndividualWithJob": "{{name}} ・ {{role}} ・ {{jobTitle}}",
+        "overallScoreBadge": "総合スコア",
+        "sections": {
+          "details": "評価詳細",
+          "criteriaScores": "評価項目スコア",
+          "overallComments": "総合コメント",
+          "developmentPlan": "育成計画",
+          "actionsTaken": "実施済みの対応",
+          "attachments": "添付ファイル"
+        },
+        "fields": {
+          "evaluationDate": "評価日",
+          "status": "ステータス",
+          "evaluator": "評価者",
+          "employeeId": "従業員ID",
+          "formTemplate": "フォーム / テンプレート"
+        },
+        "status": {
+          "completed": "完了",
+          "ongoingDraft": "進行中（下書き）"
+        },
+        "emptyValue": "—",
+        "columns": {
+          "criterion": "評価項目",
+          "score": "スコア",
+          "comments": "コメント",
+          "action": "対応",
+          "note": "備考",
+          "by": "担当者",
+          "type": "種類",
+          "file": "ファイル",
+          "name": "名前",
+          "category": "カテゴリー",
+          "date": "日付",
+          "evaluator": "評価者",
+          "score2": "スコア"
+        },
+        "actionTypes": {
+          "trainingAssigned": "研修の割り当て",
+          "positionUpgraded": "昇格",
+          "positionDegraded": "降格"
+        },
+        "footer": {
+          "generated": "生成日時 {{date}}",
+          "page": "{{page}} / {{total}} ページ"
+        },
+        "scoreDisplay": "{{score}} / 5",
+        "summary": {
+          "title": "人事評価サマリー",
+          "generated": "生成日時 {{date}} ・ {{count}}件の評価",
+          "generated_plural": "生成日時 {{date}} ・ {{count}}件の評価",
+          "departmentCategory": "部門"
+        }
+      },
+      "fallbacks": {
+        "unknownUser": "不明",
+        "evaluation": "評価",
+        "audit": "監査",
+        "other": "その他"
+      }
     }
   },
   "triage": {

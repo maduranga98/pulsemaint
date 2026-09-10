@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { Paperclip, X, FileText, Image, Video, ChevronDown } from 'lucide-react';
 import { db } from '@/lib/firebase';
@@ -17,6 +19,9 @@ import {
   EVALUATION_ROLE_LABELS,
   ROLE_CRITERIA,
   DEPARTMENT_CRITERIA,
+  getRoleLabel,
+  getCriterionLabel,
+  getCriterionDescription,
 } from '../types/evaluation.types';
 import { uploadEvaluationAttachment, fetchEvaluationTemplates } from '../services/evaluation.service';
 import { downloadEvaluationPdf } from '../utils/evaluationPdf';
@@ -74,18 +79,28 @@ const USER_ROLE_TO_EVAL_ROLE: Record<UserRole, EvaluationRole> = {
 // Built-in sample templates — one per role, backed by the role's default
 // criteria. They are named by ROLE (never by a person) and always available
 // even when no custom templates have been created yet.
-const SAMPLE_TEMPLATE_PREFIX = 'sample:';
-const SAMPLE_TEMPLATES: EvaluationTemplate[] = (
-  Object.keys(EVALUATION_ROLE_LABELS) as EvaluationRole[]
-).map((role) => ({
-  id: `${SAMPLE_TEMPLATE_PREFIX}${role}`,
-  companyId: '',
-  name: `${EVALUATION_ROLE_LABELS[role]} Evaluation (Sample)`,
-  role,
-  criteria: ROLE_CRITERIA[role] ?? ROLE_CRITERIA.other,
-  createdBy: '',
-  createdByName: 'Built-in',
-} as EvaluationTemplate));
+export const SAMPLE_TEMPLATE_PREFIX = 'sample:';
+export function buildSampleTemplates(t?: TFunction): EvaluationTemplate[] {
+  return (Object.keys(EVALUATION_ROLE_LABELS) as EvaluationRole[]).map((role) => ({
+    id: `${SAMPLE_TEMPLATE_PREFIX}${role}`,
+    companyId: '',
+    name: t
+      ? t('common.evaluation.templateBuilder.sampleTemplateName', '{{role}} Evaluation (Sample)', { role: getRoleLabel(role, t) })
+      : `${EVALUATION_ROLE_LABELS[role]} Evaluation (Sample)`,
+    role,
+    criteria: ROLE_CRITERIA[role] ?? ROLE_CRITERIA.other,
+    createdBy: '',
+    createdByName: 'Built-in',
+  } as EvaluationTemplate));
+}
+
+const SCORE_LABEL_KEYS: Record<EvaluationCriterionScore, string> = {
+  1: 'common.evaluation.scoreLabels.1',
+  2: 'common.evaluation.scoreLabels.2',
+  3: 'common.evaluation.scoreLabels.3',
+  4: 'common.evaluation.scoreLabels.4',
+  5: 'common.evaluation.scoreLabels.5',
+};
 
 const SCORE_LABELS: Record<EvaluationCriterionScore, string> = {
   1: '1 – Unsatisfactory',
@@ -94,6 +109,10 @@ const SCORE_LABELS: Record<EvaluationCriterionScore, string> = {
   4: '4 – Exceeds Expectations',
   5: '5 – Outstanding',
 };
+
+function getScoreLabel(score: EvaluationCriterionScore, t: TFunction): string {
+  return t(SCORE_LABEL_KEYS[score], { defaultValue: SCORE_LABELS[score] });
+}
 
 function computeWeightedScore(
   criteria: EvaluationCriterion[],
@@ -130,6 +149,7 @@ export default function EvaluationForm({
   onSaveDraft,
   onCancel,
 }: EvaluationFormProps) {
+  const { t } = useTranslation();
   const isDepartment = targetType === 'department';
   const currentUserRole = useAuthStore((s) => s.userProfile?.role);
   // Plant managers don't evaluate the "Plant Manager" category — no self-evaluation for that role.
@@ -165,7 +185,7 @@ export default function EvaluationForm({
     fetchEvaluationTemplates(companyId).then(setTemplates).catch(() => setTemplates([]));
   }, [companyId]);
 
-  const allTemplates = [...SAMPLE_TEMPLATES, ...templates];
+  const allTemplates = [...buildSampleTemplates(t), ...templates];
   const selectedTemplate = allTemplates.find((t) => t.id === templateId) ?? null;
   const roleCriteria = ROLE_CRITERIA[evaluateeRole] ?? ROLE_CRITERIA.other;
   const criteria = isDepartment
@@ -261,7 +281,7 @@ export default function EvaluationForm({
       }
       setAttachments((prev) => [...prev, ...newAttachments]);
     } catch (err) {
-      setError('Failed to upload attachment.');
+      setError(t('common.evaluation.form.errors.uploadFailed', 'Failed to upload attachment.'));
     } finally {
       setUploading(false);
       setUploadProgress({});
@@ -298,7 +318,7 @@ export default function EvaluationForm({
 
   function handleExportPdf() {
     const data = buildFormData();
-    downloadEvaluationPdf({
+    void downloadEvaluationPdf({
       id: existing?.id ?? 'draft',
       companyId,
       targetType: data.targetType,
@@ -322,19 +342,19 @@ export default function EvaluationForm({
       evaluationDate: data.evaluationDate,
       createdAt: existing?.createdAt ?? null,
       submittedAt: existing?.submittedAt ?? null,
-    });
+    }, t);
   }
 
   async function handleSubmit() {
     setError(null);
-    if (!evaluateeName.trim()) { setError('Evaluatee name is required.'); return; }
+    if (!evaluateeName.trim()) { setError(t('common.evaluation.form.errors.nameRequired', 'Evaluatee name is required.')); return; }
     const allScored = criteriaResults.every((r) => r.score !== null);
-    if (!allScored) { setError('Please score all criteria before submitting.'); return; }
+    if (!allScored) { setError(t('common.evaluation.form.errors.allCriteriaRequired', 'Please score all criteria before submitting.')); return; }
     setSaving(true);
     try {
       await onSubmit(buildFormData());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit evaluation.');
+      setError(err instanceof Error ? err.message : t('common.evaluation.form.errors.submitFailed', 'Failed to submit evaluation.'));
     } finally {
       setSaving(false);
     }
@@ -342,13 +362,13 @@ export default function EvaluationForm({
 
   async function handleSaveDraft() {
     setError(null);
-    if (!evaluateeName.trim()) { setError('Evaluatee name is required.'); return; }
+    if (!evaluateeName.trim()) { setError(t('common.evaluation.form.errors.nameRequired', 'Evaluatee name is required.')); return; }
     if (!onSaveDraft) return;
     setSavingDraft(true);
     try {
       await onSaveDraft(buildFormData());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save draft.');
+      setError(err instanceof Error ? err.message : t('common.evaluation.form.errors.saveDraftFailed', 'Failed to save draft.'));
     } finally {
       setSavingDraft(false);
     }
@@ -378,7 +398,11 @@ export default function EvaluationForm({
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            {idx + 1}. {s === 'info' ? 'Employee Info' : s === 'criteria' ? 'Scoring' : 'Summary'}
+            {idx + 1}. {s === 'info'
+              ? t('common.evaluation.form.steps.info', 'Employee Info')
+              : s === 'criteria'
+                ? t('common.evaluation.form.steps.criteria', 'Scoring')
+                : t('common.evaluation.form.steps.summary', 'Summary')}
           </button>
         ))}
       </div>
@@ -388,14 +412,14 @@ export default function EvaluationForm({
         {step === 'info' && isDepartment && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.departmentLabel', 'Department *')}</label>
               <div className="relative">
                 <select
                   value={evaluateeName}
                   onChange={(e) => setEvaluateeName(e.target.value)}
                   className="w-full min-h-11 appearance-none rounded-lg border border-gray-200 px-3 pr-9 text-sm focus:border-blue-400 focus:outline-none"
                 >
-                  <option value="">— Select a department —</option>
+                  <option value="">{t('common.evaluation.form.selectDepartmentPlaceholder', '— Select a department —')}</option>
                   {departments.map((d) => (
                     <option key={d} value={d}>{d}</option>
                   ))}
@@ -404,7 +428,7 @@ export default function EvaluationForm({
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Evaluation Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.evaluationDateLabel', 'Evaluation Date')}</label>
               <input
                 type="date"
                 value={evaluationDate}
@@ -415,10 +439,10 @@ export default function EvaluationForm({
             {evaluateeName && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  People in {evaluateeName}
+                  {t('common.evaluation.form.peopleInDepartment', 'People in {{department}}', { department: evaluateeName })}
                 </label>
                 {departmentUsers.length === 0 ? (
-                  <p className="text-xs text-gray-400">No registered users found under this department.</p>
+                  <p className="text-xs text-gray-400">{t('common.evaluation.form.noUsersInDepartment', 'No registered users found under this department.')}</p>
                 ) : (
                   <ul className="rounded-lg border border-gray-200 divide-y divide-gray-100 max-h-40 overflow-y-auto">
                     {departmentUsers.map((u) => (
@@ -437,7 +461,7 @@ export default function EvaluationForm({
               disabled={!evaluateeName.trim()}
               className="mt-2 min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              Next: Scoring →
+              {t('common.evaluation.form.nextScoring', 'Next: Scoring →')}
             </button>
           </div>
         )}
@@ -445,14 +469,14 @@ export default function EvaluationForm({
         {step === 'info' && !isDepartment && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Select Employee *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.selectEmployeeLabel', 'Select Employee *')}</label>
               <div className="relative">
                 <select
                   value={evaluateeId}
                   onChange={(e) => handleEmployeeSelect(e.target.value)}
                   className="w-full min-h-11 appearance-none rounded-lg border border-gray-200 px-3 pr-9 text-sm focus:border-blue-400 focus:outline-none"
                 >
-                  <option value="">— Select a registered employee —</option>
+                  <option value="">{t('common.evaluation.form.selectEmployeePlaceholder', '— Select a registered employee —')}</option>
                   {roleFilteredUsers.map((u) => (
                     <option key={u.id} value={u.id}>
                       {u.fullName}
@@ -465,79 +489,79 @@ export default function EvaluationForm({
               </div>
               <p className="mt-1 text-xs text-gray-400">
                 {roleFilteredUsers.length === 0
-                  ? `No registered users found for ${EVALUATION_ROLE_LABELS[evaluateeRole]}. You can still fill in the fields below manually.`
-                  : 'Only employees registered under this role are listed. Picking one auto-fills their details — you can still adjust the fields below.'}
+                  ? t('common.evaluation.form.noUsersForRole', 'No registered users found for {{role}}. You can still fill in the fields below manually.', { role: getRoleLabel(evaluateeRole, t) })
+                  : t('common.evaluation.form.onlyRegisteredUsersHint', 'Only employees registered under this role are listed. Picking one auto-fills their details — you can still adjust the fields below.')}
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Employee Name *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.employeeNameLabel', 'Employee Name *')}</label>
                 <input
                   value={evaluateeName}
                   onChange={(e) => setEvaluateeName(e.target.value)}
-                  placeholder="Full name"
+                  placeholder={t('common.evaluation.form.employeeNamePlaceholder', 'Full name')}
                   className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.employeeIdLabel', 'Employee ID')}</label>
                 <input
                   value={evaluateeEmployeeId}
                   onChange={(e) => setEvaluateeEmployeeId(e.target.value)}
-                  placeholder="e.g. EMP-001"
+                  placeholder={t('common.evaluation.form.employeeIdPlaceholder', 'e.g. EMP-001')}
                   className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.roleLabel', 'Role *')}</label>
                 <select
                   value={evaluateeRole}
                   onChange={(e) => handleRoleChange(e.target.value as EvaluationRole)}
                   className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
                 >
                   {selectableEvaluationRoles.map((r) => (
-                    <option key={r} value={r}>{EVALUATION_ROLE_LABELS[r]}</option>
+                    <option key={r} value={r}>{getRoleLabel(r, t)}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Evaluation Form</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.evaluationFormLabel', 'Evaluation Form')}</label>
                 <select
                   value={templateId}
                   onChange={(e) => handleTemplateChange(e.target.value)}
                   className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
                 >
-                  <option value="">Default — {EVALUATION_ROLE_LABELS[evaluateeRole]} criteria</option>
-                  {availableTemplates.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.name}
-                      {t.id.startsWith(SAMPLE_TEMPLATE_PREFIX) ? '' : ' (custom)'}
+                  <option value="">{t('common.evaluation.form.defaultCriteria', 'Default — {{role}} criteria', { role: getRoleLabel(evaluateeRole, t) })}</option>
+                  {availableTemplates.map((tpl) => (
+                    <option key={tpl.id} value={tpl.id}>
+                      {tpl.name}
+                      {tpl.id.startsWith(SAMPLE_TEMPLATE_PREFIX) ? '' : t('common.evaluation.form.customSuffix', ' (custom)')}
                     </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.jobTitleLabel', 'Job Title')}</label>
                 <input
                   value={evaluateeJobTitle}
                   onChange={(e) => setEvaluateeJobTitle(e.target.value)}
-                  placeholder="e.g. Senior Technician"
+                  placeholder={t('common.evaluation.form.jobTitlePlaceholder', 'e.g. Senior Technician')}
                   className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
                 />
               </div>
               {evaluateeRole === 'other' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Custom Role Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.customRoleLabel', 'Custom Role Name')}</label>
                   <input
                     value={evaluateeCustomRole}
                     onChange={(e) => setEvaluateeCustomRole(e.target.value)}
-                    placeholder="e.g. QC Inspector, Electrician"
+                    placeholder={t('common.evaluation.form.customRolePlaceholder', 'e.g. QC Inspector, Electrician')}
                     className="w-full min-h-11 rounded-lg border border-gray-200 px-3 text-sm focus:border-blue-400 focus:outline-none"
                   />
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Evaluation Date</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.evaluationDateLabel', 'Evaluation Date')}</label>
                 <input
                   type="date"
                   value={evaluationDate}
@@ -552,7 +576,7 @@ export default function EvaluationForm({
               disabled={!evaluateeName.trim()}
               className="mt-2 min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
             >
-              Next: Scoring →
+              {t('common.evaluation.form.nextScoring', 'Next: Scoring →')}
             </button>
           </div>
         )}
@@ -562,14 +586,9 @@ export default function EvaluationForm({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">
-                {isDepartment ? (
-                  <>Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> department</>
-                ) : (
-                  <>
-                    Evaluating <span className="font-semibold text-gray-800">{evaluateeName}</span> as{' '}
-                    <span className="font-semibold text-gray-800">{EVALUATION_ROLE_LABELS[evaluateeRole]}</span>
-                  </>
-                )}
+                {isDepartment
+                  ? t('common.evaluation.form.evaluatingDepartment', 'Evaluating {{name}} department', { name: evaluateeName })
+                  : t('common.evaluation.form.evaluatingAs', 'Evaluating {{name}} as {{role}}', { name: evaluateeName, role: getRoleLabel(evaluateeRole, t) })}
               </p>
               {overallScore > 0 && (
                 <span className={`text-lg font-bold ${scoreColor}`}>{overallScore}%</span>
@@ -582,10 +601,10 @@ export default function EvaluationForm({
                 <div key={c.id} className="rounded-lg border border-gray-100 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{c.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{c.description}</p>
+                      <p className="font-medium text-gray-900">{getCriterionLabel(c, t)}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{getCriterionDescription(c, t)}</p>
                     </div>
-                    <span className="text-xs text-gray-400 shrink-0">Weight: {c.weight}%</span>
+                    <span className="text-xs text-gray-400 shrink-0">{t('common.evaluation.form.weight', 'Weight: {{weight}}%', { weight: c.weight })}</span>
                   </div>
                   <div className="flex gap-2 flex-wrap">
                     {([1, 2, 3, 4, 5] as EvaluationCriterionScore[]).map((score) => (
@@ -598,19 +617,19 @@ export default function EvaluationForm({
                             ? 'bg-blue-600 text-white border-blue-600'
                             : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-blue-300'
                         }`}
-                        title={SCORE_LABELS[score]}
+                        title={getScoreLabel(score, t)}
                       >
                         {score}
                       </button>
                     ))}
                   </div>
                   {result?.score && (
-                    <p className="text-xs text-blue-600">{SCORE_LABELS[result.score]}</p>
+                    <p className="text-xs text-blue-600">{getScoreLabel(result.score, t)}</p>
                   )}
                   <textarea
                     value={result?.comments ?? ''}
                     onChange={(e) => updateResult(c.id, { comments: e.target.value })}
-                    placeholder="Optional comments…"
+                    placeholder={t('common.evaluation.form.commentsPlaceholder', 'Optional comments…')}
                     rows={2}
                     className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm resize-none focus:border-blue-400 focus:outline-none"
                   />
@@ -620,14 +639,14 @@ export default function EvaluationForm({
 
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setStep('info')} className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                ← Back
+                {t('common.evaluation.form.back', '← Back')}
               </button>
               <button
                 type="button"
                 onClick={() => setStep('summary')}
                 className="min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Next: Summary →
+                {t('common.evaluation.form.nextSummary', 'Next: Summary →')}
               </button>
             </div>
           </div>
@@ -638,10 +657,16 @@ export default function EvaluationForm({
           <div className="space-y-5">
             {/* Score display */}
             <div className="rounded-xl bg-gray-50 p-5 text-center">
-              <p className="text-sm text-gray-500 mb-1">Overall Score</p>
+              <p className="text-sm text-gray-500 mb-1">{t('common.evaluation.form.summary.overallScore', 'Overall Score')}</p>
               <p className={`text-5xl font-bold ${scoreColor}`}>{overallScore}%</p>
               <p className="text-sm text-gray-500 mt-1">
-                {overallScore >= 80 ? 'Outstanding' : overallScore >= 60 ? 'Satisfactory' : overallScore >= 40 ? 'Needs Improvement' : 'Unsatisfactory'}
+                {overallScore >= 80
+                  ? t('common.evaluation.form.summary.outstanding', 'Outstanding')
+                  : overallScore >= 60
+                    ? t('common.evaluation.form.summary.satisfactory', 'Satisfactory')
+                    : overallScore >= 40
+                      ? t('common.evaluation.form.summary.needsImprovement', 'Needs Improvement')
+                      : t('common.evaluation.form.summary.unsatisfactory', 'Unsatisfactory')}
               </p>
             </div>
 
@@ -651,7 +676,7 @@ export default function EvaluationForm({
                 const r = criteriaResults.find((res) => res.criterionId === c.id);
                 return (
                   <div key={c.id} className="flex items-center justify-between gap-3 py-1.5 border-b border-gray-100 last:border-0">
-                    <span className="text-sm text-gray-700">{c.label}</span>
+                    <span className="text-sm text-gray-700">{getCriterionLabel(c, t)}</span>
                     <span className={`text-sm font-semibold ${r?.score ? (r.score >= 4 ? 'text-emerald-600' : r.score >= 3 ? 'text-blue-600' : 'text-red-600') : 'text-gray-400'}`}>
                       {r?.score ? `${r.score}/5` : ''}
                     </span>
@@ -662,11 +687,11 @@ export default function EvaluationForm({
 
             {/* Overall comments */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Overall Comments</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.summary.overallCommentsLabel', 'Overall Comments')}</label>
               <textarea
                 value={overallComments}
                 onChange={(e) => setOverallComments(e.target.value)}
-                placeholder="Overall performance summary…"
+                placeholder={t('common.evaluation.form.summary.overallCommentsPlaceholder', 'Overall performance summary…')}
                 rows={3}
                 className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm resize-none focus:border-blue-400 focus:outline-none"
               />
@@ -674,11 +699,11 @@ export default function EvaluationForm({
 
             {/* Development plan */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Development Plan</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.evaluation.form.summary.developmentPlanLabel', 'Development Plan')}</label>
               <textarea
                 value={developmentPlan}
                 onChange={(e) => setDevelopmentPlan(e.target.value)}
-                placeholder="Recommended development actions, training, or goals…"
+                placeholder={t('common.evaluation.form.summary.developmentPlanPlaceholder', 'Recommended development actions, training, or goals…')}
                 rows={3}
                 className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm resize-none focus:border-blue-400 focus:outline-none"
               />
@@ -686,8 +711,8 @@ export default function EvaluationForm({
 
             {/* Attachments */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Attachments</label>
-              <p className="text-xs text-gray-500 mb-3">Upload supporting evidence: documents (PDF/DOCX), images, or videos.</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('common.evaluation.form.summary.attachmentsLabel', 'Attachments')}</label>
+              <p className="text-xs text-gray-500 mb-3">{t('common.evaluation.form.summary.attachmentsHint', 'Upload supporting evidence: documents (PDF/DOCX), images, or videos.')}</p>
               {attachments.length > 0 && (
                 <div className="space-y-2 mb-3">
                   {attachments.map((a) => (
@@ -696,7 +721,7 @@ export default function EvaluationForm({
                       <a href={a.url} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm text-blue-600 hover:underline truncate">
                         {a.name}
                       </a>
-                      <span className="text-xs text-gray-400">{(a.size / 1024).toFixed(0)} KB</span>
+                      <span className="text-xs text-gray-400">{t('common.evaluation.form.summary.attachmentSizeKb', '{{size}} KB', { size: (a.size / 1024).toFixed(0) })}</span>
                       <button type="button" onClick={() => removeAttachment(a.id)} className="text-gray-400 hover:text-red-500">
                         <X className="w-4 h-4" />
                       </button>
@@ -723,7 +748,7 @@ export default function EvaluationForm({
                 className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-3 text-sm text-gray-600 hover:border-blue-400 hover:text-blue-600 transition-colors disabled:opacity-50"
               >
                 <Paperclip className="w-4 h-4" />
-                {uploading ? 'Uploading…' : 'Add attachment'}
+                {uploading ? t('common.evaluation.form.summary.uploading', 'Uploading…') : t('common.evaluation.form.summary.addAttachment', 'Add attachment')}
               </button>
               <input
                 ref={fileInputRef}
@@ -741,11 +766,11 @@ export default function EvaluationForm({
 
             <div className="flex gap-3 pt-2">
               <button type="button" onClick={() => setStep('criteria')} className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                ← Back
+                {t('common.evaluation.form.back', '← Back')}
               </button>
               {onCancel && (
                 <button type="button" onClick={onCancel} className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                  Cancel
+                  {t('common.evaluation.form.summary.cancel', 'Cancel')}
                 </button>
               )}
               {onSaveDraft && (
@@ -755,7 +780,7 @@ export default function EvaluationForm({
                   disabled={savingDraft || saving || uploading}
                   className="min-h-11 px-4 rounded-lg border border-amber-300 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-60"
                 >
-                  {savingDraft ? 'Saving…' : 'Save as Draft (Ongoing)'}
+                  {savingDraft ? t('common.evaluation.form.summary.savingDraft', 'Saving…') : t('common.evaluation.form.summary.saveDraft', 'Save as Draft (Ongoing)')}
                 </button>
               )}
               <button
@@ -763,7 +788,7 @@ export default function EvaluationForm({
                 onClick={handleExportPdf}
                 className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                Export PDF
+                {t('common.evaluation.form.summary.exportPdf', 'Export PDF')}
               </button>
               <button
                 type="button"
@@ -771,7 +796,7 @@ export default function EvaluationForm({
                 disabled={saving || savingDraft || uploading}
                 className="min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
               >
-                {saving ? 'Submitting…' : 'Submit Evaluation'}
+                {saving ? t('common.evaluation.form.summary.submitting', 'Submitting…') : t('common.evaluation.form.summary.submit', 'Submit Evaluation')}
               </button>
             </div>
           </div>
