@@ -7176,29 +7176,6 @@
           "raisedAt": "Date",
           "receivedAt": "Date de réception"
         }
-      },
-      "pdf": {
-        "machineProfile": "Profil de la machine",
-        "noRecords": "Aucun enregistrement ne correspond à cette configuration de rapport.",
-        "dateRange": "Période : {{range}}",
-        "generatedSummary": "Généré : {{generatedAt}}  ·  {{count}} enregistrement(s)",
-        "ticketLabel": "Ticket {{number}}",
-        "unknownMachine": "Machine inconnue",
-        "emptyCell": "—",
-        "charts": {
-          "distribution": "Répartition de {{column}}",
-          "breakdownByType": "Nombre de pannes par type",
-          "topMachinesByHealth": "Top 5 des machines par score d'état",
-          "totalCostVsWoType": "Coût total vs type d'ordre de travail",
-          "contractorVsRating": "Prestataire vs note",
-          "stockStatus": "État du stock (Faible / Épuisé / En stock)",
-          "lowStockByMonth": "Alertes de stock faible par mois",
-          "trainingsByRole": "Formations complétées par rôle",
-          "lateVsOnTime": "En retard vs à l'heure (nombre de personnes)",
-          "downtimeByWeekday": "Temps d'arrêt par jour de la semaine",
-          "auditsByCategory": "Audits complétés par catégorie",
-          "topEmployeesByMarks": "Top 5 des employés par total de points de toutes les performances"
-        }
       }
     }
   },
