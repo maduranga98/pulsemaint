@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Factory, Plus, X, MapPin, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { subscribePlants, createPlant, updatePlant } from '../../services/plants.service';
-import { PlantLocationInput } from '../../components/settings/PlantLocationInput';
-import type { Plant, PlantContactPerson, PlantLocation } from '../../types/plant';
+import type { Plant, PlantContactPerson } from '../../types/plant';
 
 const EMPTY_CONTACT: PlantContactPerson = { name: '', phone: '', email: '', designation: '' };
 
@@ -17,7 +16,7 @@ export default function PlantsPage() {
   const [editing, setEditing] = useState<Plant | null>(null);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
-  const [location, setLocation] = useState<PlantLocation | null>(null);
+  const [address, setAddress] = useState('');
   const [contact, setContact] = useState<PlantContactPerson>(EMPTY_CONTACT);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +30,7 @@ export default function PlantsPage() {
     setEditing(null);
     setName('');
     setCode('');
-    setLocation(null);
+    setAddress('');
     setContact(EMPTY_CONTACT);
     setModalOpen(true);
   }
@@ -40,7 +39,7 @@ export default function PlantsPage() {
     setEditing(plant);
     setName(plant.name);
     setCode(plant.code ?? '');
-    setLocation(plant.location ?? (plant.address ? { formattedAddress: plant.address, lat: null, lng: null, placeId: null } : null));
+    setAddress(plant.address ?? '');
     setContact(plant.contactPerson ?? EMPTY_CONTACT);
     setModalOpen(true);
   }
@@ -62,14 +61,14 @@ export default function PlantsPage() {
         await updatePlant(editing.id, userId, {
           name: name.trim(),
           code: code.trim() || null,
-          location,
+          address: address.trim() || null,
           contactPerson,
         });
       } else {
         await createPlant(company.id, userId, {
           name: name.trim(),
           code: code.trim() || null,
-          location,
+          address: address.trim() || null,
           contactPerson,
         });
       }
@@ -127,7 +126,7 @@ export default function PlantsPage() {
                 <div>
                   <div className="font-medium text-slate-900">{plant.name}</div>
                   <div className="text-xs text-slate-500">
-                    {[plant.code, plant.location?.formattedAddress ?? plant.address].filter(Boolean).join(' · ')}
+                    {[plant.code, plant.address].filter(Boolean).join(' · ')}
                   </div>
                   {plant.contactPerson?.name && (
                     <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
@@ -208,9 +207,14 @@ export default function PlantsPage() {
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5" />
-                  {t('common.settings.plants.location', 'Location')}
+                  {t('common.settings.plants.address', 'Address (optional)')}
                 </label>
-                <PlantLocationInput value={location} onChange={setLocation} />
+                <input
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  placeholder={t('common.settings.plants.addressPlaceholder', 'e.g. 123 Main Street, Colombo') || ''}
+                />
               </div>
 
               <div className="pt-2 border-t border-slate-100">
