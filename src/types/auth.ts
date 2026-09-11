@@ -96,6 +96,8 @@ export interface Invitation {
   employeeId: string | null;
   phone: string | null;
   address: string | null;
+  /** Plant this invited user will be registered under. Null for admin. */
+  plantId?: string | null;
   token: string;
   status: 'pending' | 'accepted' | 'expired' | 'revoked';
   invitedBy: string;

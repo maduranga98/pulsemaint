@@ -36,6 +36,7 @@ export async function createInvitation(data: {
   employeeId?: string | null;
   phone?: string | null;
   address?: string | null;
+  plantId?: string | null;
   invitedBy: string;
   invitedByName: string;
   trainingPeriodPreset?: 6 | 12 | 'custom' | null;
@@ -89,6 +90,7 @@ export async function createInvitation(data: {
     employeeId: data.employeeId?.trim() || null,
     phone: data.phone?.trim() || null,
     address: data.address?.trim() || null,
+    plantId: data.plantId ?? null,
     token,
     status: 'pending',
     invitedBy: data.invitedBy,
@@ -228,6 +230,7 @@ async function createUserFromInvitation(
     department: invitation.department,
     jobTitle: invitation.jobTitle,
     address: invitation.address ?? null,
+    plantId: invitation.plantId ?? null,
     status: 'active',
     loginMethod: photoURL ? 'google' : 'email',
     hasPin: false,
