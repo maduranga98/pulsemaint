@@ -6888,7 +6888,9 @@
           "excel": "Excel",
           "google_sheets": "Sheets",
           "csv": "CSV"
-        }
+        },
+        "yes": "Oui",
+        "no": "Non"
       },
       "definitions": {
         "breakdown_summary": {
@@ -7198,7 +7200,55 @@
           "downtimeByWeekday": "Temps d'arrêt par jour de la semaine",
           "auditsByCategory": "Audits complétés par catégorie",
           "topEmployeesByMarks": "Top 5 des employés par total de points de toutes les performances"
+        },
+        "machineProfileFields": {
+          "machine": "Machine",
+          "manufacturer": "Fabricant",
+          "model": "Modèle",
+          "serialNumber": "Numéro de Série",
+          "type": "Type",
+          "department": "Département",
+          "location": "Emplacement",
+          "status": "Statut",
+          "criticality": "Criticité",
+          "healthScore": "Score de Santé",
+          "installationDate": "Date d'Installation",
+          "lastService": "Dernier Entretien",
+          "nextPmDue": "Prochaine Maintenance"
         }
+      },
+      "labels": {
+        "safetyIncidentType": {
+          "incident": "Incident",
+          "nearMiss": "Presqu'Accident",
+          "hazard": "Danger",
+          "unsafeAct": "Acte Dangereux"
+        },
+        "workPermitCategory": {
+          "hotWork": "Travail à Chaud",
+          "confinedSpace": "Espace Confiné",
+          "electricalIsolation": "Consignation Électrique",
+          "workingAtHeight": "Travail en Hauteur",
+          "excavation": "Excavation",
+          "chemicalHandling": "Manipulation de Produits Chimiques",
+          "general": "Permis de Travail Général"
+        },
+        "workPermitCompletion": {
+          "completed": "Terminé",
+          "partiallyCompleted": "Partiellement Terminé",
+          "notCompleted": "Non Terminé"
+        }
+      },
+      "excel": {
+        "metric": "Métrique",
+        "value": "Valeur",
+        "noData": "Aucune Donnée",
+        "summarySheetName": "Résumé",
+        "detailSheetName": "Détail",
+        "reportMetric": "Rapport",
+        "dateRangeMetric": "Période",
+        "dateRangeValue": "{{from}} au {{to}}",
+        "rowsMetric": "Lignes"
       }
     },
     "audit": {

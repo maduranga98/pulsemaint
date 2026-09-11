@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next';
 import type { ReportType } from '../../types/reports.types';
+import { formatShortDate, formatShortDateTime } from '../../lib/i18nDate';
 
 export type ColumnFormat = 'date' | 'datetime' | 'currency' | 'number' | 'list' | 'bool' | 'text';
 
@@ -34,16 +35,16 @@ function toDate(value: unknown): Date | null {
  * Formats a single cell value. Numbers/currency are returned as numbers so
  * spreadsheets can still aggregate them; everything else is a display string.
  */
-export function formatCell(value: unknown, format?: ColumnFormat): string | number {
+export function formatCell(value: unknown, format?: ColumnFormat, t?: TFunction): string | number {
   if (value == null || value === '') return '';
   switch (format) {
     case 'date': {
       const d = toDate(value);
-      return d ? d.toLocaleDateString() : String(value);
+      return d ? formatShortDate(d) : String(value);
     }
     case 'datetime': {
       const d = toDate(value);
-      return d ? d.toLocaleString() : String(value);
+      return d ? formatShortDateTime(d) : String(value);
     }
     case 'currency':
     case 'number': {
@@ -53,11 +54,13 @@ export function formatCell(value: unknown, format?: ColumnFormat): string | numb
     case 'list':
       return Array.isArray(value) ? value.join(', ') : String(value);
     case 'bool':
-      return value ? 'Yes' : 'No';
+      return value
+        ? t ? t('common.reports.shared.yes', { defaultValue: 'Yes' }) : 'Yes'
+        : t ? t('common.reports.shared.no', { defaultValue: 'No' }) : 'No';
     default:
       if (typeof value === 'object') {
         const d = toDate(value);
-        if (d) return d.toLocaleString();
+        if (d) return formatShortDateTime(d);
         return JSON.stringify(value);
       }
       return String(value);
@@ -345,23 +348,24 @@ export function resolveColumns(
  * still returns strings for CSV/PDF/on-screen preview, where a literal date
  * string is exactly what's wanted.
  */
-export function formatCellForExcel(value: unknown, format?: ColumnFormat): string | number | Date {
+export function formatCellForExcel(value: unknown, format?: ColumnFormat, t?: TFunction): string | number | Date {
   if (format === 'date' || format === 'datetime') {
     const d = toDate(value);
     if (d) return d;
   }
-  return formatCell(value, format);
+  return formatCell(value, format, t);
 }
 
 /** Maps rows into label-keyed objects for spreadsheet export. */
 export function mapRowsToColumns(
   columns: ReportColumn[],
   rows: Record<string, unknown>[],
+  t?: TFunction,
 ): Record<string, string | number | Date>[] {
   return rows.map((row) => {
     const out: Record<string, string | number | Date> = {};
     columns.forEach((col) => {
-      out[col.label] = formatCellForExcel(row[col.key], col.format);
+      out[col.label] = formatCellForExcel(row[col.key], col.format, t);
     });
     return out;
   });

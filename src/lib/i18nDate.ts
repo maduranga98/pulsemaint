@@ -13,8 +13,26 @@ const DATE_LOCALES: Record<string, string> = {
   ja: 'ja-JP',
 };
 
+function currentLocale(): string {
+  return DATE_LOCALES[i18n.language] ?? 'en-GB';
+}
+
 /** Formats `date` as a long date (day, full month name, year) in the current app language. */
 export function formatLongDate(date: Date): string {
-  const locale = DATE_LOCALES[i18n.language] ?? 'en-GB';
-  return date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
+  return date.toLocaleDateString(currentLocale(), { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/** Formats `date` as a short numeric date (e.g. 9/11/2026) in the current app language. */
+export function formatShortDate(date: Date): string {
+  return date.toLocaleDateString(currentLocale());
+}
+
+/** Formats `date` as a short numeric date + time in the current app language. */
+export function formatShortDateTime(date: Date): string {
+  return date.toLocaleString(currentLocale());
+}
+
+/** Formats `date` as an abbreviated month + year (e.g. "Sep 2026") in the current app language. */
+export function formatMonthYear(date: Date): string {
+  return date.toLocaleDateString(currentLocale(), { month: 'short', year: 'numeric' });
 }

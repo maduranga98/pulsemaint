@@ -20,6 +20,7 @@ import { fetchTeamPerformanceByUser } from './teamPerformance.service';
 import { computeWoTotalCost, flattenPoLineItems, type PoHistoryInput } from '../lib/reportsCostUtils';
 import { getCategoryLabel } from '../modules/audit/types/audit.types';
 import type { TFunction } from 'i18next';
+import { formatShortDate, formatShortDateTime } from '../lib/i18nDate';
 import { REPORT_DEFINITIONS, getReportName } from '../utils/reports/reportDefinitions';
 import { logAuditEvent } from '../utils/reports/auditLogger';
 import type {
@@ -68,6 +69,62 @@ const prettifyEnum = (value: unknown): string =>
     .trim()
     .replace(/\b\w/g, (m) => m.toUpperCase());
 
+// Safety Incidents `type` column — same optional-`t` getter pattern as
+// `getCategoryLabel` in audit.types.ts.
+const SAFETY_INCIDENT_TYPE_LABELS: Record<string, string> = {
+  incident: 'Incident', near_miss: 'Near-Miss', hazard: 'Hazard', unsafe_act: 'Unsafe Act',
+};
+const SAFETY_INCIDENT_TYPE_LABEL_KEYS: Record<string, string> = {
+  incident: 'common.reports.labels.safetyIncidentType.incident',
+  near_miss: 'common.reports.labels.safetyIncidentType.nearMiss',
+  hazard: 'common.reports.labels.safetyIncidentType.hazard',
+  unsafe_act: 'common.reports.labels.safetyIncidentType.unsafeAct',
+};
+function getSafetyIncidentTypeLabel(value: string, t?: TFunction): string {
+  const englishLabel = SAFETY_INCIDENT_TYPE_LABELS[value] ?? value;
+  const key = SAFETY_INCIDENT_TYPE_LABEL_KEYS[value];
+  if (t && key) return t(key, { defaultValue: englishLabel });
+  return englishLabel;
+}
+
+// Work Permit History `category` column.
+const WORK_PERMIT_CATEGORY_LABELS: Record<string, string> = {
+  hot_work: 'Hot Work', confined_space: 'Confined Space', electrical_isolation: 'Electrical Isolation',
+  working_at_height: 'Working at Height', excavation: 'Excavation', chemical_handling: 'Chemical Handling',
+  general: 'General Work Permit',
+};
+const WORK_PERMIT_CATEGORY_LABEL_KEYS: Record<string, string> = {
+  hot_work: 'common.reports.labels.workPermitCategory.hotWork',
+  confined_space: 'common.reports.labels.workPermitCategory.confinedSpace',
+  electrical_isolation: 'common.reports.labels.workPermitCategory.electricalIsolation',
+  working_at_height: 'common.reports.labels.workPermitCategory.workingAtHeight',
+  excavation: 'common.reports.labels.workPermitCategory.excavation',
+  chemical_handling: 'common.reports.labels.workPermitCategory.chemicalHandling',
+  general: 'common.reports.labels.workPermitCategory.general',
+};
+function getWorkPermitCategoryLabel(value: string, t?: TFunction): string {
+  const englishLabel = WORK_PERMIT_CATEGORY_LABELS[value] ?? value;
+  const key = WORK_PERMIT_CATEGORY_LABEL_KEYS[value];
+  if (t && key) return t(key, { defaultValue: englishLabel });
+  return englishLabel;
+}
+
+// Work Permit History `completion` column.
+const WORK_PERMIT_COMPLETION_LABELS: Record<string, string> = {
+  completed: 'Completed', partially_completed: 'Partially Completed', not_completed: 'Not Completed',
+};
+const WORK_PERMIT_COMPLETION_LABEL_KEYS: Record<string, string> = {
+  completed: 'common.reports.labels.workPermitCompletion.completed',
+  partially_completed: 'common.reports.labels.workPermitCompletion.partiallyCompleted',
+  not_completed: 'common.reports.labels.workPermitCompletion.notCompleted',
+};
+function getWorkPermitCompletionLabel(value: string, t?: TFunction): string {
+  const englishLabel = WORK_PERMIT_COMPLETION_LABELS[value] ?? value;
+  const key = WORK_PERMIT_COMPLETION_LABEL_KEYS[value];
+  if (t && key) return t(key, { defaultValue: englishLabel });
+  return englishLabel;
+}
+
 const toReportHistory = (id: string, data: Record<string, unknown>): ReportHistory => ({
   id,
   companyId: String(data.companyId ?? ''),
@@ -115,6 +172,7 @@ export async function fetchReportRows(
   reportType: ReportType,
   companyId: string,
   config: ReportConfig,
+  t?: TFunction,
 ): Promise<Record<string, unknown>[]> {
   // Executive summary is computed analytics, not a raw collection — build it
   // from the aggregation pipeline for the latest month in the range.
@@ -496,7 +554,7 @@ export async function fetchReportRows(
         id: item.id,
         date: submittedAt,
         category: a.category ?? '',
-        categoryLabel: getCategoryLabel(String(a.category ?? ''), String(a.templateName ?? '')),
+        categoryLabel: getCategoryLabel(String(a.category ?? ''), String(a.templateName ?? ''), t),
         scopeDetails: scopeParts.filter(Boolean).join(' · '),
         doneBy: a.auditorName ?? '',
         participants: Array.isArray(a.participants) ? (a.participants as Record<string, unknown>[]).map((p) => String(p.name ?? '')).filter(Boolean) : [],
@@ -530,9 +588,6 @@ export async function fetchReportRows(
     const snap = await getDocs(
       query(collection(db, 'safety_cases'), where('companyId', '==', companyId), limit(1000)),
     );
-    const TYPE_LABEL: Record<string, string> = {
-      incident: 'Incident', near_miss: 'Near-Miss', hazard: 'Hazard', unsafe_act: 'Unsafe Act',
-    };
     return snap.docs
       .map((d) => d.data() as Record<string, unknown>)
       .filter((c) => {
@@ -543,13 +598,16 @@ export async function fetchReportRows(
       })
       .sort((a, b) => ((b.reportedAt as Timestamp)?.seconds ?? 0) - ((a.reportedAt as Timestamp)?.seconds ?? 0))
       .map((c) => ({
-        type: TYPE_LABEL[String(c.type)] ?? String(c.type ?? ''),
+        type: getSafetyIncidentTypeLabel(String(c.type ?? ''), t),
         title: String(c.title ?? ''),
         severity: String(c.severity ?? ''),
         status: String(c.status ?? ''),
         location: String(c.location ?? ''),
         reportedByName: String(c.reportedByName ?? ''),
-        reportedAt: (c.reportedAt as Timestamp | undefined)?.toDate?.().toLocaleDateString() ?? '',
+        reportedAt: (() => {
+          const d = (c.reportedAt as Timestamp | undefined)?.toDate?.();
+          return d ? formatShortDate(d) : '';
+        })(),
       }));
   }
 
@@ -558,14 +616,6 @@ export async function fetchReportRows(
     const snap = await getDocs(
       query(collection(db, 'work_permits'), where('companyId', '==', companyId), limit(1000)),
     );
-    const CAT_LABEL: Record<string, string> = {
-      hot_work: 'Hot Work', confined_space: 'Confined Space', electrical_isolation: 'Electrical Isolation',
-      working_at_height: 'Working at Height', excavation: 'Excavation', chemical_handling: 'Chemical Handling',
-      general: 'General Work Permit',
-    };
-    const COMPLETION_LABEL: Record<string, string> = {
-      completed: 'Completed', partially_completed: 'Partially Completed', not_completed: 'Not Completed',
-    };
     const permitDate = (v: unknown): string => {
       const s = String(v ?? '');
       return s ? s.replace('T', ' ') : '';
@@ -588,7 +638,7 @@ export async function fetchReportRows(
       .sort((a, b) => String(b.validFrom ?? '').localeCompare(String(a.validFrom ?? '')))
       .map((p) => ({
         permitNumber: String(p.permitNumber ?? ''),
-        category: CAT_LABEL[String(p.category)] ?? String(p.category ?? ''),
+        category: getWorkPermitCategoryLabel(String(p.category ?? ''), t),
         title: String(p.title ?? ''),
         status: String(p.status ?? ''),
         validFrom: permitDate(p.validFrom),
@@ -596,10 +646,13 @@ export async function fetchReportRows(
         location: String(p.location ?? ''),
         requestedByName: String(p.requestedByName ?? ''),
         supervisorName: String(p.supervisorName ?? ''),
-        completion: COMPLETION_LABEL[String(p.completion)] ?? String(p.completion ?? ''),
+        completion: getWorkPermitCompletionLabel(String(p.completion ?? ''), t),
         signedOffByName: String(p.signedOffByName ?? ''),
         // Full date + time, so the report shows exactly when it was signed off.
-        signedOffAt: (p.signedOffAt as Timestamp | undefined)?.toDate?.().toLocaleString() ?? '',
+        signedOffAt: (() => {
+          const d = (p.signedOffAt as Timestamp | undefined)?.toDate?.();
+          return d ? formatShortDateTime(d) : '';
+        })(),
       }));
   }
 
@@ -1081,7 +1134,7 @@ export interface MachineProfileField {
 // Reads the selected machine's registry document and returns a flat set of
 // profile fields for the Machine History report header. Returns null when the
 // machine can't be read (e.g. deleted, or the user lacks access).
-export async function fetchMachineProfile(machineId: string): Promise<MachineProfileField[] | null> {
+export async function fetchMachineProfile(machineId: string, t?: TFunction): Promise<MachineProfileField[] | null> {
   if (!machineId) return null;
   let data: Record<string, unknown> | undefined;
   try {
@@ -1094,10 +1147,12 @@ export async function fetchMachineProfile(machineId: string): Promise<MachinePro
   if (!data) return null;
 
   const asDate = (value: unknown): string => {
-    if (value && typeof (value as Timestamp).toDate === 'function') return (value as Timestamp).toDate().toLocaleDateString();
+    if (value && typeof (value as Timestamp).toDate === 'function') return formatShortDate((value as Timestamp).toDate());
     return value ? String(value) : '';
   };
   const text = (value: unknown): string => (value == null || value === '' ? '' : String(value));
+  const label = (key: string, fallback: string): string =>
+    t ? t(`common.reports.pdf.machineProfileFields.${key}`, { defaultValue: fallback }) : fallback;
 
   const location = [data.department, data.floor, data.bay, data.station]
     .filter((part) => part != null && part !== '')
@@ -1105,19 +1160,19 @@ export async function fetchMachineProfile(machineId: string): Promise<MachinePro
     .join(' · ');
 
   return [
-    { label: 'Machine', value: text(data.name) },
-    { label: 'Manufacturer', value: text(data.manufacturer) },
-    { label: 'Model', value: text(data.model) },
-    { label: 'Serial Number', value: text(data.serialNumber) },
-    { label: 'Type', value: prettifyEnum(data.type) || '' },
-    { label: 'Department', value: text(data.department) },
-    { label: 'Location', value: location || '' },
-    { label: 'Status', value: prettifyEnum(data.status) || '' },
-    { label: 'Criticality', value: text(data.criticality) },
-    { label: 'Health Score', value: data.healthScore != null ? String(data.healthScore) : '' },
-    { label: 'Installation Date', value: asDate(data.installationDate) },
-    { label: 'Last Service', value: asDate(data.lastServiceDate) },
-    { label: 'Next PM Due', value: asDate(data.nextPmDue) },
+    { label: label('machine', 'Machine'), value: text(data.name) },
+    { label: label('manufacturer', 'Manufacturer'), value: text(data.manufacturer) },
+    { label: label('model', 'Model'), value: text(data.model) },
+    { label: label('serialNumber', 'Serial Number'), value: text(data.serialNumber) },
+    { label: label('type', 'Type'), value: prettifyEnum(data.type) || '' },
+    { label: label('department', 'Department'), value: text(data.department) },
+    { label: label('location', 'Location'), value: location || '' },
+    { label: label('status', 'Status'), value: prettifyEnum(data.status) || '' },
+    { label: label('criticality', 'Criticality'), value: text(data.criticality) },
+    { label: label('healthScore', 'Health Score'), value: data.healthScore != null ? String(data.healthScore) : '' },
+    { label: label('installationDate', 'Installation Date'), value: asDate(data.installationDate) },
+    { label: label('lastService', 'Last Service'), value: asDate(data.lastServiceDate) },
+    { label: label('nextPmDue', 'Next PM Due'), value: asDate(data.nextPmDue) },
   ];
 }
 

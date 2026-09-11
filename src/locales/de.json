@@ -6888,7 +6888,9 @@
           "excel": "Excel",
           "google_sheets": "Sheets",
           "csv": "CSV"
-        }
+        },
+        "yes": "Ja",
+        "no": "Nein"
       },
       "definitions": {
         "breakdown_summary": {
@@ -7198,7 +7200,55 @@
           "downtimeByWeekday": "Ausfallzeit nach Wochentag",
           "auditsByCategory": "Abgeschlossene Audits nach Kategorie",
           "topEmployeesByMarks": "Top 5 Mitarbeiter nach Gesamtpunktzahl aller Leistungen"
+        },
+        "machineProfileFields": {
+          "machine": "Maschine",
+          "manufacturer": "Hersteller",
+          "model": "Modell",
+          "serialNumber": "Seriennummer",
+          "type": "Typ",
+          "department": "Abteilung",
+          "location": "Standort",
+          "status": "Status",
+          "criticality": "Kritikalität",
+          "healthScore": "Zustandswert",
+          "installationDate": "Installationsdatum",
+          "lastService": "Letzte Wartung",
+          "nextPmDue": "Nächste Wartung fällig"
         }
+      },
+      "labels": {
+        "safetyIncidentType": {
+          "incident": "Vorfall",
+          "nearMiss": "Beinahe-Unfall",
+          "hazard": "Gefahr",
+          "unsafeAct": "Unsichere Handlung"
+        },
+        "workPermitCategory": {
+          "hotWork": "Heißarbeiten",
+          "confinedSpace": "Enger Raum",
+          "electricalIsolation": "Elektrische Freischaltung",
+          "workingAtHeight": "Arbeiten in der Höhe",
+          "excavation": "Erdarbeiten",
+          "chemicalHandling": "Umgang mit Chemikalien",
+          "general": "Allgemeiner Arbeitserlaubnisschein"
+        },
+        "workPermitCompletion": {
+          "completed": "Abgeschlossen",
+          "partiallyCompleted": "Teilweise Abgeschlossen",
+          "notCompleted": "Nicht Abgeschlossen"
+        }
+      },
+      "excel": {
+        "metric": "Kennzahl",
+        "value": "Wert",
+        "noData": "Keine Daten",
+        "summarySheetName": "Übersicht",
+        "detailSheetName": "Detail",
+        "reportMetric": "Bericht",
+        "dateRangeMetric": "Zeitraum",
+        "dateRangeValue": "{{from}} bis {{to}}",
+        "rowsMetric": "Zeilen"
       }
     },
     "audit": {
