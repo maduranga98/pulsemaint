@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 // FirmiCore — UI copy constants
 // All user-facing strings live here. No hardcoded strings in components.
 
@@ -109,6 +111,48 @@ export const USER_ROLE_LABELS: Record<string, string> = {
   admin:                  'Admin',
   safety_officer:         'Safety Officer',
 };
+
+// Locale keys for the 9 real `UserRole` values (src/types/auth.ts). Kept
+// separate from `USER_ROLE_LABELS` above (which many other, out-of-scope
+// files still import directly and must keep working unchanged) — used only
+// via `getRoleLabel()` below, currently by the Settings/Users tab.
+const USER_ROLE_LABEL_KEYS: Record<string, string> = {
+  admin:          'common.settings.users.roles.admin',
+  plant_manager:  'common.settings.users.roles.plantManager',
+  supervisor:     'common.settings.users.roles.supervisor',
+  technician:     'common.settings.users.roles.technician',
+  store_keeper:   'common.settings.users.roles.storeKeeper',
+  hr_officer:     'common.settings.users.roles.hrOfficer',
+  trainee:        'common.settings.users.roles.trainee',
+  floor_operator: 'common.settings.users.roles.floorOperator',
+  safety_officer: 'common.settings.users.roles.safetyOfficer',
+};
+
+const USER_ROLE_ENGLISH_LABELS: Record<string, string> = {
+  admin:          'Admin',
+  plant_manager:  'Plant Manager',
+  supervisor:     'Supervisor',
+  technician:     'Technician',
+  store_keeper:   'Store Keeper',
+  hr_officer:     'HR Officer',
+  trainee:        'Trainee',
+  floor_operator: 'Floor Operator',
+  safety_officer: 'Safety Officer',
+};
+
+/**
+ * Translated role label for the 9 `UserRole` values, same optional-`t`
+ * pattern as `getCategoryLabel` in `src/modules/audit/types/audit.types.ts`.
+ * Falls back to English when `t` is omitted. Note: unlike `USER_ROLE_LABELS`
+ * above, this does not include the legacy `maintenance_supervisor` key —
+ * it matches the real `UserRole` union.
+ */
+export function getRoleLabel(role: string, t?: TFunction): string {
+  const englishLabel = USER_ROLE_ENGLISH_LABELS[role] ?? role;
+  const key = USER_ROLE_LABEL_KEYS[role];
+  if (t && key) return t(key, { defaultValue: englishLabel });
+  return englishLabel;
+}
 
 // ---------------------------------------------------------------------------
 // Create Breakdown form

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, onSnapshot, orderBy, query, where, type Timestamp } from 'firebase/firestore';
 import { Download, FileText } from 'lucide-react';
 import { db } from '@/lib/firebase';
@@ -35,6 +36,7 @@ function toCsv(rows: ServiceLetterHistoryEntry[]): string {
 }
 
 export function ServiceLetterHistoryTab({ companyId }: { companyId: string }) {
+  const { t } = useTranslation();
   const [entries, setEntries] = useState<ServiceLetterHistoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -81,7 +83,7 @@ export function ServiceLetterHistoryTab({ companyId }: { companyId: string }) {
     return (
       <div className="text-center py-16 bg-white rounded-xl border border-slate-100">
         <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-        <p className="text-sm text-slate-500">No service letters generated yet.</p>
+        <p className="text-sm text-slate-500">{t('common.settings.serviceLetter.history.empty', 'No service letters generated yet.')}</p>
       </div>
     );
   }
@@ -94,7 +96,7 @@ export function ServiceLetterHistoryTab({ companyId }: { companyId: string }) {
           className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50"
         >
           <Download className="w-4 h-4" />
-          Export CSV
+          {t('common.settings.serviceLetter.history.exportCsv', 'Export CSV')}
         </button>
       </div>
 
@@ -102,10 +104,10 @@ export function ServiceLetterHistoryTab({ companyId }: { companyId: string }) {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-xs uppercase text-slate-500">
             <tr>
-              <th className="px-4 py-3 text-left">Issued Date</th>
-              <th className="px-4 py-3 text-left">Subject</th>
-              <th className="px-4 py-3 text-left">Issued To</th>
-              <th className="px-4 py-3 text-left">Issued By</th>
+              <th className="px-4 py-3 text-left">{t('common.settings.serviceLetter.history.columns.issuedDate', 'Issued Date')}</th>
+              <th className="px-4 py-3 text-left">{t('common.settings.serviceLetter.history.columns.subject', 'Subject')}</th>
+              <th className="px-4 py-3 text-left">{t('common.settings.serviceLetter.history.columns.issuedTo', 'Issued To')}</th>
+              <th className="px-4 py-3 text-left">{t('common.settings.serviceLetter.history.columns.issuedBy', 'Issued By')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">

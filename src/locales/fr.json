@@ -7875,6 +7875,330 @@
         "audit": "Audit",
         "other": "Autre"
       }
+    },
+    "settings": {
+      "page": {
+        "title": "Paramètres",
+        "subtitle": "Configurez le fonctionnement de FirmiCore pour votre site.",
+        "company": {
+          "heading": "Entreprise",
+          "editProfile": "Modifier le profil",
+          "logoAlt": "Logo de {{name}}",
+          "name": "Nom",
+          "industry": "Secteur d'activité",
+          "country": "Pays",
+          "timezone": "Fuseau horaire",
+          "currency": "Devise",
+          "plan": "Formule",
+          "planWithStatus": "{{plan}} ({{status}})",
+          "phone": "Téléphone",
+          "email": "E-mail",
+          "address": "Adresse"
+        },
+        "tiles": {
+          "users": {
+            "title": "Utilisateurs",
+            "description": "Gérez les membres de l'équipe, les rôles et les invitations."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "Modifier le profil de l'entreprise",
+        "close": "Fermer",
+        "uploadLogo": "Téléverser le logo",
+        "noLogo": "Aucun logo",
+        "logoAlt": "Logo de l'entreprise",
+        "fields": {
+          "name": "Nom de l'entreprise",
+          "tradeName": "Nom commercial",
+          "industry": "Secteur d'activité",
+          "country": "Pays",
+          "timezone": "Fuseau horaire",
+          "currency": "Devise",
+          "phone": "Téléphone",
+          "email": "E-mail",
+          "address": "Adresse",
+          "description": "Description",
+          "descriptionHint": "(utilisée sur les attestations de travail et les documents générés)",
+          "descriptionPlaceholder": "Une courte description de l'entreprise…"
+        },
+        "cancel": "Annuler",
+        "save": "Enregistrer les modifications",
+        "saving": "Enregistrement…",
+        "successToast": "Profil de l'entreprise mis à jour.",
+        "errorToast": "Échec de la mise à jour du profil de l'entreprise."
+      },
+      "smtp": {
+        "heading": "Envoi d'e-mails",
+        "description": "Configurez votre propre boîte mail pour que les e-mails destinés aux fournisseurs (bons de commande, bordereaux de livraison) soient envoyés depuis l'adresse de votre entreprise plutôt que depuis la boîte mail partagée de FirmiCore. L'hôte et le port sont pré-remplis automatiquement pour les fournisseurs courants (Gmail, Outlook, Yahoo, iCloud, Zoho) à partir de l'e-mail enregistré de votre entreprise — il ne vous reste qu'à ajouter le mot de passe.",
+        "loading": "Chargement…",
+        "configured": "Configuré — envoi en tant que <strong>{{user}}</strong> via {{host}}",
+        "notConfigured": "Non configuré — les e-mails aux fournisseurs sont envoyés depuis la boîte mail partagée de la plateforme.",
+        "edit": "Modifier",
+        "configure": "Configurer",
+        "remove": "Supprimer",
+        "removing": "Suppression…",
+        "confirmRemove": "Supprimer cette boîte mail ? Les e-mails aux fournisseurs seront de nouveau envoyés depuis la boîte mail partagée de la plateforme.",
+        "removedToast": "Supprimé. Les e-mails aux fournisseurs utiliseront de nouveau la boîte mail partagée de la plateforme.",
+        "removeFailedToast": "Échec de la suppression des paramètres SMTP.",
+        "savedToast": "Envoi d'e-mails configuré — les e-mails aux fournisseurs seront désormais envoyés depuis cette boîte mail.",
+        "saveFailedToast": "Échec de l'enregistrement des paramètres SMTP.",
+        "validationError": "L'hôte, le port, le nom d'utilisateur et le mot de passe sont tous requis.",
+        "fields": {
+          "host": "Hôte SMTP",
+          "hostPlaceholder": "smtp.votreentreprise.com",
+          "port": "Port",
+          "useSsl": "Utiliser SSL/TLS (généralement le port 465)",
+          "username": "E-mail / Nom d'utilisateur",
+          "usernamePlaceholder": "facturation@votreentreprise.com",
+          "password": "Mot de passe / Mot de passe d'application",
+          "passwordPlaceholderChange": "Ressaisir pour modifier",
+          "gmailHint": "Gmail bloque votre mot de passe habituel ici — générez plutôt un <link>mot de passe d'application</link> (nécessite l'activation de la validation en deux étapes)."
+        },
+        "save": "Enregistrer et vérifier",
+        "saving": "Test et enregistrement…",
+        "cancel": "Annuler"
+      },
+      "users": {
+        "header": {
+          "title": "Gestion de l'équipe",
+          "memberCount_one": "{{count}} membre de l'équipe dans {{company}}",
+          "memberCount_other": "{{count}} membres de l'équipe dans {{company}}",
+          "importUsers": "Importer des utilisateurs",
+          "serviceLetter": "Attestation de travail",
+          "inviteMember": "Inviter un membre",
+          "defaultCompanyName": "votre entreprise"
+        },
+        "tabs": {
+          "users": "Utilisateurs ({{count}})",
+          "invitations": "Invitations ({{count}} en attente)",
+          "serviceLetters": "Historique des attestations de travail"
+        },
+        "searchPlaceholderUsers": "Rechercher par nom, e-mail, téléphone ou rôle...",
+        "searchPlaceholderInvitations": "Rechercher des invitations...",
+        "table": {
+          "name": "Nom",
+          "role": "Rôle",
+          "contact": "Contact",
+          "status": "Statut",
+          "shifts": "Équipes",
+          "lastLogin": "Dernière connexion",
+          "login": "Connexion",
+          "actions": "Actions",
+          "never": "Jamais",
+          "view": "Voir",
+          "edit": "Modifier",
+          "noShifts": "—"
+        },
+        "invitationsTable": {
+          "invitee": "Invité",
+          "role": "Rôle",
+          "status": "Statut",
+          "sent": "Envoyée",
+          "expires": "Expire",
+          "actions": "Actions",
+          "copyLink": "Copier le lien d'invitation",
+          "copyLinkShort": "Copier le lien",
+          "copied": "Copié",
+          "revoke": "Révoquer",
+          "resend": "Renvoyer l'invitation",
+          "resendShort": "Renvoyer"
+        },
+        "empty": {
+          "noUsers": "Aucun utilisateur pour l'instant. Cliquez sur « Inviter un membre » pour inviter votre premier coéquipier.",
+          "noUsersMatch": "Aucun utilisateur ne correspond à votre recherche.",
+          "noInvitations": "Aucune invitation envoyée pour l'instant. Cliquez sur « Inviter un membre » pour commencer.",
+          "noInvitationsMatch": "Aucune invitation ne correspond à votre recherche."
+        },
+        "statuses": {
+          "pending": "en attente",
+          "accepted": "acceptée",
+          "expired": "expirée",
+          "revoked": "révoquée",
+          "active": "actif",
+          "inactive": "inactif"
+        },
+        "modal": {
+          "viewTitle": "Détails de l'utilisateur",
+          "editTitle": "Modifier l'utilisateur",
+          "close": "Fermer",
+          "cancel": "Annuler",
+          "save": "Enregistrer les modifications",
+          "saving": "Enregistrement...",
+          "fields": {
+            "fullName": "Nom complet",
+            "email": "E-mail",
+            "phone": "Téléphone",
+            "role": "Rôle",
+            "status": "Statut",
+            "designation": "Fonction",
+            "designationPlaceholder": "ex. Technicien senior",
+            "department": "Service",
+            "employeeId": "Matricule",
+            "shift": "Équipe",
+            "noShiftAssigned": "Aucune équipe assignée",
+            "address": "Adresse",
+            "addressPlaceholder": "ex. 123 rue Principale, Springfield",
+            "noDepartment": "Aucun service"
+          },
+          "errors": {
+            "fullNameRequired": "Le nom complet est requis.",
+            "contactRequired": "Indiquez un e-mail ou un numéro de téléphone pour que l'utilisateur puisse se connecter.",
+            "saveFailed": "Échec de l'enregistrement de l'utilisateur"
+          }
+        },
+        "invite": {
+          "title": "Inviter un membre de l'équipe",
+          "subtitle": "Envoyer une invitation par e-mail avec attribution d'un rôle",
+          "close": "Fermer",
+          "fields": {
+            "email": "Adresse e-mail",
+            "emailPlaceholder": "coequipier@entreprise.com",
+            "fullName": "Nom complet",
+            "fullNamePlaceholder": "Jean Dupont",
+            "role": "Attribuer un rôle",
+            "department": "Service",
+            "jobTitle": "Intitulé du poste",
+            "jobTitlePlaceholder": "ex. Technicien senior",
+            "address": "Adresse",
+            "addressPlaceholder": "ex. 123 rue Principale, Springfield"
+          },
+          "trainingPeriod": {
+            "label": "Période de formation",
+            "startDate": "Date d'inscription / de début",
+            "months": "{{count}} mois",
+            "custom": "Personnalisée",
+            "endDate": "Date de fin personnalisée",
+            "autoEndsOn": "Se termine automatiquement le <strong>{{date}}</strong>"
+          },
+          "howItWorksTitle": "Comment ça marche :",
+          "howItWorks": "Un lien d'invitation unique sera généré. Partagez-le avec le membre — il pourra s'inscrire avec un e-mail/mot de passe ou avec Google pour rejoindre votre équipe avec le rôle attribué.",
+          "cancel": "Annuler",
+          "send": "Envoyer l'invitation",
+          "sending": "Envoi en cours...",
+          "errors": {
+            "emailRequired": "L'e-mail est requis.",
+            "fullNameRequired": "Le nom complet est requis.",
+            "invalidEmail": "Veuillez saisir une adresse e-mail valide.",
+            "trainingStartRequired": "La date de début de formation est requise pour les stagiaires.",
+            "customEndRequired": "La date de fin de formation personnalisée est requise.",
+            "endAfterStart": "La date de fin de formation doit être postérieure à la date de début.",
+            "sendFailed": "Échec de l'envoi de l'invitation"
+          },
+          "success": {
+            "title": "Invitation créée !",
+            "message": "Une invitation a été créée pour <strong>{{email}}</strong> avec le rôle <strong>{{role}}</strong>.",
+            "shareHint": "Partagez le lien ci-dessous avec le membre de l'équipe. L'invitation expire dans 7 jours.",
+            "inviteAnother": "Inviter une autre personne",
+            "done": "Terminé",
+            "copy": "Copier",
+            "copied": "Copié !"
+          }
+        },
+        "bulkImport": {
+          "title": "Importer des utilisateurs",
+          "subtitle": "Créer des invitations en masse à partir d'un modèle Excel",
+          "close": "Fermer",
+          "downloadTemplate": "Télécharger le modèle Excel",
+          "uploadPrompt": "Cliquez pour téléverser un fichier .xlsx / .csv",
+          "parsing": "Analyse en cours…",
+          "cancel": "Annuler",
+          "import": "Importer {{count}} utilisateur(s)",
+          "importing": "Importation…",
+          "done": "Terminé",
+          "resultImported_one": "{{count}} utilisateur importé",
+          "resultImported_other": "{{count}} utilisateurs importés",
+          "resultFailed": "{{count}} ligne(s) en échec.",
+          "validSummary": "{{valid}} valide(s) · {{invalid}} en erreur",
+          "ready": "Prêt",
+          "noRowsFound": "Aucune ligne trouvée dans le fichier téléversé.",
+          "parseFailed": "Échec de l'analyse du fichier.",
+          "importFailed": "Échec de l'importation.",
+          "tableHeaders": {
+            "name": "Nom",
+            "email": "E-mail",
+            "role": "Rôle",
+            "status": "Statut"
+          },
+          "rowErrors": {
+            "fullNameRequired": "Le nom complet est requis",
+            "emailRequired": "L'e-mail est requis",
+            "invalidEmail": "E-mail invalide",
+            "invalidRole": "Rôle invalide « {{role}} »"
+          }
+        },
+        "invitations": {
+          "emailAlreadyRegistered": "Cet e-mail est déjà enregistré pour un utilisateur actif.",
+          "activeInvitationExists": "Une invitation active existe déjà pour cet e-mail.",
+          "invitationNotFound": "Invitation introuvable.",
+          "loadFailed": "Échec du chargement des invitations",
+          "revokedToast": "Invitation révoquée",
+          "revokeFailedToast": "Échec de la révocation",
+          "resendCreatedToast": "Nouvelle invitation créée",
+          "resendFailedToast": "Échec du renvoi",
+          "invitationSentToast": "Invitation envoyée à {{email}}",
+          "bulkCreatedToast_one": "{{count}} invitation créée",
+          "bulkCreatedToast_other": "{{count}} invitation(s) créée(s)",
+          "googleEmailMismatch": "Veuillez vous connecter avec {{expected}}. Vous vous êtes connecté avec {{actual}}."
+        },
+        "userUpdatedToast": "Utilisateur mis à jour",
+        "roles": {
+          "admin": "Administrateur",
+          "plantManager": "Directeur d'usine",
+          "supervisor": "Superviseur",
+          "technician": "Technicien",
+          "storeKeeper": "Magasinier",
+          "hrOfficer": "Responsable RH",
+          "trainee": "Stagiaire",
+          "floorOperator": "Opérateur de production",
+          "safetyOfficer": "Responsable sécurité"
+        }
+      },
+      "serviceLetter": {
+        "modalTitle": "Générer une attestation de travail",
+        "close": "Fermer",
+        "selectUser": "Sélectionner un utilisateur",
+        "selectUserPlaceholder": "— Sélectionner un utilisateur —",
+        "employeeId": "Matricule :",
+        "role": "Rôle :",
+        "department": "Service :",
+        "designation": "Fonction :",
+        "subject": "Objet",
+        "addressedTo": "Adressée à",
+        "letterBody": "Corps de la lettre",
+        "remarks": "Remarques (facultatif)",
+        "signatureLabel": "Signature numérique",
+        "signatureHint": "Dessinez votre signature ci-dessous à la main. Laissez ce champ vide pour signer avec votre nom saisi en <color>bleu foncé</color> à la place.",
+        "cancel": "Annuler",
+        "generate": "Générer la lettre",
+        "generating": "Génération…",
+        "errors": {
+          "missingFields": "L'objet et le corps de la lettre sont requis.",
+          "generateFailed": "Échec de la génération de l'attestation de travail."
+        },
+        "success": {
+          "generated": "Attestation de travail générée.",
+          "logoNotEmbedded": "Attestation de travail générée, mais le logo de l'entreprise n'a pas pu être intégré — essayez de le retéléverser dans les Paramètres."
+        },
+        "defaultBody": "Nous certifions par la présente que {{name}} est employé(e) chez {{company}} en tant que {{roleOrTitle}}{{departmentClause}} depuis le {{joinedDate}}. Durant cette période, sa conduite et ses performances ont été jugées satisfaisantes.\n\nCette lettre est délivrée à la demande de l'employé(e) pour servir et valoir ce que de droit.",
+        "defaultBodyDepartmentClause": " au sein du service {{department}}",
+        "defaultBodyJoinedFallback": "sa date d'embauche",
+        "signaturePad": {
+          "hint": "Signez avec votre souris, votre pavé tactile ou votre doigt.",
+          "clear": "Effacer"
+        },
+        "history": {
+          "exportCsv": "Exporter en CSV",
+          "empty": "Aucune attestation de travail générée pour l'instant.",
+          "columns": {
+            "issuedDate": "Date d'émission",
+            "subject": "Objet",
+            "issuedTo": "Délivrée à",
+            "issuedBy": "Délivrée par"
+          }
+        },
+        "fallbackCompanyName": "notre entreprise"
+      }
     }
   },
   "triage": {

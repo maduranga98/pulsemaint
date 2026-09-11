@@ -7875,6 +7875,330 @@
         "audit": "Audit",
         "other": "Sonstige"
       }
+    },
+    "settings": {
+      "page": {
+        "title": "Einstellungen",
+        "subtitle": "Konfigurieren Sie, wie FirmiCore für Ihren Betrieb funktioniert.",
+        "company": {
+          "heading": "Unternehmen",
+          "editProfile": "Profil bearbeiten",
+          "logoAlt": "{{name}} Logo",
+          "name": "Name",
+          "industry": "Branche",
+          "country": "Land",
+          "timezone": "Zeitzone",
+          "currency": "Währung",
+          "plan": "Tarif",
+          "planWithStatus": "{{plan}} ({{status}})",
+          "phone": "Telefon",
+          "email": "E-Mail",
+          "address": "Adresse"
+        },
+        "tiles": {
+          "users": {
+            "title": "Benutzer",
+            "description": "Teammitglieder, Rollen und Einladungen verwalten."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "Unternehmensprofil bearbeiten",
+        "close": "Schließen",
+        "uploadLogo": "Logo hochladen",
+        "noLogo": "Kein Logo",
+        "logoAlt": "Firmenlogo",
+        "fields": {
+          "name": "Firmenname",
+          "tradeName": "Handelsname",
+          "industry": "Branche",
+          "country": "Land",
+          "timezone": "Zeitzone",
+          "currency": "Währung",
+          "phone": "Telefon",
+          "email": "E-Mail",
+          "address": "Adresse",
+          "description": "Beschreibung",
+          "descriptionHint": "(wird auf Arbeitszeugnissen und generierten Dokumenten verwendet)",
+          "descriptionPlaceholder": "Eine kurze Beschreibung des Unternehmens…"
+        },
+        "cancel": "Abbrechen",
+        "save": "Änderungen speichern",
+        "saving": "Wird gespeichert…",
+        "successToast": "Unternehmensprofil aktualisiert.",
+        "errorToast": "Unternehmensprofil konnte nicht aktualisiert werden."
+      },
+      "smtp": {
+        "heading": "E-Mail-Versand",
+        "description": "Konfigurieren Sie Ihr eigenes Postfach, damit E-Mails an Lieferanten (Bestellungen, Lieferscheine) von der eigenen Firmenadresse statt vom gemeinsam genutzten FirmiCore-Postfach versendet werden. Host/Port werden für gängige Anbieter (Gmail, Outlook, Yahoo, iCloud, Zoho) automatisch anhand Ihrer registrierten Firmen-E-Mail vorausgefüllt — Sie müssen nur noch das Passwort ergänzen.",
+        "loading": "Wird geladen…",
+        "configured": "Konfiguriert — Versand als <strong>{{user}}</strong> über {{host}}",
+        "notConfigured": "Nicht konfiguriert — Lieferanten-E-Mails werden über das gemeinsam genutzte Plattform-Postfach versendet.",
+        "edit": "Bearbeiten",
+        "configure": "Konfigurieren",
+        "remove": "Entfernen",
+        "removing": "Wird entfernt…",
+        "confirmRemove": "Dieses Postfach entfernen? Lieferanten-E-Mails werden danach wieder über das gemeinsam genutzte Plattform-Postfach versendet.",
+        "removedToast": "Entfernt. Lieferanten-E-Mails werden wieder über das gemeinsam genutzte Plattform-Postfach versendet.",
+        "removeFailedToast": "SMTP-Einstellungen konnten nicht entfernt werden.",
+        "savedToast": "E-Mail-Versand konfiguriert — Lieferanten-E-Mails werden nun von diesem Postfach aus versendet.",
+        "saveFailedToast": "SMTP-Einstellungen konnten nicht gespeichert werden.",
+        "validationError": "Host, Port, Benutzername und Passwort sind erforderlich.",
+        "fields": {
+          "host": "SMTP-Host",
+          "hostPlaceholder": "smtp.ihrefirma.de",
+          "port": "Port",
+          "useSsl": "SSL/TLS verwenden (meist Port 465)",
+          "username": "E-Mail / Benutzername",
+          "usernamePlaceholder": "rechnung@ihrefirma.de",
+          "password": "Passwort / App-Passwort",
+          "passwordPlaceholderChange": "Zum Ändern erneut eingeben",
+          "gmailHint": "Gmail blockiert hier Ihr normales Passwort — generieren Sie stattdessen ein <link>App-Passwort</link> (dafür muss die Bestätigung in zwei Schritten aktiviert sein)."
+        },
+        "save": "Speichern & Prüfen",
+        "saving": "Wird getestet & gespeichert…",
+        "cancel": "Abbrechen"
+      },
+      "users": {
+        "header": {
+          "title": "Teamverwaltung",
+          "memberCount_one": "{{count}} Teammitglied in {{company}}",
+          "memberCount_other": "{{count}} Teammitglieder in {{company}}",
+          "importUsers": "Benutzer importieren",
+          "serviceLetter": "Arbeitszeugnis",
+          "inviteMember": "Mitglied einladen",
+          "defaultCompanyName": "Ihrem Unternehmen"
+        },
+        "tabs": {
+          "users": "Benutzer ({{count}})",
+          "invitations": "Einladungen ({{count}} ausstehend)",
+          "serviceLetters": "Arbeitszeugnis-Verlauf"
+        },
+        "searchPlaceholderUsers": "Suche nach Name, E-Mail, Telefon oder Rolle...",
+        "searchPlaceholderInvitations": "Einladungen durchsuchen...",
+        "table": {
+          "name": "Name",
+          "role": "Rolle",
+          "contact": "Kontakt",
+          "status": "Status",
+          "shifts": "Schichten",
+          "lastLogin": "Letzte Anmeldung",
+          "login": "Anmeldung",
+          "actions": "Aktionen",
+          "never": "Nie",
+          "view": "Ansehen",
+          "edit": "Bearbeiten",
+          "noShifts": "—"
+        },
+        "invitationsTable": {
+          "invitee": "Eingeladene Person",
+          "role": "Rolle",
+          "status": "Status",
+          "sent": "Gesendet",
+          "expires": "Läuft ab",
+          "actions": "Aktionen",
+          "copyLink": "Einladungslink kopieren",
+          "copyLinkShort": "Link kopieren",
+          "copied": "Kopiert",
+          "revoke": "Widerrufen",
+          "resend": "Einladung erneut senden",
+          "resendShort": "Erneut senden"
+        },
+        "empty": {
+          "noUsers": "Noch keine Benutzer. Klicken Sie auf „Mitglied einladen“, um Ihr erstes Teammitglied einzuladen.",
+          "noUsersMatch": "Keine Benutzer entsprechen Ihrer Suche.",
+          "noInvitations": "Noch keine Einladungen gesendet. Klicken Sie auf „Mitglied einladen“, um loszulegen.",
+          "noInvitationsMatch": "Keine Einladungen entsprechen Ihrer Suche."
+        },
+        "statuses": {
+          "pending": "ausstehend",
+          "accepted": "angenommen",
+          "expired": "abgelaufen",
+          "revoked": "widerrufen",
+          "active": "aktiv",
+          "inactive": "inaktiv"
+        },
+        "modal": {
+          "viewTitle": "Benutzerdetails",
+          "editTitle": "Benutzer bearbeiten",
+          "close": "Schließen",
+          "cancel": "Abbrechen",
+          "save": "Änderungen speichern",
+          "saving": "Wird gespeichert...",
+          "fields": {
+            "fullName": "Vollständiger Name",
+            "email": "E-Mail",
+            "phone": "Telefon",
+            "role": "Rolle",
+            "status": "Status",
+            "designation": "Bezeichnung",
+            "designationPlaceholder": "z. B. Senior-Techniker",
+            "department": "Abteilung",
+            "employeeId": "Mitarbeiter-ID",
+            "shift": "Schicht",
+            "noShiftAssigned": "Keine Schicht zugewiesen",
+            "address": "Adresse",
+            "addressPlaceholder": "z. B. Musterstraße 123, 12345 Musterstadt",
+            "noDepartment": "Keine Abteilung"
+          },
+          "errors": {
+            "fullNameRequired": "Der vollständige Name ist erforderlich.",
+            "contactRequired": "Geben Sie eine E-Mail-Adresse oder Telefonnummer an, damit sich der Benutzer anmelden kann.",
+            "saveFailed": "Benutzer konnte nicht gespeichert werden"
+          }
+        },
+        "invite": {
+          "title": "Teammitglied einladen",
+          "subtitle": "Eine Einladung per E-Mail mit Rollenzuweisung senden",
+          "close": "Schließen",
+          "fields": {
+            "email": "E-Mail-Adresse",
+            "emailPlaceholder": "kollege@firma.de",
+            "fullName": "Vollständiger Name",
+            "fullNamePlaceholder": "Max Mustermann",
+            "role": "Rolle zuweisen",
+            "department": "Abteilung",
+            "jobTitle": "Berufsbezeichnung",
+            "jobTitlePlaceholder": "z. B. Senior-Techniker",
+            "address": "Adresse",
+            "addressPlaceholder": "z. B. Musterstraße 123, 12345 Musterstadt"
+          },
+          "trainingPeriod": {
+            "label": "Ausbildungszeitraum",
+            "startDate": "Registrierungs-/Startdatum",
+            "months": "{{count}} Monate",
+            "custom": "Benutzerdefiniert",
+            "endDate": "Benutzerdefiniertes Enddatum",
+            "autoEndsOn": "Endet automatisch am <strong>{{date}}</strong>"
+          },
+          "howItWorksTitle": "So funktioniert's:",
+          "howItWorks": "Es wird ein eindeutiger Einladungslink erstellt. Teilen Sie ihn mit dem Mitglied — es kann sich mit E-Mail/Passwort oder Google registrieren, um Ihrem Team mit der zugewiesenen Rolle beizutreten.",
+          "cancel": "Abbrechen",
+          "send": "Einladung senden",
+          "sending": "Wird gesendet...",
+          "errors": {
+            "emailRequired": "E-Mail-Adresse ist erforderlich.",
+            "fullNameRequired": "Der vollständige Name ist erforderlich.",
+            "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+            "trainingStartRequired": "Für Auszubildende ist ein Ausbildungsstartdatum erforderlich.",
+            "customEndRequired": "Ein benutzerdefiniertes Ausbildungsenddatum ist erforderlich.",
+            "endAfterStart": "Das Ausbildungsenddatum muss nach dem Startdatum liegen.",
+            "sendFailed": "Einladung konnte nicht gesendet werden"
+          },
+          "success": {
+            "title": "Einladung erstellt!",
+            "message": "Es wurde eine Einladung für <strong>{{email}}</strong> als <strong>{{role}}</strong> erstellt.",
+            "shareHint": "Teilen Sie den untenstehenden Link mit dem Teammitglied. Die Einladung läuft in 7 Tagen ab.",
+            "inviteAnother": "Weitere Person einladen",
+            "done": "Fertig",
+            "copy": "Kopieren",
+            "copied": "Kopiert!"
+          }
+        },
+        "bulkImport": {
+          "title": "Benutzer importieren",
+          "subtitle": "Einladungen aus einer Excel-Vorlage im Massenverfahren erstellen",
+          "close": "Schließen",
+          "downloadTemplate": "Excel-Vorlage herunterladen",
+          "uploadPrompt": "Klicken, um .xlsx / .csv hochzuladen",
+          "parsing": "Wird verarbeitet…",
+          "cancel": "Abbrechen",
+          "import": "{{count}} Benutzer importieren",
+          "importing": "Wird importiert…",
+          "done": "Fertig",
+          "resultImported_one": "{{count}} Benutzer importiert",
+          "resultImported_other": "{{count}} Benutzer importiert",
+          "resultFailed": "{{count}} Zeile(n) fehlgeschlagen.",
+          "validSummary": "{{valid}} gültig · {{invalid}} mit Fehlern",
+          "ready": "Bereit",
+          "noRowsFound": "In der hochgeladenen Datei wurden keine Zeilen gefunden.",
+          "parseFailed": "Die Datei konnte nicht verarbeitet werden.",
+          "importFailed": "Import fehlgeschlagen.",
+          "tableHeaders": {
+            "name": "Name",
+            "email": "E-Mail",
+            "role": "Rolle",
+            "status": "Status"
+          },
+          "rowErrors": {
+            "fullNameRequired": "Vollständiger Name ist erforderlich",
+            "emailRequired": "E-Mail-Adresse ist erforderlich",
+            "invalidEmail": "Ungültige E-Mail-Adresse",
+            "invalidRole": "Ungültige Rolle „{{role}}“"
+          }
+        },
+        "invitations": {
+          "emailAlreadyRegistered": "Diese E-Mail-Adresse ist bereits einem aktiven Benutzer zugeordnet.",
+          "activeInvitationExists": "Für diese E-Mail-Adresse besteht bereits eine aktive Einladung.",
+          "invitationNotFound": "Einladung nicht gefunden.",
+          "loadFailed": "Einladungen konnten nicht geladen werden",
+          "revokedToast": "Einladung widerrufen",
+          "revokeFailedToast": "Widerruf fehlgeschlagen",
+          "resendCreatedToast": "Neue Einladung erstellt",
+          "resendFailedToast": "Erneutes Senden fehlgeschlagen",
+          "invitationSentToast": "Einladung an {{email}} gesendet",
+          "bulkCreatedToast_one": "{{count}} Einladung erstellt",
+          "bulkCreatedToast_other": "{{count}} Einladung(en) erstellt",
+          "googleEmailMismatch": "Bitte melden Sie sich mit {{expected}} an. Sie haben sich mit {{actual}} angemeldet."
+        },
+        "userUpdatedToast": "Benutzer aktualisiert",
+        "roles": {
+          "admin": "Administrator",
+          "plantManager": "Betriebsleiter",
+          "supervisor": "Vorgesetzter",
+          "technician": "Techniker",
+          "storeKeeper": "Lagerverwalter",
+          "hrOfficer": "Personalreferent",
+          "trainee": "Auszubildender",
+          "floorOperator": "Anlagenbediener",
+          "safetyOfficer": "Sicherheitsbeauftragter"
+        }
+      },
+      "serviceLetter": {
+        "modalTitle": "Arbeitszeugnis erstellen",
+        "close": "Schließen",
+        "selectUser": "Benutzer auswählen",
+        "selectUserPlaceholder": "— Benutzer auswählen —",
+        "employeeId": "Mitarbeiter-ID:",
+        "role": "Rolle:",
+        "department": "Abteilung:",
+        "designation": "Bezeichnung:",
+        "subject": "Betreff",
+        "addressedTo": "Adressiert an",
+        "letterBody": "Text des Schreibens",
+        "remarks": "Anmerkungen (optional)",
+        "signatureLabel": "Digitale Unterschrift",
+        "signatureHint": "Zeichnen Sie unten Ihre Unterschrift von Hand. Lassen Sie das Feld leer, um stattdessen mit Ihrem eingegebenen Namen in <color>dunkelblau</color> zu unterschreiben.",
+        "cancel": "Abbrechen",
+        "generate": "Schreiben erstellen",
+        "generating": "Wird erstellt…",
+        "errors": {
+          "missingFields": "Betreff und Text des Schreibens sind erforderlich.",
+          "generateFailed": "Arbeitszeugnis konnte nicht erstellt werden."
+        },
+        "success": {
+          "generated": "Arbeitszeugnis erstellt.",
+          "logoNotEmbedded": "Arbeitszeugnis erstellt, aber das Firmenlogo konnte nicht eingebettet werden — versuchen Sie, es in den Einstellungen erneut hochzuladen."
+        },
+        "defaultBody": "Hiermit wird bestätigt, dass {{name}} seit dem {{joinedDate}} bei {{company}} als {{roleOrTitle}}{{departmentClause}} beschäftigt ist. Während dieser Zeit waren Verhalten und Leistung durchweg zufriedenstellend.\n\nDieses Schreiben wird auf Wunsch des Mitarbeiters ausgestellt und kann für jeden zulässigen Zweck verwendet werden.",
+        "defaultBodyDepartmentClause": " in der Abteilung {{department}}",
+        "defaultBodyJoinedFallback": "seinem Eintrittsdatum",
+        "signaturePad": {
+          "hint": "Unterschreiben Sie mit Maus, Trackpad oder Finger.",
+          "clear": "Löschen"
+        },
+        "history": {
+          "exportCsv": "CSV exportieren",
+          "empty": "Noch keine Arbeitszeugnisse erstellt.",
+          "columns": {
+            "issuedDate": "Ausstellungsdatum",
+            "subject": "Betreff",
+            "issuedTo": "Ausgestellt für",
+            "issuedBy": "Ausgestellt von"
+          }
+        },
+        "fallbackCompanyName": "unserem Unternehmen"
+      }
     }
   },
   "triage": {

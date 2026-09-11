@@ -18,6 +18,7 @@ import {
 } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
 import { nanoid } from 'nanoid';
+import type { TFunction } from 'i18next';
 import { auth, db, functions } from './firebase';
 import { useAuthStore } from '../store/authStore';
 import type { Invitation, UserProfile, UserRole } from '../types/auth';
@@ -40,7 +41,7 @@ export async function createInvitation(data: {
   trainingPeriodPreset?: 6 | 12 | 'custom' | null;
   trainingStartDate?: Date | null;
   trainingEndDate?: Date | null;
-}): Promise<Invitation> {
+}, t?: TFunction): Promise<Invitation> {
   const normalizedEmail = data.email.toLowerCase().trim();
 
   // An email still registered to an active user (not deleted) can't be
@@ -53,7 +54,8 @@ export async function createInvitation(data: {
     ),
   );
   if (!activeUser.empty) {
-    throw new Error('This email is already registered to an active user.');
+    const msg = 'This email is already registered to an active user.';
+    throw new Error(t ? t('common.settings.users.invitations.emailAlreadyRegistered', msg) : msg);
   }
 
   const existing = await getDocs(
@@ -65,7 +67,8 @@ export async function createInvitation(data: {
   );
 
   if (!existing.empty) {
-    throw new Error('An active invitation already exists for this email.');
+    const msg = 'An active invitation already exists for this email.';
+    throw new Error(t ? t('common.settings.users.invitations.activeInvitationExists', msg) : msg);
   }
 
   const token = nanoid(32);
@@ -272,9 +275,12 @@ export async function revokeInvitation(companyId: string, invitationId: string):
   });
 }
 
-export async function resendInvitation(companyId: string, invitationId: string): Promise<Invitation> {
+export async function resendInvitation(companyId: string, invitationId: string, t?: TFunction): Promise<Invitation> {
   const invSnap = await getDoc(doc(db, `companies/${companyId}/invitations/${invitationId}`));
-  if (!invSnap.exists()) throw new Error('Invitation not found.');
+  if (!invSnap.exists()) {
+    const msg = 'Invitation not found.';
+    throw new Error(t ? t('common.settings.users.invitations.invitationNotFound', msg) : msg);
+  }
 
   const old = invSnap.data() as Invitation;
 
@@ -293,7 +299,7 @@ export async function resendInvitation(companyId: string, invitationId: string):
     address: old.address,
     invitedBy: old.invitedBy,
     invitedByName: old.invitedByName,
-  });
+  }, t);
 }
 
 export async function sendInvitationEmailManually(companyId: string, invitationId: string): Promise<void> {

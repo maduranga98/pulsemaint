@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface SignaturePadProps {
   /** Fired with a PNG data URL whenever the drawn signature changes, or null when cleared. */
@@ -12,6 +13,7 @@ function getPoint(canvas: HTMLCanvasElement, e: React.PointerEvent<HTMLCanvasEle
 
 /** A small canvas the user signs on by hand (mouse, trackpad, or touch) — no file upload. */
 export function SignaturePad({ onChange }: SignaturePadProps) {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingRef = useRef(false);
   const [hasStroke, setHasStroke] = useState(false);
@@ -85,10 +87,10 @@ export function SignaturePad({ onChange }: SignaturePadProps) {
         className="w-full h-32 rounded-lg border border-dashed border-blue-300 bg-blue-50/40 touch-none cursor-crosshair"
       />
       <div className="mt-1.5 flex items-center justify-between">
-        <p className="text-xs text-slate-500">Sign with your mouse, trackpad, or finger.</p>
+        <p className="text-xs text-slate-500">{t('common.settings.serviceLetter.signaturePad.hint', 'Sign with your mouse, trackpad, or finger.')}</p>
         {hasStroke && (
           <button type="button" onClick={handleClear} className="text-xs font-medium text-blue-900 hover:underline">
-            Clear
+            {t('common.settings.serviceLetter.signaturePad.clear', 'Clear')}
           </button>
         )}
       </div>

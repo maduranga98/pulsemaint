@@ -7875,6 +7875,330 @@
         "audit": "Auditoría",
         "other": "Otro"
       }
+    },
+    "settings": {
+      "page": {
+        "title": "Configuración",
+        "subtitle": "Configure cómo funciona FirmiCore para su planta.",
+        "company": {
+          "heading": "Empresa",
+          "editProfile": "Editar Perfil",
+          "logoAlt": "Logotipo de {{name}}",
+          "name": "Nombre",
+          "industry": "Industria",
+          "country": "País",
+          "timezone": "Zona horaria",
+          "currency": "Moneda",
+          "plan": "Plan",
+          "planWithStatus": "{{plan}} ({{status}})",
+          "phone": "Teléfono",
+          "email": "Correo electrónico",
+          "address": "Dirección"
+        },
+        "tiles": {
+          "users": {
+            "title": "Usuarios",
+            "description": "Administre miembros del equipo, roles e invitaciones."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "Editar Perfil de la Empresa",
+        "close": "Cerrar",
+        "uploadLogo": "Subir Logotipo",
+        "noLogo": "Sin logotipo",
+        "logoAlt": "Logotipo de la empresa",
+        "fields": {
+          "name": "Nombre de la Empresa",
+          "tradeName": "Nombre Comercial",
+          "industry": "Industria",
+          "country": "País",
+          "timezone": "Zona horaria",
+          "currency": "Moneda",
+          "phone": "Teléfono",
+          "email": "Correo electrónico",
+          "address": "Dirección",
+          "description": "Descripción",
+          "descriptionHint": "(se usa en cartas de trabajo y documentos generados)",
+          "descriptionPlaceholder": "Una breve descripción de la empresa…"
+        },
+        "cancel": "Cancelar",
+        "save": "Guardar Cambios",
+        "saving": "Guardando…",
+        "successToast": "Perfil de la empresa actualizado.",
+        "errorToast": "No se pudo actualizar el perfil de la empresa."
+      },
+      "smtp": {
+        "heading": "Envío de Correo",
+        "description": "Configure su propio buzón de correo para que los correos a proveedores (órdenes de compra, recibos de entrega) se envíen desde la dirección de su propia empresa en lugar del buzón compartido de FirmiCore. El host/puerto se completan automáticamente para proveedores comunes (Gmail, Outlook, Yahoo, iCloud, Zoho) según el correo registrado de su empresa; solo necesitará agregar la contraseña.",
+        "loading": "Cargando…",
+        "configured": "Configurado — enviando como <strong>{{user}}</strong> a través de {{host}}",
+        "notConfigured": "No configurado — los correos a proveedores se envían desde el buzón compartido de la plataforma.",
+        "edit": "Editar",
+        "configure": "Configurar",
+        "remove": "Eliminar",
+        "removing": "Eliminando…",
+        "confirmRemove": "¿Eliminar este buzón? Los correos a proveedores volverán a enviarse desde el buzón compartido de la plataforma.",
+        "removedToast": "Eliminado. Los correos a proveedores volverán a usar el buzón compartido de la plataforma.",
+        "removeFailedToast": "No se pudo eliminar la configuración SMTP.",
+        "savedToast": "Envío de correo configurado — los correos a proveedores ahora se enviarán desde este buzón.",
+        "saveFailedToast": "No se pudo guardar la configuración SMTP.",
+        "validationError": "El host, el puerto, el usuario y la contraseña son obligatorios.",
+        "fields": {
+          "host": "Host SMTP",
+          "hostPlaceholder": "smtp.tuempresa.com",
+          "port": "Puerto",
+          "useSsl": "Usar SSL/TLS (generalmente puerto 465)",
+          "username": "Correo electrónico / Usuario",
+          "usernamePlaceholder": "facturacion@tuempresa.com",
+          "password": "Contraseña / Contraseña de aplicación",
+          "passwordPlaceholderChange": "Vuelva a ingresarla para cambiarla",
+          "gmailHint": "Gmail bloquea aquí su contraseña habitual; genere una <link>Contraseña de aplicación</link> en su lugar (requiere tener activada la verificación en dos pasos)."
+        },
+        "save": "Guardar y Verificar",
+        "saving": "Probando y Guardando…",
+        "cancel": "Cancelar"
+      },
+      "users": {
+        "header": {
+          "title": "Gestión de Equipo",
+          "memberCount_one": "{{count}} miembro del equipo en {{company}}",
+          "memberCount_other": "{{count}} miembros del equipo en {{company}}",
+          "importUsers": "Importar Usuarios",
+          "serviceLetter": "Carta de Trabajo",
+          "inviteMember": "Invitar Miembro",
+          "defaultCompanyName": "su empresa"
+        },
+        "tabs": {
+          "users": "Usuarios ({{count}})",
+          "invitations": "Invitaciones ({{count}} pendientes)",
+          "serviceLetters": "Historial de Cartas de Trabajo"
+        },
+        "searchPlaceholderUsers": "Buscar por nombre, correo, teléfono o rol...",
+        "searchPlaceholderInvitations": "Buscar invitaciones...",
+        "table": {
+          "name": "Nombre",
+          "role": "Rol",
+          "contact": "Contacto",
+          "status": "Estado",
+          "shifts": "Turnos",
+          "lastLogin": "Último Acceso",
+          "login": "Acceso",
+          "actions": "Acciones",
+          "never": "Nunca",
+          "view": "Ver",
+          "edit": "Editar",
+          "noShifts": "—"
+        },
+        "invitationsTable": {
+          "invitee": "Invitado",
+          "role": "Rol",
+          "status": "Estado",
+          "sent": "Enviada",
+          "expires": "Vence",
+          "actions": "Acciones",
+          "copyLink": "Copiar enlace de invitación",
+          "copyLinkShort": "Copiar enlace",
+          "copied": "Copiado",
+          "revoke": "Revocar",
+          "resend": "Reenviar invitación",
+          "resendShort": "Reenviar"
+        },
+        "empty": {
+          "noUsers": "Aún no hay usuarios. Haga clic en \"Invitar Miembro\" para invitar a su primer compañero de equipo.",
+          "noUsersMatch": "Ningún usuario coincide con su búsqueda.",
+          "noInvitations": "Aún no se han enviado invitaciones. Haga clic en \"Invitar Miembro\" para comenzar.",
+          "noInvitationsMatch": "Ninguna invitación coincide con su búsqueda."
+        },
+        "statuses": {
+          "pending": "pendiente",
+          "accepted": "aceptada",
+          "expired": "vencida",
+          "revoked": "revocada",
+          "active": "activo",
+          "inactive": "inactivo"
+        },
+        "modal": {
+          "viewTitle": "Detalles del usuario",
+          "editTitle": "Editar usuario",
+          "close": "Cerrar",
+          "cancel": "Cancelar",
+          "save": "Guardar cambios",
+          "saving": "Guardando...",
+          "fields": {
+            "fullName": "Nombre completo",
+            "email": "Correo electrónico",
+            "phone": "Teléfono",
+            "role": "Rol",
+            "status": "Estado",
+            "designation": "Cargo",
+            "designationPlaceholder": "p. ej. Técnico Senior",
+            "department": "Departamento",
+            "employeeId": "ID de Empleado",
+            "shift": "Turno",
+            "noShiftAssigned": "Sin turno asignado",
+            "address": "Dirección",
+            "addressPlaceholder": "p. ej. Calle Principal 123, Springfield",
+            "noDepartment": "Sin departamento"
+          },
+          "errors": {
+            "fullNameRequired": "El nombre completo es obligatorio.",
+            "contactRequired": "Proporcione un correo electrónico o teléfono para que el usuario pueda iniciar sesión.",
+            "saveFailed": "Error al guardar el usuario"
+          }
+        },
+        "invite": {
+          "title": "Invitar Miembro del Equipo",
+          "subtitle": "Envíe una invitación por correo electrónico con asignación de rol",
+          "close": "Cerrar",
+          "fields": {
+            "email": "Correo electrónico",
+            "emailPlaceholder": "companero@empresa.com",
+            "fullName": "Nombre completo",
+            "fullNamePlaceholder": "Juan Pérez",
+            "role": "Asignar rol",
+            "department": "Departamento",
+            "jobTitle": "Puesto de trabajo",
+            "jobTitlePlaceholder": "p. ej. Técnico Senior",
+            "address": "Dirección",
+            "addressPlaceholder": "p. ej. Calle Principal 123, Springfield"
+          },
+          "trainingPeriod": {
+            "label": "Período de Capacitación",
+            "startDate": "Fecha de registro / inicio",
+            "months": "{{count}} meses",
+            "custom": "Personalizado",
+            "endDate": "Fecha de fin personalizada",
+            "autoEndsOn": "Finaliza automáticamente el <strong>{{date}}</strong>"
+          },
+          "howItWorksTitle": "Cómo funciona:",
+          "howItWorks": "Se generará un enlace de invitación único. Compártalo con el miembro; podrá registrarse con correo electrónico/contraseña o con Google para unirse a su equipo con el rol asignado.",
+          "cancel": "Cancelar",
+          "send": "Enviar Invitación",
+          "sending": "Enviando...",
+          "errors": {
+            "emailRequired": "El correo electrónico es obligatorio.",
+            "fullNameRequired": "El nombre completo es obligatorio.",
+            "invalidEmail": "Por favor ingrese una dirección de correo electrónico válida.",
+            "trainingStartRequired": "La fecha de inicio de capacitación es obligatoria para los aprendices.",
+            "customEndRequired": "La fecha de fin de capacitación personalizada es obligatoria.",
+            "endAfterStart": "La fecha de fin de capacitación debe ser posterior a la fecha de inicio.",
+            "sendFailed": "Error al enviar la invitación"
+          },
+          "success": {
+            "title": "¡Invitación Creada!",
+            "message": "Se ha creado una invitación para <strong>{{email}}</strong> como <strong>{{role}}</strong>.",
+            "shareHint": "Comparta el siguiente enlace con el miembro del equipo. La invitación vence en 7 días.",
+            "inviteAnother": "Invitar a Otro",
+            "done": "Listo",
+            "copy": "Copiar",
+            "copied": "¡Copiado!"
+          }
+        },
+        "bulkImport": {
+          "title": "Importar Usuarios",
+          "subtitle": "Cree invitaciones masivamente desde una plantilla de Excel",
+          "close": "Cerrar",
+          "downloadTemplate": "Descargar plantilla de Excel",
+          "uploadPrompt": "Haga clic para subir .xlsx / .csv",
+          "parsing": "Analizando…",
+          "cancel": "Cancelar",
+          "import": "Importar {{count}} usuario(s)",
+          "importing": "Importando…",
+          "done": "Listo",
+          "resultImported_one": "{{count}} usuario importado",
+          "resultImported_other": "{{count}} usuarios importados",
+          "resultFailed": "{{count}} fila(s) fallaron.",
+          "validSummary": "{{valid}} válidos · {{invalid}} con errores",
+          "ready": "Listo",
+          "noRowsFound": "No se encontraron filas en el archivo subido.",
+          "parseFailed": "Error al analizar el archivo.",
+          "importFailed": "La importación falló.",
+          "tableHeaders": {
+            "name": "Nombre",
+            "email": "Correo electrónico",
+            "role": "Rol",
+            "status": "Estado"
+          },
+          "rowErrors": {
+            "fullNameRequired": "El nombre completo es obligatorio",
+            "emailRequired": "El correo electrónico es obligatorio",
+            "invalidEmail": "Correo electrónico inválido",
+            "invalidRole": "Rol inválido \"{{role}}\""
+          }
+        },
+        "invitations": {
+          "emailAlreadyRegistered": "Este correo electrónico ya está registrado a un usuario activo.",
+          "activeInvitationExists": "Ya existe una invitación activa para este correo electrónico.",
+          "invitationNotFound": "Invitación no encontrada.",
+          "loadFailed": "Error al cargar las invitaciones",
+          "revokedToast": "Invitación revocada",
+          "revokeFailedToast": "Error al revocar",
+          "resendCreatedToast": "Se creó una nueva invitación",
+          "resendFailedToast": "Error al reenviar",
+          "invitationSentToast": "Invitación enviada a {{email}}",
+          "bulkCreatedToast_one": "{{count}} invitación creada",
+          "bulkCreatedToast_other": "{{count}} invitación(es) creada(s)",
+          "googleEmailMismatch": "Por favor inicie sesión con {{expected}}. Inició sesión con {{actual}}."
+        },
+        "userUpdatedToast": "Usuario actualizado",
+        "roles": {
+          "admin": "Administrador",
+          "plantManager": "Gerente de Planta",
+          "supervisor": "Supervisor",
+          "technician": "Técnico",
+          "storeKeeper": "Encargado de Almacén",
+          "hrOfficer": "Oficial de RR. HH.",
+          "trainee": "Aprendiz",
+          "floorOperator": "Operador de Planta",
+          "safetyOfficer": "Oficial de Seguridad"
+        }
+      },
+      "serviceLetter": {
+        "modalTitle": "Generar Carta de Trabajo",
+        "close": "Cerrar",
+        "selectUser": "Seleccionar Usuario",
+        "selectUserPlaceholder": "— Seleccione un usuario —",
+        "employeeId": "ID de Empleado:",
+        "role": "Rol:",
+        "department": "Departamento:",
+        "designation": "Cargo:",
+        "subject": "Asunto",
+        "addressedTo": "Dirigido A",
+        "letterBody": "Cuerpo de la Carta",
+        "remarks": "Observaciones (opcional)",
+        "signatureLabel": "Firma Digital",
+        "signatureHint": "Dibuje su firma abajo a mano. Déjelo en blanco para firmar con su nombre escrito en <color>azul oscuro</color> en su lugar.",
+        "cancel": "Cancelar",
+        "generate": "Generar Carta",
+        "generating": "Generando…",
+        "errors": {
+          "missingFields": "El asunto y el cuerpo de la carta son obligatorios.",
+          "generateFailed": "Error al generar la carta de trabajo."
+        },
+        "success": {
+          "generated": "Carta de trabajo generada.",
+          "logoNotEmbedded": "Carta de trabajo generada, pero no se pudo incrustar el logotipo de la empresa; intente volver a subirlo en Configuración."
+        },
+        "defaultBody": "Por medio de la presente se certifica que {{name}} ha estado empleado(a) en {{company}} como {{roleOrTitle}}{{departmentClause}} desde {{joinedDate}}. Durante este período, su conducta y desempeño han sido satisfactorios.\n\nEsta carta se emite a solicitud del empleado(a) para los fines que estime convenientes.",
+        "defaultBodyDepartmentClause": " en el departamento de {{department}}",
+        "defaultBodyJoinedFallback": "su fecha de ingreso",
+        "signaturePad": {
+          "hint": "Firme con el mouse, panel táctil o dedo.",
+          "clear": "Borrar"
+        },
+        "history": {
+          "exportCsv": "Exportar CSV",
+          "empty": "Aún no se han generado cartas de trabajo.",
+          "columns": {
+            "issuedDate": "Fecha de Emisión",
+            "subject": "Asunto",
+            "issuedTo": "Emitida A",
+            "issuedBy": "Emitida Por"
+          }
+        },
+        "fallbackCompanyName": "nuestra empresa"
+      }
     }
   },
   "triage": {

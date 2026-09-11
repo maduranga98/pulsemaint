@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import { Mail, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
@@ -17,6 +18,7 @@ import { detectSmtpPreset } from '@/lib/smtpProviderPresets';
 // host/port/user are shown, matching what the deny-all Firestore rule on
 // the credentials doc already enforces server-side.
 export function CompanySmtpSettings() {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
   const companyEmail = useAuthStore((s) => s.company?.email) ?? '';
   const { addToast } = useToast();
@@ -73,7 +75,7 @@ export function CompanySmtpSettings() {
 
   async function handleSave() {
     if (!companyId || !host.trim() || !port.trim() || !user.trim() || !pass.trim()) {
-      addToast('Host, port, username, and password are all required.', 'error');
+      addToast(t('common.settings.smtp.validationError', 'Host, port, username, and password are all required.'), 'error');
       return;
     }
     setSaving(true);
@@ -90,9 +92,9 @@ export function CompanySmtpSettings() {
       setStatus(s);
       setEditing(false);
       setPass('');
-      addToast('Email sending configured — supplier emails will now send from this mailbox.', 'success');
+      addToast(t('common.settings.smtp.savedToast', 'Email sending configured — supplier emails will now send from this mailbox.'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Failed to save SMTP settings.', 'error');
+      addToast(err instanceof Error ? err.message : t('common.settings.smtp.saveFailedToast', 'Failed to save SMTP settings.'), 'error');
     } finally {
       setSaving(false);
     }
@@ -100,14 +102,14 @@ export function CompanySmtpSettings() {
 
   async function handleRemove() {
     if (!companyId) return;
-    if (!confirm('Remove this mailbox? Supplier emails will go back to sending from the shared platform mailbox.')) return;
+    if (!confirm(t('common.settings.smtp.confirmRemove', 'Remove this mailbox? Supplier emails will go back to sending from the shared platform mailbox.'))) return;
     setRemoving(true);
     try {
       await removeCompanySmtpSettings(companyId);
       setStatus({ configured: false });
-      addToast('Removed. Supplier emails will use the shared platform mailbox again.', 'success');
+      addToast(t('common.settings.smtp.removedToast', 'Removed. Supplier emails will use the shared platform mailbox again.'), 'success');
     } catch (err) {
-      addToast(err instanceof Error ? err.message : 'Failed to remove SMTP settings.', 'error');
+      addToast(err instanceof Error ? err.message : t('common.settings.smtp.removeFailedToast', 'Failed to remove SMTP settings.'), 'error');
     } finally {
       setRemoving(false);
     }
@@ -117,31 +119,31 @@ export function CompanySmtpSettings() {
     <section className="bg-white rounded-xl border border-slate-200 p-5">
       <div className="flex items-center gap-3 mb-1">
         <Mail className="w-5 h-5 text-slate-500" />
-        <h2 className="font-semibold text-slate-900">Email Sending</h2>
+        <h2 className="font-semibold text-slate-900">{t('common.settings.smtp.heading', 'Email Sending')}</h2>
       </div>
       <p className="text-sm text-slate-500 mb-4">
-        Configure your own mailbox so supplier emails (purchase orders, delivery receipts) send from
-        your company's own address instead of the shared FirmiCore mailbox. Host/port are pre-filled
-        automatically for common providers (Gmail, Outlook, Yahoo, iCloud, Zoho) based on your
-        registered company email — you'll just need to add the password.
+        {t(
+          'common.settings.smtp.description',
+          "Configure your own mailbox so supplier emails (purchase orders, delivery receipts) send from your company's own address instead of the shared FirmiCore mailbox. Host/port are pre-filled automatically for common providers (Gmail, Outlook, Yahoo, iCloud, Zoho) based on your registered company email — you'll just need to add the password.",
+        )}
       </p>
 
       {loadingStatus ? (
-        <p className="text-sm text-slate-400">Loading…</p>
+        <p className="text-sm text-slate-400">{t('common.settings.smtp.loading', 'Loading…')}</p>
       ) : editing ? (
         <div className="space-y-3 max-w-md">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-600 mb-1">SMTP Host</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.smtp.fields.host', 'SMTP Host')}</label>
               <input
                 value={host}
                 onChange={(e) => setHost(e.target.value)}
-                placeholder="smtp.yourcompany.com"
+                placeholder={t('common.settings.smtp.fields.hostPlaceholder', 'smtp.yourcompany.com')}
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Port</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.smtp.fields.port', 'Port')}</label>
               <input
                 value={port}
                 onChange={(e) => setPort(e.target.value)}
@@ -152,40 +154,44 @@ export function CompanySmtpSettings() {
             <div className="flex items-end pb-2">
               <label className="flex items-center gap-2 text-sm text-slate-700">
                 <input type="checkbox" checked={secure} onChange={(e) => setSecure(e.target.checked)} />
-                Use SSL/TLS (usually port 465)
+                {t('common.settings.smtp.fields.useSsl', 'Use SSL/TLS (usually port 465)')}
               </label>
             </div>
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Email / Username</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.smtp.fields.username', 'Email / Username')}</label>
             <input
               value={user}
               onChange={(e) => setUser(e.target.value)}
-              placeholder="billing@yourcompany.com"
+              placeholder={t('common.settings.smtp.fields.usernamePlaceholder', 'billing@yourcompany.com')}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Password / App Password</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.smtp.fields.password', 'Password / App Password')}</label>
             <input
               type="password"
               value={pass}
               onChange={(e) => setPass(e.target.value)}
-              placeholder={status?.configured ? 'Re-enter to change' : ''}
+              placeholder={status?.configured ? t('common.settings.smtp.fields.passwordPlaceholderChange', 'Re-enter to change') : ''}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {host === 'smtp.gmail.com' && (
               <p className="text-xs text-slate-500 mt-1">
-                Gmail blocks your regular password here — generate an{' '}
-                <a
-                  href="https://myaccount.google.com/apppasswords"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  App Password
-                </a>{' '}
-                instead (requires 2-Step Verification to be turned on).
+                <Trans
+                  t={t}
+                  i18nKey="common.settings.smtp.fields.gmailHint"
+                  components={{
+                    link: (
+                      <a
+                        href="https://myaccount.google.com/apppasswords"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 hover:underline"
+                      />
+                    ),
+                  }}
+                />
               </p>
             )}
           </div>
@@ -195,14 +201,14 @@ export function CompanySmtpSettings() {
               disabled={saving}
               className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg disabled:opacity-50"
             >
-              {saving ? 'Testing & Saving…' : 'Save & Verify'}
+              {saving ? t('common.settings.smtp.saving', 'Testing & Saving…') : t('common.settings.smtp.save', 'Save & Verify')}
             </button>
             <button
               onClick={() => setEditing(false)}
               disabled={saving}
               className="px-4 py-2 border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50"
             >
-              Cancel
+              {t('common.settings.smtp.cancel', 'Cancel')}
             </button>
           </div>
         </div>
@@ -211,12 +217,17 @@ export function CompanySmtpSettings() {
           {status?.configured ? (
             <div className="flex items-center gap-2 text-sm text-slate-700">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
-              Configured — sending as <strong>{status.user}</strong> via {status.host}
+              <Trans
+                t={t}
+                i18nKey="common.settings.smtp.configured"
+                values={{ user: status.user, host: status.host }}
+                components={{ strong: <strong /> }}
+              />
             </div>
           ) : (
             <div className="flex items-center gap-2 text-sm text-slate-500">
               <XCircle className="w-4 h-4 text-slate-400" />
-              Not configured — supplier emails send from the shared platform mailbox.
+              {t('common.settings.smtp.notConfigured', 'Not configured — supplier emails send from the shared platform mailbox.')}
             </div>
           )}
           <div className="flex gap-2">
@@ -224,7 +235,7 @@ export function CompanySmtpSettings() {
               onClick={startEdit}
               className="px-3 py-1.5 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50"
             >
-              {status?.configured ? 'Edit' : 'Configure'}
+              {status?.configured ? t('common.settings.smtp.edit', 'Edit') : t('common.settings.smtp.configure', 'Configure')}
             </button>
             {status?.configured && (
               <button
@@ -232,7 +243,7 @@ export function CompanySmtpSettings() {
                 disabled={removing}
                 className="px-3 py-1.5 border border-red-200 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-50 disabled:opacity-50"
               >
-                {removing ? 'Removing…' : 'Remove'}
+                {removing ? t('common.settings.smtp.removing', 'Removing…') : t('common.settings.smtp.remove', 'Remove')}
               </button>
             )}
           </div>
