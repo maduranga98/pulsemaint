@@ -8156,6 +8156,7 @@
       },
       "serviceLetter": {
         "modalTitle": "Generar Carta de Trabajo",
+        "defaultSubject": "Carta de Servicio",
         "close": "Cerrar",
         "selectUser": "Seleccionar Usuario",
         "selectUserPlaceholder": "— Seleccione un usuario —",

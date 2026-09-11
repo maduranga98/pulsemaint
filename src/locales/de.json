@@ -8156,6 +8156,7 @@
       },
       "serviceLetter": {
         "modalTitle": "Arbeitszeugnis erstellen",
+        "defaultSubject": "Arbeitsbescheinigung",
         "close": "Schließen",
         "selectUser": "Benutzer auswählen",
         "selectUserPlaceholder": "— Benutzer auswählen —",

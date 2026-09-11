@@ -8156,6 +8156,7 @@
       },
       "serviceLetter": {
         "modalTitle": "Générer une attestation de travail",
+        "defaultSubject": "Attestation de Travail",
         "close": "Fermer",
         "selectUser": "Sélectionner un utilisateur",
         "selectUserPlaceholder": "— Sélectionner un utilisateur —",

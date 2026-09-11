@@ -2,6 +2,7 @@ import { jsPDF } from 'jspdf';
 import type { TFunction } from 'i18next';
 import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
 import { registerUnicodeFont } from '@/utils/reports/pdf/pdfFonts';
+import { formatLongDate } from '@/lib/i18nDate';
 
 export interface ServiceLetterInput {
   companyName: string;
@@ -95,7 +96,7 @@ export async function buildServiceLetterPdf(input: ServiceLetterInput, t?: TFunc
   doc.setFont(fontName, 'normal');
   doc.setFontSize(10);
   doc.setTextColor(INK.r, INK.g, INK.b);
-  doc.text(input.letterDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), pageWidth - marginX, y, { align: 'right' });
+  doc.text(formatLongDate(input.letterDate), pageWidth - marginX, y, { align: 'right' });
 
   y += 24;
   doc.text(input.addressedTo || t?.('common.settings.serviceLetter.pdf.toWhomItMayConcern', { defaultValue: 'To Whom It May Concern' }) || 'To Whom It May Concern', marginX, y);

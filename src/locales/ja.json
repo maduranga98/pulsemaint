@@ -8152,6 +8152,7 @@
       },
       "serviceLetter": {
         "modalTitle": "在職証明書を作成",
+        "defaultSubject": "在職証明書",
         "close": "閉じる",
         "selectUser": "ユーザーを選択",
         "selectUserPlaceholder": "— ユーザーを選択 —",
