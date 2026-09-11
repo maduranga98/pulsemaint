@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
+import { registerUnicodeFont } from '@/utils/reports/pdf/pdfFonts';
 
 export interface ServiceLetterInput {
   companyName: string;
@@ -38,8 +39,14 @@ export interface ServiceLetterPdfResult {
   logoEmbedded: boolean;
 }
 
-export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterPdfResult {
+export async function buildServiceLetterPdf(input: ServiceLetterInput): Promise<ServiceLetterPdfResult> {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
+  // The letter body/subject/remarks are free-text fields the issuer can
+  // type or edit (including a translated default template — see
+  // ServiceLetterModal.tsx), so jsPDF's default Latin-1-only fonts corrupt
+  // any character outside that range. Embed the shared Unicode font used by
+  // the other PDF exports in the app instead of the built-in Helvetica/Times.
+  const fontName = await registerUnicodeFont(doc);
   const pageWidth = doc.internal.pageSize.getWidth();
   const marginX = 56;
   let y = 56;
@@ -57,13 +64,13 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterP
   }
 
   const headerX = logoEmbedded ? marginX + 60 : marginX;
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontName, 'bold');
   doc.setFontSize(16);
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
   doc.text(input.companyName || 'Company', headerX, y);
 
   let headerY = y + 16;
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontName, 'normal');
   doc.setFontSize(9);
   doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
   const contactLine = [input.companyAddress, input.companyPhone, input.companyEmail].filter(Boolean).join('  |  ');
@@ -83,7 +90,7 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterP
   doc.line(marginX, y, pageWidth - marginX, y);
 
   y += 34;
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontName, 'normal');
   doc.setFontSize(10);
   doc.setTextColor(INK.r, INK.g, INK.b);
   doc.text(input.letterDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), pageWidth - marginX, y, { align: 'right' });
@@ -92,12 +99,12 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterP
   doc.text(input.addressedTo || 'To Whom It May Concern', marginX, y);
 
   y += 26;
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontName, 'bold');
   doc.setFontSize(11);
   doc.text(`Subject: ${input.subject}`, marginX, y);
 
   y += 26;
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontName, 'normal');
   doc.setFontSize(10.5);
   doc.setTextColor(30, 41, 59);
   const bodyLines = doc.splitTextToSize(input.body, pageWidth - marginX * 2);
@@ -106,12 +113,12 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterP
 
   if (input.remarks.trim()) {
     y += 10;
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(fontName, 'bold');
     doc.setFontSize(10);
     doc.setTextColor(INK.r, INK.g, INK.b);
     doc.text('Remarks', marginX, y);
     y += 16;
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(fontName, 'normal');
     doc.setTextColor(30, 41, 59);
     const remarkLines = doc.splitTextToSize(input.remarks, pageWidth - marginX * 2);
     doc.text(remarkLines, marginX, y);
@@ -136,7 +143,7 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterP
       // Malformed/unsupported signature image — fall back to the printed name below the line.
     }
   } else {
-    doc.setFont('times', 'bolditalic');
+    doc.setFont(fontName, 'bold');
     doc.setFontSize(18);
     doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
     doc.text(input.issuedByName, marginX, sigY - 8);
@@ -146,11 +153,11 @@ export function buildServiceLetterPdf(input: ServiceLetterInput): ServiceLetterP
   doc.setLineWidth(0.75);
   doc.line(marginX, sigY, marginX + 200, sigY);
 
-  doc.setFont('helvetica', 'bold');
+  doc.setFont(fontName, 'bold');
   doc.setFontSize(10);
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
   doc.text(input.issuedByName, marginX, sigY + 14);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont(fontName, 'normal');
   doc.setFontSize(9);
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
   doc.text(input.issuedByRole, marginX, sigY + 26);
