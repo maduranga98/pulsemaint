@@ -31,6 +31,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useToast } from '../../hooks/useToast';
 import { useShiftConfig } from '../../hooks/useShiftConfig';
 import { useDepartments } from '../../hooks/useDepartments';
+import { usePlants } from '../../hooks/usePlants';
 import {
   createInvitation,
   getCompanyInvitations,
@@ -91,6 +92,7 @@ interface UserFormValues {
   shiftId: string;
   address: string;
   status: UserProfile['status'];
+  plantId: string;
 }
 
 interface InviteFormValues {
@@ -100,6 +102,7 @@ interface InviteFormValues {
   department: string;
   jobTitle: string;
   address: string;
+  plantId: string;
   /** Trainee-only. */
   trainingPeriodPreset: 6 | 12 | 'custom';
   trainingStartDate: string;
@@ -113,6 +116,7 @@ const emptyInviteForm: InviteFormValues = {
   department: '',
   jobTitle: '',
   address: '',
+  plantId: '',
   trainingPeriodPreset: 6,
   trainingStartDate: new Date().toISOString().slice(0, 10),
   trainingEndDate: '',
@@ -157,6 +161,68 @@ function DepartmentSelect({
   );
 }
 
+/**
+ * Plant dropdown. Admin can pick any active plant (or leave unassigned).
+ * Every other role that can invite/add members (supervisor, plant_manager,
+ * hr_officer) is locked to their own registered plant — new users, machines,
+ * contractors and inventory items they create always land in their plant.
+ */
+function PlantSelect({
+  value,
+  onChange,
+  disabled,
+  className,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
+  const role = useAuthStore((s) => s.userProfile?.role);
+  const ownPlantId = useAuthStore((s) => s.userProfile?.plantId ?? '');
+  const { activePlants } = usePlants(companyId);
+  const isAdmin = role === 'admin';
+
+  // Non-admin inviters are locked to their own plant — auto-select it and
+  // keep the control read-only rather than just disabled-with-empty-value.
+  useEffect(() => {
+    if (!isAdmin && ownPlantId && value !== ownPlantId) {
+      onChange(ownPlantId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAdmin, ownPlantId]);
+
+  if (!isAdmin) {
+    const plantName = activePlants.find((p) => p.id === ownPlantId)?.name;
+    return (
+      <input
+        value={plantName ?? t('common.settings.users.invite.fields.yourPlant', 'Your plant')}
+        disabled
+        readOnly
+        className={className ?? 'w-full px-3 py-2 text-sm rounded-lg border bg-slate-50 text-slate-500 outline-none'}
+      />
+    );
+  }
+
+  return (
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      disabled={disabled}
+      className={className ?? 'w-full px-3 py-2 text-sm rounded-lg border outline-none'}
+    >
+      <option value="">{t('common.settings.users.modal.fields.noPlant', 'No plant')}</option>
+      {activePlants.map((p) => (
+        <option key={p.id} value={p.id}>
+          {p.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 function toForm(u: UserProfile): UserFormValues {
   return {
     fullName: u.fullName ?? '',
@@ -169,6 +235,7 @@ function toForm(u: UserProfile): UserFormValues {
     shiftId: u.shiftId ?? '',
     address: u.address ?? '',
     status: u.status,
+    plantId: u.plantId ?? '',
   };
 }
 
@@ -290,6 +357,7 @@ export default function UsersPage() {
       shiftId: values.shiftId || null,
       address: values.address.trim() || null,
       status: values.status,
+      plantId: values.role === 'admin' ? null : (values.plantId || currentUser?.plantId || null),
       updatedAt: serverTimestamp(),
     });
     // Keep the global mapping doc in sync so Firestore rules pick up the new role.
@@ -321,6 +389,10 @@ export default function UsersPage() {
       department: values.department.trim() || null,
       jobTitle: values.jobTitle.trim() || null,
       address: values.address.trim() || null,
+      // Admin picks any plant (or none); everyone else who can invite is
+      // locked to their own registered plant — PlantSelect already enforces
+      // this in the UI, this is the server-write-side backstop.
+      plantId: values.role === 'admin' ? null : (currentUser.role === 'admin' ? (values.plantId || null) : (currentUser.plantId ?? null)),
       invitedBy: currentUser.id,
       invitedByName: currentUser.fullName,
       trainingPeriodPreset: isTrainee ? values.trainingPeriodPreset : null,
@@ -1109,6 +1181,16 @@ function InviteModal({
             </select>
           </Field>
 
+          {values.role !== 'admin' && (
+            <Field label={t('common.settings.users.invite.fields.plant', 'Plant')}>
+              <PlantSelect
+                value={values.plantId}
+                onChange={(v) => set('plantId', v)}
+                className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              />
+            </Field>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label={t('common.settings.users.invite.fields.department', 'Department')}>
               <DepartmentSelect
@@ -1380,6 +1462,16 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               />
             </Field>
           </div>
+
+          {values.role !== 'admin' && (
+            <Field label={t('common.settings.users.modal.fields.plant', 'Plant')}>
+              <PlantSelect
+                value={values.plantId}
+                onChange={(v) => set('plantId', v)}
+                disabled={isView}
+              />
+            </Field>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label={t('common.settings.users.modal.fields.employeeId', 'Employee ID')}>

@@ -3,7 +3,6 @@ import {
   collection,
   doc,
   onSnapshot,
-  orderBy,
   query,
   serverTimestamp,
   updateDoc,
@@ -23,9 +22,15 @@ export function subscribePlants(
   cb: (plants: Plant[]) => void,
   onError?: (msg: string) => void,
 ): () => void {
+  // Sorted client-side (rather than an orderBy('name') server-side) so this
+  // never needs a composite index alongside the companyId filter.
   return onSnapshot(
-    query(collection(db, PLANTS), where('companyId', '==', companyId), orderBy('name', 'asc')),
-    (snap) => cb(snap.docs.map((d) => mapPlant(d.id, d.data()))),
+    query(collection(db, PLANTS), where('companyId', '==', companyId)),
+    (snap) => {
+      const plants = snap.docs.map((d) => mapPlant(d.id, d.data()));
+      plants.sort((a, b) => a.name.localeCompare(b.name));
+      cb(plants);
+    },
     (err) => onError?.(err.message),
   );
 }
@@ -39,7 +44,9 @@ export async function createPlant(
     companyId,
     name: payload.name,
     code: payload.code ?? null,
-    address: payload.address ?? null,
+    address: payload.location?.formattedAddress ?? null,
+    location: payload.location ?? null,
+    contactPerson: payload.contactPerson ?? null,
     status: 'active',
     createdAt: serverTimestamp(),
     createdBy: userId,

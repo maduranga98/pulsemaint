@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Factory, Plus, X } from 'lucide-react';
+import { Factory, Plus, X, MapPin, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { subscribePlants, createPlant, updatePlant } from '../../services/plants.service';
-import type { Plant } from '../../types/plant';
+import { PlantLocationInput } from '../../components/settings/PlantLocationInput';
+import type { Plant, PlantContactPerson, PlantLocation } from '../../types/plant';
+
+const EMPTY_CONTACT: PlantContactPerson = { name: '', phone: '', email: '', designation: '' };
 
 export default function PlantsPage() {
   const { t } = useTranslation();
@@ -14,7 +17,8 @@ export default function PlantsPage() {
   const [editing, setEditing] = useState<Plant | null>(null);
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
-  const [address, setAddress] = useState('');
+  const [location, setLocation] = useState<PlantLocation | null>(null);
+  const [contact, setContact] = useState<PlantContactPerson>(EMPTY_CONTACT);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +31,8 @@ export default function PlantsPage() {
     setEditing(null);
     setName('');
     setCode('');
-    setAddress('');
+    setLocation(null);
+    setContact(EMPTY_CONTACT);
     setModalOpen(true);
   }
 
@@ -35,7 +40,8 @@ export default function PlantsPage() {
     setEditing(plant);
     setName(plant.name);
     setCode(plant.code ?? '');
-    setAddress(plant.address ?? '');
+    setLocation(plant.location ?? (plant.address ? { formattedAddress: plant.address, lat: null, lng: null, placeId: null } : null));
+    setContact(plant.contactPerson ?? EMPTY_CONTACT);
     setModalOpen(true);
   }
 
@@ -43,18 +49,28 @@ export default function PlantsPage() {
     if (!company?.id || !userId || !name.trim()) return;
     setSaving(true);
     setError(null);
+    const contactPerson = contact.name.trim()
+      ? {
+          name: contact.name.trim(),
+          phone: contact.phone?.trim() || null,
+          email: contact.email?.trim() || null,
+          designation: contact.designation?.trim() || null,
+        }
+      : null;
     try {
       if (editing) {
         await updatePlant(editing.id, userId, {
           name: name.trim(),
           code: code.trim() || null,
-          address: address.trim() || null,
+          location,
+          contactPerson,
         });
       } else {
         await createPlant(company.id, userId, {
           name: name.trim(),
           code: code.trim() || null,
-          address: address.trim() || null,
+          location,
+          contactPerson,
         });
       }
       setModalOpen(false);
@@ -111,8 +127,15 @@ export default function PlantsPage() {
                 <div>
                   <div className="font-medium text-slate-900">{plant.name}</div>
                   <div className="text-xs text-slate-500">
-                    {[plant.code, plant.address].filter(Boolean).join(' · ')}
+                    {[plant.code, plant.location?.formattedAddress ?? plant.address].filter(Boolean).join(' · ')}
                   </div>
+                  {plant.contactPerson?.name && (
+                    <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                      <User className="w-3 h-3" />
+                      {plant.contactPerson.name}
+                      {plant.contactPerson.phone ? ` · ${plant.contactPerson.phone}` : ''}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -148,8 +171,8 @@ export default function PlantsPage() {
       </div>
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-xl w-full max-w-md p-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8 overflow-y-auto">
+          <div className="bg-white rounded-xl w-full max-w-md p-5 my-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-semibold text-slate-900">
                 {editing
@@ -183,15 +206,46 @@ export default function PlantsPage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">
-                  {t('common.settings.plants.address', 'Address (optional)')}
+                <label className="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {t('common.settings.plants.location', 'Location')}
                 </label>
-                <textarea
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-                  rows={2}
-                />
+                <PlantLocationInput value={location} onChange={setLocation} />
+              </div>
+
+              <div className="pt-2 border-t border-slate-100">
+                <p className="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1">
+                  <User className="w-3.5 h-3.5" />
+                  {t('common.settings.plants.contactPerson', 'Contact person (optional)')}
+                </p>
+                <div className="space-y-2">
+                  <input
+                    value={contact.name}
+                    onChange={(e) => setContact({ ...contact, name: e.target.value })}
+                    placeholder={t('common.settings.plants.contactName', 'Name') || ''}
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      value={contact.phone ?? ''}
+                      onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+                      placeholder={t('common.settings.plants.contactPhone', 'Phone') || ''}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                    <input
+                      value={contact.designation ?? ''}
+                      onChange={(e) => setContact({ ...contact, designation: e.target.value })}
+                      placeholder={t('common.settings.plants.contactDesignation', 'Designation') || ''}
+                      className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <input
+                    value={contact.email ?? ''}
+                    onChange={(e) => setContact({ ...contact, email: e.target.value })}
+                    placeholder={t('common.settings.plants.contactEmail', 'Email') || ''}
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                  />
+                </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
