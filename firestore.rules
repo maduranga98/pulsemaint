@@ -660,6 +660,20 @@ service cloud.firestore {
     }
 
     // ---------------------------------------------------------------------------
+    // Plants — top-level grouping above the existing site/department scoping.
+    // Every company member reads their company's plants (needed to populate
+    // the plant selector on user/machine/contractor/inventory forms); only
+    // admin manages the plant list itself.
+    // ---------------------------------------------------------------------------
+
+    match /plants/{plantId} {
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId) && isAdmin();
+      allow update: if isAuthenticated() && belongsToCompany(resource.data.companyId) && isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ---------------------------------------------------------------------------
     // Companies & company users — required for signup / login / profile load
     // ---------------------------------------------------------------------------
 

@@ -71,6 +71,8 @@ export interface Machine {
   // Identity
   id: string;
   siteId: string;
+  /** Plant this machine is registered under (top-level, above department). */
+  plantId?: string | null;
   name: string;
   model: string;
   serialNumber: string;
@@ -135,6 +137,7 @@ export interface Machine {
 
 export interface CreateMachinePayload {
   siteId: string;
+  plantId?: string | null;
   name: string;
   type: MachineType;
   manufacturer: string;
