@@ -8193,7 +8193,13 @@
             "issuedBy": "発行者"
           }
         },
-        "fallbackCompanyName": "弊社"
+        "fallbackCompanyName": "弊社",
+        "pdf": {
+          "company": "会社",
+          "toWhomItMayConcern": "関係者各位",
+          "subjectLabel": "件名：{{subject}}",
+          "remarksHeading": "備考"
+        }
       }
     }
   },

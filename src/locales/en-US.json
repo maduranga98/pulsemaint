@@ -8370,7 +8370,13 @@
             "issuedBy": "Issued By"
           }
         },
-        "fallbackCompanyName": "our company"
+        "fallbackCompanyName": "our company",
+        "pdf": {
+          "company": "Company",
+          "toWhomItMayConcern": "To Whom It May Concern",
+          "subjectLabel": "Subject: {{subject}}",
+          "remarksHeading": "Remarks"
+        }
       }
     }
   }
