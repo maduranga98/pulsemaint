@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation, Trans } from 'react-i18next';
 import {
   collection,
   onSnapshot,
@@ -43,20 +44,19 @@ import { ServiceLetterModal } from '../../components/settings/ServiceLetterModal
 import { Upload, FileText } from 'lucide-react';
 import { computeExpectedEndDate, type DurationPreset } from '../../lib/traineeProgram/programmeDuration';
 import { ServiceLetterHistoryTab } from '../../components/settings/ServiceLetterHistoryTab';
+import { getRoleLabel } from '../../constants/copy';
 
-const ROLE_LABEL: Record<UserRole, string> = {
-  admin: 'Admin',
-  plant_manager: 'Plant Manager',
-  supervisor: 'Supervisor',
-  technician: 'Technician',
-  store_keeper: 'Store Keeper',
-  hr_officer: 'HR Officer',
-  trainee: 'Trainee',
-  floor_operator: 'Floor Operator',
-  safety_officer: 'Safety Officer',
-};
-
-const ROLE_OPTIONS = Object.keys(ROLE_LABEL) as UserRole[];
+const ROLE_OPTIONS: UserRole[] = [
+  'admin',
+  'plant_manager',
+  'supervisor',
+  'technician',
+  'store_keeper',
+  'hr_officer',
+  'trainee',
+  'floor_operator',
+  'safety_officer',
+];
 const STATUS_OPTIONS: UserProfile['status'][] = ['active', 'pending', 'inactive'];
 
 const STATUS_COLOR: Record<UserProfile['status'], string> = {
@@ -134,6 +134,7 @@ function DepartmentSelect({
   disabled?: boolean;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
   const { departments } = useDepartments(companyId);
   // Keep a legacy free-typed value selectable so existing users don't lose it.
@@ -146,7 +147,7 @@ function DepartmentSelect({
       disabled={disabled}
       className={className ?? 'w-full px-3 py-2 text-sm rounded-lg border outline-none'}
     >
-      <option value="">No department</option>
+      <option value="">{t('common.settings.users.modal.fields.noDepartment', 'No department')}</option>
       {options.map((d) => (
         <option key={d} value={d}>
           {d}
@@ -172,6 +173,7 @@ function toForm(u: UserProfile): UserFormValues {
 }
 
 export default function UsersPage() {
+  const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
   const currentUser = useAuthStore((s) => s.userProfile);
   // Plant Manager gets the same Users data as Admin, but is limited to
@@ -224,7 +226,7 @@ export default function UsersPage() {
       const data = await getCompanyInvitations(company.id);
       setInvitations(data);
     } catch (err: any) {
-      toast.error('Failed to load invitations');
+      toast.error(t('common.settings.users.invitations.loadFailed', 'Failed to load invitations'));
     }
   };
 
@@ -235,7 +237,7 @@ export default function UsersPage() {
       u.fullName?.toLowerCase().includes(s) ||
       u.email?.toLowerCase().includes(s) ||
       u.phone?.toLowerCase().includes(s) ||
-      ROLE_LABEL[u.role]?.toLowerCase().includes(s)
+      getRoleLabel(u.role, t)?.toLowerCase().includes(s)
     );
   });
 
@@ -245,7 +247,7 @@ export default function UsersPage() {
     return (
       inv.email?.toLowerCase().includes(s) ||
       inv.fullName?.toLowerCase().includes(s) ||
-      ROLE_LABEL[inv.role]?.toLowerCase().includes(s)
+      getRoleLabel(inv.role, t)?.toLowerCase().includes(s)
     );
   });
 
@@ -293,7 +295,7 @@ export default function UsersPage() {
     // Keep the global mapping doc in sync so Firestore rules pick up the new role.
     await setDoc(doc(db, `users/${userId}`), { role: values.role }, { merge: true });
     await syncShiftMembership(userId, values.fullName.trim(), values.shiftId || null);
-    toast.success('User updated');
+    toast.success(t('common.settings.users.userUpdatedToast', 'User updated'));
   };
 
   const handleInvite = async (values: InviteFormValues) => {
@@ -324,8 +326,8 @@ export default function UsersPage() {
       trainingPeriodPreset: isTrainee ? values.trainingPeriodPreset : null,
       trainingStartDate: trainingStart,
       trainingEndDate: trainingEnd,
-    });
-    toast.success(`Invitation sent to ${values.email}`);
+    }, t);
+    toast.success(t('common.settings.users.invitations.invitationSentToast', 'Invitation sent to {{email}}', { email: values.email }));
     if (activeTab === 'invitations') loadInvitations();
     return inv;
   };
@@ -348,14 +350,14 @@ export default function UsersPage() {
           address: row.address,
           invitedBy: currentUser.id,
           invitedByName: currentUser.fullName,
-        });
+        }, t);
         created += 1;
       } catch (err) {
         failed += 1;
         errors.push(`${row.email}: ${err instanceof Error ? err.message : 'failed'}`);
       }
     }
-    if (created > 0) toast.success(`${created} invitation(s) created`);
+    if (created > 0) toast.success(t('common.settings.users.invitations.bulkCreatedToast', '{{count}} invitation(s) created', { count: created }));
     if (activeTab === 'invitations') loadInvitations();
     return { created, failed, errors };
   };
@@ -364,21 +366,21 @@ export default function UsersPage() {
     if (!company?.id) return;
     try {
       await revokeInvitation(company.id, inv.id);
-      toast.success('Invitation revoked');
+      toast.success(t('common.settings.users.invitations.revokedToast', 'Invitation revoked'));
       loadInvitations();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to revoke');
+      toast.error(err.message || t('common.settings.users.invitations.revokeFailedToast', 'Failed to revoke'));
     }
   };
 
   const handleResend = async (inv: Invitation) => {
     if (!company?.id) return;
     try {
-      await resendInvitation(company.id, inv.id);
-      toast.success('New invitation created');
+      await resendInvitation(company.id, inv.id, t);
+      toast.success(t('common.settings.users.invitations.resendCreatedToast', 'New invitation created'));
       loadInvitations();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to resend');
+      toast.error(err.message || t('common.settings.users.invitations.resendFailedToast', 'Failed to resend'));
     }
   };
 
@@ -386,9 +388,12 @@ export default function UsersPage() {
     <div className="min-h-full">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#1E3A5F] mb-5">
         <div>
-          <h1 className="text-[20px] font-semibold tracking-tight text-[#F0F4F8]">Team Management</h1>
+          <h1 className="text-[20px] font-semibold tracking-tight text-[#F0F4F8]">{t('common.settings.users.header.title', 'Team Management')}</h1>
           <p className="text-[13px] text-[#8BA3BF] mt-0.5">
-            {users.length} team {users.length === 1 ? 'member' : 'members'} in {company?.name || 'your company'}
+            {t('common.settings.users.header.memberCount', '{{count}} team member in {{company}}', {
+              count: users.length,
+              company: company?.name || t('common.settings.users.header.defaultCompanyName', 'your company'),
+            })}
           </p>
         </div>
         {canManageUsers && (
@@ -399,7 +404,7 @@ export default function UsersPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <Upload className="w-4 h-4" />
-              Import Users
+              {t('common.settings.users.header.importUsers', 'Import Users')}
             </button>
             <button
               type="button"
@@ -407,7 +412,7 @@ export default function UsersPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors"
             >
               <FileText className="w-4 h-4" />
-              Service Letter
+              {t('common.settings.users.header.serviceLetter', 'Service Letter')}
             </button>
             <button
               type="button"
@@ -415,7 +420,7 @@ export default function UsersPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
             >
               <Send className="w-4 h-4" />
-              Invite Member
+              {t('common.settings.users.header.inviteMember', 'Invite Member')}
             </button>
           </div>
         )}
@@ -432,7 +437,7 @@ export default function UsersPage() {
                   : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
               }`}
             >
-              Users ({users.length})
+              {t('common.settings.users.tabs.users', 'Users ({{count}})', { count: users.length })}
             </button>
             {canManageUsers && (
               <button
@@ -443,7 +448,9 @@ export default function UsersPage() {
                     : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
                 }`}
               >
-                Invitations ({invitations.filter((i) => i.status === 'pending').length} pending)
+                {t('common.settings.users.tabs.invitations', 'Invitations ({{count}} pending)', {
+                  count: invitations.filter((i) => i.status === 'pending').length,
+                })}
               </button>
             )}
             {canManageUsers && (
@@ -455,7 +462,7 @@ export default function UsersPage() {
                     : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
                 }`}
               >
-                Service Letter History
+                {t('common.settings.users.tabs.serviceLetters', 'Service Letter History')}
               </button>
             )}
           </div>
@@ -465,7 +472,11 @@ export default function UsersPage() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={activeTab === 'users' ? 'Search by name, email, phone, or role...' : 'Search invitations...'}
+              placeholder={
+                activeTab === 'users'
+                  ? t('common.settings.users.searchPlaceholderUsers', 'Search by name, email, phone, or role...')
+                  : t('common.settings.users.searchPlaceholderInvitations', 'Search invitations...')
+              }
               className="w-full sm:max-w-sm px-3 py-2 text-sm rounded-lg outline-none border"
             />
           )}
@@ -491,8 +502,8 @@ export default function UsersPage() {
                 <p className="text-5xl mb-3">👥</p>
                 <p className="text-slate-500">
                   {users.length === 0
-                    ? 'No users yet. Click "Invite Member" to invite your first teammate.'
-                    : 'No users match your search.'}
+                    ? t('common.settings.users.empty.noUsers', 'No users yet. Click "Invite Member" to invite your first teammate.')
+                    : t('common.settings.users.empty.noUsersMatch', 'No users match your search.')}
                 </p>
               </div>
             ) : (
@@ -502,13 +513,13 @@ export default function UsersPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
                       <tr>
-                        <th className="px-4 py-3 text-left">Name</th>
-                        <th className="px-4 py-3 text-left">Role</th>
-                        <th className="px-4 py-3 text-left">Contact</th>
-                        <th className="px-4 py-3 text-left">Status</th>
-                        <th className="px-4 py-3 text-left">Shifts</th>
-                        <th className="px-4 py-3 text-left">Last Login</th>
-                        {canManageUsers && <th className="px-4 py-3 text-right">Actions</th>}
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.table.name', 'Name')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.table.role', 'Role')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.table.contact', 'Contact')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.table.status', 'Status')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.table.shifts', 'Shifts')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.table.lastLogin', 'Last Login')}</th>
+                        {canManageUsers && <th className="px-4 py-3 text-right">{t('common.settings.users.table.actions', 'Actions')}</th>}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -525,7 +536,7 @@ export default function UsersPage() {
                               </div>
                             </div>
                           </td>
-                          <td className="px-4 py-3 text-slate-700">{ROLE_LABEL[u.role] || u.role}</td>
+                          <td className="px-4 py-3 text-slate-700">{getRoleLabel(u.role, t) || u.role}</td>
                           <td className="px-4 py-3 space-y-0.5 text-xs text-slate-600">
                             {u.email && (
                               <div className="flex items-center gap-1.5">
@@ -540,7 +551,7 @@ export default function UsersPage() {
                           </td>
                           <td className="px-4 py-3">
                             <span className={`px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[u.status]}`}>
-                              {u.status}
+                              {t(`common.settings.users.statuses.${u.status}`, u.status)}
                             </span>
                           </td>
                           <td className="px-4 py-3">
@@ -554,7 +565,7 @@ export default function UsersPage() {
                           <td className="px-4 py-3 text-xs text-slate-500">
                             {u.lastLoginAt && (u.lastLoginAt as { toDate?: () => Date }).toDate
                               ? (u.lastLoginAt as { toDate: () => Date }).toDate().toLocaleString()
-                              : 'Never'}
+                              : t('common.settings.users.table.never', 'Never')}
                           </td>
                           {canManageUsers && (
                             <td className="px-4 py-3">
@@ -562,7 +573,7 @@ export default function UsersPage() {
                                 <button
                                   type="button"
                                   onClick={() => setModal({ mode: 'view', user: u })}
-                                  title="View"
+                                  title={t('common.settings.users.table.view', 'View')}
                                   className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                                 >
                                   <Eye className="w-4 h-4" />
@@ -571,7 +582,7 @@ export default function UsersPage() {
                                   <button
                                     type="button"
                                     onClick={() => setModal({ mode: 'edit', user: u })}
-                                    title="Edit"
+                                    title={t('common.settings.users.table.edit', 'Edit')}
                                     className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                                   >
                                     <Pencil className="w-4 h-4" />
@@ -601,14 +612,14 @@ export default function UsersPage() {
                           </div>
                         </div>
                         <span className={`shrink-0 px-2 py-0.5 rounded text-xs font-medium ring-1 ${STATUS_COLOR[u.status]}`}>
-                          {u.status}
+                          {t(`common.settings.users.statuses.${u.status}`, u.status)}
                         </span>
                       </div>
 
                       <div className="text-xs text-slate-600 space-y-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-slate-400 uppercase tracking-wide text-[10px] w-12 shrink-0">Role</span>
-                          {ROLE_LABEL[u.role] || u.role}
+                          <span className="text-slate-400 uppercase tracking-wide text-[10px] w-12 shrink-0">{t('common.settings.users.table.role', 'Role')}</span>
+                          {getRoleLabel(u.role, t) || u.role}
                         </div>
                         {u.email && (
                           <div className="flex items-center gap-1.5">
@@ -621,10 +632,10 @@ export default function UsersPage() {
                           </div>
                         )}
                         <div className="flex items-center gap-1.5">
-                          <span className="text-slate-400 uppercase tracking-wide text-[10px] w-12 shrink-0">Login</span>
+                          <span className="text-slate-400 uppercase tracking-wide text-[10px] w-12 shrink-0">{t('common.settings.users.table.login', 'Login')}</span>
                           {u.lastLoginAt && (u.lastLoginAt as { toDate?: () => Date }).toDate
                             ? (u.lastLoginAt as { toDate: () => Date }).toDate().toLocaleString()
-                            : 'Never'}
+                            : t('common.settings.users.table.never', 'Never')}
                         </div>
                       </div>
 
@@ -642,7 +653,7 @@ export default function UsersPage() {
                             onClick={() => setModal({ mode: 'view', user: u })}
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100"
                           >
-                            <Eye className="w-3.5 h-3.5" /> View
+                            <Eye className="w-3.5 h-3.5" /> {t('common.settings.users.table.view', 'View')}
                           </button>
                           {canEditRow(u) && (
                             <button
@@ -650,7 +661,7 @@ export default function UsersPage() {
                               onClick={() => setModal({ mode: 'edit', user: u })}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"
                             >
-                              <Pencil className="w-3.5 h-3.5" /> Edit
+                              <Pencil className="w-3.5 h-3.5" /> {t('common.settings.users.table.edit', 'Edit')}
                             </button>
                           )}
                         </div>
@@ -670,8 +681,8 @@ export default function UsersPage() {
                 <Send className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500">
                   {invitations.length === 0
-                    ? 'No invitations sent yet. Click "Invite Member" to get started.'
-                    : 'No invitations match your search.'}
+                    ? t('common.settings.users.empty.noInvitations', 'No invitations sent yet. Click "Invite Member" to get started.')
+                    : t('common.settings.users.empty.noInvitationsMatch', 'No invitations match your search.')}
                 </p>
               </div>
             ) : (
@@ -681,12 +692,12 @@ export default function UsersPage() {
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
                       <tr>
-                        <th className="px-4 py-3 text-left">Invitee</th>
-                        <th className="px-4 py-3 text-left">Role</th>
-                        <th className="px-4 py-3 text-left">Status</th>
-                        <th className="px-4 py-3 text-left">Sent</th>
-                        <th className="px-4 py-3 text-left">Expires</th>
-                        <th className="px-4 py-3 text-right">Actions</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.invitationsTable.invitee', 'Invitee')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.invitationsTable.role', 'Role')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.invitationsTable.status', 'Status')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.invitationsTable.sent', 'Sent')}</th>
+                        <th className="px-4 py-3 text-left">{t('common.settings.users.invitationsTable.expires', 'Expires')}</th>
+                        <th className="px-4 py-3 text-right">{t('common.settings.users.invitationsTable.actions', 'Actions')}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -730,7 +741,7 @@ export default function UsersPage() {
       {serviceLetterOpen && (
         <ServiceLetterModal
           users={users}
-          roleLabels={ROLE_LABEL}
+          roleLabels={Object.fromEntries(ROLE_OPTIONS.map((r) => [r, getRoleLabel(r, t)])) as Record<UserRole, string>}
           onClose={() => setServiceLetterOpen(false)}
         />
       )}
@@ -761,6 +772,7 @@ function InvitationRow({
   onRevoke: () => void;
   onResend: () => void;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const copyLink = async () => {
@@ -783,14 +795,14 @@ function InvitationRow({
           </p>
         </div>
       </td>
-      <td className="px-4 py-3 text-slate-700">{ROLE_LABEL[inv.role] || inv.role}</td>
+      <td className="px-4 py-3 text-slate-700">{getRoleLabel(inv.role, t) || inv.role}</td>
       <td className="px-4 py-3">
         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${INVITE_STATUS_COLOR[displayStatus]}`}>
           {displayStatus === 'pending' && <Clock className="w-3 h-3" />}
           {displayStatus === 'accepted' && <CheckCircle className="w-3 h-3" />}
           {displayStatus === 'expired' && <XCircle className="w-3 h-3" />}
           {displayStatus === 'revoked' && <XCircle className="w-3 h-3" />}
-          {displayStatus}
+          {t(`common.settings.users.statuses.${displayStatus}`, displayStatus)}
         </span>
       </td>
       <td className="px-4 py-3 text-xs text-slate-500">
@@ -805,14 +817,14 @@ function InvitationRow({
             <>
               <button
                 onClick={copyLink}
-                title="Copy invite link"
+                title={t('common.settings.users.invitationsTable.copyLink', 'Copy invite link')}
                 className="p-1.5 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800"
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Link2 className="w-4 h-4" />}
               </button>
               <button
                 onClick={onRevoke}
-                title="Revoke"
+                title={t('common.settings.users.invitationsTable.revoke', 'Revoke')}
                 className="p-1.5 rounded-md text-slate-500 hover:bg-red-50 hover:text-red-600"
               >
                 <XCircle className="w-4 h-4" />
@@ -822,7 +834,7 @@ function InvitationRow({
           {(displayStatus === 'expired' || displayStatus === 'revoked') && (
             <button
               onClick={onResend}
-              title="Resend invitation"
+              title={t('common.settings.users.invitationsTable.resend', 'Resend invitation')}
               className="p-1.5 rounded-md text-slate-500 hover:bg-blue-50 hover:text-blue-600"
             >
               <RefreshCw className="w-4 h-4" />
@@ -843,6 +855,7 @@ function InvitationCard({
   onRevoke: () => void;
   onResend: () => void;
 }) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const copyLink = async () => {
@@ -869,21 +882,21 @@ function InvitationCard({
           {displayStatus === 'accepted' && <CheckCircle className="w-3 h-3" />}
           {displayStatus === 'expired' && <XCircle className="w-3 h-3" />}
           {displayStatus === 'revoked' && <XCircle className="w-3 h-3" />}
-          {displayStatus}
+          {t(`common.settings.users.statuses.${displayStatus}`, displayStatus)}
         </span>
       </div>
 
       <div className="text-xs text-slate-600 grid grid-cols-2 gap-2">
         <div>
-          <p className="text-slate-400 uppercase tracking-wide text-[10px]">Role</p>
-          {ROLE_LABEL[inv.role] || inv.role}
+          <p className="text-slate-400 uppercase tracking-wide text-[10px]">{t('common.settings.users.invitationsTable.role', 'Role')}</p>
+          {getRoleLabel(inv.role, t) || inv.role}
         </div>
         <div>
-          <p className="text-slate-400 uppercase tracking-wide text-[10px]">Sent</p>
+          <p className="text-slate-400 uppercase tracking-wide text-[10px]">{t('common.settings.users.invitationsTable.sent', 'Sent')}</p>
           {inv.createdAt?.toDate ? inv.createdAt.toDate().toLocaleDateString() : ''}
         </div>
         <div>
-          <p className="text-slate-400 uppercase tracking-wide text-[10px]">Expires</p>
+          <p className="text-slate-400 uppercase tracking-wide text-[10px]">{t('common.settings.users.invitationsTable.expires', 'Expires')}</p>
           {inv.expiresAt?.toDate ? inv.expiresAt.toDate().toLocaleDateString() : ''}
         </div>
       </div>
@@ -897,13 +910,13 @@ function InvitationCard({
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-100"
               >
                 {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Link2 className="w-3.5 h-3.5" />}
-                {copied ? 'Copied' : 'Copy link'}
+                {copied ? t('common.settings.users.invitationsTable.copied', 'Copied') : t('common.settings.users.invitationsTable.copyLinkShort', 'Copy link')}
               </button>
               <button
                 onClick={onRevoke}
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100"
               >
-                <XCircle className="w-3.5 h-3.5" /> Revoke
+                <XCircle className="w-3.5 h-3.5" /> {t('common.settings.users.invitationsTable.revoke', 'Revoke')}
               </button>
             </>
           )}
@@ -912,7 +925,7 @@ function InvitationCard({
               onClick={onResend}
               className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Resend
+              <RefreshCw className="w-3.5 h-3.5" /> {t('common.settings.users.invitationsTable.resendShort', 'Resend')}
             </button>
           )}
         </div>
@@ -928,6 +941,7 @@ function InviteModal({
   onClose: () => void;
   onInvite: (values: InviteFormValues) => Promise<Invitation>;
 }) {
+  const { t } = useTranslation();
   const [values, setValues] = useState<InviteFormValues>(emptyInviteForm);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -940,25 +954,25 @@ function InviteModal({
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!values.email.trim()) {
-      setFormError('Email is required.');
+      setFormError(t('common.settings.users.invite.errors.emailRequired', 'Email is required.'));
       return;
     }
     if (!values.fullName.trim()) {
-      setFormError('Full name is required.');
+      setFormError(t('common.settings.users.invite.errors.fullNameRequired', 'Full name is required.'));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(values.email.trim())) {
-      setFormError('Please enter a valid email address.');
+      setFormError(t('common.settings.users.invite.errors.invalidEmail', 'Please enter a valid email address.'));
       return;
     }
     if (values.role === 'trainee') {
       if (!values.trainingStartDate) {
-        setFormError('Training start date is required for trainees.');
+        setFormError(t('common.settings.users.invite.errors.trainingStartRequired', 'Training start date is required for trainees.'));
         return;
       }
       if (values.trainingPeriodPreset === 'custom' && !values.trainingEndDate) {
-        setFormError('Custom training end date is required.');
+        setFormError(t('common.settings.users.invite.errors.customEndRequired', 'Custom training end date is required.'));
         return;
       }
       if (
@@ -966,7 +980,7 @@ function InviteModal({
         values.trainingEndDate &&
         new Date(values.trainingEndDate) <= new Date(values.trainingStartDate)
       ) {
-        setFormError('Training end date must be after the start date.');
+        setFormError(t('common.settings.users.invite.errors.endAfterStart', 'Training end date must be after the start date.'));
         return;
       }
     }
@@ -976,7 +990,7 @@ function InviteModal({
       const inv = await onInvite(values);
       setSentInvite(inv);
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Failed to send invitation');
+      setFormError(err instanceof Error ? err.message : t('common.settings.users.invite.errors.sendFailed', 'Failed to send invitation'));
     } finally {
       setSaving(false);
     }
@@ -997,13 +1011,17 @@ function InviteModal({
             <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-7 h-7 text-emerald-600" />
             </div>
-            <h2 className="text-lg font-semibold text-slate-900">Invitation Created!</h2>
+            <h2 className="text-lg font-semibold text-slate-900">{t('common.settings.users.invite.success.title', 'Invitation Created!')}</h2>
             <p className="text-sm text-slate-600">
-              An invitation has been created for <strong>{sentInvite.email}</strong> as{' '}
-              <strong>{ROLE_LABEL[sentInvite.role]}</strong>.
+              <Trans
+                t={t}
+                i18nKey="common.settings.users.invite.success.message"
+                values={{ email: sentInvite.email, role: getRoleLabel(sentInvite.role, t) }}
+                components={{ strong: <strong /> }}
+              />
             </p>
             <p className="text-xs text-slate-500">
-              Share the link below with the team member. The invitation expires in 7 days.
+              {t('common.settings.users.invite.success.shareHint', 'Share the link below with the team member. The invitation expires in 7 days.')}
             </p>
             <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-3">
               <input
@@ -1017,7 +1035,7 @@ function InviteModal({
                 className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md bg-[#1A56DB] text-white hover:bg-[#1E40AF] transition-colors"
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? 'Copied!' : 'Copy'}
+                {copied ? t('common.settings.users.invite.success.copied', 'Copied!') : t('common.settings.users.invite.success.copy', 'Copy')}
               </button>
             </div>
             <div className="flex gap-2 pt-2">
@@ -1028,13 +1046,13 @@ function InviteModal({
                 }}
                 className="flex-1 px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                Invite Another
+                {t('common.settings.users.invite.success.inviteAnother', 'Invite Another')}
               </button>
               <button
                 onClick={onClose}
                 className="flex-1 px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF]"
               >
-                Done
+                {t('common.settings.users.invite.success.done', 'Done')}
               </button>
             </div>
           </div>
@@ -1048,36 +1066,36 @@ function InviteModal({
       <div className="bg-white rounded-xl shadow-lg w-full max-w-lg border border-slate-200" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">Invite Team Member</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Send an invitation via email with a role assignment</p>
+            <h2 className="text-base font-semibold text-slate-900">{t('common.settings.users.invite.title', 'Invite Team Member')}</h2>
+            <p className="text-xs text-slate-500 mt-0.5">{t('common.settings.users.invite.subtitle', 'Send an invitation via email with a role assignment')}</p>
           </div>
-          <button type="button" onClick={onClose} className="p-1 rounded hover:bg-slate-100 text-slate-500" aria-label="Close">
+          <button type="button" onClick={onClose} className="p-1 rounded hover:bg-slate-100 text-slate-500" aria-label={t('common.settings.users.invite.close', 'Close')}>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={submit} className="px-5 py-4 space-y-4">
-          <Field label="Email address" required>
+          <Field label={t('common.settings.users.invite.fields.email', 'Email address')} required>
             <input
               type="email"
               value={values.email}
               onChange={(e) => set('email', e.target.value)}
-              placeholder="teammate@company.com"
+              placeholder={t('common.settings.users.invite.fields.emailPlaceholder', 'teammate@company.com')}
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </Field>
 
-          <Field label="Full name" required>
+          <Field label={t('common.settings.users.invite.fields.fullName', 'Full name')} required>
             <input
               type="text"
               value={values.fullName}
               onChange={(e) => set('fullName', e.target.value)}
-              placeholder="John Doe"
+              placeholder={t('common.settings.users.invite.fields.fullNamePlaceholder', 'John Doe')}
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </Field>
 
-          <Field label="Assign role" required>
+          <Field label={t('common.settings.users.invite.fields.role', 'Assign role')} required>
             <select
               value={values.role}
               onChange={(e) => set('role', e.target.value as UserRole)}
@@ -1085,46 +1103,46 @@ function InviteModal({
             >
               {ROLE_OPTIONS.map((r) => (
                 <option key={r} value={r}>
-                  {ROLE_LABEL[r]}
+                  {getRoleLabel(r, t)}
                 </option>
               ))}
             </select>
           </Field>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Department">
+            <Field label={t('common.settings.users.invite.fields.department', 'Department')}>
               <DepartmentSelect
                 value={values.department}
                 onChange={(v) => set('department', v)}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </Field>
-            <Field label="Job title">
+            <Field label={t('common.settings.users.invite.fields.jobTitle', 'Job title')}>
               <input
                 type="text"
                 value={values.jobTitle}
                 onChange={(e) => set('jobTitle', e.target.value)}
-                placeholder="e.g. Senior Technician"
+                placeholder={t('common.settings.users.invite.fields.jobTitlePlaceholder', 'e.g. Senior Technician')}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </Field>
           </div>
 
-          <Field label="Address">
+          <Field label={t('common.settings.users.invite.fields.address', 'Address')}>
             <input
               type="text"
               value={values.address}
               onChange={(e) => set('address', e.target.value)}
-              placeholder="e.g. 123 Main St, Springfield"
+              placeholder={t('common.settings.users.invite.fields.addressPlaceholder', 'e.g. 123 Main St, Springfield')}
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
             />
           </Field>
 
           {values.role === 'trainee' && (
             <div className="border border-slate-200 rounded-lg p-3 space-y-3">
-              <p className="text-xs font-semibold text-slate-700">Training Period</p>
+              <p className="text-xs font-semibold text-slate-700">{t('common.settings.users.invite.trainingPeriod.label', 'Training Period')}</p>
 
-              <Field label="Registration / start date" required>
+              <Field label={t('common.settings.users.invite.trainingPeriod.startDate', 'Registration / start date')} required>
                 <input
                   type="date"
                   value={values.trainingStartDate}
@@ -1145,13 +1163,13 @@ function InviteModal({
                         : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                     }`}
                   >
-                    {preset === 'custom' ? 'Custom' : `${preset} months`}
+                    {preset === 'custom' ? t('common.settings.users.invite.trainingPeriod.custom', 'Custom') : t('common.settings.users.invite.trainingPeriod.months', '{{count}} months', { count: preset })}
                   </button>
                 ))}
               </div>
 
               {values.trainingPeriodPreset === 'custom' ? (
-                <Field label="Custom end date" required>
+                <Field label={t('common.settings.users.invite.trainingPeriod.endDate', 'Custom end date')} required>
                   <input
                     type="date"
                     value={values.trainingEndDate}
@@ -1163,14 +1181,18 @@ function InviteModal({
               ) : (
                 values.trainingStartDate && (
                   <p className="text-xs text-slate-500">
-                    Ends automatically on{' '}
-                    <strong className="text-slate-700">
-                      {computeExpectedEndDate(values.trainingPeriodPreset, new Date(values.trainingStartDate)).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </strong>
+                    <Trans
+                      t={t}
+                      i18nKey="common.settings.users.invite.trainingPeriod.autoEndsOn"
+                      values={{
+                        date: computeExpectedEndDate(values.trainingPeriodPreset, new Date(values.trainingStartDate)).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                        }),
+                      }}
+                      components={{ strong: <strong className="text-slate-700" /> }}
+                    />
                   </p>
                 )
               )}
@@ -1178,7 +1200,7 @@ function InviteModal({
           )}
 
           <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
-            <strong>How it works:</strong> A unique invite link will be generated. Share it with the member — they can sign up with email/password or Google to join your team with the assigned role.
+            <strong>{t('common.settings.users.invite.howItWorksTitle', 'How it works:')}</strong> {t('common.settings.users.invite.howItWorks', 'A unique invite link will be generated. Share it with the member — they can sign up with email/password or Google to join your team with the assigned role.')}
           </div>
 
           {formError && (
@@ -1194,7 +1216,7 @@ function InviteModal({
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
             >
-              Cancel
+              {t('common.settings.users.invite.cancel', 'Cancel')}
             </button>
             <button
               type="submit"
@@ -1202,7 +1224,7 @@ function InviteModal({
               className="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 flex items-center gap-2"
             >
               <Send className="w-4 h-4" />
-              {saving ? 'Sending...' : 'Send Invitation'}
+              {saving ? t('common.settings.users.invite.sending', 'Sending...') : t('common.settings.users.invite.send', 'Send Invitation')}
             </button>
           </div>
         </form>
@@ -1219,6 +1241,7 @@ interface UserModalProps {
 }
 
 function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
+  const { t } = useTranslation();
   const isView = state.mode === 'view';
   const initial: UserFormValues = toForm(state.user);
 
@@ -1229,17 +1252,17 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
   const set = <K extends keyof UserFormValues>(key: K, value: UserFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
 
-  const title = isView ? 'User details' : 'Edit user';
+  const title = isView ? t('common.settings.users.modal.viewTitle', 'User details') : t('common.settings.users.modal.editTitle', 'Edit user');
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isView) return;
     if (!values.fullName.trim()) {
-      setFormError('Full name is required.');
+      setFormError(t('common.settings.users.modal.errors.fullNameRequired', 'Full name is required.'));
       return;
     }
     if (!values.email.trim() && !values.phone.trim()) {
-      setFormError('Provide an email or phone so the user can sign in.');
+      setFormError(t('common.settings.users.modal.errors.contactRequired', 'Provide an email or phone so the user can sign in.'));
       return;
     }
     setSaving(true);
@@ -1248,7 +1271,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
       await onEdit(state.user.id, values);
       onClose();
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Failed to save user');
+      setFormError(err instanceof Error ? err.message : t('common.settings.users.modal.errors.saveFailed', 'Failed to save user'));
     } finally {
       setSaving(false);
     }
@@ -1269,14 +1292,14 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
             type="button"
             onClick={onClose}
             className="p-1 rounded hover:bg-slate-100 text-slate-500"
-            aria-label="Close"
+            aria-label={t('common.settings.users.modal.close', 'Close')}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={submit} className="px-5 py-4 space-y-4">
-          <Field label="Full name" required>
+          <Field label={t('common.settings.users.modal.fields.fullName', 'Full name')} required>
             <input
               type="text"
               value={values.fullName}
@@ -1287,7 +1310,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
           </Field>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Email">
+            <Field label={t('common.settings.users.modal.fields.email', 'Email')}>
               <input
                 type="email"
                 value={values.email}
@@ -1296,7 +1319,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
-            <Field label="Phone">
+            <Field label={t('common.settings.users.modal.fields.phone', 'Phone')}>
               <input
                 type="tel"
                 value={values.phone}
@@ -1308,7 +1331,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Role">
+            <Field label={t('common.settings.users.modal.fields.role', 'Role')}>
               <select
                 value={values.role}
                 onChange={(e) => set('role', e.target.value as UserRole)}
@@ -1317,12 +1340,12 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               >
                 {ROLE_OPTIONS.map((r) => (
                   <option key={r} value={r}>
-                    {ROLE_LABEL[r]}
+                    {getRoleLabel(r, t)}
                   </option>
                 ))}
               </select>
             </Field>
-            <Field label="Status">
+            <Field label={t('common.settings.users.modal.fields.status', 'Status')}>
               <select
                 value={values.status}
                 onChange={(e) => set('status', e.target.value as UserProfile['status'])}
@@ -1331,7 +1354,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               >
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s} value={s}>
-                    {s}
+                    {t(`common.settings.users.statuses.${s}`, s)}
                   </option>
                 ))}
               </select>
@@ -1339,17 +1362,17 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Designation">
+            <Field label={t('common.settings.users.modal.fields.designation', 'Designation')}>
               <input
                 type="text"
                 value={values.jobTitle}
                 onChange={(e) => set('jobTitle', e.target.value)}
                 disabled={isView}
-                placeholder="e.g. Senior Technician"
+                placeholder={t('common.settings.users.modal.fields.designationPlaceholder', 'e.g. Senior Technician')}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
-            <Field label="Department">
+            <Field label={t('common.settings.users.modal.fields.department', 'Department')}>
               <DepartmentSelect
                 value={values.department}
                 onChange={(v) => set('department', v)}
@@ -1359,7 +1382,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Employee ID">
+            <Field label={t('common.settings.users.modal.fields.employeeId', 'Employee ID')}>
               <input
                 type="text"
                 value={values.employeeId}
@@ -1368,14 +1391,14 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               />
             </Field>
-            <Field label="Shift">
+            <Field label={t('common.settings.users.modal.fields.shift', 'Shift')}>
               <select
                 value={values.shiftId}
                 onChange={(e) => set('shiftId', e.target.value)}
                 disabled={isView}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
               >
-                <option value="">No shift assigned</option>
+                <option value="">{t('common.settings.users.modal.fields.noShiftAssigned', 'No shift assigned')}</option>
                 {shifts
                   .filter((s) => s.status === 'active')
                   .map((s) => (
@@ -1388,13 +1411,13 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
             </Field>
           </div>
 
-          <Field label="Address">
+          <Field label={t('common.settings.users.modal.fields.address', 'Address')}>
             <input
               type="text"
               value={values.address}
               onChange={(e) => set('address', e.target.value)}
               disabled={isView}
-              placeholder="e.g. 123 Main St, Springfield"
+              placeholder={t('common.settings.users.modal.fields.addressPlaceholder', 'e.g. 123 Main St, Springfield')}
               className="w-full px-3 py-2 text-sm rounded-lg border outline-none"
             />
           </Field>
@@ -1412,7 +1435,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
             >
-              {isView ? 'Close' : 'Cancel'}
+              {isView ? t('common.settings.users.modal.close', 'Close') : t('common.settings.users.modal.cancel', 'Cancel')}
             </button>
             {!isView && (
               <button
@@ -1420,7 +1443,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
                 disabled={saving}
                 className="px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] disabled:opacity-60"
               >
-                {saving ? 'Saving...' : 'Save changes'}
+                {saving ? t('common.settings.users.modal.saving', 'Saving...') : t('common.settings.users.modal.save', 'Save changes')}
               </button>
             )}
           </div>

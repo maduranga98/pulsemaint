@@ -7871,6 +7871,330 @@
         "audit": "監査",
         "other": "その他"
       }
+    },
+    "settings": {
+      "page": {
+        "title": "設定",
+        "subtitle": "プラントに合わせてFirmiCoreの動作を設定します。",
+        "company": {
+          "heading": "会社情報",
+          "editProfile": "プロフィールを編集",
+          "logoAlt": "{{name}}のロゴ",
+          "name": "会社名",
+          "industry": "業種",
+          "country": "国",
+          "timezone": "タイムゾーン",
+          "currency": "通貨",
+          "plan": "プラン",
+          "planWithStatus": "{{plan}}（{{status}}）",
+          "phone": "電話番号",
+          "email": "メールアドレス",
+          "address": "住所"
+        },
+        "tiles": {
+          "users": {
+            "title": "ユーザー",
+            "description": "チームメンバー、役割、招待を管理します。"
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "会社プロフィールの編集",
+        "close": "閉じる",
+        "uploadLogo": "ロゴをアップロード",
+        "noLogo": "ロゴなし",
+        "logoAlt": "会社のロゴ",
+        "fields": {
+          "name": "会社名",
+          "tradeName": "屋号",
+          "industry": "業種",
+          "country": "国",
+          "timezone": "タイムゾーン",
+          "currency": "通貨",
+          "phone": "電話番号",
+          "email": "メールアドレス",
+          "address": "住所",
+          "description": "説明",
+          "descriptionHint": "（在職証明書や自動生成される文書で使用されます）",
+          "descriptionPlaceholder": "会社の簡単な説明…"
+        },
+        "cancel": "キャンセル",
+        "save": "変更を保存",
+        "saving": "保存中…",
+        "successToast": "会社プロフィールを更新しました。",
+        "errorToast": "会社プロフィールの更新に失敗しました。"
+      },
+      "smtp": {
+        "heading": "メール送信設定",
+        "description": "自社のメールボックスを設定すると、サプライヤー宛のメール（発注書、納品書など）がFirmiCoreの共有メールボックスではなく、自社のアドレスから送信されるようになります。ホスト名とポート番号は、登録済みの会社メールアドレスをもとに主要プロバイダー（Gmail、Outlook、Yahoo、iCloud、Zoho）向けに自動入力されます。あとはパスワードを入力するだけです。",
+        "loading": "読み込み中…",
+        "configured": "設定済み — <strong>{{user}}</strong>として{{host}}経由で送信",
+        "notConfigured": "未設定 — サプライヤー宛のメールは共有プラットフォームのメールボックスから送信されます。",
+        "edit": "編集",
+        "configure": "設定する",
+        "remove": "削除",
+        "removing": "削除中…",
+        "confirmRemove": "このメールボックスを削除しますか？サプライヤー宛のメールは再び共有プラットフォームのメールボックスから送信されるようになります。",
+        "removedToast": "削除しました。サプライヤー宛のメールは再び共有プラットフォームのメールボックスを使用します。",
+        "removeFailedToast": "SMTP設定の削除に失敗しました。",
+        "savedToast": "メール送信設定が完了しました — サプライヤー宛のメールは今後このメールボックスから送信されます。",
+        "saveFailedToast": "SMTP設定の保存に失敗しました。",
+        "validationError": "ホスト、ポート、ユーザー名、パスワードはすべて必須です。",
+        "fields": {
+          "host": "SMTPホスト",
+          "hostPlaceholder": "smtp.yourcompany.com",
+          "port": "ポート",
+          "useSsl": "SSL/TLSを使用する（通常はポート465）",
+          "username": "メールアドレス／ユーザー名",
+          "usernamePlaceholder": "billing@yourcompany.com",
+          "password": "パスワード／アプリパスワード",
+          "passwordPlaceholderChange": "変更する場合は再入力してください",
+          "gmailHint": "Gmailでは通常のパスワードが使用できません。代わりに<link>アプリパスワード</link>を発行してください（2段階認証を有効にする必要があります）。"
+        },
+        "save": "保存して確認",
+        "saving": "テスト・保存中…",
+        "cancel": "キャンセル"
+      },
+      "users": {
+        "header": {
+          "title": "チーム管理",
+          "memberCount_one": "{{company}}に{{count}}名のチームメンバー",
+          "memberCount_other": "{{company}}に{{count}}名のチームメンバー",
+          "importUsers": "ユーザーをインポート",
+          "serviceLetter": "在職証明書",
+          "inviteMember": "メンバーを招待",
+          "defaultCompanyName": "貴社"
+        },
+        "tabs": {
+          "users": "ユーザー（{{count}}）",
+          "invitations": "招待中（{{count}}件）",
+          "serviceLetters": "在職証明書の発行履歴"
+        },
+        "searchPlaceholderUsers": "名前、メールアドレス、電話番号、役割で検索...",
+        "searchPlaceholderInvitations": "招待を検索...",
+        "table": {
+          "name": "名前",
+          "role": "役割",
+          "contact": "連絡先",
+          "status": "ステータス",
+          "shifts": "シフト",
+          "lastLogin": "最終ログイン",
+          "login": "ログイン",
+          "actions": "操作",
+          "never": "未ログイン",
+          "view": "表示",
+          "edit": "編集",
+          "noShifts": "—"
+        },
+        "invitationsTable": {
+          "invitee": "招待先",
+          "role": "役割",
+          "status": "ステータス",
+          "sent": "送信日",
+          "expires": "有効期限",
+          "actions": "操作",
+          "copyLink": "招待リンクをコピー",
+          "copyLinkShort": "リンクをコピー",
+          "copied": "コピーしました",
+          "revoke": "取り消し",
+          "resend": "招待を再送",
+          "resendShort": "再送"
+        },
+        "empty": {
+          "noUsers": "ユーザーがまだいません。「メンバーを招待」をクリックして最初のメンバーを招待しましょう。",
+          "noUsersMatch": "検索条件に一致するユーザーがいません。",
+          "noInvitations": "まだ招待が送信されていません。「メンバーを招待」をクリックして始めましょう。",
+          "noInvitationsMatch": "検索条件に一致する招待がありません。"
+        },
+        "statuses": {
+          "pending": "保留中",
+          "accepted": "承認済み",
+          "expired": "期限切れ",
+          "revoked": "取り消し済み",
+          "active": "有効",
+          "inactive": "無効"
+        },
+        "modal": {
+          "viewTitle": "ユーザー詳細",
+          "editTitle": "ユーザーを編集",
+          "close": "閉じる",
+          "cancel": "キャンセル",
+          "save": "変更を保存",
+          "saving": "保存中...",
+          "fields": {
+            "fullName": "氏名",
+            "email": "メールアドレス",
+            "phone": "電話番号",
+            "role": "役割",
+            "status": "ステータス",
+            "designation": "役職",
+            "designationPlaceholder": "例：シニア技術者",
+            "department": "部門",
+            "employeeId": "社員番号",
+            "shift": "シフト",
+            "noShiftAssigned": "シフト未割り当て",
+            "address": "住所",
+            "addressPlaceholder": "例：東京都千代田区丸の内1-1-1",
+            "noDepartment": "部門未設定"
+          },
+          "errors": {
+            "fullNameRequired": "氏名は必須です。",
+            "contactRequired": "ユーザーがサインインできるよう、メールアドレスまたは電話番号を入力してください。",
+            "saveFailed": "ユーザーの保存に失敗しました"
+          }
+        },
+        "invite": {
+          "title": "チームメンバーを招待",
+          "subtitle": "役割を割り当てたうえで、メールで招待を送信します",
+          "close": "閉じる",
+          "fields": {
+            "email": "メールアドレス",
+            "emailPlaceholder": "teammate@company.com",
+            "fullName": "氏名",
+            "fullNamePlaceholder": "山田 太郎",
+            "role": "役割を割り当て",
+            "department": "部門",
+            "jobTitle": "役職",
+            "jobTitlePlaceholder": "例：シニア技術者",
+            "address": "住所",
+            "addressPlaceholder": "例：東京都千代田区丸の内1-1-1"
+          },
+          "trainingPeriod": {
+            "label": "研修期間",
+            "startDate": "登録日／開始日",
+            "months": "{{count}}か月",
+            "custom": "カスタム",
+            "endDate": "カスタム終了日",
+            "autoEndsOn": "<strong>{{date}}</strong>に自動終了します"
+          },
+          "howItWorksTitle": "仕組み：",
+          "howItWorks": "固有の招待リンクが生成されます。このリンクをメンバーと共有してください。メンバーはメールアドレス／パスワードまたはGoogleアカウントでサインアップし、割り当てられた役割でチームに参加できます。",
+          "cancel": "キャンセル",
+          "send": "招待を送信",
+          "sending": "送信中...",
+          "errors": {
+            "emailRequired": "メールアドレスは必須です。",
+            "fullNameRequired": "氏名は必須です。",
+            "invalidEmail": "有効なメールアドレスを入力してください。",
+            "trainingStartRequired": "トレーニーの場合、研修開始日は必須です。",
+            "customEndRequired": "カスタム研修終了日は必須です。",
+            "endAfterStart": "研修終了日は開始日より後である必要があります。",
+            "sendFailed": "招待の送信に失敗しました"
+          },
+          "success": {
+            "title": "招待を作成しました！",
+            "message": "<strong>{{email}}</strong>宛に<strong>{{role}}</strong>としての招待を作成しました。",
+            "shareHint": "以下のリンクをチームメンバーと共有してください。招待の有効期限は7日間です。",
+            "inviteAnother": "続けて招待する",
+            "done": "完了",
+            "copy": "コピー",
+            "copied": "コピーしました！"
+          }
+        },
+        "bulkImport": {
+          "title": "ユーザーをインポート",
+          "subtitle": "Excelテンプレートから招待を一括作成します",
+          "close": "閉じる",
+          "downloadTemplate": "Excelテンプレートをダウンロード",
+          "uploadPrompt": "クリックして.xlsx / .csvをアップロード",
+          "parsing": "解析中…",
+          "cancel": "キャンセル",
+          "import": "{{count}}名のユーザーをインポート",
+          "importing": "インポート中…",
+          "done": "完了",
+          "resultImported_one": "{{count}}名のユーザーをインポートしました",
+          "resultImported_other": "{{count}}名のユーザーをインポートしました",
+          "resultFailed": "{{count}}件の行でエラーが発生しました。",
+          "validSummary": "有効：{{valid}}件 ・ エラー：{{invalid}}件",
+          "ready": "準備完了",
+          "noRowsFound": "アップロードされたファイルに行が見つかりませんでした。",
+          "parseFailed": "ファイルの解析に失敗しました。",
+          "importFailed": "インポートに失敗しました。",
+          "tableHeaders": {
+            "name": "名前",
+            "email": "メールアドレス",
+            "role": "役割",
+            "status": "ステータス"
+          },
+          "rowErrors": {
+            "fullNameRequired": "氏名は必須です",
+            "emailRequired": "メールアドレスは必須です",
+            "invalidEmail": "メールアドレスが無効です",
+            "invalidRole": "役割「{{role}}」が無効です"
+          }
+        },
+        "invitations": {
+          "emailAlreadyRegistered": "このメールアドレスはすでに有効なユーザーとして登録されています。",
+          "activeInvitationExists": "このメールアドレス宛の有効な招待がすでに存在します。",
+          "invitationNotFound": "招待が見つかりません。",
+          "loadFailed": "招待の読み込みに失敗しました",
+          "revokedToast": "招待を取り消しました",
+          "revokeFailedToast": "取り消しに失敗しました",
+          "resendCreatedToast": "新しい招待を作成しました",
+          "resendFailedToast": "再送に失敗しました",
+          "invitationSentToast": "{{email}}宛に招待を送信しました",
+          "bulkCreatedToast_one": "{{count}}件の招待を作成しました",
+          "bulkCreatedToast_other": "{{count}}件の招待を作成しました",
+          "googleEmailMismatch": "{{expected}}でサインインしてください。{{actual}}でサインインしています。"
+        },
+        "userUpdatedToast": "ユーザーを更新しました",
+        "roles": {
+          "admin": "管理者",
+          "plantManager": "プラントマネージャー",
+          "supervisor": "スーパーバイザー",
+          "technician": "技術者",
+          "storeKeeper": "倉庫担当者",
+          "hrOfficer": "人事担当者",
+          "trainee": "トレーニー",
+          "floorOperator": "フロアオペレーター",
+          "safetyOfficer": "安全管理者"
+        }
+      },
+      "serviceLetter": {
+        "modalTitle": "在職証明書を作成",
+        "close": "閉じる",
+        "selectUser": "ユーザーを選択",
+        "selectUserPlaceholder": "— ユーザーを選択 —",
+        "employeeId": "社員番号：",
+        "role": "役割：",
+        "department": "部門：",
+        "designation": "役職：",
+        "subject": "件名",
+        "addressedTo": "宛先",
+        "letterBody": "本文",
+        "remarks": "備考（任意）",
+        "signatureLabel": "電子署名",
+        "signatureHint": "下のエリアに手書きで署名を描いてください。空欄のままにすると、代わりに<color>濃紺色</color>で入力した氏名が署名として使用されます。",
+        "cancel": "キャンセル",
+        "generate": "証明書を作成",
+        "generating": "作成中…",
+        "errors": {
+          "missingFields": "件名と本文は必須です。",
+          "generateFailed": "在職証明書の作成に失敗しました。"
+        },
+        "success": {
+          "generated": "在職証明書を作成しました。",
+          "logoNotEmbedded": "在職証明書は作成されましたが、会社ロゴを埋め込めませんでした。設定画面から再アップロードしてみてください。"
+        },
+        "defaultBody": "{{name}}は、{{joinedDate}}より{{company}}に{{roleOrTitle}}{{departmentClause}}として在籍していることをここに証明します。在籍期間中、その勤務態度および業務成績は良好であったことを申し添えます。\n\n本証明書は本人の申請に基づき、必要な目的のために発行するものです。",
+        "defaultBodyDepartmentClause": "、{{department}}部門",
+        "defaultBodyJoinedFallback": "入社日",
+        "signaturePad": {
+          "hint": "マウス、トラックパッド、または指で署名してください。",
+          "clear": "クリア"
+        },
+        "history": {
+          "exportCsv": "CSVをエクスポート",
+          "empty": "まだ在職証明書は作成されていません。",
+          "columns": {
+            "issuedDate": "発行日",
+            "subject": "件名",
+            "issuedTo": "発行先",
+            "issuedBy": "発行者"
+          }
+        },
+        "fallbackCompanyName": "弊社"
+      }
     }
   },
   "triage": {

@@ -8048,6 +8048,330 @@
         "audit": "Audit",
         "other": "Other"
       }
+    },
+    "settings": {
+      "page": {
+        "title": "Settings",
+        "subtitle": "Configure how FirmiCore works for your plant.",
+        "company": {
+          "heading": "Company",
+          "editProfile": "Edit Profile",
+          "logoAlt": "{{name}} logo",
+          "name": "Name",
+          "industry": "Industry",
+          "country": "Country",
+          "timezone": "Timezone",
+          "currency": "Currency",
+          "plan": "Plan",
+          "planWithStatus": "{{plan}} ({{status}})",
+          "phone": "Phone",
+          "email": "Email",
+          "address": "Address"
+        },
+        "tiles": {
+          "users": {
+            "title": "Users",
+            "description": "Manage team members, roles, and invites."
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "Edit Company Profile",
+        "close": "Close",
+        "uploadLogo": "Upload Logo",
+        "noLogo": "No logo",
+        "logoAlt": "Company logo",
+        "fields": {
+          "name": "Company Name",
+          "tradeName": "Trade Name",
+          "industry": "Industry",
+          "country": "Country",
+          "timezone": "Timezone",
+          "currency": "Currency",
+          "phone": "Phone",
+          "email": "Email",
+          "address": "Address",
+          "description": "Description",
+          "descriptionHint": "(used on service letters and generated documents)",
+          "descriptionPlaceholder": "A short description of the company…"
+        },
+        "cancel": "Cancel",
+        "save": "Save Changes",
+        "saving": "Saving…",
+        "successToast": "Company profile updated.",
+        "errorToast": "Failed to update company profile."
+      },
+      "smtp": {
+        "heading": "Email Sending",
+        "description": "Configure your own mailbox so supplier emails (purchase orders, delivery receipts) send from your company's own address instead of the shared FirmiCore mailbox. Host/port are pre-filled automatically for common providers (Gmail, Outlook, Yahoo, iCloud, Zoho) based on your registered company email — you'll just need to add the password.",
+        "loading": "Loading…",
+        "configured": "Configured — sending as <strong>{{user}}</strong> via {{host}}",
+        "notConfigured": "Not configured — supplier emails send from the shared platform mailbox.",
+        "edit": "Edit",
+        "configure": "Configure",
+        "remove": "Remove",
+        "removing": "Removing…",
+        "confirmRemove": "Remove this mailbox? Supplier emails will go back to sending from the shared platform mailbox.",
+        "removedToast": "Removed. Supplier emails will use the shared platform mailbox again.",
+        "removeFailedToast": "Failed to remove SMTP settings.",
+        "savedToast": "Email sending configured — supplier emails will now send from this mailbox.",
+        "saveFailedToast": "Failed to save SMTP settings.",
+        "validationError": "Host, port, username, and password are all required.",
+        "fields": {
+          "host": "SMTP Host",
+          "hostPlaceholder": "smtp.yourcompany.com",
+          "port": "Port",
+          "useSsl": "Use SSL/TLS (usually port 465)",
+          "username": "Email / Username",
+          "usernamePlaceholder": "billing@yourcompany.com",
+          "password": "Password / App Password",
+          "passwordPlaceholderChange": "Re-enter to change",
+          "gmailHint": "Gmail blocks your regular password here — generate an <link>App Password</link> instead (requires 2-Step Verification to be turned on)."
+        },
+        "save": "Save & Verify",
+        "saving": "Testing & Saving…",
+        "cancel": "Cancel"
+      },
+      "users": {
+        "header": {
+          "title": "Team Management",
+          "memberCount_one": "{{count}} team member in {{company}}",
+          "memberCount_other": "{{count}} team members in {{company}}",
+          "importUsers": "Import Users",
+          "serviceLetter": "Service Letter",
+          "inviteMember": "Invite Member",
+          "defaultCompanyName": "your company"
+        },
+        "tabs": {
+          "users": "Users ({{count}})",
+          "invitations": "Invitations ({{count}} pending)",
+          "serviceLetters": "Service Letter History"
+        },
+        "searchPlaceholderUsers": "Search by name, email, phone, or role...",
+        "searchPlaceholderInvitations": "Search invitations...",
+        "table": {
+          "name": "Name",
+          "role": "Role",
+          "contact": "Contact",
+          "status": "Status",
+          "shifts": "Shifts",
+          "lastLogin": "Last Login",
+          "login": "Login",
+          "actions": "Actions",
+          "never": "Never",
+          "view": "View",
+          "edit": "Edit",
+          "noShifts": "—"
+        },
+        "invitationsTable": {
+          "invitee": "Invitee",
+          "role": "Role",
+          "status": "Status",
+          "sent": "Sent",
+          "expires": "Expires",
+          "actions": "Actions",
+          "copyLink": "Copy invite link",
+          "copyLinkShort": "Copy link",
+          "copied": "Copied",
+          "revoke": "Revoke",
+          "resend": "Resend invitation",
+          "resendShort": "Resend"
+        },
+        "empty": {
+          "noUsers": "No users yet. Click \"Invite Member\" to invite your first teammate.",
+          "noUsersMatch": "No users match your search.",
+          "noInvitations": "No invitations sent yet. Click \"Invite Member\" to get started.",
+          "noInvitationsMatch": "No invitations match your search."
+        },
+        "statuses": {
+          "pending": "pending",
+          "accepted": "accepted",
+          "expired": "expired",
+          "revoked": "revoked",
+          "active": "active",
+          "inactive": "inactive"
+        },
+        "modal": {
+          "viewTitle": "User details",
+          "editTitle": "Edit user",
+          "close": "Close",
+          "cancel": "Cancel",
+          "save": "Save changes",
+          "saving": "Saving...",
+          "fields": {
+            "fullName": "Full name",
+            "email": "Email",
+            "phone": "Phone",
+            "role": "Role",
+            "status": "Status",
+            "designation": "Designation",
+            "designationPlaceholder": "e.g. Senior Technician",
+            "department": "Department",
+            "employeeId": "Employee ID",
+            "shift": "Shift",
+            "noShiftAssigned": "No shift assigned",
+            "address": "Address",
+            "addressPlaceholder": "e.g. 123 Main St, Springfield",
+            "noDepartment": "No department"
+          },
+          "errors": {
+            "fullNameRequired": "Full name is required.",
+            "contactRequired": "Provide an email or phone so the user can sign in.",
+            "saveFailed": "Failed to save user"
+          }
+        },
+        "invite": {
+          "title": "Invite Team Member",
+          "subtitle": "Send an invitation via email with a role assignment",
+          "close": "Close",
+          "fields": {
+            "email": "Email address",
+            "emailPlaceholder": "teammate@company.com",
+            "fullName": "Full name",
+            "fullNamePlaceholder": "John Doe",
+            "role": "Assign role",
+            "department": "Department",
+            "jobTitle": "Job title",
+            "jobTitlePlaceholder": "e.g. Senior Technician",
+            "address": "Address",
+            "addressPlaceholder": "e.g. 123 Main St, Springfield"
+          },
+          "trainingPeriod": {
+            "label": "Training Period",
+            "startDate": "Registration / start date",
+            "months": "{{count}} months",
+            "custom": "Custom",
+            "endDate": "Custom end date",
+            "autoEndsOn": "Ends automatically on <strong>{{date}}</strong>"
+          },
+          "howItWorksTitle": "How it works:",
+          "howItWorks": "A unique invite link will be generated. Share it with the member — they can sign up with email/password or Google to join your team with the assigned role.",
+          "cancel": "Cancel",
+          "send": "Send Invitation",
+          "sending": "Sending...",
+          "errors": {
+            "emailRequired": "Email is required.",
+            "fullNameRequired": "Full name is required.",
+            "invalidEmail": "Please enter a valid email address.",
+            "trainingStartRequired": "Training start date is required for trainees.",
+            "customEndRequired": "Custom training end date is required.",
+            "endAfterStart": "Training end date must be after the start date.",
+            "sendFailed": "Failed to send invitation"
+          },
+          "success": {
+            "title": "Invitation Created!",
+            "message": "An invitation has been created for <strong>{{email}}</strong> as <strong>{{role}}</strong>.",
+            "shareHint": "Share the link below with the team member. The invitation expires in 7 days.",
+            "inviteAnother": "Invite Another",
+            "done": "Done",
+            "copy": "Copy",
+            "copied": "Copied!"
+          }
+        },
+        "bulkImport": {
+          "title": "Import Users",
+          "subtitle": "Bulk-create invitations from an Excel template",
+          "close": "Close",
+          "downloadTemplate": "Download Excel template",
+          "uploadPrompt": "Click to upload .xlsx / .csv",
+          "parsing": "Parsing…",
+          "cancel": "Cancel",
+          "import": "Import {{count}} user(s)",
+          "importing": "Importing…",
+          "done": "Done",
+          "resultImported_one": "{{count}} user imported",
+          "resultImported_other": "{{count}} users imported",
+          "resultFailed": "{{count}} row(s) failed.",
+          "validSummary": "{{valid}} valid · {{invalid}} with errors",
+          "ready": "Ready",
+          "noRowsFound": "No rows found in the uploaded file.",
+          "parseFailed": "Failed to parse the file.",
+          "importFailed": "Import failed.",
+          "tableHeaders": {
+            "name": "Name",
+            "email": "Email",
+            "role": "Role",
+            "status": "Status"
+          },
+          "rowErrors": {
+            "fullNameRequired": "Full Name is required",
+            "emailRequired": "Email is required",
+            "invalidEmail": "Invalid email",
+            "invalidRole": "Invalid role \"{{role}}\""
+          }
+        },
+        "invitations": {
+          "emailAlreadyRegistered": "This email is already registered to an active user.",
+          "activeInvitationExists": "An active invitation already exists for this email.",
+          "invitationNotFound": "Invitation not found.",
+          "loadFailed": "Failed to load invitations",
+          "revokedToast": "Invitation revoked",
+          "revokeFailedToast": "Failed to revoke",
+          "resendCreatedToast": "New invitation created",
+          "resendFailedToast": "Failed to resend",
+          "invitationSentToast": "Invitation sent to {{email}}",
+          "bulkCreatedToast_one": "{{count}} invitation created",
+          "bulkCreatedToast_other": "{{count}} invitation(s) created",
+          "googleEmailMismatch": "Please sign in with {{expected}}. You signed in with {{actual}}."
+        },
+        "userUpdatedToast": "User updated",
+        "roles": {
+          "admin": "Admin",
+          "plantManager": "Plant Manager",
+          "supervisor": "Supervisor",
+          "technician": "Technician",
+          "storeKeeper": "Store Keeper",
+          "hrOfficer": "HR Officer",
+          "trainee": "Trainee",
+          "floorOperator": "Floor Operator",
+          "safetyOfficer": "Safety Officer"
+        }
+      },
+      "serviceLetter": {
+        "modalTitle": "Generate Service Letter",
+        "close": "Close",
+        "selectUser": "Select User",
+        "selectUserPlaceholder": "— Select a user —",
+        "employeeId": "Employee ID:",
+        "role": "Role:",
+        "department": "Department:",
+        "designation": "Designation:",
+        "subject": "Subject",
+        "addressedTo": "Addressed To",
+        "letterBody": "Letter Body",
+        "remarks": "Remarks (optional)",
+        "signatureLabel": "Digital Signature",
+        "signatureHint": "Draw your signature below by hand. Leave it blank to sign with your typed name in <color>dark blue</color> instead.",
+        "cancel": "Cancel",
+        "generate": "Generate Letter",
+        "generating": "Generating…",
+        "errors": {
+          "missingFields": "Subject and letter body are required.",
+          "generateFailed": "Failed to generate service letter."
+        },
+        "success": {
+          "generated": "Service letter generated.",
+          "logoNotEmbedded": "Service letter generated, but the company logo could not be embedded — try re-uploading it in Settings."
+        },
+        "defaultBody": "This is to certify that {{name}} has been employed with {{company}} as {{roleOrTitle}}{{departmentClause}} since {{joinedDate}}. During this period, their conduct and performance have been found to be satisfactory.\n\nThis letter is issued upon the employee's request for whatever purpose it may serve.",
+        "defaultBodyDepartmentClause": " in the {{department}} department",
+        "defaultBodyJoinedFallback": "their date of joining",
+        "signaturePad": {
+          "hint": "Sign with your mouse, trackpad, or finger.",
+          "clear": "Clear"
+        },
+        "history": {
+          "exportCsv": "Export CSV",
+          "empty": "No service letters generated yet.",
+          "columns": {
+            "issuedDate": "Issued Date",
+            "subject": "Subject",
+            "issuedTo": "Issued To",
+            "issuedBy": "Issued By"
+          }
+        },
+        "fallbackCompanyName": "our company"
+      }
     }
   }
 }

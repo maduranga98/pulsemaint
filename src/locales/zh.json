@@ -7871,6 +7871,330 @@
         "audit": "审核",
         "other": "其他"
       }
+    },
+    "settings": {
+      "page": {
+        "title": "设置",
+        "subtitle": "配置 FirmiCore 在您工厂的运行方式。",
+        "company": {
+          "heading": "公司",
+          "editProfile": "编辑资料",
+          "logoAlt": "{{name}} 标志",
+          "name": "名称",
+          "industry": "行业",
+          "country": "国家/地区",
+          "timezone": "时区",
+          "currency": "货币",
+          "plan": "套餐",
+          "planWithStatus": "{{plan}}（{{status}}）",
+          "phone": "电话",
+          "email": "邮箱",
+          "address": "地址"
+        },
+        "tiles": {
+          "users": {
+            "title": "用户",
+            "description": "管理团队成员、角色和邀请。"
+          }
+        }
+      },
+      "companyProfile": {
+        "title": "编辑公司资料",
+        "close": "关闭",
+        "uploadLogo": "上传标志",
+        "noLogo": "暂无标志",
+        "logoAlt": "公司标志",
+        "fields": {
+          "name": "公司名称",
+          "tradeName": "商用名称",
+          "industry": "行业",
+          "country": "国家/地区",
+          "timezone": "时区",
+          "currency": "货币",
+          "phone": "电话",
+          "email": "邮箱",
+          "address": "地址",
+          "description": "简介",
+          "descriptionHint": "（用于服务证明信及生成的文件）",
+          "descriptionPlaceholder": "公司的简要介绍……"
+        },
+        "cancel": "取消",
+        "save": "保存更改",
+        "saving": "正在保存……",
+        "successToast": "公司资料已更新。",
+        "errorToast": "更新公司资料失败。"
+      },
+      "smtp": {
+        "heading": "邮件发送",
+        "description": "配置您自己的邮箱，使供应商邮件（采购订单、送货单）从贵公司自己的地址发出，而非使用 FirmiCore 共享邮箱。系统会根据贵公司注册邮箱自动为常见服务商（Gmail、Outlook、Yahoo、iCloud、Zoho）预填主机/端口，您只需填写密码即可。",
+        "loading": "加载中……",
+        "configured": "已配置 — 通过 {{host}} 以 <strong>{{user}}</strong> 身份发送",
+        "notConfigured": "尚未配置 — 供应商邮件将通过共享平台邮箱发送。",
+        "edit": "编辑",
+        "configure": "配置",
+        "remove": "移除",
+        "removing": "正在移除……",
+        "confirmRemove": "确定要移除此邮箱吗？供应商邮件将改回从共享平台邮箱发送。",
+        "removedToast": "已移除。供应商邮件将再次使用共享平台邮箱。",
+        "removeFailedToast": "移除 SMTP 设置失败。",
+        "savedToast": "邮件发送已配置 — 供应商邮件现将从此邮箱发送。",
+        "saveFailedToast": "保存 SMTP 设置失败。",
+        "validationError": "主机、端口、用户名和密码均为必填项。",
+        "fields": {
+          "host": "SMTP 主机",
+          "hostPlaceholder": "smtp.yourcompany.com",
+          "port": "端口",
+          "useSsl": "使用 SSL/TLS（通常为 465 端口）",
+          "username": "邮箱 / 用户名",
+          "usernamePlaceholder": "billing@yourcompany.com",
+          "password": "密码 / 应用专用密码",
+          "passwordPlaceholderChange": "重新输入以修改",
+          "gmailHint": "Gmail 在此处会拒绝您的常规密码 — 请改为生成<link>应用专用密码</link>（需先开启两步验证）。"
+        },
+        "save": "保存并验证",
+        "saving": "正在测试并保存……",
+        "cancel": "取消"
+      },
+      "users": {
+        "header": {
+          "title": "团队管理",
+          "memberCount_one": "{{company}} 有 {{count}} 名团队成员",
+          "memberCount_other": "{{company}} 有 {{count}} 名团队成员",
+          "importUsers": "导入用户",
+          "serviceLetter": "服务证明信",
+          "inviteMember": "邀请成员",
+          "defaultCompanyName": "贵公司"
+        },
+        "tabs": {
+          "users": "用户（{{count}}）",
+          "invitations": "邀请（{{count}} 待处理）",
+          "serviceLetters": "服务证明信历史记录"
+        },
+        "searchPlaceholderUsers": "按姓名、邮箱、电话或角色搜索……",
+        "searchPlaceholderInvitations": "搜索邀请……",
+        "table": {
+          "name": "姓名",
+          "role": "角色",
+          "contact": "联系方式",
+          "status": "状态",
+          "shifts": "班次",
+          "lastLogin": "上次登录",
+          "login": "登录",
+          "actions": "操作",
+          "never": "从未",
+          "view": "查看",
+          "edit": "编辑",
+          "noShifts": "—"
+        },
+        "invitationsTable": {
+          "invitee": "受邀人",
+          "role": "角色",
+          "status": "状态",
+          "sent": "发送时间",
+          "expires": "过期时间",
+          "actions": "操作",
+          "copyLink": "复制邀请链接",
+          "copyLinkShort": "复制链接",
+          "copied": "已复制",
+          "revoke": "撤销",
+          "resend": "重新发送邀请",
+          "resendShort": "重新发送"
+        },
+        "empty": {
+          "noUsers": "暂无用户。点击“邀请成员”以邀请您的第一位队友。",
+          "noUsersMatch": "没有符合搜索条件的用户。",
+          "noInvitations": "尚未发送任何邀请。点击“邀请成员”开始。",
+          "noInvitationsMatch": "没有符合搜索条件的邀请。"
+        },
+        "statuses": {
+          "pending": "待处理",
+          "accepted": "已接受",
+          "expired": "已过期",
+          "revoked": "已撤销",
+          "active": "启用",
+          "inactive": "停用"
+        },
+        "modal": {
+          "viewTitle": "用户详情",
+          "editTitle": "编辑用户",
+          "close": "关闭",
+          "cancel": "取消",
+          "save": "保存更改",
+          "saving": "正在保存……",
+          "fields": {
+            "fullName": "姓名",
+            "email": "邮箱",
+            "phone": "电话",
+            "role": "角色",
+            "status": "状态",
+            "designation": "职位",
+            "designationPlaceholder": "例如：高级技术员",
+            "department": "部门",
+            "employeeId": "员工编号",
+            "shift": "班次",
+            "noShiftAssigned": "未分配班次",
+            "address": "地址",
+            "addressPlaceholder": "例如：某某市某某路 123 号",
+            "noDepartment": "无部门"
+          },
+          "errors": {
+            "fullNameRequired": "姓名为必填项。",
+            "contactRequired": "请提供邮箱或电话，以便该用户登录。",
+            "saveFailed": "保存用户失败"
+          }
+        },
+        "invite": {
+          "title": "邀请团队成员",
+          "subtitle": "通过邮件发送邀请并分配角色",
+          "close": "关闭",
+          "fields": {
+            "email": "邮箱地址",
+            "emailPlaceholder": "teammate@company.com",
+            "fullName": "姓名",
+            "fullNamePlaceholder": "张三",
+            "role": "分配角色",
+            "department": "部门",
+            "jobTitle": "职位名称",
+            "jobTitlePlaceholder": "例如：高级技术员",
+            "address": "地址",
+            "addressPlaceholder": "例如：某某市某某路 123 号"
+          },
+          "trainingPeriod": {
+            "label": "培训期",
+            "startDate": "登记 / 开始日期",
+            "months": "{{count}} 个月",
+            "custom": "自定义",
+            "endDate": "自定义结束日期",
+            "autoEndsOn": "将于 <strong>{{date}}</strong> 自动结束"
+          },
+          "howItWorksTitle": "使用说明：",
+          "howItWorks": "系统将生成一个专属邀请链接。将其分享给该成员，对方即可使用邮箱/密码或 Google 账号注册，并以所分配的角色加入您的团队。",
+          "cancel": "取消",
+          "send": "发送邀请",
+          "sending": "正在发送……",
+          "errors": {
+            "emailRequired": "邮箱为必填项。",
+            "fullNameRequired": "姓名为必填项。",
+            "invalidEmail": "请输入有效的邮箱地址。",
+            "trainingStartRequired": "实习员工必须填写培训开始日期。",
+            "customEndRequired": "必须填写自定义培训结束日期。",
+            "endAfterStart": "培训结束日期必须晚于开始日期。",
+            "sendFailed": "发送邀请失败"
+          },
+          "success": {
+            "title": "邀请已创建！",
+            "message": "已为 <strong>{{email}}</strong> 创建一份邀请，角色为 <strong>{{role}}</strong>。",
+            "shareHint": "请将下方链接分享给该团队成员。此邀请将在 7 天后过期。",
+            "inviteAnother": "继续邀请",
+            "done": "完成",
+            "copy": "复制",
+            "copied": "已复制！"
+          }
+        },
+        "bulkImport": {
+          "title": "导入用户",
+          "subtitle": "从 Excel 模板批量创建邀请",
+          "close": "关闭",
+          "downloadTemplate": "下载 Excel 模板",
+          "uploadPrompt": "点击上传 .xlsx / .csv 文件",
+          "parsing": "正在解析……",
+          "cancel": "取消",
+          "import": "导入 {{count}} 名用户",
+          "importing": "正在导入……",
+          "done": "完成",
+          "resultImported_one": "已导入 {{count}} 名用户",
+          "resultImported_other": "已导入 {{count}} 名用户",
+          "resultFailed": "{{count}} 行导入失败。",
+          "validSummary": "{{valid}} 行有效 · {{invalid}} 行有误",
+          "ready": "就绪",
+          "noRowsFound": "上传的文件中未找到任何数据行。",
+          "parseFailed": "解析文件失败。",
+          "importFailed": "导入失败。",
+          "tableHeaders": {
+            "name": "姓名",
+            "email": "邮箱",
+            "role": "角色",
+            "status": "状态"
+          },
+          "rowErrors": {
+            "fullNameRequired": "姓名为必填项",
+            "emailRequired": "邮箱为必填项",
+            "invalidEmail": "邮箱格式无效",
+            "invalidRole": "角色“{{role}}”无效"
+          }
+        },
+        "invitations": {
+          "emailAlreadyRegistered": "该邮箱已注册为一个活跃用户。",
+          "activeInvitationExists": "该邮箱已存在一个有效邀请。",
+          "invitationNotFound": "未找到该邀请。",
+          "loadFailed": "加载邀请失败",
+          "revokedToast": "邀请已撤销",
+          "revokeFailedToast": "撤销失败",
+          "resendCreatedToast": "已创建新邀请",
+          "resendFailedToast": "重新发送失败",
+          "invitationSentToast": "邀请已发送至 {{email}}",
+          "bulkCreatedToast_one": "已创建 {{count}} 份邀请",
+          "bulkCreatedToast_other": "已创建 {{count}} 份邀请",
+          "googleEmailMismatch": "请使用 {{expected}} 登录。您当前使用的是 {{actual}} 登录。"
+        },
+        "userUpdatedToast": "用户已更新",
+        "roles": {
+          "admin": "管理员",
+          "plantManager": "厂长",
+          "supervisor": "主管",
+          "technician": "技术员",
+          "storeKeeper": "仓库管理员",
+          "hrOfficer": "人力资源专员",
+          "trainee": "实习员工",
+          "floorOperator": "现场操作员",
+          "safetyOfficer": "安全专员"
+        }
+      },
+      "serviceLetter": {
+        "modalTitle": "生成服务证明信",
+        "close": "关闭",
+        "selectUser": "选择用户",
+        "selectUserPlaceholder": "— 请选择用户 —",
+        "employeeId": "员工编号：",
+        "role": "角色：",
+        "department": "部门：",
+        "designation": "职位：",
+        "subject": "主题",
+        "addressedTo": "致函对象",
+        "letterBody": "信函正文",
+        "remarks": "备注（可选）",
+        "signatureLabel": "电子签名",
+        "signatureHint": "请在下方用手写方式绘制您的签名。留空则将改用<color>深蓝色</color>的打印体姓名作为签名。",
+        "cancel": "取消",
+        "generate": "生成证明信",
+        "generating": "正在生成……",
+        "errors": {
+          "missingFields": "主题和信函正文为必填项。",
+          "generateFailed": "生成服务证明信失败。"
+        },
+        "success": {
+          "generated": "服务证明信已生成。",
+          "logoNotEmbedded": "服务证明信已生成，但公司标志未能嵌入 — 请尝试在“设置”中重新上传标志。"
+        },
+        "defaultBody": "兹证明 {{name}} 自 {{joinedDate}} 起受聘于 {{company}}，担任{{roleOrTitle}}{{departmentClause}}。在此任职期间，其表现及品行均令人满意。\n\n此证明信应员工本人要求出具，可用于任何合法用途。",
+        "defaultBodyDepartmentClause": "（{{department}}部门）",
+        "defaultBodyJoinedFallback": "其入职之日",
+        "signaturePad": {
+          "hint": "使用鼠标、触控板或手指进行签名。",
+          "clear": "清除"
+        },
+        "history": {
+          "exportCsv": "导出 CSV",
+          "empty": "尚未生成任何服务证明信。",
+          "columns": {
+            "issuedDate": "签发日期",
+            "subject": "主题",
+            "issuedTo": "签发对象",
+            "issuedBy": "签发人"
+          }
+        },
+        "fallbackCompanyName": "本公司"
+      }
     }
   },
   "triage": {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Upload, Loader2 } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -15,6 +16,7 @@ interface CompanyProfileEditModalProps {
 const CURRENCY_OPTIONS: CompanyProfile['currency'][] = ['LKR', 'USD', 'AED', 'SAR'];
 
 export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEditModalProps) {
+  const { t } = useTranslation();
   const setCompany = useAuthStore((s) => s.setCompany);
   const toast = useToast();
 
@@ -112,11 +114,11 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
 
       await updateDoc(doc(db, 'companies', company.id), updates);
       setCompany({ ...company, ...updates });
-      toast.success('Company profile updated.');
+      toast.success(t('common.settings.companyProfile.successToast', 'Company profile updated.'));
       onClose();
     } catch (err) {
       console.error('Failed to update company profile', err);
-      toast.error('Failed to update company profile.');
+      toast.error(t('common.settings.companyProfile.errorToast', 'Failed to update company profile.'));
     } finally {
       setSaving(false);
     }
@@ -126,8 +128,8 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-          <h2 className="text-lg font-bold text-slate-900">Edit Company Profile</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-700" aria-label="Close">
+          <h2 className="text-lg font-bold text-slate-900">{t('common.settings.companyProfile.title', 'Edit Company Profile')}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700" aria-label={t('common.settings.companyProfile.close', 'Close')}>
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -137,14 +139,14 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden flex-shrink-0">
               {logoPreview ? (
-                <img src={logoPreview} alt="Company logo" className="w-full h-full object-contain" />
+                <img src={logoPreview} alt={t('common.settings.companyProfile.logoAlt', 'Company logo')} className="w-full h-full object-contain" />
               ) : (
-                <span className="text-xs text-slate-400">No logo</span>
+                <span className="text-xs text-slate-400">{t('common.settings.companyProfile.noLogo', 'No logo')}</span>
               )}
             </div>
             <label className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium border border-slate-300 rounded-lg cursor-pointer hover:bg-slate-50">
               <Upload className="w-4 h-4" />
-              Upload Logo
+              {t('common.settings.companyProfile.uploadLogo', 'Upload Logo')}
               <input
                 type="file"
                 accept="image/*"
@@ -156,27 +158,27 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Company Name</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.name', 'Company Name')}</label>
               <input value={name} onChange={(e) => setName(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Trade Name</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.tradeName', 'Trade Name')}</label>
               <input value={tradeName} onChange={(e) => setTradeName(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Industry</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.industry', 'Industry')}</label>
               <input value={industry} onChange={(e) => setIndustry(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Country</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.country', 'Country')}</label>
               <input value={country} onChange={(e) => setCountry(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Timezone</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.timezone', 'Timezone')}</label>
               <input value={timezone} onChange={(e) => setTimezone(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-600 mb-1">Currency</label>
+              <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.currency', 'Currency')}</label>
               <select value={currency} onChange={(e) => setCurrency(e.target.value as CompanyProfile['currency'])} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
                 {CURRENCY_OPTIONS.map((c) => (
                   <option key={c} value={c}>{c}</option>
@@ -186,26 +188,27 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Phone</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.phone', 'Phone')}</label>
             <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Email</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.email', 'Email')}</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Address</label>
+            <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.address', 'Address')}</label>
             <textarea value={address} onChange={(e) => setAddress(e.target.value)} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm resize-none" />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">
-              Description <span className="text-slate-400 font-normal">(used on service letters and generated documents)</span>
+              {t('common.settings.companyProfile.fields.description', 'Description')}{' '}
+              <span className="text-slate-400 font-normal">{t('common.settings.companyProfile.fields.descriptionHint', '(used on service letters and generated documents)')}</span>
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              placeholder="A short description of the company…"
+              placeholder={t('common.settings.companyProfile.fields.descriptionPlaceholder', 'A short description of the company…')}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm resize-none"
             />
           </div>
@@ -213,7 +216,7 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
 
         <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-200">
           <button onClick={onClose} disabled={saving} className="px-4 py-2 text-sm font-medium border border-slate-300 rounded-lg hover:bg-slate-50">
-            Cancel
+            {t('common.settings.companyProfile.cancel', 'Cancel')}
           </button>
           <button
             onClick={() => void handleSave()}
@@ -221,7 +224,7 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-60"
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            Save Changes
+            {saving ? t('common.settings.companyProfile.saving', 'Saving…') : t('common.settings.companyProfile.save', 'Save Changes')}
           </button>
         </div>
       </div>

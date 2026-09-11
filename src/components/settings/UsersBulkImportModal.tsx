@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Upload, Download, AlertCircle, CheckCircle, FileSpreadsheet } from 'lucide-react';
 import type { UserRole } from '@/types/auth';
 
@@ -37,6 +38,7 @@ function normalizeRole(value: string): UserRole | null {
 }
 
 export function UsersBulkImportModal({ onClose, onImport }: Props) {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<ParsedUserRow[]>([]);
   const [fileName, setFileName] = useState('');
   const [parsing, setParsing] = useState(false);
@@ -73,10 +75,10 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
         const roleRaw = get('Role');
         const role = normalizeRole(roleRaw);
         let rowError: string | undefined;
-        if (!fullName) rowError = 'Full Name is required';
-        else if (!email) rowError = 'Email is required';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) rowError = 'Invalid email';
-        else if (!role) rowError = `Invalid role "${roleRaw}"`;
+        if (!fullName) rowError = t('common.settings.users.bulkImport.rowErrors.fullNameRequired', 'Full Name is required');
+        else if (!email) rowError = t('common.settings.users.bulkImport.rowErrors.emailRequired', 'Email is required');
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) rowError = t('common.settings.users.bulkImport.rowErrors.invalidEmail', 'Invalid email');
+        else if (!role) rowError = t('common.settings.users.bulkImport.rowErrors.invalidRole', 'Invalid role "{{role}}"', { role: roleRaw });
         return {
           fullName,
           email,
@@ -90,12 +92,12 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
       });
 
       if (parsed.length === 0) {
-        setError('No rows found in the uploaded file.');
+        setError(t('common.settings.users.bulkImport.noRowsFound', 'No rows found in the uploaded file.'));
       }
       setRows(parsed);
       setFileName(file.name);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to parse the file.');
+      setError(err instanceof Error ? err.message : t('common.settings.users.bulkImport.parseFailed', 'Failed to parse the file.'));
     } finally {
       setParsing(false);
     }
@@ -110,7 +112,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
       const res = await onImport(validRows);
       setResult(res);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Import failed.');
+      setError(err instanceof Error ? err.message : t('common.settings.users.bulkImport.importFailed', 'Import failed.'));
     } finally {
       setImporting(false);
     }
@@ -121,10 +123,10 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
       <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl border border-slate-200 max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">Import Users</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Bulk-create invitations from an Excel template</p>
+            <h2 className="text-base font-semibold text-slate-900">{t('common.settings.users.bulkImport.title', 'Import Users')}</h2>
+            <p className="text-xs text-slate-500 mt-0.5">{t('common.settings.users.bulkImport.subtitle', 'Bulk-create invitations from an Excel template')}</p>
           </div>
-          <button type="button" onClick={onClose} className="p-1 rounded hover:bg-slate-100 text-slate-500" aria-label="Close">
+          <button type="button" onClick={onClose} className="p-1 rounded hover:bg-slate-100 text-slate-500" aria-label={t('common.settings.users.bulkImport.close', 'Close')}>
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -134,10 +136,10 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
             <div className="text-center py-6 space-y-3">
               <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto" />
               <p className="text-slate-800 font-semibold">
-                {result.created} user{result.created === 1 ? '' : 's'} imported
+                {t('common.settings.users.bulkImport.resultImported', '{{count}} user imported', { count: result.created })}
               </p>
               {result.failed > 0 && (
-                <p className="text-sm text-amber-700">{result.failed} row(s) failed.</p>
+                <p className="text-sm text-amber-700">{t('common.settings.users.bulkImport.resultFailed', '{{count}} row(s) failed.', { count: result.failed })}</p>
               )}
               {result.errors.length > 0 && (
                 <ul className="text-left text-xs text-red-600 bg-red-50 rounded-lg p-3 max-h-40 overflow-y-auto">
@@ -145,7 +147,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
                 </ul>
               )}
               <button onClick={onClose} className="px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF]">
-                Done
+                {t('common.settings.users.bulkImport.done', 'Done')}
               </button>
             </div>
           ) : (
@@ -156,13 +158,13 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
                 className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
               >
                 <Download className="w-4 h-4" />
-                Download Excel template
+                {t('common.settings.users.bulkImport.downloadTemplate', 'Download Excel template')}
               </button>
 
               <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-300 rounded-xl py-8 cursor-pointer hover:bg-slate-50">
                 <Upload className="w-6 h-6 text-slate-400" />
                 <span className="text-sm text-slate-600">
-                  {parsing ? 'Parsing…' : fileName || 'Click to upload .xlsx / .csv'}
+                  {parsing ? t('common.settings.users.bulkImport.parsing', 'Parsing…') : fileName || t('common.settings.users.bulkImport.uploadPrompt', 'Click to upload .xlsx / .csv')}
                 </span>
                 <input
                   type="file"
@@ -186,16 +188,19 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
                 <div className="border border-slate-200 rounded-lg overflow-hidden">
                   <div className="px-3 py-2 bg-slate-50 text-xs text-slate-600 flex items-center gap-2">
                     <FileSpreadsheet className="w-4 h-4" />
-                    {validRows.length} valid · {rows.length - validRows.length} with errors
+                    {t('common.settings.users.bulkImport.validSummary', '{{valid}} valid · {{invalid}} with errors', {
+                      valid: validRows.length,
+                      invalid: rows.length - validRows.length,
+                    })}
                   </div>
                   <div className="max-h-60 overflow-y-auto">
                     <table className="w-full text-xs">
                       <thead className="bg-slate-50 text-slate-500">
                         <tr>
-                          <th className="px-3 py-2 text-left">Name</th>
-                          <th className="px-3 py-2 text-left">Email</th>
-                          <th className="px-3 py-2 text-left">Role</th>
-                          <th className="px-3 py-2 text-left">Status</th>
+                          <th className="px-3 py-2 text-left">{t('common.settings.users.bulkImport.tableHeaders.name', 'Name')}</th>
+                          <th className="px-3 py-2 text-left">{t('common.settings.users.bulkImport.tableHeaders.email', 'Email')}</th>
+                          <th className="px-3 py-2 text-left">{t('common.settings.users.bulkImport.tableHeaders.role', 'Role')}</th>
+                          <th className="px-3 py-2 text-left">{t('common.settings.users.bulkImport.tableHeaders.status', 'Status')}</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
@@ -205,7 +210,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
                             <td className="px-3 py-2">{r.email || ''}</td>
                             <td className="px-3 py-2">{r.role}</td>
                             <td className="px-3 py-2">
-                              {r.error ? <span className="text-red-600">{r.error}</span> : <span className="text-emerald-600">Ready</span>}
+                              {r.error ? <span className="text-red-600">{r.error}</span> : <span className="text-emerald-600">{t('common.settings.users.bulkImport.ready', 'Ready')}</span>}
                             </td>
                           </tr>
                         ))}
@@ -217,7 +222,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
 
               <div className="flex items-center justify-end gap-2 pt-2">
                 <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50">
-                  Cancel
+                  {t('common.settings.users.bulkImport.cancel', 'Cancel')}
                 </button>
                 <button
                   type="button"
@@ -225,7 +230,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
                   onClick={() => void runImport()}
                   className="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
                 >
-                  {importing ? 'Importing…' : `Import ${validRows.length} user(s)`}
+                  {importing ? t('common.settings.users.bulkImport.importing', 'Importing…') : t('common.settings.users.bulkImport.import', 'Import {{count}} user(s)', { count: validRows.length })}
                 </button>
               </div>
             </>
