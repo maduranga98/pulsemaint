@@ -8152,6 +8152,7 @@
       },
       "serviceLetter": {
         "modalTitle": "生成服务证明信",
+        "defaultSubject": "服务证明信",
         "close": "关闭",
         "selectUser": "选择用户",
         "selectUserPlaceholder": "— 请选择用户 —",

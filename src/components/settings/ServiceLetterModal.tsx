@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import type { UserProfile, UserRole } from '@/types/auth';
 import { generateServiceLetter } from '@/lib/serviceLetter/serviceLetter';
+import { formatLongDate } from '@/lib/i18nDate';
 import { SignaturePad } from './SignaturePad';
 
 interface ServiceLetterModalProps {
@@ -36,7 +37,7 @@ const interpolate = (template: string, vars?: Record<string, unknown>): string =
 function defaultBody(employee: UserProfile, roleLabel: string, companyName: string, t: TFunction): string {
   const joined = timestampToDate(employee.createdAt);
   const joinedText = joined
-    ? joined.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+    ? formatLongDate(joined)
     : t('common.settings.serviceLetter.defaultBodyJoinedFallback', { defaultValue: 'their date of joining' });
   const departmentClause = employee.department
     ? interpolate(t('common.settings.serviceLetter.defaultBodyDepartmentClause', { defaultValue: ' in the {{department}} department' }), { department: employee.department })
@@ -62,8 +63,10 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
   const toast = useToast();
 
   const [selectedUserId, setSelectedUserId] = useState('');
-  const [subject, setSubject] = useState('Service Letter');
-  const [addressedTo, setAddressedTo] = useState('To Whom It May Concern');
+  // Lazy initializers so these pick up the real translation on first render
+  // instead of a hardcoded English literal that never gets translated.
+  const [subject, setSubject] = useState(() => t('common.settings.serviceLetter.defaultSubject', { defaultValue: 'Service Letter' }));
+  const [addressedTo, setAddressedTo] = useState(() => t('common.settings.serviceLetter.pdf.toWhomItMayConcern', { defaultValue: 'To Whom It May Concern' }));
   const [body, setBody] = useState('');
   const [remarks, setRemarks] = useState('');
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);

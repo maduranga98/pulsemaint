@@ -8329,6 +8329,7 @@
       },
       "serviceLetter": {
         "modalTitle": "Generate Service Letter",
+        "defaultSubject": "Service Letter",
         "close": "Close",
         "selectUser": "Select User",
         "selectUserPlaceholder": "— Select a user —",
