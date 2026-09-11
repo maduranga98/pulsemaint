@@ -1,4 +1,5 @@
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import type { TFunction } from 'i18next';
 import { db } from '@/lib/firebase';
 import { notifyUsers } from '@/services/notifications.service';
 import type { CompanyProfile, UserProfile, UserRole } from '@/types/auth';
@@ -19,6 +20,7 @@ interface GenerateServiceLetterInput {
   issuedBy: { id: string; name: string; role: string };
   /** Optional data URL of a manually attached digital signature image, rendered in place of the typed-name signature. */
   signatureImageDataUrl?: string | null;
+  t?: TFunction;
 }
 
 async function fetchImageAsDataUrl(url: string): Promise<string | null> {
@@ -49,7 +51,7 @@ async function fetchImageAsDataUrl(url: string): Promise<string | null> {
  * the upload predates logoDataUrl and the network fetch fallback failed).
  */
 export async function generateServiceLetter(input: GenerateServiceLetterInput): Promise<{ logoEmbedded: boolean }> {
-  const { company, employee, roleLabel, form, issuedBy, signatureImageDataUrl } = input;
+  const { company, employee, roleLabel, form, issuedBy, signatureImageDataUrl, t } = input;
   // Prefer the data URL captured at upload time — fetching the Storage
   // download URL cross-origin can fail silently if the bucket has no CORS
   // rule for this origin, which used to make the logo vanish from letters.
@@ -72,7 +74,7 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
 
     issuedByName: issuedBy.name,
     issuedByRole: issuedBy.role,
-  });
+  }, t);
 
   const fileName = `Service-Letter-${employee.fullName.replace(/\s+/g, '-')}-${new Date().toISOString().slice(0, 10)}.pdf`;
   pdf.save(fileName);

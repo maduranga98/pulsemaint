@@ -6,7 +6,6 @@ import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
 import type { UserProfile, UserRole } from '@/types/auth';
 import { generateServiceLetter } from '@/lib/serviceLetter/serviceLetter';
-import { pdfSafeText } from '@/utils/reports/pdf/pdfFonts';
 import { SignaturePad } from './SignaturePad';
 
 interface ServiceLetterModalProps {
@@ -21,52 +20,39 @@ function timestampToDate(ts: unknown): Date | null {
   return t.toDate ? t.toDate() : t.seconds ? new Date(t.seconds * 1000) : null;
 }
 
-// Builds the default letter body either via a real translator (`t`) or via
-// `englishOnly`, a stand-in that always returns its `defaultValue` — used to
-// derive the guaranteed-English fallback text below.
-function buildDefaultBody(
-  employee: UserProfile,
-  roleLabel: string,
-  companyName: string,
-  translate: (key: string, defaultValue: string, vars?: Record<string, unknown>) => string,
-): string {
-  const joined = timestampToDate(employee.createdAt);
-  const joinedText = joined
-    ? joined.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
-    : translate('common.settings.serviceLetter.defaultBodyJoinedFallback', 'their date of joining');
-  const departmentClause = employee.department
-    ? translate('common.settings.serviceLetter.defaultBodyDepartmentClause', ' in the {{department}} department', { department: employee.department })
-    : '';
-  return translate('common.settings.serviceLetter.defaultBody', "This is to certify that {{name}} has been employed with {{company}} as {{roleOrTitle}}{{departmentClause}} since {{joinedDate}}. During this period, their conduct and performance have been found to be satisfactory.\n\nThis letter is issued upon the employee's request for whatever purpose it may serve.", {
-    name: employee.fullName,
-    company: companyName || translate('common.settings.serviceLetter.fallbackCompanyName', 'our company'),
-    roleOrTitle: employee.jobTitle || roleLabel,
-    departmentClause,
-    joinedDate: joinedText,
-  });
-}
-
-// The letter body is free text a user can print/share as a PDF via jsPDF's
-// embedded NotoSans font (see serviceLetterPdf.ts) — NotoSans can't render
-// CJK, so a zh/ja translation of this default template would otherwise
-// corrupt the exported letter. Fall back to the English text in that case,
-// same guard used for the Reports/Audit/Evaluation PDF exports.
+// `vars` is never handed to i18next's own interpolation — only used to
+// resolve `defaultValue` — then substituted by hand. i18next treats a
+// `count` option as a plural-form selector, which silently breaks
+// defaultValue interpolation for a key without plural suffixes (a real bug
+// fixed twice already in the Reports PDF export).
 const interpolate = (template: string, vars?: Record<string, unknown>): string =>
   vars ? template.replace(/\{\{(\w+)\}\}/g, (_m, k: string) => String(vars[k] ?? '')) : template;
 
+// This is shown directly in the editable textarea below, in whatever
+// language the app is currently set to — the browser renders any script
+// fine, and the exported PDF now embeds a language-matched Unicode font
+// (see serviceLetterPdf.ts / pdfFonts.ts), so there's no reason to
+// pre-emptively downgrade this to English before the user even sees it.
 function defaultBody(employee: UserProfile, roleLabel: string, companyName: string, t: TFunction): string {
-  // `vars` is never handed to i18next's own interpolation — only used to
-  // resolve `defaultValue` — then substituted by hand on both outcomes.
-  // i18next treats a `count` option as a plural-form selector, which
-  // silently breaks defaultValue interpolation for a key without plural
-  // suffixes (a real bug fixed twice already in the Reports PDF export).
-  const translated = buildDefaultBody(employee, roleLabel, companyName, (key, defaultValue, vars) =>
-    interpolate(t(key, { defaultValue }), vars),
+  const joined = timestampToDate(employee.createdAt);
+  const joinedText = joined
+    ? joined.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+    : t('common.settings.serviceLetter.defaultBodyJoinedFallback', { defaultValue: 'their date of joining' });
+  const departmentClause = employee.department
+    ? interpolate(t('common.settings.serviceLetter.defaultBodyDepartmentClause', { defaultValue: ' in the {{department}} department' }), { department: employee.department })
+    : '';
+  return interpolate(
+    t('common.settings.serviceLetter.defaultBody', {
+      defaultValue: "This is to certify that {{name}} has been employed with {{company}} as {{roleOrTitle}}{{departmentClause}} since {{joinedDate}}. During this period, their conduct and performance have been found to be satisfactory.\n\nThis letter is issued upon the employee's request for whatever purpose it may serve.",
+    }),
+    {
+      name: employee.fullName,
+      company: companyName || t('common.settings.serviceLetter.fallbackCompanyName', { defaultValue: 'our company' }),
+      roleOrTitle: employee.jobTitle || roleLabel,
+      departmentClause,
+      joinedDate: joinedText,
+    },
   );
-  const english = buildDefaultBody(employee, roleLabel, companyName, (_key, defaultValue, vars) =>
-    interpolate(defaultValue, vars),
-  );
-  return pdfSafeText(translated, english);
 }
 
 export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetterModalProps) {
@@ -107,6 +93,7 @@ export function ServiceLetterModal({ users, roleLabels, onClose }: ServiceLetter
         form: { subject: subject.trim(), addressedTo: addressedTo.trim(), body: body.trim(), remarks: remarks.trim() },
         issuedBy: { id: userProfile.id, name: userProfile.fullName ?? '', role: roleLabels[userProfile.role] ?? userProfile.role },
         signatureImageDataUrl: signatureDataUrl,
+        t,
       });
       if (company.logoUrl && !logoEmbedded) {
         toast.error(t('common.settings.serviceLetter.success.logoNotEmbedded', 'Service letter generated, but the company logo could not be embedded — try re-uploading it in Settings.'));

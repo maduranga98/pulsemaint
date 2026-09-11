@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import type { TFunction } from 'i18next';
 import { imageFormatFromDataUrl } from '@/lib/pdf/logoUtils';
 import { registerUnicodeFont } from '@/utils/reports/pdf/pdfFonts';
 
@@ -39,13 +40,14 @@ export interface ServiceLetterPdfResult {
   logoEmbedded: boolean;
 }
 
-export async function buildServiceLetterPdf(input: ServiceLetterInput): Promise<ServiceLetterPdfResult> {
+export async function buildServiceLetterPdf(input: ServiceLetterInput, t?: TFunction): Promise<ServiceLetterPdfResult> {
   const doc = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
   // The letter body/subject/remarks are free-text fields the issuer can
   // type or edit (including a translated default template — see
   // ServiceLetterModal.tsx), so jsPDF's default Latin-1-only fonts corrupt
-  // any character outside that range. Embed the shared Unicode font used by
-  // the other PDF exports in the app instead of the built-in Helvetica/Times.
+  // any character outside that range. Embed a Unicode font matching the
+  // current app language — see pdfFonts.ts — instead of the built-in
+  // Helvetica/Times, so the exported PDF's script matches the live UI.
   const fontName = await registerUnicodeFont(doc);
   const pageWidth = doc.internal.pageSize.getWidth();
   const marginX = 56;
@@ -67,7 +69,7 @@ export async function buildServiceLetterPdf(input: ServiceLetterInput): Promise<
   doc.setFont(fontName, 'bold');
   doc.setFontSize(16);
   doc.setTextColor(NAVY.r, NAVY.g, NAVY.b);
-  doc.text(input.companyName || 'Company', headerX, y);
+  doc.text(input.companyName || t?.('common.settings.serviceLetter.pdf.company', { defaultValue: 'Company' }) || 'Company', headerX, y);
 
   let headerY = y + 16;
   doc.setFont(fontName, 'normal');
@@ -96,12 +98,13 @@ export async function buildServiceLetterPdf(input: ServiceLetterInput): Promise<
   doc.text(input.letterDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), pageWidth - marginX, y, { align: 'right' });
 
   y += 24;
-  doc.text(input.addressedTo || 'To Whom It May Concern', marginX, y);
+  doc.text(input.addressedTo || t?.('common.settings.serviceLetter.pdf.toWhomItMayConcern', { defaultValue: 'To Whom It May Concern' }) || 'To Whom It May Concern', marginX, y);
 
   y += 26;
   doc.setFont(fontName, 'bold');
   doc.setFontSize(11);
-  doc.text(`Subject: ${input.subject}`, marginX, y);
+  const subjectLabel = t?.('common.settings.serviceLetter.pdf.subjectLabel', { defaultValue: 'Subject: {{subject}}' }) ?? 'Subject: {{subject}}';
+  doc.text(subjectLabel.replace('{{subject}}', input.subject), marginX, y);
 
   y += 26;
   doc.setFont(fontName, 'normal');
@@ -116,7 +119,7 @@ export async function buildServiceLetterPdf(input: ServiceLetterInput): Promise<
     doc.setFont(fontName, 'bold');
     doc.setFontSize(10);
     doc.setTextColor(INK.r, INK.g, INK.b);
-    doc.text('Remarks', marginX, y);
+    doc.text(t?.('common.settings.serviceLetter.pdf.remarksHeading', { defaultValue: 'Remarks' }) || 'Remarks', marginX, y);
     y += 16;
     doc.setFont(fontName, 'normal');
     doc.setTextColor(30, 41, 59);

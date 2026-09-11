@@ -8193,7 +8193,13 @@
             "issuedBy": "签发人"
           }
         },
-        "fallbackCompanyName": "本公司"
+        "fallbackCompanyName": "本公司",
+        "pdf": {
+          "company": "公司",
+          "toWhomItMayConcern": "敬启者",
+          "subjectLabel": "主题：{{subject}}",
+          "remarksHeading": "备注"
+        }
       }
     }
   },
