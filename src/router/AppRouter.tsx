@@ -159,6 +159,7 @@ import WorkOrdersPage from '../pages/workorders/WorkOrdersPage';
 import MyWorkOrdersPage from '../pages/workorders/MyWorkOrdersPage';
 import SettingsPage from '../pages/settings/SettingsPage';
 import UsersPage from '../pages/settings/UsersPage';
+import PlantsPage from '../pages/settings/PlantsPage';
 
 // Module 16 — MOE (Machine Overall Effectiveness)
 import { MoePage } from '../modules/moe/pages/MoePage';
@@ -896,6 +897,15 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin', 'supervisor', 'plant_manager', 'hr_officer']}>
               <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="settings/plants"
+          element={
+            <ProtectedRoute requiredRoles={['admin']}>
+              <PlantsPage />
             </ProtectedRoute>
           }
         />

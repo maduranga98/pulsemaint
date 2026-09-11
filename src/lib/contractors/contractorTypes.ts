@@ -77,6 +77,8 @@ export interface ContractorCompletedProject {
 export interface Contractor {
   id: string;
   companyId: string;
+  /** Plant this contractor is registered under (top-level, above department). */
+  plantId?: string | null;
   companyName: string;
   tradeName?: string;
   registrationNumber: string;

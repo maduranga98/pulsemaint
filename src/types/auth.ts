@@ -15,6 +15,9 @@ export interface UserProfile {
   id: string;
   companyId: string;
   siteIds: string[];
+  /** Plant this user is registered under (top-level, above department/site
+   *  scoping). Null/omitted for admin, who is not plant-restricted. */
+  plantId?: string | null;
   role: UserRole;
   fullName: string;
   email: string | null;

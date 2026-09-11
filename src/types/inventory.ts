@@ -191,6 +191,8 @@ export type ImportErrorCode =
 export interface InventoryPart {
   id: string;
   companyId: string;
+  /** Plant this part is registered under (top-level, above department). */
+  plantId?: string | null;
   partNumber: string;
   name: string;
   description: string;

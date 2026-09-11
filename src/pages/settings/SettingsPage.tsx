@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Building2, Users, ChevronRight, Pencil } from 'lucide-react';
+import { Building2, Users, Factory, ChevronRight, Pencil } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import type { UserRole } from '../../types/auth';
 import { CompanyProfileEditModal } from '../../components/settings/CompanyProfileEditModal';
@@ -30,6 +30,13 @@ export default function SettingsPage() {
       icon: <Users className="w-5 h-5" />,
       // Matches the roles the old top-level "Users" nav item was visible to.
       roles: ['admin', 'supervisor', 'plant_manager', 'hr_officer'],
+    },
+    {
+      title: t('common.settings.page.tiles.plants.title', 'Plants'),
+      description: t('common.settings.page.tiles.plants.description', 'Manage plants for scoping users, machines, contractors and inventory.'),
+      to: '/app/settings/plants',
+      icon: <Factory className="w-5 h-5" />,
+      roles: ['admin'],
     },
   ];
   const tiles = allTiles.filter((tile) => !tile.roles || (role && tile.roles.includes(role)));
