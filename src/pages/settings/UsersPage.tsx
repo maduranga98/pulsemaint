@@ -259,6 +259,15 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('');
+  const [plantFilter, setPlantFilter] = useState('');
+  const { departments } = useDepartments(company?.id ?? '');
+  const { activePlants } = usePlants(company?.id ?? '');
+  // Filter controls (role/department/plant) are only useful once there's more
+  // than one plant/department to slice by, and are reserved for the roles
+  // that manage the whole roster rather than a single plant's members.
+  const canFilterUsers = currentUser?.role === 'admin' || currentUser?.role === 'plant_manager';
   const [modal, setModal] = useState<ModalState>({ mode: 'closed' });
   const [importOpen, setImportOpen] = useState(false);
   const [serviceLetterOpen, setServiceLetterOpen] = useState(false);
@@ -298,6 +307,9 @@ export default function UsersPage() {
   };
 
   const filtered = users.filter((u) => {
+    if (roleFilter && u.role !== roleFilter) return false;
+    if (departmentFilter && u.department !== departmentFilter) return false;
+    if (plantFilter && u.plantId !== plantFilter) return false;
     if (!search.trim()) return true;
     const s = search.toLowerCase();
     return (
@@ -553,6 +565,47 @@ export default function UsersPage() {
             />
           )}
         </div>
+
+        {activeTab === 'users' && canFilterUsers && (
+          <div className="flex flex-col sm:flex-row gap-2">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="w-full sm:w-48 px-3 py-2 text-sm rounded-lg outline-none border"
+            >
+              <option value="">{t('common.settings.users.filters.allRoles', 'All roles')}</option>
+              {ROLE_OPTIONS.map((r) => (
+                <option key={r} value={r}>
+                  {getRoleLabel(r, t)}
+                </option>
+              ))}
+            </select>
+            <select
+              value={departmentFilter}
+              onChange={(e) => setDepartmentFilter(e.target.value)}
+              className="w-full sm:w-48 px-3 py-2 text-sm rounded-lg outline-none border"
+            >
+              <option value="">{t('common.settings.users.filters.allDepartments', 'All departments')}</option>
+              {departments.map((d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+            <select
+              value={plantFilter}
+              onChange={(e) => setPlantFilter(e.target.value)}
+              className="w-full sm:w-48 px-3 py-2 text-sm rounded-lg outline-none border"
+            >
+              <option value="">{t('common.settings.users.filters.allPlants', 'All plants')}</option>
+              {activePlants.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-3 flex gap-2 text-sm">
