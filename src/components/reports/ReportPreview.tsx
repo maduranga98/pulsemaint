@@ -23,7 +23,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
     setLoading(true);
     setError(null);
     const timer = setTimeout(() => {
-      fetchReportRows(reportType, companyId, config)
+      fetchReportRows(reportType, companyId, config, t)
         .then((data) => {
           if (cancelled) return;
           setTotal(data.length);
@@ -77,7 +77,7 @@ export default function ReportPreview({ reportType, config, companyId }: ReportP
               {rows.map((row, i) => (
                 <tr key={i} className="border-b border-[#1E3A5F]/50 last:border-0">
                   {columns.map((col) => (
-                    <td key={col.key} className="max-w-[140px] truncate px-2 py-1.5">{String(formatCell(row[col.key], col.format))}</td>
+                    <td key={col.key} className="max-w-[140px] truncate px-2 py-1.5">{String(formatCell(row[col.key], col.format, t))}</td>
                   ))}
                 </tr>
               ))}

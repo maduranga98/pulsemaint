@@ -6884,7 +6884,9 @@
           "excel": "Excel",
           "google_sheets": "スプレッドシート",
           "csv": "CSV"
-        }
+        },
+        "yes": "はい",
+        "no": "いいえ"
       },
       "definitions": {
         "breakdown_summary": {
@@ -7194,7 +7196,55 @@
           "downtimeByWeekday": "曜日別ダウンタイム",
           "auditsByCategory": "カテゴリー別の完了監査",
           "topEmployeesByMarks": "全パフォーマンス合計点上位5名の従業員"
+        },
+        "machineProfileFields": {
+          "machine": "機械",
+          "manufacturer": "製造元",
+          "model": "型式",
+          "serialNumber": "シリアル番号",
+          "type": "種類",
+          "department": "部門",
+          "location": "設置場所",
+          "status": "状態",
+          "criticality": "重要度",
+          "healthScore": "健全性スコア",
+          "installationDate": "設置日",
+          "lastService": "前回整備日",
+          "nextPmDue": "次回PM予定日"
         }
+      },
+      "labels": {
+        "safetyIncidentType": {
+          "incident": "事故",
+          "nearMiss": "ヒヤリハット",
+          "hazard": "危険",
+          "unsafeAct": "不安全行動"
+        },
+        "workPermitCategory": {
+          "hotWork": "火気作業",
+          "confinedSpace": "閉所作業",
+          "electricalIsolation": "電気絶縁",
+          "workingAtHeight": "高所作業",
+          "excavation": "掘削作業",
+          "chemicalHandling": "化学物質取扱",
+          "general": "一般作業許可"
+        },
+        "workPermitCompletion": {
+          "completed": "完了",
+          "partiallyCompleted": "一部完了",
+          "notCompleted": "未完了"
+        }
+      },
+      "excel": {
+        "metric": "項目",
+        "value": "値",
+        "noData": "データなし",
+        "summarySheetName": "概要",
+        "detailSheetName": "詳細",
+        "reportMetric": "レポート",
+        "dateRangeMetric": "日付範囲",
+        "dateRangeValue": "{{from}} から {{to}}",
+        "rowsMetric": "行数"
       }
     },
     "audit": {

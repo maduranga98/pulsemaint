@@ -11,6 +11,7 @@ import { fetchReportRows, fetchMachineProfile, type MachineProfileField } from '
 import type { ReportConfig, ReportType } from '../../../types/reports.types';
 import { resolveColumns, formatCell } from '../reportColumns';
 import type { ReportColumn } from '../reportColumns';
+import { formatShortDateTime, formatMonthYear } from '../../../lib/i18nDate';
 import { renderBarChart, type ChartDatum } from './chartRenderer';
 import { registerUnicodeFont, pdfSafeText } from './pdfFonts';
 import {
@@ -136,7 +137,7 @@ export async function exportGenericReportPdf(
   const definition = REPORT_DEFINITIONS[reportType];
   const reportNameRaw = getReportName(definition, t);
   const reportName = pdfSafeText(reportNameRaw, definition.name);
-  const rows = await fetchReportRows(reportType, companyId, config);
+  const rows = await fetchReportRows(reportType, companyId, config, t);
 
   // `{{var}}`-style placeholders are always filled in by hand here — never
   // handed to i18next as translation options. i18next treats a `count`
@@ -157,7 +158,7 @@ export async function exportGenericReportPdf(
   // Machine History leads with the machine's profile, so pull it up-front.
   const machineProfile =
     reportType === 'machine_history' && config.machines.length === 1
-      ? await fetchMachineProfile(config.machines[0])
+      ? await fetchMachineProfile(config.machines[0], t)
       : null;
 
   const landscape = config.orientation === 'landscape';
@@ -212,7 +213,7 @@ export async function exportGenericReportPdf(
   );
   doc.text(
     tr('common.reports.pdf.generatedSummary', 'Generated: {{generatedAt}}  ·  {{count}} record(s)', {
-      generatedAt: new Date().toLocaleString(),
+      generatedAt: formatShortDateTime(new Date()),
       count: rows.length,
     }),
     40,
@@ -318,7 +319,7 @@ export async function exportGenericReportPdf(
               ? d
               : null;
           if (!date) return;
-          const key = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+          const key = formatMonthYear(date);
           byMonth.set(key, (byMonth.get(key) ?? 0) + 1);
         });
         const data = Array.from(byMonth.entries()).map(([label, value]) => ({ label, value }));
@@ -428,7 +429,7 @@ export async function exportGenericReportPdf(
           cursorY += 6;
 
           const emptyCellPlaceholder = tr('common.reports.pdf.emptyCell', '—');
-          const body = perTicketColumns.map((c) => [c.label, String(formatCell(row[c.key], c.format) || emptyCellPlaceholder)]);
+          const body = perTicketColumns.map((c) => [c.label, String(formatCell(row[c.key], c.format, t) || emptyCellPlaceholder)]);
           autoTable(doc, {
             body,
             startY: cursorY,
@@ -448,7 +449,7 @@ export async function exportGenericReportPdf(
       });
     } else {
       const head = [columns.map((c) => c.label)];
-      const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format))));
+      const body = rows.map((row) => columns.map((c) => String(formatCell(row[c.key], c.format, t))));
 
       autoTable(doc, {
         head,

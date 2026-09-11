@@ -7061,7 +7061,9 @@
           "excel": "Excel",
           "google_sheets": "Sheets",
           "csv": "CSV"
-        }
+        },
+        "yes": "Yes",
+        "no": "No"
       },
       "definitions": {
         "breakdown_summary": {
@@ -7371,7 +7373,55 @@
           "downtimeByWeekday": "Downtime vs Day of Week",
           "auditsByCategory": "Completed Audits by Category",
           "topEmployeesByMarks": "Top 5 Employees vs Total Marks of All Performances"
+        },
+        "machineProfileFields": {
+          "machine": "Machine",
+          "manufacturer": "Manufacturer",
+          "model": "Model",
+          "serialNumber": "Serial Number",
+          "type": "Type",
+          "department": "Department",
+          "location": "Location",
+          "status": "Status",
+          "criticality": "Criticality",
+          "healthScore": "Health Score",
+          "installationDate": "Installation Date",
+          "lastService": "Last Service",
+          "nextPmDue": "Next PM Due"
         }
+      },
+      "labels": {
+        "safetyIncidentType": {
+          "incident": "Incident",
+          "nearMiss": "Near-Miss",
+          "hazard": "Hazard",
+          "unsafeAct": "Unsafe Act"
+        },
+        "workPermitCategory": {
+          "hotWork": "Hot Work",
+          "confinedSpace": "Confined Space",
+          "electricalIsolation": "Electrical Isolation",
+          "workingAtHeight": "Working at Height",
+          "excavation": "Excavation",
+          "chemicalHandling": "Chemical Handling",
+          "general": "General Work Permit"
+        },
+        "workPermitCompletion": {
+          "completed": "Completed",
+          "partiallyCompleted": "Partially Completed",
+          "notCompleted": "Not Completed"
+        }
+      },
+      "excel": {
+        "metric": "Metric",
+        "value": "Value",
+        "noData": "No Data",
+        "summarySheetName": "Summary",
+        "detailSheetName": "Detail",
+        "reportMetric": "Report",
+        "dateRangeMetric": "Date Range",
+        "dateRangeValue": "{{from}} to {{to}}",
+        "rowsMetric": "Rows"
       }
     },
     "audit": {

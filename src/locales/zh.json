@@ -6884,7 +6884,9 @@
           "excel": "Excel",
           "google_sheets": "Sheets",
           "csv": "CSV"
-        }
+        },
+        "yes": "是",
+        "no": "否"
       },
       "definitions": {
         "breakdown_summary": {
@@ -7194,7 +7196,55 @@
           "downtimeByWeekday": "按星期统计的停机时间",
           "auditsByCategory": "按类别统计的已完成审核",
           "topEmployeesByMarks": "所有绩效总分前5的员工"
+        },
+        "machineProfileFields": {
+          "machine": "机器",
+          "manufacturer": "制造商",
+          "model": "型号",
+          "serialNumber": "序列号",
+          "type": "类型",
+          "department": "部门",
+          "location": "位置",
+          "status": "状态",
+          "criticality": "关键性",
+          "healthScore": "健康评分",
+          "installationDate": "安装日期",
+          "lastService": "上次维护",
+          "nextPmDue": "下次保养到期"
         }
+      },
+      "labels": {
+        "safetyIncidentType": {
+          "incident": "事故",
+          "nearMiss": "未遂事件",
+          "hazard": "危害",
+          "unsafeAct": "不安全行为"
+        },
+        "workPermitCategory": {
+          "hotWork": "动火作业",
+          "confinedSpace": "受限空间作业",
+          "electricalIsolation": "电气隔离",
+          "workingAtHeight": "高处作业",
+          "excavation": "挖掘作业",
+          "chemicalHandling": "化学品处理",
+          "general": "一般作业许可"
+        },
+        "workPermitCompletion": {
+          "completed": "已完成",
+          "partiallyCompleted": "部分完成",
+          "notCompleted": "未完成"
+        }
+      },
+      "excel": {
+        "metric": "指标",
+        "value": "值",
+        "noData": "无数据",
+        "summarySheetName": "摘要",
+        "detailSheetName": "明细",
+        "reportMetric": "报表",
+        "dateRangeMetric": "日期范围",
+        "dateRangeValue": "{{from}} 至 {{to}}",
+        "rowsMetric": "行数"
       }
     },
     "audit": {
