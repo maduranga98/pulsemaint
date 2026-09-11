@@ -55,7 +55,7 @@ export async function generateServiceLetter(input: GenerateServiceLetterInput): 
   // rule for this origin, which used to make the logo vanish from letters.
   const logoDataUrl = company.logoDataUrl || (company.logoUrl ? await fetchImageAsDataUrl(company.logoUrl) : null);
 
-  const { doc: pdf, logoEmbedded } = buildServiceLetterPdf({
+  const { doc: pdf, logoEmbedded } = await buildServiceLetterPdf({
     companyName: company.name,
     companyAddress: company.address,
     companyPhone: company.phone,
