@@ -10,6 +10,7 @@ import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 import { VoiceDictationButton, TranslatedText } from '../../components/ui';
+import { RCASuggestionPanel } from '../../components/breakdowns/RCASuggestionPanel';
 
 function getSeverities(t: TFunction): { value: BreakdownSeverity; label: string; color: string }[] {
   return [
@@ -136,25 +137,25 @@ export default function AttendBreakdownsPage() {
       }
 
       const batch = writeBatch(db);
-      for (const t of list) {
-        batch.update(doc(db, 'breakdown_tickets', t.id), {
+      for (const ticket of list) {
+        batch.update(doc(db, 'breakdown_tickets', ticket.id), {
           severity,
           type: breakdownType,
           attemptedFixes: attemptedFixes.trim(),
           technicianFindings: technicianFindings.trim(),
           ...(uploadedUrls.length > 0 ? { photos: arrayUnion(...uploadedUrls) } : {}),
-          ...(!t.attendedBy ? {
+          ...(!ticket.attendedBy ? {
             attendedBy: userProfile.id,
             attendedByName: userProfile.fullName,
             attendedAt: serverTimestamp(),
           } : {}),
-          ...(!(t.assignedTechnicianIds ?? []).includes(userProfile.id) ? {
+          ...(!(ticket.assignedTechnicianIds ?? []).includes(userProfile.id) ? {
             assignedTechnicianIds: arrayUnion(userProfile.id),
             assignedTechnicianNames: arrayUnion(userProfile.fullName),
           } : {}),
           updatedAt: Timestamp.now(),
           statusHistory: arrayUnion({
-            status: t.status,
+            status: ticket.status,
             changedBy: userProfile.id,
             changedByName: userProfile.fullName,
             changedAt: new Date().toISOString(),
@@ -319,6 +320,18 @@ export default function AttendBreakdownsPage() {
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
+
+          <RCASuggestionPanel
+            machineId={list[0]?.machineId ?? ''}
+            machineName={machineName}
+            breakdownType={breakdownType}
+            severity={severity}
+            description={list.map((tk) => tk.description).filter(Boolean).join(' | ')}
+            attemptedFixes={attemptedFixes}
+            technicianFindings={technicianFindings}
+            excludeTicketIds={list.map((tk) => tk.id)}
+            disabled={saving || !list.length}
+          />
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.attendPage.attachMediaLabel')}</label>
