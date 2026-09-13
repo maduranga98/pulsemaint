@@ -4,7 +4,6 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthStore } from '../store/authStore';
 import { getCompanyIdFromUser } from '../lib/auth';
-import { initPushNotifications } from '../lib/pushNotifications';
 import type { CompanyProfile, UserProfile } from '../types/auth';
 
 export function useAuthInit() {
@@ -124,11 +123,6 @@ export function useAuthInit() {
                     role: userProfile.role,
                     siteId: userProfile.siteIds[0] ?? companyId,
                   }, { merge: true }).catch(() => {});
-
-                  // Registers this device for push notifications, for every
-                  // role — see initPushNotifications for why this was
-                  // previously silently broken for everyone.
-                  initPushNotifications(user.uid).catch(() => {});
 
                   const companyRef = doc(db, `companies/${companyId}`);
                   getDoc(companyRef).then((companySnap) => {
