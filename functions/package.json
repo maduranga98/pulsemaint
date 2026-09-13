@@ -19,7 +19,8 @@
     "firebase-functions": "^7.0.0",
     "googleapis": "^172.0.0",
     "nodemailer": "^8.0.10",
-    "puppeteer-core": "^24.43.1"
+    "puppeteer-core": "^24.43.1",
+    "stripe": "^17.4.0"
   },
   "devDependencies": {
     "eslint": "^8.15.0",

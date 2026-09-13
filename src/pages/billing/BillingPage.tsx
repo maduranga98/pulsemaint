@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Check, Lock, Zap, Building2, Factory, Star, CreditCard, Trash2, AlertTriangle, Download } from 'lucide-react';
-import { doc, updateDoc, Timestamp } from 'firebase/firestore';
-import { db } from '../../lib/firebase';
+import { Check, Lock, Zap, Building2, Factory, Star, CreditCard, AlertTriangle, ExternalLink } from 'lucide-react';
+import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
-import type { CompanyProfile, PaymentMethod } from '../../types/auth';
-import { generateBillingInvoice } from '../../lib/billing/billingInvoice';
+import type { CompanyProfile } from '../../types/auth';
+import { createCheckoutSession, createPortalSession } from '../../services/billingService';
 
 type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
@@ -137,16 +136,6 @@ const PLAN_RANK: Record<Plan, number> = {
   enterprise: 3,
 };
 
-const SAVED_CARD_DISCOUNT = 0.05;
-
-function formatCardBrand(cardNumber: string): PaymentMethod['brand'] {
-  const digits = cardNumber.replace(/\s+/g, '');
-  if (/^4/.test(digits)) return 'Visa';
-  if (/^5[1-5]/.test(digits)) return 'Mastercard';
-  if (/^3[47]/.test(digits)) return 'Amex';
-  return 'Other';
-}
-
 function planPrice(plan: PlanDef, cycle: BillingCycle): number | null {
   return cycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
 }
@@ -197,185 +186,65 @@ function TrialBanner({
 
 export default function BillingPage() {
   const company = useAuthStore((s) => s.company);
-  const setCompany = useAuthStore((s) => s.setCompany);
   const isAdmin = useAuthStore((s) => s.isAdmin);
 
-  const userProfile = useAuthStore((s) => s.userProfile);
   const currentPlan = company?.plan ?? 'starter';
-  const billingCycle: BillingCycle = company?.billingCycle ?? 'monthly';
-  const paymentMethods = company?.paymentMethods ?? [];
-  const hasDefaultCard = paymentMethods.some((m) => m.isDefault);
+  // Local display preference only — the billing cycle actually charged is
+  // whatever the active Stripe subscription is on. Changing it here just
+  // changes which price the next checkout/upgrade uses.
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(company?.billingCycle ?? 'monthly');
 
-  const [upgrading, setUpgrading] = useState<Plan | null>(null);
-  const [successMsg, setSuccessMsg] = useState('');
+  const [redirecting, setRedirecting] = useState<Plan | 'portal' | null>(null);
   const [error, setError] = useState('');
   const [pendingDowngrade, setPendingDowngrade] = useState<PlanDef | null>(null);
-  const [downloadingInvoice, setDownloadingInvoice] = useState(false);
-  const [lastInvoice, setLastInvoice] = useState<{ plan: PlanDef; cycle: BillingCycle } | null>(null);
 
-  const [cardForm, setCardForm] = useState({ name: '', number: '', expiry: '', cvc: '' });
-  const [cardError, setCardError] = useState('');
-  const [savingCard, setSavingCard] = useState(false);
-
-  // `generateInvoice` is false for a plain Monthly/Yearly toggle on the
-  // *current* plan (no upgrade/downgrade happened, just a billing-cycle
-  // preference) — an invoice should only be raised when the plan itself
-  // actually changes, i.e. from an Upgrade/Downgrade button click.
-  async function persistPlan(plan: Plan, cycle: BillingCycle, generateInvoice: boolean) {
-    if (!company) return;
-    setUpgrading(plan);
+  async function startCheckout(plan: Plan, cycle: BillingCycle) {
+    if (!company || !isAdmin || plan === 'enterprise') return;
     setError('');
-    setSuccessMsg('');
-
+    setRedirecting(plan);
     try {
-      const ref = doc(db, 'companies', company.id);
-      await updateDoc(ref, {
-        plan,
-        billingCycle: cycle,
-        status: 'active',
-        trialEndsAt: null,
-      });
-
-      setCompany({ ...company, plan, billingCycle: cycle, status: 'active', trialEndsAt: null });
-      const planDef = PLANS.find((p) => p.id === plan);
-      setSuccessMsg(
-        generateInvoice
-          ? `Plan updated to ${planDef?.name ?? plan} (billed ${cycle}).`
-          : `Billing cycle updated to ${cycle}.`,
-      );
-
-      if (generateInvoice && planDef && userProfile) {
-        const amount = planPrice(planDef, cycle);
-        if (amount) {
-          setLastInvoice({ plan: planDef, cycle });
-          try {
-            await generateBillingInvoice({
-              company: { ...company, plan, billingCycle: cycle },
-              billedBy: userProfile,
-              planName: planDef.name,
-              billingCycle: cycle,
-              amount,
-              discountApplied: hasDefaultCard,
-              discountPercent: Math.round(SAVED_CARD_DISCOUNT * 100),
-            });
-          } catch (invoiceErr) {
-            console.error('Failed to generate subscription invoice', invoiceErr);
-          }
-        }
-      }
+      // Already subscribed? Send to the Stripe Billing Portal, which handles
+      // switching plans on an existing subscription (proration etc.) —
+      // Checkout in subscription mode would otherwise start a second,
+      // duplicate subscription. Requires "customer can switch plans" to be
+      // enabled in the Stripe Dashboard's Billing Portal configuration.
+      const url = company.stripeSubscriptionId
+        ? await createPortalSession()
+        : await createCheckoutSession(plan, cycle);
+      window.location.href = url;
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to update plan. Please try again.');
-    } finally {
-      setUpgrading(null);
-    }
-  }
-
-  async function handleDownloadInvoice() {
-    if (!company || !userProfile || !lastInvoice) return;
-    setDownloadingInvoice(true);
-    try {
-      const amount = planPrice(lastInvoice.plan, lastInvoice.cycle);
-      if (amount) {
-        await generateBillingInvoice({
-          company,
-          billedBy: userProfile,
-          planName: lastInvoice.plan.name,
-          billingCycle: lastInvoice.cycle,
-          amount,
-          discountApplied: hasDefaultCard,
-          discountPercent: Math.round(SAVED_CARD_DISCOUNT * 100),
-        });
-      }
-    } finally {
-      setDownloadingInvoice(false);
+      setError(err?.message ?? 'Failed to start checkout. Please try again.');
+      setRedirecting(null);
     }
   }
 
   function handlePlanClick(plan: PlanDef) {
-    if (!company || !isAdmin || plan.id === currentPlan) return;
+    if (!company || !isAdmin || plan.id === currentPlan || plan.id === 'enterprise') return;
     const isDowngrade = PLAN_RANK[plan.id] < PLAN_RANK[currentPlan];
     if (isDowngrade) {
       setPendingDowngrade(plan);
       return;
     }
-    void persistPlan(plan.id, billingCycle, true);
+    void startCheckout(plan.id, billingCycle);
   }
 
   async function confirmDowngrade() {
     if (!pendingDowngrade) return;
-    await persistPlan(pendingDowngrade.id, billingCycle, true);
+    await startCheckout(pendingDowngrade.id, billingCycle);
     setPendingDowngrade(null);
   }
 
-  // Just a Monthly/Yearly display preference on the plan you already have —
-  // no invoice, since nothing was actually purchased.
-  async function handleCycleChange(cycle: BillingCycle) {
-    if (!company || !isAdmin || cycle === billingCycle) return;
-    await persistPlan(currentPlan, cycle, false);
-  }
-
-  async function handleAddCard(e: React.FormEvent) {
-    e.preventDefault();
-    if (!company) return;
-    setCardError('');
-
-    const digits = cardForm.number.replace(/\s+/g, '');
-    const expiryMatch = /^(\d{2})\/(\d{2})$/.exec(cardForm.expiry.trim());
-    if (!cardForm.name.trim()) {
-      setCardError('Cardholder name is required.');
-      return;
-    }
-    if (digits.length < 12 || digits.length > 19 || !/^\d+$/.test(digits)) {
-      setCardError('Enter a valid card number.');
-      return;
-    }
-    if (!expiryMatch) {
-      setCardError('Enter expiry as MM/YY.');
-      return;
-    }
-    if (!/^\d{3,4}$/.test(cardForm.cvc.trim())) {
-      setCardError('Enter a valid CVC.');
-      return;
-    }
-
-    setSavingCard(true);
+  async function handleManageBilling() {
+    if (!company || !isAdmin) return;
+    setError('');
+    setRedirecting('portal');
     try {
-      const newCard: PaymentMethod = {
-        id: `card_${Date.now()}`,
-        brand: formatCardBrand(digits),
-        last4: digits.slice(-4),
-        expiryMonth: Number(expiryMatch[1]),
-        expiryYear: 2000 + Number(expiryMatch[2]),
-        cardholderName: cardForm.name.trim(),
-        isDefault: paymentMethods.length === 0,
-      };
-      const updated = [...paymentMethods, newCard];
-      await updateDoc(doc(db, 'companies', company.id), { paymentMethods: updated });
-      setCompany({ ...company, paymentMethods: updated });
-      setCardForm({ name: '', number: '', expiry: '', cvc: '' });
-      setSuccessMsg('Payment method saved.');
+      const url = await createPortalSession();
+      window.location.href = url;
     } catch (err: any) {
-      setCardError(err?.message ?? 'Failed to save card. Please try again.');
-    } finally {
-      setSavingCard(false);
+      setError(err?.message ?? 'Failed to open billing portal. Please try again.');
+      setRedirecting(null);
     }
-  }
-
-  async function handleRemoveCard(id: string) {
-    if (!company) return;
-    const remaining = paymentMethods.filter((m) => m.id !== id);
-    if (remaining.length > 0 && !remaining.some((m) => m.isDefault)) {
-      remaining[0].isDefault = true;
-    }
-    await updateDoc(doc(db, 'companies', company.id), { paymentMethods: remaining });
-    setCompany({ ...company, paymentMethods: remaining });
-  }
-
-  async function handleSetDefaultCard(id: string) {
-    if (!company) return;
-    const updated = paymentMethods.map((m) => ({ ...m, isDefault: m.id === id }));
-    await updateDoc(doc(db, 'companies', company.id), { paymentMethods: updated });
-    setCompany({ ...company, paymentMethods: updated });
   }
 
   return (
@@ -422,21 +291,6 @@ export default function BillingPage() {
       </div>
 
       {/* Messages */}
-      {successMsg && (
-        <div className="rounded-xl bg-green-900/20 border border-green-700/50 p-4 text-sm text-green-300 flex items-center justify-between flex-wrap gap-3">
-          <span>{successMsg}</span>
-          {lastInvoice && (
-            <button
-              onClick={() => void handleDownloadInvoice()}
-              disabled={downloadingInvoice}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-green-800/40 hover:bg-green-800/60 text-green-200 disabled:opacity-60"
-            >
-              <Download className="h-3.5 w-3.5" />
-              {downloadingInvoice ? 'Preparing…' : 'Download Invoice'}
-            </button>
-          )}
-        </div>
-      )}
       {error && (
         <div className="rounded-xl bg-red-900/20 border border-red-700/50 p-4 text-sm text-red-300">
           {error}
@@ -449,8 +303,8 @@ export default function BillingPage() {
           {(['monthly', 'yearly'] as BillingCycle[]).map((cycle) => (
             <button
               key={cycle}
-              onClick={() => void handleCycleChange(cycle)}
-              disabled={!isAdmin || !!upgrading}
+              onClick={() => setBillingCycle(cycle)}
+              disabled={!isAdmin || !!redirecting}
               className={`px-4 py-1.5 rounded-full text-sm font-medium capitalize transition-colors ${
                 billingCycle === cycle
                   ? 'bg-blue-600 text-white'
@@ -504,11 +358,6 @@ export default function BillingPage() {
                     <>
                       <span className="text-2xl font-bold text-white">${price}</span>
                       <span className="text-sm text-slate-400">/{billingCycle === 'yearly' ? 'year' : 'month'}</span>
-                      {hasDefaultCard && (
-                        <span className="text-[10px] font-semibold text-emerald-400 ml-1">
-                          5% discount applies at checkout with your saved card
-                        </span>
-                      )}
                     </>
                   )}
                 </div>
@@ -573,7 +422,7 @@ export default function BillingPage() {
                 ) : isAdmin ? (
                   <button
                     onClick={() => handlePlanClick(plan)}
-                    disabled={!!upgrading}
+                    disabled={!!redirecting}
                     className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors disabled:opacity-60 ${
                       isDowngrade
                         ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600'
@@ -582,8 +431,8 @@ export default function BillingPage() {
                         : 'bg-blue-700 hover:bg-blue-600 text-white'
                     }`}
                   >
-                    {upgrading === plan.id
-                      ? 'Updating…'
+                    {redirecting === plan.id
+                      ? 'Redirecting…'
                       : isDowngrade
                       ? `Downgrade to ${plan.name}`
                       : `Upgrade to ${plan.name}`}
@@ -600,116 +449,30 @@ export default function BillingPage() {
         })}
       </div>
 
-      {/* Payment methods */}
+      {/* Payment methods & invoices — handled entirely by Stripe's hosted
+          Billing Portal, so FirmiCore never stores card data. */}
       {isAdmin && (
-        <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5 space-y-4">
+        <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5 space-y-3">
           <div>
             <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-blue-400" /> Payment Methods
+              <CreditCard className="h-4 w-4 text-blue-400" /> Payment & Invoices
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              Save a card for automatic renewal — subscriptions billed to a saved card get a{' '}
-              <span className="text-emerald-400 font-medium">{Math.round(SAVED_CARD_DISCOUNT * 100)}% discount</span> vs. manual invoicing.
+              Manage your saved payment methods, view past invoices, and cancel your subscription in
+              Stripe's secure billing portal.
             </p>
           </div>
-
-          {paymentMethods.length > 0 && (
-            <div className="space-y-2">
-              {paymentMethods.map((m) => (
-                <div
-                  key={m.id}
-                  className="flex items-center justify-between gap-3 border border-[#1E3A5F] rounded-lg px-4 py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="h-4 w-4 text-slate-400" />
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        {m.brand} •••• {m.last4}
-                        {m.isDefault && (
-                          <span className="ml-2 text-[10px] font-semibold text-blue-400 uppercase">Default</span>
-                        )}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {m.cardholderName} · Expires {String(m.expiryMonth).padStart(2, '0')}/{m.expiryYear}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    {!m.isDefault && (
-                      <button
-                        onClick={() => void handleSetDefaultCard(m.id)}
-                        className="text-xs font-medium text-blue-400 hover:underline"
-                      >
-                        Set default
-                      </button>
-                    )}
-                    <button
-                      onClick={() => void handleRemoveCard(m.id)}
-                      className="text-slate-500 hover:text-red-400"
-                      aria-label="Remove card"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <button
+            onClick={() => void handleManageBilling()}
+            disabled={!!redirecting || !company?.stripeCustomerId}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-60"
+          >
+            <ExternalLink className="h-4 w-4" />
+            {redirecting === 'portal' ? 'Redirecting…' : 'Manage Billing'}
+          </button>
+          {!company?.stripeCustomerId && (
+            <p className="text-xs text-slate-500">Subscribe to a plan first to access the billing portal.</p>
           )}
-
-          <form onSubmit={handleAddCard} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="sm:col-span-2">
-              <label className="text-xs text-slate-400">Cardholder name</label>
-              <input
-                type="text"
-                value={cardForm.name}
-                onChange={(e) => setCardForm((f) => ({ ...f, name: e.target.value }))}
-                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
-                placeholder="Full name on card"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="text-xs text-slate-400">Card number</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={cardForm.number}
-                onChange={(e) => setCardForm((f) => ({ ...f, number: e.target.value }))}
-                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
-                placeholder="1234 5678 9012 3456"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-slate-400">Expiry (MM/YY)</label>
-              <input
-                type="text"
-                value={cardForm.expiry}
-                onChange={(e) => setCardForm((f) => ({ ...f, expiry: e.target.value }))}
-                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
-                placeholder="MM/YY"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-slate-400">CVC</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={cardForm.cvc}
-                onChange={(e) => setCardForm((f) => ({ ...f, cvc: e.target.value }))}
-                className="mt-1 w-full bg-[#0A1628] border border-[#1E3A5F] rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600"
-                placeholder="123"
-              />
-            </div>
-            {cardError && <p className="sm:col-span-2 text-sm text-red-400">{cardError}</p>}
-            <div className="sm:col-span-2">
-              <button
-                type="submit"
-                disabled={savingCard}
-                className="w-full sm:w-auto px-4 py-2 rounded-lg text-sm font-semibold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-60"
-              >
-                {savingCard ? 'Saving…' : 'Save Card'}
-              </button>
-            </div>
-          </form>
         </div>
       )}
 
@@ -747,10 +510,10 @@ export default function BillingPage() {
               </button>
               <button
                 onClick={() => void confirmDowngrade()}
-                disabled={!!upgrading}
+                disabled={!!redirecting}
                 className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg disabled:opacity-60"
               >
-                {upgrading ? 'Updating…' : 'Confirm Downgrade'}
+                {redirecting ? 'Redirecting…' : 'Confirm Downgrade'}
               </button>
             </div>
           </div>

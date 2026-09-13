@@ -696,7 +696,18 @@ service cloud.firestore {
         && request.resource.data.adminUserId == request.auth.uid
         && request.resource.data.id == companyId;
 
+      // Plan/subscription fields are Stripe-controlled — only the
+      // stripeWebhook Cloud Function (via the Admin SDK, which bypasses
+      // these rules) may change them. Clients may update everything else on
+      // the company doc (profile, settings, etc.) but not these.
+      function keepsBillingFieldsUnchanged() {
+        let billingFields = ['plan', 'billingCycle', 'status', 'stripeCustomerId',
+          'stripeSubscriptionId', 'subscriptionStatus', 'currentPeriodEnd', 'trialEndsAt'];
+        return request.resource.data.diff(resource.data).affectedKeys().hasAny(billingFields) == false;
+      }
+
       allow update: if isAuthenticated()
+        && keepsBillingFieldsUnchanged()
         && (
           (exists(/databases/$(database)/documents/users/$(request.auth.uid))
             && getUserData().companyId == companyId
@@ -705,6 +716,16 @@ service cloud.firestore {
         );
 
       allow delete: if false;
+    }
+
+    // /companies/{companyId}/billingInvoices/{invoiceId} — Stripe invoice
+    // records written only by the stripeWebhook Cloud Function.
+    match /companies/{companyId}/billingInvoices/{invoiceId} {
+      allow read: if isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && getUserData().companyId == companyId
+        && getUserData().role == 'admin';
+      allow write: if false;
     }
 
     // /companies/{companyId}/private/{document} — SMTP credentials for

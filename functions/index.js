@@ -201,6 +201,18 @@ exports.getCompanySmtpStatus = getCompanySmtpStatus;
 exports.removeCompanySmtpSettings = removeCompanySmtpSettings;
 
 // ---------------------------------------------------------------------------
+// Billing Module — Stripe Cloud Functions
+// ---------------------------------------------------------------------------
+
+const { createCheckoutSession } = require("./src/billing/createCheckoutSession");
+const { createPortalSession } = require("./src/billing/createPortalSession");
+const { stripeWebhook } = require("./src/billing/stripeWebhook");
+
+exports.createCheckoutSession = createCheckoutSession;
+exports.createPortalSession = createPortalSession;
+exports.stripeWebhook = stripeWebhook;
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
