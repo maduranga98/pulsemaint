@@ -10,6 +10,7 @@ import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 import { VoiceDictationButton, TranslatedText } from '../../components/ui';
+import { RCASuggestionPanel } from '../../components/breakdowns/RCASuggestionPanel';
 
 function getSeverities(t: TFunction): { value: BreakdownSeverity; label: string; color: string }[] {
   return [
@@ -319,6 +320,18 @@ export default function AttendBreakdownsPage() {
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
             />
           </div>
+
+          <RCASuggestionPanel
+            machineId={list[0]?.machineId ?? ''}
+            machineName={machineName}
+            breakdownType={breakdownType}
+            severity={severity}
+            description={list.map((tk) => tk.description).filter(Boolean).join(' | ')}
+            attemptedFixes={attemptedFixes}
+            technicianFindings={technicianFindings}
+            excludeTicketIds={list.map((tk) => tk.id)}
+            disabled={saving || !list.length}
+          />
 
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">{t('common.breakdowns.attendPage.attachMediaLabel')}</label>
