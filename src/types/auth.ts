@@ -59,6 +59,11 @@ export interface CompanyProfile {
   status: 'active' | 'trial' | 'suspended';
   trialEndsAt: Timestamp | null;
   plan: 'starter' | 'workshop' | 'factory' | 'enterprise';
+  /** Set by the stripeWebhook Cloud Function only — never written by clients. */
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: string | null;
+  currentPeriodEnd?: Timestamp | null;
   tenantId: string;
   createdAt: Timestamp;
   adminUserId: string;
