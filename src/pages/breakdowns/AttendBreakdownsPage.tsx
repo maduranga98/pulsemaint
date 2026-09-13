@@ -136,25 +136,25 @@ export default function AttendBreakdownsPage() {
       }
 
       const batch = writeBatch(db);
-      for (const t of list) {
-        batch.update(doc(db, 'breakdown_tickets', t.id), {
+      for (const ticket of list) {
+        batch.update(doc(db, 'breakdown_tickets', ticket.id), {
           severity,
           type: breakdownType,
           attemptedFixes: attemptedFixes.trim(),
           technicianFindings: technicianFindings.trim(),
           ...(uploadedUrls.length > 0 ? { photos: arrayUnion(...uploadedUrls) } : {}),
-          ...(!t.attendedBy ? {
+          ...(!ticket.attendedBy ? {
             attendedBy: userProfile.id,
             attendedByName: userProfile.fullName,
             attendedAt: serverTimestamp(),
           } : {}),
-          ...(!(t.assignedTechnicianIds ?? []).includes(userProfile.id) ? {
+          ...(!(ticket.assignedTechnicianIds ?? []).includes(userProfile.id) ? {
             assignedTechnicianIds: arrayUnion(userProfile.id),
             assignedTechnicianNames: arrayUnion(userProfile.fullName),
           } : {}),
           updatedAt: Timestamp.now(),
           statusHistory: arrayUnion({
-            status: t.status,
+            status: ticket.status,
             changedBy: userProfile.id,
             changedByName: userProfile.fullName,
             changedAt: new Date().toISOString(),
