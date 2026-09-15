@@ -19,12 +19,43 @@ jobs:
       - name: Install functions dependencies
         run: npm ci
         working-directory: functions
+      - name: Write Stripe price ID config
+        working-directory: functions
+        env:
+          STRIPE_PRICE_STARTER_MONTHLY: ${{ secrets.STRIPE_PRICE_STARTER_MONTHLY }}
+          STRIPE_PRICE_STARTER_YEARLY: ${{ secrets.STRIPE_PRICE_STARTER_YEARLY }}
+          STRIPE_PRICE_WORKSHOP_MONTHLY: ${{ secrets.STRIPE_PRICE_WORKSHOP_MONTHLY }}
+          STRIPE_PRICE_WORKSHOP_YEARLY: ${{ secrets.STRIPE_PRICE_WORKSHOP_YEARLY }}
+          STRIPE_PRICE_FACTORY_MONTHLY: ${{ secrets.STRIPE_PRICE_FACTORY_MONTHLY }}
+          STRIPE_PRICE_FACTORY_YEARLY: ${{ secrets.STRIPE_PRICE_FACTORY_YEARLY }}
+        run: |
+          cat > .env <<EOF
+          STRIPE_PRICE_STARTER_MONTHLY=$STRIPE_PRICE_STARTER_MONTHLY
+          STRIPE_PRICE_STARTER_YEARLY=$STRIPE_PRICE_STARTER_YEARLY
+          STRIPE_PRICE_WORKSHOP_MONTHLY=$STRIPE_PRICE_WORKSHOP_MONTHLY
+          STRIPE_PRICE_WORKSHOP_YEARLY=$STRIPE_PRICE_WORKSHOP_YEARLY
+          STRIPE_PRICE_FACTORY_MONTHLY=$STRIPE_PRICE_FACTORY_MONTHLY
+          STRIPE_PRICE_FACTORY_YEARLY=$STRIPE_PRICE_FACTORY_YEARLY
+          EOF
       - name: Deploy functions
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PULSEMAINT }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
           echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/firebase-sa.json"
+          # Push the two real secrets (API key + webhook signing secret) into
+          # Firebase Secret Manager from the GitHub Actions secrets of the
+          # same name, so `defineSecret` in functions/src/billing/stripeClient.js
+          # resolves them at deploy time. No-ops harmlessly if either is unset
+          # (first deploy before Stripe is configured).
+          if [ -n "$STRIPE_SECRET_KEY" ]; then
+            printf '%s' "$STRIPE_SECRET_KEY" | npx firebase-tools@latest functions:secrets:set STRIPE_SECRET_KEY --project "$VITE_FIREBASE_PROJECT_ID" --data-file -
+          fi
+          if [ -n "$STRIPE_WEBHOOK_SECRET" ]; then
+            printf '%s' "$STRIPE_WEBHOOK_SECRET" | npx firebase-tools@latest functions:secrets:set STRIPE_WEBHOOK_SECRET --project "$VITE_FIREBASE_PROJECT_ID" --data-file -
+          fi
           # Functions deploy fails outright if the project's Firestore
           # "(default)" database doesn't exist yet (e.g. a freshly created
           # Firebase project). Provision it first; a no-op if it's already
