@@ -88,14 +88,13 @@ exports.sendInvitationEmail = onCall(
     const sent = await sendEmail({
       to: inv.email,
       subject: `You're invited to join ${companyName} on FirmiCore`,
-      // Mirrors sendPoEmails.js: when the company has its own configured
-      // mailbox (Settings → Email Sending), the invite should read as
-      // coming from them, not the shared "FirmiCore" platform brand.
+      // Invitations always send from the FirmiCore platform mailbox, never
+      // a company's own configured SMTP mailbox (Settings → Email Sending)
+      // — that mailbox is for supplier-facing PO/delivery emails only.
       html: brandedEmail(html, companyName),
       text: `You've been invited to join ${companyName} on FirmiCore as a ${roleName}. Accept your invitation here: ${inviteUrl}`,
       fromName: companyName,
       replyTo: companyEmail || undefined,
-      companyId,
     });
 
     if (!sent) {
