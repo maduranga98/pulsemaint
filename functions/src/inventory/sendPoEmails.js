@@ -317,7 +317,6 @@ exports.sendPoEmails = onDocumentCreated(
               <p style="color:#555;font-size:14px;">${esc(strings.deliveryReceivedClosing)}</p>
             `;
             await sendEmail({
-              companyId,
               to: supplierEmail,
               subject: interpolate(strings, "subjectDeliveryReceived", {poNumber}),
               html: brandedEmail(thankYouHtml, companyName),
@@ -335,7 +334,6 @@ exports.sendPoEmails = onDocumentCreated(
               ${receivedItemsTableHtml(problems, strings, {showCondition: true})}
             `;
             await sendEmail({
-              companyId,
               to: supplierEmail,
               subject: interpolate(strings, "subjectDeliveryIssue", {poNumber}),
               html: brandedEmail(issueHtml, companyName),
@@ -374,7 +372,6 @@ exports.sendPoEmails = onDocumentCreated(
         `;
         const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml}, strings);
         const sent = await sendEmail({
-          companyId,
           to: supplierEmail,
           subject: interpolate(strings, "subjectSent", {poNumber}),
           html: plainEmailShell(bodyHtml, companyMeta.name, strings),
@@ -401,7 +398,6 @@ exports.sendPoEmails = onDocumentCreated(
         `;
         const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: true, introHtml}, strings);
         await sendEmail({
-          companyId,
           to: supplierEmail,
           subject: interpolate(strings, "subjectInvoicePriced", {poNumber}),
           html: plainEmailShell(bodyHtml, companyMeta.name, strings),
@@ -432,7 +428,6 @@ exports.sendPoEmails = onDocumentCreated(
         `;
         const bodyHtml = poDocumentEmailHtml(poData, poItems, companyMeta, {showPricing: false, introHtml}, strings);
         await sendEmail({
-          companyId,
           to: supplierEmail,
           subject: interpolate(strings, "subjectCancelled", {poNumber}),
           html: plainEmailShell(bodyHtml, companyMeta.name, strings),
