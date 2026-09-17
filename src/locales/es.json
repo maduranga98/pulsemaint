@@ -7978,37 +7978,6 @@
         "successToast": "Perfil de la empresa actualizado.",
         "errorToast": "No se pudo actualizar el perfil de la empresa."
       },
-      "smtp": {
-        "heading": "Envío de Correo",
-        "description": "Configure su propio buzón de correo para que los correos a proveedores (órdenes de compra, recibos de entrega) se envíen desde la dirección de su propia empresa en lugar del buzón compartido de FirmiCore. El host/puerto se completan automáticamente para proveedores comunes (Gmail, Outlook, Yahoo, iCloud, Zoho) según el correo registrado de su empresa; solo necesitará agregar la contraseña.",
-        "loading": "Cargando…",
-        "configured": "Configurado — enviando como <strong>{{user}}</strong> a través de {{host}}",
-        "notConfigured": "No configurado — los correos a proveedores se envían desde el buzón compartido de la plataforma.",
-        "edit": "Editar",
-        "configure": "Configurar",
-        "remove": "Eliminar",
-        "removing": "Eliminando…",
-        "confirmRemove": "¿Eliminar este buzón? Los correos a proveedores volverán a enviarse desde el buzón compartido de la plataforma.",
-        "removedToast": "Eliminado. Los correos a proveedores volverán a usar el buzón compartido de la plataforma.",
-        "removeFailedToast": "No se pudo eliminar la configuración SMTP.",
-        "savedToast": "Envío de correo configurado — los correos a proveedores ahora se enviarán desde este buzón.",
-        "saveFailedToast": "No se pudo guardar la configuración SMTP.",
-        "validationError": "El host, el puerto, el usuario y la contraseña son obligatorios.",
-        "fields": {
-          "host": "Host SMTP",
-          "hostPlaceholder": "smtp.tuempresa.com",
-          "port": "Puerto",
-          "useSsl": "Usar SSL/TLS (generalmente puerto 465)",
-          "username": "Correo electrónico / Usuario",
-          "usernamePlaceholder": "facturacion@tuempresa.com",
-          "password": "Contraseña / Contraseña de aplicación",
-          "passwordPlaceholderChange": "Vuelva a ingresarla para cambiarla",
-          "gmailHint": "Gmail bloquea aquí su contraseña habitual; genere una <link>Contraseña de aplicación</link> en su lugar (requiere tener activada la verificación en dos pasos)."
-        },
-        "save": "Guardar y Verificar",
-        "saving": "Probando y Guardando…",
-        "cancel": "Cancelar"
-      },
       "users": {
         "header": {
           "title": "Gestión de Equipo",

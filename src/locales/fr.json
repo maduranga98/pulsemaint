@@ -7978,37 +7978,6 @@
         "successToast": "Profil de l'entreprise mis à jour.",
         "errorToast": "Échec de la mise à jour du profil de l'entreprise."
       },
-      "smtp": {
-        "heading": "Envoi d'e-mails",
-        "description": "Configurez votre propre boîte mail pour que les e-mails destinés aux fournisseurs (bons de commande, bordereaux de livraison) soient envoyés depuis l'adresse de votre entreprise plutôt que depuis la boîte mail partagée de FirmiCore. L'hôte et le port sont pré-remplis automatiquement pour les fournisseurs courants (Gmail, Outlook, Yahoo, iCloud, Zoho) à partir de l'e-mail enregistré de votre entreprise — il ne vous reste qu'à ajouter le mot de passe.",
-        "loading": "Chargement…",
-        "configured": "Configuré — envoi en tant que <strong>{{user}}</strong> via {{host}}",
-        "notConfigured": "Non configuré — les e-mails aux fournisseurs sont envoyés depuis la boîte mail partagée de la plateforme.",
-        "edit": "Modifier",
-        "configure": "Configurer",
-        "remove": "Supprimer",
-        "removing": "Suppression…",
-        "confirmRemove": "Supprimer cette boîte mail ? Les e-mails aux fournisseurs seront de nouveau envoyés depuis la boîte mail partagée de la plateforme.",
-        "removedToast": "Supprimé. Les e-mails aux fournisseurs utiliseront de nouveau la boîte mail partagée de la plateforme.",
-        "removeFailedToast": "Échec de la suppression des paramètres SMTP.",
-        "savedToast": "Envoi d'e-mails configuré — les e-mails aux fournisseurs seront désormais envoyés depuis cette boîte mail.",
-        "saveFailedToast": "Échec de l'enregistrement des paramètres SMTP.",
-        "validationError": "L'hôte, le port, le nom d'utilisateur et le mot de passe sont tous requis.",
-        "fields": {
-          "host": "Hôte SMTP",
-          "hostPlaceholder": "smtp.votreentreprise.com",
-          "port": "Port",
-          "useSsl": "Utiliser SSL/TLS (généralement le port 465)",
-          "username": "E-mail / Nom d'utilisateur",
-          "usernamePlaceholder": "facturation@votreentreprise.com",
-          "password": "Mot de passe / Mot de passe d'application",
-          "passwordPlaceholderChange": "Ressaisir pour modifier",
-          "gmailHint": "Gmail bloque votre mot de passe habituel ici — générez plutôt un <link>mot de passe d'application</link> (nécessite l'activation de la validation en deux étapes)."
-        },
-        "save": "Enregistrer et vérifier",
-        "saving": "Test et enregistrement…",
-        "cancel": "Annuler"
-      },
       "users": {
         "header": {
           "title": "Gestion de l'équipe",

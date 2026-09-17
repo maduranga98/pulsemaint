@@ -7978,37 +7978,6 @@
         "successToast": "Unternehmensprofil aktualisiert.",
         "errorToast": "Unternehmensprofil konnte nicht aktualisiert werden."
       },
-      "smtp": {
-        "heading": "E-Mail-Versand",
-        "description": "Konfigurieren Sie Ihr eigenes Postfach, damit E-Mails an Lieferanten (Bestellungen, Lieferscheine) von der eigenen Firmenadresse statt vom gemeinsam genutzten FirmiCore-Postfach versendet werden. Host/Port werden für gängige Anbieter (Gmail, Outlook, Yahoo, iCloud, Zoho) automatisch anhand Ihrer registrierten Firmen-E-Mail vorausgefüllt — Sie müssen nur noch das Passwort ergänzen.",
-        "loading": "Wird geladen…",
-        "configured": "Konfiguriert — Versand als <strong>{{user}}</strong> über {{host}}",
-        "notConfigured": "Nicht konfiguriert — Lieferanten-E-Mails werden über das gemeinsam genutzte Plattform-Postfach versendet.",
-        "edit": "Bearbeiten",
-        "configure": "Konfigurieren",
-        "remove": "Entfernen",
-        "removing": "Wird entfernt…",
-        "confirmRemove": "Dieses Postfach entfernen? Lieferanten-E-Mails werden danach wieder über das gemeinsam genutzte Plattform-Postfach versendet.",
-        "removedToast": "Entfernt. Lieferanten-E-Mails werden wieder über das gemeinsam genutzte Plattform-Postfach versendet.",
-        "removeFailedToast": "SMTP-Einstellungen konnten nicht entfernt werden.",
-        "savedToast": "E-Mail-Versand konfiguriert — Lieferanten-E-Mails werden nun von diesem Postfach aus versendet.",
-        "saveFailedToast": "SMTP-Einstellungen konnten nicht gespeichert werden.",
-        "validationError": "Host, Port, Benutzername und Passwort sind erforderlich.",
-        "fields": {
-          "host": "SMTP-Host",
-          "hostPlaceholder": "smtp.ihrefirma.de",
-          "port": "Port",
-          "useSsl": "SSL/TLS verwenden (meist Port 465)",
-          "username": "E-Mail / Benutzername",
-          "usernamePlaceholder": "rechnung@ihrefirma.de",
-          "password": "Passwort / App-Passwort",
-          "passwordPlaceholderChange": "Zum Ändern erneut eingeben",
-          "gmailHint": "Gmail blockiert hier Ihr normales Passwort — generieren Sie stattdessen ein <link>App-Passwort</link> (dafür muss die Bestätigung in zwei Schritten aktiviert sein)."
-        },
-        "save": "Speichern & Prüfen",
-        "saving": "Wird getestet & gespeichert…",
-        "cancel": "Abbrechen"
-      },
       "users": {
         "header": {
           "title": "Teamverwaltung",

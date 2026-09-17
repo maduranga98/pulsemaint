@@ -7974,37 +7974,6 @@
         "successToast": "会社プロフィールを更新しました。",
         "errorToast": "会社プロフィールの更新に失敗しました。"
       },
-      "smtp": {
-        "heading": "メール送信設定",
-        "description": "自社のメールボックスを設定すると、サプライヤー宛のメール（発注書、納品書など）がFirmiCoreの共有メールボックスではなく、自社のアドレスから送信されるようになります。ホスト名とポート番号は、登録済みの会社メールアドレスをもとに主要プロバイダー（Gmail、Outlook、Yahoo、iCloud、Zoho）向けに自動入力されます。あとはパスワードを入力するだけです。",
-        "loading": "読み込み中…",
-        "configured": "設定済み — <strong>{{user}}</strong>として{{host}}経由で送信",
-        "notConfigured": "未設定 — サプライヤー宛のメールは共有プラットフォームのメールボックスから送信されます。",
-        "edit": "編集",
-        "configure": "設定する",
-        "remove": "削除",
-        "removing": "削除中…",
-        "confirmRemove": "このメールボックスを削除しますか？サプライヤー宛のメールは再び共有プラットフォームのメールボックスから送信されるようになります。",
-        "removedToast": "削除しました。サプライヤー宛のメールは再び共有プラットフォームのメールボックスを使用します。",
-        "removeFailedToast": "SMTP設定の削除に失敗しました。",
-        "savedToast": "メール送信設定が完了しました — サプライヤー宛のメールは今後このメールボックスから送信されます。",
-        "saveFailedToast": "SMTP設定の保存に失敗しました。",
-        "validationError": "ホスト、ポート、ユーザー名、パスワードはすべて必須です。",
-        "fields": {
-          "host": "SMTPホスト",
-          "hostPlaceholder": "smtp.yourcompany.com",
-          "port": "ポート",
-          "useSsl": "SSL/TLSを使用する（通常はポート465）",
-          "username": "メールアドレス／ユーザー名",
-          "usernamePlaceholder": "billing@yourcompany.com",
-          "password": "パスワード／アプリパスワード",
-          "passwordPlaceholderChange": "変更する場合は再入力してください",
-          "gmailHint": "Gmailでは通常のパスワードが使用できません。代わりに<link>アプリパスワード</link>を発行してください（2段階認証を有効にする必要があります）。"
-        },
-        "save": "保存して確認",
-        "saving": "テスト・保存中…",
-        "cancel": "キャンセル"
-      },
       "users": {
         "header": {
           "title": "チーム管理",

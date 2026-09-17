@@ -7974,37 +7974,6 @@
         "successToast": "公司资料已更新。",
         "errorToast": "更新公司资料失败。"
       },
-      "smtp": {
-        "heading": "邮件发送",
-        "description": "配置您自己的邮箱，使供应商邮件（采购订单、送货单）从贵公司自己的地址发出，而非使用 FirmiCore 共享邮箱。系统会根据贵公司注册邮箱自动为常见服务商（Gmail、Outlook、Yahoo、iCloud、Zoho）预填主机/端口，您只需填写密码即可。",
-        "loading": "加载中……",
-        "configured": "已配置 — 通过 {{host}} 以 <strong>{{user}}</strong> 身份发送",
-        "notConfigured": "尚未配置 — 供应商邮件将通过共享平台邮箱发送。",
-        "edit": "编辑",
-        "configure": "配置",
-        "remove": "移除",
-        "removing": "正在移除……",
-        "confirmRemove": "确定要移除此邮箱吗？供应商邮件将改回从共享平台邮箱发送。",
-        "removedToast": "已移除。供应商邮件将再次使用共享平台邮箱。",
-        "removeFailedToast": "移除 SMTP 设置失败。",
-        "savedToast": "邮件发送已配置 — 供应商邮件现将从此邮箱发送。",
-        "saveFailedToast": "保存 SMTP 设置失败。",
-        "validationError": "主机、端口、用户名和密码均为必填项。",
-        "fields": {
-          "host": "SMTP 主机",
-          "hostPlaceholder": "smtp.yourcompany.com",
-          "port": "端口",
-          "useSsl": "使用 SSL/TLS（通常为 465 端口）",
-          "username": "邮箱 / 用户名",
-          "usernamePlaceholder": "billing@yourcompany.com",
-          "password": "密码 / 应用专用密码",
-          "passwordPlaceholderChange": "重新输入以修改",
-          "gmailHint": "Gmail 在此处会拒绝您的常规密码 — 请改为生成<link>应用专用密码</link>（需先开启两步验证）。"
-        },
-        "save": "保存并验证",
-        "saving": "正在测试并保存……",
-        "cancel": "取消"
-      },
       "users": {
         "header": {
           "title": "团队管理",

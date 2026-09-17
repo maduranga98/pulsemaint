@@ -8161,37 +8161,6 @@
         "successToast": "Company profile updated.",
         "errorToast": "Failed to update company profile."
       },
-      "smtp": {
-        "heading": "Email Sending",
-        "description": "Configure your own mailbox so supplier emails (purchase orders, delivery receipts) send from your company's own address instead of the shared FirmiCore mailbox. Host/port are pre-filled automatically for common providers (Gmail, Outlook, Yahoo, iCloud, Zoho) based on your registered company email — you'll just need to add the password.",
-        "loading": "Loading…",
-        "configured": "Configured — sending as <strong>{{user}}</strong> via {{host}}",
-        "notConfigured": "Not configured — supplier emails send from the shared platform mailbox.",
-        "edit": "Edit",
-        "configure": "Configure",
-        "remove": "Remove",
-        "removing": "Removing…",
-        "confirmRemove": "Remove this mailbox? Supplier emails will go back to sending from the shared platform mailbox.",
-        "removedToast": "Removed. Supplier emails will use the shared platform mailbox again.",
-        "removeFailedToast": "Failed to remove SMTP settings.",
-        "savedToast": "Email sending configured — supplier emails will now send from this mailbox.",
-        "saveFailedToast": "Failed to save SMTP settings.",
-        "validationError": "Host, port, username, and password are all required.",
-        "fields": {
-          "host": "SMTP Host",
-          "hostPlaceholder": "smtp.yourcompany.com",
-          "port": "Port",
-          "useSsl": "Use SSL/TLS (usually port 465)",
-          "username": "Email / Username",
-          "usernamePlaceholder": "billing@yourcompany.com",
-          "password": "Password / App Password",
-          "passwordPlaceholderChange": "Re-enter to change",
-          "gmailHint": "Gmail blocks your regular password here — generate an <link>App Password</link> instead (requires 2-Step Verification to be turned on)."
-        },
-        "save": "Save & Verify",
-        "saving": "Testing & Saving…",
-        "cancel": "Cancel"
-      },
       "users": {
         "header": {
           "title": "Team Management",

@@ -1,9 +1,6 @@
 const nodemailer = require("nodemailer");
 const logger = require("firebase-functions/logger");
-const {getFirestore} = require("firebase-admin/firestore");
 const {defineSecret} = require("firebase-functions/params");
-
-const db = getFirestore("default");
 
 const PLATFORM_SMTP_HOST = "mail.spacemail.com";
 const PLATFORM_SMTP_PORT = 465;
@@ -11,14 +8,14 @@ const PLATFORM_FROM_ADDRESS = "support@firmicore.com";
 
 // Password for the shared platform mailbox — set via `firebase functions:secrets:set
 // PLATFORM_SMTP_PASSWORD`. Any exported function that (directly or via
-// sendEmail) can hit the platform-mailbox fallback must list this in its
-// `secrets` option or `.value()` will throw at runtime.
+// sendEmail) sends email must list this in its `secrets` option or
+// `.value()` will throw at runtime.
 const platformSmtpPassword = defineSecret("PLATFORM_SMTP_PASSWORD");
 
-// Shared SMTP transport (same account used by sendInvitationEmail) — the
-// platform default used for any company that hasn't configured their own
-// mailbox via Settings → Email Sending. Built lazily so it reads the secret
-// only once a function invocation actually has it bound.
+// Shared SMTP transport — every email FirmiCore sends (supplier PO/delivery
+// emails, invitations, reports, shift notices) goes through this one
+// mailbox. Built lazily so it reads the secret only once a function
+// invocation actually has it bound.
 let platformTransporter = null;
 function getPlatformTransporter() {
   if (!platformTransporter) {
@@ -33,42 +30,6 @@ function getPlatformTransporter() {
     });
   }
   return platformTransporter;
-}
-
-const transporterCache = new Map();
-
-/**
- * Looks up a company's own SMTP settings (set via setCompanySmtpSettings)
- * and returns a ready-to-use transporter + from-address for it, or null if
- * the company hasn't configured one — callers should fall back to the
- * shared platform transporter/from-address in that case.
- * @param {string} companyId
- * @return {Promise<{transporter: import('nodemailer').Transporter, fromAddress: string} | null>}
- */
-async function getCompanyTransport(companyId) {
-  if (!companyId) return null;
-  try {
-    const snap = await db.doc(`companies/${companyId}/private/smtp`).get();
-    if (!snap.exists) return null;
-    const cfg = snap.data();
-    if (!cfg.host || !cfg.port || !cfg.user || !cfg.pass) return null;
-
-    const cacheKey = `${companyId}:${cfg.host}:${cfg.port}:${cfg.user}`;
-    let t = transporterCache.get(cacheKey);
-    if (!t) {
-      t = nodemailer.createTransport({
-        host: cfg.host,
-        port: cfg.port,
-        secure: !!cfg.secure,
-        auth: {user: cfg.user, pass: cfg.pass},
-      });
-      transporterCache.set(cacheKey, t);
-    }
-    return {transporter: t, fromAddress: cfg.user};
-  } catch (err) {
-    logger.warn(`Could not load SMTP settings for company ${companyId}, falling back to platform mailbox`, err);
-    return null;
-  }
 }
 
 /**
@@ -121,28 +82,20 @@ function brandedEmail(bodyHtml, companyName) {
 }
 
 /**
- * Send one email; failures are logged, not thrown, so one bad address
- * never blocks the rest of a batch.
+ * Send one email through the platform mailbox; failures are logged, not
+ * thrown, so one bad address never blocks the rest of a batch.
  * @param {{to: string, subject: string, html: string, text?: string,
- *   fromName?: string, replyTo?: string, companyId?: string,
+ *   fromName?: string, replyTo?: string,
  *   attachments?: Array<{filename: string, content: Buffer|string, contentType?: string}>}} options
- *   `companyId`, when given, sends through that company's own configured
- *   SMTP mailbox (Settings → Email Sending) instead of the shared platform
- *   one — falling back to the platform mailbox if none is configured.
  * @return {Promise<boolean>} true when sent
  */
-async function sendEmail({to, subject, html, text, attachments, fromName, replyTo, companyId}) {
-  const custom = await getCompanyTransport(companyId);
-  const activeTransporter = custom ? custom.transporter : getPlatformTransporter();
-  const fromAddress = custom ? custom.fromAddress : PLATFORM_FROM_ADDRESS;
+async function sendEmail({to, subject, html, text, attachments, fromName, replyTo}) {
   try {
-    await activeTransporter.sendMail({
-      from: `"${fromName || "FirmiCore"}" <${fromAddress}>`,
-      // Only needed on the shared mailbox, where a reply must be routed
-      // back to the company's own registered email rather than
-      // disappearing into hello@feedsolve.com. Sending through the
-      // company's own mailbox already makes replies land there naturally.
-      ...(!custom && replyTo ? {replyTo} : {}),
+    await getPlatformTransporter().sendMail({
+      from: `"${fromName || "FirmiCore"}" <${PLATFORM_FROM_ADDRESS}>`,
+      // A reply should route back to the company's own registered email
+      // rather than disappearing into the platform mailbox.
+      ...(replyTo ? {replyTo} : {}),
       to,
       subject,
       html,
@@ -156,4 +109,4 @@ async function sendEmail({to, subject, html, text, attachments, fromName, replyT
   }
 }
 
-module.exports = {brandedEmail, sendEmail, getCompanyTransport, platformSmtpPassword};
+module.exports = {brandedEmail, sendEmail, platformSmtpPassword};
