@@ -6,11 +6,11 @@ const PLATFORM_SMTP_HOST = "mail.spacemail.com";
 const PLATFORM_SMTP_PORT = 465;
 const PLATFORM_FROM_ADDRESS = "support@firmicore.com";
 
-// Password for the shared platform mailbox — set via `firebase functions:secrets:set
-// PLATFORM_SMTP_PASSWORD`. Any exported function that (directly or via
-// sendEmail) sends email must list this in its `secrets` option or
-// `.value()` will throw at runtime.
-const platformSmtpPassword = defineSecret("PLATFORM_SMTP_PASSWORD");
+// Password for the shared platform mailbox — set via Secret Manager (name:
+// SMTP_PASSWORD). Any exported function that (directly or via sendEmail)
+// sends email must list this in its `secrets` option or `.value()` will
+// throw at runtime.
+const platformSmtpPassword = defineSecret("SMTP_PASSWORD");
 
 // Shared SMTP transport — every email FirmiCore sends (supplier PO/delivery
 // emails, invitations, reports, shift notices) goes through this one
