@@ -25,7 +25,7 @@
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { brandedEmail, sendEmail } = require("../lib/mailer");
+const { brandedEmail, sendEmail, platformSmtpPassword } = require("../lib/mailer");
 const { getPoEmailStrings, t: interpolate, DEFAULT_LANGUAGE } = require("./poEmailTranslations");
 
 const db = getFirestore("default");
@@ -288,7 +288,7 @@ function formatMoney(amount, currency) {
 }
 
 exports.sendPoEmails = onDocumentCreated(
-    {database: "default", document: "po_notifications/{notificationId}"},
+    {database: "default", document: "po_notifications/{notificationId}", secrets: [platformSmtpPassword]},
     async (event) => {
       const notification = event.data.data();
       const {companyId, poId, poNumber, supplierName, supplierEmail, event: poEvent, message, receivedItems, issueItems, notes: deliveryNotes} = notification;
