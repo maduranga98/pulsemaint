@@ -1,12 +1,12 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { getFirestore } = require("firebase-admin/firestore");
 const logger = require("firebase-functions/logger");
-const { sendEmail, brandedEmail } = require("../lib/mailer");
+const { sendEmail, brandedEmail, platformSmtpPassword } = require("../lib/mailer");
 
 const db = getFirestore("default");
 
 exports.sendInvitationEmail = onCall(
-  { maxInstances: 5 },
+  { maxInstances: 5, secrets: [platformSmtpPassword] },
   async (request) => {
     if (!request.auth) {
       throw new HttpsError("unauthenticated", "Must be signed in.");

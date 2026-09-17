@@ -1,21 +1,39 @@
 const nodemailer = require("nodemailer");
 const logger = require("firebase-functions/logger");
 const {getFirestore} = require("firebase-admin/firestore");
+const {defineSecret} = require("firebase-functions/params");
 
 const db = getFirestore("default");
 
+const PLATFORM_SMTP_HOST = "mail.spacemail.com";
+const PLATFORM_SMTP_PORT = 465;
+const PLATFORM_FROM_ADDRESS = "support@firmicore.com";
+
+// Password for the shared platform mailbox — set via `firebase functions:secrets:set
+// PLATFORM_SMTP_PASSWORD`. Any exported function that (directly or via
+// sendEmail) can hit the platform-mailbox fallback must list this in its
+// `secrets` option or `.value()` will throw at runtime.
+const platformSmtpPassword = defineSecret("PLATFORM_SMTP_PASSWORD");
+
 // Shared SMTP transport (same account used by sendInvitationEmail) — the
 // platform default used for any company that hasn't configured their own
-// mailbox via Settings → Email Sending.
-const transporter = nodemailer.createTransport({
-  host: "mail.spacemail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: "hello@feedsolve.com",
-    pass: "2_qY5u9z",
-  },
-});
+// mailbox via Settings → Email Sending. Built lazily so it reads the secret
+// only once a function invocation actually has it bound.
+let platformTransporter = null;
+function getPlatformTransporter() {
+  if (!platformTransporter) {
+    platformTransporter = nodemailer.createTransport({
+      host: PLATFORM_SMTP_HOST,
+      port: PLATFORM_SMTP_PORT,
+      secure: true,
+      auth: {
+        user: PLATFORM_FROM_ADDRESS,
+        pass: platformSmtpPassword.value(),
+      },
+    });
+  }
+  return platformTransporter;
+}
 
 const transporterCache = new Map();
 
@@ -115,8 +133,8 @@ function brandedEmail(bodyHtml, companyName) {
  */
 async function sendEmail({to, subject, html, text, attachments, fromName, replyTo, companyId}) {
   const custom = await getCompanyTransport(companyId);
-  const activeTransporter = custom ? custom.transporter : transporter;
-  const fromAddress = custom ? custom.fromAddress : "hello@feedsolve.com";
+  const activeTransporter = custom ? custom.transporter : getPlatformTransporter();
+  const fromAddress = custom ? custom.fromAddress : PLATFORM_FROM_ADDRESS;
   try {
     await activeTransporter.sendMail({
       from: `"${fromName || "FirmiCore"}" <${fromAddress}>`,
@@ -138,4 +156,4 @@ async function sendEmail({to, subject, html, text, attachments, fromName, replyT
   }
 }
 
-module.exports = {transporter, brandedEmail, sendEmail, getCompanyTransport};
+module.exports = {brandedEmail, sendEmail, getCompanyTransport, platformSmtpPassword};

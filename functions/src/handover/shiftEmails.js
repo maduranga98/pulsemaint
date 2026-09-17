@@ -1,7 +1,7 @@
 const {onDocumentWritten, onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {onSchedule} = require("firebase-functions/v2/scheduler");
 const {db, FieldValue, logger, addNotification} = require("./shared");
-const {brandedEmail, sendEmail} = require("../lib/mailer");
+const {brandedEmail, sendEmail, platformSmtpPassword} = require("../lib/mailer");
 
 // ---------------------------------------------------------------------------
 // Recipient resolution — a user belongs to a shift plan when they are in the
@@ -55,7 +55,7 @@ function planChanged(before, after) {
 }
 
 exports.onShiftPlanUpdated = onDocumentWritten(
-    {database: "default", document: "shift_config/{configId}"},
+    {database: "default", document: "shift_config/{configId}", secrets: [platformSmtpPassword]},
     async (event) => {
       const before = event.data.before.exists ? event.data.before.data() : null;
       const after = event.data.after.exists ? event.data.after.data() : null;
@@ -117,7 +117,7 @@ ${after ? describeShift(after) : describeShift(before)}
 // ---------------------------------------------------------------------------
 
 exports.onHandoverSubmitted = onDocumentCreated(
-    {database: "default", document: "shift_handovers/{handoverId}"},
+    {database: "default", document: "shift_handovers/{handoverId}", secrets: [platformSmtpPassword]},
     async (event) => {
       const handover = event.data.data();
       if (!handover || !handover.companyId || handover.status !== "pending_acceptance") return;
@@ -210,7 +210,7 @@ function minutesUntilNextStart(shift, timeZone, now = new Date()) {
   return null;
 }
 
-exports.sendShiftStartReminders = onSchedule("every 30 minutes", async () => {
+exports.sendShiftStartReminders = onSchedule({schedule: "every 30 minutes", secrets: [platformSmtpPassword]}, async () => {
   const configsSnap = await db.collection("shift_config").where("status", "==", "active").get();
   if (configsSnap.empty) return;
 

@@ -3,7 +3,7 @@ const {getFirestore, FieldValue, Timestamp} = require("firebase-admin/firestore"
 const {getStorage} = require("firebase-admin/storage");
 const {randomUUID} = require("crypto");
 const logger = require("firebase-functions/logger");
-const {sendEmail, brandedEmail} = require("../lib/mailer");
+const {sendEmail, brandedEmail, platformSmtpPassword} = require("../lib/mailer");
 
 const db = getFirestore("default");
 
@@ -117,7 +117,7 @@ function toCsv(rows) {
   return lines.join("\n");
 }
 
-exports.generateScheduledReport = onSchedule("every 1 hours", async () => {
+exports.generateScheduledReport = onSchedule({schedule: "every 1 hours", secrets: [platformSmtpPassword]}, async () => {
   const now = new Date();
   const dueSnap = await db.collection("report_schedules")
       .where("active", "==", true)
