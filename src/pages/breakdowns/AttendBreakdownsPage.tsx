@@ -172,8 +172,9 @@ export default function AttendBreakdownsPage() {
           : t('common.breakdowns.attendPage.toasts.saved'),
       );
       // Stays in the Assigned bucket (status is untouched here) — a Work
-      // Order is what actually advances it into Open.
-      navigate('/app/breakdowns', { replace: true });
+      // Order is what actually advances it into Open. Return to the
+      // technician/trainee's dashboard rather than the Breakdowns list.
+      navigate('/app/dashboard', { replace: true });
     } catch (err: any) {
       const msg = err?.message || t('common.breakdowns.attendPage.errors.saveFailed');
       setError(msg);
