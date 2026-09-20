@@ -15,7 +15,7 @@ interface TranslatedTextProps {
  * originally typed or voice-dictated in. Re-translates automatically if
  * the viewer changes their language while looking at the page. Shows the
  * original text immediately and swaps in the translation once it resolves,
- * so there's no loading flicker for the common case where no Gemini key is
+ * so there's no loading flicker for the common case where no Claude key is
  * configured (translateForDisplay just returns the original text).
  */
 export function TranslatedText({ text, className, as = 'span' }: TranslatedTextProps) {

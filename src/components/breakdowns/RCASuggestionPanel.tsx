@@ -18,7 +18,7 @@ interface RCASuggestionPanelProps {
 
 /**
  * "Get AI Suggestions" panel for the breakdown assessment form. Calls
- * suggestBreakdownRootCause (Gemini when configured, keyword heuristic
+ * suggestBreakdownRootCause (Claude when configured, keyword heuristic
  * otherwise) and renders the probable causes / recommended actions it
  * returns. Purely advisory — nothing here writes back to the ticket.
  */
@@ -33,7 +33,7 @@ export function RCASuggestionPanel({
   excludeTicketIds = [],
   disabled,
 }: RCASuggestionPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<BreakdownRCASuggestion | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +45,7 @@ export function RCASuggestionPanel({
       const suggestion = await suggestBreakdownRootCause(
         { machineId, machineName, breakdownType, severity, description, attemptedFixes, technicianFindings },
         excludeTicketIds,
+        i18n.language,
       );
       setResult(suggestion);
     } catch {

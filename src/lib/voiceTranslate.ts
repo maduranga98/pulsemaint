@@ -1,4 +1,4 @@
-import { generateGeminiJson, hasGeminiKey } from './gemini';
+import { generateClaudeJson, hasClaudeKey } from './claude';
 import type { AppLanguage } from './i18n';
 
 const APP_LANGUAGE_NAMES: Record<AppLanguage, string> = {
@@ -44,10 +44,10 @@ const GOOGLE_TRANSLATE_TARGET: Record<AppLanguage, string> = {
  * Translates via Google's public (no API key) translate_a endpoint — the
  * same one Google Translate's own web page and many browser extensions use.
  * This is the default translation path: most deployments of this app don't
- * configure VITE_GEMINI_API_KEY (it's optional, for the Audit module's AI
- * root-cause suggestions), and without a fallback here, voice-dictated
- * Sinhala/Tamil/etc. text would silently never get translated for anyone.
- * Lower quality than Gemini (word/phrase-level rather than meaning-aware),
+ * configure VITE_ANTHROPIC_API_KEY (it's optional, for AI root-cause
+ * suggestions and meaning-aware translation), and without a fallback here,
+ * voice-dictated Sinhala/Tamil/etc. text would silently never get translated
+ * for anyone. Lower quality than Claude (word/phrase-level rather than meaning-aware),
  * but works out of the box with no configuration. Returns null on any
  * failure (network, parsing, blocked by a firewall/ad-blocker) so the
  * caller can fall back to the original text.
@@ -74,7 +74,7 @@ async function translateViaFreeGoogle(text: string, targetLanguage: AppLanguage)
  * `sourceLang` locale (e.g. "si-LK", "ta-LK") — into `targetLanguage`, the
  * app's currently selected UI language, preserving meaning rather than
  * translating word-for-word. Falls back to the original text whenever no
- * Gemini key is configured or the call fails, so dictation still works
+ * Claude key is configured or the call fails, so dictation still works
  * without translation rather than blocking the user.
  */
 export async function translateSpokenText(
@@ -82,13 +82,13 @@ export async function translateSpokenText(
   targetLanguage: AppLanguage,
   sourceLang?: string
 ): Promise<string> {
-  if (!hasGeminiKey()) return text;
+  if (!hasClaudeKey()) return text;
 
   const targetLanguageName = APP_LANGUAGE_NAMES[targetLanguage] ?? 'English';
   const sourceLanguageName = sourceLang ? SPEECH_LANGUAGE_NAMES[sourceLang] : undefined;
 
   try {
-    const result = await generateGeminiJson<TranslationResult>(text, {
+    const result = await generateClaudeJson<TranslationResult>(text, {
       systemInstruction:
         `You translate voice-dictated maintenance breakdown reports for a CMMS app used on a factory floor. ` +
         (sourceLanguageName
@@ -118,7 +118,7 @@ export async function translateSpokenText(
 // In-memory + sessionStorage cache for display-time translation, keyed by
 // the exact text and target language — the same breakdown description gets
 // rendered on every viewer's screen (detail card, list row, ...) and on
-// every re-render, so without caching it would re-call Gemini each time.
+// every re-render, so without caching it would re-call Claude each time.
 const displayCache = new Map<string, string>();
 
 function displayCacheKey(text: string, targetLanguage: AppLanguage): string {
@@ -158,8 +158,8 @@ function writeDisplayCache(key: string, value: string): void {
  * Results are cached per (text, targetLanguage) pair so re-rendering the
  * same record doesn't re-call the translation API.
  *
- * Uses Gemini (meaning-aware, given technical/CMMS context) when
- * VITE_GEMINI_API_KEY is configured; otherwise falls back to Google's free
+ * Uses Claude (meaning-aware, given technical/CMMS context) when
+ * VITE_ANTHROPIC_API_KEY is configured; otherwise falls back to Google's free
  * translate endpoint so this works with zero configuration. Falls back to
  * the original text only if both are unavailable/fail.
  */
@@ -171,7 +171,7 @@ export async function translateForDisplay(text: string, targetLanguage: AppLangu
   const cached = readDisplayCache(key);
   if (cached !== undefined) return cached;
 
-  const translated = hasGeminiKey()
+  const translated = hasClaudeKey()
     ? await translateSpokenText(trimmed, targetLanguage)
     : (await translateViaFreeGoogle(trimmed, targetLanguage)) ?? trimmed;
   writeDisplayCache(key, translated);
