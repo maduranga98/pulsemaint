@@ -2675,6 +2675,10 @@
           "inApprovalOfSupervisor": "In Approval of Supervisor",
           "needToCollect": "Need to Collect"
         },
+        "cancel": "Cancel",
+        "cancelling": "Cancelling…",
+        "cancelled": "Request cancelled.",
+        "cancelFailed": "Failed to cancel request.",
         "title": "Requested Parts"
       },
       "safetyForYouWidget": {
