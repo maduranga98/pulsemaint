@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { addDoc, collection, doc, getDoc, getDocs, query, serverTimestamp, where } from 'firebase/firestore';
-import { AlertCircle, ChevronLeft, QrCode } from 'lucide-react';
+import { AlertCircle, ChevronLeft, QrCode, Sparkles, Loader2, Lightbulb, ListChecks } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
@@ -10,6 +10,7 @@ import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib
 import { notifyRoles } from '../../services/notifications.service';
 import { formatMachineLocation } from '../../lib/machineLocation';
 import { VoiceDictationButton } from '../../components/ui';
+import { suggestBreakdownRootCause, type BreakdownRCASuggestion } from '../../lib/breakdownRCA';
 
 interface MachineOption {
   id: string;
@@ -17,10 +18,12 @@ interface MachineOption {
   department?: string;
   location?: string;
   criticality?: 1 | 2 | 3 | 4 | 5;
+  model?: string;
+  manufacturer?: string;
 }
 
 export default function ReportBreakdownPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
   const siteId = userProfile?.siteIds?.[0] || userProfile?.companyId;
@@ -63,6 +66,12 @@ export default function ReportBreakdownPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Shown after a successful submit, before navigating away — an AI
+  // suggestion the operator can sanity-check themselves against the
+  // machine's past completed breakdowns/root-cause analysis, or skip.
+  const [submittedTicket, setSubmittedTicket] = useState<{ machineName: string } | null>(null);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [suggestion, setSuggestion] = useState<BreakdownRCASuggestion | null>(null);
   // ProtectedRoute lets an authenticated user through as soon as Firebase
   // Auth itself is initialized, before their /users profile doc (which
   // siteId comes from) has necessarily finished loading — normally that's
@@ -93,6 +102,8 @@ export default function ReportBreakdownPage() {
             department: data.department,
             location: formatMachineLocation(data.floor, data.bay, data.station),
             criticality: data.criticality,
+            model: data.model,
+            manufacturer: data.manufacturer,
           };
         });
         // A scanned QR may reference a machine outside the user's default
@@ -108,6 +119,8 @@ export default function ReportBreakdownPage() {
                 department: data.department,
                 location: formatMachineLocation(data.floor, data.bay, data.station),
                 criticality: data.criticality,
+                model: data.model,
+                manufacturer: data.manufacturer,
               });
             }
           } catch {
@@ -209,7 +222,27 @@ export default function ReportBreakdownPage() {
         actorUserId: userProfile.id,
         linkTo: '/app/breakdowns',
       });
-      navigate('/app/breakdowns', { replace: true });
+
+      // Show an AI suggestion (drawn from the machine's model/manufacturer
+      // and its past breakdown/root-cause history) before leaving the page,
+      // so the operator has something to check their report against —
+      // rather than jumping straight to the (often empty) breakdowns list.
+      setSubmittedTicket({ machineName: machine.name });
+      setSuggestionLoading(true);
+      suggestBreakdownRootCause(
+        {
+          machineId: machine.id,
+          machineName: machine.name,
+          machineModel: machine.model,
+          machineManufacturer: machine.manufacturer,
+          description: description.trim(),
+        },
+        [],
+        i18n.language,
+      )
+        .then(setSuggestion)
+        .catch(() => setSuggestion(null))
+        .finally(() => setSuggestionLoading(false));
     } catch (err: any) {
       console.error('Report breakdown failed:', err);
       setError(err?.message || t('common.breakdowns.reportPage.errors.submitFailed'));
@@ -217,6 +250,76 @@ export default function ReportBreakdownPage() {
       setSubmitting(false);
     }
   };
+
+  if (submittedTicket) {
+    return (
+      <div className="min-h-full flex items-center justify-center px-6 py-10">
+        <div className="max-w-xl w-full bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+          <div className="text-center space-y-1">
+            <h1 className="text-xl font-bold text-slate-900">{t('common.breakdowns.reportPage.submittedTitle')}</h1>
+            <p className="text-sm text-slate-500">
+              {t('common.breakdowns.reportPage.submittedSubtitle', { machineName: submittedTicket.machineName })}
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4 space-y-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-indigo-900">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              {t('common.breakdowns.reportPage.aiSuggestionTitle')}
+            </div>
+
+            {suggestionLoading && (
+              <div className="flex items-center gap-2 text-sm text-indigo-700">
+                <Loader2 className="w-4 h-4 animate-spin" /> {t('common.breakdowns.attendPage.rca.loading')}
+              </div>
+            )}
+
+            {!suggestionLoading && suggestion && (
+              <>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="bg-white rounded-lg border border-indigo-100 p-3">
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-indigo-700 mb-2">
+                      <Lightbulb className="w-3.5 h-3.5" /> {t('common.breakdowns.attendPage.rca.causesLabel')}
+                    </p>
+                    <ul className="space-y-1.5 text-sm text-slate-700 list-disc list-inside">
+                      {suggestion.probableCauses.map((c, i) => (
+                        <li key={i}>{c}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="bg-white rounded-lg border border-indigo-100 p-3">
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-indigo-700 mb-2">
+                      <ListChecks className="w-3.5 h-3.5" /> {t('common.breakdowns.attendPage.rca.actionsLabel')}
+                    </p>
+                    <ul className="space-y-1.5 text-sm text-slate-700 list-disc list-inside">
+                      {suggestion.recommendedActions.map((a, i) => (
+                        <li key={i}>{a}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  {suggestion.source === 'ai'
+                    ? t('common.breakdowns.attendPage.rca.sourceAi')
+                    : t('common.breakdowns.attendPage.rca.sourceHeuristic')}
+                  {' '}
+                  {t('common.breakdowns.reportPage.aiSuggestionDisclaimer')}
+                </p>
+              </>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => navigate('/app/breakdowns', { replace: true })}
+            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg"
+          >
+            {t('common.breakdowns.reportPage.continueButton')}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full">

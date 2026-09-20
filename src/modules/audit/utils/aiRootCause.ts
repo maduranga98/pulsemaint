@@ -5,13 +5,13 @@ import type {
   FindingKind,
 } from '../types/audit.types';
 import { nanoid } from 'nanoid';
-import { generateGeminiJson, hasGeminiKey } from '../../../lib/gemini';
+import { generateClaudeJson, hasClaudeKey } from '../../../lib/claude';
 
 /**
  * Heuristic "AI" root-cause analyzer.
  *
- * Used as the fallback when no Gemini API key is configured, or when the
- * Gemini call fails — a deterministic, keyword-driven root-cause engine that
+ * Used as the fallback when no Claude API key is configured, or when the
+ * Claude call fails — a deterministic, keyword-driven root-cause engine that
  * turns audit failure/loss data into probable causes and recommended
  * maintenance/safety actions. The output shape matches AIRootCauseSuggestion
  * so both paths are interchangeable to callers.
@@ -165,7 +165,7 @@ export function buildFailedAnswerInputs(session: Pick<AuditSession, 'answers'>) 
     .map((a) => ({ taskText: a.taskText, notes: a.notes }));
 }
 
-const GEMINI_RESPONSE_SCHEMA = {
+const CLAUDE_RESPONSE_SCHEMA = {
   type: 'object',
   properties: {
     suggestions: {
@@ -186,7 +186,7 @@ const GEMINI_RESPONSE_SCHEMA = {
   required: ['suggestions'],
 };
 
-interface GeminiRootCauseResult {
+interface ClaudeRootCauseResult {
   suggestions: Array<{
     findingId: string;
     probableCauses: string[];
@@ -215,7 +215,7 @@ function buildPrompt(inputs: { id: string; kind: FindingKind; description: strin
 }
 
 /**
- * Runs root-cause analysis via the Gemini API when VITE_GEMINI_API_KEY is
+ * Runs root-cause analysis via the Claude API when VITE_ANTHROPIC_API_KEY is
  * configured, falling back to the local heuristic engine (analyzeAudit) if
  * the key is missing or the call fails, so audit submission never blocks on
  * the AI provider being unavailable.
@@ -227,13 +227,13 @@ export async function analyzeAuditWithAI(
   const expanded = expandFindings(findings, failedAnswers);
   const heuristic = expanded.map(analyzeFinding);
 
-  if (!hasGeminiKey() || expanded.length === 0) {
+  if (!hasClaudeKey() || expanded.length === 0) {
     return heuristic;
   }
 
   try {
-    const result = await generateGeminiJson<GeminiRootCauseResult>(buildPrompt(expanded), {
-      responseSchema: GEMINI_RESPONSE_SCHEMA,
+    const result = await generateClaudeJson<ClaudeRootCauseResult>(buildPrompt(expanded), {
+      responseSchema: CLAUDE_RESPONSE_SCHEMA,
     });
 
     const byId = new Map(result.suggestions.map((s) => [s.findingId, s]));
@@ -249,7 +249,7 @@ export async function analyzeAuditWithAI(
       };
     });
   } catch (err) {
-    console.error('Gemini root-cause analysis failed, using heuristic fallback', err);
+    console.error('Claude root-cause analysis failed, using heuristic fallback', err);
     return heuristic;
   }
 }

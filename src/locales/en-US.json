@@ -3232,7 +3232,12 @@
           "descriptionTooShort": "Please describe the breakdown in at least 10 characters.",
           "machineNotFound": "Selected machine not found.",
           "submitFailed": "Failed to report breakdown."
-        }
+        },
+        "submittedTitle": "Breakdown Reported",
+        "submittedSubtitle": "Your report for {{machineName}} was sent to the maintenance team.",
+        "aiSuggestionTitle": "AI Suggestion",
+        "aiSuggestionDisclaimer": "Cross-check this against the machine's past completed work orders and root-cause analysis yourself before acting on it.",
+        "continueButton": "Continue"
       },
       "attendPage": {
         "back": "Back",
