@@ -126,6 +126,16 @@ export interface PartsRequest {
 
 export type WOApprovalRequestStatus = 'pending' | 'approved' | 'rejected';
 
+// An optional file attached to a technician's approval request (e.g. a photo
+// of the issue they need signed off on).
+export interface WOApprovalRequestAttachment {
+  id: string;
+  name: string;
+  url: string;
+  storagePath: string;
+  fileSize: number;
+}
+
 // A technician's "Hold · Approval" request — raised when they pause work
 // pending a supervisor decision (e.g. a call to make outside their own
 // authority). Kept as a running log on the WO (not just the latest one) so
@@ -135,6 +145,7 @@ export interface WOApprovalRequest {
   technicianId: string;
   technicianName: string;
   note: string;
+  attachments?: WOApprovalRequestAttachment[];
   requestedAt: Timestamp;
   status: WOApprovalRequestStatus;
   resolvedBy: string | null;

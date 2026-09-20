@@ -1,10 +1,35 @@
 import { useCallback, useState } from 'react';
 import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
-import { db } from '../lib/firebase';
+import { db, storage } from '../lib/firebase';
 import { notifyUsers } from '../services/notifications.service';
 import { aggregateWoStatus } from '../lib/workorders/assigneeState';
-import type { AssigneeWorkState, WOApprovalRequest, WOApprovalRequestStatus, WorkOrder } from '../types/workOrder';
+import type {
+  AssigneeWorkState,
+  WOApprovalRequest,
+  WOApprovalRequestAttachment,
+  WOApprovalRequestStatus,
+  WorkOrder,
+} from '../types/workOrder';
+
+function uploadApprovalAttachment(woId: string, siteId: string, file: File): Promise<WOApprovalRequestAttachment> {
+  const storagePath = `workorders/${siteId}/${woId}/approval-requests/${Date.now()}_${file.name}`;
+  const storageRef = ref(storage, storagePath);
+  const task = uploadBytesResumable(storageRef, file);
+  return new Promise((resolve, reject) => {
+    task.on(
+      'state_changed',
+      undefined,
+      reject,
+      async () => {
+        const url = await getDownloadURL(task.snapshot.ref);
+        resolve({ id: nanoid(), name: file.name, url, storagePath, fileSize: file.size });
+      },
+    );
+  });
+}
 
 interface UseApprovalRequestResult {
   requestApproval: (
@@ -13,6 +38,7 @@ interface UseApprovalRequestResult {
     technicianId: string,
     technicianName: string,
     note: string,
+    files?: File[],
   ) => Promise<boolean>;
   resolveApprovalRequest: (
     woId: string,
@@ -38,19 +64,31 @@ export function useApprovalRequest(): UseApprovalRequestResult {
   const [loading, setLoading] = useState(false);
 
   const requestApproval = useCallback(
-    async (woId: string, companyId: string, technicianId: string, technicianName: string, note: string): Promise<boolean> => {
+    async (
+      woId: string,
+      companyId: string,
+      technicianId: string,
+      technicianName: string,
+      note: string,
+      files?: File[],
+    ): Promise<boolean> => {
       setLoading(true);
       try {
-        const ref = doc(db, 'workOrders', woId);
-        const snap = await getDoc(ref);
+        const woRef = doc(db, 'workOrders', woId);
+        const snap = await getDoc(woRef);
         const wo = snap.data() as WorkOrder | undefined;
         if (!wo) throw new Error('Work order not found');
+
+        const attachments = files?.length
+          ? await Promise.all(files.map((file) => uploadApprovalAttachment(woId, wo.siteId, file)))
+          : undefined;
 
         const request: WOApprovalRequest = {
           id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
           technicianId,
           technicianName,
           note: note.trim(),
+          ...(attachments?.length ? { attachments } : {}),
           requestedAt: Timestamp.now(),
           status: 'pending',
           resolvedBy: null,
@@ -59,7 +97,7 @@ export function useApprovalRequest(): UseApprovalRequestResult {
           resolutionNote: null,
         };
 
-        await updateDoc(ref, {
+        await updateDoc(woRef, {
           approvalRequests: arrayUnion(request),
           statusHistory: arrayUnion({
             status: 'ON_HOLD_APPROVAL',
@@ -105,8 +143,8 @@ export function useApprovalRequest(): UseApprovalRequestResult {
     ): Promise<boolean> => {
       setLoading(true);
       try {
-        const ref = doc(db, 'workOrders', woId);
-        const snap = await getDoc(ref);
+        const woRef = doc(db, 'workOrders', woId);
+        const snap = await getDoc(woRef);
         const wo = snap.data() as WorkOrder | undefined;
         if (!wo) throw new Error('Work order not found');
 
@@ -156,7 +194,7 @@ export function useApprovalRequest(): UseApprovalRequestResult {
           }
         }
 
-        await updateDoc(ref, {
+        await updateDoc(woRef, {
           approvalRequests: nextRequests,
           ...(nextStates !== existingStates ? { assigneeStates: nextStates } : {}),
           status: nextStatus,

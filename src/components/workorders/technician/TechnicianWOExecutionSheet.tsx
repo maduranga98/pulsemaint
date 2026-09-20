@@ -45,6 +45,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
   const [showPartsRequest, setShowPartsRequest] = useState(false);
   const [showApprovalRequest, setShowApprovalRequest] = useState(false);
   const [approvalNote, setApprovalNote] = useState('');
+  const [approvalFiles, setApprovalFiles] = useState<File[]>([]);
   const [safetyPreview, setSafetyPreview] = useState(false);
   const [now, setNow] = useState(Date.now());
   // Manual confirmation that the technician has completed the safety
@@ -161,11 +162,12 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
 
   async function handleSubmitApprovalRequest() {
     if (!approvalNote.trim()) return;
-    const ok = await requestApproval(wo.id, userProfile?.companyId ?? '', myId, myName, approvalNote.trim());
+    const ok = await requestApproval(wo.id, userProfile?.companyId ?? '', myId, myName, approvalNote.trim(), approvalFiles);
     if (ok) {
       await setMyState(wo.id, 'ON_HOLD_APPROVAL', { technicianName: myName, holdReason: approvalNote.trim() });
       setShowApprovalRequest(false);
       setApprovalNote('');
+      setApprovalFiles([]);
     }
   }
 
@@ -467,6 +469,20 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                             placeholder={t('common.workOrders.technicianSheet.requestApprovalPlaceholder')}
                             className="w-full rounded-lg border border-[#1E3A5F] bg-[#0A1628] px-3 py-2 text-sm text-[#F0F4F8] placeholder:text-[#5B7A99] focus:border-red-500 focus:outline-none"
                           />
+                          <label className="block text-xs text-[#8BA3BF]">
+                            {t('common.workOrders.technicianSheet.approvalAttachmentsLabel')}
+                            <input
+                              type="file"
+                              multiple
+                              onChange={(e) => setApprovalFiles(Array.from(e.target.files ?? []))}
+                              className="mt-1 block w-full text-xs text-[#8BA3BF] file:mr-2 file:rounded-md file:border-0 file:bg-[#1E3A5F] file:px-2 file:py-1 file:text-xs file:text-[#F0F4F8]"
+                            />
+                          </label>
+                          {approvalFiles.length > 0 && (
+                            <p className="text-xs text-[#5B7A99]">
+                              {approvalFiles.map((f) => f.name).join(', ')}
+                            </p>
+                          )}
                           <div className="flex gap-2">
                             <button
                               onClick={handleSubmitApprovalRequest}
@@ -476,7 +492,7 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                               {t('common.workOrders.technicianSheet.submitRequestButton')}
                             </button>
                             <button
-                              onClick={() => { setShowApprovalRequest(false); setApprovalNote(''); }}
+                              onClick={() => { setShowApprovalRequest(false); setApprovalNote(''); setApprovalFiles([]); }}
                               className="rounded-lg border border-[#1E3A5F] px-3 py-2 text-sm font-medium text-[#8BA3BF] hover:text-[#F0F4F8]"
                             >
                               {t('common.workOrders.technicianSheet.cancelButton')}

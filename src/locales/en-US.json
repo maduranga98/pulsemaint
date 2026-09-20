@@ -3921,7 +3921,12 @@
         "requestedByLabel": "{{name}} requested",
         "notePlaceholder": "Note (optional)",
         "approveButton": "Approve",
-        "rejectButton": "Reject"
+        "rejectButton": "Reject",
+        "attachmentsLabel": "Attachments",
+        "woNumberLabel": "Work Order",
+        "machineLabel": "Machine",
+        "priorityLabel": "Priority",
+        "statusLabel": "Status"
       },
       "myWorkOrders": {
         "pageTitle": "My Work Orders",
@@ -3971,6 +3976,7 @@
         "requestApprovalTitle": "Request Approval",
         "requestApprovalHint": "Describe what you need your supervisor to approve. Your work will be put on hold until they respond.",
         "requestApprovalPlaceholder": "What do you need approved?",
+        "approvalAttachmentsLabel": "Attachments (optional)",
         "submitRequestButton": "Submit Request",
         "cancelButton": "Cancel",
         "approvalRequestedPendingTitle": "Approval Requested — Pending",
