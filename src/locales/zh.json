@@ -7945,6 +7945,10 @@
           "users": {
             "title": "用户",
             "description": "管理团队成员、角色和邀请。"
+          },
+          "plants": {
+            "title": "工厂",
+            "description": "管理用于划定用户、机器、承包商和库存范围的工厂。"
           }
         }
       },
@@ -8220,6 +8224,23 @@
           "subjectLabel": "主题：{{subject}}",
           "remarksHeading": "备注"
         }
+      },
+      "plants": {
+        "title": "工厂",
+        "subtitle": "管理用户、机器、承包商和库存所归属的工厂。",
+        "addPlant": "添加工厂",
+        "editPlant": "编辑工厂",
+        "empty": "暂无工厂。添加您的第一个工厂，开始按工厂划分用户、机器、承包商和库存范围。",
+        "name": "工厂名称",
+        "namePlaceholder": "例如：科伦坡工厂",
+        "code": "编号（可选）",
+        "address": "地址（可选）",
+        "addressPlaceholder": "例如：123 Main Street, Colombo",
+        "contactPerson": "联系人（可选）",
+        "contactName": "姓名",
+        "contactPhone": "电话",
+        "contactDesignation": "职位",
+        "contactEmail": "电子邮件"
       }
     }
   },

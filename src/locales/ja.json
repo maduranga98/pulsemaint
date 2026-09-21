@@ -7945,6 +7945,10 @@
           "users": {
             "title": "ユーザー",
             "description": "チームメンバー、役割、招待を管理します。"
+          },
+          "plants": {
+            "title": "プラント",
+            "description": "ユーザー、機械、請負業者、在庫の範囲を設定するためのプラントを管理します。"
           }
         }
       },
@@ -8220,6 +8224,23 @@
           "subjectLabel": "件名：{{subject}}",
           "remarksHeading": "備考"
         }
+      },
+      "plants": {
+        "title": "プラント",
+        "subtitle": "ユーザー、機械、請負業者、在庫が登録されるプラントを管理します。",
+        "addPlant": "プラントを追加",
+        "editPlant": "プラントを編集",
+        "empty": "まだプラントがありません。最初のプラントを追加して、プラントごとにユーザー、機械、請負業者、在庫の範囲を設定しましょう。",
+        "name": "プラント名",
+        "namePlaceholder": "例：コロンボプラント",
+        "code": "コード（任意）",
+        "address": "住所（任意）",
+        "addressPlaceholder": "例：123 Main Street, Colombo",
+        "contactPerson": "担当者（任意）",
+        "contactName": "氏名",
+        "contactPhone": "電話番号",
+        "contactDesignation": "役職",
+        "contactEmail": "メール"
       }
     }
   },

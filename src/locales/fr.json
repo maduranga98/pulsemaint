@@ -7949,6 +7949,10 @@
           "users": {
             "title": "Utilisateurs",
             "description": "Gérez les membres de l'équipe, les rôles et les invitations."
+          },
+          "plants": {
+            "title": "Usines",
+            "description": "Gérez les usines pour délimiter les utilisateurs, machines, sous-traitants et stocks."
           }
         }
       },
@@ -8224,6 +8228,23 @@
           "subjectLabel": "Objet : {{subject}}",
           "remarksHeading": "Remarques"
         }
+      },
+      "plants": {
+        "title": "Usines",
+        "subtitle": "Gérez les usines auxquelles sont rattachés les utilisateurs, machines, sous-traitants et stocks.",
+        "addPlant": "Ajouter une usine",
+        "editPlant": "Modifier l'usine",
+        "empty": "Aucune usine pour le moment. Ajoutez votre première usine pour commencer à répartir les utilisateurs, machines, sous-traitants et stocks par usine.",
+        "name": "Nom de l'usine",
+        "namePlaceholder": "ex. Usine de Colombo",
+        "code": "Code (facultatif)",
+        "address": "Adresse (facultative)",
+        "addressPlaceholder": "ex. 123 Main Street, Colombo",
+        "contactPerson": "Personne à contacter (facultatif)",
+        "contactName": "Nom",
+        "contactPhone": "Téléphone",
+        "contactDesignation": "Fonction",
+        "contactEmail": "E-mail"
       }
     }
   },
