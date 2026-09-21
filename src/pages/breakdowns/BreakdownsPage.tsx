@@ -398,7 +398,7 @@ export default function BreakdownsPage() {
   return (
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">{t('common.breakdowns.pageTitle')}</h1>
             <p className="text-sm text-slate-500">
@@ -409,7 +409,7 @@ export default function BreakdownsPage() {
               })}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={openQrScanner}
