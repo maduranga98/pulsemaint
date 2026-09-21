@@ -41,7 +41,17 @@ jobs:
           # Service Usage Admin (to enable cloudbilling.googleapis.com
           # and friends), plus Service Account User on the default compute
           # service account (Cloud Functions v2 acts-as it per revision).
-          npx firebase-tools@latest firestore:databases:create "(default)" \
+          # Pinned to 14.19.1 (not @latest / 15.x) as an experiment: every
+          # attempt so far — manual GOOGLE_APPLICATION_CREDENTIALS file,
+          # rotated key, secret-level and project-level Secret Manager
+          # Secret Accessor grants (all verified live via `gcloud secrets
+          # get-iam-policy`), and google-github-actions/auth's standard ADC
+          # setup — has failed identically on secretmanager.secrets.get for
+          # SMTP_PASSWORD from firebase-tools while `gcloud` itself, with
+          # the exact same credentials, reads the secret fine. That isolates
+          # the fault to firebase-tools' own secret-validation code, not our
+          # environment; pinning an older release checks for a 15.x regression.
+          npx firebase-tools@14.19.1 firestore:databases:create "(default)" \
             --location=nam5 \
             --project "$VITE_FIREBASE_PROJECT_ID" \
             --non-interactive || true
@@ -49,4 +59,4 @@ jobs:
           # in #298 but never deleted from the deployed project, and
           # --non-interactive alone refuses to delete orphaned functions
           # without confirmation — silently failing every deploy since then.
-          npx firebase-tools@latest deploy --only functions --project "$VITE_FIREBASE_PROJECT_ID" --non-interactive --force
+          npx firebase-tools@14.19.1 deploy --only functions --project "$VITE_FIREBASE_PROJECT_ID" --non-interactive --force
