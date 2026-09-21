@@ -16,7 +16,8 @@
         "triageTraining": "Triaje y capacitación",
         "workforce": "Personal",
         "insights": "Análisis",
-        "admin": "Administración"
+        "admin": "Administración",
+        "help": "Ayuda y soporte"
       },
       "items": {
         "machines": "Máquinas",
@@ -48,7 +49,8 @@
         "audit": "Auditoría",
         "evaluations": "Evaluaciones",
         "settings": "Configuración",
-        "billing": "Facturación y plan"
+        "billing": "Facturación y plan",
+        "helpSupport": "Ayuda y soporte"
       }
     },
     "dashboard": {
@@ -8245,6 +8247,222 @@
         "contactPhone": "Teléfono",
         "contactDesignation": "Cargo",
         "contactEmail": "Correo electrónico"
+      }
+    },
+    "help": {
+      "title": "Ayuda y soporte",
+      "subtitle": "Respuestas para tu rol, además de cómo contactarnos para cualquier otra cosa.",
+      "contact": {
+        "title": "Contactar con soporte",
+        "body": "¿No encuentras lo que buscas? Contacta al administrador de tu empresa, o escribe a support@firmicore.app y te responderemos."
+      },
+      "general": {
+        "title": "General",
+        "items": [
+          {
+            "question": "¿Cómo cambio el idioma de la aplicación?",
+            "answer": "Usa el selector de idioma en la barra de navegación superior para elegir entre los idiomas disponibles."
+          },
+          {
+            "question": "¿Cómo restablezco mi contraseña?",
+            "answer": "En la página de inicio de sesión, selecciona \"Olvidé mi contraseña\" y sigue el enlace que recibirás por correo."
+          },
+          {
+            "question": "¿A quién contacto si algo no funciona bien?",
+            "answer": "Contacta al administrador de tu empresa, o escribe a support@firmicore.app."
+          }
+        ]
+      },
+      "roles": {
+        "admin": {
+          "title": "Administrador",
+          "items": [
+            {
+              "question": "¿Cómo agrego un nuevo usuario?",
+              "answer": "Ve a Configuración > Usuarios y haz clic en Agregar usuario para invitar a alguien con un rol y una planta."
+            },
+            {
+              "question": "¿Cómo gestiono mi suscripción o plan?",
+              "answer": "Abre Facturación y plan en el menú lateral para ver el uso, mejorar el plan o administrar los pagos."
+            },
+            {
+              "question": "¿Cómo configuro varias plantas o sitios?",
+              "answer": "Ve a Configuración > Plantas para agregar y gestionar los sitios de tu empresa."
+            },
+            {
+              "question": "¿Cómo actualizo el perfil de la empresa y la zona horaria?",
+              "answer": "Ve a Configuración > Perfil de la empresa para editar los datos, la moneda y la zona horaria."
+            }
+          ]
+        },
+        "plant_manager": {
+          "title": "Gerente de planta",
+          "items": [
+            {
+              "question": "¿Cómo apruebo órdenes de trabajo pendientes de cierre?",
+              "answer": "Revisa el widget Pendiente de cierre en tu panel, o abre Órdenes de trabajo para revisar los trabajos completados."
+            },
+            {
+              "question": "¿Cómo programo el mantenimiento preventivo?",
+              "answer": "Ve a Programas PM para crear y gestionar planes de mantenimiento recurrentes para tus máquinas."
+            },
+            {
+              "question": "¿Cómo reviso el rendimiento de la planta?",
+              "answer": "Abre Análisis para ver el estado de las máquinas, las tendencias de averías y el OEE."
+            },
+            {
+              "question": "¿Cómo gestiono las capacitaciones de mi equipo?",
+              "answer": "Ve a Gestión de aprendices para asignar módulos y hacer seguimiento del progreso."
+            }
+          ]
+        },
+        "supervisor": {
+          "title": "Supervisor",
+          "items": [
+            {
+              "question": "¿Cómo reporto o atiendo una avería?",
+              "answer": "Usa Averías para registrar una nueva avería o atender una asignada a tu equipo."
+            },
+            {
+              "question": "¿Cómo creo una orden de trabajo?",
+              "answer": "Abre Órdenes de trabajo y haz clic en Nueva orden de trabajo para asignar una tarea de reparación."
+            },
+            {
+              "question": "¿Cómo apruebo los cierres?",
+              "answer": "El widget Pendiente de cierre en tu panel muestra las órdenes de trabajo completadas que esperan tu aprobación."
+            },
+            {
+              "question": "¿Cómo gestiono los programas PM?",
+              "answer": "Ve a Programas PM para ver y actualizar las tareas de mantenimiento preventivo próximas."
+            }
+          ]
+        },
+        "technician": {
+          "title": "Técnico",
+          "items": [
+            {
+              "question": "¿Cómo veo el trabajo que tengo asignado?",
+              "answer": "Mis órdenes de trabajo muestra todos los trabajos que se te han asignado."
+            },
+            {
+              "question": "¿Cómo atiendo una avería?",
+              "answer": "Abre Averías desde el enlace de tu panel y sigue el flujo guiado de atención."
+            },
+            {
+              "question": "¿Dónde encuentro guías de diagnóstico?",
+              "answer": "Usa Triaje para seguir un diagnóstico estructurado ante un problema de máquina."
+            },
+            {
+              "question": "¿Cómo reviso mi capacitación y certificados?",
+              "answer": "Mis certificados muestra las capacitaciones completadas y el estado de certificación."
+            }
+          ]
+        },
+        "store_keeper": {
+          "title": "Encargado de almacén",
+          "items": [
+            {
+              "question": "¿Cómo reviso los niveles de stock?",
+              "answer": "Inventario > Catálogo muestra el stock actual y las alertas de stock bajo."
+            },
+            {
+              "question": "¿Cómo creo una orden de compra?",
+              "answer": "Ve a Inventario > OC para generar una orden de compra de piezas que necesitan reposición."
+            },
+            {
+              "question": "¿Cómo atiendo una solicitud de piezas?",
+              "answer": "Abre Inventario > Solicitudes para ver y gestionar las solicitudes de piezas pendientes."
+            },
+            {
+              "question": "¿Cómo configuro las alertas de stock bajo?",
+              "answer": "Configuración de inventario te permite establecer umbrales de reposición y prefijos de ID."
+            }
+          ]
+        },
+        "hr_officer": {
+          "title": "Oficial de RR. HH.",
+          "items": [
+            {
+              "question": "¿Cómo asigno capacitación a los empleados?",
+              "answer": "Ve a Gestión de aprendices para asignar módulos y monitorear el progreso."
+            },
+            {
+              "question": "¿Cómo gestiono a los contratistas?",
+              "answer": "Abre Contratistas para registrar, revisar y hacer seguimiento del desempeño de los contratistas."
+            },
+            {
+              "question": "¿Cómo reviso los relevos de turno?",
+              "answer": "Relevos de turno muestra el historial de notas de relevo entre turnos."
+            },
+            {
+              "question": "¿Cómo realizo evaluaciones de desempeño?",
+              "answer": "Ve a Evaluaciones para crear y revisar evaluaciones del personal."
+            }
+          ]
+        },
+        "trainee": {
+          "title": "Aprendiz",
+          "items": [
+            {
+              "question": "¿Cómo veo mi programa de capacitación?",
+              "answer": "Mi programa muestra todos los módulos que se te han asignado y tu progreso."
+            },
+            {
+              "question": "¿Cómo veo mis certificados?",
+              "answer": "Mis certificados enumera las capacitaciones que completaste y los certificados obtenidos."
+            },
+            {
+              "question": "¿Dónde encuentro ayuda para el diagnóstico?",
+              "answer": "Usa Triaje para obtener orientación paso a paso sobre problemas comunes de máquinas."
+            },
+            {
+              "question": "¿Cómo reviso los detalles de mi turno?",
+              "answer": "Mi turno muestra tu turno actual y las notas de relevo."
+            }
+          ]
+        },
+        "floor_operator": {
+          "title": "Operador de planta",
+          "items": [
+            {
+              "question": "¿Cómo reporto un problema en planta?",
+              "answer": "Usa el widget Reportar avería en tu panel para registrar un problema de inmediato."
+            },
+            {
+              "question": "¿Cómo reviso los problemas abiertos de mi departamento?",
+              "answer": "El widget de averías de tu departamento en el panel muestra los problemas abiertos de tu área."
+            },
+            {
+              "question": "¿Cómo veo mis casos de seguridad y capacitaciones?",
+              "answer": "Tu panel enumera los casos de seguridad reportados a ti y las capacitaciones de seguridad asignadas."
+            },
+            {
+              "question": "¿Cómo reviso mi turno?",
+              "answer": "Mi turno muestra tu turno actual y las notas de relevo."
+            }
+          ]
+        },
+        "safety_officer": {
+          "title": "Oficial de seguridad",
+          "items": [
+            {
+              "question": "¿Cómo emito un permiso de trabajo?",
+              "answer": "Ve a Permisos de trabajo para crear un permiso con la categoría y las precauciones correspondientes."
+            },
+            {
+              "question": "¿Cómo gestiono los casos de seguridad?",
+              "answer": "Casos de seguridad te da el tablero completo para clasificar, asignar y cerrar incidentes, casi accidentes, riesgos y actos inseguros."
+            },
+            {
+              "question": "¿Cómo programo capacitaciones de seguridad?",
+              "answer": "Capacitaciones de seguridad te permite programar y gestionar sesiones de capacitación."
+            },
+            {
+              "question": "¿Dónde veo los análisis de seguridad?",
+              "answer": "Abre Análisis y selecciona la pestaña Seguridad para ver las métricas de seguridad de toda la empresa."
+            }
+          ]
+        }
       }
     }
   },

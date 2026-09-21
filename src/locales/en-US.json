@@ -1322,7 +1322,8 @@
         "triageTraining": "Triage & Training",
         "workforce": "Workforce",
         "insights": "Insights",
-        "admin": "Admin"
+        "admin": "Admin",
+        "help": "Help & Support"
       },
       "items": {
         "machines": "Machines",
@@ -1355,7 +1356,8 @@
         "audit": "Audit",
         "evaluations": "Evaluations",
         "settings": "Settings",
-        "billing": "Billing & Plan"
+        "billing": "Billing & Plan",
+        "helpSupport": "Help & Support"
       }
     },
     "dashboard": {
@@ -8592,6 +8594,222 @@
         "contactPhone": "Phone",
         "contactDesignation": "Designation",
         "contactEmail": "Email"
+      }
+    },
+    "help": {
+      "title": "Help & Support",
+      "subtitle": "Answers for your role, plus how to reach us for anything else.",
+      "contact": {
+        "title": "Contact support",
+        "body": "Can't find what you need? Contact your company administrator, or email support@firmicore.app and we'll get back to you."
+      },
+      "general": {
+        "title": "General",
+        "items": [
+          {
+            "question": "How do I change the app language?",
+            "answer": "Use the language switcher in the top navigation bar to pick from the supported languages."
+          },
+          {
+            "question": "How do I reset my password?",
+            "answer": "On the sign-in page, select \"Forgot password\" and follow the emailed reset link."
+          },
+          {
+            "question": "Who do I contact if something looks wrong?",
+            "answer": "Contact your company administrator, or email support@firmicore.app."
+          }
+        ]
+      },
+      "roles": {
+        "admin": {
+          "title": "Administrator",
+          "items": [
+            {
+              "question": "How do I add a new user?",
+              "answer": "Go to Settings > Users and click Add User to invite someone with a role and site."
+            },
+            {
+              "question": "How do I manage my subscription or plan?",
+              "answer": "Open Billing & Plan from the sidebar to view usage, upgrade, or manage payment details."
+            },
+            {
+              "question": "How do I set up multiple plants or sites?",
+              "answer": "Go to Settings > Plants to add and manage sites for your company."
+            },
+            {
+              "question": "How do I update the company profile and timezone?",
+              "answer": "Go to Settings > Company Profile to edit company details, currency, and timezone."
+            }
+          ]
+        },
+        "plant_manager": {
+          "title": "Plant Manager",
+          "items": [
+            {
+              "question": "How do I approve work orders awaiting sign-off?",
+              "answer": "Check the Need Sign-Off widget on your dashboard, or open Work Orders to review completed jobs."
+            },
+            {
+              "question": "How do I schedule preventive maintenance?",
+              "answer": "Go to PM Schedules to create and manage recurring maintenance plans for your machines."
+            },
+            {
+              "question": "How do I review plant performance?",
+              "answer": "Open Analytics for machine health, breakdown trends, and OEE."
+            },
+            {
+              "question": "How do I manage training assignments for my team?",
+              "answer": "Go to Trainee Management (under Triage & Training) to assign modules and track completion."
+            }
+          ]
+        },
+        "supervisor": {
+          "title": "Supervisor",
+          "items": [
+            {
+              "question": "How do I report or attend a breakdown?",
+              "answer": "Use Breakdowns to log a new breakdown or attend one assigned to your team."
+            },
+            {
+              "question": "How do I create a work order?",
+              "answer": "Open Work Orders and click New Work Order to assign a repair task."
+            },
+            {
+              "question": "How do I approve sign-offs?",
+              "answer": "Your dashboard's Need Sign-Off widget lists completed work orders waiting on your approval."
+            },
+            {
+              "question": "How do I manage PM schedules?",
+              "answer": "Go to PM Schedules to view and update upcoming preventive maintenance tasks."
+            }
+          ]
+        },
+        "technician": {
+          "title": "Technician",
+          "items": [
+            {
+              "question": "How do I see my assigned work?",
+              "answer": "My Work Orders lists every job assigned to you."
+            },
+            {
+              "question": "How do I attend a breakdown?",
+              "answer": "Open Breakdowns from your dashboard link and follow the guided attend flow."
+            },
+            {
+              "question": "Where can I find troubleshooting guidance?",
+              "answer": "Use Triage to walk through structured troubleshooting for a machine issue."
+            },
+            {
+              "question": "How do I check my training and certificates?",
+              "answer": "My Certificates shows completed trainings and certification status."
+            }
+          ]
+        },
+        "store_keeper": {
+          "title": "Store Keeper",
+          "items": [
+            {
+              "question": "How do I check stock levels?",
+              "answer": "Inventory > Catalog shows current stock and low-stock alerts."
+            },
+            {
+              "question": "How do I create a purchase order?",
+              "answer": "Go to Inventory > PO to raise a purchase order for parts that need restocking."
+            },
+            {
+              "question": "How do I fulfill a parts request?",
+              "answer": "Open Inventory > Requests to see and action outstanding part requests."
+            },
+            {
+              "question": "How do I configure low-stock alerts?",
+              "answer": "Inventory Settings lets you set reorder thresholds and ID prefixes."
+            }
+          ]
+        },
+        "hr_officer": {
+          "title": "HR Officer",
+          "items": [
+            {
+              "question": "How do I assign training to employees?",
+              "answer": "Go to Trainee Management to assign modules and monitor progress."
+            },
+            {
+              "question": "How do I manage contractors?",
+              "answer": "Open Contractors to register, review, and track contractor performance."
+            },
+            {
+              "question": "How do I review shift handovers?",
+              "answer": "Shift Handovers shows the history of shift-to-shift handover notes."
+            },
+            {
+              "question": "How do I run performance evaluations?",
+              "answer": "Go to Evaluations to create and review staff evaluations."
+            }
+          ]
+        },
+        "trainee": {
+          "title": "Trainee",
+          "items": [
+            {
+              "question": "How do I see my training program?",
+              "answer": "My Program shows every module assigned to you and your progress."
+            },
+            {
+              "question": "How do I view my certificates?",
+              "answer": "My Certificates lists trainings you've completed and any certificates earned."
+            },
+            {
+              "question": "Where can I find troubleshooting help?",
+              "answer": "Use Triage for step-by-step guidance on common machine issues."
+            },
+            {
+              "question": "How do I check my shift details?",
+              "answer": "My Shift shows your current shift and handover notes."
+            }
+          ]
+        },
+        "floor_operator": {
+          "title": "Floor Operator",
+          "items": [
+            {
+              "question": "How do I report a problem on the floor?",
+              "answer": "Use the Report Breakdown widget on your dashboard to log an issue immediately."
+            },
+            {
+              "question": "How do I check my department's open issues?",
+              "answer": "Your dashboard's department breakdown widget shows open items for your area."
+            },
+            {
+              "question": "How do I view my safety cases and trainings?",
+              "answer": "Your dashboard lists safety cases reported to you and any safety trainings assigned."
+            },
+            {
+              "question": "How do I check my shift?",
+              "answer": "My Shift shows your current shift and any handover notes."
+            }
+          ]
+        },
+        "safety_officer": {
+          "title": "Safety Officer",
+          "items": [
+            {
+              "question": "How do I issue a work permit?",
+              "answer": "Go to Work Permits to create a permit-to-work with the relevant category and precautions."
+            },
+            {
+              "question": "How do I manage safety cases?",
+              "answer": "Safety Cases gives you the full case board to triage, assign, and close incidents, near-misses, hazards, and unsafe acts."
+            },
+            {
+              "question": "How do I schedule safety training?",
+              "answer": "Safety Trainings lets you schedule and manage training sessions."
+            },
+            {
+              "question": "Where do I see safety analytics?",
+              "answer": "Open Analytics and select the Safety tab for company-wide safety metrics."
+            }
+          ]
+        }
       }
     }
   }

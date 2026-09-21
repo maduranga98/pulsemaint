@@ -16,7 +16,8 @@
         "triageTraining": "Triage & Schulung",
         "workforce": "Belegschaft",
         "insights": "Einblicke",
-        "admin": "Verwaltung"
+        "admin": "Verwaltung",
+        "help": "Hilfe & Support"
       },
       "items": {
         "machines": "Maschinen",
@@ -48,7 +49,8 @@
         "audit": "Prüfung",
         "evaluations": "Bewertungen",
         "settings": "Einstellungen",
-        "billing": "Abrechnung & Tarif"
+        "billing": "Abrechnung & Tarif",
+        "helpSupport": "Hilfe & Support"
       }
     },
     "dashboard": {
@@ -8245,6 +8247,222 @@
         "contactPhone": "Telefon",
         "contactDesignation": "Position",
         "contactEmail": "E-Mail"
+      }
+    },
+    "help": {
+      "title": "Hilfe & Support",
+      "subtitle": "Antworten für Ihre Rolle – und wie Sie uns für alles andere erreichen.",
+      "contact": {
+        "title": "Support kontaktieren",
+        "body": "Nicht gefunden, wonach Sie suchen? Wenden Sie sich an Ihren Unternehmensadministrator oder schreiben Sie an support@firmicore.app – wir melden uns."
+      },
+      "general": {
+        "title": "Allgemein",
+        "items": [
+          {
+            "question": "Wie ändere ich die App-Sprache?",
+            "answer": "Nutzen Sie den Sprachumschalter in der oberen Navigationsleiste, um aus den unterstützten Sprachen zu wählen."
+          },
+          {
+            "question": "Wie setze ich mein Passwort zurück?",
+            "answer": "Wählen Sie auf der Anmeldeseite \"Passwort vergessen\" und folgen Sie dem per E-Mail zugesendeten Link."
+          },
+          {
+            "question": "An wen wende ich mich, wenn etwas nicht stimmt?",
+            "answer": "Wenden Sie sich an Ihren Unternehmensadministrator oder schreiben Sie an support@firmicore.app."
+          }
+        ]
+      },
+      "roles": {
+        "admin": {
+          "title": "Administrator",
+          "items": [
+            {
+              "question": "Wie füge ich einen neuen Benutzer hinzu?",
+              "answer": "Gehen Sie zu Einstellungen > Benutzer und klicken Sie auf Benutzer hinzufügen, um jemanden mit Rolle und Standort einzuladen."
+            },
+            {
+              "question": "Wie verwalte ich mein Abonnement oder meinen Plan?",
+              "answer": "Öffnen Sie Abrechnung & Plan in der Seitenleiste, um Nutzung einzusehen, upzugraden oder Zahlungsdaten zu verwalten."
+            },
+            {
+              "question": "Wie richte ich mehrere Standorte ein?",
+              "answer": "Gehen Sie zu Einstellungen > Standorte, um Standorte für Ihr Unternehmen hinzuzufügen und zu verwalten."
+            },
+            {
+              "question": "Wie aktualisiere ich Unternehmensprofil und Zeitzone?",
+              "answer": "Gehen Sie zu Einstellungen > Unternehmensprofil, um Firmendaten, Währung und Zeitzone zu bearbeiten."
+            }
+          ]
+        },
+        "plant_manager": {
+          "title": "Werksleiter",
+          "items": [
+            {
+              "question": "Wie genehmige ich Arbeitsaufträge, die auf Abnahme warten?",
+              "answer": "Prüfen Sie das Widget Abnahme ausstehend auf Ihrem Dashboard oder öffnen Sie Arbeitsaufträge, um abgeschlossene Aufträge zu prüfen."
+            },
+            {
+              "question": "Wie plane ich vorbeugende Instandhaltung?",
+              "answer": "Gehen Sie zu PM-Pläne, um wiederkehrende Wartungspläne für Ihre Maschinen zu erstellen und zu verwalten."
+            },
+            {
+              "question": "Wie prüfe ich die Werksleistung?",
+              "answer": "Öffnen Sie Analysen für Maschinenzustand, Ausfalltrends und OEE."
+            },
+            {
+              "question": "Wie verwalte ich Schulungszuweisungen für mein Team?",
+              "answer": "Gehen Sie zu Auszubildendenverwaltung, um Module zuzuweisen und den Fortschritt zu verfolgen."
+            }
+          ]
+        },
+        "supervisor": {
+          "title": "Vorarbeiter",
+          "items": [
+            {
+              "question": "Wie melde oder bearbeite ich einen Ausfall?",
+              "answer": "Nutzen Sie Ausfälle, um einen neuen Ausfall zu melden oder einen Ihrem Team zugewiesenen zu bearbeiten."
+            },
+            {
+              "question": "Wie erstelle ich einen Arbeitsauftrag?",
+              "answer": "Öffnen Sie Arbeitsaufträge und klicken Sie auf Neuer Arbeitsauftrag, um eine Reparaturaufgabe zuzuweisen."
+            },
+            {
+              "question": "Wie genehmige ich Abnahmen?",
+              "answer": "Das Widget Abnahme ausstehend auf Ihrem Dashboard listet abgeschlossene Arbeitsaufträge, die auf Ihre Genehmigung warten."
+            },
+            {
+              "question": "Wie verwalte ich PM-Pläne?",
+              "answer": "Gehen Sie zu PM-Pläne, um bevorstehende vorbeugende Wartungsaufgaben anzuzeigen und zu aktualisieren."
+            }
+          ]
+        },
+        "technician": {
+          "title": "Techniker",
+          "items": [
+            {
+              "question": "Wie sehe ich meine zugewiesenen Aufgaben?",
+              "answer": "Meine Arbeitsaufträge listet jeden Ihnen zugewiesenen Auftrag."
+            },
+            {
+              "question": "Wie bearbeite ich einen Ausfall?",
+              "answer": "Öffnen Sie Ausfälle über den Link auf Ihrem Dashboard und folgen Sie dem geführten Bearbeitungsablauf."
+            },
+            {
+              "question": "Wo finde ich Hilfe zur Fehlersuche?",
+              "answer": "Nutzen Sie Triage für eine strukturierte Fehlersuche bei einem Maschinenproblem."
+            },
+            {
+              "question": "Wie prüfe ich meine Schulungen und Zertifikate?",
+              "answer": "Meine Zertifikate zeigt abgeschlossene Schulungen und den Zertifizierungsstatus."
+            }
+          ]
+        },
+        "store_keeper": {
+          "title": "Lagerverwalter",
+          "items": [
+            {
+              "question": "Wie prüfe ich Lagerbestände?",
+              "answer": "Lager > Katalog zeigt aktuellen Bestand und Niedrigbestand-Warnungen."
+            },
+            {
+              "question": "Wie erstelle ich eine Bestellung?",
+              "answer": "Gehen Sie zu Lager > Bestellungen, um eine Bestellung für nachzubestellende Teile aufzugeben."
+            },
+            {
+              "question": "Wie bearbeite ich eine Teileanfrage?",
+              "answer": "Öffnen Sie Lager > Anfragen, um offene Teileanfragen einzusehen und zu bearbeiten."
+            },
+            {
+              "question": "Wie konfiguriere ich Niedrigbestand-Warnungen?",
+              "answer": "In den Lagereinstellungen legen Sie Nachbestellschwellen und ID-Präfixe fest."
+            }
+          ]
+        },
+        "hr_officer": {
+          "title": "Personalreferent",
+          "items": [
+            {
+              "question": "Wie weise ich Mitarbeitern Schulungen zu?",
+              "answer": "Gehen Sie zu Auszubildendenverwaltung, um Module zuzuweisen und den Fortschritt zu überwachen."
+            },
+            {
+              "question": "Wie verwalte ich Fremdfirmen?",
+              "answer": "Öffnen Sie Fremdfirmen, um deren Leistung zu registrieren, zu prüfen und zu verfolgen."
+            },
+            {
+              "question": "Wie prüfe ich Schichtübergaben?",
+              "answer": "Schichtübergaben zeigt den Verlauf der Übergabenotizen zwischen Schichten."
+            },
+            {
+              "question": "Wie führe ich Leistungsbeurteilungen durch?",
+              "answer": "Gehen Sie zu Beurteilungen, um Mitarbeiterbeurteilungen zu erstellen und zu prüfen."
+            }
+          ]
+        },
+        "trainee": {
+          "title": "Auszubildender",
+          "items": [
+            {
+              "question": "Wie sehe ich mein Schulungsprogramm?",
+              "answer": "Mein Programm zeigt alle Ihnen zugewiesenen Module und Ihren Fortschritt."
+            },
+            {
+              "question": "Wie sehe ich meine Zertifikate?",
+              "answer": "Meine Zertifikate listet abgeschlossene Schulungen und erworbene Zertifikate."
+            },
+            {
+              "question": "Wo finde ich Hilfe zur Fehlersuche?",
+              "answer": "Nutzen Sie Triage für schrittweise Anleitungen bei häufigen Maschinenproblemen."
+            },
+            {
+              "question": "Wie prüfe ich meine Schichtdetails?",
+              "answer": "Meine Schicht zeigt Ihre aktuelle Schicht und Übergabenotizen."
+            }
+          ]
+        },
+        "floor_operator": {
+          "title": "Maschinenbediener",
+          "items": [
+            {
+              "question": "Wie melde ich ein Problem in der Fertigung?",
+              "answer": "Nutzen Sie das Widget Ausfall melden auf Ihrem Dashboard, um ein Problem sofort zu melden."
+            },
+            {
+              "question": "Wie prüfe ich offene Probleme meiner Abteilung?",
+              "answer": "Das Abteilungs-Ausfall-Widget auf Ihrem Dashboard zeigt offene Punkte in Ihrem Bereich."
+            },
+            {
+              "question": "Wie sehe ich meine Sicherheitsfälle und Schulungen?",
+              "answer": "Ihr Dashboard listet Ihnen gemeldete Sicherheitsfälle und zugewiesene Sicherheitsschulungen."
+            },
+            {
+              "question": "Wie prüfe ich meine Schicht?",
+              "answer": "Meine Schicht zeigt Ihre aktuelle Schicht und Übergabenotizen."
+            }
+          ]
+        },
+        "safety_officer": {
+          "title": "Sicherheitsbeauftragter",
+          "items": [
+            {
+              "question": "Wie stelle ich einen Arbeitserlaubnisschein aus?",
+              "answer": "Gehen Sie zu Arbeitserlaubnisscheine, um einen Schein mit passender Kategorie und Vorsichtsmaßnahmen zu erstellen."
+            },
+            {
+              "question": "Wie verwalte ich Sicherheitsfälle?",
+              "answer": "Sicherheitsfälle bietet das vollständige Fallboard, um Vorfälle, Beinaheunfälle, Gefahren und unsichere Handlungen zu triagieren, zuzuweisen und zu schließen."
+            },
+            {
+              "question": "Wie plane ich Sicherheitsschulungen?",
+              "answer": "Sicherheitsschulungen ermöglicht die Planung und Verwaltung von Schulungssitzungen."
+            },
+            {
+              "question": "Wo sehe ich Sicherheitsanalysen?",
+              "answer": "Öffnen Sie Analysen und wählen Sie den Tab Sicherheit für unternehmensweite Sicherheitskennzahlen."
+            }
+          ]
+        }
       }
     }
   },

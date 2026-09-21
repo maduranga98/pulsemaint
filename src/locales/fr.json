@@ -16,7 +16,8 @@
         "triageTraining": "Triage et formation",
         "workforce": "Personnel",
         "insights": "Analyses",
-        "admin": "Administration"
+        "admin": "Administration",
+        "help": "Aide et assistance"
       },
       "items": {
         "machines": "Machines",
@@ -48,7 +49,8 @@
         "audit": "Audit",
         "evaluations": "Évaluations",
         "settings": "Paramètres",
-        "billing": "Facturation et forfait"
+        "billing": "Facturation et forfait",
+        "helpSupport": "Aide et assistance"
       }
     },
     "dashboard": {
@@ -8245,6 +8247,222 @@
         "contactPhone": "Téléphone",
         "contactDesignation": "Fonction",
         "contactEmail": "E-mail"
+      }
+    },
+    "help": {
+      "title": "Aide et assistance",
+      "subtitle": "Des réponses adaptées à votre rôle, et comment nous contacter pour le reste.",
+      "contact": {
+        "title": "Contacter l'assistance",
+        "body": "Vous ne trouvez pas ce qu'il vous faut ? Contactez l'administrateur de votre entreprise, ou écrivez à support@firmicore.app et nous vous répondrons."
+      },
+      "general": {
+        "title": "Général",
+        "items": [
+          {
+            "question": "Comment changer la langue de l'application ?",
+            "answer": "Utilisez le sélecteur de langue dans la barre de navigation en haut pour choisir parmi les langues disponibles."
+          },
+          {
+            "question": "Comment réinitialiser mon mot de passe ?",
+            "answer": "Sur la page de connexion, sélectionnez \"Mot de passe oublié\" et suivez le lien reçu par e-mail."
+          },
+          {
+            "question": "Qui contacter en cas de problème ?",
+            "answer": "Contactez l'administrateur de votre entreprise, ou écrivez à support@firmicore.app."
+          }
+        ]
+      },
+      "roles": {
+        "admin": {
+          "title": "Administrateur",
+          "items": [
+            {
+              "question": "Comment ajouter un nouvel utilisateur ?",
+              "answer": "Allez dans Paramètres > Utilisateurs et cliquez sur Ajouter un utilisateur pour inviter quelqu'un avec un rôle et un site."
+            },
+            {
+              "question": "Comment gérer mon abonnement ou mon forfait ?",
+              "answer": "Ouvrez Facturation et forfait dans le menu latéral pour consulter l'utilisation, passer à un forfait supérieur ou gérer les paiements."
+            },
+            {
+              "question": "Comment configurer plusieurs sites ?",
+              "answer": "Allez dans Paramètres > Sites pour ajouter et gérer les sites de votre entreprise."
+            },
+            {
+              "question": "Comment mettre à jour le profil de l'entreprise et le fuseau horaire ?",
+              "answer": "Allez dans Paramètres > Profil de l'entreprise pour modifier les informations, la devise et le fuseau horaire."
+            }
+          ]
+        },
+        "plant_manager": {
+          "title": "Directeur d'usine",
+          "items": [
+            {
+              "question": "Comment approuver les ordres de travail en attente de clôture ?",
+              "answer": "Consultez le widget En attente de clôture sur votre tableau de bord, ou ouvrez Ordres de travail pour examiner les travaux terminés."
+            },
+            {
+              "question": "Comment planifier la maintenance préventive ?",
+              "answer": "Allez dans Plannings PM pour créer et gérer des plans de maintenance récurrents pour vos machines."
+            },
+            {
+              "question": "Comment consulter la performance de l'usine ?",
+              "answer": "Ouvrez Analyses pour l'état des machines, les tendances de pannes et le TRS."
+            },
+            {
+              "question": "Comment gérer les formations de mon équipe ?",
+              "answer": "Allez dans Gestion des stagiaires pour assigner des modules et suivre la progression."
+            }
+          ]
+        },
+        "supervisor": {
+          "title": "Superviseur",
+          "items": [
+            {
+              "question": "Comment signaler ou traiter une panne ?",
+              "answer": "Utilisez Pannes pour enregistrer une nouvelle panne ou traiter celle assignée à votre équipe."
+            },
+            {
+              "question": "Comment créer un ordre de travail ?",
+              "answer": "Ouvrez Ordres de travail et cliquez sur Nouvel ordre de travail pour assigner une tâche de réparation."
+            },
+            {
+              "question": "Comment approuver les clôtures ?",
+              "answer": "Le widget En attente de clôture de votre tableau de bord liste les ordres de travail terminés en attente de votre validation."
+            },
+            {
+              "question": "Comment gérer les plannings PM ?",
+              "answer": "Allez dans Plannings PM pour consulter et mettre à jour les tâches de maintenance préventive à venir."
+            }
+          ]
+        },
+        "technician": {
+          "title": "Technicien",
+          "items": [
+            {
+              "question": "Comment voir le travail qui m'est assigné ?",
+              "answer": "Mes ordres de travail liste tous les travaux qui vous sont assignés."
+            },
+            {
+              "question": "Comment traiter une panne ?",
+              "answer": "Ouvrez Pannes depuis le lien de votre tableau de bord et suivez le parcours guidé de traitement."
+            },
+            {
+              "question": "Où trouver de l'aide pour le diagnostic ?",
+              "answer": "Utilisez Triage pour suivre un diagnostic structuré face à un problème machine."
+            },
+            {
+              "question": "Comment consulter ma formation et mes certificats ?",
+              "answer": "Mes certificats affiche les formations terminées et le statut de certification."
+            }
+          ]
+        },
+        "store_keeper": {
+          "title": "Magasinier",
+          "items": [
+            {
+              "question": "Comment vérifier les niveaux de stock ?",
+              "answer": "Inventaire > Catalogue affiche le stock actuel et les alertes de stock bas."
+            },
+            {
+              "question": "Comment créer un bon de commande ?",
+              "answer": "Allez dans Inventaire > BC pour créer un bon de commande pour les pièces à réapprovisionner."
+            },
+            {
+              "question": "Comment traiter une demande de pièces ?",
+              "answer": "Ouvrez Inventaire > Demandes pour consulter et traiter les demandes de pièces en attente."
+            },
+            {
+              "question": "Comment configurer les alertes de stock bas ?",
+              "answer": "Paramètres d'inventaire vous permet de définir les seuils de réapprovisionnement et les préfixes d'identifiants."
+            }
+          ]
+        },
+        "hr_officer": {
+          "title": "Chargé RH",
+          "items": [
+            {
+              "question": "Comment assigner une formation aux employés ?",
+              "answer": "Allez dans Gestion des stagiaires pour assigner des modules et suivre la progression."
+            },
+            {
+              "question": "Comment gérer les sous-traitants ?",
+              "answer": "Ouvrez Sous-traitants pour enregistrer, examiner et suivre la performance des sous-traitants."
+            },
+            {
+              "question": "Comment consulter les transmissions de poste ?",
+              "answer": "Transmissions de poste affiche l'historique des notes de transmission entre équipes."
+            },
+            {
+              "question": "Comment réaliser des évaluations de performance ?",
+              "answer": "Allez dans Évaluations pour créer et consulter les évaluations du personnel."
+            }
+          ]
+        },
+        "trainee": {
+          "title": "Stagiaire",
+          "items": [
+            {
+              "question": "Comment voir mon programme de formation ?",
+              "answer": "Mon programme affiche tous les modules qui vous sont assignés ainsi que votre progression."
+            },
+            {
+              "question": "Comment consulter mes certificats ?",
+              "answer": "Mes certificats liste les formations terminées et les certificats obtenus."
+            },
+            {
+              "question": "Où trouver de l'aide pour le diagnostic ?",
+              "answer": "Utilisez Triage pour obtenir des instructions détaillées sur les problèmes machine courants."
+            },
+            {
+              "question": "Comment consulter les détails de mon poste ?",
+              "answer": "Mon poste affiche votre poste actuel et les notes de transmission."
+            }
+          ]
+        },
+        "floor_operator": {
+          "title": "Opérateur de production",
+          "items": [
+            {
+              "question": "Comment signaler un problème sur le terrain ?",
+              "answer": "Utilisez le widget Signaler une panne sur votre tableau de bord pour enregistrer immédiatement un problème."
+            },
+            {
+              "question": "Comment consulter les problèmes ouverts de mon service ?",
+              "answer": "Le widget des pannes de votre service, sur le tableau de bord, affiche les problèmes ouverts de votre zone."
+            },
+            {
+              "question": "Comment consulter mes cas de sécurité et formations ?",
+              "answer": "Votre tableau de bord liste les cas de sécurité qui vous sont signalés et les formations sécurité assignées."
+            },
+            {
+              "question": "Comment consulter mon poste ?",
+              "answer": "Mon poste affiche votre poste actuel et les notes de transmission."
+            }
+          ]
+        },
+        "safety_officer": {
+          "title": "Responsable sécurité",
+          "items": [
+            {
+              "question": "Comment délivrer un permis de travail ?",
+              "answer": "Allez dans Permis de travail pour créer un permis de travail avec la catégorie et les précautions appropriées."
+            },
+            {
+              "question": "Comment gérer les cas de sécurité ?",
+              "answer": "Cas de sécurité vous donne le tableau complet pour trier, assigner et clôturer incidents, presqu'accidents, dangers et actes dangereux."
+            },
+            {
+              "question": "Comment planifier une formation sécurité ?",
+              "answer": "Formations sécurité vous permet de planifier et gérer des sessions de formation."
+            },
+            {
+              "question": "Où consulter les analyses sécurité ?",
+              "answer": "Ouvrez Analyses et sélectionnez l'onglet Sécurité pour les indicateurs sécurité de toute l'entreprise."
+            }
+          ]
+        }
       }
     }
   },

@@ -296,6 +296,24 @@ const NAV_GROUPS: NavGroup[] = [
       },
     ],
   },
+  {
+    id: 'help',
+    labelKey: 'common.nav.groups.help',
+    items: [
+      {
+        labelKey: 'common.nav.items.helpSupport',
+        to: '/app/help',
+        icon: (
+          <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        ),
+        // Every role gets this tab — the page itself scopes FAQ content to
+        // the signed-in user's own role instead of a per-role nav filter.
+        roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'],
+      },
+    ],
+  },
 ];
 
 function TrialExpiryBanner() {

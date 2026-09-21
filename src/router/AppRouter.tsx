@@ -147,6 +147,9 @@ import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 // Billing
 import BillingPage from '../pages/billing/BillingPage';
 
+// Help & Support
+import HelpSupportPage from '../pages/help/HelpSupportPage';
+
 // Real pages (Module 1, 2, 4, 11)
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
 import PublicBreakdownReportPage from '../pages/breakdowns/PublicBreakdownReportPage';
@@ -847,6 +850,15 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <BillingPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Help & Support — every role, content scoped to their own role inside the page. */}
+        <Route
+          path="help"
+          element={
+            <ProtectedRoute requiredRoles={['plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'safety_officer', 'floor_operator']}>
+              <HelpSupportPage />
             </ProtectedRoute>
           }
         />
