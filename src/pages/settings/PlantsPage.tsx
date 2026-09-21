@@ -4,7 +4,6 @@ import { Factory, Plus, X, MapPin, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { subscribePlants, createPlant, updatePlant } from '../../services/plants.service';
 import type { Plant, PlantContactPerson } from '../../types/plant';
-import { PlanFeatureGate } from '../../components/settings/PlanFeatureGate';
 
 const EMPTY_CONTACT: PlantContactPerson = { name: '', phone: '', email: '', designation: '' };
 
@@ -89,7 +88,6 @@ export default function PlantsPage() {
   }
 
   return (
-    <PlanFeatureGate feature="multiSite">
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
         <div>
@@ -275,6 +273,5 @@ export default function PlantsPage() {
         </div>
       )}
     </div>
-    </PlanFeatureGate>
   );
 }

@@ -8296,6 +8296,10 @@
           "users": {
             "title": "Users",
             "description": "Manage team members, roles, and invites."
+          },
+          "plants": {
+            "title": "Plants",
+            "description": "Manage plants for scoping users, machines, contractors and inventory."
           }
         }
       },

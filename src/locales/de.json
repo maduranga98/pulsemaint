@@ -7949,6 +7949,10 @@
           "users": {
             "title": "Benutzer",
             "description": "Teammitglieder, Rollen und Einladungen verwalten."
+          },
+          "plants": {
+            "title": "Werke",
+            "description": "Verwalten Sie Werke zur Abgrenzung von Benutzern, Maschinen, Auftragnehmern und Bestand."
           }
         }
       },
@@ -8224,6 +8228,23 @@
           "subjectLabel": "Betreff: {{subject}}",
           "remarksHeading": "Anmerkungen"
         }
+      },
+      "plants": {
+        "title": "Werke",
+        "subtitle": "Verwalten Sie die Werke, denen Benutzer, Maschinen, Auftragnehmer und Bestand zugeordnet sind.",
+        "addPlant": "Werk hinzufügen",
+        "editPlant": "Werk bearbeiten",
+        "empty": "Noch keine Werke vorhanden. Fügen Sie Ihr erstes Werk hinzu, um Benutzer, Maschinen, Auftragnehmer und Bestand nach Werk zu gliedern.",
+        "name": "Werksname",
+        "namePlaceholder": "z. B. Werk Colombo",
+        "code": "Code (optional)",
+        "address": "Adresse (optional)",
+        "addressPlaceholder": "z. B. 123 Main Street, Colombo",
+        "contactPerson": "Ansprechpartner (optional)",
+        "contactName": "Name",
+        "contactPhone": "Telefon",
+        "contactDesignation": "Position",
+        "contactEmail": "E-Mail"
       }
     }
   },

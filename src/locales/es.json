@@ -7949,6 +7949,10 @@
           "users": {
             "title": "Usuarios",
             "description": "Administre miembros del equipo, roles e invitaciones."
+          },
+          "plants": {
+            "title": "Plantas",
+            "description": "Administre las plantas para delimitar usuarios, máquinas, contratistas e inventario."
           }
         }
       },
@@ -8224,6 +8228,23 @@
           "subjectLabel": "Asunto: {{subject}}",
           "remarksHeading": "Observaciones"
         }
+      },
+      "plants": {
+        "title": "Plantas",
+        "subtitle": "Administre las plantas a las que están registrados los usuarios, máquinas, contratistas e inventario.",
+        "addPlant": "Agregar planta",
+        "editPlant": "Editar planta",
+        "empty": "Aún no hay plantas. Agregue su primera planta para comenzar a delimitar usuarios, máquinas, contratistas e inventario por planta.",
+        "name": "Nombre de la planta",
+        "namePlaceholder": "p. ej. Planta de Colombo",
+        "code": "Código (opcional)",
+        "address": "Dirección (opcional)",
+        "addressPlaceholder": "p. ej. 123 Main Street, Colombo",
+        "contactPerson": "Persona de contacto (opcional)",
+        "contactName": "Nombre",
+        "contactPhone": "Teléfono",
+        "contactDesignation": "Cargo",
+        "contactEmail": "Correo electrónico"
       }
     }
   },
