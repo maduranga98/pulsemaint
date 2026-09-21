@@ -4,15 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/store/authStore';
 import { HELP_MODULE_ROUTES, ROLE_HELP_MODULES, type HelpModuleId } from './helpContent';
 
-interface HelpFaq {
-  q: string;
-  a: string;
+interface HelpGuide {
+  title: string;
+  steps: string[];
 }
 
 interface HelpModuleContent {
   title: string;
   description: string;
-  faqs: HelpFaq[];
+  guides: HelpGuide[];
 }
 
 export default function HelpSupportPage() {
@@ -34,7 +34,7 @@ export default function HelpSupportPage() {
         const haystack = [
           content.title,
           content.description,
-          ...content.faqs.flatMap((f) => [f.q, f.a]),
+          ...content.guides.flatMap((g) => [g.title, ...g.steps]),
         ]
           .join(' ')
           .toLowerCase();
@@ -102,15 +102,21 @@ function HelpModuleCard({ id, content }: { id: HelpModuleId; content: HelpModule
         </Link>
       </div>
 
-      {content.faqs.length > 0 && (
+      {content.guides.length > 0 && (
         <div className="mt-4 divide-y divide-slate-100 border-t border-slate-100">
-          {content.faqs.map((faq, i) => (
-            <details key={i} className="group py-2">
+          {content.guides.map((guide, i) => (
+            <details key={i} className="group py-2" open={i === 0}>
               <summary className="cursor-pointer list-none text-sm font-medium text-slate-800 marker:content-none flex items-center justify-between gap-2">
-                {faq.q}
+                {guide.title}
                 <span className="shrink-0 text-slate-400 transition-transform group-open:rotate-180">▾</span>
               </summary>
-              <p className="mt-2 text-sm text-slate-600">{faq.a}</p>
+              <ol className="mt-2 space-y-1.5 list-decimal list-outside pl-5">
+                {guide.steps.map((step, j) => (
+                  <li key={j} className="text-sm text-slate-600">
+                    {step}
+                  </li>
+                ))}
+              </ol>
             </details>
           ))}
         </div>

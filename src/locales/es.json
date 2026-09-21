@@ -49,7 +49,8 @@
         "evaluations": "Evaluaciones",
         "settings": "Configuración",
         "billing": "Facturación y plan"
-      }
+      },
+      "help": "Ayuda y soporte"
     },
     "dashboard": {
       "adminTitle": "Panel de administrador",
@@ -8418,6 +8419,509 @@
       "number_input": "Entrada numérica",
       "text_input": "Entrada de texto",
       "checklist": "Lista de verificación"
+    }
+  },
+  "help": {
+    "pageTitle": "Ayuda y soporte",
+    "pageSubtitle": "Guías paso a paso para las herramientas que usa tu función.",
+    "searchPlaceholder": "Buscar temas de ayuda...",
+    "noResults": "Ningún tema de ayuda coincide con tu búsqueda.",
+    "openLink": "Abrir {{module}}",
+    "contact": {
+      "title": "¿Necesitas más ayuda?",
+      "body": "¿No encuentras lo que buscas? Contacta a tu gerente de planta, administrador o al equipo de soporte de FirmiCore.",
+      "cta": "Contactar soporte"
+    },
+    "modules": {
+      "machines": {
+        "title": "Máquinas",
+        "description": "El registro de cada máquina en la planta, su código QR, puntuación de salud e historial.",
+        "guides": [
+          {
+            "title": "Agregar una máquina",
+            "steps": [
+              "Abre Máquinas y usa Agregar máquina.",
+              "Completa lo básico: nombre, tipo, fabricante, modelo y número de serie.",
+              "Define su ubicación (departamento, piso, bahía, estación) y su criticidad.",
+              "Agrega fechas de compra/instalación, vida útil esperada y la próxima fecha de PM si se conoce.",
+              "Adjunta fotos o documentos (manuales, garantía) y guarda — la máquina aparece de inmediato en el registro con una puntuación de salud inicial de 100."
+            ]
+          },
+          {
+            "title": "Ver una máquina y descargar su código QR",
+            "steps": [
+              "Abre Máquinas y selecciona la máquina en la lista para abrir su perfil.",
+              "Su perfil muestra la puntuación de salud, ubicación, especificaciones e historial (averías, órdenes de trabajo, PM).",
+              "Ve a la pestaña QR — se genera automáticamente un código QR para esa máquina.",
+              "Usa la opción de descarga o impresión para guardarlo como imagen o PDF, o imprímelo directamente para pegarlo en la máquina.",
+              "Escanear ese código QR más tarde abre directamente este perfil."
+            ]
+          }
+        ]
+      },
+      "breakdowns": {
+        "title": "Averías",
+        "description": "Reporta, monitorea y atiende las averías de máquinas cuando ocurren.",
+        "guides": [
+          {
+            "title": "Reportar una avería",
+            "steps": [
+              "Abre Averías y usa Reportar avería (o escanea el código QR de la máquina para ir directo).",
+              "Selecciona la máquina — si se escaneó por QR, ya está prellenada.",
+              "Describe el problema e indica si la máquina sigue funcionando.",
+              "Adjunta una foto si ayuda a explicar el problema.",
+              "Envía — queda en cola para atención y recibe un número de ticket para seguimiento."
+            ]
+          },
+          {
+            "title": "Atender una avería",
+            "steps": [
+              "Abre Averías (o Atender averías) y elige un ticket de la cola.",
+              "Revisa la descripción y las fotos, luego comienza el trabajo.",
+              "Diagnostica la causa y registra lo que se hizo para solucionarla.",
+              "Ciérrala, o conviértela en una orden de trabajo si la reparación necesita repuestos, un permiso o más tiempo."
+            ]
+          }
+        ]
+      },
+      "workOrders": {
+        "title": "Órdenes de trabajo",
+        "description": "Crea, asigna y da seguimiento a las órdenes de trabajo desde su apertura hasta el cierre firmado.",
+        "guides": [
+          {
+            "title": "Crear una orden de trabajo",
+            "steps": [
+              "Abre Órdenes de trabajo y usa Crear — se abre un panel de varios pasos.",
+              "Elige la máquina (busca por nombre), o ya estará prellenada si conviertes un ticket de avería.",
+              "Elige el tipo de orden: Avería, Correctiva, Preventiva, Instalación, Modificación, Inspección, Contratista u Otra (fijado en Avería si conviertes una avería).",
+              "Define la prioridad — crítica, alta, media o baja — y asígnala a un técnico (y a un supervisor si es necesario).",
+              "Si el trabajo lo requiere, activa Permiso de trabajo y completa su categoría, peligros, EPP y precauciones requeridas.",
+              "Agrega una lista de pasos que el técnico debe completar y adjunta cualquier documento de referencia.",
+              "Revisa y envía — la orden de trabajo se crea y aparece en la lista del técnico asignado."
+            ]
+          },
+          {
+            "title": "Completar y firmar una orden de trabajo",
+            "steps": [
+              "El técnico asignado abre la orden de trabajo y avanza por su lista de verificación.",
+              "Registra los repuestos usados, notas y cualquier medio (fotos) sobre la marcha.",
+              "Al terminar, la envía para firma.",
+              "Un supervisor o superior revisa la lista completada y los detalles de la firma, y cierra la orden de trabajo."
+            ]
+          }
+        ]
+      },
+      "myWorkOrders": {
+        "title": "Mis órdenes de trabajo",
+        "description": "Las órdenes de trabajo asignadas a ti, en una sola lista.",
+        "guides": [
+          {
+            "title": "Encuentra y trabaja en tus órdenes asignadas",
+            "steps": [
+              "Abre Mis órdenes de trabajo — solo muestra las que te fueron asignadas.",
+              "Están ordenadas por prioridad y fecha límite, así que la más urgente está arriba.",
+              "Abre una para ver su lista de verificación, detalles de la máquina y cualquier permiso adjunto.",
+              "Trabaja en ella y envíala para firma al terminar."
+            ]
+          }
+        ]
+      },
+      "pmSchedules": {
+        "title": "Programas de PM",
+        "description": "Programas de mantenimiento preventivo y sus vistas de calendario y carga de trabajo.",
+        "guides": [
+          {
+            "title": "Configurar un programa de PM",
+            "steps": [
+              "Abre Programas de PM y crea uno nuevo.",
+              "Elige la máquina a la que aplica.",
+              "Elige una recurrencia — diaria, semanal, mensual o un intervalo personalizado.",
+              "Asigna un técnico predeterminado y agrega la lista de tareas a realizar cada vez.",
+              "Guarda — las próximas ocurrencias se generan automáticamente según la recurrencia."
+            ]
+          },
+          {
+            "title": "Ver lo que se aproxima",
+            "steps": [
+              "Usa el Calendario de PM para una vista diaria/semanal/mensual del PM programado.",
+              "Usa Carga de trabajo de PM para ver cómo se distribuyen las tareas entre los técnicos.",
+              "Abre cualquier ocurrencia para verla o reasignarla antes de su vencimiento."
+            ]
+          }
+        ]
+      },
+      "workPermits": {
+        "title": "Permisos de trabajo",
+        "description": "Solicitudes de permiso de trabajo con categorías y precauciones requeridas.",
+        "guides": [
+          {
+            "title": "Emitir un permiso de trabajo",
+            "steps": [
+              "Un permiso normalmente se solicita desde dentro de una orden de trabajo (activa Permiso de trabajo al crearla), o directamente desde Permisos de trabajo.",
+              "Elige la categoría del permiso — determina la lista estándar de peligros y precauciones.",
+              "Revisa y confirma las precauciones y el EPP requeridos para el trabajo.",
+              "Define el período de validez (desde/hasta) y luego emite el permiso.",
+              "El permiso queda adjunto al trabajo y puede revisarse en cualquier momento desde Permisos de trabajo."
+            ]
+          }
+        ]
+      },
+      "safetyCases": {
+        "title": "Casos de seguridad",
+        "description": "Reporta y da seguimiento a incidentes, casi accidentes, peligros y actos inseguros.",
+        "guides": [
+          {
+            "title": "Reportar un caso de seguridad",
+            "steps": [
+              "Abre Casos de seguridad y usa Reportar.",
+              "Elige el tipo: incidente, casi accidente, peligro o acto inseguro.",
+              "Describe qué pasó, dónde y quién (si alguien) estuvo involucrado.",
+              "Adjunta una foto si hay una, luego envía — se dirige a quien pueda evaluarlo."
+            ]
+          },
+          {
+            "title": "Evaluar y cerrar un caso",
+            "steps": [
+              "Abre el caso desde Casos de seguridad.",
+              "Revisa los detalles y evalúa la gravedad.",
+              "Asígnalo para acción correctiva si es necesario y registra lo que se hizo.",
+              "Cierra el caso una vez resuelto — esto también actualiza el historial del reportante y los puntos de lista negra relacionados."
+            ]
+          }
+        ]
+      },
+      "safetyTrainings": {
+        "title": "Capacitaciones de seguridad",
+        "description": "Programa y gestiona sesiones de capacitación en seguridad.",
+        "guides": [
+          {
+            "title": "Programar una sesión de capacitación en seguridad",
+            "steps": [
+              "Abre Capacitaciones de seguridad y crea una nueva sesión.",
+              "Elige el tema/módulo de capacitación y define fecha, hora y lugar.",
+              "Asigna a las personas que deben asistir.",
+              "Guarda — aparece en su panel como una capacitación próxima, y en el calendario de capacitaciones."
+            ]
+          }
+        ]
+      },
+      "safetyBlacklist": {
+        "title": "Lista negra",
+        "description": "Técnicos, contratistas, operadores o máquinas que alcanzan el umbral de puntos de casos de seguridad.",
+        "guides": [
+          {
+            "title": "Revisar y eliminar una entrada de la lista negra",
+            "steps": [
+              "Abre Lista negra para ver todo lo que supera el umbral de puntos de casos de seguridad.",
+              "Abre una entrada para ver los casos de seguridad que la originaron.",
+              "Si ya se resolvió (recapacitación, acción correctiva), un administrador puede eliminar la entrada.",
+              "Eliminarla quita el bloqueo para nuevas asignaciones de órdenes de trabajo o trabajos a ese técnico, contratista, operador o máquina."
+            ]
+          }
+        ]
+      },
+      "inventory": {
+        "title": "Inventario",
+        "description": "El catálogo de repuestos, niveles de stock y alertas de stock bajo.",
+        "guides": [
+          {
+            "title": "Agregar un repuesto al catálogo",
+            "steps": [
+              "Abre Catálogo de inventario y usa Agregar artículo.",
+              "Ingresa el nombre y la categoría del repuesto — se genera automáticamente un número de parte según la categoría.",
+              "Elige un proveedor (o agrega uno) y define el nivel de stock y el punto de reorden.",
+              "Adjunta un documento de garantía si lo hay, luego guarda.",
+              "El repuesto ahora aparece en el catálogo y se marca automáticamente si su stock cae por debajo del punto de reorden."
+            ]
+          }
+        ]
+      },
+      "po": {
+        "title": "Órdenes de compra",
+        "description": "Crea y da seguimiento a órdenes de compra de repuestos y materiales.",
+        "guides": [
+          {
+            "title": "Crear una orden de compra",
+            "steps": [
+              "Abre Órdenes de compra y usa Crear.",
+              "Elige el proveedor.",
+              "Agrega los repuestos y cantidades que necesitas — los repuestos con stock bajo son fáciles de identificar en el catálogo.",
+              "Revisa el total y luego envía la orden.",
+              "Da seguimiento a su estado (pedido, recibido parcialmente, recibido) desde la lista de Órdenes de compra."
+            ]
+          }
+        ]
+      },
+      "requests": {
+        "title": "Solicitudes de repuestos",
+        "description": "Solicitudes de repuestos de los técnicos y su estado de cumplimiento.",
+        "guides": [
+          {
+            "title": "Cumplir una solicitud de repuestos",
+            "steps": [
+              "Abre Solicitudes y elige una de la cola.",
+              "Verifica el repuesto y la cantidad solicitada contra lo disponible en el estante.",
+              "Entrega los repuestos y marca la solicitud como cumplida (o parcialmente cumplida si el stock es insuficiente).",
+              "Si el stock es insuficiente, puede alimentar una orden de compra."
+            ]
+          }
+        ]
+      },
+      "triage": {
+        "title": "Triaje",
+        "description": "Flujos guiados de resolución de problemas para diagnosticar una falla de máquina paso a paso.",
+        "guides": [
+          {
+            "title": "Ejecutar una sesión de triaje",
+            "steps": [
+              "Abre Triaje y elige la máquina y el problema que observas.",
+              "Sigue los pasos guiados — cada uno pide una pregunta de sí/no, una lectura o una verificación rápida.",
+              "Agrega una nota o foto en cualquier paso si ayuda a documentar lo que encontraste.",
+              "Si el flujo llega a una solución que puedes hacer tú mismo, te guía a través de ella y cierra el caso.",
+              "Si no se puede resolver en tu nivel, se convierte automáticamente en una orden de trabajo o un reporte de avería para la persona adecuada."
+            ]
+          }
+        ]
+      },
+      "training": {
+        "title": "Capacitación",
+        "description": "La biblioteca de módulos de capacitación y el panel para gestionar cursos.",
+        "guides": [
+          {
+            "title": "Asignar un módulo de capacitación",
+            "steps": [
+              "Abre Capacitación y explora la biblioteca de módulos.",
+              "Abre un módulo para revisar su contenido y cuestionario antes de asignarlo.",
+              "Usa Asignar y elige a las personas (o un rol/sitio completo) que deben completarlo.",
+              "Define una fecha límite si corresponde, luego confirma — aparece en el panel de cada persona."
+            ]
+          }
+        ]
+      },
+      "traineeManagement": {
+        "title": "Gestión de aprendices",
+        "description": "Gestiona los perfiles, programas y el progreso de asignaciones de los aprendices.",
+        "guides": [
+          {
+            "title": "Dar seguimiento al progreso de un aprendiz",
+            "steps": [
+              "Abre Gestión de aprendices y selecciona al aprendiz.",
+              "Su perfil muestra su programa, módulos asignados y estado de finalización de cada uno.",
+              "Abre una asignación para ver las calificaciones del cuestionario o marcarla para recapacitación si es necesario.",
+              "Una vez completados todos los módulos requeridos, firma su programa para emitir su certificado."
+            ]
+          }
+        ]
+      },
+      "myTraining": {
+        "title": "Mi capacitación",
+        "description": "Módulos de capacitación asignados a ti.",
+        "guides": [
+          {
+            "title": "Completar un módulo asignado",
+            "steps": [
+              "Encuentra tu capacitación asignada como un widget en tu panel.",
+              "Ábrelo y avanza por el contenido de la lección.",
+              "Realiza el cuestionario final si el módulo tiene uno.",
+              "Aprobarlo lo marca como completo y, donde esté configurado, emite un certificado."
+            ]
+          }
+        ]
+      },
+      "myProgram": {
+        "title": "Mi programa",
+        "description": "Tu programa de aprendiz: módulos, cuestionarios y progreso hacia la certificación.",
+        "guides": [
+          {
+            "title": "Avanzar en tu programa",
+            "steps": [
+              "Abre Mi programa para ver todos los módulos de tu programa y su estado.",
+              "Abre el siguiente módulo incompleto y revisa su contenido de lección.",
+              "Realiza su cuestionario si tiene uno — normalmente puedes repetirlo si no apruebas la primera vez.",
+              "Una vez completados todos los módulos, tu programa se firma y se emite un certificado."
+            ]
+          }
+        ]
+      },
+      "myCertificates": {
+        "title": "Mis certificados",
+        "description": "Certificados que has obtenido de módulos y programas completados.",
+        "guides": [
+          {
+            "title": "Descargar un certificado",
+            "steps": [
+              "Abre Mis certificados para ver todo lo que has obtenido.",
+              "Encuentra el que quieres y usa su opción de descarga.",
+              "Se descarga como PDF que puedes guardar o imprimir."
+            ]
+          }
+        ]
+      },
+      "contractors": {
+        "title": "Contratistas",
+        "description": "Perfiles de contratistas, sus técnicos, trabajos, cumplimiento y desempeño.",
+        "guides": [
+          {
+            "title": "Agregar un contratista y sus técnicos",
+            "steps": [
+              "Abre Contratistas y usa Agregar contratista.",
+              "Ingresa los datos de la empresa y cualquier documento de cumplimiento (seguro, certificaciones).",
+              "Abre el perfil del nuevo contratista y usa Agregar técnico para cada persona que trabajará en el sitio.",
+              "El contratista y sus técnicos ya pueden asignarse a trabajos."
+            ]
+          },
+          {
+            "title": "Registrar el trabajo y calificar un trabajo de contratista",
+            "steps": [
+              "Abre el trabajo desde Trabajos de contratistas.",
+              "Usa Registrar trabajo para anotar el avance, repuestos usados o una factura a medida que avanza el trabajo.",
+              "Al terminar, usa Firmar para cerrar el trabajo.",
+              "Usa Calificar contratista para registrar cómo salió el trabajo — esto alimenta su historial de desempeño."
+            ]
+          }
+        ]
+      },
+      "myShift": {
+        "title": "Mi turno",
+        "description": "Tu turno actual, y cómo iniciarlo o terminarlo.",
+        "guides": [
+          {
+            "title": "Terminar tu turno",
+            "steps": [
+              "Usa el botón Terminar turno en el encabezado.",
+              "Si se requiere un traspaso, se te pedirá completar lo que el siguiente turno debe saber: asuntos pendientes, estado de las máquinas, cualquier cosa inusual.",
+              "Envía — tu turno se cierra y el traspaso queda visible para el turno entrante."
+            ]
+          }
+        ]
+      },
+      "shiftHandovers": {
+        "title": "Traspasos de turno",
+        "description": "Historial de traspasos de turno y resúmenes entre el turno saliente y el entrante.",
+        "guides": [
+          {
+            "title": "Revisar el último traspaso",
+            "steps": [
+              "Abre Traspasos de turno para ver el historial, el más reciente primero.",
+              "Abre uno para ver los asuntos pendientes, el estado de las máquinas y las notas que dejó el turno saliente.",
+              "Úsalo al inicio de tu turno para saber qué debes retomar."
+            ]
+          }
+        ]
+      },
+      "analytics": {
+        "title": "Analítica",
+        "description": "Métricas de toda la empresa sobre máquinas, averías, PM y más.",
+        "guides": [
+          {
+            "title": "Leer los paneles",
+            "steps": [
+              "Abre Analítica y elige una pestaña (máquinas, averías, PM, seguridad, etc.).",
+              "Usa el rango de fechas y los filtros de sitio/máquina para acotar la vista.",
+              "Se calcula en vivo a partir de tus registros operativos, así que es precisa incluso sin una configuración de informes separada.",
+              "Profundiza en un gráfico o cifra para ver los registros subyacentes."
+            ]
+          }
+        ]
+      },
+      "moe": {
+        "title": "MOE",
+        "description": "Seguimiento y tendencias de la eficiencia operativa de las máquinas.",
+        "guides": [
+          {
+            "title": "Revisar tendencias de eficiencia de máquinas",
+            "steps": [
+              "Abre MOE y elige una máquina o departamento.",
+              "Revisa su tendencia de eficiencia en el período seleccionado.",
+              "Una caída suele coincidir con una avería o un PM vencido — verifica con Máquinas/Averías para encontrar la causa."
+            ]
+          }
+        ]
+      },
+      "reports": {
+        "title": "Informes",
+        "description": "Genera y exporta informes de los módulos a los que tienes acceso.",
+        "guides": [
+          {
+            "title": "Exportar un informe",
+            "steps": [
+              "Abre Informes y elige un tipo de informe.",
+              "Define el rango de fechas y cualquier filtro (máquina, departamento, sitio).",
+              "Genera una vista previa y luego expórtalo como PDF u hoja de cálculo.",
+              "Las exportaciones anteriores se guardan en el historial de informes para descargarlas después."
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "title": "Auditoría",
+        "description": "Sesiones de auditoría, hallazgos y seguimiento de cumplimiento.",
+        "guides": [
+          {
+            "title": "Ejecutar una sesión de auditoría",
+            "steps": [
+              "Abre Auditoría e inicia una nueva sesión sobre las máquinas, áreas u órdenes de trabajo que estás auditando.",
+              "Avanza por la lista de verificación configurada, registrando hallazgos a medida que avanzas.",
+              "Adjunta fotos como evidencia donde sea necesario.",
+              "Envía la sesión — los hallazgos se rastrean hasta que se cierran."
+            ]
+          }
+        ]
+      },
+      "evaluations": {
+        "title": "Evaluaciones",
+        "description": "Plantillas de evaluación de desempeño y evaluaciones completadas.",
+        "guides": [
+          {
+            "title": "Realizar una evaluación",
+            "steps": [
+              "Abre Evaluaciones y elige una plantilla adecuada (rol, área de habilidad).",
+              "Selecciona a la persona o equipo a evaluar.",
+              "Califica cada criterio y agrega comentarios.",
+              "Envía — se guarda en su historial de evaluaciones."
+            ]
+          }
+        ]
+      },
+      "settings": {
+        "title": "Configuración",
+        "description": "Configuración de la empresa, usuarios, plantas y configuración de turnos.",
+        "guides": [
+          {
+            "title": "Agregar un nuevo usuario",
+            "steps": [
+              "Abre Configuración y ve a Usuarios.",
+              "Usa Invitar usuario.",
+              "Completa su nombre, correo electrónico, rol y el sitio/planta al que pertenece.",
+              "Envía la invitación — la reciben por correo y configuran su propio inicio de sesión."
+            ]
+          },
+          {
+            "title": "Actualizar la zona horaria o el idioma de la empresa",
+            "steps": [
+              "Abre Configuración y ve al perfil de la empresa.",
+              "Elige la zona horaria en el menú desplegable (busca por ciudad o desfase).",
+              "Elige el idioma predeterminado para los nuevos usuarios.",
+              "Guarda — esto afecta cómo se muestran las fechas/horas y el idioma con el que inician las nuevas cuentas."
+            ]
+          }
+        ]
+      },
+      "billing": {
+        "title": "Facturación y plan",
+        "description": "Tu plan de suscripción, ciclo de facturación y métodos de pago.",
+        "guides": [
+          {
+            "title": "Cambiar tu plan",
+            "steps": [
+              "Abre Facturación y plan.",
+              "Compara los planes disponibles y lo que incluye cada uno.",
+              "Elige Mejorar o Reducir en el plan que quieras.",
+              "Confirma — el cambio se aplica a tu próximo ciclo de facturación (las mejoras pueden aplicarse de inmediato)."
+            ]
+          }
+        ]
+      }
     }
   }
 }

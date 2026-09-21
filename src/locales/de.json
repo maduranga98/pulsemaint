@@ -49,7 +49,8 @@
         "evaluations": "Bewertungen",
         "settings": "Einstellungen",
         "billing": "Abrechnung & Tarif"
-      }
+      },
+      "help": "Hilfe & Support"
     },
     "dashboard": {
       "adminTitle": "Admin-Übersicht",
@@ -8418,6 +8419,509 @@
       "number_input": "Zahleneingabe",
       "text_input": "Texteingabe",
       "checklist": "Checkliste"
+    }
+  },
+  "help": {
+    "pageTitle": "Hilfe & Support",
+    "pageSubtitle": "Schritt-für-Schritt-Anleitungen für die Werkzeuge, die Ihre Rolle nutzt.",
+    "searchPlaceholder": "Hilfethemen durchsuchen...",
+    "noResults": "Keine Hilfethemen entsprechen Ihrer Suche.",
+    "openLink": "{{module}} öffnen",
+    "contact": {
+      "title": "Weitere Hilfe benötigt?",
+      "body": "Finden Sie nicht, wonach Sie suchen? Wenden Sie sich an Ihren Werksleiter, Administrator oder das FirmiCore-Support-Team.",
+      "cta": "Support kontaktieren"
+    },
+    "modules": {
+      "machines": {
+        "title": "Maschinen",
+        "description": "Das Register aller Maschinen vor Ort, ihr QR-Code, Gesundheitswert und Verlauf.",
+        "guides": [
+          {
+            "title": "Eine Maschine hinzufügen",
+            "steps": [
+              "Öffnen Sie Maschinen und verwenden Sie Maschine hinzufügen.",
+              "Geben Sie die Grunddaten ein: Name, Typ, Hersteller, Modell und Seriennummer.",
+              "Legen Sie den Standort (Abteilung, Etage, Bucht, Station) und die Kritikalität fest.",
+              "Fügen Sie Kauf-/Installationsdatum, erwartete Lebensdauer und das nächste PM-Fälligkeitsdatum hinzu, falls bekannt.",
+              "Fügen Sie Fotos oder Dokumente (Handbücher, Garantie) an und speichern Sie — die Maschine erscheint sofort im Register mit einem anfänglichen Gesundheitswert von 100."
+            ]
+          },
+          {
+            "title": "Eine Maschine ansehen und ihren QR-Code herunterladen",
+            "steps": [
+              "Öffnen Sie Maschinen und wählen Sie die Maschine aus der Liste, um ihr Profil zu öffnen.",
+              "Das Profil zeigt Gesundheitswert, Standort, technische Daten und Verlauf (Ausfälle, Arbeitsaufträge, PM).",
+              "Gehen Sie zum QR-Tab — für diese Maschine wird automatisch ein QR-Code generiert.",
+              "Nutzen Sie die Download- oder Druckoption, um ihn als Bild oder PDF zu speichern, oder drucken Sie ihn direkt aus, um ihn an der Maschine anzubringen.",
+              "Das spätere Scannen dieses QR-Codes öffnet direkt dieses Profil."
+            ]
+          }
+        ]
+      },
+      "breakdowns": {
+        "title": "Ausfälle",
+        "description": "Melden, verfolgen und bearbeiten Sie Maschinenausfälle, sobald sie auftreten.",
+        "guides": [
+          {
+            "title": "Einen Ausfall melden",
+            "steps": [
+              "Öffnen Sie Ausfälle und verwenden Sie Ausfall melden (oder scannen Sie den QR-Code der Maschine, um direkt einzusteigen).",
+              "Wählen Sie die Maschine aus — wurde sie per QR gescannt, ist sie bereits vorausgefüllt.",
+              "Beschreiben Sie das Problem und vermerken Sie, ob die Maschine noch läuft.",
+              "Fügen Sie bei Bedarf ein Foto hinzu, das das Problem verdeutlicht.",
+              "Absenden — der Eintrag wird zur Bearbeitung eingereiht und erhält eine Ticketnummer zur Nachverfolgung."
+            ]
+          },
+          {
+            "title": "Einen Ausfall bearbeiten",
+            "steps": [
+              "Öffnen Sie Ausfälle (oder Ausfälle bearbeiten) und wählen Sie ein Ticket aus der Warteschlange.",
+              "Prüfen Sie die Beschreibung und etwaige Fotos, dann beginnen Sie mit der Arbeit.",
+              "Diagnostizieren Sie die Ursache und dokumentieren Sie, was zur Behebung getan wurde.",
+              "Schließen Sie den Fall ab, oder wandeln Sie ihn in einen Arbeitsauftrag um, wenn die Reparatur Teile, eine Genehmigung oder mehr Zeit erfordert."
+            ]
+          }
+        ]
+      },
+      "workOrders": {
+        "title": "Arbeitsaufträge",
+        "description": "Erstellen, zuweisen und verfolgen Sie Arbeitsaufträge von der Eröffnung bis zur Abzeichnung.",
+        "guides": [
+          {
+            "title": "Einen Arbeitsauftrag erstellen",
+            "steps": [
+              "Öffnen Sie Arbeitsaufträge und verwenden Sie Erstellen — ein mehrstufiges Fenster öffnet sich.",
+              "Wählen Sie die Maschine (Suche nach Name), oder sie ist bereits vorausgefüllt, wenn Sie ein Ausfallticket umwandeln.",
+              "Wählen Sie den Arbeitsauftragstyp: Ausfall, Korrektiv, Präventiv, Installation, Modifikation, Inspektion, Fremdfirma oder Sonstiges (bei Umwandlung eines Ausfalls auf Ausfall festgelegt).",
+              "Legen Sie die Priorität fest — kritisch, hoch, mittel oder niedrig — und weisen Sie einen Techniker zu (bei Bedarf auch einen Vorgesetzten).",
+              "Falls erforderlich, aktivieren Sie Arbeitserlaubnis und geben Sie Kategorie, Gefahren, PSA und erforderliche Vorsichtsmaßnahmen ein.",
+              "Fügen Sie eine Checkliste der vom Techniker auszuführenden Schritte hinzu und hängen Sie Referenzdokumente an.",
+              "Überprüfen und absenden — der Arbeitsauftrag wird erstellt und erscheint in der Liste des zugewiesenen Technikers."
+            ]
+          },
+          {
+            "title": "Einen Arbeitsauftrag abschließen und abzeichnen",
+            "steps": [
+              "Der zugewiesene Techniker öffnet den Arbeitsauftrag und arbeitet die Checkliste ab.",
+              "Er erfasst dabei verwendete Teile, Notizen und etwaige Medien (Fotos).",
+              "Nach Abschluss reicht er ihn zur Abzeichnung ein.",
+              "Ein Vorgesetzter oder höher prüft die abgeschlossene Checkliste und die Abzeichnungsdetails und schließt den Arbeitsauftrag."
+            ]
+          }
+        ]
+      },
+      "myWorkOrders": {
+        "title": "Meine Arbeitsaufträge",
+        "description": "Die Ihnen zugewiesenen Arbeitsaufträge in einer Liste.",
+        "guides": [
+          {
+            "title": "Ihre zugewiesenen Aufträge finden und bearbeiten",
+            "steps": [
+              "Öffnen Sie Meine Arbeitsaufträge — es werden nur die Ihnen zugewiesenen angezeigt.",
+              "Sie sind nach Priorität und Fälligkeitsdatum sortiert, der dringendste steht oben.",
+              "Öffnen Sie einen, um Checkliste, Maschinendetails und angehängte Genehmigungen zu sehen.",
+              "Bearbeiten Sie ihn und reichen Sie ihn nach Abschluss zur Abzeichnung ein."
+            ]
+          }
+        ]
+      },
+      "pmSchedules": {
+        "title": "PM-Pläne",
+        "description": "Vorbeugende Wartungspläne sowie deren Kalender- und Auslastungsansichten.",
+        "guides": [
+          {
+            "title": "Einen PM-Plan einrichten",
+            "steps": [
+              "Öffnen Sie PM-Pläne und erstellen Sie einen neuen.",
+              "Wählen Sie die betreffende Maschine.",
+              "Wählen Sie eine Wiederholung — täglich, wöchentlich, monatlich oder ein benutzerdefiniertes Intervall.",
+              "Weisen Sie einen Standardtechniker zu und fügen Sie die Checkliste der jeweils durchzuführenden Aufgaben hinzu.",
+              "Speichern — künftige Termine werden entsprechend der Wiederholung automatisch generiert."
+            ]
+          },
+          {
+            "title": "Anstehende Termine ansehen",
+            "steps": [
+              "Nutzen Sie den PM-Kalender für eine Tages-/Wochen-/Monatsansicht der geplanten PM.",
+              "Nutzen Sie die PM-Auslastung, um zu sehen, wie PM-Aufgaben auf Techniker verteilt sind.",
+              "Öffnen Sie einen Termin, um ihn vor Fälligkeit einzusehen oder neu zuzuweisen."
+            ]
+          }
+        ]
+      },
+      "workPermits": {
+        "title": "Arbeitserlaubnisse",
+        "description": "Arbeitserlaubnis-Anfragen mit Kategorien und erforderlichen Vorsichtsmaßnahmen.",
+        "guides": [
+          {
+            "title": "Eine Arbeitserlaubnis ausstellen",
+            "steps": [
+              "Eine Erlaubnis wird normalerweise aus einem Arbeitsauftrag heraus angefordert (Arbeitserlaubnis beim Erstellen aktivieren) oder direkt über Arbeitserlaubnisse.",
+              "Wählen Sie die Erlaubniskategorie — sie bestimmt die Standardliste der Gefahren und Vorsichtsmaßnahmen.",
+              "Prüfen und bestätigen Sie die für die Arbeit erforderlichen Vorsichtsmaßnahmen und PSA.",
+              "Legen Sie den Gültigkeitszeitraum (von/bis) fest und stellen Sie dann die Erlaubnis aus.",
+              "Die Erlaubnis bleibt an den Auftrag angehängt und kann jederzeit unter Arbeitserlaubnisse eingesehen werden."
+            ]
+          }
+        ]
+      },
+      "safetyCases": {
+        "title": "Sicherheitsfälle",
+        "description": "Melden und verfolgen Sie Vorfälle, Beinaheunfälle, Gefahren und unsichere Handlungen.",
+        "guides": [
+          {
+            "title": "Einen Sicherheitsfall melden",
+            "steps": [
+              "Öffnen Sie Sicherheitsfälle und verwenden Sie Melden.",
+              "Wählen Sie den Typ: Vorfall, Beinaheunfall, Gefahr oder unsichere Handlung.",
+              "Beschreiben Sie, was passiert ist, wo, und wer (falls jemand) beteiligt war.",
+              "Fügen Sie ein Foto hinzu, falls vorhanden, und senden Sie es dann ab — es wird an die zuständige Person zur Bewertung weitergeleitet."
+            ]
+          },
+          {
+            "title": "Einen Fall bewerten und abschließen",
+            "steps": [
+              "Öffnen Sie den Fall über Sicherheitsfälle.",
+              "Prüfen Sie die Details und bewerten Sie den Schweregrad.",
+              "Weisen Sie bei Bedarf eine Korrekturmaßnahme zu und dokumentieren Sie, was unternommen wurde.",
+              "Schließen Sie den Fall nach Lösung ab — dies aktualisiert auch die Historie des Melders und zugehörige Blacklist-Punkte."
+            ]
+          }
+        ]
+      },
+      "safetyTrainings": {
+        "title": "Sicherheitsschulungen",
+        "description": "Planen und verwalten Sie Sicherheitsschulungen.",
+        "guides": [
+          {
+            "title": "Eine Sicherheitsschulung planen",
+            "steps": [
+              "Öffnen Sie Sicherheitsschulungen und erstellen Sie eine neue Sitzung.",
+              "Wählen Sie das Schulungsthema/-modul und legen Sie Datum, Uhrzeit und Ort fest.",
+              "Weisen Sie die teilnehmenden Personen zu.",
+              "Speichern — sie erscheint auf deren Dashboard als bevorstehende Schulung sowie im Schulungskalender."
+            ]
+          }
+        ]
+      },
+      "safetyBlacklist": {
+        "title": "Sperrliste",
+        "description": "Techniker, Fremdfirmen, Bediener oder Maschinen, die den Punkteschwellenwert für Sicherheitsfälle erreicht haben.",
+        "guides": [
+          {
+            "title": "Einen Sperrlisteneintrag prüfen und aufheben",
+            "steps": [
+              "Öffnen Sie Sperrliste, um alles anzuzeigen, was den Punkteschwellenwert für Sicherheitsfälle überschritten hat.",
+              "Öffnen Sie einen Eintrag, um die zugrunde liegenden Sicherheitsfälle zu sehen.",
+              "Wurde das Problem behoben (Nachschulung, Korrekturmaßnahme), kann ein Administrator den Eintrag aufheben.",
+              "Die Aufhebung entfernt die Sperre für neue Arbeitsauftrags- oder Auftragszuweisungen für diesen Techniker, diese Fremdfirma, diesen Bediener oder diese Maschine."
+            ]
+          }
+        ]
+      },
+      "inventory": {
+        "title": "Bestand",
+        "description": "Der Teilekatalog, Bestandsniveaus und Warnungen bei niedrigem Bestand.",
+        "guides": [
+          {
+            "title": "Ein Teil zum Katalog hinzufügen",
+            "steps": [
+              "Öffnen Sie Bestandskatalog und verwenden Sie Artikel hinzufügen.",
+              "Geben Sie Name und Kategorie des Teils ein — eine Teilenummer wird automatisch je nach Kategorie generiert.",
+              "Wählen Sie einen Lieferanten (oder fügen Sie einen hinzu) und legen Sie Bestandsniveau und Nachbestellpunkt fest.",
+              "Fügen Sie ein Garantiedokument hinzu, falls vorhanden, und speichern Sie.",
+              "Das Teil erscheint nun im Katalog und wird automatisch markiert, wenn sein Bestand unter den Nachbestellpunkt fällt."
+            ]
+          }
+        ]
+      },
+      "po": {
+        "title": "Bestellungen",
+        "description": "Erstellen und verfolgen Sie Bestellungen für Teile und Materialien.",
+        "guides": [
+          {
+            "title": "Eine Bestellung erstellen",
+            "steps": [
+              "Öffnen Sie Bestellungen und verwenden Sie Erstellen.",
+              "Wählen Sie den Lieferanten.",
+              "Fügen Sie die benötigten Teile und Mengen hinzu — Teile mit niedrigem Bestand sind im Katalog leicht zu erkennen.",
+              "Prüfen Sie die Summe und senden Sie dann die Bestellung ab.",
+              "Verfolgen Sie ihren Status (bestellt, teilweise erhalten, erhalten) in der Liste der Bestellungen."
+            ]
+          }
+        ]
+      },
+      "requests": {
+        "title": "Teileanfragen",
+        "description": "Teileanfragen von Technikern und ihr Bearbeitungsstatus.",
+        "guides": [
+          {
+            "title": "Eine Teileanfrage bearbeiten",
+            "steps": [
+              "Öffnen Sie Anfragen und wählen Sie eine aus der Warteschlange.",
+              "Prüfen Sie das angefragte Teil und die Menge gegen den vorhandenen Bestand.",
+              "Geben Sie die Teile aus und markieren Sie die Anfrage als erfüllt (oder teilweise erfüllt, wenn der Bestand knapp ist).",
+              "Bei knappem Bestand kann sie in eine Bestellung einfließen."
+            ]
+          }
+        ]
+      },
+      "triage": {
+        "title": "Triage",
+        "description": "Geführte Fehlersuche-Abläufe zur schrittweisen Diagnose eines Maschinenproblems.",
+        "guides": [
+          {
+            "title": "Eine Triage-Sitzung durchführen",
+            "steps": [
+              "Öffnen Sie Triage und wählen Sie die Maschine und das beobachtete Problem.",
+              "Folgen Sie den geführten Schritten — jeder fragt eine Ja/Nein-Frage, einen Messwert oder eine kurze Prüfung ab.",
+              "Fügen Sie bei jedem Schritt eine Notiz oder ein Foto hinzu, wenn es hilft, Ihre Beobachtung zu dokumentieren.",
+              "Führt der Ablauf zu einer Lösung, die Sie selbst durchführen können, leitet er Sie hindurch und schließt den Fall ab.",
+              "Kann es auf Ihrer Ebene nicht gelöst werden, wird es automatisch als Arbeitsauftrag oder Ausfallmeldung an die zuständige Person eskaliert."
+            ]
+          }
+        ]
+      },
+      "training": {
+        "title": "Schulung",
+        "description": "Die Bibliothek der Schulungsmodule und das Dashboard zur Kursverwaltung.",
+        "guides": [
+          {
+            "title": "Ein Schulungsmodul zuweisen",
+            "steps": [
+              "Öffnen Sie Schulung und durchsuchen Sie die Modulbibliothek.",
+              "Öffnen Sie ein Modul, um Inhalt und Quiz vor der Zuweisung zu prüfen.",
+              "Verwenden Sie Zuweisen und wählen Sie die Personen (oder eine ganze Rolle/einen Standort), die es absolvieren müssen.",
+              "Legen Sie bei Bedarf ein Fälligkeitsdatum fest und bestätigen Sie — es erscheint auf dem Dashboard jeder Person."
+            ]
+          }
+        ]
+      },
+      "traineeManagement": {
+        "title": "Auszubildendenverwaltung",
+        "description": "Verwalten Sie Profile, Programme und den Zuweisungsfortschritt von Auszubildenden.",
+        "guides": [
+          {
+            "title": "Den Fortschritt eines Auszubildenden verfolgen",
+            "steps": [
+              "Öffnen Sie Auszubildendenverwaltung und wählen Sie den Auszubildenden.",
+              "Sein Profil zeigt sein Programm, zugewiesene Module und den Abschlussstatus jedes einzelnen.",
+              "Öffnen Sie eine Zuweisung, um Quizergebnisse zu sehen oder sie bei Bedarf für eine Nachschulung zu markieren.",
+              "Sind alle erforderlichen Module abgeschlossen, zeichnen Sie sein Programm ab, um das Zertifikat auszustellen."
+            ]
+          }
+        ]
+      },
+      "myTraining": {
+        "title": "Meine Schulung",
+        "description": "Ihnen zugewiesene Schulungsmodule.",
+        "guides": [
+          {
+            "title": "Ein zugewiesenes Modul abschließen",
+            "steps": [
+              "Finden Sie Ihre zugewiesene Schulung als Widget auf Ihrem Dashboard.",
+              "Öffnen Sie es und arbeiten Sie sich durch den Lektionsinhalt.",
+              "Absolvieren Sie das abschließende Quiz, falls das Modul eines hat.",
+              "Bestehen markiert es als abgeschlossen und stellt, wo eingerichtet, ein Zertifikat aus."
+            ]
+          }
+        ]
+      },
+      "myProgram": {
+        "title": "Mein Programm",
+        "description": "Ihr Auszubildendenprogramm: Module, Quizze und Fortschritt zur Zertifizierung.",
+        "guides": [
+          {
+            "title": "Ihr Programm durcharbeiten",
+            "steps": [
+              "Öffnen Sie Mein Programm, um alle Module Ihres Programms und deren Status zu sehen.",
+              "Öffnen Sie das nächste unvollständige Modul und arbeiten Sie den Lektionsinhalt durch.",
+              "Absolvieren Sie das Quiz, falls vorhanden — bei Nichtbestehen können Sie es meist wiederholen.",
+              "Sind alle Module abgeschlossen, wird Ihr Programm abgezeichnet und ein Zertifikat ausgestellt."
+            ]
+          }
+        ]
+      },
+      "myCertificates": {
+        "title": "Meine Zertifikate",
+        "description": "Zertifikate, die Sie durch abgeschlossene Module und Programme erworben haben.",
+        "guides": [
+          {
+            "title": "Ein Zertifikat herunterladen",
+            "steps": [
+              "Öffnen Sie Meine Zertifikate, um alles zu sehen, was Sie erworben haben.",
+              "Finden Sie das gewünschte und verwenden Sie die Download-Option.",
+              "Es wird als PDF heruntergeladen, das Sie speichern oder drucken können."
+            ]
+          }
+        ]
+      },
+      "contractors": {
+        "title": "Fremdfirmen",
+        "description": "Profile von Fremdfirmen, deren Techniker, Aufträge, Compliance und Leistung.",
+        "guides": [
+          {
+            "title": "Eine Fremdfirma und ihre Techniker hinzufügen",
+            "steps": [
+              "Öffnen Sie Fremdfirmen und verwenden Sie Fremdfirma hinzufügen.",
+              "Geben Sie die Firmendaten und etwaige Compliance-Dokumente (Versicherung, Zertifizierungen) ein.",
+              "Öffnen Sie das Profil der neuen Fremdfirma und verwenden Sie Techniker hinzufügen für jede vor Ort tätige Person.",
+              "Die Fremdfirma und ihre Techniker können nun Aufträgen zugewiesen werden."
+            ]
+          },
+          {
+            "title": "Arbeit protokollieren und einen Fremdfirmenauftrag bewerten",
+            "steps": [
+              "Öffnen Sie den Auftrag über Fremdfirmenaufträge.",
+              "Verwenden Sie Arbeit protokollieren, um Fortschritt, verwendete Teile oder eine Rechnung während des Auftrags zu erfassen.",
+              "Nach Abschluss verwenden Sie Abzeichnen, um den Auftrag zu schließen.",
+              "Verwenden Sie Fremdfirma bewerten, um festzuhalten, wie die Arbeit verlief — dies fließt in deren Leistungshistorie ein."
+            ]
+          }
+        ]
+      },
+      "myShift": {
+        "title": "Meine Schicht",
+        "description": "Ihre aktuelle Schicht sowie deren Beginn oder Ende.",
+        "guides": [
+          {
+            "title": "Ihre Schicht beenden",
+            "steps": [
+              "Verwenden Sie die Schaltfläche Schicht beenden in der Kopfzeile.",
+              "Ist eine Übergabe erforderlich, werden Sie aufgefordert einzutragen, was die nächste Schicht wissen muss: offene Punkte, Maschinenstatus, alles Ungewöhnliche.",
+              "Absenden — Ihre Schicht wird geschlossen und die Übergabe wird für die eintretende Schicht sichtbar."
+            ]
+          }
+        ]
+      },
+      "shiftHandovers": {
+        "title": "Schichtübergaben",
+        "description": "Verlauf der Schichtübergaben und Briefings zwischen ausgehender und eintretender Schicht.",
+        "guides": [
+          {
+            "title": "Die letzte Übergabe prüfen",
+            "steps": [
+              "Öffnen Sie Schichtübergaben, um den Verlauf zu sehen, neueste zuerst.",
+              "Öffnen Sie eine, um offene Punkte, Maschinenstatus und Notizen der ausgehenden Schicht zu sehen.",
+              "Nutzen Sie dies zu Schichtbeginn, um zu wissen, was zu übernehmen ist."
+            ]
+          }
+        ]
+      },
+      "analytics": {
+        "title": "Analytik",
+        "description": "Unternehmensweite Kennzahlen zu Maschinen, Ausfällen, PM und mehr.",
+        "guides": [
+          {
+            "title": "Die Dashboards lesen",
+            "steps": [
+              "Öffnen Sie Analytik und wählen Sie einen Tab (Maschinen, Ausfälle, PM, Sicherheit usw.).",
+              "Nutzen Sie den Datumsbereich und Standort-/Maschinenfilter, um die Ansicht einzugrenzen.",
+              "Die Daten werden live aus Ihren Betriebsaufzeichnungen berechnet und sind daher auch ohne separates Berichtssystem genau.",
+              "Klicken Sie in ein Diagramm oder eine Zahl, um die zugrunde liegenden Datensätze zu sehen."
+            ]
+          }
+        ]
+      },
+      "moe": {
+        "title": "MOE",
+        "description": "Verfolgung und Trends der Maschinenbetriebseffizienz.",
+        "guides": [
+          {
+            "title": "Effizienztrends von Maschinen prüfen",
+            "steps": [
+              "Öffnen Sie MOE und wählen Sie eine Maschine oder Abteilung.",
+              "Prüfen Sie ihren Effizienztrend im gewählten Zeitraum.",
+              "Ein Rückgang fällt meist mit einem Ausfall oder überfälliger PM zusammen — prüfen Sie Maschinen/Ausfälle auf die Ursache."
+            ]
+          }
+        ]
+      },
+      "reports": {
+        "title": "Berichte",
+        "description": "Erstellen und exportieren Sie Berichte für die Module, auf die Sie Zugriff haben.",
+        "guides": [
+          {
+            "title": "Einen Bericht exportieren",
+            "steps": [
+              "Öffnen Sie Berichte und wählen Sie einen Berichtstyp.",
+              "Legen Sie den Datumsbereich und etwaige Filter (Maschine, Abteilung, Standort) fest.",
+              "Erzeugen Sie eine Vorschau und exportieren Sie sie dann als PDF oder Tabelle.",
+              "Frühere Exporte bleiben im Berichtsverlauf zum späteren Herunterladen erhalten."
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "title": "Audit",
+        "description": "Audit-Sitzungen, Feststellungen und Compliance-Verfolgung.",
+        "guides": [
+          {
+            "title": "Eine Audit-Sitzung durchführen",
+            "steps": [
+              "Öffnen Sie Audit und starten Sie eine neue Sitzung für die zu auditierenden Maschinen, Bereiche oder Arbeitsaufträge.",
+              "Arbeiten Sie die konfigurierte Checkliste durch und dokumentieren Sie dabei Feststellungen.",
+              "Fügen Sie bei Bedarf Fotos als Nachweis hinzu.",
+              "Reichen Sie die Sitzung ein — Feststellungen werden bis zum Abschluss verfolgt."
+            ]
+          }
+        ]
+      },
+      "evaluations": {
+        "title": "Bewertungen",
+        "description": "Vorlagen für Leistungsbewertungen und abgeschlossene Bewertungen.",
+        "guides": [
+          {
+            "title": "Eine Bewertung durchführen",
+            "steps": [
+              "Öffnen Sie Bewertungen und wählen Sie eine passende Vorlage (Rolle, Kompetenzbereich).",
+              "Wählen Sie die zu bewertende Person oder das Team.",
+              "Bewerten Sie jedes Kriterium und fügen Sie Kommentare hinzu.",
+              "Absenden — sie wird in der Bewertungshistorie gespeichert."
+            ]
+          }
+        ]
+      },
+      "settings": {
+        "title": "Einstellungen",
+        "description": "Unternehmenseinstellungen, Benutzer, Werke und Schichtkonfiguration.",
+        "guides": [
+          {
+            "title": "Einen neuen Benutzer hinzufügen",
+            "steps": [
+              "Öffnen Sie Einstellungen und gehen Sie zu Benutzer.",
+              "Verwenden Sie Benutzer einladen.",
+              "Geben Sie Name, E-Mail, Rolle und das Werk/den Standort der Person ein.",
+              "Senden Sie die Einladung — die Person erhält sie per E-Mail und richtet ihren eigenen Zugang ein."
+            ]
+          },
+          {
+            "title": "Zeitzone oder Sprache des Unternehmens aktualisieren",
+            "steps": [
+              "Öffnen Sie Einstellungen und gehen Sie zum Unternehmensprofil.",
+              "Wählen Sie die Zeitzone aus dem Dropdown (Suche nach Stadt oder Zeitverschiebung).",
+              "Wählen Sie die Standardsprache für neue Benutzer.",
+              "Speichern — dies wirkt sich auf die Anzeige von Datum/Uhrzeit und die Sprache aus, mit der neue Konten starten."
+            ]
+          }
+        ]
+      },
+      "billing": {
+        "title": "Abrechnung & Tarif",
+        "description": "Ihr Abonnementplan, Abrechnungszyklus und Zahlungsmethoden.",
+        "guides": [
+          {
+            "title": "Ihren Tarif ändern",
+            "steps": [
+              "Öffnen Sie Abrechnung & Tarif.",
+              "Vergleichen Sie die verfügbaren Tarife und deren Leistungsumfang.",
+              "Wählen Sie Upgrade oder Downgrade für den gewünschten Tarif.",
+              "Bestätigen — die Änderung gilt ab dem nächsten Abrechnungszyklus (Upgrades können sofort wirksam werden)."
+            ]
+          }
+        ]
+      }
     }
   }
 }
