@@ -9,11 +9,11 @@ import EmptyState from '../shared/EmptyState';
 import { useTranslation } from 'react-i18next';
 
 /**
- * Supervisor-facing queue of "Hold · Approval" requests raised by
- * technicians/trainees, surfaced directly on the dashboard so a supervisor
- * doesn't have to go hunting in the Work Orders list to find them. Approving
- * or rejecting here resolves the same request the Work Orders "Approval
- * Requests" tab shows — approving resumes the requester's own work.
+ * Supervisor/plant manager/admin queue of "Hold · Approval" requests raised
+ * by technicians/trainees, surfaced directly on the dashboard — this used to
+ * also live behind a "Approval Requests" tab on the Work Orders page, now
+ * removed in favor of this widget being the only place to resolve them.
+ * Approving resumes the requester's own work.
  */
 export default function PendingApprovalsWidget() {
   const { t } = useTranslation();
@@ -65,7 +65,7 @@ export default function PendingApprovalsWidget() {
         ) : (
           <button
             type="button"
-            onClick={() => navigate('/app/work-orders?tab=approvalRequests')}
+            onClick={() => navigate('/app/work-orders')}
             className="text-xs text-[#8BA3BF] hover:text-[#F0F4F8]"
           >
             {t('common.widgets.common.viewAll')}
@@ -125,7 +125,7 @@ export default function PendingApprovalsWidget() {
           {rows.length > 4 && (
             <button
               type="button"
-              onClick={() => navigate('/app/work-orders?tab=approvalRequests')}
+              onClick={() => navigate('/app/work-orders')}
               className="w-full text-center text-xs text-[#8BA3BF] hover:text-[#F0F4F8] py-1"
             >
               {t('common.widgets.pendingApprovalsWidget.viewMore', { count: rows.length - 4 })}

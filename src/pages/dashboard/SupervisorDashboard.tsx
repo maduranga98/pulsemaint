@@ -6,13 +6,10 @@ import { useOpenWorkOrders } from '../../hooks/dashboard/useOpenWorkOrders';
 import { useMttrToday } from '../../hooks/dashboard/useMttrToday';
 import KpiCard from '../../components/dashboard/shared/KpiCard';
 import KpiStrip from '../../components/dashboard/shared/KpiStrip';
-import BreakdownKanbanBoard from '../../components/dashboard/supervisor/BreakdownKanbanBoard';
-import WorkOrdersWidget from '../../components/dashboard/supervisor/WorkOrdersWidget';
 import FactoryFloorMap from '../../components/dashboard/supervisor/FactoryFloorMap';
 import TechnicianStatusList from '../../components/dashboard/supervisor/TechnicianStatusList';
-import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
 import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
-import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
+import NeedSignOffWidget from '../../components/dashboard/supervisor/NeedSignOffWidget';
 import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
@@ -83,36 +80,23 @@ export default function SupervisorDashboard() {
           ))}
         </KpiStrip>
 
-        {/* Row 2: Kanban + Work Orders */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8">
-            <BreakdownKanbanBoard companyId={companyId} />
-          </div>
-          <div className="lg:col-span-4">
-            <WorkOrdersWidget siteId={siteId} />
-          </div>
-        </div>
-
-        {/* Row 3: Floor Map + Tech Status */}
+        {/* Row 2: Floor Map + Tech Status */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FactoryFloorMap companyId={companyId} />
           <TechnicianStatusList companyId={companyId} />
         </div>
 
-        {/* Row 4: Pending Approvals + Assigned WOs / Audits / Evaluations / Trainings (today's shift) */}
+        {/* Row 3: Pending Approvals + Need Sign-Off — replaces the Work
+            Orders page's "Approval Requests" and "Need Sign-Off" tabs
+            (removed there; also shown to plant_manager/admin on
+            ManagerDashboard). */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PendingApprovalsWidget />
-          <AssignedTasksWidget />
+          <NeedSignOffWidget />
         </div>
 
-        {/* Row 5: My Trainings / My Safety Trainings — not-completed, replaces
-            the old "Safety Trainings" nav tab (supervisors can no longer
-            manage/assign/create safety training modules, only complete the
-            ones assigned to them). */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <MyTrainingsWidget />
-          <MySafetyTrainingsWidget />
-        </div>
+        {/* Row 4: Safety Trainings Assigned to Me */}
+        <MySafetyTrainingsWidget />
       </div>
 
       <DashboardSidePanel />
