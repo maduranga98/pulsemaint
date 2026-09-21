@@ -119,8 +119,12 @@ const NAV_GROUPS: NavGroup[] = [
       // Safety officer and HR officer now use admin's "Safety Trainings" tab
       // (scheduling safety training sessions) instead of their own separate
       // entries (a general module library link, and a standalone calendar tab).
-      { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin', 'supervisor', 'safety_officer'] },
-      // Admin/plant manager/supervisor/safety officer/HR officer reach the
+      // Supervisor no longer gets this tab — they can't manage/assign/create
+      // safety training modules, only complete the ones assigned to them,
+      // which now surfaces on their dashboard instead (see
+      // MySafetyTrainingsWidget on SupervisorDashboard).
+      { labelKey: 'common.nav.items.safetyTrainings', to: '/app/training/manage/safety-trainings', icon: Icon.book, roles: ['plant_manager', 'admin', 'safety_officer'] },
+      // Admin/plant manager/safety officer/HR officer reach the
       // calendar via the "View Training Schedules" button on the Safety
       // Trainings page instead of a dedicated nav entry. floor_operator's
       // safety trainings now surface on their dashboard instead (see
