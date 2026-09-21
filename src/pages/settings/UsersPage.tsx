@@ -32,6 +32,7 @@ import { useToast } from '../../hooks/useToast';
 import { useShiftConfig } from '../../hooks/useShiftConfig';
 import { useDepartments } from '../../hooks/useDepartments';
 import { usePlants } from '../../hooks/usePlants';
+import { usePlanLimitCheck } from '../../hooks/usePlanLimitCheck';
 import {
   createInvitation,
   getCompanyInvitations,
@@ -253,6 +254,7 @@ export default function UsersPage() {
   // and no per-row actions (SUP-016).
   const canManageUsers = currentUser?.role === 'admin' || currentUser?.role === 'plant_manager' || currentUser?.role === 'hr_officer';
   const toast = useToast();
+  const userLimit = usePlanLimitCheck('users');
   const { shifts, reload: reloadShifts } = useShiftConfig();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
@@ -380,6 +382,9 @@ export default function UsersPage() {
 
   const handleInvite = async (values: InviteFormValues) => {
     if (!company?.id || !currentUser) throw new Error('No company in session');
+    if (userLimit.atLimit) {
+      throw new Error(userLimit.message ?? 'User limit reached on your current plan.');
+    }
     const isTrainee = values.role === 'trainee';
     const trainingStart = isTrainee && values.trainingStartDate ? new Date(values.trainingStartDate) : null;
     const trainingEnd =
@@ -421,7 +426,16 @@ export default function UsersPage() {
     let created = 0;
     let failed = 0;
     const errors: string[] = [];
+    // Re-check right before each row too (userLimit.count is a snapshot from
+    // when the page loaded) so a large CSV stops at the plan's actual cap
+    // instead of creating everything then reporting failures after the fact.
+    const userCap = userLimit.limit;
     for (const row of rows) {
+      if (userCap !== null && userLimit.count + created >= userCap) {
+        failed += 1;
+        errors.push(`${row.email}: user limit reached on your current plan`);
+        continue;
+      }
       try {
         await createInvitation({
           companyId: company.id,

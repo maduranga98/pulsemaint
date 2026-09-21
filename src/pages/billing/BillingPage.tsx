@@ -4,6 +4,7 @@ import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
 import type { CompanyProfile } from '../../types/auth';
 import { createCheckoutSession, createPortalSession } from '../../services/billingService';
+import { PLAN_LIMITS, type PlanLimitConfig } from '../../lib/planLimits';
 
 type Plan = CompanyProfile['plan'];
 type BillingCycle = NonNullable<CompanyProfile['billingCycle']>;
@@ -14,6 +15,24 @@ interface PlanLimits {
   pmSchedules: string;
   workOrders: string;
   users: string;
+}
+
+function fmt(n: number | null, suffix = ''): string {
+  return n === null ? 'Unlimited' : `${n.toLocaleString()}${suffix}`;
+}
+
+// Derives the display strings from the single numeric source of truth
+// (PLAN_LIMITS in lib/planLimits.ts, also used for actual enforcement) so
+// this card's numbers can never drift from what's really enforced.
+function limitsFor(plan: Plan): PlanLimits {
+  const c: PlanLimitConfig = PLAN_LIMITS[plan];
+  return {
+    machines: fmt(c.machines),
+    inventoryItems: fmt(c.inventoryItems),
+    pmSchedules: fmt(c.pmSchedules),
+    workOrders: c.workOrdersPerMonth === null ? 'Unlimited' : `${c.workOrdersPerMonth} / month`,
+    users: fmt(c.users),
+  };
 }
 
 interface FeatureGroup {
@@ -50,7 +69,7 @@ const PLANS: PlanDef[] = [
     icon: <Star className="h-5 w-5" />,
     color: 'text-slate-400',
     borderColor: 'border-slate-700',
-    limits: { machines: '10', inventoryItems: '10', pmSchedules: '10', workOrders: '50 / month', users: '5' },
+    limits: limitsFor('starter'),
     featureGroups: [
       {
         category: 'Core Maintenance',
@@ -74,7 +93,7 @@ const PLANS: PlanDef[] = [
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
     borderColor: 'border-blue-800/60',
-    limits: { machines: '100', inventoryItems: '10,000', pmSchedules: 'Unlimited', workOrders: 'Unlimited', users: '20' },
+    limits: limitsFor('workshop'),
     featureGroups: [
       { category: 'Core Maintenance', items: ['Everything in Basic & exporting reports'] },
       {
@@ -99,7 +118,7 @@ const PLANS: PlanDef[] = [
     color: 'text-violet-400',
     borderColor: 'border-violet-700/60',
     highlight: true,
-    limits: { machines: '1,500', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', workOrders: 'Unlimited', users: '100' },
+    limits: limitsFor('factory'),
     featureGroups: [
       { category: 'Core Maintenance', items: ['Everything in Workshop'] },
       { category: 'Analytics & Reporting', items: ['MOE trend analytics & machine comparison'] },
@@ -115,7 +134,7 @@ const PLANS: PlanDef[] = [
     icon: <Building2 className="h-5 w-5" />,
     color: 'text-amber-400',
     borderColor: 'border-amber-700/50',
-    limits: { machines: 'Unlimited', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', workOrders: 'Unlimited', users: 'Unlimited' },
+    limits: limitsFor('enterprise'),
     featureGroups: [
       { category: 'Core Maintenance', items: ['Everything in Factory Pro'] },
       {
