@@ -73,7 +73,17 @@ export function RequestItemsTable({ items, showCost = false }: RequestItemsTable
                   requested={item.quantityRequested}
                 />
               </td>
-              <td className="px-4 py-3 text-gray-500 max-w-xs truncate">{item.notes || ''}</td>
+              <td className="px-4 py-3 text-gray-500 max-w-xs truncate">
+                {item.notes || ''}
+                {item.isWrittenOff && (
+                  <div className="mt-1 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                    {t('common.inventory.requests.itemsTable.writtenOff', {
+                      name: item.writeOffByName || '',
+                      reason: item.writeOffReason || '',
+                    })}
+                  </div>
+                )}
+              </td>
             </tr>
           ))}
         </tbody>

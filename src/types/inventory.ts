@@ -130,8 +130,19 @@ export interface RequestItem {
   // eligible for the requester to later hand it back via the return workflow.
   isReturnable?: boolean;
   // True once all returnable quantity for this item has been confirmed back
-  // into stock by a store keeper (see `partReturns`).
+  // into stock by a store keeper (see `partReturns`), OR the requester has
+  // written it off as unreturnable (see isWrittenOff below) — either way,
+  // nothing is still outstanding for this item.
   isReturned?: boolean;
+  // Set when the requester cancels their obligation to return this item
+  // (lost, damaged beyond return, consumed during the repair, etc.) instead
+  // of physically handing it back. Distinguishes a write-off from an actual
+  // confirmed return, both of which set isReturned = true.
+  isWrittenOff?: boolean;
+  writeOffReason?: string | null;
+  writeOffBy?: string | null;
+  writeOffByName?: string | null;
+  writeOffAt?: Timestamp | null;
 }
 
 export interface StoreKeeperReview {
