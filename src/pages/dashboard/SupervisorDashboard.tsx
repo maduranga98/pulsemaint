@@ -13,6 +13,7 @@ import TechnicianStatusList from '../../components/dashboard/supervisor/Technici
 import AssignedTasksWidget from '../../components/dashboard/supervisor/AssignedTasksWidget';
 import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
+import MySafetyTrainingsWidget from '../../components/dashboard/technician/MySafetyTrainingsWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { activeBreakdownColor, mttrColor, openWoColor, formatDurationHours } from '../../utils/analytics.utils';
 
@@ -104,8 +105,14 @@ export default function SupervisorDashboard() {
           <AssignedTasksWidget />
         </div>
 
-        {/* Row 5: My Trainings — not-completed, replaces the old nav tab */}
-        <MyTrainingsWidget />
+        {/* Row 5: My Trainings / My Safety Trainings — not-completed, replaces
+            the old "Safety Trainings" nav tab (supervisors can no longer
+            manage/assign/create safety training modules, only complete the
+            ones assigned to them). */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <MyTrainingsWidget />
+          <MySafetyTrainingsWidget />
+        </div>
       </div>
 
       <DashboardSidePanel />
