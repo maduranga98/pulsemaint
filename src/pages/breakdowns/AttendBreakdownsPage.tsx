@@ -9,7 +9,7 @@ import type { TFunction } from 'i18next';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
-import { VoiceDictationButton, TranslatedText } from '../../components/ui';
+import { VoiceDictationButton } from '../../components/ui';
 import { RCASuggestionPanel } from '../../components/breakdowns/RCASuggestionPanel';
 
 function getSeverities(t: TFunction): { value: BreakdownSeverity; label: string; color: string }[] {
@@ -32,6 +32,11 @@ function getTypes(t: TFunction): { value: BreakdownType; label: string }[] {
   ];
 }
 
+// Shows the reporter's own words exactly as submitted, in whatever
+// language they reported in — never auto-translated to the attending
+// technician's viewer language, unlike TranslatedText elsewhere in the
+// app. Getting this wrong loses meaning (e.g. a specific part name) in
+// translation right when a technician needs it most.
 function ReporterField({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -39,15 +44,9 @@ function ReporterField({ label, value }: { label: string; value: string }) {
         <Lock className="w-3 h-3" />
         {label}
       </p>
-      {value ? (
-        <TranslatedText
-          as="p"
-          className="text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 whitespace-pre-wrap"
-          text={value}
-        />
-      ) : (
-        <p className="text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 whitespace-pre-wrap">—</p>
-      )}
+      <p className="text-sm text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 whitespace-pre-wrap">
+        {value || '—'}
+      </p>
     </div>
   );
 }
