@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, Lock, Zap, Building2, Factory, Star, CreditCard, AlertTriangle, ExternalLink } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import { useAuthStore } from '../../store/authStore';
@@ -17,8 +18,10 @@ interface PlanLimits {
   users: string;
 }
 
-function fmt(n: number | null, suffix = ''): string {
-  return n === null ? 'Unlimited' : `${n.toLocaleString()}${suffix}`;
+// "Unlimited" itself is translated at render time (t('common.billing.unlimited'))
+// — these display strings only carry the numbers/format, not full copy.
+function fmtNumber(n: number | null): string {
+  return n === null ? '' : n.toLocaleString();
 }
 
 // Derives the display strings from the single numeric source of truth
@@ -27,26 +30,25 @@ function fmt(n: number | null, suffix = ''): string {
 function limitsFor(plan: Plan): PlanLimits {
   const c: PlanLimitConfig = PLAN_LIMITS[plan];
   return {
-    machines: fmt(c.machines),
-    inventoryItems: fmt(c.inventoryItems),
-    pmSchedules: fmt(c.pmSchedules),
-    workOrders: c.workOrdersPerMonth === null ? 'Unlimited' : `${c.workOrdersPerMonth} / month`,
-    users: fmt(c.users),
+    machines: fmtNumber(c.machines),
+    inventoryItems: fmtNumber(c.inventoryItems),
+    pmSchedules: fmtNumber(c.pmSchedules),
+    workOrders: c.workOrdersPerMonth === null ? '' : `${c.workOrdersPerMonth}`,
+    users: fmtNumber(c.users),
   };
 }
 
 interface FeatureGroup {
-  category: string;
-  items: string[];
+  categoryKey: string;
+  itemKeys: string[];
 }
 
 interface PlanDef {
   id: Plan;
-  name: string;
+  nameKey: string;
   monthlyPrice: number | null;
   yearlyPrice: number | null;
-  priceLabel: string;
-  description: string;
+  descriptionKey: string;
   icon: React.ReactNode;
   color: string;
   borderColor: string;
@@ -58,96 +60,94 @@ interface PlanDef {
 // Yearly billing is discounted 20% off (roughly 2.4 months free) vs. paying
 // monthly on every paid plan — kept in sync with the customer-facing pricing
 // sheet (FirmiCore-Customer-Booklet.pdf) and the Product & Sales Catalog.
+// Copy lives under common.billing.plans.<id>/common.billing.features.<key> in
+// the locale files — this array only holds the keys and the numbers.
 const PLANS: PlanDef[] = [
   {
     id: 'starter',
-    name: 'Basic',
+    nameKey: 'common.billing.plans.starter.name',
     monthlyPrice: 29,
     yearlyPrice: 278,
-    priceLabel: '',
-    description: 'For a single small team getting started.',
+    descriptionKey: 'common.billing.plans.starter.description',
     icon: <Star className="h-5 w-5" />,
     color: 'text-slate-400',
     borderColor: 'border-slate-700',
     limits: limitsFor('starter'),
     featureGroups: [
       {
-        category: 'Core Maintenance',
-        items: [
-          'Machine registry & QR codes',
-          'Breakdown reporting',
-          'Basic work orders',
-          'Preventive maintenance schedules',
-          'Inventory & parts catalog',
+        categoryKey: 'common.billing.categories.coreMaintenance',
+        itemKeys: [
+          'machineRegistryQr',
+          'breakdownReporting',
+          'basicWorkOrders',
+          'pmSchedulesFeature',
+          'inventoryPartsCatalog',
         ],
       },
     ],
   },
   {
     id: 'workshop',
-    name: 'Workshop',
+    nameKey: 'common.billing.plans.workshop.name',
     monthlyPrice: 59,
     yearlyPrice: 566,
-    priceLabel: '',
-    description: 'For growing workshops with structured workflows.',
+    descriptionKey: 'common.billing.plans.workshop.description',
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
     borderColor: 'border-blue-800/60',
     limits: limitsFor('workshop'),
     featureGroups: [
-      { category: 'Core Maintenance', items: ['Everything in Basic & exporting reports'] },
+      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInBasicExporting'] },
       {
-        category: 'Inventory & Procurement',
-        items: ['Automatic PO email to suppliers', 'Inventory, QR scan & low-stock alerts'],
+        categoryKey: 'common.billing.categories.inventoryProcurement',
+        itemKeys: ['autoPoEmail', 'qrScanLowStock'],
       },
       {
-        category: 'Team & Operations',
-        items: ['Contractor management', 'Shift handover & briefings', 'Training module & Safety Workspace features'],
+        categoryKey: 'common.billing.categories.teamOperations',
+        itemKeys: ['contractorManagement', 'shiftHandoverBriefings', 'trainingSafetyWorkspace'],
       },
-      { category: 'Analytics & Reporting', items: ['PM compliance dashboard', 'Basic analytics'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['pmComplianceDashboard', 'basicAnalytics'] },
     ],
   },
   {
     id: 'factory',
-    name: 'Factory Pro',
+    nameKey: 'common.billing.plans.factory.name',
     monthlyPrice: 249,
     yearlyPrice: 2390,
-    priceLabel: '',
-    description: 'Full MOE analytics for production facilities.',
+    descriptionKey: 'common.billing.plans.factory.description',
     icon: <Factory className="h-5 w-5" />,
     color: 'text-violet-400',
     borderColor: 'border-violet-700/60',
     highlight: true,
     limits: limitsFor('factory'),
     featureGroups: [
-      { category: 'Core Maintenance', items: ['Everything in Workshop'] },
-      { category: 'Analytics & Reporting', items: ['MOE trend analytics & machine comparison'] },
+      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInWorkshop'] },
+      { categoryKey: 'common.billing.categories.analyticsReporting', itemKeys: ['moeTrendAnalytics'] },
     ],
   },
   {
     id: 'enterprise',
-    name: 'Enterprise',
+    nameKey: 'common.billing.plans.enterprise.name',
     monthlyPrice: null,
     yearlyPrice: null,
-    priceLabel: 'Custom',
-    description: 'Unlimited scale with enterprise integrations.',
+    descriptionKey: 'common.billing.plans.enterprise.description',
     icon: <Building2 className="h-5 w-5" />,
     color: 'text-amber-400',
     borderColor: 'border-amber-700/50',
     limits: limitsFor('enterprise'),
     featureGroups: [
-      { category: 'Core Maintenance', items: ['Everything in Factory Pro'] },
+      { categoryKey: 'common.billing.categories.coreMaintenance', itemKeys: ['everythingInFactoryPro'] },
       {
-        category: 'Enterprise & Security',
-        items: [
-          'TPM maturity roadmap & 5S scorecard',
-          'Multi-site management',
-          'Safety Workspace',
-          'Triage knowledge builder',
-          'Advanced reports hub',
-          'SSO / SAML',
-          'Custom integrations & API',
-          'Dedicated support & SLA',
+        categoryKey: 'common.billing.categories.enterpriseSecurity',
+        itemKeys: [
+          'tpmMaturityRoadmap',
+          'multiSiteManagement',
+          'safetyWorkspaceFeature',
+          'triageKnowledgeBuilder',
+          'advancedReportsHub',
+          'ssoSaml',
+          'customIntegrationsApi',
+          'dedicatedSupportSla',
         ],
       },
     ],
@@ -172,6 +172,7 @@ function TrialBanner({
   status: CompanyProfile['status'];
   trialEndsAt: Timestamp | null;
 }) {
+  const { t } = useTranslation();
   if (status !== 'trial') return null;
 
   const daysLeft = trialEndsAt
@@ -194,15 +195,15 @@ function TrialBanner({
       <p className="text-sm">
         {expired ? (
           <span>
-            <strong>Your trial has expired.</strong> Upgrade to continue using FirmiCore.
+            <strong>{t('common.billing.trial.expiredStrong')}</strong> {t('common.billing.trial.expiredRest')}
           </span>
         ) : daysLeft !== null ? (
           <span>
-            <strong>{daysLeft} day{daysLeft !== 1 ? 's' : ''} left in your trial.</strong> Upgrade
-            before your trial ends to keep all your data and access.
+            <strong>{t('common.billing.trial.daysLeftStrong', { count: daysLeft })}</strong>{' '}
+            {t('common.billing.trial.daysLeftRest')}
           </span>
         ) : (
-          <span>You are currently on a free trial.</span>
+          <span>{t('common.billing.trial.onTrial')}</span>
         )}
       </p>
     </div>
@@ -210,6 +211,7 @@ function TrialBanner({
 }
 
 export default function BillingPage() {
+  const { t } = useTranslation();
   const company = useAuthStore((s) => s.company);
   const isAdmin = useAuthStore((s) => s.isAdmin);
 
@@ -238,7 +240,7 @@ export default function BillingPage() {
         : await createCheckoutSession(plan, cycle);
       window.location.href = url;
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to start checkout. Please try again.');
+      setError(err?.message || t('common.billing.errors.checkoutFailed'));
       setRedirecting(null);
     }
   }
@@ -267,7 +269,7 @@ export default function BillingPage() {
       const url = await createPortalSession();
       window.location.href = url;
     } catch (err: any) {
-      setError(err?.message ?? 'Failed to open billing portal. Please try again.');
+      setError(err?.message || t('common.billing.errors.portalFailed'));
       setRedirecting(null);
     }
   }
@@ -276,10 +278,8 @@ export default function BillingPage() {
     <div className="min-h-full space-y-6">
       {/* Header */}
       <div className="bg-[#0F1E35] border-b border-[#1E3A5F] -mx-4 sm:-mx-6 lg:-mx-8 -mt-5 px-4 sm:px-6 lg:px-8 py-5">
-        <h1 className="text-2xl font-bold text-white">Billing & Plan</h1>
-        <p className="text-sm text-slate-400 mt-1">
-          Manage your subscription and unlock features for your team.
-        </p>
+        <h1 className="text-2xl font-bold text-white">{t('common.billing.header.title')}</h1>
+        <p className="text-sm text-slate-400 mt-1">{t('common.billing.header.subtitle')}</p>
       </div>
 
       {/* Trial banner */}
@@ -291,18 +291,26 @@ export default function BillingPage() {
       <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Current plan</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{t('common.billing.currentPlan.label')}</p>
             <p className="text-xl font-bold text-white capitalize">
-              {PLANS.find((p) => p.id === currentPlan)?.name ?? currentPlan}
+              {(() => {
+                const plan = PLANS.find((p) => p.id === currentPlan);
+                return plan ? t(plan.nameKey) : currentPlan;
+              })()}
             </p>
-            <p className="text-sm text-slate-400 mt-0.5 capitalize">
-              Status: <span className="font-medium text-slate-300">{company?.status ?? ''}</span>
-              {' · '}Billed <span className="font-medium text-slate-300">{billingCycle}</span>
+            <p className="text-sm text-slate-400 mt-0.5">
+              {t('common.billing.currentPlan.status')}{' '}
+              <span className="font-medium text-slate-300 capitalize">{company?.status ?? ''}</span>
+              {' · '}
+              {t('common.billing.currentPlan.billed')}{' '}
+              <span className="font-medium text-slate-300">
+                {billingCycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly')}
+              </span>
             </p>
           </div>
           {company?.trialEndsAt && company.status === 'trial' && (
             <div className="text-right">
-              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Trial ends</p>
+              <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{t('common.billing.currentPlan.trialEnds')}</p>
               <p className="text-sm font-medium text-white">
                 {company.trialEndsAt.toDate().toLocaleDateString(undefined, {
                   year: 'numeric',
@@ -330,15 +338,15 @@ export default function BillingPage() {
               key={cycle}
               onClick={() => setBillingCycle(cycle)}
               disabled={!isAdmin || !!redirecting}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium capitalize transition-colors ${
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 billingCycle === cycle
                   ? 'bg-blue-600 text-white'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
-              {cycle}
+              {cycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly')}
               {cycle === 'yearly' && (
-                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">Save 20%</span>
+                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">{t('common.billing.cycle.save20')}</span>
               )}
             </button>
           ))}
@@ -352,6 +360,7 @@ export default function BillingPage() {
           const isDowngrade = PLAN_RANK[plan.id] < PLAN_RANK[currentPlan];
           const isEnterprise = plan.id === 'enterprise';
           const price = planPrice(plan, billingCycle);
+          const planName = t(plan.nameKey);
 
           return (
             <div
@@ -365,7 +374,7 @@ export default function BillingPage() {
               {plan.highlight && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="px-3 py-1 bg-violet-600 text-white text-[11px] font-semibold rounded-full whitespace-nowrap">
-                    Most Popular
+                    {t('common.billing.mostPopular')}
                   </span>
                 </div>
               )}
@@ -373,45 +382,49 @@ export default function BillingPage() {
               {/* Plan header */}
               <div>
                 <div className={`mb-2 ${plan.color}`}>{plan.icon}</div>
-                <h3 className="text-base font-bold text-white">{plan.name}</h3>
+                <h3 className="text-base font-bold text-white">{planName}</h3>
                 <div className="flex items-baseline gap-1 mt-1 flex-wrap">
                   {price === null ? (
-                    <span className="text-2xl font-bold text-white">{plan.priceLabel}</span>
+                    <span className="text-2xl font-bold text-white">{t('common.billing.customPrice')}</span>
                   ) : price === 0 ? (
-                    <span className="text-2xl font-bold text-white">Free</span>
+                    <span className="text-2xl font-bold text-white">{t('common.billing.free')}</span>
                   ) : (
                     <>
                       <span className="text-2xl font-bold text-white">${price}</span>
-                      <span className="text-sm text-slate-400">/{billingCycle === 'yearly' ? 'year' : 'month'}</span>
+                      <span className="text-sm text-slate-400">
+                        /{billingCycle === 'yearly' ? t('common.billing.perYear') : t('common.billing.perMonth')}
+                      </span>
                     </>
                   )}
                 </div>
-                <p className="text-xs text-slate-400 mt-1.5">{plan.description}</p>
+                <p className="text-xs text-slate-400 mt-1.5">{t(plan.descriptionKey)}</p>
               </div>
 
               {/* Plan limits */}
               <div className="rounded-lg bg-[#0A1628] border border-[#1E3A5F] p-3">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">Plan limits</p>
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-1.5">{t('common.billing.limits.title')}</p>
                 <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                   <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">Machines</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.machines}</dd>
+                    <dt className="text-slate-400">{t('common.billing.limits.machines')}</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.machines || t('common.billing.unlimited')}</dd>
                   </div>
                   <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">Users</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.users}</dd>
+                    <dt className="text-slate-400">{t('common.billing.limits.users')}</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.users || t('common.billing.unlimited')}</dd>
                   </div>
                   <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">Inventory items</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.inventoryItems}</dd>
+                    <dt className="text-slate-400">{t('common.billing.limits.inventoryItems')}</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.inventoryItems || t('common.billing.unlimited')}</dd>
                   </div>
                   <div className="flex justify-between gap-2">
-                    <dt className="text-slate-400">PM schedules</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.pmSchedules}</dd>
+                    <dt className="text-slate-400">{t('common.billing.limits.pmSchedules')}</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.pmSchedules || t('common.billing.unlimited')}</dd>
                   </div>
                   <div className="flex justify-between gap-2 col-span-2">
-                    <dt className="text-slate-400">Work orders</dt>
-                    <dd className="font-semibold text-slate-200">{plan.limits.workOrders}</dd>
+                    <dt className="text-slate-400">{t('common.billing.limits.workOrders')}</dt>
+                    <dd className="font-semibold text-slate-200">
+                      {plan.limits.workOrders ? t('common.billing.limits.perMonthValue', { count: plan.limits.workOrders }) : t('common.billing.unlimited')}
+                    </dd>
                   </div>
                 </dl>
               </div>
@@ -419,15 +432,19 @@ export default function BillingPage() {
               {/* Features, grouped by category */}
               <div className="flex-1 space-y-3">
                 {plan.featureGroups.map((group) => (
-                  <div key={group.category}>
+                  <div key={group.categoryKey}>
                     <p className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${plan.color}`}>
-                      {group.category}
+                      {t(group.categoryKey)}
                     </p>
                     <ul className="space-y-1.5">
-                      {group.items.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-sm text-slate-300">
+                      {group.itemKeys.map((key) => (
+                        <li key={key} className="flex items-start gap-2 text-sm text-slate-300">
                           <Check className={`h-4 w-4 shrink-0 mt-0.5 ${plan.color}`} />
-                          {f}
+                          {t(`common.billing.features.${key}`, {
+                            basicName: t('common.billing.plans.starter.name'),
+                            workshopName: t('common.billing.plans.workshop.name'),
+                            factoryName: t('common.billing.plans.factory.name'),
+                          })}
                         </li>
                       ))}
                     </ul>
@@ -439,14 +456,14 @@ export default function BillingPage() {
               <div>
                 {isCurrent ? (
                   <div className="w-full text-center py-2.5 rounded-xl text-sm font-semibold bg-[#1E3A5F] text-slate-300 border border-[#2A4A7A]">
-                    Current Plan
+                    {t('common.billing.cta.currentPlan')}
                   </div>
                 ) : isEnterprise ? (
                   <a
                     href="mailto:info@lumoraventures.com?subject=Enterprise Plan Enquiry"
                     className={`block w-full text-center py-2.5 rounded-xl text-sm font-semibold transition-colors bg-amber-700/20 hover:bg-amber-700/40 text-amber-300 border border-amber-700/50`}
                   >
-                    Contact Sales
+                    {t('common.billing.cta.contactSales')}
                   </a>
                 ) : isAdmin ? (
                   <button
@@ -461,15 +478,15 @@ export default function BillingPage() {
                     }`}
                   >
                     {redirecting === plan.id
-                      ? 'Redirecting…'
+                      ? t('common.billing.cta.redirecting')
                       : isDowngrade
-                      ? `Downgrade to ${plan.name}`
-                      : `Upgrade to ${plan.name}`}
+                      ? t('common.billing.cta.downgradeTo', { name: planName })
+                      : t('common.billing.cta.upgradeTo', { name: planName })}
                   </button>
                 ) : (
                   <div className="w-full text-center py-2.5 rounded-xl text-sm text-slate-500 border border-slate-700 flex items-center justify-center gap-1.5">
                     <Lock className="h-3.5 w-3.5" />
-                    Admin only
+                    {t('common.billing.cta.adminOnly')}
                   </div>
                 )}
               </div>
@@ -484,12 +501,9 @@ export default function BillingPage() {
         <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-5 space-y-3">
           <div>
             <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <CreditCard className="h-4 w-4 text-blue-400" /> Payment & Invoices
+              <CreditCard className="h-4 w-4 text-blue-400" /> {t('common.billing.payment.title')}
             </h2>
-            <p className="text-xs text-slate-400 mt-1">
-              Manage your saved payment methods, view past invoices, and cancel your subscription in
-              Stripe's secure billing portal.
-            </p>
+            <p className="text-xs text-slate-400 mt-1">{t('common.billing.payment.subtitle')}</p>
           </div>
           <button
             onClick={() => void handleManageBilling()}
@@ -497,21 +511,21 @@ export default function BillingPage() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-blue-700 hover:bg-blue-600 text-white disabled:opacity-60"
           >
             <ExternalLink className="h-4 w-4" />
-            {redirecting === 'portal' ? 'Redirecting…' : 'Manage Billing'}
+            {redirecting === 'portal' ? t('common.billing.cta.redirecting') : t('common.billing.payment.manage')}
           </button>
           {!company?.stripeCustomerId && (
-            <p className="text-xs text-slate-500">Subscribe to a plan first to access the billing portal.</p>
+            <p className="text-xs text-slate-500">{t('common.billing.payment.subscribeFirst')}</p>
           )}
         </div>
       )}
 
       {/* Note */}
       <p className="text-xs text-slate-500 text-center pb-4">
-        Prices shown in USD. Yearly billing saves 20% vs. paying monthly on every paid plan. Contact{' '}
+        {t('common.billing.footer.note')}{' '}
         <a href="mailto:info@lumoraventures.com" className="underline hover:text-slate-400">
           info@lumoraventures.com
         </a>{' '}
-        for billing questions.
+        {t('common.billing.footer.forQuestions')}
       </p>
 
       {/* Downgrade confirmation */}
@@ -520,29 +534,31 @@ export default function BillingPage() {
           <div className="bg-[#0F1E35] border border-[#1E3A5F] rounded-xl p-6 max-w-md w-full space-y-4">
             <div className="flex items-center gap-2 text-amber-400">
               <AlertTriangle className="h-5 w-5" />
-              <h3 className="text-base font-bold text-white">Confirm downgrade</h3>
+              <h3 className="text-base font-bold text-white">{t('common.billing.downgrade.title')}</h3>
             </div>
             <p className="text-sm text-slate-300">
-              You're switching from <strong>{PLANS.find((p) => p.id === currentPlan)?.name}</strong> to{' '}
-              <strong>{pendingDowngrade.name}</strong>. Any unused balance from your current billing
-              period is not refunded — you'll continue to be charged at the current plan's rate through
-              the end of this {billingCycle === 'yearly' ? 'year' : 'month'}, and the lower {pendingDowngrade.name} rate
-              takes effect on your next billing cycle. Features exclusive to your current plan will
-              become unavailable immediately.
+              {t('common.billing.downgrade.body', {
+                fromName: (() => {
+                  const plan = PLANS.find((p) => p.id === currentPlan);
+                  return plan ? t(plan.nameKey) : currentPlan;
+                })(),
+                toName: t(pendingDowngrade.nameKey),
+                period: billingCycle === 'yearly' ? t('common.billing.cycle.yearly') : t('common.billing.cycle.monthly'),
+              })}
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setPendingDowngrade(null)}
                 className="px-4 py-2 text-sm font-medium border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-800"
               >
-                Cancel
+                {t('common.actions.cancel')}
               </button>
               <button
                 onClick={() => void confirmDowngrade()}
                 disabled={!!redirecting}
                 className="px-4 py-2 text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-lg disabled:opacity-60"
               >
-                {redirecting ? 'Redirecting…' : 'Confirm Downgrade'}
+                {redirecting ? t('common.billing.cta.redirecting') : t('common.billing.downgrade.confirm')}
               </button>
             </div>
           </div>

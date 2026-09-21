@@ -41,20 +41,20 @@ exports.createCheckoutSession = onCall({ secrets: [stripeSecretKey] }, async (re
   if (!companyDoc.exists) throw new HttpsError("not-found", "Company not found");
   const company = companyDoc.data();
 
-  const stripe = getStripe();
-
-  let customerId = company.stripeCustomerId ?? null;
-  if (!customerId) {
-    const customer = await stripe.customers.create({
-      email: request.auth.token?.email ?? undefined,
-      name: company.name,
-      metadata: { companyId: userData.companyId },
-    });
-    customerId = customer.id;
-    await companyRef.update({ stripeCustomerId: customerId, updatedAt: FieldValue.serverTimestamp() });
-  }
-
   try {
+    const stripe = getStripe();
+
+    let customerId = company.stripeCustomerId ?? null;
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: request.auth.token?.email ?? undefined,
+        name: company.name,
+        metadata: { companyId: userData.companyId },
+      });
+      customerId = customer.id;
+      await companyRef.update({ stripeCustomerId: customerId, updatedAt: FieldValue.serverTimestamp() });
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,

@@ -185,6 +185,124 @@
       "active": "Active",
       "inactive": "Inactive"
     },
+    "billing": {
+      "header": {
+        "title": "Billing & Plan",
+        "subtitle": "Manage your subscription and unlock features for your team."
+      },
+      "trial": {
+        "expiredStrong": "Your trial has expired.",
+        "expiredRest": "Upgrade to continue using FirmiCore.",
+        "daysLeftStrong_one": "{{count}} day left in your trial.",
+        "daysLeftStrong_other": "{{count}} days left in your trial.",
+        "daysLeftRest": "Upgrade before your trial ends to keep all your data and access.",
+        "onTrial": "You are currently on a free trial."
+      },
+      "currentPlan": {
+        "label": "Current plan",
+        "status": "Status:",
+        "billed": "Billed",
+        "trialEnds": "Trial ends"
+      },
+      "errors": {
+        "checkoutFailed": "Failed to start checkout. Please try again.",
+        "portalFailed": "Failed to open billing portal. Please try again."
+      },
+      "cycle": {
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "save20": "Save 20%"
+      },
+      "mostPopular": "Most Popular",
+      "customPrice": "Custom",
+      "free": "Free",
+      "perMonth": "month",
+      "perYear": "year",
+      "unlimited": "Unlimited",
+      "limits": {
+        "title": "Plan limits",
+        "machines": "Machines",
+        "users": "Users",
+        "inventoryItems": "Inventory items",
+        "pmSchedules": "PM schedules",
+        "workOrders": "Work orders",
+        "perMonthValue": "{{count}} / month"
+      },
+      "cta": {
+        "currentPlan": "Current Plan",
+        "contactSales": "Contact Sales",
+        "redirecting": "Redirecting…",
+        "downgradeTo": "Downgrade to {{name}}",
+        "upgradeTo": "Upgrade to {{name}}",
+        "adminOnly": "Admin only"
+      },
+      "payment": {
+        "title": "Payment & Invoices",
+        "subtitle": "Manage your saved payment methods, view past invoices, and cancel your subscription in Stripe's secure billing portal.",
+        "manage": "Manage Billing",
+        "subscribeFirst": "Subscribe to a plan first to access the billing portal."
+      },
+      "footer": {
+        "note": "Prices shown in USD. Yearly billing saves 20% vs. paying monthly on every paid plan. Contact",
+        "forQuestions": "for billing questions."
+      },
+      "downgrade": {
+        "title": "Confirm downgrade",
+        "body": "You're switching from {{fromName}} to {{toName}}. Any unused balance from your current billing period is not refunded — you'll continue to be charged at the current plan's rate through the end of this {{period}}, and the lower {{toName}} rate takes effect on your next billing cycle. Features exclusive to your current plan will become unavailable immediately.",
+        "confirm": "Confirm Downgrade"
+      },
+      "plans": {
+        "starter": {
+          "name": "Basic",
+          "description": "For a single small team getting started."
+        },
+        "workshop": {
+          "name": "Workshop",
+          "description": "For growing workshops with structured workflows."
+        },
+        "factory": {
+          "name": "Factory Pro",
+          "description": "Full MOE analytics for production facilities."
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "description": "Unlimited scale with enterprise integrations."
+        }
+      },
+      "categories": {
+        "coreMaintenance": "Core Maintenance",
+        "inventoryProcurement": "Inventory & Procurement",
+        "teamOperations": "Team & Operations",
+        "analyticsReporting": "Analytics & Reporting",
+        "enterpriseSecurity": "Enterprise & Security"
+      },
+      "features": {
+        "machineRegistryQr": "Machine registry & QR codes",
+        "breakdownReporting": "Breakdown reporting",
+        "basicWorkOrders": "Basic work orders",
+        "pmSchedulesFeature": "Preventive maintenance schedules",
+        "inventoryPartsCatalog": "Inventory & parts catalog",
+        "everythingInBasicExporting": "Everything in {{basicName}} & exporting reports",
+        "autoPoEmail": "Automatic PO email to suppliers",
+        "qrScanLowStock": "Inventory, QR scan & low-stock alerts",
+        "contractorManagement": "Contractor management",
+        "shiftHandoverBriefings": "Shift handover & briefings",
+        "trainingSafetyWorkspace": "Training module & Safety Workspace features",
+        "pmComplianceDashboard": "PM compliance dashboard",
+        "basicAnalytics": "Basic analytics",
+        "everythingInWorkshop": "Everything in {{workshopName}}",
+        "moeTrendAnalytics": "MOE trend analytics & machine comparison",
+        "everythingInFactoryPro": "Everything in {{factoryName}}",
+        "tpmMaturityRoadmap": "TPM maturity roadmap & 5S scorecard",
+        "multiSiteManagement": "Multi-site management",
+        "safetyWorkspaceFeature": "Safety Workspace",
+        "triageKnowledgeBuilder": "Triage knowledge builder",
+        "advancedReportsHub": "Advanced reports hub",
+        "ssoSaml": "SSO / SAML",
+        "customIntegrationsApi": "Custom integrations & API",
+        "dedicatedSupportSla": "Dedicated support & SLA"
+      }
+    },
     "contractors": {
       "jobs": {
         "listPage": {
