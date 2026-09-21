@@ -3414,11 +3414,13 @@
       "tabs": {
         "needSignOff": "Need Sign-Off",
         "signedOff": "Signed Off",
+        "cancelled": "Cancelled",
         "approvalRequests": "Approval Requests"
       },
       "empty": {
         "needSignOff": "No work orders awaiting sign-off.",
         "signedOff": "No work orders signed off or closed yet.",
+        "cancelled": "No cancelled work orders.",
         "noOpenWOs": "No open work orders. All caught up!"
       },
       "table": {

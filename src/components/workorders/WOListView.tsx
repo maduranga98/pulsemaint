@@ -19,10 +19,15 @@ import { ApprovalRequestsPanel } from './ApprovalRequestsPanel';
 // "Need Sign-Off" (still awaiting a supervisor's decision) and, once
 // actually signed off, into the separate terminal "Signed Off" tab — a WO
 // type filter stops being useful at either of those stages.
-type CategoryId = 'all' | 'needSignOff' | 'signedOff' | 'approvalRequests' | WOType;
+type CategoryId = 'all' | 'needSignOff' | 'signedOff' | 'cancelled' | 'approvalRequests' | WOType;
 
 const NEED_SIGN_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED'];
-const TERMINAL_STATUSES: WorkOrder['status'][] = ['SIGNED_OFF', 'CLOSED', 'CANCELLED'];
+// A cancelled WO was never actually signed off, so it gets its own tab
+// rather than being lumped into "Signed Off" — admins can still find it
+// (it's historical data, not deleted), just not counted as a sign-off.
+const SIGNED_OFF_ONLY_STATUSES: WorkOrder['status'][] = ['SIGNED_OFF', 'CLOSED'];
+const CANCELLED_STATUSES: WorkOrder['status'][] = ['CANCELLED'];
+const TERMINAL_STATUSES: WorkOrder['status'][] = [...SIGNED_OFF_ONLY_STATUSES, ...CANCELLED_STATUSES];
 const SIGNED_OFF_STATUSES: WorkOrder['status'][] = [...NEED_SIGN_OFF_STATUSES, ...TERMINAL_STATUSES];
 
 // Breakdown Repair and Preventive Maintenance work orders already have their
@@ -123,7 +128,11 @@ export function WOListView() {
       ? nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status))
       : activeCategory === 'signedOff'
       ? canViewSignedOff
-        ? nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status))
+        ? nonExcludedWOs.filter((wo) => SIGNED_OFF_ONLY_STATUSES.includes(wo.status))
+        : []
+      : activeCategory === 'cancelled'
+      ? canViewSignedOff
+        ? nonExcludedWOs.filter((wo) => CANCELLED_STATUSES.includes(wo.status))
         : []
       : activeCategory === 'approvalRequests'
       ? []
@@ -234,7 +243,27 @@ export function WOListView() {
                     activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
                   }`}
                 >
-                  {nonExcludedWOs.filter((wo) => TERMINAL_STATUSES.includes(wo.status)).length}
+                  {nonExcludedWOs.filter((wo) => SIGNED_OFF_ONLY_STATUSES.includes(wo.status)).length}
+                </span>
+              </button>
+            )}
+            {canViewSignedOff && (
+              <button
+                type="button"
+                onClick={() => setActiveCategory('cancelled')}
+                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
+                  activeCategory === 'cancelled'
+                    ? 'bg-gray-600 text-white'
+                    : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
+                }`}
+              >
+                {t('common.workOrders.tabs.cancelled')}
+                <span
+                  className={`text-xs font-medium rounded-full px-1.5 ${
+                    activeCategory === 'cancelled' ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
+                  }`}
+                >
+                  {nonExcludedWOs.filter((wo) => CANCELLED_STATUSES.includes(wo.status)).length}
                 </span>
               </button>
             )}
@@ -297,6 +326,8 @@ export function WOListView() {
                   ? t('common.workOrders.empty.needSignOff')
                   : activeCategory === 'signedOff'
                   ? t('common.workOrders.empty.signedOff')
+                  : activeCategory === 'cancelled'
+                  ? t('common.workOrders.empty.cancelled')
                   : t('common.workOrders.empty.noOpenWOs')}
               </p>
             </div>
@@ -308,7 +339,7 @@ export function WOListView() {
             <WOTable
               workOrders={displayedWOs}
               onSelect={setSelectedWO}
-              showTypeColumn={activeCategory === 'all' || activeCategory === 'needSignOff' || activeCategory === 'signedOff'}
+              showTypeColumn={activeCategory === 'all' || activeCategory === 'needSignOff' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
               canSignOff={canSignOff}
               onSignOff={setSelectedWO}
             />
