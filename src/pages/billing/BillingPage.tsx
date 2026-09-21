@@ -12,6 +12,7 @@ interface PlanLimits {
   machines: string;
   inventoryItems: string;
   pmSchedules: string;
+  workOrders: string;
   users: string;
 }
 
@@ -35,20 +36,21 @@ interface PlanDef {
   highlight?: boolean;
 }
 
-// Yearly billing is discounted to roughly 1 month free vs. paying monthly.
-// Kept in sync with the Product & Sales Catalog — see docs shared with sales.
+// Yearly billing is discounted 20% off (roughly 2.4 months free) vs. paying
+// monthly on every paid plan — kept in sync with the customer-facing pricing
+// sheet (FirmiCore-Customer-Booklet.pdf) and the Product & Sales Catalog.
 const PLANS: PlanDef[] = [
   {
     id: 'starter',
     name: 'Basic',
     monthlyPrice: 29,
-    yearlyPrice: 199,
+    yearlyPrice: 278,
     priceLabel: '',
     description: 'For a single small team getting started.',
     icon: <Star className="h-5 w-5" />,
     color: 'text-slate-400',
     borderColor: 'border-slate-700',
-    limits: { machines: '10', inventoryItems: '10', pmSchedules: '10', users: '5' },
+    limits: { machines: '10', inventoryItems: '10', pmSchedules: '10', workOrders: '50 / month', users: '5' },
     featureGroups: [
       {
         category: 'Core Maintenance',
@@ -66,15 +68,19 @@ const PLANS: PlanDef[] = [
     id: 'workshop',
     name: 'Workshop',
     monthlyPrice: 59,
-    yearlyPrice: 499,
+    yearlyPrice: 566,
     priceLabel: '',
     description: 'For growing workshops with structured workflows.',
     icon: <Zap className="h-5 w-5" />,
     color: 'text-blue-400',
     borderColor: 'border-blue-800/60',
-    limits: { machines: '100', inventoryItems: '10000', pmSchedules: 'Unlimited', users: '20' },
+    limits: { machines: '100', inventoryItems: '10,000', pmSchedules: 'Unlimited', workOrders: 'Unlimited', users: '20' },
     featureGroups: [
       { category: 'Core Maintenance', items: ['Everything in Basic & exporting reports'] },
+      {
+        category: 'Inventory & Procurement',
+        items: ['Automatic PO email to suppliers', 'Inventory, QR scan & low-stock alerts'],
+      },
       {
         category: 'Team & Operations',
         items: ['Contractor management', 'Shift handover & briefings', 'Training module & Safety Workspace features'],
@@ -86,14 +92,14 @@ const PLANS: PlanDef[] = [
     id: 'factory',
     name: 'Factory Pro',
     monthlyPrice: 249,
-    yearlyPrice: 1699,
+    yearlyPrice: 2390,
     priceLabel: '',
     description: 'Full MOE analytics for production facilities.',
     icon: <Factory className="h-5 w-5" />,
     color: 'text-violet-400',
     borderColor: 'border-violet-700/60',
     highlight: true,
-    limits: { machines: '1,500', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', users: '100' },
+    limits: { machines: '1,500', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', workOrders: 'Unlimited', users: '100' },
     featureGroups: [
       { category: 'Core Maintenance', items: ['Everything in Workshop'] },
       { category: 'Analytics & Reporting', items: ['MOE trend analytics & machine comparison'] },
@@ -109,7 +115,7 @@ const PLANS: PlanDef[] = [
     icon: <Building2 className="h-5 w-5" />,
     color: 'text-amber-400',
     borderColor: 'border-amber-700/50',
-    limits: { machines: 'Unlimited', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', users: 'Unlimited' },
+    limits: { machines: 'Unlimited', inventoryItems: 'Unlimited', pmSchedules: 'Unlimited', workOrders: 'Unlimited', users: 'Unlimited' },
     featureGroups: [
       { category: 'Core Maintenance', items: ['Everything in Factory Pro'] },
       {
@@ -313,7 +319,7 @@ export default function BillingPage() {
             >
               {cycle}
               {cycle === 'yearly' && (
-                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">1 month free</span>
+                <span className="ml-1.5 text-[10px] font-semibold text-emerald-400">Save 20%</span>
               )}
             </button>
           ))}
@@ -383,6 +389,10 @@ export default function BillingPage() {
                   <div className="flex justify-between gap-2">
                     <dt className="text-slate-400">PM schedules</dt>
                     <dd className="font-semibold text-slate-200">{plan.limits.pmSchedules}</dd>
+                  </div>
+                  <div className="flex justify-between gap-2 col-span-2">
+                    <dt className="text-slate-400">Work orders</dt>
+                    <dd className="font-semibold text-slate-200">{plan.limits.workOrders}</dd>
                   </div>
                 </dl>
               </div>
@@ -478,7 +488,7 @@ export default function BillingPage() {
 
       {/* Note */}
       <p className="text-xs text-slate-500 text-center pb-4">
-        Prices shown in USD. Yearly billing includes 1 month free vs. paying monthly. Contact{' '}
+        Prices shown in USD. Yearly billing saves 20% vs. paying monthly on every paid plan. Contact{' '}
         <a href="mailto:info@lumoraventures.com" className="underline hover:text-slate-400">
           info@lumoraventures.com
         </a>{' '}

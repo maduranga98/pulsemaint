@@ -172,6 +172,19 @@
     }
   },
   "common": {
+    "actions": {
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
     "contractors": {
       "jobs": {
         "listPage": {
@@ -8424,6 +8437,23 @@
           "subjectLabel": "Subject: {{subject}}",
           "remarksHeading": "Remarks"
         }
+      },
+      "plants": {
+        "title": "Plants",
+        "subtitle": "Manage the plants users, machines, contractors and inventory are registered under.",
+        "addPlant": "Add Plant",
+        "editPlant": "Edit Plant",
+        "empty": "No plants yet. Add your first plant to start scoping users, machines, contractors and inventory by plant.",
+        "name": "Plant name",
+        "namePlaceholder": "e.g. Colombo Plant",
+        "code": "Code (optional)",
+        "address": "Address (optional)",
+        "addressPlaceholder": "e.g. 123 Main Street, Colombo",
+        "contactPerson": "Contact person (optional)",
+        "contactName": "Name",
+        "contactPhone": "Phone",
+        "contactDesignation": "Designation",
+        "contactEmail": "Email"
       }
     }
   }
