@@ -12,6 +12,7 @@ import { BreakdownDetailCard } from '../../components/breakdowns/BreakdownDetail
 import { isRCARequired, canCloseBreakdown } from '../../lib/rcaUtils';
 import { notifyUsers } from '../../services/notifications.service';
 import { markMachineActiveIfNoOpenWork, markMachineUnderMaintenance } from '../../lib/machineOperationalStatus';
+import { getBreakdownsHomeRoute } from '../../lib/auth';
 
 const CAN_ASSIGN_ROLES = ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
 const CAN_ATTEND_ROLES = ['technician', 'trainee'];
@@ -115,7 +116,7 @@ export default function ViewBreakdownPage() {
         }),
       });
       void markMachineActiveIfNoOpenWork(breakdown?.machineId);
-      navigate('/app/breakdowns', { replace: true });
+      navigate(getBreakdownsHomeRoute(role), { replace: true });
     } catch (err: any) {
       setError(err?.message || t('common.breakdowns.viewPage.errors.closeFailed'));
     }
@@ -242,7 +243,7 @@ export default function ViewBreakdownPage() {
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700">{error || t('common.breakdowns.viewPage.notFound')}</p>
           <button
-            onClick={() => navigate('/app/breakdowns')}
+            onClick={() => navigate(getBreakdownsHomeRoute(role))}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
           >
             {t('common.breakdowns.viewPage.backToBreakdowns')}
@@ -261,7 +262,7 @@ export default function ViewBreakdownPage() {
           <div>
             <button
               type="button"
-              onClick={() => navigate('/app/breakdowns')}
+              onClick={() => navigate(getBreakdownsHomeRoute(role))}
               className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1"
             >
               <ArrowLeft className="w-4 h-4" /> {t('common.breakdowns.viewPage.backToBreakdowns')}
@@ -272,7 +273,7 @@ export default function ViewBreakdownPage() {
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => navigate('/app/breakdowns')}
+              onClick={() => navigate(getBreakdownsHomeRoute(role))}
               className="px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 text-sm"
             >
               <ArrowLeft className="w-4 h-4 inline mr-1" />

@@ -532,3 +532,11 @@ export function getDashboardRoute(role: UserRole): string {
 
   return routes[role];
 }
+
+// technician/trainee don't have access to the Breakdowns list page (their
+// breakdown work happens through the QR-report flow and the Attend form,
+// not by browsing the list) — send them to their dashboard instead of a
+// page they'd immediately bounce off of as unauthorized.
+export function getBreakdownsHomeRoute(role: UserRole | '' | undefined): string {
+  return role === 'technician' || role === 'trainee' ? getDashboardRoute(role) : '/app/breakdowns';
+}

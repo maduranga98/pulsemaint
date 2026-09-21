@@ -1515,7 +1515,8 @@
           "autoApprovalEligible": "✓ Auto-approval eligible: All items in stock and within threshold",
           "autoApprovalNotEligible": "✗ Auto-approval not eligible: {{reasons}}",
           "someUnavailable": "Some items unavailable. ",
-          "costExceedsThreshold": "Cost exceeds LKR {{threshold}} threshold."
+          "costExceedsThreshold": "Cost exceeds LKR {{threshold}} threshold.",
+          "writtenOff": "Cancelled by {{name}} — won't be returned: {{reason}}"
         },
         "availabilityIndicator": {
           "outOfStock": "Out of stock",
@@ -2652,7 +2653,14 @@
         "returnFailed": "Failed to request return.",
         "returnRequested": "Return requested — a store keeper will confirm it.",
         "returning": "Returning",
-        "title": "My Returnable Parts"
+        "title": "My Returnable Parts",
+        "writeOffButton": "Cancel",
+        "writeOffTitle": "Cancel return of {{partName}}",
+        "writeOffBody": "Tell us why this won't be returned (lost, damaged, used up, etc.). This is recorded and store keepers/supervisors are notified.",
+        "writeOffReasonPlaceholder": "Reason (required)",
+        "writeOffConfirm": "Confirm cancellation",
+        "writeOffRecorded": "Recorded — this item is no longer expected back.",
+        "writeOffFailed": "Failed to record cancellation."
       },
       "mySafetyCasesWidget": {
         "actionsTaken": "Actions Taken",

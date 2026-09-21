@@ -853,7 +853,14 @@ service cloud.firestore {
       allow update: if isAuthenticated() && getUserData().companyId == resource.data.companyId
         && (getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin']
           || (getUserData().role in ['technician', 'trainee'] && resource.data.requestedBy == request.auth.uid
-              && request.resource.data.status == 'cancelled'));
+              && request.resource.data.status == 'cancelled')
+          // A requester writing off one of their own returnable items as
+          // unreturnable (lost/damaged/consumed) instead of physically
+          // handing it back — see MyReturnablePartsWidget. Scoped to only
+          // the items array (plus updatedAt) so it can't touch anything
+          // else on the request.
+          || (getUserData().role in ['technician', 'trainee'] && resource.data.requestedBy == request.auth.uid
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['items', 'updatedAt'])));
       allow delete: if false;
 
       // Immutable audit trail of each review decision (approve / partial /
