@@ -931,7 +931,7 @@ service cloud.firestore {
       // create, surfacing as "Failed to save settings".
       allow read: if isAuthenticated() && getUserData().companyId == settingsId;
       allow write: if isAuthenticated() && getUserData().companyId == settingsId
-        && getUserData().role in ['supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
+        && getUserData().role in ['store_keeper', 'supervisor', 'maintenance_supervisor', 'plant_manager', 'admin'];
     }
 
     // ---------------------------------------------------------------------------
@@ -1003,7 +1003,7 @@ service cloud.firestore {
     match /companies/{companyId}/inventorySettings/{settingsId} {
       allow read: if isAuthenticated() && getUserData().companyId == companyId;
       allow write: if isAuthenticated() && getUserData().companyId == companyId
-        && getUserData().role in ['maintenance_supervisor', 'plant_manager', 'admin'];
+        && getUserData().role in ['store_keeper', 'maintenance_supervisor', 'plant_manager', 'admin'];
     }
 
     // ---------------------------------------------------------------------------

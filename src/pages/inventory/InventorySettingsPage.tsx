@@ -11,7 +11,7 @@ const ROLE_OPTIONS = ['store_keeper', 'supervisor', 'plant_manager', 'admin', 't
 export function InventorySettingsPage() {
   const { addToast } = useToast();
   const canAccess = useAuthStore((s) =>
-    s.canAccess(['supervisor', 'plant_manager', 'admin'])
+    s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin'])
   );
 
   const { settings, loading, updateSettings } = useInventorySettings();
