@@ -6,6 +6,8 @@ const APP_LANGUAGE_NAMES: Record<AppLanguage, string> = {
   es: 'Spanish',
   fr: 'French',
   de: 'German',
+  zh: 'Chinese',
+  ja: 'Japanese',
 };
 
 // Maps the BCP-47 speech-recognition locale (what the speaker picked in
@@ -32,12 +34,16 @@ interface TranslationResult {
 }
 
 // Target language codes for the no-key fallback translator (Google's public
-// translate_a endpoint) — the same 4 languages the app switcher offers.
+// translate_a endpoint) — every language the app switcher (SUPPORTED_LANGUAGES
+// in lib/i18n.ts) offers, kept in sync with it so a selected UI language
+// never silently falls back to English translation.
 const GOOGLE_TRANSLATE_TARGET: Record<AppLanguage, string> = {
   'en-US': 'en',
   es: 'es',
   fr: 'fr',
   de: 'de',
+  zh: 'zh-CN',
+  ja: 'ja',
 };
 
 /**
