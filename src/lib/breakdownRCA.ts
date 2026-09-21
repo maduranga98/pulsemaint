@@ -3,11 +3,16 @@ import { db } from './firebase';
 import type { Breakdown, BreakdownType } from '../types/breakdown';
 import { generateClaudeJson, hasClaudeKey } from './claude';
 
+// Kept in sync with SUPPORTED_LANGUAGES in lib/i18n.ts so the AI response
+// language always matches the app's currently selected UI language rather
+// than silently falling back to English for a language missing from here.
 const RESPONSE_LANGUAGE_NAMES: Record<string, string> = {
   'en-US': 'English',
   es: 'Spanish',
   fr: 'French',
   de: 'German',
+  zh: 'Chinese',
+  ja: 'Japanese',
 };
 
 export interface BreakdownRCASuggestion {
