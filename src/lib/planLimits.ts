@@ -100,7 +100,12 @@ export const PLAN_LIMITS: Record<Plan, PlanLimitConfig> = {
 };
 
 export function planLimitsFor(plan: Plan | undefined | null): PlanLimitConfig {
-  return PLAN_LIMITS[plan ?? 'starter'];
+  // `plan` ultimately comes from a Firestore field that isn't otherwise
+  // validated client-side (e.g. set by hand in the console, or a future
+  // plan id this build doesn't know about yet) — an unrecognized value
+  // must not crash every PlanFeatureGate-protected page with "Cannot read
+  // properties of undefined (reading 'features')".
+  return PLAN_LIMITS[plan as Plan] ?? PLAN_LIMITS.starter;
 }
 
 export function isAtOrOverLimit(count: number, limit: number | null): boolean {
