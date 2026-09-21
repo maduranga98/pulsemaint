@@ -19,6 +19,7 @@ export default function ProtectedRoute({
 }: ProtectedRouteProps) {
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthenticated = useAuthStore((state) => state.user !== null);
+  const hasProfile = useAuthStore((state) => state.userProfile !== null);
   const userRole = useAuthStore((state) => state.userProfile?.role);
   const location = useLocation();
 
@@ -44,8 +45,29 @@ export default function ProtectedRoute({
     return <Navigate to={redirectTo} replace state={{ from }} />;
   }
 
-  if (requiredRoles && userRole && !requiredRoles.includes(userRole)) {
-    return <Navigate to="/app/unauthorized" replace />;
+  if (requiredRoles) {
+    // isInitialized flips true as soon as Firebase Auth resolves, which is
+    // before the separate, async users/{uid} profile snapshot has
+    // necessarily delivered its first result — so right after a legitimate
+    // login there's a real window where isAuthenticated is true but
+    // userProfile is still null. Keep waiting through that window
+    // (AuthLoading) rather than treating "no role yet" as "wrong role" and
+    // bouncing a valid login to Unauthorized before its profile has even
+    // arrived. Routes with no requiredRoles don't need this wait — they're
+    // open to any authenticated user regardless of role.
+    if (!hasProfile) {
+      return <AuthLoading />;
+    }
+
+    // Once the profile has actually loaded, a role that's missing
+    // (malformed/incomplete users/{uid} doc) or doesn't match must be
+    // denied like any other wrong role, not waved through. (A prior version
+    // of this check only redirected when userRole was truthy AND excluded,
+    // which let a missing role bypass every role-gated route in the app
+    // instead of blocking it.)
+    if (!(userRole && requiredRoles.includes(userRole))) {
+      return <Navigate to="/app/unauthorized" replace />;
+    }
   }
 
   return <>{children}</>;
