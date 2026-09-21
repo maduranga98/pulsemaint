@@ -1202,8 +1202,8 @@ function InviteModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-lg border border-slate-200" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+      <div className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-lg" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 shrink-0">
           <div>
             <h2 className="text-base font-semibold text-slate-900">{t('common.settings.users.invite.title', 'Invite Team Member')}</h2>
             <p className="text-xs text-slate-500 mt-0.5">{t('common.settings.users.invite.subtitle', 'Send an invitation via email with a role assignment')}</p>
@@ -1213,7 +1213,7 @@ function InviteModal({
           </button>
         </div>
 
-        <form onSubmit={submit} className="px-5 py-4 space-y-4">
+        <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
           <Field label={t('common.settings.users.invite.fields.email', 'Email address')} required>
             <input
               type="email"
@@ -1359,18 +1359,18 @@ function InviteModal({
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:items-center sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="w-full px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 sm:w-auto"
             >
               {t('common.settings.users.invite.cancel', 'Cancel')}
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 flex items-center gap-2"
+              className="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 flex items-center justify-center gap-2 sm:w-auto"
             >
               <Send className="w-4 h-4" />
               {saving ? t('common.settings.users.invite.sending', 'Sending...') : t('common.settings.users.invite.send', 'Send Invitation')}
@@ -1432,10 +1432,10 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-lg w-full max-w-lg border border-slate-200"
+        className="flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-slate-200 bg-white shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 shrink-0">
           <h2 className="text-base font-semibold text-slate-900">{title}</h2>
           <button
             type="button"
@@ -1447,7 +1447,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
           </button>
         </div>
 
-        <form onSubmit={submit} className="px-5 py-4 space-y-4">
+        <form onSubmit={submit} className="min-h-0 flex-1 overflow-y-auto px-5 py-4 space-y-4">
           <Field label={t('common.settings.users.modal.fields.fullName', 'Full name')} required>
             <input
               type="text"
@@ -1588,11 +1588,11 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
             </div>
           )}
 
-          <div className="flex items-center justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:items-center sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+              className="w-full px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 sm:w-auto"
             >
               {isView ? t('common.settings.users.modal.close', 'Close') : t('common.settings.users.modal.cancel', 'Cancel')}
             </button>
@@ -1600,7 +1600,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] disabled:opacity-60"
+                className="w-full px-4 py-2 text-sm font-semibold rounded-lg bg-[#1A56DB] text-white hover:bg-[#1E40AF] disabled:opacity-60 sm:w-auto"
               >
                 {saving ? t('common.settings.users.modal.saving', 'Saving...') : t('common.settings.users.modal.save', 'Save changes')}
               </button>

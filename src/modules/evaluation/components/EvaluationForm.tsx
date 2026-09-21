@@ -764,12 +764,12 @@ export default function EvaluationForm({
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
             )}
 
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setStep('criteria')} className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <div className="flex flex-wrap gap-2 pt-2 sm:gap-3">
+              <button type="button" onClick={() => setStep('criteria')} className="min-h-11 flex-1 min-w-[calc(50%-0.5rem)] px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:flex-none sm:min-w-0">
                 {t('common.evaluation.form.back', '← Back')}
               </button>
               {onCancel && (
-                <button type="button" onClick={onCancel} className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <button type="button" onClick={onCancel} className="min-h-11 flex-1 min-w-[calc(50%-0.5rem)] px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:flex-none sm:min-w-0">
                   {t('common.evaluation.form.summary.cancel', 'Cancel')}
                 </button>
               )}
@@ -778,7 +778,7 @@ export default function EvaluationForm({
                   type="button"
                   onClick={() => void handleSaveDraft()}
                   disabled={savingDraft || saving || uploading}
-                  className="min-h-11 px-4 rounded-lg border border-amber-300 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-60"
+                  className="min-h-11 flex-1 min-w-[calc(50%-0.5rem)] px-4 rounded-lg border border-amber-300 bg-amber-50 text-sm font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-60 sm:flex-none sm:min-w-0"
                 >
                   {savingDraft ? t('common.evaluation.form.summary.savingDraft', 'Saving…') : t('common.evaluation.form.summary.saveDraft', 'Save as Draft (Ongoing)')}
                 </button>
@@ -786,7 +786,7 @@ export default function EvaluationForm({
               <button
                 type="button"
                 onClick={handleExportPdf}
-                className="min-h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="min-h-11 flex-1 min-w-[calc(50%-0.5rem)] px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:flex-none sm:min-w-0"
               >
                 {t('common.evaluation.form.summary.exportPdf', 'Export PDF')}
               </button>
@@ -794,7 +794,7 @@ export default function EvaluationForm({
                 type="button"
                 onClick={() => void handleSubmit()}
                 disabled={saving || savingDraft || uploading}
-                className="min-h-11 px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                className="min-h-11 flex-1 min-w-[calc(50%-0.5rem)] px-6 rounded-lg bg-blue-600 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 sm:flex-none sm:min-w-0"
               >
                 {saving ? t('common.evaluation.form.summary.submitting', 'Submitting…') : t('common.evaluation.form.summary.submit', 'Submit Evaluation')}
               </button>
