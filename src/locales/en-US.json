@@ -1356,7 +1356,8 @@
         "evaluations": "Evaluations",
         "settings": "Settings",
         "billing": "Billing & Plan"
-      }
+      },
+      "help": "Help & Support"
     },
     "dashboard": {
       "adminTitle": "Admin Dashboard",
@@ -8592,6 +8593,340 @@
         "contactPhone": "Phone",
         "contactDesignation": "Designation",
         "contactEmail": "Email"
+      }
+    }
+  },
+  "help": {
+    "pageTitle": "Help & Support",
+    "pageSubtitle": "Guides and answers for the tools your role uses.",
+    "searchPlaceholder": "Search help topics...",
+    "noResults": "No help topics match your search.",
+    "openLink": "Open {{module}}",
+    "contact": {
+      "title": "Need more help?",
+      "body": "Can't find what you're looking for? Reach out to your plant manager, admin, or the FirmiCore support team.",
+      "cta": "Contact support"
+    },
+    "modules": {
+      "machines": {
+        "title": "Machines",
+        "description": "The registry of every machine on site, its QR code, health score, and history.",
+        "faqs": [
+          {
+            "q": "How is a machine's health score calculated?",
+            "a": "It starts at 100 and is reduced for breakdowns and overdue PM in the last 90 days, and credited for PM completed on time."
+          },
+          {
+            "q": "How do I find a machine's QR code?",
+            "a": "Open the machine's profile and use the QR tab — you can print or download it to attach to the machine."
+          }
+        ]
+      },
+      "breakdowns": {
+        "title": "Breakdowns",
+        "description": "Report, track, and attend to machine breakdowns as they happen.",
+        "faqs": [
+          {
+            "q": "How do I report a breakdown?",
+            "a": "Go to Breakdowns and use Report Breakdown, then pick the machine and describe the issue."
+          },
+          {
+            "q": "What happens after I report one?",
+            "a": "It's queued for a technician to attend, and its status updates as it moves through triage, repair, and close-out."
+          }
+        ]
+      },
+      "workOrders": {
+        "title": "Work Orders",
+        "description": "Create, assign, and track work orders from open to signed off.",
+        "faqs": [
+          {
+            "q": "How do I create a work order?",
+            "a": "Use the Create button on the Work Orders page, fill in the machine and scope, then assign it to a technician."
+          },
+          {
+            "q": "Who can sign off a completed work order?",
+            "a": "A supervisor or above reviews the completed checklist and sign-off before it's closed."
+          }
+        ]
+      },
+      "myWorkOrders": {
+        "title": "My Work Orders",
+        "description": "The work orders assigned to you, in one list.",
+        "faqs": [
+          {
+            "q": "Where do I see work assigned to me?",
+            "a": "My Work Orders shows only the ones assigned to you, sorted by priority and due date."
+          }
+        ]
+      },
+      "pmSchedules": {
+        "title": "PM Schedules",
+        "description": "Preventive maintenance schedules and their calendar and workload views.",
+        "faqs": [
+          {
+            "q": "How do I set up a PM schedule?",
+            "a": "Open PM Schedules and create one against a machine with a recurrence — daily, weekly, monthly, or a custom interval."
+          },
+          {
+            "q": "How do I see upcoming PM work?",
+            "a": "Use the PM Calendar or Workload views to see what's due and how it's distributed across technicians."
+          }
+        ]
+      },
+      "workPermits": {
+        "title": "Work Permits",
+        "description": "Permit-to-work requests with categories and required precautions.",
+        "faqs": [
+          {
+            "q": "Who issues a work permit?",
+            "a": "Admins, plant managers, supervisors, and safety officers can issue permits after reviewing the required precautions."
+          }
+        ]
+      },
+      "safetyCases": {
+        "title": "Safety Cases",
+        "description": "Report and track incidents, near-misses, hazards, and unsafe acts.",
+        "faqs": [
+          {
+            "q": "Who can report a safety case?",
+            "a": "Anyone in the company can report one — incident, near-miss, hazard, or unsafe act."
+          },
+          {
+            "q": "Who triages and closes a case?",
+            "a": "Safety officers, supervisors, and managers triage and close cases; other roles can see the ones reported to them."
+          }
+        ]
+      },
+      "safetyTrainings": {
+        "title": "Safety Trainings",
+        "description": "Schedule and manage safety training sessions.",
+        "faqs": [
+          {
+            "q": "How do I schedule a safety training session?",
+            "a": "Open Safety Trainings and create a session, then assign the people who need to attend."
+          }
+        ]
+      },
+      "safetyBlacklist": {
+        "title": "Blacklist",
+        "description": "Technicians, contractors, operators, or machines that hit the safety-case point threshold.",
+        "faqs": [
+          {
+            "q": "How does someone get blacklisted?",
+            "a": "Repeated or serious safety cases accumulate points; crossing the threshold adds them to the blacklist."
+          },
+          {
+            "q": "Who can clear a blacklist entry?",
+            "a": "Only an admin can clear an entry, since it's a company-wide safety decision."
+          }
+        ]
+      },
+      "inventory": {
+        "title": "Inventory",
+        "description": "The parts catalog, stock levels, and low-stock alerts.",
+        "faqs": [
+          {
+            "q": "How do I add a new part?",
+            "a": "Use Add Item on the Inventory Catalog page to create a new part with its stock level and reorder point."
+          },
+          {
+            "q": "How do I know what's running low?",
+            "a": "Low-stock items are flagged directly on the catalog page."
+          }
+        ]
+      },
+      "po": {
+        "title": "Purchase Orders",
+        "description": "Create and track purchase orders for parts and materials.",
+        "faqs": [
+          {
+            "q": "How do I create a purchase order?",
+            "a": "Go to Purchase Orders and create one, adding the parts and quantities you need from a supplier."
+          }
+        ]
+      },
+      "requests": {
+        "title": "Parts Requests",
+        "description": "Requests for parts from technicians, and their fulfillment status.",
+        "faqs": [
+          {
+            "q": "How do I fulfill a parts request?",
+            "a": "Open the request in Requests and mark the parts issued once they've been handed over."
+          }
+        ]
+      },
+      "triage": {
+        "title": "Triage",
+        "description": "Guided troubleshooting flows to diagnose a machine issue step by step.",
+        "faqs": [
+          {
+            "q": "How do I start a triage session?",
+            "a": "Open Triage, pick the machine and issue, and follow the guided steps through to a resolution or escalation."
+          },
+          {
+            "q": "What happens if a step can't be resolved?",
+            "a": "Triage will escalate to a work order or breakdown report so the right person can take over."
+          }
+        ]
+      },
+      "training": {
+        "title": "Training",
+        "description": "The training module library and dashboard for managing courses.",
+        "faqs": [
+          {
+            "q": "How do I assign a training module?",
+            "a": "Open Training, pick a module from the library, and assign it to the people who need to complete it."
+          }
+        ]
+      },
+      "traineeManagement": {
+        "title": "Trainee Management",
+        "description": "Manage trainee profiles, programmes, and assignment progress.",
+        "faqs": [
+          {
+            "q": "How do I track a trainee's progress?",
+            "a": "Open their profile under Trainee Management to see their programme, assignments, and certificates."
+          }
+        ]
+      },
+      "myTraining": {
+        "title": "My Training",
+        "description": "Training modules assigned to you.",
+        "faqs": [
+          {
+            "q": "Where do I complete my assigned training?",
+            "a": "It surfaces as a widget on your dashboard — open it to start or continue a module."
+          }
+        ]
+      },
+      "myProgram": {
+        "title": "My Program",
+        "description": "Your trainee programme: modules, quizzes, and progress toward certification.",
+        "faqs": [
+          {
+            "q": "How do I see what's left in my programme?",
+            "a": "My Program shows every module in your programme and your completion status for each."
+          }
+        ]
+      },
+      "myCertificates": {
+        "title": "My Certificates",
+        "description": "Certificates you've earned from completed modules and programmes.",
+        "faqs": [
+          {
+            "q": "How do I download a certificate?",
+            "a": "Open My Certificates and use the download option on any certificate you've earned."
+          }
+        ]
+      },
+      "contractors": {
+        "title": "Contractors",
+        "description": "Contractor profiles, their technicians, jobs, compliance, and performance.",
+        "faqs": [
+          {
+            "q": "How do I add a contractor?",
+            "a": "Use Add Contractor to register a new contractor company, then add their technicians."
+          },
+          {
+            "q": "Where do I rate a contractor's job?",
+            "a": "Open the completed job and use Rate Contractor to record how the work went."
+          }
+        ]
+      },
+      "myShift": {
+        "title": "My Shift",
+        "description": "Your current shift, and starting or ending it.",
+        "faqs": [
+          {
+            "q": "How do I end my shift?",
+            "a": "Use the End Shift button in the header, which also prompts you for a handover if one is needed."
+          }
+        ]
+      },
+      "shiftHandovers": {
+        "title": "Shift Handovers",
+        "description": "Shift handover history and briefings between outgoing and incoming shifts.",
+        "faqs": [
+          {
+            "q": "Where do I see what the last shift left behind?",
+            "a": "Shift Handovers lists past handovers, including open items the next shift should know about."
+          }
+        ]
+      },
+      "analytics": {
+        "title": "Analytics",
+        "description": "Company-wide metrics across machines, breakdowns, PM, and more.",
+        "faqs": [
+          {
+            "q": "Where does this data come from?",
+            "a": "It's computed from your operational records — breakdowns, work orders, PM history, and machines — so it's accurate even without a separate reporting setup."
+          }
+        ]
+      },
+      "moe": {
+        "title": "MOE",
+        "description": "Machine operating efficiency tracking and trends.",
+        "faqs": [
+          {
+            "q": "What does MOE measure?",
+            "a": "It tracks how efficiently machines are running against their expected output over time."
+          }
+        ]
+      },
+      "reports": {
+        "title": "Reports",
+        "description": "Generate and export reports across the modules you have access to.",
+        "faqs": [
+          {
+            "q": "How do I export a report?",
+            "a": "Open Reports, pick a report type and date range, then export it as a PDF or spreadsheet."
+          }
+        ]
+      },
+      "audit": {
+        "title": "Audit",
+        "description": "Audit sessions, findings, and compliance tracking.",
+        "faqs": [
+          {
+            "q": "How do I start an audit session?",
+            "a": "Open Audit and create a new session against the machines or areas you're auditing."
+          }
+        ]
+      },
+      "evaluations": {
+        "title": "Evaluations",
+        "description": "Performance evaluation templates and completed evaluations.",
+        "faqs": [
+          {
+            "q": "How do I run an evaluation?",
+            "a": "Open Evaluations, pick a template, and complete it for the person or team being evaluated."
+          }
+        ]
+      },
+      "settings": {
+        "title": "Settings",
+        "description": "Company settings, users, plants, and shift configuration.",
+        "faqs": [
+          {
+            "q": "How do I add a new user?",
+            "a": "Open Settings, go to Users, and send an invitation with their role and site."
+          },
+          {
+            "q": "How do I change the company timezone or language?",
+            "a": "Open Settings and edit the company profile — timezone and default language are set there."
+          }
+        ]
+      },
+      "billing": {
+        "title": "Billing & Plan",
+        "description": "Your subscription plan, billing cycle, and payment methods.",
+        "faqs": [
+          {
+            "q": "How do I change plans?",
+            "a": "Open Billing & Plan to see available plans and upgrade or downgrade your subscription."
+          }
+        ]
       }
     }
   }

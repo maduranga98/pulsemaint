@@ -58,6 +58,9 @@ const Icon = {
   menu: (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   ),
+  help: (
+    <svg className={iconClass} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  ),
   chevron: (
     <svg className="w-3.5 h-3.5 shrink-0 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
   ),
@@ -69,6 +72,17 @@ const DASHBOARD_ITEM: NavItem = {
   labelKey: 'common.nav.dashboard',
   to: '/app/dashboard',
   icon: Icon.dashboard,
+  roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'],
+};
+
+// Help & Support is available to every role — kept outside the collapsible
+// groups for the same reason as Dashboard. The page itself filters its
+// content by role (see ROLE_HELP_MODULES in src/pages/help/helpContent.ts),
+// so every role is listed here.
+const HELP_ITEM: NavItem = {
+  labelKey: 'common.nav.help',
+  to: '/app/help',
+  icon: Icon.help,
   roles: ['safety_officer', 'plant_manager', 'admin', 'supervisor', 'technician', 'store_keeper', 'hr_officer', 'trainee', 'floor_operator'],
 };
 
@@ -361,6 +375,7 @@ export default function AppLayout() {
   const role = userProfile?.role;
 
   const visibleDashboard = role && DASHBOARD_ITEM.roles.includes(role) ? DASHBOARD_ITEM : null;
+  const visibleHelp = role && HELP_ITEM.roles.includes(role) ? HELP_ITEM : null;
 
   // Each group keeps only the items this role can see; a group with nothing
   // left to show is dropped entirely rather than rendering an empty header.
@@ -471,6 +486,26 @@ export default function AppLayout() {
               </div>
             );
           })}
+
+          {visibleHelp && (
+            <>
+              <div className="my-2 border-t border-[#1E3A5F]" />
+              <NavLink
+                to={visibleHelp.to}
+                onClick={() => setSidebarOpen(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-colors ${
+                    isActive
+                      ? 'bg-[#1A56DB]/15 text-[#60A5FA] border-l-2 border-[#1A56DB] pl-[10px]'
+                      : 'text-[#8BA3BF] hover:bg-[#142849] hover:text-[#F0F4F8]'
+                  }`
+                }
+              >
+                {visibleHelp.icon}
+                <span>{t(visibleHelp.labelKey)}</span>
+              </NavLink>
+            </>
+          )}
         </nav>
       </aside>
 
