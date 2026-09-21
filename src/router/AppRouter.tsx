@@ -147,6 +147,9 @@ import ReportHistoryPage from '../pages/reports/ReportHistoryPage';
 // Billing
 import BillingPage from '../pages/billing/BillingPage';
 
+// Help & Support
+import HelpSupportPage from '../pages/help/HelpSupportPage';
+
 // Real pages (Module 1, 2, 4, 11)
 import ReportBreakdownPage from '../pages/breakdowns/ReportBreakdownPage';
 import PublicBreakdownReportPage from '../pages/breakdowns/PublicBreakdownReportPage';
@@ -847,6 +850,16 @@ export default function AppRouter() {
           element={
             <ProtectedRoute requiredRoles={['admin']}>
               <BillingPage />
+            </ProtectedRoute>
+          }
+        />
+        {/* Open to every authenticated role — HelpSupportPage filters its
+            content by role itself via ROLE_HELP_MODULES. */}
+        <Route
+          path="help"
+          element={
+            <ProtectedRoute>
+              <HelpSupportPage />
             </ProtectedRoute>
           }
         />
