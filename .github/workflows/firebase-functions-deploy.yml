@@ -19,6 +19,23 @@ jobs:
       - name: Install functions dependencies
         run: npm ci
         working-directory: functions
+      - name: Debug - verify Secret Manager access
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PULSEMAINT }}
+        run: |
+          echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > "$RUNNER_TEMP/firebase-sa.json"
+          gcloud auth activate-service-account --key-file="$RUNNER_TEMP/firebase-sa.json"
+          gcloud config set project "$VITE_FIREBASE_PROJECT_ID"
+          echo "--- active gcloud identity ---"
+          gcloud auth list
+          echo "--- direct secret access attempt ---"
+          if gcloud secrets versions access latest --secret=SMTP_PASSWORD --project="$VITE_FIREBASE_PROJECT_ID" > /dev/null 2>&1; then
+            echo "SECRET ACCESS: OK"
+          else
+            echo "SECRET ACCESS: FAILED"
+            gcloud secrets versions access latest --secret=SMTP_PASSWORD --project="$VITE_FIREBASE_PROJECT_ID" || true
+          fi
+          rm -f "$RUNNER_TEMP/firebase-sa.json"
       - name: Deploy functions
         env:
           GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_PULSEMAINT }}
