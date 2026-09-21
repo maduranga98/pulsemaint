@@ -8598,7 +8598,7 @@
   },
   "help": {
     "pageTitle": "Help & Support",
-    "pageSubtitle": "Guides and answers for the tools your role uses.",
+    "pageSubtitle": "Step-by-step guides for the tools your role uses.",
     "searchPlaceholder": "Search help topics...",
     "noResults": "No help topics match your search.",
     "openLink": "Open {{module}}",
@@ -8611,320 +8611,489 @@
       "machines": {
         "title": "Machines",
         "description": "The registry of every machine on site, its QR code, health score, and history.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How is a machine's health score calculated?",
-            "a": "It starts at 100 and is reduced for breakdowns and overdue PM in the last 90 days, and credited for PM completed on time."
+            "title": "Add a machine",
+            "steps": [
+              "Open Machines and use Add Machine.",
+              "Fill in the basics: name, type, manufacturer, model, and serial number.",
+              "Set its location (department, floor, bay, station) and criticality.",
+              "Add purchase/installation dates, expected lifespan, and the next PM due date if known.",
+              "Attach photos or documents (manuals, warranty), then save — the machine appears in the registry immediately with a starting health score of 100."
+            ]
           },
           {
-            "q": "How do I find a machine's QR code?",
-            "a": "Open the machine's profile and use the QR tab — you can print or download it to attach to the machine."
+            "title": "View a machine and download its QR code",
+            "steps": [
+              "Open Machines and select the machine from the list to open its profile.",
+              "Its profile shows health score, location, specs, and history (breakdowns, work orders, PM).",
+              "Go to the QR tab — a QR code is generated automatically for that machine.",
+              "Use the download or print option to save it as an image or PDF, or print it directly to attach to the machine.",
+              "Scanning that QR code later opens the machine straight to this profile."
+            ]
           }
         ]
       },
       "breakdowns": {
         "title": "Breakdowns",
         "description": "Report, track, and attend to machine breakdowns as they happen.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I report a breakdown?",
-            "a": "Go to Breakdowns and use Report Breakdown, then pick the machine and describe the issue."
+            "title": "Report a breakdown",
+            "steps": [
+              "Open Breakdowns and use Report Breakdown (or scan the machine's QR code to jump straight in).",
+              "Select the machine — if it was scanned via QR, it's pre-filled.",
+              "Describe the issue and note whether the machine is still running.",
+              "Attach a photo if it helps explain the problem.",
+              "Submit — it's queued for attention and gets a ticket number to track."
+            ]
           },
           {
-            "q": "What happens after I report one?",
-            "a": "It's queued for a technician to attend, and its status updates as it moves through triage, repair, and close-out."
+            "title": "Attend to a breakdown",
+            "steps": [
+              "Open Breakdowns (or Attend Breakdowns) and pick a ticket from the queue.",
+              "Review the description and any photos, then start work.",
+              "Diagnose the cause and record what was done to fix it.",
+              "Close it out, or convert it into a work order if the fix needs parts, a permit, or more time."
+            ]
           }
         ]
       },
       "workOrders": {
         "title": "Work Orders",
         "description": "Create, assign, and track work orders from open to signed off.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I create a work order?",
-            "a": "Use the Create button on the Work Orders page, fill in the machine and scope, then assign it to a technician."
+            "title": "Create a work order",
+            "steps": [
+              "Open Work Orders and use Create — this opens a multi-step drawer.",
+              "Pick the machine (search by name), or it's pre-filled if you're converting a breakdown ticket.",
+              "Choose the work order type: Breakdown, Corrective, Preventive, Installation, Modification, Inspection, Contractor, or Other (locked to Breakdown if you're converting a breakdown).",
+              "Set the priority — critical, high, medium, or low — and assign it to a technician (and supervisor, if needed).",
+              "If the job needs one, turn on Work Permit and fill in its category, hazards, PPE, and required precautions.",
+              "Add a checklist of steps the technician should complete, and attach any reference documents.",
+              "Review and submit — the work order is created and appears in the assigned technician's list."
+            ]
           },
           {
-            "q": "Who can sign off a completed work order?",
-            "a": "A supervisor or above reviews the completed checklist and sign-off before it's closed."
+            "title": "Complete and sign off a work order",
+            "steps": [
+              "The assigned technician opens the work order and works through its checklist.",
+              "They record parts used, notes, and any media (photos) as they go.",
+              "Once finished, they submit it for sign-off.",
+              "A supervisor or above reviews the completed checklist and sign-off details, then closes the work order."
+            ]
           }
         ]
       },
       "myWorkOrders": {
         "title": "My Work Orders",
         "description": "The work orders assigned to you, in one list.",
-        "faqs": [
+        "guides": [
           {
-            "q": "Where do I see work assigned to me?",
-            "a": "My Work Orders shows only the ones assigned to you, sorted by priority and due date."
+            "title": "Find and work on your assigned orders",
+            "steps": [
+              "Open My Work Orders — it only shows the ones assigned to you.",
+              "They're sorted by priority and due date, so the most urgent is at the top.",
+              "Open one to see its checklist, machine details, and any attached permit.",
+              "Work through it and submit for sign-off when done."
+            ]
           }
         ]
       },
       "pmSchedules": {
         "title": "PM Schedules",
         "description": "Preventive maintenance schedules and their calendar and workload views.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I set up a PM schedule?",
-            "a": "Open PM Schedules and create one against a machine with a recurrence — daily, weekly, monthly, or a custom interval."
+            "title": "Set up a PM schedule",
+            "steps": [
+              "Open PM Schedules and create a new one.",
+              "Pick the machine it applies to.",
+              "Choose a recurrence — daily, weekly, monthly, or a custom interval.",
+              "Assign a default technician and add the checklist of tasks to perform each time.",
+              "Save — future occurrences generate automatically according to the recurrence."
+            ]
           },
           {
-            "q": "How do I see upcoming PM work?",
-            "a": "Use the PM Calendar or Workload views to see what's due and how it's distributed across technicians."
+            "title": "See what's coming up",
+            "steps": [
+              "Use PM Calendar for a day/week/month view of scheduled PM.",
+              "Use PM Workload to see how PM tasks are distributed across technicians.",
+              "Open any occurrence to see or reassign it before it's due."
+            ]
           }
         ]
       },
       "workPermits": {
         "title": "Work Permits",
         "description": "Permit-to-work requests with categories and required precautions.",
-        "faqs": [
+        "guides": [
           {
-            "q": "Who issues a work permit?",
-            "a": "Admins, plant managers, supervisors, and safety officers can issue permits after reviewing the required precautions."
+            "title": "Issue a work permit",
+            "steps": [
+              "A permit is usually requested from inside a work order (turn on Work Permit while creating it), or directly from Work Permits.",
+              "Pick the permit category — it determines the standard hazards and precautions checklist.",
+              "Review and confirm the required precautions and PPE for the job.",
+              "Set the validity window (from/to), then issue the permit.",
+              "The permit stays attached to the job and can be reviewed at any time from Work Permits."
+            ]
           }
         ]
       },
       "safetyCases": {
         "title": "Safety Cases",
         "description": "Report and track incidents, near-misses, hazards, and unsafe acts.",
-        "faqs": [
+        "guides": [
           {
-            "q": "Who can report a safety case?",
-            "a": "Anyone in the company can report one — incident, near-miss, hazard, or unsafe act."
+            "title": "Report a safety case",
+            "steps": [
+              "Open Safety Cases and use Report.",
+              "Pick the type: incident, near-miss, hazard, or unsafe act.",
+              "Describe what happened, where, and who (if anyone) was involved.",
+              "Attach a photo if there is one, then submit — it's routed to whoever can triage it."
+            ]
           },
           {
-            "q": "Who triages and closes a case?",
-            "a": "Safety officers, supervisors, and managers triage and close cases; other roles can see the ones reported to them."
+            "title": "Triage and close a case",
+            "steps": [
+              "Open the case from Safety Cases.",
+              "Review the details and assess severity.",
+              "Assign it for corrective action if needed, and record what was done.",
+              "Close the case once resolved — this also updates the reporter's history and any related blacklist points."
+            ]
           }
         ]
       },
       "safetyTrainings": {
         "title": "Safety Trainings",
         "description": "Schedule and manage safety training sessions.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I schedule a safety training session?",
-            "a": "Open Safety Trainings and create a session, then assign the people who need to attend."
+            "title": "Schedule a safety training session",
+            "steps": [
+              "Open Safety Trainings and create a new session.",
+              "Pick the training topic/module and set the date, time, and location.",
+              "Assign the people who need to attend.",
+              "Save — it appears on their dashboard as an upcoming training, and on the training schedule calendar."
+            ]
           }
         ]
       },
       "safetyBlacklist": {
         "title": "Blacklist",
         "description": "Technicians, contractors, operators, or machines that hit the safety-case point threshold.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How does someone get blacklisted?",
-            "a": "Repeated or serious safety cases accumulate points; crossing the threshold adds them to the blacklist."
-          },
-          {
-            "q": "Who can clear a blacklist entry?",
-            "a": "Only an admin can clear an entry, since it's a company-wide safety decision."
+            "title": "Review and clear a blacklist entry",
+            "steps": [
+              "Open Blacklist to see everyone/everything over the safety-case point threshold.",
+              "Open an entry to see the safety cases that led to it.",
+              "If it's been addressed (retraining, corrective action), an admin can clear the entry.",
+              "Clearing it removes the block on new work-order or job assignment for that technician, contractor, operator, or machine."
+            ]
           }
         ]
       },
       "inventory": {
         "title": "Inventory",
         "description": "The parts catalog, stock levels, and low-stock alerts.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I add a new part?",
-            "a": "Use Add Item on the Inventory Catalog page to create a new part with its stock level and reorder point."
-          },
-          {
-            "q": "How do I know what's running low?",
-            "a": "Low-stock items are flagged directly on the catalog page."
+            "title": "Add a part to the catalog",
+            "steps": [
+              "Open Inventory Catalog and use Add Item.",
+              "Enter the part name and category — a part number is generated for you automatically based on the category.",
+              "Pick a supplier (or add one), and set the stock level and reorder point.",
+              "Attach a warranty document if there is one, then save.",
+              "The part now appears in the catalog and is flagged automatically if its stock drops below the reorder point."
+            ]
           }
         ]
       },
       "po": {
         "title": "Purchase Orders",
         "description": "Create and track purchase orders for parts and materials.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I create a purchase order?",
-            "a": "Go to Purchase Orders and create one, adding the parts and quantities you need from a supplier."
+            "title": "Create a purchase order",
+            "steps": [
+              "Open Purchase Orders and use Create.",
+              "Pick the supplier.",
+              "Add the parts and quantities you need — low-stock parts are easy to spot from the catalog first.",
+              "Review the total, then submit the order.",
+              "Track its status (ordered, partially received, received) from the Purchase Orders list."
+            ]
           }
         ]
       },
       "requests": {
         "title": "Parts Requests",
         "description": "Requests for parts from technicians, and their fulfillment status.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I fulfill a parts request?",
-            "a": "Open the request in Requests and mark the parts issued once they've been handed over."
+            "title": "Fulfill a parts request",
+            "steps": [
+              "Open Requests and pick one from the queue.",
+              "Check the part and quantity requested against what's on the shelf.",
+              "Issue the parts and mark the request fulfilled (or partially fulfilled if stock is short).",
+              "If stock is short, it can feed into a purchase order."
+            ]
           }
         ]
       },
       "triage": {
         "title": "Triage",
         "description": "Guided troubleshooting flows to diagnose a machine issue step by step.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I start a triage session?",
-            "a": "Open Triage, pick the machine and issue, and follow the guided steps through to a resolution or escalation."
-          },
-          {
-            "q": "What happens if a step can't be resolved?",
-            "a": "Triage will escalate to a work order or breakdown report so the right person can take over."
+            "title": "Run a triage session",
+            "steps": [
+              "Open Triage and pick the machine and the issue you're seeing.",
+              "Follow the guided steps — each one asks a yes/no question, a reading, or a quick check.",
+              "Add a note or photo at any step if it helps document what you found.",
+              "If the flow reaches a fix you can do yourself, it walks you through it and closes out.",
+              "If it can't be resolved at your level, it escalates automatically into a work order or breakdown report for the right person."
+            ]
           }
         ]
       },
       "training": {
         "title": "Training",
         "description": "The training module library and dashboard for managing courses.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I assign a training module?",
-            "a": "Open Training, pick a module from the library, and assign it to the people who need to complete it."
+            "title": "Assign a training module",
+            "steps": [
+              "Open Training and browse the module library.",
+              "Open a module to check its content and quiz before assigning it.",
+              "Use Assign, then pick the people (or a whole role/site) who need to complete it.",
+              "Set a due date if one applies, then confirm — it appears on each person's dashboard."
+            ]
           }
         ]
       },
       "traineeManagement": {
         "title": "Trainee Management",
         "description": "Manage trainee profiles, programmes, and assignment progress.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I track a trainee's progress?",
-            "a": "Open their profile under Trainee Management to see their programme, assignments, and certificates."
+            "title": "Track a trainee's progress",
+            "steps": [
+              "Open Trainee Management and select the trainee.",
+              "Their profile shows their programme, assigned modules, and completion status for each.",
+              "Open an assignment to see quiz scores or flag it for retraining if needed.",
+              "Once every required module is complete, sign off their programme to issue their certificate."
+            ]
           }
         ]
       },
       "myTraining": {
         "title": "My Training",
         "description": "Training modules assigned to you.",
-        "faqs": [
+        "guides": [
           {
-            "q": "Where do I complete my assigned training?",
-            "a": "It surfaces as a widget on your dashboard — open it to start or continue a module."
+            "title": "Complete an assigned module",
+            "steps": [
+              "Find your assigned training as a widget on your dashboard.",
+              "Open it and work through the lesson content.",
+              "Take the quiz at the end if the module has one.",
+              "Passing marks it complete and, where set up, issues a certificate."
+            ]
           }
         ]
       },
       "myProgram": {
         "title": "My Program",
         "description": "Your trainee programme: modules, quizzes, and progress toward certification.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I see what's left in my programme?",
-            "a": "My Program shows every module in your programme and your completion status for each."
+            "title": "Work through your programme",
+            "steps": [
+              "Open My Program to see every module in your programme and its status.",
+              "Open the next incomplete module and go through its lesson content.",
+              "Take its quiz if it has one — you can usually retake it if you don't pass first time.",
+              "Once every module is complete, your programme is signed off and a certificate is issued."
+            ]
           }
         ]
       },
       "myCertificates": {
         "title": "My Certificates",
         "description": "Certificates you've earned from completed modules and programmes.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I download a certificate?",
-            "a": "Open My Certificates and use the download option on any certificate you've earned."
+            "title": "Download a certificate",
+            "steps": [
+              "Open My Certificates to see everything you've earned.",
+              "Find the one you want and use its download option.",
+              "It downloads as a PDF you can save or print."
+            ]
           }
         ]
       },
       "contractors": {
         "title": "Contractors",
         "description": "Contractor profiles, their technicians, jobs, compliance, and performance.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I add a contractor?",
-            "a": "Use Add Contractor to register a new contractor company, then add their technicians."
+            "title": "Add a contractor and their technicians",
+            "steps": [
+              "Open Contractors and use Add Contractor.",
+              "Enter the company's details and any compliance documents (insurance, certifications).",
+              "Open the new contractor's profile and use Add Technician for each person who'll work on site.",
+              "The contractor and their technicians can now be assigned to jobs."
+            ]
           },
           {
-            "q": "Where do I rate a contractor's job?",
-            "a": "Open the completed job and use Rate Contractor to record how the work went."
+            "title": "Log work and rate a contractor's job",
+            "steps": [
+              "Open the job from Contractor Jobs.",
+              "Use Log Work to record progress, parts used, or an invoice as the job proceeds.",
+              "Once finished, use Sign Off to close the job.",
+              "Use Rate Contractor to record how the work went — this feeds their performance history."
+            ]
           }
         ]
       },
       "myShift": {
         "title": "My Shift",
         "description": "Your current shift, and starting or ending it.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I end my shift?",
-            "a": "Use the End Shift button in the header, which also prompts you for a handover if one is needed."
+            "title": "End your shift",
+            "steps": [
+              "Use the End Shift button in the header.",
+              "If a handover is required, you're prompted to fill in what the next shift should know: open items, machine status, anything unusual.",
+              "Submit — your shift closes and the handover becomes visible to the incoming shift."
+            ]
           }
         ]
       },
       "shiftHandovers": {
         "title": "Shift Handovers",
         "description": "Shift handover history and briefings between outgoing and incoming shifts.",
-        "faqs": [
+        "guides": [
           {
-            "q": "Where do I see what the last shift left behind?",
-            "a": "Shift Handovers lists past handovers, including open items the next shift should know about."
+            "title": "Review the last handover",
+            "steps": [
+              "Open Shift Handovers to see the history, most recent first.",
+              "Open one to see the open items, machine status, and notes the outgoing shift left.",
+              "Use this at the start of your shift to know what to pick up."
+            ]
           }
         ]
       },
       "analytics": {
         "title": "Analytics",
         "description": "Company-wide metrics across machines, breakdowns, PM, and more.",
-        "faqs": [
+        "guides": [
           {
-            "q": "Where does this data come from?",
-            "a": "It's computed from your operational records — breakdowns, work orders, PM history, and machines — so it's accurate even without a separate reporting setup."
+            "title": "Read the dashboards",
+            "steps": [
+              "Open Analytics and pick a tab (machines, breakdowns, PM, safety, etc.).",
+              "Use the date range and site/machine filters to narrow the view.",
+              "It's computed live from your operational records, so it's accurate even without a separate reporting setup.",
+              "Drill into a chart or figure to see the underlying records behind it."
+            ]
           }
         ]
       },
       "moe": {
         "title": "MOE",
         "description": "Machine operating efficiency tracking and trends.",
-        "faqs": [
+        "guides": [
           {
-            "q": "What does MOE measure?",
-            "a": "It tracks how efficiently machines are running against their expected output over time."
+            "title": "Check machine efficiency trends",
+            "steps": [
+              "Open MOE and pick a machine or department.",
+              "Review its efficiency trend over the selected period.",
+              "A drop usually lines up with a breakdown or overdue PM — cross-check against Machines/Breakdowns for the cause."
+            ]
           }
         ]
       },
       "reports": {
         "title": "Reports",
         "description": "Generate and export reports across the modules you have access to.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I export a report?",
-            "a": "Open Reports, pick a report type and date range, then export it as a PDF or spreadsheet."
+            "title": "Export a report",
+            "steps": [
+              "Open Reports and pick a report type.",
+              "Set the date range and any filters (machine, department, site).",
+              "Generate a preview, then export it as a PDF or spreadsheet.",
+              "Past exports are kept in report history for later download."
+            ]
           }
         ]
       },
       "audit": {
         "title": "Audit",
         "description": "Audit sessions, findings, and compliance tracking.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I start an audit session?",
-            "a": "Open Audit and create a new session against the machines or areas you're auditing."
+            "title": "Run an audit session",
+            "steps": [
+              "Open Audit and start a new session against the machines, areas, or work orders you're auditing.",
+              "Work through the configured checklist, recording findings as you go.",
+              "Attach photos as evidence where needed.",
+              "Submit the session — findings are tracked until they're closed out."
+            ]
           }
         ]
       },
       "evaluations": {
         "title": "Evaluations",
         "description": "Performance evaluation templates and completed evaluations.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I run an evaluation?",
-            "a": "Open Evaluations, pick a template, and complete it for the person or team being evaluated."
+            "title": "Run an evaluation",
+            "steps": [
+              "Open Evaluations and pick a template that fits (role, skill area).",
+              "Select the person or team being evaluated.",
+              "Score each criterion and add comments.",
+              "Submit — it's saved to their evaluation history."
+            ]
           }
         ]
       },
       "settings": {
         "title": "Settings",
         "description": "Company settings, users, plants, and shift configuration.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I add a new user?",
-            "a": "Open Settings, go to Users, and send an invitation with their role and site."
+            "title": "Add a new user",
+            "steps": [
+              "Open Settings and go to Users.",
+              "Use Invite User.",
+              "Fill in their name, email, role, and the site/plant they belong to.",
+              "Send the invitation — they receive it by email and set up their own login."
+            ]
           },
           {
-            "q": "How do I change the company timezone or language?",
-            "a": "Open Settings and edit the company profile — timezone and default language are set there."
+            "title": "Update company timezone or language",
+            "steps": [
+              "Open Settings and go to the company profile.",
+              "Pick the timezone from the dropdown (search by city or offset).",
+              "Pick the default language for new users.",
+              "Save — this affects how dates/times display and the language new accounts start in."
+            ]
           }
         ]
       },
       "billing": {
         "title": "Billing & Plan",
         "description": "Your subscription plan, billing cycle, and payment methods.",
-        "faqs": [
+        "guides": [
           {
-            "q": "How do I change plans?",
-            "a": "Open Billing & Plan to see available plans and upgrade or downgrade your subscription."
+            "title": "Change your plan",
+            "steps": [
+              "Open Billing & Plan.",
+              "Compare the available plans and what each includes.",
+              "Pick Upgrade or Downgrade on the plan you want.",
+              "Confirm — the change applies to your next billing cycle (upgrades may apply immediately)."
+            ]
           }
         ]
       }

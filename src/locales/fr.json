@@ -49,7 +49,8 @@
         "evaluations": "Évaluations",
         "settings": "Paramètres",
         "billing": "Facturation et forfait"
-      }
+      },
+      "help": "Aide et assistance"
     },
     "dashboard": {
       "adminTitle": "Tableau de bord de l'administrateur",
@@ -8418,6 +8419,509 @@
       "number_input": "Saisie numérique",
       "text_input": "Saisie de texte",
       "checklist": "Liste de contrôle"
+    }
+  },
+  "help": {
+    "pageTitle": "Aide et assistance",
+    "pageSubtitle": "Guides pas à pas pour les outils utilisés par votre rôle.",
+    "searchPlaceholder": "Rechercher des sujets d'aide...",
+    "noResults": "Aucun sujet d'aide ne correspond à votre recherche.",
+    "openLink": "Ouvrir {{module}}",
+    "contact": {
+      "title": "Besoin d'aide supplémentaire ?",
+      "body": "Vous ne trouvez pas ce que vous cherchez ? Contactez votre responsable d'usine, votre administrateur ou l'équipe d'assistance FirmiCore.",
+      "cta": "Contacter le support"
+    },
+    "modules": {
+      "machines": {
+        "title": "Machines",
+        "description": "Le registre de chaque machine du site, son code QR, son score de santé et son historique.",
+        "guides": [
+          {
+            "title": "Ajouter une machine",
+            "steps": [
+              "Ouvrez Machines et utilisez Ajouter une machine.",
+              "Renseignez les informations de base : nom, type, fabricant, modèle et numéro de série.",
+              "Définissez son emplacement (département, étage, baie, poste) et sa criticité.",
+              "Ajoutez les dates d'achat/d'installation, la durée de vie attendue et la prochaine date de maintenance préventive si connue.",
+              "Joignez des photos ou des documents (manuels, garantie) puis enregistrez — la machine apparaît immédiatement dans le registre avec un score de santé initial de 100."
+            ]
+          },
+          {
+            "title": "Consulter une machine et télécharger son code QR",
+            "steps": [
+              "Ouvrez Machines et sélectionnez la machine dans la liste pour ouvrir son profil.",
+              "Son profil affiche le score de santé, l'emplacement, les spécifications et l'historique (pannes, ordres de travail, maintenance préventive).",
+              "Accédez à l'onglet QR — un code QR est généré automatiquement pour cette machine.",
+              "Utilisez l'option de téléchargement ou d'impression pour l'enregistrer en image ou en PDF, ou imprimez-le directement pour le fixer sur la machine.",
+              "Scanner ce code QR plus tard ouvre directement ce profil."
+            ]
+          }
+        ]
+      },
+      "breakdowns": {
+        "title": "Pannes",
+        "description": "Signalez, suivez et intervenez sur les pannes de machines dès qu'elles surviennent.",
+        "guides": [
+          {
+            "title": "Signaler une panne",
+            "steps": [
+              "Ouvrez Pannes et utilisez Signaler une panne (ou scannez le code QR de la machine pour y accéder directement).",
+              "Sélectionnez la machine — si elle a été scannée via le QR, elle est déjà pré-remplie.",
+              "Décrivez le problème et indiquez si la machine fonctionne toujours.",
+              "Joignez une photo si cela aide à expliquer le problème.",
+              "Envoyez — la demande est mise en file d'attente et reçoit un numéro de ticket pour le suivi."
+            ]
+          },
+          {
+            "title": "Intervenir sur une panne",
+            "steps": [
+              "Ouvrez Pannes (ou Intervenir sur les pannes) et choisissez un ticket dans la file d'attente.",
+              "Examinez la description et les photos, puis commencez le travail.",
+              "Diagnostiquez la cause et notez ce qui a été fait pour la résoudre.",
+              "Clôturez-la, ou convertissez-la en ordre de travail si la réparation nécessite des pièces, un permis ou plus de temps."
+            ]
+          }
+        ]
+      },
+      "workOrders": {
+        "title": "Ordres de travail",
+        "description": "Créez, assignez et suivez les ordres de travail de l'ouverture jusqu'à la signature.",
+        "guides": [
+          {
+            "title": "Créer un ordre de travail",
+            "steps": [
+              "Ouvrez Ordres de travail et utilisez Créer — un panneau à plusieurs étapes s'ouvre.",
+              "Choisissez la machine (recherchez par nom), ou elle sera pré-remplie si vous convertissez un ticket de panne.",
+              "Choisissez le type d'ordre de travail : Panne, Correctif, Préventif, Installation, Modification, Inspection, Sous-traitant ou Autre (verrouillé sur Panne si vous convertissez une panne).",
+              "Définissez la priorité — critique, élevée, moyenne ou faible — et assignez-la à un technicien (et à un superviseur si nécessaire).",
+              "Si le travail le nécessite, activez Permis de travail et remplissez sa catégorie, les dangers, les EPI et les précautions requises.",
+              "Ajoutez une liste d'étapes que le technicien doit accomplir et joignez tout document de référence.",
+              "Vérifiez et envoyez — l'ordre de travail est créé et apparaît dans la liste du technicien assigné."
+            ]
+          },
+          {
+            "title": "Terminer et faire signer un ordre de travail",
+            "steps": [
+              "Le technicien assigné ouvre l'ordre de travail et suit sa liste de contrôle.",
+              "Il note les pièces utilisées, les remarques et tout média (photos) au fur et à mesure.",
+              "Une fois terminé, il le soumet pour signature.",
+              "Un superviseur ou un niveau supérieur examine la liste de contrôle complétée et les détails de la signature, puis clôture l'ordre de travail."
+            ]
+          }
+        ]
+      },
+      "myWorkOrders": {
+        "title": "Mes ordres de travail",
+        "description": "Les ordres de travail qui vous sont assignés, dans une seule liste.",
+        "guides": [
+          {
+            "title": "Trouver et traiter vos ordres assignés",
+            "steps": [
+              "Ouvrez Mes ordres de travail — seuls ceux qui vous sont assignés y figurent.",
+              "Ils sont triés par priorité et date d'échéance, le plus urgent en haut.",
+              "Ouvrez-en un pour voir sa liste de contrôle, les détails de la machine et tout permis joint.",
+              "Travaillez dessus et soumettez-le pour signature une fois terminé."
+            ]
+          }
+        ]
+      },
+      "pmSchedules": {
+        "title": "Programmes de maintenance préventive",
+        "description": "Programmes de maintenance préventive et leurs vues calendrier et charge de travail.",
+        "guides": [
+          {
+            "title": "Configurer un programme de maintenance préventive",
+            "steps": [
+              "Ouvrez Programmes de PM et créez-en un nouveau.",
+              "Choisissez la machine concernée.",
+              "Choisissez une récurrence — quotidienne, hebdomadaire, mensuelle ou un intervalle personnalisé.",
+              "Assignez un technicien par défaut et ajoutez la liste des tâches à effectuer à chaque fois.",
+              "Enregistrez — les prochaines occurrences sont générées automatiquement selon la récurrence."
+            ]
+          },
+          {
+            "title": "Voir ce qui approche",
+            "steps": [
+              "Utilisez le Calendrier PM pour une vue quotidienne/hebdomadaire/mensuelle de la maintenance programmée.",
+              "Utilisez la Charge de travail PM pour voir comment les tâches sont réparties entre les techniciens.",
+              "Ouvrez une occurrence pour la consulter ou la réassigner avant son échéance."
+            ]
+          }
+        ]
+      },
+      "workPermits": {
+        "title": "Permis de travail",
+        "description": "Demandes de permis de travail avec catégories et précautions requises.",
+        "guides": [
+          {
+            "title": "Délivrer un permis de travail",
+            "steps": [
+              "Un permis est généralement demandé depuis un ordre de travail (activez Permis de travail lors de sa création), ou directement depuis Permis de travail.",
+              "Choisissez la catégorie du permis — elle détermine la liste standard des dangers et précautions.",
+              "Vérifiez et confirmez les précautions et EPI requis pour le travail.",
+              "Définissez la période de validité (du/au), puis délivrez le permis.",
+              "Le permis reste attaché au travail et peut être consulté à tout moment depuis Permis de travail."
+            ]
+          }
+        ]
+      },
+      "safetyCases": {
+        "title": "Cas de sécurité",
+        "description": "Signalez et suivez les incidents, presque-accidents, dangers et actes dangereux.",
+        "guides": [
+          {
+            "title": "Signaler un cas de sécurité",
+            "steps": [
+              "Ouvrez Cas de sécurité et utilisez Signaler.",
+              "Choisissez le type : incident, presque-accident, danger ou acte dangereux.",
+              "Décrivez ce qui s'est passé, où, et qui (le cas échéant) était impliqué.",
+              "Joignez une photo s'il y en a une, puis envoyez — le cas est transmis à la personne pouvant l'évaluer."
+            ]
+          },
+          {
+            "title": "Évaluer et clôturer un cas",
+            "steps": [
+              "Ouvrez le cas depuis Cas de sécurité.",
+              "Examinez les détails et évaluez la gravité.",
+              "Assignez-le pour une action corrective si nécessaire et notez ce qui a été fait.",
+              "Clôturez le cas une fois résolu — cela met aussi à jour l'historique du déclarant et les points de liste noire associés."
+            ]
+          }
+        ]
+      },
+      "safetyTrainings": {
+        "title": "Formations sécurité",
+        "description": "Planifiez et gérez les sessions de formation à la sécurité.",
+        "guides": [
+          {
+            "title": "Planifier une session de formation sécurité",
+            "steps": [
+              "Ouvrez Formations sécurité et créez une nouvelle session.",
+              "Choisissez le sujet/module de formation et définissez la date, l'heure et le lieu.",
+              "Assignez les personnes devant y assister.",
+              "Enregistrez — la session apparaît sur leur tableau de bord comme formation à venir, et sur le calendrier des formations."
+            ]
+          }
+        ]
+      },
+      "safetyBlacklist": {
+        "title": "Liste noire",
+        "description": "Techniciens, sous-traitants, opérateurs ou machines ayant atteint le seuil de points de cas de sécurité.",
+        "guides": [
+          {
+            "title": "Examiner et lever une entrée de la liste noire",
+            "steps": [
+              "Ouvrez Liste noire pour voir tout ce qui dépasse le seuil de points de cas de sécurité.",
+              "Ouvrez une entrée pour voir les cas de sécurité qui y ont conduit.",
+              "Si le problème a été résolu (formation complémentaire, action corrective), un administrateur peut lever l'entrée.",
+              "La lever supprime le blocage sur les nouvelles affectations d'ordres de travail ou de travaux pour ce technicien, sous-traitant, opérateur ou machine."
+            ]
+          }
+        ]
+      },
+      "inventory": {
+        "title": "Inventaire",
+        "description": "Le catalogue de pièces, les niveaux de stock et les alertes de stock bas.",
+        "guides": [
+          {
+            "title": "Ajouter une pièce au catalogue",
+            "steps": [
+              "Ouvrez Catalogue d'inventaire et utilisez Ajouter un article.",
+              "Saisissez le nom et la catégorie de la pièce — un numéro de pièce est généré automatiquement selon la catégorie.",
+              "Choisissez un fournisseur (ou ajoutez-en un) et définissez le niveau de stock et le seuil de réapprovisionnement.",
+              "Joignez un document de garantie s'il y en a un, puis enregistrez.",
+              "La pièce apparaît maintenant dans le catalogue et est automatiquement signalée si son stock passe sous le seuil de réapprovisionnement."
+            ]
+          }
+        ]
+      },
+      "po": {
+        "title": "Bons de commande",
+        "description": "Créez et suivez les bons de commande de pièces et matériaux.",
+        "guides": [
+          {
+            "title": "Créer un bon de commande",
+            "steps": [
+              "Ouvrez Bons de commande et utilisez Créer.",
+              "Choisissez le fournisseur.",
+              "Ajoutez les pièces et quantités nécessaires — les pièces en stock bas sont faciles à repérer dans le catalogue.",
+              "Vérifiez le total, puis soumettez la commande.",
+              "Suivez son statut (commandée, partiellement reçue, reçue) depuis la liste des Bons de commande."
+            ]
+          }
+        ]
+      },
+      "requests": {
+        "title": "Demandes de pièces",
+        "description": "Demandes de pièces des techniciens et leur statut de traitement.",
+        "guides": [
+          {
+            "title": "Traiter une demande de pièces",
+            "steps": [
+              "Ouvrez Demandes et choisissez-en une dans la file d'attente.",
+              "Vérifiez la pièce et la quantité demandées par rapport au stock disponible.",
+              "Délivrez les pièces et marquez la demande comme traitée (ou partiellement traitée si le stock est insuffisant).",
+              "Si le stock est insuffisant, elle peut alimenter un bon de commande."
+            ]
+          }
+        ]
+      },
+      "triage": {
+        "title": "Triage",
+        "description": "Des parcours de dépannage guidés pour diagnostiquer un problème de machine étape par étape.",
+        "guides": [
+          {
+            "title": "Lancer une session de triage",
+            "steps": [
+              "Ouvrez Triage et choisissez la machine et le problème observé.",
+              "Suivez les étapes guidées — chacune demande une question oui/non, une mesure ou une vérification rapide.",
+              "Ajoutez une note ou une photo à toute étape si cela aide à documenter ce que vous avez trouvé.",
+              "Si le parcours mène à une solution que vous pouvez réaliser vous-même, il vous y guide puis se termine.",
+              "S'il ne peut pas être résolu à votre niveau, il s'escalade automatiquement en ordre de travail ou rapport de panne pour la bonne personne."
+            ]
+          }
+        ]
+      },
+      "training": {
+        "title": "Formation",
+        "description": "La bibliothèque de modules de formation et le tableau de bord de gestion des cours.",
+        "guides": [
+          {
+            "title": "Assigner un module de formation",
+            "steps": [
+              "Ouvrez Formation et parcourez la bibliothèque de modules.",
+              "Ouvrez un module pour vérifier son contenu et son quiz avant de l'assigner.",
+              "Utilisez Assigner, puis choisissez les personnes (ou tout un rôle/site) devant le compléter.",
+              "Définissez une date d'échéance si nécessaire, puis confirmez — le module apparaît sur le tableau de bord de chacun."
+            ]
+          }
+        ]
+      },
+      "traineeManagement": {
+        "title": "Gestion des stagiaires",
+        "description": "Gérez les profils, programmes et progression des affectations des stagiaires.",
+        "guides": [
+          {
+            "title": "Suivre la progression d'un stagiaire",
+            "steps": [
+              "Ouvrez Gestion des stagiaires et sélectionnez le stagiaire.",
+              "Son profil affiche son programme, les modules assignés et le statut de complétion de chacun.",
+              "Ouvrez une affectation pour voir les résultats de quiz ou la signaler pour une nouvelle formation si nécessaire.",
+              "Une fois tous les modules requis complétés, signez son programme pour délivrer son certificat."
+            ]
+          }
+        ]
+      },
+      "myTraining": {
+        "title": "Ma formation",
+        "description": "Modules de formation qui vous sont assignés.",
+        "guides": [
+          {
+            "title": "Compléter un module assigné",
+            "steps": [
+              "Trouvez votre formation assignée sous forme de widget sur votre tableau de bord.",
+              "Ouvrez-le et parcourez le contenu de la leçon.",
+              "Passez le quiz final si le module en comporte un.",
+              "Une réussite le marque comme terminé et, si configuré, délivre un certificat."
+            ]
+          }
+        ]
+      },
+      "myProgram": {
+        "title": "Mon programme",
+        "description": "Votre programme de stagiaire : modules, quiz et progression vers la certification.",
+        "guides": [
+          {
+            "title": "Avancer dans votre programme",
+            "steps": [
+              "Ouvrez Mon programme pour voir tous les modules de votre programme et leur statut.",
+              "Ouvrez le prochain module incomplet et parcourez son contenu de leçon.",
+              "Passez son quiz s'il en a un — vous pouvez généralement le repasser en cas d'échec la première fois.",
+              "Une fois tous les modules complétés, votre programme est signé et un certificat est délivré."
+            ]
+          }
+        ]
+      },
+      "myCertificates": {
+        "title": "Mes certificats",
+        "description": "Certificats obtenus grâce aux modules et programmes complétés.",
+        "guides": [
+          {
+            "title": "Télécharger un certificat",
+            "steps": [
+              "Ouvrez Mes certificats pour voir tout ce que vous avez obtenu.",
+              "Trouvez celui que vous voulez et utilisez son option de téléchargement.",
+              "Il se télécharge en PDF que vous pouvez enregistrer ou imprimer."
+            ]
+          }
+        ]
+      },
+      "contractors": {
+        "title": "Sous-traitants",
+        "description": "Profils des sous-traitants, leurs techniciens, travaux, conformité et performance.",
+        "guides": [
+          {
+            "title": "Ajouter un sous-traitant et ses techniciens",
+            "steps": [
+              "Ouvrez Sous-traitants et utilisez Ajouter un sous-traitant.",
+              "Saisissez les informations de l'entreprise et tout document de conformité (assurance, certifications).",
+              "Ouvrez le profil du nouveau sous-traitant et utilisez Ajouter un technicien pour chaque personne travaillant sur site.",
+              "Le sous-traitant et ses techniciens peuvent désormais être assignés à des travaux."
+            ]
+          },
+          {
+            "title": "Enregistrer le travail et évaluer un travail de sous-traitant",
+            "steps": [
+              "Ouvrez le travail depuis Travaux des sous-traitants.",
+              "Utilisez Enregistrer le travail pour noter l'avancement, les pièces utilisées ou une facture au fur et à mesure.",
+              "Une fois terminé, utilisez Signer pour clôturer le travail.",
+              "Utilisez Évaluer le sous-traitant pour noter comment le travail s'est déroulé — cela alimente son historique de performance."
+            ]
+          }
+        ]
+      },
+      "myShift": {
+        "title": "Mon quart",
+        "description": "Votre quart de travail actuel, et comment le démarrer ou le terminer.",
+        "guides": [
+          {
+            "title": "Terminer votre quart",
+            "steps": [
+              "Utilisez le bouton Terminer le quart dans l'en-tête.",
+              "Si une transmission est requise, il vous sera demandé de remplir ce que le quart suivant doit savoir : points en cours, état des machines, tout ce qui est inhabituel.",
+              "Envoyez — votre quart se termine et la transmission devient visible pour le quart entrant."
+            ]
+          }
+        ]
+      },
+      "shiftHandovers": {
+        "title": "Transmissions de quart",
+        "description": "Historique des transmissions de quart et des briefings entre le quart sortant et entrant.",
+        "guides": [
+          {
+            "title": "Consulter la dernière transmission",
+            "steps": [
+              "Ouvrez Transmissions de quart pour voir l'historique, du plus récent au plus ancien.",
+              "Ouvrez-en une pour voir les points en cours, l'état des machines et les notes laissées par le quart sortant.",
+              "Utilisez-le au début de votre quart pour savoir ce que vous devez reprendre."
+            ]
+          }
+        ]
+      },
+      "analytics": {
+        "title": "Analytique",
+        "description": "Indicateurs à l'échelle de l'entreprise sur les machines, pannes, maintenance préventive et plus.",
+        "guides": [
+          {
+            "title": "Lire les tableaux de bord",
+            "steps": [
+              "Ouvrez Analytique et choisissez un onglet (machines, pannes, PM, sécurité, etc.).",
+              "Utilisez la plage de dates et les filtres site/machine pour affiner la vue.",
+              "Les données sont calculées en direct à partir de vos registres opérationnels, donc précises même sans configuration de rapport distincte.",
+              "Explorez un graphique ou un chiffre pour voir les registres sous-jacents."
+            ]
+          }
+        ]
+      },
+      "moe": {
+        "title": "MOE",
+        "description": "Suivi et tendances de l'efficacité opérationnelle des machines.",
+        "guides": [
+          {
+            "title": "Vérifier les tendances d'efficacité des machines",
+            "steps": [
+              "Ouvrez MOE et choisissez une machine ou un département.",
+              "Examinez sa tendance d'efficacité sur la période sélectionnée.",
+              "Une baisse coïncide généralement avec une panne ou une maintenance préventive en retard — vérifiez avec Machines/Pannes pour trouver la cause."
+            ]
+          }
+        ]
+      },
+      "reports": {
+        "title": "Rapports",
+        "description": "Générez et exportez des rapports pour les modules auxquels vous avez accès.",
+        "guides": [
+          {
+            "title": "Exporter un rapport",
+            "steps": [
+              "Ouvrez Rapports et choisissez un type de rapport.",
+              "Définissez la plage de dates et tout filtre (machine, département, site).",
+              "Générez un aperçu, puis exportez-le en PDF ou tableur.",
+              "Les exportations précédentes sont conservées dans l'historique des rapports pour téléchargement ultérieur."
+            ]
+          }
+        ]
+      },
+      "audit": {
+        "title": "Audit",
+        "description": "Sessions d'audit, constats et suivi de la conformité.",
+        "guides": [
+          {
+            "title": "Réaliser une session d'audit",
+            "steps": [
+              "Ouvrez Audit et démarrez une nouvelle session sur les machines, zones ou ordres de travail audités.",
+              "Parcourez la liste de contrôle configurée en notant les constats au fur et à mesure.",
+              "Joignez des photos comme preuves si nécessaire.",
+              "Soumettez la session — les constats sont suivis jusqu'à leur clôture."
+            ]
+          }
+        ]
+      },
+      "evaluations": {
+        "title": "Évaluations",
+        "description": "Modèles d'évaluation de performance et évaluations complétées.",
+        "guides": [
+          {
+            "title": "Réaliser une évaluation",
+            "steps": [
+              "Ouvrez Évaluations et choisissez un modèle adapté (rôle, domaine de compétence).",
+              "Sélectionnez la personne ou l'équipe à évaluer.",
+              "Notez chaque critère et ajoutez des commentaires.",
+              "Envoyez — elle est enregistrée dans son historique d'évaluations."
+            ]
+          }
+        ]
+      },
+      "settings": {
+        "title": "Paramètres",
+        "description": "Paramètres de l'entreprise, utilisateurs, usines et configuration des quarts.",
+        "guides": [
+          {
+            "title": "Ajouter un nouvel utilisateur",
+            "steps": [
+              "Ouvrez Paramètres et allez dans Utilisateurs.",
+              "Utilisez Inviter un utilisateur.",
+              "Renseignez son nom, son e-mail, son rôle et le site/l'usine auquel il appartient.",
+              "Envoyez l'invitation — elle la reçoit par e-mail et configure sa propre connexion."
+            ]
+          },
+          {
+            "title": "Mettre à jour le fuseau horaire ou la langue de l'entreprise",
+            "steps": [
+              "Ouvrez Paramètres et allez au profil de l'entreprise.",
+              "Choisissez le fuseau horaire dans le menu déroulant (recherchez par ville ou décalage).",
+              "Choisissez la langue par défaut pour les nouveaux utilisateurs.",
+              "Enregistrez — cela affecte l'affichage des dates/heures et la langue dans laquelle démarrent les nouveaux comptes."
+            ]
+          }
+        ]
+      },
+      "billing": {
+        "title": "Facturation et abonnement",
+        "description": "Votre plan d'abonnement, cycle de facturation et moyens de paiement.",
+        "guides": [
+          {
+            "title": "Changer votre plan",
+            "steps": [
+              "Ouvrez Facturation et abonnement.",
+              "Comparez les plans disponibles et ce qu'ils incluent.",
+              "Choisissez Améliorer ou Rétrograder sur le plan souhaité.",
+              "Confirmez — le changement s'applique à votre prochain cycle de facturation (les améliorations peuvent s'appliquer immédiatement)."
+            ]
+          }
+        ]
+      }
     }
   }
 }
