@@ -2737,6 +2737,14 @@
         "title": "Pending Approvals",
         "viewMore": "View {{count}} more…"
       },
+      "needSignOffWidget": {
+        "badge": "Completed",
+        "empty": "Nothing awaiting sign-off",
+        "emptySub": "Completed work orders will appear here until you sign them off.",
+        "pending": "{{count}} pending",
+        "title": "Need Sign-Off",
+        "viewMore": "View {{count}} more…"
+      },
       "pendingReceiptPOsWidget": {
         "empty": "No POs awaiting receipt",
         "items": "Items",

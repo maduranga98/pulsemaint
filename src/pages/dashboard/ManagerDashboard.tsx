@@ -18,6 +18,8 @@ import OpenSafetyCasesWidget from '../../components/dashboard/manager/OpenSafety
 import TodayTrainingsWidget from '../../components/dashboard/manager/TodayTrainingsWidget';
 import ProgrammeSignOffQueueWidget from '../../components/dashboard/training/ProgrammeSignOffQueueWidget';
 import MyTrainingsWidget from '../../components/dashboard/technician/MyTrainingsWidget';
+import PendingApprovalsWidget from '../../components/dashboard/supervisor/PendingApprovalsWidget';
+import NeedSignOffWidget from '../../components/dashboard/supervisor/NeedSignOffWidget';
 import DashboardSidePanel from '../../components/dashboard/shared/DashboardSidePanel';
 import { subscribeMonthlyAnalytics } from '../../services/analyticsAggregation';
 import { complianceColor, activeBreakdownColor, openWoColor } from '../../utils/analytics.utils';
@@ -136,6 +138,19 @@ export default function ManagerDashboard() {
           <OpenSafetyCasesWidget companyId={companyId} />
           <TodayTrainingsWidget companyId={companyId} />
         </div>
+
+        {/* Pending WO approval requests + completed WOs awaiting sign-off —
+            admin/plant_manager get the same widgets as supervisor
+            (SupervisorDashboard), replacing the Work Orders page's
+            "Approval Requests" and "Need Sign-Off" tabs (removed there).
+            Not shown to safety_officer, who shares this dashboard but isn't
+            part of the WO sign-off workflow. */}
+        {(role === 'admin' || role === 'plant_manager') && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <PendingApprovalsWidget />
+            <NeedSignOffWidget />
+          </div>
+        )}
 
         {/* Trainees ready for their programme completion sign-off */}
         <ProgrammeSignOffQueueWidget companyId={companyId} />

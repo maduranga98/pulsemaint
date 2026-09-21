@@ -12,15 +12,20 @@ import { WODetailPanel } from './WODetailPanel';
 import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
-import { ApprovalRequestsPanel } from './ApprovalRequestsPanel';
 
 // The "All" pill was removed — the list simply starts unfiltered (`all`,
-// every active type combined). Once a WO reaches COMPLETED it moves into
-// "Need Sign-Off" (still awaiting a supervisor's decision) and, once
-// actually signed off, into the separate terminal "Signed Off" tab — a WO
-// type filter stops being useful at either of those stages.
-type CategoryId = 'all' | 'needSignOff' | 'signedOff' | 'cancelled' | 'approvalRequests' | WOType;
+// every active type combined). "Need Sign-Off" and "Approval Requests" used
+// to be tabs here too — they're now dashboard widgets instead
+// (NeedSignOffWidget / PendingApprovalsWidget on the supervisor/plant
+// manager/admin dashboards), since those are action queues someone checks
+// repeatedly, not something to go hunting for inside the WO list. Once a WO
+// reaches COMPLETED it's awaiting sign-off (handled via those widgets) and,
+// once actually signed off, moves into the separate terminal "Signed Off"
+// tab — a WO type filter stops being useful at either of those stages.
+type CategoryId = 'all' | 'signedOff' | 'cancelled' | WOType;
 
+// Still awaiting sign-off — excluded from every tab below (see
+// NeedSignOffWidget on the dashboard instead).
 const NEED_SIGN_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED'];
 // A cancelled WO was never actually signed off, so it gets its own tab
 // rather than being lumped into "Signed Off" — admins can still find it
@@ -76,13 +81,9 @@ export function WOListView() {
   // firestore.rules grants them the matching create permission.
   const canCreateWorkOrder =
     role === 'supervisor' || role === 'admin' || role === 'plant_manager';
-  // Same roles that gate the sign-off action inside WODetailPanel/
-  // WOReviewSignOffPanel — supervisor and above.
-  const canSignOff =
-    role === 'supervisor' || role === 'admin' || role === 'plant_manager';
   // Closed/signed-off/cancelled work orders are only ever visible to admins —
-  // every other role (including supervisors/plant managers who can still
-  // perform the sign-off action itself via canSignOff) stops seeing a WO the
+  // every other role (including supervisors/plant managers, who still sign
+  // off WOs via the Need Sign-Off dashboard widget) stops seeing a WO the
   // moment it's terminal.
   const canViewSignedOff = role === 'admin';
 
@@ -124,9 +125,7 @@ export function WOListView() {
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
   const displayedWOs =
-    activeCategory === 'needSignOff'
-      ? nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status))
-      : activeCategory === 'signedOff'
+    activeCategory === 'signedOff'
       ? canViewSignedOff
         ? nonExcludedWOs.filter((wo) => SIGNED_OFF_ONLY_STATUSES.includes(wo.status))
         : []
@@ -134,16 +133,9 @@ export function WOListView() {
       ? canViewSignedOff
         ? nonExcludedWOs.filter((wo) => CANCELLED_STATUSES.includes(wo.status))
         : []
-      : activeCategory === 'approvalRequests'
-      ? []
       : nonExcludedWOs
           .filter((wo) => !SIGNED_OFF_STATUSES.includes(wo.status))
           .filter((wo) => activeCategory === 'all' || wo.woType === activeCategory);
-
-  // Approval-request holds can happen on any WO type, including breakdown
-  // repair and PM ones excluded from the type columns above — a supervisor
-  // still needs to see and resolve those.
-  const pendingApprovalWOs = workOrders.filter((wo) => (wo.approvalRequests ?? []).some((r) => r.status === 'pending'));
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -207,26 +199,6 @@ export function WOListView() {
                 </button>
               );
             })}
-            {canSignOff && (
-              <button
-                type="button"
-                onClick={() => setActiveCategory('needSignOff')}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                  activeCategory === 'needSignOff'
-                    ? 'bg-amber-600 text-white'
-                    : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
-                }`}
-              >
-                {t('common.workOrders.tabs.needSignOff')}
-                <span
-                  className={`text-xs font-medium rounded-full px-1.5 ${
-                    activeCategory === 'needSignOff' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-600'
-                  }`}
-                >
-                  {nonExcludedWOs.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status)).length}
-                </span>
-              </button>
-            )}
             {canViewSignedOff && (
               <button
                 type="button"
@@ -267,26 +239,6 @@ export function WOListView() {
                 </span>
               </button>
             )}
-            {canSignOff && (
-              <button
-                type="button"
-                onClick={() => setActiveCategory('approvalRequests')}
-                className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                  activeCategory === 'approvalRequests'
-                    ? 'bg-orange-600 text-white'
-                    : 'text-orange-700 bg-orange-50 hover:bg-orange-100'
-                }`}
-              >
-                {t('common.workOrders.tabs.approvalRequests')}
-                <span
-                  className={`text-xs font-medium rounded-full px-1.5 ${
-                    activeCategory === 'approvalRequests' ? 'bg-white/20 text-white' : 'bg-orange-100 text-orange-600'
-                  }`}
-                >
-                  {pendingApprovalWOs.length}
-                </span>
-              </button>
-            )}
           </div>
 
           <input
@@ -313,18 +265,12 @@ export function WOListView() {
           </div>
         )}
 
-        {!loading && !error && activeCategory === 'approvalRequests' && (
-          <ApprovalRequestsPanel workOrders={pendingApprovalWOs} />
-        )}
-
-        {!loading && !error && activeCategory !== 'approvalRequests' && (
+        {!loading && !error && (
           displayedWOs.length === 0 ? (
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">
-                {activeCategory === 'needSignOff'
-                  ? t('common.workOrders.empty.needSignOff')
-                  : activeCategory === 'signedOff'
+                {activeCategory === 'signedOff'
                   ? t('common.workOrders.empty.signedOff')
                   : activeCategory === 'cancelled'
                   ? t('common.workOrders.empty.cancelled')
@@ -333,15 +279,13 @@ export function WOListView() {
             </div>
           ) : (
             /* Single flat table — no per-type grouping. Type column shows
-               when every type is combined ("all" or either sign-off tab),
+               when every type is combined ("all" or either terminal tab),
                hidden when a single category filters it down to one type
                already named by the active tab. */
             <WOTable
               workOrders={displayedWOs}
               onSelect={setSelectedWO}
-              showTypeColumn={activeCategory === 'all' || activeCategory === 'needSignOff' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
-              canSignOff={canSignOff}
-              onSignOff={setSelectedWO}
+              showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
             />
           )
         )}
