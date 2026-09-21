@@ -33,6 +33,12 @@ interface RCAInput {
   description: string;
   attemptedFixes?: string;
   technicianFindings?: string;
+  // Who the recommended actions are written for. 'reporter' (default) is the
+  // person who just filed the breakdown — usually not a maintenance
+  // specialist — so actions are safe, non-invasive checks anyone can try
+  // before a technician arrives. 'technician' is the person attending the
+  // ticket, who gets hands-on diagnostic/repair steps instead.
+  audience?: 'reporter' | 'technician';
 }
 
 // Keyword-driven fallback, mirrors the Audit module's aiRootCause engine so
@@ -127,6 +133,27 @@ function heuristicSuggestion(input: RCAInput): BreakdownRCASuggestion {
         : 'No matching historical failure pattern — investigate directly from the reported description',
     );
   }
+
+  if (input.audience === 'reporter') {
+    // Matched-rule actions ("Inspect and replace worn bearings", etc.) are
+    // technician-level repair steps — not safe or appropriate to hand to
+    // whoever just reported the fault. Give the reporter safe, non-invasive
+    // checks instead, grounded in what they actually described.
+    const terms = extractKeyTerms(input.description);
+    return {
+      probableCauses: causes.slice(0, 4),
+      recommendedActions: [
+        terms.length > 0
+          ? `Take a closer look and note anything matching what you reported: ${terms.join(', ')}`
+          : 'Take a closer look at the machine and note exactly what you observe',
+        'Check that the emergency stop is not engaged and the power supply/breaker is on',
+        'Look for anything visibly wrong nearby — loose cables, leaks, unusual smell or smoke, obstructions',
+        'Do not attempt an internal repair yourself — leave the machine as-is and wait for a technician',
+      ].slice(0, 4),
+      source: 'heuristic',
+    };
+  }
+
   if (actions.length === 0) {
     const terms = extractKeyTerms(input.description);
     actions.push(
@@ -186,6 +213,11 @@ function buildPrompt(input: RCAInput, history: Breakdown[], languageName: string
     .filter(Boolean)
     .join(' — ');
 
+  const audienceInstruction =
+    input.audience === 'reporter'
+      ? `The "recommended next actions" are for the PERSON WHO JUST REPORTED THIS FAULT — usually an operator, not a maintenance specialist, and no technician has attended yet. Give safe, non-invasive checks they can do themselves right now: what to look/listen/smell for, whether it's safe to leave the machine running, simple checks like power/breaker/emergency-stop state — never a repair step (no "replace", "open the panel", "disassemble", etc.), and always end with a reminder not to attempt an internal repair and to wait for a technician.`
+      : `The "recommended next actions" are for the TECHNICIAN who will attend this ticket — concrete diagnostic/repair steps are appropriate.`;
+
   return `You are an industrial maintenance root-cause analysis assistant for a CMMS.
 Machine: ${machineLine}
 Failure type: ${input.breakdownType ?? 'not yet classified — this is the operator\'s initial report, before a technician has assessed it'}
@@ -197,7 +229,7 @@ Technician findings so far: ${input.technicianFindings || '(none recorded)'}
 Recent breakdown history and completed root-cause analysis for this same machine (most recent first):
 ${historyBlock}
 
-Based on this — the reported description, the machine's model/manufacturer, and the recurring patterns in its breakdown history — return the most probable root causes (ranked, most likely first) and concrete recommended next diagnostic/repair actions. Be specific and reuse patterns visible in the history when they recur. Keep each item to one concise sentence. Return 2-4 items per list. Respond in ${languageName}, in the exact JSON shape requested — nothing else.`;
+Based on this — the reported description, the machine's model/manufacturer, and the recurring patterns in its breakdown history — return the most probable root causes (ranked, most likely first) and concrete recommended next actions. ${audienceInstruction} Be specific and reuse patterns visible in the history when they recur. Keep each item to one concise sentence. Return 2-4 items per list. Respond in ${languageName}, in the exact JSON shape requested — nothing else.`;
 }
 
 /**
