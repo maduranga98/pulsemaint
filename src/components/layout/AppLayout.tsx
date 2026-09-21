@@ -180,7 +180,11 @@ const NAV_GROUPS: NavGroup[] = [
       // Other roles get their outstanding trainings via a dashboard widget
       // instead (see MyTrainingsWidget / TodayMyTrainingsWidget). Trainee's
       // own "My Training" also moved to a dashboard widget — see TraineeDashboard.
-      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['supervisor', 'store_keeper'] },
+      // store_keeper dropped from here too — InventoryDashboard already
+      // shows the same MyTrainingsWidget; the route itself (no requiredRoles)
+      // stays reachable so that widget's links to a specific assignment
+      // still work.
+      { labelKey: 'common.nav.items.myTraining', to: '/app/training/my-modules', icon: Icon.book, roles: ['supervisor'] },
       { labelKey: 'common.nav.items.myProgram', to: '/app/training/my-program', icon: Icon.graduation, roles: ['trainee'] },
       // My Certificates lives here for every role that has one, instead of
       // being split across this group and Workforce.
