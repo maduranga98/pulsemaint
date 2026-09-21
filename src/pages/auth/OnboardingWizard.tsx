@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { getDashboardRoute } from '../../lib/auth';
+import { getTimezoneOptions } from '../../lib/timezones';
 
 type StepError = { message: string } | null;
 
@@ -25,6 +26,7 @@ export default function OnboardingWizard() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [language, setLanguage] = useState('en');
   const [timezone, setTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  const timezoneOptions = getTimezoneOptions();
   const [currency, setCurrency] = useState<'LKR' | 'USD' | 'AED' | 'SAR'>('LKR');
 
   // Step 2
@@ -240,12 +242,18 @@ export default function OnboardingWizard() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
-                <input
-                  type="text"
+                <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none"
-                />
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-600 focus:ring-2 focus:ring-blue-100 outline-none bg-white"
+                >
+                  {!timezoneOptions.includes(timezone) && (
+                    <option value={timezone}>{timezone}</option>
+                  )}
+                  {timezoneOptions.map((tz) => (
+                    <option key={tz} value={tz}>{tz}</option>
+                  ))}
+                </select>
               </div>
 
               <div>
