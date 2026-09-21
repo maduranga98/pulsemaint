@@ -6,6 +6,7 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { db, storage } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
 import { useToast } from '@/hooks/useToast';
+import { getTimezoneOptions } from '@/lib/timezones';
 import type { CompanyProfile } from '@/types/auth';
 
 interface CompanyProfileEditModalProps {
@@ -25,6 +26,7 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
   const [industry, setIndustry] = useState(company.industry ?? '');
   const [country, setCountry] = useState(company.country ?? '');
   const [timezone, setTimezone] = useState(company.timezone ?? '');
+  const timezoneOptions = getTimezoneOptions();
   const [currency, setCurrency] = useState<CompanyProfile['currency']>(company.currency ?? 'LKR');
   const [description, setDescription] = useState(company.description ?? '');
   const [address, setAddress] = useState(company.address ?? '');
@@ -175,7 +177,15 @@ export function CompanyProfileEditModal({ company, onClose }: CompanyProfileEdit
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.timezone', 'Timezone')}</label>
-              <input value={timezone} onChange={(e) => setTimezone(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" />
+              <select value={timezone} onChange={(e) => setTimezone(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
+                <option value="">{t('common.settings.companyProfile.fields.selectTimezone', 'Select timezone')}</option>
+                {!!timezone && !timezoneOptions.includes(timezone) && (
+                  <option value={timezone}>{timezone}</option>
+                )}
+                {timezoneOptions.map((tz) => (
+                  <option key={tz} value={tz}>{tz}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1">{t('common.settings.companyProfile.fields.currency', 'Currency')}</label>
