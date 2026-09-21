@@ -1,6 +1,8 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useMachineCreate } from '../../hooks/useMachineCreate';
+import { usePlanLimitCheck } from '../../hooks/usePlanLimitCheck';
 import { useToast } from '../../hooks/useToast';
 import type { CreateMachineFormData } from '../../schemas/machine';
 import type { CreateMachinePayload, MachineCriticality } from '../../types/machine';
@@ -11,6 +13,7 @@ export function AddMachinePage() {
   const userProfile = useAuthStore((state) => state.userProfile);
   const { createMachine, creating } = useMachineCreate();
   const { success, error: showError } = useToast();
+  const { loading: limitLoading, atLimit, message: limitMessage } = usePlanLimitCheck('machines');
 
   if (!userProfile) {
     return (
@@ -21,6 +24,24 @@ export function AddMachinePage() {
   }
 
   const siteId = userProfile.siteIds[0] || userProfile.companyId;
+
+  if (!limitLoading && atLimit) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-md w-full bg-white border border-slate-200 rounded-xl p-6 text-center space-y-3">
+          <Lock className="w-8 h-8 text-amber-500 mx-auto" />
+          <h1 className="text-lg font-bold text-slate-900">Machine limit reached</h1>
+          <p className="text-sm text-slate-600">{limitMessage}</p>
+          <Link
+            to="/app/billing"
+            className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
+          >
+            Upgrade plan
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (
     formData: CreateMachineFormData,

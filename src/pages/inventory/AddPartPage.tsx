@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ChevronLeft, Save, PlusCircle } from 'lucide-react';
+import { ChevronLeft, Save, PlusCircle, Lock } from 'lucide-react';
 import {
   collection,
   serverTimestamp,
@@ -20,6 +20,7 @@ import { useToast } from '@/hooks/useToast';
 import { StockGauge } from '@/components/inventory/shared/StockGauge';
 import { CategorySelect } from '@/components/inventory/shared/CategorySelect';
 import { useSuppliers } from '@/hooks/inventory/useSuppliers';
+import { usePlanLimitCheck } from '@/hooks/usePlanLimitCheck';
 import { MachineSelect } from '@/components/inventory/shared/MachineSelect';
 import { getNextCategoryPartNumber } from '@/lib/inventory/partNumberGenerator';
 import { categoryPrefixLetter } from '@/lib/inventory/inventoryTypes';
@@ -60,6 +61,7 @@ export function AddPartPage() {
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
   const canViewCost = useAuthStore((s) => s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']));
   const { suppliers } = useSuppliers();
+  const { loading: limitLoading, atLimit, message: limitMessage } = usePlanLimitCheck('inventoryItems');
   const [saving, setSaving] = useState(false);
   const [addAnother, setAddAnother] = useState(false);
   const [warrantyFiles, setWarrantyFiles] = useState<File[]>([]);
@@ -210,6 +212,22 @@ export function AddPartPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  if (!limitLoading && atLimit) {
+    return (
+      <div className="max-w-md mx-auto py-16 text-center space-y-3">
+        <Lock className="w-8 h-8 text-amber-500 mx-auto" />
+        <h1 className="text-lg font-bold text-gray-900">Inventory item limit reached</h1>
+        <p className="text-sm text-gray-600">{limitMessage}</p>
+        <Link
+          to="/app/billing"
+          className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
+        >
+          Upgrade plan
+        </Link>
+      </div>
+    );
   }
 
   return (

@@ -9,6 +9,7 @@ import { createWOSchema, type CreateWOFormValues } from '../../schemas/workOrder
 import { WO_TYPES_ORDERED, WO_TYPE_CONFIG, WO_PRIORITY_CONFIG, getSlaDeadline } from '../../constants/woConfig';
 import { PM_TYPES_ORDERED, PM_TYPE_CONFIG } from '../../constants/pmConfig';
 import { useCreateWorkOrder } from '../../hooks/useCreateWorkOrder';
+import { useMonthlyWorkOrderLimitCheck, usePlanLimitCheck } from '../../hooks/usePlanLimitCheck';
 import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import { useContractors } from '../../hooks/contractors/useContractors';
 import { TeamAssignmentPanel } from './TeamAssignmentPanel';
@@ -324,6 +325,8 @@ export function CreateWODrawer({
   }, [open, linkedBreakdownIds]);
 
   const { createWO, loading, uploadProgress } = useCreateWorkOrder();
+  const monthlyWOLimit = useMonthlyWorkOrderLimitCheck();
+  const pmScheduleLimit = usePlanLimitCheck('pmSchedules');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const form = useForm<CreateWOFormValues>({
@@ -383,6 +386,14 @@ export function CreateWODrawer({
 
   async function handleSubmit(values: CreateWOFormValues) {
     setSubmitErrors([]);
+    if (monthlyWOLimit.atLimit) {
+      setSubmitErrors([monthlyWOLimit.message ?? 'Work order limit reached for this billing period.']);
+      return;
+    }
+    if (values.woType === 'PREVENTIVE' && pmScheduleLimit.atLimit) {
+      setSubmitErrors([pmScheduleLimit.message ?? 'PM schedule limit reached on your current plan.']);
+      return;
+    }
     const wpCategoryDef = WORK_PERMIT_CATEGORIES.find((c) => c.value === wpCategory)!;
     const woId = await createWO({
       ...values,

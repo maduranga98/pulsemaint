@@ -1,10 +1,13 @@
 import { MoeDashboard } from '../components/MoeDashboard';
+import { PlanFeatureGate } from '../../../components/settings/PlanFeatureGate';
 
 export function MoePage() {
   return (
-    <div className="p-6">
-      <MoeDashboard />
-    </div>
+    <PlanFeatureGate feature="moeAnalytics">
+      <div className="p-6">
+        <MoeDashboard />
+      </div>
+    </PlanFeatureGate>
   );
 }
 
