@@ -363,7 +363,7 @@ export default function AppRouter() {
         <Route
           path="breakdowns"
           element={
-            <ProtectedRoute requiredRoles={['safety_officer', 'floor_operator', 'technician', 'supervisor', 'plant_manager', 'admin', 'trainee']}>
+            <ProtectedRoute requiredRoles={['safety_officer', 'floor_operator', 'supervisor', 'plant_manager', 'admin']}>
               <BreakdownsPage />
             </ProtectedRoute>
           }

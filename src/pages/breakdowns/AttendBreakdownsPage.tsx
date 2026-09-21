@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { getBreakdownsHomeRoute } from '../../lib/auth';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 import { VoiceDictationButton } from '../../components/ui';
 import { RCASuggestionPanel } from '../../components/breakdowns/RCASuggestionPanel';
@@ -198,7 +199,7 @@ export default function AttendBreakdownsPage() {
         <div className="text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700">{error}</p>
-          <button onClick={() => navigate('/app/breakdowns')} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+          <button onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role))} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
             {t('common.breakdowns.attendPage.backToBreakdowns')}
           </button>
         </div>
@@ -213,7 +214,7 @@ export default function AttendBreakdownsPage() {
           <Lock className="w-10 h-10 text-slate-400 mx-auto mb-3" />
           <p className="text-slate-700 font-medium">{t('common.breakdowns.attendPage.notYetAssigned')}</p>
           <p className="text-slate-500 text-sm mt-1">{t('common.breakdowns.attendPage.assignFirst')}</p>
-          <button onClick={() => navigate('/app/breakdowns')} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+          <button onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role))} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
             {t('common.breakdowns.attendPage.backToBreakdowns')}
           </button>
         </div>
@@ -224,7 +225,7 @@ export default function AttendBreakdownsPage() {
   return (
     <div className="min-h-full">
       <div className="bg-white border-b border-slate-200 px-6 py-4">
-        <button type="button" onClick={() => navigate('/app/breakdowns')} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1">
+        <button type="button" onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role))} className="inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-900 mb-1">
           <ArrowLeft className="w-4 h-4" /> {t('common.breakdowns.attendPage.back')}
         </button>
         <h1 className="text-2xl font-bold text-slate-900">
@@ -356,7 +357,7 @@ export default function AttendBreakdownsPage() {
         </div>
 
         <div className="flex gap-3">
-          <button type="button" onClick={() => navigate('/app/breakdowns')} disabled={saving} className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50">
+          <button type="button" onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role))} disabled={saving} className="flex-1 px-4 py-2 border border-slate-200 bg-white text-slate-700 font-medium rounded-lg hover:bg-slate-50 disabled:opacity-50">
             {t('common.breakdowns.attendPage.cancel')}
           </button>
           <button type="submit" disabled={saving} className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50">

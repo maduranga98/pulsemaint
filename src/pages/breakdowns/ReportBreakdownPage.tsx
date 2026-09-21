@@ -6,6 +6,7 @@ import { nanoid } from 'nanoid';
 import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { getBreakdownsHomeRoute } from '../../lib/auth';
 import { consumePendingScanMachineId, consumePostLoginRedirect } from '../../lib/scanTarget';
 import { notifyRoles } from '../../services/notifications.service';
 import { formatMachineLocation } from '../../lib/machineLocation';
@@ -319,7 +320,7 @@ export default function ReportBreakdownPage() {
 
           <button
             type="button"
-            onClick={() => navigate('/app/breakdowns', { replace: true })}
+            onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role ?? 'trainee'), { replace: true })}
             className="w-full px-4 py-2 bg-[#1A56DB] hover:bg-[#1648B0] text-white font-semibold rounded-lg"
           >
             {t('common.breakdowns.reportPage.continueButton')}

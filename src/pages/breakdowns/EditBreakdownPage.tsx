@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { db, storage } from '../../lib/firebase';
 import { useAuthStore } from '../../store/authStore';
+import { getBreakdownsHomeRoute } from '../../lib/auth';
 import type { Breakdown, BreakdownSeverity, BreakdownType } from '../../types/breakdown';
 
 function getSeverities(t: TFunction): { value: BreakdownSeverity; label: string; color: string }[] {
@@ -163,7 +164,7 @@ export default function EditBreakdownPage() {
         <div className="text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-slate-700">{error}</p>
-          <button onClick={() => navigate('/app/breakdowns')} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+          <button onClick={() => navigate(getBreakdownsHomeRoute(userProfile?.role))} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
             {t('common.breakdowns.editPage.backToBreakdowns')}
           </button>
         </div>
