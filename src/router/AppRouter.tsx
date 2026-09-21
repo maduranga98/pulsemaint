@@ -551,7 +551,7 @@ export default function AppRouter() {
         <Route
           path="inventory/settings"
           element={
-            <ProtectedRoute requiredRoles={['supervisor', 'plant_manager', 'admin']}>
+            <ProtectedRoute requiredRoles={['store_keeper', 'supervisor', 'plant_manager', 'admin']}>
               <InventorySettingsPage />
             </ProtectedRoute>
           }
