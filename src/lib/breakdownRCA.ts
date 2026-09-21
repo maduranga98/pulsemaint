@@ -87,18 +87,53 @@ const RULES_BY_TYPE: Record<BreakdownType, { keywords: string[]; causes: string[
   other: [],
 };
 
+const STOPWORDS = new Set([
+  'the', 'and', 'was', 'were', 'has', 'have', 'had', 'that', 'this', 'with', 'from',
+  'when', 'then', 'there', 'their', 'about', 'into', 'onto', 'just', 'been', 'being',
+  'machine', 'what', 'happened', 'today', 'yesterday', 'again', 'still', 'also',
+]);
+
+// Pulls the most distinctive words out of the operator's own description, so
+// the fallback below can point the technician at what was actually reported
+// instead of a content-free "nothing matched" message — this is the input
+// the AI path would otherwise have researched from.
+function extractKeyTerms(text: string, max = 6): string[] {
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 3 && !STOPWORDS.has(w));
+  return Array.from(new Set(words)).slice(0, max);
+}
+
 function heuristicSuggestion(input: RCAInput): BreakdownRCASuggestion {
   const haystack = `${input.description} ${input.attemptedFixes ?? ''} ${input.technicianFindings ?? ''}`.toLowerCase();
-  const rules = RULES_BY_TYPE[input.breakdownType ?? 'other'] ?? [];
+  // A technician's later assessment narrows to one failure type, so only that
+  // type's rules apply. At report time (breakdownType not yet set) nothing
+  // has narrowed it down yet, so check every category's keywords instead of
+  // just "other" (which has none) — the description alone should still be
+  // able to surface a match.
+  const rules = input.breakdownType ? (RULES_BY_TYPE[input.breakdownType] ?? []) : Object.values(RULES_BY_TYPE).flat();
   const matched = rules.filter((r) => r.keywords.some((k) => haystack.includes(k)));
 
   const causes = Array.from(new Set(matched.flatMap((r) => r.causes)));
   const actions = Array.from(new Set(matched.flatMap((r) => r.actions)));
 
   if (causes.length === 0) {
-    causes.push('No specific pattern matched from the description — manual investigation recommended');
+    const terms = extractKeyTerms(input.description);
+    causes.push(
+      terms.length > 0
+        ? `No matching historical failure pattern for the reported symptoms (${terms.join(', ')}) — treat as a new or infrequent fault and investigate directly from the description`
+        : 'No matching historical failure pattern — investigate directly from the reported description',
+    );
   }
   if (actions.length === 0) {
+    const terms = extractKeyTerms(input.description);
+    actions.push(
+      terms.length > 0
+        ? `Physically inspect the machine focusing on what was reported: ${terms.join(', ')}`
+        : 'Physically inspect the machine based on the reported description',
+    );
     actions.push('Perform a structured 5-Why / fishbone analysis with the assigned technician');
   }
 
