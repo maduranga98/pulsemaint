@@ -31,6 +31,14 @@ exports.sendInvitationEmail = onCall(
     const companyName = companyData?.name || inv.companyName || "Your Company";
     const companyEmail = companyData?.email || null;
 
+    // Plant + its contact person, so the invitee knows which site they're
+    // being registered to and who to reach there — not just which company.
+    let plant = null;
+    if (inv.plantId) {
+      const plantSnap = await db.doc(`plants/${inv.plantId}`).get();
+      plant = plantSnap.exists ? plantSnap.data() : null;
+    }
+
     const inviteUrl = `https://app.firmicore.com/invite/${inv.token}`;
 
     const roleName = (inv.role || "team member").replace(/_/g, " ");
@@ -55,12 +63,30 @@ exports.sendInvitationEmail = onCall(
           <td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Role:</td>
           <td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;text-transform:capitalize;">${roleName}</td>
         </tr>
+        ${plant?.name ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Plant:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${plant.name}</td></tr>` : ""}
         ${inv.department ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Department:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${inv.department}</td></tr>` : ""}
         ${inv.jobTitle ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Job Title:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${inv.jobTitle}</td></tr>` : ""}
       </table>
     </td>
   </tr>
 </table>
+
+${plant?.contactPerson?.name ? `
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:8px;margin-bottom:28px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 8px;color:#888;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;">Plant Contact</p>
+      <table>
+        <tr>
+          <td style="color:#888;font-size:13px;padding-right:12px;white-space:nowrap;">Name:</td>
+          <td style="color:#333;font-size:13px;font-weight:500;">${plant.contactPerson.name}</td>
+        </tr>
+        ${plant.contactPerson.email ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Email:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${plant.contactPerson.email}</td></tr>` : ""}
+        ${plant.contactPerson.phone ? `<tr><td style="color:#888;font-size:13px;padding-right:12px;padding-top:6px;white-space:nowrap;">Phone:</td><td style="color:#333;font-size:13px;font-weight:500;padding-top:6px;">${plant.contactPerson.phone}</td></tr>` : ""}
+      </table>
+    </td>
+  </tr>
+</table>` : ""}
 
 <table width="100%" cellpadding="0" cellspacing="0">
   <tr>
@@ -92,7 +118,7 @@ exports.sendInvitationEmail = onCall(
       // a company's own configured SMTP mailbox (Settings → Email Sending)
       // — that mailbox is for supplier-facing PO/delivery emails only.
       html: brandedEmail(html, companyName),
-      text: `You've been invited to join ${companyName} on FirmiCore as a ${roleName}. Accept your invitation here: ${inviteUrl}`,
+      text: `You've been invited to join ${companyName} on FirmiCore as a ${roleName}.${plant?.name ? ` Plant: ${plant.name}.` : ""}${plant?.contactPerson?.name ? ` Plant contact: ${plant.contactPerson.name}${plant.contactPerson.email ? ` (${plant.contactPerson.email})` : ""}${plant.contactPerson.phone ? ` ${plant.contactPerson.phone}` : ""}.` : ""} Accept your invitation here: ${inviteUrl}`,
       fromName: companyName,
       replyTo: companyEmail || undefined,
     });
