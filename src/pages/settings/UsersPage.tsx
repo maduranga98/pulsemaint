@@ -459,6 +459,7 @@ export default function UsersPage() {
           phone: row.phone,
           department: row.department,
           jobTitle: row.jobTitle,
+          employeeId: row.employeeId,
           address: row.address,
           plantId,
           invitedBy: currentUser.id,
