@@ -75,6 +75,7 @@ export function useMachineCreate({
       // Create machine document
       const machineData = {
         siteId: payload.siteId,
+        plantId: payload.plantId ?? null,
         name: payload.name,
         type: payload.type,
         manufacturer: payload.manufacturer,

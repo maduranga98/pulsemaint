@@ -187,11 +187,16 @@ function downloadCsvTemplate() {
 
 interface ImportModalProps {
   siteId: string;
+  /** Plant to assign every imported machine to — the importing user's own
+   * plant, or (for admin) whichever plant tab is active. Null when admin
+   * is on "All Plants": the machines land unassigned, same as any other
+   * plant-less record, until a plant is picked for them individually. */
+  plantId: string | null;
   onClose: () => void;
   onDone: () => void;
 }
 
-function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
+function ImportModal({ siteId, plantId, onClose, onDone }: ImportModalProps) {
   const { t } = useTranslation();
   const fileRef = useRef<HTMLInputElement>(null);
   const [rows, setRows] = useState<CsvRow[]>([]);
@@ -218,6 +223,7 @@ function ImportModal({ siteId, onClose, onDone }: ImportModalProps) {
       const ref = doc(collection(db, 'machines'));
       await setDoc(ref, {
         siteId,
+        plantId,
         name: row.name,
         type: row.type,
         manufacturer: row.manufacturer,
@@ -500,6 +506,7 @@ export function MachineListPage() {
       {showImport && (
         <ImportModal
           siteId={siteId}
+          plantId={scopedPlantId}
           onClose={() => setShowImport(false)}
           onDone={() => {}}
         />
