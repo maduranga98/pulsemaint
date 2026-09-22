@@ -7,6 +7,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import type { InventoryStats, InventoryPart, PartsRequest, PurchaseOrder } from '@/types/inventory';
 import { getStockStatus } from '@/lib/inventory/stockCalculator';
 
@@ -18,6 +19,7 @@ interface UseInventoryStatsResult {
 
 export function useInventoryStats(): UseInventoryStatsResult {
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const { plantId: scopedPlantId } = useDepartmentScope();
 
   const [parts, setParts] = useState<InventoryPart[]>([]);
   const [requests, setRequests] = useState<PartsRequest[]>([]);
@@ -87,6 +89,10 @@ export function useInventoryStats(): UseInventoryStatsResult {
   // supervisor, and Purchase Orders awaiting approval — not every open,
   // unfulfilled record (an approved-but-not-yet-issued request, or a PO
   // that's already sent/acknowledged, isn't waiting on a permission).
+  // Plant-scoped roles only count parts registered under their own plant;
+  // requests/orders don't carry plantId yet, so those stay company-wide.
+  const scopedParts = scopedPlantId ? parts.filter((p) => p.plantId === scopedPlantId) : parts;
+
   const openPartsRequestsCount = requests.filter(
     (r) => r.status === 'pending_storekeeper' || r.status === 'pending_supervisor'
   ).length;
@@ -95,14 +101,14 @@ export function useInventoryStats(): UseInventoryStatsResult {
   ).length;
 
   const stats: InventoryStats = {
-    totalParts: parts.filter((p) => p.status === 'active').length,
-    totalStockValue: parts.reduce((sum, p) => sum + p.currentStock * p.unitCost, 0),
+    totalParts: scopedParts.filter((p) => p.status === 'active').length,
+    totalStockValue: scopedParts.reduce((sum, p) => sum + p.currentStock * p.unitCost, 0),
     activeRequests: openPartsRequestsCount + openPurchaseOrdersCount,
     pendingPOs: orders.filter(
       (o) => o.status === 'draft' || o.status === 'sent' || o.status === 'acknowledged'
     ).length,
-    outOfStockCount: parts.filter((p) => getStockStatus(p) === 'out_of_stock').length,
-    lowStockCount: parts.filter((p) => getStockStatus(p) === 'low_stock').length,
+    outOfStockCount: scopedParts.filter((p) => getStockStatus(p) === 'out_of_stock').length,
+    lowStockCount: scopedParts.filter((p) => getStockStatus(p) === 'low_stock').length,
     pendingRequestsCount: requests.filter((r) => r.status === 'pending_storekeeper').length,
     pendingSupervisorCount: requests.filter((r) => r.status === 'pending_supervisor').length,
     partsToIssueCount: requests.filter(

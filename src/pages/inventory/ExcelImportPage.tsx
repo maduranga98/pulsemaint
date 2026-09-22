@@ -19,6 +19,7 @@ import { parseInventoryExcel } from '@/lib/inventory/importParser';
 import { validateImportRows } from '@/lib/inventory/importValidator';
 import { getCategorySequenceMap, nextFromCounter } from '@/lib/inventory/partNumberGenerator';
 import { getSupplierCodeSequenceMap, nextSupplierCodeFromCounter } from '@/lib/inventory/supplierCodeGenerator';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import type { ValidationResult, InventoryPart, Supplier } from '@/types/inventory';
 import { ImportStepIndicator } from '@/components/inventory/import/ImportStepIndicator';
 import { ImportTemplateStep } from '@/components/inventory/import/ImportTemplateStep';
@@ -50,6 +51,7 @@ export function ExcelImportPage() {
   const userId = useAuthStore((s) => s.userProfile?.id) ?? '';
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const siteIds = useAuthStore((s) => s.userProfile?.siteIds) ?? [];
+  const { plantId } = useDepartmentScope();
 
   const [step, setStep] = useState<Step>(1);
   const [state, setState] = useState<ImportState>({
@@ -293,6 +295,7 @@ export function ExcelImportPage() {
             const ref = doc(collection(db, 'inventoryParts'));
             batch.set(ref, {
               companyId,
+              plantId,
               partNumber,
               name: row.name,
               description: row.description || '',
