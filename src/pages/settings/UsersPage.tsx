@@ -268,8 +268,10 @@ export default function UsersPage() {
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [plantFilter, setPlantFilter] = useState('');
   // Department is a sub-category of plant, so the roster's department filter
-  // only has options once a plant has been picked to filter within.
-  const { departments } = useDepartments(company?.id ?? '', plantFilter || null);
+  // only has options once a plant has been picked to filter within. Plant
+  // Manager has no plant filter (locked to their own plant), so fall back
+  // to their own plantId for department options.
+  const { departments } = useDepartments(company?.id ?? '', plantFilter || currentUser?.plantId || null);
   const { activePlants } = usePlants(company?.id ?? '');
   // Filter controls (role/department/plant) are only useful once there's more
   // than one plant/department to slice by, and are reserved for the roles
@@ -313,7 +315,14 @@ export default function UsersPage() {
     }
   };
 
-  const filtered = users.filter((u) => {
+  // Plant Manager only manages their own plant's roster — never the
+  // whole company's, even though they share the same query as Admin.
+  const scopedUsers =
+    currentUser?.role === 'plant_manager'
+      ? users.filter((u) => u.plantId === currentUser.plantId)
+      : users;
+
+  const filtered = scopedUsers.filter((u) => {
     if (roleFilter && u.role !== roleFilter) return false;
     if (departmentFilter && u.department !== departmentFilter) return false;
     if (plantFilter && u.plantId !== plantFilter) return false;
@@ -509,7 +518,7 @@ export default function UsersPage() {
           <h1 className="text-[20px] font-semibold tracking-tight text-[#F0F4F8]">{t('common.settings.users.header.title', 'Team Management')}</h1>
           <p className="text-[13px] text-[#8BA3BF] mt-0.5">
             {t('common.settings.users.header.memberCount', '{{count}} team member in {{company}}', {
-              count: users.length,
+              count: scopedUsers.length,
               company: company?.name || t('common.settings.users.header.defaultCompanyName', 'your company'),
             })}
           </p>
@@ -555,7 +564,7 @@ export default function UsersPage() {
                   : 'text-[#8BA3BF] hover:text-[#F0F4F8]'
               }`}
             >
-              {t('common.settings.users.tabs.users', 'Users ({{count}})', { count: users.length })}
+              {t('common.settings.users.tabs.users', 'Users ({{count}})', { count: scopedUsers.length })}
             </button>
             {canManageUsers && (
               <button
@@ -626,18 +635,20 @@ export default function UsersPage() {
                 </option>
               ))}
             </select>
-            <select
-              value={plantFilter}
-              onChange={(e) => setPlantFilter(e.target.value)}
-              className="w-full sm:w-48 px-3 py-2 text-sm rounded-lg outline-none border"
-            >
-              <option value="">{t('common.settings.users.filters.allPlants', 'All plants')}</option>
-              {activePlants.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            {currentUser?.role === 'admin' && (
+              <select
+                value={plantFilter}
+                onChange={(e) => setPlantFilter(e.target.value)}
+                className="w-full sm:w-48 px-3 py-2 text-sm rounded-lg outline-none border"
+              >
+                <option value="">{t('common.settings.users.filters.allPlants', 'All plants')}</option>
+                {activePlants.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
         )}
 
@@ -660,7 +671,7 @@ export default function UsersPage() {
               <div className="text-center py-16 bg-white rounded-xl border border-slate-100">
                 <p className="text-5xl mb-3">👥</p>
                 <p className="text-slate-500">
-                  {users.length === 0
+                  {scopedUsers.length === 0
                     ? t('common.settings.users.empty.noUsers', 'No users yet. Click "Invite Member" to invite your first teammate.')
                     : t('common.settings.users.empty.noUsersMatch', 'No users match your search.')}
                 </p>
