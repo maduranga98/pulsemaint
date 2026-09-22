@@ -352,7 +352,8 @@ function EmployeePicker({
 function DepartmentPicker({ value, onChange }: { value: string; onChange: (val: string) => void }) {
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const { departments, addDepartment } = useDepartments(companyId);
+  const plantId = useAuthStore((s) => s.userProfile?.plantId) ?? null;
+  const { departments, addDepartment } = useDepartments(companyId, plantId);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
 

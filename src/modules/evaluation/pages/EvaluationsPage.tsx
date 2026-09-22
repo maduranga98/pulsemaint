@@ -39,7 +39,7 @@ export default function EvaluationsPage() {
   // Plant managers don't evaluate (or get listed as evaluatees in) the
   // "Plant Manager" category — no self-evaluation for that role.
   const visibleRoleOrder = role === 'plant_manager' ? ROLE_ORDER.filter((r) => r !== 'plant_manager') : ROLE_ORDER;
-  const { departments } = useDepartments(companyId);
+  const { departments } = useDepartments(companyId, userProfile?.plantId ?? null);
 
   const [sessions, setSessions] = useState<EvaluationSession[]>([]);
   const [, setLoading] = useState(true);

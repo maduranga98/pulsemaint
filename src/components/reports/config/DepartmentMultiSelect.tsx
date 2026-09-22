@@ -14,8 +14,8 @@ import SearchableMultiSelect from './SearchableMultiSelect';
 export default function DepartmentMultiSelect({ values, onChange }: { values: string[]; onChange: (values: string[]) => void }) {
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
-  const { departments, loading } = useDepartments(companyId);
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
+  const { departments, loading } = useDepartments(companyId, scopedPlantId);
 
   useEffect(() => {
     if (scopedDepartment && (values.length !== 1 || values[0] !== scopedDepartment)) {

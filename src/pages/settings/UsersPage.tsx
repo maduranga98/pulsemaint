@@ -131,17 +131,20 @@ const emptyInviteForm: InviteFormValues = {
 function DepartmentSelect({
   value,
   onChange,
+  plantId,
   disabled,
   className,
 }: {
   value: string;
   onChange: (value: string) => void;
+  /** Department is a sub-category of plant — a plant must be picked first. */
+  plantId: string | null;
   disabled?: boolean;
   className?: string;
 }) {
   const { t } = useTranslation();
   const companyId = useAuthStore((s) => s.userProfile?.companyId ?? '');
-  const { departments } = useDepartments(companyId);
+  const { departments } = useDepartments(companyId, plantId);
   // Keep a legacy free-typed value selectable so existing users don't lose it.
   const options = value && !departments.includes(value) ? [value, ...departments] : departments;
 
@@ -264,7 +267,9 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('');
   const [plantFilter, setPlantFilter] = useState('');
-  const { departments } = useDepartments(company?.id ?? '');
+  // Department is a sub-category of plant, so the roster's department filter
+  // only has options once a plant has been picked to filter within.
+  const { departments } = useDepartments(company?.id ?? '', plantFilter || null);
   const { activePlants } = usePlants(company?.id ?? '');
   // Filter controls (role/department/plant) are only useful once there's more
   // than one plant/department to slice by, and are reserved for the roles
@@ -1274,6 +1279,7 @@ function InviteModal({
               <DepartmentSelect
                 value={values.department}
                 onChange={(v) => set('department', v)}
+                plantId={values.role === 'admin' ? null : (values.plantId || null)}
                 className="w-full px-3 py-2 text-sm rounded-lg border outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </Field>
@@ -1536,6 +1542,7 @@ function UserModal({ state, shifts, onClose, onEdit }: UserModalProps) {
               <DepartmentSelect
                 value={values.department}
                 onChange={(v) => set('department', v)}
+                plantId={values.role === 'admin' ? null : (values.plantId || null)}
                 disabled={isView}
               />
             </Field>

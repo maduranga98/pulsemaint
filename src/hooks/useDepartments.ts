@@ -2,7 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-export function useDepartments(companyId: string) {
+// Departments are a sub-category of a plant (main category) — the same
+// department name in two different plants must be treated as two distinct
+// departments, so every query/write here is scoped by BOTH companyId and
+// plantId. Pass `null`/`undefined` plantId only for an admin context that
+// has not yet selected a plant; that returns an empty list rather than a
+// cross-plant merge, since there is no "all plants" department scope.
+export function useDepartments(companyId: string, plantId: string | null | undefined) {
   const [departments, setDepartments] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   // Mirrors `departments` for addDepartment's duplicate check without
@@ -10,11 +16,17 @@ export function useDepartments(companyId: string) {
   const departmentsRef = useRef<string[]>([]);
 
   useEffect(() => {
-    if (!companyId) {
+    if (!companyId || !plantId) {
+      setDepartments([]);
+      departmentsRef.current = [];
       setLoading(false);
       return;
     }
-    const q = query(collection(db, 'departments'), where('companyId', '==', companyId));
+    const q = query(
+      collection(db, 'departments'),
+      where('companyId', '==', companyId),
+      where('plantId', '==', plantId),
+    );
     const unsub = onSnapshot(
       q,
       (snap) => {
@@ -30,14 +42,15 @@ export function useDepartments(companyId: string) {
       () => setLoading(false),
     );
     return unsub;
-  }, [companyId]);
+  }, [companyId, plantId]);
 
   const addDepartment = async (name: string) => {
     const trimmed = name.trim();
-    if (!trimmed || !companyId) return;
+    if (!trimmed || !companyId || !plantId) return;
     if (departmentsRef.current.some((d) => d.toLowerCase() === trimmed.toLowerCase())) return;
     await addDoc(collection(db, 'departments'), {
       companyId,
+      plantId,
       name: trimmed,
       createdAt: serverTimestamp(),
     });
