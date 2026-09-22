@@ -8242,6 +8242,129 @@
         "contactDesignation": "职位",
         "contactEmail": "电子邮件"
       }
+    },
+    "layout": {
+      "plantTabs": {
+        "allPlants": "所有工厂"
+      }
+    },
+    "billing": {
+      "header": {
+        "title": "账单与套餐",
+        "subtitle": "管理您的订阅并为团队解锁更多功能。"
+      },
+      "trial": {
+        "expiredStrong": "您的试用期已结束。",
+        "expiredRest": "请升级以继续使用 FirmiCore。",
+        "daysLeftStrong_one": "试用期还剩 {{count}} 天。",
+        "daysLeftStrong_other": "试用期还剩 {{count}} 天。",
+        "daysLeftRest": "请在试用期结束前升级,以保留您的所有数据和访问权限。",
+        "onTrial": "您目前处于免费试用期。"
+      },
+      "currentPlan": {
+        "label": "当前套餐",
+        "status": "状态:",
+        "billed": "计费方式",
+        "trialEnds": "试用期结束"
+      },
+      "errors": {
+        "checkoutFailed": "无法启动结账,请重试。",
+        "portalFailed": "无法打开账单门户,请重试。"
+      },
+      "cycle": {
+        "monthly": "按月",
+        "yearly": "按年",
+        "save20": "节省 20%"
+      },
+      "mostPopular": "最受欢迎",
+      "customPrice": "定制报价",
+      "free": "免费",
+      "perMonth": "月",
+      "perYear": "年",
+      "unlimited": "无限制",
+      "limits": {
+        "title": "套餐限制",
+        "machines": "机器数量",
+        "users": "用户数量",
+        "inventoryItems": "库存物品",
+        "pmSchedules": "预防性维护计划",
+        "workOrders": "工单",
+        "perMonthValue": "{{count}} / 月"
+      },
+      "cta": {
+        "currentPlan": "当前套餐",
+        "contactSales": "联系销售",
+        "redirecting": "正在跳转…",
+        "downgradeTo": "降级为 {{name}}",
+        "upgradeTo": "升级为 {{name}}",
+        "adminOnly": "仅限管理员"
+      },
+      "payment": {
+        "title": "付款与发票",
+        "subtitle": "在 Stripe 安全的账单门户中管理已保存的付款方式、查看历史发票并取消订阅。",
+        "manage": "管理账单",
+        "subscribeFirst": "请先订阅套餐以访问账单门户。"
+      },
+      "footer": {
+        "note": "价格以美元显示。按年计费比按月支付所有付费套餐节省 20%。如有账单问题,请联系",
+        "forQuestions": "。"
+      },
+      "downgrade": {
+        "title": "确认降级",
+        "body": "您将从 {{fromName}} 切换到 {{toName}}。当前计费周期内未使用的余额不予退还;在本{{period}}结束前,您将继续按当前套餐费率付费,较低的 {{toName}} 费率将在下一个计费周期生效。当前套餐专属功能将立即不可用。",
+        "confirm": "确认降级"
+      },
+      "plans": {
+        "starter": {
+          "name": "基础版",
+          "description": "适合刚起步的单个小团队。"
+        },
+        "workshop": {
+          "name": "车间版",
+          "description": "适合拥有结构化工作流程的成长型车间。"
+        },
+        "factory": {
+          "name": "工厂专业版",
+          "description": "为生产工厂提供完整的 MOE 分析。"
+        },
+        "enterprise": {
+          "name": "企业版",
+          "description": "无限规模,支持企业级集成。"
+        }
+      },
+      "categories": {
+        "coreMaintenance": "核心维护",
+        "inventoryProcurement": "库存与采购",
+        "teamOperations": "团队与运营",
+        "analyticsReporting": "分析与报告",
+        "enterpriseSecurity": "企业与安全"
+      },
+      "features": {
+        "machineRegistryQr": "机器登记与二维码",
+        "breakdownReporting": "故障报告",
+        "basicWorkOrders": "基础工单",
+        "pmSchedulesFeature": "预防性维护计划",
+        "inventoryPartsCatalog": "库存与备件目录",
+        "everythingInBasicExporting": "包含{{basicName}}的所有功能及报告导出",
+        "autoPoEmail": "自动向供应商发送采购订单邮件",
+        "qrScanLowStock": "库存管理、二维码扫描与低库存提醒",
+        "contractorManagement": "承包商管理",
+        "shiftHandoverBriefings": "交接班与简报",
+        "trainingSafetyWorkspace": "培训模块与安全工作区功能",
+        "pmComplianceDashboard": "预防性维护合规仪表盘",
+        "basicAnalytics": "基础分析",
+        "everythingInWorkshop": "包含{{workshopName}}的所有功能",
+        "moeTrendAnalytics": "MOE 趋势分析与机器对比",
+        "everythingInFactoryPro": "包含{{factoryName}}的所有功能",
+        "tpmMaturityRoadmap": "TPM 成熟度路线图与 5S 评分卡",
+        "multiSiteManagement": "多厂区管理",
+        "safetyWorkspaceFeature": "安全工作区",
+        "triageKnowledgeBuilder": "故障分诊知识库构建器",
+        "advancedReportsHub": "高级报告中心",
+        "ssoSaml": "SSO / SAML 单点登录",
+        "customIntegrationsApi": "自定义集成与 API",
+        "dedicatedSupportSla": "专属支持与 SLA"
+      }
     }
   },
   "triage": {

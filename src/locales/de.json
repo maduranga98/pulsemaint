@@ -8246,6 +8246,129 @@
         "contactDesignation": "Position",
         "contactEmail": "E-Mail"
       }
+    },
+    "layout": {
+      "plantTabs": {
+        "allPlants": "Alle Werke"
+      }
+    },
+    "billing": {
+      "header": {
+        "title": "Abrechnung & Plan",
+        "subtitle": "Verwalten Sie Ihr Abonnement und schalten Sie Funktionen für Ihr Team frei."
+      },
+      "trial": {
+        "expiredStrong": "Ihre Testphase ist abgelaufen.",
+        "expiredRest": "Führen Sie ein Upgrade durch, um FirmiCore weiter zu nutzen.",
+        "daysLeftStrong_one": "Noch {{count}} Tag in Ihrer Testphase.",
+        "daysLeftStrong_other": "Noch {{count}} Tage in Ihrer Testphase.",
+        "daysLeftRest": "Führen Sie vor Ablauf der Testphase ein Upgrade durch, um alle Daten und den Zugriff zu behalten.",
+        "onTrial": "Sie befinden sich derzeit in einer kostenlosen Testphase."
+      },
+      "currentPlan": {
+        "label": "Aktueller Plan",
+        "status": "Status:",
+        "billed": "Abgerechnet",
+        "trialEnds": "Testphase endet"
+      },
+      "errors": {
+        "checkoutFailed": "Checkout konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+        "portalFailed": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuchen Sie es erneut."
+      },
+      "cycle": {
+        "monthly": "Monatlich",
+        "yearly": "Jährlich",
+        "save20": "20 % sparen"
+      },
+      "mostPopular": "Am beliebtesten",
+      "customPrice": "Individuell",
+      "free": "Kostenlos",
+      "perMonth": "Monat",
+      "perYear": "Jahr",
+      "unlimited": "Unbegrenzt",
+      "limits": {
+        "title": "Plangrenzen",
+        "machines": "Maschinen",
+        "users": "Benutzer",
+        "inventoryItems": "Lagerartikel",
+        "pmSchedules": "PM-Pläne",
+        "workOrders": "Arbeitsaufträge",
+        "perMonthValue": "{{count}} / Monat"
+      },
+      "cta": {
+        "currentPlan": "Aktueller Plan",
+        "contactSales": "Vertrieb kontaktieren",
+        "redirecting": "Weiterleitung…",
+        "downgradeTo": "Herabstufen auf {{name}}",
+        "upgradeTo": "Upgrade auf {{name}}",
+        "adminOnly": "Nur Administrator"
+      },
+      "payment": {
+        "title": "Zahlungen & Rechnungen",
+        "subtitle": "Verwalten Sie gespeicherte Zahlungsmethoden, sehen Sie vergangene Rechnungen ein und kündigen Sie Ihr Abonnement im sicheren Abrechnungsportal von Stripe.",
+        "manage": "Abrechnung verwalten",
+        "subscribeFirst": "Abonnieren Sie zuerst einen Plan, um auf das Abrechnungsportal zuzugreifen."
+      },
+      "footer": {
+        "note": "Preise in USD angezeigt. Die jährliche Abrechnung spart 20 % gegenüber der monatlichen Zahlung bei jedem kostenpflichtigen Plan. Kontaktieren Sie",
+        "forQuestions": "bei Fragen zur Abrechnung."
+      },
+      "downgrade": {
+        "title": "Herabstufung bestätigen",
+        "body": "Sie wechseln von {{fromName}} zu {{toName}}. Nicht genutztes Guthaben aus Ihrem aktuellen Abrechnungszeitraum wird nicht erstattet – Sie zahlen weiterhin den Tarif Ihres aktuellen Plans bis zum Ende dieses {{period}}, und der niedrigere {{toName}}-Tarif gilt ab Ihrem nächsten Abrechnungszyklus. Funktionen, die exklusiv für Ihren aktuellen Plan sind, werden sofort nicht mehr verfügbar sein.",
+        "confirm": "Herabstufung bestätigen"
+      },
+      "plans": {
+        "starter": {
+          "name": "Basic",
+          "description": "Für ein einzelnes kleines Team, das gerade startet."
+        },
+        "workshop": {
+          "name": "Werkstatt",
+          "description": "Für wachsende Werkstätten mit strukturierten Arbeitsabläufen."
+        },
+        "factory": {
+          "name": "Factory Pro",
+          "description": "Vollständige MOE-Analysen für Produktionsstätten."
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "description": "Unbegrenzte Skalierung mit Unternehmensintegrationen."
+        }
+      },
+      "categories": {
+        "coreMaintenance": "Kernwartung",
+        "inventoryProcurement": "Bestand & Beschaffung",
+        "teamOperations": "Team & Betrieb",
+        "analyticsReporting": "Analysen & Berichte",
+        "enterpriseSecurity": "Unternehmen & Sicherheit"
+      },
+      "features": {
+        "machineRegistryQr": "Maschinenregister & QR-Codes",
+        "breakdownReporting": "Störungsmeldung",
+        "basicWorkOrders": "Einfache Arbeitsaufträge",
+        "pmSchedulesFeature": "Vorbeugende Wartungspläne",
+        "inventoryPartsCatalog": "Bestand & Ersatzteilkatalog",
+        "everythingInBasicExporting": "Alles in {{basicName}} & Berichtsexport",
+        "autoPoEmail": "Automatische Bestell-E-Mail an Lieferanten",
+        "qrScanLowStock": "Bestand, QR-Scan & Niedrigbestandswarnungen",
+        "contractorManagement": "Auftragnehmerverwaltung",
+        "shiftHandoverBriefings": "Schichtübergabe & Briefings",
+        "trainingSafetyWorkspace": "Schulungsmodul & Sicherheitsarbeitsbereich-Funktionen",
+        "pmComplianceDashboard": "PM-Compliance-Dashboard",
+        "basicAnalytics": "Basisanalysen",
+        "everythingInWorkshop": "Alles in {{workshopName}}",
+        "moeTrendAnalytics": "MOE-Trendanalysen & Maschinenvergleich",
+        "everythingInFactoryPro": "Alles in {{factoryName}}",
+        "tpmMaturityRoadmap": "TPM-Reifegrad-Roadmap & 5S-Scorecard",
+        "multiSiteManagement": "Multi-Standort-Verwaltung",
+        "safetyWorkspaceFeature": "Sicherheitsarbeitsbereich",
+        "triageKnowledgeBuilder": "Triage-Wissensdatenbank-Builder",
+        "advancedReportsHub": "Erweiterte Berichts-Hub",
+        "ssoSaml": "SSO / SAML",
+        "customIntegrationsApi": "Individuelle Integrationen & API",
+        "dedicatedSupportSla": "Dedizierter Support & SLA"
+      }
     }
   },
   "triage": {

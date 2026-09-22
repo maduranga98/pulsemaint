@@ -8246,6 +8246,129 @@
         "contactDesignation": "Fonction",
         "contactEmail": "E-mail"
       }
+    },
+    "layout": {
+      "plantTabs": {
+        "allPlants": "Toutes les usines"
+      }
+    },
+    "billing": {
+      "header": {
+        "title": "Facturation et forfait",
+        "subtitle": "Gérez votre abonnement et débloquez des fonctionnalités pour votre équipe."
+      },
+      "trial": {
+        "expiredStrong": "Votre période d'essai est terminée.",
+        "expiredRest": "Passez à un forfait payant pour continuer à utiliser FirmiCore.",
+        "daysLeftStrong_one": "Il reste {{count}} jour d'essai.",
+        "daysLeftStrong_other": "Il reste {{count}} jours d'essai.",
+        "daysLeftRest": "Mettez à niveau avant la fin de votre essai pour conserver toutes vos données et votre accès.",
+        "onTrial": "Vous êtes actuellement en essai gratuit."
+      },
+      "currentPlan": {
+        "label": "Forfait actuel",
+        "status": "Statut :",
+        "billed": "Facturé",
+        "trialEnds": "Fin de l'essai"
+      },
+      "errors": {
+        "checkoutFailed": "Échec du démarrage du paiement. Veuillez réessayer.",
+        "portalFailed": "Échec de l'ouverture du portail de facturation. Veuillez réessayer."
+      },
+      "cycle": {
+        "monthly": "Mensuel",
+        "yearly": "Annuel",
+        "save20": "Économisez 20 %"
+      },
+      "mostPopular": "Le plus populaire",
+      "customPrice": "Sur devis",
+      "free": "Gratuit",
+      "perMonth": "mois",
+      "perYear": "an",
+      "unlimited": "Illimité",
+      "limits": {
+        "title": "Limites du forfait",
+        "machines": "Machines",
+        "users": "Utilisateurs",
+        "inventoryItems": "Articles d'inventaire",
+        "pmSchedules": "Plannings de MP",
+        "workOrders": "Ordres de travail",
+        "perMonthValue": "{{count}} / mois"
+      },
+      "cta": {
+        "currentPlan": "Forfait actuel",
+        "contactSales": "Contacter les ventes",
+        "redirecting": "Redirection…",
+        "downgradeTo": "Rétrograder vers {{name}}",
+        "upgradeTo": "Passer à {{name}}",
+        "adminOnly": "Administrateur uniquement"
+      },
+      "payment": {
+        "title": "Paiements et factures",
+        "subtitle": "Gérez vos moyens de paiement enregistrés, consultez vos factures passées et annulez votre abonnement dans le portail de facturation sécurisé de Stripe.",
+        "manage": "Gérer la facturation",
+        "subscribeFirst": "Abonnez-vous d'abord à un forfait pour accéder au portail de facturation."
+      },
+      "footer": {
+        "note": "Prix affichés en USD. La facturation annuelle permet d'économiser 20 % par rapport au paiement mensuel sur chaque forfait payant. Contactez",
+        "forQuestions": "pour toute question de facturation."
+      },
+      "downgrade": {
+        "title": "Confirmer la rétrogradation",
+        "body": "Vous passez de {{fromName}} à {{toName}}. Le solde non utilisé de votre période de facturation actuelle n'est pas remboursé ; vous continuerez à payer le tarif du forfait actuel jusqu'à la fin de ce {{period}}, et le tarif inférieur de {{toName}} prendra effet lors de votre prochain cycle de facturation. Les fonctionnalités exclusives à votre forfait actuel deviendront immédiatement indisponibles.",
+        "confirm": "Confirmer la rétrogradation"
+      },
+      "plans": {
+        "starter": {
+          "name": "Basique",
+          "description": "Pour une seule petite équipe qui démarre."
+        },
+        "workshop": {
+          "name": "Atelier",
+          "description": "Pour les ateliers en croissance avec des flux de travail structurés."
+        },
+        "factory": {
+          "name": "Factory Pro",
+          "description": "Analyses MOE complètes pour les sites de production."
+        },
+        "enterprise": {
+          "name": "Entreprise",
+          "description": "Échelle illimitée avec intégrations d'entreprise."
+        }
+      },
+      "categories": {
+        "coreMaintenance": "Maintenance de base",
+        "inventoryProcurement": "Inventaire et achats",
+        "teamOperations": "Équipe et opérations",
+        "analyticsReporting": "Analyses et rapports",
+        "enterpriseSecurity": "Entreprise et sécurité"
+      },
+      "features": {
+        "machineRegistryQr": "Registre des machines et codes QR",
+        "breakdownReporting": "Signalement des pannes",
+        "basicWorkOrders": "Ordres de travail de base",
+        "pmSchedulesFeature": "Plannings de maintenance préventive",
+        "inventoryPartsCatalog": "Inventaire et catalogue de pièces",
+        "everythingInBasicExporting": "Tout dans {{basicName}} et export des rapports",
+        "autoPoEmail": "E-mail automatique de bon de commande aux fournisseurs",
+        "qrScanLowStock": "Inventaire, scan QR et alertes de stock faible",
+        "contractorManagement": "Gestion des sous-traitants",
+        "shiftHandoverBriefings": "Passation de poste et briefings",
+        "trainingSafetyWorkspace": "Module de formation et fonctionnalités de l'espace sécurité",
+        "pmComplianceDashboard": "Tableau de bord de conformité MP",
+        "basicAnalytics": "Analyses de base",
+        "everythingInWorkshop": "Tout dans {{workshopName}}",
+        "moeTrendAnalytics": "Analyse des tendances MOE et comparaison des machines",
+        "everythingInFactoryPro": "Tout dans {{factoryName}}",
+        "tpmMaturityRoadmap": "Feuille de route de maturité TPM et tableau de score 5S",
+        "multiSiteManagement": "Gestion multi-sites",
+        "safetyWorkspaceFeature": "Espace sécurité",
+        "triageKnowledgeBuilder": "Générateur de connaissances de triage",
+        "advancedReportsHub": "Centre de rapports avancés",
+        "ssoSaml": "SSO / SAML",
+        "customIntegrationsApi": "Intégrations personnalisées et API",
+        "dedicatedSupportSla": "Support dédié et SLA"
+      }
     }
   },
   "triage": {

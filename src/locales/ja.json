@@ -8242,6 +8242,129 @@
         "contactDesignation": "役職",
         "contactEmail": "メール"
       }
+    },
+    "layout": {
+      "plantTabs": {
+        "allPlants": "全工場"
+      }
+    },
+    "billing": {
+      "header": {
+        "title": "請求とプラン",
+        "subtitle": "サブスクリプションを管理し、チームの機能を有効化しましょう。"
+      },
+      "trial": {
+        "expiredStrong": "トライアル期間が終了しました。",
+        "expiredRest": "FirmiCore を引き続きご利用いただくにはアップグレードしてください。",
+        "daysLeftStrong_one": "トライアル期間残り{{count}}日です。",
+        "daysLeftStrong_other": "トライアル期間残り{{count}}日です。",
+        "daysLeftRest": "データとアクセス権を維持するため、トライアル終了前にアップグレードしてください。",
+        "onTrial": "現在無料トライアル中です。"
+      },
+      "currentPlan": {
+        "label": "現在のプラン",
+        "status": "ステータス:",
+        "billed": "請求サイクル",
+        "trialEnds": "トライアル終了日"
+      },
+      "errors": {
+        "checkoutFailed": "チェックアウトを開始できませんでした。もう一度お試しください。",
+        "portalFailed": "請求ポータルを開けませんでした。もう一度お試しください。"
+      },
+      "cycle": {
+        "monthly": "月払い",
+        "yearly": "年払い",
+        "save20": "20%お得"
+      },
+      "mostPopular": "人気No.1",
+      "customPrice": "個別見積り",
+      "free": "無料",
+      "perMonth": "月",
+      "perYear": "年",
+      "unlimited": "無制限",
+      "limits": {
+        "title": "プランの上限",
+        "machines": "機械台数",
+        "users": "ユーザー数",
+        "inventoryItems": "在庫品目",
+        "pmSchedules": "PMスケジュール",
+        "workOrders": "作業指示書",
+        "perMonthValue": "{{count}} / 月"
+      },
+      "cta": {
+        "currentPlan": "現在のプラン",
+        "contactSales": "営業に問い合わせる",
+        "redirecting": "リダイレクト中…",
+        "downgradeTo": "{{name}}にダウングレード",
+        "upgradeTo": "{{name}}にアップグレード",
+        "adminOnly": "管理者のみ"
+      },
+      "payment": {
+        "title": "支払いと請求書",
+        "subtitle": "Stripeの安全な請求ポータルで、保存済みの支払い方法の管理、過去の請求書の確認、サブスクリプションの解約ができます。",
+        "manage": "請求を管理",
+        "subscribeFirst": "請求ポータルにアクセスするには、まずプランに登録してください。"
+      },
+      "footer": {
+        "note": "価格はUSD表示です。年払いはすべての有料プランで月払いより20%お得です。お問い合わせは",
+        "forQuestions": "まで。"
+      },
+      "downgrade": {
+        "title": "ダウングレードの確認",
+        "body": "{{fromName}}から{{toName}}に変更します。現在の請求期間の未使用残高は返金されません。この{{period}}が終了するまでは現在のプラン料金が引き続き請求され、次回の請求サイクルからより低い{{toName}}の料金が適用されます。現在のプラン限定機能はすぐに利用できなくなります。",
+        "confirm": "ダウングレードを確定"
+      },
+      "plans": {
+        "starter": {
+          "name": "ベーシック",
+          "description": "始めたばかりの小規模チーム向け。"
+        },
+        "workshop": {
+          "name": "ワークショップ",
+          "description": "体系化されたワークフローを持つ成長中の工房向け。"
+        },
+        "factory": {
+          "name": "ファクトリープロ",
+          "description": "生産施設向けの完全なMOE分析。"
+        },
+        "enterprise": {
+          "name": "エンタープライズ",
+          "description": "企業向け統合機能を備えた無制限のスケール。"
+        }
+      },
+      "categories": {
+        "coreMaintenance": "コアメンテナンス",
+        "inventoryProcurement": "在庫・調達",
+        "teamOperations": "チーム・運用",
+        "analyticsReporting": "分析・レポート",
+        "enterpriseSecurity": "エンタープライズ・セキュリティ"
+      },
+      "features": {
+        "machineRegistryQr": "機械登録とQRコード",
+        "breakdownReporting": "故障報告",
+        "basicWorkOrders": "基本的な作業指示書",
+        "pmSchedulesFeature": "予防保全スケジュール",
+        "inventoryPartsCatalog": "在庫・部品カタログ",
+        "everythingInBasicExporting": "{{basicName}}のすべての機能とレポートのエクスポート",
+        "autoPoEmail": "サプライヤーへの自動発注メール",
+        "qrScanLowStock": "在庫管理、QRスキャン、低在庫アラート",
+        "contractorManagement": "業者管理",
+        "shiftHandoverBriefings": "シフト引き継ぎ・ブリーフィング",
+        "trainingSafetyWorkspace": "トレーニングモジュールと安全ワークスペース機能",
+        "pmComplianceDashboard": "PMコンプライアンスダッシュボード",
+        "basicAnalytics": "基本分析",
+        "everythingInWorkshop": "{{workshopName}}のすべての機能",
+        "moeTrendAnalytics": "MOEトレンド分析と機械比較",
+        "everythingInFactoryPro": "{{factoryName}}のすべての機能",
+        "tpmMaturityRoadmap": "TPM成熟度ロードマップと5Sスコアカード",
+        "multiSiteManagement": "複数拠点管理",
+        "safetyWorkspaceFeature": "安全ワークスペース",
+        "triageKnowledgeBuilder": "トリアージ知識ビルダー",
+        "advancedReportsHub": "高度なレポートハブ",
+        "ssoSaml": "SSO / SAML",
+        "customIntegrationsApi": "カスタム連携とAPI",
+        "dedicatedSupportSla": "専任サポートとSLA"
+      }
     }
   },
   "triage": {
