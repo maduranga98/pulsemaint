@@ -9,7 +9,7 @@ import type { UserRole } from '@/types/auth';
  * see PM-082/083) is created for each row.
  */
 
-const TEMPLATE_COLUMNS = ['Full Name', 'Email', 'Role', 'Department', 'Designation', 'Employee ID', 'Address'] as const;
+const TEMPLATE_COLUMNS = ['Full Name', 'Email', 'Phone', 'Role', 'Plant', 'Department', 'Designation', 'Employee ID', 'Address'] as const;
 
 const VALID_ROLES: UserRole[] = [
   'admin', 'plant_manager', 'supervisor', 'technician',
@@ -19,7 +19,9 @@ const VALID_ROLES: UserRole[] = [
 export interface ParsedUserRow {
   fullName: string;
   email: string;
+  phone: string | null;
   role: UserRole;
+  plantName: string | null;
   department: string | null;
   jobTitle: string | null;
   employeeId: string | null;
@@ -28,6 +30,8 @@ export interface ParsedUserRow {
 }
 
 interface Props {
+  /** Plant names available for the "Plant" column, e.g. from usePlants(companyId). Pass [] if plants aren't in use. */
+  plantNames: string[];
   onClose: () => void;
   onImport: (rows: ParsedUserRow[]) => Promise<{ created: number; failed: number; errors: string[] }>;
 }
@@ -37,7 +41,7 @@ function normalizeRole(value: string): UserRole | null {
   return (VALID_ROLES as string[]).includes(v) ? (v as UserRole) : null;
 }
 
-export function UsersBulkImportModal({ onClose, onImport }: Props) {
+export function UsersBulkImportModal({ plantNames, onClose, onImport }: Props) {
   const { t } = useTranslation();
   const [rows, setRows] = useState<ParsedUserRow[]>([]);
   const [fileName, setFileName] = useState('');
@@ -50,7 +54,7 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
     const XLSX = await import('xlsx');
     const ws = XLSX.utils.aoa_to_sheet([
       [...TEMPLATE_COLUMNS],
-      ['Jane Doe', 'jane@company.com', 'technician', 'Maintenance', 'Senior Technician', 'EMP-001', '123 Main St, Springfield'],
+      ['Jane Doe', 'jane@company.com', '+1 555 010 1234', 'technician', plantNames[0] ?? '', 'Maintenance', 'Senior Technician', 'EMP-001', '123 Main St, Springfield'],
     ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Users');
@@ -74,15 +78,21 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
         const email = get('Email');
         const roleRaw = get('Role');
         const role = normalizeRole(roleRaw);
+        const plantRaw = get('Plant');
         let rowError: string | undefined;
         if (!fullName) rowError = t('common.settings.users.bulkImport.rowErrors.fullNameRequired', 'Full Name is required');
         else if (!email) rowError = t('common.settings.users.bulkImport.rowErrors.emailRequired', 'Email is required');
         else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) rowError = t('common.settings.users.bulkImport.rowErrors.invalidEmail', 'Invalid email');
         else if (!role) rowError = t('common.settings.users.bulkImport.rowErrors.invalidRole', 'Invalid role "{{role}}"', { role: roleRaw });
+        else if (plantRaw && !plantNames.some((p) => p.toLowerCase() === plantRaw.toLowerCase())) {
+          rowError = t('common.settings.users.bulkImport.rowErrors.invalidPlant', 'Unknown plant "{{plant}}"', { plant: plantRaw });
+        }
         return {
           fullName,
           email,
+          phone: get('Phone') || null,
           role: role ?? 'technician',
+          plantName: plantRaw || null,
           department: get('Department') || null,
           jobTitle: get('Designation') || null,
           employeeId: get('Employee ID') || null,
@@ -160,6 +170,12 @@ export function UsersBulkImportModal({ onClose, onImport }: Props) {
                 <Download className="w-4 h-4" />
                 {t('common.settings.users.bulkImport.downloadTemplate', 'Download Excel template')}
               </button>
+              <p className="text-xs text-slate-500">
+                {t(
+                  'common.settings.users.bulkImport.templateHelp',
+                  'Full Name, Email and Role are required. Phone, Plant, Department, Designation, Employee ID and Address are optional — Role must match one of the system role names (e.g. "technician", "plant_manager"), and Plant must match an existing plant name exactly.',
+                )}
+              </p>
 
               <label className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-300 rounded-xl py-8 cursor-pointer hover:bg-slate-50">
                 <Upload className="w-6 h-6 text-slate-400" />

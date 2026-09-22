@@ -437,15 +437,25 @@ export default function UsersPage() {
         continue;
       }
       try {
+        const matchedPlant = row.plantName
+          ? activePlants.find((p) => p.name.toLowerCase() === row.plantName!.toLowerCase())
+          : null;
+        // Same backstop as the single-invite flow: admins pick any plant (or
+        // none), everyone else who can invite is locked to their own plant.
+        const plantId = row.role === 'admin'
+          ? (matchedPlant?.id ?? null)
+          : (currentUser.role === 'admin' ? (matchedPlant?.id ?? null) : (currentUser.plantId ?? null));
         await createInvitation({
           companyId: company.id,
           companyName: company.name,
           email: row.email,
           role: row.role,
           fullName: row.fullName,
+          phone: row.phone,
           department: row.department,
           jobTitle: row.jobTitle,
           address: row.address,
+          plantId,
           invitedBy: currentUser.id,
           invitedByName: currentUser.fullName,
         }, t);
@@ -873,6 +883,7 @@ export default function UsersPage() {
 
       {importOpen && (
         <UsersBulkImportModal
+          plantNames={activePlants.map((p) => p.name)}
           onClose={() => setImportOpen(false)}
           onImport={handleBulkImport}
         />
