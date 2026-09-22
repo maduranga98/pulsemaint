@@ -101,7 +101,7 @@ export default function BreakdownsPage() {
   const role = userProfile?.role ?? '';
   const canAssign = CAN_ASSIGN_ROLES.includes(role);
   const canAttend = CAN_ATTEND_ROLES.includes(role);
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
 
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,9 +154,16 @@ export default function BreakdownsPage() {
     // other role stops seeing a ticket the moment it's closed, including on
     // the "Closed" tab itself.
     if (role !== 'admin') list = list.filter((b) => !closedSet.has(b.status));
-    // Technician/trainee/supervisor/floor_operator only ever see breakdowns
-    // for their own registered department — everyone else keeps full
-    // site-wide visibility.
+    // Plant is the main scoping category — plant_manager/store_keeper/
+    // hr_officer/safety_officer/technician/trainee/supervisor/floor_operator
+    // only see breakdowns for their own registered plant (admin: whichever
+    // plant is selected in the plant-tab switcher, or all if none is).
+    // Tickets reported before machines carried plantId won't match, same
+    // caveat as the Machines list.
+    if (scopedPlantId) list = list.filter((b) => b.machinePlantId === scopedPlantId);
+    // Technician/trainee/supervisor/floor_operator are further scoped to
+    // their own registered department within that plant — everyone else
+    // keeps full in-plant visibility.
     if (scopedDepartment) list = list.filter((b) => b.machineDepartment === scopedDepartment);
     if (filter === 'reported') list = list.filter((b) => b.status === 'reported');
     if (filter === 'assigned') list = list.filter((b) => b.status === 'assigned');
@@ -176,7 +183,7 @@ export default function BreakdownsPage() {
       );
     }
     return list;
-  }, [breakdowns, filter, severityFilter, search, scopedDepartment, role]);
+  }, [breakdowns, filter, severityFilter, search, scopedDepartment, scopedPlantId, role]);
 
   // Multiple open tickets on the same machine are shown as one row so a
   // supervisor isn't assigning/attending the same machine ticket by ticket.

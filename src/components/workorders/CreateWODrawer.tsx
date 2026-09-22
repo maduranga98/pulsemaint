@@ -25,6 +25,7 @@ type MachineOption = {
   name: string;
   type?: string;
   department?: string;
+  plantId?: string | null;
   location?: string;
   criticality?: number;
 };
@@ -34,6 +35,7 @@ type UserOption = {
   name: string;
   role: string;
   department?: string;
+  plantId?: string | null;
 };
 
 interface CreateWODrawerProps {
@@ -93,7 +95,7 @@ export function CreateWODrawer({
   // and free-text breakdown search are replaced with a fixed summary.
   const lockedToBreakdown = !!linkedBreakdownId || (linkedBreakdownIds?.length ?? 0) > 0;
   const [breakdownTickets, setBreakdownTickets] = useState<
-    { id: string; ticketNumber: string; severity?: string; status: string; machineId?: string; machineName?: string; machineDepartment?: string; machineLocation?: string; machineCriticality?: number; description?: string }[]
+    { id: string; ticketNumber: string; severity?: string; status: string; machineId?: string; machineName?: string; machineDepartment?: string; machinePlantId?: string | null; machineLocation?: string; machineCriticality?: number; description?: string }[]
   >([]);
   const [breakdownSearch, setBreakdownSearch] = useState('');
   const [showBreakdownDropdown, setShowBreakdownDropdown] = useState(false);
@@ -118,7 +120,7 @@ export function CreateWODrawer({
   // A supervisor (or any other department-scoped role that can reach this
   // drawer) can only raise a work order against a machine in their own
   // registered department.
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
 
   // Registered contractor companies (for CONTRACTOR work orders).
   const { contractors: registeredContractors } = useContractors();
@@ -146,6 +148,7 @@ export function CreateWODrawer({
             name: (data.name as string) ?? d.id,
             type: data.type as string | undefined,
             department: data.department as string | undefined,
+            plantId: (data.plantId as string | null | undefined) ?? null,
             // Machine documents have no single `location` field — only
             // floor/bay/station — so it must be composed here, not read
             // directly (that field never existed and was always undefined).
@@ -158,9 +161,9 @@ export function CreateWODrawer({
           };
         });
         setMachines(
-          scopedDepartment
-            ? machineOptions.filter((m) => m.department === scopedDepartment)
-            : machineOptions,
+          machineOptions
+            .filter((m) => !scopedPlantId || m.plantId === scopedPlantId)
+            .filter((m) => !scopedDepartment || m.department === scopedDepartment),
         );
 
         const userSnap = await getDocs(collection(db, `companies/${companyId}/users`));
@@ -172,15 +175,18 @@ export function CreateWODrawer({
             name: (data.fullName as string) ?? (data.email as string) ?? d.id,
             role: (data.role as string) ?? '',
             department: data.department as string | undefined,
+            plantId: (data.plantId as string | null | undefined) ?? null,
           };
         });
         setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor' || u.role === 'plant_manager' || u.role === 'admin'));
         // Trainees can be assigned to a WO (and its steps/tasks) alongside technicians.
-        // A department-scoped supervisor only ever sees technicians/trainees
-        // registered in their own department — same scoping as the machine list.
+        // A plant/department-scoped supervisor only ever sees technicians/
+        // trainees registered in their own plant (and department, if
+        // department-scoped too) — same scoping as the machine list.
         setTechnicians(
           users
             .filter((u) => u.role === 'technician' || u.role === 'trainee')
+            .filter((u) => !scopedPlantId || u.plantId === scopedPlantId)
             .filter((u) => !scopedDepartment || u.department === scopedDepartment)
             .map((u) => (u.role === 'trainee' ? { ...u, name: `${u.name} (Trainee)` } : u)),
         );
@@ -204,12 +210,14 @@ export function CreateWODrawer({
                     machineId: data.machineId as string | undefined,
                     machineName: data.machineName as string | undefined,
                     machineDepartment: data.machineDepartment as string | undefined,
+                    machinePlantId: (data.machinePlantId as string | null | undefined) ?? null,
                     machineLocation: data.machineLocation as string | undefined,
                     machineCriticality: data.machineCriticality as number | undefined,
                     description: data.description as string | undefined,
                   };
                 })
                 .filter((b) => !TERMINAL.has(b.status))
+                .filter((b) => !scopedPlantId || b.machinePlantId === scopedPlantId)
                 .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment),
             );
           }
@@ -225,6 +233,7 @@ export function CreateWODrawer({
             form.setValue('machineName' as any, (data.name as string) ?? machine.id);
             form.setValue('machineType' as any, (data.type as string) ?? '');
             form.setValue('machineDepartment' as any, (data.department as string) ?? '');
+            form.setValue('machinePlantId' as any, (data.plantId as string | null | undefined) ?? null);
             form.setValue(
               'machineLocation' as any,
               formatMachineLocation(
@@ -244,7 +253,7 @@ export function CreateWODrawer({
     return () => {
       cancelled = true;
     };
-  }, [open, companyId, siteIds, scopedDepartment]);
+  }, [open, companyId, siteIds, scopedDepartment, scopedPlantId]);
 
   useEffect(() => {
     if (!open || !linkedBreakdownId) {
@@ -271,6 +280,7 @@ export function CreateWODrawer({
           form.setValue('machineId', data.machineId);
           form.setValue('machineName' as any, data.machineName ?? '');
           form.setValue('machineDepartment' as any, data.machineDepartment ?? '');
+          form.setValue('machinePlantId' as any, data.machinePlantId ?? null);
           form.setValue('machineLocation' as any, data.machineLocation ?? '');
           form.setValue('machineCriticality' as any, data.machineCriticality ?? 3);
           setMachineSearch(data.machineName ?? '');
@@ -313,6 +323,7 @@ export function CreateWODrawer({
           form.setValue('machineId', first.machineId);
           form.setValue('machineName' as any, first.machineName ?? '');
           form.setValue('machineDepartment' as any, first.machineDepartment ?? '');
+          form.setValue('machinePlantId' as any, first.machinePlantId ?? null);
           form.setValue('machineLocation' as any, first.machineLocation ?? '');
           form.setValue('machineCriticality' as any, first.machineCriticality ?? 3);
           setMachineSearch(first.machineName ?? '');
@@ -345,6 +356,7 @@ export function CreateWODrawer({
       machineId: '',
       machineName: '',
       machineDepartment: '',
+      machinePlantId: null,
       machineLocation: '',
       machineType: '',
       machineCriticality: 3,
@@ -709,6 +721,7 @@ export function CreateWODrawer({
                                   form.setValue('machineId', b.machineId);
                                   form.setValue('machineName' as any, b.machineName ?? '');
                                   form.setValue('machineDepartment' as any, b.machineDepartment ?? '');
+                                  form.setValue('machinePlantId' as any, b.machinePlantId ?? null);
                                   form.setValue('machineLocation' as any, b.machineLocation ?? '');
                                   form.setValue('machineCriticality' as any, b.machineCriticality ?? 3);
                                   setMachineSearch(b.machineName ?? '');
@@ -789,6 +802,7 @@ export function CreateWODrawer({
                               form.setValue('machineName' as any, m.name);
                               form.setValue('machineType' as any, m.type ?? '');
                               form.setValue('machineDepartment' as any, m.department ?? '');
+                              form.setValue('machinePlantId' as any, m.plantId ?? null);
                               form.setValue('machineLocation' as any, m.location ?? '');
                               form.setValue('machineCriticality' as any, m.criticality ?? 3);
                               setMachineSearch(m.name);

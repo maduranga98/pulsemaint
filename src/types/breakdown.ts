@@ -80,6 +80,8 @@ export interface Breakdown {
   machineName: string;
   machineLocation: string;
   machineDepartment: string;
+  /** The reported machine's plantId at report time — null for machines not yet assigned a plant. */
+  machinePlantId?: string | null;
   machineCriticality: 1 | 2 | 3 | 4 | 5;
 
   // Report details. severity/type are intentionally unset (null) at report

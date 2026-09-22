@@ -17,6 +17,7 @@ interface MachineOption {
   id: string;
   name: string;
   department?: string;
+  plantId?: string | null;
   location?: string;
   criticality?: 1 | 2 | 3 | 4 | 5;
   model?: string;
@@ -101,6 +102,7 @@ export default function ReportBreakdownPage() {
             id: d.id,
             name: data.name || 'Unnamed',
             department: data.department,
+            plantId: data.plantId ?? null,
             location: formatMachineLocation(data.floor, data.bay, data.station),
             criticality: data.criticality,
             model: data.model,
@@ -118,6 +120,7 @@ export default function ReportBreakdownPage() {
                 id: machineSnap.id,
                 name: data.name || 'Unnamed',
                 department: data.department,
+                plantId: data.plantId ?? null,
                 location: formatMachineLocation(data.floor, data.bay, data.station),
                 criticality: data.criticality,
                 model: data.model,
@@ -177,6 +180,7 @@ export default function ReportBreakdownPage() {
         machineId: machine.id,
         machineName: machine.name,
         machineDepartment: machine.department || '',
+        machinePlantId: machine.plantId || null,
         machineLocation: machine.location || '',
         machineCriticality: machine.criticality || 3,
         // Set by the attending technician once assessed, not by the reporter.

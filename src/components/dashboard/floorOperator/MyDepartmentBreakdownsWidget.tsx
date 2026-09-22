@@ -32,7 +32,7 @@ const STATUS_COLOR: Record<BreakdownStatus, string> = {
 // firestore.rules), so this never offers an action, only status.
 export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBreakdownsWidgetProps) {
   const { t } = useTranslation();
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,7 +59,9 @@ export default function MyDepartmentBreakdownsWidget({ siteId }: MyDepartmentBre
   }, [siteId]);
 
   const closedSet = new Set<BreakdownStatus>(['closed', 'cancelled']);
-  const visible = (scopedDepartment ? breakdowns.filter((b) => b.machineDepartment === scopedDepartment) : breakdowns)
+  const visible = breakdowns
+    .filter((b) => !scopedPlantId || b.machinePlantId === scopedPlantId)
+    .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment)
     .filter((b) => !closedSet.has(b.status))
     .slice(0, 8);
 
