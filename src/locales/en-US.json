@@ -2328,7 +2328,6 @@
           "updated": "Updated",
           "skipped": "Skipped",
           "viewImportedParts": "View Imported Parts",
-          "viewImportHistory": "View Import History",
           "undoImport": "Undo Import",
           "undoWithinHours": "(within 24h)",
           "undoModalTitle": "Undo Import?",
