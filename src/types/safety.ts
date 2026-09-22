@@ -72,6 +72,8 @@ export interface SafetyCase {
   id: string;
   companyId: string;
   siteId: string;
+  /** The reporting user's plant at report time — null for cases predating plant scoping. */
+  plantId: string | null;
   type: SafetyCaseType;
   title: string;
   description: string;
@@ -184,6 +186,8 @@ export interface WorkPermit {
   id: string;
   companyId: string;
   siteId: string;
+  /** The linked WO's/reporter's plant at issue time — null for permits predating plant scoping. */
+  plantId?: string | null;
   permitNumber: string;
   category: WorkPermitCategory;
   title: string;

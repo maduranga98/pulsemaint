@@ -8,6 +8,7 @@ import DashboardWidget from '@/components/dashboard/shared/DashboardWidget';
 import EmptyState from '@/components/dashboard/shared/EmptyState';
 import { useSafetyCases } from '@/hooks/safety/useSafety';
 import { useCompanyUsers } from '@/hooks/useCompanyUsers';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { addSafetyCaseAction, reportSafetyCaseTo } from '@/services/safety.service';
 import { createNotification } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
@@ -82,18 +83,22 @@ export default function SafetyCasesPage() {
   const role = profile?.role ?? '';
   const isSafetyOfficer = role === 'safety_officer';
   const { cases, loading } = useSafetyCases(companyId);
+  const { plantId: scopedPlantId } = useDepartmentScope();
 
-  // Safety officers own the whole board; managers see only cases reported to
-  // them. Closed cases drop out of every non-admin role's view entirely —
-  // admin is the only role that keeps seeing them.
+  // Safety officers own the whole board for their own plant (admin: whichever
+  // plant is selected in the plant-tab switcher, or all if none is); managers
+  // see only cases reported to them. Closed cases drop out of every
+  // non-admin role's view entirely — admin is the only role that keeps
+  // seeing them.
   const visible = useMemo(() => {
     let list = cases;
+    if (scopedPlantId) list = list.filter((c) => c.plantId === scopedPlantId);
     if (!isSafetyOfficer && REPORTED_TO_ROLES.includes(role)) {
       list = list.filter((c) => c.reportedToUserId === profile?.id);
     }
     if (role !== 'admin') list = list.filter((c) => c.status !== 'closed');
     return list;
-  }, [cases, isSafetyOfficer, role, profile?.id]);
+  }, [cases, isSafetyOfficer, role, profile?.id, scopedPlantId]);
 
   const heading = isSafetyOfficer ? t('common.safetyCases.pageTitle') : t('common.safetyCases.pageTitleReportedToMe');
   const subtitle = isSafetyOfficer

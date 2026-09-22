@@ -12,6 +12,7 @@ import {
 } from '@/services/safety.service';
 import { createNotification } from '@/services/notifications.service';
 import { useWorkPermitCategories } from '@/hooks/useWorkPermitCategories';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import {
   WORK_PERMIT_COMPLETIONS,
   formatPermitDateTime,
@@ -40,7 +41,14 @@ export default function WorkPermitsPage() {
   const profile = useAuthStore((s) => s.userProfile);
   const companyId = profile?.companyId ?? '';
   const toast = useToast();
-  const { permits, loading } = useWorkPermits(companyId);
+  const { permits: fetchedPermits, loading } = useWorkPermits(companyId);
+  const { plantId: scopedPlantId } = useDepartmentScope();
+  // Plant-scoped roles only see permits for their own plant (admin:
+  // whichever plant is selected in the plant-tab switcher, or all if none).
+  const permits = useMemo(
+    () => (scopedPlantId ? fetchedPermits.filter((p) => p.plantId === scopedPlantId) : fetchedPermits),
+    [fetchedPermits, scopedPlantId],
+  );
   const { categories } = useWorkPermitCategories(companyId);
   const catLabel = useMemo(
     () => Object.fromEntries(categories.map((c) => [c.value, c.label])) as Record<WorkPermitCategory, string>,

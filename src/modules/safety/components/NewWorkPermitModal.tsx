@@ -105,6 +105,7 @@ export default function NewWorkPermitModal({ onClose, onCreated, presetWorkOrder
       await createWorkPermit({
         companyId: profile.companyId,
         siteId: profile.siteIds?.[0] || profile.companyId,
+        plantId: (selectedWO as any)?.machinePlantId ?? profile.plantId ?? null,
         category,
         title: title.trim(),
         description: description.trim(),

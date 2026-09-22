@@ -266,6 +266,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
           const permitId = await createWorkPermit({
             companyId,
             siteId,
+            plantId: payload.machinePlantId ?? null,
             category: wp.category,
             title: wp.title.trim() || (payload.description?.slice(0, 60) ?? 'Work permit'),
             description: payload.description ?? '',

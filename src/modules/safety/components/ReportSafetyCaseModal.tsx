@@ -117,6 +117,7 @@ export default function ReportSafetyCaseModal({ onClose, onCreated }: Props) {
       await createSafetyCase({
         companyId: profile.companyId,
         siteId: profile.siteIds?.[0] || profile.companyId,
+        plantId: profile.plantId ?? null,
         type,
         title: title.trim(),
         description: description.trim(),
