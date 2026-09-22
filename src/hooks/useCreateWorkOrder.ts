@@ -136,6 +136,7 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
         machineId: payload.machineId,
         machineName: payload.machineName,
         machineDepartment: payload.machineDepartment,
+        machinePlantId: payload.machinePlantId ?? null,
         machineLocation: payload.machineLocation,
         machineType: payload.machineType,
         machineCriticality: payload.machineCriticality,

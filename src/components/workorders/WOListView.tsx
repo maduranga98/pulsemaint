@@ -93,13 +93,15 @@ export function WOListView() {
   // to, so the query must always be constrained to their own WOs or it is rejected.
   if (role === 'technician' || role === 'trainee') filters.technicianId = user?.uid;
 
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
   const { workOrders: fetchedWorkOrders, loading, error } = useWorkOrders(filters);
-  // Technician/trainee/supervisor/floor_operator only ever see work orders
-  // for their own registered department — everyone else keeps full visibility.
-  const workOrders = scopedDepartment
-    ? fetchedWorkOrders.filter((wo) => wo.machineDepartment === scopedDepartment)
-    : fetchedWorkOrders;
+  // Plant-scoped roles only see work orders for their own registered plant
+  // (admin: whichever plant is selected in the plant-tab switcher, or all if
+  // none is); technician/trainee/supervisor/floor_operator are further
+  // scoped to their own registered department within that plant.
+  const workOrders = fetchedWorkOrders
+    .filter((wo) => !scopedPlantId || wo.machinePlantId === scopedPlantId)
+    .filter((wo) => !scopedDepartment || wo.machineDepartment === scopedDepartment);
 
   // Deep-link straight to a specific WO's detail view (e.g. from the PM
   // Schedules table or PM Calendar), once it has loaded.

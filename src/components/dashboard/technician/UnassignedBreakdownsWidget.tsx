@@ -34,7 +34,7 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
   const { t } = useTranslation();
   const navigate = useNavigate();
   const userProfile = useAuthStore((s) => s.userProfile);
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
   const [breakdowns, setBreakdowns] = useState<Breakdown[]>([]);
   const [loading, setLoading] = useState(true);
   const [attendingMachineId, setAttendingMachineId] = useState<string | null>(null);
@@ -60,11 +60,12 @@ export default function UnassignedBreakdownsWidget({ siteId }: UnassignedBreakdo
     return () => unsub();
   }, [siteId]);
 
-  // Technician/trainee/floor_operator only ever see unassigned breakdowns in
-  // their own registered department.
-  const scopedBreakdowns = scopedDepartment
-    ? breakdowns.filter((b) => b.machineDepartment === scopedDepartment)
-    : breakdowns;
+  // Plant-scoped roles only see unassigned breakdowns in their own plant;
+  // technician/trainee/floor_operator are further scoped to their own
+  // registered department within that plant.
+  const scopedBreakdowns = breakdowns
+    .filter((b) => !scopedPlantId || b.machinePlantId === scopedPlantId)
+    .filter((b) => !scopedDepartment || b.machineDepartment === scopedDepartment);
   const groups = groupBreakdownsByMachine(scopedBreakdowns);
 
   async function handleAttend(tickets: Breakdown[], machineId: string) {

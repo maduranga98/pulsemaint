@@ -101,6 +101,7 @@ export const woSection2Schema = z.object({
   machineId: z.string().min(1, 'Machine selection is required'),
   machineName: z.string().min(1),
   machineDepartment: z.string(),
+  machinePlantId: z.string().nullable().optional(),
   machineLocation: z.string(),
   machineType: z.string(),
   machineCriticality: z.union([

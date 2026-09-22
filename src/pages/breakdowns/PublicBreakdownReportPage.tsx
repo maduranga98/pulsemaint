@@ -13,6 +13,7 @@ interface MachineInfo {
   id: string;
   name: string;
   department?: string;
+  plantId?: string | null;
   location?: string;
   criticality?: 1 | 2 | 3 | 4 | 5;
   siteId: string;
@@ -124,6 +125,7 @@ export default function PublicBreakdownReportPage() {
             id: snap.id,
             name: data.name || 'Unnamed machine',
             department: data.department,
+            plantId: data.plantId ?? null,
             location: formatMachineLocation(data.floor, data.bay, data.station),
             criticality: data.criticality,
             siteId: data.siteId,
@@ -175,6 +177,7 @@ export default function PublicBreakdownReportPage() {
         machineId: machine.id,
         machineName: machine.name,
         machineDepartment: machine.department || '',
+        machinePlantId: machine.plantId || null,
         machineLocation: machine.location || '',
         machineCriticality: machine.criticality || 3,
         severity: null,

@@ -268,6 +268,8 @@ export interface WorkOrder {
   machineId: string;
   machineName: string;
   machineDepartment: string;
+  /** The machine's plantId at creation time — null for machines not yet assigned a plant. */
+  machinePlantId?: string | null;
   machineLocation: string;
   machineType: string;
   machineCriticality: 1 | 2 | 3 | 4 | 5;
@@ -450,6 +452,7 @@ export interface CreateWOPayload {
   machineId: string;
   machineName: string;
   machineDepartment: string;
+  machinePlantId?: string | null;
   machineLocation: string;
   machineType: string;
   machineCriticality: 1 | 2 | 3 | 4 | 5;
