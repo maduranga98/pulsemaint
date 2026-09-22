@@ -23,6 +23,7 @@ import { useSuppliers } from '@/hooks/inventory/useSuppliers';
 import { usePlanLimitCheck } from '@/hooks/usePlanLimitCheck';
 import { MachineSelect } from '@/components/inventory/shared/MachineSelect';
 import { getNextCategoryPartNumber } from '@/lib/inventory/partNumberGenerator';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { categoryPrefixLetter } from '@/lib/inventory/inventoryTypes';
 import type { WarrantyDocument } from '@/types/inventory';
 
@@ -60,6 +61,10 @@ export function AddPartPage() {
   const userName = useAuthStore((s) => s.userProfile?.fullName) ?? '';
   const userRole = useAuthStore((s) => s.userProfile?.role) ?? '';
   const canViewCost = useAuthStore((s) => s.canAccess(['store_keeper', 'supervisor', 'plant_manager', 'admin']));
+  // Own plant for plant-scoped roles; for admin, whichever plant tab is
+  // active (null on "All Plants" — the part lands unassigned until a plant
+  // is picked for it, same as any other plant-less record).
+  const { plantId } = useDepartmentScope();
   const { suppliers } = useSuppliers();
   const { loading: limitLoading, atLimit, message: limitMessage } = usePlanLimitCheck('inventoryItems');
   const [saving, setSaving] = useState(false);
@@ -120,6 +125,7 @@ export function AddPartPage() {
         supplierId: selectedSupplierId,
         id: partRef.id,
         companyId,
+        plantId,
         reservedStock: 0,
         availableStock: values.currentStock,
         isCritical: values.criticality === 'critical',

@@ -8,6 +8,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import type {
   InventoryPart,
   PartCategory,
@@ -38,6 +39,7 @@ interface UseInventoryPartsResult {
 export function useInventoryParts(options: UseInventoryPartsOptions = {}): UseInventoryPartsResult {
   const { category, status, stockStatus, criticality, supplierId, searchQuery, pageSize = 50 } = options;
   const companyId = useAuthStore((s) => s.userProfile?.companyId);
+  const { plantId: scopedPlantId } = useDepartmentScope();
 
   const [allParts, setAllParts] = useState<InventoryPart[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,6 +88,15 @@ export function useInventoryParts(options: UseInventoryPartsOptions = {}): UseIn
           parts = parts.filter((p) => getStockStatus(p) === stockStatus);
         }
 
+        // Client-side plant filter (same reasoning as supplier below) —
+        // plant_manager/store_keeper/hr_officer/safety_officer/technician/
+        // trainee/supervisor/floor_operator only see parts registered under
+        // their own plant; admin sees all plants or whichever is selected in
+        // the plant-tab switcher.
+        if (scopedPlantId) {
+          parts = parts.filter((p) => p.plantId === scopedPlantId);
+        }
+
         // Client-side supplier filter — avoids requiring a new composite
         // index for every combination with the other equality filters above.
         if (supplierId) {
@@ -114,7 +125,7 @@ export function useInventoryParts(options: UseInventoryPartsOptions = {}): UseIn
     );
 
     return () => unsubscribe();
-  }, [companyId, category, status, criticality, stockStatus, supplierId, searchQuery]);
+  }, [companyId, scopedPlantId, category, status, criticality, stockStatus, supplierId, searchQuery]);
 
   // Reset display count when filters change
   useEffect(() => {
