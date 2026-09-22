@@ -19,6 +19,7 @@ export function Step2MachineSelect({ machines }: Step2MachineSelectProps) {
     setValue('machineName', machine.name);
     setValue('machineCriticality', machine.criticality);
     setValue('department', machine.department);
+    setValue('plantId', machine.plantId ?? null);
     setValue('location', [machine.floor, machine.bay, machine.station].filter(Boolean).join(' / ') || machine.department);
 
     // Auto-upgrade priority if machine criticality = 5

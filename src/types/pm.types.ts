@@ -85,6 +85,8 @@ export interface PMSchedule {
   machineName: string;
   machineCriticality: number;
   department: string;
+  /** The machine's plantId at creation time — null for machines not yet assigned a plant. */
+  plantId?: string | null;
   location: string;
   triggerType: 'calendar' | 'usage';
 
@@ -200,6 +202,7 @@ export interface CreatePMPayload {
   machineName: string;
   machineCriticality: number;
   department: string;
+  plantId?: string | null;
   location: string;
   triggerType: 'calendar' | 'usage';
 

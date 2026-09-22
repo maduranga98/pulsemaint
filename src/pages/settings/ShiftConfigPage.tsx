@@ -12,17 +12,22 @@ export function ShiftConfigPage() {
   const { t } = useTranslation();
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
   const role = useAuthStore((state) => state.userProfile?.role);
+  const plantId = useAuthStore((state) => state.userProfile?.plantId) ?? null;
   // Mirrors the shift_config delete rule in firestore.rules — plant managers
   // can create and edit shifts, but deletes stay admin-only company-wide.
   const canDelete = role === 'admin';
-  const { shifts, loading, save, remove } = useShiftConfig();
+  const { shifts: allShifts, loading, save, remove } = useShiftConfig();
+  // Plant-scoped roles (everyone but admin) only manage shift plans for
+  // their own registered plant; shifts created before plant scoping existed
+  // (no plantId) stay visible to admin only until assigned one.
+  const shifts = role === 'admin' ? allShifts : allShifts.filter((s) => s.plantId === plantId);
   const [editing, setEditing] = useState<ShiftConfig | undefined>(undefined);
 
   async function seedDefaults() {
     if (!companyId) return;
     for (const shift of defaultShiftConfigs(companyId)) {
       const { shiftName, startTime, endTime, color, activeDays, department, status, assignBy } = shift;
-      await save({ shiftName, startTime, endTime, color, activeDays, department, status, memberIds: [], memberNames: [], roles: [], assignBy });
+      await save({ shiftName, startTime, endTime, color, activeDays, department, plantId, status, memberIds: [], memberNames: [], roles: [], assignBy });
     }
   }
 

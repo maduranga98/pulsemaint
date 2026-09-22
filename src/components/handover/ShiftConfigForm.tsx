@@ -74,6 +74,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
   const [success, setSuccess] = useState(false);
 
   const companyId = useAuthStore((state) => state.userProfile?.companyId);
+  const currentUserPlantId = useAuthStore((state) => state.userProfile?.plantId) ?? null;
   const { users, loading: usersLoading } = useCompanyUsers(companyId);
   const selectedMembers = useMemo(
     () => users.filter((user) => memberIds.includes(user.id)),
@@ -123,6 +124,7 @@ export function ShiftConfigForm({ onSave, initial }: ShiftConfigFormProps) {
         color,
         activeDays,
         department: assignBy === 'department' ? department.trim() || null : null,
+        plantId: initial?.plantId ?? currentUserPlantId,
         status,
         memberIds: assignBy === 'employee' ? memberIds : [],
         memberNames: assignBy === 'employee' ? selectedMembers.map((user) => user.fullName || user.id) : [],

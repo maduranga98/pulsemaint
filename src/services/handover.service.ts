@@ -85,6 +85,7 @@ function mapShiftConfig(id: string, data: DocumentData): ShiftConfig {
     color: data.color,
     activeDays: data.activeDays ?? [],
     department: data.department ?? null,
+    plantId: data.plantId ?? null,
     status: data.status,
     memberIds: data.memberIds ?? [],
     memberNames: data.memberNames ?? [],
