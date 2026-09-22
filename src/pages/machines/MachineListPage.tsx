@@ -527,7 +527,7 @@ export function MachineListPage() {
               </p>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
@@ -540,7 +540,7 @@ export function MachineListPage() {
               {canCreateMachine && (
                 <Link
                   to="/app/machines/new"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+                  className="px-3 py-2 sm:px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm whitespace-nowrap"
                 >
                   {t('common.machines.addMachine')}
                 </Link>
@@ -548,7 +548,7 @@ export function MachineListPage() {
               {canCreateMachine && (
                 <button
                   onClick={() => setShowImport(true)}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm"
+                  className="px-3 py-2 sm:px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium text-sm whitespace-nowrap"
                 >
                   {t('common.machines.import')}
                 </button>
@@ -556,7 +556,7 @@ export function MachineListPage() {
               <button
                 onClick={() => exportMachinesToCsv(filteredMachines)}
                 disabled={filteredMachines.length === 0}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm"
+                className="px-3 py-2 sm:px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm whitespace-nowrap"
               >
                 {t('common.machines.exportCsv')}
               </button>
