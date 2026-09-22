@@ -88,7 +88,7 @@ export default function AssignTrainingWizard({
   const [skippedCount, setSkippedCount] = useState(0);
   const [done, setDone] = useState(false);
 
-  const { departments } = useDepartments(companyId);
+  const { departments } = useDepartments(companyId, userProfile?.plantId ?? null);
   const { trainees, loading: traineesLoading } = useTraineeList({
     department: traineeDepartment || undefined,
     searchQuery: traineeSearch,

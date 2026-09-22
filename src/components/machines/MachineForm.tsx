@@ -66,6 +66,8 @@ export function MachineForm({
   const photoInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
   const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+  const currentUserPlantId = useAuthStore((s) => s.userProfile?.plantId) ?? null;
+  const formPlantId = mode === 'create' ? currentUserPlantId : ((initialData as any)?.plantId ?? currentUserPlantId);
 
   const schema = mode === 'create' ? createMachineSchema : updateMachineSchema;
   const defaultValues =
@@ -222,7 +224,8 @@ export function MachineForm({
                   removeDocument,
                   photoInputRef,
                   docInputRef,
-                  mode
+                  mode,
+                  formPlantId
                 )}
 
                 {/* Form Footer */}
@@ -263,7 +266,8 @@ export function MachineForm({
                 removeDocument,
                 photoInputRef,
                 docInputRef,
-                mode
+                mode,
+                formPlantId
               )}
 
               {/* Mobile Navigation */}
@@ -370,7 +374,8 @@ function renderFormSection(
   onRemoveDocument: (index: number) => void,
   photoInputRef: React.RefObject<HTMLInputElement>,
   docInputRef: React.RefObject<HTMLInputElement>,
-  mode: 'create' | 'edit'
+  mode: 'create' | 'edit',
+  formPlantId: string | null
 ): React.ReactNode {
   switch (stepIndex) {
     case 0: // Basic Information
@@ -521,6 +526,10 @@ function renderFormSection(
                 <DepartmentComboBox
                   value={field.value ?? ''}
                   onChange={field.onChange}
+                  // Full plant-picker for machines lands with the Machines
+                  // pilot rollout; for now department is scoped to the
+                  // creating user's own plant.
+                  plantId={formPlantId}
                 />
               )}
             />
@@ -924,11 +933,12 @@ function renderFormSection(
 interface DepartmentComboBoxProps {
   value: string;
   onChange: (val: string) => void;
+  plantId: string | null;
 }
 
-function DepartmentComboBox({ value, onChange }: DepartmentComboBoxProps) {
+function DepartmentComboBox({ value, onChange, plantId }: DepartmentComboBoxProps) {
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? '';
-  const { departments, loading, addDepartment } = useDepartments(companyId);
+  const { departments, loading, addDepartment } = useDepartments(companyId, plantId);
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
 

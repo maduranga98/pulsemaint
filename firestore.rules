@@ -31,6 +31,25 @@ service cloud.firestore {
       return getUserData().siteId == siteId;
     }
 
+    // Plant is the main scoping category (department is its sub-category —
+    // see isSameDepartment below). Admin has no plantId and manages every
+    // plant, so it always passes; every other role is locked to its own
+    // registered plant.
+    function isSamePlant(plantId) {
+      return getUserRole() == 'admin' || getUserData().plantId == plantId;
+    }
+
+    // Department-scoped roles (technician/trainee/supervisor/floor_operator)
+    // only see their own department within their own plant; every other
+    // role's plant-wide access isn't narrowed further by department.
+    function isDepartmentScopedRole() {
+      return getUserRole() in ['technician', 'trainee', 'supervisor', 'floor_operator'];
+    }
+
+    function isSameDepartment(department) {
+      return !isDepartmentScopedRole() || getUserData().department == department;
+    }
+
     function isRole(role) {
       return isAuthenticated() && getUserRole() == role;
     }
@@ -1605,11 +1624,18 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Department is a sub-category of plant — every department doc carries
+    // a plantId, and same-named departments in different plants are
+    // distinct docs. Reads/writes are gated on the caller's own plant so
+    // one plant's department list never leaks into another's.
     match /departments/{deptId} {
-      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId);
+      allow read: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isSamePlant(resource.data.plantId);
       allow create: if isAuthenticated() && belongsToCompany(request.resource.data.companyId)
+        && isSamePlant(request.resource.data.plantId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
       allow update, delete: if isAuthenticated() && belongsToCompany(resource.data.companyId)
+        && isSamePlant(resource.data.plantId)
         && isAnyRole(['supervisor', 'maintenance_supervisor', 'plant_manager', 'hr_officer', 'admin']);
     }
 

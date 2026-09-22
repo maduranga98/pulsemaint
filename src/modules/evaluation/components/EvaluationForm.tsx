@@ -152,11 +152,12 @@ export default function EvaluationForm({
   const { t } = useTranslation();
   const isDepartment = targetType === 'department';
   const currentUserRole = useAuthStore((s) => s.userProfile?.role);
+  const currentUserPlantId = useAuthStore((s) => s.userProfile?.plantId) ?? null;
   // Plant managers don't evaluate the "Plant Manager" category — no self-evaluation for that role.
   const selectableEvaluationRoles = (Object.keys(EVALUATION_ROLE_LABELS) as EvaluationRole[]).filter(
     (r) => !(currentUserRole === 'plant_manager' && r === 'plant_manager')
   );
-  const { departments } = useDepartments(companyId);
+  const { departments } = useDepartments(companyId, currentUserPlantId);
   const [step, setStep] = useState<'info' | 'criteria' | 'summary'>(existing ? 'criteria' : 'info');
   const [companyUsers, setCompanyUsers] = useState<UserProfile[]>([]);
   const [evaluateeId, setEvaluateeId] = useState(existing?.evaluateeId ?? '');
