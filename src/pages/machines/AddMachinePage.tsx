@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useMachineCreate } from '../../hooks/useMachineCreate';
 import { usePlanLimitCheck } from '../../hooks/usePlanLimitCheck';
 import { useToast } from '../../hooks/useToast';
+import { useDepartmentScope } from '../../hooks/useDepartmentScope';
 import type { CreateMachineFormData } from '../../schemas/machine';
 import type { CreateMachinePayload, MachineCriticality } from '../../types/machine';
 import { MachineForm } from '../../components/machines/MachineForm';
@@ -12,6 +13,10 @@ export function AddMachinePage() {
   const navigate = useNavigate();
   const userProfile = useAuthStore((state) => state.userProfile);
   const { createMachine, creating } = useMachineCreate();
+  // Own plant for plant-scoped roles; for admin, whichever plant tab is
+  // active (null on "All Plants" — the machine lands unassigned, same as
+  // any other plant-less record, until a plant is picked for it).
+  const { plantId } = useDepartmentScope();
   const { success, error: showError } = useToast();
   const { loading: limitLoading, atLimit, message: limitMessage } = usePlanLimitCheck('machines');
 
@@ -50,6 +55,7 @@ export function AddMachinePage() {
     try {
       const payload: CreateMachinePayload = {
         siteId,
+        plantId,
         name: formData.name,
         type: formData.type,
         manufacturer: formData.manufacturer,
