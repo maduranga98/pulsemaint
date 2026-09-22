@@ -35,14 +35,15 @@ export default function PMSchedulesPage() {
   const filters = usePMStore((s) => s.filters);
   const setFilters = usePMStore((s) => s.setFilters);
 
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
   const { schedules: fetchedSchedules, loading, bulkDelete } =
     usePMSchedules({ companyId: company?.id || '', filters });
-  // Supervisor (the only department-scoped role that reaches this page)
-  // only ever sees PM schedules for their own registered department.
-  const schedules = scopedDepartment
-    ? fetchedSchedules.filter((s) => s.department === scopedDepartment)
-    : fetchedSchedules;
+  // Plant-scoped roles only see PM schedules for their own registered plant;
+  // supervisor (the only department-scoped role that reaches this page) is
+  // further scoped to their own department within that plant.
+  const schedules = fetchedSchedules
+    .filter((s) => !scopedPlantId || s.plantId === scopedPlantId)
+    .filter((s) => !scopedDepartment || s.department === scopedDepartment);
   const { machines } = useMachines({ siteId: company?.id || '', pageSize: 500 });
   const woLookup = usePMWorkOrderLookup(userProfile?.siteIds?.[0] || company?.id || '');
 

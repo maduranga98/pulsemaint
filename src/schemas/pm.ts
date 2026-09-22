@@ -50,6 +50,7 @@ export const pmSection2Schema = z.object({
   machineName: z.string().min(1),
   machineCriticality: z.number().int().min(1).max(5),
   department: z.string(),
+  plantId: z.string().nullable().optional(),
   location: z.string(),
 });
 

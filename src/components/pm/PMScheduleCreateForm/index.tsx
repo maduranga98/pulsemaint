@@ -66,6 +66,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
           machineName: editSchedule.machineName,
           machineCriticality: editSchedule.machineCriticality,
           department: editSchedule.department,
+          plantId: editSchedule.plantId ?? null,
           location: editSchedule.location,
           triggerType: editSchedule.triggerType,
           firstDueDate: editSchedule.firstDueDate instanceof Date
@@ -140,6 +141,7 @@ export default function PMScheduleCreateForm({ editSchedule, isDesktop = false }
           machineName: '',
           machineCriticality: 1,
           department: '',
+          plantId: null,
           location: '',
           triggerType: 'calendar',
           firstDueDate: new Date(),

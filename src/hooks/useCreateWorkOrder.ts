@@ -379,6 +379,8 @@ export function useCreateWorkOrder(): UseCreateWorkOrderResult {
             priority: payload.priority,
             machineId: payload.machineId,
             machineName: payload.machineName,
+            department: payload.machineDepartment,
+            plantId: payload.machinePlantId ?? null,
             triggerType: 'calendar',
             recurrenceType: 'one_time',
             intervalDays: 0,

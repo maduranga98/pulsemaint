@@ -23,6 +23,8 @@ export interface ShiftConfig {
   color: string;
   activeDays: ShiftDay[];
   department: string | null;
+  /** The plant this shift plan belongs to — null for shifts predating plant scoping. */
+  plantId?: string | null;
   status: ShiftStatus;
   memberIds: string[];
   memberNames: string[];
