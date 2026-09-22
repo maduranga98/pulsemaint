@@ -328,6 +328,10 @@ export default function UsersPage() {
   });
 
   const filteredInvitations = invitations.filter((inv) => {
+    // An accepted invitation already has its user in the Users tab — keep
+    // this tab to what still needs action (pending, expired, revoked)
+    // instead of accumulating every invite ever accepted.
+    if (inv.status === 'accepted') return false;
     if (!search.trim()) return true;
     const s = search.toLowerCase();
     return (
