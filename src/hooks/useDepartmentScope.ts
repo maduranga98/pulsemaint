@@ -1,4 +1,5 @@
 import { useAuthStore } from '../store/authStore';
+import { useActivePlantStore } from '../store/activePlantStore';
 import type { UserRole } from '../types/auth';
 
 // Roles whose day-to-day views (Machines, Work Orders, Breakdowns, Reports)
@@ -33,13 +34,20 @@ export interface DepartmentScope {
  */
 export function useDepartmentScope(): DepartmentScope {
   const userProfile = useAuthStore((s) => s.userProfile);
+  // Admin has no registered plant of their own — they view "as" whichever
+  // plant they've picked in the AppLayout plant-tab switcher (null = All
+  // plants, admin's default, unscoped view).
+  const activeAdminPlantId = useActivePlantStore((s) => s.activePlantId);
   const role = userProfile?.role;
   const isScoped = !!role && DEPARTMENT_SCOPED_ROLES.has(role);
-  const isPlantScoped = !!role && PLANT_SCOPED_ROLES.has(role);
+  const isAdmin = role === 'admin';
+  const plantId = isAdmin
+    ? activeAdminPlantId
+    : (role && PLANT_SCOPED_ROLES.has(role) ? (userProfile?.plantId ?? null) : null);
   return {
     department: isScoped ? (userProfile?.department ?? null) : null,
     isScoped,
-    plantId: isPlantScoped ? (userProfile?.plantId ?? null) : null,
-    isPlantScoped,
+    plantId,
+    isPlantScoped: plantId !== null,
   };
 }
