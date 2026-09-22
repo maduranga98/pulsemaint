@@ -122,6 +122,8 @@ export interface TriageStepLog {
 export interface TriageSession {
   id: string;
   companyId: string;
+  /** The session's machine's plantId at start time — null for the machine-less demo flow or machines not yet assigned a plant. */
+  plantId?: string | null;
   breakdownTicketId: string | null;
   machineId: string;
   machineName: string;

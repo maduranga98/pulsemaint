@@ -6,6 +6,8 @@ import type { TriageSession, TriageSessionStatus, TriageOutcomeType } from '../.
 
 export interface TriageHistoryFilters {
   machineId?: string;
+  /** Scope to sessions run on machines in this plant — pass the caller's scoped plantId, when any. */
+  plantId?: string | null;
   supervisorId?: string;
   status?: TriageSessionStatus;
   outcomeType?: TriageOutcomeType;
@@ -31,6 +33,7 @@ export function useTriageHistory(filters: TriageHistoryFilters = {}) {
       orderBy('startedAt', 'desc'),
     ];
     if (filters.machineId) constraints.push(where('machineId', '==', filters.machineId));
+    if (filters.plantId) constraints.push(where('plantId', '==', filters.plantId));
     if (filters.supervisorId) constraints.push(where('supervisorId', '==', filters.supervisorId));
     if (filters.status) constraints.push(where('status', '==', filters.status));
     if (filters.outcomeType) constraints.push(where('outcomeType', '==', filters.outcomeType));
@@ -49,7 +52,7 @@ export function useTriageHistory(filters: TriageHistoryFilters = {}) {
         setLoading(false);
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, filters.machineId, filters.supervisorId, filters.status, filters.outcomeType]);
+  }, [companyId, filters.machineId, filters.plantId, filters.supervisorId, filters.status, filters.outcomeType]);
 
   return { sessions, loading, error };
 }
