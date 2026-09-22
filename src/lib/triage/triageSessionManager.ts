@@ -20,6 +20,7 @@ export async function createTriageSession(params: {
   companyId: string;
   machineId: string;
   machineName: string;
+  machinePlantId?: string | null;
   flow: TriageFlow;
   supervisorId: string;
   supervisorName: string;
@@ -30,6 +31,7 @@ export async function createTriageSession(params: {
   const firstStep = params.flow.steps[0];
   const sessionData: Omit<TriageSession, 'id'> = {
     companyId: params.companyId,
+    plantId: params.machinePlantId ?? null,
     breakdownTicketId: params.breakdownTicketId ?? null,
     machineId: params.machineId,
     machineName: params.machineName,

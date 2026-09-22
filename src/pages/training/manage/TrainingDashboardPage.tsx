@@ -9,6 +9,7 @@ import { UserPlus, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 import { createInvitation } from '@/lib/invitations';
 import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import type { QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
@@ -29,6 +30,7 @@ export default function TrainingDashboardPage() {
   const userProfile = useAuthStore((s) => s.userProfile);
   const company = useAuthStore((s) => s.company);
   const companyId = userProfile?.companyId;
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
 
   const [assignments, setAssignments] = useState<TrainingAssignment[]>([]);
   const [certDocs, setCertDocs] = useState<QueryDocumentSnapshot[]>([]);
@@ -79,20 +81,48 @@ export default function TrainingDashboardPage() {
     return () => unsubs.forEach((u) => u());
   }, [companyId]);
 
+  // Plant-scoped roles (everyone but admin) only see trainees/assignments/
+  // certificates for their own plant; department-scoped roles are further
+  // narrowed to their own department within it.
+  const scopedUserDocs = useMemo(() => {
+    if (!userDocs) return userDocs;
+    return userDocs.filter((d) => {
+      const data = d.data();
+      if (scopedPlantId && data.plantId !== scopedPlantId) return false;
+      if (scopedDepartment && data.department !== scopedDepartment) return false;
+      return true;
+    });
+  }, [userDocs, scopedPlantId, scopedDepartment]);
+
+  const scopedTraineeIds = useMemo(
+    () => (scopedUserDocs ? new Set(scopedUserDocs.map((d) => d.id)) : null),
+    [scopedUserDocs],
+  );
+
+  const scopedAssignments = useMemo(
+    () => (scopedTraineeIds ? assignments.filter((a) => scopedTraineeIds.has(a.traineeId)) : assignments),
+    [assignments, scopedTraineeIds],
+  );
+
+  const scopedCertDocs = useMemo(
+    () => (scopedTraineeIds ? certDocs.filter((d) => scopedTraineeIds.has(String(d.data().traineeId))) : certDocs),
+    [certDocs, scopedTraineeIds],
+  );
+
   const stats: DashboardStats = useMemo(() => {
-    const traineeCount = userDocs
-      ? userDocs.filter((d) => ['trainee', 'floor_operator'].includes(String(d.data().role))).length
-      : new Set(assignments.map((a) => a.traineeId)).size;
+    const traineeCount = scopedUserDocs
+      ? scopedUserDocs.filter((d) => ['trainee', 'floor_operator'].includes(String(d.data().role))).length
+      : new Set(scopedAssignments.map((a) => a.traineeId)).size;
     const now = new Date();
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const certsThisMonth = certDocs.filter((d) => {
+    const certsThisMonth = scopedCertDocs.filter((d) => {
       const ts = d.data().issuedAt as Timestamp | undefined;
       if (!ts) return false;
       return new Date((ts as unknown as { seconds: number }).seconds * 1000) >= monthStart;
     }).length;
 
-    const overdue = assignments.filter((a) => {
+    const overdue = scopedAssignments.filter((a) => {
       if (!a.dueDate || a.status === 'certified') return false;
       const due = new Date((a.dueDate as unknown as { seconds: number }).seconds * 1000);
       return due < now;
@@ -100,13 +130,13 @@ export default function TrainingDashboardPage() {
 
     return {
       totalTrainees: traineeCount,
-      activeAssignments: assignments.filter((a) => a.status === 'in_progress').length,
+      activeAssignments: scopedAssignments.filter((a) => a.status === 'in_progress').length,
       certsThisMonth,
       overdue,
-      retrainingRequired: assignments.filter((a) => a.status === 'retraining_required').length,
+      retrainingRequired: scopedAssignments.filter((a) => a.status === 'retraining_required').length,
       modulesCreated: moduleCount,
     };
-  }, [assignments, certDocs, moduleCount, userDocs]);
+  }, [scopedAssignments, scopedCertDocs, moduleCount, scopedUserDocs]);
 
   // Goes through the same invitation flow as Users > Invite User instead of
   // writing a `companies/{id}/users/{randomId}` doc directly. Writing one

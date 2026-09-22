@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTriageHistory, type TriageHistoryFilters } from '../../../hooks/triage/useTriageHistory';
+import { useDepartmentScope } from '../../../hooks/useDepartmentScope';
 import type { TriageSessionStatus, TriageOutcomeType } from '../../../types/triage';
 import TriageHistoryCard from './TriageHistoryCard';
 
 export default function TriageHistoryList() {
   const { t } = useTranslation();
   const [filters, setFilters] = useState<TriageHistoryFilters>({});
-  const { sessions, loading } = useTriageHistory(filters);
+  const { plantId: scopedPlantId } = useDepartmentScope();
+  // Plant-scoped roles only see triage sessions run on their own plant's
+  // machines (admin: selected plant or all).
+  const { sessions, loading } = useTriageHistory({ ...filters, plantId: scopedPlantId });
 
   const updateFilter = (patch: Partial<TriageHistoryFilters>) =>
     setFilters((prev) => ({ ...prev, ...patch }));
