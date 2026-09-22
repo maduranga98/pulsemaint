@@ -1017,6 +1017,129 @@
         "dueToday": "අද නියමිතයි",
         "dueIn": "දින {{days}}කින්"
       }
+    },
+    "layout": {
+      "plantTabs": {
+        "allPlants": "සියලුම ශාකයන්"
+      }
+    },
+    "billing": {
+      "header": {
+        "title": "බිල්පත් සහ සැලැස්ම",
+        "subtitle": "ඔබේ දායකත්වය කළමනාකරණය කර ඔබේ කණ්ඩායම සඳහා විශේෂාංග අගුළු හරින්න."
+      },
+      "trial": {
+        "expiredStrong": "ඔබේ පරීක්ෂණ කාලය අවසන් වී ඇත.",
+        "expiredRest": "FirmiCore භාවිතය දිගටම කරගෙන යාමට උත්ශ්‍රේණි කරන්න.",
+        "daysLeftStrong_one": "ඔබේ පරීක්ෂණයේ දින {{count}}ක් ඉතිරිව ඇත.",
+        "daysLeftStrong_other": "ඔබේ පරීක්ෂණයේ දින {{count}}ක් ඉතිරිව ඇත.",
+        "daysLeftRest": "ඔබේ දත්ත සහ ප්‍රවේශය තබා ගැනීමට පරීක්ෂණය අවසන් වීමට පෙර උත්ශ්‍රේණි කරන්න.",
+        "onTrial": "ඔබ දැනට නොමිලේ පරීක්ෂණයක සිටී."
+      },
+      "currentPlan": {
+        "label": "වත්මන් සැලැස්ම",
+        "status": "තත්ත්වය:",
+        "billed": "බිල් කරන ලද්දේ",
+        "trialEnds": "පරීක්ෂණය අවසන් වන්නේ"
+      },
+      "errors": {
+        "checkoutFailed": "ගෙවීම ආරම්භ කිරීමට අසමත් විය. නැවත උත්සාහ කරන්න.",
+        "portalFailed": "බිල්පත් ද්වාරය විවෘත කිරීමට අසමත් විය. නැවත උත්සාහ කරන්න."
+      },
+      "cycle": {
+        "monthly": "මාසිකව",
+        "yearly": "වාර්ෂිකව",
+        "save20": "20% ඉතිරි කරන්න"
+      },
+      "mostPopular": "වඩාත් ජනප්‍රිය",
+      "customPrice": "අභිරුචි",
+      "free": "නොමිලේ",
+      "perMonth": "මාසයකට",
+      "perYear": "වසරකට",
+      "unlimited": "අසීමිත",
+      "limits": {
+        "title": "සැලැස්ම සීමා",
+        "machines": "යන්ත්‍ර",
+        "users": "පරිශීලකයින්",
+        "inventoryItems": "තොග අයිතම",
+        "pmSchedules": "PM කාලසටහන්",
+        "workOrders": "වැඩ නියෝග",
+        "perMonthValue": "{{count}} / මාසයකට"
+      },
+      "cta": {
+        "currentPlan": "වත්මන් සැලැස්ම",
+        "contactSales": "විකුණුම් අමතන්න",
+        "redirecting": "යළි-යොමු කරමින්…",
+        "downgradeTo": "{{name}} වෙත පහත හෙළන්න",
+        "upgradeTo": "{{name}} වෙත උත්ශ්‍රේණි කරන්න",
+        "adminOnly": "පරිපාලක පමණි"
+      },
+      "payment": {
+        "title": "ගෙවීම් සහ ඉන්වොයිස්",
+        "subtitle": "Stripe හි ආරක්ෂිත බිල්පත් ද්වාරයේදී ඔබේ සුරකින ලද ගෙවීම් ක්‍රම කළමනාකරණය කරන්න, පෙර ඉන්වොයිස් බලන්න, සහ ඔබේ දායකත්වය අවලංගු කරන්න.",
+        "manage": "බිල්පත් කළමනාකරණය කරන්න",
+        "subscribeFirst": "බිල්පත් ද්වාරයට ප්‍රවේශ වීමට පළමුව සැලැස්මකට දායක වන්න."
+      },
+      "footer": {
+        "note": "මිල ගණන් USD වලින් පෙන්වයි. සෑම ගෙවන සැලැස්මක් සඳහාම මාසිකව ගෙවීමට වඩා වාර්ෂික බිල්පත් 20%ක් ඉතිරි කරයි. සම්බන්ධ වන්න",
+        "forQuestions": "බිල්පත් ප්‍රශ්න සඳහා."
+      },
+      "downgrade": {
+        "title": "පහත හෙළීම තහවුරු කරන්න",
+        "body": "ඔබ {{fromName}} සිට {{toName}} වෙත මාරු වේ. ඔබේ වත්මන් බිල්පත් කාල සීමාවේ භාවිතා නොකළ ශේෂය ආපසු ගෙවනු නොලැබේ; මෙම {{period}} අවසන් වන තෙක් ඔබ වත්මන් සැලැස්මේ අනුපාතයෙන් ගෙවීම දිගටම කරගෙන යනු ඇත, සහ අඩු {{toName}} අනුපාතය ඔබේ ඊළඟ බිල්පත් චක්‍රයේදී ක්‍රියාත්මක වේ. ඔබේ වත්මන් සැලැස්මට පමණක් අයත් විශේෂාංග වහාම නොමැති වනු ඇත.",
+        "confirm": "පහත හෙළීම තහවුරු කරන්න"
+      },
+      "plans": {
+        "starter": {
+          "name": "මූලික",
+          "description": "ආරම්භ වන තනි කුඩා කණ්ඩායමක් සඳහා."
+        },
+        "workshop": {
+          "name": "වැඩමුළුව",
+          "description": "ව්‍යුහගත වැඩ ප්‍රවාහ සහිත වර්ධනය වන වැඩමුළු සඳහා."
+        },
+        "factory": {
+          "name": "Factory Pro",
+          "description": "නිෂ්පාදන පහසුකම් සඳහා සම්පූර්ණ MOE විශ්ලේෂණ."
+        },
+        "enterprise": {
+          "name": "ව්‍යවසාය",
+          "description": "ව්‍යවසාය ඒකාබද්ධතා සමඟ අසීමිත පරිමාණය."
+        }
+      },
+      "categories": {
+        "coreMaintenance": "මූලික නඩත්තුව",
+        "inventoryProcurement": "තොග සහ ප්‍රසම්පාදනය",
+        "teamOperations": "කණ්ඩායම සහ මෙහෙයුම්",
+        "analyticsReporting": "විශ්ලේෂණ සහ වාර්තා",
+        "enterpriseSecurity": "ව්‍යවසාය සහ ආරක්ෂාව"
+      },
+      "features": {
+        "machineRegistryQr": "යන්ත්‍ර ලේඛනගත කිරීම සහ QR කේත",
+        "breakdownReporting": "බිඳවැටීම් වාර්තා කිරීම",
+        "basicWorkOrders": "මූලික වැඩ නියෝග",
+        "pmSchedulesFeature": "වැළැක්වීමේ නඩත්තු කාලසටහන්",
+        "inventoryPartsCatalog": "තොග සහ අමතර කොටස් නාමාවලිය",
+        "everythingInBasicExporting": "{{basicName}} හි සියල්ල සහ වාර්තා අපනයනය",
+        "autoPoEmail": "සැපයුම්කරුවන්ට ස්වයංක්‍රීය ඇණවුම් ඊමේල්",
+        "qrScanLowStock": "තොග, QR ස්කෑන් සහ අඩු තොග ඇඟවීම්",
+        "contractorManagement": "කොන්ත්‍රාත්කරු කළමනාකරණය",
+        "shiftHandoverBriefings": "මුරය භාරදීම සහ තොරතුරු සැසි",
+        "trainingSafetyWorkspace": "පුහුණු මොඩියුලය සහ ආරක්ෂණ වැඩබිම විශේෂාංග",
+        "pmComplianceDashboard": "PM අනුකූලතා උපකරණ පුවරුව",
+        "basicAnalytics": "මූලික විශ්ලේෂණ",
+        "everythingInWorkshop": "{{workshopName}} හි සියල්ල",
+        "moeTrendAnalytics": "MOE ප්‍රවණතා විශ්ලේෂණ සහ යන්ත්‍ර සංසන්දනය",
+        "everythingInFactoryPro": "{{factoryName}} හි සියල්ල",
+        "tpmMaturityRoadmap": "TPM පරිණතභාවය මාර්ග සිතියම සහ 5S ලකුණු පත්‍රය",
+        "multiSiteManagement": "බහු-අඩවි කළමනාකරණය",
+        "safetyWorkspaceFeature": "ආරක්ෂණ වැඩබිම",
+        "triageKnowledgeBuilder": "ට්‍රයාජ් දැනුම් ගොඩනඟනය",
+        "advancedReportsHub": "උසස් වාර්තා මධ්‍යස්ථානය",
+        "ssoSaml": "SSO / SAML",
+        "customIntegrationsApi": "අභිරුචි ඒකාබද්ධතා සහ API",
+        "dedicatedSupportSla": "කැපවූ සහාය සහ SLA"
+      }
     }
   },
   "help": {

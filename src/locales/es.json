@@ -8246,6 +8246,129 @@
         "contactDesignation": "Cargo",
         "contactEmail": "Correo electrónico"
       }
+    },
+    "layout": {
+      "plantTabs": {
+        "allPlants": "Todas las plantas"
+      }
+    },
+    "billing": {
+      "header": {
+        "title": "Facturación y plan",
+        "subtitle": "Gestiona tu suscripción y desbloquea funciones para tu equipo."
+      },
+      "trial": {
+        "expiredStrong": "Tu período de prueba ha finalizado.",
+        "expiredRest": "Actualiza para seguir usando FirmiCore.",
+        "daysLeftStrong_one": "Queda {{count}} día de prueba.",
+        "daysLeftStrong_other": "Quedan {{count}} días de prueba.",
+        "daysLeftRest": "Actualiza antes de que termine tu prueba para conservar todos tus datos y acceso.",
+        "onTrial": "Actualmente estás en una prueba gratuita."
+      },
+      "currentPlan": {
+        "label": "Plan actual",
+        "status": "Estado:",
+        "billed": "Facturado",
+        "trialEnds": "La prueba termina"
+      },
+      "errors": {
+        "checkoutFailed": "No se pudo iniciar el pago. Inténtalo de nuevo.",
+        "portalFailed": "No se pudo abrir el portal de facturación. Inténtalo de nuevo."
+      },
+      "cycle": {
+        "monthly": "Mensual",
+        "yearly": "Anual",
+        "save20": "Ahorra 20%"
+      },
+      "mostPopular": "Más popular",
+      "customPrice": "Personalizado",
+      "free": "Gratis",
+      "perMonth": "mes",
+      "perYear": "año",
+      "unlimited": "Ilimitado",
+      "limits": {
+        "title": "Límites del plan",
+        "machines": "Máquinas",
+        "users": "Usuarios",
+        "inventoryItems": "Artículos de inventario",
+        "pmSchedules": "Programas de MP",
+        "workOrders": "Órdenes de trabajo",
+        "perMonthValue": "{{count}} / mes"
+      },
+      "cta": {
+        "currentPlan": "Plan actual",
+        "contactSales": "Contactar ventas",
+        "redirecting": "Redirigiendo…",
+        "downgradeTo": "Bajar a {{name}}",
+        "upgradeTo": "Mejorar a {{name}}",
+        "adminOnly": "Solo administrador"
+      },
+      "payment": {
+        "title": "Pagos y facturas",
+        "subtitle": "Gestiona tus métodos de pago guardados, consulta facturas anteriores y cancela tu suscripción en el portal seguro de facturación de Stripe.",
+        "manage": "Gestionar facturación",
+        "subscribeFirst": "Suscríbete a un plan primero para acceder al portal de facturación."
+      },
+      "footer": {
+        "note": "Precios mostrados en USD. La facturación anual ahorra un 20% frente al pago mensual en todos los planes pagos. Contacta a",
+        "forQuestions": "para preguntas de facturación."
+      },
+      "downgrade": {
+        "title": "Confirmar bajada de plan",
+        "body": "Estás cambiando de {{fromName}} a {{toName}}. El saldo no utilizado de tu período de facturación actual no se reembolsa; seguirás pagando la tarifa del plan actual hasta el final de este {{period}}, y la tarifa más baja de {{toName}} entrará en vigor en tu próximo ciclo de facturación. Las funciones exclusivas de tu plan actual dejarán de estar disponibles de inmediato.",
+        "confirm": "Confirmar bajada"
+      },
+      "plans": {
+        "starter": {
+          "name": "Básico",
+          "description": "Para un solo equipo pequeño que está empezando."
+        },
+        "workshop": {
+          "name": "Taller",
+          "description": "Para talleres en crecimiento con flujos de trabajo estructurados."
+        },
+        "factory": {
+          "name": "Factory Pro",
+          "description": "Análisis MOE completo para plantas de producción."
+        },
+        "enterprise": {
+          "name": "Empresarial",
+          "description": "Escala ilimitada con integraciones empresariales."
+        }
+      },
+      "categories": {
+        "coreMaintenance": "Mantenimiento básico",
+        "inventoryProcurement": "Inventario y compras",
+        "teamOperations": "Equipo y operaciones",
+        "analyticsReporting": "Análisis e informes",
+        "enterpriseSecurity": "Empresa y seguridad"
+      },
+      "features": {
+        "machineRegistryQr": "Registro de máquinas y códigos QR",
+        "breakdownReporting": "Reporte de averías",
+        "basicWorkOrders": "Órdenes de trabajo básicas",
+        "pmSchedulesFeature": "Programas de mantenimiento preventivo",
+        "inventoryPartsCatalog": "Inventario y catálogo de repuestos",
+        "everythingInBasicExporting": "Todo en {{basicName}} y exportación de informes",
+        "autoPoEmail": "Correo automático de órdenes de compra a proveedores",
+        "qrScanLowStock": "Inventario, escaneo QR y alertas de bajo stock",
+        "contractorManagement": "Gestión de contratistas",
+        "shiftHandoverBriefings": "Entrega de turno y briefings",
+        "trainingSafetyWorkspace": "Módulo de capacitación y funciones del espacio de seguridad",
+        "pmComplianceDashboard": "Panel de cumplimiento de MP",
+        "basicAnalytics": "Análisis básico",
+        "everythingInWorkshop": "Todo en {{workshopName}}",
+        "moeTrendAnalytics": "Análisis de tendencias MOE y comparación de máquinas",
+        "everythingInFactoryPro": "Todo en {{factoryName}}",
+        "tpmMaturityRoadmap": "Hoja de ruta de madurez TPM y tabla de puntuación 5S",
+        "multiSiteManagement": "Gestión multisitio",
+        "safetyWorkspaceFeature": "Espacio de seguridad",
+        "triageKnowledgeBuilder": "Constructor de conocimiento de triaje",
+        "advancedReportsHub": "Centro de informes avanzados",
+        "ssoSaml": "SSO / SAML",
+        "customIntegrationsApi": "Integraciones personalizadas y API",
+        "dedicatedSupportSla": "Soporte dedicado y SLA"
+      }
     }
   },
   "triage": {

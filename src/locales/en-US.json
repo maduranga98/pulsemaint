@@ -8593,6 +8593,11 @@
         "contactDesignation": "Designation",
         "contactEmail": "Email"
       }
+    },
+    "layout": {
+      "plantTabs": {
+        "allPlants": "All Plants"
+      }
     }
   },
   "help": {
