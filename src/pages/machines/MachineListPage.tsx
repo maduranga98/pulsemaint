@@ -394,7 +394,7 @@ export function MachineListPage() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const siteId = userProfile ? userProfile.siteIds[0] || userProfile.companyId : '';
-  const { department: scopedDepartment } = useDepartmentScope();
+  const { department: scopedDepartment, plantId: scopedPlantId } = useDepartmentScope();
 
   const { machines, loading, error, hasMore, loadMore, totalCount } = useMachines({
     siteId,
@@ -418,9 +418,20 @@ export function MachineListPage() {
   const filteredMachines = useMemo(() => {
     let result = machines;
 
-    // Technician/trainee/supervisor/floor_operator only ever see machines in
-    // their own registered department — everyone else (admin, plant_manager,
-    // hr_officer, safety_officer, store_keeper) keeps full site visibility.
+    // Plant is the main scoping category: plant_manager/store_keeper/
+    // hr_officer/safety_officer/technician/trainee/supervisor/floor_operator
+    // only see machines in their own registered plant (admin: whichever
+    // plant is selected in the plant-tab switcher, or all if none is).
+    // Machines predating plant assignment (plantId unset) have no plant to
+    // match, so a plant-scoped viewer won't see them until they're assigned.
+    if (scopedPlantId) {
+      result = result.filter((m) => m.plantId === scopedPlantId);
+    }
+
+    // Technician/trainee/supervisor/floor_operator are further scoped to
+    // their own registered department within that plant — everyone else
+    // (admin, plant_manager, hr_officer, safety_officer, store_keeper) sees
+    // every department in-plant.
     if (scopedDepartment) {
       result = result.filter((m) => m.department === scopedDepartment);
     }
@@ -478,9 +489,9 @@ export function MachineListPage() {
   // must see the header count, active/maintenance breakdown, and department
   // filter options for their own department only — not the site-wide totals
   // the unscoped `machines` list still carries.
-  const scopedMachines = scopedDepartment
-    ? machines.filter((m) => m.department === scopedDepartment)
-    : machines;
+  const scopedMachines = machines
+    .filter((m) => !scopedPlantId || m.plantId === scopedPlantId)
+    .filter((m) => !scopedDepartment || m.department === scopedDepartment);
   const activeMachines = scopedMachines.filter((m) => m.status === 'active').length;
   const maintenanceMachines = scopedMachines.filter((m) => m.status === 'under_maintenance').length;
 
@@ -502,7 +513,7 @@ export function MachineListPage() {
               <h1 className="text-3xl font-bold text-gray-900">{t('common.machines.pageTitle')}</h1>
               <p className="text-gray-600 text-sm mt-1">
                 {t('common.machines.summary', {
-                  total: scopedDepartment ? scopedMachines.length : totalCount || machines.length,
+                  total: scopedDepartment || scopedPlantId ? scopedMachines.length : totalCount || machines.length,
                   active: activeMachines,
                   maintenance: maintenanceMachines,
                 })}
