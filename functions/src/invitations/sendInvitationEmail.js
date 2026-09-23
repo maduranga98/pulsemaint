@@ -101,14 +101,6 @@ ${plant?.contactPerson?.name ? `
 <p style="margin:24px 0 0;color:#888;font-size:12px;text-align:center;line-height:1.5;">
   You can sign up with <strong>email &amp; password</strong> or <strong>Google</strong>.
   <br>This invitation expires in 7 days.
-</p>
-
-<hr style="border:none;border-top:1px solid #eee;margin:28px 0 16px;">
-
-<p style="margin:0;color:#aaa;font-size:11px;line-height:1.5;">
-  If you weren't expecting this invitation, you can safely ignore this email.
-  <br>If the button doesn't work, copy and paste this link:<br>
-  <a href="${inviteUrl}" style="color:#1A56DB;word-break:break-all;">${inviteUrl}</a>
 </p>`;
 
     const sent = await sendEmail({
