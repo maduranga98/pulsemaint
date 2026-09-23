@@ -4,7 +4,7 @@ const {defineSecret} = require("firebase-functions/params");
 
 const PLATFORM_SMTP_HOST = "mail.spacemail.com";
 const PLATFORM_SMTP_PORT = 465;
-const PLATFORM_FROM_ADDRESS = "info@lumoraventures.com";
+const PLATFORM_FROM_ADDRESS = "support@firmicore.com";
 
 // Password for the shared platform mailbox — set via Secret Manager (name:
 // SMTP_PASSWORD). Any exported function that (directly or via sendEmail)
