@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/useToast';
 import { notifyUsers } from '@/services/notifications.service';
 import type { UserRole } from '@/types/auth';
 import type { PartReturn, RequestItem } from '@/types/inventory';
+import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
 type Condition = 'good' | 'damaged' | 'wrong_item';
 
@@ -48,8 +49,7 @@ export function usePartReturnActions() {
         const newCurrent = currentStock + restock;
 
         tx.update(partRef, {
-          currentStock: newCurrent,
-          availableStock: Math.max(0, newCurrent - reservedStock),
+          ...stockFieldsAfterChange(partData, newCurrent, reservedStock),
           updatedAt: serverTimestamp(),
           updatedBy: userId,
         });

@@ -32,6 +32,7 @@ import {
   type IssueCartLine,
 } from '@/lib/inventory/issueCart';
 import type { InventoryPart, RequestItem } from '@/types/inventory';
+import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
 function makeRequestNumber(): string {
   const d = new Date();
@@ -193,8 +194,7 @@ export function ManualIssuePage() {
           const newCurrent = currentStock - line.quantity;
 
           tx.update(partRefs[idx], {
-            currentStock: newCurrent,
-            availableStock: Math.max(0, newCurrent - reservedStock),
+            ...stockFieldsAfterChange(data, newCurrent, reservedStock),
             totalUsedAllTime: totalUsedAllTime + line.quantity,
             lastIssuedAt: now,
             updatedAt: now,

@@ -22,6 +22,7 @@ import { RequestWoContextCard } from '@/components/inventory/requests/RequestWoC
 import { RequestItemsTable } from '@/components/inventory/requests/RequestItemsTable';
 import { RequestReviewPanel } from '@/components/inventory/requests/RequestReviewPanel';
 import { RequestReviewHistory } from '@/components/inventory/requests/RequestReviewHistory';
+import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
 export function RequestDetailPage() {
   const { t } = useTranslation();
@@ -114,8 +115,7 @@ export function RequestDetailPage() {
             const newCurrent = currentStock - qty;
 
             tx.update(partRefs[i], {
-              currentStock: newCurrent,
-              availableStock: Math.max(0, newCurrent - reservedStock),
+              ...stockFieldsAfterChange(partData, newCurrent, reservedStock),
               totalUsedAllTime: totalUsedAllTime + qty,
               lastIssuedAt: serverTimestamp(),
               updatedAt: serverTimestamp(),
@@ -307,8 +307,7 @@ export function RequestDetailPage() {
             const newCurrent = currentStock + qty;
 
             tx.update(partRefs[i], {
-              currentStock: newCurrent,
-              availableStock: Math.max(0, newCurrent - reservedStock),
+              ...stockFieldsAfterChange(partData, newCurrent, reservedStock),
               totalUsedAllTime: Math.max(0, totalUsedAllTime - qty),
               updatedAt: serverTimestamp(),
               updatedBy: userId,
