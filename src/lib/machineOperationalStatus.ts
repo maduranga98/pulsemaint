@@ -1,5 +1,6 @@
 import { collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { db } from './firebase';
+import { useAuthStore } from '../store/authStore';
 
 // Breakdown/WO statuses that mean the incident is no longer open work for
 // the machine. Kept in sync with BreakdownsPage's closedSet and
@@ -54,9 +55,23 @@ export async function markMachineActiveIfNoOpenWork(machineId: string | null | u
     const currentStatus = (machineSnap.data() as { status?: string }).status;
     if (currentStatus === 'decommissioned' || currentStatus === 'active') return;
 
+    // Filter by companyId as well: the workOrders rules for supervisors and
+    // plant managers are company-scoped, and Firestore rejects a query it
+    // can't prove stays inside the caller's company — a machineId-only query
+    // was denied, so machines never went back to active after sign-off.
+    const companyId =
+      useAuthStore.getState().userProfile?.companyId ?? (machineSnap.data() as { siteId?: string }).siteId ?? '';
     const [breakdownSnap, woSnap] = await Promise.all([
-      getDocs(query(collection(db, 'breakdown_tickets'), where('machineId', '==', machineId))),
-      getDocs(query(collection(db, 'workOrders'), where('machineId', '==', machineId))),
+      getDocs(
+        query(
+          collection(db, 'breakdown_tickets'),
+          where('companyId', '==', companyId),
+          where('machineId', '==', machineId),
+        ),
+      ),
+      getDocs(
+        query(collection(db, 'workOrders'), where('companyId', '==', companyId), where('machineId', '==', machineId)),
+      ),
     ]);
     const hasOpenBreakdown = breakdownSnap.docs.some(
       (d) => !CLOSED_BREAKDOWN_STATUSES.has((d.data() as { status?: string }).status ?? ''),
