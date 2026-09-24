@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { db } from '../../lib/firebase';
 import type { PMSchedule, CalendarEvent } from '../../types/pm.types';
 import { getPMOperationalStatus } from '../../utils/pm.utils';
+import { useRecordPlantMatcher } from '../useRecordPlantMatcher';
 
 interface UsePMCalendarEventsOptions {
   companyId: string;
@@ -28,6 +29,10 @@ interface PMWorkOrderEvent {
   woStatus: string;
   pmScheduleId: string | null;
   pmType: PMSchedule['pmType'];
+  machineId: string | null;
+  machinePlantId: string | null;
+  machineDepartment: string | null;
+  assignedTechnicianIds: string[];
 }
 
 export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCalendarEventsOptions) {
@@ -98,6 +103,10 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
           woStatus: data.status ?? 'OPEN',
           pmScheduleId: data.pmScheduleId ?? null,
           pmType: data.pmType ?? 'other',
+          machineId: data.machineId ?? null,
+          machinePlantId: data.machinePlantId ?? null,
+          machineDepartment: data.machineDepartment ?? null,
+          assignedTechnicianIds: data.assignedTechnicianIds ?? [],
         };
         byId.set(d.id, event);
         if (due && !terminal.includes(data.status)) list.push(event);
@@ -114,10 +123,13 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
     };
   }, [companyId, siteId]);
 
+  // Only the caller's plant (and department, for department-scoped roles).
+  const inScope = useRecordPlantMatcher();
+
   const events: CalendarEvent[] = useMemo(() => {
     const scheduleIds = new Set(schedules.map((s) => s.id));
 
-    const scheduleEvents: CalendarEvent[] = schedules.map((s) => {
+    const scheduleEvents: CalendarEvent[] = schedules.filter((s) => inScope(s)).map((s) => {
       const nextDue = s.nextDueDate instanceof Date
         ? s.nextDueDate
         : 'toDate' in s.nextDueDate ? s.nextDueDate.toDate() : new Date(s.nextDueDate as unknown as string);
@@ -147,6 +159,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
       // Skip ad-hoc PM WOs that already surface through their own schedule
       // record so the same PM isn't drawn twice on the calendar.
       .filter((wo) => !(wo.pmScheduleId && scheduleIds.has(wo.pmScheduleId)))
+      .filter((wo) => inScope(wo))
       .map((wo) => ({
         id: `wo-${wo.id}`,
         scheduleId: wo.pmScheduleId ?? '',
@@ -170,7 +183,7 @@ export function usePMCalendarEvents({ companyId, siteId, month, year }: UsePMCal
       if (month === undefined || year === undefined) return true;
       return e.date.getMonth() === month && e.date.getFullYear() === year;
     });
-  }, [schedules, pmWOs, woById, month, year, t]);
+  }, [schedules, pmWOs, woById, month, year, t, inScope]);
 
   return { events, loading, error };
 }

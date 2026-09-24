@@ -167,7 +167,6 @@ export default function BreakdownsPage() {
     // Technician/trainee/supervisor/floor_operator are further scoped to
     // their own registered department within that plant — everyone else
     // keeps full in-plant visibility.
-    if (scopedDepartment) list = list.filter((b) => b.machineDepartment === scopedDepartment);
     if (filter === 'reported') list = list.filter((b) => b.status === 'reported');
     if (filter === 'assigned') list = list.filter((b) => b.status === 'assigned');
     if (filter === 'open') list = list.filter((b) => !closedSet.has(b.status) && b.status !== 'reported' && b.status !== 'assigned');

@@ -5,16 +5,22 @@ import { useAuthStore } from '../store/authStore';
 import { useDepartmentScope } from './useDepartmentScope';
 
 // ---------------------------------------------------------------------------
-// One shared, live machineId → plantId map per company. Breakdowns, work
-// orders and PM records carry a denormalized `machinePlantId`, but records
-// created before plant stamping (and PM work orders generated server-side)
-// don't — matching strictly on that field hid them from every plant-scoped
-// role. Falling back to the machine's current plant keeps them visible in
-// the right plant.
+// One shared, live machineId → { plant, department } map per company.
+// Breakdowns, work orders and PM records carry denormalized
+// `machinePlantId` / `machineDepartment`, but records created before plant
+// stamping (and PM work orders generated server-side) may lack them, and a
+// department renamed on the machine leaves old records with the old text.
+// Falling back to the machine's current plant/department keeps them visible
+// to the right people.
 // ---------------------------------------------------------------------------
 
+interface MachineScope {
+  plantId: string | null;
+  department: string | null;
+}
+
 let currentCompanyId: string | null = null;
-let machinePlants = new Map<string, string | null>();
+let machineScopes = new Map<string, MachineScope>();
 let unsubscribe: (() => void) | null = null;
 let refCount = 0;
 const listeners = new Set<() => void>();
@@ -27,14 +33,20 @@ function ensureSubscribed(companyId: string) {
   if (currentCompanyId === companyId && unsubscribe) return;
   unsubscribe?.();
   currentCompanyId = companyId;
-  machinePlants = new Map();
+  machineScopes = new Map();
   // Machines are keyed by siteId (== companyId), like everywhere else.
   unsubscribe = onSnapshot(
     query(collection(db, 'machines'), where('siteId', '==', companyId)),
     (snap) => {
-      const next = new Map<string, string | null>();
-      snap.docs.forEach((d) => next.set(d.id, (d.data().plantId as string | undefined) ?? null));
-      machinePlants = next;
+      const next = new Map<string, MachineScope>();
+      snap.docs.forEach((d) => {
+        const data = d.data();
+        next.set(d.id, {
+          plantId: (data.plantId as string | undefined) ?? null,
+          department: (data.department as string | undefined) ?? null,
+        });
+      });
+      machineScopes = next;
       emit();
     },
     (err) => console.error('Failed to load machine plants', err),
@@ -46,19 +58,42 @@ function subscribeStore(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
+/** Department names compared the way people read them — case and spacing don't matter. */
+export function sameDepartment(a: string | null | undefined, b: string | null | undefined): boolean {
+  const norm = (v: string | null | undefined) => (v ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+  return !!norm(a) && norm(a) === norm(b);
+}
+
+interface ScopedRecord {
+  machinePlantId?: string | null;
+  plantId?: string | null;
+  machineDepartment?: string | null;
+  department?: string | null;
+  machineId?: string | null;
+  assignedTechnicianIds?: string[] | null;
+}
+
 /**
  * `(record) => boolean` — does a machine-linked record (breakdown, work
- * order, PM schedule…) belong to the caller's scoped plant (own plant, or
- * admin's selected plant tab)? Uses the record's `machinePlantId`/`plantId`
- * when present, otherwise the plant of its machine. Always true when the
- * caller isn't plant-scoped (admin on "All Plants").
+ * order, PM schedule…) belong to the caller's scope?
+ *
+ * - Plant: every plant-scoped role sees only its own plant (admin: the
+ *   selected plant tab; everything on "All Plants").
+ * - Department: technician / trainee / supervisor / floor operator see only
+ *   their own department within that plant — except records assigned to
+ *   them personally, which always show.
+ *
+ * Uses the record's own plant/department when present, otherwise its
+ * machine's current plant/department.
  */
 export function useRecordPlantMatcher() {
-  const { plantId } = useDepartmentScope();
+  const { plantId, department } = useDepartmentScope();
   const companyId = useAuthStore((s) => s.userProfile?.companyId) ?? null;
+  const myId = useAuthStore((s) => s.userProfile?.id) ?? null;
+  const scoped = !!plantId || !!department;
 
   useEffect(() => {
-    if (!plantId || !companyId) return;
+    if (!scoped || !companyId) return;
     refCount += 1;
     ensureSubscribed(companyId);
     return () => {
@@ -69,17 +104,24 @@ export function useRecordPlantMatcher() {
         currentCompanyId = null;
       }
     };
-  }, [plantId, companyId]);
+  }, [scoped, companyId]);
 
-  const plants = useSyncExternalStore(subscribeStore, () => machinePlants);
+  const machines = useSyncExternalStore(subscribeStore, () => machineScopes);
 
   return useCallback(
-    (record: { machinePlantId?: string | null; plantId?: string | null; machineId?: string | null }): boolean => {
-      if (!plantId) return true;
-      const own = record.machinePlantId ?? record.plantId;
-      if (own) return own === plantId;
-      return !!record.machineId && plants.get(record.machineId) === plantId;
+    (record: ScopedRecord): boolean => {
+      const machine = record.machineId ? machines.get(record.machineId) : undefined;
+      if (plantId) {
+        const recordPlant = record.machinePlantId ?? record.plantId ?? machine?.plantId ?? null;
+        if (recordPlant !== plantId) return false;
+      }
+      if (department) {
+        if (myId && (record.assignedTechnicianIds ?? []).includes(myId)) return true;
+        const recordDepartment = record.machineDepartment || record.department || machine?.department || null;
+        if (!sameDepartment(recordDepartment, department)) return false;
+      }
+      return true;
     },
-    [plantId, plants],
+    [plantId, department, myId, machines],
   );
 }

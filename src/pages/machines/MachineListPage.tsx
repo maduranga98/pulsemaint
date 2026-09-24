@@ -19,6 +19,7 @@ import { exportMachinesToCsv } from '../../lib/machineExport';
 import { auth } from '../../lib/firebase';
 import { ensureDepartments } from '../../services/departments.service';
 import { usePlants } from '../../hooks/usePlants';
+import { sameDepartment } from '../../hooks/useRecordPlantMatcher';
 
 const SUGGESTED_TYPES: MachineType[] = [
   'cnc_machine','conveyor','compressor','boiler','generator','hydraulic_press',
@@ -476,7 +477,7 @@ export function MachineListPage() {
     // (admin, plant_manager, hr_officer, safety_officer, store_keeper) sees
     // every department in-plant.
     if (scopedDepartment) {
-      result = result.filter((m) => m.department === scopedDepartment);
+      result = result.filter((m) => sameDepartment(m.department, scopedDepartment));
     }
 
     if (filters.search) {
@@ -541,7 +542,7 @@ export function MachineListPage() {
   // the unscoped `machines` list still carries.
   const scopedMachines = machines
     .filter((m) => !scopedPlantId || m.plantId === scopedPlantId)
-    .filter((m) => !scopedDepartment || m.department === scopedDepartment);
+    .filter((m) => !scopedDepartment || sameDepartment(m.department, scopedDepartment));
   const activeMachines = scopedMachines.filter((m) => m.status === 'active').length;
   const maintenanceMachines = scopedMachines.filter((m) => m.status === 'under_maintenance').length;
 

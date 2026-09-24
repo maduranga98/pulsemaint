@@ -15,6 +15,7 @@ import type { TrainingAssignment } from '@/lib/training/trainingTypes';
 import type { QueryDocumentSnapshot, Timestamp } from 'firebase/firestore';
 import TrainingDashboard from '@/components/training/manager/TrainingDashboard';
 import TrainingAssignmentsProgress from '@/components/training/manager/TrainingAssignmentsProgress';
+import { sameDepartment } from '../../../hooks/useRecordPlantMatcher';
 
 interface DashboardStats {
   totalTrainees: number;
@@ -89,7 +90,7 @@ export default function TrainingDashboardPage() {
     return userDocs.filter((d) => {
       const data = d.data();
       if (scopedPlantId && data.plantId !== scopedPlantId) return false;
-      if (scopedDepartment && data.department !== scopedDepartment) return false;
+      if (scopedDepartment && !sameDepartment(data.department, scopedDepartment)) return false;
       return true;
     });
   }, [userDocs, scopedPlantId, scopedDepartment]);
