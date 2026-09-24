@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkOrders } from '../../../hooks/useWorkOrders';
 import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import type { WorkOrder } from '../../../types/workOrder';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
+import { WODetailPanel } from '../../workorders/WODetailPanel';
 
 // Breakdown Repair and Preventive Maintenance work orders have their own
 // sign-off flows on their own pages — kept off this list the same way the
@@ -13,13 +14,15 @@ const EXCLUDED_TYPES: WorkOrder['woType'][] = ['BREAKDOWN', 'PREVENTIVE'];
 
 /**
  * Completed work orders still awaiting a supervisor's sign-off decision.
- * Display-only — dashboards just indicate; the sign-off itself is done by
- * opening the work order on the Work Orders page.
+ * Clicking a row opens the work order's detail panel straight into the
+ * sign-off form (same WOSignOffForm as the Work Orders page).
  */
 export default function NeedSignOffWidget() {
   const { t } = useTranslation();
   const { workOrders, loading, error, refetch } = useWorkOrders();
   const inScopedPlant = useRecordPlantMatcher();
+  const [openWoId, setOpenWoId] = useState<string | null>(null);
+  const openWo = openWoId ? workOrders.find((w) => w.id === openWoId) ?? null : null;
 
   const rows = useMemo(
     () =>
@@ -52,18 +55,20 @@ export default function NeedSignOffWidget() {
       ) : (
         <div className="space-y-2">
           {rows.slice(0, 5).map((wo) => (
-            <div
+            <button
               key={wo.id}
-              className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F]"
+              type="button"
+              onClick={() => setOpenWoId(wo.id)}
+              className="w-full flex items-center justify-between gap-3 px-3 py-2.5 bg-[#0A1628] rounded-lg border border-[#1E3A5F] text-left hover:border-[#1A56DB] transition-colors"
             >
               <div className="min-w-0">
                 <p className="text-sm text-[#F0F4F8] truncate">{wo.woNumber || wo.id}</p>
                 <p className="text-xs text-[#8BA3BF] truncate">{wo.machineName}</p>
               </div>
-              <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/30">
-                {t('common.widgets.needSignOffWidget.badge')}
+              <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-600 text-white">
+                {t('common.workOrders.detailPanel.signOffCloseButton')}
               </span>
-            </div>
+            </button>
           ))}
           {rows.length > 5 && (
             <p className="text-center text-xs text-[#8BA3BF] py-1">
@@ -72,6 +77,7 @@ export default function NeedSignOffWidget() {
           )}
         </div>
       )}
+      {openWo && <WODetailPanel workOrder={openWo} initialSignOff onClose={() => setOpenWoId(null)} />}
     </DashboardWidget>
   );
 }
