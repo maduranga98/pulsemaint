@@ -12,7 +12,6 @@ import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
-import { isReadyToFinalise } from '../../hooks/useMyWorkCompletion';
 
 // The "All" pill was removed — the list simply starts unfiltered (`all`,
 // every active type combined). "Need Sign-Off" and "Approval Requests" used
@@ -23,10 +22,10 @@ import { isReadyToFinalise } from '../../hooks/useMyWorkCompletion';
 // reaches COMPLETED it's awaiting sign-off (handled via those widgets) and,
 // once actually signed off, moves into the separate terminal "Signed Off"
 // tab — a WO type filter stops being useful at either of those stages.
-type CategoryId = 'all' | 'awaitingSignOff' | 'signedOff' | 'cancelled' | WOType;
+type CategoryId = 'all' | 'signedOff' | 'cancelled' | WOType;
 
-// Still awaiting sign-off — excluded from the type tabs and listed on the
-// "Awaiting Sign-Off" tab instead (every WO type, Breakdown/PM included).
+// Still awaiting sign-off — excluded from every tab below (signed off from
+// the Need Sign-Off dashboard widget instead).
 const NEED_SIGN_OFF_STATUSES: WorkOrder['status'][] = ['COMPLETED'];
 // A cancelled WO was never actually signed off, so it gets its own tab
 // rather than being lumped into "Signed Off" — admins can still find it
@@ -40,6 +39,8 @@ const SIGNED_OFF_STATUSES: WorkOrder['status'][] = [...NEED_SIGN_OFF_STATUSES, .
 // own dedicated pages (Breakdowns, PM Schedules) — this list is for
 // everything else, organized into a column per WO type.
 const EXCLUDED_TYPES: WOType[] = ['BREAKDOWN', 'PREVENTIVE'];
+// How long a signed-off WO stays on a supervisor's Signed Off tab.
+const SUPERVISOR_SIGNED_OFF_DAYS = 30;
 const COLUMN_TYPES: WOType[] = WO_TYPES_ORDERED.filter((t) => !EXCLUDED_TYPES.includes(t));
 
 export function WOListView() {
@@ -82,11 +83,12 @@ export function WOListView() {
   // firestore.rules grants them the matching create permission.
   const canCreateWorkOrder =
     role === 'supervisor' || role === 'admin' || role === 'plant_manager';
-  // Closed/signed-off/cancelled work orders are only ever visible to admins —
-  // every other role (including supervisors/plant managers, who still sign
-  // off WOs via the Need Sign-Off dashboard widget) stops seeing a WO the
-  // moment it's terminal.
-  const canViewSignedOff = role === 'admin';
+  // Signed-off work orders (every type, Breakdown Repair and PM included):
+  // admins and plant managers see all of them; supervisors see the ones
+  // signed off in the last 30 days, after which they drop off their list.
+  // Cancelled work orders stay admin-only.
+  const canViewSignedOff = role === 'admin' || role === 'plant_manager' || role === 'supervisor';
+  const canViewCancelled = role === 'admin';
 
   const filters: WOFilters = {};
   if (searchQuery) filters.searchQuery = searchQuery;
@@ -127,24 +129,21 @@ export function WOListView() {
   // (Breakdowns, PM Schedules) — never shown here.
   const nonExcludedWOs = workOrders.filter((wo) => !EXCLUDED_TYPES.includes(wo.woType));
 
-  // Completed WOs of every type (Breakdown Repair and PM included) waiting on
-  // a supervisor's sign-off — listed here so a completed WO never simply
-  // disappears from the Work Orders page before anyone has signed it off.
-  // Also lists work orders whose whole team has finished their own work but
-  // nobody has finalised (Complete) yet.
-  const awaitingSignOffWOs = workOrders.filter(
-    (wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status) || isReadyToFinalise(wo),
-  );
+  const signedOffWindowStart = Date.now() - SUPERVISOR_SIGNED_OFF_DAYS * 24 * 60 * 60 * 1000;
+  const signedOffWOs = workOrders.filter((wo) => {
+    if (!SIGNED_OFF_ONLY_STATUSES.includes(wo.status)) return false;
+    if (role !== 'supervisor') return true;
+    const at = (wo.supervisorSignOffAt ?? wo.closedAt)?.toMillis?.() ?? 0;
+    return at >= signedOffWindowStart;
+  });
 
   const displayedWOs =
-    activeCategory === 'awaitingSignOff'
-      ? awaitingSignOffWOs
-      : activeCategory === 'signedOff'
+    activeCategory === 'signedOff'
       ? canViewSignedOff
-        ? nonExcludedWOs.filter((wo) => SIGNED_OFF_ONLY_STATUSES.includes(wo.status))
+        ? signedOffWOs
         : []
       : activeCategory === 'cancelled'
-      ? canViewSignedOff
+      ? canViewCancelled
         ? nonExcludedWOs.filter((wo) => CANCELLED_STATUSES.includes(wo.status))
         : []
       : nonExcludedWOs
@@ -213,24 +212,6 @@ export function WOListView() {
                 </button>
               );
             })}
-            <button
-              type="button"
-              onClick={() => setActiveCategory('awaitingSignOff')}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition-colors ${
-                activeCategory === 'awaitingSignOff'
-                  ? 'bg-amber-500 text-white'
-                  : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
-              }`}
-            >
-              {t('common.workOrders.tabs.awaitingSignOff')}
-              <span
-                className={`text-xs font-medium rounded-full px-1.5 ${
-                  activeCategory === 'awaitingSignOff' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-700'
-                }`}
-              >
-                {awaitingSignOffWOs.length}
-              </span>
-            </button>
             {canViewSignedOff && (
               <button
                 type="button"
@@ -247,11 +228,11 @@ export function WOListView() {
                     activeCategory === 'signedOff' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-600'
                   }`}
                 >
-                  {nonExcludedWOs.filter((wo) => SIGNED_OFF_ONLY_STATUSES.includes(wo.status)).length}
+                  {signedOffWOs.length}
                 </span>
               </button>
             )}
-            {canViewSignedOff && (
+            {canViewCancelled && (
               <button
                 type="button"
                 onClick={() => setActiveCategory('cancelled')}
@@ -302,9 +283,7 @@ export function WOListView() {
             <div className="text-center py-16">
               <ClipboardList className="w-12 h-12 mx-auto mb-4 text-gray-300" />
               <p className="text-gray-500">
-                {activeCategory === 'awaitingSignOff'
-                  ? t('common.workOrders.empty.awaitingSignOff')
-                  : activeCategory === 'signedOff'
+                {activeCategory === 'signedOff'
                   ? t('common.workOrders.empty.signedOff')
                   : activeCategory === 'cancelled'
                   ? t('common.workOrders.empty.cancelled')
@@ -319,7 +298,7 @@ export function WOListView() {
             <WOTable
               workOrders={displayedWOs}
               onSelect={setSelectedWO}
-              showTypeColumn={activeCategory === 'all' || activeCategory === 'awaitingSignOff' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
+              showTypeColumn={activeCategory === 'all' || activeCategory === 'signedOff' || activeCategory === 'cancelled'}
             />
           )
         )}

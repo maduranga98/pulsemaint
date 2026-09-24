@@ -230,6 +230,21 @@ export interface PostRepairChecklistItem {
   notes: string | null;
 }
 
+/** AI root-cause analysis generated when a work order is signed off. */
+export interface WOAiRca {
+  summary: string;
+  rootCause: string;
+  rootCauseCategory: WORootCause | 'design_issue';
+  contributingFactors: string[];
+  evidence: string[];
+  preventiveActions: string[];
+  confidence: 'high' | 'medium' | 'low';
+  /** 'failed' when the AI call didn't succeed — `error` says why. */
+  source: 'ai' | 'failed';
+  error?: string;
+  generatedAt: Timestamp;
+}
+
 export interface WOStatusHistoryEntry {
   status: WOStatus;
   changedBy: string;
@@ -363,6 +378,8 @@ export interface WorkOrder {
   supervisorSignOffNotes: string | null;
   signOffOutcome: WOSignOffOutcome | null;
   signOffOutcomeReason: string | null;
+  /** AI root-cause analysis produced at sign-off (see lib/woAiRca). */
+  aiRca?: WOAiRca | null;
 
   // Status History
   statusHistory: WOStatusHistoryEntry[];

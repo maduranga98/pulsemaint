@@ -89,7 +89,14 @@ export function useAssignedTasks() {
       query(collection(db, 'workOrders'), where('companyId', '==', companyId), where('assignedTechnicianIds', 'array-contains', userId)),
       (snap) => {
         for (const k of Object.keys(woAssigned)) delete woAssigned[k];
-        snap.docs.forEach((d) => { woAssigned[d.id] = toWoRow(d.id, d.data()); });
+        // On a team WO, someone who has already recorded their own part as
+        // complete is done with it — drop it from their list even while
+        // teammates are still working.
+        snap.docs.forEach((d) => {
+          const completions = (d.data().assigneeCompletions ?? []) as Array<{ technicianId?: string }>;
+          if (completions.some((c) => c.technicianId === userId)) return;
+          woAssigned[d.id] = toWoRow(d.id, d.data());
+        });
         pushWos(); wosLoaded = true; markLoaded();
       },
       () => { wosLoaded = true; markLoaded(); },
