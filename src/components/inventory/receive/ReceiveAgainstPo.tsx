@@ -8,6 +8,9 @@ import {
   runTransaction,
   serverTimestamp,
   Timestamp,
+  getDocs,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuthStore } from '@/store/authStore';
@@ -17,6 +20,7 @@ import { ReceiveItemRow } from './ReceiveItemRow';
 import type { PurchaseOrder, PurchaseOrderItem } from '@/types/inventory';
 import { getNextDeliveryRef } from '@/lib/inventory/deliveryRefGenerator';
 import { openPOPrintView } from '@/lib/inventory/poPrintView';
+import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
 interface ItemRowData {
   quantityReceived: number;
@@ -83,11 +87,21 @@ export function ReceiveAgainstPo() {
   // sent without re-running the stock-affecting transaction. Shared by
   // both Confirm Receipt and the standalone Resend Email button.
   //
-  // `onlyIfAllGood` is what Confirm Receipt uses: if even one row in this
-  // submission is marked not-good, no email goes out at all — not the
-  // thank-you, not a fault notice, nothing — until the discrepancy is
-  // resolved and reported via the explicit Resend Email action instead.
-  // The thank-you only ever fires on a receipt with zero issues.
+  // Confirm Receipt always emails the supplier: good units as received and
+  // any damaged / wrong-item units as a fault notice, in one go.
+  //
+  // The supplier's address comes from the PO, falling back to the supplier
+  // record (POs raised before the email was copied onto them have none).
+  async function resolveSupplierEmail(po: PurchaseOrder): Promise<string | null> {
+    if (po.supplierEmail) return po.supplierEmail;
+    if (!companyId || !po.supplierName) return null;
+    const snap = await getDocs(
+      query(collection(db, 'suppliers'), where('companyId', '==', companyId), where('name', '==', po.supplierName)),
+    );
+    const email = snap.docs.map((d) => String(d.data().email ?? '').trim()).find(Boolean);
+    return email || null;
+  }
+
   async function sendReceiptEmail(options?: { onlyIfAllGood?: boolean }) {
     if (!selectedPo || !companyId) return false;
     const lines = selectedPo.items
@@ -108,14 +122,16 @@ export function ReceiveAgainstPo() {
     if (options?.onlyIfAllGood && issueItems.length > 0) return false;
     const outgoingIssueItems = options?.onlyIfAllGood ? [] : issueItems;
 
-    if (!selectedPo.supplierEmail || (receivedItems.length === 0 && outgoingIssueItems.length === 0)) return false;
+    if (receivedItems.length === 0 && outgoingIssueItems.length === 0) return false;
+    const supplierEmail = await resolveSupplierEmail(selectedPo);
+    if (!supplierEmail) return false;
 
     await addDoc(collection(db, 'po_notifications'), {
       companyId,
       poId: selectedPo.id,
       poNumber: selectedPo.poNumber,
       supplierName: selectedPo.supplierName,
-      supplierEmail: selectedPo.supplierEmail,
+      supplierEmail,
       total: selectedPo.totalOrderValue,
       currency: selectedPo.currency,
       recipients: [],
@@ -197,9 +213,11 @@ export function ReceiveAgainstPo() {
           receivingItems.map(({ item }) => tx.get(doc(db, 'inventoryParts', item.partId))),
         );
 
+        // Only good units count as received — damaged / wrong items aren't
+        // stocked, so they stay outstanding on the PO.
         const updatedItems: PurchaseOrderItem[] = currentItems.map((item) => {
           const row = rowData[item.id];
-          const qty = row?.quantityReceived ?? 0;
+          const qty = (row?.condition ?? 'good') === 'good' ? row?.quantityReceived ?? 0 : 0;
           return { ...item, quantityReceived: item.quantityReceived + qty };
         });
 
@@ -210,9 +228,10 @@ export function ReceiveAgainstPo() {
           const partRef = doc(db, 'inventoryParts', item.partId);
           const data = partSnap.data();
           const currentStock = (data.currentStock as number) ?? 0;
+          const reservedStock = (data.reservedStock as number) ?? 0;
 
           tx.update(partRef, {
-            currentStock: currentStock + qty,
+            ...stockFieldsAfterChange(data, currentStock + qty, reservedStock),
             lastReceivedAt: now,
             lastPurchasePrice: cost,
             lastPurchaseDate: now,
@@ -308,19 +327,21 @@ export function ReceiveAgainstPo() {
         console.error('Failed to export final PO', exportErr);
       }
 
-      // Send the delivery-received thank-you as soon as Confirm Receipt
-      // completes, but only when every item in this submission was marked
-      // good — if even one is faulty, no email goes out here at all (not
-      // the thank-you, not a fault notice). Report the fault afterward via
-      // Resend Email instead, once ready. Best effort: a failed email
-      // never undoes the stock update above.
+      // Email the supplier the confirmed receipt (received units, plus any
+      // damaged / wrong items) as soon as Confirm Receipt completes. Best
+      // effort: a failed email never undoes the stock update above.
+      let emailQueued = false;
       try {
-        await sendReceiptEmail({ onlyIfAllGood: true });
+        emailQueued = await sendReceiptEmail();
       } catch (emailErr) {
         console.error('Failed to queue receipt confirmation email', emailErr);
       }
 
-      toast.success('Stock received successfully');
+      toast.success(
+        emailQueued
+          ? 'Stock received successfully — receipt confirmation emailed to the supplier.'
+          : 'Stock received successfully. No supplier email on file, so no confirmation was sent.',
+      );
       setSelectedPoId('');
       setRowData({});
       setDeliveryRef('');

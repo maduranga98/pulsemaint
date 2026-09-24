@@ -1,6 +1,8 @@
 /**
  * notifyLowStock
- * Firestore onUpdate trigger on companies/{companyId}/inventoryParts/{partId}
+ * Firestore onUpdate trigger on inventoryParts/{partId} (top-level — parts
+ * carry their companyId; the old companies/{companyId}/inventoryParts path
+ * never matched a real document, so this never fired)
  *
  * When currentStock drops to/below minStockLevel:
  *   - Set isLowStock = true on the part doc
@@ -44,14 +46,15 @@ async function sendPushToRoles(companyId, roles, title, body, data = {}) {
   }
 }
 
-exports.notifyLowStock = onDocumentUpdated({ database: "default", document: "companies/{companyId}/inventoryParts/{partId}" },
+exports.notifyLowStock = onDocumentUpdated({ database: "default", document: "inventoryParts/{partId}" },
   async (event) => {
-    const companyId = event.params.companyId;
     const partId = event.params.partId;
     const before = event.data.before.data();
     const after = event.data.after.data();
 
     if (!before || !after) return;
+    const companyId = after.companyId;
+    if (!companyId) return;
 
     // Skip if currentStock didn't change
     if (before.currentStock === after.currentStock) return;

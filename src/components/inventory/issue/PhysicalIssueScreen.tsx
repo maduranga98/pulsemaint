@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/useToast';
 import { IssuePartCheckItem } from './IssuePartCheckItem';
 import { IssueConfirmButton } from './IssueConfirmButton';
 import type { RequestItem } from '@/types/inventory';
+import { stockFieldsAfterChange } from '@/lib/inventory/stockCalculator';
 
 interface ItemState {
   checked: boolean;
@@ -159,8 +160,7 @@ export function PhysicalIssueScreen() {
           const totalUsedAllTime = (partData.totalUsedAllTime as number) ?? 0;
 
           tx.update(partRef, {
-            currentStock: currentStock - qty,
-            reservedStock: Math.max(0, reservedStock - qty),
+            ...stockFieldsAfterChange(partData, currentStock - qty, reservedStock - qty),
             totalUsedAllTime: totalUsedAllTime + qty,
             lastIssuedAt: now,
             updatedAt: now,

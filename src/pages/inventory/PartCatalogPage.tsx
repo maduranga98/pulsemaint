@@ -12,6 +12,7 @@ import { PartFilterBar, type PartFilters } from '@/components/inventory/catalog/
 import { PartCatalogTable } from '@/components/inventory/catalog/PartCatalogTable';
 import { PartCatalogCard } from '@/components/inventory/catalog/PartCatalogCard';
 import type { PartCategory, PartStatus, PartCriticality } from '@/types/inventory';
+import { getStockStatus } from '@/lib/inventory/stockCalculator';
 
 export function PartCatalogPage() {
   const { t } = useTranslation();
@@ -56,7 +57,9 @@ export function PartCatalogPage() {
 
   // Stat summary
   const activeCount = parts.filter((p) => p.status === 'active').length;
-  const lowStockCount = parts.filter((p) => p.isLowStock).length;
+  // Computed from the live stock numbers (same rule as the dashboard), not
+  // the stored isLowStock flag, which can lag behind stock changes.
+  const lowStockCount = parts.filter((p) => getStockStatus(p) === 'low_stock').length;
 
   function handleSelect(id: string, selected: boolean) {
     setSelectedIds((prev) => (selected ? [...prev, id] : prev.filter((pid) => pid !== id)));

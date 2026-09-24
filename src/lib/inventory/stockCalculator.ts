@@ -34,3 +34,24 @@ export function getStockPercentage(current: number, min: number, max: number): n
   if (current <= 0) return 0;
   return Math.min(100, Math.round((current / max) * 100));
 }
+
+/**
+ * Every derived stock field for a part after a stock change, written
+ * together so the catalog, request forms and low-stock counts never
+ * disagree: current/reserved as given, available = current − reserved,
+ * and the low-stock flag recomputed against the part's minimum.
+ */
+export function stockFieldsAfterChange(
+  part: { minStockLevel?: unknown },
+  currentStock: number,
+  reservedStock: number,
+): { currentStock: number; reservedStock: number; availableStock: number; isLowStock: boolean } {
+  const current = Math.max(0, currentStock);
+  const reserved = Math.max(0, reservedStock);
+  return {
+    currentStock: current,
+    reservedStock: reserved,
+    availableStock: getAvailableStock(current, reserved),
+    isLowStock: isLowStock(current, Number(part.minStockLevel ?? 0)),
+  };
+}
