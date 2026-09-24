@@ -23,7 +23,7 @@ const mins = (m: number | null | undefined) => {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-2">
-      <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{title}</h4>
+      <h4 className="text-xs font-semibold text-[#60A5FA] uppercase tracking-wide">{title}</h4>
       {children}
     </div>
   );
@@ -77,9 +77,9 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
   }
 
   return (
-    <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-4 space-y-5">
+    <div className="rounded-xl border border-[#1E3A5F] bg-[#0A1628] p-4 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="font-semibold text-gray-900">{d('title', 'Sign-off summary')}</h3>
+        <h3 className="font-semibold text-[#F0F4F8]">{d('title', 'Sign-off summary')}</h3>
         {wo.signOffOutcome && (
           <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
             wo.signOffOutcome === 'complete' ? 'bg-emerald-600 text-white' : wo.signOffOutcome === 'failed' ? 'bg-red-600 text-white' : 'bg-amber-500 text-white'
@@ -91,17 +91,17 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
 
       {/* Sign-off + timings */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
-        <div><p className="text-xs text-gray-500">{d('signedOffBy', 'Signed off by')}</p><p className="font-medium text-gray-900">{wo.supervisorSignOffByName || wo.closedByName || '—'}</p></div>
-        <div><p className="text-xs text-gray-500">{d('signedOffAt', 'Signed off at')}</p><p className="font-medium text-gray-900">{fmt(wo.supervisorSignOffAt ?? wo.closedAt)}</p></div>
-        <div><p className="text-xs text-gray-500">{d('started', 'Work started')}</p><p className="font-medium text-gray-900">{fmt(wo.actualStartTime)}</p></div>
-        <div><p className="text-xs text-gray-500">{d('completed', 'Work completed')}</p><p className="font-medium text-gray-900">{fmt(wo.actualEndTime)}</p></div>
-        <div><p className="text-xs text-gray-500">{d('duration', 'Time used')}</p><p className="font-medium text-gray-900">{mins(wo.totalDurationMinutes)}</p></div>
-        <div><p className="text-xs text-gray-500">{d('created', 'Raised')}</p><p className="font-medium text-gray-900">{fmt(wo.createdAt)}</p></div>
-        {wo.testRunResult && <div><p className="text-xs text-gray-500">{d('testRun', 'Test run')}</p><p className="font-medium text-gray-900">{wo.testRunResult}</p></div>}
-        {wo.machineStatusAfterRepair && <div><p className="text-xs text-gray-500">{d('machineAfter', 'Machine after repair')}</p><p className="font-medium text-gray-900">{wo.machineStatusAfterRepair.replace(/_/g, ' ')}</p></div>}
+        <div><p className="text-xs text-[#8BA3BF]">{d('signedOffBy', 'Signed off by')}</p><p className="font-medium text-[#F0F4F8]">{wo.supervisorSignOffByName || wo.closedByName || '—'}</p></div>
+        <div><p className="text-xs text-[#8BA3BF]">{d('signedOffAt', 'Signed off at')}</p><p className="font-medium text-[#F0F4F8]">{fmt(wo.supervisorSignOffAt ?? wo.closedAt)}</p></div>
+        <div><p className="text-xs text-[#8BA3BF]">{d('started', 'Work started')}</p><p className="font-medium text-[#F0F4F8]">{fmt(wo.actualStartTime)}</p></div>
+        <div><p className="text-xs text-[#8BA3BF]">{d('completed', 'Work completed')}</p><p className="font-medium text-[#F0F4F8]">{fmt(wo.actualEndTime)}</p></div>
+        <div><p className="text-xs text-[#8BA3BF]">{d('duration', 'Time used')}</p><p className="font-medium text-[#F0F4F8]">{mins(wo.totalDurationMinutes)}</p></div>
+        <div><p className="text-xs text-[#8BA3BF]">{d('created', 'Raised')}</p><p className="font-medium text-[#F0F4F8]">{fmt(wo.createdAt)}</p></div>
+        {wo.testRunResult && <div><p className="text-xs text-[#8BA3BF]">{d('testRun', 'Test run')}</p><p className="font-medium text-[#F0F4F8]">{wo.testRunResult}</p></div>}
+        {wo.machineStatusAfterRepair && <div><p className="text-xs text-[#8BA3BF]">{d('machineAfter', 'Machine after repair')}</p><p className="font-medium text-[#F0F4F8]">{wo.machineStatusAfterRepair.replace(/_/g, ' ')}</p></div>}
       </div>
       {(wo.signOffOutcomeReason || wo.supervisorSignOffNotes) && (
-        <p className="text-sm text-gray-700">
+        <p className="text-sm text-[#D5DEEA]">
           {wo.signOffOutcomeReason && <span className="block">{d('reason', 'Reason')}: {wo.signOffOutcomeReason}</span>}
           {wo.supervisorSignOffNotes && <span className="block italic">"{wo.supervisorSignOffNotes}"</span>}
         </p>
@@ -109,7 +109,7 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
 
       {wo.workDoneDescription && (
         <Section title={d('whatWasDone', 'What was done')}>
-          <p className="text-sm text-gray-800 whitespace-pre-line">{wo.workDoneDescription}</p>
+          <p className="text-sm text-[#F0F4F8] whitespace-pre-line">{wo.workDoneDescription}</p>
         </Section>
       )}
 
@@ -117,14 +117,14 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
         <Section title={d('team', 'Assigned people')}>
           <div className="space-y-2">
             {people.map((p) => (
-              <div key={p.id} className="rounded-lg bg-white border border-gray-100 p-3 text-sm">
-                <p className="font-medium text-gray-900">{p.name}{p.role ? <span className="text-gray-500 font-normal"> · {p.role.replace(/_/g, ' ')}</span> : null}</p>
-                <p className="text-xs text-gray-500">
+              <div key={p.id} className="rounded-lg bg-[#0F1E35] border border-[#1E3A5F] p-3 text-sm">
+                <p className="font-medium text-[#F0F4F8]">{p.name}{p.role ? <span className="text-[#8BA3BF] font-normal"> · {p.role.replace(/_/g, ' ')}</span> : null}</p>
+                <p className="text-xs text-[#8BA3BF]">
                   {d('personTimes', 'Started {{start}} · Completed {{end}} · {{hours}}h', { start: fmt(p.startedAt), end: fmt(p.completedAt), hours: p.hours ?? '—' })}
                 </p>
-                {p.work && <p className="mt-1 text-gray-700 whitespace-pre-line">{p.work}</p>}
+                {p.work && <p className="mt-1 text-[#D5DEEA] whitespace-pre-line">{p.work}</p>}
                 {p.tasks.length > 0 && (
-                  <ul className="mt-1 list-disc list-inside text-gray-600 text-xs">{p.tasks.map((task, i) => <li key={i}>{task}</li>)}</ul>
+                  <ul className="mt-1 list-disc list-inside text-[#B6C4D6] text-xs">{p.tasks.map((task, i) => <li key={i}>{task}</li>)}</ul>
                 )}
               </div>
             ))}
@@ -136,21 +136,21 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
         <Section title={d('tasks', 'Tasks & measurements')}>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead className="text-gray-500 text-left">
+              <thead className="text-[#8BA3BF] text-left">
                 <tr><th className="py-1 pr-2">#</th><th className="py-1 pr-2">{d('task', 'Task')}</th><th className="py-1 pr-2">{d('measurement', 'Measurement')}</th><th className="py-1 pr-2">{d('doneBy', 'Done by / at')}</th></tr>
               </thead>
-              <tbody className="text-gray-800">
+              <tbody className="text-[#F0F4F8]">
                 {wo.checklist.map((c) => (
-                  <tr key={c.stepNumber} className="border-t border-gray-100 align-top">
+                  <tr key={c.stepNumber} className="border-t border-[#1E3A5F] align-top">
                     <td className="py-1 pr-2">{c.stepNumber}</td>
                     <td className="py-1 pr-2">
                       {c.stepDescription}
-                      {(c.completionNote || c.repairNote) && <span className="block text-gray-500">{c.completionNote || c.repairNote}</span>}
+                      {(c.completionNote || c.repairNote) && <span className="block text-[#8BA3BF]">{c.completionNote || c.repairNote}</span>}
                     </td>
                     <td className="py-1 pr-2">
                       {c.inputType === 'measurement'
-                        ? <>{c.actualValue ?? '—'} {c.unit ?? ''} <span className="text-gray-500">({c.acceptableMin ?? '?'}–{c.acceptableMax ?? '?'})</span>{' '}
-                            {c.result && <span className={c.result === 'pass' ? 'text-emerald-600 font-semibold' : 'text-red-600 font-semibold'}>{c.result}</span>}</>
+                        ? <>{c.actualValue ?? '—'} {c.unit ?? ''} <span className="text-[#8BA3BF]">({c.acceptableMin ?? '?'}–{c.acceptableMax ?? '?'})</span>{' '}
+                            {c.result && <span className={c.result === 'pass' ? 'text-[#34D399] font-semibold' : 'text-[#F87171] font-semibold'}>{c.result}</span>}</>
                         : (c.isCompleted ? '✓' : '—')}
                     </td>
                     <td className="py-1 pr-2">{c.isCompleted ? `${c.completedByName ?? '—'} · ${fmt(c.completedAt)}` : d('notDone', 'Not done')}</td>
@@ -164,14 +164,14 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
 
       {((wo.partsUsed ?? []).length > 0 || (wo.partsRequests ?? []).length > 0) && (
         <Section title={d('parts', 'Parts')}>
-          <ul className="text-sm text-gray-800 space-y-0.5">
+          <ul className="text-sm text-[#F0F4F8] space-y-0.5">
             {(wo.partsUsed ?? []).map((p, i) => (
               <li key={`u${i}`}>{p.partName} × {p.quantity} {p.unit}{p.totalCost ? ` · LKR ${p.totalCost.toLocaleString()}` : ''}</li>
             ))}
           </ul>
-          {partsCost > 0 && <p className="text-xs text-gray-600">{d('partsTotal', 'Parts total: LKR {{total}}', { total: partsCost.toLocaleString() })}</p>}
+          {partsCost > 0 && <p className="text-xs text-[#B6C4D6]">{d('partsTotal', 'Parts total: LKR {{total}}', { total: partsCost.toLocaleString() })}</p>}
           {(wo.partsRequests ?? []).length > 0 && (
-            <ul className="text-xs text-gray-600 space-y-0.5">
+            <ul className="text-xs text-[#B6C4D6] space-y-0.5">
               {wo.partsRequests.map((r) => (
                 <li key={r.id}>{d('partRequest', 'Requested {{part}} × {{qty}} by {{by}} ({{status}})', { part: r.partName, qty: r.quantity, by: r.requestedByName, status: r.status })}</li>
               ))}
@@ -182,9 +182,9 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
 
       {permits.length > 0 && (
         <Section title={d('permits', 'Work permits')}>
-          <ul className="text-sm text-gray-800 space-y-0.5">
+          <ul className="text-sm text-[#F0F4F8] space-y-0.5">
             {permits.map((p) => (
-              <li key={p.id}>{p.permitNumber} · {p.title} <span className="text-gray-500">({p.status}, {p.validFrom} → {p.validTo})</span></li>
+              <li key={p.id}>{p.permitNumber} · {p.title} <span className="text-[#8BA3BF]">({p.status}, {p.validFrom} → {p.validTo})</span></li>
             ))}
           </ul>
         </Section>
@@ -192,11 +192,11 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
 
       {(wo.approvalRequests ?? []).length > 0 && (
         <Section title={d('approvals', 'Requested permissions / approvals')}>
-          <ul className="text-sm text-gray-800 space-y-1">
+          <ul className="text-sm text-[#F0F4F8] space-y-1">
             {wo.approvalRequests!.map((a) => (
               <li key={a.id}>
                 <span className="font-medium">{a.technicianName}</span> · {fmt(a.requestedAt)}: {a.note}
-                <span className="block text-xs text-gray-500">
+                <span className="block text-xs text-[#8BA3BF]">
                   {a.status}{a.resolvedByName ? ` — ${a.resolvedByName} · ${fmt(a.resolvedAt)}` : ''}{a.resolutionNote ? `: ${a.resolutionNote}` : ''}
                 </span>
               </li>
@@ -207,34 +207,34 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
 
       {(wo.rootCause || wo.rootCauseDescription) && (
         <Section title={d('techRca', 'Root cause (recorded by technician)')}>
-          <p className="text-sm text-gray-800">{wo.rootCause?.replace(/_/g, ' ')}{wo.rootCauseDescription ? ` — ${wo.rootCauseDescription}` : ''}</p>
+          <p className="text-sm text-[#F0F4F8]">{wo.rootCause?.replace(/_/g, ' ')}{wo.rootCauseDescription ? ` — ${wo.rootCauseDescription}` : ''}</p>
         </Section>
       )}
 
-      <div className="rounded-lg border border-blue-200 bg-blue-50/60 p-3 space-y-2">
+      <div className="rounded-lg border border-[#1E3A5F] bg-[#0F1E35] p-3 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <p className="flex items-center gap-1.5 text-sm font-semibold text-blue-800"><Sparkles className="w-4 h-4" /> {d('aiRca', 'AI root-cause analysis')}</p>
+          <p className="flex items-center gap-1.5 text-sm font-semibold text-[#60A5FA]"><Sparkles className="w-4 h-4" /> {d('aiRca', 'AI root-cause analysis')}</p>
           {canRegenerateRca && (
             <button type="button" onClick={regenerate} disabled={rcaBusy}
-              className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-blue-300 text-blue-700 hover:bg-blue-100 disabled:opacity-50">
+              className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded border border-[#1E3A5F] text-[#93C5FD] hover:bg-[#1E3A5F] disabled:opacity-50">
               <RefreshCw className={`w-3 h-3 ${rcaBusy ? 'animate-spin' : ''}`} /> {rca ? d('regenerate', 'Regenerate') : d('generate', 'Generate')}
             </button>
           )}
         </div>
         {rcaBusy ? (
-          <p className="text-sm text-blue-700">{d('rcaRunning', 'Analysing the work order…')}</p>
+          <p className="text-sm text-[#93C5FD]">{d('rcaRunning', 'Analysing the work order…')}</p>
         ) : !rca ? (
-          <p className="text-sm text-gray-600">{d('rcaPending', 'Being generated after sign-off — it appears here shortly.')}</p>
+          <p className="text-sm text-[#B6C4D6]">{d('rcaPending', 'Being generated after sign-off — it appears here shortly.')}</p>
         ) : rca.source === 'failed' ? (
-          <p className="text-sm text-red-600">{d('rcaFailed', 'AI analysis failed: {{error}}', { error: rca.error ?? '' })}</p>
+          <p className="text-sm text-[#F87171]">{d('rcaFailed', 'AI analysis failed: {{error}}', { error: rca.error ?? '' })}</p>
         ) : (
-          <div className="space-y-2 text-sm text-gray-800">
+          <div className="space-y-2 text-sm text-[#F0F4F8]">
             <p>{rca.summary}</p>
-            <p><span className="font-semibold">{d('rootCause', 'Root cause')}:</span> {rca.rootCause} <span className="text-xs text-gray-500">({rca.rootCauseCategory.replace(/_/g, ' ')} · {d('confidence', 'confidence')}: {rca.confidence})</span></p>
+            <p><span className="font-semibold">{d('rootCause', 'Root cause')}:</span> {rca.rootCause} <span className="text-xs text-[#8BA3BF]">({rca.rootCauseCategory.replace(/_/g, ' ')} · {d('confidence', 'confidence')}: {rca.confidence})</span></p>
             {rca.contributingFactors.length > 0 && <div><p className="font-semibold">{d('factors', 'Contributing factors')}</p><ul className="list-disc list-inside">{rca.contributingFactors.map((x, i) => <li key={i}>{x}</li>)}</ul></div>}
             {rca.evidence.length > 0 && <div><p className="font-semibold">{d('evidence', 'Evidence')}</p><ul className="list-disc list-inside">{rca.evidence.map((x, i) => <li key={i}>{x}</li>)}</ul></div>}
             {rca.preventiveActions.length > 0 && <div><p className="font-semibold">{d('preventive', 'Preventive actions')}</p><ul className="list-disc list-inside">{rca.preventiveActions.map((x, i) => <li key={i}>{x}</li>)}</ul></div>}
-            <p className="text-[11px] text-gray-500">{d('rcaGenerated', 'Generated {{at}} — verify before acting.', { at: fmt(rca.generatedAt) })}</p>
+            <p className="text-[11px] text-[#8BA3BF]">{d('rcaGenerated', 'Generated {{at}} — verify before acting.', { at: fmt(rca.generatedAt) })}</p>
           </div>
         )}
       </div>
@@ -244,10 +244,10 @@ export function WOSignOffSummary({ workOrder: wo, permits, canRegenerateRca }: P
           <ul className="text-sm space-y-0.5">
             {docs.map((doc, i) => (
               <li key={i}>
-                <a href={doc.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:underline">
+                <a href={doc.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#93C5FD] hover:underline">
                   {doc.name.match(/\.(pdf|docx?|xlsx?)$/i) ? <FileText className="w-3.5 h-3.5" /> : <Paperclip className="w-3.5 h-3.5" />}{doc.name}
                 </a>
-                {doc.by && <span className="text-xs text-gray-500"> · {doc.by}</span>}
+                {doc.by && <span className="text-xs text-[#8BA3BF]"> · {doc.by}</span>}
               </li>
             ))}
           </ul>
