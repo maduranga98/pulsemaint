@@ -82,6 +82,34 @@ function brandedEmail(bodyHtml, companyName) {
 }
 
 /**
+ * Plain-text version of an HTML email. Mail providers (Gmail especially)
+ * score HTML-only messages as more spam-like, so every email goes out as
+ * multipart/alternative with this text part alongside the HTML.
+ * @param {string} html email HTML
+ * @return {string} readable plain text
+ */
+function htmlToText(html) {
+  return String(html || "")
+      .replace(/<(style|script|head)[^>]*>[\s\S]*?<\/\1>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(p|div|h[1-6]|tr|li|table)>/gi, "\n")
+      .replace(/<\/t[dh]>/gi, "\t")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, "\"")
+      .replace(/&#39;/g, "'")
+      .replace(/&copy;/g, "(c)")
+      .split("\n")
+      .map((line) => line.trim())
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+}
+
+/**
  * Send one email through the platform mailbox; failures are logged, not
  * thrown, so one bad address never blocks the rest of a batch.
  * @param {{to: string, subject: string, html: string, text?: string,
@@ -99,7 +127,7 @@ async function sendEmail({to, subject, html, text, attachments, fromName, replyT
       to,
       subject,
       html,
-      text,
+      text: text || htmlToText(html),
       attachments,
     });
     return true;
@@ -109,4 +137,4 @@ async function sendEmail({to, subject, html, text, attachments, fromName, replyT
   }
 }
 
-module.exports = {brandedEmail, sendEmail, platformSmtpPassword};
+module.exports = {brandedEmail, sendEmail, htmlToText, platformSmtpPassword};
