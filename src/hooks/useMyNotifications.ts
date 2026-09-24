@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { isNotificationUnreadBy, isNotificationVisibleTo, notificationDisplayMessage } from '@/lib/notifications/recipients';
 import { playNotificationSound, showDeviceNotification } from '@/lib/notifications/deviceNotify';
 import type { DashboardNotification } from '@/types/analytics.types';
+import { useDepartmentScope } from '@/hooks/useDepartmentScope';
 
 /**
  * Notifications currently waiting for the signed-in user.
@@ -25,6 +26,9 @@ export function useMyNotifications() {
   const companyId = userProfile?.companyId ?? '';
   const [all, setAll] = useState<DashboardNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  // Only this user's plant (admin: selected plant tab) and, for
+  // department-scoped roles, their department.
+  const { plantId, department } = useDepartmentScope();
 
   useEffect(() => {
     if (!companyId) {
@@ -52,10 +56,10 @@ export function useMyNotifications() {
     if (!userProfile) return [];
     return all.filter(
       (n) =>
-        isNotificationVisibleTo(n, userProfile.role, userProfile.id) &&
+        isNotificationVisibleTo(n, userProfile.role, userProfile.id, { plantId, department }) &&
         isNotificationUnreadBy(n, userProfile.id)
     );
-  }, [all, userProfile]);
+  }, [all, userProfile, plantId, department]);
 
   // Everything still listed is unread — reading removes it from the list.
   const unreadCount = notifications.length;

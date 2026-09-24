@@ -137,6 +137,8 @@ export function useSignOff(): UseSignOffResult {
         // WO closes its breakdowns and, if nothing else is open, reactivates
         // the machine.
         let woNumber = woId;
+        let woPlantId: string | undefined;
+        let woDepartment: string | null = null;
         try {
           const snap = await getDoc(doc(db, 'workOrders', woId));
           const data = snap.data() as {
@@ -144,10 +146,14 @@ export function useSignOff(): UseSignOffResult {
             linkedBreakdownIds?: string[];
             woNumber?: string;
             machineId?: string;
+            machinePlantId?: string | null;
+            machineDepartment?: string | null;
             contractorCompanyId?: string | null;
             contractorTechnicianIds?: string[];
           } | undefined;
           woNumber = data?.woNumber ?? woId;
+          woPlantId = data?.machinePlantId ?? undefined;
+          woDepartment = data?.machineDepartment ?? null;
 
           // A signed-off contractor job counts as a completed visit for each of
           // its assigned team members — bump their "jobs at this factory" count
@@ -209,6 +215,9 @@ export function useSignOff(): UseSignOffResult {
             actorRole: profile.role,
             actorUserId: profile.id,
             linkTo: '/app/work-orders',
+            // Only the work order's plant and department hear about it.
+            plantId: woPlantId,
+            department: woDepartment,
           });
 
           logAuditEvent({

@@ -3,6 +3,9 @@ import { db } from '@/lib/firebase';
 import type { UserRole } from '@/types/auth';
 import type { DashboardNotificationType } from '@/types/analytics.types';
 import { OVERSIGHT_ROLES, resolveRecipientRoles } from '@/lib/notifications/recipients';
+import { useAuthStore } from '@/store/authStore';
+import { useActivePlantStore } from '@/store/activePlantStore';
+import { resolveScopedPlantId } from '@/hooks/useDepartmentScope';
 
 export { OVERSIGHT_ROLES, resolveRecipientRoles };
 
@@ -25,6 +28,12 @@ interface CreateNotificationInput {
   actorUserId?: string | null;
   /** Third-person phrasing of `message`, for oversight readers. */
   oversightMessage?: string | null;
+  /** Plant the event belongs to — only that plant's people see it. Defaults
+   *  to the creator's plant (admin: the selected plant tab). */
+  plantId?: string | null;
+  /** Department the event concerns (e.g. the machine's) — department-scoped
+   *  roles outside it don't see it. Defaults to none (whole plant). */
+  department?: string | null;
 }
 
 /**
@@ -54,8 +63,13 @@ export async function createNotification(input: CreateNotificationInput): Promis
     actorRole = null,
     actorUserId = null,
     oversightMessage = null,
+    department = null,
   } = input;
   if (!companyId) return;
+  const plantId =
+    input.plantId !== undefined
+      ? input.plantId
+      : resolveScopedPlantId(useAuthStore.getState().userProfile, useActivePlantStore.getState().activePlantId);
   const roles = resolveRecipientRoles(recipientRoles, recipientUserIds);
   try {
     await addDoc(collection(db, 'notifications'), {
@@ -78,6 +92,8 @@ export async function createNotification(input: CreateNotificationInput): Promis
       actorRole,
       actorUserId,
       oversightMessage,
+      plantId: plantId ?? null,
+      department: department || null,
     });
   } catch (err) {
     // Notifications are best-effort — never let a failed notification write

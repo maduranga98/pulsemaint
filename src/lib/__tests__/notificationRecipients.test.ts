@@ -3,6 +3,7 @@ import {
   OVERSIGHT_ROLES,
   isHiddenAdminAction,
   isNotificationForUser,
+  isNotificationInReaderScope,
   isNotificationUnreadBy,
   isNotificationVisibleTo,
   isOversightCopy,
@@ -263,5 +264,37 @@ describe('notificationDisplayMessage', () => {
   it('uses the raw role when it has no friendly label', () => {
     expect(roleLabel('maintenance_supervisor')).toBe('maintenance supervisor');
     expect(roleLabel(undefined)).toBe('');
+  });
+});
+
+describe('isNotificationInReaderScope', () => {
+  const scope = { plantId: 'plant-a', department: 'Assembly' };
+
+  it('hides another plant\'s notifications', () => {
+    expect(isNotificationInReaderScope({ recipientRoles: ['supervisor'], plantId: 'plant-b' }, scope, 'u1')).toBe(false);
+  });
+
+  it('hides another department\'s notifications from department-scoped readers', () => {
+    expect(
+      isNotificationInReaderScope({ recipientRoles: ['supervisor'], plantId: 'plant-a', department: 'Paint' }, scope, 'u1'),
+    ).toBe(false);
+  });
+
+  it('shows the reader\'s own plant and department', () => {
+    expect(
+      isNotificationInReaderScope({ recipientRoles: ['supervisor'], plantId: 'plant-a', department: 'Assembly' }, scope, 'u1'),
+    ).toBe(true);
+  });
+
+  it('always shows notifications addressed to the reader by id', () => {
+    expect(isNotificationInReaderScope({ recipientUserIds: ['u1'], plantId: 'plant-b' }, scope, 'u1')).toBe(true);
+  });
+
+  it('shows everything to an unscoped reader (admin on All Plants)', () => {
+    expect(isNotificationInReaderScope({ plantId: 'plant-b' }, { plantId: null, department: null }, 'admin')).toBe(true);
+  });
+
+  it('keeps plant-less (company-wide / legacy) notifications visible', () => {
+    expect(isNotificationInReaderScope({ recipientRoles: ['supervisor'] }, scope, 'u1')).toBe(true);
   });
 });

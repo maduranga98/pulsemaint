@@ -338,10 +338,14 @@ export function useWOCompletion(): UseWOCompletionResult {
 
         // Sync linked breakdown progress.
         let woNumberForNotice = woId;
+        let woPlantId: string | undefined;
+        let woDepartment: string | null = null;
         try {
           const woSnap = await getDoc(doc(db, 'workOrders', woId));
           const woData = woSnap.data() as any;
           woNumberForNotice = woData?.woNumber ?? woId;
+          woPlantId = woData?.machinePlantId ?? undefined;
+          woDepartment = woData?.machineDepartment ?? null;
           if (woData?.linkedBreakdownId) {
             await updateDoc(doc(db, 'breakdown_tickets', woData.linkedBreakdownId), {
               status: 'resolved',
@@ -372,6 +376,9 @@ export function useWOCompletion(): UseWOCompletionResult {
             actorRole: profile.role,
             actorUserId: profile.id,
             linkTo: '/app/work-orders',
+            // Only the work order's plant and department hear about it.
+            plantId: woPlantId,
+            department: woDepartment,
           });
         }
 

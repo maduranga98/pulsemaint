@@ -226,6 +226,9 @@ export default function ReportBreakdownPage() {
         actorRole: userProfile.role,
         actorUserId: userProfile.id,
         linkTo: '/app/breakdowns',
+        // Only the machine's plant and department hear about it.
+        plantId: machine.plantId ?? undefined,
+        department: machine.department || null,
       });
 
       // Show an AI suggestion (drawn from the machine's model/manufacturer

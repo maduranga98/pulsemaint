@@ -33,6 +33,41 @@ export function resolveRecipientRoles(
 export interface NotificationTargeting {
   recipientRoles?: string[] | null;
   recipientUserIds?: string[] | null;
+  /** The plant the notification belongs to (null/absent: company-wide or legacy). */
+  plantId?: string | null;
+  /** The department it concerns, for machine-related events (null: whole plant). */
+  department?: string | null;
+}
+
+/** The reader's plant/department scope (see useDepartmentScope). */
+export interface NotificationReaderScope {
+  /** Own plant for plant-scoped roles; admin's selected plant tab; null = all plants. */
+  plantId: string | null;
+  /** Own department for department-scoped roles (technician, trainee, supervisor, floor operator); null otherwise. */
+  department: string | null;
+}
+
+/**
+ * Whether a notification falls inside the reader's plant and department.
+ *
+ * Role targeting alone reached everyone with that role across every plant,
+ * so a supervisor in one plant saw another plant's breakdowns. A
+ * notification that carries a plant is shown only in that plant; one that
+ * carries a department is shown to department-scoped roles only in that
+ * department. Anything addressed to the reader by id always shows — they
+ * were named personally. Notifications with no plant (company-wide, or
+ * written before plant stamping) keep their role targeting only.
+ */
+export function isNotificationInReaderScope(
+  notification: NotificationTargeting,
+  scope: NotificationReaderScope | null | undefined,
+  userId: string | undefined,
+): boolean {
+  if (!scope) return true;
+  if (!!userId && (notification.recipientUserIds ?? []).includes(userId)) return true;
+  if (notification.plantId && scope.plantId && notification.plantId !== scope.plantId) return false;
+  if (notification.department && scope.department && notification.department !== scope.department) return false;
+  return true;
 }
 
 /**
@@ -163,14 +198,17 @@ export function isHiddenAdminAction(
 
 /**
  * Whether a notification belongs in this user's bell at all: targeted at
- * them, and not an admin action a plant manager has no part in.
+ * them, inside their plant/department, and not an admin action a plant
+ * manager has no part in.
  */
 export function isNotificationVisibleTo(
   notification: NotificationTargeting & NotificationActor,
   role: UserRole | undefined,
   userId: string | undefined,
+  scope?: NotificationReaderScope | null,
 ): boolean {
   if (!isNotificationForUser(notification, role, userId)) return false;
+  if (!isNotificationInReaderScope(notification, scope, userId)) return false;
   return !isHiddenAdminAction(notification, role, userId);
 }
 

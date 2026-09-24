@@ -270,6 +270,9 @@ export type DashboardNotificationType =
 export interface DashboardNotification {
   id: string;
   companyId?: string;
+  /** Plant / department the notification is scoped to (see createNotification). */
+  plantId?: string | null;
+  department?: string | null;
   type: DashboardNotificationType;
   message: string;
   timestamp: Timestamp;
