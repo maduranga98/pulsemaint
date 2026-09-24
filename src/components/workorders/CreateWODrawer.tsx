@@ -83,8 +83,10 @@ export function CreateWODrawer({
   const [step, setStep] = useState(0);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [machines, setMachines] = useState<MachineOption[]>([]);
-  const [supervisors, setSupervisors] = useState<UserOption[]>([]);
-  const [technicians, setTechnicians] = useState<UserOption[]>([]);
+  // All supervisors / technicians+trainees of the company; narrowed below to
+  // the work order's plant and department.
+  const [supervisorPool, setSupervisors] = useState<UserOption[]>([]);
+  const [technicianPool, setTechnicians] = useState<UserOption[]>([]);
   const [machineSearch, setMachineSearch] = useState('');
   const [showMachineDropdown, setShowMachineDropdown] = useState(false);
   const [linkedBreakdown, setLinkedBreakdown] = useState<{ id: string; ticketNumber: string; severity?: string; machineName?: string; description?: string } | null>(null);
@@ -179,7 +181,8 @@ export function CreateWODrawer({
             plantId: (data.plantId as string | null | undefined) ?? null,
           };
         });
-        setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor' || u.role === 'plant_manager' || u.role === 'admin'));
+        // Supervisor in charge is a supervisor — not admin / plant manager.
+        setSupervisors(users.filter((u) => u.role === 'supervisor' || u.role === 'maintenance_supervisor'));
         // Trainees can be assigned to a WO (and its steps/tasks) alongside technicians.
         // A plant/department-scoped supervisor only ever sees technicians/
         // trainees registered in their own plant (and department, if
@@ -187,8 +190,6 @@ export function CreateWODrawer({
         setTechnicians(
           users
             .filter((u) => u.role === 'technician' || u.role === 'trainee')
-            .filter((u) => !scopedPlantId || u.plantId === scopedPlantId)
-            .filter((u) => !scopedDepartment || sameDepartment(u.department, scopedDepartment))
             .map((u) => (u.role === 'trainee' ? { ...u, name: `${u.name} (Trainee)` } : u)),
         );
 
@@ -381,6 +382,18 @@ export function CreateWODrawer({
   const woType = form.watch('woType');
   const priority = form.watch('priority');
   const isContractorWO = woType === 'CONTRACTOR';
+
+  // People and contractors offered for this work order belong to its plant
+  // and department: the selected machine's (falling back to the creator's
+  // own scope before a machine is picked). A department-scoped supervisor is
+  // always held to their own department.
+  const watchField = form.watch as unknown as (name: string) => unknown;
+  const woPlantId = ((watchField('machinePlantId') as string | null | undefined) || scopedPlantId) ?? null;
+  const woDepartment = (scopedDepartment || (watchField('machineDepartment') as string | undefined)) ?? null;
+  const inWoScope = (u: UserOption) =>
+    (!woPlantId || u.plantId === woPlantId) && (!woDepartment || sameDepartment(u.department, woDepartment));
+  const supervisors = supervisorPool.filter(inWoScope);
+  const technicians = technicianPool.filter(inWoScope);
 
   // Auto-suggest due date from priority
   useEffect(() => {
@@ -855,6 +868,8 @@ export function CreateWODrawer({
                 }))}
               supervisors={supervisors.map((s) => ({ id: s.id, name: s.name, role: s.role, department: s.department ?? '' }))}
               contractors={registeredContractors
+                // Only contractors registered to this work order's plant.
+                .filter((c) => !woPlantId || c.plantId === woPlantId)
                 .filter((c) => !blacklistedIds.has(`contractor:${c.id}`))
                 .map((c) => ({
                   id: c.id,
