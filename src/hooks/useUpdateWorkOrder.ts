@@ -74,8 +74,15 @@ export function useUpdateWorkOrder(): UseUpdateWorkOrderResult {
             // permit the WO itself points at (workPermitId). A single `limit(1)`
             // query with no ordering could return a closed permit — or miss the
             // active one — and wrongly block a job whose permit is issued.
+            // companyId filter required by the work_permits read rules —
+            // without it the query is rejected and the gate silently fell
+            // through to the non-blocking catch below.
             const wpSnap = await getDocs(
-              query(collection(db, 'work_permits'), where('workOrderId', '==', id)),
+              query(
+                collection(db, 'work_permits'),
+                where('companyId', '==', useAuthStore.getState().userProfile?.companyId ?? ''),
+                where('workOrderId', '==', id),
+              ),
             );
             const statuses = wpSnap.docs.map((d) => (d.data() as { status?: string }).status);
             if (woData.workPermitId) {

@@ -5,6 +5,7 @@ import { subscribeSafetyCases, subscribeWorkPermits, subscribeSafetyBlacklistRes
 import type { SafetyCase, WorkPermit } from '../../types/safety';
 import { computeBlacklist, type BlacklistEntry, type BlacklistResetMap } from '../../lib/safety/blacklist';
 import { useDepartmentScope } from '../useDepartmentScope';
+import { useAuthStore } from '../../store/authStore';
 
 /**
  * The Work Permit gating a given work order, live (or null).
@@ -20,19 +21,28 @@ export function useWorkOrderPermit(
   workOrderId: string | undefined,
   workPermitId?: string | null,
 ) {
+  const companyId = useAuthStore((s) => s.userProfile?.companyId);
   const [byWorkOrder, setByWorkOrder] = useState<WorkPermit[]>([]);
   const [byId, setById] = useState<WorkPermit | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!workOrderId) {
+    if (!workOrderId || !companyId) {
       setByWorkOrder([]);
       setLoading(false);
       return;
     }
     setLoading(true);
+    // The companyId filter is required: work_permits read rules check
+    // companyId, and Firestore rejects a list query that doesn't constrain it
+    // — without it this listener errored and only the WO's `workPermitId`
+    // permit (the fallback below) ever showed.
     const unsub = onSnapshot(
-      query(collection(db, 'work_permits'), where('workOrderId', '==', workOrderId)),
+      query(
+        collection(db, 'work_permits'),
+        where('companyId', '==', companyId),
+        where('workOrderId', '==', workOrderId),
+      ),
       (snap) => {
         setByWorkOrder(snap.docs.map((d) => ({ id: d.id, ...d.data() } as WorkPermit)));
         setLoading(false);
@@ -40,7 +50,7 @@ export function useWorkOrderPermit(
       () => setLoading(false),
     );
     return () => unsub();
-  }, [workOrderId]);
+  }, [workOrderId, companyId]);
 
   // Fallback link: the WO stores the id of the permit it was gated on. This
   // covers a permit whose `workOrderId` field was never written (older data),
