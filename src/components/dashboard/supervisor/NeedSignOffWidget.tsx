@@ -5,10 +5,13 @@ import DashboardWidget from '../shared/DashboardWidget';
 import EmptyState from '../shared/EmptyState';
 import { useRecordPlantMatcher } from '../../../hooks/useRecordPlantMatcher';
 import { WODetailPanel } from '../../workorders/WODetailPanel';
+import { isReadyToFinalise } from '../../../hooks/useMyWorkCompletion';
 
 /**
  * Completed work orders of every type (Breakdown Repair and PM included)
- * still awaiting a supervisor's sign-off decision.
+ * still awaiting a supervisor's sign-off decision — plus ones whose whole team
+ * has finished their own work but nobody has finalised yet (Complete first,
+ * then sign off, from the same detail panel).
  * Clicking a row opens the work order's detail panel straight into the
  * sign-off form (same WOSignOffForm as the Work Orders page).
  */
@@ -23,7 +26,7 @@ export default function NeedSignOffWidget() {
     () =>
       workOrders.filter(
         (wo) =>
-          wo.status === 'COMPLETED' &&
+          (wo.status === 'COMPLETED' || isReadyToFinalise(wo)) &&
           inScopedPlant(wo),
       ),
     [workOrders, inScopedPlant],
@@ -59,8 +62,10 @@ export default function NeedSignOffWidget() {
                 <p className="text-sm text-[#F0F4F8] truncate">{wo.woNumber || wo.id}</p>
                 <p className="text-xs text-[#8BA3BF] truncate">{wo.machineName}</p>
               </div>
-              <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-600 text-white">
-                {t('common.workOrders.detailPanel.signOffCloseButton')}
+              <span className={`shrink-0 px-2 py-0.5 rounded text-[11px] font-semibold text-white ${wo.status === 'COMPLETED' ? 'bg-emerald-600' : 'bg-blue-600'}`}>
+                {wo.status === 'COMPLETED'
+                  ? t('common.workOrders.detailPanel.signOffCloseButton')
+                  : t('common.workOrders.copy.completeButton')}
               </span>
             </button>
           ))}

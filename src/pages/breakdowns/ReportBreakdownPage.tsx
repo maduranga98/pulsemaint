@@ -324,6 +324,7 @@ export default function ReportBreakdownPage() {
                   {suggestion.source === 'ai'
                     ? t('common.breakdowns.attendPage.rca.sourceAi')
                     : t('common.breakdowns.attendPage.rca.sourceHeuristic')}
+                  {suggestion.aiError && <span className="block text-[#F87171]">{t('common.breakdowns.attendPage.rca.aiError', { error: suggestion.aiError })}</span>}
                   {' '}
                   {t('common.breakdowns.reportPage.aiSuggestionDisclaimer')}
                 </p>

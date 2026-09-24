@@ -63,6 +63,22 @@ export function useMyWorkCompletion(): UseMyWorkCompletionResult {
   return { submitMyWork, loading };
 }
 
+/**
+ * Still in progress, but every assigned technician has already recorded their
+ * own completion — the work is done and only needs finalising (the Complete
+ * form) and then a sign-off. Listed alongside COMPLETED work orders so it
+ * never sits unnoticed.
+ */
+export function isReadyToFinalise(
+  wo: Pick<WorkOrder, 'status' | 'assignedTechnicianIds' | 'assigneeCompletions'>,
+): boolean {
+  return (
+    ['IN_PROGRESS', 'ON_HOLD_PARTS', 'ON_HOLD_APPROVAL'].includes(wo.status) &&
+    (wo.assignedTechnicianIds ?? []).length > 0 &&
+    allAssigneesCompleted(wo)
+  );
+}
+
 /** Whether every assigned technician has recorded their own completion. */
 export function allAssigneesCompleted(wo: Pick<WorkOrder, 'assignedTechnicianIds' | 'assigneeCompletions'>): boolean {
   const ids = wo.assignedTechnicianIds ?? [];

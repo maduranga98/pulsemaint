@@ -61,10 +61,12 @@ exports.claudeJson = onCall({ secrets: [anthropicApiKey], timeoutSeconds: 120 },
     }
     if (err instanceof Anthropic.APIError) {
       logger.error("Claude API error", { status: err.status, message: err.message });
-      throw new HttpsError("unavailable", "AI provider request failed");
+      // Surface the provider's reason (e.g. invalid key, no credit, bad
+      // request) so the app can show why AI fell back — never the key itself.
+      throw new HttpsError("unavailable", `AI provider request failed (${err.status}): ${String(err.message).slice(0, 300)}`);
     }
     logger.error("Claude request failed", err);
-    throw new HttpsError("internal", "AI request failed");
+    throw new HttpsError("internal", `AI request failed: ${String(err && err.message ? err.message : err).slice(0, 300)}`);
   }
 
   if (response.stop_reason === "refusal" || response.stop_reason === "max_tokens") {

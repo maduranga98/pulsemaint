@@ -12,6 +12,7 @@ import { WOStatsBar } from './WOStatsBar';
 import { CreateWODrawer } from './CreateWODrawer';
 import { TechnicianWOExecutionSheet } from './technician/TechnicianWOExecutionSheet';
 import { useRecordPlantMatcher } from '../../hooks/useRecordPlantMatcher';
+import { isReadyToFinalise } from '../../hooks/useMyWorkCompletion';
 
 // The "All" pill was removed — the list simply starts unfiltered (`all`,
 // every active type combined). "Need Sign-Off" and "Approval Requests" used
@@ -129,7 +130,11 @@ export function WOListView() {
   // Completed WOs of every type (Breakdown Repair and PM included) waiting on
   // a supervisor's sign-off — listed here so a completed WO never simply
   // disappears from the Work Orders page before anyone has signed it off.
-  const awaitingSignOffWOs = workOrders.filter((wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status));
+  // Also lists work orders whose whole team has finished their own work but
+  // nobody has finalised (Complete) yet.
+  const awaitingSignOffWOs = workOrders.filter(
+    (wo) => NEED_SIGN_OFF_STATUSES.includes(wo.status) || isReadyToFinalise(wo),
+  );
 
   const displayedWOs =
     activeCategory === 'awaitingSignOff'

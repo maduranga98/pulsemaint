@@ -106,6 +106,7 @@ export function RCASuggestionPanel({
             {result.source === 'ai'
               ? t('common.breakdowns.attendPage.rca.sourceAi')
               : t('common.breakdowns.attendPage.rca.sourceHeuristic')}
+            {result.aiError && <span className="block text-[#F87171]">{t('common.breakdowns.attendPage.rca.aiError', { error: result.aiError })}</span>}
           </p>
         </div>
       )}
