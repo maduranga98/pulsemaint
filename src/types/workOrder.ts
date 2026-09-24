@@ -152,6 +152,8 @@ export interface WOApprovalRequest {
   resolvedByName: string | null;
   resolvedAt: Timestamp | null;
   resolutionNote: string | null;
+  /** Optional files the supervisor attached when approving/rejecting. */
+  resolutionAttachments?: WOApprovalRequestAttachment[];
 }
 
 export interface PartUsed {

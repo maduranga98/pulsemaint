@@ -533,6 +533,21 @@ export function TechnicianWOExecutionSheet({ workOrder, onClose }: Props) {
                                   {t('common.workOrders.technicianSheet.resolutionNoteLabel', { note: r.resolutionNote })}
                                 </p>
                               )}
+                              {(r.resolutionAttachments?.length ?? 0) > 0 && (
+                                <div className="flex flex-wrap gap-1.5">
+                                  {r.resolutionAttachments!.map((a) => (
+                                    <a
+                                      key={a.id}
+                                      href={a.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="max-w-full truncate rounded bg-[#1E3A5F] px-2 py-0.5 text-[11px] text-[#8BA3BF] hover:text-[#F0F4F8]"
+                                    >
+                                      📎 {a.name}
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
                               <p className="text-xs text-[#8BA3BF]">
                                 {r.resolvedAt?.toDate ? r.resolvedAt.toDate().toLocaleString() : ''}
                               </p>
