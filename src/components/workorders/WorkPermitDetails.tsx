@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useTranslation, type TFunction } from 'react-i18next';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, ChevronDown } from 'lucide-react';
 import {
   WORK_PERMIT_CATEGORIES,
   WORK_PERMIT_COMPLETIONS,
@@ -80,15 +81,22 @@ function buildRows(permit: WorkPermit, t: TFunction): Row[] {
  *
  * `variant` matches the surrounding surface: 'light' for the manager WO panel,
  * 'dark' for the technician sheet's navy theme.
+ *
+ * Collapsible: the header (number, status, category) always shows and toggles
+ * the full detail, so a WO with several linked permits lists them all
+ * compactly and each can be opened to view.
  */
 export function WorkPermitDetails({
   permit,
   variant = 'light',
+  defaultOpen = false,
 }: {
   permit: WorkPermit;
   variant?: 'light' | 'dark';
+  defaultOpen?: boolean;
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(defaultOpen);
   const dark = variant === 'dark';
   const overdue = isWorkPermitOverdue(permit);
   const rows = buildRows(permit, t);
@@ -99,7 +107,12 @@ export function WorkPermitDetails({
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full flex-wrap items-center gap-2 text-left"
+      >
         <ShieldCheck className={`h-4 w-4 ${dark ? 'text-emerald-400' : 'text-emerald-600'}`} />
         <span className={`text-sm font-semibold ${valueClass}`}>
           {permit.permitNumber || t('common.workOrders.workPermit.defaultTitle')}
@@ -114,8 +127,13 @@ export function WorkPermitDetails({
             {t('common.workOrders.workPermit.overdueBadge')}
           </span>
         )}
-      </div>
+        <span className={`text-xs ${labelClass}`}>{categoryLabel(permit.category)}</span>
+        <ChevronDown
+          className={`ml-auto h-4 w-4 transition-transform ${labelClass} ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
 
+      {open && (
       <div className="space-y-1.5 text-sm">
         {rows
           .filter((r) => r.value != null && String(r.value).trim() !== '')
@@ -137,6 +155,7 @@ export function WorkPermitDetails({
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

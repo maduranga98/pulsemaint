@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft } from 'lucide-react';
 import {
   doc,
+  getDoc,
   updateDoc,
   addDoc,
   collection,
@@ -36,6 +38,32 @@ export function RequestDetailPage() {
 
   const { request, loading, error } = usePartsRequest(requestId);
 
+  // Supervisor-in-charge of the request's linked work order — an escalated
+  // request goes to them (see RequestReviewPanel).
+  const [woSupervisor, setWoSupervisor] = useState<{ id: string; name: string } | null>(null);
+  const linkedWoId = request?.workOrderId ?? null;
+  useEffect(() => {
+    if (!linkedWoId) {
+      setWoSupervisor(null);
+      return;
+    }
+    let cancelled = false;
+    getDoc(doc(db, 'workOrders', linkedWoId))
+      .then((snap) => {
+        if (cancelled) return;
+        const data = snap.data() as { supervisorInChargeId?: string; supervisorInChargeName?: string } | undefined;
+        setWoSupervisor(
+          data?.supervisorInChargeId ? { id: data.supervisorInChargeId, name: data.supervisorInChargeName ?? '' } : null,
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setWoSupervisor(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [linkedWoId]);
+
   if (loading) {
     return (
       <div className="space-y-5 animate-pulse">
@@ -60,6 +88,7 @@ export function RequestDetailPage() {
     );
   }
 
+
   // Handle a review decision.
   //  • approve / partial → deduct the approved quantities immediately and move
   //    the request into the "Parts to Collect" queue.
@@ -71,6 +100,8 @@ export function RequestDetailPage() {
     decision: 'approve' | 'partial' | 'escalate' | 'reject';
     notes?: string;
     escalationReason?: string;
+    escalateToSupervisorId?: string;
+    escalateToSupervisorName?: string;
     rejectionReason?: string;
     approvedQuantities?: Record<string, number>;
   }) {
@@ -168,6 +199,10 @@ export function RequestDetailPage() {
         // quantities so they can issue or adjust.
         await updateDoc(doc(db, 'partsRequests', request.id), {
           status: 'pending_supervisor',
+          // Only this supervisor is asked to act (the linked WO's
+          // supervisor-in-charge, or the one the store keeper picked).
+          escalatedToSupervisorId: payload.escalateToSupervisorId ?? null,
+          escalatedToSupervisorName: payload.escalateToSupervisorName ?? null,
           storeKeeperReview: reviewDoc,
           items: request.items.map((item) => ({ ...item, quantityApproved: approvedQtyFor(item) })),
           updatedAt: serverTimestamp(),
@@ -201,9 +236,14 @@ export function RequestDetailPage() {
           severity: 'medium', linkTo: link, ...actor,
         });
       } else if (decision === 'escalate') {
-        void notifyRoles(companyId, ['supervisor', 'plant_manager'], {
+        // Only the chosen supervisor (a recipient-less notification would be a
+        // company-wide broadcast, so fall back to the supervisor role).
+        const escalationNotice = payload.escalateToSupervisorId
+          ? (n: Parameters<typeof notifyUsers>[2]) => notifyUsers(companyId, [payload.escalateToSupervisorId!], n)
+          : (n: Parameters<typeof notifyRoles>[2]) => notifyRoles(companyId, ['supervisor'], n);
+        void escalationNotice({
           type: 'parts',
-          message: `Parts request ${request.requestNumber} needs supervisor approval`,
+          message: `Parts request ${request.requestNumber} needs your approval`,
           oversightMessage: `escalated parts request ${request.requestNumber} for approval`,
           severity: 'high', linkTo: link, ...actor,
         });
@@ -437,6 +477,7 @@ export function RequestDetailPage() {
 
       <RequestReviewPanel
         request={request}
+        woSupervisor={woSupervisor}
         onDecision={handleDecision}
         onCollection={handleCollection}
         onRequestReturn={handleRequestReturn}
