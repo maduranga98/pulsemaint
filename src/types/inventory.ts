@@ -291,6 +291,10 @@ export interface PartsRequest {
 
   storeKeeperReview: StoreKeeperReview | null;
   supervisorReview: SupervisorReview | null;
+  /** Supervisor an escalated request was sent to: the linked WO's
+   *  supervisor-in-charge, or the one the store keeper picked. */
+  escalatedToSupervisorId?: string | null;
+  escalatedToSupervisorName?: string | null;
 
   // Reason captured when a request is rejected during review.
   rejectionReason?: string | null;
